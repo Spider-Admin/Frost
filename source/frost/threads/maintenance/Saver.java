@@ -40,7 +40,7 @@ public class Saver extends Thread
     public void exitSave()
     {
         // save gui state + config file
-        frame1.getInstance().saveSettings();
+        Core.frostSettings.save();
     }
 
     /**
