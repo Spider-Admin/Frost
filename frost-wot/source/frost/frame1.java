@@ -2470,12 +2470,14 @@ public class frame1 extends JFrame implements ClipboardOwner
                 break;
             }
         }
-        System.out.println("*****************************************");
         if( nextBoard != null )
-            System.out.println("Automatic board update - starting update for: "+nextBoard.toString());
+        {
+            System.out.println("*** Automatic board update started for: "+nextBoard.toString());
+        }
         else
-            System.out.println("Automatic board update - no board to update");
-        System.out.println("*****************************************");
+        {
+            System.out.println("*** Automatic board update - no board to update.");
+        }
         return nextBoard;
     }
 

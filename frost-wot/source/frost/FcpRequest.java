@@ -738,7 +738,7 @@ public class FcpRequest
             tempFile = new File( target.getPath() + ".tmp" );
         }
 
-        if( DEBUG )
+/*        if( DEBUG )
         {
             String keyPrefix = "";
             if( key.indexOf("@") > -1 )  keyPrefix = key.substring(0, key.indexOf("@")+1);
@@ -747,11 +747,12 @@ public class FcpRequest
             String out = new StringBuffer().append("Retrieving ")
                          .append(keyPrefix)
                          .append("...")
-                         .append(keyUrl)
-                         .append(" to ")
-                         .append(tempFile.getPath()).toString();
+                         .append(keyUrl).toString();
+//                         .append(" to ")
+//                         .append(tempFile.getPath()).toString();
             System.out.println(out);
         }
+*/
         // First we just download the file, not knowing what lies ahead
         if( getKey(key, size, tempFile, htl) )
         {
@@ -835,11 +836,11 @@ public class FcpRequest
     public static boolean getKey(String key, String size, File target, int htl)
     {
         if( key.indexOf("null") != -1 ) return false;
-        String keyUrl = "";
+/*        String keyUrl = "";
         if( key.indexOf("/") > -1 )
         {
             keyUrl = key.substring(key.indexOf("/"));
-        }
+        }*/
         try
         {
             FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
@@ -887,24 +888,29 @@ public class FcpRequest
             intSize = -1;
         }
 
+
+        String printableKey = null;
+        if( DEBUG )
+        {
+            String keyPrefix = "";
+            if( key.indexOf("@") > -1 )  keyPrefix = key.substring(0, key.indexOf("@")+1);
+            String keyUrl = "";
+            if( key.indexOf("/") > -1 )  keyUrl = key.substring(key.indexOf("/"));
+            printableKey = new StringBuffer().append(keyPrefix)
+                                             .append("...")
+                                             .append(keyUrl).toString();
+        }
+
         if( target.length() > 0 )
         {
             if( intSize == -1 || target.length() == intSize || intSize >= chunkSize )
             {
-                if( DEBUG ) System.out.println("getKey: Key " +
-                                               key +
-                                               " (targetfile='"+
-                                               target.getName()+
-                                               " successfully downloaded :)");
+                if( DEBUG ) System.out.println("getKey - Success: " + printableKey );
                 return true;
             }
         }
         target.delete();
-        if( DEBUG ) System.out.println("getKey: Key " +
-                                       key +
-                                       " (targetfile='"+
-                                       target.getName()+
-                                       "') not found :(");
+        if( DEBUG ) System.out.println("getKey - Failed: " + printableKey );
         return false;
     }
 }
