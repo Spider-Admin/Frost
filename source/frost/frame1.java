@@ -1569,8 +1569,15 @@ public class frame1 extends JFrame implements ClipboardOwner
         // maybe get the files list
         if( !frostSettings.getBoolValue("disableRequests") )
         {
+            getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, null);
+            System.out.println("Starting update (BOARD_UPLOAD) of " + board.toString());
+
+        }
+	
+	if( !frostSettings.getBoolValue("disableDownloads") )
+        {
             getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, null);
-            System.out.println("Starting update (BOARD_FILES) of " + board.toString());
+            System.out.println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
 
         }
 
