@@ -344,7 +344,7 @@ static final Object[][] contents = {
 	//Logging (misc preferences panel)
 	{"Enable logging", "Activa logeado"},
 	{"Logging level", "Nivel de logeado"},
-	{"Log file size limit (in KB)", "Tamaño límite del fichero de log (en KB)"},
+	{"Log file size limit (in KB)", "Tamaño límite de los ficheros log (en KB)"},
 	{"Very high", "Muy alto"},
 	{"High", "Alto"},
 	{"Medium", "Medio"},
