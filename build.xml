@@ -26,6 +26,7 @@
   <property name="debug" value="true" /> <!-- Enabled to see the line number of an exception in stack trace -->
   <property name="deprecation" value="true" />
   <property name="optimize" value="false" /> <!-- Enabled to see the line number of an exception in stack trace -->
+  <property name="source" value = "1.4" /> <!-- yay, assertions! -->
 
   <!--  Set the properties related to the source tree -->
   <property name="src.dir" value="source"/>
@@ -127,6 +128,7 @@ Build log  : ${logfilename}</echo>
            debug="${debug}"
            deprecation="${deprecation}"
            optimize="${optimize}"
+	   source = "${source}"
            encoding="UTF8">
       <classpath refid="classpath" />
     </javac>
