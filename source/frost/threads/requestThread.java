@@ -223,7 +223,7 @@ public class requestThread extends Thread
         File[] files = checkDestination.listFiles( new FilenameFilter() {
                     public boolean accept(File dir, String name)
                     {
-                        if( name.endsWith(".req") )
+                        if( name.endsWith(".req.sha") )
                             return true;
                         return false;
                     } });

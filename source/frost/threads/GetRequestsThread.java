@@ -69,7 +69,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
         File makedir = new File(destination);
         if( !makedir.exists() )
         {
-            System.out.println("Creating directory: " + destination);
+            System.out.println(Thread.currentThread().getName()+ ": Creating directory: " + destination);
             makedir.mkdirs();
         }
 
@@ -120,7 +120,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             // Download successful?
             if( testMe.length() > 0 /* && justDownloaded */ )
             {
-                System.out.println("Received request " + testMe.getName());
+                System.out.println(Thread.currentThread().getName()+" Received request " + testMe.getName());
 
                 String content = (FileAccess.readFileRaw(testMe)).trim();
                 System.out.println("Request content is " + content);
@@ -167,7 +167,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
         }
         catch(Throwable t)
         {
-            System.out.println("Oo. EXCEPTION in GetRequestsThread:");
+            System.out.println(Thread.currentThread().getName()+": Oo. EXCEPTION in GetRequestsThread:");
             t.printStackTrace();
         }
         notifyThreadFinished(this);

@@ -17,6 +17,7 @@ public class BoardUpdateThreadObject extends Thread
 
     public BoardUpdateThreadObject(FrostBoardObject board)
     {
+    	super(board.getBoardName());
         this.targetBoard = board;
         this.registeredListeners = new Vector();
     }
