@@ -6,3 +6,4 @@ Other authors
 
 * Jan-Thomas Czornack <jantho@users.sourceforge.net> : Frost
 * Jim Hunziker <landtuna@users.sourceforge.net> : Frost
+* Thomas Mueller <thm2001@users.sourceforge.net> : Frost
