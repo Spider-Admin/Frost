@@ -31,6 +31,7 @@ import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.*;
+import frost.FcpTools.FcpInsert;
 
 public class MessageFrame extends JFrame
 {
@@ -302,7 +303,11 @@ public class MessageFrame extends JFrame
             File aChosedFile = af.getFile();
             FrostBoardObject boardObj = null;
             
-            SharedFileObject sfo = new SharedFileObject(aChosedFile, boardObj);
+            SharedFileObject sfo;
+            if (aChosedFile.length() > FcpInsert.smallestChunk)
+            	sfo = new FECRedirectFileObject(aChosedFile,boardObj);
+            else 
+            	sfo= new SharedFileObject(aChosedFile, boardObj);
 			if( addAttachedFilesToUploadTable.isSelected() )
 			{
 						sfo.setOwner(sign.isSelected() ?
