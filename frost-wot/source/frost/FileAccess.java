@@ -283,14 +283,36 @@ public class FileAccess
     }
 
     /**Returns an ArrayList of File objects with all Directories and files*/
-    public static File[] getAllEntries(File file, final String extension)
+    public static ArrayList getAllEntries(File file, final String extension)
     {
-        return file.listFiles( new FilenameFilter() {
-                   public boolean accept(File dir, String name) {
-                       if( name.endsWith( extension ) )
-                           return true;
-                       return false;
-                   } });
+        ArrayList files = new ArrayList();
+        getAllFiles(file, extension, files);
+        return files;
+    }
+
+    /**
+     * Returns all files starting from given directory/file that have a given extension.
+     */
+    private static void getAllFiles(File file, String extension, ArrayList filesLst)
+    {
+        if( file != null )
+        {
+            if( file.isDirectory() )
+            {
+                File[] dirfiles = file.listFiles();
+                if( dirfiles != null )
+                {
+                    for( int i = 0; i < dirfiles.length; i++ )
+                    {
+                        getAllFiles(dirfiles[i], extension, filesLst); // process recursive
+                    }
+                }
+            }
+            if( file.getName().endsWith(extension) )
+            {
+                filesLst.add( file );
+            }
+        }
     }
 
     /**
