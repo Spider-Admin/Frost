@@ -144,4 +144,11 @@ public class SearchManager implements PropertyChangeListener {
 		return keypool;
 	}
 
+	/**
+	 * @return
+	 */
+	public SettingsClass getSettings() {
+		return settings;
+	}
+
 }
