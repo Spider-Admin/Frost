@@ -5,6 +5,8 @@ import java.util.logging.*;
 
 import org.shiftone.cache.*;
 
+import frost.messages.MessageCreationException;
+
 /**
  * There is a single instance of the class <code>FrostmessageFactory</code>,
  * accessed through the static method {@link #getInstance()}.
@@ -60,15 +62,21 @@ public class FrostMessageFactory {
 		return instance;
 	}
 
-	public static FrostMessageObject createFrostMessageObject(File messageFile) throws Exception {
+	/**
+	 * @param messageFile
+	 * @return
+	 * @throws MessageCreationException
+	 */
+	public static FrostMessageObject createFrostMessageObject(File messageFile) throws MessageCreationException {
 		return getInstance().innerCreateFrostMessageObject(messageFile);
 	}
 
 	/**
 	 * @param messageFile
 	 * @return
+	 * @throws MessageCreationException
 	 */
-	private FrostMessageObject innerCreateFrostMessageObject(File messageFile) throws Exception {
+	private FrostMessageObject innerCreateFrostMessageObject(File messageFile) throws MessageCreationException {
 		if (cache != null) {
 			Object messageObject = cache.getObject(messageFile);
 			if (messageObject != null) {

@@ -77,9 +77,9 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 
     /**
      * @param file
-     * @throws Exception
+     * @throws MessageCreationException
      */
-    public VerifyableMessageObject(File file) throws Exception {
+    public VerifyableMessageObject(File file) throws MessageCreationException {
 		super(file); // throws exception if loading failed
 		File sigFile = new File(file.getPath() + ".sig");
 		if (!sigFile.exists()) {
