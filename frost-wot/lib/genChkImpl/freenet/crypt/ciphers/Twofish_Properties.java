@@ -97,9 +97,9 @@ if (GLOBAL_DEBUG) System.err.println(">>> " + NAME + ": Default properties now s
         out.println("# ----- Begin "+ALGORITHM+" properties -----");
         out.println("#");
         String key, value;
-        Enumeration enum = properties.propertyNames();
-        while (enum.hasMoreElements()) {
-            key = (String) enum.nextElement();
+        Enumeration enumeration = properties.propertyNames();
+        while (enumeration.hasMoreElements()) {
+            key = (String) enumeration.nextElement();
             value = getProperty(key);
             out.println(key + " = " + value);
         }
