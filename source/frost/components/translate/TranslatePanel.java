@@ -48,9 +48,8 @@ public class TranslatePanel extends JPanel {
     JPanel contentPanel;
 
     //Table for original text and translation
-    DefaultTableModel tableModel = new DefaultTableModel();
+    TranslateTableModel tableModel = new TranslateTableModel();
     JTable table = new JTable(tableModel);
-    Vector columnHeader = new Vector();
     JScrollPane scrollPane = new JScrollPane(table);
 
     //ToolBar
@@ -73,10 +72,6 @@ public class TranslatePanel extends JPanel {
 	toolBar.add(comboBox);
 	toolBar.add(saveButton);
 	toolBar.add(loadButton);
-
-	columnHeader.add("Hardcoded text");
-	columnHeader.add("Translation");
-	tableModel.setColumnIdentifiers(columnHeader);
 
 	contentPanel = this;
 	contentPanel.setLayout(new BorderLayout());		

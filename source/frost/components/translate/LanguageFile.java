@@ -32,7 +32,7 @@ public class LanguageFile {
      * Generates the complete class file with comments
      * that can directly be compiled with frost.
      */
-    public static String generateFile(DefaultTableModel tableModel, String languageCode) {
+    public static String generateFile(TranslateTableModel tableModel, String languageCode) {
 	StringBuffer content = new StringBuffer();
 	int rowCount = tableModel.getRowCount();
 	
@@ -90,9 +90,9 @@ public class LanguageFile {
      * a DeaultTableModel.
      * @param tableModel Empty table
      * @param locale Language locale, normaly two letters (for example de for german)
-     * @return DefaultTableModel with content from language file
+     * @return TranslateTableModel with content from language file
      */
-    public static DefaultTableModel readLanguageFile(DefaultTableModel tableModel, File file) {	
+    public static TranslateTableModel readLanguageFile(TranslateTableModel tableModel, File file) {	
 	String content = ReadAccess.readFile(file);
 	String originalText = new String();
 	String translatedText = new String();
