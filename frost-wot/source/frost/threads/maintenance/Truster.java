@@ -102,9 +102,9 @@ public class Truster extends Thread
             return;
         }
 
-        // get all .txt files in keypool
+        // get all .xml files in keypool
         ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
-                                                   ".txt");
+                                                   ".xml");
         System.out.println("Truster: Starting to update messages:");
 
         for( int ii=0; ii<entries.size(); ii++ )
