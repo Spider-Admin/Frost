@@ -4,14 +4,24 @@
  */
 package frost.storage;
 
+import frost.SettingsClass;
 import frost.identities.*;
-import frost.identities.IdentitiesHsqldbDAO;
 
 /**
  * @author $author$
  * @version $revision$
  */
 public class HsqldbDAOFactory extends DAOFactory {
+	
+	private SettingsClass settings;
+	
+	/**
+	 * @param settings
+	 */
+	protected HsqldbDAOFactory(SettingsClass settings) {
+		this.settings = settings;
+	}
+
 	/* (non-Javadoc)
 	 * @see frost.storage.DAOFactory#getIdentitiesDAO()
 	 */

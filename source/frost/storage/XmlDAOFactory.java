@@ -4,14 +4,24 @@
  */
 package frost.storage;
 
+import frost.SettingsClass;
 import frost.identities.*;
-import frost.identities.IdentitiesXmlDAO;
 
 /**
  * @author $author$
  * @version $revision$
  */
 public class XmlDAOFactory extends DAOFactory {
+	
+	private SettingsClass settings;
+	
+	/**
+	 * @param settings
+	 */
+	protected XmlDAOFactory(SettingsClass settings) {
+		this.settings = settings;
+	}
+
 	/* (non-Javadoc)
 	 * @see frost.storage.DAOFactory#getIdentitiesDAO()
 	 */
