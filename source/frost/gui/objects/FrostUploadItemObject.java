@@ -69,12 +69,15 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public Object getValueAt(int column)
     {
         switch(column) {
-            case 0: return fileName;               //LangRes.getString("Filename"),
+            case 0: 
+	    	if (SHA1 == null)
+			return "<html><font color=\"gray\">"+fileName+"</font></html>";
+		else return "<html><b>"+fileName+"</b></html>";               //LangRes.getString("Filename"),
             case 1: return fileSize;               //LangRes.getString("Size"),
             case 2: return getStateString(state);  //LangRes.getString("Last upload"),
             case 3: return filePath;               //LangRes.getString("Path"),
             case 4: return targetBoard.toString(); //LangRes.getString("Destination"),
-            case 5: return ((key==null) ? LangRes.getString("Unknown") : key); //LangRes.getString("Key")
+            //case 5: return ((key==null) ? LangRes.getString("Unknown") : key); //LangRes.getString("Key")
         }
         return "*ERR*";
     }
@@ -88,6 +91,7 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
 
     public String getFileName()
     {
+    	
         return fileName;
     }
     public void setFileName( String val )

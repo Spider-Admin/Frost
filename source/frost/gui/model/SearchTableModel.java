@@ -28,7 +28,7 @@ public class SearchTableModel extends SortedTableModel
         LangRes.getString("Filename"),
         LangRes.getString("Size"),
         LangRes.getString("Age"),
-        LangRes.getString("Key"),
+        LangRes.getString("From"),
         LangRes.getString("Board")
     };
     protected final static Class columnClasses[] = {

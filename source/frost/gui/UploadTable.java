@@ -19,7 +19,7 @@ public class UploadTable extends SortedTable
     {
         super(m);
         // set column sizes
-        int[] widths = {250, 80, 80, 80, 80, 80};
+        int[] widths = {250, 80, 80, 80, 80};
         for (int i = 0; i < widths.length; i++)
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
@@ -133,13 +133,15 @@ public class UploadTable extends SortedTable
         for( int i = 0; i < tableModel.getRowCount(); i++ )
         {
             FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( i );
-            if( ulItem.getKey() != null && ulItem.getKey().startsWith("CHK@") )
+            if( ulItem.getSHA1() != null)
             {
-                KeyClass newKey = new KeyClass( ulItem.getKey() );
+                KeyClass newKey = new KeyClass();
                 newKey.setFilename( ulItem.getFileName() );
                 newKey.setSize( ulItem.getFileSize().toString() ); // TODO: pass object, not string
                 newKey.setDate( date );
                 newKey.setExchange(false);
+		if (ulItem.getKey() !=null)
+			newKey.setKey(ulItem.getKey());
                 Index.add( newKey, new File(frame1.keypool + ulItem.getTargetBoard().getBoardFilename() ) );
             }
         }
@@ -190,8 +192,8 @@ public class UploadTable extends SortedTable
         for( int x=0; x<model.getRowCount(); x++ )
         {
             FrostUploadItemObject ulItem = (FrostUploadItemObject)model.getRow(x);
-            if( ulItem.getKey() != null &&
-                ulItem.getKey().equals( key ) )
+            if( ulItem.getSHA1() != null &&
+                ulItem.getSHA1().equals( key ) )
             {
                 return true;
             }

@@ -81,7 +81,7 @@ public class FileAccess
             String size = new String();
             String date = new String();
             String key = new String();
-	    String SHA1 = new String();
+	    String SHA1 = null;
 	    String owner = new String();
             int counter = 0;
 	    

@@ -343,6 +343,13 @@ System.out.println("ERROR saving upload table!");
             element.appendChild( cdata );
             itemElement.appendChild( element );
         }
+	if( ulItem.getSHA1() != null )
+        {
+            element = doc.createElement("SHA1");
+            cdata = doc.createCDATASection( ulItem.getSHA1() );
+            element.appendChild( cdata );
+            itemElement.appendChild( element );
+        }
         // lastUploadDate
         if( ulItem.getLastUploadDate() != null )
         {
