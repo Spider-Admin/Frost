@@ -7,6 +7,7 @@
 package frost.threads.maintenance;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
@@ -15,6 +16,8 @@ import frost.threads.BoardUpdateThread;
 
 public class checkForSpam extends TimerTask
 {
+	private static Logger logger = Logger.getLogger(checkForSpam.class.getName());
+	
 	private final Core core;
 	/**
 	 * @param Core
@@ -34,7 +37,7 @@ public class checkForSpam extends TimerTask
                 if (current.getBlockedCount() > Core.frostSettings.getIntValue("spamTreshold"))
                 {
                     //board is spammed
-                    System.out.println("######### board '"+current.toString()+"' is spammed, update stops for 24h ############");
+                    logger.warning("######### board '" + current.toString() + "' is spammed, update stops for 24h ############");
                     current.setSpammed(true);
                     // clear spam status in 24 hours
                     Core.schedule(new ClearSpam(core, current),24*60*60*1000);
