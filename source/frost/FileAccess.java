@@ -21,6 +21,7 @@ package frost;
 import java.awt.Component;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 import java.util.zip.*;
 
 import javax.swing.JFileChooser;
@@ -30,6 +31,9 @@ import org.w3c.dom.Document;
 import frost.messages.*;
 public class FileAccess
 {
+	
+	private static Logger logger = Logger.getLogger(FileAccess.class.getName());
+	
 	/**
 	 * Writes a file to disk after opening a saveDialog window
 	 * @param parent The parent component, often 'this' can be used
@@ -101,7 +105,7 @@ public class FileAccess
             fileOut.close();
         }
         catch( IOException e ) {
-            Core.getOut().println("writeByteArray: " + e);
+			logger.log(Level.SEVERE, "Exception thrown in writeByteArray(byte[] data, File file)", e);
         }
     }
 
@@ -141,7 +145,7 @@ public class FileAccess
             return data;
         }
         catch( IOException e ) {
-            System.err.println(e);
+			logger.log(Level.SEVERE, "Exception thrown in readByteArray(File file)", e);
         }
         return null;
     }
@@ -165,7 +169,7 @@ public class FileAccess
         }
         catch( IOException e )
         {
-        	e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in read(String path)", e);
             return("Read Error");
         }
         return content.toString();
@@ -215,9 +219,8 @@ public class FileAccess
     	if (content.length==0) {
     		Exception e = new Exception();
     		e.fillInStackTrace();
-    		Core.getOut().println("Tried to zip an empty file!  Send this output to a dev"+
-    									" and describe what you were doing.");
-    		e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Tried to zip an empty file!  Send this output to a dev"+
+    									" and describe what you were doing.", e);
     		return;
     	}
         try {
@@ -233,7 +236,7 @@ public class FileAccess
             fos.close();
         }
         catch( IOException e ) {
-            Core.getOut().println("files.writeZipFile: " + e);
+			logger.log(Level.SEVERE, "Exception thrown in writeZipFile(byte[] content, String entry, File file)", e);
         }
     }
 
@@ -321,14 +324,14 @@ public class FileAccess
 				return resultbytes;
 			}
 			catch( IOException e ) {
-				e.printStackTrace(Core.getOut());
-				Core.getOut().println("offending file saved as badfile.zip, send to a dev for analysis");
+				logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" + 
+										 "Offending file saved as badfile.zip, send to a dev for analysis", e);
 				File badFile = new File("badfile.zip");
 				file.renameTo(badFile);
 			}
 		}
 		catch( FileNotFoundException e ) {
-			Core.getOut().println("files.readZipFile: " + e);
+			logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path)", e);
 		}
 		return null;
     }
@@ -356,8 +359,7 @@ public class FileAccess
             f.close();
         }
         catch( IOException e ) {
-        	e.printStackTrace(Core.getOut());
-            Core.getOut().println("Read Error: " + path);
+			logger.log(Level.SEVERE, "Exception thrown in readLines(String path)", e);
         }
         return data;
     }
@@ -388,8 +390,7 @@ public class FileAccess
         }
         catch( IOException e )
         {
-        	e.printStackTrace(Core.getOut());
-            Core.getOut().println("Read Error: " + path);
+			logger.log(Level.SEVERE, "Exception thrown in readFile(String path)", e);
         }
         return stringBuffer.toString();
     }
@@ -412,8 +413,7 @@ public class FileAccess
 			}
 			reader.close();
 		} catch (IOException e) {
-			e.printStackTrace(Core.getOut());
-			Core.getOut().println("Read Error: " + path);
+			logger.log(Level.SEVERE, "Exception thrown in readFile(String path, String encoding)", e);
 		}
 		return stringBuffer.toString();
 	}
@@ -441,7 +441,7 @@ public class FileAccess
             f1.close();
         }
         catch( IOException e ) {
-            Core.getOut().println("Write Error: " + file.getPath());
+			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
         }
     }
     
@@ -462,7 +462,7 @@ public class FileAccess
 			outputWriter.close();
 			inputReader.close();
 		} catch (IOException e) {
-			Core.getOut().println("Write Error: " + file.getPath());
+			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
 		}
 	}
 
@@ -538,15 +538,15 @@ public class FileAccess
             try {
                 d = XMLTools.parseXmlFile(source.getPath(), false);
             } catch (IllegalArgumentException t) {
-            	t.printStackTrace(Core.getOut());
+				logger.log(Level.SEVERE, "Exception thrown in readKeyFile(File source): \n" + 
+										 "Offending file saved as badfile.xml - send it to a dev for analysis", t);
             	File badfile = new File("badfile.xml");
             	source.renameTo(badfile);
-            	Core.getOut().println("offending file saved as badfile.xml - send it to a dev for analysis");
             }
 
             if (d == null)
             {
-                Core.getOut().println("Couldn't parse index file.");
+                logger.warning("Couldn't parse index file.");
                 return null;
             }
 
@@ -584,7 +584,7 @@ public class FileAccess
                 if (!newKey.isValid())
                 {
                 	i.remove();
-                    Core.getOut().println("invalid key found");
+                    logger.warning("invalid key found");
                     continue;
                 }
 
@@ -634,7 +634,7 @@ public class FileAccess
         if( itemsAppended == 0 )
         {
             // don't write file
-        	Core.getOut().println("writeKeyFile called with no files to add?");
+        	logger.warning("writeKeyFile called with no files to add?");
             return;
         }
         
@@ -646,8 +646,7 @@ public class FileAccess
             writeOK = XMLTools.writeXmlFile(doc, tmpFile.getPath());
         } catch(Throwable t)
         {
-            System.out.println("Exception - writeKeyFile:");
-            t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in writeKeyFile(FrostIndex idx, File destination)", t);
         }
 
         if( writeOK )

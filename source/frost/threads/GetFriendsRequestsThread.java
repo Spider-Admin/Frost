@@ -20,6 +20,7 @@ package frost.threads;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.Logger;
 
 import frost.*;
 import frost.FcpTools.FcpRequest;
@@ -32,6 +33,8 @@ import frost.messages.SharedFileObject;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class GetFriendsRequestsThread extends TimerTask {
+
+	private static Logger logger = Logger.getLogger(GetFriendsRequestsThread.class.getName());
 
 	Set prefixes;
 
@@ -58,7 +61,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 			//Core.getOut().println("helper analyzing index at " + current.getPath());
 			set.addAll(FileAccess.readKeyFile(current).getFiles());
 		}
-		Core.getOut().println("helper will traverse through " + set.size()+" files against "+
+		logger.info("helper will traverse through " + set.size() + " files against " +
 					Core.getFriends().size() + " friends ");
 		//get the prefixes of the good people
 		it = set.iterator();
@@ -95,11 +98,11 @@ public class GetFriendsRequestsThread extends TimerTask {
 	}
 
 	public void run() {
-		Core.getOut().println("starting to request requests for friends");
+		logger.info("starting to request requests for friends");
 		prefixes = new HashSet();
 		generatePrefixes();
 		
-		Core.getOut().println("will help total of "+ prefixes.size() +" batches");
+		logger.info("will help total of " + prefixes.size() + " batches");
 		Iterator it = prefixes.iterator();
 		File tempFile = new File("requests"+File.separator+"helper");
 		//try {
@@ -119,7 +122,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 				do{
 					index++;
 					slot = currentPrefix +"-"+date+"-"+index+".req.sha";
-					Core.getOut().println("friend's request address is "+slot);
+					logger.fine("friend's request address is " + slot);
 					tempFile.delete();
 					
 				} while(FcpRequest.getFile(slot,
@@ -130,12 +133,12 @@ public class GetFriendsRequestsThread extends TimerTask {
 					false) //deep request
 					!= null ); //break when dnfs
 			
-			Core.getOut().println("batch of "+currentPrefix+ " had "+ index + " requests");
+			logger.fine("batch of " + currentPrefix + " had " + index + " requests");
 		}
 		tempFile.delete();
 		prefixes = null;
 		//Core.schedule(this,3*60*60*1000); //3 hrs	
-		Core.getOut().println("finishing requesting friend's requests");
+		logger.info("finishing requesting friend's requests");
 	}
 
 }

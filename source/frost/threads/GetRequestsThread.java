@@ -20,6 +20,7 @@ package frost.threads;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.JTable;
 
@@ -35,6 +36,8 @@ public class GetRequestsThread extends Thread
 {
     static java.util.ResourceBundle LangRes =
         java.util.ResourceBundle.getBundle("res.LangRes");
+
+	private static Logger logger = Logger.getLogger(GetRequestsThread.class.getName());
 
     //public FrostBoardObject board;
     private int downloadHtl;
@@ -59,7 +62,7 @@ public class GetRequestsThread extends Thread
 			try{
 				todaysRequests.join();
 			}catch (InterruptedException e){
-				e.printStackTrace(Core.getOut());
+				logger.log(Level.SEVERE, "Exception thrown in run()", e);
 			}
     	} 	
         // notifyThreadStarted(this);
@@ -93,10 +96,7 @@ public class GetRequestsThread extends Thread
             File makedir = new File(destination);
             if (!makedir.exists())
             {
-                Core.getOut().println(
-                    Thread.currentThread().getName()
-                        + ": Creating directory: "
-                        + destination);
+               logger.info(Thread.currentThread().getName() + ": Creating directory: " + destination);
                 makedir.mkdirs();
             }
 
@@ -165,7 +165,7 @@ public class GetRequestsThread extends Thread
                                         .append(", failures = ")
                                         .append(failures)
                                         .toString();
-                                Core.getOut().println(tmp);
+                                logger.fine(tmp);
 
                                 FcpRequest.getFile(
                                     "KSK@frost/request/"
@@ -186,14 +186,14 @@ public class GetRequestsThread extends Thread
                             if (testMe.length() > 0 /* && justDownloaded */
                                 )
                             {
-                                Core.getOut().println(
+                                logger.fine(
                                     Thread.currentThread().getName()
                                         + " Received request "
                                         + testMe.getName());
 
                                 String content =
                                     (FileAccess.readFileRaw(testMe)).trim();
-                                Core.getOut().println(
+                                logger.fine(
                                     "Request content is " + content);
                                 UploadTableModel tableModel =
                                     (UploadTableModel)uploadTable.getModel();
@@ -214,7 +214,7 @@ public class GetRequestsThread extends Thread
                                     //Core.getOut().println("comparing requested "+content + " with "+SHA1);
                                     if (SHA1.equals(content))
                                     {
-                                    	Core.getOut().println("content matched!");
+                                    	logger.fine("content matched!");
                                         // ? is'nt it possible to use uploadItem.getLastUploadData for this?
                                         // probably, this .lck thing is jantho's style 
                                         File requestLock =
@@ -231,7 +231,7 @@ public class GetRequestsThread extends Thread
                                                     != FrostUploadItemObject
                                                         .STATE_PROGRESS) //TOTHINK: this is optional
                                             {
-                                                Core.getOut().println(
+                                                logger.fine(
                                                     "Request matches row " + i);
                                                 if (ulItem.getState()
                                                     == FrostUploadItemObject
@@ -248,11 +248,11 @@ public class GetRequestsThread extends Thread
                                                             .STATE_REQUESTED);
                                                 }
                                                 tableModel.updateRow(ulItem);
-                                            } else Core.getOut().println("file was in state uploading/progress");
+                                            } else logger.fine("file was in state uploading/progress");
                                         }
                                         else
                                         {
-                                            Core.getOut().println(
+                                            logger.info(
                                                 "File with hash "
                                                     + SHA1
                                                     + " was requested, but already uploaded today");
@@ -285,10 +285,8 @@ public class GetRequestsThread extends Thread
         } //people with nice ides can refactor :-P
         catch (Throwable t)
         {
-            Core.getOut().println(
-                Thread.currentThread().getName()
-                    + ": Oo. EXCEPTION in GetRequestsThread:");
-            t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE,  Thread.currentThread().getName() +
+						": Oo. EXCEPTION in GetRequestsThread:", t);
         }
 
         //notifyThreadFinished(this);
