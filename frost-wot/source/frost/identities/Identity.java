@@ -8,7 +8,7 @@ import org.xml.sax.SAXException;
 
 import frost.*;
 import frost.FcpTools.FcpConnection;
-import frost.messages.BoardAttachment;
+import frost.messages.*;
 
 /**
  * Represents a user identity, should be immutable.
@@ -133,8 +133,8 @@ public class Identity implements SafeXMLizable
 				List _board = XMLTools.getChildElementsByTagName(e,"Attachment");
 				if (_board.size() > 0)
 					try{
-						board = new BoardAttachment((Element)_board.get(0));
-					}catch(SAXException ex){
+						board = (BoardAttachment)Attachment.getInstance((Element)(_board.get(0)));
+					}catch(ClassCastException ex){
 						ex.printStackTrace(Core.getOut());
 						board =null;
 					}	
