@@ -22,14 +22,14 @@ import javax.swing.text.Document;
 
 //TODO: Bug: if the text contains arabic characters, antialias will be disabled
 
-public class JAATextArea extends JTextArea {
+public class MessageTextArea extends JTextArea {
 
 	private boolean antiAliasEnabled = false;
 
 	/**
 	 * 
 	 */
-	public JAATextArea() {
+	public MessageTextArea() {
 		super();
 	}
 
@@ -37,14 +37,14 @@ public class JAATextArea extends JTextArea {
 	 * @param rows
 	 * @param columns
 	 */
-	public JAATextArea(int rows, int columns) {
+	public MessageTextArea(int rows, int columns) {
 		super(rows, columns);
 	}
 
 	/**
 	 * @param text
 	 */
-	public JAATextArea(String text) {
+	public MessageTextArea(String text) {
 		super(text);
 	}
 
@@ -53,14 +53,14 @@ public class JAATextArea extends JTextArea {
 	 * @param rows
 	 * @param columns
 	 */
-	public JAATextArea(String text, int rows, int columns) {
+	public MessageTextArea(String text, int rows, int columns) {
 		super(text, rows, columns);
 	}
 
 	/**
 	 * @param doc
 	 */
-	public JAATextArea(Document doc) {
+	public MessageTextArea(Document doc) {
 		super(doc);
 	}
 
@@ -70,7 +70,7 @@ public class JAATextArea extends JTextArea {
 	 * @param rows
 	 * @param columns
 	 */
-	public JAATextArea(Document doc, String text, int rows, int columns) {
+	public MessageTextArea(Document doc, String text, int rows, int columns) {
 		super(doc, text, rows, columns);
 	}
 

@@ -1164,7 +1164,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel contentAreaPanel = null;
 	JPanel optionsGroupsPanel = null;
 
-	JAATextArea tofTextArea = new JAATextArea(4, 50);
+	MessageTextArea tofTextArea = new MessageTextArea(4, 50);
 
 	JTextField tofUploadHtlTextField = new JTextField(5);
 	JTextField tofDownloadHtlTextField = new JTextField(5);
