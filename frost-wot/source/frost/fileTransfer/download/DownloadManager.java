@@ -88,7 +88,7 @@ public class DownloadManager implements PropertyChangeListener {
 	public DownloadTable getTable() {
 		if (table == null) {
 			DownloadTableModel downloadTableModel = new DownloadTableModel(languageResource);
-			table = new DownloadTable(downloadTableModel);
+			table = new DownloadTable(downloadTableModel, settings);
 		}
 		return table;
 	}

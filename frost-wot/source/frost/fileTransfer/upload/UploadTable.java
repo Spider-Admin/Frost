@@ -14,13 +14,17 @@ import frost.threads.maintenance.Savable;
 
 public class UploadTable extends SortedTable implements Savable
 {
+	private SettingsClass settings;
+
 	private static Logger logger = Logger.getLogger(UploadTable.class.getName());
 	
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
-    public UploadTable(UploadTableModel m)
+    public UploadTable(UploadTableModel m, SettingsClass frostSettings)
     {
         super(m);
+        
+        settings = frostSettings;
        
         // default for sort: sort by ... ?
         sortedColumnIndex = 0;
@@ -140,7 +144,7 @@ public class UploadTable extends SortedTable implements Savable
 	Random r = new Random();
 	String date = DateFun.getDate();
 	String batchId=(new Long(r.nextLong())).toString();
-	int maxBatchSize = frame1.frostSettings.getIntValue("uploadBatchSize"); 
+	int maxBatchSize = settings.getIntValue("uploadBatchSize"); 
 	
 	
         UploadTableModel tableModel = (UploadTableModel)getModel();
@@ -177,7 +181,7 @@ public class UploadTable extends SortedTable implements Savable
      */
     public boolean load()
     {
-        String filename = frame1.frostSettings.getValue("config.dir") + "uploads.xml";
+        String filename = settings.getValue("config.dir") + "uploads.xml";
         // the call changes the tablemodel and loads nodes into it
         File iniFile = new File(filename);
         if( iniFile.exists() == false )
@@ -192,12 +196,12 @@ public class UploadTable extends SortedTable implements Savable
      */
     public boolean save()
     {
-        String filename = frame1.frostSettings.getValue("config.dir") + "uploads.xml";
+        String filename = settings.getValue("config.dir") + "uploads.xml";
         File check = new File( filename );
         if( check.exists() )
         {
             // rename old file to .bak, overwrite older .bak
-            String bakFilename = frame1.frostSettings.getValue("config.dir") + "uploads.xml.bak";
+            String bakFilename = settings.getValue("config.dir") + "uploads.xml.bak";
             File bakFile = new File(bakFilename);
             if( bakFile.exists() )
             {

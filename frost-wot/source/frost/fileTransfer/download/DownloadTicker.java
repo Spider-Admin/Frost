@@ -142,7 +142,7 @@ public class DownloadTicker extends Thread {
 				dlItem.setState(FrostDownloadItemObject.STATE_TRYING);
 				dlModel.updateRow(dlItem);
 
-				DownloadThread newRequest = new DownloadThread(this, dlItem, table);
+				DownloadThread newRequest = new DownloadThread(this, dlItem, table, settings);
 				newRequest.start();
 			}
 		}
