@@ -109,33 +109,31 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	}
 
 	/**
-	 * @return
+	 * This method returns true if this board has new messages. In case
+	 * this board is a folder, it recurses all folders and boards within
+	 * and returns true if any of them have new messages. It returns false
+	 * otherwise.
+	 * @return true if there are new messages. False otherwise.
 	 */
-	public boolean containsFolderNewMessages() {
-		Board board = this;
-		int childs = getChildCount(); 
-		boolean newMessage = false;
-
-		for (int c = 0; c < childs; c++) {
-			Board childBoard = (Board) board.getChildAt(c);
-			if ((childBoard.isFolder() && childBoard.containsFolderNewMessages())
-				|| childBoard.containsNewMessage()) {
-				newMessage = true;
-				break;
+	public boolean containsNewMessages() {
+		if (!isFolder) {
+			// This is a board.
+			if (getNewMessageCount() > 0) {
+				return true;
+			} else {
+				return false;
 			}
+		} else {
+			for (int i = 0; i < getChildCount(); i++) {
+				Board child = (Board) getChildAt(i);
+				if (child.containsNewMessages()) {
+					return true;
+				}
+			}
+			return false;
 		}
-		return newMessage;
 	}
 
-	/**
-	 * @return
-	 */
-	public boolean containsNewMessage() {
-		if (getNewMessageCount() > 0)
-			return true; 
-		return false;
-	}
-	
 	/**
 	 * 
 	 */
@@ -310,21 +308,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 			return "public board";
 		}
 		return "*ERROR*";
-	}
-
-	/**
-	 * Returns the String that is shown in tree.
-	 * Appends new message count in brackets behind board name.
-	 */
-	public String getVisibleText() {
-		if (getNewMessageCount() == 0) {
-			return getName();
-		}
-
-		StringBuffer sb = new StringBuffer();
-		sb.append(getName()).append(" (").append(getNewMessageCount()).append(")");
-
-		return sb.toString();
 	}
 
 	/**
@@ -530,13 +513,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	 */
 	public void sortChildren() {
 		Collections.sort(children);
-	}
-
-	/* (non-Javadoc)
-	 * @see java.lang.Object#toString()
-	 */
-	public String toString() {
-		return boardName;
 	}
 
 }
