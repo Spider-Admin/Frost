@@ -26,6 +26,7 @@ import javax.swing.tree.*;
 
 import org.w3c.dom.*;
 
+import frost.*;
 import frost.XMLTools;
 import frost.gui.objects.FrostBoardObject;
 
@@ -398,34 +399,36 @@ public class TofTreeXmlIO
     {
         Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
         Element element;
-        Text text;
+        
+        CDATASection cdata;
+        
         // <name>
         element = doc.createElement("name");
-        text = doc.createTextNode( board.toString() );
-        element.appendChild( text );
+        cdata = doc.createCDATASection(Mixed.makeSafeXML(board.toString()));
+        element.appendChild( cdata );
         rootBoardElement.appendChild( element );
         // pubkey
         if( board.getPublicKey() != null )
         {
             element = doc.createElement("publicKey");
-            text = doc.createTextNode( board.getPublicKey() );
-            element.appendChild( text );
+			cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getPublicKey()));
+            element.appendChild( cdata );
 			rootBoardElement.appendChild( element );
         }
         // privkey
         if( board.getPrivateKey() != null )
         {
             element = doc.createElement("privateKey");
-            text = doc.createTextNode( board.getPrivateKey() );
-            element.appendChild( text );
+			cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getPrivateKey()));
+            element.appendChild( cdata );
 			rootBoardElement.appendChild( element );
         }
 		// description
 		 if( board.getDescription() != null )
 		 {
 			 element = doc.createElement("description");
-			 text = doc.createTextNode( board.getDescription() );
-			 element.appendChild( text );
+			 cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getDescription()));
+			 element.appendChild( cdata );
 			rootBoardElement.appendChild( element );
 		 }
         // <config />
@@ -461,7 +464,7 @@ public class TofTreeXmlIO
         if( board.getLastUpdateStartMillis() > 0 )
         {
             element = doc.createElement("lastUpdateStartedMillis");
-            text = doc.createTextNode( "" + board.getLastUpdateStartMillis() );
+			Text text = doc.createTextNode( "" + board.getLastUpdateStartMillis() );
             element.appendChild( text );
             rootBoardElement.appendChild( element );
         }
