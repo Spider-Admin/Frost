@@ -8,7 +8,7 @@ import java.io.*;
 import java.util.Random;
 
 /*
-  This code is part of the Java Adaptive Network Client by Ian Clarke. 
+  This code is part of the Java Adaptive Network Client by Ian Clarke.
   It is distributed under the GNU Public Licence (GPL) version 2.  See
   http://www.gnu.org/ for further details of the GPL.
 */
@@ -22,10 +22,10 @@ public class Util {
         Twofish.class.toString();
         Rijndael.class.toString();
     }
-    
+
     //public static char[] HEXCHARSET="0123456789abcdef".toCharArray();
     protected static final int BUFFER_SIZE=32768;
-    
+
 /*
     static String quantityToHexString(long n, int quartets) {
         StringBuffer b=new StringBuffer();
@@ -36,7 +36,7 @@ public class Util {
         b.reverse();
         return b.toString();
     }
-    
+
     public static String intToHexString(int n) {
         return quantityToHexString(n, 8);
     }
@@ -63,7 +63,7 @@ public class Util {
         if ((s.length() % 2) != 0) {
             s="0"+s;
         }
-            
+
         byte[] out = new byte[s.length() / 2];
         byte b;
         for (int i=0; i < s.length(); i++) {
@@ -86,7 +86,7 @@ public class Util {
         StringBuffer sb = new StringBuffer();
         for (int i = 0; i < bs.length; i++) {
             char c1, c2;
-                
+
             c1 = (char) ((bs[i] >>> 4) & 0xf);
             c2 = (char) (bs[i] & 0xf);
             c1 = (char) ((c1 > 9) ? 'A' + (c1 - 10) : '0' + c1);
@@ -120,7 +120,7 @@ public class Util {
             bytes[ic++]=(byte)ints[i];
         }
     }
-    
+
     public static void fillIntArrayFromBytes(byte[] bytes, int[] ints) {
         int ic=0;
         for (int i=0; i<(ints.length<<2); i+=4) {
@@ -132,7 +132,7 @@ public class Util {
     public static void fillLongArrayFromBytes(byte[] bytes, long[] longs) {
         int ic=0;
         for (int i=0; i<(longs.length<<3); i+=8) {
-            longs[ic++]= 
+            longs[ic++]=
                 (long)bytes[i] + ((long)bytes[i+1]<<8) +
                 ((long)bytes[i+2]<<16) + ((long)bytes[i+3]<<24) +
                 ((long)bytes[i+4]<<32) + ((long)bytes[i+5]<<40) +
@@ -149,7 +149,7 @@ public class Util {
         int lim = offset + length;
         if (a.length < lim || b.length < lim)
             return false;
-        for (int i=offset; i<lim; ++i) 
+        for (int i=offset; i<lim; ++i)
             if (a[i] != b[i]) return false;
         return true;
     }
@@ -192,10 +192,10 @@ public class Util {
 
     /**
      * Creates a large random number (BigInteger) up to <b>bits</b> bits.
-     * This differs from the BigInteger constructor, in that it generates 
+     * This differs from the BigInteger constructor, in that it generates
      * all numbers from the range 2^lower to 2^n, rather than 2^n-1 to 2^n.
      */
-    public static BigInteger generateLargeRandom(int lowerBound, 
+    public static BigInteger generateLargeRandom(int lowerBound,
                                                  int upperBound,
                                                  Random r) {
         if (lowerBound == upperBound) return new BigInteger(lowerBound, r);
@@ -210,7 +210,7 @@ public class Util {
 
     /**
      * Returns the unsigned BigInteger representation of a byte[]
-     * @deprecated -- redundant with BigInteger constructor
+     * deprecated -- redundant with BigInteger constructor
      */
     public static BigInteger byteArrayToMPI(byte[] num) {
 /*
@@ -224,7 +224,7 @@ public class Util {
 */
         return new BigInteger(1, num);
     }
-    
+
     public static byte[] hashBytes(Digest d, byte[] b) {
         return hashBytes(d, b, 0, b.length);
     }
@@ -233,7 +233,7 @@ public class Util {
         d.update(b, offset, length);
         return d.digest();
     }
-    
+
     /**
      * Hashes a string in a consistent manner
      */
@@ -286,7 +286,7 @@ public class Util {
 
 	byte[] rv=new byte[maxl];
 
-	for (int i=0; i<minl; i++) 
+	for (int i=0; i<minl; i++)
 	    rv[i]=(byte)(b1[i]^b2[i]);
 	return rv;
     }
@@ -296,7 +296,7 @@ public class Util {
     public static void makeKey(byte[] entropy, byte[] key, int offset, int len) {
         synchronized(ctx) {
             ctx.digest(); // reinitialize
-	    
+
             int ic=0;
             while (len>0) {
                 ic++;
@@ -330,7 +330,7 @@ public class Util {
             while (len>0) {
                 ic++;
                 for (int i=0; i<ic; i++)
-                    ctx.update((byte)0);                
+                    ctx.update((byte)0);
 
                 in = entropy.getInputStream();
                 for (int i = 0 ; (i = in.read(buffer)) > 0 ;)
@@ -392,7 +392,7 @@ public class Util {
         if (args.length==0 || args[0].equals("write")) {
             writeMPI(new BigInteger("9"), System.out);
             writeMPI(new BigInteger("1234567890123456789"), System.out);
-            writeMPI(new BigInteger("100200300400500600700800900"), 
+            writeMPI(new BigInteger("100200300400500600700800900"),
                      System.out);
         } else if (args[0].equals("read")) {
             System.out.println("9");
@@ -407,7 +407,7 @@ public class Util {
             System.err.println(readMPI(System.in));
         } else if (args[0].equals("keygen")) {
             byte[] entropy=readMPI(System.in).toByteArray();
-            byte[] key=new byte[ (args.length>1 ? 
+            byte[] key=new byte[ (args.length>1 ?
                                   Integer.parseInt(args[1]) :
                                   16) ];
             makeKey(entropy, key, 0, key.length);
@@ -453,9 +453,9 @@ public class Util {
       *                    that is being padded. Need an SHA1 because it
       *                    MUST support digest(false,...).
       */
-    public static void rollingHashPad(OutputStream out, long paddingLen, 
+    public static void rollingHashPad(OutputStream out, long paddingLen,
 				      SHA1 ctx) throws IOException {
-	
+
         byte[] hashbuf = new byte[ctx.digestSize() >> 3];
         ByteArrayOutputStream pad = new ByteArrayOutputStream();
 
