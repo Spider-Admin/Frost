@@ -127,15 +127,14 @@ public class TOF
     /**
      * Resets the NEW state to READ for all messages shown in board table.
      * 
-     * @param table  the messages table
+     * @param tableModel  the messages table model
      * @param board  the board to reset
      */
-    public void setAllMessagesRead(final JTable table, final Board board)
+    public void setAllMessagesRead(final MessageTableModel tableModel, final Board board)
     {
         Runnable resetter = new Runnable() {
             public void run()
             {
-                final MessageTableModel tableModel = (MessageTableModel)table.getModel();
                 for(int row=0; row < tableModel.getRowCount(); row++ )
                 {
                     final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
@@ -179,8 +178,7 @@ public class TOF
      */
     public void addNewMessageToTable(File newMsgFile, final Board board, boolean markNew)
     {
-        JTable table = MainFrame.getInstance().getMessageTable();
-        final SortedTableModel tableModel = (SortedTableModel)table.getModel();
+        final SortedTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
 
         if( (newMsgFile.getName()).endsWith(".xml") &&
              newMsgFile.length() > 0 
@@ -234,7 +232,7 @@ public class TOF
     {
         int daysToRead = board.getMaxMessageDisplay();
         // changed to not block the swing thread
-        JTable table = MainFrame.getInstance().getMessageTable();
+        MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
 
         if( updateThread != null )
         {
@@ -251,7 +249,7 @@ public class TOF
         }
         // start new thread, the thread will set itself to updateThread,
         // but first it waits before the actual thread is finished
-        nextUpdateThread = new UpdateTofFilesThread(board,keypool,daysToRead,table);
+        nextUpdateThread = new UpdateTofFilesThread(board, keypool, daysToRead, tableModel);
         nextUpdateThread.start();
     }
 
@@ -263,7 +261,6 @@ public class TOF
         Board board;
         String keypool;
         int daysToRead;
-        JTable table;
         SortedTableModel tableModel;
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
@@ -274,13 +271,12 @@ public class TOF
          * @param daysToRead
          * @param table
          */
-        public UpdateTofFilesThread(Board board, String keypool, int daysToRead, JTable table)
+        public UpdateTofFilesThread(Board board, String keypool, int daysToRead, SortedTableModel tableModel)
         {
             this.board = board;
             this.keypool = keypool;
             this.daysToRead = daysToRead;
-            this.table = table;
-            this.tableModel = (SortedTableModel)table.getModel();
+            this.tableModel = tableModel;
         }
 
         /**
@@ -342,8 +338,7 @@ public class TOF
                         // check if tof table shows this board
                         if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                         {
-                            MessageTableModel model = (MessageTableModel)table.getModel();
-                            model.clearDataModel();
+                            tableModel.clearDataModel();
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }

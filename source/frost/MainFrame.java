@@ -551,7 +551,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * 
 			 */
 			private void markAllMessagesRead() {
-				TOF.getInstance().setAllMessagesRead(getMessageTable(), tofTreeModel.getSelectedNode());
+				TOF.getInstance().setAllMessagesRead(getMessageTableModel(), tofTreeModel.getSelectedNode());
 			}
 
 			/**
@@ -1620,8 +1620,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		
 			targetMessage.setMessageNew(true);
 			// let renderer check for new state
-			MessageTableModel model = (MessageTableModel) getMessageTable().getModel();
-			model.updateRow(targetMessage);
+			getMessageTableModel().updateRow(targetMessage);
 		
 			tofTreeModel.getSelectedNode().incNewMessageCount();
 		
@@ -2483,8 +2482,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	public MessageTable getMessageTable() {
-		return messageTable;
+	public MessageTableModel getMessageTableModel() {
+		return messageTableModel;
 	}
 
 	/**
@@ -2873,8 +2872,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				messageTable.clearSelection();
 			} else {
 				// node is a folder
-				MessageTableModel model = (MessageTableModel) getMessageTable().getModel();
-				model.clearDataModel();
+				getMessageTableModel().clearDataModel();
 				updateMessageCountLabels(node);
 
 				uploadPanel.setAddFilesButtonEnabled(false);
