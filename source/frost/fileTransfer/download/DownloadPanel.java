@@ -612,6 +612,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			String validkeys[] = { "SSK@", "CHK@", "KSK@" };
 			int keyType = -1; // invalid
 
+			//TODO: Improve parsing here. If length < 3, an ArrayIndexOutOfBounds exception is launched.
 			for (int i = 0; i < validkeys.length; i++) {
 				if (key.substring(0, validkeys[i].length()).equals(validkeys[i])) {
 					keyType = i;
