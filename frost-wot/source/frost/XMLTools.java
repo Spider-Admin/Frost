@@ -131,12 +131,14 @@ public class XMLTools
 		} catch (ParserConfigurationException e) {
 			logger.log(
 				Level.SEVERE,
-				"Exception thrown in parseXmlFile(File file, boolean validating)",
+				"Exception thrown in parseXmlFile(File file, boolean validating) - " + 
+				"File name: '" + file.getName() + "'", 
 				e);
 		} catch (IOException e) {
 			logger.log(
 				Level.SEVERE,
-				"Exception thrown in parseXmlFile(File file, boolean validating)",
+				"Exception thrown in parseXmlFile(File file, boolean validating) - " + 
+				"File name: '" + file.getName() + "'",
 				e);
 		}
 		return null;
