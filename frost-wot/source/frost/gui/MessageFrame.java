@@ -189,12 +189,18 @@ public class MessageFrame extends JFrame
         
         panelToolbar.add(panelButtons, BorderLayout.NORTH);
         panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
+        
+        this.attachmentsPanel.add( this.attBoardsScroller, BorderLayout.NORTH);
+        this.attachmentsPanel.add( this.attFilesScroller, BorderLayout.SOUTH);
+        this.attFilesScroller.setVisible(false);
+        this.attBoardsScroller.setVisible(false);
 
         panelMain.add(panelToolbar, BorderLayout.NORTH);
         panelMain.add(textScroller, BorderLayout.CENTER);
         panelMain.add(this.attachmentsPanel, BorderLayout.SOUTH);
 
-        this.getContentPane().add(panelMain, null);
+        this.getContentPane().setLayout(new BorderLayout());
+        this.getContentPane().add(panelMain, BorderLayout.CENTER);
     }
 
     /**jButton1 Action Listener (Send)*/
@@ -308,27 +314,21 @@ public class MessageFrame extends JFrame
         int returnVal = fc.showOpenDialog(MessageFrame.this);
         if( returnVal == JFileChooser.APPROVE_OPTION )
         {
-            File[] file = fc.getSelectedFiles();
-            for( int i = 0; i < file.length; i++ )
+            File[] selectedFiles = fc.getSelectedFiles();
+            for( int i = 0; i < selectedFiles.length; i++ )
             {
                 // for convinience remember last used directory
-                lastUsedDirectory = file[i].getPath();
+                lastUsedDirectory = selectedFiles[i].getPath();
                 
-                if( file[i].isFile() )
+                // collect all choosed files + files in all choosed directories
+                ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+                for (int j = 0; j < allFiles.size(); j++) 
                 {
-                    MFAttachedFile af = new MFAttachedFile( file[i] );
-                    attFilesTableModel.addRow( af );
-                }
-                if( file[i].isDirectory() )
-                {
-                    File[] entries = file[i].listFiles();
-                    for( int j = 0; j < entries.length; j++ )
+                    File aFile = (File)allFiles.get(j);
+                    if (aFile.isFile() && aFile.length() > 0) 
                     {
-                        if( entries[j].isFile() )
-                        {
-                            MFAttachedFile af = new MFAttachedFile( file[i] );
-                            attFilesTableModel.addRow( af );
-                        }
+                        MFAttachedFile af = new MFAttachedFile( aFile );
+                        attFilesTableModel.addRow( af );
                     }
                 }
             }
@@ -412,7 +412,9 @@ public class MessageFrame extends JFrame
     
     protected void updateAttachmentsPanel()
     {
+        this.getContentPane().invalidate();
         this.attachmentsPanel.invalidate();
+        this.attachmentsPanel.validate();
         this.getContentPane().validate();
     }
     
@@ -441,7 +443,8 @@ public class MessageFrame extends JFrame
     
     protected void showAttachedFilesTable(boolean show)
     {
-        if( show )
+        this.attFilesScroller.setVisible(show);
+/*        if( show )
         {
             // check if not already contained in panel
             int comps = attachmentsPanel.getComponentCount();
@@ -458,8 +461,8 @@ public class MessageFrame extends JFrame
         else
         {
             this.attachmentsPanel.remove( this.attFilesScroller );
-        }
-        updateAttachmentsPanel();
+        }*/
+//        updateAttachmentsPanel();
     }
 
     protected void processWindowEvent(WindowEvent e)
