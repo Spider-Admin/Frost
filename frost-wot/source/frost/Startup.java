@@ -32,11 +32,11 @@ public class Startup
      * The Main method, check if allowed to run
      * and starts the other startup work.
      */
-    public static void startupCheck()
+    public static void startupCheck(SettingsClass settings, String keypool)
     {
-        checkDirectories();
+        checkDirectories(settings, keypool);
         copyFiles();
-        cleanTempDir();
+        cleanTempDir(settings);
         deleteObsoleteFiles();
     }
 
@@ -75,16 +75,16 @@ public class Startup
 */        
     }
 
-    private static void checkDirectories()
+    private static void checkDirectories(SettingsClass settings, String keypool)
     {
-        File downloadDirectory = new File(frame1.frostSettings.getValue("downloadDirectory"));
+        File downloadDirectory = new File(settings.getValue("downloadDirectory"));
         if( !downloadDirectory.isDirectory() )
         {
             logger.warning("Creating download directory");
             downloadDirectory.mkdirs();
         }
 
-        File keypoolDirectory = new File(frame1.keypool);
+        File keypoolDirectory = new File(keypool);
         if( !keypoolDirectory.isDirectory() )
         {
 			logger.warning("Creating keypool directory");
@@ -98,14 +98,14 @@ public class Startup
             execDirectory.mkdirs();
         }
 
-        File unsentDirectory = new File(frame1.frostSettings.getValue("unsent.dir"));
+        File unsentDirectory = new File(settings.getValue("unsent.dir"));
         if( !unsentDirectory.isDirectory() )
         {
 			logger.warning("Creating unsent directory");
             unsentDirectory.mkdirs();
         }
 
-        File tempDirectory = new File(frame1.frostSettings.getValue("temp.dir"));
+        File tempDirectory = new File(settings.getValue("temp.dir"));
         if( !tempDirectory.isDirectory() )
         {
 			logger.warning("Creating temp directory");
@@ -113,9 +113,9 @@ public class Startup
         }
     }
 
-    private static void cleanTempDir()
+    private static void cleanTempDir(SettingsClass settings)
     {
-        File[] entries = new File(frame1.frostSettings.getValue("temp.dir")).listFiles();
+        File[] entries = new File(settings.getValue("temp.dir")).listFiles();
         for( int i = 0; i < entries.length; i++ )
         {
             File entry = entries[i];

@@ -77,6 +77,7 @@ public class Core implements Savable {
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	
 	private FrostIdentities identities;
+	private String keypool;
 
 	private Core() {
 		
@@ -512,6 +513,7 @@ public class Core implements Savable {
 		splashscreen.setVisible(true);
 
 		frostSettings = new SettingsClass();
+		keypool = frostSettings.getValue("keypool.dir");
 
 		// Initializes the language
 		initializeLanguage();
@@ -542,8 +544,8 @@ public class Core implements Savable {
 		splashscreen.setProgress(70);
 
 		// CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
-		Startup.startupCheck();
-		FileAccess.cleanKeypool(frame1.keypool);
+		Startup.startupCheck(frostSettings, keypool);
+		FileAccess.cleanKeypool(keypool);
 
 		//load vital data
 		getIdentities().load(freenetIsOnline);
