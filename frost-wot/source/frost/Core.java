@@ -202,7 +202,7 @@ public class Core {
 			}catch (Exception e){
 				e.printStackTrace(getOut());				
 			}
-			Core.getOut().println("loaded "+friends.size() +" friends and "+ enemies.size() +" enemies.");
+			Core.getOut().println("loaded "+friends.size() +" friends and "+ enemies.size() +" enemies and "+ neutral.size()+" neutrals.");
 		}else {
 		try {
 				

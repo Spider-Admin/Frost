@@ -11,10 +11,7 @@ import java.util.ArrayList;
 
 import javax.swing.SwingUtilities;
 
-import frost.Core;
-import frost.FileAccess;
-import frost.TOF;
-import frost.frame1;
+import frost.*;
 import frost.gui.objects.FrostMessageObject;
 import frost.identities.Identity;
 import frost.messages.VerifyableMessageObject;
@@ -88,6 +85,7 @@ public class Truster extends Thread
         {
             // new new enemy/friend
             newIdentity = Core.getNeutral().Get(from);
+            if (newIdentity==null) Core.getOut().println("neutral list not working :(");
             Core.getNeutral().remove(newIdentity);
             if( trust.booleanValue() )
                 Core.friends.Add(newIdentity);
@@ -125,8 +123,7 @@ public class Truster extends Thread
               )
             {
                 // check if message is correctly signed
-                if( newIdentity.getUniqueName().equals( tempMsg.getFrom() ) && //uniqueName and CHK are hashes
-                    Core.getCrypto().verify(tempMsg.getContent(), newIdentity.getKey()) )
+                if( mixed.makeFilename(newIdentity.getUniqueName()).equals( mixed.makeFilename(tempMsg.getFrom()) ))
                 {
                     // set new state of message
                     if( trust == null )

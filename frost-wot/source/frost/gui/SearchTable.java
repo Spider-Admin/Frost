@@ -89,9 +89,7 @@ public class SearchTable extends SortedTable
 		if (id==null)
 					id = frost.Core.getNeutral().Get(owner);
 		//and if still null, add the string
-		if (id==null)
-			result.add(owner);
-		else 
+		if (id!=null)
 			result.add(id);
 		
 	}
