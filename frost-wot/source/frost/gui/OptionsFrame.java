@@ -35,7 +35,7 @@ import javax.swing.event.*;
 
 import frost.*;
 import frost.gui.components.*;
-import frost.gui.translation.UpdatingLanguageResource;
+import frost.gui.translation.*;
 
 /*******************************
  * TODO: - add thread listeners (listen to all running threads) to change the
@@ -52,7 +52,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		/**
 		 * 
 		 */
-		private class Listener implements ChangeListener {
+		private class Listener implements ChangeListener, ActionListener {
 
 			/* (non-Javadoc)
 			 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
@@ -60,6 +60,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			public void stateChanged(ChangeEvent e) {
 				if (e.getSource() == altEditCheckBox) {
 					altEditChanged();	
+				}				
+			}
+
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == enableLoggingCheckBox) {
+					refreshLoggingState();
 				}				
 			}
 		}		
@@ -72,6 +81,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JLabel availableNodesLabel2 = new JLabel();
 		private JLabel maxKeysLabel = new JLabel();
 		private JLabel autoSaveIntervalLabel = new JLabel();
+		private JLabel logLevelLabel = new JLabel();
+		private JLabel logFileSizeLabel = new JLabel();
 
 		private JTextField keyUploadHtlTextField = new JTextField(8);
 		private JTextField keyDownloadHtlTextField = new JTextField(8);
@@ -79,12 +90,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JTextField maxKeysTextField = new JTextField(8);
 		private JTextField altEditTextField = new JTextField();
 		private JTextField autoSaveIntervalTextField = new JTextField(8);
+		private JTextField logFileSizeTextField = new JTextField(8);
 
 		private JCheckBox allowEvilBertCheckBox = new JCheckBox();
 		private JCheckBox altEditCheckBox = new JCheckBox();
 		private JCheckBox splashScreenCheckBox = new JCheckBox();
 		private JCheckBox showSystrayIconCheckBox = new JCheckBox();
 		private JCheckBox cleanupCheckBox = new JCheckBox();
+		private JCheckBox enableLoggingCheckBox = new JCheckBox();
+		
+		private JTranslatableComboBox logLevelComboBox = null;
 
 		/**
 		 * 
@@ -178,8 +193,51 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constraints.weightx = 1;
 			add(showSystrayIconCheckBox, constraints);	
 			
+			constraints.gridx = 0;
+			constraints.gridy = 9;
+			constraints.gridwidth = 3;
+			getLoggingPanel(); 			//TODO: add(getLoggingPanel(), constraints);
+			
 			// Add listeners
+			enableLoggingCheckBox.addActionListener(listener);
 			altEditCheckBox.addChangeListener(listener);
+		}
+		
+		private JPanel getLoggingPanel() {
+			JPanel subPanel = new JPanel(new GridBagLayout());
+
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			Insets insets5055 = new Insets(5, 0, 5, 5);
+			Insets insets5_30_5_0 = new Insets(5, 30, 5, 0);
+			Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
+			constraints.insets = insets5055;
+			constraints.weightx = 1;
+			constraints.weighty = 1;
+						
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			constraints.gridwidth = 2;
+			subPanel.add(enableLoggingCheckBox, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridwidth = 1;
+			constraints.gridy = 1;
+			subPanel.add(logLevelLabel, constraints);
+			constraints.gridx = 1;
+			String[] searchComboBoxKeys =
+				{ "Very low", "Low", "Medium", "High", "Very high" };
+			logLevelComboBox = new JTranslatableComboBox(languageResource, searchComboBoxKeys);
+			subPanel.add(logLevelComboBox, constraints);
+			
+			constraints.gridx = 2;
+			subPanel.add(logFileSizeLabel, constraints);	
+			constraints.insets = insets5_30_5_0;		
+			constraints.gridx = 3;
+			constraints.weightx = 0;
+			subPanel.add(logFileSizeTextField, constraints);
+			
+			return subPanel;
 		}
 		
 		/**
@@ -203,6 +261,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			altEditCheckBox.setText(
 				languageResource.getString("Use editor for writing messages") + " (" + off + ")");
 			cleanupCheckBox.setText(languageResource.getString("Clean the keypool"));
+
+			enableLoggingCheckBox.setText(languageResource.getString("Enable logging"));
+			logLevelLabel.setText(
+				languageResource.getString("Logging level")
+					+ " ("
+					+ languageResource.getString("Low")
+					+ ") ");
+			logFileSizeLabel.setText(languageResource.getString("Log file size limit (in KB)"));
+
 		}
 
 		public void ok() {
@@ -223,7 +290,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.setValue("altEdit", altEditTextField.getText());
 			frostSettings.setValue("doCleanUp", cleanupCheckBox.isSelected());
 			frostSettings.setValue("autoSaveInterval", autoSaveIntervalTextField.getText());
-
+			frostSettings.setValue("logToFile", enableLoggingCheckBox.isSelected());
+			frostSettings.setValue("logFileSizeLimit", logFileSizeTextField.getText());
+			frostSettings.setValue("logLevel", logLevelComboBox.getSelectedKey());
+			
 			// Save splashchk
 			try {
 				File splashFile = new File("nosplash.chk");
@@ -243,6 +313,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private void altEditChanged() {
 			altEditTextField.setEnabled(altEditCheckBox.isSelected());
 		}
+		
+		/**
+		 * 
+		 */
+		private void refreshLoggingState() {
+			boolean enableLogging = enableLoggingCheckBox.isSelected();
+			logLevelLabel.setEnabled(enableLogging);
+			logLevelComboBox.setEnabled(enableLogging);
+			logFileSizeLabel.setEnabled(enableLogging);
+			logFileSizeTextField.setEnabled(enableLogging);
+		}
 
 		/**
 		 * Load the settings of this panel
@@ -261,7 +342,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			cleanupCheckBox.setSelected(frostSettings.getBoolValue("doCleanUp"));
 			autoSaveIntervalTextField.setText(
 				Integer.toString(frostSettings.getIntValue("autoSaveInterval")));
+			enableLoggingCheckBox.setSelected(frostSettings.getBoolValue("logToFile"));
+			logFileSizeTextField.setText(
+				Integer.toString(frostSettings.getIntValue("logFileSizeLimit")));
 				
+			logLevelComboBox.setSelectedKey(frostSettings.getDefaultValue("logLevel"));
+			logLevelComboBox.setSelectedKey(frostSettings.getValue("logLevel"));
+
 			// "Load" splashchk
 			File splashchk = new File("nosplash.chk");
 			if (splashchk.exists()) {
@@ -269,6 +356,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			} else {
 				splashScreenCheckBox.setSelected(false);
 			}
+
+			refreshLoggingState();
 		}
 
 	}
@@ -1011,8 +1100,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			removeFinishedDownloadsCheckBox.setSelected(
 						frostSettings.getBoolValue("removeFinishedDownloads"));
 			directoryTextField.setText(frostSettings.getValue("downloadDirectory"));
-			//        downloadMinHtlTextField.setText(frostSettings.getValue("htl"));
-			//        downloadMaxHtlTextField.setText(frostSettings.getValue("htlMax"));
 			threadsTextField.setText(frostSettings.getValue("downloadThreads"));
 			splitfileThreadsTextField.setText(frostSettings.getValue("splitfileDownloadThreads"));
 			disableDownloadsCheckBox.setSelected(frostSettings.getBoolValue("disableDownloads"));
@@ -1995,8 +2082,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			JPanel newPanel = lbdata.getPanel();
 			contentAreaPanel.add(newPanel, BorderLayout.CENTER);
 			newPanel.revalidate();
+			newPanel.repaint();
 		}
-		contentAreaPanel.updateUI();
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				contentAreaPanel.revalidate();
+			}
+		});
 	}
 
 	/**
