@@ -349,12 +349,17 @@ public class SharedFileObject implements XMLizable
 			 CDATASection cdata = doc.createCDATASection(getFilename());
 			 element.appendChild( cdata );
 			 fileelement.appendChild( element );
-                
-			 element = doc.createElement("SHA1");
-			 cdata = doc.createCDATASection(getSHA1());
-			 element.appendChild( cdata );
-			 fileelement.appendChild( element );
-                
+              
+             //only add SHA1 if the board is not null
+             //if board is null means this file is an attachment that does not wish to be
+             //indexed
+             if (board!=null) {
+			 	element = doc.createElement("SHA1");
+			 	cdata = doc.createCDATASection(getSHA1());
+			    element.appendChild( cdata );
+			 	fileelement.appendChild( element );
+             }  
+              
 			 element = doc.createElement("size");
 			 Text textnode = doc.createTextNode(""+getSize());
 			 element.appendChild( textnode );
