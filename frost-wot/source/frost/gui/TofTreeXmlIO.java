@@ -31,7 +31,10 @@ public class TofTreeXmlIO
         } catch(Exception ex) { ; } // xml format error
 
         if( doc == null )
+        {
+            System.out.println("Error - loadBoardTree: factory could'nt create XML Document.");
             return false;
+        }
 
         Element rootNode = doc.getDocumentElement();
 
@@ -79,6 +82,8 @@ public class TofTreeXmlIO
         refreshModel( model, treeRootNode );
 
         tree.updateUI();
+
+System.out.println("Board tree loaded successfully.");
 
         return true;
     }
@@ -272,7 +277,10 @@ public class TofTreeXmlIO
     {
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
+        {
+            System.out.println("Error - saveBoardTree: factory could'nt create XML Document.");
             return false;
+        }
 
         DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
         FrostBoardObject root = (FrostBoardObject)model.getRoot();
@@ -297,7 +305,13 @@ public class TofTreeXmlIO
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, filename);
-        } catch(Throwable t) { ; }
+            System.out.println("Board tree saved successfully.");
+        } catch(Throwable t)
+        {
+            System.out.println("Exception - saveBoardTree:");
+            t.printStackTrace();
+            System.out.println("ERROR saving board tree.");
+        }
 
         return writeOK;
     }
