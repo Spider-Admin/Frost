@@ -27,6 +27,12 @@ public class AttachmentList extends LinkedList implements XMLizable {
 	 * @return another list which contains only attachments of the specified type
 	 */
 	public AttachmentList getAllOfType(int type) {
+		assert type == Attachment.FILE || 
+					type == Attachment.BOARD ||
+					type == Attachment.PERSON :
+					"list of unknown type of attachments requested";
+		
+		
 		Iterator i = iterator();
 		AttachmentList result = new AttachmentList();
 		while (i.hasNext()) {
@@ -34,6 +40,7 @@ public class AttachmentList extends LinkedList implements XMLizable {
 			if (current.getType() == type)
 				result.add(current);
 		}
+		
 		return result;
 	}
     
@@ -56,15 +63,12 @@ public class AttachmentList extends LinkedList implements XMLizable {
             return;
 		Iterator i = XMLTools.getChildElementsByTagName(el,"Attachment").iterator();
 		while (i.hasNext()){
-			Attachment attachment;
 			Element current = (Element)i.next();
-			if (current.getAttribute("type").equals("file")) 		
-				attachment = new FileAttachment(current);
-			else if (current.getAttribute("type").equals("board"))
-				attachment = new BoardAttachment(current);
-			else 
-				attachment = new PersonAttachment(current);
+			Attachment attachment = Attachment.getInstance(current);
 			add(attachment);
 		}
+		
+		if (size()==0)
+			Core.getOut().println("empty attachment list upon creation");
 	}
 }

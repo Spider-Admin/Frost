@@ -12,6 +12,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import frost.gui.objects.FrostBoardObject;
+import frost.*;
 
 
 /**
@@ -51,4 +52,16 @@ public abstract class RedirectFileObject extends SharedFileObject {
 		super();
 	}
 
+	public static SharedFileObject getRedirectInstance(Element e) throws SAXException{
+		assert e.getAttribute("redirect").length() > 0 &&
+		XMLTools.getChildElementsByTagName(e,"redirect").size() > 0: "element does not contain redirect";
+		
+		SharedFileObject result = null;
+		if (e.getAttribute("redirect").equals("FEC")) {
+			result = new FECRedirectFileObject();
+			result.loadXMLElement(e);
+			
+		}
+		return result;
+	}
 }

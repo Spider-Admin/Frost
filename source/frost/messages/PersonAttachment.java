@@ -17,7 +17,7 @@ import frost.identities.Identity;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class PersonAttachment implements Attachment {
+public class PersonAttachment extends Attachment {
 
 	Identity person;
 	/* (non-Javadoc)

@@ -44,10 +44,10 @@ public class FECRedirectFileObject extends RedirectFileObject {
 	}
 
 	public void loadXMLElement(Element current) throws SAXException {
-		if (!current.getAttribute("redirect").equals("FEC"))
-			throw new SAXException("element does not contain FEC redirect.");
-		super.loadXMLElement(current);
-		
+		assert current.getAttribute("redirect").equals("FEC") &&
+			XMLTools.getChildElementsByTagName(current,"redirect").size()>0 :
+				"fec redirect not present in file";
+		super.loadXMLElement(current);		
 		redirect = XMLTools.getChildElementsCDATAValue(current,"redirect");
 	}
 
