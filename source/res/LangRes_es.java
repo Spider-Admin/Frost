@@ -457,7 +457,13 @@ static final Object[][] contents = {
 	{"Mark ALL messages read", "Marca TODOS los mensajes como leídos"},
 	{"Mark message unread", "Marca el mensaje como no leído"},
 	{"Delete message", "Borra el mensaje"},
-	{"Cancel","Cancela"}
+	{"Cancel","Cancela"},
+	
+	// Attach Boards Chooser (message frame)
+	{"MessageFrame.ConfirmBody1", "Tienes la clave privada del foro '"},
+	{"MessageFrame.ConfirmBody2", "'.  ¿Estás seguro de que quieres adjuntarla?\n" +
+								  "Si escoges NO, sólo se adjuntará la clave pública.",},
+	{"MessageFrame.ConfirmTitle", "¿Incluir clave privada del foro?"}
 	
 	};
 }
