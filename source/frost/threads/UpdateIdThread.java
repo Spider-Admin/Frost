@@ -253,6 +253,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
 			//mark it as successful
 			setIndexSuccessfull(index);
+		    Identity sharer = null;
+		    String _sharer = null;
                     // Add it to the index
                     try {
                         // maybe the file is corrupted ... so try
@@ -263,10 +265,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				int name_index = unzipped.indexOf("sharer = \"");
 				name_index = unzipped.indexOf("\"",name_index)+1;
 				//get the unique name of the person sharing the files
-				String _sharer = unzipped.substring(name_index,
+				_sharer = unzipped.substring(name_index,
 							unzipped.indexOf("\"",name_index));
 				_sharer = _sharer.trim();
-				Identity sharer = null;
+				sharer = null;
 				if (frame1.getMyId().getUniqueName().trim().compareTo(_sharer)==0) {
 				
 					System.out.println("received index from myself");
@@ -342,7 +344,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					continue; //do not show index.
 				}
                         FileAccess.writeFile(unzipped,target);
-                        Index.add(target, board);
+			if (_sharer==null ||
+				frame1.getFriends().Get(_sharer) == null)
+                        	Index.add(target, board, _sharer);  //add only files from that user
+			else 
+				Index.add(target,board);  //add all files
 			target.delete();
                     }
                     catch(Throwable t)

@@ -2719,7 +2719,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 //                && dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
               )
 	      ||
-	      (dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED &&
+	      ((dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED || dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTING) &&
 	      	dlItem.getKey()!=null && ( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true )
 	      )
 	    )
