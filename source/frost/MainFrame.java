@@ -2073,71 +2073,73 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		});
 		languageDefaultMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes");
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes");
 				frostSettings.setValue("locale", "default");
 				setLanguageResource(bundle);
 			}
 		});
+		
+		languageBulgarianMenuItem.setIcon(getScaledImage("/data/flag_bg.png"));
+		languageGermanMenuItem.setIcon(getScaledImage("/data/flag_de.png"));
+		languageEnglishMenuItem.setIcon(getScaledImage("/data/flag_en.png"));
+		languageSpanishMenuItem.setIcon(getScaledImage("/data/flag_es.png"));
+		languageFrenchMenuItem.setIcon(getScaledImage("/data/flag_fr.png"));
+		languageItalianMenuItem.setIcon(getScaledImage("/data/flag_it.png"));
+		languageJapaneseMenuItem.setIcon(getScaledImage("/data/flag_jp.png"));
+		languageDutchMenuItem.setIcon(getScaledImage("/data/flag_nl.png"));
+		
 		languageGermanMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("de"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("de"));
 				frostSettings.setValue("locale", "de");
 				setLanguageResource(bundle);
 			}
 		});
 		languageEnglishMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("en"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("en"));
 				frostSettings.setValue("locale", "en");
 				setLanguageResource(bundle);
 			}
 		});
 		languageDutchMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("nl"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("nl"));
 				frostSettings.setValue("locale", "nl");
 				setLanguageResource(bundle);
 			}
 		});
 		languageFrenchMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("fr"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("fr"));
 				frostSettings.setValue("locale", "fr");
 				setLanguageResource(bundle);
 			}
 		});
 		languageJapaneseMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("ja"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("ja"));
 				frostSettings.setValue("locale", "ja");
 				setLanguageResource(bundle);
 			}
 		});
 		languageItalianMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("it"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("it"));
 				frostSettings.setValue("locale", "it");
 				setLanguageResource(bundle);
 			}
 		});
 		languageSpanishMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("es"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("es"));
 				frostSettings.setValue("locale", "es");
 				setLanguageResource(bundle);
 			}
 		});
 		languageBulgarianMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				java.util.ResourceBundle bundle =
-					java.util.ResourceBundle.getBundle("res.LangRes", new Locale("bg"));
+				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("bg"));
 				frostSettings.setValue("locale", "bg");
 				setLanguageResource(bundle);
 			}
