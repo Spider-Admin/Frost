@@ -9,6 +9,9 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     private String boardName = null;
     private String boardFileName = null;
     private long lastUpdateStartMillis = -1; // never updated
+
+    private int newMessageCount = 0;
+
     private boolean isFolder = false;
 
     private boolean spammed = false;
@@ -92,4 +95,27 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         lastUpdateStartMillis = millis;
     }
 
+    public int getNewMessageCount()
+    {
+        return newMessageCount;
+    }
+    public void setNewMessageCount( int val )
+    {
+        newMessageCount = val;
+    }
+    public void incNewMessageCount()
+    {
+        newMessageCount++;
+    }
+    public void decNewMessageCount()
+    {
+        newMessageCount--;
+    }
+
+    public boolean containsNewMessage()
+    {
+        if( getNewMessageCount() > 0 )
+            return true;
+        return false;
+    }
 }

@@ -73,11 +73,7 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         FrostBoardObject board = (FrostBoardObject)value;
         String boardname = value.toString();
 
-        boolean containsNewMessage = false;
-        if( frame1.getInstance().getBoardsThatContainNewMsg().get(boardname) != null )
-        {
-            containsNewMessage = true;
-        }
+        boolean containsNewMessage = board.containsNewMessage();
 
         if( leaf == true )
         {

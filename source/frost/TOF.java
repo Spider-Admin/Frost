@@ -40,61 +40,58 @@ public class TOF
      * @param messages A Vector containing all MessageObjects that are just displayed by the table
      * @return The content of the message
      */
-    public static FrostMessageObject evalSelection(ListSelectionEvent e, JTable table) {
-    DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
-    if(!e.getValueIsAdjusting() && !table.isEditing())
+    public static FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, FrostBoardObject board)
     {
-        int row = table.getSelectedRow();
-        if (row != -1 && row < tableModel.getRowCount())
+        DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
+        if( !e.getValueIsAdjusting() && !table.isEditing() )
         {
-            String index = (String)tableModel.getValueAt(row, 0);
-            String date = (String)tableModel.getValueAt(row, 4);
-            String from = (String)tableModel.getValueAt(row, 1);
-
-            FrostMessageObject message = (FrostMessageObject)messages.get(index+date);
-
-            if( message != null )
+            int row = table.getSelectedRow();
+            if( row != -1 && row < tableModel.getRowCount() )
             {
-                boolean newMessage = false;
-                // Test if lockfile exists, remove it and
-                // update the tree display
-                File messageLock = new File( (message.getFile()).getPath() + ".lck");
-                if (messageLock.isFile())
-                {
-                    // this is a new message
-                    newMessage = true;
-                    messageLock.delete();
-                    TofTree tree = frame1.getInstance().getTofTree();
-                    ((DefaultTreeModel)tree.getModel()).nodeChanged(
-                        (DefaultMutableTreeNode)tree.getLastSelectedPathComponent() );
-                }
+                String index = (String)tableModel.getValueAt(row, 0);
+                String date = (String)tableModel.getValueAt(row, 4);
+                String from = (String)tableModel.getValueAt(row, 1);
 
-                // here we reset the bold-look from sender column,
-                // wich was set by MessageObject.getRow()
-                if (from.indexOf("<font color=\"blue\">") != -1)
+                FrostMessageObject message = (FrostMessageObject)messages.get(index+date);
+
+                if( message != null )
                 {
-                    StringBuffer sbtmp = new StringBuffer();
-                    sbtmp.append("<html><font color=\"blue\">");
-                    sbtmp.append(message.getFrom());
-                    sbtmp.append("</font></html>");
-                    tableModel.setValueAt( sbtmp.toString(), row, 1); // Message with attachment
+                    boolean newMessage = false;
+                    // Test if lockfile exists, remove it and
+                    // update the tree display
+                    File messageLock = new File( (message.getFile()).getPath() + ".lck");
+                    if( messageLock.isFile() )
+                    {
+                        // this is a new message
+                        newMessage = true;
+                        messageLock.delete();
+                        board.decNewMessageCount();
+                    }
+
+                    // here we reset the bold-look from sender column,
+                    // wich was set by MessageObject.getRow()
+                    if( from.indexOf("<font color=\"blue\">") != -1 )
+                    {
+                        StringBuffer sbtmp = new StringBuffer();
+                        sbtmp.append("<html><font color=\"blue\">");
+                        sbtmp.append(message.getFrom());
+                        sbtmp.append("</font></html>");
+                        tableModel.setValueAt( sbtmp.toString(), row, 1); // Message with attachment
+                    }
+                    else
+                    {
+                        tableModel.setValueAt(message.getFrom(), row, 1);
+                    }
+                    if( newMessage == true )
+                    {
+                        frame1.getInstance().updateMessageCountLabels(board);
+                        frame1.getInstance().updateTofTree(board);
+                    }
+                    return message;
                 }
-                else
-                {
-                    tableModel.setValueAt(message.getFrom(), row, 1);
-                }
-                if( newMessage == true )
-                {
-                    TofTree tree = frame1.getInstance().getTofTree();
-                    FrostBoardObject board = (FrostBoardObject)tree.getLastSelectedPathComponent();
-                    frame1.getInstance().updateMessageCountLabels(true, board);
-                    frame1.getInstance().updateTofTree();
-                }
-                return message;
             }
         }
-    }
-    return null;
+        return null;
     }
 
     // called by non-swing thread
@@ -114,23 +111,18 @@ public class TOF
                 final String[] sMessage = message.getVRow();
                 messages.put( message.getIndex() + sMessage[4], message);
 
-                Hashtable htable = frame1.getInstance().getBoardsThatContainNewMsg();
-                if( htable.get(board) == null )
-                {
-                    htable.put( board, board );
-                }
+                board.incNewMessageCount();
+
                 SwingUtilities.invokeLater( new Runnable() {
-                        public void run()
-                        {
+                        public void run() {
                             // check if tof table shows this board
-                            frame1.getInstance().updateTofTree();
+                            frame1.getInstance().updateTofTree(board);
                             if( frame1.getInstance().getActualNode().toString().equals( board.toString() ) )
                             {
                                 tableModel.addRow(sMessage);
-                                frame1.getInstance().updateMessageCountLabels();
+                                frame1.getInstance().updateMessageCountLabels(board);
                             }
-                        }
-                    });
+                        } });
             }
         }
     }
@@ -236,7 +228,7 @@ public class TOF
                         if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
                         {
                             TableFun.removeAllRows(table);
-                            frame1.getInstance().updateMessageCountLabels();
+                            frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }
                 });
@@ -245,9 +237,7 @@ public class TOF
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-////             String nodeText = mixed.makeFilename(targetBoard); needed????
-            // Read files
-            // download up to maxMessages days to the past
+            // Read files up to maxMessages days to the past
             GregorianCalendar firstDate = new GregorianCalendar();
             firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
             firstDate.set(Calendar.YEAR, 2001);
@@ -255,7 +245,9 @@ public class TOF
             firstDate.set(Calendar.DATE, 11);
             int msgcount=0;
             int counter = 0;
+            int newMsgCount = 0;
             String targetBoard = board.getBoardFilename();
+            board.setNewMessageCount(0);
             while( cal.after(firstDate) && counter < daysToRead )
             {
                 String date = DateFun.getDateOfCalendar(cal);
@@ -271,11 +263,12 @@ public class TOF
                             if( filePointers[j].getName().endsWith(".txt.lck") )
                             {
                                 // update the node that contains new messages
-                                Hashtable boards = frame1.getInstance().getBoardsThatContainNewMsg();
-                                if( boards.get(innerTargetBoard) == null )
-                                {
-                                    boards.put(innerTargetBoard, innerTargetBoard);
-                                }
+                                newMsgCount++;
+                                board.setNewMessageCount(newMsgCount);
+                                SwingUtilities.invokeLater( new Runnable() {
+                                    public void run() {
+                                        frame1.getInstance().updateTofTree(board);
+                                    } });
                             }
                             else if( (filePointers[j].getName()).endsWith(".txt") &&
                                  filePointers[j].length() > 0 &&
@@ -305,8 +298,8 @@ public class TOF
                                                 tableModel.addRow(sMessage);
                                                 if(updateMessagesCountLabels)
                                                 {
-                                                    frame1.getInstance().updateMessageCountLabels();
-                                                    frame1.getInstance().updateTofTree();
+                                                    frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
+                                                    frame1.getInstance().updateTofTree(innerTargetBoard);
                                                 }
                                             }
                                         }
@@ -329,15 +322,14 @@ public class TOF
                 counter++;
                 cal.add(Calendar.DATE, -1);
             }
-//            final String innerTargetBoard = targetBoard;
+
             SwingUtilities.invokeLater( new Runnable() {
                     public void run()
                     {
-                        frame1.getInstance().updateTofTree();
+                        frame1.getInstance().updateTofTree(innerTargetBoard);
                         if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
                         {
-                            frame1.getInstance().updateMessageCountLabels();
-                            frame1.getInstance().updateTofTree();
+                            frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }
                 });
@@ -425,20 +417,18 @@ public class TOF
         String keypool = frame1.keypool;
         while( e.hasMoreElements() )
         {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)e.nextElement();
-            if( node.isLeaf() == false )
+            final FrostBoardObject board = (FrostBoardObject)e.nextElement();
+            if( board.isFolder() == true )
                 continue;
 
-            final String targetBoard = mixed.makeFilename(node.toString());
+            final String boardFilename = board.getBoardFilename();
             final String fileSeparator = System.getProperty("file.separator");
 
             // Get actual date
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        ////             String nodeText = mixed.makeFilename(targetBoard);
-            // Read files
-            // download up to maxMessages days to the past
+            // Read files up to maxMessages days to the past
             GregorianCalendar firstDate = new GregorianCalendar();
             firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
             firstDate.set(Calendar.YEAR, 2001);
@@ -450,29 +440,30 @@ public class TOF
             while( cal.after(firstDate) && counter < daysToRead )
             {
                 String date = DateFun.getDateOfCalendar(cal);
-                File loadDir = new File(new StringBuffer().append(keypool).append(targetBoard).append(fileSeparator).append(date).toString());
+                File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).append(fileSeparator)
+                                                          .append(date).toString());
                 if( loadDir.isDirectory() )
                 {
                     File[] filePointers = loadDir.listFiles();
                     if( filePointers != null )
                     {
-                        String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
+                        String sdate = new StringBuffer().append(date).append("-").append(boardFilename)
+                                                         .append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ )
                         {
                             if( filePointers[j].getName().endsWith(".txt.lck") )
                             {
                                 // update the node that contains new messages
-                                Hashtable boards = frame1.getInstance().getBoardsThatContainNewMsg();
-                                if( boards.get(targetBoard) == null )
-                                {
-                                    boards.put(targetBoard, targetBoard);
-                                }
+                                board.incNewMessageCount();
+
                                 SwingUtilities.invokeLater( new Runnable() {
                                        public void run()
                                        {
-                                           frame1.getInstance().updateTofTree();
+                                           frame1.getInstance().updateTofTree(board);
                                        }
                                    });
+                                // the exact count of new msg is'nt important here, will be counted if
+                                // board is shown and all msg are loaded
                                 break; // process next board
                             }
                         }
@@ -483,6 +474,5 @@ public class TOF
             }
         }
     }
-
 
 }
