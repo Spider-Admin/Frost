@@ -264,7 +264,6 @@ static final Object[][] contents = {
 {"Tries", "Intentos"},
 {"Trust","Confía"},
 {"Try to download all segments, even if one fails","Intenta descargar todos los segmentos, aunque alguno falle"},
-{"Unknown","Desconocido"},
 {"Up","Arriba"},
 {"up htl explanation","(cuanto mayor más lento pero más fiable)"},
 {"Update","Refresca"},
@@ -382,13 +381,14 @@ static final Object[][] contents = {
 	{"Decoding segment","Decodificando segmento"},
 	
 	///
-	/// FrostUploadItemObject
+	/// UploadTableFormat
 	///
 	
 	{"Never","Nunca"},
 	{"Uploading","Subiendo"},
 	{"Encode requested","Codificación pedida"},
-	{"Encoding file","Codificando fichero"}
+	{"Encoding file","Codificando fichero"},
+	{"Unknown","Desconocida"}
 	
 	};
 }
