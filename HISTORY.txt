@@ -11,6 +11,7 @@ Added:  Option added to the preferences to disable the message upload failed dia
 		will retry to send it without asking the user.
 Added:  attachment split panes of the main frame internationalized.
 Added:  several French forums to the hierarchy that comes by default.
+Added:  option to the popup menu of the message body to copy the selected text to the clipboard.
 
 Changed: splash screen logo replaced by a new one (thanks to Frédéric Scheer).
 Changed: when you are sending an anonymous message, the @ character is no longer allowed as part of the 
