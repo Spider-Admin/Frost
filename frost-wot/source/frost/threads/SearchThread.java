@@ -305,7 +305,7 @@ public class SearchThread extends Thread {
                 results.clear();
             }
         }
-        frame1.searchButton.setEnabled(true);
+        frame1.getInstance().getSearchButton().setEnabled(true);
     }
 
     /**Constructor*/
@@ -316,7 +316,7 @@ public class SearchThread extends Thread {
             SettingsClass frostSettings)
     {
     this.request = request.toLowerCase();
-    this.searchTableModel = frame1.searchTableModel;
+    this.searchTableModel = (DefaultTableModel)frame1.getInstance().getSearchTable().getModel();
     this.keypool = keypool;
     this.searchType = searchType;
     this.audioExtension = frostSettings.getArrayValue("audioExtension");

@@ -21,15 +21,42 @@ package frost.gui.model;
 
 import javax.swing.table.*;
 
-public class DownloadTableModel extends DefaultTableModel {
+public class DownloadTableModel extends DefaultTableModel
+{
+    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+
+    protected final static String columnNames[] = {
+        LangRes.getString("Filename"),
+        LangRes.getString("Size"),
+        LangRes.getString("Age"),
+        LangRes.getString("State"),
+        LangRes.getString("HTL"),
+        LangRes.getString("Source"),
+        LangRes.getString("Key")
+    };
 
     public DownloadTableModel()
     {
         super();
     }
 
-    public boolean isCellEditable(int row, int col) {
-    return false;
+    public boolean isCellEditable(int row, int col)
+    {
+        return false;
     }
 
+    public String getColumnName(int column)
+    {
+        if( column >= 0 && column < columnNames.length )
+            return columnNames[column];
+        return null;
+    }
+    public int getColumnCount()
+    {
+        return columnNames.length;
+    }
+    public Class getColumnClass(int columnIndex)
+    {
+        return String.class;
+    }
 }

@@ -42,10 +42,11 @@ import frost.components.*;
 import frost.crypt.*;
 import frost.threads.*;
 
-public class frame1 extends JFrame implements ClipboardOwner {
+public class frame1 extends JFrame implements ClipboardOwner
+{
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
     static ImageIcon[] newMessage = new ImageIcon[2];
-//    Hashtable messages = new Hashtable();
+
     String clipboard = new String();
     int counter = 55;
     int idleTime = 0;
@@ -80,7 +81,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
     public static volatile Object threadCountLock = new Object();
 
     //the identity stuff.  This really shouldn't be here but where else?
-
     public static ObjectInputStream id_reader;
     public ObjectOutputStream id_writer;
     public static LocalIdentity mySelf;
@@ -103,180 +103,110 @@ public class frame1 extends JFrame implements ClipboardOwner {
     // Generate objects
     //------------------------------------------------------------------------
 
-    JPanel contentPanel;
-    JPanel statusPanel = new JPanel(new BorderLayout());
-    JPanel searchMainPanel = new JPanel(new BorderLayout());
-    //JPanel searchTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-    JPanel searchTopPanel = null;
-    JPanel downloadMainPanel = new JPanel(new BorderLayout());
-    JPanel downloadTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-    JPanel uploadMainPanel = new JPanel(new BorderLayout());
-    JPanel uploadTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-    JPanel tofMainPanel = new JPanel(new BorderLayout());
-    //JPanel tofTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-    JPanel tofTopPanel = null;
-    JPanel messageTablePanel = new JPanel(new BorderLayout());
-    JPanel tofAttachmentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-    JPanel boardAttachmentPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-    JPanel buttonPanel = new JPanel(new GridBagLayout());
+    // buttons that are enabled/disabled later
+    JButton pasteBoardButton = null;
+    JButton configBoardButton = null;
 
-    GridBagConstraints buttonPanelConstr = new GridBagConstraints();
+    JButton tofNewMessageButton = null;
+    JButton tofReplyButton = null;
+    JButton downloadAttachmentsButton= null;
+    JButton downloadBoardsButton= null;
+    JButton saveMessageButton= null;
+    JButton trustButton= null;
+    JButton notTrustButton= null;
 
-    String[] searchComboBoxItems = {"All files", "Audio", "Video", "Images", "Documents", "Executables", "Archives"};
-    JComboBox searchComboBox = new JComboBox(searchComboBoxItems);
+    JButton uploadAddFilesButton = null;
+    JButton searchButton = null;
+    // labels that are updated later
+    JLabel statusLabel = null;
+    JLabel statusMessageLabel = null;
 
-    JTextField searchTextField = new JTextField(25);
-    JTextField downloadTextField = new JTextField(25);
+    JLabel timeLabel = null;
 
-    JTextArea tofTextArea = new JTextArea();
+    JCheckBox searchAllBoardsCheckBox = null;
+    JCheckBox downloadActivateCheckBox = null;
+    JCheckBoxMenuItem tofAutomaticUpdateMenuItem = null;
 
-    JLabel statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
-    static JLabel statusMessageLabel = new JLabel();
-    JLabel timeLabel = new JLabel("");
+    JComboBox searchComboBox = null;
+
+    JSplitPane attachmentSplitPane = null;
+    JSplitPane boardSplitPane = null;
 
     final String allMessagesCountPrefix = "Msg: ";
     final String newMessagesCountPrefix = "New: ";
     JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix+"0");
     JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix+"0");
+
     private String searchResultsCountPrefix = null;
     JLabel searchResultsCountLabel = new JLabel();
 
-    JCheckBox downloadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/down.gif")), true);
-//     JCheckBox uploadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/up.gif")), true);
-    JCheckBox searchAllBoardsCheckBox= new JCheckBox("all boards",true);
+    TofTree tofTree = null;
+
+    private UploadTable uploadTable = null;
+    private MessageTable messageTable = null;
+    private SearchTable searchTable = null;
+    private DownloadTable downloadTable = null;
+    private JTable attachmentTable = null;
+    private JTable boardTable = null;
+
+    private JTextArea tofTextArea = null;
+    private JTextField downloadTextField = null;
+    private JTextField searchTextField = null;
+
+//    JCheckBox uploadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/up.gif")), true);
 //    JCheckBox reducedBlockCheckCheckBox= new JCheckBox();
 
-    public static DownloadTableModel downloadTableModel = new DownloadTableModel();
-    public static SearchTableModel searchTableModel = new SearchTableModel();
-    public static MessageTableModel messageTableModel = new MessageTableModel();
-    public static UploadTableModel uploadTableModel = new UploadTableModel();
-    AttachmentTableModel attachmentTableModel = new AttachmentTableModel();
-    AttachmentTableModel boardTableModel = new AttachmentTableModel();
+    // all popupmenu items
+    JPopupMenu searchPopupMenu = null;
+    JMenuItem searchPopupDownloadSelectedKeys = null;
+    JMenuItem searchPopupDownloadAllKeys = null;
+    JMenuItem searchPopupCopyAttachment = null;
+    JMenuItem searchPopupCancel = null;
 
-    Vector downloadTableColumnNames = new Vector();
-    Vector uploadTableColumnNames = new Vector();
-    Vector searchTableColumnNames = new Vector();
-    Vector messageTableColumnNames = new Vector();
-    Vector attachmentTableColumnNames = new Vector();
-    Vector boardTableColumnNames = new Vector();
+    JPopupMenu uploadPopupMenu = null;
+    JMenuItem uploadPopupMoveSelectedFilesUp = null;
+    JMenuItem uploadPopupMoveSelectedFilesDown = null;
+    JMenuItem uploadPopupRemoveSelectedFiles = null;
+    JMenuItem uploadPopupRemoveAllFiles = null;
+    JMenuItem uploadPopupReloadSelectedFiles = null;
+    JMenuItem uploadPopupReloadAllFiles = null;
+    JMenuItem uploadPopupSetPrefixForSelectedFiles = null;
+    JMenuItem uploadPopupSetPrefixForAllFiles = null;
+    JMenuItem uploadPopupRestoreDefaultFilenamesForSelectedFiles = null;
+    JMenuItem uploadPopupRestoreDefaultFilenamesForAllFiles = null;
+    JMenu uploadPopupChangeDestinationBoard = null;
+    JMenuItem uploadPopupAddFilesToBoard = null;
+    JMenuItem uploadPopupCancel = null;
 
-    public static JTable downloadTable = new JTable(downloadTableModel);
-    public static JTable uploadTable = new JTable(uploadTableModel);
-    SearchTable searchTable = new SearchTable(searchTableModel);
-    MessageTable messageTable = new MessageTable(messageTableModel);
-    JTable attachmentTable = new JTable(attachmentTableModel);
-    JTable boardTable = new JTable(boardTableModel);
+    JPopupMenu downloadPopupMenu = null;
+    JMenuItem downloadPopupRemoveSelectedDownloads = null;
+    JMenuItem downloadPopupRemoveAllDownloads = null;
+    JMenuItem downloadPopupResetHtlValues = null;
+    JMenuItem downloadPopupMoveUp = null;
+    JMenuItem downloadPopupMoveDown = null;
+    JMenuItem downloadPopupCancel = null;
 
-    DefaultListSelectionModel searchTableListModel = new DefaultListSelectionModel();
-    DefaultListSelectionModel messageTableListModel = new DefaultListSelectionModel();
+    JPopupMenu tofTextPopupMenu = null;
+    JMenuItem tofTextPopupSaveMessage = null;
+    JMenuItem tofTextPopupSaveAttachments = null;
+    JMenuItem tofTextPopupSaveAttachment = null;
+    JMenuItem tofTextPopupSaveBoards = null;
+    JMenuItem tofTextPopupSaveBoard = null;
+    JMenuItem tofTextPopupCancel = null;
 
-    JButton searchDownloadButton = new JButton(new ImageIcon(frame1.class.getResource("/data/save.gif")));
-    JButton tofUpdateButton = new JButton(new ImageIcon(frame1.class.getResource("/data/update.gif")));
-    public static JButton searchButton = new JButton(new ImageIcon(frame1.class.getResource("/data/search.gif")));
-    JButton uploadAddFilesButton = new JButton(new ImageIcon(frame1.class.getResource("/data/browse.gif")));
-    JButton tofNewMessageButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newmessage.gif")));
-    JButton tofReplyButton = new JButton(new ImageIcon(frame1.class.getResource("/data/reply.gif")));
-    JButton newBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newboard.gif")));
-    JButton removeBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
-    JButton renameBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/rename.gif")));
-    JButton cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
-    JButton copyBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/copy.gif")));
-    JButton pasteBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/paste.gif")));
-    JButton configBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/configure.gif")));
-    JButton downloadAttachmentsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachment.gif")));
-    JButton downloadBoardsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
-    JButton saveMessageButton= new JButton(new ImageIcon(frame1.class.getResource("/data/save.gif")));
-    JButton boardInfoButton= new JButton(new ImageIcon(frame1.class.getResource("/data/info.gif")));
-    JButton systemTrayButton= new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
-    JButton trustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/trust.gif")));
-    JButton notTrustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/nottrust.gif")));
+    JPopupMenu tofTreePopupMenu = null;
+    JMenuItem tofTreePopupRefresh = null;
+    JMenuItem tofTreePopupAddNode = null;
+    JMenuItem tofTreePopupRemoveNode = null;
+    JMenuItem tofTreePopupCopyNode = null;
+    JMenuItem tofTreePopupCutNode = null;
+    JMenuItem tofTreePopupPasteNode = null;
+    JMenuItem tofTreePopupConfigureBoard = null;
+    JMenuItem tofTreePopupCancel = null;
 
-    JMenuBar menuBar = new JMenuBar();
-
-    JMenu fileMenu = new JMenu(LangRes.getString("File"));
-    JMenuItem fileExitMenuItem = new JMenuItem(LangRes.getString("Exit"));
-
-    JMenu tofMenu = new JMenu(LangRes.getString("News"));
-    JMenuItem tofConfigureBoardMenuItem = new JMenuItem(LangRes.getString("Configure selected board"));
-    JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem(LangRes.getString("Display board information window"));
-    JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem(LangRes.getString("Automatic message update"), true);
-    JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Increase Font Size"));
-    JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Decrease Font Size"));
-
-    JMenu optionsMenu = new JMenu(LangRes.getString("Options"));
-    JMenuItem optionsPreferencesMenuItem = new JMenuItem(LangRes.getString("Preferences"));
-
-    JMenu pluginMenu = new JMenu("Plugin");
-    JMenuItem pluginBrowserMenuItem = new JMenuItem("EFB (Experimental Freenet Browser)");
-
-    JMenu helpMenu = new JMenu(LangRes.getString("Help"));
-    JMenuItem helpHelpMenuItem = new JMenuItem("Help");
-    JMenuItem helpAboutMenuItem = new JMenuItem(LangRes.getString("About"));
-
-    JPopupMenu searchPopupMenu = new JPopupMenu();
-    JMenuItem searchPopupDownloadSelectedKeys = new JMenuItem(LangRes.getString("Download selected keys"));
-    JMenuItem searchPopupDownloadAllKeys = new JMenuItem(LangRes.getString("Download all keys"));
-    JMenuItem searchPopupCopyAttachment = new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
-    JMenuItem searchPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
-
-    JPopupMenu uploadPopupMenu = new JPopupMenu();
-    JMenuItem uploadPopupMoveSelectedFilesUp = new JMenuItem(LangRes.getString("Move selected files up"));
-    JMenuItem uploadPopupMoveSelectedFilesDown = new JMenuItem(LangRes.getString("Move selected files down"));
-    JMenuItem uploadPopupRemoveSelectedFiles = new JMenuItem(LangRes.getString("Remove selected files"));
-    JMenuItem uploadPopupRemoveAllFiles = new JMenuItem(LangRes.getString("Remove all files"));
-    JMenuItem uploadPopupReloadSelectedFiles = new JMenuItem(LangRes.getString("Reload selected files"));
-    JMenuItem uploadPopupReloadAllFiles = new JMenuItem(LangRes.getString("Reload all files"));
-    JMenuItem uploadPopupSetPrefixForSelectedFiles = new JMenuItem(LangRes.getString("Set prefix for selected files"));
-    JMenuItem uploadPopupSetPrefixForAllFiles = new JMenuItem(LangRes.getString("Set prefix for all files"));
-    JMenuItem uploadPopupRestoreDefaultFilenamesForSelectedFiles = new JMenuItem(LangRes.getString("Restore default filenames for selected files"));
-    JMenuItem uploadPopupRestoreDefaultFilenamesForAllFiles = new JMenuItem(LangRes.getString("Restore default filenames for all files"));
-    JMenu uploadPopupChangeDestinationBoard = new JMenu(LangRes.getString("Change destination board"));
-    JMenuItem uploadPopupAddFilesToBoard = new JMenuItem(LangRes.getString("Add files to board"));
-    JMenuItem uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
-
-    JPopupMenu downloadPopupMenu = new JPopupMenu(); // Downloads popup
-    JMenuItem downloadPopupRemoveSelectedDownloads = new JMenuItem(LangRes.getString("Remove selected downloads"));
-    JMenuItem downloadPopupRemoveAllDownloads = new JMenuItem(LangRes.getString("Remove all downloads"));
-    JMenuItem downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-    JMenuItem downloadPopupMoveUp = new JMenuItem(LangRes.getString("Move selected downloads up"));
-    JMenuItem downloadPopupMoveDown = new JMenuItem(LangRes.getString("Move selected downloads down"));
-    JMenuItem downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
-
-    JPopupMenu tofTextPopupMenu = new JPopupMenu(); // TOF text popup
-    JMenuItem tofTextPopupSaveMessage = new JMenuItem(LangRes.getString("Save message to disk"));
-    JMenuItem tofTextPopupSaveAttachments = new JMenuItem(LangRes.getString("Download attachment(s)"));
-    JMenuItem tofTextPopupSaveAttachment = new JMenuItem("Download selected attachment");
-    JMenuItem tofTextPopupSaveBoards = new JMenuItem("Add board(s)");
-    JMenuItem tofTextPopupSaveBoard = new JMenuItem("Add selected board");
-    JMenuItem tofTextPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
-
-    JPopupMenu tofTreePopupMenu = new JPopupMenu(); // TOF tree popup
-    JMenuItem tofTreePopupRefresh = new JMenuItem("Refresh board/folder");
-    JMenuItem tofTreePopupAddNode = new JMenuItem(LangRes.getString("Add new board / folder"));
-    JMenuItem tofTreePopupRemoveNode = new JMenuItem(LangRes.getString("Remove selected board / folder"));
-    JMenuItem tofTreePopupCopyNode = new JMenuItem(LangRes.getString("Copy selected board / folder"));
-    JMenuItem tofTreePopupCutNode = new JMenuItem(LangRes.getString("Cut selected board / folder"));
-    JMenuItem tofTreePopupPasteNode = new JMenuItem(LangRes.getString("Paste board / folder"));
-    JMenuItem tofTreePopupConfigureBoard = new JMenuItem(LangRes.getString("Configure selected board"));
-    JMenuItem tofTreePopupCancel = new JMenuItem(LangRes.getString("Cancel"));
-
-    JTabbedPane tabbedPane = new JTabbedPane();
-
-    private DefaultMutableTreeNode tofTreeNode = new DefaultMutableTreeNode("Frost Message System");
-    private TofTree tofTree = new TofTree(tofTreeNode);
-
-    JScrollPane searchTableScrollPane = new JScrollPane(searchTable);
-    JScrollPane downloadTableScrollPane = new JScrollPane(downloadTable);
-    JScrollPane messageTableScrollPane = new JScrollPane(messageTable);
-    JScrollPane uploadTableScrollPane = new JScrollPane(uploadTable);
-    JScrollPane tofTextAreaScrollPane = new JScrollPane(tofTextArea);
-    JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
-    JScrollPane attachmentTableScrollPane = new JScrollPane(attachmentTable);
-    JScrollPane boardTableScrollPane = new JScrollPane(boardTable);
-
-    JSplitPane tofSplitPane, tofSplitPane1, tofSplitPane2, tofSplitPane3;
-    JSplitPane attachmentSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tofTextAreaScrollPane, attachmentTableScrollPane);
-    JSplitPane boardSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, attachmentSplitPane, boardTableScrollPane);
+    //------------------------------------------------------------------------
+    // end-of: Generate objects
+    //------------------------------------------------------------------------
 
     boolean loaded_tables;
 
@@ -287,100 +217,106 @@ public class frame1 extends JFrame implements ClipboardOwner {
     public static BuddyList getEnemies() {return enemies;}
     //------------------------------------------------------------------------
 
+    /*************************
+     * GETTER + SETTER       *
+     *************************/
     public static frame1 getInstance()
     {
         return instance;
     }
 
-    public TofTree getTofTree()
-    {
-        return tofTree;
-    }
-    public MessageTable getMessageTable()
-    {
-        return messageTable;
-    }
-    public String getLastUsedBoard()
-    {
-        return lastUsedBoard;
-    }
+    public UploadTable      getUploadTable() { return uploadTable; }
+    public MessageTable     getMessageTable() { return messageTable; }
+    public SearchTable      getSearchTable() { return searchTable; }
+    public DownloadTable    getDownloadTable() { return downloadTable; }
+    public JTable           getAttachmentTable() { return attachmentTable; }
+    public JTable           getAttachedBoardsTable() { return boardTable; }
+    public String           getTofTextAreaText() { return tofTextArea.getText(); }
+    public void             setTofTextAreaText(String txt) { tofTextArea.setText(txt); }
+    public TofTree          getTofTree() { return tofTree; }
+    public String           getLastUsedBoard() { return lastUsedBoard; }
+    public JButton          getSearchButton() { return searchButton; }
 
     /**Construct the frame*/
-    public frame1() {
+    public frame1()
+    {
         instance = this;
         loaded_tables=false;
 
-    enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-    try {
-        jbInit();
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+        try {
+            jbInit();
 
-        saver = new Thread() {
-        public void run() {
-            System.out.println("saving identities");
-            File identities = new File("identities");
+            saver = new Thread() {
+                public void run() {
+                    System.out.println("saving identities");
+                    File identities = new File("identities");
 
-            try{ //TODO: complete this
-            /*    id_writer = new ObjectOutputStream(new FileOutputStream(identities));
-            //System.out.println("myself: " + frame1.getMyId().toString());
-            //id_writer.writeObject(frame1.getMyId());
-            System.out.println("friends: " + frame1.getFriends().toString());
-            id_writer.writeObject(frame1.getFriends());
-            System.out.println("enemies: " + frame1.getEnemies().toString());
-            id_writer.writeObject(frame1.getEnemies());
-            id_writer.close();*/
-        FileWriter fout = new FileWriter(identities);
-        fout.write(mySelf.getName() + "\n");
-        fout.write(mySelf.getKeyAddress() + "\n");
-        fout.write(mySelf.getKey() + "\n");
-        fout.write(mySelf.getPrivKey() + "\n");
+                    try
+                    { //TODO: complete this
+                        /*    id_writer = new ObjectOutputStream(new FileOutputStream(identities));
+                        //System.out.println("myself: " + frame1.getMyId().toString());
+                        //id_writer.writeObject(frame1.getMyId());
+                        System.out.println("friends: " + frame1.getFriends().toString());
+                        id_writer.writeObject(frame1.getFriends());
+                        System.out.println("enemies: " + frame1.getEnemies().toString());
+                        id_writer.writeObject(frame1.getEnemies());
+                        id_writer.close();*/
+                        FileWriter fout = new FileWriter(identities);
+                        fout.write(mySelf.getName() + "\n");
+                        fout.write(mySelf.getKeyAddress() + "\n");
+                        fout.write(mySelf.getKey() + "\n");
+                        fout.write(mySelf.getPrivKey() + "\n");
 
-        //now do the friends
-        fout.write("*****************\n");
-        Iterator i = friends.values().iterator();
-        while (i.hasNext()) {
-            Identity cur = (Identity)i.next();
-            fout.write(cur.getName() + "\n");
-            fout.write(cur.getKeyAddress() + "\n");
-            fout.write(cur.getKey() + "\n");
+                        //now do the friends
+                        fout.write("*****************\n");
+                        Iterator i = friends.values().iterator();
+                        while( i.hasNext() )
+                        {
+                            Identity cur = (Identity)i.next();
+                            fout.write(cur.getName() + "\n");
+                            fout.write(cur.getKeyAddress() + "\n");
+                            fout.write(cur.getKey() + "\n");
+                        }
+                        fout.write("*****************\n");
+                        i = enemies.values().iterator();
+                        while( i.hasNext() )
+                        {
+                            Identity cur = (Identity)i.next();
+                            fout.write(cur.getName() + "\n");
+                            fout.write(cur.getKeyAddress() + "\n");
+                            fout.write(cur.getKey() + "\n");
+                        }
+                        fout.write("*****************\n");
+                        fout.close();
+                    }
+                    catch( IOException e )
+                    {
+                        System.out.println("couldn't save buddy list"); System.out.println(e.toString());
+                    }
+                    saveOnExit();
+                    FileAccess.cleanKeypool(keypool);
+                }
+                };
+            Runtime.getRuntime().addShutdownHook(saver);
+
+            cleaner = new TimerTask() {
+                public void run() {
+                    int i =0;
+                    if( i==10 && frostSettings.getBoolValue("doCleanUp") )
+                    {
+                        i=0;
+                        System.out.println("discarding old files");
+                        fileCleaner.doCleanup();
+                    }
+                    System.out.println("freeing memory");
+                    System.gc();
+                    i++;
+                }
+                };
+            timer2.schedule(cleaner,10*60*1000,10*60*1000);
         }
-        fout.write("*****************\n");
-        i = enemies.values().iterator();
-        while (i.hasNext()) {
-            Identity cur = (Identity)i.next();
-            fout.write(cur.getName() + "\n");
-            fout.write(cur.getKeyAddress() + "\n");
-            fout.write(cur.getKey() + "\n");
-        }
-        fout.write("*****************\n");
-        fout.close();
-            }catch(IOException e){System.out.println("couldn't save buddy list"); System.out.println(e.toString());}
-            saveOnExit();
-            FileAccess.cleanKeypool(keypool);
-        }
-        };
-        Runtime.getRuntime().addShutdownHook(saver);
-
-        cleaner = new TimerTask() {
-        public void run() {
-            int i =0;
-
-            if (i==10 && frostSettings.getBoolValue("doCleanUp")) {
-                 i=0;
-             System.out.println("discarding old files");
-            fileCleaner.doCleanup();
-             }
-            System.out.println("freeing memory");
-            System.gc();
-            i++;
-
-        }
-        };
-
-     timer2.schedule(cleaner,10*60*1000,10*60*1000);
-    }
-    catch(Exception e) {
-        e.printStackTrace();
-    }
+        catch( Exception e ) { e.printStackTrace(); }
     }
 
     /**
@@ -408,8 +344,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
     public void configureCheckBox(JCheckBox checkBox, String toolTipText, String rolloverIcon,
                                     String selectedIcon, String rolloverSelectedIcon)
     {
-
-    checkBox.setToolTipText(LangRes.getString(toolTipText));
+        checkBox.setToolTipText(LangRes.getString(toolTipText));
         checkBox.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
         checkBox.setSelectedIcon(new ImageIcon(frame1.class.getResource(selectedIcon)));
         checkBox.setRolloverSelectedIcon(new ImageIcon(frame1.class.getResource(rolloverSelectedIcon)));
@@ -417,43 +352,463 @@ public class frame1 extends JFrame implements ClipboardOwner {
         checkBox.setFocusPainted(false);
     }
 
+    private JPanel createButtonPanel(MouseListener idleStopper) //OK
+    {
+        timeLabel = new JLabel("");
+// configure buttons
+        this.pasteBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/paste.gif")));
+        this.configBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/configure.gif")));
+
+        JButton newBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newboard.gif")));
+        JButton removeBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
+        JButton renameBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/rename.gif")));
+        JButton cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
+        JButton copyBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/copy.gif")));
+        JButton boardInfoButton= new JButton(new ImageIcon(frame1.class.getResource("/data/info.gif")));
+        JButton systemTrayButton= new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
+
+        configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
+        configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
+        configureButton(renameBoardButton, "Rename board", "/data/rename_rollover.gif");
+        configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif");
+        configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif");
+        configureButton(copyBoardButton, "Copy board", "/data/copy_rollover.gif");
+        configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif");
+        configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif");
+        configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif");
+
+// add action listener
+        newBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addNodeToTree();
+            } });
+        renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                renameSelectedNode();
+            } });
+        removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                removeSelectedNode();
+            } });
+        cutBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                cutSelectedNode();
+            } });
+        copyBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                copyToClipboard();
+            } });
+        pasteBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                pasteFromClipboard();
+            } });
+        configBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tofConfigureBoardMenuItem_actionPerformed(e);
+            } });
+        systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+            try { // Hide the Frost window
+                Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayHide.exe");
+            }catch(IOException _IoExc) { }
+            } });
+        boardInfoButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tofDisplayBoardInfoMenuItem_actionPerformed(e);
+            } });
+// build panel
+        JPanel buttonPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints buttonPanelConstr = new GridBagConstraints();
+
+        buttonPanelConstr.anchor = buttonPanelConstr.WEST;
+        buttonPanelConstr.gridx = buttonPanelConstr.RELATIVE;
+        buttonPanelConstr.insets = new Insets(0,2,0,2);
+        buttonPanel.add(newBoardButton,buttonPanelConstr);
+        buttonPanel.add(configBoardButton,buttonPanelConstr);
+        buttonPanel.add(renameBoardButton,buttonPanelConstr);
+        buttonPanel.add(removeBoardButton,buttonPanelConstr);
+        buttonPanel.add(cutBoardButton,buttonPanelConstr);
+        buttonPanel.add(copyBoardButton,buttonPanelConstr);
+        buttonPanel.add(pasteBoardButton,buttonPanelConstr);
+        buttonPanel.add(boardInfoButton,buttonPanelConstr);
+
+        // The System Tray Icon does only work on Windows machines.
+        // It uses the Visual Basic files (compiled ones) in the data directory.
+        if ((System.getProperty("os.name").startsWith("Windows")))
+        {
+            buttonPanel.add(systemTrayButton,buttonPanelConstr);
+        }
+        buttonPanelConstr.gridwidth = buttonPanelConstr.REMAINDER;
+        buttonPanelConstr.anchor = buttonPanelConstr.EAST;
+        buttonPanelConstr.weightx = 1;
+        buttonPanel.add(timeLabel,buttonPanelConstr);
+
+        buttonPanel.addMouseListener(idleStopper);
+
+        return buttonPanel;
+    }
+
+    private JPanel createStatusPanel(MouseListener idleStopper) //OK
+    {
+        statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
+        statusMessageLabel = new JLabel();
+
+        JPanel statusPanel = new JPanel(new BorderLayout());
+        statusPanel.add(statusLabel, BorderLayout.CENTER); // Statusbar
+        statusPanel.add(statusMessageLabel, BorderLayout.EAST); // Statusbar / new Message
+        statusPanel.addMouseListener(idleStopper);
+        return statusPanel;
+    }
+
+    private JPanel createTofMainPanel(MouseListener idleStopper) //OK
+    {
+        JTabbedPane tabbedPane = new JTabbedPane();
+        //add a tab for buddies perhaps?
+        tabbedPane.add(LangRes.getString("News"), getMessagePane());
+        tabbedPane.add(LangRes.getString("Search"), getSearchPane());
+        tabbedPane.add(LangRes.getString("Downloads"), getDownloadPane());
+        tabbedPane.add(LangRes.getString("Uploads"), getUploadPane());
+
+        DefaultMutableTreeNode tofTreeNode = new DefaultMutableTreeNode("Frost Message System");
+        tofTree = new TofTree(tofTreeNode);
+        JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
+        tofTree.setRootVisible(true);
+        tofTree.setEditable(true);
+        tofTree.setCellRenderer(new TofTreeCellRenderer());
+        tofTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
+        // tofTree selection listener
+        tofTree.addTreeSelectionListener(new TreeSelectionListener() {
+            public void valueChanged(TreeSelectionEvent e) {
+                tofTree_actionPerformed(e);
+                int i[] = getTofTree().getSelectionRows();
+                if (i != null)
+                {
+                    if (i.length > 0)
+                        frostSettings.setValue("tofTreeSelectedRow", i[0]);
+                }
+                TreePath selectedTreePath = e.getNewLeadSelectionPath();
+                if (selectedTreePath == null)
+                    getTofTree().setSelectedTof(null);
+                else
+                    getTofTree().setSelectedTof((DefaultMutableTreeNode)selectedTreePath.getLastPathComponent());
+        } });
+        //tofTree / KeyEvent
+        tofTree.addKeyListener(new KeyListener() {
+            public void keyTyped(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) { tofTree_keyPressed(e); }
+            public void keyReleased(KeyEvent e) {}
+        });
+
+        // was tofSplitPane2
+        JSplitPane treeAndTabbedPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, tabbedPane);
+        treeAndTabbedPane.setDividerLocation(160); // Vertical Board Tree / MessagePane Divider
+
+        JPanel tofMainPanel = new JPanel(new BorderLayout());
+//        tofMainPanel.add(tofTopPanel, BorderLayout.NORTH); // TOF/Buttons
+        tofMainPanel.add(treeAndTabbedPane, BorderLayout.CENTER); // TOF/Text
+
+        return tofMainPanel;
+    }
+
+    private JPanel getMessagePane() // OK
+    {
+// configure buttons
+        this.tofNewMessageButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newmessage.gif")));
+        JButton tofUpdateButton = new JButton(new ImageIcon(frame1.class.getResource("/data/update.gif")));
+        this.tofReplyButton = new JButton(new ImageIcon(frame1.class.getResource("/data/reply.gif")));
+        this.downloadAttachmentsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachment.gif")));
+        this.downloadBoardsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
+        this.saveMessageButton= new JButton(new ImageIcon(frame1.class.getResource("/data/save.gif")));
+        this.trustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/trust.gif")));
+        this.notTrustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/nottrust.gif")));
+
+        configureButton(tofNewMessageButton, "New message", "/data/newmessage_rollover.gif");
+        configureButton(tofUpdateButton, "Update", "/data/update_rollover.gif");
+        configureButton(tofReplyButton, "Reply", "/data/reply_rollover.gif");
+        configureButton(downloadAttachmentsButton, "Download attachment(s)", "/data/attachment_rollover.gif");
+        configureButton(downloadBoardsButton, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
+        configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif");
+        configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
+        configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif");
+
+// add action listener to buttons
+        tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) { // Update selected board
+                if (doUpdate(lastUsedBoard))  {  updateBoard(lastUsedBoard);  }
+            } });
+        tofNewMessageButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                tofNewMessageButton_actionPerformed(e);
+            } });
+        downloadAttachmentsButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                downloadAttachments();
+            } });
+        downloadBoardsButton.addActionListener(new java.awt.event.ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               downloadBoards();
+           } });
+       tofReplyButton.addActionListener(new java.awt.event.ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               tofReplyButton_actionPerformed(e);
+           } });
+       saveMessageButton.addActionListener(new java.awt.event.ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               FileAccess.saveDialog(getInstance(), tofTextArea.getText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
+           } });
+        trustButton.addActionListener(new java.awt.event.ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               trustButton_actionPerformed(e);
+           } });
+       notTrustButton.addActionListener(new java.awt.event.ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               notTrustButton_actionPerformed(e);
+           } });
+// build buttons panel
+        JPanel tofTopPanel = new JPanel();
+        BoxLayout dummyLayout = new BoxLayout(tofTopPanel, BoxLayout.X_AXIS);
+        tofTopPanel.setLayout(dummyLayout);
+
+        tofTopPanel.add(saveMessageButton); // TOF/ Save Message
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(tofNewMessageButton); // TOF/ New Message
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(tofReplyButton); // TOF/ Reply
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(tofUpdateButton); // TOF/ Update
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(downloadAttachmentsButton); // TOF/ Download Attachments
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(downloadBoardsButton); // TOF/ Download Boards
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(trustButton); //TOF /trust
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(notTrustButton); //TOF /do not trust
+        tofTopPanel.add( Box.createHorizontalGlue() );
+        JLabel dummyLabel = new JLabel(allMessagesCountPrefix + "00000");
+        dummyLabel.doLayout();
+        Dimension labelSize = dummyLabel.getPreferredSize();
+        allMessagesCountLabel.setPreferredSize(labelSize);
+        allMessagesCountLabel.setMinimumSize(labelSize);
+        newMessagesCountLabel.setPreferredSize(labelSize);
+        newMessagesCountLabel.setMinimumSize(labelSize);
+        tofTopPanel.add(allMessagesCountLabel);
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(newMessagesCountLabel);
+// build panel wich shows the message list + message
+        MessageTableModel messageTableModel = new MessageTableModel();
+        this.messageTable = new MessageTable(messageTableModel);
+        messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+        messageTable.getSelectionModel().addListSelectionListener( new ListSelectionListener() {
+            public void valueChanged(ListSelectionEvent e){
+                messageTableListModel_valueChanged(e);
+            } });
+        JScrollPane messageTableScrollPane = new JScrollPane(messageTable);
+
+        this.tofTextArea = new JTextArea();
+        JScrollPane tofTextAreaScrollPane = new JScrollPane(tofTextArea);
+
+        AttachmentTableModel attachmentTableModel = new AttachmentTableModel();
+        this.attachmentTable = new JTable(attachmentTableModel);
+        JScrollPane attachmentTableScrollPane = new JScrollPane(attachmentTable);
+
+        AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
+        this.boardTable = new JTable(boardTableModel);
+        JScrollPane boardTableScrollPane = new JScrollPane(boardTable);
+
+        JSplitPane tofSplitPane; //, tofSplitPane1, tofSplitPane2, tofSplitPane3;
+        attachmentSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tofTextAreaScrollPane, attachmentTableScrollPane);
+        boardSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, attachmentSplitPane, boardTableScrollPane);
+
+        tofSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageTableScrollPane, boardSplitPane);
+
+        tofSplitPane.setDividerSize(10);
+        tofSplitPane.setDividerLocation(160);
+        tofSplitPane.setResizeWeight(0.5d);
+        tofSplitPane.setMinimumSize(new Dimension(50, 20));
+
+        tofTextArea.setText(LangRes.getString("Select a message to view its content."));
+        tofTextArea.setEditable(false);
+        tofTextArea.setLineWrap(true);
+        tofTextArea.setWrapStyleWord(true);
+// build panel
+        JPanel messageTablePanel = new JPanel(new BorderLayout());
+        messageTablePanel.add(tofTopPanel, BorderLayout.NORTH);
+        messageTablePanel.add(tofSplitPane, BorderLayout.CENTER);
+        return messageTablePanel;
+    }
+
+    private JPanel getSearchPane() //OK
+    {
+// create objects for button toolbar
+        this.searchAllBoardsCheckBox= new JCheckBox("all boards",true);
+        JButton searchDownloadButton = new JButton(new ImageIcon(frame1.class.getResource("/data/save.gif")));
+        this.searchButton = new JButton(new ImageIcon(frame1.class.getResource("/data/search.gif")));
+
+        this.searchTextField = new JTextField(25);
+        String[] searchComboBoxItems = {"All files", "Audio", "Video", "Images", "Documents", "Executables", "Archives"};
+        this.searchComboBox = new JComboBox(searchComboBoxItems);
+// configure buttons
+        configureButton(searchButton, "Search", "/data/search_rollover.gif");
+        configureButton(searchDownloadButton, "Download selected keys", "/data/save_rollover.gif");
+// build button toolbar panel
+        JPanel searchTopPanel = new JPanel();
+        BoxLayout dummyLayout = new BoxLayout( searchTopPanel, BoxLayout.X_AXIS );
+        searchTopPanel.setLayout( dummyLayout );
+
+        searchTextField.setMaximumSize( searchTextField.getPreferredSize() );
+        searchTopPanel.add(searchTextField); // Search / text
+        searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        searchComboBox.setMaximumSize( searchComboBox.getPreferredSize() );
+        searchTopPanel.add(searchComboBox);
+        searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        searchTopPanel.add(searchButton); // Search / Search button
+        searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        searchTopPanel.add(searchDownloadButton); // Search / Download selected files
+        searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        searchTopPanel.add(searchAllBoardsCheckBox);
+        searchTopPanel.add( Box.createRigidArea(new Dimension(80,0)));
+        searchTopPanel.add( Box.createHorizontalGlue() );
+
+        searchResultsCountPrefix = LangRes.getString("   Results: ");
+        JLabel dummyLabel = new JLabel(searchResultsCountPrefix + "00000");
+        dummyLabel.doLayout();
+        Dimension labelSize = dummyLabel.getPreferredSize();
+        searchResultsCountLabel.setPreferredSize(labelSize);
+        searchResultsCountLabel.setMinimumSize(labelSize);
+        searchResultsCountLabel.setText(searchResultsCountPrefix+"0");
+        searchTopPanel.add(searchResultsCountLabel);
+// build table
+        SearchTableModel searchTableModel = new SearchTableModel();
+        this.searchTable = new SearchTable(searchTableModel);
+        JScrollPane searchTableScrollPane = new JScrollPane(searchTable);
+// add action listener
+        searchTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                searchTextField_actionPerformed(e);
+            } });
+        searchDownloadButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"),
+                                                    frame1.getInstance().getSearchTable(),
+                                                    frame1.getInstance().getDownloadTable());
+            } });
+        searchButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                searchButton_actionPerformed(e);
+            } });
+// build panel
+        JPanel searchMainPanel = new JPanel(new BorderLayout());
+        searchMainPanel.add(searchTopPanel, BorderLayout.NORTH); // Search / Buttons
+        searchMainPanel.add(searchTableScrollPane, BorderLayout.CENTER); // Search / Results
+        return searchMainPanel;
+    }
+
+    private JPanel getDownloadPane() //OK
+    {
+// create objects for buttons toolbar panel
+        this.downloadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/down.gif")), true);
+        configureCheckBox(downloadActivateCheckBox,
+                     "Activate downloading",
+                     "/data/down_rollover.gif",
+                     "/data/down_selected.gif",
+                     "/data/down_selected_rollover.gif");
+
+        this.downloadTextField = new JTextField(25);
+        downloadTextField.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                downloadTextField_actionPerformed(e);
+        } });
+// create buttons toolbar panel
+        JPanel downloadTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        downloadTopPanel.add(downloadTextField);//Download/Quickload
+        downloadTopPanel.add(downloadActivateCheckBox);//Download/Start transfer
+// create downloadTable
+        DownloadTableModel downloadTableModel = new DownloadTableModel();
+        this.downloadTable = new DownloadTable(downloadTableModel);
+        JScrollPane downloadTableScrollPane = new JScrollPane(downloadTable);
+        //Downloads / KeyEvent
+        downloadTable.addKeyListener(new KeyListener() {
+            public void keyTyped(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) { downloadTable_keyPressed(e); }
+            public void keyReleased(KeyEvent e) {}
+        });
+// create the main download panel
+        JPanel downloadMainPanel = new JPanel(new BorderLayout());
+        downloadMainPanel.add(downloadTopPanel, BorderLayout.NORTH); // Download/Buttons
+        downloadMainPanel.add(downloadTableScrollPane, BorderLayout.CENTER); //Downloadlist
+        return downloadMainPanel;
+    }
+
+    private JPanel getUploadPane() //OK
+    {
+// create upload table
+        UploadTableModel uploadTableModel = new UploadTableModel();
+        this.uploadTable = new UploadTable(uploadTableModel);
+        JScrollPane uploadTableScrollPane = new JScrollPane(uploadTable);
+        // uploadTable / KeyEvent
+        uploadTable.addKeyListener(new KeyListener() {
+            public void keyTyped(KeyEvent e) {}
+            public void keyPressed(KeyEvent e) {
+                if (e.getKeyChar() == KeyEvent.VK_DELETE && !uploadTable.isEditing())
+                    TableFun.removeSelectedRows(uploadTable);
+            }
+            public void keyReleased(KeyEvent e) {}
+        });
+// create toolbar button
+        this.uploadAddFilesButton = new JButton(new ImageIcon(frame1.class.getResource("/data/browse.gif")));
+        configureButton(uploadAddFilesButton, "Browse...", "/data/browse_rollover.gif");
+        uploadAddFilesButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                uploadAddFilesButton_actionPerformed(e);
+            } });
+// add button to top panel
+        JPanel uploadTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        uploadTopPanel.add(uploadAddFilesButton);
+// add all to main upload panel
+        JPanel uploadMainPanel = new JPanel(new BorderLayout());
+        uploadMainPanel.add(uploadTopPanel, BorderLayout.NORTH);
+        uploadMainPanel.add(uploadTableScrollPane, BorderLayout.CENTER);
+        return uploadMainPanel;
+    }
+//**********************************************************************************************
+//**********************************************************************************************
+//**********************************************************************************************
+//**********************************************************************************************
+//**********************************************************************************************
     /**Component initialization*/
     private void jbInit() throws Exception  {
 
-setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+    setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
     this.setSize(new Dimension(790, 580));
     this.setResizable(true);
 
     this.setTitle("Frost");
 
-    contentPanel = (JPanel) this.getContentPane();
+    MouseListener idleStopper = new IdleStopper();
+
+    JPanel contentPanel = (JPanel)this.getContentPane();
     contentPanel.setLayout(new BorderLayout());
 
-    configureButton(tofNewMessageButton, "New message", "/data/newmessage_rollover.gif");
-    configureButton(tofUpdateButton, "Update", "/data/update_rollover.gif");
-    configureButton(tofReplyButton, "Reply", "/data/reply_rollover.gif");
-    configureButton(downloadAttachmentsButton, "Download attachment(s)", "/data/attachment_rollover.gif");
-    configureButton(downloadBoardsButton, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
-    configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif");
-    configureButton(copyBoardButton, "Copy board", "/data/copy_rollover.gif");
-    configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif");
-    configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
-    configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
-    configureButton(renameBoardButton, "Rename board", "/data/rename_rollover.gif");
-    configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif");
-    configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif");
-    configureButton(searchButton, "Search", "/data/search_rollover.gif");
-    configureButton(searchDownloadButton, "Download selected keys", "/data/save_rollover.gif");
-    configureButton(uploadAddFilesButton, "Browse...", "/data/browse_rollover.gif");
-    configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif");
-    configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif");
-    configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
-    configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif");
-    configureCheckBox(downloadActivateCheckBox,
-                 "Activate downloading",
-                 "/data/down_rollover.gif",
-                 "/data/down_selected.gif",
-                 "/data/down_selected_rollover.gif");
+    contentPanel.add( createButtonPanel(idleStopper), BorderLayout.NORTH); // buttons toolbar
+    contentPanel.add( createTofMainPanel(idleStopper), BorderLayout.CENTER); // tree / tabbed pane
+    contentPanel.add( createStatusPanel(idleStopper), BorderLayout.SOUTH); // Statusbar
+
+    contentPanel.addMouseListener(idleStopper);
+
+    createMenuBar();
+    createPopupMenus();
+
+//**********************************************************************************************
+//**********************************************************************************************
+//**********************************************************************************************
+    // Add IdleStoppers to some components
+    getDownloadTable().addMouseListener(idleStopper);
+    getSearchTable().addMouseListener(idleStopper);
+    getMessageTable().addMouseListener(idleStopper);
+    getUploadTable().addMouseListener(idleStopper);
+    getTofTree().addMouseListener(idleStopper);
+    tofTextArea.addMouseListener(idleStopper);
 
     /*configureCheckBox(searchAllBoardsCheckBox,
                  "Search all boards",
@@ -461,197 +816,29 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
                  "data/allboards_selected.gif",
                  "data/allboards_selected_rollover.gif");*/
 
-    getTofTree().setRootVisible(true);
-    getTofTree().setEditable(true);
-    TofTreeCellRenderer toftreecr = new TofTreeCellRenderer();
-    // TODO: update this if maxMessageDisplay changes!
-    //toftreecr.setDaysToRead(frostSettings.getIntValue("maxMessageDisplay"));
-    getTofTree().setCellRenderer(toftreecr);
-    getTofTree().getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-
-    tofSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageTableScrollPane, boardSplitPane);
-    tofSplitPane2 = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, tabbedPane);
-
-    tofSplitPane.setDividerSize(10);
-    tofSplitPane.setDividerLocation(160);
-    tofSplitPane.setResizeWeight(0.5d);
-    tofSplitPane.setMinimumSize(new Dimension(50, 20));
-
-    tofSplitPane1 = tofSplitPane;
-    tofSplitPane1.setBorder(null);
-    tofSplitPane1.setMinimumSize(new Dimension(50, 20));
-    tofSplitPane1.setDividerLocation(160); // Horizontal MessageTable/Message divider
-    tofSplitPane1.setResizeWeight(0.5);
-    tofAttachmentPanel.setMinimumSize(new Dimension(50, 20));
-    boardAttachmentPanel.setMinimumSize(new Dimension(50, 20));
-
-    tofSplitPane2.setDividerLocation(160); // Vertical Board Tree / MessagePane Divider
-
-    tofSplitPane3 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tofSplitPane1, tofAttachmentPanel);
-    //tofSplitPane4 = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tofSplitPane3, boardAttachmentPanel);
-    tofSplitPane3.setResizeWeight(1);
-    //tofSplitPane4.setResizeWeight(1);
-
-    tofSplitPane3.setDividerLocation(390);
-    tofSplitPane3.setDividerSize(1);
-    tofSplitPane3.setMinimumSize(new Dimension(50,20));
-
-    //tofSplitPane4.setDividerLocation(390);
-    //tofSplitPane4.setDividerSize(1);
-    //tofSplitPane4.setMinimumSize(new Dimension(50,20));
-
-    tofTextArea.setText(LangRes.getString("Select a message to view its content."));
-    tofTextArea.setEditable(false);
-    tofTextArea.setLineWrap(true);
-    tofTextArea.setWrapStyleWord(true);
-
-    // Tables everywhere
-    downloadTableColumnNames.add(LangRes.getString("Filename"));
-    downloadTableColumnNames.add(LangRes.getString("Size"));
-    downloadTableColumnNames.add(LangRes.getString("Age"));
-    downloadTableColumnNames.add(LangRes.getString("State"));
-    downloadTableColumnNames.add(LangRes.getString("HTL"));
-    downloadTableColumnNames.add(LangRes.getString("Source"));
-    downloadTableColumnNames.add(LangRes.getString("Key"));
-    downloadTableModel.setDataVector(new Vector(), downloadTableColumnNames);
-
-    uploadTableColumnNames.add(LangRes.getString("Filename"));
-    uploadTableColumnNames.add(LangRes.getString("Size"));
-    uploadTableColumnNames.add(LangRes.getString("Last upload"));
-    uploadTableColumnNames.add(LangRes.getString("Path"));
-    uploadTableColumnNames.add(LangRes.getString("Destination"));
-    uploadTableColumnNames.add(LangRes.getString("Key"));
-    uploadTableModel.setDataVector(new Vector(), uploadTableColumnNames);
-    attachmentTableColumnNames.add(LangRes.getString("Filename"));
-    attachmentTableColumnNames.add(LangRes.getString("Key"));
-    attachmentTableModel.setDataVector(new Vector(), attachmentTableColumnNames);
-    boardTableColumnNames.add("Board Name");
-    boardTableColumnNames.add("Public Key");
-    boardTableColumnNames.add("Private Key");
-    boardTableModel.setDataVector(new Vector(), boardTableColumnNames);
-
-    searchTableColumnNames.add(LangRes.getString("Filename"));
-    searchTableColumnNames.add(LangRes.getString("Size"));
-    searchTableColumnNames.add(LangRes.getString("Age"));
-    searchTableColumnNames.add(LangRes.getString("Key"));
-    searchTableColumnNames.add(LangRes.getString("Board"));
-    searchTableModel.setDataVector(new Vector(), searchTableColumnNames);
-    searchTable.setSelectionModel(searchTableListModel);
-
-    messageTableColumnNames.add(LangRes.getString("Index"));
-    messageTableColumnNames.add(LangRes.getString("From"));
-    messageTableColumnNames.add(LangRes.getString("Subject"));
-    messageTableColumnNames.add("Sig");
-    messageTableColumnNames.add(LangRes.getString("Date"));
-    messageTableModel.setDataVector(new Vector(), messageTableColumnNames);
-    messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-    messageTableListModel.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-    messageTable.setSelectionModel(messageTableListModel);
-
-    // Set the column widths of the tables
-    {int[] widths = {30, 150, 250, 50, 150};
-    //{int[] widths = {30, 150, 250, 150};
-    TableFun.setColumnWidth(messageTable, widths);}
-
-    {int[] widths = {250, 80, 80, 80, 80};
-    TableFun.setColumnWidth(searchTable, widths);}
-
-    {int[] widths = {250, 90, 90, 80, 40, 50, 60};
-    TableFun.setColumnWidth(downloadTable, widths);}
-
-    {int[] widths = {250, 80, 80, 80, 80, 80};
-    TableFun.setColumnWidth(uploadTable, widths);}
-
     // Add Popup listeners
     MouseListener popupListener = new PopupListener();
-    downloadTable.addMouseListener(popupListener);
-    searchTable.addMouseListener(popupListener);
-    uploadTable.addMouseListener(popupListener);
+    getDownloadTable().addMouseListener(popupListener);
+    getSearchTable().addMouseListener(popupListener);
+    getUploadTable().addMouseListener(popupListener);
     tofTextArea.addMouseListener(popupListener);
     getTofTree().addMouseListener(popupListener);
-    attachmentTable.addMouseListener(popupListener);
-    boardTable.addMouseListener(popupListener);
+    getAttachmentTable().addMouseListener(popupListener);
+    getAttachedBoardsTable().addMouseListener(popupListener);
 
-    // Add IdleStoppers to some components
-    MouseListener idleStopper = new IdleStopper();
-    tofSplitPane1.addMouseListener(idleStopper);
-    tofSplitPane2.addMouseListener(idleStopper);
-    tofSplitPane3.addMouseListener(idleStopper);
-    //tofSplitPane4.addMouseListener(idleStopper);
-    downloadTable.addMouseListener(idleStopper);
-    searchTable.addMouseListener(idleStopper);
-    messageTable.addMouseListener(idleStopper);
-    uploadTable.addMouseListener(idleStopper);
-   getTofTree().addMouseListener(idleStopper);
-    tofTextArea.addMouseListener(idleStopper);
-    contentPanel.addMouseListener(idleStopper);
-    buttonPanel.addMouseListener(idleStopper);
-    statusPanel.addMouseListener(idleStopper);
-
-    // tofTree selection listener
-    tofTree.addTreeSelectionListener(new TreeSelectionListener() {
-        public void valueChanged(TreeSelectionEvent e) {
-            tofTree_actionPerformed(e);
-            int i[] = getTofTree().getSelectionRows();
-
-            if (i != null) {
-            if (i.length > 0)
-                frostSettings.setValue("tofTreeSelectedRow", i[0]);
-            }
-
-            TreePath selectedTreePath = e.getNewLeadSelectionPath();
-            if (selectedTreePath == null)
-                getTofTree().setSelectedTof(null);
-            else
-                getTofTree().setSelectedTof((DefaultMutableTreeNode)selectedTreePath.getLastPathComponent());
-
-        }
-        });
-
-    //tofTree / KeyEvent
-    getTofTree().addKeyListener(new KeyListener() {
-        public void keyTyped(KeyEvent e) {}
-        public void keyPressed(KeyEvent e) {
-            tofTree_keyPressed(e);
-        }
-        public void keyReleased(KeyEvent e) {}
-        });
-
-    //Downloads / KeyEvent
-    downloadTable.addKeyListener(new KeyListener() {
-        public void keyTyped(KeyEvent e) {}
-        public void keyPressed(KeyEvent e) {
-            downloadTable_keyPressed(e);
-        }
-        public void keyReleased(KeyEvent e) {}
-        });
-
-    // uploadTable / KeyEvent
-    uploadTable.addKeyListener(new KeyListener() {
-        public void keyTyped(KeyEvent e) {}
-        public void keyPressed(KeyEvent e) {
-            if (e.getKeyChar() == KeyEvent.VK_DELETE && !uploadTable.isEditing())
-            TableFun.removeSelectedRows(uploadTable);
-        }
-        public void keyReleased(KeyEvent e) {}
-        });
-
-    // TOF Table / valueChanged
-    messageTableListModel.addListSelectionListener(new ListSelectionListener() {
-        public void valueChanged(ListSelectionEvent e){
-            messageTableListModel_valueChanged(e);
-        }
-        });
+//**********************************************************************************************
+//**********************************************************************************************
+//**********************************************************************************************
 
     timer = new javax.swing.Timer(1000, new ActionListener() {
         public void actionPerformed(ActionEvent evt) {
             timer_actionPerformed();
-        }
-        });
+    } });
 
     timer2 = new java.util.Timer(true);
     timer2.schedule(new checkForSpam(), 0, frostSettings.getIntValue("sampleInterval")*60*60*1000);
 
+/*
     //TODO:*** remove, its debug only
     TimerTask printer = new TimerTask() {
         public void run() {
@@ -662,710 +849,8 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     };
     timer2.schedule(printer,0, 60*1000);
     //END of remove
+*/
 
-    searchTextField.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            searchTextField_actionPerformed(e);
-        }
-        });
-
-    downloadTextField.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            downloadTextField_actionPerformed(e);
-        }
-        });
-
-    searchDownloadButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
-        }
-        });
-
-    // Update selected board
-    tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (doUpdate(lastUsedBoard)) {
-            updateBoard(lastUsedBoard);
-            }
-        }
-        });
-
-    searchButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            searchButton_actionPerformed(e);
-        }
-        });
-
-    boardInfoButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            tofDisplayBoardInfoMenuItem_actionPerformed(e);
-        }
-        });
-
-    uploadAddFilesButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            uploadAddFilesButton_actionPerformed(e);
-        }
-        });
-
-    tofNewMessageButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            tofNewMessageButton_actionPerformed(e);
-        }
-        });
-
-    downloadAttachmentsButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            downloadAttachments();
-        }
-        });
-
-     downloadBoardsButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            downloadBoards();
-        }
-        });
-
-    tofReplyButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            tofReplyButton_actionPerformed(e);
-        }
-        });
-
-     trustButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            trustButton.setEnabled(false);
-            notTrustButton.setEnabled(false);
-            if (selectedMessage!=null) {
-                if (enemies.containsKey(selectedMessage.getFrom())){
-                    if (JOptionPane.showConfirmDialog(getInstance(),
-                    "are you sure you want to grant trust to user " +
-                    selectedMessage.getFrom().substring(0,selectedMessage.getFrom().indexOf("@")) +
-                    " ? \n If you choose yes, future messages from this user will be marked GOOD",
-                    "re-grant trust",
-                    JOptionPane.YES_NO_OPTION) ==0) {
-                        Identity x = enemies.Get(selectedMessage.getFrom());
-                        enemies.remove(selectedMessage.getFrom());
-                        friends.Add(x);
-                    }
-            }else {
-            Truster truster = new Truster(true);
-            truster.start();
-            }}
-            }
-        });
-
-    notTrustButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            trustButton.setEnabled(false);
-            notTrustButton.setEnabled(false);
-            if (selectedMessage!=null) {
-                if (friends.containsKey(selectedMessage.getFrom())){
-                    if (JOptionPane.showConfirmDialog(getInstance(),
-                    "are you sure you want to revoke trust to user " +
-                    selectedMessage.getFrom().substring(0,selectedMessage.getFrom().indexOf("@")) +
-                    " ? \n If you choose yes, future messages from this user will be marked BAD",
-                    "revoke trust",
-                    JOptionPane.YES_NO_OPTION) ==0) {
-                        Identity x = friends.Get(selectedMessage.getFrom());
-                        friends.remove(selectedMessage.getFrom());
-                        enemies.Add(x);
-                    }
-            }else {
-            Truster truster = new Truster(false);
-            truster.start();
-            }}
-            }
-        });
-
-    newBoardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            addNodeToTree();
-        }
-        });
-    renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            renameSelectedNode();
-        }
-        });
-    removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            removeSelectedNode();
-        }
-        });
-    cutBoardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            cutSelectedNode();
-        }
-        });
-    copyBoardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            copyToClipboard();
-        }
-        });
-    pasteBoardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            pasteFromClipboard();
-        }
-        });
-    configBoardButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            tofConfigureBoardMenuItem_actionPerformed(e);
-        }
-        });
-
-    systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-
-        // Hide the Frost window
-        try {
-            Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayHide.exe");
-        }catch(IOException _IoExc) { }
-
-        }
-        });
-
-
-
-
-    saveMessageButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            FileAccess.saveDialog(getInstance(), tofTextArea.getText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
-        }
-        });
-
-    fileExitMenuItem.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            fileExitMenuItem_actionPerformed(e);
-        }
-        });
-
-    optionsPreferencesMenuItem.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            optionsPreferencesMenuItem_actionPerformed(e);
-        }
-        });
-
-    tofIncreaseFontSizeMenuItem.addActionListener (new ActionListener () {
-        public void actionPerformed (ActionEvent e)
-        {
-            // make the font size in the TOF text area one point bigger
-            Font f = tofTextArea.getFont ();
-            frostSettings.setValue("tofFontSize",f.getSize () + 1.0f);
-            f = f.deriveFont (frostSettings.getFloatValue("tofFontSize"));
-            tofTextArea.setFont (f);
-        }});
-
-    tofDecreaseFontSizeMenuItem.addActionListener (new ActionListener () {
-        public void actionPerformed (ActionEvent e)
-        {
-            // make the font size in the TOF text area one point smaller
-            Font f = tofTextArea.getFont ();
-            frostSettings.setValue("tofFontSize",f.getSize () - 1.0f);
-            f = f.deriveFont (frostSettings.getFloatValue("tofFontSize"));
-            tofTextArea.setFont (f);
-        }});
-
-    tofConfigureBoardMenuItem.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            tofConfigureBoardMenuItem_actionPerformed(e);
-        }
-        });
-
-    tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            tofDisplayBoardInfoMenuItem_actionPerformed(e);
-        }
-        });
-
-    pluginBrowserMenuItem.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            BrowserFrame browser = new BrowserFrame(true);
-            browser.show();
-        }
-        });
-
-    helpHelpMenuItem.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            HelpFrame dlg = new HelpFrame(getInstance());
-            dlg.show();
-        }
-        });
-
-    helpAboutMenuItem.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            helpAboutMenuItem_actionPerformed(e);
-        }
-        });
-
-    //------------------------------------------------------------------------
-    // PopupMenu Listener
-    //------------------------------------------------------------------------
-
-    // Upload / Move selected files up
-    uploadPopupMoveSelectedFilesUp.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            TableFun.moveSelectedEntriesUp(uploadTable);
-        }
-        });
-
-    // Upload / Move selected files down
-    uploadPopupMoveSelectedFilesDown.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            TableFun.moveSelectedEntriesDown(uploadTable);
-        }
-        });
-
-    // Upload / Remove selected files
-    uploadPopupRemoveSelectedFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            TableFun.removeSelectedRows(uploadTable);
-        }
-        });
-
-    // Upload / Remove all files
-    uploadPopupRemoveAllFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            TableFun.removeAllRows(uploadTable);
-        }
-        });
-
-    // Upload / Reload selected files
-    uploadPopupReloadSelectedFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            DefaultTableModel tableModel = (DefaultTableModel)uploadTable.getModel();
-            synchronized (uploadTable){
-            try{
-            int[] selectedRows = uploadTable.getSelectedRows();
-            for (int i = 0; i < selectedRows.length; i++){
-                String state = (String)tableModel.getValueAt(selectedRows[i], 2);
-                // Since it is difficult to identify the states where we are allowed to
-                // start an upload we decide based on the states in which we are not allowed
-                if (!state.equals(LangRes.getString("Uploading")) && (state.indexOf("Kb") == -1)){
-                tableModel.setValueAt(LangRes.getString("Requested"), selectedRows[i], 2);
-                }
-            }
-            }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
-            }
-        }
-        });
-
-
-    // Upload / Reload all files
-    uploadPopupReloadAllFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            // Needs to be fixed for proper synchronization and locked against restart
-            synchronized(uploadTable) {
-            try{
-            uploadTable.selectAll();
-            TableFun.setSelectedRowsColumnValue(uploadTable, 2, LangRes.getString("Requested"));
-            }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
-            }
-        }
-        });
-
-    // Upload / Set Prefix for selected files
-    uploadPopupSetPrefixForSelectedFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            UploadTableFun.setPrefixForSelectedFiles(uploadTable);
-        }
-        });
-
-    // Upload / Set Prefix for all files
-    uploadPopupSetPrefixForAllFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            uploadTable.selectAll();
-            UploadTableFun.setPrefixForSelectedFiles(uploadTable);
-        }
-        });
-
-    // Upload / Restore default filenames for selected files
-    uploadPopupRestoreDefaultFilenamesForSelectedFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            UploadTableFun.restoreDefaultFilenames(uploadTable);
-        }
-        });
-
-    // Upload / Restore default filenames for all files
-    uploadPopupRestoreDefaultFilenamesForAllFiles.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            uploadTable.selectAll();
-            UploadTableFun.restoreDefaultFilenames(uploadTable);
-        }
-        });
-
-    // Upload / Restore default filenames for all files
-    uploadPopupAddFilesToBoard.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            UploadTableFun.addFilesToBoard(uploadTable);
-        }
-        });
-
-    // Search / Download selected keys
-    searchPopupDownloadSelectedKeys.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
-        }
-        });
-
-    // Search / Download all keys
-    searchPopupDownloadAllKeys.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            searchTable.selectAll();
-            SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
-        }
-        });
-
-    // Search / Copy attachment to clipboard
-    searchPopupCopyAttachment.addActionListener(new ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            String srcData=SearchTableFun.getSelectedAttachmentsString(searchTable);
-            Clipboard clipboard = getToolkit().getSystemClipboard();
-            StringSelection contents = new StringSelection(srcData);
-            clipboard.setContents(contents, frame1.this);
-        }
-        });
-
-    // Downloads / Remove selected downloads
-    downloadPopupRemoveSelectedDownloads.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            DownloadTableFun.removeSelectedChunks(downloadTable);
-            TableFun.removeSelectedRows(downloadTable);
-        }
-        });
-
-    // Downloads / Remove all downloads
-    downloadPopupRemoveAllDownloads.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            downloadTable.selectAll();
-            DownloadTableFun.removeSelectedChunks(downloadTable);
-            TableFun.removeAllRows(downloadTable);
-        }
-        });
-    // Downloads / Move selected downloads up
-    downloadPopupMoveUp.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            TableFun.moveSelectedEntriesUp(downloadTable);
-        }
-        });
-
-    // Downloads / Move selected downloads down
-    downloadPopupMoveDown.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            TableFun.moveSelectedEntriesDown(downloadTable);
-        }
-        });
-
-    // Downloads / Reset HTL values
-    downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            TableFun.setSelectedRowsColumnValue(downloadTable, 4, frostSettings.getValue("htl"));
-            TableFun.setSelectedRowsColumnValue(downloadTable, 3, LangRes.getString("Waiting"));
-        }
-        });
-
-    // TOF text / Save message to disk
-    tofTextPopupSaveMessage.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            FileAccess.saveDialog(getInstance(), tofTextArea.getText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
-        }
-        });
-
-    // TOF text / Save attachments to disk
-    tofTextPopupSaveAttachments.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            downloadAttachments();
-        }
-        });
-
-     tofTextPopupSaveAttachment.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            downloadAttachments();
-        }
-        });
-
-     //TOF text / Save Boards
-
-     tofTextPopupSaveBoards.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            downloadBoards();
-        }
-        });
-     //he he heee
-     tofTextPopupSaveBoard.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            downloadBoards();
-        }
-        });
-
-    // TOF tree / Add node
-    tofTreePopupAddNode.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            addNodeToTree();
-        }
-        });
-
-     // TOF tree / Refresh node
-    tofTreePopupRefresh.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
-            refreshNode(node);
-        }
-        });
-
-    // TOF tree / Remove node
-    tofTreePopupRemoveNode.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            removeSelectedNode();
-        }
-        });
-
-    // TOF tree / Cut node
-    tofTreePopupCutNode.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            cutSelectedNode();
-        }
-        });
-
-    // TOF tree / Copy node
-    tofTreePopupCopyNode.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            copyToClipboard();
-        }
-        });
-
-    // TOF tree / Paste node
-    tofTreePopupPasteNode.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            pasteFromClipboard();
-        }
-        });
-
-    // TOF tree / Configure selected board
-    tofTreePopupConfigureBoard.addActionListener(new ActionListener()  {
-        public void actionPerformed(ActionEvent e) {
-            tofConfigureBoardMenuItem_actionPerformed(e);
-        }
-        });
-
-    //------------------------------------------------------------------------
-    // Menu
-    //------------------------------------------------------------------------
-
-    // File Menu
-    fileMenu.add(fileExitMenuItem);
-
-    // News Menu
-    tofMenu.add(tofAutomaticUpdateMenuItem);
-    tofMenu.addSeparator();
-    tofMenu.add(tofIncreaseFontSizeMenuItem);
-    tofMenu.add(tofDecreaseFontSizeMenuItem);
-    tofMenu.addSeparator();
-    tofMenu.add(tofConfigureBoardMenuItem);
-    tofMenu.addSeparator();
-    tofMenu.add(tofDisplayBoardInfoMenuItem);
-
-    // Options Menu
-    optionsMenu.add(optionsPreferencesMenuItem);
-
-    // Plugin Menu
-    pluginMenu.add(pluginBrowserMenuItem);
-
-    // Help Menu
-    helpMenu.add(helpHelpMenuItem);
-    helpMenu.add(helpAboutMenuItem);
-
-    menuBar.add(fileMenu);
-    menuBar.add(tofMenu);
-    menuBar.add(optionsMenu);
-    menuBar.add(pluginMenu);
-    menuBar.add(helpMenu);
-
-    this.setJMenuBar(menuBar);
-
-    // Upload popup
-    uploadPopupMenu.add(uploadPopupRemoveSelectedFiles);
-    uploadPopupMenu.add(uploadPopupRemoveAllFiles);
-    uploadPopupMenu.addSeparator();
-    uploadPopupMenu.add(uploadPopupMoveSelectedFilesUp);
-    uploadPopupMenu.add(uploadPopupMoveSelectedFilesDown);
-    uploadPopupMenu.addSeparator();
-    uploadPopupMenu.add(uploadPopupReloadSelectedFiles);
-    uploadPopupMenu.add(uploadPopupReloadAllFiles);
-    uploadPopupMenu.addSeparator();
-    uploadPopupMenu.add(uploadPopupSetPrefixForSelectedFiles);
-    uploadPopupMenu.add(uploadPopupSetPrefixForAllFiles);
-    uploadPopupMenu.addSeparator();
-    uploadPopupMenu.add(uploadPopupRestoreDefaultFilenamesForSelectedFiles);
-    uploadPopupMenu.add(uploadPopupRestoreDefaultFilenamesForAllFiles);
-    uploadPopupMenu.addSeparator();
-    uploadPopupMenu.add(uploadPopupChangeDestinationBoard);
-    uploadPopupMenu.add(uploadPopupAddFilesToBoard);
-    uploadPopupMenu.addSeparator();
-    uploadPopupMenu.add(uploadPopupCancel);
-
-    // Search popup
-    searchPopupMenu.add(searchPopupDownloadSelectedKeys);
-    searchPopupMenu.addSeparator();
-    searchPopupMenu.add(searchPopupDownloadAllKeys);
-    searchPopupMenu.addSeparator();
-    searchPopupMenu.add(searchPopupCopyAttachment);
-    searchPopupMenu.addSeparator();
-    searchPopupMenu.add(searchPopupCancel);
-
-    // Download popup
-    downloadPopupMenu.add(downloadPopupRemoveSelectedDownloads);
-    downloadPopupMenu.add(downloadPopupRemoveAllDownloads);
-    downloadPopupMenu.addSeparator();
-    downloadPopupMenu.add(downloadPopupResetHtlValues);
-    downloadPopupMenu.addSeparator();
-    downloadPopupMenu.add(downloadPopupMoveUp);
-    downloadPopupMenu.add(downloadPopupMoveDown);
-    downloadPopupMenu.addSeparator();
-    downloadPopupMenu.add(downloadPopupCancel);
-
-    // TOF text popup
-    tofTextPopupMenu.add(tofTextPopupSaveMessage);
-    tofTextPopupMenu.addSeparator();
-    tofTextPopupMenu.add(tofTextPopupSaveAttachments);
-    tofTextPopupMenu.add(tofTextPopupSaveAttachment);
-    tofTextPopupMenu.addSeparator();
-    tofTextPopupMenu.add(tofTextPopupSaveBoards);
-    tofTextPopupMenu.add(tofTextPopupSaveBoard);
-    tofTextPopupMenu.addSeparator();
-    tofTextPopupMenu.add(tofTextPopupCancel);
-
-    // TOF tree popup
-    tofTreePopupMenu.add(tofTreePopupRefresh);
-    tofTreePopupMenu.addSeparator();
-    tofTreePopupMenu.add(tofTreePopupAddNode);
-    tofTreePopupMenu.add(tofTreePopupRemoveNode);
-    tofTreePopupMenu.addSeparator();
-    tofTreePopupMenu.add(tofTreePopupCopyNode);
-    tofTreePopupMenu.add(tofTreePopupCutNode);
-    tofTreePopupMenu.add(tofTreePopupPasteNode);
-    tofTreePopupMenu.addSeparator();
-    tofTreePopupMenu.add(tofTreePopupConfigureBoard);
-    tofTreePopupMenu.addSeparator();
-    tofTreePopupMenu.add(tofTreePopupCancel);
-
-    //------------------------------------------------------------------------
-
-    statusPanel.add(statusLabel, BorderLayout.CENTER); // Statusbar
-    statusPanel.add(statusMessageLabel, BorderLayout.EAST); // Statusbar / new Message
-
-    buttonPanelConstr.anchor = buttonPanelConstr.WEST;
-    buttonPanelConstr.gridx = buttonPanelConstr.RELATIVE;
-    buttonPanelConstr.insets = new Insets(0,2,0,2);
-    buttonPanel.add(newBoardButton,buttonPanelConstr);
-    buttonPanel.add(configBoardButton,buttonPanelConstr);
-    buttonPanel.add(renameBoardButton,buttonPanelConstr);
-    buttonPanel.add(removeBoardButton,buttonPanelConstr);
-    buttonPanel.add(cutBoardButton,buttonPanelConstr);
-    buttonPanel.add(copyBoardButton,buttonPanelConstr);
-    buttonPanel.add(pasteBoardButton,buttonPanelConstr);
-    buttonPanel.add(boardInfoButton,buttonPanelConstr);
-
-    // The System Tray Icon does only work in Windows machines.
-    // It uses the Visual Basic files (compiled ones) in the
-    // data directory.
-    if ((System.getProperty("os.name").startsWith("Windows")))
-        buttonPanel.add(systemTrayButton,buttonPanelConstr);
-
-    buttonPanelConstr.gridwidth = buttonPanelConstr.REMAINDER;
-    buttonPanelConstr.anchor = buttonPanelConstr.EAST;
-    buttonPanelConstr.weightx = 1;
-    buttonPanel.add(timeLabel,buttonPanelConstr);
-
-
-    downloadMainPanel.add(downloadTopPanel, BorderLayout.NORTH); // Download/Buttons
-    downloadMainPanel.add(downloadTableScrollPane, BorderLayout.CENTER); //Downloadlist
-
-    uploadMainPanel.add(uploadTopPanel, BorderLayout.NORTH);
-    uploadMainPanel.add(uploadTableScrollPane, BorderLayout.CENTER);
-    uploadTopPanel.add(uploadAddFilesButton);
-
-    downloadTopPanel.add(downloadTextField);//Download/Quickload
-    downloadTopPanel.add(downloadActivateCheckBox);//Download/Start transfer
-
-    tofTopPanel = new JPanel();
-    BoxLayout dummyLayout = new BoxLayout(tofTopPanel, BoxLayout.X_AXIS);
-    tofTopPanel.setLayout(dummyLayout);
-
-    tofMainPanel.add(tofTopPanel, BorderLayout.NORTH); // TOF/Buttons
-    tofMainPanel.add(tofSplitPane2, BorderLayout.CENTER); // TOF/Text
-
-    tofTopPanel.add(saveMessageButton); // TOF/ Save Message
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(tofNewMessageButton); // TOF/ New Message
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(tofReplyButton); // TOF/ Reply
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(tofUpdateButton); // TOF/ Update
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(downloadAttachmentsButton); // TOF/ Download Attachments
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(downloadBoardsButton); // TOF/ Download Boards
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(trustButton); //TOF /trust
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(notTrustButton); //TOF /do not trust
-    tofTopPanel.add( Box.createHorizontalGlue() );
-    JLabel dummyLabel = new JLabel(allMessagesCountPrefix + "00000");
-    dummyLabel.doLayout();
-    Dimension msgLabelSize = dummyLabel.getPreferredSize();
-    allMessagesCountLabel.setPreferredSize(msgLabelSize);
-    allMessagesCountLabel.setMinimumSize(msgLabelSize);
-    newMessagesCountLabel.setPreferredSize(msgLabelSize);
-    newMessagesCountLabel.setMinimumSize(msgLabelSize);
-    tofTopPanel.add(allMessagesCountLabel);
-    tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    tofTopPanel.add(newMessagesCountLabel);
-
-    messageTablePanel.add(tofTopPanel, BorderLayout.NORTH);
-    messageTablePanel.add(tofSplitPane, BorderLayout.CENTER);
-
-    searchTopPanel = new JPanel();
-    dummyLayout = new BoxLayout( searchTopPanel, BoxLayout.X_AXIS );
-    searchTopPanel.setLayout( dummyLayout );
-
-    searchTextField.setMaximumSize( searchTextField.getPreferredSize() );
-    searchTopPanel.add(searchTextField); // Search / text
-    searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    searchComboBox.setMaximumSize( searchComboBox.getPreferredSize() );
-    searchTopPanel.add(searchComboBox);
-    searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    searchTopPanel.add(searchButton); // Search / Search button
-    searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    searchTopPanel.add(searchDownloadButton); // Search / Download selected files
-    searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
-    searchTopPanel.add(searchAllBoardsCheckBox);
-    searchTopPanel.add( Box.createRigidArea(new Dimension(80,0)));
-    searchTopPanel.add( Box.createHorizontalGlue() );
-
-    searchResultsCountPrefix = LangRes.getString("   Results: ");
-    dummyLabel = new JLabel(searchResultsCountPrefix + "00000");
-    dummyLabel.doLayout();
-    msgLabelSize = dummyLabel.getPreferredSize();
-    searchResultsCountLabel.setPreferredSize(msgLabelSize);
-    searchResultsCountLabel.setMinimumSize(msgLabelSize);
-    searchResultsCountLabel.setText(searchResultsCountPrefix+"0");
-    searchTopPanel.add(searchResultsCountLabel);
-
-    searchMainPanel.add(searchTopPanel, BorderLayout.NORTH); // Search / Buttons
-    searchMainPanel.add(searchTableScrollPane, BorderLayout.CENTER); // Search / Results
-
-    //add a tab for buddies perhaps?
-    tabbedPane.add(LangRes.getString("News"), messageTablePanel);
-    tabbedPane.add(LangRes.getString("Search"), searchMainPanel);
-    tabbedPane.add(LangRes.getString("Downloads"), downloadMainPanel);
-    tabbedPane.add(LangRes.getString("Uploads"), uploadMainPanel);
-
-    contentPanel.add(buttonPanel, BorderLayout.NORTH);
-    contentPanel.add(tofMainPanel, BorderLayout.CENTER);
-    contentPanel.add(statusPanel, BorderLayout.SOUTH); // Statusbar
-
-    //------------------------------------------------------------------------
     //------------------------------------------------------------------------
 
     newMessage[0] = new ImageIcon(frame1.class.getResource("/data/messagebright.gif"));
@@ -1504,11 +989,417 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     DownloadTableFun.load(downloadTable);
     UploadTableFun.load(uploadTable);
 
-
     // Start tofTree
     Startup.resendFailedMessages(this);
     timer.start();
     started = true;
+    } // ************** end-of: jbInit()
+
+    private void createPopupMenus()
+    {
+        createPopupMenuSearch();
+        createPopupMenuUpload();
+        createPopupMenuDownload();
+        createPopupMenuTofText();
+        createPopupMenuTofTree();
+    }
+
+    private void createPopupMenuSearch()
+    {
+// create objects
+        searchPopupMenu = new JPopupMenu();
+        searchPopupDownloadSelectedKeys = new JMenuItem(LangRes.getString("Download selected keys"));
+        searchPopupDownloadAllKeys = new JMenuItem(LangRes.getString("Download all keys"));
+        searchPopupCopyAttachment = new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
+        searchPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+// add action listener
+        searchPopupDownloadSelectedKeys.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
+            } });
+        searchPopupDownloadAllKeys.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                searchTable.selectAll();
+                SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
+            } });
+        searchPopupCopyAttachment.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                String srcData=SearchTableFun.getSelectedAttachmentsString(searchTable);
+                Clipboard clipboard = getToolkit().getSystemClipboard();
+                StringSelection contents = new StringSelection(srcData);
+                clipboard.setContents(contents, frame1.this);
+            } });
+// construct menu
+        searchPopupMenu.add(searchPopupDownloadSelectedKeys);
+        searchPopupMenu.addSeparator();
+        searchPopupMenu.add(searchPopupDownloadAllKeys);
+        searchPopupMenu.addSeparator();
+        searchPopupMenu.add(searchPopupCopyAttachment);
+        searchPopupMenu.addSeparator();
+        searchPopupMenu.add(searchPopupCancel);
+    }
+
+    private void createPopupMenuUpload()
+    {
+// create objects
+        uploadPopupMenu = new JPopupMenu();
+        uploadPopupMoveSelectedFilesUp = new JMenuItem(LangRes.getString("Move selected files up"));
+        uploadPopupMoveSelectedFilesDown = new JMenuItem(LangRes.getString("Move selected files down"));
+        uploadPopupRemoveSelectedFiles = new JMenuItem(LangRes.getString("Remove selected files"));
+        uploadPopupRemoveAllFiles = new JMenuItem(LangRes.getString("Remove all files"));
+        uploadPopupReloadSelectedFiles = new JMenuItem(LangRes.getString("Reload selected files"));
+        uploadPopupReloadAllFiles = new JMenuItem(LangRes.getString("Reload all files"));
+        uploadPopupSetPrefixForSelectedFiles = new JMenuItem(LangRes.getString("Set prefix for selected files"));
+        uploadPopupSetPrefixForAllFiles = new JMenuItem(LangRes.getString("Set prefix for all files"));
+        uploadPopupRestoreDefaultFilenamesForSelectedFiles = new JMenuItem(LangRes.getString("Restore default filenames for selected files"));
+        uploadPopupRestoreDefaultFilenamesForAllFiles = new JMenuItem(LangRes.getString("Restore default filenames for all files"));
+        uploadPopupChangeDestinationBoard = new JMenu(LangRes.getString("Change destination board"));
+        uploadPopupAddFilesToBoard = new JMenuItem(LangRes.getString("Add files to board"));
+        uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+// add action listener
+        // Upload / Move selected files up
+        uploadPopupMoveSelectedFilesUp.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TableFun.moveSelectedEntriesUp(uploadTable);
+            } });
+        // Upload / Move selected files down
+        uploadPopupMoveSelectedFilesDown.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TableFun.moveSelectedEntriesDown(uploadTable);
+            } });
+        // Upload / Remove selected files
+        uploadPopupRemoveSelectedFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TableFun.removeSelectedRows(uploadTable);
+            } });
+        // Upload / Remove all files
+        uploadPopupRemoveAllFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TableFun.removeAllRows(uploadTable);
+            } });
+        // Upload / Reload selected files
+        uploadPopupReloadSelectedFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                DefaultTableModel tableModel = (DefaultTableModel)uploadTable.getModel();
+                synchronized (uploadTable) { try {
+                int[] selectedRows = uploadTable.getSelectedRows();
+                for (int i = 0; i < selectedRows.length; i++){
+                    String state = (String)tableModel.getValueAt(selectedRows[i], 2);
+                    // Since it is difficult to identify the states where we are allowed to
+                    // start an upload we decide based on the states in which we are not allowed
+                    if (!state.equals(LangRes.getString("Uploading")) && (state.indexOf("Kb") == -1)){
+                    tableModel.setValueAt(LangRes.getString("Requested"), selectedRows[i], 2);
+                    }
+                }
+                }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
+                }
+            } });
+        // Upload / Reload all files
+        uploadPopupReloadAllFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                // Needs to be fixed for proper synchronization and locked against restart
+                synchronized(uploadTable) {
+                try{
+                uploadTable.selectAll();
+                TableFun.setSelectedRowsColumnValue(uploadTable, 2, LangRes.getString("Requested"));
+                }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
+                }
+            } });
+        // Upload / Set Prefix for selected files
+        uploadPopupSetPrefixForSelectedFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                UploadTableFun.setPrefixForSelectedFiles(uploadTable);
+            } });
+        // Upload / Set Prefix for all files
+        uploadPopupSetPrefixForAllFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                uploadTable.selectAll();
+                UploadTableFun.setPrefixForSelectedFiles(uploadTable);
+            } });
+        // Upload / Restore default filenames for selected files
+        uploadPopupRestoreDefaultFilenamesForSelectedFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                UploadTableFun.restoreDefaultFilenames(uploadTable);
+            } });
+        // Upload / Restore default filenames for all files
+        uploadPopupRestoreDefaultFilenamesForAllFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                uploadTable.selectAll();
+                UploadTableFun.restoreDefaultFilenames(uploadTable);
+            } });
+        // Upload / Restore default filenames for all files
+        uploadPopupAddFilesToBoard.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                UploadTableFun.addFilesToBoard(uploadTable);
+            } });
+// construct menu
+        uploadPopupMenu.add(uploadPopupRemoveSelectedFiles);
+        uploadPopupMenu.add(uploadPopupRemoveAllFiles);
+        uploadPopupMenu.addSeparator();
+        uploadPopupMenu.add(uploadPopupMoveSelectedFilesUp);
+        uploadPopupMenu.add(uploadPopupMoveSelectedFilesDown);
+        uploadPopupMenu.addSeparator();
+        uploadPopupMenu.add(uploadPopupReloadSelectedFiles);
+        uploadPopupMenu.add(uploadPopupReloadAllFiles);
+        uploadPopupMenu.addSeparator();
+        uploadPopupMenu.add(uploadPopupSetPrefixForSelectedFiles);
+        uploadPopupMenu.add(uploadPopupSetPrefixForAllFiles);
+        uploadPopupMenu.addSeparator();
+        uploadPopupMenu.add(uploadPopupRestoreDefaultFilenamesForSelectedFiles);
+        uploadPopupMenu.add(uploadPopupRestoreDefaultFilenamesForAllFiles);
+        uploadPopupMenu.addSeparator();
+        uploadPopupMenu.add(uploadPopupChangeDestinationBoard);
+        uploadPopupMenu.add(uploadPopupAddFilesToBoard);
+        uploadPopupMenu.addSeparator();
+        uploadPopupMenu.add(uploadPopupCancel);
+
+    }
+    private void createPopupMenuDownload()
+    {
+// construct objects
+        downloadPopupMenu = new JPopupMenu(); // Downloads popup
+        downloadPopupRemoveSelectedDownloads = new JMenuItem(LangRes.getString("Remove selected downloads"));
+        downloadPopupRemoveAllDownloads = new JMenuItem(LangRes.getString("Remove all downloads"));
+        downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
+        downloadPopupMoveUp = new JMenuItem(LangRes.getString("Move selected downloads up"));
+        downloadPopupMoveDown = new JMenuItem(LangRes.getString("Move selected downloads down"));
+        downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+// add action listener
+        downloadPopupRemoveSelectedDownloads.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                DownloadTableFun.removeSelectedChunks(downloadTable);
+                TableFun.removeSelectedRows(downloadTable);
+            } });
+        downloadPopupRemoveAllDownloads.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                downloadTable.selectAll();
+                DownloadTableFun.removeSelectedChunks(downloadTable);
+                TableFun.removeAllRows(downloadTable);
+            } });
+        downloadPopupMoveUp.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TableFun.moveSelectedEntriesUp(downloadTable);
+            } });
+        downloadPopupMoveDown.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TableFun.moveSelectedEntriesDown(downloadTable);
+            } });
+        downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TableFun.setSelectedRowsColumnValue(downloadTable, 4, frostSettings.getValue("htl"));
+                TableFun.setSelectedRowsColumnValue(downloadTable, 3, LangRes.getString("Waiting"));
+            } });
+// construct menu
+        downloadPopupMenu.add(downloadPopupRemoveSelectedDownloads);
+        downloadPopupMenu.add(downloadPopupRemoveAllDownloads);
+        downloadPopupMenu.addSeparator();
+        downloadPopupMenu.add(downloadPopupResetHtlValues);
+        downloadPopupMenu.addSeparator();
+        downloadPopupMenu.add(downloadPopupMoveUp);
+        downloadPopupMenu.add(downloadPopupMoveDown);
+        downloadPopupMenu.addSeparator();
+        downloadPopupMenu.add(downloadPopupCancel);
+
+    }
+    private void createPopupMenuTofText()
+    {
+// create objects
+        tofTextPopupMenu = new JPopupMenu(); // TOF text popup
+        tofTextPopupSaveMessage = new JMenuItem(LangRes.getString("Save message to disk"));
+        tofTextPopupSaveAttachments = new JMenuItem(LangRes.getString("Download attachment(s)"));
+        tofTextPopupSaveAttachment = new JMenuItem("Download selected attachment");
+        tofTextPopupSaveBoards = new JMenuItem("Add board(s)");
+        tofTextPopupSaveBoard = new JMenuItem("Add selected board");
+        tofTextPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+// add action listener
+        tofTextPopupSaveMessage.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                FileAccess.saveDialog(getInstance(), tofTextArea.getText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
+            } });
+        tofTextPopupSaveAttachments.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                downloadAttachments();
+            } });
+         tofTextPopupSaveAttachment.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                downloadAttachments();
+            } });
+         tofTextPopupSaveBoards.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                downloadBoards();
+            } });
+         tofTextPopupSaveBoard.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                downloadBoards();
+            } });
+// construct menu
+        tofTextPopupMenu.add(tofTextPopupSaveMessage);
+        tofTextPopupMenu.addSeparator();
+        tofTextPopupMenu.add(tofTextPopupSaveAttachments);
+        tofTextPopupMenu.add(tofTextPopupSaveAttachment);
+        tofTextPopupMenu.addSeparator();
+        tofTextPopupMenu.add(tofTextPopupSaveBoards);
+        tofTextPopupMenu.add(tofTextPopupSaveBoard);
+        tofTextPopupMenu.addSeparator();
+        tofTextPopupMenu.add(tofTextPopupCancel);
+
+    }
+    private void createPopupMenuTofTree()
+    {
+// create objects
+        tofTreePopupMenu = new JPopupMenu(); // TOF tree popup
+        tofTreePopupRefresh = new JMenuItem("Refresh board/folder");
+        tofTreePopupAddNode = new JMenuItem(LangRes.getString("Add new board / folder"));
+        tofTreePopupRemoveNode = new JMenuItem(LangRes.getString("Remove selected board / folder"));
+        tofTreePopupCopyNode = new JMenuItem(LangRes.getString("Copy selected board / folder"));
+        tofTreePopupCutNode = new JMenuItem(LangRes.getString("Cut selected board / folder"));
+        tofTreePopupPasteNode = new JMenuItem(LangRes.getString("Paste board / folder"));
+        tofTreePopupConfigureBoard = new JMenuItem(LangRes.getString("Configure selected board"));
+        tofTreePopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+// add action listener
+        tofTreePopupAddNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                addNodeToTree();
+            } });
+        tofTreePopupRefresh.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                DefaultMutableTreeNode node = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
+                refreshNode(node);
+            } });
+        tofTreePopupRemoveNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                removeSelectedNode();
+            } });
+        tofTreePopupCutNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                cutSelectedNode();
+            } });
+        tofTreePopupCopyNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                copyToClipboard();
+            } });
+        tofTreePopupPasteNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                pasteFromClipboard();
+            } });
+        tofTreePopupConfigureBoard.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                tofConfigureBoardMenuItem_actionPerformed(e);
+            } });
+
+// construct menu
+        tofTreePopupMenu.add(tofTreePopupRefresh);
+        tofTreePopupMenu.addSeparator();
+        tofTreePopupMenu.add(tofTreePopupAddNode);
+        tofTreePopupMenu.add(tofTreePopupRemoveNode);
+        tofTreePopupMenu.addSeparator();
+        tofTreePopupMenu.add(tofTreePopupCopyNode);
+        tofTreePopupMenu.add(tofTreePopupCutNode);
+        tofTreePopupMenu.add(tofTreePopupPasteNode);
+        tofTreePopupMenu.addSeparator();
+        tofTreePopupMenu.add(tofTreePopupConfigureBoard);
+        tofTreePopupMenu.addSeparator();
+        tofTreePopupMenu.add(tofTreePopupCancel);
+    }
+
+    private void createMenuBar()
+    {
+// create objects
+        JMenuBar menuBar = new JMenuBar();
+
+        JMenu fileMenu = new JMenu(LangRes.getString("File"));
+        JMenuItem fileExitMenuItem = new JMenuItem(LangRes.getString("Exit"));
+
+        JMenu tofMenu = new JMenu(LangRes.getString("News"));
+        JMenuItem tofConfigureBoardMenuItem = new JMenuItem(LangRes.getString("Configure selected board"));
+        JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem(LangRes.getString("Display board information window"));
+        this.tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem(LangRes.getString("Automatic message update"), true);
+        JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Increase Font Size"));
+        JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Decrease Font Size"));
+
+        JMenu optionsMenu = new JMenu(LangRes.getString("Options"));
+        JMenuItem optionsPreferencesMenuItem = new JMenuItem(LangRes.getString("Preferences"));
+
+        JMenu pluginMenu = new JMenu("Plugin");
+        JMenuItem pluginBrowserMenuItem = new JMenuItem("EFB (Experimental Freenet Browser)");
+
+        JMenu helpMenu = new JMenu(LangRes.getString("Help"));
+        JMenuItem helpHelpMenuItem = new JMenuItem("Help");
+        JMenuItem helpAboutMenuItem = new JMenuItem(LangRes.getString("About"));
+// add action listener
+        fileExitMenuItem.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                fileExitMenuItem_actionPerformed(e);
+            } });
+        optionsPreferencesMenuItem.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                optionsPreferencesMenuItem_actionPerformed(e);
+            } });
+        tofIncreaseFontSizeMenuItem.addActionListener (new ActionListener () {
+            public void actionPerformed (ActionEvent e) {
+                // make the font size in the TOF text area one point bigger
+                Font f = tofTextArea.getFont();
+                frostSettings.setValue("tofFontSize",f.getSize() + 1.0f);
+                f = f.deriveFont(frostSettings.getFloatValue("tofFontSize"));
+                tofTextArea.setFont(f);
+            }});
+        tofDecreaseFontSizeMenuItem.addActionListener (new ActionListener () {
+            public void actionPerformed (ActionEvent e) {
+                // make the font size in the TOF text area one point smaller
+                Font f = tofTextArea.getFont();
+                frostSettings.setValue("tofFontSize",f.getSize () - 1.0f);
+                f = f.deriveFont(frostSettings.getFloatValue("tofFontSize"));
+                tofTextArea.setFont(f);
+            }});
+        tofConfigureBoardMenuItem.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                tofConfigureBoardMenuItem_actionPerformed(e);
+            } });
+        tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                tofDisplayBoardInfoMenuItem_actionPerformed(e);
+            } });
+        pluginBrowserMenuItem.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                BrowserFrame browser = new BrowserFrame(true);
+                browser.show();
+            } });
+        helpHelpMenuItem.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                HelpFrame dlg = new HelpFrame(getInstance());
+                dlg.show();
+            } });
+        helpAboutMenuItem.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                helpAboutMenuItem_actionPerformed(e);
+            } });
+
+// construct menu
+        // File Menu
+        fileMenu.add(fileExitMenuItem);
+        // News Menu
+        tofMenu.add(tofAutomaticUpdateMenuItem);
+        tofMenu.addSeparator();
+        tofMenu.add(tofIncreaseFontSizeMenuItem);
+        tofMenu.add(tofDecreaseFontSizeMenuItem);
+        tofMenu.addSeparator();
+        tofMenu.add(tofConfigureBoardMenuItem);
+        tofMenu.addSeparator();
+        tofMenu.add(tofDisplayBoardInfoMenuItem);
+        // Options Menu
+        optionsMenu.add(optionsPreferencesMenuItem);
+        // Plugin Menu
+        pluginMenu.add(pluginBrowserMenuItem);
+        // Help Menu
+        helpMenu.add(helpHelpMenuItem);
+        helpMenu.add(helpAboutMenuItem);
+        // add all to bar
+        menuBar.add(fileMenu);
+        menuBar.add(tofMenu);
+        menuBar.add(optionsMenu);
+        menuBar.add(pluginMenu);
+        menuBar.add(helpMenu);
+        this.setJMenuBar(menuBar);
     }
 
     //------------------------------------------------------------------------
@@ -1524,9 +1415,9 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
 
     // If no rows are selected, add all attachments to download table
     if (selectedRows.length == 0) {
-        for (int i = 0; i < attachmentTableModel.getRowCount(); i++) {
-        String filename = (String)attachmentTableModel.getValueAt(i, 0);
-        String key = (String)attachmentTableModel.getValueAt(i, 1);
+        for (int i = 0; i < getAttachmentTable().getModel().getRowCount(); i++) {
+        String filename = (String)getAttachmentTable().getModel().getValueAt(i, 0);
+        String key = (String)getAttachmentTable().getModel().getValueAt(i, 1);
         DownloadTableFun.insertDownload(filename,
                         "Unknown",
                         "Unknown",
@@ -1538,8 +1429,8 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     }
     else {
         for (int i = 0; i < selectedRows.length; i++) {
-        String filename = (String)attachmentTableModel.getValueAt(selectedRows[i],0);
-        String key = (String)attachmentTableModel.getValueAt(selectedRows[i],1);
+        String filename = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],0);
+        String key = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],1);
         DownloadTableFun.insertDownload(filename,
                         "Unknown",
                         "Unknown",
@@ -1552,75 +1443,91 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     }
 
 
-    private void downloadBoards() {
+    private void downloadBoards()
+    {
         System.out.println("adding boards");
-    int[] selectedRows = boardTable.getSelectedRows();
+        int[] selectedRows = getAttachedBoardsTable().getSelectedRows();
 
-    if (selectedRows.length == 0)
-        for (int i = 0; i < boardTableModel.getRowCount(); i++) {
-            String name = (String)boardTableModel.getValueAt(i, 0);
-        String pubKey = (String)boardTableModel.getValueAt(i, 1);
-        String privKey = (String)boardTableModel.getValueAt(i, 2);
+        if( selectedRows.length == 0 )
+            for( int i = 0; i < getAttachedBoardsTable().getModel().getRowCount(); i++ )
+            {
+                String name = (String)getAttachedBoardsTable().getModel().getValueAt(i, 0);
+                String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(i, 1);
+                String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(i, 2);
 
-        File newBoard = new File("keypool" + File.separatorChar+ name.toLowerCase() + ".key");
+                File newBoard = new File("keypool" + File.separatorChar+ name.toLowerCase() + ".key");
 
-        //ask if we already have the board
-        if (newBoard.exists())
-            if (JOptionPane.showConfirmDialog(this, "you already have a board named " + name + "\n" +
-                        "are you sure you want to download this one over it?","board exists",
-                        JOptionPane.YES_NO_OPTION) !=0) continue;
+                //ask if we already have the board
+                if( newBoard.exists() )
+                    if( JOptionPane.showConfirmDialog(this, "you already have a board named " + name + "\n" +
+                                                      "are you sure you want to download this one over it?","board exists",
+                                                      JOptionPane.YES_NO_OPTION) !=0 ) continue;
 
-        //create the key file
-        try{
-        newBoard.createNewFile();
-        }catch(IOException e){System.out.println(e.toString());}
+                    //create the key file
+                try
+                {
+                    newBoard.createNewFile();
+                }
+                catch( IOException e )
+                {
+                    System.out.println(e.toString());
+                }
 
-        //create the content of the file
-        String content = new String();
-        if (privKey.compareTo("N/A") == 0)
-            content = content + "privateKey=\n";
-        else content = content + "privateKey="+privKey+"\n";
-        content = content + "publicKey="+pubKey+"\n";
-        if (privKey.compareTo("N/A") == 0)
-            content = content + "state=readAccess";
-        else content = content + "state=writeAccess";
+                //create the content of the file
+                String content = new String();
+                if( privKey.compareTo("N/A") == 0 )
+                    content = content + "privateKey=\n";
+                else content = content + "privateKey="+privKey+"\n";
+                content = content + "publicKey="+pubKey+"\n";
+                if( privKey.compareTo("N/A") == 0 )
+                    content = content + "state=readAccess";
+                else content = content + "state=writeAccess";
 
-        FileAccess.writeFile(content,newBoard);
-        addNodeTree(name);
-        }
-    else
-    for (int i = 0; i < selectedRows.length; i++) {
-            String name = (String)boardTableModel.getValueAt(selectedRows[i], 0);
-        String pubKey = (String)boardTableModel.getValueAt(selectedRows[i], 1);
-        String privKey = (String)boardTableModel.getValueAt(selectedRows[i], 2);
+                FileAccess.writeFile(content,newBoard);
+                addNodeTree(name);
+            }
+        else
+            for( int i = 0; i < selectedRows.length; i++ )
+            {
+                String name = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 0);
+                String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 1);
+                String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 2);
 
-        File newBoard = new File("keypool" + File.separatorChar+ name + ".key");
+                File newBoard = new File("keypool" + File.separatorChar+ name + ".key");
 
-        //ask if we already have the board
-        if (newBoard.exists())
-            if (JOptionPane.showConfirmDialog(this, "you already have a board named " + name + "\n" +
-                        "are you sure you want to download this one over it?","board exists",
-                        JOptionPane.YES_NO_OPTION) !=0) continue;
+                //ask if we already have the board
+                if( newBoard.exists() )
+                    if( JOptionPane.showConfirmDialog(this, "you already have a board named " + name + "\n" +
+                                                      "are you sure you want to download this one over it?","board exists",
+                                                      JOptionPane.YES_NO_OPTION) !=0 )
+                    {
+                        continue;
+                    }
+                //create the key file
+                try
+                {
+                    newBoard.createNewFile();
+                }
+                catch( IOException e )
+                {
+                    System.out.println(e.toString());
+                }
 
-        //create the key file
-        try{
-        newBoard.createNewFile();
-        }catch(IOException e){System.out.println(e.toString());}
+                //create the content of the file
+                String content = new String();
+                if( privKey.compareTo("N/A") == 0 )
+                    content = content + "privateKey=\n";
+                else content = content + "privateKey="+privKey+"\n";
+                content = content + "publicKey="+pubKey+"\n";
+                if( privKey.compareTo("N/A") == 0 )
+                    content = content + "state=readAccess";
+                else content = content + "state=writeAccess";
 
-        //create the content of the file
-        String content = new String();
-        if (privKey.compareTo("N/A") == 0)
-            content = content + "privateKey=\n";
-        else content = content + "privateKey="+privKey+"\n";
-        content = content + "publicKey="+pubKey+"\n";
-        if (privKey.compareTo("N/A") == 0)
-            content = content + "state=readAccess";
-        else content = content + "state=writeAccess";
-
-        FileAccess.writeFile(content,newBoard);
-        addNodeTree(name);
-        }
+                FileAccess.writeFile(content,newBoard);
+                addNodeTree(name);
+            }
     }
+
     // Test if board should be updated
     public boolean doUpdate(String board) {
 
@@ -1705,104 +1612,108 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
         System.out.println("Backload update of " + board);
     }
 
-    public void updateTofTree() {
-    stopTofTreeUpdate = true;
-//    TreePath remember = getTofTree().getSelectionPath();
-    // fire update for each node
-    DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
-    Enumeration nodes = ((DefaultMutableTreeNode)getTofTree().getModel().getRoot()).depthFirstEnumeration();
-    while( nodes.hasMoreElements() )
+    public void updateTofTree()
     {
-        DefaultMutableTreeNode n = (DefaultMutableTreeNode)nodes.nextElement();
-        model.nodeChanged( n );
-    }
-//    getTofTree().setSelectionPath(remember);
-    stopTofTreeUpdate = false;
-    updateButtons();
-    }
-
-    private void updateButtons() {
-    String state = SettingsFun.getValue(keypool + lastUsedBoard + ".key", "state");
-    if (state.equals("readAccess")) {
-        tofNewMessageButton.setEnabled(false);
-        uploadAddFilesButton.setEnabled(false);
-    }
-    else {
-        tofNewMessageButton.setEnabled(true);
-        uploadAddFilesButton.setEnabled(true);
-    }
+        stopTofTreeUpdate = true;
+        // fire update for each node
+        DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
+        Enumeration nodes = ((DefaultMutableTreeNode)getTofTree().getModel().getRoot()).depthFirstEnumeration();
+        while( nodes.hasMoreElements() )
+        {
+            DefaultMutableTreeNode n = (DefaultMutableTreeNode)nodes.nextElement();
+            model.nodeChanged( n );
+        }
+        stopTofTreeUpdate = false;
+        updateButtons();
     }
 
-    private class Truster extends Thread {
+    private void updateButtons()
+    {
+        String state = SettingsFun.getValue(keypool + lastUsedBoard + ".key", "state");
+        if( state.equals("readAccess") )
+        {
+            tofNewMessageButton.setEnabled(false);
+            uploadAddFilesButton.setEnabled(false);
+        }
+        else
+        {
+            tofNewMessageButton.setEnabled(true);
+            uploadAddFilesButton.setEnabled(true);
+        }
+    }
+
+    private class Truster extends Thread
+    {
         private boolean trust;
-    private Identity newFriend;
-    private VerifyableMessageObject currentMsg;
+        private Identity newFriend;
+        private VerifyableMessageObject currentMsg;
 
-    private void recursDir(String dirItem) {
+        private void recursDir(String dirItem)
+        {
             String list[];
             File file = new File(dirItem);
-            if (file.isDirectory() && file.listFiles().length > 0) {
-            //System.out.println("\n"+file+":");
-            Vector vd = new Vector();
-            Vector vf = new Vector();
-            list = file.list();
-            Arrays.sort(list,String.CASE_INSENSITIVE_ORDER);
+            if( file.isDirectory() && file.listFiles().length > 0 )
+            {
+                //System.out.println("\n"+file+":");
+                Vector vd = new Vector();
+                Vector vf = new Vector();
+                list = file.list();
+                Arrays.sort(list,String.CASE_INSENSITIVE_ORDER);
 
-            for (int i = 0; i < list.length; i++) {
+                for( int i = 0; i < list.length; i++ )
+                {
                     File f = new File(dirItem + File.separatorChar + list[i]);
-                    if (f.isDirectory()) vd.add(list[i]); else vf.add(list[i]);
-            }
-            for (int a=0; a < vf.size(); a++)
+                    if( f.isDirectory() ) vd.add(list[i]);
+                    else vf.add(list[i]);
+                }
+                for( int a=0; a < vf.size(); a++ )
                     recursDir (dirItem + File.separatorChar + vf.get(a));
-            for (int d=0; d < vd.size(); d++)
+                for( int d=0; d < vd.size(); d++ )
                     recursDir (dirItem + File.separatorChar + vd.get(d));
-        } else
-            processItem(dirItem);
+            }
+            else
+                processItem(dirItem);
             list=null;
 
         }
-        private void processItem(String dirItem) {
+
+        private void processItem(String dirItem)
+        {
             File f = new File(dirItem);
-        VerifyableMessageObject temp;
-        if (f.getPath().endsWith(".txt")) {//open file and check it
-            temp = new VerifyableMessageObject(f);
-            if (temp.getFrom().equals(currentMsg.getFrom()) &&
-                temp.getStatus().trim().equals(VerifyableMessageObject.PENDING))
-                if (trust) temp.setStatus(VerifyableMessageObject.VERIFIED);
-                else temp.setStatus(VerifyableMessageObject.FAILED);
-
-
-
-
-        }
-    f=null;
-    temp =null;
+            VerifyableMessageObject temp;
+            if( f.getPath().endsWith(".txt") )
+            {//open file and check it
+                temp = new VerifyableMessageObject(f);
+                if( temp.getFrom().equals(currentMsg.getFrom()) &&
+                    temp.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
+                    if( trust ) temp.setStatus(VerifyableMessageObject.VERIFIED);
+                    else temp.setStatus(VerifyableMessageObject.FAILED);
+            }
+            f=null;
+            temp =null;
         }
 
+        public Truster(boolean what)
+        {
+            trust=what;
+            try {
+                currentMsg= selectedMessage.copy();
+            }
+            catch( Exception e ) {
+                System.out.println(e.toString());
+            }
+        }
 
-        public Truster(boolean what) {
-        trust=what;
-        try{
-        currentMsg= selectedMessage.copy();
-        }catch(Exception e){System.out.println(e.toString());}
-    }
+        public void run()
+        {
+            System.out.println("starting to update .sigs");
+            newFriend = new Identity(currentMsg.getFrom(),currentMsg.getKeyAddress());
+            if( trust ) friends.Add(newFriend);
+            else enemies.Add(newFriend);
 
-    public void run() {
-        System.out.println("starting to update .sigs");
-        newFriend = new Identity(currentMsg.getFrom(),currentMsg.getKeyAddress());
-        if (trust) friends.Add(newFriend);
-        else enemies.Add(newFriend);
-
-        /*timer2.schedule(new TimerTask() {
-            public void run() {tofTree_actionPerformed(null);}
-            },800);
-        timer2.schedule(new TimerTask() {
-            public void run() {tofTree_actionPerformed(null);}
-            },3500);*/
-
-        recursDir("keypool");
-        tofTree_actionPerformed(null);
-    }
+            recursDir("keypool");
+            tofTree_actionPerformed(null);
+        }
     }
 
     private class checkForSpam extends TimerTask
@@ -1869,7 +1780,6 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
         }
     }
 
-
     /**TOF Board selected*/
     public void tofTree_actionPerformed(TreeSelectionEvent e) {
     if (!stopTofTreeUpdate) {
@@ -1888,16 +1798,6 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
             downloadAttachmentsButton.setEnabled(false);
             downloadBoardsButton.setEnabled(false);
             tofTextArea.setText("");
-
-            tofAttachmentPanel.removeAll();
-            tofAttachmentPanel.repaint(new Rectangle(tofAttachmentPanel.getX(), tofAttachmentPanel.getY(), tofAttachmentPanel.getWidth(), tofAttachmentPanel.getHeight()));
-            tofSplitPane3.revalidate();
-            //boardAttachmentPanel.removeAll();
-            //boardAttachmentPanel.repaint(new Rectangle(boardAttachmentPanel.getX(), boardAttachmentPanel.getY(), boardAttachmentPanel.getWidth(), boardAttachmentPanel.getHeight()));
-            //tofSplitPane4.revalidate();
-            messageTablePanel.remove(tofSplitPane3);
-            //messageTablePanel.remove(tofSplitPane4);
-            messageTablePanel.add(tofSplitPane, BorderLayout.CENTER);
 
             TOF.updateTofTable(lastUsedBoard,
                           keypool,
@@ -2133,8 +2033,9 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
                     attachmentSplitPane.setDividerSize(3);
 
                     // Add attachments to table
-                    attachmentTableModel.setDataVector(selectedMessage.getAttachments(), attachmentTableColumnNames);
-                    tofTextArea.setText(selectedMessage.getPlaintext());  //was getNewContent()
+                    ((DefaultTableModel)getAttachmentTable().getModel()).setDataVector(selectedMessage.getAttachments(),
+                                                                                       null); // our model does not need this
+                    setTofTextAreaText(selectedMessage.getPlaintext());  //was getNewContent()
                     downloadAttachmentsButton.setEnabled(true);
                 }
 
@@ -2151,8 +2052,9 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
                     boardSplitPane.setDividerSize(3);
 
                     // Add attachments to table
-                    boardTableModel.setDataVector(selectedMessage.getBoards(), boardTableColumnNames);
-                    tofTextArea.setText(selectedMessage.getPlaintext());  //was getNewContent()
+                    ((DefaultTableModel)getAttachedBoardsTable().getModel()).setDataVector(selectedMessage.getBoards(),
+                                                                                           null);
+                    setTofTextAreaText(selectedMessage.getPlaintext());  //was getNewContent()
                     downloadBoardsButton.setEnabled(true); //TODO: downloadBoardsButton
                 }
             }
@@ -2175,11 +2077,11 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     if (showNewMessageIcon) {
 
 frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/newmessage.gif")));
-        statusMessageLabel.setIcon(newMessage[0]);
+        frame1.getInstance().statusMessageLabel.setIcon(newMessage[0]);
     }
     else {
 frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
-        statusMessageLabel.setIcon(newMessage[1]);
+        frame1.getInstance().statusMessageLabel.setIcon(newMessage[1]);
     }
     }
 
@@ -2286,10 +2188,10 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
     idleTime++;
 
     // Display welcome message if no boards are available
-    if (tofTreeNode.getChildCount() == 0) {
+    if( ((TreeNode)getTofTree().getModel().getRoot()).getChildCount() == 0 ) {
         attachmentSplitPane.setDividerSize(0);
         attachmentSplitPane.setDividerLocation(1.0);
-        tofTextArea.setText(LangRes.getString("Welcome message"));
+        setTofTextAreaText(LangRes.getString("Welcome message"));
     }
 
     if (idleTime > 900) { // 15 minutes
@@ -2315,22 +2217,9 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
                 .append(LangRes.getString("   Down: ")).append(activeDownloadThreads)
                 .append(LangRes.getString("   TOFUP: ")).append(tofUploadThreads)
                 .append(LangRes.getString("   TOFDO: ")).append(tofDownloadThreads)
-//                .append(LangRes.getString("   Results: ")).append(searchTableModel.getRowCount())
                 .append(LangRes.getString("   Selected board: ")).append(lastUsedBoard).toString();
 
     statusLabel.setText(newText);
-
-/*    if (updateTof) {
-        TOF.updateTofTable(lastUsedBoard,
-                      keypool,
-                      frostSettings.getIntValue("maxMessageDisplay"));
-        updateTof = false;
-    }*/
-
-/*    if (updateTree) {
-        updateTofTree();
-        updateTree = false;
-    }*/
 
     if (updateDownloads || counter%10 == 0) {
         DownloadTableFun.update(downloadTable, frostSettings.getIntValue("htlMax"), new File(keypool), new File(frostSettings.getValue("downloadDirectory")));
@@ -2340,9 +2229,9 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
         // I did not find the bug yet, but if there is no download thread active
         // all unfinished downloads are set to "Waiting"
         if (activeDownloadThreads == 0 && downloadActivateCheckBox.isSelected())
-        for (int i = 0; i < downloadTableModel.getRowCount(); i++)
-            if (!downloadTableModel.getValueAt(i, 3).equals(LangRes.getString("Done")))
-            downloadTableModel.setValueAt(LangRes.getString("Waiting"), i, 3);
+        for (int i = 0; i < getDownloadTable().getModel().getRowCount(); i++)
+            if (!getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Done")))
+            getDownloadTable().getModel().setValueAt(LangRes.getString("Waiting"), i, 3);
     }
 
     // automatic TOF update
@@ -2381,20 +2270,20 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
 
     // Generate CHK's for upload table entries
     if (!generateCHK) {
-        if (uploadTableModel.getRowCount() > 0) {
-        for (int i = 0; i < uploadTableModel.getRowCount(); i++) {
+        if (getUploadTable().getModel().getRowCount() > 0) {
+        for (int i = 0; i < getUploadTable().getModel().getRowCount(); i++) {
             String file = null;
             String target = null;
             String destination = null;
             boolean isUnknown = false;
-            synchronized (uploadTable){
+            synchronized (getUploadTable()){
                 try{
-                String state = (String)uploadTableModel.getValueAt(i, 5);
+                String state = (String)getUploadTable().getModel().getValueAt(i, 5);
                 if (state.equals(LangRes.getString("Unknown"))) {
-                file = (String)uploadTableModel.getValueAt(i, 3);
-                target = (String)uploadTableModel.getValueAt(i, 4);
-                destination = (String)uploadTableModel.getValueAt(i, 0);
-                uploadTableModel.setValueAt("Working...", i, 5);
+                file = (String)getUploadTable().getModel().getValueAt(i, 3);
+                target = (String)getUploadTable().getModel().getValueAt(i, 4);
+                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
+                getUploadTable().getModel().setValueAt("Working...", i, 5);
                 isUnknown = true;
                 }
             }
@@ -2419,21 +2308,21 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
         activeUthreads=activeUploadThreads;
     }
     if (activeUthreads < frostSettings.getIntValue("uploadThreads")) {
-        if (uploadTableModel.getRowCount() > 0) {
-        for (int i = 0; i < uploadTableModel.getRowCount(); i++) {
+        if (getUploadTable().getModel().getRowCount() > 0) {
+        for (int i = 0; i < getUploadTable().getModel().getRowCount(); i++) {
             String file = null;
             String target = null;
             String destination = null;
             boolean isRequested = false;
-            synchronized (uploadTable){
+            synchronized (getUploadTable()){
                 try{
-                String state = (String)uploadTableModel.getValueAt(i, 2);
-                String key = (String)uploadTableModel.getValueAt(i, 5);
+                String state = (String)getUploadTable().getModel().getValueAt(i, 2);
+                String key = (String)getUploadTable().getModel().getValueAt(i, 5);
                 if (state.equals(LangRes.getString("Requested")) && key.startsWith("CHK@")) {
-                file = (String)uploadTableModel.getValueAt(i, 3);
-                target = (String)uploadTableModel.getValueAt(i, 4);
-                destination = (String)uploadTableModel.getValueAt(i, 0);
-                uploadTableModel.setValueAt(LangRes.getString("Uploading"), i, 2);
+                file = (String)getUploadTable().getModel().getValueAt(i, 3);
+                target = (String)getUploadTable().getModel().getValueAt(i, 4);
+                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
+                getUploadTable().getModel().setValueAt(LangRes.getString("Uploading"), i, 2);
                 isRequested = true;
                 }
             }
@@ -2458,8 +2347,8 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
         activeDthreads=activeDownloadThreads;
     }
     if (activeDthreads < frostSettings.getIntValue("downloadThreads") && downloadActivateCheckBox.isSelected()) {
-        for (int i = 0; i < downloadTableModel.getRowCount(); i++) {
-        if (downloadTableModel.getValueAt(i, 3).equals(LangRes.getString("Waiting"))) {
+        for (int i = 0; i < getDownloadTable().getModel().getRowCount(); i++) {
+        if (getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Waiting"))) {
             String filename = null;
             String size = null;
             String htl = null;
@@ -2468,18 +2357,19 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
             boolean isWaiting = false;
             synchronized (downloadTable){
                 try{
-                filename = (String)downloadTableModel.getValueAt(i,0);
-                size = (String)downloadTableModel.getValueAt(i,1);
-                htl = (String)downloadTableModel.getValueAt(i,4);
-                key = (String)downloadTableModel.getValueAt(i,6);
-                source = (String)downloadTableModel.getValueAt(i,5);
-                downloadTableModel.setValueAt(LangRes.getString("Trying"), i, 3);
+                filename = (String)getDownloadTable().getModel().getValueAt(i,0);
+                size = (String)getDownloadTable().getModel().getValueAt(i,1);
+                htl = (String)getDownloadTable().getModel().getValueAt(i,4);
+                key = (String)getDownloadTable().getModel().getValueAt(i,6);
+                source = (String)getDownloadTable().getModel().getValueAt(i,5);
+                getDownloadTable().getModel().setValueAt(LangRes.getString("Trying"), i, 3);
                 isWaiting = true;
             }
             catch (Exception e) {System.out.println("download NOT GOOD " +e.toString());}
             }
             if (isWaiting){
-            requestThread newRequest = new requestThread(filename, size, downloadTable, uploadTable, htl, key, source);
+            requestThread newRequest = new requestThread(filename, size, getDownloadTable(),
+                                                         getUploadTable(), htl, key, source);
             newRequest.start();
             break;
             }
@@ -2550,8 +2440,8 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
     /**searchButton Action Listener (Search)*/
     private void searchButton_actionPerformed(ActionEvent e) {
     searchButton.setEnabled(false);
-    searchTable.clearSelection();
-    TableFun.removeAllRows(searchTable);
+    getSearchTable().clearSelection();
+    TableFun.removeAllRows(getSearchTable());
     Vector boardsToSearch;
     if( searchAllBoardsCheckBox.isSelected() )
     {
@@ -2764,19 +2654,20 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
         if (e.getClickCount() == 2) {
 
         // Start file from download table
-        if (e.getComponent().equals(downloadTable)) {
+        if (e.getComponent().equals(getDownloadTable())) {
             File file = new File(System.getProperty("user.dir") +
                      fileSeparator +
                      frostSettings.getValue("downloadDirectory") +
-                     (String)downloadTableModel.getValueAt(downloadTable.getSelectedRow(), 0));
+                     (String)getDownloadTable().getModel().getValueAt(downloadTable.getSelectedRow(), 0));
             System.out.println(file.getPath());
             if (file.exists())
             Execute.run("exec.bat" + " " + file.getPath());
         }
 
         // Start file from upload table
-        if (e.getComponent().equals(uploadTable)) {
-            File file = new File((String)uploadTableModel.getValueAt(uploadTable.getSelectedRow(), 3));
+        if (e.getComponent().equals(getUploadTable())) {
+            File file = new File((String)getUploadTable().getModel().getValueAt(
+                getUploadTable().getSelectedRow(), 3));
             System.out.println(file.getPath());
             if (file.exists())
             Execute.run("exec.bat" + " " + file.getPath());
@@ -2797,42 +2688,46 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
         maybeShowPopup(e);
     }
 
-    private void maybeShowPopup(MouseEvent e) {
-
-        if (e.isPopupTrigger()) {
+    private void maybeShowPopup(MouseEvent e)
+    {
+        if( e.isPopupTrigger() == false )
+        {
+            return;
+        }
 
         if (e.getComponent().equals(uploadTable)) { // Upload Popup
 
             // Add boards to changeDestinationBoard submenu
             Vector boards = getTofTree().getAllBoards();
             uploadPopupChangeDestinationBoard.removeAll();
-            for (int i = 0; i < boards.size(); i++) {
-            JMenuItem boardMenuItem = new JMenuItem((String)boards.elementAt(i));
-            uploadPopupChangeDestinationBoard.add(boardMenuItem);
-            boardMenuItem.addActionListener(new ActionListener()  {
-                public void actionPerformed(ActionEvent e) {
-                    TableFun.setSelectedRowsColumnValue(uploadTable, 4, mixed.makeFilename(e.getActionCommand()));
-                }
-                });
+            for (int i = 0; i < boards.size(); i++)
+            {
+                JMenuItem boardMenuItem = new JMenuItem((String)boards.elementAt(i));
+                uploadPopupChangeDestinationBoard.add(boardMenuItem);
+                boardMenuItem.addActionListener(new ActionListener()  {
+                    public void actionPerformed(ActionEvent e) {
+                        TableFun.setSelectedRowsColumnValue(uploadTable, 4, mixed.makeFilename(e.getActionCommand()));
+                    }
+                    });
             }
 
             if (uploadTable.getSelectedRow() == -1) {
-            uploadPopupRemoveSelectedFiles.setEnabled(false);
-            uploadPopupReloadSelectedFiles.setEnabled(false);
-            uploadPopupMoveSelectedFilesUp.setEnabled(false);
-            uploadPopupMoveSelectedFilesDown.setEnabled(false);
-            uploadPopupSetPrefixForSelectedFiles.setEnabled(false);
-            uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(false);
-            uploadPopupChangeDestinationBoard.setEnabled(false);
+                uploadPopupRemoveSelectedFiles.setEnabled(false);
+                uploadPopupReloadSelectedFiles.setEnabled(false);
+                uploadPopupMoveSelectedFilesUp.setEnabled(false);
+                uploadPopupMoveSelectedFilesDown.setEnabled(false);
+                uploadPopupSetPrefixForSelectedFiles.setEnabled(false);
+                uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(false);
+                uploadPopupChangeDestinationBoard.setEnabled(false);
             }
             else {
-            uploadPopupRemoveSelectedFiles.setEnabled(true);
-            uploadPopupMoveSelectedFilesUp.setEnabled(true);
-            uploadPopupReloadSelectedFiles.setEnabled(true);
-            uploadPopupMoveSelectedFilesDown.setEnabled(true);
-            uploadPopupSetPrefixForSelectedFiles.setEnabled(true);
-            uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(true);
-            uploadPopupChangeDestinationBoard.setEnabled(true);
+                uploadPopupRemoveSelectedFiles.setEnabled(true);
+                uploadPopupMoveSelectedFilesUp.setEnabled(true);
+                uploadPopupReloadSelectedFiles.setEnabled(true);
+                uploadPopupMoveSelectedFilesDown.setEnabled(true);
+                uploadPopupSetPrefixForSelectedFiles.setEnabled(true);
+                uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(true);
+                uploadPopupChangeDestinationBoard.setEnabled(true);
             }
             uploadPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
@@ -2948,13 +2843,13 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
             }
             }
             if (!clipboard.equals(""))
-            tofTreePopupPasteNode.setEnabled(true);
+                tofTreePopupPasteNode.setEnabled(true);
 
             tofTreePopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
         }
     }
-    }
+//    }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
     //System.out.println("Clipboard contents replaced");
@@ -3005,6 +2900,62 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
     public Hashtable getBoardsThatContainNewMsg()
     {
         return boardsThatContainNewMessages;
+    }
+
+    private void trustButton_actionPerformed(ActionEvent e)
+    {
+        trustButton.setEnabled(false);
+        notTrustButton.setEnabled(false);
+        if( selectedMessage!=null )
+        {
+            if( enemies.containsKey(selectedMessage.getFrom()) )
+            {
+                if( JOptionPane.showConfirmDialog(getInstance(),
+                              "are you sure you want to grant trust to user " +
+                              selectedMessage.getFrom().substring(0,selectedMessage.getFrom().indexOf("@")) +
+                              " ? \n If you choose yes, future messages from this user will be marked GOOD",
+                              "re-grant trust",
+                              JOptionPane.YES_NO_OPTION) ==0 )
+                {
+                    Identity x = enemies.Get(selectedMessage.getFrom());
+                    enemies.remove(selectedMessage.getFrom());
+                    friends.Add(x);
+                }
+            }
+            else
+            {
+                Truster truster = new Truster(true);
+                truster.start();
+            }
+        }
+    }
+
+    private void notTrustButton_actionPerformed(ActionEvent e)
+    {
+        trustButton.setEnabled(false);
+        notTrustButton.setEnabled(false);
+        if( selectedMessage!=null )
+        {
+            if( friends.containsKey(selectedMessage.getFrom()) )
+            {
+                if( JOptionPane.showConfirmDialog(getInstance(),
+                          "are you sure you want to revoke trust to user " +
+                          selectedMessage.getFrom().substring(0,selectedMessage.getFrom().indexOf("@")) +
+                          " ? \n If you choose yes, future messages from this user will be marked BAD",
+                          "revoke trust",
+                          JOptionPane.YES_NO_OPTION) ==0 )
+                {
+                    Identity x = friends.Get(selectedMessage.getFrom());
+                    friends.remove(selectedMessage.getFrom());
+                    enemies.Add(x);
+                }
+            }
+            else
+            {
+                Truster truster = new Truster(false);
+                truster.start();
+            }
+        }
     }
 }
 

@@ -69,7 +69,7 @@ public class requestThread extends Thread {
         if (!success) {
             System.out.println("Download of " + filename + " failed.");
             if (row != -1) {
-            frame1.downloadTableModel.setValueAt(LangRes.getString("Failed"), row, 3);
+            frame1.getInstance().getDownloadTable().getModel().setValueAt(LangRes.getString("Failed"), row, 3);
 
             // Upload request to request stack
             int intHtl = 15;

@@ -89,7 +89,6 @@ public class TOF {
                     frame1.getInstance().updateMessageCountLabels(true, board);
                     frame1.getInstance().updateTofTree();
                 }
-
                 return message;
             }
         }
@@ -97,6 +96,7 @@ public class TOF {
     return null;
     }
 
+    // called by non-swing thread
     public static void addNewMessageToTable(File newMsgFile, String board)
     {
         final String targetBoard = board;
