@@ -453,10 +453,13 @@ public class SharedFileObject implements XMLizable
 	
 	/**
 	 * 
-	 * @return true if the file has been inserted in freenet.
+	 * @return true if the file is expected to be in freenet
 	 */
 	public boolean isOnline() {
-		return key != null;
+		if (date == null) return false;
+		if (key == null) return false;
+		//also offline if outdated
+		return !checkDate();
 	}
 
 	/**
