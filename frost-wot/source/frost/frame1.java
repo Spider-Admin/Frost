@@ -84,7 +84,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     public ObjectOutputStream id_writer;
     public static LocalIdentity mySelf;
     public static BuddyList friends,enemies;
-    public static Hashtable goodIds,badIds;
+    public static Hashtable goodIds,badIds,myBatches;
     public static crypt crypto;
 
     // saved to frost.ini
@@ -214,6 +214,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     public static LocalIdentity getMyId() {return mySelf;}
     public static BuddyList getFriends() {return friends;}
     public static Hashtable getGoodIds() {return goodIds;}
+    public static Hashtable getMyBatches() {return myBatches;}
     public static Hashtable getBadIds() {return badIds;}
     public static crypt getCrypto() {return crypto;}
     public static BuddyList getEnemies() {return enemies;}
@@ -331,6 +332,17 @@ public class frame1 extends JFrame implements ClipboardOwner
                         System.out.println("ERROR: couldn't save identities:");
                         e.printStackTrace();
                     }
+		    try {
+		    	StringBuffer buf = new StringBuffer();
+			Iterator i = myBatches.keySet().iterator();
+			while (i.hasNext()) 
+				buf.append((String)i.next()).append("*");
+			File batches = new File("batches");
+			FileAccess.writeFile(buf.toString(),batches);
+			
+		    } catch (Throwable t) {
+		    	t.printStackTrace();
+		    }
                     saveOnExit();
                     FileAccess.cleanKeypool(keypool);
                 }
@@ -1091,7 +1103,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
     	goodIds = new Hashtable();
 	badIds = new Hashtable();
+	myBatches = new Hashtable();
         File identities = new File("identities");
+	
         //File contacts = new File("contacts");
         System.out.println("trying to create/load ids");
         try {
@@ -1248,6 +1262,20 @@ public class frame1 extends JFrame implements ClipboardOwner
             System.out.println("couldn't create identities file");
         }
         System.out.println("ME = '"+getMyId().getUniqueName()+"'");
+	
+	File batches = new File("batches");
+	try{
+		String allBatches = FileAccess.readFileRaw(batches);
+		String[] _batches = allBatches.split("*"); //dumb.  will fix later
+		
+		for (int i = 0;i<_batches.length;i++)
+			myBatches.put(_batches[i],_batches[i]);
+			
+		System.out.println("loaded "+_batches.length+" batches of shared files");
+	}catch(Throwable e) {
+		System.out.println("couldn't load batches");
+		e.printStackTrace();
+	}
 
     }
 

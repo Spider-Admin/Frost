@@ -3,6 +3,7 @@ package frost.gui;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.Random;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
@@ -128,8 +129,12 @@ public class UploadTable extends SortedTable
         /*SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
         Date today = new Date();*/
         //String date = formatter.format(today);
+	Random r = new Random();
 	String date = DateFun.getDate();
-
+	String batchId=(new Long(r.nextLong())).toString();
+	int maxBatchSize = 100; //TODO: take this from settings
+	
+	
         UploadTableModel tableModel = (UploadTableModel)getModel();
         for( int i = 0; i < tableModel.getRowCount(); i++ )
         {
@@ -144,6 +149,14 @@ public class UploadTable extends SortedTable
                 newKey.setExchange(false);
 		if (ulItem.getKey() !=null)
 			newKey.setKey(ulItem.getKey());
+			
+		if (i % maxBatchSize == 0) {
+			while(frame1.getMyBatches().contains(batchId)) 
+	    			batchId=(new Long(r.nextLong())).toString(); //spam this, asshole!
+			frame1.getMyBatches().put(batchId,batchId);
+		}
+		
+		newKey.setBatch(batchId);
                 Index.addMine( newKey, ulItem.getTargetBoard() );
 		Index.add(newKey, ulItem.getTargetBoard());  //also to the big file.
             }
