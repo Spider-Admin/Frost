@@ -16,19 +16,23 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * This is subclass of ModelTableHeader that listens for mouse clicks on it.
+ * When the user clicks on the header of one column, it notifies the associated
+ * SortedModelTable of the event, so that it can change its sorting.
+ * It also paints arrows on the header depending of that sorting.
+ * @author $Author$
+ * @version $Revision$
  */
-class SortedTableHeader extends JTableHeader {
+class SortedTableHeader extends ModelTableHeader {
 	/**
-	 * 
+	 * This inner class paints an arrow on the header of the column the model
+	 * table is sorted by. The arrow will point upwards or downwards depending 
+	 * if the sorting is ascending or descending.
 	 */
 	private class ArrowRenderer implements TableCellRenderer {
 					
 		/**
-		 * 
+		 * This constructor creates a new instance of ArrowRenderer
 		 */
 		public ArrowRenderer() {
 			super();
@@ -39,6 +43,7 @@ class SortedTableHeader extends JTableHeader {
 		 * If the defaultRenderer of the JTableHeader is an instance of JLabel 
 		 * (like DefaultTableCellRenderer), it paints an arrow if necessary. Then, 
 		 * it calls the defaultRenderer so that it finishes the job. 
+		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 	 	 */
 		public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
 			TableCellRenderer defaultRenderer = table.getTableHeader().getDefaultRenderer();
@@ -62,43 +67,18 @@ class SortedTableHeader extends JTableHeader {
 	
 	}
 	
-	/**
-	 * 
-	 */
-	private class Listener extends MouseAdapter {
-	
-		/**
-		 * 
-		 */
-		public Listener() {
-			super();
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-		 */
-		public void mouseClicked(MouseEvent e) {
-			TableColumnModel columnModel = getTable().getColumnModel();
-			int columnNumber = columnModel.getColumnIndexAtX(e.getX());
-			if (columnNumber != -1) {
-				//This translation is done so the real column number is used when the user moves columns around.
-				int modelIndex = columnModel.getColumn(columnNumber).getModelIndex();
-				sortedTable.columnClicked(modelIndex);
-			}
-		}
-	
-	}
-	
 	private static Logger logger = Logger.getLogger(SortedTableHeader.class.getName());	
 	
 	private static Icon ascendingIcon;
 	private static Icon descendingIcon;
 	
 	private ArrowRenderer arrowRenderer = new ArrowRenderer();
-	private Listener listener = new Listener();
 	
 	private SortedModelTable sortedTable;
 	
+	/**
+	 * This static initializer loads the images of the arrows (both ascending and descending)
+	 */
 	static {
 		URL ascencingURL = SortedModelTable.class.getResource("/data/SortedTable_ascending.png");
 		if (ascencingURL != null) {
@@ -115,10 +95,12 @@ class SortedTableHeader extends JTableHeader {
 	}
 
 	/**
-	 * @param cm
+	 * This constructor creates a new instance of ModelTableHeader associated
+	 * to the SortedModelTable that is passed as a parameter.
+	 * @param cm the SortedModelTable that is going to have this header
 	 */
 	public SortedTableHeader(SortedModelTable newSortedTable) {
-		super(newSortedTable.getTable().getColumnModel());
+		super(newSortedTable);
 		
 		sortedTable = newSortedTable;
 		//The defaultRenderer of the JTableHeader is not touched because that is what
@@ -128,7 +110,25 @@ class SortedTableHeader extends JTableHeader {
 			TableColumn column = (TableColumn) enumeration.nextElement();
 			column.setHeaderRenderer(arrowRenderer);
 		}
-		addMouseListener(listener);
+	}
+
+	/**
+	 * This method is called by the superclass when the user clicks on a column (the mouse
+	 * button is pressed). It gets the number of the column whose header was clicked and
+	 * notifies the associated SortedModelTable of the event.
+	 * @see frost.util.model.gui.ModelTableHeader#headerClicked(java.awt.event.MouseEvent)
+	 */
+	protected void headerClicked(MouseEvent e) {
+		super.headerClicked(e);
+		if (e.getButton() == MouseEvent.BUTTON1) {
+			TableColumnModel columnModel = getTable().getColumnModel();
+			int columnNumber = columnModel.getColumnIndexAtX(e.getX());
+			if (columnNumber != -1) {
+				//This translation is done so the real column number is used when the user moves columns around.
+				int modelIndex = columnModel.getColumn(columnNumber).getModelIndex();
+				sortedTable.columnClicked(modelIndex);
+			}
+		}
 	}
 
 }
