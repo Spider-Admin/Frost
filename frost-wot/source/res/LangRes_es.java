@@ -413,7 +413,12 @@ static final Object[][] contents = {
 	/// Misc (appear in several classes)
 	///
 	
-	{"Description","Descripción"}
+	{"Description","Descripción"},
+	
+	//	Frost startup error messages
+	{"Frost.lockFileFound", "Esto indica que otra instancia de Frost ya se está ejecutando en este directorio.\n" +
+							"Ejecutar Frost concurrentemente va a provocar la pérdida de datos.\n"+
+							"Si estás TOTALMENTE SEGURO de que Frost no se está ejecutando ya, borra el fichero de bloqueo:\n"}
 	
 	};
 }
