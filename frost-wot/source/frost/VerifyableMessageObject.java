@@ -33,6 +33,11 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
     public static final String NA       = "N/A";
     public static final String OLD      = "NONE";
+    
+    /**
+     *  BAD = signature tampered
+     *  N/A = couldn't retrieve key (will be obsoleted by xml messages)
+     */
 
     private String currentStatus;
     private final boolean isVerifyable;
@@ -212,8 +217,8 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 }
                 else // verification FAILED!
                 {
-                    System.out.println("TOFDN: *** Message seems to be from ME (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                    System.out.println("TOFDN: *** Message seems to be from ME (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
                 }
             }
             //the message contains the CHK of a public key, see if we have this name on our list
@@ -230,8 +235,8 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 }
                 else // verification FAILED!
                 {
-                    System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                    System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
                 }
             }
             else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
@@ -247,8 +252,8 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 }
                 else // verification FAILED!
                 {
-                    System.out.println("TOFDN: *** Message seems to be from a ENEMY (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                    System.out.println("TOFDN: *** Message seems to be from a ENEMY (from is equal), but signature is wrong; set state to BAD anyways: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
                 }
             }
             else
@@ -277,8 +282,8 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 }
                 else //failed authentication, don't ask the user
                 {
-                    System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to N/A: "+currentMsg.getFrom() );
-                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                    System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to BAD: "+currentMsg.getFrom() );
+                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
                 }
             }
         }
