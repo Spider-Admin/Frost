@@ -44,8 +44,15 @@ public class ResendFailedMessagesThread extends Thread
             if( unsentMsgFile.getName().startsWith("unsent") )
             {
                 // Resend message
-                VerifyableMessageObject mo = new VerifyableMessageObject(unsentMsgFile);
-                if( mo.isValid() )
+                VerifyableMessageObject mo = null;
+                try {
+                    mo = new VerifyableMessageObject(unsentMsgFile);
+                } catch(Exception ex)
+                {
+                    Core.getOut().println("Could'nt read the message file, will not send message.");
+                }
+                
+                if( mo != null && mo.isValid() )
                 {
                     FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( mo.getBoard() );
                     if( board == null )
@@ -69,7 +76,7 @@ public class ResendFailedMessagesThread extends Thread
                     System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
                 }
                 // check if upload was successful before deleting the file -
-                // is not needed, the upload thread creates new unsent file
+                //  is not needed, the upload thread creates new unsent file
                 unsentMsgFile.delete();
             }
         }

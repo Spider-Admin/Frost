@@ -349,9 +349,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         
                         //Core.getOut().println(contents);
                         
-                        ///  if i would know how to check for encrypted msg *g*
-                        
-
+/*        Encryption will be done+handled using private boards
                         if( encstart != -1 )
                         {
                             Core.getOut().println("TOFDN: Decrypting message ...");
@@ -372,7 +370,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             index++;
                             continue;
                         }
-                        
+*/                        
                         // verify the message date and time
                         if( currentMsg.isValidFormat( calDL ) == false )
                         {
@@ -393,17 +391,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             else
                             {
                                 frame1.displayNewMessageIcon(true);
-                                String[] header = {SettingsFun.getValue(testMe, "board"),
-                                    SettingsFun.getValue(testMe, "from"),
-                                    SettingsFun.getValue(testMe, "subject"),
-                                    SettingsFun.getValue(testMe, "date") + " " +
-                                    SettingsFun.getValue(testMe, "time")};
-                                if( header.length == 4 )
-                                    frame1.newMessageHeader = new StringBuffer().append("   ")
-                                        .append(header[0]).append(" : ").append(header[1]).append(" - ")
-                                        .append(header[2]).append(" (").append(header[3]).append(")").toString();
+                                // write the NEW message indicator file                                
                                 FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
-
                                 // add new message or notify of arrival
                                 TOF.addNewMessageToTable(testMe, board);
                             }
