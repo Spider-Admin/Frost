@@ -250,19 +250,25 @@ public class TOF
             while( cal.after(firstDate) && counter < daysToRead )
             {
                 String date = DateFun.getDateOfCalendar(cal);
-                File loadDir = new File(new StringBuffer().append(keypool).append(targetBoard).append(fileSeparator).append(date).toString());
+                String filename = new StringBuffer().append(keypool).append(targetBoard).append(fileSeparator).append(date).toString();
+                File loadDir = new File(filename);
+
                 if( loadDir.isDirectory() )
                 {
-                    File[] filePointers = loadDir.listFiles();
+                    File[] filePointers = loadDir.listFiles(new FilenameFilter() {
+                            public boolean accept(File dir, String name) {
+                                if( name.endsWith(".txt") )
+                                    return true;
+                                return false;
+                            } });
                     if( filePointers != null )
                     {
                         String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ )
                         {
-                            if( (filePointers[j].getName()).endsWith(".txt") &&
-                                 filePointers[j].length() > 0 &&
-                                 filePointers[j].length() < 32000 &&
-                                 filePointers[j].getName().startsWith(sdate)
+                            if( filePointers[j].length() > 0 &&
+                                filePointers[j].length() < 32000 &&
+                                filePointers[j].getName().startsWith(sdate)
                               )
                             {
                                 FrostMessageObject message = new FrostMessageObject(filePointers[j]);
@@ -333,10 +339,6 @@ public class TOF
      */
     public static boolean blocked(VerifyableMessageObject message)
     {
-        String header = (message.getFrom() + message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
-        int index = frame1.frostSettings.getValue("blockMessage").indexOf(";");
-        int pos = 0;
-
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
             !message.isVerifyable() )
             return true;
@@ -351,6 +353,10 @@ public class TOF
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
         {
+            String header = (message.getFrom() + message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
+            int index = frame1.frostSettings.getValue("blockMessage").indexOf(";");
+            int pos = 0;
+
             while( index != -1 )
             {
                 String block = (frame1.frostSettings.getValue("blockMessage").substring(pos, index)).trim();
@@ -375,6 +381,9 @@ public class TOF
         //same with body
         if( frame1.frostSettings.getBoolValue("blockMessageBodyChecked") )
         {
+            int index = frame1.frostSettings.getValue("blockMessageBody").indexOf(";");
+            int pos = 0;
+
             while( index != -1 )
             {
                 String block = (frame1.frostSettings.getValue("blockMessageBody").substring(pos, index)).trim();

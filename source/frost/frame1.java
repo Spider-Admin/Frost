@@ -1761,13 +1761,11 @@ public class frame1 extends JFrame implements ClipboardOwner
                 enemies.Add(newFriend);
 
             // get all .txt files in keypool
-            Vector entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
+            File[] entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
                                                        ".txt");
-            Iterator i = entries.iterator();
-            while( i.hasNext() )
+            for( int ii=0; ii<entries.length; ii++ )
             {
-                String txtFile = (String)i.next();
-                FrostMessageObject tempMsg = new FrostMessageObject( txtFile );
+                FrostMessageObject tempMsg = new FrostMessageObject( entries[ii] );
                 if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
                     tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
                 {
@@ -2634,10 +2632,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                 for( int i = 0; i < selectedFiles.length; i++ )
                 {
                     // collect all choosed files + files in all choosed directories
-                    Vector allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
-                    for( int j = 0; j < allFiles.size(); j++ )
+                    File[] allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+                    for( int j = 0; j < allFiles.length; j++ )
                     {
-                        File newFile = (File)allFiles.elementAt(j);
+                        File newFile = allFiles[j];
                         if( newFile.isFile() )
                         {
                             FrostUploadItemObject ulItem = new FrostUploadItemObject( newFile, board );
@@ -3125,16 +3123,16 @@ public class frame1 extends JFrame implements ClipboardOwner
             if( isInterrupted() )
                 return;
 
-            Vector entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
+            File[] entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
 
             if( isInterrupted() )
                 return;
 
-            for( int i = 0; i < entries.size(); i++ )
+            for( int i = 0; i < entries.length; i++ )
             {
-                if( ((File)entries.elementAt(i)).getName().startsWith("unsent") )
+                if( entries[i].getName().startsWith("unsent") )
                 {
-                    File unsentMsgFile = (File)entries.elementAt(i);
+                    File unsentMsgFile = entries[i];
                     // Resend message
                     VerifyableMessageObject mo = new VerifyableMessageObject(unsentMsgFile);
                     if( mo.isValid() )
