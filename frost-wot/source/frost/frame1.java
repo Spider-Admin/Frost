@@ -66,7 +66,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
      * Setter for thelanguage resource bundle
      */
     public void setLanguageResource(ResourceBundle LangRes) {
-	this.LangRes = LangRes;
+	   frame1.LangRes = LangRes;
     }
 
 	/**
@@ -2059,7 +2059,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				board,
 				frostSettings,
 				listener);
-			mixed.wait(111);
 			Core.getOut().println(
 				"Starting update (MSG_TODAY) of " + board.toString());
 			threadStarted = true;
@@ -2074,7 +2073,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				board,
 				frostSettings,
 				listener);
-			mixed.wait(111);
 			Core.getOut().println(
 				"Starting update (BOARD_UPLOAD) of " + board.toString());
 			threadStarted = true;
@@ -2088,7 +2086,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				board,
 				frostSettings,
 				listener);
-			mixed.wait(111);
 			Core.getOut().println(
 				"Starting update (BOARD_DOWNLOAD) of " + board.toString());
 			threadStarted = true;
@@ -2102,7 +2099,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				board,
 				frostSettings,
 				listener);
-			mixed.wait(111);
 			Core.getOut().println(
 				"Starting update (MSG_BACKLOAD) of " + board.toString());
 			threadStarted = true;
