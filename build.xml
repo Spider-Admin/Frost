@@ -126,7 +126,8 @@ Build log  : ${logfilename}</echo>
            destdir="${build.classes}"
            debug="${debug}"
            deprecation="${deprecation}"
-           optimize="${optimize}" >
+           optimize="${optimize}"
+           encoding="UTF8">
       <classpath refid="classpath" />
     </javac>
     
