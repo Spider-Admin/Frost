@@ -42,10 +42,12 @@ public interface ModelTableFormat {
 	public void customizeTable(JTable table);
 	
 	/**
-	 * This method returns the number of the column that reflects
-	 * the information of the field passed as a parameter
+	 * This method returns the numbers of the columns that reflect
+	 * the information of the model field passed as a parameter
 	 * 
 	 * @param fieldID the ID of the field
+	 * @return the number of the columns of the table that reflect
+	 * 		   the information of the given model field
 	 */
-	public int getColumnNumber(int fieldID);
+	public int[] getColumnNumbers(int fieldID);
 }
