@@ -553,6 +553,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			MiscToolkit toolkit = MiscToolkit.getInstance();
 			toolkit.configureButton(downloadActivateButton, "/data/down_selected_rollover.gif"); // play_rollover
 			toolkit.configureButton(downloadPauseButton, "/data/down_rollover.gif"); // pause_rollover
+			
+			new TextComponentClipboardMenu(downloadTextField, language);
 
 			BoxLayout dummyLayout = new BoxLayout(downloadTopPanel, BoxLayout.X_AXIS);
 			downloadTopPanel.setLayout(dummyLayout);

@@ -392,6 +392,8 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 
 			// create the top panel
 			searchAllBoardsCheckBox.setEnabled(true);
+			
+			new TextComponentClipboardMenu(searchTextField, language);
 
 			String[] searchComboBoxKeys =
 				{ "All files", "Audio", "Video", "Images", "Documents", "Executables", "Archives" };
