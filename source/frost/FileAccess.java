@@ -401,6 +401,13 @@ public class FileAccess
     {
         writeFile(content, new File(filename));
     }
+    
+	/**
+	 * Writes a file "file" to "path", being able to specify the encoding
+	 */
+	public static void writeFile(String content, String filename, String encoding) {
+		writeFile(content, new File(filename), encoding);
+	}
     public static void writeFile(String content, File file)
     {
         FileWriter f1;
