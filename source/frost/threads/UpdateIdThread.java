@@ -189,7 +189,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     
     private FrostIndex makeIndexFile()
     {
-		logger.info("FILEDN: UpdateIdThread.makeIndexFile for " + board.toString());
+		logger.info("FILEDN: UpdateIdThread.makeIndexFile for " + board.getName());
 
         // Calculate the keys to be uploaded
         Map files = Index.getUploadKeys(board.getBoardFilename());
@@ -527,10 +527,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			//index -= maxFailures;
 			FrostIndex frostIndex = makeIndexFile();
 			if (frostIndex != null) {
-				logger.info("FILEDN: Starting upload of index file to board '" + board.toString());
+				logger.info("FILEDN: Starting upload of index file to board '" + board.getName());
 				uploadIndexFile(frostIndex);
 			} else {
-				logger.info("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.toString());
+				logger.info("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.getName());
 			}
 
 		} catch (Throwable t) {

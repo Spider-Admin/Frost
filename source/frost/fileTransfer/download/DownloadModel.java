@@ -80,7 +80,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 			FrostDownloadItem item = (FrostDownloadItem) getItemAt(x);
 			if (item.getSHA1() != null
 				&& item.getSHA1().equals(itemToAdd.getSHA1())
-				&& item.getSourceBoard().toString().equals(itemToAdd.getSourceBoard().toString())) {
+				&& item.getSourceBoard().getName().equals(itemToAdd.getSourceBoard().getName())) {
 				// already in model (compared by SHA1)
 				return false;
 			}

@@ -82,7 +82,7 @@ public class MessageDownloadThread
             // wait a max. of 5 seconds between start of threads
             Mixed.wait(waitTime);
 
-			logger.info("TOFDN: " + tofType + " Thread started for board " + board.toString());
+			logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
             if (isInterrupted())
             {
@@ -127,7 +127,7 @@ public class MessageDownloadThread
                     downloadDate(cal);
                 }
             }
-			logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.toString());
+			logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
         }
         catch (Throwable t)
         {
@@ -551,7 +551,7 @@ public class MessageDownloadThread
             {
                 board.incBlocked();
                 logger.info("TOFDN: ########### blocked message for board '" +
-                        		board.toString() +
+                        		board.getName() +
                         		"' #########\n");
             }
             else

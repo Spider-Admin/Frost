@@ -333,7 +333,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             for( int i = 0; i < boards.size(); i++ )
             {
                 Board board = (Board)boards.elementAt(i);
-                String boardName = board.toString();
+                String boardName = board.getName();
 
                 BoardInfoTableMember newRow = new BoardInfoTableMember(board);
                 fillInBoardCounts(board, newRow);
@@ -543,7 +543,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         {
             switch( column )
             {
-                case 0: return board.toString();
+                case 0: return board.getName();
                 case 1: return board.getStateString();
                 case 2: return allmsg;
                 case 3: return newmsg;

@@ -262,7 +262,7 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 		itemElement.appendChild(element);
 		// targetboard
 		element = document.createElement("targetboard");
-		text = document.createTextNode(uploadItem.getTargetBoard().toString());
+		text = document.createTextNode(uploadItem.getTargetBoard().getName());
 		element.appendChild(text);
 		itemElement.appendChild(element);
 		// state

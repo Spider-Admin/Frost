@@ -70,7 +70,7 @@ public class ResendFailedMessagesThread extends Thread
                         board,
                         mo,
                         null);
-                    logger.info("Message '" + mo.getSubject() + "' will be resent to board '" + board.toString() + "'.");
+                    logger.info("Message '" + mo.getSubject() + "' will be resent to board '" + board.getName() + "'.");
                 }
                 // check if upload was successful before deleting the file -
                 //  is not needed, the upload thread creates new unsent file

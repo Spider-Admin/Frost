@@ -1748,7 +1748,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 							+ " "
 							+ folderOrBoard3
 							+ " '"
-							+ clipboard.toString()
+							+ clipboard.getName()
 							+ "'");
 					add(pasteNodeItem);
 				}
@@ -2799,18 +2799,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		if (selectedNode.isFolder()) {
 			txt =
 				"Do you really want to delete folder '"
-					+ selectedNode.toString()
+					+ selectedNode.getName()
 					+ "' ???"
 					+ "\nNOTE: Removing it will also remove all boards/folders inside this folder!!!";
 		} else {
-			txt = "Do you really want to delete board '" + selectedNode.toString() + "' ???";
+			txt = "Do you really want to delete board '" + selectedNode.getName() + "' ???";
 		}
 
 		int answer =
 			JOptionPane.showConfirmDialog(
 				this,
 				txt,
-				"Delete '" + selectedNode.toString() + "'?",
+				"Delete '" + selectedNode.getName() + "'?",
 				JOptionPane.YES_NO_OPTION);
 		if (answer == JOptionPane.NO_OPTION) {
 			return;
@@ -2835,7 +2835,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				JOptionPane.showConfirmDialog(
 					this,
 					txt,
-					"Delete directory of '" + selectedNode.toString() + "'?",
+					"Delete directory of '" + selectedNode.getName() + "'?",
 					JOptionPane.YES_NO_CANCEL_OPTION);
 			if (answer == JOptionPane.YES_OPTION) {
 				deleteDirectory = true;
@@ -2872,7 +2872,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				JOptionPane.showInputDialog(
 					this,
 					"Please enter the new name:\n",
-					selected.toString());
+					selected.getName());
 			if (newname == null)
 				return; // cancel
 			if (selected.isFolder() == false
@@ -2927,7 +2927,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		}
 		if (nextBoard != null) {
-			logger.info("*** Automatic board update started for: " + nextBoard.toString());
+			logger.info("*** Automatic board update started for: " + nextBoard.getName());
 		} else {
 			logger.info(
 				"*** Automatic board update - min update interval not reached.  waiting...");
@@ -3057,7 +3057,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				.append(getRunningBoardUpdateThreads().getRunningDownloadThreadCount())
 				.append("T")
 				.append("   " + language.getString("Selected board") + ": ")
-				.append(getSelectedNode().toString())
+				.append(getSelectedNode().getName())
 				.toString();
 		statusLabel.setText(newText);
 	}
@@ -3144,7 +3144,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				updateButtons(node);
 
 				logger.info(
-					"Board " + node.toString() + " blocked count: " + node.getBlockedCount());
+					"Board " + node.getName() + " blocked count: " + node.getBlockedCount());
 
 				uploadPanel.setAddFilesButtonEnabled(true);
 				renameBoardButton.setEnabled(false);
@@ -3262,7 +3262,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				board,
 				frostSettings,
 				listener);
-			logger.info("Starting update (MSG_TODAY) of " + board.toString());
+			logger.info("Starting update (MSG_TODAY) of " + board.getName());
 			threadStarted = true;
 		}
 
@@ -3272,7 +3272,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				board,
 				BoardUpdateThread.BOARD_FILE_UPLOAD)) {
 			getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, listener);
-			logger.info("Starting update (BOARD_UPLOAD) of " + board.toString());
+			logger.info("Starting update (BOARD_UPLOAD) of " + board.getName());
 			threadStarted = true;
 		}
 
@@ -3281,7 +3281,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				board,
 				BoardUpdateThread.BOARD_FILE_DNLOAD)) {
 			getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, listener);
-			logger.info("Starting update (BOARD_DOWNLOAD) of " + board.toString());
+			logger.info("Starting update (BOARD_DOWNLOAD) of " + board.getName());
 			threadStarted = true;
 		}
 
@@ -3290,7 +3290,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			.isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK)
 			== false) {
 			getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, listener);
-			logger.info("Starting update (MSG_BACKLOAD) of " + board.toString());
+			logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
 			threadStarted = true;
 		}
 

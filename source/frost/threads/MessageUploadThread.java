@@ -296,7 +296,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
 		logger.info(
 			"TOFUP: Uploading message to board '"
-				+ board.toString()
+				+ board.getName()
 				+ "' with HTL "
 				+ messageUploadHtl);
 
@@ -589,7 +589,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             zipFile.delete();
 
             logger.info("*********************************************************************\n"
-                    + "Message successfuly uploaded to board '" + board.toString() + "'.\n"
+                    + "Message successfuly uploaded to board '" + board.getName() + "'.\n"
                     + "*********************************************************************");
             tryAgain = false;
         } else {

@@ -351,7 +351,7 @@ public class TofTreeXmlIO
         rootBoardElement.setAttribute("isexpanded", "true");
 
         Element nameElement = doc.createElement("name");
-        Text text = doc.createTextNode( root.toString() );
+        Text text = doc.createTextNode( root.getName() );
         nameElement.appendChild( text );
 
         rootBoardElement.appendChild( nameElement );
@@ -404,7 +404,7 @@ public class TofTreeXmlIO
         
         // <name>
         element = doc.createElement("name");
-        cdata = doc.createCDATASection(Mixed.makeSafeXML(board.toString()));
+        cdata = doc.createCDATASection(Mixed.makeSafeXML(board.getName()));
         element.appendChild( cdata );
         rootBoardElement.appendChild( element );
         // pubkey
@@ -488,7 +488,7 @@ public class TofTreeXmlIO
         rootBoardElement.setAttribute("isexpanded", expandedstr);
         // <name>
         Element element = doc.createElement("name");
-        Text text = doc.createTextNode( board.toString() );
+        Text text = doc.createTextNode( board.getName() );
         element.appendChild( text );
         rootBoardElement.appendChild( element );
         parent.appendChild( rootBoardElement );

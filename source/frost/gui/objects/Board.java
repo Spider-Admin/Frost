@@ -98,7 +98,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 			Board board = (Board) o;
 			if (board.isFolder() == isFolder()) {
 				//If both objects are of the same kind, sort by name
-				return toString().toLowerCase().compareTo(o.toString().toLowerCase());
+				return getName().toLowerCase().compareTo(board.getName().toLowerCase());
 			} else {
 				//If they are of a different kind, the folder is first.
 				return isFolder() ? -1 : 1;
@@ -318,11 +318,11 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	 */
 	public String getVisibleText() {
 		if (getNewMessageCount() == 0) {
-			return toString();
+			return getName();
 		}
 
 		StringBuffer sb = new StringBuffer();
-		sb.append(toString()).append(" (").append(getNewMessageCount()).append(")");
+		sb.append(getName()).append(" (").append(getNewMessageCount()).append(")");
 
 		return sb.toString();
 	}

@@ -199,7 +199,7 @@ public class DownloadThread extends Thread {
 		boolean requested = false;
 
 		logger.info(
-			"FILEDN: Uploading request for '" + filename + "' to board '" + board.toString() + "'");
+			"FILEDN: Uploading request for '" + filename + "' to board '" + board.getName() + "'");
 
 		String fileSeparator = System.getProperty("file.separator");
 		String destination =
