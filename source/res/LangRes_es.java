@@ -234,6 +234,7 @@ static final Object[][] contents = {
 {"Show board update visualization","Muestra visualmente el refresco de los foros"},
 {"Show healing information","Muestra información de reparación"},
 {"Show systray icon","Muestra icono en Bandeja del Sistema"},
+{"Sig","Firma"},
 {"Sign","Firma"},
 {"Sign shared files","Firma ficheros compartidos"},
 {"Signature","Firma"},
