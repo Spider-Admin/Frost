@@ -26,6 +26,7 @@ import frost.identities.*;
 import frost.gui.objects.*;
 import frost.threads.*;
 import frost.threads.maintenance.*;
+import org.w3c.dom.*;
 
 import java.io.*;
 import javax.swing.*;
@@ -100,73 +101,104 @@ public class Core {
 	public boolean isFreenetTransient() {
 		return freenetIsTransient;
 	}
+	
+	
 	protected void loadIdentities() {
 		goodIds = new Hashtable();
 		badIds = new Hashtable();
 		myBatches = new Hashtable();
 		File identities = new File("identities");
-
-		//File contacts = new File("contacts");
-		out.println("trying to create/load ids");
-		try {
-			if (identities.length() == 0)
+		File identitiesxml = new File ("identities.xml");
+		try{
+		
+		if (identities.length() == 0)
 				identities.delete();
-			if (identities.createNewFile()) {
+		if (identitiesxml.length() ==0)
+				identitiesxml.delete();
+		if (identities.createNewFile() && identitiesxml.createNewFile()) {
 				if (isFreenetOnline() == false) {
-					JOptionPane.showMessageDialog(
-						frame1.getInstance(),
-						"Frost could not establish a connection to your freenet node(s). "
-							+ "For first setup of Frost and creating your identity a connection is needed,"
-							+ "later you can run Frost without a connection.\n"
-							+ "Please ensure that you are online and freenet is running, then restart Frost.",
-						"Connect to Freenet node failed",
-						JOptionPane.ERROR_MESSAGE);
-					System.exit(2);
+						JOptionPane.showMessageDialog(
+							frame1.getInstance(),
+							"Frost could not establish a connection to your freenet node(s). "
+								+ "For first setup of Frost and creating your identity a connection is needed,"
+								+ "later you can run Frost without a connection.\n"
+								+ "Please ensure that you are online and freenet is running, then restart Frost.",
+							"Connect to Freenet node failed",
+							JOptionPane.ERROR_MESSAGE);
+						System.exit(2);
 				}
-				//create new identities
-				try {
-					String nick = null;
-					do {
-						nick =
-							JOptionPane.showInputDialog(
-								"Choose an identity name, it doesn't have to be unique\n");
-						if (!(nick == null || nick.length() == 0)) {
-							// check for a '@' in nick, this is strongly forbidden
-							if (nick.indexOf("@") > -1) {
-								JOptionPane.showMessageDialog(
-									frame1.getInstance(),
-									"Your name must not contain a '@'!",
-									"Invalid identity name",
-									JOptionPane.ERROR_MESSAGE);
-								nick = "";
+					//create new identities
+					try {
+						String nick = null;
+						do {
+							nick =
+								JOptionPane.showInputDialog(
+									"Choose an identity name, it doesn't have to be unique\n");
+							if (!(nick == null || nick.length() == 0)) {
+								// check for a '@' in nick, this is strongly forbidden
+								if (nick.indexOf("@") > -1) {
+									JOptionPane.showMessageDialog(
+										frame1.getInstance(),
+										"Your name must not contain a '@'!",
+										"Invalid identity name",
+										JOptionPane.ERROR_MESSAGE);
+									nick = "";
+								}
 							}
+
+						} while (nick != null && nick.length() == 0);
+						if (nick == null) {
+							out.println(
+								"Frost can't run without an identity.");
+							System.exit(1);
 						}
-
-					} while (nick != null && nick.length() == 0);
-					if (nick == null) {
-						out.println(
-							"Frost can't run without an identity.");
-						System.exit(1);
+				
+						do { //make sure there's no // in the name.
+						mySelf = new LocalIdentity(nick);
+						}while (mySelf.getUniqueName().indexOf("//")!=-1);
+				
+						//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
+					} catch (Exception e) {
+						out.println("couldn't create new identitiy");
+						out.println(e.toString());
 					}
-					
-					do { //make sure there's no // in the name.
-					mySelf = new LocalIdentity(nick);
-					}while (mySelf.getUniqueName().indexOf("//")!=-1);
-					
-					//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
-				} catch (Exception e) {
-					out.println("couldn't create new identitiy");
-					out.println(e.toString());
-				}
-				friends = new BuddyList();
+					friends = new BuddyList();
 
-				if (friends.Add(frame1.getMyId())) {
-					out.println("added myself to list");
-				}
-				enemies = new BuddyList();
-
-			} else {
-				try {
+					if (friends.Add(frame1.getMyId())) {
+						out.println("added myself to list");
+					}
+					enemies = new BuddyList();
+		} else
+		
+		//first try with the new format
+		
+		if (identitiesxml.exists()){
+			friends = new BuddyList();
+			enemies = new BuddyList();
+			try{
+				out.println("trying to create/load ids");	
+			Document d = XMLTools.parseXmlFile("identities.xml",false);
+			Element rootEl = d.getDocumentElement();
+			//first myself
+			Element myself = (Element) XMLTools.getChildElementsByTagName(rootEl,"MyIdentity").get(0);
+			mySelf = new LocalIdentity(myself);
+			
+			//then friends
+			List lists = XMLTools.getChildElementsByTagName(rootEl,"BuddyList");
+			Iterator it = lists.iterator();
+			while (it.hasNext()) {
+				Element current = (Element) it.next();
+				if (current.getAttribute("type").equals("friends"))
+					friends.loadXMLElement(current);
+				else
+					enemies.loadXMLElement(current);
+			}
+			}catch (Exception e){
+				e.printStackTrace(getOut());				
+			}
+			Core.getOut().println("loaded "+friends.size() +" friends and "+ enemies.size() +" enemies.");
+		}else {
+		try {
 					BufferedReader fin =
 						new BufferedReader(new FileReader(identities));
 					String name = fin.readLine();
@@ -258,9 +290,10 @@ public class Core {
 				} catch (Exception e) {
 					e.printStackTrace(out);
 				}
-			}
-		} catch (IOException e) {
-			out.println("couldn't create identities file");
+		}
+		
+		}catch (IOException e) {
+			e.printStackTrace(Core.getOut());
 		}
 		out.println("ME = '" + getMyId().getUniqueName() + "'");
 
