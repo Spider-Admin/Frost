@@ -6,12 +6,15 @@ Added:  country flags to the language menu.
 Added:  now the user can choose which columns the search, download and upload tables should show. That
 		selection is made via a contextual menu that pops up when right clicking on the table header.
 Added:  French translation vastly updated (thanks to RapHHfr).
+Added:  Message upload failed dialog internationalized.
 
 Changed: splash screen logo replaced by a new one (thanks to Frédéric Scheer).
 
 Bugfix: when the text in the "Name" column of the uploads table is written in bold and it doesn't fit
 		in the cell it isn't cropped correctly. Fixed now (it no longer uses HTML internally to display 
 		it in bold).
+Bugfix: The message upload failed dialog works now. Some strings were missing from the language resource.
+		(thanks to SSY)
 		
 **************************************************************************************************
 
