@@ -742,4 +742,17 @@ implements DragGestureListener, DragSourceListener
         }
     }
 
+	/**
+	 * @return
+	 */
+	public FrostBoardObject getSelectedNode() {
+		FrostBoardObject node = (FrostBoardObject) getLastSelectedPathComponent();
+		if (node == null) {
+			// nothing selected? unbelievable ! so select the root ...
+			setSelectionRow(0);
+			node = (FrostBoardObject) getModel().getRoot();
+		}
+		return node;
+	}
+
 }
