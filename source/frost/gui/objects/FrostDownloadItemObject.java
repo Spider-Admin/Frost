@@ -91,6 +91,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         this.key = key;
         this.sourceBoard = board;
         this.state = state;
+	this.SHA1 = SHA1;
         this.enableDownload = Boolean.valueOf(isDownloadEnabled);
 	owner = from;
     }
