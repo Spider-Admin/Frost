@@ -52,6 +52,8 @@ public class MessageFrame extends JFrame
     Frame parentFrame;
     SettingsClass frostSettings;
     
+    private boolean initialized = false;
+    
     MFAttachedBoardsTable attBoardsTable;
     MFAttachedFilesTable attFilesTable;
     MFAttachedBoardsTableModel attBoardsTableModel;
@@ -80,143 +82,148 @@ public class MessageFrame extends JFrame
 
     JAATextArea TAcontent = new JAATextArea(); // Text
 
-    private void Init() throws Exception {
-        //------------------------------------------------------------------------
-        // Configure objects
-        //------------------------------------------------------------------------
+	private void Init() throws Exception {
+		if (!initialized) {
+			//------------------------------------------------------------------------
+			// Configure objects
+			//------------------------------------------------------------------------
 
-        this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getResource("/data/newmessage.gif")));
-        this.setTitle(LangRes.getString("Create message"));
-        this.setResizable(true);
-        
-        attBoardsTableModel = new MFAttachedBoardsTableModel();
-        attBoardsTable = new MFAttachedBoardsTable(attBoardsTableModel);
-        JScrollPane attBoardsScroller = new JScrollPane( attBoardsTable );
-        attBoardsTable.addMouseListener(new AttBoardsTablePopupMenuMouseListener());
-        
-        attFilesTableModel = new MFAttachedFilesTableModel();
-        attFilesTable = new MFAttachedFilesTable(attFilesTableModel);
-        JScrollPane attFilesScroller = new JScrollPane( attFilesTable );
-        attFilesTable.addMouseListener(new AttFilesTablePopupMenuMouseListener());
-        
-        configureButton(Bsend, "Send message", "/data/send_rollover.gif");
-        configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
-        configureButton(BattachFile, "Add attachment(s)", "/data/attachment_rollover.gif");
-        configureButton(BattachBoard, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
+			this.setIconImage(
+				Toolkit.getDefaultToolkit().createImage(
+					this.getClass().getResource("/data/newmessage.gif")));
+			this.setTitle(LangRes.getString("Create message"));
+			this.setResizable(true);
 
-	sign.setText(LangRes.getString("Sign"));
-	addAttachedFilesToUploadTable.setText(LangRes.getString("Indexed attachments"));
+			attBoardsTableModel = new MFAttachedBoardsTableModel();
+			attBoardsTable = new MFAttachedBoardsTable(attBoardsTableModel);
+			JScrollPane attBoardsScroller = new JScrollPane(attBoardsTable);
+			attBoardsTable.addMouseListener(new AttBoardsTablePopupMenuMouseListener());
 
-        TFboard.setEnabled(false);
-        TFboard.setText(board.toString());
-        TFfrom.setText(from);
+			attFilesTableModel = new MFAttachedFilesTableModel();
+			attFilesTable = new MFAttachedFilesTable(attFilesTableModel);
+			JScrollPane attFilesScroller = new JScrollPane(attFilesTable);
+			attFilesTable.addMouseListener(new AttFilesTablePopupMenuMouseListener());
 
-        TFsubject.setText(subject);
-        TAcontent.setLineWrap(true);
-        TAcontent.setWrapStyleWord(true);
-        TAcontent.setText(text);
-        // check if last msg was signed and set it to remembered state
-        if( from.equals(frame1.getMyId().getUniqueName()) )
-        {
-            TFfrom.setEnabled(false);
-            sign.setSelected(true);
-        }
-        
-        addAttachedFilesToUploadTable.setSelected(false);
-        addAttachedFilesToUploadTable.setToolTipText(LangRes.getString("Should file attachments be added to upload table?"));
+			configureButton(Bsend, "Send message", "/data/send_rollover.gif");
+			configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
+			configureButton(BattachFile, "Add attachment(s)", "/data/attachment_rollover.gif");
+			configureButton(BattachBoard, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
 
-        //------------------------------------------------------------------------
-        // Actionlistener
-        //------------------------------------------------------------------------
-        Bsend.addActionListener(new java.awt.event.ActionListener() {
-                                       public void actionPerformed(ActionEvent e) {
-                                           send_actionPerformed(e);
-                                       } });
-        Bcancel.addActionListener(new java.awt.event.ActionListener() {
-                                       public void actionPerformed(ActionEvent e) {
-                                           cancel_actionPerformed(e);
-                                       } });
-        BattachFile.addActionListener(new java.awt.event.ActionListener() {
-                                       public void actionPerformed(ActionEvent e) {
-                                           attachFile_actionPerformed(e);
-                                       } });
-        BattachBoard.addActionListener(new java.awt.event.ActionListener() {
-                                         public void actionPerformed(ActionEvent e) {
-                                             attachBoards_actionPerformed(e);
-                                         } });
-        sign.addActionListener(new java.awt.event.ActionListener() {
-                                   public void actionPerformed(ActionEvent e) {
-                                       if( sign.isSelected() )
-                                       {
-                                           TFfrom.setText(frame1.getMyId().getUniqueName());
-                                           TFfrom.setEnabled(false);
-                                       }
-                                       else
-                                       {
-                                           TFfrom.setText("Anonymous");
-                                           TFfrom.setEnabled(true);
-                                       }
-                                   } });
-        //------------------------------------------------------------------------
-        // Append objects
-        //------------------------------------------------------------------------
-        JPanel panelMain = new JPanel(new BorderLayout()); // Main Panel
-        JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
-        JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
-        JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
-        JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-        
-        JLabel Lboard = new JLabel(LangRes.getString("Board") + ": ");
-        JLabel Lfrom = new JLabel(LangRes.getString("From") + ": ");
-        JLabel Lsubject = new JLabel(LangRes.getString("Subject") + ": ");
+			sign.setText(LangRes.getString("Sign"));
+			addAttachedFilesToUploadTable.setText(LangRes.getString("Indexed attachments"));
 
-        JScrollPane textScroller = new JScrollPane(TAcontent); // Textscrollpane
-        textScroller.setMinimumSize(new Dimension(100, 50));
+			TFboard.setEnabled(false);
+			TFboard.setText(board.toString());
+			TFfrom.setText(from);
 
-        panelLabels.add(Lboard, BorderLayout.NORTH);
-        panelLabels.add(Lfrom, BorderLayout.CENTER);
-        panelLabels.add(Lsubject, BorderLayout.SOUTH);
-        
-        panelTextfields.add(TFboard, BorderLayout.NORTH);
-        panelTextfields.add(TFfrom, BorderLayout.CENTER);
-        panelTextfields.add(TFsubject, BorderLayout.SOUTH);
+			TFsubject.setText(subject);
+			TAcontent.setLineWrap(true);
+			TAcontent.setWrapStyleWord(true);
+			TAcontent.setText(text);
+			// check if last msg was signed and set it to remembered state
+			if (from.equals(frame1.getMyId().getUniqueName())) {
+				TFfrom.setEnabled(false);
+				sign.setSelected(true);
+			}
 
-        panelButtons.add(Bsend);
-        panelButtons.add(Bcancel); 
-        panelButtons.add(BattachFile); 
-        panelButtons.add(BattachBoard); 
-        panelButtons.add(sign);
-        panelButtons.add(this.addAttachedFilesToUploadTable);
+			addAttachedFilesToUploadTable.setSelected(false);
+			addAttachedFilesToUploadTable.setToolTipText(
+				LangRes.getString("Should file attachments be added to upload table?"));
 
-        JPanel dummyPanel = new JPanel(new BorderLayout());
-        dummyPanel.add(panelLabels, BorderLayout.WEST);
-        dummyPanel.add(panelTextfields, BorderLayout.CENTER);
-        
-        panelToolbar.add(panelButtons, BorderLayout.NORTH);
-        panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
-        
-        this.attachmentSplitPane =
-            new JSplitPane(
-                JSplitPane.VERTICAL_SPLIT,
-                textScroller,
-                attFilesScroller);
-        this.boardSplitPane =
-            new JSplitPane(
-                JSplitPane.VERTICAL_SPLIT,
-                this.attachmentSplitPane,
-                attBoardsScroller);
-                
-        this.boardSplitPane.setResizeWeight(1);
-        this.attachmentSplitPane.setResizeWeight(1);
-        
-        panelMain.add(panelToolbar, BorderLayout.NORTH);
-        panelMain.add(boardSplitPane, BorderLayout.CENTER);
+			//------------------------------------------------------------------------
+			// Actionlistener
+			//------------------------------------------------------------------------
+			Bsend.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					send_actionPerformed(e);
+				}
+			});
+			Bcancel.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					cancel_actionPerformed(e);
+				}
+			});
+			BattachFile.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					attachFile_actionPerformed(e);
+				}
+			});
+			BattachBoard.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					attachBoards_actionPerformed(e);
+				}
+			});
+			sign.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					if (sign.isSelected()) {
+						TFfrom.setText(frame1.getMyId().getUniqueName());
+						TFfrom.setEnabled(false);
+					} else {
+						TFfrom.setText("Anonymous");
+						TFfrom.setEnabled(true);
+					}
+				}
+			});
+			//------------------------------------------------------------------------
+			// Append objects
+			//------------------------------------------------------------------------
+			JPanel panelMain = new JPanel(new BorderLayout()); // Main Panel
+			JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
+			JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
+			JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
+			JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 
-        this.getContentPane().setLayout(new BorderLayout());
-        this.getContentPane().add(panelMain, BorderLayout.CENTER);
-        
-        initPopupMenu();
-    }
+			JLabel Lboard = new JLabel(LangRes.getString("Board") + ": ");
+			JLabel Lfrom = new JLabel(LangRes.getString("From") + ": ");
+			JLabel Lsubject = new JLabel(LangRes.getString("Subject") + ": ");
+
+			JScrollPane textScroller = new JScrollPane(TAcontent); // Textscrollpane
+			textScroller.setMinimumSize(new Dimension(100, 50));
+
+			panelLabels.add(Lboard, BorderLayout.NORTH);
+			panelLabels.add(Lfrom, BorderLayout.CENTER);
+			panelLabels.add(Lsubject, BorderLayout.SOUTH);
+
+			panelTextfields.add(TFboard, BorderLayout.NORTH);
+			panelTextfields.add(TFfrom, BorderLayout.CENTER);
+			panelTextfields.add(TFsubject, BorderLayout.SOUTH);
+
+			panelButtons.add(Bsend);
+			panelButtons.add(Bcancel);
+			panelButtons.add(BattachFile);
+			panelButtons.add(BattachBoard);
+			panelButtons.add(sign);
+			panelButtons.add(this.addAttachedFilesToUploadTable);
+
+			JPanel dummyPanel = new JPanel(new BorderLayout());
+			dummyPanel.add(panelLabels, BorderLayout.WEST);
+			dummyPanel.add(panelTextfields, BorderLayout.CENTER);
+
+			panelToolbar.add(panelButtons, BorderLayout.NORTH);
+			panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
+
+			this.attachmentSplitPane =
+				new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScroller, attFilesScroller);
+			this.boardSplitPane =
+				new JSplitPane(
+					JSplitPane.VERTICAL_SPLIT,
+					this.attachmentSplitPane,
+					attBoardsScroller);
+
+			this.boardSplitPane.setResizeWeight(1);
+			this.attachmentSplitPane.setResizeWeight(1);
+
+			panelMain.add(panelToolbar, BorderLayout.NORTH);
+			panelMain.add(boardSplitPane, BorderLayout.CENTER);
+
+			this.getContentPane().setLayout(new BorderLayout());
+			this.getContentPane().add(panelMain, BorderLayout.CENTER);
+
+			initPopupMenu();
+			
+			initialized = true;
+		}
+	}
     
     protected void initPopupMenu()
     {
@@ -485,6 +492,94 @@ public class MessageFrame extends JFrame
         }
     }
     
+	public void composeNewMessage(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
+		composeMessage(newBoard, newFrom, newSubject, newText, false);
+	}
+	
+	private void composeMessage(
+		FrostBoardObject newBoard,
+		String newFrom,
+		String newSubject,
+		String newText,
+		boolean isReply) {
+		board = newBoard;
+		from = newFrom;
+		subject = newSubject;
+		text = newText;
+
+		String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
+		String lineSeparator = System.getProperty("line.separator");
+
+		if (isReply) {
+			this.text
+				+= new StringBuffer()
+					.append(lineSeparator)
+					.append(lineSeparator)
+					.append("----- ")
+					.append(this.from)
+					.append(" ----- ")
+					.append(date)
+					.append(" -----")
+					.append(lineSeparator)
+					.append(lineSeparator)
+					.toString();
+		} else {
+			this.text
+				+= new StringBuffer()
+					.append("----- ")
+					.append(this.from)
+					.append(" ----- ")
+					.append(date)
+					.append(" -----")
+					.append(lineSeparator)
+					.append(lineSeparator)
+					.toString();
+		}
+
+		int caretPos = text.length();
+
+		File signature = new File("signature.txt");
+		if (signature.isFile()) {
+			this.text += lineSeparator;
+			this.text += FileAccess.readFile("signature.txt");
+		}
+
+		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		try {
+			Init();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
+
+		show();
+
+		// reset the splitpanes (java bug)        
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				resetSplitPanes();
+			}
+		});
+		new Thread() {
+			public void run() {
+				mixed.wait(10);
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						resetSplitPanes();
+					}
+				});
+			}
+		}
+		.start();
+
+		// Properly positions the caret (AKA cursor)
+		TAcontent.getCaret().setDot(caretPos);
+		TAcontent.getCaret().setVisible(true);
+	}
+    
+	public void composeReply(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
+			composeMessage(newBoard, newFrom, newSubject, newText, true);
+	}
+    
     protected void resetSplitPanes() 
     {
         // initially hide the attachment tables
@@ -514,48 +609,18 @@ public class MessageFrame extends JFrame
         super.processWindowEvent(e);
     }
     
-    /**Constructor*/
-    public MessageFrame(FrostBoardObject board, String from, String subject, String text,
-                        SettingsClass config, Frame parentFrame, ResourceBundle LangRes)
-    {
-        super();
-	MessageFrame.LangRes = LangRes;
-        this.parentFrame = parentFrame;
-        this.board = board;
-        this.from=from;
-        this.subject=subject;
-        this.text=text;
-        this.lastUsedDirectory = config.getValue("lastUsedDirectory");
-        this.state = false;
-        this.keypool = config.getValue("keypool.dir");
-        this.frostSettings = config;
-
-        String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime()+"GMT";
-        String lineSeparator = System.getProperty("line.separator");
-        
-        this.text += new StringBuffer().append(lineSeparator)
-                                       .append(lineSeparator)
-                                       .append("----- ")
-                                       .append(this.from)
-                                       .append(" ----- ")
-                                       .append(date)
-                                       .append(" -----")
-                                       .append(lineSeparator)
-                                       .append(lineSeparator).toString();
-
-        File signature = new File("signature.txt");
-        if( signature.isFile() )
-        {
-            this.text += FileAccess.readFile("signature.txt");
-        }
-
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            Init();
-        }
-        catch( Exception e ) {
-            e.printStackTrace();
-        }
+	/**Constructor*/
+	public MessageFrame(
+		SettingsClass newSettings,
+		Frame newParentFrame,
+		ResourceBundle newLangRes) {
+		super();
+		LangRes = newLangRes;
+		parentFrame = newParentFrame;
+		state = false;
+		frostSettings = newSettings;
+		lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
+		keypool = frostSettings.getValue("keypool.dir");
 
 		String fontName = frostSettings.getValue("messageBodyFontName");
 		int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
@@ -568,29 +633,11 @@ public class MessageFrame extends JFrame
 			tofFont = new Font("Monospaced", fontStyle, fontSize);
 		}
 		TAcontent.setFont(tofFont);
-		TAcontent.setAntiAliasEnabled(config.getBoolValue("messageBodyAA"));
+		TAcontent.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
 
-        setSize(600, 460);
-        setLocationRelativeTo(parentFrame);
-        
-        show();
-
-        // reset the splitpanes (java bug)        
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                resetSplitPanes();
-            }});
-        new Thread() {
-            public void run()
-            {
-                mixed.wait(10);
-                SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        resetSplitPanes();
-                    }});
-            }
-        }.start();
-    }
+		setSize(600, 460);
+		setLocationRelativeTo(parentFrame);
+	}
 
 /*************************************************
  ************************************************* 
