@@ -85,8 +85,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField tofBlockMessageBodyTextField = new JTextField(42);
     JTextField miscKeyUploadHtlTextField = new JTextField(5);
     JTextField miscKeyDownloadHtlTextField = new JTextField(5);
-    JTextField miscNodeAddressTextField = new JTextField(11);
-    JTextField miscNodePortTextField = new JTextField(8);
+    JTextField miscAvailableNodesTextField = new JTextField(30);
+    //JTextField miscNodePortTextField = new JTextField(8);
     JTextField miscMaxKeysTextField = new JTextField(8);
     JTextField miscAltEditTextField = new JTextField(30);
     JTextField miscAutoSaveInterval = new JTextField(5);
@@ -754,14 +754,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             miscPanel.add(miscKeyDownloadHtlTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Node address:") + " (127.0.0.1)"), constr);
-            constr.gridx = 1;
-            miscPanel.add(miscNodeAddressTextField, constr);
+            miscPanel.add(new JLabel(LangRes.getString("list of nodes")),constr);
+            constr.gridy++;
+            miscPanel.add(new JLabel(" (nodeA:port1, nodeB:port2, ...)"), constr);
             constr.gridy++;
             constr.gridx = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Node port:") + " (8481)"), constr);
-            constr.gridx = 1;
-            miscPanel.add(miscNodePortTextField, constr);
+            miscPanel.add(miscAvailableNodesTextField, constr);
+            miscAvailableNodesTextField.setEnabled(false); //TODO: remove this once implemented
+            constr.gridy++;
+            constr.gridx = 0;
+            //miscPanel.add(new JLabel(LangRes.getString("Node port:") + " (8481)"), constr);
+            //constr.gridx = 1;
+            //miscPanel.add(miscNodePortTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
             miscPanel.add(new JLabel(LangRes.getString("Maximum number of keys to store:") + " (100000)"),constr);
@@ -1048,8 +1052,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         miscKeyDownloadHtlTextField.setText(frostSettings.getValue("keyDownloadHtl"));
         downloadSplitfileThreadsTextField.setText(frostSettings.getValue("splitfileDownloadThreads"));
         uploadSplitfileThreadsTextField.setText(frostSettings.getValue("splitfileUploadThreads"));
-        miscNodeAddressTextField.setText(frostSettings.getValue("nodeAddress"));
-        miscNodePortTextField.setText(frostSettings.getValue("nodePort"));
+        miscAvailableNodesTextField.setText(frostSettings.getValue("availableNodes"));
+        //miscNodePortTextField.setText(frostSettings.getValue("nodePort"));
         miscAltEditTextField.setText(frostSettings.getValue("altEdit"));
         miscMaxKeysTextField.setText(frostSettings.getValue("maxKeys"));
         tofMessageBaseTextField.setText(frostSettings.getValue("messageBase"));
@@ -1132,8 +1136,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("removeFinishedDownloads", downloadRemoveFinishedDownloads.isSelected());
         frostSettings.setValue("splitfileUploadThreads", uploadSplitfileThreadsTextField.getText());
         frostSettings.setValue("splitfileDownloadThreads", downloadSplitfileThreadsTextField.getText());
-        frostSettings.setValue("nodeAddress", miscNodeAddressTextField.getText());
-        frostSettings.setValue("nodePort", miscNodePortTextField.getText());
+        frostSettings.setValue("availableNodes", miscAvailableNodesTextField.getText());
+        //frostSettings.setValue("nodePort", miscNodePortTextField.getText());
         frostSettings.setValue("maxKeys", miscMaxKeysTextField.getText());
         frostSettings.setValue("messageBase", ((tofMessageBaseTextField.getText()).trim()).toLowerCase());
 
