@@ -464,7 +464,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         tabbedPane.add(LangRes.getString("Downloads"), buildDownloadPane());
         tabbedPane.add(LangRes.getString("Uploads"), buildUploadPane());
 
-        tofTree = new TofTree();
+        // this rootnode is discarded later, but if we create the tree without parameters,
+        // a new Model is created wich cobntains some sample data by default (swing)
+        // this confuses our renderer wich only expects FrostBoardObjects in the tree
+        FrostBoardObject dummyRootNode = new FrostBoardObject("Frost Message System", true);
+        tofTree = new TofTree(dummyRootNode);
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
         tofTree.setRootVisible(true);
         tofTree.setEditable(true);
@@ -1709,16 +1713,16 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( nodeName == null || nodeName.length () == 0 )
             return;
 
-        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
+        FrostBoardObject selectedNode = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
         if( selectedNode != null )
         {
-            selectedNode.add(new DefaultMutableTreeNode(nodeName));
+            selectedNode.add(new FrostBoardObject(nodeName));
         }
         else
         {
             // add to root node
-            selectedNode = (DefaultMutableTreeNode)getTofTree().getModel().getRoot();
-            selectedNode.add(new DefaultMutableTreeNode(nodeName));
+            selectedNode = (FrostBoardObject)getTofTree().getModel().getRoot();
+            selectedNode.add(new FrostBoardObject(nodeName));
         }
         int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
         ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( selectedNode, insertedIndex );
@@ -1758,7 +1762,30 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     public void renameSelectedNode()
     {
-        getTofTree().startEditingAtPath(getTofTree().getSelectionPath());
+        // getTofTree().startEditingAtPath(getTofTree().getSelectionPath());
+        FrostBoardObject selected = getActualNode();
+        if( selected == null )
+            return;
+        String newname = null;
+        do
+        {
+            newname = JOptionPane.showInputDialog(this,
+                                                  "Please enter the new name:\n",
+                                                  selected.toString() );
+            if( newname == null )
+                break;
+            if( getTofTree().getBoardByName( newname ) != null )
+            {
+                JOptionPane.showMessageDialog(this, "You already have a board with name '"+newname+"'!\nPlease choose a new name.");
+                newname = ""; // loop again
+            }
+        } while( newname.length()==0 );
+        if( newname == null )
+            return; // cancelled
+
+        selected.setBoardName(newname);
+
+        ((DefaultTreeModel)getTofTree().getModel()).nodeChanged( selected );
     }
 
     public void pasteFromClipboard()
