@@ -703,15 +703,6 @@ public class FcpRequest
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return True if download was successful, else false.
      */
-/*    public static boolean getFile(String key, String size, File target, String htl, boolean doRedirect)
-    {
-        int intHtl = 0;
-        try {
-            intHtl = Integer.parseInt(htl);
-        } catch( NumberFormatException e ) {}
-        return getFile(key, size, target, intHtl, doRedirect);
-    }
-*/
     public static boolean getFile(String key, String size, File target, int htl, boolean doRedirect)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
@@ -738,21 +729,6 @@ public class FcpRequest
             tempFile = new File( target.getPath() + ".tmp" );
         }
 
-/*        if( DEBUG )
-        {
-            String keyPrefix = "";
-            if( key.indexOf("@") > -1 )  keyPrefix = key.substring(0, key.indexOf("@")+1);
-            String keyUrl = "";
-            if( key.indexOf("/") > -1 )  keyUrl = key.substring(key.indexOf("/"));
-            String out = new StringBuffer().append("Retrieving ")
-                         .append(keyPrefix)
-                         .append("...")
-                         .append(keyUrl).toString();
-//                         .append(" to ")
-//                         .append(tempFile.getPath()).toString();
-            System.out.println(out);
-        }
-*/
         // First we just download the file, not knowing what lies ahead
         if( getKey(key, size, tempFile, htl) )
         {
@@ -836,17 +812,15 @@ public class FcpRequest
     public static boolean getKey(String key, String size, File target, int htl)
     {
         if( key.indexOf("null") != -1 ) return false;
-/*        String keyUrl = "";
-        if( key.indexOf("/") > -1 )
-        {
-            keyUrl = key.substring(key.indexOf("/"));
-        }*/
+
+        boolean success = false;
         try
         {
             FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
                                                          frame1.frostSettings.getValue("nodePort"));
             try
             {
+//System.out.println("getKeyToFile: key="+key+"  target="+target.getPath()+"  htl="+htl);
                 connection.getKeyToFile(key, target.getPath(), htl);
             }
             catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException
@@ -861,6 +835,7 @@ public class FcpRequest
             {
                 if( DEBUG ) System.out.println("FcpRequest.getKey: IOException " + e);
             }
+            success = true;
         }
         catch( FcpToolsException e )
         {
@@ -888,7 +863,6 @@ public class FcpRequest
             intSize = -1;
         }
 
-
         String printableKey = null;
         if( DEBUG )
         {
@@ -901,7 +875,7 @@ public class FcpRequest
                                              .append(keyUrl).toString();
         }
 
-        if( target.length() > 0 )
+        if( success == true && target.length() > 0 )
         {
             if( intSize == -1 || target.length() == intSize || intSize >= chunkSize )
             {
