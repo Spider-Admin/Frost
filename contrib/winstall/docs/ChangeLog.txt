@@ -1,3 +1,8 @@
+2001-11-18  Benoit Laniel <nels@pgroupe.net>
+
+    * Modified default selection icons
+    * Set progress bar to smooth
+
 2001-11-15  Benoit Laniel <nels@pgroupe.net>
 
     * Added a 'Frost (console)' shortcut (thanks to Morbid)

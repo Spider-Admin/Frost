@@ -22,6 +22,10 @@
 Name "Frost ${VERSION}"
 OutFile "${LANG}.exe"
 Icon jtc_inst.ico
+EnabledBitmap yes.bmp
+DisabledBitmap no.bmp
+
+InstProgressFlags smooth
 
 LicenseData "data\frost\gpl.txt"
 
