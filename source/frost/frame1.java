@@ -1064,7 +1064,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                     // Since it is difficult to identify the states where we are allowed to
                     // start an upload we decide based on the states in which we are not allowed
                     if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
-                        ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS )
+                        ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
+                        ulItem.getState() != FrostUploadItemObject.STATE_WORKING_GENCHK )
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                         tableModel.updateRow(ulItem);
@@ -1080,7 +1081,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                     // Since it is difficult to identify the states where we are allowed to
                     // start an upload we decide based on the states in which we are not allowed
                     if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
-                        ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS )
+                        ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
+                        ulItem.getState() != FrostUploadItemObject.STATE_WORKING_GENCHK )
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                         tableModel.updateRow(ulItem);
