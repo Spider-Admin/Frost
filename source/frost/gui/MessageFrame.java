@@ -686,10 +686,10 @@ public class MessageFrame extends JFrame
     
 	/**
 	 * @param newSettings
-	 * @param parentComponent
+	 * @param parentWindow
 	 * @param newMyId
 	 */
-	public MessageFrame(SettingsClass newSettings, Component parentComponent, LocalIdentity newMyId) {
+	public MessageFrame(SettingsClass newSettings, Window parentWindow, LocalIdentity newMyId) {
 		super();
 		this.language = Language.getInstance();
 		myId = newMyId;
@@ -717,8 +717,9 @@ public class MessageFrame extends JFrame
 													  // the message
 		messageTextArea.setDocument(messageDocument);
 
-		setSize(600, 460);
-		setLocationRelativeTo(parentComponent);
+		setSize((int) (parentWindow.getWidth() * 0.75), 
+				(int) (parentWindow.getHeight() * 0.75));
+		setLocationRelativeTo(parentWindow);
 	}
 
 	/**
