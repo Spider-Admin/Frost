@@ -1549,19 +1549,20 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private class PopupMenuTofTree
 		extends JSkinnablePopupMenu
 		implements LanguageListener, ActionListener {
-		private JMenuItem addBoardItem = new JMenuItem(getScaledImage("/data/newboard.gif"));
-		private JMenuItem addFolderItem = new JMenuItem(getScaledImage("/data/newfolder.gif"));
+		
+		private JMenuItem addBoardItem = new JMenuItem();
+		private JMenuItem addFolderItem = new JMenuItem();
 		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem configureBoardItem = new JMenuItem(getScaledImage("/data/configure.gif"));
-		private JMenuItem cutNodeItem = new JMenuItem(getScaledImage("/data/cut.gif"));
+		private JMenuItem configureBoardItem = new JMenuItem();
+		private JMenuItem cutNodeItem = new JMenuItem();
 
 		private JMenuItem descriptionItem = new JMenuItem();
-		private JMenuItem pasteNodeItem = new JMenuItem(getScaledImage("/data/paste.gif"));
-		private JMenuItem refreshItem = new JMenuItem(getScaledImage("/data/update.gif"));
-		private JMenuItem removeNodeItem = new JMenuItem(getScaledImage("/data/remove.gif"));
+		private JMenuItem pasteNodeItem = new JMenuItem();
+		private JMenuItem refreshItem = new JMenuItem();
+		private JMenuItem removeNodeItem = new JMenuItem();
 
 		private Board selectedTreeNode = null;
-		private JMenuItem sortFolderItem = new JMenuItem(getScaledImage("/data/sort.gif"));
+		private JMenuItem sortFolderItem = new JMenuItem();
 
 		/**
 		 * 
@@ -1641,6 +1642,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private void initialize() {
 			refreshLanguage();
 
+			MiscToolkit miscToolkit = MiscToolkit.getInstance();
+			addBoardItem.setIcon(miscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
+			addFolderItem.setIcon(miscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
+			configureBoardItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
+			cutNodeItem.setIcon(miscToolkit.getScaledImage("/data/cut.gif", 16, 16));
+			pasteNodeItem.setIcon(miscToolkit.getScaledImage("/data/paste.gif", 16, 16));
+			refreshItem.setIcon(miscToolkit.getScaledImage("/data/update.gif", 16, 16));
+			removeNodeItem.setIcon(miscToolkit.getScaledImage("/data/remove.gif", 16, 16));
+			sortFolderItem.setIcon(miscToolkit.getScaledImage("/data/sort.gif", 16, 16));
+			
 			descriptionItem.setEnabled(false);
 
 			// add listeners
@@ -2173,10 +2184,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * Should be called only once.
 	 */
 	private void buildMenuBar() {
-		tofConfigureBoardMenuItem.setIcon(getScaledImage("/data/configure.gif"));
-		tofDisplayBoardInfoMenuItem.setIcon(getScaledImage("/data/info.gif"));
+		MiscToolkit miscToolkit = MiscToolkit.getInstance();
+		tofConfigureBoardMenuItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
+		tofDisplayBoardInfoMenuItem.setIcon(miscToolkit.getScaledImage("/data/info.gif", 16, 16));
 		tofAutomaticUpdateMenuItem.setSelected(true);
-		tofDisplayKnownBoards.setIcon(getScaledImage("/data/knownboards.gif"));
+		tofDisplayKnownBoards.setIcon(miscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
 
 		// add action listener
 		fileExitMenuItem.addActionListener(new ActionListener() {
@@ -2238,14 +2250,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		});
 		
-		languageBulgarianMenuItem.setIcon(getScaledImage("/data/flag_bg.png"));
-		languageGermanMenuItem.setIcon(getScaledImage("/data/flag_de.png"));
-		languageEnglishMenuItem.setIcon(getScaledImage("/data/flag_en.png"));
-		languageSpanishMenuItem.setIcon(getScaledImage("/data/flag_es.png"));
-		languageFrenchMenuItem.setIcon(getScaledImage("/data/flag_fr.png"));
-		languageItalianMenuItem.setIcon(getScaledImage("/data/flag_it.png"));
-		languageJapaneseMenuItem.setIcon(getScaledImage("/data/flag_jp.png"));
-		languageDutchMenuItem.setIcon(getScaledImage("/data/flag_nl.png"));
+		languageBulgarianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_bg.png", 16, 16));
+		languageGermanMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_de.png", 16, 16));
+		languageEnglishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_en.png", 16, 16));
+		languageSpanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_es.png", 16, 16));
+		languageFrenchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_fr.png", 16, 16));
+		languageItalianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
+		languageJapaneseMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_jp.png", 16, 16));
+		languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
 		
 		languageGermanMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -2539,16 +2551,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
 		return runningBoardUpdateThreads;
-	}
-
-	/**
-	 * @param imgPath
-	 * @return
-	 */
-	private ImageIcon getScaledImage(String imgPath) {
-		ImageIcon icon = new ImageIcon(MainFrame.class.getResource(imgPath));
-		icon = new ImageIcon(icon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
-		return icon;
 	}
 
 	/**
