@@ -1728,10 +1728,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         // fire update for node
         DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
         model.nodeChanged( board );
-        if( board.getParent() != null )
+        // also update all parents
+        TreeNode parentFolder = (FrostBoardObject)board.getParent();
+        if( parentFolder != null )
         {
-            model.nodeChanged( board.getParent() );
+            model.nodeChanged( parentFolder );
+            parentFolder = parentFolder.getParent();
         }
+
         if( board == getActualNode() ) // is the board actually shown?
         {
             updateButtons(board);
@@ -1739,7 +1743,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
     /**
      * Fires a nodeChanged (redraw) for all boards.
-     * Used to redraw tree after run of OptionsFrame.
+     * ONLY used to redraw tree after run of OptionsFrame.
      */
     public void updateTofTree()
     {

@@ -95,19 +95,7 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         if( board.isFolder() )
         {
             // if this is a folder, check board for new messages
-            int childs = board.getChildCount();
-            boolean newMessage = false;
-
-            for(int c=0; c<childs; c++)
-            {
-                FrostBoardObject childBoard = (FrostBoardObject)board.getChildAt(c);
-                if( childBoard.containsNewMessage() )
-                {
-                    newMessage = true;
-                    break;
-                }
-            }
-            if( newMessage == true )
+            if( board.containsFolderNewMessages() )
             {
                 setFont( boldFont );
             }
