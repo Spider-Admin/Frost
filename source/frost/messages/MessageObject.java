@@ -215,7 +215,7 @@ public class MessageObject implements XMLizable
         fatFrom = new StringBuffer().append("<html><b>").append(from).append("</b></html>").toString();
     }
     if( attachments.getAllOfType(Attachment.BOARD).size() > 0 || 
-        attachments.getAllOfType(Attachment.BOARD).size() > 0 )
+        attachments.getAllOfType(Attachment.FILE).size() > 0 )
     {
         if (fatFrom.startsWith("<html><b>"))
             fatFrom = "<html><b><font color=\"blue\">" + from + "</font></b></html>";
