@@ -96,6 +96,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     //a shutdown hook
     public Thread saver;
+    
     private static CleanUp fileCleaner = new CleanUp("keypool",false);
 
     //------------------------------------------------------------------------
@@ -1098,6 +1099,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         resendFailedMessages();
     }
     timer.start();
+    Thread requestsThread = new GetRequestsThread(frostSettings.getIntValue("tofDownloadHtl"),
+    							frostSettings.getValue("keypool.dir"),
+							getUploadTable());
+    requestsThread.start();
     started = true;
     } // ************** end-of: jbInit()
 

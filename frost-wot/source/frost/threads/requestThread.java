@@ -213,7 +213,7 @@ public class requestThread extends Thread
         String fileSeparator = System.getProperty("file.separator");
         String destination = new StringBuffer().append("requests")
 						.append(fileSeparator)
-                                               .append(owner)
+                                               .append(mixed.makeFilename(owner))
 					       .append("-")
 					       .append(batch)
 					       .append("-")
@@ -271,6 +271,7 @@ public class requestThread extends Thread
             {
                 // Does this index already exist?
                 testMe = new File(new StringBuffer().append(destination)
+					.append(fileSeparator)
                                        .append(index)
                                        .append(".req.sha")
                                        .toString());
