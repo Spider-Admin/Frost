@@ -642,7 +642,7 @@ public class Core implements Savable {
 		if (uploadManager == null) {
 			uploadManager = new UploadManager(frostSettings);
 			uploadManager.setMainFrame(mainFrame);
-			uploadManager.setTofTreeModel(mainFrame.getTofTreeModel());
+			uploadManager.setTofTreeModel(getBoardsManager().getTofTreeModel());
 			uploadManager.setFreenetIsOnline(isFreenetOnline());
 			uploadManager.setMyID(getIdentities().getMyId());
 		}
@@ -658,7 +658,7 @@ public class Core implements Savable {
 			searchManager.setMainFrame(mainFrame);
 			searchManager.setDownloadModel(getDownloadManager().getModel());
 			searchManager.setUploadModel(getUploadManager().getModel());
-			searchManager.setTofTreeModel(mainFrame.getTofTreeModel());
+			searchManager.setTofTreeModel(getBoardsManager().getTofTreeModel());
 			searchManager.setKeypool(keypool);
 			searchManager.setIdentities(getIdentities());
 		}
@@ -671,6 +671,7 @@ public class Core implements Savable {
 	private BoardsManager getBoardsManager() {
 		if (boardsManager == null) {
 			boardsManager = new BoardsManager();
+			boardsManager.setMainFrame(mainFrame);
 		}
 		return boardsManager;
 	}
@@ -721,12 +722,12 @@ public class Core implements Savable {
 		Saver saver = new Saver(frostSettings, parentFrame);
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
-		saver.addAutoSavable(MainFrame.getInstance().getTofTree());
+		saver.addAutoSavable(getBoardsManager().getTofTree());
 		saver.addAutoSavable(getDownloadManager().getModel());
 		saver.addAutoSavable(getUploadManager().getModel());
 		saver.addExitSavable(this);
 		saver.addExitSavable(getIdentities());
-		saver.addExitSavable(MainFrame.getInstance().getTofTree());
+		saver.addExitSavable(getBoardsManager().getTofTree());
 		saver.addExitSavable(getDownloadManager().getModel());
 		saver.addExitSavable(getUploadManager().getModel());
 		saver.addExitSavable(frostSettings);

@@ -111,7 +111,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger() == false) {
 				return;
-			} else if (e.getComponent().equals(getTofTree())) { // TOF tree popup
+			} else if (e.getComponent().equals(tofTree)) { // TOF tree popup
 				showTofTreePopupMenu(e);
 			}
 		}
@@ -927,7 +927,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				String name = fbo.getName();
 
 				// search board in exising boards list
-				Board board = getTofTreeModel().getBoardByName(name);
+				Board board = tofTreeModel.getBoardByName(name);
 
 				//ask if we already have the board
 				if (board != null) {
@@ -950,7 +950,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					}
 				} else {
 					// its a new board
-					getTofTreeModel().addNodeToTree(fbo);
+					tofTreeModel.addNodeToTree(fbo);
 				}
 			}
 		}
@@ -1168,11 +1168,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				messageTable.addMouseListener(listener);
 
 				//other listeners
-				getTofTree().addTreeSelectionListener(listener);
-				getTofTree().getModel().addTreeModelListener(listener);
+				tofTree.addTreeSelectionListener(listener);
+				tofTreeModel.addTreeModelListener(listener);
 
 				// display welcome message if no boards are available
-				if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
+				if (((TreeNode) tofTreeModel.getRoot()).getChildCount() == 0) {
 					messageTextArea.setText(language.getString("Welcome message"));
 				}
 
@@ -1461,13 +1461,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		    messageSplitPane.setBottomComponent(null);
             messageSplitPane.setDividerSize(0);
 
-			if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
+			if (((TreeNode) tofTreeModel.getRoot()).getChildCount() == 0) {
 				//There are no boards. //TODO: check if there are really no boards (folders count as children)
 				messageTextArea.setText(language.getString("Welcome message"));
 			} else {
 				//There are boards.
 				Board node =
-					(Board) getTofTree().getLastSelectedPathComponent();
+					(Board) tofTree.getLastSelectedPathComponent();
 				if (node != null) {
 					if (!node.isFolder()) {
 						// node is a board
@@ -1612,14 +1612,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * 
 		 */
 		private void addBoardSelected() {
-			getTofTree().createNewBoard(MainFrame.this);
+			tofTree.createNewBoard(MainFrame.this);
 		}
 
 		/**
 		 * 
 		 */
 		private void addFolderSelected() {
-			getTofTree().createNewFolder(MainFrame.this);
+			tofTree.createNewFolder(MainFrame.this);
 		}
 
 		/**
@@ -1710,12 +1710,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
 		 */
 		public void show(Component invoker, int x, int y) {
-			int selRow = getTofTree().getRowForLocation(x, y);
+			int selRow = tofTree.getRowForLocation(x, y);
 
 			if (selRow != -1) { // only if a node is selected
 				removeAll();
 
-				TreePath selPath = getTofTree().getPathForLocation(x, y);
+				TreePath selPath = tofTree.getPathForLocation(x, y);
 				selectedTreeNode = (Board) selPath.getLastPathComponent();
 
 				String folderOrBoard1 =
@@ -1777,7 +1777,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void sortFolderSelected() {
 			selectedTreeNode.sortChildren();
-			DefaultTreeModel tofTreeModel = (DefaultTreeModel) getTofTree().getModel();
 			tofTreeModel.nodeStructureChanged(selectedTreeNode);
 		}
 	}
@@ -1792,7 +1791,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
-			Iterator i = getTofTreeModel().getAllBoards().iterator();
+			Iterator i = tofTreeModel.getAllBoards().iterator();
 
 			while (i.hasNext()) {
 				Board board = (Board) i.next();
@@ -1969,7 +1968,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JLabel statusMessageLabel = null;
 	private JButton systemTrayButton = null;
 
-	private JTranslatableTabbedPane tabbedPane = null;
+	private JTranslatableTabbedPane tabbedPane;
 	private JLabel timeLabel = null;
 
 	private JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
@@ -2013,24 +2012,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		setTitle("Frost");
 
 		addWindowListener(listener);
-
-		JPanel contentPanel = (JPanel) getContentPane();
-		contentPanel.setLayout(new BorderLayout());
-
-		contentPanel.add(buildButtonPanel(), BorderLayout.NORTH);
-		// buttons toolbar
-		contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
-		// tree / tabbed pane
-		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH); // Statusbar
-
-		buildMenuBar();
-		
-		pasteBoardButton.setEnabled(false);
-
-		// Add Popup listeners
-		getTofTree().addMouseListener(listener);
-
-		getTofTree().initialize();
 	}
 
 	/**
@@ -2038,9 +2019,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param panel
 	 */
 	public void addPanel(String title, JPanel panel) {
-		tabbedPane.add(title, panel);
+		getTabbedPane().add(title, panel);
 	}
 	
+	/**
+	 * @return
+	 */
+	private JTabbedPane getTabbedPane() {
+		if (tabbedPane == null) {
+			tabbedPane = new JTranslatableTabbedPane(language);
+		}
+		return tabbedPane;
+	}
+
 	/**
 	 * @return
 	 */
@@ -2091,12 +2082,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		});
 		newBoardButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewBoard(MainFrame.this);
+				tofTree.createNewBoard(MainFrame.this);
 			}
 		});
 		newFolderButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewFolder(MainFrame.this);
+				tofTree.createNewFolder(MainFrame.this);
 			}
 		});
 		renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2424,9 +2415,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @return
 	 */
 	private JPanel buildTofMainPanel() {
-		tabbedPane = new JTranslatableTabbedPane(language);
 		//add a tab for buddies perhaps?
-		tabbedPane.add("News", getMessagePanel());
+		getTabbedPane().insertTab("News", null, getMessagePanel(), null, 0);
+		getTabbedPane().setSelectedIndex(0);
 
 		JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
 		// tofTree selection listener
@@ -2447,7 +2438,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		});
 
 		JSplitPane treeAndTabbedPane =
-			new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, tabbedPane);
+			new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, getTabbedPane());
 		treeAndTabbedPane.setDividerLocation(160);
 		// Vertical Board Tree / MessagePane Divider
 
@@ -2460,7 +2451,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param cuttedNode
 	 */
 	public void cutNode(Board cuttedNode) {
-		cuttedNode = getTofTree().cutNode(cuttedNode);
+		cuttedNode = tofTree.cutNode(cuttedNode);
 		if (cuttedNode != null) {
 			clipboard = cuttedNode;
 			pasteBoardButton.setEnabled(true);
@@ -2557,11 +2548,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @return
 	 */
 	public Board getSelectedNode() { //TODO: move this method to TofTree
-		Board node = (Board) getTofTree().getLastSelectedPathComponent();
+		Board node = (Board) tofTree.getLastSelectedPathComponent();
 		if (node == null) {
 			// nothing selected? unbelievable ! so select the root ...
-			getTofTree().setSelectionRow(0);
-			node = (Board) getTofTree().getModel().getRoot();
+			tofTree.setSelectionRow(0);
+			node = (Board) tofTreeModel.getRoot();
 		}
 		return node;
 	}
@@ -2569,24 +2560,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	public TofTree getTofTree() {
-		if (tofTree == null) {
-			tofTree = new TofTree(getTofTreeModel());
-		}
-		return tofTree;
-	}
-	
-	/**
-	 * @return
-	 */
 	public TofTreeModel getTofTreeModel() {
-		if (tofTreeModel == null) {
-			// this rootnode is discarded later, but if we create the tree without parameters,
-			// a new Model is created wich contains some sample data by default (swing)
-			// this confuses our renderer wich only expects FrostBoardObjects in the tree
-			Board dummyRootNode = new Board("Frost Message System", true);
-			tofTreeModel = new TofTreeModel(dummyRootNode);
-		}
 		return tofTreeModel;
 	}
 
@@ -2624,6 +2598,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      */
     public void initialize() {
 
+    	// Add components
+		JPanel contentPanel = (JPanel) getContentPane();
+		contentPanel.setLayout(new BorderLayout());
+
+		contentPanel.add(buildButtonPanel(), BorderLayout.NORTH);
+		contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
+		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH);
+		buildMenuBar();
+		pasteBoardButton.setEnabled(false);
+
+		// Add Popup listeners
+		tofTree.addMouseListener(listener);
+    	
         // step through all messages on disk up to maxMessageDisplay and check
         // if there are new messages
         // if a new message is in a folder, this folder is show yellow in tree
@@ -2637,8 +2624,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
         //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
 
-        if (getTofTree().getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
-            getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
+        if (tofTree.getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
+            tofTree.setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
 
         // make sure the font size isn't too small to see
         if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6)
@@ -2779,7 +2766,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			return;
 		}
 
-		if (getTofTree().pasteFromClipboard(clipboard, node) == true) {
+		if (tofTree.pasteFromClipboard(clipboard, node) == true) {
 			clipboard = null;
 			pasteBoardButton.setEnabled(false);
 		}
@@ -2860,7 +2847,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 
 		// delete node from tree
-		getTofTree().removeNode(selectedNode);
+		tofTree.removeNode(selectedNode);
 
 		// maybe delete board dir (in a thread, do not block gui)
 		if (deleteDirectory) {
@@ -2892,7 +2879,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				return; // cancel
 			if (selected.isFolder() == false
 				&& // double folder names are ok
-			getTofTreeModel().getBoardByName(newname) != null) {
+			tofTreeModel.getBoardByName(newname) != null) {
 				JOptionPane.showMessageDialog(
 					this,
 					"You already have a board with name '"
@@ -3004,11 +2991,26 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param enabled
 	 */
 	public void setPanelEnabled(String title, boolean enabled) {
-		int position = tabbedPane.indexOfTab(title);
+		int position = getTabbedPane().indexOfTab(title);
 		if (position != -1) {
-			tabbedPane.setEnabledAt(position, enabled);
+			getTabbedPane().setEnabledAt(position, enabled);
 		}
 	}
+	
+	/**
+	 * @param tofTree
+	 */
+	public void setTofTree(TofTree tofTree) {
+		this.tofTree = tofTree;
+	}
+	
+	/**
+	 * @param tofTreeModel
+	 */
+	public void setTofTreeModel(TofTreeModel tofTreeModel) {
+		this.tofTreeModel = tofTreeModel;
+	}
+	
 	/**
 	 * @param e
 	 */
@@ -3032,7 +3034,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				.isSelected()
 			&& getRunningBoardUpdateThreads().getUpdatingBoardCount()
 				< frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")) {
-			Vector boards = getTofTreeModel().getAllBoards();
+			Vector boards = tofTreeModel.getAllBoards();
 			if (boards.size() > 0) {
 				Board actualBoard = selectNextBoard(boards);
 				if (actualBoard != null) {
@@ -3114,7 +3116,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param e
 	 */
 	private void tofDisplayKnownBoardsMenuItem_actionPerformed(ActionEvent e) {
-		KnownBoardsFrame knownBoards = new KnownBoardsFrame(this, getTofTree());
+		KnownBoardsFrame knownBoards = new KnownBoardsFrame(this, tofTree);
 		knownBoards.startDialog();
 	}
 
@@ -3142,12 +3144,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param e
 	 */
 	public void tofTree_actionPerformed(TreeSelectionEvent e) {
-		int i[] = getTofTree().getSelectionRows();
+		int i[] = tofTree.getSelectionRows();
 		if (i != null && i.length > 0) {
 			frostSettings.setValue("tofTreeSelectedRow", i[0]);
 		}
 
-		Board node = (Board) getTofTree().getLastSelectedPathComponent();
+		Board node = (Board) tofTree.getLastSelectedPathComponent();
 
 		if (node != null) {
 			if (node.isFolder() == false) {
@@ -3192,11 +3194,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public void tofTree_keyPressed(KeyEvent e) {
 		char key = e.getKeyChar();
-		if (!getTofTree().isEditing()) {
+		if (!tofTree.isEditing()) {
 			if (key == KeyEvent.VK_DELETE)
 				removeNode(getSelectedNode());
 			if (key == KeyEvent.VK_N)
-				getTofTree().createNewBoard(MainFrame.getInstance());
+				tofTree.createNewBoard(MainFrame.getInstance());
 			if (key == KeyEvent.VK_X)
 				cutNode(getSelectedNode());
 			if (key == KeyEvent.VK_V)
@@ -3358,10 +3360,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public void updateTofTree() {
 		// fire update for node
-		DefaultTreeModel model = (DefaultTreeModel) getTofTree().getModel();
-		Enumeration e = ((Board) model.getRoot()).depthFirstEnumeration();
+		Enumeration e = ((Board) tofTreeModel.getRoot()).depthFirstEnumeration();
 		while (e.hasMoreElements()) {
-			model.nodeChanged(((Board) e.nextElement()));
+			tofTreeModel.nodeChanged(((Board) e.nextElement()));
 		}
 	}
 
@@ -3370,12 +3371,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public void updateTofTree(Board board) {
 		// fire update for node
-		DefaultTreeModel model = (DefaultTreeModel) getTofTree().getModel();
-		model.nodeChanged(board);
+		tofTreeModel.nodeChanged(board);
 		// also update all parents
 		TreeNode parentFolder = (Board) board.getParent();
 		if (parentFolder != null) {
-			model.nodeChanged(parentFolder);
+			tofTreeModel.nodeChanged(parentFolder);
 			parentFolder = parentFolder.getParent();
 		}
 
