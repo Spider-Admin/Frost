@@ -171,9 +171,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					//if leftbtn double click on message show this message 
 					//in popup window
 				}else if(SwingUtilities.isLeftMouseButton(e)){
-					if(e.getClickCount() == 2 &&
-							e.getComponent() == messageTable )
-						showCurrentMessagePopupWindow();
+					//accepting only mouse pressed event as double click, 
+					//overwise it will be triggered twice
+					if(e.getID() == MouseEvent.MOUSE_PRESSED )
+						if(e.getClickCount() == 2 &&
+								e.getComponent() == messageTable )
+							showCurrentMessagePopupWindow();
 				}
 			}
 
@@ -1408,7 +1411,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 		
 		private MessageWindow getMessageWindow(MessageObject message,Dimension size){
-			MessageWindow messagewindow = new MessageWindow(message, size);
+			MessageWindow messagewindow = new MessageWindow(settings,getInstance() , message, size);
 			return messagewindow;
 		}
 		
