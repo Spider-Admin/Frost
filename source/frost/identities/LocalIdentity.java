@@ -9,12 +9,11 @@ import frost.FcpTools.*;
 import frost.crypt.*;
 
 /**
- * represents the main user's identity
+ * Represents the main user's identity
  */
 public class LocalIdentity extends Identity implements Serializable
 {
     private String privKey;
-    //private transient final int htl;
 
     /**
      * a constructor that assumes that the user has inserted the
@@ -56,10 +55,10 @@ public class LocalIdentity extends Identity implements Serializable
         try {
             String tmp = con.putKeyFromFile("CHK@", "pubkey.txt",0, false);
             keyaddress = tmp.substring(tmp.indexOf("CHK@"),tmp.indexOf("CHK@") + 58);
-            System.out.println("\nCalculated my public key CHK: " + keyaddress + "\n");
+            System.out.println("Calculated my public key CHK: " + keyaddress + "\n");
         }
         catch( IOException e ) {
-            System.out.println("couldn't get key CHK");
+            System.out.println("Couldn't get key CHK.");
         }
 
         Thread keyUploader = new Thread()
@@ -67,15 +66,14 @@ public class LocalIdentity extends Identity implements Serializable
             public void run()
             {
                 String ret=null;
-                System.out.println("trying to upload public key");
+                System.out.println("Trying to upload my public key ...");
                 try {
                     ret = con.putKeyFromFile("CHK@", "pubkey.txt", 25, true);
                 }
                 catch( IOException e ) {
-                    System.out.println("couldn't upload public key");
+                    System.out.println("... couldn't upload public key.");
                 }
-                //System.out.println("ret is " +ret);
-                System.out.println("\nuploaded my public key : " + keyaddress + "\n");
+                System.out.println("... uploaded my public key.");
             }
         };
         keyUploader.start();
