@@ -622,8 +622,7 @@ public class FcpRequest
         }
         else
         {
-            // remove redirect and chunks if download was incomplete
-            target.delete();
+            // target.delete(); done in getFile
             if( DEBUG ) System.out.println("!!!!!! Download of " + target.getName() + " failed.");
         }
         return success;
@@ -715,7 +714,7 @@ public class FcpRequest
             if( isSplitfile )
             { // File is a splitfile
                 boolean success;
-// FIXED: decide by algo if this is a FEC splitfile, not by format
+// FIXED: decide by algo if this is a supported FEC splitfile, not by format
                 String algo = SettingsFun.getValue(tempFile.getPath(), "SplitFile.AlgoName");
                 if( algo.equals("OnionFEC_a_1_2") )
                     success = getFECSplitFile(key, tempFile, htl, dlItem);
@@ -724,9 +723,6 @@ public class FcpRequest
 /*
                 String format = SettingsFun.getValue(tempFile.getPath(), "Info.Format");
                 if( format.equals("Frost/FEC") )
-                    success = getFECSplitFile(key, tempFile, htl, dlItem);
-                else
-                    success = getSplitFile(key, tempFile, htl);
 */
                 if( success )
                 {
@@ -737,7 +733,7 @@ public class FcpRequest
                 }
                 else
                 {
-                    // remove temporary file if download failed
+                    // remove temporary file (e.g. redirect file) if download failed
                     tempFile.delete();
                 }
                 return success;
