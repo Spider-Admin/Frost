@@ -48,7 +48,6 @@ import frost.identities.*;
 //             - save identities together (not separated friends,enemies)
 //             - each identity have 3 states: GOOD, BAD, NEUTRAL
 //             - filter out enemies on read of messages
-//++++ TODO: save unsent to folder "unsent.dir"
 
 public class frame1 extends JFrame implements ClipboardOwner
 {

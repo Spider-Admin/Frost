@@ -225,7 +225,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     else
                     {
                         index++;
-                        if( DEBUG ) System.out.println("TOFUP: File exists, increasing index to " + index);
+                        //if( DEBUG ) System.out.println("TOFUP: File exists, increasing index to " + index);
                     }
                 }
                 else
