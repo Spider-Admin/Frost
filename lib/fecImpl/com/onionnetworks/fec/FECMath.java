@@ -261,7 +261,6 @@ public class FECMath {
             // what the hey.
             for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
                 // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
-
                 dst[i] ^= gf_mulc[src[j]];
                 dst[i+1] ^= gf_mulc[src[j+1]];
                 dst[i+2] ^= gf_mulc[src[j+2]];
@@ -296,18 +295,12 @@ public class FECMath {
         }
     }
 
-    /*
+    /**
      * addMul() computes dst[] = dst[] + c * src[]
      * This is used often, so better optimize it! Currently the loop is
      * unrolled 16 times, a good value for 486 and pentium-class machines.
      * The case c=0 is also optimized, whereas c=1 is not. These
      * calls are unfrequent in my typical apps so I did not bother.
-     *
-     * This would be much faster if using int arrays. But this would
-     * need 4 times as much memory ...
-     * Currently the processing needs max. 128 blocks * 131072 bytes (stripe) +
-     * 64 checkblocks * 131072 bytes = 16MB + 8MB = 24MB
-     * Using int this would need 4*24MB = 96MB
      */
     public final void addMul(byte[] dst, final int dstPos, byte[] _src,
                              final int srcPos, final byte c, final int len) {
@@ -316,9 +309,8 @@ public class FECMath {
             return;
         }
 
-        final int unroll = 16; // unroll the loop 16 times.
         final int lim = dstPos + len;
-        final int unrolledLoopEnd = lim - (len % unroll);
+        final int unrolledLoopEnd = lim - (len % 16); // unroll the loop 16 times.
 
         final byte[] src = _src; // local var for faster access
 
@@ -328,11 +320,10 @@ public class FECMath {
         // be used many times.
         final char[] gf_mulc = gf_mul_table[c & 0xff];
 
-        // Not sure if loop unrolling has any real benefit in Java, but what the hey.
         if( dstPos == srcPos )
         {
-            int i = dstPos;
             // we can optimize: use only 1 counter variable
+            int i = dstPos;
             while(i < unrolledLoopEnd) {
                 // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
                 dst[i] ^= gf_mulc[ src[i] & 0xff ];

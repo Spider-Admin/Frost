@@ -52,7 +52,6 @@ public class PureCode extends FECCode {
             int pos = index*k;
             Util.bzero(repair,repairOff,packetLength);
             for (int i=0; i<k ; i++) {
-// TODO: remove method call, compute directly here ...
                 fecMath.addMul(repair,repairOff,src[i],srcOff[i],
                                    (byte)encMatrix[pos+i],packetLength);
             }
