@@ -33,6 +33,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
     public static final String NA       = "N/A";
     public static final String OLD      = "NONE";
+    public static final String TAMPERED = "FAKE :(";
     
     /**
      *  BAD = signature tampered
@@ -218,7 +219,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 else // verification FAILED!
                 {
                     System.out.println("TOFDN: *** Message seems to be from ME (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
                 }
             }
             //the message contains the CHK of a public key, see if we have this name on our list
@@ -236,7 +237,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 else // verification FAILED!
                 {
                     System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
                 }
             }
             else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
@@ -253,7 +254,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 else // verification FAILED!
                 {
                     System.out.println("TOFDN: *** Message seems to be from a ENEMY (from is equal), but signature is wrong; set state to BAD anyways: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
                 }
             }
             else
@@ -283,7 +284,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 else //failed authentication, don't ask the user
                 {
                     System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to BAD: "+currentMsg.getFrom() );
-                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
                 }
             }
         }
