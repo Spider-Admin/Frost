@@ -44,6 +44,7 @@ public class SortedTable extends JTable
     public void resortTable()
     {
         sortColumn( sortedColumnIndex, sortedColumnAscending );
+        ((SortedTableModel)getModel()).tableEntriesChanged();
     }
 
 
