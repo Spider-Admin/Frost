@@ -24,6 +24,7 @@ import java.util.*;
 
 import frost.*;
 import frost.gui.objects.*;
+import frost.messages.*;
 import frost.FcpTools.*;
 
 /**

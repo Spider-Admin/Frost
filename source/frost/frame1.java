@@ -40,6 +40,7 @@ import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.identities.*;
+import frost.messages.*;
 import frost.threads.*;
 
 //++++ TODO: rework identities stuff + save to xml
