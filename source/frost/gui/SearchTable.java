@@ -6,10 +6,10 @@ import java.util.LinkedList;
 import javax.swing.JTable;
 import javax.swing.table.*;
 
+import frost.frame1;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
-import frost.identities.*;
-import frost.frame1;
+import frost.identities.Identity;
 
 public class SearchTable extends SortedTable
 {

@@ -1,5 +1,5 @@
 package frost.crypt;
-import java.io.*;
+import java.io.File;
 /**
  * facade for verifying/signing messages in frost
  */

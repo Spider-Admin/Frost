@@ -18,19 +18,17 @@
 */
 
 package frost;
+import java.awt.Component;
 import java.io.*;
-import java.nio.*;
-import java.nio.channels.*;
-import java.nio.charset.*;
-import java.util.zip.*;
+import java.nio.ByteBuffer;
+import java.nio.channels.FileChannel;
+import java.nio.charset.Charset;
 import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.*;
-import javax.swing.table.*;
+import java.util.zip.*;
+
+import javax.swing.JFileChooser;
+
 import org.w3c.dom.*;
-import org.xml.sax.*;
 
 public class FileAccess
 {
