@@ -30,35 +30,32 @@ import org.w3c.dom.Document;
 import frost.messages.*;
 public class FileAccess
 {
-    /**
-     * Writes a file to disk after opening a saveDialog window
-     * @param parent The parent component, often 'this' can be used
-     * @param conten The data to write to disk.
-     * @param lastUsedDirectory The saveDialog starts at this directory
-     * @param title The saveDialog gets this title
-     */
-    public static void saveDialog(Component parent, String content, String lastUsedDirectory, String title)
-    {
-        final JFileChooser fc = new JFileChooser(lastUsedDirectory);
-        fc.setDialogTitle(title);
-        fc.setFileHidingEnabled(true);
-        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fc.setMultiSelectionEnabled(false);
+	/**
+	 * Writes a file to disk after opening a saveDialog window
+	 * @param parent The parent component, often 'this' can be used
+	 * @param conten The data to write to disk.
+	 * @param lastUsedDirectory The saveDialog starts at this directory
+	 * @param title The saveDialog gets this title
+	 */
+	public static void saveDialog(Component parent, String content, String lastUsedDirectory,	String title) {
+		
+		final JFileChooser fc = new JFileChooser(lastUsedDirectory);
+		fc.setDialogTitle(title);
+		fc.setFileHidingEnabled(true);
+		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+		fc.setMultiSelectionEnabled(false);
 
-        int returnVal = fc.showSaveDialog(parent);
-        if( returnVal == JFileChooser.APPROVE_OPTION )
-        {
-            File file = fc.getSelectedFile();
-            if( file != null )
-            {
-                frame1.frostSettings.setValue("lastUsedDirectory", file.getParent());
-                if( !file.isDirectory() )
-                {
-                    writeFile(content, file);
-                }
-            }
-        }
-    }
+		int returnVal = fc.showSaveDialog(parent);
+		if (returnVal == JFileChooser.APPROVE_OPTION) {
+			File file = fc.getSelectedFile();
+			if (file != null) {
+				frame1.frostSettings.setValue("lastUsedDirectory", file.getParent());
+				if (!file.isDirectory()) {
+					writeFile(content, file, "UTF-8");
+				}
+			}
+		}
+	}
 
     /**
      * removes unwanted files from the keypool
