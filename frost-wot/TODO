@@ -1,5 +1,14 @@
 This is the Frost TODO file. Please maintain it carefully.
 
+***** 2003/07/21 - zab
+
+- Make it look more like netscape mail/outlook :
+  * Make icons bigger (4x size roughly) and with text on them
+    (this means different icons for localisations, eventually)
+  * Move attach board/file & flag GOOD/BAD to a new toolbar
+    that appears only when the message is signed/with attachment
+  * Instead of "Refresh board/folder" say "Get new messages" everywhere
+
 ***** 2003/05/12 - bback
 Here are Janthos TODOs (german), below i translated it to english:
 
