@@ -375,20 +375,32 @@ public class SkinManager extends JFrame {
 											2))));
 						}
 					}
-
 				}
-
 			}
-
 		}
 	}
 
 	/**
-	 * Reads integer numbers in a String and returns
-	 * them in an array
-	 * @param data This String contains the numbers divided by spaces
-	 * @return Each field of this array contains one number. 'NULL' is returned if none is found.
+	 * Save skin
 	 */
+	private void saveSkin() {
+		// 
+	}
+
+	/**
+	* Load skin
+	*/
+	private void loadSkin() {
+		
+	}
+
+
+	/**
+	* Reads integer numbers in a String and returns
+	* them in an array
+	* @param data This String contains the numbers divided by spaces
+	* @return Each field of this array contains one number. 'NULL' is returned if none is found.
+	*/
 	private Vector getIntegerTuple(String data) {
 		int nextSpace = data.indexOf(" ");
 		Vector values = new Vector();
