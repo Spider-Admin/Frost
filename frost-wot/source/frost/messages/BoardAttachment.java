@@ -9,6 +9,8 @@ package frost.messages;
 import frost.gui.objects.*;
 import frost.*;
 
+import java.util.List;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -18,7 +20,7 @@ import org.xml.sax.SAXException;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class BoardAttachment implements Attachment, Comparable {
+public class BoardAttachment implements Attachment, Comparable, SafeXMLizable {
 
 	FrostBoardObject boardObj;
 	/* (non-Javadoc)
@@ -61,6 +63,17 @@ public class BoardAttachment implements Attachment, Comparable {
 		privkey.appendChild(cdata);
 		el.appendChild(privkey);
 		
+		return el;
+	}
+	
+	public Element getSafeXMLElement(Document container){
+		Element el = getXMLElement(container);
+		List _privkey = XMLTools.getChildElementsByTagName(el,"privKey");
+		
+		if (_privkey.size()==0)
+			return el;
+		
+		el.removeChild((Element)_privkey.get(0));
 		return el;
 	}
 

@@ -6,6 +6,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import frost.*;
 import frost.FcpTools.*;
+import frost.messages.*;
 
 /**
  * Represents a user identity, should be immutable.
@@ -15,6 +16,8 @@ public class Identity implements SafeXMLizable
     private String name;
     private String uniqueName;
     protected String key;
+    protected BoardAttachment board;
+    
     protected transient FcpConnection con;
     public static final String NA = "NA";
     private static ThreadLocal tmpfile;
@@ -63,6 +66,10 @@ public class Identity implements SafeXMLizable
 		element.appendChild(text);
 		el.appendChild(element);
 		
+		//board
+		if (board!=null)
+			el.appendChild(board.getXMLElement(doc));
+		
 		//trusted identities
 		if (trustees != null) {
 			element = doc.createElement("trustedIds");
@@ -92,11 +99,15 @@ public class Identity implements SafeXMLizable
 		List sensitive = XMLTools.getChildElementsByTagName(el,"trustedIds");
 		sensitive.addAll(XMLTools.getChildElementsByTagName(el,"files"));
 		sensitive.addAll(XMLTools.getChildElementsByTagName(el,"messages"));
+		sensitive.addAll(XMLTools.getChildElementsByTagName(el,"Attachment"));
 		
 		Iterator it = sensitive.iterator();
 		while (it.hasNext()) {
 			el.removeChild((Element)it.next());
 		}
+		
+		//add the safe board attachment
+		el.appendChild(board.getSafeXMLElement(doc));
 		return el;
 	}
 	
@@ -113,6 +124,16 @@ public class Identity implements SafeXMLizable
 				}catch (Exception npe) {
 					Core.getOut().println("no data about # of messages found for identity " + uniqueName);
 				}
+				
+				//see if board is attached
+				List _board = XMLTools.getChildElementsByTagName(e,"Attachment");
+				if (_board.size() > 0)
+					try{
+						board = new BoardAttachment((Element)_board.get(0));
+					}catch(SAXException ex){
+						ex.printStackTrace(Core.getOut());
+						board =null;
+					}	
 				
 				ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
 				Element trusteesList = null;
@@ -139,7 +160,7 @@ public class Identity implements SafeXMLizable
     /**
      * we use this constructor whenever we have all the info
      */
-    public Identity(String name, String keyaddress, String key)
+    public Identity(String name, String key)
     {
         this.key = key;
      	this.name = name;
@@ -184,6 +205,13 @@ public class Identity implements SafeXMLizable
 	public Set getTrustees() {
 		if (trustees== null ) trustees= new TreeSet();
 		return trustees;
+	}
+
+	/**
+	 * @return Returns the board.
+	 */
+	public BoardAttachment getBoard() {
+		return board;
 	}
 
 }

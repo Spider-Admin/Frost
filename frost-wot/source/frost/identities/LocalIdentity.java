@@ -1,9 +1,12 @@
 package frost.identities;
 
 import java.util.*;
+import java.io.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import frost.*;
+import frost.messages.*;
+import frost.gui.objects.*;
 import frost.FcpTools.*;
 
 /**
@@ -55,9 +58,9 @@ public class LocalIdentity extends Identity
      * a constructor that assumes that the user has inserted the
      * key in his SSK already
      */
-    public LocalIdentity(String name, String[] keys,String address)
+    public LocalIdentity(String name, String[] keys)
     {
-        super(name, address, keys[1]);
+        super(name,  keys[1]);
         privKey=keys[0];
     }
 
@@ -69,7 +72,7 @@ public class LocalIdentity extends Identity
      */
     public LocalIdentity(String name)
     {
-        this(name, frame1.getCrypto().generateKeys(), null);
+        this(name, frame1.getCrypto().generateKeys());
 
         con = FcpFactory.getFcpConnectionInstance();
         if( con == null )
@@ -77,6 +80,16 @@ public class LocalIdentity extends Identity
             this.key=NA;
             return;
         }
+        try{
+        	String []svk=con.getKeyPair();
+			board = new BoardAttachment(new FrostBoardObject(
+									getUniqueName(),svk[1],svk[0]));
+			
+        }catch(IOException ex){
+        	ex.printStackTrace(Core.getOut());
+        	board = null;
+        }
+        
 
     }
 
