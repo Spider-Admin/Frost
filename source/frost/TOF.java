@@ -357,7 +357,7 @@ public class TOF
 
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
             frame1.frostSettings.getBoolValue("hideBadMessages") &&
-            (message.getStatus().indexOf("GOOD")!=-1))
+            (message.getStatus().indexOf("BAD")!=-1))
             return true;
 	if( frame1.frostSettings.getBoolValue("signedOnly") &&
 	    frame1.frostSettings.getBoolValue("hideCheckMessages") &&
