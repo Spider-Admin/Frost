@@ -1502,9 +1502,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 	
 	private DownloadTicker downloadTicker;
-	private UploadTicker uploadTicker;
-	//	public static String newMessageHeader = new String("");
-	//	public static String oldMessageHeader = new String("");
 
 	private static Core core;
 
@@ -1621,6 +1618,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JButton newFolderButton = null;
 	
 	private JToolBar buttonToolBar;
+	
+	private JPanel extendableStatusPanel;
 
 	private final String newMessagesCountPrefix = "New: ";
 	private JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
@@ -1694,6 +1693,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public void addPanel(String title, JPanel panel) {
 		getTabbedPane().add(title, panel);
+	}
+	
+	/**
+	 * This method inserts a panel into the extendable part of the status bar 
+	 * at the given position 
+	 * @param panel panel to add to the status bar
+	 * @param position position to insert the panel at
+	 */
+	public void addStatusPanel(JPanel panel, int position) {
+		getExtendableStatusPanel().add(panel, position);
 	}
 	
 	/**
@@ -2152,9 +2161,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 
 	/**
+	 * This method builds the whole of the status bar (both the extendable and the
+	 * static parts)
 	 * @return
 	 */
-	private JPanel buildStatusPanel() {
+	private JPanel buildStatusBar() {
+		JPanel panel = new JPanel(new BorderLayout());
+			
 		statusLabel = new JLabel(language.getString("Frost by Jantho"));
 		statusMessageLabel = new JLabel();
 
@@ -2162,11 +2175,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		newMessage[1] = new ImageIcon(MainFrame.class.getResource("/data/messagedark.gif"));
 		statusMessageLabel.setIcon(newMessage[1]);
 
-		JPanel statusPanel = new JPanel(new BorderLayout());
-		statusPanel.add(statusLabel, BorderLayout.CENTER); // Statusbar
-		statusPanel.add(statusMessageLabel, BorderLayout.EAST);
-		// Statusbar / new Message
-		return statusPanel;
+		panel.add(getExtendableStatusPanel(), BorderLayout.WEST);
+		panel.add(statusLabel, BorderLayout.CENTER); // Statusbar
+		panel.add(statusMessageLabel, BorderLayout.EAST);
+		
+		return panel;
+	}
+	
+	/**
+	 * This method returns the extendable part of the status bar.
+	 * @return
+	 */
+	private JPanel getExtendableStatusPanel() {
+		if (extendableStatusPanel == null) {
+			extendableStatusPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
+		}
+		return extendableStatusPanel;
 	}
 
 	/**
@@ -2299,7 +2323,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 		contentPanel.add(getButtonToolBar(), BorderLayout.NORTH);
 		contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
-		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH);
+		contentPanel.add(buildStatusBar(), BorderLayout.SOUTH);
 		setJMenuBar(getMainMenuBar());
     	
         // step through all messages on disk up to maxMessageDisplay and check
@@ -2638,8 +2662,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		/////////////////////////////////////////////////
 		String newText =
 			new StringBuffer()
-				.append(language.getString("Up") + ": ")
-				.append(uploadTicker.getUploadingThreadCount())
 				.append("   " + language.getString("Down") + ": ")
 				.append(downloadTicker.getThreadCount())
 				.append("   " + language.getString("TOFUP") + ": ")
@@ -2865,13 +2887,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public void setUploadPanel(UploadPanel panel) {
 		uploadPanel = panel;
-	}
-
-	/**
-	 * @param ticker
-	 */
-	public void setUploadTicker(UploadTicker ticker) {
-		uploadTicker = ticker;		
 	}
 
 }

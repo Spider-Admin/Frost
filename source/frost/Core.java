@@ -586,7 +586,6 @@ public class Core implements Savable {
 		//Until the downloads and uploads are fully separated from frame1:
 		mainFrame.setDownloadTicker(getDownloadManager().getTicker());
 		mainFrame.setDownloadModel(getDownloadManager().getModel());
-		mainFrame.setUploadTicker(getUploadManager().getTicker());
 		mainFrame.setUploadPanel(getUploadManager().getPanel());
 		mainFrame.initialize();
 

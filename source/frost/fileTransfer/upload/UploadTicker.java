@@ -6,6 +6,8 @@
  */
 package frost.fileTransfer.upload;
 
+import javax.swing.event.EventListenerList;
+
 import frost.*;
 import frost.identities.LocalIdentity;
 
@@ -30,11 +32,27 @@ public class UploadTicker extends Thread {
 	private UploadModel model;
 
 	private int counter;
-	private int uploadingThreadCount = 0;
-	private int generatingThreadCount = 0;
+	
+	/**
+	 * The number of allocated threads is used to limit the total of threads
+	 * that can be running at a given time, whereas the number of running
+	 * threads is the number of threads that are actually running.
+	 */
+	private int allocatedUploadingThreads = 0;
+	private int allocatedGeneratingThreads = 0;
+	private int runningUploadingThreads = 0;
+	private int runningGeneratingThreads = 0;
+	
+	private Object uploadingCountLock = new Object();
+	private Object generatingCountLock = new Object();
+	
+	protected EventListenerList listenerList = new EventListenerList();
 
 	/**
-	 * 
+	 * @param newSettings
+	 * @param newModel
+	 * @param newPanel
+	 * @param newMyID
 	 */
 	public UploadTicker(SettingsClass newSettings, UploadModel newModel, UploadPanel newPanel, LocalIdentity newMyID) {
 		super("Upload");
@@ -43,53 +61,142 @@ public class UploadTicker extends Thread {
 		panel = newPanel;
 		myID = newMyID;
 	}
-
-	/**
-	 * 
-	 */
-	public synchronized boolean allocateUploadingThread() {
-		if (uploadingThreadCount < settings.getIntValue("uploadThreads")) {
-			uploadingThreadCount++;
-			return true;
-		} else {	
-			return false;	
-		}
-	}
 	
 	/**
-	 * @return
+	 * Adds an <code>UploadTickerListener</code> to the UploadTicker.
+	 * @param listener the <code>UploadTickerListener</code> to be added
 	 */
-	public synchronized int getUploadingThreadCount() {
-		return uploadingThreadCount;
-	}
-	
-	/**
-	 * 
-	 */
-	public synchronized boolean allocateGeneratingThread() {
-		if (generatingThreadCount < MAX_GENERATING_THREADS) {
-			generatingThreadCount++;
-			return true;
-		} else {
-			return false;	
-		}
+	public void addUploadTickerListener(UploadTickerListener listener) {
+		listenerList.add(UploadTickerListener.class, listener);
 	}
 
 	/**
-	 * 
+	 * This method is called to find out if a new uploading thread can start. It
+	 * temporarily allocates it and it will have to be relased when it is no longer
+	 * needed (no matter whether the thread was actually used or not).
+	 * @return true if a new uploading thread can start. False otherwise.
 	 */
-	public synchronized void releaseUploadingThread() {
-		if (uploadingThreadCount > 0) {
-			uploadingThreadCount--;
+	private boolean allocateUploadingThread() {
+		synchronized (uploadingCountLock) {
+			if (allocatedUploadingThreads < settings.getIntValue("uploadThreads")) {
+				allocatedUploadingThreads++;
+				return true;
+			} 
+		}
+		return false;
+	}
+	
+	/**
+	 * Notifies all listeners that have registered interest for
+	 * notification on this event type.  
+	 *
+	 * @see EventListenerList
+	 */
+	protected void fireUploadingCountChanged() {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == UploadTickerListener.class) {
+				((UploadTickerListener) listeners[i + 1]).uploadingCountChanged();
+			}
 		}
 	}
 	
 	/**
-	 * 
+	 * Notifies all listeners that have registered interest for
+	 * notification on this event type.  
+	 *
+	 * @see EventListenerList
 	 */
-	public synchronized void releaseGeneratingThread() {
-		if (generatingThreadCount > 0) {
-			generatingThreadCount--;
+	protected void fireGeneratingCountChanged() {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == UploadTickerListener.class) {
+				((UploadTickerListener) listeners[i + 1]).generatingCountChanged();
+			}
+		}
+	}
+	
+	/**
+	 * This method is called to find out if a new generating thread can start. It
+	 * temporarily allocates it and it will have to be relased when it is no longer
+	 * needed (no matter whether the thread was actually used or not).
+	 * @return true if a new generating thread can start. False otherwise.
+	 */
+	private boolean allocateGeneratingThread() {
+		synchronized (generatingCountLock) {
+			if (allocatedGeneratingThreads < MAX_GENERATING_THREADS) {
+				allocatedGeneratingThreads++;
+				return true;
+			} 
+		}
+		return false;
+	}
+	
+	/**
+	 * This method is called from a generating thread to notify the ticker that
+	 * the thread has started (so that it can notify its listeners of the fact)
+	 */
+	void generatingThreadStarted() {
+		runningGeneratingThreads++;
+		fireGeneratingCountChanged();
+	}
+	
+	/**
+	 * This method is usually called from a generating thread to notify the ticker that
+	 * the thread has finished (so that it can notify its listeners of the fact). It also
+	 * releases the thread so that new generating threads can start if needed.
+	 */
+	void generatingThreadFinished() {
+		runningGeneratingThreads--;
+		fireGeneratingCountChanged();
+		releaseGeneratingThread();
+	}
+	
+	/**
+	 * This method is called from an uploading thread to notify the ticker that
+	 * the thread has started (so that it can notify its listeners of the fact)
+	 */
+	void uploadingThreadStarted() {
+		runningUploadingThreads++;
+		fireUploadingCountChanged();
+	}
+	
+	/**
+	 * This method is called from an uploading thread to notify the ticker that the
+	 * thread has finished (so that it can notify its listeners of the fact). It also
+	 * releases the thread so that new generating threads can start if needed.
+	 */
+	void uploadingThreadFinished() {
+		runningUploadingThreads--;
+		fireUploadingCountChanged();
+		releaseUploadingThread();
+	}
+
+	/**
+	 * This method is used to release an uploading thread.
+	 */
+	private void releaseUploadingThread() {
+		synchronized (uploadingCountLock) {
+			if (allocatedUploadingThreads > 0) {
+				allocatedUploadingThreads--;
+			} 
+		}
+	}
+	
+	/**
+	 * This method is used to release a generating thread.
+	 */
+	private void releaseGeneratingThread() {
+		synchronized (generatingCountLock) {
+			if (allocatedGeneratingThreads > 0) {
+				allocatedGeneratingThreads--;
+			} 
 		}
 	}
 
@@ -151,11 +258,9 @@ public class UploadTicker extends Thread {
 					threadLaunched = true; 	// start only 1 thread per loop (=second)
 				}
 			}
-			
 			if (!threadLaunched) {
 				releaseGeneratingThread();	
 			}
-			
 		}
 	}
 
@@ -209,12 +314,10 @@ public class UploadTicker extends Thread {
 					newInsert.start();
 					threadLaunched = true; 	// start only 1 thread per loop (=second)
 				}
-			}
-			
+			}	
 			if (!threadLaunched) {
 				releaseGeneratingThread();	
-			}
-			
+			}			
 		}
 	}
 
@@ -227,5 +330,28 @@ public class UploadTicker extends Thread {
 			model.removeNotExistingFiles();
 		}
 	}
+	
+	/**
+	 * Removes an <code>UploadTickerListener</code> from the UploadTicker.
+	 * @param listener the <code>UploadTickerListener</code> to be removed
+	 */
+	public void removeUploadTickerListener(UploadTickerListener listener) {
+		listenerList.remove(UploadTickerListener.class, listener);
+	}
 
+	/**
+	 * This method returns the number of generating threads that are running
+	 * @return the number of generating threads that are running
+	 */
+	public int getRunningGeneratingThreads() {
+		return runningGeneratingThreads;
+	}
+	
+	/**
+	 * This method returns the number of uploading threads that are running
+	 * @return the number of uploading threads that are running
+	 */
+	public int getRunningUploadingThreads() {
+		return runningUploadingThreads;
+	}
 }
