@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui;
+package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -30,6 +30,7 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.*;
+import frost.gui.SortedTable;
 import frost.gui.model.*;
 import frost.gui.objects.Board;
 import frost.messages.FrostIndex;
@@ -106,7 +107,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
 	}
 	
-    private MainFrame parent = null;
+    private TofTree tofTree = null;
     private static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
     private Language language = null;
     private Listener listener = new Listener();
@@ -151,12 +152,12 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      * Constructor
      * @param p
      */
-    public BoardInfoFrame(MainFrame p)
+    public BoardInfoFrame(JFrame parentFrame, TofTree tofTree)
     {
         super();
         language = Language.getInstance();
 		refreshLanguage();
-        parent = p;
+		this.tofTree = tofTree;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             Init();
@@ -164,9 +165,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         catch( Exception e ) {
         	logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
-		setSize((int) (parent.getWidth() * 0.75), 
-				(int) (parent.getHeight() * 0.75));
-        setLocationRelativeTo( parent );
+		setSize((int) (parentFrame.getWidth() * 0.75), 
+				(int) (parentFrame.getHeight() * 0.75));
+        setLocationRelativeTo(parentFrame);
     }
 
     /**
@@ -330,7 +331,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             int messageCount = 0;
             int fileCount = 0;
             int boardCount = 0;
-            Vector boards = parent.getTofTreeModel().getAllBoards();
+            Vector boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
             for( int i = 0; i < boards.size(); i++ )
             {
                 Board board = (Board)boards.elementAt(i);
@@ -371,13 +372,13 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      */
     private void updateAllBoardsButton_actionPerformed(ActionEvent e)
     {
-        Vector boards = parent.getTofTreeModel().getAllBoards();
+        Vector boards = ((TofTreeModel) tofTree.getModel()).getAllBoards();
         for( int i = 0; i < boards.size(); i++ )
         {
             Board board = (Board)boards.elementAt(i);
-            if( parent.isUpdateAllowed(board) == true ) // is update allowed for this board?
+            if( tofTree.isUpdateAllowed(board) == true ) // is update allowed for this board?
             {
-                parent.updateBoard(board);
+            	tofTree.updateBoard(board);
             }
             boardTableModel.fireTableDataChanged();
         }
@@ -401,9 +402,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
                 BoardInfoTableMember row = (BoardInfoTableMember)((BoardInfoTableModel)boardTableModel).getRow(rowIx);
 
-                if( parent.isUpdateAllowed(row.getBoard()) == true ) // is update allowed for this board?
+                if( tofTree.isUpdateAllowed(row.getBoard()) == true ) // is update allowed for this board?
                 {
-                    parent.updateBoard(row.getBoard());
+                	tofTree.updateBoard(row.getBoard());
                 }
                 boardTableModel.fireTableCellUpdated(rowIx, 0);
             }
@@ -485,7 +486,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 	 * 
 	 */
 	public void startDialog() {
-		MainFrame.getInstance().getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
+		tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
 		language.addLanguageListener(listener);
 		language.addLanguageListener(boardTableModel);
 		setDialogShowing(true);
@@ -496,7 +497,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 	 * 
 	 */
 	protected void closeDialog() {
-		MainFrame.getInstance().getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
+		tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
 		language.removeLanguageListener(listener);
 		language.removeLanguageListener(boardTableModel);
 		setDialogShowing(false);

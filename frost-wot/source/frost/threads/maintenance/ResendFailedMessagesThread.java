@@ -6,27 +6,40 @@
  */
 package frost.threads.maintenance;
 
-import java.awt.Frame;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.*;
 
 import frost.*;
+import frost.boards.*;
 import frost.gui.objects.Board;
 import frost.messages.VerifyableMessageObject;
 
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class ResendFailedMessagesThread extends Thread
 {
 	private static Logger logger = Logger.getLogger(ResendFailedMessagesThread.class.getName());
 	
-	private final Core core;
-    Frame frameToLock;
-    public ResendFailedMessagesThread(Core core, Frame frameToLock)
+	private TofTree tofTree;
+    private TofTreeModel tofTreeModel;
+    
+    /**
+     * @param core
+     * @param frameToLock
+     */
+    public ResendFailedMessagesThread(TofTree tofTree, TofTreeModel tofTreeModel)
     {
-        this.frameToLock = frameToLock;
-		this.core = core;
+        this.tofTree = tofTree;
+		this.tofTreeModel = tofTreeModel;
     }
+    
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
     public void run()
     {
         // give gui a chance to appear ... then start searching for unsent messages
@@ -56,7 +69,7 @@ public class ResendFailedMessagesThread extends Thread
                 
                 if( mo != null && mo.isValid() )
                 {
-                    Board board = MainFrame.getInstance().getTofTreeModel().getBoardByName( mo.getBoard() );
+                    Board board = tofTreeModel.getBoardByName( mo.getBoard() );
                     if( board == null )
                     {
                         logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoard() +
@@ -66,10 +79,7 @@ public class ResendFailedMessagesThread extends Thread
                     }
                     // message will be resigned before send, actual date/time will be used
                     // no more faking here :)
-                    MainFrame.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-                        board,
-                        mo,
-                        null);
+                    tofTree.getRunningBoardUpdateThreads().startMessageUpload(board, mo, null);
                     logger.info("Message '" + mo.getSubject() + "' will be resent to board '" + board.getName() + "'.");
                 }
                 // check if upload was successful before deleting the file -

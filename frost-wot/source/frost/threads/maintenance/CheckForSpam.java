@@ -10,40 +10,55 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import frost.*;
+import frost.boards.*;
 import frost.gui.objects.Board;
 import frost.threads.BoardUpdateThread;
 
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class CheckForSpam extends TimerTask
 {
 	private static Logger logger = Logger.getLogger(CheckForSpam.class.getName());
 	
-	private final Core core;
+	private SettingsClass settings;
+	private TofTree tofTree;
+	private TofTreeModel tofTreeModel;
+	
 	/**
-	 * @param Core
+	 * @param settings
+	 * @param tofTree
+	 * @param tofTreeModel
 	 */
-	public CheckForSpam(Core core) {
-		this.core = core;
-		// TODO Auto-generated constructor stub
+	public CheckForSpam(SettingsClass settings, TofTree tofTree, TofTreeModel tofTreeModel) {
+		this.settings = settings;
+		this.tofTree = tofTree;
+		this.tofTreeModel = tofTreeModel;
 	}
+	
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
     public void run()
     {
-        if(Core.frostSettings.getBoolValue("doBoardBackoff"))
+        if(settings.getBoolValue("doBoardBackoff"))
         {
-            Iterator iter = MainFrame.getInstance().getTofTreeModel().getAllBoards().iterator();
+            Iterator iter = tofTreeModel.getAllBoards().iterator();
             while (iter.hasNext())
             {
                 Board current = (Board)iter.next();
-                if (current.getBlockedCount() > Core.frostSettings.getIntValue("spamTreshold"))
+                if (current.getBlockedCount() > settings.getIntValue("spamTreshold"))
                 {
                     //board is spammed
                     logger.warning("######### board '" + current.getName() + "' is spammed, update stops for 24h ############");
                     current.setSpammed(true);
                     // clear spam status in 24 hours
-                    Core.schedule(new ClearSpam(core, current),24*60*60*1000);
+                    Core.schedule(new ClearSpam(current),24*60*60*1000);
 
                     //now, kill all threads for board
-                    Vector threads = MainFrame.getInstance().getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
+                    Vector threads = tofTree.getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
                     Iterator i = threads.iterator();
                     while( i.hasNext() )
                     {

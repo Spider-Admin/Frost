@@ -124,4 +124,21 @@ public class TofTreeModel extends DefaultTreeModel {
 		return selectionModel;
 	}
 
+	/**
+	 * @param node
+	 */
+	public void removeNode(Board node) {
+		DefaultMutableTreeNode parent = (DefaultMutableTreeNode) node.getParent();
+		if (node != null && parent != null) {
+			int[] childIndices = { parent.getIndex(node) };
+			Object[] removedChilds = { node };
+
+			node.removeFromParent();
+
+			TreePath pathToParent = new TreePath(getPathToRoot(parent));
+			nodesWereRemoved(parent, childIndices, removedChilds);
+			selectionModel.setSelectionPath(pathToParent);
+		}
+	}
+
 }

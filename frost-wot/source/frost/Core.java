@@ -418,7 +418,7 @@ public class Core implements Savable {
 		// start a thread that waits some seconds for gui to appear, then searches for
 		// unsent messages
 		ResendFailedMessagesThread t =
-			new ResendFailedMessagesThread(this, MainFrame.getInstance());
+			new ResendFailedMessagesThread(getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel());
 		t.start();
 	}
 
@@ -670,8 +670,9 @@ public class Core implements Savable {
 	 */
 	private BoardsManager getBoardsManager() {
 		if (boardsManager == null) {
-			boardsManager = new BoardsManager();
+			boardsManager = new BoardsManager(frostSettings);
 			boardsManager.setMainFrame(mainFrame);
+			boardsManager.setCore(this);
 		}
 		return boardsManager;
 	}
@@ -696,7 +697,7 @@ public class Core implements Savable {
 	private void initializeTasks(JFrame parentFrame) {
 		//We initialize the task that checks for spam
 		timer.schedule(
-			new CheckForSpam(this),
+			new CheckForSpam(frostSettings, getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel()),
 			0,
 			frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
 

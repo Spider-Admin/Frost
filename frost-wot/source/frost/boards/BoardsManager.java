@@ -4,6 +4,7 @@
  */
 package frost.boards;
 
+import frost.*;
 import frost.MainFrame;
 import frost.gui.objects.Board;
 
@@ -18,20 +19,28 @@ public class BoardsManager {
 	
 	private MainFrame mainFrame;
 	
+	private SettingsClass settings;
+	private Core core;
+	
 	/**
 	 * 
 	 */
-	public BoardsManager() {
+	public BoardsManager(SettingsClass settings) {
 		super();
-		getTofTree().initialize();
+		this.settings = settings;
 	}
 	
 	/**
 	 * 
 	 */
 	public void initialize() {
+		getTofTree().initialize();
 		mainFrame.setTofTree(getTofTree());
 		mainFrame.setTofTreeModel(getTofTreeModel());
+		mainFrame.addButton(getTofTree().getConfigBoardButton(), 1, 0, false);
+		mainFrame.addButton(getTofTree().getCutBoardButton(), 2, 0, false);
+		mainFrame.addButton(getTofTree().getPasteBoardButton(), 2, 1, false);
+		mainFrame.addMenuItem(getTofTree().getConfigBoardMenuItem(), "News", 1, 1, true);
 	}
 	
 	/**
@@ -40,6 +49,9 @@ public class BoardsManager {
 	public TofTree getTofTree() {
 		if (tofTree == null) {
 			tofTree = new TofTree(getTofTreeModel());
+			tofTree.setSettings(settings);
+			tofTree.setCore(core);
+			tofTree.setMainFrame(mainFrame);
 		}
 		return tofTree;
 	}
@@ -63,5 +75,12 @@ public class BoardsManager {
 	 */
 	public void setMainFrame(MainFrame mainFrame) {
 		this.mainFrame = mainFrame;
+	}
+
+	/**
+	 * @param core
+	 */
+	public void setCore(Core core) {
+		this.core = core;		
 	}
 }

@@ -32,10 +32,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
-import javax.swing.tree.*;
+import javax.swing.tree.TreeNode;
 
 import frost.boards.*;
-import frost.boards.TofTree;
 import frost.components.BrowserFrame;
 import frost.components.translate.TranslateFrame;
 import frost.ext.JSysTrayIcon;
@@ -49,12 +48,11 @@ import frost.gui.preferences.OptionsFrame;
 import frost.identities.Identity;
 import frost.messages.*;
 import frost.storage.StorageException;
-import frost.threads.*;
 import frost.threads.maintenance.Truster;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
- /**
+  /**
   * TODO: rework identities stuff + save to xml
   *       - save identities together (not separated friends,enemies)
   *       - each identity have 3 states: GOOD, BAD, NEUTRAL
@@ -69,88 +67,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * This listener changes the 'updating' state of a board if a thread starts/finishes.
 	 * It also launches popup menus
 	 */
-	private class Listener
-		extends WindowAdapter
-		implements MouseListener, BoardUpdateThreadListener, WindowListener {
-		
-		/* (non-Javadoc)
-		 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.threads.BoardUpdateThread)
-		 */
-		public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
-			int running =
-				getRunningBoardUpdateThreads()
-					.getDownloadThreadsForBoard(thread.getTargetBoard())
-					.size();
-			//+ getRunningBoardUpdateThreads().getUploadThreadsForBoard(thread.getTargetBoard()).size();
-			if (running == 0) {
-				// remove update state from board
-				thread.getTargetBoard().setUpdating(false);
-				SwingUtilities.invokeLater(new Runnable() {
-					public void run() {
-						updateTofTree(thread.getTargetBoard());
-					}
-				});
-			}
-		}
-		
-		/* (non-Javadoc)
-		 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
-		 */
-		public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
-			thread.getTargetBoard().setUpdating(true);
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					updateTofTree(thread.getTargetBoard());
-				}
-			});
-		}
-
-		/**
-		 * @param e
-		 */
-		private void maybeShowPopup(MouseEvent e) {
-			if (e.isPopupTrigger() == false) {
-				return;
-			} else if (e.getComponent().equals(tofTree)) { // TOF tree popup
-				showTofTreePopupMenu(e);
-			}
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-		 */
-		public void mouseClicked(MouseEvent e) {
-			//Nothing here			
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-		 */
-		public void mouseEntered(MouseEvent e) {
-			//Nothing here				
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-		 */
-		public void mouseExited(MouseEvent e) {
-			//Nothing here				
-		}
-		
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-		 */
-		public void mousePressed(MouseEvent e) {
-			if (e.getClickCount() != 2)
-				maybeShowPopup(e);
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-		 */
-		public void mouseReleased(MouseEvent e) {
-			maybeShowPopup(e);
-		}
+	private class Listener extends WindowAdapter {
 		
 		/* (non-Javadoc)
 		 * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
@@ -1372,6 +1289,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 */
 			MessageFrame newMessageFrame = new MessageFrame(frostSettings, MainFrame.this,
 												core.getIdentities().getMyId());
+			newMessageFrame.setTofTree(tofTree);
 			newMessageFrame.composeReply(getSelectedNode(), frostSettings.getValue("userName"),
 												subject, messageTextArea.getText());
 		}
@@ -1448,8 +1366,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void updateButton_actionPerformed(ActionEvent e) {
 			// restarts all finished threads if there are some long running threads
-			if (isUpdateAllowed(getSelectedNode())) {
-				updateBoard(getSelectedNode());
+			if (tofTree.isUpdateAllowed(getSelectedNode())) {
+				tofTree.updateBoard(getSelectedNode());
 			}
 		}
 
@@ -1540,244 +1458,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				};
 			};
 			saver.start();	
-		}
-	}
-
-	/**
-	 * 
-	 */
-	private class PopupMenuTofTree
-		extends JSkinnablePopupMenu
-		implements LanguageListener, ActionListener {
-		
-		private JMenuItem addBoardItem = new JMenuItem();
-		private JMenuItem addFolderItem = new JMenuItem();
-		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem configureBoardItem = new JMenuItem();
-		private JMenuItem cutNodeItem = new JMenuItem();
-
-		private JMenuItem descriptionItem = new JMenuItem();
-		private JMenuItem pasteNodeItem = new JMenuItem();
-		private JMenuItem refreshItem = new JMenuItem();
-		private JMenuItem removeNodeItem = new JMenuItem();
-
-		private Board selectedTreeNode = null;
-		private JMenuItem sortFolderItem = new JMenuItem();
-
-		/**
-		 * 
-		 */
-		public PopupMenuTofTree() {
-			super();
-			initialize();
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			final Object source = e.getSource();
-
-			SwingWorker worker = new SwingWorker(tofTree) {
-				
-				protected void doNonUILogic() throws RuntimeException {
-					if (source == refreshItem) {
-						refreshSelected();
-					} else if (source == addBoardItem) {
-						addBoardSelected();
-					} else if (source == addFolderItem) {
-						addFolderSelected();
-					} else if (source == removeNodeItem) {
-						removeNodeSelected();
-					} else if (source == cutNodeItem) {
-						cutNodeSelected();
-					} else if (source == pasteNodeItem) {
-						pasteNodeSelected();
-					} else if (source == configureBoardItem) {
-						configureBoardSelected();
-					} else if (source == sortFolderItem) {
-						sortFolderSelected();
-					}
-				}
-
-				protected void doUIUpdateLogic() throws RuntimeException {
-					//Nothing here
-				}
-
-			};
-			worker.start();
-		}
-
-		/**
-		 * 
-		 */
-		private void addBoardSelected() {
-			tofTree.createNewBoard(MainFrame.this);
-		}
-
-		/**
-		 * 
-		 */
-		private void addFolderSelected() {
-			tofTree.createNewFolder(MainFrame.this);
-		}
-
-		/**
-		 * 
-		 */
-		private void configureBoardSelected() {
-			tofConfigureBoardMenuItem_actionPerformed(selectedTreeNode);
-		}
-
-		/**
-		 * 
-		 */
-		private void cutNodeSelected() {
-			cutNode(selectedTreeNode);
-		}
-
-		/**
-		 * 
-		 */
-		private void initialize() {
-			refreshLanguage();
-
-			MiscToolkit miscToolkit = MiscToolkit.getInstance();
-			addBoardItem.setIcon(miscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
-			addFolderItem.setIcon(miscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
-			configureBoardItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
-			cutNodeItem.setIcon(miscToolkit.getScaledImage("/data/cut.gif", 16, 16));
-			pasteNodeItem.setIcon(miscToolkit.getScaledImage("/data/paste.gif", 16, 16));
-			refreshItem.setIcon(miscToolkit.getScaledImage("/data/update.gif", 16, 16));
-			removeNodeItem.setIcon(miscToolkit.getScaledImage("/data/remove.gif", 16, 16));
-			sortFolderItem.setIcon(miscToolkit.getScaledImage("/data/sort.gif", 16, 16));
-			
-			descriptionItem.setEnabled(false);
-
-			// add listeners
-			refreshItem.addActionListener(this);
-			addBoardItem.addActionListener(this);
-			addFolderItem.addActionListener(this);
-			removeNodeItem.addActionListener(this);
-			cutNodeItem.addActionListener(this);
-			pasteNodeItem.addActionListener(this);
-			configureBoardItem.addActionListener(this);
-			sortFolderItem.addActionListener(this);
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
-
-		/**
-		 * 
-		 */
-		private void pasteNodeSelected() {
-			if (clipboard != null) {
-				pasteFromClipboard(selectedTreeNode);
-			}
-		}
-
-		/**
-		 * 
-		 */
-		private void refreshLanguage() {
-			addBoardItem.setText(language.getString("Add new board"));
-			addFolderItem.setText(language.getString("Add new folder"));
-			configureBoardItem.setText(language.getString("Configure selected board"));
-			cancelItem.setText(language.getString("Cancel"));
-			sortFolderItem.setText(language.getString("Sort folder"));
-		}
-
-		/**
-		 * 
-		 */
-		private void refreshSelected() {
-			refreshNode(selectedTreeNode);
-		}
-
-		/**
-		 * 
-		 */
-		private void removeNodeSelected() {
-			removeNode(selectedTreeNode);
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-		 */
-		public void show(Component invoker, int x, int y) {
-			int selRow = tofTree.getRowForLocation(x, y);
-
-			if (selRow != -1) { // only if a node is selected
-				removeAll();
-
-				TreePath selPath = tofTree.getPathForLocation(x, y);
-				selectedTreeNode = (Board) selPath.getLastPathComponent();
-
-				String folderOrBoard1 =
-					((selectedTreeNode.isFolder())
-						? language.getString("Folder")
-						: language.getString("Board"));
-				String folderOrBoard2 =
-					((selectedTreeNode.isFolder())
-						? language.getString("folder")
-						: language.getString("board"));
-
-				descriptionItem.setText(folderOrBoard1 + " : " + selectedTreeNode.getName());
-				refreshItem.setText(language.getString("Refresh") + " " + folderOrBoard2);
-				removeNodeItem.setText(language.getString("Remove") + " " + folderOrBoard2);
-				cutNodeItem.setText(language.getString("Cut") + " " + folderOrBoard2);
-
-				add(descriptionItem);
-				addSeparator();
-				add(refreshItem);
-				addSeparator();
-				if (selectedTreeNode.isFolder() == false) {
-					add(configureBoardItem);
-				} else {
-					add(sortFolderItem);
-				}
-				addSeparator();
-				add(addBoardItem);
-				add(addFolderItem);
-				if (selectedTreeNode.isRoot() == false) {
-					add(removeNodeItem);
-				}
-				addSeparator();
-				if (selectedTreeNode.isRoot() == false) {
-					add(cutNodeItem);
-				}
-				if (clipboard != null && selectedTreeNode.isFolder()) {
-					String folderOrBoard3 =
-						((clipboard.isFolder())
-							? language.getString("folder")
-							: language.getString("board"));
-					pasteNodeItem.setText(
-							language.getString("Paste")
-							+ " "
-							+ folderOrBoard3
-							+ " '"
-							+ clipboard.getName()
-							+ "'");
-					add(pasteNodeItem);
-				}
-				addSeparator();
-				add(cancelItem);
-
-				super.show(invoker, x, y);
-			}
-		}
-
-		/**
-		 * 
-		 */
-		private void sortFolderSelected() {
-			selectedTreeNode.sortChildren();
-			tofTreeModel.nodeStructureChanged(selectedTreeNode);
 		}
 	}
 
@@ -1897,10 +1577,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 
 	private JButton boardInfoButton = null;
-	private Board clipboard = null;
-	private JButton configBoardButton = null;
 	private long counter = 55;
-	private JButton cutBoardButton = null;
 
 	//Panels
 	private DownloadModel downloadModel = null;
@@ -1934,7 +1611,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private Listener listener = new Listener();
 
 	// The main menu
-	private JMenuBar menuBar = new JMenuBar();
+	private JMenuBar menuBar;
 	private MessagePanel messagePanel = null;
 	private MessageTable messageTable = null;
 	private MessageTableModel messageTableModel;
@@ -1942,6 +1619,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	// buttons that are enabled/disabled later
 	private JButton newBoardButton = null;
 	private JButton newFolderButton = null;
+	
+	private JToolBar buttonToolBar;
 
 	private final String newMessagesCountPrefix = "New: ";
 	private JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
@@ -1949,7 +1628,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	//Options Menu
 	private JMenu optionsMenu = new JMenu();
 	private JMenuItem optionsPreferencesMenuItem = new JMenuItem();
-	private JButton pasteBoardButton = null;
 	private JMenuItem pluginBrowserMenuItem = new JMenuItem();
 
 	//Plugin Menu
@@ -1957,11 +1635,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JMenuItem pluginTranslateMenuItem = new JMenuItem();
 
 	//Popups
-	private PopupMenuTofTree popupMenuTofTree = null;
 	private JButton removeBoardButton = null;
 	private JButton renameBoardButton = null;
-
-	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
 	// labels that are updated later
 	private JLabel statusLabel = null;
@@ -1972,7 +1647,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JLabel timeLabel = null;
 
 	private JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
-	private JMenuItem tofConfigureBoardMenuItem = new JMenuItem();
 	private JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem();
 
 	private JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
@@ -2023,6 +1697,133 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 	
 	/**
+	 * This method adds a button to the button toolbar of the frame. It will insert it
+	 * into an existing block or into a new one (where a block is a group of buttons 
+	 * delimited by separators) at the given position.
+	 * If the position number exceeds the number of buttons in that block, the button is
+	 * added at the end of that block.
+	 * @param button the button to add
+	 * @param block the number of the block to insert the button into. If newBlock is true
+	 * 			we will create a new block at that position. If it is false, we will use
+	 * 			the existing one. If the block number exceeds the number of blocks in the 
+	 * 			toolbar, a new block is created at the end of the toolbar and the button is 
+	 * 			inserted there, no matter what the value of the newBlock parameter is. 
+	 * @param position the position inside the block to insert the button at. If the position 
+	 * 			number exceeds the number of buttons in the block, the button is added at the 
+	 * 			end of the block.
+	 * @param newBlock true to insert the button in a new block. False to use an existing one. 
+	 */
+	public void addButton(JButton button, int block, int position, boolean newBlock) {	
+		int index = 0;
+		int blockCount = 0;
+		while ((index < getButtonToolBar().getComponentCount()) &&
+			   (blockCount < block)) {
+			Component component = getButtonToolBar().getComponentAtIndex(index);
+			if (component instanceof JToolBar.Separator) {
+				blockCount++;
+			}
+			index++;
+		}
+		if (blockCount < block) {
+			// Block number exceeds the number of blocks in the toolbar or newBlock is true. 
+			getButtonToolBar().addSeparator();
+			getButtonToolBar().add(button);
+			return;
+		}
+		if (newBlock) {
+			// New block created and button put in there.
+			getButtonToolBar().add(new JToolBar.Separator(), index);
+			getButtonToolBar().add(button, index);
+			return;
+		}
+		int posCount = 0;
+		Component component = getButtonToolBar().getComponentAtIndex(index);
+		while ((index < getButtonToolBar().getComponentCount()) &&
+			   !(component instanceof JToolBar.Separator) &&
+			   (posCount < position)) {
+				index++;
+				posCount++;
+				component = getButtonToolBar().getComponentAtIndex(index);
+		}
+		getButtonToolBar().add(button, index);	
+	}
+	
+	/**
+	 * This method adds a menu item to one of the menus of the menu bar of the frame.
+	 * It will insert it into an existing menu or into a new one. It will insert it
+	 * into an existing block or into a new one (where a block is a group of menu items 
+	 * delimited by separators) at the given position.
+	 * If the position number exceeds the number of items in that block, the item is
+	 * added at the end of that block.
+	 * @param item the menu item to add
+	 * @param menuNameKey the text (as a language key) of the menu to insert the item into. 
+	 * 			If there is no menu with that text, a new one will be created at the end 
+	 * 			of the menu bar and the item will be put inside.
+	 * @param block the number of the block to insert the item into. If newBlock is true
+	 * 			we will create a new block at that position. If it is false, we will use
+	 * 			the existing one. If the block number exceeds the number of blocks in the 
+	 * 			menu, a new block is created at the end of the menu and the item is 
+	 * 			inserted there, no matter what the value of the newBlock parameter is. 
+	 * @param position the position inside the block to insert the item at. If the position 
+	 * 			number exceeds the number of items in the block, the item is added at the 
+	 * 			end of the block.
+	 * @param newBlock true to insert the item in a new block. False to use an existing one. 
+	 */
+	public void addMenuItem(JMenuItem item, String menuNameKey, int block, int position, boolean newBlock) {
+		String menuName = language.getString(menuNameKey);
+		int index = 0;
+		JMenu menu = null;		
+		while ((index < getMainMenuBar().getMenuCount()) &&
+				(menu == null)) {
+			JMenu aMenu = getMainMenuBar().getMenu(index);
+			if ((aMenu != null) &&
+				(menuName.equals(aMenu.getText()))) {
+				menu = aMenu;
+			}
+			index++;
+		}
+		if (menu == null) {
+			//There isn't any menu with that name, so we create a new one.
+			menu = new JMenu(menuName);
+			getMainMenuBar().add(menu);
+			menu.add(item);
+			return;
+		}
+		index = 0;
+		int blockCount = 0;
+		while ((index < menu.getItemCount()) &&
+			   (blockCount < block)) {
+			Component component = menu.getItem(index);
+			if (component == null) {
+				blockCount++;
+			}
+			index++;
+		}
+		if (blockCount < block) {
+			// Block number exceeds the number of blocks in the menu or newBlock is true. 
+			menu.addSeparator();
+			menu.add(item);
+			return;
+		}
+		if (newBlock) {
+			// New block created and item put in there.
+			menu.insertSeparator(index);
+			menu.insert(item, index);
+			return;
+		}
+		int posCount = 0;
+		Component component = menu.getItem(index);
+		while ((index < menu.getComponentCount()) &&
+			   (component != null) &&
+			   (posCount < position)) {
+				index++;
+				posCount++;
+				component = menu.getItem(index);
+		}
+		menu.add(item, index);	
+	}
+	
+	/**
 	 * @return
 	 */
 	private JTabbedPane getTabbedPane() {
@@ -2035,362 +1836,319 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	private JToolBar buildButtonPanel() {
-		timeLabel = new JLabel("");
-		// configure buttons
-		pasteBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/paste.gif")));
-		configBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/configure.gif")));
+	private JToolBar getButtonToolBar() {
+		if (buttonToolBar == null) {
+			buttonToolBar = new JToolBar();
+			
+			timeLabel = new JLabel("");
+			// configure buttons
+			knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
+			newBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/newboard.gif")));
+			newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
+			removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
+			renameBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
+			boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
+			systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
 
-		knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
-		newBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/newboard.gif")));
-		newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
-		removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
-		renameBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
-		cutBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/cut.gif")));
-		boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
-		systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
+			MiscToolkit toolkit = MiscToolkit.getInstance();
+			toolkit.configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif",	language);
+			toolkit.configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif", language);
+			toolkit.configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif",	language);
+			toolkit.configureButton(renameBoardButton, "Rename folder",	"/data/rename_rollover.gif", language);
+			toolkit.configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif", language);
+			toolkit.configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif", language);
+			toolkit.configureButton(knownBoardsButton, "Display list of known boards", "/data/knownboards_rollover.gif", language);
 
-		MiscToolkit toolkit = MiscToolkit.getInstance();
-		toolkit.configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif", language);
-		toolkit.configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif", language);
-		toolkit.configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif", language);
-		toolkit.configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif", language);
-		toolkit.configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif", language);
-		toolkit.configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif", language);
-		toolkit.configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif", language);
-		toolkit.configureButton(
-			boardInfoButton,
-			"Board Information Window",
-			"/data/info_rollover.gif",
-			language);
-		toolkit.configureButton(
-			systemTrayButton,
-			"Minimize to System Tray",
-			"/data/tray_rollover.gif",
-			language);
-		toolkit.configureButton(
-			knownBoardsButton,
-			"Display list of known boards",
-			"/data/knownboards_rollover.gif",
-			language);
-
-		// add action listener
-		knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofDisplayKnownBoardsMenuItem_actionPerformed(e);
-			}
-		});
-		newBoardButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofTree.createNewBoard(MainFrame.this);
-			}
-		});
-		newFolderButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofTree.createNewFolder(MainFrame.this);
-			}
-		});
-		renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				renameNode(getSelectedNode());
-			}
-		});
-		removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				removeNode(getSelectedNode());
-			}
-		});
-		cutBoardButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cutNode(getSelectedNode());
-			}
-		});
-		pasteBoardButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				pasteFromClipboard(getSelectedNode());
-			}
-		});
-		configBoardButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofConfigureBoardMenuItem_actionPerformed(getSelectedNode());
-			}
-		});
-		systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				try { // Hide the Frost window
-					if (JSysTrayIcon.getInstance() != null) {
-						JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
-					}
-					//Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayHide.exe");
-				} catch (IOException _IoExc) {
+			// add action listener
+			knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					tofDisplayKnownBoardsMenuItem_actionPerformed(e);
 				}
-			}
-		});
-		boardInfoButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofDisplayBoardInfoMenuItem_actionPerformed(e);
-			}
-		});
-		// build panel
-		JToolBar buttonPanel = new JToolBar();
-		buttonPanel.setRollover(true);
-		buttonPanel.setFloatable(false);
-		Dimension blankSpace = new Dimension(3, 3);
+			});
+			newBoardButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					tofTree.createNewBoard(MainFrame.this);
+				}
+			});
+			newFolderButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					tofTree.createNewFolder(MainFrame.this);
+				}
+			});
+			renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					renameNode(getSelectedNode());
+				}
+			});
+			removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					tofTree.removeNode(getSelectedNode());
+				}
+			});
+			systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					try { // Hide the Frost window
+						if (JSysTrayIcon.getInstance() != null) {
+							JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
+						}
+						//Process process = Runtime.getRuntime().exec("exec" +
+						// fileSeparator + "SystemTrayHide.exe");
+					} catch (IOException _IoExc) {
+					}
+				}
+			});
+			boardInfoButton.addActionListener(new java.awt.event.ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					tofDisplayBoardInfoMenuItem_actionPerformed(e);
+				}
+			});
+			
+			// build panel			
+			buttonToolBar.setRollover(true);
+			buttonToolBar.setFloatable(false);
+			Dimension blankSpace = new Dimension(3, 3);
 
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-		buttonPanel.add(newBoardButton);
-		buttonPanel.add(newFolderButton);
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-		buttonPanel.addSeparator();
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-		buttonPanel.add(configBoardButton);
-		buttonPanel.add(renameBoardButton);
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-		buttonPanel.addSeparator();
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-		buttonPanel.add(cutBoardButton);
-		buttonPanel.add(pasteBoardButton);
-		buttonPanel.add(removeBoardButton);
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-		buttonPanel.addSeparator();
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-		buttonPanel.add(boardInfoButton);
-		buttonPanel.add(knownBoardsButton);
-		if (JSysTrayIcon.getInstance() != null) {
-			buttonPanel.add(Box.createRigidArea(blankSpace));
-			buttonPanel.addSeparator();
-			buttonPanel.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.add(newBoardButton);
+			buttonToolBar.add(newFolderButton);
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.addSeparator();
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.add(renameBoardButton);
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.addSeparator();
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.add(removeBoardButton);
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.addSeparator();
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
+			buttonToolBar.add(boardInfoButton);
+			buttonToolBar.add(knownBoardsButton);
+			if (JSysTrayIcon.getInstance() != null) {
+				buttonToolBar.add(Box.createRigidArea(blankSpace));
+				buttonToolBar.addSeparator();
+				buttonToolBar.add(Box.createRigidArea(blankSpace));
 
-			buttonPanel.add(systemTrayButton);
+				buttonToolBar.add(systemTrayButton);
+			}
+			buttonToolBar.add(Box.createHorizontalGlue());
+			buttonToolBar.add(timeLabel);
+			buttonToolBar.add(Box.createRigidArea(blankSpace));
 		}
-		buttonPanel.add(Box.createHorizontalGlue());
-		buttonPanel.add(timeLabel);
-		buttonPanel.add(Box.createRigidArea(blankSpace));
-
-		return buttonPanel;
+		return buttonToolBar;
 	}
 
 	/**
 	 * Build the menu bar.
-	 * Should be called only once.
 	 */
-	private void buildMenuBar() {
-		MiscToolkit miscToolkit = MiscToolkit.getInstance();
-		tofConfigureBoardMenuItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
-		tofDisplayBoardInfoMenuItem.setIcon(miscToolkit.getScaledImage("/data/info.gif", 16, 16));
-		tofAutomaticUpdateMenuItem.setSelected(true);
-		tofDisplayKnownBoards.setIcon(miscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
+	private JMenuBar getMainMenuBar() {
+		if (menuBar == null) {
+			menuBar = new JMenuBar();
+			MiscToolkit miscToolkit = MiscToolkit.getInstance();
+			tofDisplayBoardInfoMenuItem.setIcon(miscToolkit.getScaledImage("/data/info.gif", 16, 16));
+			tofAutomaticUpdateMenuItem.setSelected(true);
+			tofDisplayKnownBoards.setIcon(miscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
 
-		// add action listener
-		fileExitMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				fileExitMenuItem_actionPerformed(e);
-			}
-		});
-		optionsPreferencesMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				optionsPreferencesMenuItem_actionPerformed(e);
-			}
-		});
-		tofIncreaseFontSizeMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// make size of the message body font one point bigger
-				int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size + 1);
-			}
-		});
-		tofDecreaseFontSizeMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				// make size of the message body font one point smaller
-				int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size - 1);
-			}
-		});
-		tofConfigureBoardMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofConfigureBoardMenuItem_actionPerformed(getSelectedNode());
-			}
-		});
-		tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofDisplayBoardInfoMenuItem_actionPerformed(e);
-			}
-		});
-		tofDisplayKnownBoards.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofDisplayKnownBoardsMenuItem_actionPerformed(e);
-			}
-		});
-		pluginBrowserMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				BrowserFrame browser = new BrowserFrame(true);
-				browser.setVisible(true);
-			}
-		});
-		pluginTranslateMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TranslateFrame translate = new TranslateFrame(true);
-				translate.setVisible(true);
-			}
-		});
-		languageDefaultMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes");
-				frostSettings.setValue("locale", "default");
-				setLanguageResource(bundle);
-			}
-		});
-		
-		languageBulgarianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_bg.png", 16, 16));
-		languageGermanMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_de.png", 16, 16));
-		languageEnglishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_en.png", 16, 16));
-		languageSpanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_es.png", 16, 16));
-		languageFrenchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_fr.png", 16, 16));
-		languageItalianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
-		languageJapaneseMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_jp.png", 16, 16));
-		languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
-		
-		languageGermanMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("de"));
-				frostSettings.setValue("locale", "de");
-				setLanguageResource(bundle);
-			}
-		});
-		languageEnglishMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("en"));
-				frostSettings.setValue("locale", "en");
-				setLanguageResource(bundle);
-			}
-		});
-		languageDutchMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("nl"));
-				frostSettings.setValue("locale", "nl");
-				setLanguageResource(bundle);
-			}
-		});
-		languageFrenchMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("fr"));
-				frostSettings.setValue("locale", "fr");
-				setLanguageResource(bundle);
-			}
-		});
-		languageJapaneseMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("ja"));
-				frostSettings.setValue("locale", "ja");
-				setLanguageResource(bundle);
-			}
-		});
-		languageItalianMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("it"));
-				frostSettings.setValue("locale", "it");
-				setLanguageResource(bundle);
-			}
-		});
-		languageSpanishMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("es"));
-				frostSettings.setValue("locale", "es");
-				setLanguageResource(bundle);
-			}
-		});
-		languageBulgarianMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("bg"));
-				frostSettings.setValue("locale", "bg");
-				setLanguageResource(bundle);
-			}
-		});
-		helpHelpMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				HelpFrame dlg = new HelpFrame(MainFrame.this);
-				dlg.setVisible(true);
-			}
-		});
-		helpAboutMenuItem.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				helpAboutMenuItem_actionPerformed(e);
-			}
-		});
+			// add action listener
+			fileExitMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					fileExitMenuItem_actionPerformed(e);
+				}
+			});
+			optionsPreferencesMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					optionsPreferencesMenuItem_actionPerformed(e);
+				}
+			});
+			tofIncreaseFontSizeMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					// make size of the message body font one point bigger
+					int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+					frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size + 1);
+				}
+			});
+			tofDecreaseFontSizeMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					// make size of the message body font one point smaller
+					int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+					frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size - 1);
+				}
+			});
+			tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					tofDisplayBoardInfoMenuItem_actionPerformed(e);
+				}
+			});
+			tofDisplayKnownBoards.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					tofDisplayKnownBoardsMenuItem_actionPerformed(e);
+				}
+			});
+			pluginBrowserMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					BrowserFrame browser = new BrowserFrame(true);
+					browser.setVisible(true);
+				}
+			});
+			pluginTranslateMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					TranslateFrame translate = new TranslateFrame(true);
+					translate.setVisible(true);
+				}
+			});
+			languageDefaultMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes");
+					frostSettings.setValue("locale", "default");
+					setLanguageResource(bundle);
+				}
+			});
 
-		// construct menu
-		// File Menu
-		fileMenu.add(fileExitMenuItem);
-		// News Menu
-		tofMenu.add(tofAutomaticUpdateMenuItem);
-		//tofMenu.addSeparator();
-		//tofMenu.add(tofIncreaseFontSizeMenuItem);
-		//tofMenu.add(tofDecreaseFontSizeMenuItem);
-		tofMenu.addSeparator();
-		tofMenu.add(tofConfigureBoardMenuItem);
-		tofMenu.addSeparator();
-		tofMenu.add(tofDisplayBoardInfoMenuItem);
-		tofMenu.add(tofDisplayKnownBoards);
-		// Options Menu
-		optionsMenu.add(optionsPreferencesMenuItem);
-		// Plugin Menu
-		pluginMenu.add(pluginBrowserMenuItem);
-		pluginMenu.add(pluginTranslateMenuItem);
-		// Language Menu
-		ButtonGroup languageMenuButtonGroup = new ButtonGroup();
-		languageDefaultMenuItem.setSelected(true);
-		languageMenuButtonGroup.add(languageDefaultMenuItem);
-		languageMenuButtonGroup.add(languageDutchMenuItem);
-		languageMenuButtonGroup.add(languageEnglishMenuItem);
-		languageMenuButtonGroup.add(languageFrenchMenuItem);
-		languageMenuButtonGroup.add(languageGermanMenuItem);
-		languageMenuButtonGroup.add(languageItalianMenuItem);
-		languageMenuButtonGroup.add(languageJapaneseMenuItem);
-		languageMenuButtonGroup.add(languageSpanishMenuItem);
-		languageMenuButtonGroup.add(languageBulgarianMenuItem);
+			languageBulgarianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_bg.png", 16, 16));
+			languageGermanMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_de.png", 16, 16));
+			languageEnglishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_en.png", 16, 16));
+			languageSpanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_es.png", 16, 16));
+			languageFrenchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_fr.png", 16, 16));
+			languageItalianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
+			languageJapaneseMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_jp.png", 16, 16));
+			languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
 
-		// Selects the language menu option according to the settings
-		HashMap languageMenuItems = new HashMap();
-		languageMenuItems.put("default", languageDefaultMenuItem);
-		languageMenuItems.put("de", languageGermanMenuItem);
-		languageMenuItems.put("en", languageEnglishMenuItem);
-		languageMenuItems.put("nl", languageDutchMenuItem);
-		languageMenuItems.put("fr", languageFrenchMenuItem);
-		languageMenuItems.put("ja", languageJapaneseMenuItem);
-		languageMenuItems.put("it", languageItalianMenuItem);
-		languageMenuItems.put("es", languageSpanishMenuItem);
-		languageMenuItems.put("bg", languageBulgarianMenuItem);
+			languageGermanMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes",	new Locale("de"));
+					frostSettings.setValue("locale", "de");
+					setLanguageResource(bundle);
+				}
+			});
+			languageEnglishMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes",	new Locale("en"));
+					frostSettings.setValue("locale", "en");
+					setLanguageResource(bundle);
+				}
+			});
+			languageDutchMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes",	new Locale("nl"));
+					frostSettings.setValue("locale", "nl");
+					setLanguageResource(bundle);
+				}
+			});
+			languageFrenchMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes",	new Locale("fr"));
+					frostSettings.setValue("locale", "fr");
+					setLanguageResource(bundle);
+				}
+			});
+			languageJapaneseMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("ja"));
+					frostSettings.setValue("locale", "ja");
+					setLanguageResource(bundle);
+				}
+			});
+			languageItalianMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes",	new Locale("it"));
+					frostSettings.setValue("locale", "it");
+					setLanguageResource(bundle);
+				}
+			});
+			languageSpanishMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes",	new Locale("es"));
+					frostSettings.setValue("locale", "es");
+					setLanguageResource(bundle);
+				}
+			});
+			languageBulgarianMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes",	new Locale("bg"));
+					frostSettings.setValue("locale", "bg");
+					setLanguageResource(bundle);
+				}
+			});
+			helpHelpMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					HelpFrame dlg = new HelpFrame(MainFrame.this);
+					dlg.setVisible(true);
+				}
+			});
+			helpAboutMenuItem.addActionListener(new ActionListener() {
+				public void actionPerformed(ActionEvent e) {
+					helpAboutMenuItem_actionPerformed(e);
+				}
+			});
 
-		String language = frostSettings.getValue("locale");
-		Object languageItem = languageMenuItems.get(language);
-		if (languageItem != null) {
-			languageMenuButtonGroup.setSelected(((JMenuItem) languageItem).getModel(), true);
+			// construct menu
+			// File Menu
+			fileMenu.add(fileExitMenuItem);
+			// News Menu
+			tofMenu.add(tofAutomaticUpdateMenuItem);
+			tofMenu.addSeparator();
+			tofMenu.add(tofDisplayBoardInfoMenuItem);
+			tofMenu.add(tofDisplayKnownBoards);
+			// Options Menu
+			optionsMenu.add(optionsPreferencesMenuItem);
+			// Plugin Menu
+			pluginMenu.add(pluginBrowserMenuItem);
+			pluginMenu.add(pluginTranslateMenuItem);
+			// Language Menu
+			ButtonGroup languageMenuButtonGroup = new ButtonGroup();
+			languageDefaultMenuItem.setSelected(true);
+			languageMenuButtonGroup.add(languageDefaultMenuItem);
+			languageMenuButtonGroup.add(languageDutchMenuItem);
+			languageMenuButtonGroup.add(languageEnglishMenuItem);
+			languageMenuButtonGroup.add(languageFrenchMenuItem);
+			languageMenuButtonGroup.add(languageGermanMenuItem);
+			languageMenuButtonGroup.add(languageItalianMenuItem);
+			languageMenuButtonGroup.add(languageJapaneseMenuItem);
+			languageMenuButtonGroup.add(languageSpanishMenuItem);
+			languageMenuButtonGroup.add(languageBulgarianMenuItem);
+
+			// Selects the language menu option according to the settings
+			HashMap languageMenuItems = new HashMap();
+			languageMenuItems.put("default", languageDefaultMenuItem);
+			languageMenuItems.put("de", languageGermanMenuItem);
+			languageMenuItems.put("en", languageEnglishMenuItem);
+			languageMenuItems.put("nl", languageDutchMenuItem);
+			languageMenuItems.put("fr", languageFrenchMenuItem);
+			languageMenuItems.put("ja", languageJapaneseMenuItem);
+			languageMenuItems.put("it", languageItalianMenuItem);
+			languageMenuItems.put("es", languageSpanishMenuItem);
+			languageMenuItems.put("bg", languageBulgarianMenuItem);
+
+			String language = frostSettings.getValue("locale");
+			Object languageItem = languageMenuItems.get(language);
+			if (languageItem != null) {
+				languageMenuButtonGroup.setSelected(((JMenuItem) languageItem).getModel(), true);
+			}
+
+			languageMenu.add(languageDefaultMenuItem);
+			languageMenu.addSeparator();
+			languageMenu.add(languageDutchMenuItem);
+			languageMenu.add(languageEnglishMenuItem);
+			languageMenu.add(languageFrenchMenuItem);
+			languageMenu.add(languageGermanMenuItem);
+			languageMenu.add(languageItalianMenuItem);
+			languageMenu.add(languageJapaneseMenuItem);
+			languageMenu.add(languageSpanishMenuItem);
+			languageMenu.add(languageBulgarianMenuItem);
+			// Help Menu
+			helpMenu.add(helpHelpMenuItem);
+			helpMenu.add(helpAboutMenuItem);
+			// add all to bar
+			menuBar.add(fileMenu);
+			menuBar.add(tofMenu);
+			menuBar.add(optionsMenu);
+			menuBar.add(pluginMenu);
+			menuBar.add(languageMenu);
+			menuBar.add(helpMenu);
+
+			translateMainMenu();
 		}
-
-		languageMenu.add(languageDefaultMenuItem);
-		languageMenu.addSeparator();
-		languageMenu.add(languageDutchMenuItem);
-		languageMenu.add(languageEnglishMenuItem);
-		languageMenu.add(languageFrenchMenuItem);
-		languageMenu.add(languageGermanMenuItem);
-		languageMenu.add(languageItalianMenuItem);
-		languageMenu.add(languageJapaneseMenuItem);
-		languageMenu.add(languageSpanishMenuItem);
-		languageMenu.add(languageBulgarianMenuItem);
-		// Help Menu
-		helpMenu.add(helpHelpMenuItem);
-		helpMenu.add(helpAboutMenuItem);
-		// add all to bar
-		menuBar.add(fileMenu);
-		menuBar.add(tofMenu);
-		menuBar.add(optionsMenu);
-		menuBar.add(pluginMenu);
-		menuBar.add(languageMenu);
-		menuBar.add(helpMenu);
-
-		translateMainMenu();
-
-		this.setJMenuBar(menuBar);
+		return menuBar;
 	}
 
 	/**
@@ -2426,16 +2184,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				tofTree_actionPerformed(e);
 			}
 		});
-		//tofTree / KeyEvent
-		tofTree.addKeyListener(new KeyListener() {
-			public void keyPressed(KeyEvent e) {
-				tofTree_keyPressed(e);
-			}
-			public void keyReleased(KeyEvent e) {
-			}
-			public void keyTyped(KeyEvent e) {
-			}
-		});
 
 		JSplitPane treeAndTabbedPane =
 			new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, getTabbedPane());
@@ -2448,24 +2196,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 
 	/**
-	 * @param cuttedNode
-	 */
-	public void cutNode(Board cuttedNode) {
-		cuttedNode = tofTree.cutNode(cuttedNode);
-		if (cuttedNode != null) {
-			clipboard = cuttedNode;
-			pasteBoardButton.setEnabled(true);
-		}
-	}
-
-	/**
 	 * Returns true if board is allowed to be updated.
 	 * Also checks if board update is already running.
 	 * @param board
 	 * @return
 	 */
 	public boolean doUpdate(Board board) {
-		if (isUpdateAllowed(board) == false)
+		if (tofTree.isUpdateAllowed(board) == false)
 			return false;
 
 		if (board.isUpdating())
@@ -2479,13 +2216,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param e
 	 */
 	private void fileExitMenuItem_actionPerformed(ActionEvent e) {
-		// Remove the tray icon
-		// - not needed any longer, JSysTray unloads itself via ShutdownHook
-		/*    try {
-		        Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayKill.exe");
-		    }catch(IOException _IoExc) { }*/
 
-		if (getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
+		if (tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
 			int result =
 				JOptionPane.showConfirmDialog(
 					this,
@@ -2529,24 +2261,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	private PopupMenuTofTree getPopupMenuTofTree() {
-		if (popupMenuTofTree == null) {
-			popupMenuTofTree = new PopupMenuTofTree();
-			language.addLanguageListener(popupMenuTofTree);
-		}
-		return popupMenuTofTree;
-	}
-	
-	/**
-	 * @return
-	 */
-	public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
-		return runningBoardUpdateThreads;
-	}
-
-	/**
-	 * @return
-	 */
 	public Board getSelectedNode() { //TODO: move this method to TofTree
 		Board node = (Board) tofTree.getLastSelectedPathComponent();
 		if (node == null) {
@@ -2575,25 +2289,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 
 	/**
-	 * Returns true if board is allowed to be updated.
-	 * Does NOT check if board update is already running.
-	 * @param board
-	 * @return
-	 */
-	public boolean isUpdateAllowed(Board board) {
-		if (board == null)
-			return false;
-		// Do not allow folders to update
-		if (board.isFolder())
-			return false;
-
-		if (board.isSpammed())
-			return false;
-
-		return true;
-	}
-
-    /**
      * 
      */
     public void initialize() {
@@ -2602,14 +2297,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		JPanel contentPanel = (JPanel) getContentPane();
 		contentPanel.setLayout(new BorderLayout());
 
-		contentPanel.add(buildButtonPanel(), BorderLayout.NORTH);
+		contentPanel.add(getButtonToolBar(), BorderLayout.NORTH);
 		contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
 		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH);
-		buildMenuBar();
-		pasteBoardButton.setEnabled(false);
-
-		// Add Popup listeners
-		tofTree.addMouseListener(listener);
+		setJMenuBar(getMainMenuBar());
     	
         // step through all messages on disk up to maxMessageDisplay and check
         // if there are new messages
@@ -2676,8 +2367,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
         }
 
-        // enable the machine ;)
-        runningBoardUpdateThreads = new RunningBoardUpdateThreads(this, core.getIdentities(), frostSettings);
         //note: changed this from timertask so that I can give it a name --zab
         Thread tickerThread = new Thread("tick tack") {
             public void run() {
@@ -2747,115 +2436,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				tofTree_actionPerformed(null);
 			}
 
-			updateTofTree();
+			tofTree.updateTree();
 			// redraw whole tree, in case the update visualization was enabled or disabled (or others)
 
 			// check if we switched from disableRequests=true to =false (requests now enabled)
 			if (optionsDlg.shouldRemoveDummyReqFiles()) {
 				new RemoveDummyRequestFiles().start();
-			}
-		}
-	}
-
-	/**
-	 * @param node
-	 */
-	public void pasteFromClipboard(Board node) {
-		if (clipboard == null) {
-			pasteBoardButton.setEnabled(false);
-			return;
-		}
-
-		if (tofTree.pasteFromClipboard(clipboard, node) == true) {
-			clipboard = null;
-			pasteBoardButton.setEnabled(false);
-		}
-	}
-
-	/**
-	 * starts update for the selected board, or for all childs (and their childs) of a folder
-	 * @param node
-	 */
-	private void refreshNode(Board node) {
-		if (node == null)
-			return;
-
-		if (node.isFolder() == false) {
-			if (isUpdateAllowed(node)) {
-				updateBoard(node);
-			}
-		} else {
-			// update all childs recursiv
-			Enumeration leafs = node.children();
-			while (leafs.hasMoreElements())
-				refreshNode((Board) leafs.nextElement());
-		}
-	}
-
-	/**
-	 * Removes the given tree node, asks before deleting.
-	 * @param selectedNode
-	 */
-	public void removeNode(Board selectedNode) {
-		String txt;
-		if (selectedNode.isFolder()) {
-			txt =
-				"Do you really want to delete folder '"
-					+ selectedNode.getName()
-					+ "' ???"
-					+ "\nNOTE: Removing it will also remove all boards/folders inside this folder!!!";
-		} else {
-			txt = "Do you really want to delete board '" + selectedNode.getName() + "' ???";
-		}
-
-		int answer =
-			JOptionPane.showConfirmDialog(
-				this,
-				txt,
-				"Delete '" + selectedNode.getName() + "'?",
-				JOptionPane.YES_NO_OPTION);
-		if (answer == JOptionPane.NO_OPTION) {
-			return;
-		}
-
-		// ask user if to delete board directory also
-		boolean deleteDirectory = false;
-		String boardRelDir =
-			frostSettings.getValue("keypool.dir") + selectedNode.getBoardFilename();
-		if (selectedNode.isFolder() == false) {
-			txt =
-				"Do you want to delete also the board directory '"
-					+ boardRelDir
-					+ "' ?\n"
-					+ "This directory contains all received messages and file lists for this board.\n"
-					+ "(NOTE: The board MUST not updating to delete it!\n"
-					+ "Currently there is no way to stop the updating of a board,\n"
-					+ "so please ensure this board is'nt updating right now,\n"
-					+ "or you have to live with the consequences ;) )\n\n"
-					+ "You can also delete the directory by yourself after shutdown of Frost.";
-			answer =
-				JOptionPane.showConfirmDialog(
-					this,
-					txt,
-					"Delete directory of '" + selectedNode.getName() + "'?",
-					JOptionPane.YES_NO_CANCEL_OPTION);
-			if (answer == JOptionPane.YES_OPTION) {
-				deleteDirectory = true;
-			} else if (answer == JOptionPane.CANCEL_OPTION) {
-				return;
-			}
-		}
-
-		// delete node from tree
-		tofTree.removeNode(selectedNode);
-
-		// maybe delete board dir (in a thread, do not block gui)
-		if (deleteDirectory) {
-			if (selectedNode.isUpdating() == false) {
-				core.deleteDir(boardRelDir);
-			} else {
-				logger.warning(
-					"WARNING: Although being warned, you tried to delete a board with is updating! Skipped ...");
 			}
 		}
 	}
@@ -3012,13 +2598,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 	
 	/**
-	 * @param e
-	 */
-	protected void showTofTreePopupMenu(MouseEvent e) {
-		getPopupMenuTofTree().show(e.getComponent(), e.getX(), e.getY());
-	}
-
-	/**
 	 * timer Action Listener (automatic download)
 	 */
 	public void timer_actionPerformed() {
@@ -3032,13 +2611,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			&& // check all 5 seconds if a board update could be started
 		tofAutomaticUpdateMenuItem
 				.isSelected()
-			&& getRunningBoardUpdateThreads().getUpdatingBoardCount()
+			&& tofTree.getRunningBoardUpdateThreads().getUpdatingBoardCount()
 				< frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")) {
 			Vector boards = tofTreeModel.getAllBoards();
 			if (boards.size() > 0) {
 				Board actualBoard = selectNextBoard(boards);
 				if (actualBoard != null) {
-					updateBoard(actualBoard);
+					tofTree.updateBoard(actualBoard);
 				}
 			}
 		}
@@ -3064,14 +2643,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				.append("   " + language.getString("Down") + ": ")
 				.append(downloadTicker.getThreadCount())
 				.append("   " + language.getString("TOFUP") + ": ")
-				.append(getRunningBoardUpdateThreads().getUploadingBoardCount())
+				.append(tofTree.getRunningBoardUpdateThreads().getUploadingBoardCount())
 				.append("B / ")
-				.append(getRunningBoardUpdateThreads().getRunningUploadThreadCount())
+				.append(tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount())
 				.append("T")
 				.append("   " + language.getString("TOFDO") + ": ")
-				.append(getRunningBoardUpdateThreads().getUpdatingBoardCount())
+				.append(tofTree.getRunningBoardUpdateThreads().getUpdatingBoardCount())
 				.append("B / ")
-				.append(getRunningBoardUpdateThreads().getRunningDownloadThreadCount())
+				.append(tofTree.getRunningBoardUpdateThreads().getRunningDownloadThreadCount())
 				.append("T")
 				.append("   " + language.getString("Selected board") + ": ")
 				.append(getSelectedNode().getName())
@@ -3080,34 +2659,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 
 	/**
-	 * News | Configure Board action performed
-	 * @param board
-	 */
-	private void tofConfigureBoardMenuItem_actionPerformed(Board board) {
-		if (board == null || board.isFolder())
-			return;
-
-		BoardSettingsFrame newFrame =
-			new BoardSettingsFrame(this, board);
-		if (newFrame.runDialog() == true) // OK pressed?
-			{
-			updateTofTree(board);
-			// update the new msg. count for board
-			TOF.initialSearchNewMessages(board);
-
-			if (board == getSelectedNode()) {
-				// reload all messages if board is shown
-				tofTree_actionPerformed(null);
-			}
-		}
-	}
-
-	/**
 	 * @param e
 	 */
 	private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e) {
 		if (BoardInfoFrame.isDialogShowing() == false) {
-			BoardInfoFrame boardInfo = new BoardInfoFrame(this);
+			BoardInfoFrame boardInfo = new BoardInfoFrame(this, tofTree);
 			boardInfo.startDialog();
 		}
 	}
@@ -3133,6 +2689,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		MessageFrame newMessageFrame = new MessageFrame(
 												frostSettings, this, 
 												core.getIdentities().getMyId());
+		newMessageFrame.setTofTree(tofTree);
 		newMessageFrame.composeNewMessage(getSelectedNode(), frostSettings.getValue("userName"), 
 											"No subject", "");
 	}
@@ -3154,7 +2711,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		if (node != null) {
 			if (node.isFolder() == false) {
 				// node is a board
-				configBoardButton.setEnabled(true);
 				removeBoardButton.setEnabled(true);
 
 				updateButtons(node);
@@ -3176,36 +2732,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				uploadPanel.setAddFilesButtonEnabled(false);
 				renameBoardButton.setEnabled(true);
-				configBoardButton.setEnabled(false);
 				if (node.isRoot()) {
 					removeBoardButton.setEnabled(false);
-					cutBoardButton.setEnabled(false);
 				} else {
 					removeBoardButton.setEnabled(true);
-					cutBoardButton.setEnabled(true);
 				}
 			}
 		}
 	}
 
-	/**
-	 * Get keyTyped for tofTree
-	 * @param e
-	 */
-	public void tofTree_keyPressed(KeyEvent e) {
-		char key = e.getKeyChar();
-		if (!tofTree.isEditing()) {
-			if (key == KeyEvent.VK_DELETE)
-				removeNode(getSelectedNode());
-			if (key == KeyEvent.VK_N)
-				tofTree.createNewBoard(MainFrame.getInstance());
-			if (key == KeyEvent.VK_X)
-				cutNode(getSelectedNode());
-			if (key == KeyEvent.VK_V)
-				pasteFromClipboard(getSelectedNode());
-		}
-	}
-	
 	/**
 	 * 
 	 */
@@ -3216,10 +2751,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				language.getString("Display list of known boards"));
 		boardInfoButton.setToolTipText(language.getString("Board Information Window"));
 		newFolderButton.setToolTipText(language.getString("New folder"));
-		pasteBoardButton.setToolTipText(language.getString("Paste board"));
-		configBoardButton.setToolTipText(language.getString("Configure board"));
 		removeBoardButton.setToolTipText(language.getString("Remove board"));
-		cutBoardButton.setToolTipText(language.getString("Cut board"));
 		renameBoardButton.setToolTipText(language.getString("Rename folder"));
 	}
 	
@@ -3230,7 +2762,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		fileMenu.setText(language.getString("File"));
 		fileExitMenuItem.setText(language.getString("Exit"));
 		tofMenu.setText(language.getString("News"));
-		tofConfigureBoardMenuItem.setText(language.getString("Configure selected board"));
 		tofDisplayBoardInfoMenuItem.setText(
 				language.getString("Display board information window"));
 		tofAutomaticUpdateMenuItem.setText(language.getString("Automatic message update"));
@@ -3256,64 +2787,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		helpMenu.setText(language.getString("Help"));
 		helpHelpMenuItem.setText(language.getString("Help"));
 		helpAboutMenuItem.setText(language.getString("About"));
-	}
-
-	/**
-	 * Starts the board update threads, getRequest thread and update id thread.
-	 * Checks for each type of thread if its already running, and starts allowed
-	 * not-running threads for this board.
-	 * @param board
-	 */
-	public void updateBoard(Board board) {
-		if (board == null || board.isFolder())
-			return;
-
-		boolean threadStarted = false;
-
-		// first download the messages of today
-		if (getRunningBoardUpdateThreads()
-			.isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY)
-			== false) {
-			getRunningBoardUpdateThreads().startMessageDownloadToday(
-				board,
-				frostSettings,
-				listener);
-			logger.info("Starting update (MSG_TODAY) of " + board.getName());
-			threadStarted = true;
-		}
-
-		// maybe get the files list
-		if (!frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS)
-			&& !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
-				board,
-				BoardUpdateThread.BOARD_FILE_UPLOAD)) {
-			getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, listener);
-			logger.info("Starting update (BOARD_UPLOAD) of " + board.getName());
-			threadStarted = true;
-		}
-
-		if (!frostSettings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS)
-			&& !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
-				board,
-				BoardUpdateThread.BOARD_FILE_DNLOAD)) {
-			getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, listener);
-			logger.info("Starting update (BOARD_DOWNLOAD) of " + board.getName());
-			threadStarted = true;
-		}
-
-		// finally get the older messages
-		if (getRunningBoardUpdateThreads()
-			.isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK)
-			== false) {
-			getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, listener);
-			logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
-			threadStarted = true;
-		}
-
-		// if there was a new thread started, update the lastUpdateStartTimeMillis
-		if (threadStarted == true) {
-			board.setLastUpdateStartMillis(System.currentTimeMillis());
-		}
 	}
 
 	/**
@@ -3354,18 +2827,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
 	}
 	
-	/**
-	 * Fires a nodeChanged (redraw) for all boards.
-	 * ONLY used to redraw tree after run of OptionsFrame.
-	 */
-	public void updateTofTree() {
-		// fire update for node
-		Enumeration e = ((Board) tofTreeModel.getRoot()).depthFirstEnumeration();
-		while (e.hasMoreElements()) {
-			tofTreeModel.nodeChanged(((Board) e.nextElement()));
-		}
-	}
-
 	/**
 	 * Fires a nodeChanged (redraw) for this board and updates buttons.
 	 */
