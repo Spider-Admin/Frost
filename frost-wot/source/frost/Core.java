@@ -22,14 +22,19 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import org.w3c.dom.*;
 
+import com.l2fprod.gui.plaf.skin.*;
+
 import frost.FcpTools.*;
 import frost.crypt.*;
+import frost.ext.JSysTrayIcon;
+import frost.gui.Splashscreen;
 import frost.gui.components.MiscToolkit;
 import frost.gui.objects.*;
+import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.*;
 import frost.messages.*;
 import frost.threads.*;
@@ -41,68 +46,103 @@ import frost.threads.maintenance.*;
 
 public class Core {
 	
-	private static final Set nodes = new HashSet(); //list of available nodes
-	private static Set messageSet = new HashSet(); // set of message digests
-	private static final SortedSet knownBoards = new TreeSet(); //list of known boards
-	private static NotifyByEmailThread emailNotifier = null;
-	private static Core self = null;
-	private ResourceBundle languageResource = null;
-	
 	private static Logger logger = Logger.getLogger(Core.class.getName());
 
-	public Core(ResourceBundle newLanguageResource) {
-		languageResource = newLanguageResource;
-
-		frostSettings = frame1.frostSettings;
-		//parse the list of available nodes
-		String nodesUnparsed = frostSettings.getValue("availableNodes");
-
-		if (nodesUnparsed == null) { //old format
-			String converted = new String(frostSettings.getValue("nodeAddress")+":"+
-							frostSettings.getValue("nodePort"));
-			nodes.add(converted.trim());
-			frostSettings.setValue("availableNodes",converted.trim());
-		} else { // new format
-			String []_nodes = nodesUnparsed.split(",");
-			for (int i=0;i<_nodes.length;i++)
-				nodes.add(_nodes[i]);
-		}
-
-		if (nodes.size() == 0) {
-			logger.severe("not a single Freenet node configured!  You need at least one");
-			System.exit(1);
-		}
-
-		logger.info("Frost will use " + nodes.size() +" Freenet nodes");
-
-
-		//		check whether the user is running a transient node
-		setFreenetIsTransient(false);
-		setFreenetIsOnline(false);
+	private static Core instance = new Core();
+	private static boolean initialized = false;
+	private static Locale locale = null;
+	
+	private static Set nodes = new HashSet(); //list of available nodes
+	private static Set messageSet = new HashSet(); // set of message digests
+	private static SortedSet knownBoards = new TreeSet(); //list of known boards
+	private static NotifyByEmailThread emailNotifier = null;
+	private UpdatingLanguageResource languageResource = null;
+	
+	private boolean freenetIsOnline = false;
+	private boolean freenetIsTransient = false;
+	
+	private Core() {
+		
+	}
+	
+	/**
+	 *	This method checks whether the user is running a transient node or not.
+	 */
+	private void checkTransient() {
 		try {
-
 			FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
 			if (con1 != null) {
 				String[] nodeInfo = con1.getInfo();
 				// freenet is online
-				setFreenetIsOnline(true);
+				freenetIsOnline = true;
 				for (int ij = 0; ij < nodeInfo.length; ij++) {
 					if (nodeInfo[ij].startsWith("IsTransient")
 						&& nodeInfo[ij].indexOf("true") != -1) {
-						setFreenetIsTransient(true);
+						freenetIsTransient = true;
 					}
 				}
 			}
 		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+			logger.log(Level.SEVERE, "Exception thrown in checkTransient", e);
+		}		
+	}
+
+	/**
+	 * This methods parses the list of available nodes (and converts it if it is in
+	 * the old format). If there are no available nodes, it shows a Dialog warning the
+	 * user of the situation and returns false.
+	 * @return boolean false if no nodes are available. True otherwise.
+	 */
+	private boolean initializeNodes() {
+		//parse the list of available nodes
+		String nodesUnparsed = frostSettings.getValue("availableNodes");
+
+		if (nodesUnparsed == null) { //old format
+			String converted =
+				new String(
+					frostSettings.getValue("nodeAddress")
+						+ ":"
+						+ frostSettings.getValue("nodePort"));
+			nodes.add(converted.trim());
+			frostSettings.setValue("availableNodes", converted.trim());
+		} else { // new format
+			String[] _nodes = nodesUnparsed.split(",");
+			for (int i = 0; i < _nodes.length; i++)
+				nodes.add(_nodes[i]);
+		}
+		if (nodes.size() == 0) {
+			MiscToolkit.getInstance().showMessage(
+							"Not a single Freenet node configured. You need at least one.",
+							JOptionPane.ERROR_MESSAGE,
+							"ERROR: No Freenet nodes are available");
+			return false;
+		}
+		logger.info("Frost will use " + nodes.size() + " Freenet nodes");
+		return true;
+	}
+
+	/**
+	 * This method initializes the language. If the locale field has a value, it
+	 * is used to select the LanguageResource. If not, the locale value in frostSettings 
+	 * is used for that.
+	 */
+	private void initializeLanguage() {
+		if (locale != null) {
+			languageResource = new UpdatingLanguageResource("res.LangRes", locale);
+		} else {
+			String language = frostSettings.getValue("locale");
+			if (!language.equals("default")) {
+				languageResource =
+					new UpdatingLanguageResource("res.LangRes", new Locale(language));
+			} else {
+				languageResource = new UpdatingLanguageResource("res.LangRes");
+			}
 		}
 	}
-    
+
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
-	private boolean freenetIsOnline = false;
-	private boolean freenetIsTransient = false;
 	public ObjectOutputStream id_writer;
-	boolean started = false;
+	
 	public boolean isFreenetOnline() {
 		return freenetIsOnline;
 	}
@@ -656,8 +696,7 @@ public class Core {
 		return myBatches;
 	}
 
-	public void init() {
-		self = this;
+	private void initialize2() {
 		timer2 = new java.util.Timer(true);
 		timer2.schedule(
 			new checkForSpam(this),
@@ -701,12 +740,12 @@ public class Core {
 
 		FileAccess.cleanKeypool(frame1.keypool);
 
-		if (!isFreenetIsOnline()) {
+		if (!freenetIsOnline) {
 			MiscToolkit.getInstance().showMessage(
 				languageResource.getString("Core.init.NodeNotRunningBody"),
 				JOptionPane.WARNING_MESSAGE,
 				languageResource.getString("Core.init.NodeNotRunningTitle"));
-			setFreenetIsOnline(false);
+			freenetIsOnline = false;
 		}
 
 		// show a warning if freenet=transient AND only 1 node is used
@@ -743,7 +782,6 @@ public class Core {
 		if (frostSettings.getBoolValue("helpFriends"))
 			timer2.schedule(new GetFriendsRequestsThread(), 5 * 60 * 1000, 3 * 60 * 60 * 1000);
 
-		started = true;
 	} //end of init()
 
 	/**
@@ -768,34 +806,6 @@ public class Core {
 	public void startTruster(FrostMessageObject which) {
 		new Truster(this, null, which.getFrom()).start();
 	}
-	/**
-	 * @param b
-	 */
-	public void setFreenetIsOnline(boolean b) {
-		freenetIsOnline = b;
-	}
-
-	/**
-	 * @param b
-	 */
-	public void setFreenetIsTransient(boolean b) {
-		freenetIsTransient = b;
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isFreenetIsOnline() {
-		return freenetIsOnline;
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isFreenetIsTransient() {
-		return freenetIsTransient;
-	}
-
 	/**
 	 * @param task
 	 * @param delay
@@ -887,8 +897,66 @@ public class Core {
 	 *
 	 * @return pointer to the live core
 	 */
-	public static Core getInstance(){
-		return self;
+	public static Core getInstance() {
+		if (!initialized) {
+			initialized = true;
+			instance.initialize();	
+		}
+		return instance;
+	}
+
+	/**
+	 * 
+	 */
+	private void initialize() {
+		Splashscreen splashscreen = new Splashscreen();
+		splashscreen.setVisible(true);
+
+		frostSettings = new SettingsClass();
+		
+		// Initializes the language
+		initializeLanguage();
+
+		splashscreen.setText(languageResource.getString("Initializing Mainframe"));
+		splashscreen.setProgress(20);
+
+		//Initializes the logging and skins
+		new Logging(frostSettings);
+		initializeSkins();
+		
+		splashscreen.setText(languageResource.getString("Hypercube fluctuating!"));
+		splashscreen.setProgress(50);
+
+		if (!initializeNodes()) {
+			System.exit(1);
+		}
+		checkTransient();
+		
+		splashscreen.setText(languageResource.getString("Sending IP address to NSA"));
+		splashscreen.setProgress(60);
+
+		//Main frame		
+		frame1 frame = new frame1(frostSettings, languageResource);
+		frame.validate();
+		
+		splashscreen.setText(languageResource.getString("Wasting more time"));
+		splashscreen.setProgress(70);
+		
+		initialize2();	//TODO: interim name (old constructor)
+		
+		splashscreen.setText(languageResource.getString("Reaching ridiculous speed..."));
+		splashscreen.setProgress(80);
+		
+		frame.setVisible(true);
+		
+		splashscreen.closeMe();
+
+		// Display the tray icon
+		if (frostSettings.getBoolValue("showSystrayIcon") == true) {
+			if (JSysTrayIcon.createInstance(0, "Frost", "Frost") == false) {
+				logger.severe("Could not create systray icon.");
+			}
+		}		
 	}
 
 	/**
@@ -911,5 +979,38 @@ public class Core {
 	public static Observer getEmailNotifier(){
 		return emailNotifier;
 	}
+
+	/**
+	 * @param locale
+	 */
+	public static void setLocale(Locale locale) {
+		Core.locale = locale;
+	}
+
+/**
+ * Initializes the skins system
+ * @param frostSettings the SettingsClass that has the preferences to initialize the skins
+ */
+private void initializeSkins() {
+	String skinsEnabled = frostSettings.getValue("skinsEnabled");
+	if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
+		String selectedSkinPath = frostSettings.getValue("selectedSkin");
+		if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
+			try {
+				Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
+				SkinLookAndFeel.setSkin(selectedSkin);
+				SkinLookAndFeel.enable();
+			} catch (UnsupportedLookAndFeelException exception) {
+				logger.severe("The selected skin is not supported by your system\n" +
+							  "Skins will be disabled until you choose another one");
+				frostSettings.setValue("skinsEnabled", false);
+			} catch (Exception exception) {
+				logger.severe("There was an error while loading the selected skin\n" +
+							  "Skins will be disabled until you choose another one");
+				frostSettings.setValue("skinsEnabled", false);
+			}
+		}
+	}
+}
 
 }
