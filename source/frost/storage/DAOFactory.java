@@ -5,6 +5,7 @@
 package frost.storage;
 
 import frost.SettingsClass;
+import frost.fileTransfer.upload.UploadModelDAO;
 import frost.identities.IdentitiesDAO;
 
 /**
@@ -73,6 +74,13 @@ public abstract class DAOFactory {
 	 * @return a IdentitiesDAO for the FrostIdentities business object.
 	 */
 	public abstract IdentitiesDAO getIdentitiesDAO();
+	
+	/**
+	 * This method returns a data access object for the UploadModel
+	 * business object.
+	 * @return a UploadModelDAO for the UploadModel business object.
+	 */
+	public abstract UploadModelDAO getUploadModelDAO();
 
 	/**
 	 * This method initializes the DAOFactory with the given SettingsClass.
