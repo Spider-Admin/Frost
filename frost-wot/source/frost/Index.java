@@ -157,6 +157,13 @@ public class Index
                     > 0)
                 {
                     current.setLastSharedDate(DateFun.getDate());
+		    //if the file has been uploaded too long ago, 
+		    //set it to offline again
+		    if (current.getDate().compareTo(DateFun.getDate(downloadBack)) < 0) {
+		    	current.setDate(null);
+			current.setKey(null);
+			Core.getOut().print("o"); //o means assumed fallen off freenet
+		    }
                     toUpload.put(current.getSHA1(),current);
                     Core.getOut().print("d");
                     reSharing=true;
@@ -421,6 +428,7 @@ public class Index
                 continue;
             }
             old.setDate(current.getDate());
+	    old.setLastSharedDate(current.getLastSharedDate());
             old.setKey(current.getKey());
             //TODO: allow unsigned files to be appropriated
         }
