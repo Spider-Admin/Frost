@@ -31,7 +31,7 @@ public class AboutBox extends JDialog implements ActionListener
 
     // because a growing amount of users use CVS version:
 //    private final static String version = "WOT-050903";
-    private final static String version = "DEVELOPMENT/UNSTABLE (last stable = WOT-050903)";
+    private final static String version = "DEVELOPMENT/UNSTABLE - CVS binary snapshot 1 (last stable = WOT-050903)";
 
     private final static String copyright = LangRes.getString("Copyright (c) 2001 Jan-Thomas Czornack");
     private final static String comments = "Open Source Project";
