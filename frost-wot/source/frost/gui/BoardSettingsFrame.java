@@ -243,16 +243,19 @@ public class BoardSettingsFrame extends JDialog
     /** Loads keypair from file */
     private void loadKeypair()
     {
-        privateKeyTextField.setText(LangRes.getString("Not available"));
-        publicKeyTextField.setText(LangRes.getString("Not available"));
-
         String privateKey = board.getPrivateKey();
         String publicKey = board.getPublicKey();
 
         if( privateKey != null )
             privateKeyTextField.setText(privateKey);
+        else
+            privateKeyTextField.setText(LangRes.getString("Not available"));
+
         if( publicKey != null )
             publicKeyTextField.setText(publicKey);
+        else
+            publicKeyTextField.setText(LangRes.getString("Not available"));
+
 
         if( board.isWriteAccessBoard() || board.isReadAccessBoard() )
         {
@@ -281,7 +284,7 @@ public class BoardSettingsFrame extends JDialog
 
     public boolean runDialog()
     {
-        // we are modal
+        setModal(true); // paranoia
         show();
         return exitState;
     }

@@ -12,6 +12,12 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.gui.objects.*;
 
+// +++ settings per board: <config maxmessagedays="5" showsignedonly="true"
+//                                                    hidebad="true"
+//                                                    hidecheck="false"
+//                                                    autoupdate="true"
+//                         />
+//
 public class TofTreeXmlIO
 {
     /**************************************************
@@ -110,6 +116,9 @@ public class TofTreeXmlIO
 
                 // now if the child is a board, add it
                 FrostBoardObject fbobj = new FrostBoardObject(nodename, publicKey, privateKey);
+                // look for <config/> element and maybe configure board
+                getBoardConfiguration( child, fbobj );
+
                 treeFolder.add( fbobj );
             }
             else
@@ -131,6 +140,43 @@ public class TofTreeXmlIO
                 }
             }
         }
+    }
+
+    protected void getBoardConfiguration( Element element, FrostBoardObject board )
+    {
+        ArrayList list = XMLTools.getChildElementsByTagName(element, "config");
+        if( list.size() == 0 )
+        {
+            board.setConfigured( false );
+            return;
+        }
+
+        String val = element.getAttribute("autoUpdate");
+        board.setAutoUpdateEnabled( new Boolean(val).booleanValue() );
+
+        val = element.getAttribute("maxMessageDisplay");
+        if( val.length() == 0 )
+            board.setMaxMessageDays( null );
+        else
+            board.setMaxMessageDays( new Integer(val) );
+
+        val = element.getAttribute("showSignedOnly");
+        if( val.length() == 0 )
+            board.setShowSignedOnly( null );
+        else
+            board.setShowSignedOnly( new Boolean(val) );
+
+        val = element.getAttribute("hideBadMessages");
+        if( val.length() == 0 )
+            board.setHideBad( null );
+        else
+            board.setHideBad( new Boolean(val) );
+
+        val = element.getAttribute("hideCheckMessages");
+        if( val.length() == 0 )
+            board.setHideCheck( null );
+        else
+            board.setHideCheck( new Boolean(val) );
     }
 
     protected void refreshModel(DefaultTreeModel model, FrostBoardObject node)
@@ -324,6 +370,30 @@ public class TofTreeXmlIO
         Text text = doc.createTextNode( board.toString() );
         element.appendChild( text );
         rootBoardElement.appendChild( element );
+        // <config />
+        if( board.isConfigured() )
+        {
+            element = doc.createElement("config");
+
+            element.setAttribute("autoUpdate", ""+board.getAutoUpdateEnabled());
+            if( board.getMaxMessageDisplayObj() != null )
+            {
+                element.setAttribute("maxMessageDisplay", ""+board.getMaxMessageDisplay());
+            }
+            if(board.getShowSignedOnlyObj() != null )
+            {
+                element.setAttribute("showSignedOnly", ""+board.getShowSignedOnly());
+            }
+            if( board.getHideBadObj() != null )
+            {
+                element.setAttribute("hideBadMessages", ""+board.getHideBad());
+            }
+            if( board.getHideCheckObj() != null )
+            {
+                element.setAttribute("hideCheckMessages", ""+board.getHideCheck());
+            }
+            rootBoardElement.appendChild( element );
+        }
         parent.appendChild( rootBoardElement );
         return rootBoardElement;
     }

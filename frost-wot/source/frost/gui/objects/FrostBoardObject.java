@@ -22,6 +22,16 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
 
     private boolean isUpdating = false;
 
+    // if isConfigured=true then below options may apply
+    private boolean isConfigured = false;
+
+    private boolean autoUpdateEnabled = true; // must apply, no default
+    // following: if set to null then the default will be returned
+    private Integer maxMessageDisplay = null;
+    private Boolean showSignedOnly = null;
+    private Boolean hideBad = null;
+    private Boolean hideCheck = null;
+
     /**
      * Constructs a new FrostBoardObject wich is a Board.
      */
@@ -242,4 +252,96 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     {
         isUpdating = val;
     }
+
+
+    public boolean isConfigured()
+    {
+        return isConfigured;
+    }
+    public void setConfigured( boolean val )
+    {
+        isConfigured = val;
+    }
+
+    public boolean getAutoUpdateEnabled()
+    {
+        return autoUpdateEnabled;
+    }
+    public void setAutoUpdateEnabled( boolean val )
+    {
+        autoUpdateEnabled = val;
+    }
+
+    public int getMaxMessageDisplay()
+    {
+        if( maxMessageDisplay == null )
+        {
+            // return default
+            return frame1.frostSettings.getIntValue("maxMessageDisplay");
+        }
+        return maxMessageDisplay.intValue();
+    }
+    public Integer getMaxMessageDisplayObj()
+    {
+        return maxMessageDisplay;
+    }
+    public void setMaxMessageDays( Integer val )
+    {
+        maxMessageDisplay = val;
+    }
+
+    public boolean getShowSignedOnly()
+    {
+        if( showSignedOnly == null )
+        {
+            // return default
+            return frame1.frostSettings.getBoolValue("signedOnly");
+        }
+        return showSignedOnly.booleanValue();
+    }
+    public Boolean getShowSignedOnlyObj()
+    {
+        return showSignedOnly;
+    }
+    public void setShowSignedOnly( Boolean val )
+    {
+        showSignedOnly = val;
+    }
+
+    public boolean getHideBad()
+    {
+        if( hideBad == null )
+        {
+            // return default
+            return frame1.frostSettings.getBoolValue("hideBadMessages");
+        }
+        return hideBad.booleanValue();
+    }
+    public Boolean getHideBadObj()
+    {
+        return hideBad;
+    }
+    public void setHideBad( Boolean val )
+    {
+        hideBad = val;
+    }
+
+    public boolean getHideCheck()
+    {
+        if( hideCheck == null )
+        {
+            // return default
+            return frame1.frostSettings.getBoolValue("hideCheckMessages");
+        }
+        return hideCheck.booleanValue();
+    }
+    public Boolean getHideCheckObj()
+    {
+        return hideCheck;
+    }
+    public void setHideCheck( Boolean val )
+    {
+        hideCheck = val;
+    }
+
 }
