@@ -253,6 +253,7 @@ public class LangRes_de extends ListResourceBundle {
 	{"AvailableSkins", "Available Skins"},
 	{"Preview", "Preview"},
 	{"RefreshList", "Refresh List"},
+	{"NoSkinsFound", "No Skins Found"},
 
     // Other
     {"Frost by Jantho", "Frost von Jantho"},
