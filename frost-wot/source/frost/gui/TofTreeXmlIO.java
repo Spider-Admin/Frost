@@ -107,75 +107,75 @@ public class TofTreeXmlIO
         return true;
     }
 
-    /**
-     * Process a nodes childs recursively.
-     */
-    public void loadProcessFolder(Element boardFolder, FrostBoardObject treeFolder, JTree tree, DefaultTreeModel model)
-    {
-        // process all childs of type "FrostBoardTreeEntry" , dive into folder and process them
-        final ArrayList list = XMLTools.getChildElementsByTagName(boardFolder, "FrostBoardTreeEntry");
-        for( int x=0; x<list.size(); x++ )
-        {
-            String nodename = null;
-            boolean isFolder = false;
+	/**
+	 * Process a nodes childs recursively.
+	 */
+	public void loadProcessFolder(
+		Element boardFolder,
+		FrostBoardObject treeFolder,
+		JTree tree,
+		DefaultTreeModel model) {
+		// process all childs of type "FrostBoardTreeEntry" , dive into folder and process them
+		final ArrayList list =
+			XMLTools.getChildElementsByTagName(boardFolder, "FrostBoardTreeEntry");
+		for (int x = 0; x < list.size(); x++) {
+			String nodename = null;
+			boolean isFolder = false;
 
-            Element child = (Element)list.get(x);
-            // get name
-            nodename = getNameFromFrostBoardTreeEntry( child );
-            if( nodename == null )
-                continue;
-            // get isFolder
-            isFolder = getIsFolderFromFrostBoardTreeEntry( child );
-            // add the child
-            if( isFolder == false )
-            {
-                String publicKey = getPublicKeyFromFrostBoardTreeEntry( child );
-                String privateKey = getPrivateKeyFromFrostBoardTreeEntry( child );
+			Element child = (Element) list.get(x);
+			// get name
+			nodename = getNameFromFrostBoardTreeEntry(child);
+			if (nodename == null)
+				continue;
+			// get isFolder
+			isFolder = getIsFolderFromFrostBoardTreeEntry(child);
+			// add the child
+			if (isFolder == false) {
+				String publicKey = getPublicKeyFromFrostBoardTreeEntry(child);
+				String privateKey = getPrivateKeyFromFrostBoardTreeEntry(child);
 
-                // now if the child is a board, add it
-                FrostBoardObject fbobj = new FrostBoardObject(nodename, publicKey, privateKey);
-                // look for <config/> element and maybe configure board
-                getBoardConfiguration( child, fbobj );
-                // maybe restore lastUpdateStartedMillis ( = board update progress)                
-                ArrayList ltmp = XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
-                if( ltmp.size() > 0 )
-                {
-                    Text txtname = (Text) ((Node)ltmp.get(0)).getFirstChild();
-                    if( txtname != null )
-                    {
-                        long millis = -1;
-                        try { millis = Long.parseLong( txtname.getData().trim() ); }
-                        catch(Exception e) { ; }
-                        
-                        if( millis > 0 )
-                        {
-                            fbobj.setLastUpdateStartMillis(millis);
-                        }
-                    }
-                }
+				// now if the child is a board, add it
+				FrostBoardObject fbobj = new FrostBoardObject(nodename, publicKey, privateKey, "");
+				// look for <config/> element and maybe configure board
+				getBoardConfiguration(child, fbobj);
+				// maybe restore lastUpdateStartedMillis ( = board update progress)                
+				ArrayList ltmp =
+					XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
+				if (ltmp.size() > 0) {
+					Text txtname = (Text) ((Node) ltmp.get(0)).getFirstChild();
+					if (txtname != null) {
+						long millis = -1;
+						try {
+							millis = Long.parseLong(txtname.getData().trim());
+						} catch (Exception e) {
+							;
+						}
 
-                treeFolder.add( fbobj );
-            }
-            else
-            {
-                boolean isExpanded = getIsExpandedFromFrostBoardTreeEntry( child );
+						if (millis > 0) {
+							fbobj.setLastUpdateStartMillis(millis);
+						}
+					}
+				}
 
-                // if the child is a folder, add it+maybe expand and dive into it
-                FrostBoardObject fbobj = new FrostBoardObject(nodename, true);
-                treeFolder.add( fbobj );
+				treeFolder.add(fbobj);
+			} else {
+				boolean isExpanded = getIsExpandedFromFrostBoardTreeEntry(child);
 
-                loadProcessFolder( child, fbobj, tree, model ); // dive into folder
+				// if the child is a folder, add it+maybe expand and dive into it
+				FrostBoardObject fbobj = new FrostBoardObject(nodename, true);
+				treeFolder.add(fbobj);
 
-                refreshModel( model, fbobj );
+				loadProcessFolder(child, fbobj, tree, model); // dive into folder
 
-                // now expand path if previously expanded
-                if( isExpanded == true )
-                {
-                    tree.expandPath( new TreePath(model.getPathToRoot(fbobj)) );
-                }
-            }
-        }
-    }
+				refreshModel(model, fbobj);
+
+				// now expand path if previously expanded
+				if (isExpanded == true) {
+					tree.expandPath(new TreePath(model.getPathToRoot(fbobj)));
+				}
+			}
+		}
+	}
 
     protected void getBoardConfiguration( Element element, FrostBoardObject board )
     {

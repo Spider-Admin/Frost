@@ -386,7 +386,7 @@ public class TofTree extends JDragTree implements Savable {
 				return; // do not add
 			}
 		}
-		FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey);
+		FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey, "");
 		addNodeToTree(newBoard);
 		// maybe this boardfolder already exists, scan for new messages
 		TOF.initialSearchNewMessages(newBoard);
