@@ -75,7 +75,7 @@ public class LocalIdentity extends Identity
      */
     public LocalIdentity(String name)
     {
-        this(name, frame1.getCrypto().generateKeys());
+        this(name, Core.getCrypto().generateKeys());
 
         con = FcpFactory.getFcpConnectionInstance();
         if( con == null )

@@ -22,7 +22,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
+import javax.swing.JOptionPane;
 
 import org.w3c.dom.*;
 
@@ -174,7 +174,7 @@ public class Core {
 				}
 				//friends = new BuddyList();
 
-				if (friends.Add(frame1.getMyId())) {
+				if (friends.Add(Core.getMyId())) {
 					logger.info("added myself to list");
 				}
 				//enemies = new BuddyList();
@@ -211,7 +211,7 @@ public class Core {
 					logger.info("loaded " + friends.size() + " friends and " 
 										  + enemies.size() + " enemies and "
 										  + neutral.size() + " neutrals.");
-					if (friends.Add(frame1.getMyId()))
+					if (friends.Add(Core.getMyId()))
 						logger.info("added myself to list");
 
 				} else {

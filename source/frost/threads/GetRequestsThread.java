@@ -90,7 +90,7 @@ public class GetRequestsThread extends Thread
                     .append("requests")
                     .append(fileSeparator)
                     .append(
-                        mixed.makeFilename(frame1.getMyId().getUniqueName()))
+                        mixed.makeFilename(Core.getMyId().getUniqueName()))
                     .toString();
 
             File makedir = new File(destination);
@@ -125,7 +125,7 @@ public class GetRequestsThread extends Thread
                 //do not start requesting until the user has shared something
                 try
                 {
-                    Iterator it = frame1.getMyBatches().keySet().iterator();
+                    Iterator it = Core.getMyBatches().keySet().iterator();
                     while (it.hasNext())
                     {
                         String currentBatch = (String)it.next();
@@ -172,7 +172,7 @@ public class GetRequestsThread extends Thread
                                         + frame1.frostSettings.getValue(
                                             "messageBase")
                                         + "/"
-                                        + mixed.makeFilename(frame1.getMyId().getUniqueName())
+                                        + mixed.makeFilename(Core.getMyId().getUniqueName())
                                         + "-"
                                         + testMe.getName(),
                                     null,

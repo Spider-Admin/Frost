@@ -126,7 +126,7 @@ public class MessageFrame extends JFrame
 			messageTextArea.setWrapStyleWord(true);
 			
 			// check if last msg was signed and set it to remembered state
-			if (from.equals(frame1.getMyId().getUniqueName())) {
+			if (from.equals(Core.getMyId().getUniqueName())) {
 				fromTextField.setEditable(false);
 				sign.setSelected(true);
 			}
@@ -310,7 +310,7 @@ public class MessageFrame extends JFrame
         mo.setContent(text);
         if( sign.isSelected() )
         {
-            mo.setPublicKey(frame1.getMyId().getKey());
+            mo.setPublicKey(Core.getMyId().getKey());
         }
         // MessageUploadThread will set date + time !
         
@@ -367,7 +367,7 @@ public class MessageFrame extends JFrame
 	private void sign_ActionPerformed(ActionEvent e) {
 		String sender;
 		if (sign.isSelected()) {
-			sender = frame1.getMyId().getUniqueName();
+			sender = Core.getMyId().getUniqueName();
 			fromTextField.setEditable(false);
 		} else {
 			sender = "Anonymous";

@@ -195,7 +195,7 @@ public class SearchThread extends Thread {
 	}
 	//check if file from someone bad
 	if (key.getOwner() != null &&
-		frame1.getEnemies().Get(key.getOwner()) != null 
+	Core.getEnemies().Get(key.getOwner()) != null 
 &&
 			hideBad) {
 		//Core.getOut().println("removing bad result");

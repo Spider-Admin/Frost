@@ -547,7 +547,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         //check if the digest matches
         String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
                                                 _sharer.length()).trim();
-        String calculatedDigest = frame1.getCrypto().digest(_pubkey.trim()).trim();
+        String calculatedDigest = Core.getCrypto().digest(_pubkey.trim()).trim();
         calculatedDigest = mixed.makeFilename( calculatedDigest ).trim();
         
         if( ! mixed.makeFilename(given_digest).equals( calculatedDigest ) )

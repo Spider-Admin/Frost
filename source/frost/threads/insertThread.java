@@ -48,9 +48,9 @@ public class insertThread extends Thread
     private static int fileIndex=1;
     private static Random r = new Random();
     //this is gonna be ugly
-    private static String batchId = frame1.getMyBatches().values().size() == 0 ?
+    private static String batchId = Core.getMyBatches().values().size() == 0 ?
     				(new Long(r.nextLong())).toString() :
-				(String) frame1.getMyBatches().values().iterator().next();
+				(String) Core.getMyBatches().values().iterator().next();
     private static final int batchSize = 100; //TODO: get this from options
     //private static final Object putIt = frame1.getMyBatches().put(batchId,batchId);
     //^^ ugly trick to put the initial batch number
@@ -147,7 +147,7 @@ public class insertThread extends Thread
                 	
                 	current.setKey(uploadItem.getKey());
                     if (sign)
-                        current.setOwner(frame1.getMyId().getUniqueName());
+                        current.setOwner(Core.getMyId().getUniqueName());
                     current.setFilename(uploadItem.getFileName());
                     current.setSHA1(uploadItem.getSHA1());
                     current.setBatch(uploadItem.getBatch());
@@ -171,14 +171,14 @@ public class insertThread extends Thread
 
                 if (fileIndex % batchSize == 0)
                 {
-                    frame1.getMyBatches().put(batchId, batchId);
-                    while (frame1.getMyBatches().contains(batchId))
+					Core.getMyBatches().put(batchId, batchId);
+                    while (Core.getMyBatches().contains(batchId))
                         batchId = (new Long(r.nextLong())).toString();
-                    frame1.getMyBatches().put(batchId, batchId);
+					Core.getMyBatches().put(batchId, batchId);
                 }
 
                 long now = System.currentTimeMillis();
-                String SHA1 = frame1.getCrypto().digest(file);
+                String SHA1 = Core.getCrypto().digest(file);
                 logger.fine("digest generated in " + (System.currentTimeMillis() - now) + "  " + SHA1);
 
                 //create new KeyClass
@@ -191,7 +191,7 @@ public class insertThread extends Thread
                 newKey.setSize(file.length());
                 newKey.setBatch(batchId);
                 if (sign)
-                    newKey.setOwner(frame1.getMyId().getUniqueName());
+                    newKey.setOwner(Core.getMyId().getUniqueName());
 
                 //update the gui
                 uploadItem.setSHA1(SHA1);
