@@ -46,12 +46,10 @@ import frost.threads.*;
 //             - filter out enemies on read of messages
 
 // after removing a board, let actual board selected (currently if you delete another than selected board
-//   the tofTree is updates)
+//   the tofTree is updated)
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
-	   
-	    
 	    /**Save settings*/
 	    public void saveSettings()
 	    {

@@ -39,7 +39,6 @@ import java.util.*;
  * 
  * Currently there is support for:
  *  - win32 (JSysTray.dll)
- * 
  */
 
 
@@ -77,19 +76,26 @@ public class JSysTrayIcon
     if(!libLoaded)
     {
       // load the native library
-      try
+      if( System.getProperty("os.name").startsWith("Windows") )
       {
-        System.loadLibrary("JSysTray"); // Load JSysTray.dll
+          try {
+              System.loadLibrary("JSysTray"); // Load JSysTray.dll
+              libLoaded = true;
+          }
+          catch(UnsatisfiedLinkError e)
+          {
+            throw(new IOException("Could not load JSysTray.dll: "+e.toString()));
+          }
       }
-      catch(UnsatisfiedLinkError e)
+//      else if(System.getProperty("os.name").startsWith("Linux"))
+//      {
+//      }
+      else
       {
-        throw(new IOException("Could not load JSysTray.dll: "+e.toString()));
+          throw(new IOException("SysTrayIcon is not supported on this system."));
       }
-
-      // regsiter a shutdown hook to do cleanup
+      // register a shutdown hook to do cleanup
       Runtime.getRuntime().addShutdownHook(new ShutdownHook());
-
-      libLoaded = true;
     }
 
     this.windowTitle = windowTitle;
