@@ -24,6 +24,7 @@ Bugfix: obsolete strings in the language resources were causing an exception whe
         the translation frame.
 Bugfix: message hashes are now thread safe, thus preventing a possible ConcurrentModificationException while
 		saving them.
+Bugfix: validation of received buckets added. This should solve the problem of corrupted downloads.
 
 **************************************************************************************************
 

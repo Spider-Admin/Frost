@@ -182,6 +182,7 @@ public class FcpConnection
         boolean expectingData = false;
         boolean flagRestarted = false;
         boolean errorOccured = false;
+        int integrityBufferSize = 0;
 
         while( receivedFinalByte == false && errorOccured == false )
         {
@@ -208,6 +209,7 @@ public class FcpConnection
                     break;
                 case FcpKeyword.DataLength:
                     totalDataLength = kw.getLongVal();
+                	integrityBufferSize = (int) totalDataLength;
                     if( totalDataLength != bucket.size() )
                     {
                         throw new IOException("Size of data is bigger than size of provided Bucket");
@@ -304,28 +306,56 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpSock.close();
         fileOut.close();
         
-        if( metadataLength > 0 )
-        {
-        	logger.severe("####################################################################" +
-            			  "### HARD ERROR: RECEIVED UNEXCEPTED METADATA IN getKeyToBucket() ###" +
-            			  "###             RECEIVED DATA IS CORUPTED!!!                     ###" +
-            			  "####################################################################");
-        }
-        
-        if( receivedFinalByte )
+        if(receivedFinalByte) {
+        	if(metadataLength > 0) {
+            	logger.severe("Unexpected metadata received in getKeyToBucket().");
+            	return false;
+            }
+        	boolean valid = checkIntegrity(bucket, integrityBufferSize, keyString);
+            if (!valid) {
+            	logger.warning("Invalid bucket received in getKeyToBucket(). Retrying.");
+            	return false;
+            }
             return true;
-        else
+        } else {
             return false;
+        }
     }
     
     /**
-     * Retrieves the specified key and saves it to the file
-     * specified.
-     *
-     * @param key  the key to be retrieved
-     * @param filename  the filename to which the data should be saved
-     * @return the results filled with metadata
+     * This method checks if the data in the bucket is valid. It does so by comparing the CHK key
+     * that was used to request the data with the CHK key generated from the data that has actually
+     * been obtained.
+     * @param bucket the bucket that contains the data to be checked.
+     * @param bucketSize the length of the bucket.
+     * @param chkKey the original CHK key
+     * @return true if the data is valid. False otherwise.
+     * @throws IOException if there was an error while checking the integrity.
      */
+    private boolean checkIntegrity(Bucket bucket, int bucketSize, String chkKey) throws IOException {
+    	InputStream fileIn = bucket.getInputStream();
+		byte[] dataBuffer = new byte[bucketSize];
+		int length, offset = 0;
+		while ((length = fileIn.read(dataBuffer, offset, 256 * 1024)) > -1) {
+		  	offset += length;
+		}
+		String generatedCHK = FecTools.generateCHK(dataBuffer);
+		if (chkKey.equalsIgnoreCase(generatedCHK)) {
+			return true;
+		} else {
+			return false;
+		}
+	}
+
+	/**
+	 * Retrieves the specified key and saves it to the file specified.
+	 * 
+	 * @param key
+	 *            the key to be retrieved
+	 * @param filename
+	 *            the filename to which the data should be saved
+	 * @return the results filled with metadata
+	 */
 /*    public FcpResults getKeyToFile(String key, String filename)
         throws IOException, FcpToolsException
     {
