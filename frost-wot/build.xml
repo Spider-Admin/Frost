@@ -57,6 +57,9 @@
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
+    <pathelement location="${lib.dir}/mailapi.jar"/>
+    <pathelement location="${lib.dir}/smtp.jar"/>
+    <pathelement location="${lib.dir}/jnlp.jar"/>
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.skinlfFixLib}"/>
@@ -223,7 +226,8 @@ Build log  : ${logfilename}</echo>
 
     <copy todir="${dist.dir}/lib">
         <fileset dir="${lib.dir}">
-            <filename name="*.jar"/>
+            <include name="*.jar"/>
+            <exclude name="jnlp.jar"/>
         </fileset>
     </copy>
 
@@ -251,7 +255,7 @@ Build log  : ${logfilename}</echo>
    </copy>
 
     <delete quiet="true" file="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
-    <delete quiet="true" file="${release.dir}/${distJarNamePrefix}-latest.jar"/>
+    <delete quiet="true" file="${release.dir}/${distJarNamePrefix}latest.jar"/>
     
     <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
 
@@ -260,7 +264,7 @@ Build log  : ${logfilename}</echo>
 	          <filename name="${jarName}"/>
 	</fileset>
    </copy>
-   <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}$-latest.jar}.jar"/>
+   <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}latest.jar"/>
 			    
 
     <!-- Prepares the source zip -->
