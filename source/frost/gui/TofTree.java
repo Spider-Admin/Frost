@@ -20,7 +20,6 @@ package frost.gui;
 
 import java.awt.*;
 import java.io.File;
-import java.util.*;
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -204,6 +203,7 @@ public class TofTree extends JDragTree implements Savable {
 
 		setRootVisible(true);
 		setCellRenderer(new CellRenderer());
+		setSelectionModel(model.getSelectionModel()); 
 		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
 		// load nodes from disk
@@ -268,45 +268,6 @@ public class TofTree extends JDragTree implements Savable {
     }
 
     /**
-     * Returns Vector containing all leafs of a tree.
-     * @return Vector containing DefaultMutableTreeNodes
-     */
-    public Vector getAllBoards()
-    {
-        Board node = (Board)this.getModel().getRoot();
-        Vector boards = new Vector();
-        Enumeration e = node.depthFirstEnumeration();
-        while( e.hasMoreElements() )
-        {
-            Board child = (Board)e.nextElement();
-            if( child.isFolder() == false )
-            {
-                boards.add( child );
-            }
-        }
-        return boards;
-    }
-
-	/**
-	 * This method looks for a board with the name passed as a parameter. The comparation
-	 * is not case sensitive.
-	 * @param boardName the name of the board to look for
-	 * @return the FrostBoardObject if there was a board with that name. Null otherwise.
-	 */
-	public Board getBoardByName(String boardName) {
-		Board node = (Board) this.getModel().getRoot();
-		Vector boards = new Vector();
-		Enumeration e = node.depthFirstEnumeration();
-		while (e.hasMoreElements()) {
-			Board child = (Board) e.nextElement();
-			if (child.getName().compareToIgnoreCase(boardName) == 0) {
-				return child;
-			}
-		}
-		return null; // not found
-	}
-
-    /**
      * Loads a tree description file
      */
     private boolean loadTree()
@@ -365,7 +326,7 @@ public class TofTree extends JDragTree implements Savable {
 				String boardName = dialog.getBoardName(); 
 				String boardDescription = dialog.getBoardDescription();
 				
-				if (getBoardByName(boardName) != null) {
+				if (model.getBoardByName(boardName) != null) {
 					JOptionPane.showMessageDialog(
 						parent,
 						language.getString("You already have a board with name")
@@ -375,7 +336,7 @@ public class TofTree extends JDragTree implements Savable {
 							+ language.getString("Please choose a new name"));
 				} else {
 					Board newBoard = new Board(boardName, boardDescription);
-					addNodeToTree(newBoard);
+					model.addNodeToTree(newBoard);
 					// maybe this boardfolder already exists, scan for new messages
 					TOF.initialSearchNewMessages(newBoard);
 					isDone = true; //added
@@ -393,7 +354,7 @@ public class TofTree extends JDragTree implements Savable {
 	 * @param description
 	 */
 	private void addNewBoard(String bname, String bpubkey, String bprivkey, String description) {
-		if (getBoardByName(bname) != null) {
+		if (model.getBoardByName(bname) != null) {
 			int answer =
 				JOptionPane.showConfirmDialog(
 					getTopLevelAncestor(),
@@ -414,7 +375,7 @@ public class TofTree extends JDragTree implements Savable {
 			}
 		}
 		Board newBoard = new Board(bname, bpubkey, bprivkey, description);
-		addNodeToTree(newBoard);
+		model.addNodeToTree(newBoard);
 		// maybe this boardfolder already exists, scan for new messages
 		TOF.initialSearchNewMessages(newBoard);
 	}
@@ -455,62 +416,7 @@ public class TofTree extends JDragTree implements Savable {
 
 		} while (nodeName.length() == 0);
 
-		addNodeToTree(new Board(nodeName, true));
-	}
-
-    /**
-     * Adds a node to tof tree, adds only under folders, begins with selected node.
-     * @param newNode
-     */
-    public void addNodeToTree(Board newNode)
-    {
-        Board selectedNode = (Board)getLastSelectedPathComponent();
-        if( selectedNode != null)
-        {
-            if( selectedNode.isFolder()==true )
-            {
-                selectedNode.add(newNode);
-            }
-            else
-            {
-                // add to parent of selected node
-                selectedNode = (Board)selectedNode.getParent();
-                selectedNode.add(newNode);
-            }
-        }
-        else
-        {
-            // add to root node
-            selectedNode = (Board)getModel().getRoot();
-            selectedNode.add(newNode);
-        }
-        int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
-        ((DefaultTreeModel)getModel()).nodesWereInserted( selectedNode, insertedIndex );
-    }
-
-    /**
-     * @param pathParent
-     * @param nChildIndex
-     * @return
-     */
-    private TreePath getChildPath(TreePath pathParent, int nChildIndex)
-    {
-        TreeModel model =  getModel();
-        return pathParent.pathByAddingChild(model.getChild(pathParent.getLastPathComponent(), nChildIndex));
-    }
-
-
-	/**
-	 * @return
-	 */
-	public Board getSelectedNode() {
-		Board node = (Board) getLastSelectedPathComponent();
-		if (node == null) {
-			// nothing selected? unbelievable ! so select the root ...
-			setSelectionRow(0);
-			node = (Board) getModel().getRoot();
-		}
-		return node;
+		model.addNodeToTree(new Board(nodeName, true));
 	}
 
 }

@@ -14,7 +14,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.ext.Execute;
-import frost.gui.TofTree;
+import frost.gui.TofTreeModel;
 import frost.gui.objects.Board;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -322,7 +322,7 @@ public class UploadPanel extends JPanel {
 				if (selectedItems.length != 0) {
 					// If at least 1 item is selected
 					// Add boards to changeDestinationBoard submenu
-					Vector boards = tofTree.getAllBoards();
+					Vector boards = tofTreeModel.getAllBoards();
 					Collections.sort(boards);
 					changeDestinationBoardMenu.removeAll();
 					for (int i = 0; i < boards.size(); i++) {
@@ -463,7 +463,7 @@ public class UploadPanel extends JPanel {
 
 	private UploadModel model = null;
 
-	private TofTree tofTree = null;
+	private TofTreeModel tofTreeModel = null;
 	private SettingsClass settingsClass = null;
 
 	private Language language = null;
@@ -561,7 +561,7 @@ public class UploadPanel extends JPanel {
 	 * @param e
 	 */
 	public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
-		Board board = tofTree.getSelectedNode();
+		Board board = tofTreeModel.getSelectedNode();
 		if (board.isFolder())
 			return;
 
@@ -609,10 +609,10 @@ public class UploadPanel extends JPanel {
 	}
 
 	/**
-	 * @param tree
+	 * @param tofTreeModel
 	 */
-	public void setTofTree(TofTree newTree) {
-		tofTree = newTree;
+	public void setTofTreeModel(TofTreeModel tofTreeModel) {
+		this.tofTreeModel = tofTreeModel;
 	}
 
 	/**

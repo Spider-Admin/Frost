@@ -639,7 +639,7 @@ public class Core implements Savable {
 		if (uploadManager == null) {
 			uploadManager = new UploadManager(frostSettings);
 			uploadManager.setMainFrame(mainFrame);
-			uploadManager.setTofTree(mainFrame.getTofTree());
+			uploadManager.setTofTreeModel(mainFrame.getTofTreeModel());
 			uploadManager.setFreenetIsOnline(isFreenetOnline());
 			uploadManager.setMyID(getIdentities().getMyId());
 		}
@@ -655,7 +655,7 @@ public class Core implements Savable {
 			searchManager.setMainFrame(mainFrame);
 			searchManager.setDownloadModel(getDownloadManager().getModel());
 			searchManager.setUploadModel(getUploadManager().getModel());
-			searchManager.setTofTree(mainFrame.getTofTree());
+			searchManager.setTofTreeModel(mainFrame.getTofTreeModel());
 			searchManager.setKeypool(keypool);
 			searchManager.setIdentities(getIdentities());
 		}
