@@ -333,11 +333,7 @@ public class SearchThread extends Thread {
                          chk = FileAccess.readKeyFile(shaIndex).getFilesMap();
                          getSearchResults();
                          if( DEBUG ) Core.getOut().println(shaIndex.getName() + " - " + chk.size() + ";");
-                        
-                        
                     }
-		    
-		    
                 }
                 chk.clear();
 
@@ -376,4 +372,3 @@ public class SearchThread extends Thread {
             maxSearchResults = 10000; // default
     }
 }
-

@@ -143,6 +143,10 @@ public class SearchTable extends SortedTable
                 {
                     setForeground( Color.GREEN );
                 }
+                else if(sItem.isOffline() == true )
+                {
+                    setForeground( Color.GRAY );
+                }
                 else
                 {
                     // normal item, drawn in black
@@ -153,4 +157,3 @@ public class SearchTable extends SortedTable
         }
     }
 }
-

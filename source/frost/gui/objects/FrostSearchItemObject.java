@@ -30,30 +30,29 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
      */
     public Object getValueAt(int column)
     {
-    	boolean offline = (key.getDate() == null || key.getDate().length()==0) &&
-				(key.getKey() == null || key.getKey().length() ==0);
+        // NEVER add <html> here, add a state or method like isOffline
+        // and do it the right way in SearchTable cellRenderer !!!
         switch(column) {
-            case 0: 
-	    	if (offline)
-			return "<html><font color=\"gray\">"+key.getFilename()+"</font></html>";
-		else 
-			return "<html><b>"+key.getFilename()+"</b></html>";
+            case 0: return key.getFilename();
             case 1: return key.getSize();
-            case 2: 
-	    	if (offline)
-			return "offline";
-		else
-	    		return key.getDate();
-			
-            case 3: //here it is possible to color files from friends in green, later
-	    	if (key.getOwner()==null || key.getOwner().length()==0)
-	    		return "Anonymous";
-		else
-			return key.getOwner();
-	  
+            case 2: if (isOffline())
+			          return "offline";
+		            else
+	    		      return key.getDate();
+            case 3: if (key.getOwner()==null || key.getOwner().length()==0)
+	    		      return "Anonymous";
+		            else
+			          return key.getOwner();
             case 4: return board.toString();
             default: return "*ERR*";
         }
+    }
+    
+    public boolean isOffline()
+    {
+        boolean offline = (key.getDate() == null || key.getDate().length()==0) &&
+                (key.getKey() == null || key.getKey().length() ==0);
+        return offline;                
     }
 
     public int compareTo( TableMember anOther, int tableColumIndex )
