@@ -19,18 +19,16 @@
 
 package frost.gui.model;
 
+import frost.gui.translation.*;
+import frost.gui.translation.LanguageListener;
 
-public class SearchTableModel extends SortedTableModel
+
+public class SearchTableModel extends SortedTableModel implements LanguageListener
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
-
-    protected final static String columnNames[] = {
-        LangRes.getString("Filename"),
-        LangRes.getString("Size"),
-        LangRes.getString("Age"),
-        LangRes.getString("From"),
-        LangRes.getString("Board")
-    };
+	private UpdatingLanguageResource languageResource = null;
+	
+	protected final static String columnNames[] = new String[5];
+    
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
         Long.class, //LangRes.getString("Size"),
@@ -39,15 +37,36 @@ public class SearchTableModel extends SortedTableModel
         String.class //LangRes.getString("Board")
     };
 
-    public SearchTableModel()
-    {
-        super();
-    }
+	public SearchTableModel(UpdatingLanguageResource newLanguageResource) {
+		super();
+		languageResource = newLanguageResource;
+		refreshLanguage();
+	}
 
     public boolean isCellEditable(int row, int col)
     {
         return false;
     }
+    
+	/* (non-Javadoc)
+	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+	 */
+	public void languageChanged(LanguageEvent event) {
+		refreshLanguage();			
+	}
+	
+	/**
+	 * 
+	 */
+	private void refreshLanguage() {
+		columnNames[0] = languageResource.getString("Filename");
+		columnNames[1] = languageResource.getString("Size");
+		columnNames[2] = languageResource.getString("Age");
+		columnNames[3] = languageResource.getString("From");
+		columnNames[4] = languageResource.getString("Board");
+
+		fireTableStructureChanged();
+	}
 
     public String getColumnName(int column)
     {
