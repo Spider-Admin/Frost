@@ -100,6 +100,7 @@ public class FileAccess
         try {
             FileOutputStream fileOut = new FileOutputStream(file);
             fileOut.write(data);
+            fileOut.flush();
             fileOut.close();
         }
         catch( IOException e ) {
@@ -145,7 +146,7 @@ public class FileAccess
         catch( IOException e ) {
             System.err.println(e);
         }
-        return new byte[0];
+        return null;
     }
 
     /**
@@ -228,6 +229,7 @@ public class FileAccess
             ze.setSize(content.length);
             zos.putNextEntry(ze);
             zos.write(content);
+			zos.flush(); //do this before closeEntry()
             zos.closeEntry();
             zos.close();
             fos.close();
