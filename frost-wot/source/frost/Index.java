@@ -27,405 +27,399 @@ import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
 import frost.messages.*;
 
-public class Index
-{
-    /**
-     * Calculates keys that should be uploaded to the keyindex
-     * @param board The boardsname (in filename type)
-     * @return Vector with SharedFileObject objects
-     */
+public class Index {
+
+	private static final String fileSeparator = System.getProperty("file.separator");
+	/** 
+	 * Calculates keys that should be uploaded to the keyindex
+	 * @param board The boardsname (in filename type)
+	 * @return Vector with SharedFileObject objects
+	 */
 
 	private static Logger logger = Logger.getLogger(Index.class.getName());
 
-    private static final String fileSeparator =
-        System.getProperty("file.separator");
-    //this method puts the SharedFileObjects into the target set and 
-    //returns the number of the files shared by the user himself
-    public static Map getUploadKeys(String board)
-    {
-
-
-        
-        boolean reSharing = false;
-        boolean newFiles = false;
-        
-        FrostIndex totalIdx=null;
-        FrostIndex _toUpload = null;
-        
-        logger.fine("Index.getUploadKeys(" + board + ")");
-        
-        //final String fileSeparator = System.getProperty("file.separator");
-
-        // Abort if boardDir does not exist
-        File boardNewUploads =
-            new File(MainFrame.keypool + board + fileSeparator + "new_files.xml");
-        // if( !boardNewUploads.exists() )
-        //   return 0;
-
-        File boardFiles =
-            new File(MainFrame.keypool + board + fileSeparator + "files.xml");
-    
-        totalIdx = FileAccess.readKeyFile(boardFiles);
-        
-		_toUpload =FileAccess.readKeyFile(boardNewUploads);
-		
-		if (boardNewUploads.exists()) {
-	 
-			 newFiles = true;
-			 boardNewUploads.delete();
+	/**
+	 * Adds a keyfile to another counts the number of files shared
+	 * and establishes the proper trust relationships
+	 * @param keyfile the keyfile to add to the index
+	 * @param target file containing index
+	 * @param owner the trusted identity of the person sharing the files
+	 */
+	//REDFLAG: this method is called only from UpdateIdThread and that's why
+	//I put the accounting for trustmap here.  Be careful when you change it!!
+	private static void add(File keyfile, File target, Identity owner) {
+		try {
+			if (!target.exists())
+				target.createNewFile();
+		} catch (IOException e) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in add(File keyfile, File target, Identity owner)",
+				e);
 		}
-		
-			 
-        Map toUpload = _toUpload.getFilesMap();
-		
-        //add friends's files 
-        // TODO:  add a limit
-        
-        Iterator i = totalIdx.getFiles().iterator();
-        int downloadBack =
-            MainFrame.frostSettings.getIntValue("maxAge");
-        logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
-        while (i.hasNext())
-        {
-            SharedFileObject current = (SharedFileObject)i.next();
-            if (current.getOwner() != null
-                && //not anonymous
-			Core.getInstance().getIdentities().getMyId().getUniqueName().compareTo(
-                current.getOwner())
-                    != 0
-                && //not myself
-            MainFrame.frostSettings.getBoolValue("helpFriends")
-                && //and helping is enabled
-             (
-				Core.getInstance().getIdentities().getFriends().containsKey(
-                        Mixed.makeFilename(
-                            current.getOwner())))) //and marked GOOD
-            {
-                toUpload.put(current.getSHA1(),current);
-                logger.fine("f"); //f means added file from friend
-            }
-            //also add the file if its been shared too long ago
-            if (current.getOwner() != null
-                && //not anonymous 
-            current.getOwner().compareTo(
+		FrostIndex chunk = FileAccess.readKeyFile(keyfile);
+		Iterator it = chunk.getFiles().iterator();
+		if (!owner
+			.getUniqueName()
+			.equals(Core.getInstance().getIdentities().getMyId().getUniqueName()))
+			while (it.hasNext()) {
+				SharedFileObject current = (SharedFileObject) it.next();
+				if (!current.getOwner().equals(owner.getUniqueName()))
+					owner.getTrustees().add(current.getOwner());
+				//FIXME: find a way to count the files each person has shared
+				//without counting duplicates
+			}
+
+		add(chunk, target);
+	}
+
+	/**
+	 * adds the files from an index shared by an untrusted identity.  
+	 * only those files shared directly by the person who inserted the index
+	 * are considered.
+	 * @param keyfile the newly downloaded keyfile
+	 * @param target the already existing keyfile
+	 * @param owner the unique name of the person who shared the file
+	 */
+	private static void add(File keyfile, File target, String owner) {
+		try {
+			if (!target.exists())
+				target.createNewFile();
+		} catch (IOException e) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in add(File keyfile, File target, String owner)",
+				e);
+		}
+		FrostIndex idx = FileAccess.readKeyFile(keyfile);
+
+		add(idx, target, owner);
+	}
+
+	/**
+	 * @param keyFile
+	 * @param board
+	 * @param owner
+	 */
+	public static void add(File keyFile, FrostBoardObject board, Identity owner) {
+		add(
+			keyFile,
+			new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "files.xml"),
+			owner);
+	}
+
+	/**
+	 * @param a
+	 * @param b
+	 */
+	private static void add(FrostIndex a, File b) {
+		add(a.getFilesMap(), b);
+	}
+	/**
+	 * @param a
+	 * @param b
+	 * @param owner
+	 */
+	private static void add(FrostIndex a, File b, String owner) {
+		add(a.getFilesMap(), b, owner);
+	}
+
+	/**
+	 * @param a
+	 * @param b
+	 * @param owner
+	 */
+	public static void add(FrostIndex a, FrostBoardObject b, String owner) {
+		add(
+			a.getFilesMap(),
+			new File(MainFrame.keypool + b.getBoardFilename() + File.separator + "files.xml"),
+			owner);
+	}
+	/**
+	 * Adds a Map to an index located at target dir.
+	 * Target dir will be created if it does not exist
+	 * @param chunk the map to add to the index
+	 * @param target directory containing index
+	 * @param firstLetter identifier for the keyfile
+	 */
+	private static void add(Map chunk, File target) {
+		//final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
+		//        final String fileSeparator = System.getProperty("file.separator");
+		//final Map whole = Collections.synchronizedMap(new HashMap());
+
+		FrostIndex whole = FileAccess.readKeyFile(target);
+
+		//if( !target.isDirectory() && !target.getPath().endsWith("xml"))
+		//  target.mkdir();
+
+		Iterator i = chunk.values().iterator();
+		while (i.hasNext()) {
+			SharedFileObject current = (SharedFileObject) i.next();
+
+			//update the download table
+			if (current.getKey() != null)
+				updateDownloadTable(current);
+
+			SharedFileObject old = (SharedFileObject) whole.getFilesMap().get(current.getSHA1());
+
+			if (old == null) {
+				whole.getFilesMap().put(current.getSHA1(), current);
+				continue;
+			}
+			old.setDate(current.getDate());
+			old.setLastSharedDate(current.getLastSharedDate());
+			old.setKey(current.getKey());
+			//TODO: allow unsigned files to be appropriated
+		}
+
+		FileAccess.writeKeyFile(whole, target);
+	}
+
+	/**
+	 * @param chunk
+	 * @param target
+	 * @param owner
+	 */
+	private static void add(Map chunk, File target, String owner) {
+
+		if (owner == null)
+			owner = "Anonymous";
+		FrostIndex idx = null;
+		if (target.exists())
+			idx = FileAccess.readKeyFile(target);
+		else
+			idx = new FrostIndex(new HashMap());
+
+		//if( !target.isDirectory() && !target.getPath().endsWith("xml"))
+		//  target.mkdir();
+
+		Iterator i = chunk.values().iterator();
+		while (i.hasNext()) {
+			SharedFileObject current = (SharedFileObject) i.next();
+			if (current.getOwner() != null && !current.getOwner().equals(owner))
+				continue;
+			//update the download table
+			if (current.getKey() != null)
+				updateDownloadTable(current);
+
+			SharedFileObject old = (SharedFileObject) idx.getFilesMap().get(current.getSHA1());
+
+			if (old == null) {
+				idx.getFilesMap().put(current.getSHA1(), current);
+				continue;
+			}
+			old.setDate(current.getDate());
+			old.setLastSharedDate(current.getLastSharedDate());
+			old.setKey(current.getKey());
+			//TODO: allow unsigned files to be appropriated
+		}
+
+		FileAccess.writeKeyFile(idx, target);
+	}
+	/**
+	 * Adds a key object to an index located at target dir.
+	 * Target dir will be created if it does not exist
+	 * @param key the key to add to the index
+	 * @param target directory containing index
+	 */
+	private static void add(SharedFileObject key, File target) {
+		//final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
+		//final String fileSeparator = System.getProperty("file.separator");
+		final String hash = key.getSHA1();
+
+		if (key.getKey() != null)
+			updateDownloadTable(key);
+
+		final Map chk = Collections.synchronizedMap(new HashMap());
+
+		// File indexFile = new File(target.getPath()  + fileSeparator + "files.xml");
+		File indexFile = target;
+		try {
+			if (!indexFile.exists())
+				indexFile.createNewFile();
+		} catch (IOException e) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in add(SharedFileObject key, File target)",
+				e);
+		}
+		FrostIndex idx = FileAccess.readKeyFile(indexFile);
+		if (idx == null)
+			idx = new FrostIndex(new HashMap());
+		if (idx.getFiles().contains(key))
+			idx.getFiles().remove(key);
+		idx.getFilesMap().put(key.getSHA1(), key);
+		FileAccess.writeKeyFile(idx, indexFile);
+	}
+
+	/**
+	 * @param key
+	 * @param board
+	 */
+	public static void add(SharedFileObject key, FrostBoardObject board) {
+		//final String fileSeparator = System.getProperty("file.separator");
+		File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
+
+		if (!(boardDir.exists() && boardDir.isDirectory()))
+			boardDir.mkdir();
+		if (key.getKey() != null)
+			updateDownloadTable(key);
+		add(
+			key,
+			new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "files.xml"));
+	}
+
+	/**
+	 * @param key
+	 * @param board
+	 */
+	public static void addMine(SharedFileObject key, FrostBoardObject board) {
+		//final String fileSeparator = System.getProperty("file.separator");
+		File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
+
+		if (!(boardDir.exists() && boardDir.isDirectory()))
+			boardDir.mkdir();
+		add(key, new File(boardDir.getPath() + fileSeparator + "new_files.xml"));
+	}
+	/**
+	 * This method puts the SharedFileObjects into the target set and 
+	 * returns the number of the files shared by the user himself
+	 * @param board
+	 * @return
+	 */
+	public static Map getUploadKeys(String board) {
+
+		boolean reSharing = false;
+		boolean newFiles = false;
+
+		FrostIndex totalIdx = null;
+		FrostIndex _toUpload = null;
+
+		logger.fine("Index.getUploadKeys(" + board + ")");
+
+		//final String fileSeparator = System.getProperty("file.separator");
+
+		// Abort if boardDir does not exist
+		File boardNewUploads =
+			new File(MainFrame.keypool + board + fileSeparator + "new_files.xml");
+		// if( !boardNewUploads.exists() )
+		//   return 0;
+
+		File boardFiles = new File(MainFrame.keypool + board + fileSeparator + "files.xml");
+
+		totalIdx = FileAccess.readKeyFile(boardFiles);
+
+		_toUpload = FileAccess.readKeyFile(boardNewUploads);
+
+		if (boardNewUploads.exists()) {
+
+			newFiles = true;
+			boardNewUploads.delete();
+		}
+
+		Map toUpload = _toUpload.getFilesMap();
+
+		//add friends's files 
+		// TODO:  add a limit
+
+		Iterator i = totalIdx.getFiles().iterator();
+		int downloadBack = MainFrame.frostSettings.getIntValue("maxAge");
+		logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
+		while (i.hasNext()) {
+			SharedFileObject current = (SharedFileObject) i.next();
+			if (current.getOwner() != null
+				&& //not anonymous
+			Core
+				.getInstance()
+				.getIdentities()
+				.getMyId()
+				.getUniqueName()
+				.compareTo(
+				current.getOwner())
+					!= 0
+				&& //not myself
+			MainFrame.frostSettings.getBoolValue("helpFriends")
+				&& //and helping is enabled
+			 (
+					Core.getInstance().getIdentities().getFriends().containsKey(
+						Mixed.makeFilename(current.getOwner())))) //and marked GOOD
+				{
+				toUpload.put(current.getSHA1(), current);
+				logger.fine("f"); //f means added file from friend
+			}
+			//also add the file if its been shared too long ago
+			if (current.getOwner() != null
+				&& //not anonymous 
+			current.getOwner().compareTo(
 				Core.getInstance().getIdentities().getMyId().getUniqueName())
-                    == 0
-                && //from myself
-            current.getLastSharedDate() != null)
-            { //not from the old format
+					== 0
+				&& //from myself
+			current.getLastSharedDate() != null) { //not from the old format
 
-                if (DateFun
-                    .getDate(downloadBack)
-                    .compareTo(current.getLastSharedDate())
-                    > 0)
-                {
-		    //if the file has been uploaded too long ago, 
-		    //set it to offline again
-                	if (!current.checkDate()) {
-                		current.setDate(null);
-                		current.setKey(null);
-                		logger.fine("o"); //o means assumed fallen off freenet
-                		//NOTE: This will not remove the CHK from the upload table. 
-                		//however, when the other side receives the index they will see the file "offline"
-                	}
-                    toUpload.put(current.getSHA1(),current);
-                    logger.fine("d");
-                    current.setLastSharedDate(DateFun.getDate());
-                    reSharing=true;
-                    //d means it was shared too long ago
-                }
-            }
-        }
+				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
+					//if the file has been uploaded too long ago, 
+					//set it to offline again
+					if (!current.checkDate()) {
+						current.setDate(null);
+						current.setKey(null);
+						logger.fine("o"); //o means assumed fallen off freenet
+						//NOTE: This will not remove the CHK from the upload table. 
+						//however, when the other side receives the index they will see the file "offline"
+					}
+					toUpload.put(current.getSHA1(), current);
+					logger.fine("d");
+					current.setLastSharedDate(DateFun.getDate());
+					reSharing = true;
+					//d means it was shared too long ago
+				}
+			}
+		}
 
-        //update the lastSharedDate of the shared files
-        if (reSharing)
-        	FileAccess.writeKeyFile(totalIdx, boardFiles);
-        
+		//update the lastSharedDate of the shared files
+		if (reSharing)
+			FileAccess.writeKeyFile(totalIdx, boardFiles);
 
 		//return anything only if we either re-shared old files or
 		//have new files to upload.
-        if (reSharing || newFiles) {
-        	
-        	//update the last shared date
-        	Iterator it2 = toUpload.values().iterator();
-        	while(it2.hasNext()) {
-        		SharedFileObject obj = (SharedFileObject)it2.next();
-        		obj.setLastSharedDate(DateFun.getDate());
-        	}
-        	
-            return toUpload;
-        }
-        else
-            return null;
-    }
+		if (reSharing || newFiles) {
 
-    public static void add(SharedFileObject key, FrostBoardObject board)
-    {
-        //final String fileSeparator = System.getProperty("file.separator");
-        File boardDir = new File(MainFrame.keypool+board.getBoardFilename());
-        
-        if (!(boardDir.exists() && boardDir.isDirectory()))
-            boardDir.mkdir();
-        if (key.getKey() != null)
-            updateDownloadTable(key);
-        add(
-            key,
-            new File(
-                MainFrame.keypool
-                    + board.getBoardFilename()
-                    + fileSeparator
-                    + "files.xml"));
-    }
+			//update the last shared date
+			Iterator it2 = toUpload.values().iterator();
+			while (it2.hasNext()) {
+				SharedFileObject obj = (SharedFileObject) it2.next();
+				obj.setLastSharedDate(DateFun.getDate());
+			}
 
-    public static void addMine(SharedFileObject key, FrostBoardObject board)
-    {
-        //final String fileSeparator = System.getProperty("file.separator");
-        File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
-         
-        if (!(boardDir.exists() && boardDir.isDirectory()))
-            boardDir.mkdir();
-        add(
-            key,
-            new File(boardDir.getPath() + fileSeparator + "new_files.xml"));
-    }
-
-    public static void add(
-        File keyFile,
-        FrostBoardObject board,
-        Identity owner)
-    {
-        add(
-            keyFile,
-            new File(
-                MainFrame.keypool
-                    + board.getBoardFilename()
-                    + fileSeparator
-                    + "files.xml"),
-            owner);
-    }
-    /**
-     * Adds a key object to an index located at target dir.
-     * Target dir will be created if it does not exist
-     * @param key the key to add to the index
-     * @param target directory containing index
-     */
-	private static void add(SharedFileObject key, File target)
-    {
-        //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
-        //final String fileSeparator = System.getProperty("file.separator");
-        final String hash = key.getSHA1();
-
-        if (key.getKey() != null)
-            updateDownloadTable(key);
-            
-        final Map chk = Collections.synchronizedMap(new HashMap());
-
-        // File indexFile = new File(target.getPath()  + fileSeparator + "files.xml");
-        File indexFile = target;
-        try
-        {
-            if (!indexFile.exists())
-                indexFile.createNewFile();
-        }
-        catch (IOException e)
-        {
-			logger.log(Level.SEVERE, "Exception thrown in add(SharedFileObject key, File target)", e);
-        }
-        FrostIndex idx = FileAccess.readKeyFile(indexFile);
-        if (idx == null) idx = new FrostIndex(new HashMap());
-        if (idx.getFiles().contains(key))
-            idx.getFiles().remove(key);
-        idx.getFilesMap().put(key.getSHA1(),key);
-        FileAccess.writeKeyFile(idx, indexFile);
-    }
-
-    /**
-     * Adds a keyfile to another counts the number of files shared
-     * and establishes the proper trust relationships
-     * @param keyfile the keyfile to add to the index
-     * @param target file containing index
-     * @param owner the trusted identity of the person sharing the files
-     */
-    //REDFLAG: this method is called only from UpdateIdThread and that's why
-    //I put the accounting for trustmap here.  Be careful when you change it!!
-    private static void add(File keyfile, File target, Identity owner)
-    {
-        try
-        {
-            if (!target.exists())
-                target.createNewFile();
-        }
-        catch (IOException e)
-        {
-			logger.log(Level.SEVERE, "Exception thrown in add(File keyfile, File target, Identity owner)", e);
-        }
-        FrostIndex chunk = FileAccess.readKeyFile(keyfile);
-        Iterator it = chunk.getFiles().iterator();
-        if (!owner.getUniqueName().equals(Core.getInstance().getIdentities().getMyId().getUniqueName()))
-            while (it.hasNext())
-            {
-                SharedFileObject current = (SharedFileObject)it.next();
-                if (!current.getOwner().equals(owner.getUniqueName()))
-                    owner.getTrustees().add(current.getOwner());
-                //FIXME: find a way to count the files each person has shared
-                //without counting dublicates
-            }
-
-        add(chunk, target);
-    }
-
-    /**
-     * adds the files from an index shared by an untrusted identity.  
-     * only those files shared directly by the person who inserted the index
-     * are considered.
-     * @param keyfile the newly downloaded keyfile
-     * @param target the already existing keyfile
-     * @param owner the unique name of the person who shared the file
-     */
-    private static void add(File keyfile, File target, String owner)
-    {
-        try
-        {
-            if (!target.exists())
-                target.createNewFile();
-        }
-        catch (IOException e)
-        {
-			logger.log(Level.SEVERE, "Exception thrown in add(File keyfile, File target, String owner)", e);
-        }
-        FrostIndex idx = FileAccess.readKeyFile(keyfile);
-
-        add(idx, target, owner);
-    }
-    
-    private static void add(FrostIndex a, File b){
-    	add(a.getFilesMap(),b);
-    }
-    /**
-     * Adds a Map to an index located at target dir.
-     * Target dir will be created if it does not exist
-     * @param chunk the map to add to the index
-     * @param target directory containing index
-     * @param firstLetter identifier for the keyfile
-     */
-    private static void add(Map chunk, File target)
-    {
-        //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
-        //        final String fileSeparator = System.getProperty("file.separator");
-        //final Map whole = Collections.synchronizedMap(new HashMap());
-
-        FrostIndex whole = FileAccess.readKeyFile(target);
-
-        //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
-        //  target.mkdir();
-
-        Iterator i = chunk.values().iterator();
-        while (i.hasNext())
-        {
-            SharedFileObject current = (SharedFileObject)i.next();
-
-            //update the download table
-            if (current.getKey() != null)
-                updateDownloadTable(current);
-
-            SharedFileObject old =
-                (SharedFileObject)whole.getFilesMap().get(current.getSHA1());
-
-            if (old == null)
-            {
-                whole.getFilesMap().put(current.getSHA1(), current);
-                continue;
-            }
-            old.setDate(current.getDate());
-            old.setLastSharedDate(current.getLastSharedDate());
-            old.setKey(current.getKey());
-            //TODO: allow unsigned files to be appropriated
-        }
-
-        FileAccess.writeKeyFile(whole, target);
-    }
-
-	public static void add(FrostIndex a, FrostBoardObject b, String owner){
-		add(a.getFilesMap(),new File(MainFrame.keypool+b.getBoardFilename()+File.separator+"files.xml"),owner);
+			return toUpload;
+		} else
+			return null;
 	}
-	private static void add(FrostIndex a, File b, String owner){
-		add(a.getFilesMap(),b,owner);
+
+	/**
+	 * @param key
+	 */
+	private static void updateDownloadTable(SharedFileObject key) {
+		//this really shouldn't happen
+		if (key == null || key.getSHA1() == null) {
+			logger.warning("null value in index.updateDownloadTable");
+			if (key != null)
+				logger.warning("SHA1 null!");
+			else
+				logger.warning("key null!");
+			return;
+		}
+
+		DownloadModel dlModel = (DownloadModel) MainFrame.getInstance().getDownloadModel();
+		for (int i = 0; i < dlModel.getItemCount(); i++) {
+			FrostDownloadItem dlItem = (FrostDownloadItem) dlModel.getItemAt(i);
+			if (dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
+				&& dlItem.getSHA1() != null
+				&& dlItem.getSHA1().compareTo(key.getSHA1()) == 0) {
+				dlItem.setKey(key.getKey());
+				dlItem.setFileAge(key.getDate());
+				break;
+			}
+
+		}
 	}
-	
-	private static void add(Map chunk, File target, String owner)
-    {
-        
-        if (owner == null)
-            owner = "Anonymous";
-        FrostIndex idx = null;
-        if (target.exists())
-        	idx = FileAccess.readKeyFile(target);
-        else
-        	idx = new FrostIndex(new HashMap());
-         
-        
-
-        //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
-        //  target.mkdir();
-
-        Iterator i = chunk.values().iterator();
-        while (i.hasNext())
-        {
-            SharedFileObject current = (SharedFileObject)i.next();
-            if (current.getOwner() != null
-                && !current.getOwner().equals(owner))
-                continue;
-            //update the download table
-            if (current.getKey() != null)
-                updateDownloadTable(current);
-
-            SharedFileObject old =
-                (SharedFileObject)idx.getFilesMap().get(current.getSHA1());
-
-            if (old == null)
-            {
-                idx.getFilesMap().put(current.getSHA1(), current);
-                continue;
-            }
-            old.setDate(current.getDate());
-	    old.setLastSharedDate(current.getLastSharedDate());
-            old.setKey(current.getKey());
-            //TODO: allow unsigned files to be appropriated
-        }
-
-        FileAccess.writeKeyFile(idx, target);
-    }
-
-    private static void updateDownloadTable(SharedFileObject key)
-    {
-        //this really shouldn't happen
-        if (key == null || key.getSHA1() == null)
-        {
-            logger.warning("null value in index.updateDownloadTable");
-            if (key != null)
-                logger.warning("SHA1 null!");
-            else
-               logger.warning("key null!");
-            return;
-        }
-
-        DownloadModel dlModel =
-            (DownloadModel)MainFrame
-                .getInstance()
-                .getDownloadModel();
-        for (int i = 0; i < dlModel.getItemCount(); i++)
-        {
-            FrostDownloadItem dlItem =
-                (FrostDownloadItem)dlModel.getItemAt(i);
-            if (dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
-                && dlItem.getSHA1() != null
-                && dlItem.getSHA1().compareTo(key.getSHA1()) == 0)
-            {
-                dlItem.setKey(key.getKey());
-                dlItem.setFileAge(key.getDate());
-                break;
-            }
-
-        }
-    }
 }
