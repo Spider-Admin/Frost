@@ -29,16 +29,16 @@ import org.w3c.dom.*;
 
 import com.l2fprod.gui.plaf.skin.*;
 
-import frost.fcp.*;
 import frost.crypt.*;
 import frost.ext.JSysTrayIcon;
+import frost.fcp.*;
 import frost.fileTransfer.download.DownloadManager;
+import frost.fileTransfer.search.SearchManager;
 import frost.fileTransfer.upload.UploadManager;
 import frost.gui.Splashscreen;
 import frost.gui.objects.*;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
-import frost.fileTransfer.search.SearchManager;
 import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.FlexibleObserver;
@@ -113,7 +113,7 @@ public class Core implements Savable {
 			MiscToolkit.getInstance().showMessage(
 				"Not a single Freenet node configured. You need at least one.",
 				JOptionPane.ERROR_MESSAGE,
-				"ERROR: No Freenet nodes are available");
+				"ERROR: No Freenet nodes are available.");
 			return false;
 		}
 		logger.info("Frost will use " + nodes.size() + " Freenet nodes");
@@ -487,7 +487,7 @@ public class Core implements Savable {
 	/**
 	 * 
 	 */
-	public void initialize() {
+	public void initialize() throws Exception {
 		Splashscreen splashscreen = new Splashscreen();
 		splashscreen.setVisible(true);
 
@@ -511,6 +511,8 @@ public class Core implements Savable {
 		Startup.startupCheck(frostSettings, keypool);
 		FileAccess.cleanKeypool(keypool);
 
+		getIdentities().initialize(freenetIsOnline);
+		
 		splashscreen.setText(getLanguageResource().getString("Sending IP address to NSA"));
 		splashscreen.setProgress(60);
 
@@ -712,7 +714,6 @@ public class Core implements Savable {
 	public FrostIdentities getIdentities() {
 		if (identities == null) {
 			identities = new FrostIdentities(getLanguageResource());
-			identities.load(freenetIsOnline);
 		}
 		return identities;
 	}
