@@ -22,7 +22,7 @@ import frost.gui.translation.*;
 /**
  * 
  */
-public class DownloadPanel extends JPanel {
+public class DownloadPanel extends JPanel implements SettingsUpdater {
 	/**
 	 *  
 	 */
@@ -457,6 +457,7 @@ public class DownloadPanel extends JPanel {
 	public DownloadPanel(SettingsClass newSettingsClass) {
 		super();
 		settingsClass = newSettingsClass;
+		settingsClass.addUpdater(this);
 	}
 
 	/**
@@ -785,6 +786,13 @@ public class DownloadPanel extends JPanel {
 			Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
 		}
 
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.SettingsUpdater#updateSettings()
+	 */
+	public void updateSettings() {
+		settingsClass.setValue("downloadingActivated", isDownloadingActivated());		
 	}
 
 }
