@@ -1,0 +1,11 @@
+Legend:
+'+' = feature added
+'-' = bug fixed
+'*' = feature changed
+
+**************************************************************************************************
+
+* Changes since upd6 (next planned release: upd7)
+
+- fixed 'Minimize to tray and never come up again' bug on Windows systems
+* changed file transfer methods to 'bleeding edge' (?)
