@@ -49,6 +49,11 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
     {
         notifyThreadStarted(this);
 
+        // Wait some random time to speed up the update of the TOF table
+        // ... and to not to flood the node
+        int waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
+        mixed.wait(waitTime);
+
         GregorianCalendar cal= new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 

@@ -69,7 +69,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
         // Wait some random time to speed up the update of the TOF table
         // ... and to not to flood the node
-        int waitTime = waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
+        int waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
         mixed.wait(waitTime);
 
         System.out.println(tofType + " Thread started for board "+board.toString());
