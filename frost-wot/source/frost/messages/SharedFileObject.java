@@ -500,6 +500,11 @@ public class SharedFileObject implements XMLizable
 			else{
 				SharedFileObject result = new SharedFileObject();
 				result.loadXMLElement(e);
+				
+				//The file was not recreated and the upload thread failed
+				File file = new File(result.getFilename());
+				result.setFile(file);
+				 
 				return result;
 			}
 		}catch(SAXException ex){
