@@ -236,7 +236,10 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     boolean fastDownload = !flagNew; // for backload use fast download, deep for today
                     
                     FcpResults res = FcpRequest.getFile(downKey, null, testMe, downloadHtl, false, fastDownload);
-                    metadata = res.getRawMetadata();
+		    if (res == null)
+		    	metadata =null;
+		    else
+                    	metadata = res.getRawMetadata();
 // TODO: if metadata==null, not signed message
                     mixed.wait(111); // wait some time to not to hurt the node on next retry 
                 }
@@ -260,6 +263,50 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     {
 		    
                     	Core.getMessageSet().add(messageId);
+				
+			//if no metadata, message wasn't signed
+			if (metadata == null) {
+				//unzip
+				byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
+                        	FileAccess.writeByteArray(unzippedXml,testMe);
+				
+				
+                        	try { 
+                            		currentMsg = new VerifyableMessageObject(testMe);
+                        	}
+                        	catch(Exception ex)
+                        	{
+                            		ex.printStackTrace();
+                            		// TODO: file could not be read, mark it invalid not to confuse gui
+			    		index++;
+			    		continue;
+                        	}
+				
+				//set to unsigned
+				currentMsg.setStatus(VerifyableMessageObject.OLD);
+				if( currentMsg.isValid() )
+                        	{
+                            		if( TOF.blocked(currentMsg, board) && testMe.length() > 0 )
+                            		{
+                                		board.incBlocked();
+                                		Core.getOut().println("\nTOFDN: ########### blocked message for board '"+board.toString()+"' #########\n");
+                            		}
+                	            	else
+                        	    	{
+                                		frame1.displayNewMessageIcon(true);
+                                		// write the NEW message indicator file                                
+                                		FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
+                                		// add new message or notify of arrival
+                                		TOF.addNewMessageToTable(testMe, board);
+                            		}
+        	               }
+                        	else
+                        	{
+                            		FileAccess.writeFile("Empty", testMe);
+                        	}
+				index++;
+				continue;
+			} //end of if no metadata part
 			
                         //verify the zipped message
                         byte [] plaintext = FileAccess.readByteArray(testMe);
@@ -314,9 +361,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         FileAccess.writeByteArray(unzippedXml,testMe);
                         
                         //create object
-                        VerifyableMessageObject vmo = null;
                         try { 
-                            vmo = new VerifyableMessageObject(testMe);
+                            currentMsg = new VerifyableMessageObject(testMe);
                         }
                         catch(Exception ex)
                         {
@@ -328,7 +374,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 			
 			//then check if the signature was ok
                         if (!valid) {
-                        	vmo.setStatus(VerifyableMessageObject.TAMPERED);
+                        	currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
 				Core.getOut().println("TOFDN: message failed verification");
 				index++;
 				continue;
@@ -338,14 +384,14 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         //as those in the metadata
                         String metaDataHash = mixed.makeFilename(Core.getCrypto().digest(
                         				metaData.getSharer().getKey()));
-                        String messageHash = mixed.makeFilename(vmo.getFrom().substring(
-                        						vmo.getFrom().indexOf("@"),
-                        						vmo.getFrom().length()));
+                        String messageHash = mixed.makeFilename(currentMsg.getFrom().substring(
+                        						currentMsg.getFrom().indexOf("@"),
+                        						currentMsg.getFrom().length()));
                         
                         if (!metaDataHash.equals(messageHash)) {
                         	Core.getOut().println("hash in metadata doesn't match hash in message!");
                         	Core.getOut().println("metadata : "+ metaDataHash+" , message: "+ messageHash);
-                        	vmo.setStatus(VerifyableMessageObject.TAMPERED);
+                        	currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
 				
 				index++;
 				continue;
@@ -355,11 +401,11 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         
                         //if it is, we have the user either on the good, bad or neutral lists
                         if (Core.getFriends().containsKey(_owner))
-                        	vmo.setStatus(VerifyableMessageObject.VERIFIED);
+                        	currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
                         else if (Core.getEnemies().containsKey(_owner))
-				vmo.setStatus(VerifyableMessageObject.FAILED);
+				currentMsg.setStatus(VerifyableMessageObject.FAILED);
 			else
-				vmo.setStatus(VerifyableMessageObject.PENDING);
+				currentMsg.setStatus(VerifyableMessageObject.PENDING);
                             
                         
                         
@@ -425,6 +471,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         } // end-of: while
     }
 
+    
+    
     /**Constructor*/ //
     public MessageDownloadThread(boolean fn, FrostBoardObject boa, int dlHtl, String kpool, String maxmsg)
     {
