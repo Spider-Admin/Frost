@@ -1,11 +1,11 @@
 package frost;
-
+/*
 import java.awt.Frame;
 import java.io.*;
 import java.util.StringTokenizer;
 
 import frost.gui.objects.FrostBoardObject;
-
+*/
 public class AltEdit extends Thread {
 /*    private Frame parentFrame;
     private String linesep;

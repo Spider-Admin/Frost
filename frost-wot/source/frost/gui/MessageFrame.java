@@ -28,6 +28,7 @@ import javax.swing.border.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.messages.MessageObject;
 
 public class MessageFrame extends JFrame
 {
@@ -43,9 +44,9 @@ public class MessageFrame extends JFrame
     String lastUsedDirectory;
     String keypool;
     String fileSeparator = System.getProperty("file.separator");
-    String recipient;
+//    String recipient;
     boolean state;
-    boolean encrypt;
+//    boolean encrypt;
     Frame parentFrame;
     SettingsClass frostSettings;
     //------------------------------------------------------------------------
@@ -58,26 +59,26 @@ public class MessageFrame extends JFrame
     JPanel jPanel5 = new JPanel(new BorderLayout());
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 
-    JButton jButton1 = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
-    JButton jButton2 = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
-    JButton jButton3 = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
-    JButton uploadBoardsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
+    JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
+    JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
+    JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
+    JButton BattachBoard= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
 
     JCheckBox sign = new JCheckBox("Sign");
-    JCheckBox encryptBox = new JCheckBox("Encrypt for");
-    JComboBox buddies;
+//    JCheckBox encryptBox = new JCheckBox("Encrypt for");
+//    JComboBox buddies;
 
-    JTextField jTextField1 = new JTextField(); // Board (To)
-    JTextField jTextField2 = new JTextField(); // From
-    JTextField jTextField3 = new JTextField(); // Subject
+    JTextField TFboard = new JTextField(); // Board (To)
+    JTextField TFfrom = new JTextField(); // From
+    JTextField TFsubject = new JTextField(); // Subject
 
-    JTextArea jTextArea1 = new JTextArea(); // Text
+    JTextArea TAcontent = new JTextArea(); // Text
 
     JScrollPane jScrollPane1 = new JScrollPane(); // Textscrollpane
 
-    JLabel jLabel1 = new JLabel(LangRes.getString("Board: ")); // Board
-    JLabel jLabel2 = new JLabel(LangRes.getString("From: ")); // From
-    JLabel jLabel3 = new JLabel(LangRes.getString("Subject: ")); // Subject
+    JLabel Lboard = new JLabel(LangRes.getString("Board: ")); // Board
+    JLabel Lfrom = new JLabel(LangRes.getString("From: ")); // From
+    JLabel Lsubject = new JLabel(LangRes.getString("Subject: ")); // Subject
 
     class BuddyComparator implements Comparator
     {
@@ -99,43 +100,23 @@ public class MessageFrame extends JFrame
         this.setTitle(LangRes.getString("Create message"));
         this.setResizable(true);
 
-        encrypt=false;
+        configureButton(Bsend, "Send message", "/data/send_rollover.gif");
+        configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
+        configureButton(BattachFile, "Add attachment(s)", "/data/attachment_rollover.gif");
+        configureButton(BattachBoard, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
 
-        if( frame1.getFriends() != null )
-        {
-            String[] buddyNames = new String[frame1.getFriends().size()];
-            Vector budList = new Vector( frame1.getFriends().keySet() );
-            Collections.sort( budList, new BuddyComparator() );
-            buddies = new JComboBox(budList);
-            recipient = (String)budList.get(0);
-            buddies.setSelectedItem(recipient);
-        }
-        else
-        {
-            buddies = new JComboBox();
-        }
+        TFboard.setEnabled(false);
+        TFboard.setText(board.toString());
+        TFfrom.setText(from);
 
-        configureButton(jButton1, "Send message", "/data/send_rollover.gif");
-        configureButton(jButton2, "Cancel", "/data/remove_rollover.gif");
-        configureButton(jButton3, "Add attachment(s)", "/data/attachment_rollover.gif");
-        configureButton(uploadBoardsButton, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
-
-        jTextField1.setEnabled(false);
-        jTextField1.setText(board.toString());
-        jTextField2.setText(from);
-
-        encryptBox.setSelected(false);
-        encryptBox.setEnabled(false);
-        buddies.setEnabled(false);
-        jTextField3.setText(subject);
-        jTextArea1.setLineWrap(true);
-        jTextArea1.setWrapStyleWord(true);
-        jTextArea1.setText(text);
+        TFsubject.setText(subject);
+        TAcontent.setLineWrap(true);
+        TAcontent.setWrapStyleWord(true);
+        TAcontent.setText(text);
         if( from.compareTo(frame1.getMyId().getName()) == 0 )
         {
-            jTextField2.setEnabled(false);
+            TFfrom.setEnabled(false);
             sign.setSelected(true);
-            encryptBox.setEnabled(true);
         }
 
         jScrollPane1.setPreferredSize(new Dimension(600, 400));
@@ -144,66 +125,40 @@ public class MessageFrame extends JFrame
         //------------------------------------------------------------------------
 
         // Button 1 (Send)
-        jButton1.addActionListener(new java.awt.event.ActionListener() {
+        Bsend.addActionListener(new java.awt.event.ActionListener() {
                                        public void actionPerformed(ActionEvent e) {
-                                           jButton1_actionPerformed(e);
+                                           send_actionPerformed(e);
                                        } });
         // Button 2 (Cancel)
-        jButton2.addActionListener(new java.awt.event.ActionListener() {
+        Bcancel.addActionListener(new java.awt.event.ActionListener() {
                                        public void actionPerformed(ActionEvent e) {
-                                           jButton2_actionPerformed(e);
+                                           cancel_actionPerformed(e);
                                        } });
         // Button 3 (Add attachment(s))
-        jButton3.addActionListener(new java.awt.event.ActionListener() {
+        BattachFile.addActionListener(new java.awt.event.ActionListener() {
                                        public void actionPerformed(ActionEvent e) {
-                                           jButton3_actionPerformed(e);
+                                           attachFile_actionPerformed(e);
                                        } });
         // Button 4 (Add attachment(s))
-        uploadBoardsButton.addActionListener(new java.awt.event.ActionListener() {
+        BattachBoard.addActionListener(new java.awt.event.ActionListener() {
                                          public void actionPerformed(ActionEvent e) {
-                                             uploadBoards_actionPerformed(e);
+                                             attachBoards_actionPerformed(e);
                                          } });
         //sign checkbox
         sign.addActionListener(new java.awt.event.ActionListener() {
                                    public void actionPerformed(ActionEvent e) {
                                        if( sign.isSelected() )
                                        {
-                                           jTextField2.setText(frame1.getMyId().getName());
-                                           jTextField2.setEnabled(false);
-                                           encryptBox.setEnabled(true);
+                                           TFfrom.setText(frame1.getMyId().getName());
+                                           TFfrom.setEnabled(false);
                                        }
                                        else
                                        {
-                                           jTextField2.setText("Anonymous");
-                                           jTextField2.setEnabled(true);
-                                           jTextField3.setEnabled(true);
-                                           encryptBox.setSelected(false);
-                                           encryptBox.setEnabled(false);
-                                           buddies.setEnabled(false);
+                                           TFfrom.setText("Anonymous");
+                                           TFfrom.setEnabled(true);
+                                           TFsubject.setEnabled(true);
                                        }
                                    } });
-        //encrypt checkbox
-        encryptBox.addActionListener(new java.awt.event.ActionListener() {
-                                         public void actionPerformed(ActionEvent e) {
-                                             if( encryptBox.isSelected() )
-                                             {
-                                                 buddies.setEnabled(true);
-                                                 jTextField3.setEnabled(false);
-                                                 encrypt=true;
-                                             }
-                                             else
-                                             {
-                                                 buddies.setEnabled(false);
-                                                 jTextField3.setEnabled(true);
-                                                 encrypt=false;
-                                             }
-                                         } });
-        //combo box
-        buddies.addActionListener(new java.awt.event.ActionListener() {
-                                      public void actionPerformed(ActionEvent e) {
-                                          JComboBox cb = (JComboBox)e.getSource();
-                                          recipient = (String)cb.getSelectedItem();
-                                      } });
         //------------------------------------------------------------------------
         // Append objects
         //------------------------------------------------------------------------
@@ -212,41 +167,39 @@ public class MessageFrame extends JFrame
         jPanel1.add(jPanel3, BorderLayout.NORTH); // Buttons
         jPanel1.add(jScrollPane1, BorderLayout.CENTER); // Textfields
 
-        jPanel2.add(jTextField1, BorderLayout.NORTH); // Board (to)
-        jPanel2.add(jTextField2, BorderLayout.CENTER); // From
-        jPanel2.add(jTextField3, BorderLayout.SOUTH); // Subject
+        jPanel2.add(TFboard, BorderLayout.NORTH); // Board (to)
+        jPanel2.add(TFfrom, BorderLayout.CENTER); // From
+        jPanel2.add(TFsubject, BorderLayout.SOUTH); // Subject
 
         jPanel3.add(buttonPanel, BorderLayout.NORTH);
         jPanel3.add(jPanel5, BorderLayout.SOUTH);
 
-        jPanel4.add(jLabel1, BorderLayout.NORTH); // Board
-        jPanel4.add(jLabel2, BorderLayout.CENTER); // From
-        jPanel4.add(jLabel3, BorderLayout.SOUTH); // Subject
+        jPanel4.add(Lboard, BorderLayout.NORTH); // Board
+        jPanel4.add(Lfrom, BorderLayout.CENTER); // From
+        jPanel4.add(Lsubject, BorderLayout.SOUTH); // Subject
 
         jPanel5.add(jPanel4, BorderLayout.WEST);
         jPanel5.add(jPanel2, BorderLayout.CENTER);
 
-        jScrollPane1.getViewport().add(jTextArea1, null); // Text
+        jScrollPane1.getViewport().add(TAcontent, null); // Text
 
-        buttonPanel.add(jButton1); // Send
-        buttonPanel.add(jButton2); // Cancel
-        buttonPanel.add(jButton3); // Add attachment(s)
-        buttonPanel.add(uploadBoardsButton); //Add boards(s)
+        buttonPanel.add(Bsend); // Send
+        buttonPanel.add(Bcancel); // Cancel
+        buttonPanel.add(BattachFile); // Add attachment(s)
+        buttonPanel.add(BattachBoard); //Add boards(s)
         buttonPanel.add(sign);
-        buttonPanel.add(encryptBox);
-        buttonPanel.add(buddies);
     }
 
     /**jButton1 Action Listener (Send)*/
-    private void jButton1_actionPerformed(ActionEvent e)
+    private void send_actionPerformed(ActionEvent e)
     {
-        from = jTextField2.getText();
-        subject = jTextField3.getText();
-        text = jTextArea1.getText();
+        from = TFfrom.getText();
+        subject = TFsubject.getText();
+        text = TAcontent.getText();
 
         boolean quit = true;
 
-        if( subject.equals("No subject") && !encrypt )
+        if( subject.equals("No subject") )
         {
             int n = JOptionPane.showConfirmDialog( this,
                                                    LangRes.getString("Do you want to enter a subject?"),
@@ -261,21 +214,18 @@ public class MessageFrame extends JFrame
 
         // message is ready to send, exit dialog
         frostSettings.setValue("userName", from);
-
-        String recpnt = "";
-        if( encrypt && recipient.compareTo(frame1.getMyId().getName()) != 0 )
-        {
-            recpnt = recipient;
-        }
+        
+        // create new MessageObject to upload
+        MessageObject mo = new MessageObject();
+        mo.setBoard(board.getBoardName());
+        mo.setFrom(from);
+        mo.setSubject(subject);
+        mo.setContent(text);
+        // MessageUploadThread will set date + time !
 
         frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
                                               board,
-                                              from,
-                                              subject,
-                                              text,
-                                              recpnt,
-                                              frostSettings,
-                                              parentFrame,
+                                              mo,
                                               null);
 
         frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
@@ -285,14 +235,14 @@ public class MessageFrame extends JFrame
     }
 
     /**jButton2 Action Listener (Cancel)*/
-    private void jButton2_actionPerformed(ActionEvent e)
+    private void cancel_actionPerformed(ActionEvent e)
     {
         state = false;
         dispose();
     }
 
     /**jButton3 Action Listener (Add attachment(s))*/
-    private void jButton3_actionPerformed(ActionEvent e)
+    private void attachFile_actionPerformed(ActionEvent e)
     {
         String lineSeparator = System.getProperty("line.separator");
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
@@ -310,7 +260,7 @@ public class MessageFrame extends JFrame
                 lastUsedDirectory = file[i].getPath();
                 if( file[i].isFile() )
                 {
-                    jTextArea1.append("<attach>" +
+                    TAcontent.append("<attach>" +
                                       file[i].getPath() +
                                       "</attach>" +
                                       lineSeparator);
@@ -322,7 +272,7 @@ public class MessageFrame extends JFrame
                     {
                         if( entries[j].isFile() )
                         {
-                            jTextArea1.append("<attach>" +
+                            TAcontent.append("<attach>" +
                                               entries[j].getPath() +
                                               "</attach>" +
                                               lineSeparator);
@@ -338,7 +288,7 @@ public class MessageFrame extends JFrame
         }
     }
 
-    private void uploadBoards_actionPerformed(ActionEvent e)
+    private void attachBoards_actionPerformed(ActionEvent e)
     {
         String lineSeparator = System.getProperty("line.separator");
         Vector allBoards = frame1.getInstance().getTofTree().getAllBoards();
@@ -379,7 +329,7 @@ public class MessageFrame extends JFrame
                     privKey="N/A";
                 }
             }
-            jTextArea1.append("<board>" + board.toString() +
+            TAcontent.append("<board>" + board.toString() +
                               " * " + pubKey +
                               " * " + privKey +
                               "</board>" + lineSeparator);
@@ -429,7 +379,7 @@ public class MessageFrame extends JFrame
         String lineSeparator = System.getProperty("line.separator");
         if( this.text.length() > 0 )
         {
-            // on new message
+            // on reply to a message
             this.text += new StringBuffer().append(lineSeparator)
                                            .append("----- ")
                                            .append(this.from)
@@ -455,7 +405,7 @@ public class MessageFrame extends JFrame
         }
 
         Font tofFont = new Font("Monospaced", Font.PLAIN, (int)frame1.frostSettings.getFloatValue("tofFontSize") );
-        jTextArea1.setFont( tofFont );
+        TAcontent.setFont( tofFont );
 
         pack();
         setLocationRelativeTo(parentFrame);
@@ -504,7 +454,7 @@ public class MessageFrame extends JFrame
                                                       ) );
             getContentPane().add(listScroller, BorderLayout.CENTER);
             getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
-            setSize(200, 300);
+            setSize(300, 400);
         }
         public Vector runDialog()
         {

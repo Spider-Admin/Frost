@@ -126,12 +126,7 @@ public class MessageObject implements XMLizable {
    * Creates a Vector of Vectors which contains data for the
    * attached files table.
    */    
-  public AttachmentList getAttachmentList()
-  {
-      return this.attachments;
-  }
-/*    public Vector getAttachments() {
-//      TODO: should pass the SharedFileObject
+    public Vector getFileAttachments() {
         Vector table = new Vector();
         AttachmentList boards = attachments.getAllOfType(Attachment.FILE);
         Iterator i = boards.iterator();
@@ -151,7 +146,7 @@ public class MessageObject implements XMLizable {
         }
         return table;
     }
-*/
+
     /**
      * Creates raw string for each attached board in format
      * boardname * pubkey|"N/A" * privkey|"N/A"
@@ -184,7 +179,7 @@ public class MessageObject implements XMLizable {
      * Creates a Vector of Vectors which contains data for the
      * attached boards table.
      */    
-    public Vector getBoards()
+    public Vector getBoardAttachments()
     {
         Vector table = new Vector();
         AttachmentList boards = attachments.getAllOfType(Attachment.BOARD);

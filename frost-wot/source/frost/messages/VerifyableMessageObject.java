@@ -63,32 +63,6 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         return content.substring(start+5,end);
     }*/  //deprecate
 
-    /**gets the plaintext only */
-    /*public String getPlaintext()
-    {
-        int offset =0;
-        if( isVerifyable() ) offset = crypt.MSG_HEADER_SIZE;
-        //if (!isVerifyable()) return content;
-
-        if( content.indexOf("<attached>") == -1  && content.indexOf("<board>") ==-1 )
-            if( isVerifyable() ) return content.substring(offset, content.lastIndexOf("<key>"));
-            else return content;
-        else
-        {
-            if( content.indexOf("<board>") == -1 )
-                return content.substring(offset, content.indexOf("<attached>"));
-            if( content.indexOf("<attached>") == -1 )
-                return content.substring(offset, content.indexOf("<board>"));
-            if( content.indexOf("<board>") < content.indexOf("<attached>") )
-                return content.substring(offset, content.indexOf("<board>"));
-            else
-                return content.substring(offset, content.indexOf("<attached>"));
-        }
-    }*/
-    public String getPlaintext() {
-    	return content;
-    }
-
     /**gets the status of the message*/
     public String getStatus()
     {

@@ -2457,31 +2457,30 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				checkTrustButton.setEnabled(false);
 			}
 
-			String content = selectedMessage.getContent();
+            setTofTextAreaText(selectedMessage.getContent());
+            if(selectedMessage.getContent().length() > 0)
+                saveMessageButton.setEnabled(true);
+            else
+                saveMessageButton.setEnabled(false);
+            
+            Vector fileAttachments = selectedMessage.getFileAttachments();
+            Vector boardAttachments = selectedMessage.getBoardAttachments();             
 
-			int start = content.indexOf("<attached>");
-			int end = content.indexOf("</attached>");
-			int bstart = content.indexOf("<board>");
-			int bend = content.indexOf("</board>");
-			int boardPartLength = bend - bstart;
-			// must be at least 14, 1 char boardname, 2 times " * " and keys="N/A"
-
-			// TODO: check for validness of found , e.g. format for boards is:
-			//  "<board>mp3ogg * SSK@PJONkPZC6a4EuhHE~dP0nYyWK-oPAgM * N/A</board>"
-
-			if ((start == -1 || end == -1)
-				&& (bstart == -1 || bend == -1 || boardPartLength < 14)) {
+			if( fileAttachments.size() == 0 && boardAttachments.size() == 0 )
+			{
 				// Move divider to 100% and make it invisible
 				attachmentSplitPane.setDividerSize(0);
 				attachmentSplitPane.setDividerLocation(1.0);
 				boardSplitPane.setDividerSize(0);
 				boardSplitPane.setDividerLocation(1.0);
-
-				setTofTextAreaText(selectedMessage.getPlaintext());
-			} else {
+			} 
+            else 
+            {
 				// Attachment available
-				if (start != -1 && end != -1) {
-					if (bstart == -1 || bend == -1) {
+				if( fileAttachments.size() > 0 ) 
+                {
+					if( boardAttachments.size() == 0 )
+                    {
 						boardSplitPane.setDividerSize(0);
 						boardSplitPane.setDividerLocation(1.0);
 					}
@@ -2489,21 +2488,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					attachmentSplitPane.setDividerSize(3);
 
 					// Add attachments to table
-					(
-						(DefaultTableModel) getAttachmentTable()
-							.getModel())
-							.setDataVector(
-						selectedMessage.getAttachments(),
-						null);
-					// our model does not need this
-					setTofTextAreaText(selectedMessage.getPlaintext());
-					//was getNewContent()
+					((DefaultTableModel)getAttachmentTable().getModel())
+							.setDataVector(selectedMessage.getFileAttachments(), null);
+
 					downloadAttachmentsButton.setEnabled(true);
 				}
 				// Board Available
-				if (bstart != -1 && bend != -1) {
+				if( boardAttachments.size() > 0 ) 
+                {
 					//only a board, no attachments.
-					if (start == -1 || end == -1) {
+					if(fileAttachments.size() == 0 ) 
+                    {
 						attachmentSplitPane.setDividerSize(0);
 						attachmentSplitPane.setDividerLocation(1.0);
 					}
@@ -2519,18 +2514,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 						(DefaultTableModel) getAttachedBoardsTable()
 							.getModel())
 							.setDataVector(
-						selectedMessage.getBoards(),
+						selectedMessage.getBoardAttachments(),
 						null);
-					setTofTextAreaText(selectedMessage.getPlaintext());
-					//was getNewContent()
 					downloadBoardsButton.setEnabled(true);
 					//TODO: downloadBoardsButton
 				}
 			}
-			if (content.length() > 0)
-				saveMessageButton.setEnabled(true);
-			else
-				saveMessageButton.setEnabled(false);
 		} else {
 			// no msg selected
 			resetMessageViewSplitPanes(); // clear message view
@@ -2584,7 +2573,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		//   Misc. stuff
 		//////////////////////////////////////////////////
 		if (counter % 180 == 0) // Check uploadTable every 3 minutes
-			{
+		{
 			getUploadTable().removeNotExistingFiles();
 		}
 
@@ -3030,7 +3019,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	/**tofNewMessageButton Action Listener (tof/ New Message)*/
 	private void tofNewMessageButton_actionPerformed(ActionEvent e) {
-		String subject = "No subject";
 /*
 		if (frostSettings.getBoolValue("useAltEdit")) {
 			// TODO: pass FrostBoardObject
@@ -3043,9 +3031,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				new MessageFrame(
 					getSelectedNode(),
 					frostSettings.getValue("userName"),
-					subject,
-				// subject
-	"", frostSettings, this);
+                    "No subject", // subject
+	                "", // content empty for new msg 
+                    frostSettings, this);
 			newMessage.show();
 		//}
 	}
@@ -3053,7 +3041,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**tofReplyButton Action Listener (tof/Reply)*/
 	private void tofReplyButton_actionPerformed(ActionEvent e) {
 		String subject = lastSelectedMessage;
-
 		if (subject.startsWith("Re:") == false)
 			subject = "Re: " + subject;
 /*
@@ -3067,8 +3054,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					getSelectedNode(),
 					frostSettings.getValue("userName"),
 					subject,
-				// subject
-	getTofTextAreaText(), frostSettings, this);
+	                getTofTextAreaText(), 
+                    frostSettings, this);
 			newMessage.show();
 //		}
 	}
