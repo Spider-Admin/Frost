@@ -171,11 +171,35 @@ public class SkinManager extends JFrame {
 		    if (first.equals("SelectedIcon"))
 			thisButton.setSelectedIcon(new ImageIcon((String)tableModel.getValueAt(i, 2)));
 
+		    if (first.equals("Margin")) {
+			getIntegerTuple((String)tableModel.getValueAt(i, 2));
+		    }
 		}
 	    }
 
 	    
 	}
+    }
+
+    /**
+     * Reads integer numbers in a String and returns
+     * them in an array
+     * @param data This String contains the numbers divided by spaces
+     * @return Each field of this array contains one number. 'NULL' is returned if none is found.
+     */
+    private int[] getIntegerTuple(String data) {
+
+	data = data.trim();
+
+	int i = 0;
+	int numCount = 0;
+	while (data.indexOf(" ", i) != -1) {
+	    i = data.indexOf(" ", i) + 1;
+	    numCount++;
+	}
+
+	System.out.println("Number of values: " + numCount);
+	return null;
     }
 
     protected void processWindowEvent(WindowEvent e) {
