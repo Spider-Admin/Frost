@@ -577,7 +577,7 @@ public class Core implements Savable {
 			new GetRequestsThread(
 				frostSettings.getIntValue("tofDownloadHtl"),
 				frostSettings.getValue("keypool.dir"),
-				frame1.getInstance().getUploadTable(),
+				getUploadManager().getTable(),
 				getIdentities());
 		requestsThread.start();
 		
@@ -672,13 +672,13 @@ public class Core implements Savable {
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
 		saver.addAutoSavable(frame1.getInstance().getTofTree());
-		saver.addAutoSavable(frame1.getInstance().getDownloadTable());
-		saver.addAutoSavable(frame1.getInstance().getUploadTable());
+		saver.addAutoSavable(getDownloadManager().getTable());
+		saver.addAutoSavable(getUploadManager().getTable());
 		saver.addExitSavable(this);
 		saver.addExitSavable(getIdentities());
 		saver.addExitSavable(frame1.getInstance().getTofTree());
-		saver.addExitSavable(frame1.getInstance().getDownloadTable());
-		saver.addExitSavable(frame1.getInstance().getUploadTable());
+		saver.addExitSavable(getDownloadManager().getTable());
+		saver.addExitSavable(getUploadManager().getTable());
 		saver.addExitSavable(frostSettings);
 					
 		// We initialize the task that helps requests of friends
