@@ -89,6 +89,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField miscNodePortTextField = new JTextField(8);
     JTextField miscMaxKeysTextField = new JTextField(8);
     JTextField miscAltEditTextField = new JTextField(30);
+    JTextField miscAutoSaveInterval = new JTextField(5);
     JTextField searchAudioExtensionTextField = new JTextField(30);
     JTextField searchVideoExtensionTextField = new JTextField(30);
     JTextField searchDocumentExtensionTextField = new JTextField(30);
@@ -736,6 +737,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx = 0;
             miscPanel.add(cleanUP, constr);
+            constr.gridy++;
+            constr.gridx = 0;
+            miscPanel.add(new JLabel("Automatic saving interval: (15)"),constr);
+            constr.gridx = 1;
+            miscPanel.add(miscAutoSaveInterval, constr);
+
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -1007,6 +1014,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             frostSettings.getValue("automaticUpdate.boardsMinimumUpdateInterval") );
         tofBoardUpdateVisualization.setSelected( frostSettings.getBoolValue("boardUpdateVisualization") );
 
+        miscAutoSaveInterval.setText( ""+frostSettings.getIntValue("autoSaveInterval") );
+
         downloadRestartFailedDownloads.setSelected(frostSettings.getBoolValue("downloadRestartFailedDownloads"));
         downloadEnableRequesting.setSelected(frostSettings.getBoolValue("downloadEnableRequesting"));
         downloadRequestAfterTries.setText(""+frostSettings.getIntValue("downloadRequestAfterTries"));
@@ -1104,6 +1113,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
         frostSettings.setObjectValue("boardUpdatingSelectedBackgroundColor", boardUpdSelectedBackgroundColor);
         frostSettings.setObjectValue("boardUpdatingNonSelectedBackgroundColor", boardUpdNonSelectedBackgroundColor);
+
+        frostSettings.setValue("autoSaveInterval", miscAutoSaveInterval.getText() );
 
         frostSettings.writeSettingsFile();
 
