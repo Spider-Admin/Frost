@@ -45,7 +45,7 @@ import frost.gui.objects.*;
 import frost.gui.translation.*;
 import frost.identities.Identity;
 import frost.messages.*;
-import frost.search.FrostSearchItem;
+import frost.fileTransfer.search.FrostSearchItem;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
 
@@ -784,7 +784,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 					SharedFileObject sfo = fa.getFileObj();
 					FrostSearchItem fsio =
 						new FrostSearchItem(
-							languageResource,
 							getSelectedNode(),
 							sfo,
 							FrostSearchItem.STATE_NONE);
@@ -801,7 +800,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 					SharedFileObject sfo = fo.getFileObj();
 					FrostSearchItem fsio =
 						new FrostSearchItem(
-							languageResource,
 							getSelectedNode(),
 							sfo,
 							FrostSearchItem.STATE_NONE);

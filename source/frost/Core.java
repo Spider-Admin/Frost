@@ -40,7 +40,7 @@ import frost.gui.objects.*;
 import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
-import frost.search.SearchManager;
+import frost.fileTransfer.search.SearchManager;
 import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.FlexibleObserver;
