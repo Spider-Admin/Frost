@@ -21,6 +21,7 @@ package frost.threads;
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.Date;
+import java.util.logging.*;
 
 import frost.*;
 import frost.FcpTools.*;
@@ -33,10 +34,11 @@ public class requestThread extends Thread
 {
     static java.util.ResourceBundle LangRes =
         java.util.ResourceBundle.getBundle("res.LangRes") /*#BundleType=List*/;
+        
+	private static Logger logger = Logger.getLogger(requestThread.class.getName());
 
     public static final String KEYCOLL_INDICATOR = "ERROR: key collision";
 
-    final boolean DEBUG = true;
     private String filename;
     private Long size;
     private String key;
@@ -72,7 +74,7 @@ public class requestThread extends Thread
             // request it by SHA1
             if (key == null)
             {
-                Core.getOut().println("FILEDN: Requesting " + filename);
+                logger.info("FILEDN: Requesting " + filename);
                 downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTING);
                 tableModel.updateRow(downloadItem);
 
@@ -80,15 +82,11 @@ public class requestThread extends Thread
                 try
                 {
                     request();
-                    if (DEBUG)
-                        Core.getOut().println(
-                            "FILEDN: Uploaded request for " + filename);
+                    logger.info("FILEDN: Uploaded request for " + filename);
                 }
                 catch (Throwable t)
                 {
-                    Core.getOut().println(
-                        "FILEDN: Uploading request failed for " + filename);
-                    t.printStackTrace(Core.getOut());
+					logger.log(Level.SEVERE, "FILEDN: Uploading request failed for " + filename, t);
                 }
                 downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTED);
                 tableModel.updateRow(downloadItem);
@@ -103,7 +101,7 @@ public class requestThread extends Thread
 
             //otherwise, proceed as usual
 
-            Core.getOut().println("FILEDN: Download of '" + filename + "' started.");
+            logger.info("FILEDN: Download of '" + filename + "' started.");
 
             // Download file
             FcpResults success = null;
@@ -121,7 +119,7 @@ public class requestThread extends Thread
                         downloadItem);
             }
             catch (Throwable t){
-                t.printStackTrace(Core.getOut());
+				logger.log(Level.SEVERE, "Exception thrown in run()", t);
             } 
 
             // file might be erased from table during download...
@@ -144,7 +142,7 @@ public class requestThread extends Thread
                 downloadItem.setRetries(downloadItem.getRetries() + 1);
                 tableModel.updateRow(downloadItem);
 
-                Core.getOut().println("FILEDN: Download of " + filename + " failed.");
+                logger.warning("FILEDN: Download of " + filename + " failed.");
                 if (inTable == true)
                 {
                     // Upload request to request stack
@@ -155,10 +153,7 @@ public class requestThread extends Thread
                         && board.isFolder() == false 
                         && this.owner != null ) // upload requests only if they are NOT manually added 
                     {
-                        if (DEBUG)
-                            Core.getOut().println(
-                                "FILEDN: Download failed, uploading request for "
-                                    + filename);
+                        logger.info("FILEDN: Download failed, uploading request for " + filename);
                         downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTING);
                         tableModel.updateRow(downloadItem);
 
@@ -169,22 +164,16 @@ public class requestThread extends Thread
                         try
                         {
                             request();
-                            if (DEBUG)
-                                Core.getOut().println(
-                                    "FILEDN: Uploaded request for " + filename);
+                            logger.info("FILEDN: Uploaded request for " + filename);
                         }
                         catch (Throwable t)
                         {
-                            Core.getOut().println(
-                                "FILEDN: Uploading request failed for "
-                                    + filename);
+							logger.log(Level.SEVERE, "FILEDN: Uploading request failed for " + filename, t);
                         }
                     }
                     else
                     {
-                        if (DEBUG)
-                            Core.getOut().println(
-                                "FILEDN: Download failed (file is NOT requested).");
+						logger.info("FILEDN: Download failed (file is NOT requested).");
                     }
 
                     // set new state -> failed or waiting for another try
@@ -234,15 +223,14 @@ public class requestThread extends Thread
                 downloadItem.setState(FrostDownloadItemObject.STATE_DONE);
                 downloadItem.setEnableDownload(Boolean.valueOf(false));
                 
-                Core.getOut().println("FILEDN: Download of " + filename + " was successful.");
+                logger.info("FILEDN: Download of " + filename + " was successful.");
 
                 tableModel.updateRow(downloadItem);
             }
         }
         catch (Throwable t)
         {
-            Core.getOut().println("Oo. EXCEPTION in requestThread.run:");
-            t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
         }
 
         synchronized (frame1.threadCountLock)
@@ -258,13 +246,7 @@ public class requestThread extends Thread
         int messageUploadHtl = frame1.frostSettings.getIntValue("tofUploadHtl");
         boolean requested = false;
 
-        if (DEBUG)
-            Core.getOut().println(
-                "FILEDN: Uploading request for '"
-                    + filename
-                    + "' to board '"
-                    + board.toString()
-                    + "'");
+        logger.info("FILEDN: Uploading request for '" + filename + "' to board '" + board.toString() + "'");
 
         String fileSeparator = System.getProperty("file.separator");
         String destination =
@@ -298,8 +280,7 @@ public class requestThread extends Thread
             if (content.equals(SHA1))
             {
                 requested = true;
-                Core.getOut().println(
-                    "FILEDN: File '" + filename + "' was already requested");
+                logger.info("FILEDN: File '" + filename + "' was already requested");
                 break;
             }
         }
@@ -367,9 +348,8 @@ public class requestThread extends Thread
                     }
                     catch (IOException ex)
                     {
-                        Core.getOut().println(
-                            "ERROR: requestThread.request(): unexpected IOException, terminating thread ...");
-                        ex.printStackTrace(Core.getOut());
+						logger.log(Level.SEVERE, 
+							"ERROR: requestThread.request(): unexpected IOException, terminating thread ...", ex);
                         return;
                     }
 
@@ -377,10 +357,7 @@ public class requestThread extends Thread
                     {
                         // another thread tries to insert using this index, try next
                         index++;
-                        if (DEBUG)
-                            Core.getOut().println(
-                                "FILEDN: Other thread tries this index, increasing index to "
-                                    + index);
+                        logger.fine("FILEDN: Other thread tries this index, increasing index to " + index);
                         continue; // while
                     }
                     else
@@ -407,19 +384,14 @@ public class requestThread extends Thread
                             .append(index)
                             .append(".req.sha")
                             .toString();
-                    if (DEBUG)
-                        Core.getOut().println(upKey);
+                    logger.fine(upKey);
                     result =
                         FcpInsert.putFile(
                             upKey,
                             requestFile,
                             messageUploadHtl,
                             false); // doRedirect
-                    Core.getOut().println(
-                        "FcpInsert result[0] = "
-                            + result[0]
-                            + " result[1] = "
-                            + result[1]);
+                    logger.fine("FcpInsert result[0] = " + result[0] + " result[1] = " + result[1]);
 
                     if (result[0] == null || result[1] == null)
                     {
@@ -472,17 +444,13 @@ public class requestThread extends Thread
 
                             if (contentOne.equals(contentTwo))
                             {
-                                if (DEBUG)
-                                    Core.getOut().println(
-                                        "FILEDN: Key Collision and file was already requested");
+                                logger.fine("FILEDN: Key Collision and file was already requested");
                                 success = true;
                             }
                             else
                             {
                                 index++;
-                                Core.getOut().println(
-                                    "FILEDN: Request Upload collided, increasing index to "
-                                        + index);
+                                logger.fine("FILEDN: Request Upload collided, increasing index to " + index);
 
                                 if (frame1
                                     .frostSettings
@@ -503,11 +471,8 @@ public class requestThread extends Thread
                         }
                         else
                         {
-                            Core.getOut().println(
-                                "FILEDN: Request upload failed ("
-                                    + tries
-                                    + "), retrying index "
-                                    + index);
+                            logger.info("FILEDN: Request upload failed ("
+                                    + tries + "), retrying index " + index);
                             if (tries > 5)
                             {
                                 success = true;
@@ -525,29 +490,17 @@ public class requestThread extends Thread
             if (!error)
             {
                 requestFile.renameTo(testMe);
-
-                Core.getOut().println(
-                    "*********************************************************************");
-                Core.getOut().println(
-                    "Request for '"
-                        + filename
-                        + "' successfully uploaded to board '"
-                        + board
-                        + "'.");
-                Core.getOut().println(
-                    "*********************************************************************");
+				logger.info("*********************************************************************\n" +
+                            "Request for '" + filename + "' successfully uploaded to board '" + board + "'.\n" +
+                            "*********************************************************************");
             }
             else
             {
-                Core.getOut().println(
-                    "\nFILEDN: Error while uploading request for '"
-                        + filename
-                        + "' to board '"
-                        + board
-                        + "'.");
+                logger.warning("FILEDN: Error while uploading request for '" +
+                        			filename + "' to board '" + board + "'.");
                 requestFile.delete();
             }
-            Core.getOut().println("FILEDN: Request Upload Thread finished");
+            logger.info("FILEDN: Request Upload Thread finished");
         }
     }
 
