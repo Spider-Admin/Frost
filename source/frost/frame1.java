@@ -148,7 +148,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				frostSettings.setValue("lastFramePosY", bounds.y);
 			}
 			
-			super.windowClosing(e);
+			fileExitMenuItem_actionPerformed(null);
 		}
 
 	} // end of class popuplistener
@@ -2510,14 +2510,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				}
 			}
 
-	}
-
-	/**Overridden so we can exit when window is closed*/
-	protected void processWindowEvent(WindowEvent e) {
-		super.processWindowEvent(e);
-		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-			fileExitMenuItem_actionPerformed(null);
-		}
 	}
 
 	/**
