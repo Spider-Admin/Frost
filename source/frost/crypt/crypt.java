@@ -22,11 +22,26 @@ import java.io.File;
 	public String sign(String message, String key);
 	
 	/**
+	 * generates a detached signature on a String.
+	 * @param message the string to be signed
+	 * @param key the private key
+	 * @return a detached signature not ascii armored
+	 */
+	public byte[] detachedSign(String message,String key);
+	
+	/**
 	 * the key is the verification key
 	 */
 	public boolean verify(String message, String key);
 	
-
+	/**
+	 *  Verifies a String with a detached signature
+	 * @param message the message to be verified
+	 * @param key the key used for verification
+	 * @param sig the binary signature
+	 * @return whether the verification was successful
+	 */
+    public boolean detachedVerify(String message, String key, byte[] sig);
 	/**
 	 * symmetric encryption of a string.
 	 */
