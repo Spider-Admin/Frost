@@ -1911,12 +1911,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		//Language Menu
 		JMenu languageMenu = new JMenu(LangRes.getString("Language"));
-		JMenuItem languageGermanMenuItem = new JMenuItem(LangRes.getString("German"));
-		JMenuItem languageEnglishMenuItem = new JMenuItem(LangRes.getString("English"));
 		JMenuItem languageDutchMenuItem = new JMenuItem(LangRes.getString("Dutch"));
+		JMenuItem languageEnglishMenuItem = new JMenuItem(LangRes.getString("English"));
 		JMenuItem languageFrenchMenuItem = new JMenuItem(LangRes.getString("French"));
-		JMenuItem languageJapaneseMenuItem = new JMenuItem(LangRes.getString("Japanese"));
+		JMenuItem languageGermanMenuItem = new JMenuItem(LangRes.getString("German"));
 		JMenuItem languageItalianMenuItem = new JMenuItem(LangRes.getString("Italian"));
+		JMenuItem languageJapaneseMenuItem = new JMenuItem(LangRes.getString("Japanese"));
+		JMenuItem languageSpanishMenuItem = new JMenuItem(LangRes.getString("Spanish"));
 		
 		//Help Menu
 		JMenu helpMenu = new JMenu(LangRes.getString("Help"));
@@ -2033,6 +2034,15 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setLanguageResource(bundle);
 			}
 		});
+		languageSpanishMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				java.util.ResourceBundle bundle =
+					java.util.ResourceBundle.getBundle(
+							"res.LangRes",
+							new Locale("es"));
+				setLanguageResource(bundle);
+			}
+		});
 		helpHelpMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				HelpFrame dlg = new HelpFrame(getInstance());
@@ -2064,12 +2074,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		pluginMenu.add(pluginBrowserMenuItem);
 		pluginMenu.add(pluginTranslateMenuItem);
 		// Language Menu
-		languageMenu.add(languageGermanMenuItem);
-		languageMenu.add(languageEnglishMenuItem);
 		languageMenu.add(languageDutchMenuItem);
+		languageMenu.add(languageEnglishMenuItem);
 		languageMenu.add(languageFrenchMenuItem);
-		languageMenu.add(languageJapaneseMenuItem);
-		languageMenu.add(languageItalianMenuItem);		
+		languageMenu.add(languageGermanMenuItem);
+		languageMenu.add(languageItalianMenuItem);	
+		languageMenu.add(languageJapaneseMenuItem);	
+		languageMenu.add(languageSpanishMenuItem);		
 		// Help Menu
 		helpMenu.add(helpHelpMenuItem);
 		helpMenu.add(helpAboutMenuItem);
