@@ -66,52 +66,49 @@ public class getKeyThread extends Thread
             {
                 try
                 {    // Check content
-                    FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
-                                                                 frame1.frostSettings.getValue("nodePort"));
-                    // That's not yet clean. Original frost code requires to start the insert funktion
-                    // to generate the key, and here we process the results. Direct key generation
-                    // should replace that, then we can also remove the result method
-                    String contentKey = null;
-                    int tries = 0;
-                    int maxTries = 3; // try 3 times if connect errors occurs (node overloaded)
-                    while( contentKey == null && tries < maxTries )
+                    FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+                    if( connection != null )
                     {
-                        try
+                        // That's not yet clean. Original frost code requires to start the insert funktion
+                        // to generate the key, and here we process the results. Direct key generation
+                        // should replace that, then we can also remove the result method
+                        String contentKey = null;
+                        int tries = 0;
+                        int maxTries = 3; // try 3 times if connect errors occurs (node overloaded)
+                        while( contentKey == null && tries < maxTries )
                         {
-                            contentKey = result(connection.putKeyFromFile(key, file.getPath(), 0, false))[1];
+                            try
+                            {
+                                contentKey = result(connection.putKeyFromFile(key, file.getPath(), 0, false))[1];
+                            }
+                            catch( ConnectException e )
+                            {
+                                System.out.println("Exception in checkKey(): "+e.getMessage());
+                                tries++;
+                                mixed.wait(1750);
+                            }
                         }
-                        catch( ConnectException e )
+                        if( contentKey == null )
                         {
-                            System.out.println("Exception in checkKey(): "+e.getMessage());
-                            tries++;
-                            mixed.wait(1750);
+                            System.out.println("Error in checkKey(): FAILED to check key because of connection errors to node!");
+                            return false;
                         }
-                    }
-                    if( contentKey == null )
-                    {
-                        System.out.println("Error in checkKey(): FAILED to check key because of connection errors to node!");
-                        return false;
-                    }
 
-                    String prefix = "freenet:";
-                    if( contentKey.startsWith(prefix) ) contentKey = contentKey.substring(prefix.length());
-                    if( key.startsWith(prefix) ) key = key.substring(prefix.length());
-                    if( contentKey.compareTo(key) == 0 )
-                    {
-                        isOk = true;
-                    }
-                    else
-                    {
-                        // We have the file, but the key does not match the content
-                        System.out.println("ERROR: We have file " + file.getName() + ", but the content does not match the key");
+                        String prefix = "freenet:";
+                        if( contentKey.startsWith(prefix) ) contentKey = contentKey.substring(prefix.length());
+                        if( key.startsWith(prefix) ) key = key.substring(prefix.length());
+                        if( contentKey.compareTo(key) == 0 )
+                        {
+                            isOk = true;
+                        }
+                        else
+                        {
+                            // We have the file, but the key does not match the content
+                            System.out.println("ERROR: We have file " + file.getName() + ", but the content does not match the key");
+                        }
                     }
                 }
                 catch( UnknownHostException e )
-                {
-                    System.out.println(e.toString());
-                    frame1.displayWarning(e.toString());
-                }
-                catch( FcpToolsException e )
                 {
                     System.out.println(e.toString());
                     frame1.displayWarning(e.toString());
@@ -144,10 +141,9 @@ public class getKeyThread extends Thread
         if( DEBUG ) System.out.println("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");
 
         boolean exception = false;
-        Exception lastException = new Exception();
-        try
+        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        if( connection != null )
         {
-            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
             try
             {
                 connection.getKeyToFile(key, file.getPath(), htl);
@@ -155,31 +151,11 @@ public class getKeyThread extends Thread
             catch( FcpToolsException e )
             {
                 exception = true;
-                lastException = e;
             }
             catch( IOException e )
             {
                 exception = true;
-                lastException = e;
             }
-        }
-        catch( FcpToolsException e )
-        {
-            exception = true;
-            if( DEBUG ) System.out.println("getKeyThread: FcpToolsException " + e);
-            frame1.displayWarning(e.toString());
-        }
-        catch( UnknownHostException e )
-        {
-            exception = true;
-            lastException = e;
-            frame1.displayWarning(e.toString());
-        }
-        catch( IOException e )
-        {
-            exception = true;
-            lastException = e;
-            frame1.displayWarning(e.toString());
         }
 
         if( !exception && file.length() > 0 )

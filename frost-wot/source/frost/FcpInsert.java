@@ -69,8 +69,8 @@ public class FcpInsert
                 return putFECSplitFile(boardfilename, uri, file, htl, mode);
             else
             {
-                String errorString[] = {"Error", "Error"};
-                return errorString;
+                //String errorString[] = {"Error", "Error"};
+                return new String[]{"Error", "Error"};//errorString;
             }
         }
         else
@@ -79,15 +79,12 @@ public class FcpInsert
             {
                 try
                 {
-                    FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
-                                                                 frame1.frostSettings.getValue("nodePort"));
+                    FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+                    if( connection == null )
+                        return new String[]{"Error", "Error"};
+
                     String output = connection.putKeyFromFile(uri, file.getPath(), htl, mode);
                     return result(output);
-                }
-                catch( FcpToolsException e )
-                {
-                    if( DEBUG ) System.out.println("FcpToolsException " + e);
-                    frame1.displayWarning(e.toString());
                 }
                 catch( UnknownHostException e )
                 {
@@ -446,12 +443,9 @@ public class FcpInsert
         tries++;
         System.out.println("Uploading redirect, try= "+(tries+1)+" / 8");
         try {
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
-        output = connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, mode);
-        }
-        catch (FcpToolsException e) {
-        if (DEBUG) System.out.println("FcpToolsException " + e);
-        frame1.displayWarning(e.toString());
+        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        if( connection != null )
+            output = connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, mode);
         }
         catch (UnknownHostException e) {
         if (DEBUG) System.out.println("UnknownHostException");
@@ -480,16 +474,18 @@ public class FcpInsert
 
         String fileSeparator = System.getProperty("file.separator");
         String destination = frame1.keypool + boardfilename + fileSeparator + dirdate + fileSeparator;
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
-                                                     frame1.frostSettings.getValue("nodePort"));
+        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         // That's not yet clean. Original frost code requires to start the insert funktion
         // to generate the key, and here we process the results. Direct key generation
         // should replace that, then we can also remove the result method
-        String contentKey = result(connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, false))[1];
-        String prefix = new String("freenet:");
-        if (contentKey.startsWith(prefix)) contentKey = contentKey.substring(prefix.length());
+        if( connection != null )
+        {
+            String contentKey = result(connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, false))[1];
+            String prefix = new String("freenet:");
+            if (contentKey.startsWith(prefix)) contentKey = contentKey.substring(prefix.length());
 
-        FileAccess.writeFile("Already uploaded today", destination + contentKey + ".lck");
+            FileAccess.writeFile("Already uploaded today", destination + contentKey + ".lck");
+        }
         }
         catch (Exception e) {}
     }

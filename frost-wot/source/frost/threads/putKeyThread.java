@@ -59,27 +59,16 @@ public class putKeyThread extends Thread {
         tries++;
         System.out.println("putKeyThread: Splitfile upload: " + tries);
         String output = new String();
-        try {
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
-                                                     frame1.frostSettings.getValue("nodePort"));
-        try {
-            output = connection.putKeyFromFile(uri, uploadMe.getPath(), htl, mode);
-        }
-        catch (IOException e) {
-            System.out.println("putKeyThread: IOException"+e);
-        }
-        }
-        catch (FcpToolsException e) {
-        System.out.println("putKeyThread: FcpToolsException " + e);
-        frame1.displayWarning(e.toString());
-        }
-        catch (UnknownHostException e) {
-        System.out.println("putKeyThread: UnknownHostException"+e);
-        frame1.displayWarning(e.toString());
-        }
-        catch (IOException e) {
-        System.out.println("putKeyThread: IOException"+e);
-        frame1.displayWarning(e.toString());
+
+        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        if( connection != null )
+        {
+            try {
+                output = connection.putKeyFromFile(uri, uploadMe.getPath(), htl, mode);
+            }
+            catch (IOException e) {
+                System.out.println("putKeyThread: IOException"+e);
+            }
         }
 
         result = result(output);

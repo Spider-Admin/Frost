@@ -171,9 +171,8 @@ public class FcpRequest
             Thread[] threads = new Thread[totalBlocks];
             int successfullBlocks = 0;
 
-            // Iterate over chunks and checks already on disc
+            // Iterate over chunks, check if already on disc
             // and mark them succeeded. They are  not requested again
-
             int availableChunks = 0;
             for( int i = 0; i < totalBlocks; i ++ )
             {
@@ -858,10 +857,10 @@ Document
             return null;
 
         FcpResults results = null;
-        try
+
+        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        if( connection != null )
         {
-            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
-                                                         frame1.frostSettings.getValue("nodePort"));
             try
             {
                 results = connection.getKeyToFile(key, target.getPath(), htl);
@@ -879,21 +878,6 @@ Document
             {
                 if( DEBUG ) System.out.println("FcpRequest.getKey(1): IOException " + e);
             }
-        }
-        catch( FcpToolsException e )
-        {
-            if( DEBUG ) System.out.println("FcpRequest.getKey(2): FcpToolsException " + e);
-            frame1.displayWarning(e.toString());
-        }
-        catch( UnknownHostException e )
-        {
-            if( DEBUG ) System.out.println("FcpRequest.getKey(2): UnknownHostException " + e);
-            frame1.displayWarning(e.toString());
-        }
-        catch( IOException e )
-        {
-            if( DEBUG ) System.out.println("FcpRequest.getKey(2): IOException " + e);
-            frame1.displayWarning(e.toString());
         }
 
         String printableKey = null;

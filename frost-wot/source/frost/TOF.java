@@ -116,7 +116,7 @@ public class TOF
                         public void run() {
                             // check if tof table shows this board
                             frame1.getInstance().updateTofTree(board);
-                            if( frame1.getInstance().getActualNode().toString().equals( board.toString() ) )
+                            if( frame1.getInstance().getSelectedNode().toString().equals( board.toString() ) )
                             {
                                 messages.put( message.getIndex() + sMessage[4], message);
 
@@ -226,7 +226,7 @@ public class TOF
                     public void run()
                     {
                         // check if tof table shows this board
-                        if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
+                        if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                         {
                             DefaultTableModel model = (DefaultTableModel)table.getModel();
                             model.setRowCount( 0 );
@@ -290,7 +290,7 @@ public class TOF
                                         public void run()
                                         {
                                             // check if tof table shows this board
-                                            if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
+                                            if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                                             {
                                                 tableModel.addRow(sMessage);
                                                 if(updateMessagesCountLabels)
@@ -324,7 +324,7 @@ public class TOF
                     public void run()
                     {
                         frame1.getInstance().updateTofTree(innerTargetBoard);
-                        if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
+                        if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                         {
                             frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }

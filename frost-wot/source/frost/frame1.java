@@ -212,6 +212,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem tofTextPopupSaveBoard = null;
     JMenuItem tofTextPopupCancel = null;
 
+    JMenuItem msgTablePopupMarkMessageUnread = null;
+
     //------------------------------------------------------------------------
     // end-of: Generate objects
     //------------------------------------------------------------------------
@@ -247,7 +249,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     public boolean isFreenetTransient() { return freenetIsTransient; }
     public void setFreenetIsTransient( boolean val ) { freenetIsTransient = val; }
 
-    public FrostBoardObject getActualNode()
+    public FrostBoardObject getSelectedNode()
     {
         FrostBoardObject node = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
         if( node == null )
@@ -413,23 +415,23 @@ public class frame1 extends JFrame implements ClipboardOwner
             } });
         renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                renameNode(getActualNode());
+                renameNode(getSelectedNode());
             } });
         removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                removeNode(getActualNode());
+                removeNode(getSelectedNode());
             } });
         cutBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                cutNode(getActualNode());
+                cutNode(getSelectedNode());
             } });
         pasteBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                pasteFromClipboard(getActualNode());
+                pasteFromClipboard(getSelectedNode());
             } });
         configBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                tofConfigureBoardMenuItem_actionPerformed(e, getActualNode());
+                tofConfigureBoardMenuItem_actionPerformed(e, getSelectedNode());
             } });
         systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -564,7 +566,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { // Update selected board
                 // restarts all finished threads if there are some long running threads
-                if (isUpdateAllowed(getActualNode()))  { updateBoard(getActualNode());  }
+                if (isUpdateAllowed(getSelectedNode()))  { updateBoard(getSelectedNode());  }
             } });
         tofNewMessageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -887,6 +889,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     getTofTree().addMouseListener(popupListener);
     getAttachmentTable().addMouseListener(popupListener);
     getAttachedBoardsTable().addMouseListener(popupListener);
+    messageTable.addMouseListener(popupListener);
 
 //**********************************************************************************************
 //**********************************************************************************************
@@ -1164,6 +1167,16 @@ public class frame1 extends JFrame implements ClipboardOwner
         buildPopupMenuUpload();
         buildPopupMenuDownload();
         buildPopupMenuTofText();
+        buildPopupMenuMessageTable();
+    }
+
+    private void buildPopupMenuMessageTable()
+    {
+        msgTablePopupMarkMessageUnread = new JMenuItem("Mark message unread");
+        msgTablePopupMarkMessageUnread.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                markSelectedMessageUnread();
+            } });
     }
 
     /**
@@ -1446,7 +1459,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             }});
         tofConfigureBoardMenuItem.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                tofConfigureBoardMenuItem_actionPerformed(e, getActualNode());
+                tofConfigureBoardMenuItem_actionPerformed(e, getSelectedNode());
             } });
         tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -1519,7 +1532,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 String key = (String)getAttachmentTable().getModel().getValueAt(i, 1);
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( filename,
                                                                               key,
-                                                                              getActualNode()
+                                                                              getSelectedNode()
                                                                             );
                  boolean added = getDownloadTable().addDownloadItem( dlItem );
             }
@@ -1532,7 +1545,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 String key = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],1);
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( filename,
                                                                               key,
-                                                                              getActualNode()
+                                                                              getSelectedNode()
                                                                             );
                  boolean added = getDownloadTable().addDownloadItem( dlItem );
             }
@@ -1736,7 +1749,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             parentFolder = parentFolder.getParent();
         }
 
-        if( board == getActualNode() ) // is the board actually shown?
+        if( board == getSelectedNode() ) // is the board actually shown?
         {
             updateButtons(board);
         }
@@ -2174,13 +2187,13 @@ public class frame1 extends JFrame implements ClipboardOwner
     if (!getTofTree().isEditing())
     {
         if (key == KeyEvent.VK_DELETE)
-            removeNode(getActualNode());
+            removeNode(getSelectedNode());
         if (key == KeyEvent.VK_N)
             getTofTree().createNewBoard(frame1.getInstance());
         if (key == KeyEvent.VK_X)
-            cutNode(getActualNode());
+            cutNode(getSelectedNode());
         if (key == KeyEvent.VK_V)
-            pasteFromClipboard(getActualNode());
+            pasteFromClipboard(getSelectedNode());
     }
     }
 
@@ -2196,7 +2209,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**valueChanged messageTable (messageTableListModel / TOF)*/
     public void messageTableListModel_valueChanged(ListSelectionEvent e)
     {
-        FrostBoardObject selectedBoard = getActualNode();
+        FrostBoardObject selectedBoard = getSelectedNode();
         if( selectedBoard.isFolder() )
             return;
         selectedMessage = TOF.evalSelection(e, messageTable, selectedBoard);
@@ -2409,7 +2422,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                  .append( getRunningBoardUpdateThreads().getRunningDownloadThreadCount() )
                  .append("T")
 
-                 .append(LangRes.getString("   Selected board: ")).append(getActualNode().toString())
+                 .append(LangRes.getString("   Selected board: ")).append(getSelectedNode().toString())
                  .toString();
         statusLabel.setText(newText);
 
@@ -2710,16 +2723,16 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         else
         {
-            if( getActualNode().isFolder() == false )
+            if( getSelectedNode().isFolder() == false )
             {
                 // search in selected board
                 boardsToSearch = new Vector();
-                boardsToSearch.add( getActualNode() );
+                boardsToSearch.add( getSelectedNode() );
             }
             else
             {
                 // search in all boards below the selected folder
-                Enumeration enu = getActualNode().depthFirstEnumeration();
+                Enumeration enu = getSelectedNode().depthFirstEnumeration();
                 boardsToSearch = new Vector();
                 while( enu.hasMoreElements() )
                 {
@@ -2747,7 +2760,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( frostSettings.getBoolValue("useAltEdit") )
         {
             // TODO: pass FrostBoardObject
-            altEdit = new AltEdit(getActualNode(),
+            altEdit = new AltEdit(getSelectedNode(),
                                   subject, // subject
                                   "", // new msg
                                   frostSettings,
@@ -2756,7 +2769,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         else
         {
-            MessageFrame newMessage = new MessageFrame(getActualNode(),
+            MessageFrame newMessage = new MessageFrame(getSelectedNode(),
                                                        frostSettings.getValue("userName"),
                                                        subject, // subject
                                                        "",
@@ -2776,7 +2789,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         if( frostSettings.getBoolValue("useAltEdit") )
         {
-            altEdit = new AltEdit(getActualNode(),
+            altEdit = new AltEdit(getSelectedNode(),
                                   subject, // subject
                                   getTofTextAreaText(),
                                   frostSettings,
@@ -2785,7 +2798,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         else
         {
-            MessageFrame newMessage = new MessageFrame(getActualNode(),
+            MessageFrame newMessage = new MessageFrame(getSelectedNode(),
                                                        frostSettings.getValue("userName"),
                                                        subject, // subject
                                                        getTofTextAreaText(),
@@ -2808,7 +2821,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private void uploadAddFilesButton_actionPerformed(ActionEvent e)
     {
-        FrostBoardObject board = getActualNode();
+        FrostBoardObject board = getSelectedNode();
         if( board.isFolder() )
             return;
 
@@ -2869,7 +2882,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             // update the new msg. count for board
             TOF.initialSearchNewMessages(board);
 
-            if( board == getActualNode() )
+            if( board == getSelectedNode() )
             {
                 // reload all messages if board is shown
                 tofTree_actionPerformed(null);
@@ -3082,6 +3095,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         else if( e.getComponent().equals(getTofTree()) )
         { // TOF tree popup
             showTofTreePopupMenu(e);
+        }
+        else if( e.getComponent().equals(messageTable) )
+        { // TOF tree popup
+            showMessageTablePopupMenu(e);
         }
     }
     } // end of class popuplistener
@@ -3571,5 +3588,57 @@ public class frame1 extends JFrame implements ClipboardOwner
         pmenu.add(searchPopupCancel);
         pmenu.show( e.getComponent(), e.getX(), e.getY() );
     }
+
+    protected void showMessageTablePopupMenu(MouseEvent e)
+    {
+        JPopupMenu pmenu = new JPopupMenu();
+
+        if(messageTable.getSelectedRow() < 0)
+            return;
+
+        pmenu.add(msgTablePopupMarkMessageUnread);
+        pmenu.addSeparator();
+        pmenu.add(searchPopupCancel); // ATT: misuse of another menuitem displaying 'Cancel' ;)
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
+    }
+
+    /**
+     * Marks current selected message unread
+     */
+    private void markSelectedMessageUnread()
+    {
+        int row = messageTable.getSelectedRow();
+        if( row < 0 || selectedMessage == null || getSelectedNode() == null || getSelectedNode().isFolder() == true )
+            return;
+
+        FrostMessageObject targetMessage = selectedMessage;
+
+        File msgFile = targetMessage.getFile();
+        FileAccess.writeFile("This message is new!", msgFile.getPath() + ".lck");
+
+        messageTable.removeRowSelectionInterval(0, messageTable.getRowCount()-1);
+
+        String from = (String)messageTable.getModel().getValueAt(row, 1);
+        if( from.indexOf("<font color=\"blue\">") != -1 )
+        {
+            StringBuffer sbtmp = new StringBuffer();
+            sbtmp.append("<html><font color=\"blue\"><b>");
+            sbtmp.append(targetMessage.getFrom());
+            sbtmp.append("</b></font></html>");
+            messageTable.getModel().setValueAt( sbtmp.toString(), row, 1); // Message with attachment
+        }
+        else
+        {
+            StringBuffer sbtmp = new StringBuffer();
+            sbtmp.append("<html><b>");
+            sbtmp.append(targetMessage.getFrom());
+            sbtmp.append("</b></html>");
+            messageTable.getModel().setValueAt(sbtmp.toString(), row, 1);
+        }
+
+        getSelectedNode().incNewMessageCount();
+        updateTofTree( getSelectedNode() );
+    }
+
 }
 
