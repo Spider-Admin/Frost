@@ -7,14 +7,10 @@
 package frost.threads.maintenance;
 
 import java.io.File;
-import java.io.FileWriter;
-import java.io.IOException;
 import java.util.Iterator;
+import org.w3c.dom.*;
 
-import frost.Core;
-import frost.FileAccess;
-import frost.frame1;
-import frost.identities.Identity;
+import frost.*;
 
 
 public class Saver extends Thread {
@@ -27,6 +23,39 @@ public class Saver extends Thread {
 		// TODO Auto-generated constructor stub
 	}
 	public void run() {
+		
+		Core.getOut().println("saving identities.xml");
+		File identities = new File("identities.xml");
+		if (identities.exists()) {
+			String bakFilename = "identities.xml.bak";
+			File bakFile = new File(bakFilename);
+			bakFile.delete();
+			identities.renameTo(bakFile);
+			identities = new File("identities.xml");
+		}
+			try{
+				Document d =XMLTools.createDomDocument();
+				Element rootElement = d.createElement("FrostIdentities");
+				//first save myself
+				rootElement.appendChild(Core.getMyId().getXMLElement(d));
+				//then friends
+				Element friends = Core.getFriends().getXMLElement(d);
+				friends.setAttribute("type","friends");
+				rootElement.appendChild(friends);
+				//then enemies 
+				Element enemies = Core.getEnemies().getXMLElement(d);
+				enemies.setAttribute("type","enemies");
+				rootElement.appendChild(enemies);
+				
+				d.appendChild(rootElement);
+				
+				//save to file
+				XMLTools.writeXmlFile(d,"identities.xml");
+			}catch(Throwable e) {
+				e.printStackTrace(Core.getOut());
+		}
+		
+		/*
 								Core.getOut().println("saving identities");
 								File identities = new File("identities");
 								if( identities.exists() )
@@ -84,7 +113,7 @@ public class Saver extends Thread {
 								{
 									Core.getOut().println("ERROR: couldn't save identities:");
 									e.printStackTrace(Core.getOut());
-								}
+								}*/
 								//save the batches
 						try {
 							StringBuffer buf = new StringBuffer();
@@ -123,5 +152,5 @@ public class Saver extends Thread {
 						}
 								core.saveOnExit();
 								FileAccess.cleanKeypool(frame1.keypool);
-							}
+			}
 	};
