@@ -3,10 +3,11 @@ package frost.fileTransfer.download;
 import frost.gui.model.TableMember;
 import frost.gui.objects.FrostBoardObject;
 import frost.search.*;
+import frost.util.FlexibleObservable;
 import frost.Core;
 import java.util.Observable;
 
-public class FrostDownloadItemObject extends Observable implements FrostDownloadItem, TableMember {
+public class FrostDownloadItemObject extends FlexibleObservable implements FrostDownloadItem, TableMember {
 	static java.util.ResourceBundle LangRes =
 		java.util.ResourceBundle.getBundle("res.LangRes") /*#BundleType=List*/;
 
