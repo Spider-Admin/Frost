@@ -1972,6 +1972,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JMenu tofMenu = new JMenu();
 
 	private TofTree tofTree = null;
+	private TofTreeModel tofTreeModel = null;
 	private UploadPanel uploadPanel = null;
 
 	/**
@@ -2566,13 +2567,23 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public TofTree getTofTree() {
 		if (tofTree == null) {
+			tofTree = new TofTree(getTofTreeModel());
+		}
+		return tofTree;
+	}
+	
+	/**
+	 * @return
+	 */
+	public TofTreeModel getTofTreeModel() {
+		if (tofTreeModel == null) {
 			// this rootnode is discarded later, but if we create the tree without parameters,
 			// a new Model is created wich contains some sample data by default (swing)
 			// this confuses our renderer wich only expects FrostBoardObjects in the tree
 			Board dummyRootNode = new Board("Frost Message System", true);
-			tofTree = new TofTree(dummyRootNode);
+			tofTreeModel = new TofTreeModel(dummyRootNode);
 		}
-		return tofTree;
+		return tofTreeModel;
 	}
 
 	/**
