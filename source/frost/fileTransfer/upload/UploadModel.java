@@ -97,6 +97,9 @@ public class UploadModel extends OrderedModel implements Savable {
 			if (ulItem.getState() != FrostUploadItem.STATE_UPLOADING
 				&& ulItem.getState() != FrostUploadItem.STATE_PROGRESS
 				&& ulItem.getState() != FrostUploadItem.STATE_ENCODING) {
+				ulItem.setRetries(0);
+				ulItem.setLastUploadStopTimeMillis(0);
+				ulItem.setEnabled(Boolean.valueOf(true));
 				ulItem.setState(FrostUploadItem.STATE_REQUESTED);
 			}
 		}
@@ -114,6 +117,9 @@ public class UploadModel extends OrderedModel implements Savable {
 			if (ulItem.getState() != FrostUploadItem.STATE_UPLOADING
 				&& ulItem.getState() != FrostUploadItem.STATE_PROGRESS
 				&& ulItem.getState() != FrostUploadItem.STATE_ENCODING) {
+				ulItem.setRetries(0);
+				ulItem.setLastUploadStopTimeMillis(0);
+				ulItem.setEnabled(Boolean.valueOf(true));
 				ulItem.setState(FrostUploadItem.STATE_REQUESTED);
 			}
 		}
