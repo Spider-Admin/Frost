@@ -57,6 +57,10 @@ public class mixed {
     /**
      * Replaces characters that are not 0-9, a-z or in 'allowedCharacters'
      * with '_' and returns a lowerCase String
+     *
+     * NEW: does not allow the '#' char, because that will be used for internal folders
+     *      in keypool, e.g. '#unsent#'
+     *
      * @param text original String
      * @return modified String
      */
@@ -66,7 +70,7 @@ public class mixed {
 
     if (frame1.frostSettings.getBoolValue("allowEvilBert")) {
         // I hope that this allows the display of 2 byte characters
-        char[] invalidChars = {'/', '\\', '?', '*', '<', '>', '\"', ':', '|'};
+        char[] invalidChars = {'/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#'};
 
         for (int i = 0; i < invalidChars.length; i++)
         text = text.replace(invalidChars[i], '_');

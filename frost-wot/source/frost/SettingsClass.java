@@ -45,6 +45,13 @@ public class SettingsClass
         {
             writeSettingsFile();
         }
+        // TODO: remove this, i need to add because i used 'unsent' as name in former
+        // CVS versions. So if you already have this settings: its wrong!
+        // we need the '#' to separate internal boards in keypool from normal board.
+        // normal board file names are not allowed to contain '#'.
+        // once all users have the '#unsent#' folder configured, this can be removed
+        // and you can change the directory location
+        defaults.put("unsent.dir", frame1.keypool+"#unsent#"+System.getProperty("file.separator"));
     }
 
     public SettingsClass (File settingsFile)
@@ -334,7 +341,7 @@ public class SettingsClass
 
         defaults.put("keypool.dir", frame1.keypool);
         defaults.put("config.dir", "config"+fs);
-        defaults.put("unsent.dir", frame1.keypool+"unsent"+fs);
+        defaults.put("unsent.dir", frame1.keypool+"#unsent#"+fs);
 
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
