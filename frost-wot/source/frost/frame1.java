@@ -44,7 +44,6 @@ import frost.crypt.*;
 import frost.threads.*;
 import frost.identities.*;
 
-//++++ TODO: count running downloads+waiting
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)
 //             - each identity have 3 states: GOOD, BAD, NEUTRAL
@@ -142,6 +141,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     final String newMessagesCountPrefix = "New: ";
     JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix+"0");
     JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix+"0");
+
+    JLabel downloadItemCountLabel = new JLabel();
 
     private String searchResultsCountPrefix = null;
     JLabel searchResultsCountLabel = new JLabel();
@@ -751,9 +752,25 @@ public class frame1 extends JFrame implements ClipboardOwner
                 downloadTextField_actionPerformed(e);
         } });
 // create buttons toolbar panel
-        JPanel downloadTopPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        JPanel downloadTopPanel = new JPanel();
+        BoxLayout dummyLayout = new BoxLayout( downloadTopPanel, BoxLayout.X_AXIS );
+        downloadTopPanel.setLayout( dummyLayout );
+        downloadTextField.setMaximumSize( downloadTextField.getPreferredSize() );
         downloadTopPanel.add(downloadTextField);//Download/Quickload
+        downloadTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         downloadTopPanel.add(downloadActivateCheckBox);//Download/Start transfer
+        downloadTopPanel.add( Box.createRigidArea(new Dimension(80,0)));
+        downloadTopPanel.add( Box.createHorizontalGlue() );
+
+        String downloadCountPrefix = LangRes.getString("Waiting");
+        JLabel dummyLabel = new JLabel(downloadCountPrefix + " : 00000");
+        dummyLabel.doLayout();
+        Dimension labelSize = dummyLabel.getPreferredSize();
+        downloadItemCountLabel.setPreferredSize(labelSize);
+        downloadItemCountLabel.setMinimumSize(labelSize);
+        downloadItemCountLabel.setText(downloadCountPrefix+" : 0");
+        downloadTopPanel.add(downloadItemCountLabel);
+
 // create downloadTable
         DownloadTableModel downloadTableModel = new DownloadTableModel();
         this.downloadTable = new DownloadTable(downloadTableModel);
@@ -2180,6 +2197,9 @@ public class frame1 extends JFrame implements ClipboardOwner
             setTofTextAreaText(LangRes.getString("Welcome message"));
         }
 
+        //////////////////////////////////////////////////
+        //   Misc. stuff
+        //////////////////////////////////////////////////
         if( counter%180 == 0 ) // Check uploadTable every 3 minutes
         {
             getUploadTable().removeNotExistingFiles();
@@ -2195,6 +2215,8 @@ public class frame1 extends JFrame implements ClipboardOwner
             getDownloadTable().update( frostSettings );
             updateDownloads = false;
         }
+
+        updateDownloadCountLabel();
 
         //////////////////////////////////////////////////
         //   Automatic TOF update
@@ -2958,8 +2980,10 @@ public class frame1 extends JFrame implements ClipboardOwner
     //System.out.println("Clipboard contents replaced");
     }
 
-    // methods that update the Msg and New counts for tof table
-    // expects that the boards messages are shown in table
+    /**
+     * Method that update the Msg and New counts for tof table
+     * Expects that the boards messages are shown in table
+     */
     public void updateMessageCountLabels(FrostBoardObject board)
     {
         if( board.isFolder() == true )
@@ -2979,6 +3003,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
+    /**
+     * Updates the search result count.
+     * Called by search thread.
+     */
     public void updateSearchResultCountLabel()
     {
         DefaultTableModel model = (DefaultTableModel)searchTable.getModel();
@@ -2988,6 +3016,31 @@ public class frame1 extends JFrame implements ClipboardOwner
             searchResultsCountLabel.setText(searchResultsCountPrefix + "0");
         }
         searchResultsCountLabel.setText(searchResultsCountPrefix + searchResults);
+    }
+
+    /**
+     * Updates the download items count label. The label shows all WAITING items in download table.
+     * Called periodically by timer_actionPerformed().
+     */
+    public void updateDownloadCountLabel()
+    {
+        if( frostSettings.getBoolValue("disableDownloads") == true )
+            return;
+
+        DownloadTableModel model = (DownloadTableModel)getDownloadTable().getModel();
+        int waitingItems = 0;
+        for(int x=0; x<model.getRowCount(); x++)
+        {
+            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
+            if( dlItem.getState() == dlItem.STATE_WAITING )
+            {
+                waitingItems++;
+            }
+        }
+        String s = new StringBuffer().append(LangRes.getString("Waiting"))
+                                            .append(" : ")
+                                            .append( waitingItems ).toString();
+        downloadItemCountLabel.setText( s );
     }
 
     private void trustButton_actionPerformed(ActionEvent e)

@@ -188,7 +188,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             while( !success )
             {
                 // Does this index already exist?
-                File testMe = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
+                String testFilename = new StringBuffer().append(destination)
+                                                        .append(date)
+                                                        .append("-")
+                                                        .append(board.getBoardFilename())
+                                                        .append("-")
+                                                        .append(index)
+                                                        .append(".txt").toString();
+                File testMe = new File(testFilename);
                 if( testMe.length() > 0 )
                 { // already downloaded
                     String contentOne = (FileAccess.readFile(messageFile)).trim();
@@ -211,8 +218,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     String[] result = new String[2];
                     if( secure )
                     {
-
-                        String upKey = privateKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
+                        String upKey = new StringBuffer().append(privateKey)
+                                                        .append("/")
+                                                        .append(board.getBoardFilename())
+                                                        .append("/")
+                                                        .append(date)
+                                                        .append("-")
+                                                        .append(index)
+                                                        .append(".txt").toString();
                         if( DEBUG ) System.out.println(upKey);
                         result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
                                                    board.getBoardFilename());
@@ -220,17 +233,41 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     else
                     {
                         // Temporary hack for wrong name space
-                        String upKey = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
+                        String upKey = new StringBuffer().append("KSK@sftmeage/")
+                                                        .append(frame1.frostSettings.getValue("messageBase"))
+                                                        .append("/")
+                                                        .append(date)
+                                                        .append("-")
+                                                        .append(board.getBoardFilename())
+                                                        .append("-")
+                                                        .append(index)
+                                                        .append(".txt").toString();
                         if( DEBUG ) System.out.println(upKey);
-                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                        result = FcpInsert.putFile(upKey,
+                                                   destination + uploadMe,
+                                                   messageUploadHtl,
+                                                   false,
+                                                   true,
                                                    board.getBoardFilename());
                         // END Temporary hack for wrong name space
                         if( result[0].equals("Success") )
                         {
                             /* String */
-                            upKey = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
+                            upKey = new StringBuffer().append("KSK@frost/message/")
+                                                    .append(frame1.frostSettings.getValue("messageBase"))
+                                                    .append("/")
+                                                    .append(date)
+                                                    .append("-")
+                                                    .append(board.getBoardFilename())
+                                                    .append("-")
+                                                    .append(index)
+                                                    .append(".txt").toString();
                             if( DEBUG ) System.out.println(upKey);
-                            /*result =*/FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                            /*result =*/FcpInsert.putFile(upKey,
+                                                          destination + uploadMe,
+                                                          messageUploadHtl,
+                                                          false,
+                                                          true,
                                                           board.getBoardFilename());
                         }
                     }
@@ -253,10 +290,25 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                             // ************* Temporary freenet bug workaround ******************
                             String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
                             //              String requestMe = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
-                            String requestMe = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
+                            String requestMe = new StringBuffer().append("KSK@sftmeage/")
+                                                                .append(frame1.frostSettings.getValue("messageBase"))
+                                                                .append("/")
+                                                                .append(date)
+                                                                .append("-")
+                                                                .append(board.getBoardFilename())
+                                                                .append("-")
+                                                                .append(index)
+                                                                .append(".txt").toString();
                             if( secure && publicKey.startsWith("SSK@") )
                             {
-                                requestMe = publicKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
+                                requestMe = new StringBuffer().append(publicKey)
+                                                            .append("/")
+                                                            .append(board.getBoardFilename())
+                                                            .append("/")
+                                                            .append(date)
+                                                            .append("-")
+                                                            .append(index)
+                                                            .append(".txt").toString();
                             }
 
                             if( FcpRequest.getFile(requestMe,
@@ -303,17 +355,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
             if( !error )
             {
-                // this will show the message after receiving it
+                // we will see the message if received from freenet
                 messageFile.delete();
 
-/*                File killMe = new File(destination + uploadMe);
-                File killMe = messageFile;
-                File newMessage = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
-                if( signed )
-                    FileAccess.writeFile("GOOD", newMessage.getPath() + ".sig");
-                killMe.renameTo(newMessage);*/
-
-                frame1.updateTof = true;
                 System.out.println("*********************************************************************");
                 System.out.println("Message successfuly uploaded to the '" + board.toString() + "' board.");
                 System.out.println("*********************************************************************");
