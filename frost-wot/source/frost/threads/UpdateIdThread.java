@@ -91,7 +91,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private void setIndexFailed(int i) {
     	int current = ((Integer)indices.elementAt(i)).intValue();
 	
-	if (current == -1 || current >= MAX_TRIES) {
+	if (current == -1 || current > MAX_TRIES) {
 		System.err.println("\n\nWARNING - index sequence screwed. report to a dev\n\n");
 		return;
 	}
