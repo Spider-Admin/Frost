@@ -7,6 +7,7 @@
  * Language: de
  * 
  * Updated on 07-may-2004 by Rudolf Krist
+ * Updated on 09-may-2004 by Michael Schierl
  * 
  */
 
@@ -32,19 +33,19 @@ static final Object[][] contents = {
 {"all boards","Alle Foren"},
 {"All files","Alle Dateien"},
 {"Allow 2 byte characters","2-Byte Zeichen erlauben"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
-{"Archive Extension","Archiv Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
+{"Archive Extension","Archiv-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Archives","Archive"},
 {"Audio","Audio"},
-{"Audio Extension","Audio Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
+{"Audio Extension","Audio-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Automatic Indexing","Automatischer Index"},
 {"Automatic message update","Automatische Forumaktualisierung"},
-{"Automatic saving interval","Automatischer Speicherintervall in Minuten"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
-{"Automatic update options","Einstellungen für das Automatische Aktualisieren der Foren"}, //Menü: Optionen -> Einstellungen -> Nachrichten(3)
+{"Automatic saving interval","Automatisches Speicherintervall (in Minuten)"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
+{"Automatic update options","Einstellungen für das automatische Aktualisieren der Foren"}, //Menü: Optionen -> Einstellungen -> Nachrichten(3)
 {"AvailableSkins","Vorhandene Skins"},
-{"batch explanation","(größer ist schneller, kleiner ist Spamsicherer)"}, //Menü: Optionen -> Einstellungen -> Hochladen
+{"batch explanation","(größer ist schneller, kleiner ist spamsicherer)"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Block messages with body containing (separate by ';' )","Blockiere Nachrichtentexte mit (trenne mit ';' )"},
-{"Block messages with subject containing (separate by ';' )","Blockiere Nachrichten die im Titel Folgendes enthalten (trenne mit ';' )"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
-{"Block messages with these attached boards (separate by ';' )","Blokiere Nachrichten mit folgenden angehängten Foren (trenne mit ';' )"},
+{"Block messages with subject containing (separate by ';' )","Blockiere Nachrichten, die im Titel folgendes enthalten (trenne mit ';' )"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
+{"Block messages with these attached boards (separate by ';' )","Blockiere Nachrichten mit folgenden angehängten Foren (trenne mit ';' )"},
 {"block user (sets to BAD)","Nutzer blockieren (auf BAD setzen)"},
 {"Blocks","Blöcke"},
 {"board","Forum"},
@@ -64,12 +65,12 @@ static final Object[][] contents = {
 {"Bulgarian","Bulgarisch"}, //Menü: Sprache
 {"Cancel","Abbruch"},
 {"Change destination board","Zielforum ändern"},
-{"CHK key","CHK Schlüssel"},
-{"CHK key + filename","CHK Schlüssel + Dateiname"},
+{"CHK key","CHK-Schlüssel"},
+{"CHK key + filename","CHK-Schlüssel und Dateiname"},
 {"Choose","Auswählen"},
 {"Choose a Font","Schriftart auswählen"},
-{"Choose background color if updating board is not selected","Hintergrundfarbe falls nichtgewähltes Forum aktualisiert wird"}, //Menü: Optionen -> Einstellungen -> Nachrichten(3)
-{"Choose background color if updating board is selected","Hintergrundfarbe falls selektiertes Forum aktualisiert wird"},
+{"Choose background color if updating board is not selected","Hintergrundfarbe, falls nichtgewähltes Forum aktualisiert wird"}, //Menü: Optionen -> Einstellungen -> Nachrichten(3)
+{"Choose background color if updating board is selected","Hintergrundfarbe, falls selektiertes Forum aktualisiert wird"},
 {"Choose boards to attach","Forum für Anhang auswählen"},
 {"Choose file(s) / directory(s) to attach","Datei(en)/Verzeichnis(se) als Anhang auswählen"},
 {"Choose updating color of NON-SELECTED boards","Aktualisierungsfarbe für nicht selektierte Foren"},
@@ -79,12 +80,12 @@ static final Object[][] contents = {
 {"Configure selected board","Gewähltes Forum konfigurieren"},
 {"Copy to clipboard","In die Zwischenablage kopieren"},
 {"Core.init.NodeNotRunningBody","Stellen Sie sicher, daß Ihr Freenet-Knoten läuft und daß Sie Freenet richtig konfiguriert haben.\nFreenet wird aber trotzdem starten, damit Sie Nachrichten lesen können.\nLassen Sie sich nicht irritieren, wenn Sie einige Fehler beim Lesen von Nachrichten bekommen ;)\n"},
-{"Core.init.NodeNotRunningTitle","Fehler - konnte keine Verbindung zum Freenet Knoten aufbauen."},
-{"Core.init.TransientNodeBody","Sie betreiben einen TRANSIENTEN Freenet Knoten. Sie sollten besser auf einen PERMANENTEN Knoten umsteigen."},
+{"Core.init.NodeNotRunningTitle","Fehler - konnte keine Verbindung zum Freenet-Knoten aufbauen."},
+{"Core.init.TransientNodeBody","Sie betreiben einen TRANSIENTEN Freenet-Knoten. Sie sollten besser auf einen PERMANENTEN Knoten umsteigen."},
 {"Core.init.TransientNodeTitle","Transienten Knoten entdeckt"},
-{"Core.loadIdentities.ChooseName","Wählen Sie einen Namen für die Identität, es muss nicht einzigartig sein\n"},
-{"Core.loadIdentities.ConnectionNotEstablishedBody","Frost konnte keine Verbindung zu Ihre(m/n) Knoten aufbauen.\nFür dein ersten Start von Frost und das erstellen einer Identität wird eine Verbindung benötigt,\n später können Sie Frost auch ohne eine Verbindung starten.\nBitte stellen Sie sicher, daß Sie online sind und daß Freenet läuft, dann starten Sie Frost erneut."},
-{"Core.loadIdentities.ConnectionNotEstablishedTitle","Verbindung mit dem Freenet Knoten fehlgeschlagen"},
+{"Core.loadIdentities.ChooseName","Wählen Sie einen Namen für die Identität, er muss nicht einzigartig sein\n"},
+{"Core.loadIdentities.ConnectionNotEstablishedBody","Frost konnte keine Verbindung zu Ihre(m/n) Knoten aufbauen.\nFür den ersten Start von Frost und das Erstellen einer Identität wird eine Verbindung benötigt,\n später können Sie Frost auch ohne eine Verbindung starten.\nBitte stellen Sie sicher, daß Sie online sind und daß Freenet läuft, dann starten Sie Frost erneut."},
+{"Core.loadIdentities.ConnectionNotEstablishedTitle","Verbindung mit dem Freenet-Knoten fehlgeschlagen"},
 {"Core.loadIdentities.InvalidNameBody","Der Name darf keine '@'-Zeichen enthalten!"},
 {"Core.loadIdentities.InvalidNameTitle","Üngültige Name der Identität"},
 {"Create message","Erstelle Nachricht"},
@@ -94,7 +95,7 @@ static final Object[][] contents = {
 {"Decode each segment immediately after its download","Segmente sofort nach dem Download dekodieren"},
 {"Decoding segment","Dekodiere Segment"},
 {"Decrease Font Size","Kleinere Schrift"},
-{"Default","Default"},
+{"Default","Default"}, // Standard?
 {"Destination","Ziel"},
 {"Disable all downloads","Alle Downloads deaktivieren"},
 {"Disable downloads","Herunterladen deaktivieren"}, //Menü: Optionen -> Einstellungen -> Herunterladen
@@ -106,10 +107,10 @@ static final Object[][] contents = {
 {"Display known boards","Bekannte Foren anzeigen"},
 {"Display list of known boards","Liste bekannter Foren"},
 {"Do not trust","Nicht vertrauen"},
-{"Do spam detection","Spam Erkennung"},
-{"Do you really want to overwrite it?","Do you really want to overwrite it?"},
+{"Do spam detection","Spam-Erkennung"},
+{"Do you really want to overwrite it?","Wollen Sie sie wirklich überschreiben?"},
 {"Do you want to enter a subject?","Wollen sie einen Titel eingeben?"},
-{"Document Extension","Dokument Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
+{"Document Extension","Dokument-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Documents","Dokumente"},
 {"Done","Erledigt"},
 {"Down","Runter"}, //Hauptfenster - unten
@@ -120,7 +121,7 @@ static final Object[][] contents = {
 {"Download selected keys","Gewählte Schlüssel herunterladen"},
 {"Downloads","Herunterladen"}, //Menü: Optionen -> Einstellungen -> Herunterladen
 {"Dutch","Niederländisch"},
-{"Email.address","send notification to"},
+{"Email.address","Benachrichtigung senden an"},
 //{"Email.body","Enter the body of the email.  "<filename>" will be replaced with the name of the file"},
 {"Enable all downloads","Alle Downloads aktivieren"},
 {"Enable automatic board update","Automatische Forumaktualisierung aktivieren"},
@@ -164,23 +165,23 @@ static final Object[][] contents = {
 {"Hide unsigned messages","Unsignierte Nachrichten verbergen"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
 {"High","High"},
 {"hours","Stunden"},
-{"Hypercube fluctuating!","Hyperwürfel Fluktuation!"},
-{"Image Extension","Bilddatei Erweiteurungen"}, //Menü: Optionen -> Einstellungen -> Suchen
+{"Hypercube fluctuating!","Hyperwürfel fluktuiert!"},
+{"Image Extension","Bilddatei-Erweiteurungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Images","Images"},
 {"Increase Font Size","Größere Schrift"},
 {"Index","Index"},
-{"Index file redundancy","Indexdatei Redundanz"},
+{"Index file redundancy","Indexdatei-Redundanz"},
 {"Indexed attachments","Indizierte Anhänge"},
-{"Initializing Mainframe","Initialisiere das Mainframe"},
-{"Invert enabled state for all downloads","Enable Status für alle Downloads invertieren"},
-{"Invert enabled state for selected downloads","Enable Status für gewählte Downloads invertieren"},
+{"Initializing Mainframe","Initialisiere das Hauptfenster"}, //sicher daß damit das Hauptfenster und nicht der Großrechner gemeint ist?
+{"Invert enabled state for all downloads","Enable-Status für alle Downloads invertieren"},
+{"Invert enabled state for selected downloads","Enable-Status für gewählte Downloads invertieren"},
 {"Italian","Italienisch"},
 {"Italic","Kursiv"},
 {"Japanese","Japanisch"},
 {"Key","Schlüssel"},
 {"Keyfile download HTL","Schlüsseldatei herunterladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
 {"Keyfile upload HTL","Schlüsseldatei hochladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
-{"KnownBoardsFrame.Add board","Forum hinzufügen (abbonieren)"},
+{"KnownBoardsFrame.Add board","Forum hinzufügen (abonnieren)"},
 {"KnownBoardsFrame.Close","Schließen"},
 {"KnownBoardsFrame.List of known boards","Liste bekannter Foren"},
 {"KnownBoardsFrame.Lookup","Suchen"},
@@ -188,10 +189,10 @@ static final Object[][] contents = {
 {"KnownBoardsTableModel.Boardname","Forumname"},
 {"Language","Sprache"},
 {"Last upload","Zuletzt hochgeladen"},
-{"list of nodes","Durch Kommas getrennte Liste von FCP Knoten"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
+{"list of nodes","Durch Kommas getrennte Liste von FCP-Knoten"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
 {"list of nodes 2","(nodeA:portA, nodeB:portB, ...)"},
 {"Log file size limit (in KB)","Grenze für die Größe der Logdateien (in KB)"},
-{"Logging level","Logging Level"},
+{"Logging level","Logging Level"}, // Meldungsniveau?
 {"Low","Niedrig"},
 {"Mark ALL messages read","Alle Nachrichten als gelesen markieren"},
 {"Mark message unread","Gewählte Nachrichten als ungelesen markieren"},
@@ -232,11 +233,11 @@ static final Object[][] contents = {
 {"Number of days to download backwards","Zurückliegende Tage, die gelesen werden sollen"},
 {"Number of simultaneous downloads","Gleichzeitige Downloads"},
 {"Number of simultaneous uploads","Gleichzeitige Uploads"},
-{"Number of splitfile threads","Splitfile Threads insgesamt"}, //Menü: Optionen -> Einstellungen -> Hochladen/Runterladen
+{"Number of splitfile threads","Splitfile-Threads insgesamt"}, //Menü: Optionen -> Einstellungen -> Hochladen/Runterladen
 {"Off","Aus"},
 {"OK","OK"},
 {"On","An"},
-{"Open Source Project (GPL license)","Open Source Project (GPL license)"},
+{"Open Source Project (GPL license)","Open-Source-Projekt (GPL-Lizenz)"},
 {"Options","Optionen"},
 {"Override default settings","Override default settings"},
 {"Paste","Paste"},
@@ -254,7 +255,7 @@ static final Object[][] contents = {
 {"Private key","Privater Schlüssel"},
 {"Public board","íffentliches Forum"},
 {"Public key","íffentlicher Schlüssel"},
-{"Reaching ridiculous speed...","Reaching ridiculous speed..."},
+{"Reaching ridiculous speed...","Lächerliche Geschwindigkeit erreicht..."},
 {"redundancy explanation","geht nicht"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Refresh","Aktualisiere"},
 {"RefreshList","Liste aktualisieren"},
@@ -279,25 +280,25 @@ static final Object[][] contents = {
 {"Restore default filenames for selected files","Standarddateinamen für gewählte Dateien wiederherstellen"},
 {"Results","Ergebnisse"},
 {"Sample","Sample"},
-{"Sample interval","Sample interval"},
+{"Sample interval","Sample-Intervall"},
 {"Save message","Nachricht speichern"},
 {"Save message to disk","Nachricht speichern"},
 {"Search","Suchen"},
 {"Secure board","Sicheres Forum"},
-{"Select a board to view its content.","Forum auswählen um Inhalt zu sehen."},
-{"Select a message to view its content.","Nachricht auswählen um Inhalt zu sehen."},
+{"Select a board to view its content.","Forum auswählen, um Inhalt zu sehen."},
+{"Select a message to view its content.","Nachricht auswählen, um Inhalt zu sehen."},
 {"Select download directory","Wähle Ordner zum Herunterladen"}, 
 {"Select files you want to upload to the","Dateien wählen, die hinzugefügt werden sollen zum"},
 {"Selected board","Gewähltes Forum"},
 {"Send message","Nachricht senden"},
-{"Sending IP address to NSA","Sende IP Adresse an den BND"},
+{"Sending IP address to NSA","Sende IP-Adresse an den BND"},
 {"Set prefix for all files","Präfix für alle Dateien setzen"},
 {"Set prefix for selected files","Präfix für selektierte Dateien"},
 {"Set to","Set to"},
 {"Set to CHECK","Mit 'CHECK' markieren"},
 {"set to neutral (CHECK)","Auf neutral setzen (CHECK)"},
 {"Settings for board","Einstellungen für das Forum"},
-{"Share Downloads","Downloads teilen"},
+{"Share Downloads","Downloads freigeben"}, // Downloads freigeben?
 {"Should file attachments be added to upload table?","Anhänge in die Uploadliste eintragen?"},
 {"Show board update visualization","Aktualisierungsinformationen von Foren anzeigen"},
 {"Show healing information","Heilungsinfos anzeigen"},
@@ -315,7 +316,7 @@ static final Object[][] contents = {
 {"Spanish","Spanisch"},
 {"splitfile explanation","(mehr ist besser, braucht aber auch Leistung)"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Start encoding of selected files","Gewählte Dateien kodieren"},
-{"State","Status"}, //??
+{"State","Status"}, // Zustand?
 {"Status","Status"},
 {"Subject","Betreff"},
 {"This will not delete messages","Dadurch werden keine Nachrichten gelöscht"}, //Popup?
@@ -329,10 +330,10 @@ static final Object[][] contents = {
 {"Trying","Versuche"}, // ?? Status beim Hoch-/Herunterladen
 {"Unknown","Unbekannt"},
 {"Up","Hoch"}, //Hauptfenster - unten
-{"up htl explanation","(größer ist zuverlässiger aber langsamer)"},
+{"up htl explanation","(größer ist zuverlässiger, aber langsamer)"},
 {"Update","Aktualisieren"},
 {"Upload all files","Alle Dateien hochladen"},
-{"Upload batch size","Upload Batch Größe"},
+{"Upload batch size","Upload-Batch-Größe"},
 {"Upload HTL","Hochladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Upload selected files","Gewählte Dateien hochladen"},
 {"Uploading","beim Hochladen"}, //?
@@ -352,7 +353,7 @@ static final Object[][] contents = {
 {"Wasting more time","Noch mehr Zeit verschwenden"}, //Startlogo
 {"Welcome message","LESEN!\n\nNa toll, jetzt hab ich den Text vergessen."},
 {"Yes","Ja"}, //Popup?
-{"You already have a board with name","You already have a board with name"},
+{"You already have a board with name","Sie haben schon ein Forum namens"},
 {"You must enter a sender name!","Absender eingeben!"},
 {"You must enter a subject!","Betreff angeben!"}, //Popup?
 };
