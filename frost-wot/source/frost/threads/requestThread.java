@@ -80,14 +80,6 @@ public class requestThread extends Thread
         if( !success )
         {
             System.out.println("Download of " + filename + " failed.");
-            SwingUtilities.invokeLater(new Runnable()
-                                       {
-                                           public void run()
-                                           {
-                                               downloadItem.setState(LangRes.getString("Failed"));
-                                               tableModel.updateRow( downloadItem );
-                                           }
-                                       });
             if( inTable == true )
             {
                 // Upload request to request stack
@@ -110,14 +102,6 @@ public class requestThread extends Thread
                     // so download seems to stall
                     request(key.trim(), board);
 
-                    SwingUtilities.invokeLater(new Runnable()
-                           {
-                               public void run()
-                               {
-                                   downloadItem.setState( LangRes.getString("Waiting") );
-                                   tableModel.updateRow( downloadItem );
-                               }
-                           });
                     if( DEBUG ) System.out.println("Uploaded request for " + filename);
                 }
                 else
@@ -125,6 +109,26 @@ public class requestThread extends Thread
                     // leave state at FAILED, will be resettet in frame1
                     if( DEBUG ) System.out.println("Download failed, but htl is too low to request it.");
                 }
+                // Download / restart failed downloads
+                int columnDataHtl = downloadItem.getHtl().intValue();
+                if( columnDataHtl < frame1.frostSettings.getIntValue("htlMax") )
+                {
+                    columnDataHtl += 1;
+                    downloadItem.setHtl( columnDataHtl );
+                    downloadItem.setState( LangRes.getString("Waiting") );
+                }
+                else
+                {
+                    downloadItem.setState( LangRes.getString("Failed") ); // max htl reached, no more updating
+                }
+
+                SwingUtilities.invokeLater(new Runnable()
+                       {
+                           public void run()
+                           {
+                               tableModel.updateRow( downloadItem );
+                           }
+                       });
             }
         }
         // download successfull

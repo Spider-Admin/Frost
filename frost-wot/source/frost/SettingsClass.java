@@ -162,6 +162,7 @@ public class SettingsClass
     public String[] getArrayValue (String key)
     {
         String str = (String) settingsHash.get(key);
+        if(str==null) return new String[0];
         StringTokenizer strtok = new StringTokenizer(str, ";");
         String [] returnStrArr = new String[strtok.countTokens()];
 
@@ -175,6 +176,7 @@ public class SettingsClass
     public boolean getBoolValue (String key)
     {
         String str = (String) settingsHash.get(key);
+        if(str==null) return false;
         try {
             if( str.toLowerCase().equals("false") )
             {
@@ -194,6 +196,7 @@ public class SettingsClass
     public int getIntValue (String key)
     {
         String str = (String) settingsHash.get(key);
+        if(str==null) return 0;
         int val = 0;
         try {
             val = Integer.parseInt(str);
@@ -211,6 +214,7 @@ public class SettingsClass
     {
         float val = 0.0f;
         String str = (String) settingsHash.get(key);
+        if(str==null) return val;
         try {
             val = Float.parseFloat(str);
         }
@@ -284,7 +288,7 @@ public class SettingsClass
         defaults.put("downloadThreads", "3");
         defaults.put("downloadingActivated", "true");
         defaults.put("disableRequests", "false");
-	defaults.put("disableDownloads","false");
+    defaults.put("disableDownloads","false");
         defaults.put("htl", "5");
         defaults.put("htlMax", "30");
         defaults.put("htlUpload", "21");
@@ -303,7 +307,7 @@ public class SettingsClass
         defaults.put("searchAllBoards", "true");
         defaults.put("splitfileDownloadThreads", "15");
         defaults.put("splitfileUploadThreads", "6");
-	defaults.put("startRequestingAfterHtl", "10");
+    defaults.put("startRequestingAfterHtl", "10");
         defaults.put("tofDownloadHtl", "23");
         defaults.put("tofFontSize", "12.0");
         defaults.put("tofTreeSelectedRow", "0");

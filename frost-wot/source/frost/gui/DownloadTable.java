@@ -170,17 +170,6 @@ public class DownloadTable extends SortedTable
                     dlItem.setState( downloaded/1024 + " Kb" );
                 }
             }
-
-            // Download / restart failed downloads
-            int columnDataHtl = dlItem.getHtl().intValue();
-
-            if( dlItem.getState().equals(LangRes.getString("Failed")) &&
-                columnDataHtl < maxDownloadHtl )
-            {
-                columnDataHtl += 1;
-                dlItem.setHtl( columnDataHtl );
-                dlItem.setState( LangRes.getString("Waiting") );
-            }
             tableModel.updateRow( dlItem ); // finally tell model that row was updated
         }
     }
