@@ -19,43 +19,18 @@
 package frost.gui;
 
 import java.awt.*;
-import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import frost.util.gui.translation.Language;
+import frost.util.gui.JDialogWithDetails;
 
 /**
  * @author $Author$
  * @version $Revision$
  */
-public class AboutBox extends JDialog {
+public class AboutBox extends JDialogWithDetails {
 	
-	private class Listener extends WindowAdapter implements ActionListener {
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == okButton) {
-				cancel();
-			}	
-			if (e.getSource() == moreButton) {
-				moreButtonPressed();
-			}	
-		}
-		
-		public void windowClosing(WindowEvent e) {
-			cancel();
-			super.windowClosing(e);
-		}
-	}
-	
-	private Listener listener = new Listener();
-	
-	private Language language = null;
-
 	private final static String product = "Frost";
 
 	// because a growing amount of users use CVS version:
@@ -64,27 +39,16 @@ public class AboutBox extends JDialog {
 	private final static String copyright = "Copyright (c) 2003 Jan-Thomas Czornack";
 	private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
-	JPanel contentPanel = new JPanel();
-	JPanel topPanel = new JPanel();
-	JPanel buttonsPanel = new JPanel();
-	JPanel imagePanel = new JPanel();
-	JPanel messagesPanel = new JPanel();
-	JPanel morePanel;
+	private JPanel imagePanel = new JPanel();
+	private JPanel messagesPanel = new JPanel();
 	
-	JLabel imageLabel = new JLabel();
-	JLabel productLabel = new JLabel();
-	JLabel versionLabel = new JLabel();
-	JLabel copyrightLabel = new JLabel();
-	JLabel licenseLabel = new JLabel();
-	JLabel websiteLabel = new JLabel();
-	
-	JButton okButton = new JButton();
-	JButton moreButton = new JButton();
-	
-	private boolean moreExtended = false;
-	
-	private JScrollPane moreScrollPane;
-
+	private JLabel imageLabel = new JLabel();
+	private JLabel productLabel = new JLabel();
+	private JLabel versionLabel = new JLabel();
+	private JLabel copyrightLabel = new JLabel();
+	private JLabel licenseLabel = new JLabel();
+	private JLabel websiteLabel = new JLabel();
+		
 	private static final ImageIcon frostImage =
 		new ImageIcon(AboutBox.class.getResource("/data/jtc.jpg"));
 
@@ -93,7 +57,6 @@ public class AboutBox extends JDialog {
 	 */
 	public AboutBox(Frame parent) {
 		super(parent);
-		language = Language.getInstance();
 		initialize();
 		setLocationRelativeTo(parent);
 	}
@@ -101,7 +64,9 @@ public class AboutBox extends JDialog {
 	/**
 	 * Component initialization
 	 */
-	private void initialize() {
+	protected void initialize() {
+		super.initialize();
+		
 		imageLabel.setIcon(frostImage);
 		setTitle(language.getString("About"));
 		setResizable(false);
@@ -124,74 +89,42 @@ public class AboutBox extends JDialog {
 		messagesPanel.add(copyrightLabel);
 		messagesPanel.add(licenseLabel);
 		messagesPanel.add(websiteLabel);
-		
-		// Buttons panel
-		moreButton.setText(language.getString("More") + " >>");
-		okButton.setText(language.getString("OK"));
-		buttonsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
-		buttonsPanel.add(moreButton);
-		buttonsPanel.add(okButton);
-				
+						
 		// Putting everything together
-		topPanel.setLayout(new BorderLayout());
-		topPanel.add(imagePanel, BorderLayout.WEST);
-		topPanel.add(messagesPanel, BorderLayout.CENTER);
-		
-		contentPanel.setLayout(new BorderLayout());
-		contentPanel.add(buttonsPanel, BorderLayout.CENTER);
-		contentPanel.add(topPanel, BorderLayout.NORTH);
-		getContentPane().add(contentPanel, null);
-		
-		// Add listeners
-		moreButton.addActionListener(listener);
-		okButton.addActionListener(listener);
-		addWindowListener(listener);
+		getUserPanel().setLayout(new BorderLayout());
+		getUserPanel().add(imagePanel, BorderLayout.WEST);
+		getUserPanel().add(messagesPanel, BorderLayout.CENTER);
+				
+		fillDetailsArea();
 		
 		pack();
 	}
-	
+
 	/**
-	 * @return
+	 * 
 	 */
-	private JPanel getMorePanel() {
-		if (morePanel == null) {
-			morePanel = new JPanel(new BorderLayout());
-			morePanel.setBorder(new EmptyBorder(10,10,10,10));
-			
-			JTextArea moreTextArea = new JTextArea();
-			moreTextArea.setEditable(false);
-			moreTextArea.setMargin(new Insets(5,5,5,5));
-						
-			moreScrollPane = new JScrollPane(moreTextArea);
-			moreTextArea.setRows(10);
-			morePanel.add(moreScrollPane, BorderLayout.CENTER);
-			
-			moreTextArea.append(language.getString("Development:") + "\n");
-			moreTextArea.append("   Jan-Thomas Czornack\n");
-			moreTextArea.append("   Thomas Mueller\n");
-			moreTextArea.append("   Jim Hunziker\n");
-			moreTextArea.append("   Stefan Majewski\n");
-			moreTextArea.append("   José Manuel Arnesto\n");
-			moreTextArea.append("   Roman Glebov\n\n");
-			moreTextArea.append(language.getString("Windows Installer:") + "\n");
-			moreTextArea.append("   Benoit Laniel\n\n");
-			moreTextArea.append(language.getString("System Tray Executables:") + "\n");
-			moreTextArea.append("   Jeeva S\n\n");
-			moreTextArea.append(language.getString("Translation Support:") + "\n");
-			moreTextArea.append("   Rudolf Krist\n");
-			moreTextArea.append("   RapHHfr\n\n");
-			moreTextArea.append(language.getString("Splash Screen Logo:") + "\n");
-			moreTextArea.append("   Frédéric Scheer\n\n");
-			moreTextArea.append(language.getString("Misc code contributions:") + "\n");
-			moreTextArea.append("   SuperSlut Yoda");
-			
-			SwingUtilities.invokeLater(new Runnable() {
-				public void run() {
-					moreScrollPane.getViewport().setViewPosition(new Point(0,0));	
-				}
-			});
-		}
-		return morePanel;
+	private void fillDetailsArea() {
+		StringBuffer details = new StringBuffer();
+		details.append(language.getString("Development:") + "\n");
+		details.append("   Jan-Thomas Czornack\n");
+		details.append("   Thomas Mueller\n");
+		details.append("   Jim Hunziker\n");
+		details.append("   Stefan Majewski\n");
+		details.append("   José Manuel Arnesto\n");
+		details.append("   Roman Glebov\n\n");
+		details.append(language.getString("Windows Installer:") + "\n");
+		details.append("   Benoit Laniel\n\n");
+		details.append(language.getString("System Tray Executables:") + "\n");
+		details.append("   Jeeva S\n\n");
+		details.append(language.getString("Translation Support:") + "\n");
+		details.append("   Rudolf Krist\n");
+		details.append("   RapHHfr\n\n");
+		details.append(language.getString("Splash Screen Logo:") + "\n");
+		details.append("   Frédéric Scheer\n\n");
+		details.append(language.getString("Misc code contributions:") + "\n");
+		details.append("   SuperSlut Yoda");
+		setDetailsText(details.toString());
+		
 	}
 
 	/**
@@ -205,34 +138,5 @@ public class AboutBox extends JDialog {
 					+ getClass().getPackage().getSpecificationVersion();
 		}
 		return version;
-	}
-	
-
-	/**
-	 * 
-	 */
-	private void moreButtonPressed() {
-		if (moreExtended) {
-		
-			moreButton.setText(language.getString("More") + " >>");
-			contentPanel.remove(getMorePanel());
-			pack();
-			moreExtended = false;
-		} else {
-			
-			contentPanel.add(getMorePanel(), BorderLayout.SOUTH);
-			moreButton.setText(language.getString("Less") + " <<");
-			pack();
-			moreExtended = true;
-		}
-		
-	}
-
-	/**
-	 * Close the dialog
-	 */
-	private void cancel() {
-		setVisible(false);
-		dispose();
 	}
 }
