@@ -37,6 +37,7 @@ import javax.swing.event.*;
 import frost.*;
 import frost.gui.components.*;
 import frost.gui.translation.*;
+import frost.util.gui.*;
 
 /*******************************
  * TODO: - add thread listeners (listen to all running threads) to change the
@@ -1825,7 +1826,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel contentAreaPanel = null;
 	JPanel optionsGroupsPanel = null;
 
-	MessageTextArea tofTextArea = new MessageTextArea(4, 50);
+	AntialiasedTextArea tofTextArea = new AntialiasedTextArea(4, 50);
 
 	JTextField tofUploadHtlTextField = new JTextField(5);
 	JTextField tofDownloadHtlTextField = new JTextField(5);

@@ -1,7 +1,7 @@
 /*
  * 
  */
-package frost.gui.components;
+package frost.util.gui;
 
 import java.lang.ref.WeakReference;
 import java.util.Vector;

@@ -15,9 +15,9 @@ import javax.swing.*;
 import frost.*;
 import frost.ext.Execute;
 import frost.gui.TofTree;
-import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
+import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.model.ModelItem;
 import frost.util.model.gui.SortedModelTable;
 

@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package frost.gui.components;
+package frost.util.gui;
 
 import java.awt.*;
 import java.awt.Graphics;
@@ -22,14 +22,14 @@ import javax.swing.text.Document;
 
 //TODO: Bug: if the text contains arabic characters, antialias will be disabled
 
-public class MessageTextArea extends JTextArea {
+public class AntialiasedTextArea extends JTextArea {
 
 	private boolean antiAliasEnabled = false;
 
 	/**
 	 * 
 	 */
-	public MessageTextArea() {
+	public AntialiasedTextArea() {
 		super();
 	}
 
@@ -37,14 +37,14 @@ public class MessageTextArea extends JTextArea {
 	 * @param rows
 	 * @param columns
 	 */
-	public MessageTextArea(int rows, int columns) {
+	public AntialiasedTextArea(int rows, int columns) {
 		super(rows, columns);
 	}
 
 	/**
 	 * @param text
 	 */
-	public MessageTextArea(String text) {
+	public AntialiasedTextArea(String text) {
 		super(text);
 	}
 
@@ -53,14 +53,14 @@ public class MessageTextArea extends JTextArea {
 	 * @param rows
 	 * @param columns
 	 */
-	public MessageTextArea(String text, int rows, int columns) {
+	public AntialiasedTextArea(String text, int rows, int columns) {
 		super(text, rows, columns);
 	}
 
 	/**
 	 * @param doc
 	 */
-	public MessageTextArea(Document doc) {
+	public AntialiasedTextArea(Document doc) {
 		super(doc);
 	}
 
@@ -70,7 +70,7 @@ public class MessageTextArea extends JTextArea {
 	 * @param rows
 	 * @param columns
 	 */
-	public MessageTextArea(Document doc, String text, int rows, int columns) {
+	public AntialiasedTextArea(Document doc, String text, int rows, int columns) {
 		super(doc, text, rows, columns);
 	}
 
