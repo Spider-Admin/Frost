@@ -1,13 +1,13 @@
 package frost.gui.objects;
 
 import frost.gui.model.TableMember;
-import frost.messages.SharedFileObject;
+import frost.messages.*;
 
 
 public class FrostSearchItemObject implements FrostSearchItem, TableMember
 {
     FrostBoardObject board;
-    SharedFileObject key;
+    SharedFileObject sfo;
     int state;
 
     public static final int STATE_NONE        = 1; // set if a search table item is only in search table
@@ -19,7 +19,7 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     public FrostSearchItemObject( FrostBoardObject board, SharedFileObject key, int state )
     {
         this.board = board;
-        this.key = key;
+        this.sfo = key;
         this.state = state;
     }
 
@@ -34,14 +34,14 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
         // NEVER add <html> here, add a state or method like isOffline
         // and do it the right way in SearchTable cellRenderer !!!
         switch(column) {
-            case 0: return key.getFilename();
-            case 1: return key.getSize();
+            case 0: return sfo.getFilename();
+            case 1: return sfo.getSize();
             case 2: if( getState() == STATE_OFFLINE )  return "offline";
-		            else  return key.getDate();
-            case 3: if (key.getOwner()==null || key.getOwner().length()==0)
+		            else  return sfo.getDate();
+            case 3: if (sfo.getOwner()==null || sfo.getOwner().length()==0)
 	    		      return "Anonymous";
 		            else
-			          return key.getOwner();
+			          return sfo.getOwner();
             case 4: return board.toString();
             default: return "*ERR*";
         }
@@ -80,22 +80,22 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
 
     public String getFilename()
     {
-        return key.getFilename();
+        return sfo.getFilename();
     }
 
     public Long getSize()
     {
-        return key.getSize();
+        return sfo.getSize();
     }
 
     public String getDate()
     {
-        return key.getDate();
+        return sfo.getDate();
     }
 
     public String getKey()
     {
-        return key.getKey();
+        return sfo.getKey();
     }
 
     public FrostBoardObject getBoard()
@@ -109,13 +109,22 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     }
     
     public String getOwner() {
-    	return key.getOwner();
+    	return sfo.getOwner();
     }
     
     public String getSHA1() {
-    	return key.getSHA1();
+    	return sfo.getSHA1();
     }
     public String getBatch() {
-    	return key.getBatch();
+    	return sfo.getBatch();
     }
+	/**
+	 * @return Returns the sfo.
+	 */
+	public String getRedirect() {
+		if (sfo instanceof RedirectFileObject)
+			return ((RedirectFileObject)sfo).getRedirect();
+		else return null;
+	}
+
 }

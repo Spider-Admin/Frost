@@ -17,4 +17,6 @@ public interface FrostSearchItem
     public String getBatch();
 
     public FrostBoardObject getBoard();
+    
+    public String getRedirect();
 }
