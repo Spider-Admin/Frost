@@ -4,6 +4,7 @@ Added: if we have an old identities file, it is deleted after being converted to
 Added: saving of both the uploads and downloads models is much more robust now.
 Added: some internationalization improvements.
 Added: the messages about downloading and uploading files at the status bar are clearer now.
+Added: more details to the About dialog.
 
 Changed: messages are signed by default.
 Changed: now the sizes of the new message window, the known boards window and the boards info window are

@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.*;
 
 import javax.swing.*;
+import javax.swing.border.EmptyBorder;
 
 import frost.util.gui.translation.Language;
 
@@ -29,7 +30,29 @@ import frost.util.gui.translation.Language;
  * @author $Author$
  * @version $Revision$
  */
-public class AboutBox extends JDialog implements ActionListener {
+public class AboutBox extends JDialog {
+	
+	private class Listener extends WindowAdapter implements ActionListener {
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == okButton) {
+				cancel();
+			}	
+			if (e.getSource() == moreButton) {
+				moreButtonPressed();
+			}	
+		}
+		
+		public void windowClosing(WindowEvent e) {
+			cancel();
+			super.windowClosing(e);
+		}
+	}
+	
+	private Listener listener = new Listener();
 	
 	private Language language = null;
 
@@ -41,22 +64,26 @@ public class AboutBox extends JDialog implements ActionListener {
 	private final static String copyright = "Copyright (c) 2003 Jan-Thomas Czornack";
 	private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
-	JPanel panel1 = new JPanel();
-	JPanel panel2 = new JPanel();
-	JPanel insetsPanel1 = new JPanel();
-	JPanel insetsPanel2 = new JPanel();
-	JPanel insetsPanel3 = new JPanel();
-	JButton button1 = new JButton();
+	JPanel contentPanel = new JPanel();
+	JPanel topPanel = new JPanel();
+	JPanel buttonsPanel = new JPanel();
+	JPanel imagePanel = new JPanel();
+	JPanel messagesPanel = new JPanel();
+	JPanel morePanel;
+	
 	JLabel imageLabel = new JLabel();
-	JLabel label1 = new JLabel();
-	JLabel label2 = new JLabel();
-	JLabel label3 = new JLabel();
-	JLabel label4 = new JLabel();
-	JLabel label5 = new JLabel();
-	BorderLayout borderLayout1 = new BorderLayout();
-	BorderLayout borderLayout2 = new BorderLayout();
-	FlowLayout flowLayout1 = new FlowLayout();
-	GridLayout gridLayout1 = new GridLayout();
+	JLabel productLabel = new JLabel();
+	JLabel versionLabel = new JLabel();
+	JLabel copyrightLabel = new JLabel();
+	JLabel licenseLabel = new JLabel();
+	JLabel websiteLabel = new JLabel();
+	
+	JButton okButton = new JButton();
+	JButton moreButton = new JButton();
+	
+	private boolean moreExtended = false;
+	
+	private JScrollPane moreScrollPane;
 
 	private static final ImageIcon frostImage =
 		new ImageIcon(AboutBox.class.getResource("/data/jtc.jpg"));
@@ -67,57 +94,103 @@ public class AboutBox extends JDialog implements ActionListener {
 	public AboutBox(Frame parent) {
 		super(parent);
 		language = Language.getInstance();
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-		jbInit();
-		pack();
+		initialize();
 		setLocationRelativeTo(parent);
 	}
 
 	/**
 	 * Component initialization
 	 */
-	private void jbInit() {
+	private void initialize() {
 		imageLabel.setIcon(frostImage);
-		this.setTitle(language.getString("About"));
+		setTitle(language.getString("About"));
 		setResizable(false);
-		panel1.setLayout(borderLayout1);
-		panel2.setLayout(borderLayout2);
-		insetsPanel1.setLayout(flowLayout1);
-		insetsPanel2.setLayout(flowLayout1);
-		insetsPanel2.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
-		gridLayout1.setRows(5);
-		gridLayout1.setColumns(1);
-		label1.setText(product);
-		label2.setText(getVersion());
-		label3.setText(copyright);
-		label4.setText(language.getString("Open Source Project (GPL license)"));
-		label5.setText(comments2);
-		insetsPanel3.setLayout(gridLayout1);
-		insetsPanel3.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
-		button1.setText(language.getString("OK"));
-		button1.addActionListener(this);
-		insetsPanel2.add(imageLabel, null);
-		panel2.add(insetsPanel2, BorderLayout.WEST);
-		this.getContentPane().add(panel1, null);
-		insetsPanel3.add(label1, null);
-		insetsPanel3.add(label2, null);
-		insetsPanel3.add(label3, null);
-		insetsPanel3.add(label4, null);
-		insetsPanel3.add(label5, null);
-		panel2.add(insetsPanel3, BorderLayout.CENTER);
-		insetsPanel1.add(button1, null);
-		panel1.add(insetsPanel1, BorderLayout.SOUTH);
-		panel1.add(panel2, BorderLayout.NORTH);
+		
+		// Image panel
+		imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 10, 10, 10));
+		imagePanel.add(imageLabel);
+		
+		// Messages panel
+		GridLayout gridLayout = new GridLayout(5, 1);
+		messagesPanel.setLayout(gridLayout);
+		messagesPanel.setBorder(new EmptyBorder(10, 50, 10, 10));
+		productLabel.setText(product);
+		versionLabel.setText(getVersion());
+		copyrightLabel.setText(copyright);
+		licenseLabel.setText(language.getString("Open Source Project (GPL license)"));
+		websiteLabel.setText(comments2);
+		messagesPanel.add(productLabel);
+		messagesPanel.add(versionLabel);
+		messagesPanel.add(copyrightLabel);
+		messagesPanel.add(licenseLabel);
+		messagesPanel.add(websiteLabel);
+		
+		// Buttons panel
+		moreButton.setText(language.getString("More") + " >>");
+		okButton.setText(language.getString("OK"));
+		buttonsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
+		buttonsPanel.add(moreButton);
+		buttonsPanel.add(okButton);
+				
+		// Putting everything together
+		topPanel.setLayout(new BorderLayout());
+		topPanel.add(imagePanel, BorderLayout.WEST);
+		topPanel.add(messagesPanel, BorderLayout.CENTER);
+		
+		contentPanel.setLayout(new BorderLayout());
+		contentPanel.add(buttonsPanel, BorderLayout.CENTER);
+		contentPanel.add(topPanel, BorderLayout.NORTH);
+		getContentPane().add(contentPanel, null);
+		
+		// Add listeners
+		moreButton.addActionListener(listener);
+		okButton.addActionListener(listener);
+		addWindowListener(listener);
+		
+		pack();
 	}
-
+	
 	/**
-	 * Overridden so we can exit when window is closed
+	 * @return
 	 */
-	protected void processWindowEvent(WindowEvent e) {
-		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-			cancel();
+	private JPanel getMorePanel() {
+		if (morePanel == null) {
+			morePanel = new JPanel(new BorderLayout());
+			morePanel.setBorder(new EmptyBorder(10,10,10,10));
+			
+			JTextArea moreTextArea = new JTextArea();
+			moreTextArea.setEditable(false);
+			moreTextArea.setMargin(new Insets(5,5,5,5));
+						
+			moreScrollPane = new JScrollPane(moreTextArea);
+			moreTextArea.setRows(10);
+			morePanel.add(moreScrollPane, BorderLayout.CENTER);
+			
+			moreTextArea.append(language.getString("Development:") + "\n");
+			moreTextArea.append("   Jan-Thomas Czornack\n");
+			moreTextArea.append("   Thomas Mueller\n");
+			moreTextArea.append("   Jim Hunziker\n");
+			moreTextArea.append("   Stefan Majewski\n");
+			moreTextArea.append("   José Manuel Arnesto\n\n");
+			moreTextArea.append(language.getString("Windows Installer:") + "\n");
+			moreTextArea.append("   Benoit Laniel\n\n");
+			moreTextArea.append(language.getString("System Tray Executables:") + "\n");
+			moreTextArea.append("   Jeeva S\n\n");
+			moreTextArea.append(language.getString("Translation Support:") + "\n");
+			moreTextArea.append("   Rudolf Krist\n");
+			moreTextArea.append("   RapHHfr\n\n");
+			moreTextArea.append(language.getString("Splash Screen Logo:") + "\n");
+			moreTextArea.append("   Frédéric Scheer\n\n");
+			moreTextArea.append(language.getString("Misc code contributions:") + "\n");
+			moreTextArea.append("   SuperSlut Yoda");
+			
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					moreScrollPane.getViewport().setViewPosition(new Point(0,0));	
+				}
+			});
 		}
-		super.processWindowEvent(e);
+		return morePanel;
 	}
 
 	/**
@@ -132,22 +205,33 @@ public class AboutBox extends JDialog implements ActionListener {
 		}
 		return version;
 	}
+	
+
+	/**
+	 * 
+	 */
+	private void moreButtonPressed() {
+		if (moreExtended) {
+		
+			moreButton.setText(language.getString("More") + " >>");
+			contentPanel.remove(getMorePanel());
+			pack();
+			moreExtended = false;
+		} else {
+			
+			contentPanel.add(getMorePanel(), BorderLayout.SOUTH);
+			moreButton.setText(language.getString("Less") + " <<");
+			pack();
+			moreExtended = true;
+		}
+		
+	}
 
 	/**
 	 * Close the dialog
 	 */
-	void cancel() {
+	private void cancel() {
 		setVisible(false);
 		dispose();
-	}
-
-	/**
-	 * Close the dialog on a button event
-	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-	 */
-	public void actionPerformed(ActionEvent e) {
-		if (e.getSource() == button1) {
-			cancel();
-		}
 	}
 }
