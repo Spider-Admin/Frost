@@ -21,9 +21,11 @@ package frost.messages;
 import java.io.File;
 import java.util.*;
 
-import frost.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.*;
+import frost.gui.objects.FrostBoardObject;
 
 public class MessageObject implements XMLizable {
 
@@ -85,7 +87,10 @@ public class MessageObject implements XMLizable {
 		}
 	
 		//attachments
-		el.appendChild(attachments.getXMLElement(d));
+        if( attachments.size() > 0 )
+        {
+            el.appendChild(attachments.getXMLElement(d));
+        }
 		
 		return el;
 	}
@@ -117,128 +122,82 @@ public class MessageObject implements XMLizable {
     
     File file;
 
-    /**Get*/
-
-    public String getNewContent() {
-    return newContent;
-    }
-
-//TODO: should return AttachmentObjects (to create)
-    // newContent is created here and contains whole msg without the found board tags
+  /**
+   * Creates a Vector of Vectors which contains data for the
+   * attached files table.
+   */    
     public Vector getAttachments() {
-    Vector table = new Vector();
-    int pos = 0;
-    int start = content.indexOf("<attached>");
-    int end = content.indexOf("</attached>");
-    newContent="";
-    try {
-        while (start != -1 && end != -1) {
-            newContent += content.substring(pos, start).trim();
-
-            int spaces = content.indexOf(" * ", start);
-            if( spaces > 0 )
-            {
-                String filename = (content.substring(start + "<attached>".length(), spaces)).trim();
-                String chkKey = (content.substring(spaces + " * ".length(), end)).trim();
-                if( filename.length() > 0 && chkKey.length() > 0 )
-                {
-                    Vector rows = new Vector();
-                    rows.add(filename);
-                    rows.add(chkKey);
-                    table.add(rows);
-                }
-            }
-            pos = end + "</attached>".length();
-            start = content.indexOf("<attached>", pos);
-            end = content.indexOf("</attached>", pos);
-        }
-        newContent += content.substring(pos, content.length()).trim();
-    } catch(Exception ex)
-    {
-        Core.getOut().println("Exception while reading attachments (catched):");
-        ex.printStackTrace(Core.getOut());
-    }
-
-    return table;
-    }
-
-/**
- * 
- * @return list of the attached boards as raw strings
- */
-	public Collection getBoardsAsStrings(){
-		Collection result = new Vector();
-        // always call 1 method that extracts contents savely
-        Vector attboards = getBoards(false);
-        
-        Iterator i = attboards.iterator();
+//      TODO: should pass the SharedFileObject
+        Vector table = new Vector();
+        AttachmentList boards = attachments.getAllOfType(Attachment.FILE);
+        Iterator i = boards.iterator();
         while(i.hasNext())
         {
-            Vector aboard = (Vector)i.next();
-            if(aboard.size() == 3)
+            FileAttachment fa = (FileAttachment)i.next();
+            SharedFileObject sfo = fa.getFileObj();
+            
+            if( sfo.getKey() != null && sfo.getKey().length() > 40 &&
+                sfo.getFilename() != null && sfo.getFilename().length() > 0 )
             {
-                StringBuffer sb = new StringBuffer();
-                sb.append( aboard.get(0) + " * " + aboard.get(1) + " * " + aboard.get(2) );
-                result.add( sb.toString() );
+                Vector rows = new Vector();
+                rows.add(sfo.getFilename());
+                rows.add(sfo.getKey());
+                table.add(rows);
             }
+        }
+        return table;
+    }
+
+    /**
+     * Creates raw string for each attached board in format
+     * boardname * pubkey|"N/A" * privkey|"N/A"
+     *  
+     * @return list of the attached boards as raw strings
+     */
+	public Collection getBoardsAsStrings(){
+		Collection result = new Vector();
+        AttachmentList boards = attachments.getAllOfType(Attachment.BOARD);
+        Iterator i = boards.iterator();
+        while(i.hasNext())
+        {
+            BoardAttachment ba = (BoardAttachment)i.next();
+            StringBuffer sb = new StringBuffer();
+            FrostBoardObject aBoard = ba.getBoardObj();
+            String pubkey = (aBoard.getPublicKey()==null)?"N/A":aBoard.getPublicKey();
+            String privkey = (aBoard.getPrivateKey()==null)?"N/A":aBoard.getPrivateKey();
+            sb.append(aBoard.getBoardName())
+              .append(" * ")
+              .append(pubkey)
+              .append(" * ")
+              .append(privkey);
+              
+            result.add( sb.toString() );
         }
 		return result;
 	}
-    
+
+    /**
+     * Creates a Vector of Vectors which contains data for the
+     * attached boards table.
+     */    
     public Vector getBoards()
     {
-        return getBoards(true); // default changes msg content and removes boards attachement 
-    }
-    
-// TODO: should return AttachedBoards (to create)
-    // newContent is created here and contains whole msg without the found board tags
-    public Vector getBoards(boolean changeContent)
-    {
-        // TODO: this code does not care if the <board> or </board> appears somewhere in the content
-        // if e.g. a <board></board> occurs in message, this throw a NullPointerException
         Vector table = new Vector();
-        int pos = 0;
-        int start = content.indexOf("<board>");
-        int end = content.indexOf("</board>", start);
-        if( changeContent )
-            newContent = "";
-        while (start != -1 && end != -1)
+        AttachmentList boards = attachments.getAllOfType(Attachment.BOARD);
+        Iterator i = boards.iterator();
+        while(i.hasNext())
         {
-            try
-            {
-                int boardPartLength = end - ( start + "<board>".length() );
-                // must be at least 14, 1 char boardnamwe, 2 times " * " and keys="N/A"
-                // mr. spammer: thx for pointing us at this *g*
-                if(boardPartLength >= (1 + (2*3) + (2*3)) )
-                {
-                    if( changeContent )
-                        newContent += content.substring(pos, start).trim();
-                
-                    int spaces = content.indexOf(" * ", start);
-                    int spaces2 = content.indexOf(" * ", spaces + 1);
-                    //System.out.println("* at " + spaces + " " + spaces2);
-                    String boardName = (content.substring(start + "<board>".length(), spaces)).trim();
-                    String pubKey = (content.substring(spaces + " * ".length(), spaces2)).trim();
-                    String privKey = (content.substring(spaces2 + " * ".length(), end)).trim();
-                    Vector rows = new Vector();
-                    rows.add(boardName);
-                    rows.add(pubKey);
-                    rows.add(privKey);
-                    table.add(rows);
-                }
-            }
-            catch (RuntimeException e) // on wrong format a NullPointerException is thrown
-            {
-                System.out.println("Error in format of attached boards, skipping 1 entry.");
-            }
-            // maybe try next entry
-            pos = end + "</board>".length();
-            start = content.indexOf("<board>", pos);
-            end = content.indexOf("</board>", pos);
+            BoardAttachment ba = (BoardAttachment)i.next();
+            FrostBoardObject aBoard = ba.getBoardObj();
+            String pubkey = (aBoard.getPublicKey()==null)?"N/A":aBoard.getPublicKey();
+            String privkey = (aBoard.getPrivateKey()==null)?"N/A":aBoard.getPrivateKey();
+            
+            Vector rows = new Vector();
+            rows.add(aBoard.getBoardName());
+            rows.add(pubkey);
+            rows.add(privkey);
+            table.add(rows);
         }
-        if( changeContent )
-            newContent += content.substring(pos, content.length()).trim();
-        
         return table;
     }
 
@@ -279,15 +238,14 @@ public class MessageObject implements XMLizable {
         // this is resetted in TOF.evalSelection to non-bold on first view
         fatFrom = new StringBuffer().append("<html><b>").append(from).append("</b></html>").toString();
     }
-    if ( (content.indexOf("<attached>") != -1 && content.indexOf("</attached>") != -1) ||
-        (content.indexOf("<board>") != -1 && content.indexOf("</board>") != -1) ){
+    if( attachments.getAllOfType(Attachment.BOARD).size() > 0 || 
+        attachments.getAllOfType(Attachment.BOARD).size() > 0 )
+    {
         if (fatFrom.startsWith("<html><b>"))
-        fatFrom = "<html><b><font color=\"blue\">" + from + "</font></b></html>";
+            fatFrom = "<html><b><font color=\"blue\">" + from + "</font></b></html>";
         else
-        fatFrom = "<html><font color=\"blue\">" + from + "</font></html>";
+            fatFrom = "<html><font color=\"blue\">" + from + "</font></html>";
     }
-
-    //String[] row = {index, fatFrom, subject, date + " " + time};
     String[] row = {index, fatFrom, subject, date, time};
     return row;
     }

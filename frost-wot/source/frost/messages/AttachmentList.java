@@ -46,6 +46,8 @@ public class AttachmentList extends LinkedList implements XMLizable {
 	}
 	
 	public void loadXMLElement(Element el) throws SAXException {
+        if( el == null )
+            return;
 		Iterator i = XMLTools.getChildElementsByTagName(el,"Attachment").iterator();
 		while (i.hasNext()){
 			Attachment attachment;
