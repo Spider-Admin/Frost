@@ -140,7 +140,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			fontsConstraints.gridx = 1;
 			fontsConstraints.gridy = 0;	
 			fontsConstraints.weightx = 0;
-			messageBodyButton.setEnabled(false);	//Disabled for now	
 			fontsPanel.add(messageBodyButton, fontsConstraints);
 			
 			fontsConstraints.insets = inset1515;	
