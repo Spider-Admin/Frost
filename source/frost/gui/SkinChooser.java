@@ -434,6 +434,7 @@ public class SkinChooser extends JPanel {
 	 */
 	private void updateComponentTreesUI() {
 		Frame[] appFrames = Frame.getFrames();
+		JSkinnablePopupMenu[] appPopups = JSkinnablePopupMenu.getSkinnablePopupMenus();
 		for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
 			SwingUtilities.updateComponentTreeUI(appFrames[i]);
 			Window[] ownedWindows = appFrames[i].getOwnedWindows();
@@ -442,6 +443,9 @@ public class SkinChooser extends JPanel {
 					SwingUtilities.updateComponentTreeUI(ownedWindows[j]);
 				}
 			}
+		}
+		for (int i = 0; i < appPopups.length; i++) { //Loop to update all the popups
+			SwingUtilities.updateComponentTreeUI(appPopups[i]);
 		}
 	}
 	
