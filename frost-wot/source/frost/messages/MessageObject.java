@@ -34,9 +34,17 @@ public class MessageObject implements XMLizable
 	
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 
-	private AttachmentList attachments; // this is never null!
+	private AttachmentList attachments = new AttachmentList(); // this is never null!
 			//FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
-    private String board, content, from, subject, date, time, index, publicKey, newContent;
+    private String board = "";
+    private String content = "";
+    private String from = "";
+    private String subject = "";
+    private String date = "";
+    private String time = "";
+    private String index = "";
+    private String publicKey  = "";
+    private boolean deleted = false;
     
     protected File file;
 
@@ -45,15 +53,7 @@ public class MessageObject implements XMLizable
      * Used to contruct an instance for a new message.
      */
     public MessageObject() {
-    this.board = "";
-    this.from = "";
-    this.subject = "";
-    this.board = "";
-    this.date = "";
-    this.time = "";
-    this.content = "";
-    this.publicKey = "";
-    this.attachments = new AttachmentList();
+    	//Nothing here
     }
 
     /**
@@ -251,10 +251,17 @@ public class MessageObject implements XMLizable
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
 	public Element getXMLElement(Document d){
-		return messageObjectPopulateElement(d);
+		return populateElement(d);
 	}
 
     /**
+     * @return
+     */
+    public boolean isDeleted() {
+    	return deleted;
+    }
+	
+	/**
      * @return
      */
     public boolean isValid() {
@@ -326,14 +333,14 @@ public class MessageObject implements XMLizable
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
-		messageObjectPopulateFromElement(e);
+		populateFromElement(e);
 	}
 	
 	/**
 	 * @param d
 	 * @return
 	 */
-	protected Element messageObjectPopulateElement(Document d){
+	protected Element populateElement(Document d){
 		Element el = d.createElement("FrostMessage");
 	
 		CDATASection cdata;
@@ -382,6 +389,12 @@ public class MessageObject implements XMLizable
 			current.appendChild(cdata);
 			el.appendChild(current);
 		}
+		
+		//is deleted?
+		if (deleted) {
+			current = d.createElement("Deleted");
+			el.appendChild(current);
+		}
 	
 		//attachments
         if( attachments.size() > 0 )
@@ -396,7 +409,7 @@ public class MessageObject implements XMLizable
 	 * @param e
 	 * @throws SAXException
 	 */
-	protected void messageObjectPopulateFromElement(Element e)
+	protected void populateFromElement(Element e)
 		throws SAXException {
 			
 			from = XMLTools.getChildElementsCDATAValue(e,"From");
@@ -406,6 +419,10 @@ public class MessageObject implements XMLizable
 			publicKey = XMLTools.getChildElementsCDATAValue(e,"pubKey");
 			board = XMLTools.getChildElementsCDATAValue(e,"Board");
 			content = XMLTools.getChildElementsCDATAValue(e,"Body");
+			
+			if (XMLTools.getChildElementsCDATAValue(e,"Deleted") != null) {
+				deleted = true;
+			}
 			
             List l = XMLTools.getChildElementsByTagName(e,"AttachmentList");
             if( l.size() > 0 )
