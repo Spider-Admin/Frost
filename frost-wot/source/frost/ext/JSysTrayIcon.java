@@ -259,13 +259,14 @@ public class JSysTrayIcon
    * @param windowTitle - the window title
    * @return true if instance was successfully created, false otherwise
    */
-  public static boolean createInstance(int iconIndex,String tooltipText,String windowTitle)
+  public static boolean createInstance(int iconIx,String tooltipTxt,String winTitle)
   {
       try {
-          JSysTrayIcon.sysTrayIcon = new JSysTrayIcon(iconIndex, tooltipText, windowTitle);    
+          JSysTrayIcon.sysTrayIcon = new JSysTrayIcon(iconIx, tooltipTxt, winTitle);    
       }
       catch(Throwable t)
       {
+          //t.printStackTrace();
           return false;
       }
       return true;
