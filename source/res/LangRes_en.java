@@ -66,7 +66,7 @@ public class LangRes_en extends ListResourceBundle {
 	{"Never", "Never"},
 	{"Requested", "Requested"},
 	{"Uploading", "Uploading"},
-	{"Unknown", "Unkown"},
+	{"Unknown", "Unknown"},
 	{"Show systray icon","Show SysTray icon"},
 	{"Display","Display"},
 	{"Miscellaneous","Miscellaneous"},
