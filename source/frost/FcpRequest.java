@@ -697,8 +697,6 @@ public class FcpRequest
                 }
             }
 
-// TODO: check if the redirect file is a splitfile !
-
             // Check if file is a splitfile.
             boolean isSplitfile = false;
             if( tempFile.length() < 65536 ) // TODO: is redirect file of this max size?
