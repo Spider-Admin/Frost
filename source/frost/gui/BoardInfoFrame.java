@@ -301,6 +301,7 @@ public class BoardInfoFrame extends JFrame
 
     protected void closeDialog()
     {
+	setDialogShowing( false );
         dispose();
     }
 
