@@ -208,7 +208,7 @@ public class MessageObject {
         return false;
     if (date.length() > 22)
         return false;
-    // FIXME: this could be larger, or not?     
+    // FIXED: no, this is freenet limit (actually its 32k, not 32000)
         /*
     if (content.length() > 32000)
         return false;*/
