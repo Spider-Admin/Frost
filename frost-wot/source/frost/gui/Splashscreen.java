@@ -40,6 +40,8 @@ public class Splashscreen extends JDialog {
 
 	/**Component initialization*/
 	private void init() {
+		
+		setUndecorated(true);
 		this.setResizable(false);
 		
 		pictureLabel.setIcon(frostLogo);
