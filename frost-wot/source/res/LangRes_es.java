@@ -287,5 +287,25 @@ static final Object[][] contents = {
 {"Welcome message","!Por favor, lee esto!\n\nPara usar Frost, primero debes seleccionar un tema en la ventana de información de foros. Puedes abrir esta ventana con el botón i de arriba. Puedes enviar mensajes y ficheros a gente usando el mismo foro. Probablemente pase un rato hasta que aparezcan los primeros foros (pulsa el botón de refresco)."},
 {"You must enter a sender name!","!Debes introducir un nombre de remitente!"},
 {"You must enter a subject!","!Debes introducir un asunto!"},
+
+  ///////////////////////////////////////////////////
+  // Core start messages
+  ///////////////////////////////////////////////////
+
+  {"Core.init.NodeNotRunningBody","Asegúrate de que tu nodo está funcionando y de que has configurado Freenet correctamente.\n"
+								 	+ "A pesar de ello, para permitirte leer mensajes, Frost arrancará ahora.\n"
+								 	+ "Que no te confundan los posibles mensajes de error ;)\n"},	
+  {"Core.init.NodeNotRunningTitle","Error - no se pudo establecer la conexión con el nodo Freenet."},
+  {"Core.init.TransientNodeBody","Estás ejecutando un nodo TRANSITORIO. Mejor ejecuta un nodo Freenet PERMANENTE."},
+  {"Core.init.TransientNodeTitle","Nodo transitorio detectado"},
+  {"Core.loadIdentities.ConnectionNotEstablishedBody","Frost no pudo establecer una conexión con tu(s) nodo(s) Freenet.\n"
+  								  	+ "Para la configuración inicial de Frost y para crear tu identidad se necesita una conexión.\n"
+								  	+ "Una vez hecho eso se puede ejecutar Frost sin ella.\n"
+									+ "Por favor, asegúrate de que estás online y de que Freenet se está ejecutando. Entonces, reinicia Frost"},
+  {"Core.loadIdentities.ConnectionNotEstablishedTitle","Conexión al nodo Freenet fallida"},
+  {"Core.loadIdentities.ChooseName","Escoge un nombre para tu identidad. No tiene porqué ser único.\n"},
+  {"Core.loadIdentities.InvalidNameBody","Tu nombre no puede contener una '@'!"},
+  {"Core.loadIdentities.InvalidNameTitle","Nombre de identidad no válido"}
+
 };
 }

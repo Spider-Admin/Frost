@@ -1106,7 +1106,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		// enable the machine ;)
 		try {
-			core = new Core();
+			core = new Core(languageResource.getResourceBundle());
 			splashscreen.setText(languageResource.getString("Sending IP address to NSA"));
 			splashscreen.setProgress(60);
 			jbInit();
