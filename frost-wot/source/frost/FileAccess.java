@@ -542,6 +542,11 @@ public class FileAccess
     }
     public static void writeKeyFile(Map chk, File destination)
     {
+        if( chk.size() == 0 )
+        {
+            return;
+        }
+        
         File tmpFile = new File( destination.getPath() + ".tmp" );
         
         Document doc = XMLTools.createDomDocument();
