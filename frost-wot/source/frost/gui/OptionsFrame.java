@@ -113,7 +113,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField spamTreshold = new JTextField(5);
     JTextField tofBlockMessageBodyTextField = new JTextField(32);
 
-    JCheckBox CBdisableRequests = new JCheckBox();
+    JCheckBox CBdisableRequests = new JCheckBox("Disable downloads");
 
     JCheckBox signedOnly = new JCheckBox("Show only signed messages (off)");
     JCheckBox goodOnly = new JCheckBox("Show only GOOD messages (off)");
@@ -333,12 +333,19 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             downloadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + "(3)"), constr);
             constr.gridx = 1;
             downloadPanel.add(downloadSplitfileThreadsTextField, constr);
-
+	    //constr.gridx = 1;
+	    constr.gridy++;
+	    //downloadPanel.add(new JLabel("Disable downloads"), constr);
+            
+            constr.gridx = 0;
+            downloadPanel.add(CBdisableRequests, constr);
+            
             constr.gridy++;
             constr.gridx = 0;
             constr.gridwidth = 3;
             constr.insets = new Insets(5,5,5,5);
             downloadPanel.add(removeFinishedDownloadsCheckBox, constr);
+	    
             // filler (glue)
             constr.gridy++;
             constr.gridx = 3;
@@ -429,11 +436,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             tofPanel.add(tofMessageBaseTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            tofPanel.add(new JLabel("Disable update for files in boards (off)"), constr);
-            constr.gridx = 1;
-            tofPanel.add(CBdisableRequests, constr);
-            constr.gridy++;
-            constr.gridx = 0;
+            
             tofPanel.add(new JLabel(LangRes.getString("Signature")), constr);
             constr.gridy++;
             constr.gridx = 0;
