@@ -58,7 +58,7 @@ public class SkinChooser extends JPanel {
 			if (event.getSource() == SkinChooser.this.getRefreshButton())
 				refreshButtonPressed(event);
 		}
-		
+
 		/**
 		 * Method called when a ListSelectionEvent is fired
 		 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
@@ -69,7 +69,7 @@ public class SkinChooser extends JPanel {
 		};
 
 	}
-	
+
 	EventHandler eventHandler = new EventHandler();
 
 	private Component rootComponent = null;
@@ -82,6 +82,9 @@ public class SkinChooser extends JPanel {
 	private JLabel availableSkinsLabel = null;
 	private JScrollPane listScrollPane = null;
 	private JList skinsList = null;
+
+	private Component localRootComponent = null;
+	private boolean noSkinsFound = true;
 
 	/**
 	 * 	Constructor
@@ -129,7 +132,7 @@ public class SkinChooser extends JPanel {
 		initConnections();
 		refreshSkinsList();
 	}
-	
+
 	/**
 	 * Return the SkinsList property value.
 	 * @return javax.swing.JList
@@ -138,7 +141,6 @@ public class SkinChooser extends JPanel {
 		if (skinsList == null) {
 			skinsList = new javax.swing.JList();
 			skinsList.setName("SkinsList");
-			skinsList.setBounds(0, 0, 160, 120);
 			skinsList.setSelectionMode(javax.swing.ListSelectionModel.SINGLE_SELECTION);
 		}
 		return skinsList;
@@ -165,6 +167,11 @@ public class SkinChooser extends JPanel {
 				SkinLookAndFeel.setSkin(selectedSkin);
 				SkinLookAndFeel.enable();
 				SwingUtilities.updateComponentTreeUI(rootComponent);
+				//The following is done because if the rootComponent is a frame and the SkinChooser is in a dialog 
+				//(as is the case in frost) an update of the frame UI tree will not update that dialog.
+				if (getLocalRootComponent() != rootComponent) {
+					SwingUtilities.updateComponentTreeUI(getLocalRootComponent());
+				}
 			} catch (UnsupportedLookAndFeelException exception) {
 				System.out.println("Exception while activating the skin: \n" + exception.getMessage() + "\n");
 			} catch (Exception exception) {
@@ -172,7 +179,7 @@ public class SkinChooser extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Dummy main method, just to see the progress of the SkinChooser
 	 * To execute it from Eclipse a subdirectory called themes in
@@ -187,7 +194,7 @@ public class SkinChooser extends JPanel {
 			aSkinChooser = new SkinChooser();
 			aSkinChooser.setRootComponent(frame);
 			frame.setContentPane(aSkinChooser);
-			frame.setSize(600,200);
+			frame.setSize(600, 200);
 			frame.addWindowListener(new java.awt.event.WindowAdapter() {
 				public void windowClosing(java.awt.event.WindowEvent e) {
 					System.exit(0);
@@ -210,7 +217,7 @@ public class SkinChooser extends JPanel {
 	public void refreshButtonPressed(ActionEvent actionEvent) {
 		refreshSkinsList();
 	}
-	
+
 	/**
 	 *	Refreshes the list of available skins
 	 */
@@ -220,12 +227,23 @@ public class SkinChooser extends JPanel {
 			buildSkinsList(skinsListData, new File(THEMES_DIR));
 
 			Collections.sort(skinsListData);
+			if (skinsListData.isEmpty()) {
+				skinsListData.add(getLanguageBundle().getString("NoSkinsFound"));
+				noSkinsFound = true;
+				getSkinsList().setEnabled(false);
+				getSkinsList().setEnabled(false);
+			} else {
+				noSkinsFound = false;
+				if (isEnabled()) {	//Only enable the list if the SkinChooser itself is enabled
+					getSkinsList().setEnabled(true);
+				}
+			}
 			getSkinsList().setListData(skinsListData.toArray());
 		} catch (IOException exception) {
 			System.out.println(exception.getMessage() + "\n");
 		}
 	}
-	
+
 	/**
 	 * Recursively traverse <code>directory</code> and add skin files to <code>collection</code>
 	 * Skin files are added if <code>accept(skinFile)</code> returns <code>true</code>
@@ -252,7 +270,7 @@ public class SkinChooser extends JPanel {
 			}
 		}
 	}
-	
+
 	/**
 	 * Check if a given file is a skin file.
 	 *
@@ -262,15 +280,15 @@ public class SkinChooser extends JPanel {
 	private boolean accept(File file) {
 		return (file.isDirectory() == false && (file.getName().endsWith(".zip")));
 	}
-	
+
 	/**
 	 * Method called when a Skin from the List is selected
 	 * @param listSelectionEvent The list selection event
 	 */
 	public void skinSelected(ListSelectionEvent listSelectionEvent) {
-		if (!listSelectionEvent.getValueIsAdjusting()) { 	//We ignore "adjusting" events
+		if (!listSelectionEvent.getValueIsAdjusting()) { //We ignore "adjusting" events
 			if (getSkinsList().getSelectedIndex() == -1) {
-				getPreviewButton().setEnabled(false); 		//No selection
+				getPreviewButton().setEnabled(false); //No selection
 			} else {
 				getPreviewButton().setEnabled(true);
 			}
@@ -287,7 +305,7 @@ public class SkinChooser extends JPanel {
 			listScrollPane.setName("ListScrollPane");
 			listScrollPane.setVerticalScrollBarPolicy(JScrollPane.VERTICAL_SCROLLBAR_AS_NEEDED);
 			listScrollPane.setHorizontalScrollBarPolicy(JScrollPane.HORIZONTAL_SCROLLBAR_AS_NEEDED);
-			getListScrollPane().setViewportView(getSkinsList());
+			listScrollPane.setViewportView(getSkinsList());
 		}
 		return listScrollPane;
 	}
@@ -387,14 +405,39 @@ public class SkinChooser extends JPanel {
 	 */
 	public void setEnabled(boolean enabled) {
 		super.setEnabled(enabled);
-		getSkinsList().setEnabled(enabled);
+
+		if (noSkinsFound) { //If there are no skins, the list remains disabled
+			getSkinsList().setEnabled(false);
+		} else {
+			getSkinsList().setEnabled(enabled);
+		}
+
 		getRefreshButton().setEnabled(enabled);
-		
-		if (enabled && (getSkinsList().getSelectedIndex() != -1)) {	//Only enable the preview button if there is a selected skin
+
+		if (enabled && (getSkinsList().getSelectedIndex() != -1)) { //Only enable the preview button if there is a selected skin
 			getPreviewButton().setEnabled(true);
 		} else {
 			getPreviewButton().setEnabled(false);
 		}
 	}
 
+	/**
+	 * Obtains the root component of the current component
+	 * 
+	 * @return description the root component of this panel
+	 */
+	private Component getLocalRootComponent() {
+		if (localRootComponent == null) {
+			localRootComponent = SwingUtilities.getRoot(this);
+		}
+		return localRootComponent;
+	}
+	/**
+	 * description
+	 * 
+	 * @param localRootComponent description
+	 */
+	private void setLocalRootComponent(Component localRootComponent) {
+		this.localRootComponent = localRootComponent;
+	}
 }
