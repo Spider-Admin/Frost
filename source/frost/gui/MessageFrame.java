@@ -360,7 +360,6 @@ public class MessageFrame extends JFrame
     /**jButton3 Action Listener (Add attachment(s))*/
     private void attachFile_actionPerformed(ActionEvent e)
     {
-        String lineSeparator = System.getProperty("line.separator");
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
         fc.setDialogTitle(LangRes.getString("Choose file(s) / directory(s) to attach"));
         fc.setFileHidingEnabled(false);
