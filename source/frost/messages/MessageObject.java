@@ -314,7 +314,7 @@ public class MessageObject implements XMLizable
     {
         // set index for this msg from filename
         String filename = file.getName();
-        this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".txt"))).trim();
+        this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".xml"))).trim();
         // ensure all needed fields are properly filled
         if( from == null || date == null || subject == null || time == null ||
             board == null || content == null ||
