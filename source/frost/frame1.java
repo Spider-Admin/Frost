@@ -1399,7 +1399,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         JMenuItem pluginBrowserMenuItem = new JMenuItem("EFB (Experimental Freenet Browser)");
 
         JMenu helpMenu = new JMenu(LangRes.getString("Help"));
-        JMenuItem helpHelpMenuItem = new JMenuItem("Help");
+        JMenuItem helpHelpMenuItem = new JMenuItem(LangRes.getString("Help"));
         JMenuItem helpAboutMenuItem = new JMenuItem(LangRes.getString("About"));
 // add action listener
         fileExitMenuItem.addActionListener(new ActionListener()  {
