@@ -202,8 +202,8 @@ public class RandomAccessFileBucket implements Bucket {
             this.rafb = rafb;
             raf = new RandomAccessFile(rafb.file, "r");
             raf.seek(offset);
-            println(" -- Created new InputStream [" + rafb.offset +
-                    ", " + (rafb.offset + rafb.len -1) + "]" );
+//            println(" -- Created new InputStream [" + rafb.offset +
+//                    ", " + (rafb.offset + rafb.len -1) + "]" );
         }
 
         ////////////////////////////////////////////////////////////
@@ -215,8 +215,8 @@ public class RandomAccessFileBucket implements Bucket {
 
         public int read() throws java.io.IOException {
             synchronized (rafb) {
-                println(".read()");
-                checkValid();
+//                println(".read()");
+//                checkValid();
                 if (bytesLeft() < 1) {
                     return -1; // EOF
                 }
@@ -226,8 +226,8 @@ public class RandomAccessFileBucket implements Bucket {
 
         public int read(byte[] bytes) throws java.io.IOException {
             synchronized (rafb) {
-                println(".read(byte[])");
-                checkValid();
+//                println(".read(byte[])");
+//                checkValid();
                 int nAvailable = bytesLeft();
                 if (nAvailable < 1) {
                     return -1; // EOF
@@ -241,8 +241,8 @@ public class RandomAccessFileBucket implements Bucket {
 
         public int read(byte[] bytes, int a, int b) throws java.io.IOException {
             synchronized (rafb) {
-                println(".read(byte[], int, int)");
-                checkValid();
+//                println(".read(byte[], int, int)");
+//                checkValid();
                 int nAvailable = bytesLeft();
                 if (nAvailable < 1) {
                     return -1; // EOF
@@ -256,8 +256,8 @@ public class RandomAccessFileBucket implements Bucket {
 
         public long skip(long a) throws java.io.IOException {
             synchronized (rafb) {
-                println(".skip(long)");
-                checkValid();
+//                println(".skip(long)");
+//                checkValid();
                 int nAvailable = bytesLeft();
                 if (nAvailable < 1) {
                     return -1; // EOF
@@ -272,21 +272,21 @@ public class RandomAccessFileBucket implements Bucket {
 
         public int available() throws java.io.IOException {
             synchronized (rafb) {
-                println(".available()");
-                checkValid();
+//                println(".available()");
+//                checkValid();
                 return bytesLeft();
             }
         }
 
         public void close() throws java.io.IOException {
             synchronized (rafb) {
-                println(".close()");
-                checkValid();
+//                println(".close()");
+//                checkValid();
                 raf.close();
                 if (rafb.streams.contains(RAInputStream.this)) {
                     rafb.streams.removeElement(RAInputStream.this);
                 }
-		rafb.streams.trimToSize();
+                rafb.streams.trimToSize();
             }
         }
 
@@ -303,17 +303,11 @@ public class RandomAccessFileBucket implements Bucket {
             return false;
         }
 
-        private final void println(String text) {
-/*            if (vociferous) {
-                Core.logger.log(this, text, Logger.DEBUGGING);
-            }*/
-        }
-
-        private final void checkValid() throws IOException {
+/*        private final void checkValid() throws IOException {
             if (rafb.released) {
                 throw new IOException("Attempt to use a released RandomAccessFileBucket: " + prefix);
             }
-        }
+        }*/
 
         ////////////////////////////////////////////////////////////
         private RandomAccessFileBucket rafb = null;
@@ -326,15 +320,15 @@ public class RandomAccessFileBucket implements Bucket {
             this.rafb = rafb;
             raf = new RandomAccessFile(rafb.file, "rw");
             raf.seek(rafb.offset + rafb.localOffset);
-            println(" -- Created new OutputStream [" + rafb.offset + ", "
-                    + (rafb.offset + rafb.len -1) + "]" );
+//            println(" -- Created new OutputStream [" + rafb.offset + ", "
+//                    + (rafb.offset + rafb.len -1) + "]" );
         }
 
         ////////////////////////////////////////////////////////////
         // OutputStream implementation
         public void write(int b) throws IOException {
             synchronized (rafb) {
-                println(".write(b)");
+//                println(".write(b)");
                 checkValid();
                 int nAvailable = bytesLeft();
                 if (nAvailable < 1) {
@@ -346,7 +340,7 @@ public class RandomAccessFileBucket implements Bucket {
 
         public void write(byte[] buf) throws IOException {
             synchronized (rafb) {
-                println(".write(buf)");
+//                println(".write(buf)");
                 checkValid();
                 int nAvailable = bytesLeft();
                 if (nAvailable < buf.length) {
@@ -358,7 +352,7 @@ public class RandomAccessFileBucket implements Bucket {
 
         public void write(byte[] buf, int off, int len) throws IOException {
             synchronized (rafb) {
-                println(".write(buf,off,len)");
+//                println(".write(buf,off,len)");
                 checkValid();
                 int nAvailable = bytesLeft();
                 if (nAvailable < len) {
@@ -370,7 +364,7 @@ public class RandomAccessFileBucket implements Bucket {
 
         public void flush() throws IOException {
             synchronized (rafb) {
-                println(".flush()");
+//                println(".flush()");
                 checkValid();
                 // NOP? Bytes written immediately?
                 // REDFLAG: double check.
@@ -379,7 +373,7 @@ public class RandomAccessFileBucket implements Bucket {
 
         public void close() throws IOException {
             synchronized (rafb) {
-                println(".close()");
+//                println(".close()");
                 checkValid();
                 if (rafb.streams.contains(RAOutputStream.this)) {
                     rafb.streams.removeElement(RAOutputStream.this);
@@ -396,12 +390,6 @@ public class RandomAccessFileBucket implements Bucket {
         }
 
         ////////////////////////////////////////////////////////////
-        private void println(String text) {
-            if (vociferous) {
-                /*Core.logger.log(this, text, Logger.DEBUGGING);*/
-            }
-        }
-
         private final void checkValid() throws IOException {
             if (rafb.isReleased()) {
                 throw new IOException("Attempt to use a released RandomAccessFileBucket: " + prefix);
