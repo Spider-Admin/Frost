@@ -110,9 +110,9 @@ public class FileAccess
 		KeyClass newKey = new KeyClass();
 		
 		//extract the values
-		newKey.setFilename(XMLTools.getChildElementsTextValue(current, "name"));
+		newKey.setFilename(XMLTools.getChildElementsCDATAValue(current, "name"));
 		newKey.setOwner(XMLTools.getChildElementsTextValue(current, "owner"));
-		newKey.setSHA1(XMLTools.getChildElementsTextValue(current, "SHA1"));
+		newKey.setSHA1(XMLTools.getChildElementsCDATAValue(current, "SHA1"));
 		newKey.setKey(XMLTools.getChildElementsTextValue(current, "key"));
 		newKey.setDate(XMLTools.getChildElementsTextValue(current, "date"));
 		newKey.setSize(XMLTools.getChildElementsTextValue(current, "size"));
@@ -207,8 +207,8 @@ public class FileAccess
 		    
                     //f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
 		    text.append("<File>");
-		    text.append("<name>" + current.getFilename()+"</name>");
-		    text.append("<SHA1>" + current.getSHA1()+"</SHA1>");
+		    text.append("<name><![CDATA[" + current.getFilename()+"]]></name>");
+		    text.append("<SHA1><![CDATA[" + current.getSHA1()+"]]></SHA1>");
 		    text.append("<size>" + current.getSize()+"</size>");
 		    
 		    if (current.getOwner() != null)
