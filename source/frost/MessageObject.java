@@ -34,6 +34,7 @@ public class MessageObject {
     return newContent;
     }
 
+//TODO: should return AttachmentObjects (to create)
     public Vector getAttachments() {
     Vector table = new Vector();
     int pos = 0;
@@ -61,6 +62,7 @@ public class MessageObject {
     return table;
     }
 
+// TODO: should return AttachedBoards (to create)
     public Vector getBoards () {
         // TODO: this code does not care if the <board> or </board> appears somewhere in the content
         // if e.g. a <board></board> occurs in message, this throw a NullPointerException

@@ -107,9 +107,9 @@ public class getKeyThread extends Thread {
     // Should we really loop here. Freenet tries for us anyhow and if we
     // fail, we'll continue wizh higher htl
 
-    // TODO: FIX: DBG: removed loop for testing purposes
+    // TODO: FIX: DBG: changed loop for testing purposes
 
-//    while (!success && tries < 2) {
+    while (!success && tries < 1) {
         if (DEBUG) System.out.println("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");
         if (DEBUG) System.out.println("Splitfile request (tries): " + tries);
 
@@ -165,7 +165,7 @@ public class getKeyThread extends Thread {
         results[index] = false;
         mixed.wait(3000);
         }
-//    } // end-of: while
+    } // end-of: while
     }
 
     /**
