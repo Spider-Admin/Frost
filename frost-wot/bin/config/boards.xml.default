@@ -45,18 +45,10 @@
                 <name>mp3</name>
             </FrostBoardTreeEntry>
             <FrostBoardTreeEntry>
-                <name>mp3ogg</name>
-                <publicKey>SSK@PJONkPZC6a4EuhHE~dP0nYyWK-oPAgM</publicKey>
-            </FrostBoardTreeEntry>
-            <FrostBoardTreeEntry>
                 <name>ogg</name>
             </FrostBoardTreeEntry>
             <FrostBoardTreeEntry>
                 <name>movies</name>
-            </FrostBoardTreeEntry>
-            <FrostBoardTreeEntry>
-                <name>movies.priv</name>
-                <publicKey>SSK@VFD2~-cBbe~yaMjlZVP6nF11cicPAgM</publicKey>
             </FrostBoardTreeEntry>
             <FrostBoardTreeEntry>
                 <name>warez</name>
