@@ -23,6 +23,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -52,8 +53,29 @@ public class MessageFrame extends JFrame
      */
     private class AttachBoardsChooser extends JDialog
     {
+    	
+    	/**
+		 * @author $Author$
+		 * @version $Revision$
+		 */
+		private class AttachBoardsCellRenderer extends DefaultListCellRenderer {
+
+			/* (non-Javadoc)
+			 * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
+			 */
+			public Component getListCellRendererComponent(JList list, Object value, int index,
+					boolean isSelected, boolean cellHasFocus) {
+				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
+				if (value != null) {
+					Board board = (Board) value;
+					setText(board.getName());
+				}	
+				return this;
+			}
+		}
+    	
         JButton Bcancel;
-        Vector boards;
+        List boards;
         JButton Bok;
         JList Lboards;
         boolean okPressed = false;
@@ -61,7 +83,7 @@ public class MessageFrame extends JFrame
         /**
          * @param boards
          */
-        public AttachBoardsChooser(Vector boards)
+        public AttachBoardsChooser(List boards)
         {	
             super();
             setTitle(language.getString("Choose boards to attach"));
@@ -91,7 +113,16 @@ public class MessageFrame extends JFrame
             buttonsPanel.add( Bok );
             buttonsPanel.add( Bcancel );
 
-            Lboards = new JList( boards );
+            ListModel boardsModel = new AbstractListModel() {
+				public int getSize() {
+					return boards.size();
+				}
+				public Object getElementAt(int index) {
+					return boards.get(index);
+				}
+            };
+            Lboards = new JList(boardsModel);
+            Lboards.setCellRenderer(new AttachBoardsCellRenderer());
             Lboards.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             JScrollPane listScroller = new JScrollPane( Lboards );
             listScroller.setBorder( new CompoundBorder( new EmptyBorder(5,5,5,5),
