@@ -451,10 +451,11 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 //								add all files indexed files
 							  Iterator it = currentMsg.getAttachmentList().getAllOfType(Attachment.FILE).iterator();
 							  while (it.hasNext()){
-								  SharedFileObject current = (SharedFileObject)it.next();
+								  SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
 							  	  if (current.getSHA1()!=null && current.getSHA1().length()>0)
 									  Index.add(current,board);
 							  }
+
 																  
                             }
                         }
