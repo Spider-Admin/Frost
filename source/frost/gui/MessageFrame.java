@@ -59,6 +59,8 @@ public class MessageFrame extends JFrame
     JScrollPane attFilesScroller;
     JScrollPane attBoardsScroller;
     
+    JPanel attachmentsPanel;
+    
     //------------------------------------------------------------------------
     // Generate objects
     //------------------------------------------------------------------------
@@ -153,42 +155,45 @@ public class MessageFrame extends JFrame
         //------------------------------------------------------------------------
         JPanel panelMain = new JPanel(new BorderLayout()); // Main Panel
         JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
-        JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields(jPanel2)
+        JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
         JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
-        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+        
+        this.attachmentsPanel = new JPanel(new BorderLayout());
 
-        JLabel Lboard = new JLabel(LangRes.getString("Board: ")); // Board
-        JLabel Lfrom = new JLabel(LangRes.getString("From: ")); // From
-        JLabel Lsubject = new JLabel(LangRes.getString("Subject: ")); // Subject
+        JLabel Lboard = new JLabel(LangRes.getString("Board: "));
+        JLabel Lfrom = new JLabel(LangRes.getString("From: "));
+        JLabel Lsubject = new JLabel(LangRes.getString("Subject: "));
 
         JScrollPane textScroller = new JScrollPane(TAcontent); // Textscrollpane
         textScroller.setPreferredSize(new Dimension(600, 400));
 
-        panelLabels.add(Lboard, BorderLayout.NORTH); // Board
-        panelLabels.add(Lfrom, BorderLayout.CENTER); // From
-        panelLabels.add(Lsubject, BorderLayout.SOUTH); // Subject
+        panelLabels.add(Lboard, BorderLayout.NORTH);
+        panelLabels.add(Lfrom, BorderLayout.CENTER);
+        panelLabels.add(Lsubject, BorderLayout.SOUTH);
         
-        panelTextfields.add(TFboard, BorderLayout.NORTH); // Board (to)
-        panelTextfields.add(TFfrom, BorderLayout.CENTER); // From
-        panelTextfields.add(TFsubject, BorderLayout.SOUTH); // Subject
+        panelTextfields.add(TFboard, BorderLayout.NORTH);
+        panelTextfields.add(TFfrom, BorderLayout.CENTER);
+        panelTextfields.add(TFsubject, BorderLayout.SOUTH);
 
-        buttonPanel.add(Bsend); // Send
-        buttonPanel.add(Bcancel); // Cancel
-        buttonPanel.add(BattachFile); // Add attachment(s)
-        buttonPanel.add(BattachBoard); //Add boards(s)
-        buttonPanel.add(sign);
+        panelButtons.add(Bsend);
+        panelButtons.add(Bcancel); 
+        panelButtons.add(BattachFile); 
+        panelButtons.add(BattachBoard); 
+        panelButtons.add(sign);
 
         JPanel dummyPanel = new JPanel(new BorderLayout());
         dummyPanel.add(panelLabels, BorderLayout.WEST);
         dummyPanel.add(panelTextfields, BorderLayout.CENTER);
         
-        panelToolbar.add(buttonPanel, BorderLayout.NORTH);
+        panelToolbar.add(panelButtons, BorderLayout.NORTH);
         panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
 
-        panelMain.add(panelToolbar, BorderLayout.NORTH); // Buttons
-        panelMain.add(textScroller, BorderLayout.CENTER); // Textfields
+        panelMain.add(panelToolbar, BorderLayout.NORTH);
+        panelMain.add(textScroller, BorderLayout.CENTER);
+        panelMain.add(this.attachmentsPanel, BorderLayout.SOUTH);
 
-        this.getContentPane().add(panelMain, null); // add Main panel
+        this.getContentPane().add(panelMain, null);
     }
 
     /**jButton1 Action Listener (Send)*/
@@ -402,10 +407,48 @@ public class MessageFrame extends JFrame
     
     protected void showAttachedBoardsTable(boolean show)
     {
+        if( show )
+        {
+            // check if not already contained in panel
+            int comps = attachmentsPanel.getComponentCount();
+            for( int x=0; x<comps; x++ )
+            {
+                Component c = attachmentsPanel.getComponent(x);
+                if( c == this.attBoardsScroller )
+                {
+                    return;
+                }
+            }
+            this.attachmentsPanel.add( this.attBoardsScroller, BorderLayout.NORTH);
+        }
+        else
+        {
+            this.attachmentsPanel.remove( this.attBoardsScroller );
+        }
+        this.attachmentsPanel.doLayout();
     }
     
     protected void showAttachedFilesTable(boolean show)
     {
+        if( show )
+        {
+            // check if not already contained in panel
+            int comps = attachmentsPanel.getComponentCount();
+            for( int x=0; x<comps; x++ )
+            {
+                Component c = attachmentsPanel.getComponent(x);
+                if( c == this.attFilesScroller )
+                {
+                    return;
+                }
+            }
+            this.attachmentsPanel.add( this.attFilesScroller, BorderLayout.SOUTH);
+        }
+        else
+        {
+            this.attachmentsPanel.remove( this.attFilesScroller );
+        }
+        this.attachmentsPanel.doLayout();
     }
 
     protected void processWindowEvent(WindowEvent e)
