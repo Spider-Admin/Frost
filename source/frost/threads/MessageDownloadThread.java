@@ -381,8 +381,14 @@ public class MessageDownloadThread
                             	
                             //TODO: at this point branch and process encryption metadata
                             //differently
-                            SignMetaData metaData=null;
-                            if (_metaData.getType() == MetaData.SIGN)
+                            
+                            assert _metaData.getType() == MetaData.SIGN ||
+                            	_metaData.getType() == MetaData.ENCRYPT :
+                            	"unknown type of metadata";
+                            
+                            //start of signed message processing
+                            if (_metaData.getType() == MetaData.SIGN) {
+							SignMetaData metaData=null;
                             	metaData= (SignMetaData)_metaData;
                             //check if we have the owner already on the lists
                             String _owner =
@@ -499,6 +505,25 @@ public class MessageDownloadThread
 
                             // Is this a valid message?
                             addMessageToGui(currentMsg, testMe, true);
+                            }  //endif signed message
+                            //start encrypted message processing
+                            else if (_metaData.getType() == MetaData.ENCRYPT){
+                            	//1. check if the message is for myself
+                            	if (!_metaData.getPerson().getUniqueName().equals(
+                            					Core.getMyId().getUniqueName())) {
+                            		Core.getOut().println("encrypted message was for "+
+                            				_metaData.getPerson().getUniqueName());
+                            		
+									index++;
+									failures = 0;
+									 continue;
+                            	}
+                            	
+                            	//2. if yes, decrypt
+                            	byte []cipherText = FileAccess.readByteArray(testMe);
+                            	byte []plainText = Core.getCrypto().decrypt(cipherText,Core.getMyId().getPrivKey());
+                            	//TODO: continue tommorow
+                            }//endif encrypted message
                         }
                         else
                         {

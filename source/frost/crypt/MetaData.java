@@ -45,6 +45,7 @@ public abstract class MetaData implements XMLizable {
 	}
 	
 	public static MetaData getInstance(byte [] body, Element e){
+		assert e!=null;
 		assert e.getNodeName().equals("FrostMetaData") : "root tag \"FrostMetaData\" missing!";
 		
 		try {
