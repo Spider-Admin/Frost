@@ -25,7 +25,8 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import frost.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
+import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.FrostIdentities;
 import frost.messages.SharedFileObject;
 
@@ -52,6 +53,10 @@ class SearchThread extends Thread {
     int allFileCount;
     int maxSearchResults;
     private SearchPanel searchPanel = null;
+
+	private SettingsClass settings;
+
+	private UpdatingLanguageResource languageResource;
 
     /**
      * Splits a String into single parts
@@ -181,8 +186,8 @@ class SearchThread extends Thread {
 			}
 		}
 
-		boolean hideAnon = frame1.frostSettings.getBoolValue("hideAnonFiles");
-		boolean hideBad = frame1.frostSettings.getBoolValue("hideBadFiles");
+		boolean hideAnon = settings.getBoolValue("hideAnonFiles");
+		boolean hideBad = settings.getBoolValue("hideBadFiles");
 
 		//check if file anonymous
 		Iterator it = results.iterator();
@@ -249,87 +254,76 @@ class SearchThread extends Thread {
         return true;
     }
 
-    /**
-     * Displays search results in search table
-     */
-    private void displaySearchResults(FrostBoardObject board)
-    {
-        for( int i = 0; i < results.size(); i++ )
-        {
-            allFileCount++;
+	/**
+	 * Displays search results in search table
+	 */
+	private void displaySearchResults(FrostBoardObject board) {
+		for (int i = 0; i < results.size(); i++) {
+			allFileCount++;
 
-            if( allFileCount > this.maxSearchResults )
-            {
-                logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
-                return;
-            }
+			if (allFileCount > this.maxSearchResults) {
+				logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
+				return;
+			}
 
-            SharedFileObject key = (SharedFileObject)results.elementAt(i);
+			SharedFileObject key = (SharedFileObject) results.elementAt(i);
 
-            String filename = key.getFilename();
-            Long size = key.getSize();
-            String date = key.getDate();
-            String keyData = key.getKey();
-    	    String SHA1 = key.getSHA1();
-    	    
-    	    if (SHA1 == null)
-            { 
-                logger.warning("SHA1 null in SearchThread!!! ");
-            }
-    
-            int searchItemState = FrostSearchItemObject.STATE_NONE;
-    
-            // Already downloaded files get a nice color outfit (see renderer in SearchTable)
-            File file = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
-            if( file.exists() )
-            {
-                // file is already downloaded -> light_gray
-                searchItemState = FrostSearchItemObject.STATE_DOWNLOADED;
-            }
-            else if( frame1.getInstance().getDownloadTable().containsItemWithKey( SHA1 ) )
-            {
-                // this file is in download table -> blue
-                searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
-            }
-            else if( frame1.getInstance().getUploadTable().containsItemWithKey( SHA1 ) )
-            {
-                // this file is in upload table -> green
-                searchItemState = FrostSearchItemObject.STATE_UPLOADING;
-            }
-            else if( isOffline(key) )
-            {
-                // this file is offline -> gray
-                searchItemState = FrostSearchItemObject.STATE_OFFLINE;
-            }
-            
-            // filter by searchItemState
-            if( filterBySearchItemState(searchItemState) == false ) 
-            {
-                continue;
-            }
-    
-            final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key, searchItemState);
-    
-            boolean updateLabel2 = false;
-            if( allFileCount > 9 && allFileCount%10==0 )
-            {
-                updateLabel2 = true;
-            }
-            final boolean updateLabel = updateLabel2;
-            SwingUtilities.invokeLater( new Runnable() {
-                    public void run(){
-                        searchTableModel.addRow(searchItem);
-                        if( updateLabel )
-                        {
-                            searchPanel.updateSearchResultCountLabel();
-                        }
-                    } });
-        }
-        SwingUtilities.invokeLater( new Runnable() {
-                public void run() {
-					searchPanel.updateSearchResultCountLabel();
-                } });
-    }
+			String filename = key.getFilename();
+			Long size = key.getSize();
+			String date = key.getDate();
+			String keyData = key.getKey();
+			String SHA1 = key.getSHA1();
+
+			if (SHA1 == null) {
+				logger.warning("SHA1 null in SearchThread!!! ");
+			}
+
+			int searchItemState = FrostSearchItemObject.STATE_NONE;
+
+			// Already downloaded files get a nice color outfit (see renderer in SearchTable)
+			File file = new File(settings.getValue("downloadDirectory") + filename);
+			if (file.exists()) {
+				// file is already downloaded -> light_gray
+				searchItemState = FrostSearchItemObject.STATE_DOWNLOADED;
+			} else if (frame1.getInstance().getDownloadTable().containsItemWithKey(SHA1)) {
+				// this file is in download table -> blue
+				searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
+			} else if (frame1.getInstance().getUploadTable().containsItemWithKey(SHA1)) {
+				// this file is in upload table -> green
+				searchItemState = FrostSearchItemObject.STATE_UPLOADING;
+			} else if (isOffline(key)) {
+				// this file is offline -> gray
+				searchItemState = FrostSearchItemObject.STATE_OFFLINE;
+			}
+
+			// filter by searchItemState
+			if (filterBySearchItemState(searchItemState) == false) {
+				continue;
+			}
+
+			final FrostSearchItemObject searchItem =
+				new FrostSearchItemObject(languageResource, board, key, searchItemState);
+
+			boolean updateLabel2 = false;
+			if (allFileCount > 9 && allFileCount % 10 == 0) {
+				updateLabel2 = true;
+			}
+			final boolean updateLabel = updateLabel2;
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					searchTableModel.addRow(searchItem);
+					if (updateLabel) {
+						searchPanel.updateSearchResultCountLabel();
+					}
+				}
+			});
+		}
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				searchPanel.updateSearchResultCountLabel();
+			}
+		});
+	}
     
     private boolean isOffline(SharedFileObject key)
     {
@@ -381,6 +375,7 @@ class SearchThread extends Thread {
             SearchManager searchManager)
     {
     	identities = searchManager.getIdentities();
+    	settings = searchManager.getSettings();
         request = newRequest.toLowerCase();
         if( request.length() == 0 )
         {
@@ -390,17 +385,25 @@ class SearchThread extends Thread {
         searchTableModel = searchManager.getTableModel();
         keypool = searchManager.getKeypool();
         searchType = newSearchType;
-        audioExtension = frame1.frostSettings.getArrayValue("audioExtension");
-        videoExtension = frame1.frostSettings.getArrayValue("videoExtension");
-        documentExtension = frame1.frostSettings.getArrayValue("documentExtension");
-        executableExtension = frame1.frostSettings.getArrayValue("executableExtension");
-        archiveExtension = frame1.frostSettings.getArrayValue("archiveExtension");
-        imageExtension = frame1.frostSettings.getArrayValue("imageExtension");
+        audioExtension = settings.getArrayValue("audioExtension");
+        videoExtension = settings.getArrayValue("videoExtension");
+        documentExtension = settings.getArrayValue("documentExtension");
+        executableExtension = settings.getArrayValue("executableExtension");
+        archiveExtension = settings.getArrayValue("archiveExtension");
+        imageExtension = settings.getArrayValue("imageExtension");
         boards = newBoards;
-        maxSearchResults = frame1.frostSettings.getIntValue("maxSearchResults");
+        maxSearchResults = settings.getIntValue("maxSearchResults");
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
         searchPanel = searchManager.getPanel();
     }
+	/**
+	 * description
+	 * 
+	 * @param languageResource description
+	 */
+	public void setLanguageResource(UpdatingLanguageResource newLanguageResource) {
+		languageResource = newLanguageResource;
+	}
 }
