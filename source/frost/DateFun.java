@@ -70,6 +70,27 @@ public class DateFun
         sb.append(day);
         return sb.toString();
     }
+    /**
+     * Returns date with leading zeroes
+     * @return Date as String yyyy.MM.dd in GMT with leading zeros
+     */
+    public static String getVisibleExtendedDate()
+    {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        int day = cal.get(Calendar.DATE);
+        StringBuffer sb = new StringBuffer(11);
+        if( day < 10 )
+            sb.append("0");
+        sb.append(day).append(".");
+        if( month < 10 )
+            sb.append("0");
+        sb.append(month).append(".");
+        sb.append(year);
+        return sb.toString();
+    }
 
     /**
      * Returns time with leading zeroes
