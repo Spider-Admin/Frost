@@ -283,10 +283,18 @@ public final class FrostCrypt implements crypt {
 		return null;
 	}
 
-	public synchronized byte [] encryptSign(
+	public synchronized byte [] encrypt(byte [] what, String otherKey) {
+		return encryptSign(what, null, otherKey, false);
+	}
+	
+	public synchronized byte [] encryptSign(byte [] what,String myKey, String otherKey) {
+			return encryptSign(what, myKey, otherKey, true);
+		}
+	private synchronized byte [] encryptSign(
 		byte [] what,
 		String myKey,
-		String otherKey) {
+		String otherKey,
+		boolean sign) {
 
 		//initialize d_encryptor
 		StringTokenizer keycutter = new StringTokenizer(otherKey, ":");
@@ -303,7 +311,8 @@ public final class FrostCrypt implements crypt {
 		//frost.Core.getOut().println("output block size " + outSize);
 
 		//sign the message
-		what = sign(what, myKey);
+		if (sign)
+			what = sign(what, myKey);
 		/*frost.Core.getOut().println(what);/*
 		frost.Core.getOut().println("encoded plaintext looks like \n " + new String(texter.encode(what.getBytes())));
 		frost.Core.getOut().println("this will need " + (what.length()/size +1) + " blocks");*/
