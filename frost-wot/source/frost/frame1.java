@@ -212,7 +212,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	// all popupmenu items
 	JMenuItem searchPopupDownloadSelectedKeys = null;
 	JMenuItem searchPopupDownloadAllKeys = null;
-	JMenuItem searchPopupCopyAttachment = null;
+//	JMenuItem searchPopupCopyAttachment = null;
 	JMenuItem searchPopupSetGood = null;
 	JMenuItem searchPopupSetBad = null;
 	JMenuItem searchPopupCancel = null;
@@ -1254,8 +1254,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			new JMenuItem(LangRes.getString("Download selected keys"));
 		searchPopupDownloadAllKeys =
 			new JMenuItem(LangRes.getString("Download all keys"));
-		searchPopupCopyAttachment =
-			new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
+//		searchPopupCopyAttachment =
+//			new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
 		searchPopupSetGood =
 			new JMenuItem(LangRes.getString("help user (sets to GOOD)"));
 		searchPopupSetBad =
@@ -1276,7 +1276,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					getDownloadTable());
 			}
 		});
-		searchPopupCopyAttachment.addActionListener(new ActionListener() {
+/*		searchPopupCopyAttachment.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String srcData =
 					getSearchTable()
@@ -1286,7 +1286,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				clipboard.setContents(contents, frame1.this);
 			}
 		});
-
+*/
 		searchPopupSetGood.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				java.util.List l = getSearchTable().getSelectedItemsOwners();
@@ -3738,8 +3738,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		pmenu.add(searchPopupDownloadAllKeys);
 		pmenu.addSeparator();
 		if (searchTable.getSelectedRow() > -1) {
-			pmenu.add(searchPopupCopyAttachment);
-			pmenu.addSeparator();
+//			pmenu.add(searchPopupCopyAttachment);
+//			pmenu.addSeparator();
 			pmenu.add(searchPopupSetGood);
 			pmenu.add(searchPopupSetBad);
 			pmenu.addSeparator();
