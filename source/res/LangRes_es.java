@@ -366,7 +366,16 @@ static final Object[][] contents = {
 	{"You already have a board with name","Ya tienes un foro llamado"},
 	{"Please choose a new name","Por favor, escoge un nuevo nombre"},
 	{"Do you really want to overwrite it?","¿De verdad quieres sobreescribirlo?"},
-	{"This will not delete messages","Esto no borrará los mensajes"}
+	{"This will not delete messages","Esto no borrará los mensajes"},
+	
+	///
+	///	FrostSearchItemObject
+	///
+	
+	{"FrostSearchItemObject.Offline","Offline"},
+	{"FrostSearchItemObject.Anonymous","Anónimo"},
+	{"FrostSearchItemObject.*ERROR*","*ERROR*"}
+	
 	
 };
 }
