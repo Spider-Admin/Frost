@@ -177,7 +177,7 @@ public class requestThread extends Thread
 		newKey.setSHA1(SHA1);
                 newKey.setDate(date);
                 newKey.setExchange(false);
-                Index.add(newKey, board);
+                Index.addMine(newKey, board);
             }
 
             downloadItem.setFileSize( newFile.length() );
