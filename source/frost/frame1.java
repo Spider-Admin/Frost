@@ -56,6 +56,158 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * 
 	 */
+	private class PopupMenuSearch extends JPopupMenu implements ActionListener, LanguageListener {
+		
+		JMenuItem cancelItem = new JMenuItem();
+		JMenuItem downloadAllKeysItem = new JMenuItem();
+		JMenuItem downloadSelectedKeysItem = new JMenuItem();
+		JMenuItem setBadItem = new JMenuItem();
+		JMenuItem setGoodItem = new JMenuItem();
+
+		/**
+		 * 
+		 */
+		public PopupMenuSearch() {
+			super();
+			initialize();
+		}
+		
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+
+			downloadSelectedKeysItem.addActionListener(this);
+			downloadAllKeysItem.addActionListener(this);
+			setGoodItem.addActionListener(this);
+			setBadItem.addActionListener(this);
+
+			/*		copyAttachmentItem.addActionListener(new ActionListener() {
+						 public void actionPerformed(ActionEvent e) {
+							 String srcData =
+								 getSearchTable()
+									 .getSelectedSearchItemsAsAttachmentsString();
+							 Clipboard clipboard = getToolkit().getSystemClipboard();
+							 StringSelection contents = new StringSelection(srcData);
+							 clipboard.setContents(contents, frame1.this);
+						 }
+					 });
+			*/
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			downloadSelectedKeysItem.setText(languageResource.getString("Download selected keys"));
+			downloadAllKeysItem.setText(languageResource.getString("Download all keys"));
+			setGoodItem.setText(languageResource.getString("help user (sets to GOOD)"));
+			setBadItem.setText(languageResource.getString("block user (sets to BAD)"));
+			cancelItem.setText(languageResource.getString("Cancel"));
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == downloadSelectedKeysItem) {
+				downloadSelectedKeys();
+			}
+			if (e.getSource() == downloadAllKeysItem) {
+				downloadAllKeys();
+			}
+			if (e.getSource() == setGoodItem) {
+				setGood();
+			}
+			if (e.getSource() == setBadItem) {
+				setBad();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void setBad() {
+			java.util.List l = getSearchTable().getSelectedItemsOwners();
+			Iterator i = l.iterator();
+			while (i.hasNext()) {
+				Identity owner_id = (Identity) i.next();
+
+				Truster truster =
+					new Truster(Core.getInstance(), new Boolean(false), owner_id.getUniqueName());
+				truster.start();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void setGood() {
+			java.util.List l = getSearchTable().getSelectedItemsOwners();
+			Iterator i = l.iterator();
+			while (i.hasNext()) {
+				Identity owner_id = (Identity) i.next();
+
+				Truster truster =
+					new Truster(Core.getInstance(), new Boolean(true), owner_id.getUniqueName());
+				truster.start();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void downloadAllKeys() {
+			searchTable.selectAll();
+			getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable());
+		}
+
+		/**
+		 * 
+		 */
+		private void downloadSelectedKeys() {
+			getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable());
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();			
+		}
+
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			removeAll();
+
+			if (searchTable.getSelectedRow() > -1) {
+				add(downloadSelectedKeysItem);
+				addSeparator();
+			}
+			add(downloadAllKeysItem);
+			addSeparator();
+			if (searchTable.getSelectedRow() > -1) {
+				//	add(copyAttachmentItem);
+				//	addSeparator();
+				add(setGoodItem);
+				add(setBadItem);
+				addSeparator();
+			}
+			add(cancelItem);
+
+			super.show(invoker, x, y);
+		}
+
+	}
+	
+	private PopupMenuSearch popupMenuSearch = null;
+	
+	/**
+	 * 
+	 */
 	private class PopupMenuDownload extends JPopupMenu implements ActionListener, LanguageListener {
 		
 		private JMenuItem cancelItem = new JMenuItem();
@@ -865,17 +1017,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private JTextArea tofTextArea = null;
 	private JTextField downloadTextField = null;
 	private JTextField searchTextField = null;
-
+	
 	//    JCheckBox uploadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/up.gif")), true);
 	//    JCheckBox reducedBlockCheckCheckBox= new JCheckBox();
-
-	// all popupmenu items
-	JMenuItem searchPopupDownloadSelectedKeys = null;
-	JMenuItem searchPopupDownloadAllKeys = null;
-	//	JMenuItem searchPopupCopyAttachment = null;
-	JMenuItem searchPopupSetGood = null;
-	JMenuItem searchPopupSetBad = null;
-	JMenuItem searchPopupCancel = null;
 
 	JMenuItem tofTextPopupSaveMessage = null;
 	JMenuItem tofTextPopupSaveAttachments = null;
@@ -888,6 +1032,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JMenuItem msgTablePopupMarkAllMessagesRead = null;
 	JMenuItem msgTablePopupSetGood = null;
 	JMenuItem msgTablePopupSetBad = null;
+	JMenuItem msgTablePopupCancel = null;
 
 	public static Hashtable getMyBatches() {
 		return Core.getMyBatches();
@@ -1891,7 +2036,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * Should be called only once.
 	 */
 	private void buildPopupMenus() {
-		buildPopupMenuSearch();
 		buildPopupMenuTofText();
 		buildPopupMenuMessageTable();
 	}
@@ -1911,91 +2055,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				TOF.setAllMessagesRead(getMessageTable(), getSelectedNode());
 			}
 		});
-	}
-
-	/**
-	 * Build the search table popup menu.
-	 * Should be called only once.
-	 */
-	private void buildPopupMenuSearch() {
-		// create objects
-		searchPopupDownloadSelectedKeys =
-			new JMenuItem(languageResource.getString("Download selected keys"));
-		searchPopupDownloadAllKeys =
-			new JMenuItem(languageResource.getString("Download all keys"));
-		//		searchPopupCopyAttachment =
-		//			new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
-		searchPopupSetGood =
-			new JMenuItem(languageResource.getString("help user (sets to GOOD)"));
-		searchPopupSetBad =
-			new JMenuItem(languageResource.getString("block user (sets to BAD)"));
-		searchPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
-		// add action listener
-		searchPopupDownloadSelectedKeys
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getSearchTable().addSelectedSearchItemsToDownloadTable(
-					getDownloadTable());
-			}
-		});
-		searchPopupDownloadAllKeys.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				searchTable.selectAll();
-				getSearchTable().addSelectedSearchItemsToDownloadTable(
-					getDownloadTable());
-			}
-		});
-		/*		searchPopupCopyAttachment.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						String srcData =
-							getSearchTable()
-								.getSelectedSearchItemsAsAttachmentsString();
-						Clipboard clipboard = getToolkit().getSystemClipboard();
-						StringSelection contents = new StringSelection(srcData);
-						clipboard.setContents(contents, frame1.this);
-					}
-				});
-		*/
-		searchPopupSetGood.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				java.util.List l = getSearchTable().getSelectedItemsOwners();
-				Iterator i = l.iterator();
-				while (i.hasNext()) {
-					Identity owner_id = (Identity) i.next();
-
-					Truster truster =
-						new Truster(
-							Core.getInstance(),
-							new Boolean(true),
-							owner_id.getUniqueName());
-					truster.start();
-
-				}
-			}
-		});
-
-		searchPopupSetBad.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				java.util.List l = getSearchTable().getSelectedItemsOwners();
-				Iterator i = l.iterator();
-				while (i.hasNext()) {
-					Identity owner_id = (Identity) i.next();
-
-					Truster truster =
-						new Truster(
-							Core.getInstance(),
-							new Boolean(false),
-							owner_id.getUniqueName());
-					truster.start();
-				}
-			}
-		});
-		;
-		searchPopupSetBad.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				//String
-			}
-		});
+		
+		msgTablePopupCancel = new JMenuItem(languageResource.getString("Cancel")); 
 	}
 
 	/**
@@ -4065,23 +4126,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	protected void showSearchTablePopupMenu(MouseEvent e) {
-		JPopupMenu pmenu = new JPopupMenu();
-
-		if (searchTable.getSelectedRow() > -1) {
-			pmenu.add(searchPopupDownloadSelectedKeys);
-			pmenu.addSeparator();
-		}
-		pmenu.add(searchPopupDownloadAllKeys);
-		pmenu.addSeparator();
-		if (searchTable.getSelectedRow() > -1) {
-			//			pmenu.add(searchPopupCopyAttachment);
-			//			pmenu.addSeparator();
-			pmenu.add(searchPopupSetGood);
-			pmenu.add(searchPopupSetBad);
-			pmenu.addSeparator();
-		}
-		pmenu.add(searchPopupCancel);
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+		getPopupMenuSearch().show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	protected void showMessageTablePopupMenu(MouseEvent e) {
@@ -4095,7 +4140,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 		pmenu.add(msgTablePopupMarkAllMessagesRead);
 		pmenu.addSeparator();
-		pmenu.add(searchPopupCancel);
+		pmenu.add(msgTablePopupCancel);
 		// ATT: misuse of another menuitem displaying 'Cancel' ;)
 		pmenu.show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -4193,6 +4238,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			languageResource.addLanguageListener(popupMenuUpload);	
 		}
 		return popupMenuUpload;
+	}
+	
+	/**
+	 * @return
+	 */
+	private PopupMenuSearch getPopupMenuSearch() {
+		if (popupMenuSearch == null) {
+			popupMenuSearch = new PopupMenuSearch();
+			languageResource.addLanguageListener(popupMenuSearch);
+		}
+		return popupMenuSearch;
 	}
 	
 	/**
