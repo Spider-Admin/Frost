@@ -79,7 +79,7 @@ public class MessageFrame extends JFrame
     JTextField TFfrom = new JTextField(); // From
     JTextField TFsubject = new JTextField(); // Subject
 
-    JAATextArea TAcontent = new JAATextArea(); // Text
+    MessageTextArea messageTextArea = new MessageTextArea(); // Text
 
 	private void Init() throws Exception {
 		if (!initialized) {
@@ -116,9 +116,9 @@ public class MessageFrame extends JFrame
 			TFfrom.setText(from);
 
 			TFsubject.setText(subject);
-			TAcontent.setLineWrap(true);
-			TAcontent.setWrapStyleWord(true);
-			TAcontent.setText(text);
+			messageTextArea.setLineWrap(true);
+			messageTextArea.setWrapStyleWord(true);
+			messageTextArea.setText(text);
 			// check if last msg was signed and set it to remembered state
 			if (from.equals(frame1.getMyId().getUniqueName())) {
 				TFfrom.setEditable(false);
@@ -176,7 +176,7 @@ public class MessageFrame extends JFrame
 			JLabel Lfrom = new JLabel(LangRes.getString("From") + ": ");
 			JLabel Lsubject = new JLabel(LangRes.getString("Subject") + ": ");
 
-			JScrollPane textScroller = new JScrollPane(TAcontent); // Textscrollpane
+			JScrollPane textScroller = new JScrollPane(messageTextArea); // Textscrollpane
 			textScroller.setMinimumSize(new Dimension(100, 50));
 
 			panelLabels.add(Lboard, BorderLayout.NORTH);
@@ -254,7 +254,7 @@ public class MessageFrame extends JFrame
         TFfrom.setText(from);
         subject = TFsubject.getText().trim();
         TFsubject.setText(subject); // if a pbl occurs show the subject we checked
-        text = TAcontent.getText().trim();
+        text = messageTextArea.getText().trim();
 
         boolean quit = true;
 
@@ -552,9 +552,9 @@ public class MessageFrame extends JFrame
 		.start();
 
 		// Properly positions the caret (AKA cursor)
-		TAcontent.requestFocusInWindow();
-		TAcontent.getCaret().setDot(caretPos);
-		TAcontent.getCaret().setVisible(true);
+		messageTextArea.requestFocusInWindow();
+		messageTextArea.getCaret().setDot(caretPos);
+		messageTextArea.getCaret().setVisible(true);
 	}
     
 	public void composeReply(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
@@ -613,8 +613,8 @@ public class MessageFrame extends JFrame
 			frostSettings.setValue("messageBodyFontName", "Monospaced");
 			tofFont = new Font("Monospaced", fontStyle, fontSize);
 		}
-		TAcontent.setFont(tofFont);
-		TAcontent.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+		messageTextArea.setFont(tofFont);
+		messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
 
 		setSize(600, 460);
 		setLocationRelativeTo(parentFrame);
