@@ -4,14 +4,10 @@
  */
 package frost.messaging;
 
-import java.io.*;
 import java.util.*;
-import java.util.HashSet;
-import java.util.logging.*;
-import java.util.logging.Level;
+import java.util.logging.Logger;
 
 import frost.storage.*;
-import frost.storage.Savable;
 
 /**
  * This class contains the hashes of all the messages. It is used to check
@@ -23,7 +19,7 @@ public class MessageHashes implements Savable {
 
 	private static Logger logger = Logger.getLogger(MessageHashes.class.getName());
 
-	private static Set hashesSet = new HashSet(); // set of message digests
+	private Set hashesSet = new HashSet(); // set of message digests
 
 	/**
 	 * This method initializes the instance of MessageHashes and reads its contents
@@ -31,31 +27,25 @@ public class MessageHashes implements Savable {
 	 * @throws StorageException if there was any error while initializing the instance.
 	 */
 	public void initialize() throws StorageException {
-		File hashes = new File("hashes");
-		if (hashes.exists())
-			try {
-				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(hashes));
-				hashesSet = (HashSet) ois.readObject();
-				logger.info("loaded " + hashesSet.size() + " message hashes");
-				ois.close();
-			} catch (Throwable t) {
-				throw new StorageException("Error while loading the Message Hashes:\n" + t.getMessage());
-			}
+		MessageHashesDAO hashesDAO = DAOFactory.getFactory(DAOFactory.XML).getMessageHashesDAO();
+		if (!hashesDAO.exists()) {
+			// The storage doesn't exist yet. We create it.
+			hashesDAO.create();
+		} else {
+			// Storage exists. Load from it.
+			hashesDAO.load(this);
+		}
 	}
 
 	/**
-	 * This method saves to disk the contents of the instance of MessageHashes
+	 * This method saves to disk the contents of the instance of MessageHashes.
+	 * Its implementation is thread safe.
 	 * @throws StorageException if there was any error while saving the contents.
 	 */
 	public void save() throws StorageException {
-		try {
-			File hashes = new File("hashes");
-			ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(hashes));
-			synchronized (hashesSet) {
-				oos.writeObject(hashesSet);
-			}
-		} catch (Throwable t) {
-			logger.log(Level.SEVERE, "Exception thrown in saveHashes()", t);
+		MessageHashesDAO hashesDAO = DAOFactory.getFactory(DAOFactory.XML).getMessageHashesDAO();
+		synchronized (hashesSet) {
+			hashesDAO.save(this);
 		}
 	}
 	
@@ -85,5 +75,13 @@ public class MessageHashes implements Savable {
 			result = hashesSet.contains(digest);
 		}
 		return result;
+	}
+	/**
+	 * This method returns an Iterator with all of the message
+	 * hashes. Not thread-safe.
+	 * @return an Interator with all of the message hashes.
+	 */
+	protected Iterator getHashes() {
+		return hashesSet.iterator();
 	}
 }
