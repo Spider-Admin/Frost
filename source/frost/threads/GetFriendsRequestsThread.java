@@ -40,40 +40,45 @@ public class GetFriendsRequestsThread extends TimerTask {
 			File current = (File) it.next();
 			if (!current.exists())
 				continue;
+			//Core.getOut().println("helper analyzing index at " + current.getPath());
 			FileAccess.readKeyFile(current, allFiles);
 		}
-
+		Core.getOut().println("helper will traverse through " + allFiles.size()+" files against "+
+					Core.getFriends().size() + " friends ");
 		//get the prefixes of the good people
 		it = allFiles.values().iterator();
 		while (it.hasNext()) {
 			SharedFileObject current = (SharedFileObject) it.next();
-			if (current.getOwner() == null || current.getBatch() ==null)
-				continue; //do not request anonymous files or broken batches
+			if (current.getOwner() == null)
+				continue; //do not request anonymous files
+			//Core.getOut().println("current file's owner is "+current.getOwner() 
+			//		+ "and his safe name is "+ mixed.makeFilename(current.getOwner()));	
 			if (
-				current.getOwner().compareTo(Core.getMyId().getUniqueName())
-				!= 0
+				current.getOwner().compareTo(Core.getMyId().getUniqueName()) != 0
 				&& // not me 
-			 (
-					Core.getFriends().Get(current.getOwner()) != null
-				|| //marked GOOD
-			Core.getGoodIds().contains(
-					current.getOwner())) //marked to be helped
-			)
-				prefixes.add(
-					new String(
-						"KSK@frost/request/"
-							+ Core.frostSettings.getValue("messageBase")
-							+ "/"
-							+ current.getOwner()
-							+ "-"
-							+ current.getBatch()));
+			 		(
+						//Core.getFriends().Get(current.getOwner().substring(0,current.getOwner().indexOf("@"))) != null
+						Core.getFriends().containsKey(mixed.makeFilename(current.getOwner()))
+							|| //marked GOOD
+						Core.getGoodIds().contains(current.getOwner())
+					) //marked to be helped
+			) {
+				String newPrefix = new String("KSK@frost/request/"
+					+ Core.frostSettings.getValue("messageBase")
+					+ "/"
+					+ current.getOwner()
+					+ "-"
+					+ current.getBatch()); 
+				prefixes.add(newPrefix);
+			//	Core.getOut().println("helper adding "+ newPrefix);
+			}
 		}
 		
 		allFiles=null; //this is too big, clean it fast
 		System.gc();
 	}
 
-	public synchronized void run() {
+	public void run() {
 		Core.getOut().println("starting to request requests for friends");
 		prefixes = new HashSet();
 		generatePrefixes();

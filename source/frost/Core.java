@@ -459,7 +459,7 @@ public class Core {
 				frame1.getInstance().getUploadTable());
 		requestsThread.start();
 		if(frostSettings.getBoolValue("helpFriends"))
-			timer2.schedule(new GetFriendsRequestsThread(), 2*60*1000, 3*60*60*1000);
+			timer2.schedule(new GetFriendsRequestsThread(), 30*1000, 3*60*60*1000); //TODO: raise to 5 mins initial
 		
 		started = true;
 	} //end of init()

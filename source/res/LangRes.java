@@ -66,8 +66,8 @@ public class LangRes extends ListResourceBundle {
     {"Download selected keys", "Download selected keys"},
     {"Download all keys", "Download all keys"},
     {"Copy as attachment to clipboard", "Copy as attachment to clipboard"},
-    {"help user (sets to GOOD)","help user (sets to GOOD)"},
-    {"block user (sets to BAD)","block user (sets to BAD)"},
+    {"help user (sets to GOOD)","help user "}, //at the moment these two neither set GOOD
+    {"block user (sets to BAD)","block user "}, //nor BAD.  how lame
     {"Cancel", "Cancel"},
 
     {"Remove selected downloads", "Remove selected downloads"},
