@@ -5,13 +5,16 @@ package frost;
 
 import frost.FcpTools.*;
 import java.util.*;
+
 import frost.crypt.*;
 import frost.identities.*;
 import frost.gui.objects.*;
 import frost.threads.*;
+import frost.threads.support.*;
+
 import java.io.*;
 import javax.swing.*;
-import java.awt.*;
+
 /**
  * Class hold the more non-gui parts of frame1.java.
  */
@@ -41,63 +44,6 @@ public class Core {
 		}catch(Exception e) {
 			e.printStackTrace(System.out);
 		}
-	}
-	class ResendFailedMessagesThread extends Thread
-	{
-	    Frame frameToLock;
-	    public ResendFailedMessagesThread(Frame frameToLock)
-	    {
-	        this.frameToLock = frameToLock;
-	    }
-	    public void run()
-	    {
-	        // give gui a chance to appear ... then start searching for unsent messages
-	        try { Thread.sleep(10000); } // wait 10 seconds
-	        catch(InterruptedException ex) { ; }
-	        if( isInterrupted() )
-	            return;
-	
-	        System.out.println("Starting search for unsent messages ...");
-	
-	        ArrayList entries = FileAccess.getAllEntries(new File(frostSettings.getValue("unsent.dir")), ".txt");
-	
-	        for( int i = 0; i < entries.size(); i++ )
-	        {
-	            File unsentMsgFile = (File)entries.get(i);
-	            if( unsentMsgFile.getName().startsWith("unsent") )
-	            {
-	                // Resend message
-	                VerifyableMessageObject mo = new VerifyableMessageObject(unsentMsgFile);
-	                if( mo.isValid() )
-	                {
-	                    FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( mo.getBoard() );
-	                    if( board == null )
-	                    {
-	                        System.out.println("Can't resend Message '"+mo.getSubject()+"', the target board '"+mo.getBoard()+
-	                                           "' was not found in your boardlist.");
-	                        // TODO: maybe delete msg? or it will always be retried to send
-	                        continue;
-	                    }
-	                    // message will be resigned before send, actual date/time will be used
-	                    // no more faking here :)
-	                    frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-	                        board,
-	                        mo.getFrom(),
-	                        mo.getSubject(),
-	                        mo.getContent(),
-	                        "",
-	                        frostSettings,
-	                        frameToLock,
-	                        null);
-	                    System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
-	                }
-	                // check if upload was successful before deleting the file -
-	                // is not needed, the upload thread creates new unsent file
-	                unsentMsgFile.delete();
-	            }
-	        }
-	        System.out.println("Finished search for unsent messages ...");
-	    }
 	}
 	private static CleanUp fileCleaner = new CleanUp("keypool",false);
 	private boolean freenetIsOnline = false;
@@ -292,7 +238,7 @@ public class Core {
 	//------------------------------------------------------------------------
 	
 	/**Save on exit*/
-	private void saveOnExit()
+	public void saveOnExit()
 	{
 	    System.out.println("Saving settings ...");
 	    frame1.getInstance().saveSettings();
@@ -302,190 +248,6 @@ public class Core {
 	java.util.Timer timer; // Uploads / Downloads
 	java.util.Timer timer2; 
     
-	private class checkForSpam extends TimerTask
-	{
-	    public void run()
-	    {
-	        if(frostSettings.getBoolValue("doBoardBackoff"))
-	        {
-	            Iterator iter = frame1.getInstance().getTofTree().getAllBoards().iterator();
-	            while (iter.hasNext())
-	            {
-	                FrostBoardObject current = (FrostBoardObject)iter.next();
-	                if (current.getBlockedCount() > frostSettings.getIntValue("spamTreshold"))
-	                {
-	                    //board is spammed
-	                    System.out.println("######### board '"+current.toString()+"' is spammed, update stops for 24h ############");
-	                    current.setSpammed(true);
-	                    // clear spam status in 24 hours
-	                    timer2.schedule(new ClearSpam(current),24*60*60*1000);
-	
-	                    //now, kill all threads for board
-	                    Vector threads = frame1.getInstance().getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
-	                    Iterator i = threads.iterator();
-	                    while( i.hasNext() )
-	                    {
-	                        BoardUpdateThread thread = (BoardUpdateThread)i.next();
-	                        while( thread.isInterrupted() == false )
-	                            thread.interrupt();
-	                    }
-	                }
-	                current.resetBlocked();
-	            }
-	        }
-	    }
-	}
-	private class ClearSpam extends TimerTask
-	{
-	    private FrostBoardObject clearMe;
-	
-	    public ClearSpam(FrostBoardObject which) { clearMe = which; }
-	    public void run()
-	    {
-	        System.out.println("############ clearing spam status for board '"+clearMe.toString()+"' ###########");
-	        clearMe.setSpammed(false);
-	    }
-	}
-	private class DeleteWholeDirThread extends Thread
-	{
-	    String delDir;
-	    public DeleteWholeDirThread(String dirToDelete)
-	    {
-	        delDir = dirToDelete;
-	    }
-	    public void run()
-	    {
-	        FileAccess.deleteDir( new File(delDir) );
-	    }
-	}
-	/**
-	 * Thread is invoked if the Trust or NotTrust button is clicked.
-	 */
-	private class Truster extends Thread
-	{
-	    private Boolean trust;
-	    private Identity newIdentity;
-	    private VerifyableMessageObject currentMsg;
-	
-	    public Truster(Boolean what, VerifyableMessageObject msg)
-	    {
-	        trust=what;
-	        currentMsg = msg;
-	    }
-	
-	    public void run()
-	    {
-	        String from = currentMsg.getFrom();
-	        String newState;
-	
-	        if( trust == null )  newState = "CHECK";
-	        else if( trust.booleanValue() == true ) newState = "GOOD";
-	        else newState = "BAD";
-	
-	        System.out.println("Truster: Setting '"+
-	                           from+
-	                           "' to '"+
-	                           newState+
-	                           "'.");
-	
-	        if( trust == null )
-	        {
-	            // set enemy/friend to CHECK
-	            newIdentity = friends.Get(from);
-	            if( newIdentity==null )
-	                newIdentity=enemies.Get(from);
-	
-	            if( newIdentity == null ) // not found -> paranoia
-	            {
-	                newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
-	            }
-	            else
-	            {
-	                friends.remove( from );
-	                enemies.remove( from );
-	            }
-	        }
-	        else if( friends.containsKey(from) && trust.booleanValue() == false )
-	        {
-	            // set friend to bad
-	            newIdentity = friends.Get(from);
-	            friends.remove( from );
-	            enemies.Add( newIdentity );
-	        }
-	        else if( enemies.containsKey(from) && trust.booleanValue() == true )
-	        {
-	            // set enemy to good
-	            newIdentity = enemies.Get(from);
-	            enemies.remove( newIdentity );
-	            friends.Add( newIdentity );
-	        }
-	        else
-	        {
-	            // new new enemy/friend
-	            newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
-	            if( trust.booleanValue() )
-	                friends.Add(newIdentity);
-	            else
-	                enemies.Add(newIdentity);
-	        }
-	
-	        if( newIdentity == null || Identity.NA.equals( newIdentity.getKey() ) )
-	        {
-	            System.out.println("Truster - ERROR: could not get public key for '"+currentMsg.getFrom()+"'");
-	            System.out.println("Truster: Will stop to set message states!!!");
-	            return;
-	        }
-	
-	        // get all .txt files in keypool
-	        ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
-	                                                   ".txt");
-	        System.out.println("Truster: Starting to update messages:");
-	
-	        for( int ii=0; ii<entries.size(); ii++ )
-	        {
-	            File msgFile = (File)entries.get(ii);
-	            FrostMessageObject tempMsg = new FrostMessageObject( msgFile );
-	            if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
-	                (
-	                  tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) ||
-	                  tempMsg.getStatus().trim().equals(VerifyableMessageObject.VERIFIED) ||
-	                  tempMsg.getStatus().trim().equals(VerifyableMessageObject.FAILED)
-	                )
-	              )
-	            {
-	                // check if message is correctly signed
-	                if( newIdentity.getKeyAddress().equals( tempMsg.getKeyAddress() ) &&
-	                    getCrypto().verify(tempMsg.getContent(), newIdentity.getKey()) )
-	                {
-	                    // set new state of message
-	                    if( trust == null )
-	                        tempMsg.setStatus(VerifyableMessageObject.PENDING);
-	                    else if( trust.booleanValue() )
-	                        tempMsg.setStatus(VerifyableMessageObject.VERIFIED);
-	                    else
-	                        tempMsg.setStatus(VerifyableMessageObject.FAILED);
-	
-	                    System.out.print("."); // progress
-	                }
-	                else
-	                {
-	                    System.out.println("\n!Truster: Could not verify message, maybe the message is faked!" +
-	                                       " Message state set to N/A for '"+msgFile.getPath()+"'.");
-	                    tempMsg.setStatus(VerifyableMessageObject.NA);
-	                }
-	            }
-	        }
-	        // finally step through all board files, count new messages and delete new messages from enemies
-	        TOF.initialSearchNewMessages();
-	
-	        SwingUtilities.invokeLater(new Runnable() {
-	                public void run() {
-	                    frame1.getInstance().tofTree_actionPerformed(null);
-	                } });
-	        System.out.println("\nTruster: Finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
-	                           newState+"'");
-	    }
-	}
 	public static LocalIdentity mySelf;
 	//------------------------------------------------------------------------
 	// end-of: Generate objects
@@ -516,89 +278,12 @@ public class Core {
 		return myBatches;
 	}
 	
-	
 	public void init() {
 		
 		timer2 = new java.util.Timer(true);
-				timer2.schedule(new checkForSpam(), 0, frostSettings.getIntValue("sampleInterval")*60*60*1000);
-		saver = new Thread() {
-						public void run() {
-							System.out.println("saving identities");
-							File identities = new File("identities");
-							if( identities.exists() )
-							{
-								String bakFilename = "identities.bak";
-								File bakFile = new File(bakFilename);
-								bakFile.delete();
-								identities.renameTo(bakFile);
-								identities = new File("identities");
-							}
-
-							try
-							{ //TODO: replace this with a call to XML serializer
-								FileWriter fout = new FileWriter(identities);
-								fout.write(mySelf.getName() + "\n");
-								fout.write(mySelf.getKeyAddress() + "\n");
-								fout.write(mySelf.getKey() + "\n");
-								fout.write(mySelf.getPrivKey() + "\n");
-
-								//now do the friends
-								fout.write("*****************\n");
-								Iterator i = friends.values().iterator();
-								while( i.hasNext() )
-								{
-									Identity cur = (Identity)i.next();
-									fout.write(cur.getName() + "\n");
-									fout.write(cur.getKeyAddress() + "\n");
-									fout.write(cur.getKey() + "\n");
-								}
-								fout.write("*****************\n");
-					i = getGoodIds().values().iterator();
-					while (i.hasNext()) {
-						fout.write((String)i.next() + "\n");
-					}
-					fout.write("*****************\n");
-								i = getEnemies().values().iterator();
-								while( i.hasNext() )
-								{
-									Identity cur = (Identity)i.next();
-									fout.write(cur.getName() + "\n");
-									fout.write(cur.getKeyAddress() + "\n");
-									fout.write(cur.getKey() + "\n");
-								}
-								fout.write("*****************\n");
-					i = getBadIds().values().iterator();
-					while (i.hasNext()) {
-						fout.write((String)i.next() + "\n");
-					}
-					fout.write("*****************\n");
-								fout.close();
-								System.out.println("identities saved successfully.");
-
-							}
-							catch( IOException e )
-							{
-								System.out.println("ERROR: couldn't save identities:");
-								e.printStackTrace(System.out);
-							}
-					try {
-						StringBuffer buf = new StringBuffer();
-					Iterator i = myBatches.keySet().iterator();
-					while (i.hasNext()) 
-						buf.append((String)i.next()).append("_");
-					if (buf.length() > 0)
-						buf.deleteCharAt(buf.length()-1); //remove the _ at the end
-					File batches = new File("batches");
-					FileAccess.writeFile(buf.toString(),batches);
-			
-					} catch (Throwable t) {
-						t.printStackTrace(System.out);
-					}
-							saveOnExit();
-							FileAccess.cleanKeypool(frame1.keypool);
-						}
-						};
-					Runtime.getRuntime().addShutdownHook(saver);
+				timer2.schedule(new checkForSpam(this), 0, frostSettings.getIntValue("sampleInterval")*60*60*1000);
+		saver = new Saver(this);
+		Runtime.getRuntime().addShutdownHook(saver);
 					
 		TimerTask cleaner = new TimerTask() {
 						int i = 0;
@@ -706,20 +391,20 @@ public class Core {
 	  {
 		  // start a thread that waits some seconds for gui to appear, then searches for
 		  // unsent messages
-		  ResendFailedMessagesThread t = new ResendFailedMessagesThread(frame1.getInstance());
+		  ResendFailedMessagesThread t = new ResendFailedMessagesThread(this, frame1.getInstance());
 		  t.start();
 	  }
 	
 	public void deleteDir(String which) {
-		(new DeleteWholeDirThread( which )).start();
+		(new DeleteWholeDirThread( this, which )).start();
 	}
 	
 	public void startTruster(boolean what, FrostMessageObject which) {
-		new Truster(Boolean.valueOf(what), which).start();
+		new Truster(this,Boolean.valueOf(what), which).start();
 	}
 	
 	public void startTruster(FrostMessageObject which){
-		new Truster(null, which).start();
+		new Truster(this,null, which).start();
 	}
 	/**
 	 * @param b
@@ -749,4 +434,20 @@ public class Core {
 		return freenetIsTransient;
 	}
 
+	/**
+	 * @param task
+	 * @param delay
+	 */
+	public void schedule(TimerTask task, long delay) {
+		timer2.schedule(task, delay);
+	}
+
+	/**
+	 * @param task
+	 * @param delay
+	 * @param period
+	 */
+	public void schedule(TimerTask task, long delay, long period) {
+		timer2.schedule(task, delay, period);
+	}
 }
