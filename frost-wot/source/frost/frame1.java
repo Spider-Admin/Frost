@@ -1503,6 +1503,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY) == false )
         {
             getRunningBoardUpdateThreads().startMessageDownloadToday(board, frostSettings, listener);
+            mixed.wait(111);
             System.out.println("Starting update (MSG_TODAY) of " + board.toString());
             threadStarted = true;
         }
@@ -1513,6 +1514,7 @@ public class frame1 extends JFrame implements ClipboardOwner
           )
         {
             getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, listener);
+            mixed.wait(111);
             System.out.println("Starting update (BOARD_UPLOAD) of " + board.toString());
             threadStarted = true;
         }
@@ -1522,6 +1524,7 @@ public class frame1 extends JFrame implements ClipboardOwner
           )
         {
             getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, listener);
+            mixed.wait(111);
             System.out.println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
             threadStarted = true;
         }
@@ -1530,6 +1533,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false )
         {
             getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, listener);
+            mixed.wait(111);
             System.out.println("Starting update (MSG_BACKLOAD) of " + board.toString());
             threadStarted = true;
         }

@@ -223,7 +223,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
                 try { 
                     FcpRequest.getFile(downKey, null, testMe, downloadHtl, false);
-                    mixed.wait(333); // wait some time to not to hurt the node 
+                    mixed.wait(111); // wait some time to not to hurt the node on next retry 
                 }
                 catch(Throwable t)
                 {
