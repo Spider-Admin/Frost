@@ -327,7 +327,7 @@ public class SearchThread extends Thread {
                     if( shaIndex.exists() )
                     {
                          chk.clear();
-                         FileAccess.readKeyFile(shaIndex, chk);
+                         chk = FileAccess.readKeyFile(shaIndex).getFilesMap();
                          getSearchResults();
                          if( DEBUG ) Core.getOut().println(shaIndex.getName() + " - " + chk.size() + ";");
                         

@@ -47,6 +47,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 					new File(
 						boardDirs[i].getPath() + File.separator + "files.xml"));
 
+		HashSet set = new HashSet();
 		//put all files in a map
 		Iterator it = indices.iterator();
 		while (it.hasNext()) {
@@ -54,12 +55,12 @@ public class GetFriendsRequestsThread extends TimerTask {
 			if (!current.exists())
 				continue;
 			//Core.getOut().println("helper analyzing index at " + current.getPath());
-			FileAccess.readKeyFile(current, allFiles);
+			set.addAll(FileAccess.readKeyFile(current).getFiles());
 		}
 		Core.getOut().println("helper will traverse through " + allFiles.size()+" files against "+
 					Core.getFriends().size() + " friends ");
 		//get the prefixes of the good people
-		it = allFiles.values().iterator();
+		it = set.iterator();
 		while (it.hasNext()) {
 			SharedFileObject current = (SharedFileObject) it.next();
 			if (current.getOwner() == null)
@@ -88,6 +89,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 		}
 		
 		allFiles=null; //this is too big, clean it fast
+		set = null;
 		System.gc();
 	}
 

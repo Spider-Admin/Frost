@@ -20,7 +20,6 @@ import frost.identities.*;
  */
 public class FrostIndex implements XMLizable {
 	Identity sharer;
-	Set files;
 	Map filesMap;
 
 	/* (non-Javadoc)
@@ -38,7 +37,7 @@ public class FrostIndex implements XMLizable {
 		
 		boolean signUploads = Core.frostSettings.getBoolValue("signUploads");
 		//iterate through set of files and add them all
-		Iterator i = files.iterator();
+		Iterator i = filesMap.values().iterator();
 		while (i.hasNext()){
 			SharedFileObject current = (SharedFileObject)i.next();
 			Element currentElement = current.getXMLElement(container);
@@ -83,7 +82,7 @@ public class FrostIndex implements XMLizable {
 				filesMap.put(file.getSHA1(),file);
 		}
 		
-		files = new HashSet(filesMap.values());
+		
 	}
 
 	public FrostIndex(Element e) {
@@ -104,7 +103,7 @@ public class FrostIndex implements XMLizable {
 		}
 		
 		//wrap the set around the Map set, so that changes will be visible in both
-		this.files = new HashSet(filesMap.values());
+		
 		
 		
 		if (Core.frostSettings.getBoolValue("signUploads"))
@@ -115,7 +114,7 @@ public class FrostIndex implements XMLizable {
 	
 	public FrostIndex (Map filesMap){
 		this.filesMap = filesMap;
-		files = new HashSet(filesMap.values());
+		
 		
 		if (Core.frostSettings.getBoolValue("signUploads"))
 			sharer = Core.getMyId();
@@ -128,7 +127,7 @@ public class FrostIndex implements XMLizable {
 	 * @return the set of files contained in this index
 	 */
 	public Set getFiles() {
-		return files;
+		return new HashSet(filesMap.values());
 	}
 
 	/**
