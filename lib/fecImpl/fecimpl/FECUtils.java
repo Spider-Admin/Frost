@@ -196,13 +196,13 @@ public class FECUtils {
         long start = System.currentTimeMillis();
 
         // REDFLAG: REMOVE
-        int j = 0;
+/*        int j = 0;
         String list = "";
         for(j = 0; j < indices.length; j++) {
             list += " " + indices[j];
         }
-
-        System.out.println("Decoding from packets: " + list.trim());
+*/
+//        System.out.println("Decoding from packets: " + list.trim());
 
         // Make a copy because FECCode.decode() reorders
         // the elements of its arguments.
@@ -211,10 +211,10 @@ public class FECUtils {
 
         code.decode(packets, copyOfIndices);
 
-        list = "";
+/*        list = "";
         for(j = 0; j < indices.length; j++) {
             list += " " + indices[j];
-        }
+        }*/
 
         //System.err.println("Decoded into packets: " + list.trim());
 

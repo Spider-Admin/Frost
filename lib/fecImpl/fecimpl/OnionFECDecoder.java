@@ -114,6 +114,7 @@ public class OnionFECDecoder extends OnionFECBase implements FECDecoder {
                         Bucket[] packetStripe = packetArray.allocate(nn.buckets);
                         Bucket[] decodedStripe = decodedArray.allocate(decoded);
                         for (int i = 0; i < stripeCount; i++) {
+                            System.out.println("Decoding stripe "+i);
                             packetArray.setRange(i * stripeWidth, stripeWidth);
                             decodedArray.setRange(i * stripeWidth, stripeWidth);
                             FECUtils.decode(code, packetStripe, nn.indices,
