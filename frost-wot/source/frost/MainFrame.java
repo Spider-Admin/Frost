@@ -179,6 +179,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						long currentTime = e.getWhen();
 						if( ( lastX==e.getX() && ( lastY==e.getY() )) && 
 								((currentTime - timeMouseDown) < dClkRes) &&
+								(e.getSource() == messageTable) &&
 								SwingUtilities.isLeftMouseButton(e)
 								){
 							showCurrentMessagePopupWindow();
