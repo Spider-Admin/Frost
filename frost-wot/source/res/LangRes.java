@@ -405,6 +405,16 @@ public class LangRes extends ListResourceBundle {
 	{"Messages","Messages"},
 
 	///////////////////////////////////////////////////
+	// List of known boards window
+	///////////////////////////////////////////////////
+	{"KnownBoardsFrame.List of known boards","List of known boards"},
+	{"KnownBoardsFrame.Close","Close"},
+	{"KnownBoardsFrame.Add board","Add board"},
+	{"KnownBoardsFrame.Lookup","Lookup"},
+	{"KnownBoardsFrame.Add board","Add board"},
+	{"KnownBoardsFrame.Remove board","Remove board"},
+
+	///////////////////////////////////////////////////
 	// other stuff which people forget to include
 	///////////////////////////////////////////////////
 	{"Show systray icon","show SysTray icon"},

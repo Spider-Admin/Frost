@@ -33,6 +33,8 @@ import frost.messages.BoardAttachment;
 
 public class KnownBoardsFrame extends JDialog
 {
+	static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+
     static ImageIcon boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
     static ImageIcon writeAccessIcon = new ImageIcon(frame1.class.getResource("/data/waboard.jpg"));
     static ImageIcon readAccessIcon = new ImageIcon(frame1.class.getResource("/data/raboard.jpg"));
@@ -48,9 +50,10 @@ public class KnownBoardsFrame extends JDialog
     
     boolean savingNeeded = false;
     
-    public KnownBoardsFrame(JFrame parent)
+    public KnownBoardsFrame(JFrame parent, ResourceBundle LangRes)
     {
         super();
+		this.LangRes = LangRes;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             init();
@@ -69,7 +72,7 @@ public class KnownBoardsFrame extends JDialog
     public void init()
     {
         setModal(true);
-        setTitle("List of known boards");
+        setTitle(LangRes.getString("KnownBoardsFrame.List of known boards"));
         
         this.setResizable(true);
         
@@ -86,8 +89,8 @@ public class KnownBoardsFrame extends JDialog
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
         
-        Bclose = new JButton("Close");
-        BaddBoard = new JButton("Add board");
+        Bclose = new JButton(LangRes.getString("KnownBoardsFrame.Close"));
+        BaddBoard = new JButton(LangRes.getString("KnownBoardsFrame.Add board"));
 
         TFlookupBoard = new JTextField(10);
         // force a max size, needed for BoxLayout
@@ -123,7 +126,7 @@ public class KnownBoardsFrame extends JDialog
         
         JPanel buttons = new JPanel(new BorderLayout());
         buttons.setLayout( new BoxLayout( buttons, BoxLayout.X_AXIS ));
-        buttons.add( new JLabel("Lookup:"));
+        buttons.add( new JLabel(LangRes.getString("KnownBoardsFrame.Lookup") + ":"));
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( TFlookupBoard );
         buttons.add( Box.createHorizontalGlue() );
@@ -146,8 +149,8 @@ public class KnownBoardsFrame extends JDialog
     private void initPopupMenu()
     {
         tablePopupMenu = new JPopupMenu();
-        JMenuItem addBoardsMenu = new JMenuItem("Add board");
-        JMenuItem removeBoardEntry = new JMenuItem("Remove board");
+        JMenuItem addBoardsMenu = new JMenuItem(LangRes.getString("KnownBoardsFrame.Add board"));
+        JMenuItem removeBoardEntry = new JMenuItem(LangRes.getString("KnownBoardsFrame.Remove board"));
         
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
