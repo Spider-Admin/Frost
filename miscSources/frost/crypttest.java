@@ -5,7 +5,7 @@ import frost.crypt.*;
 
 public class crypttest {
 
-private static crypt crp=new FrostCrypt();
+private static Crypt crp=new FrostCrypt();
 private static String[] keys;
 private static String[] keys2;
 public static void main(String[] arg) {

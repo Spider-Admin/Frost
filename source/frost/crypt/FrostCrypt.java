@@ -21,7 +21,7 @@ import org.bouncycastle.util.encoders.Base64;
  * implementation of the crypto layer
  */
 
-public final class FrostCrypt implements crypt {
+public final class FrostCrypt implements Crypt {
 
 	private static Logger logger = Logger.getLogger(FrostCrypt.class.getName());
 
