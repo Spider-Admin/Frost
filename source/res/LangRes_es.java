@@ -306,6 +306,7 @@ static final Object[][] contents = {
 	{"Choose", "Escoge"},
 	{"Color", "Color"},
 	{"Silently retry failed messages", "Reintentar silenciosamente los mensajes fallidos"},
+	{"Show deleted messages", "Mostrar mensajes borrados"},
 	
 	//	Board Settings Dialog
 	{"Settings for board","Configuración del foro"},

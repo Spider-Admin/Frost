@@ -1448,10 +1448,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 			final FrostMessageObject targetMessage = selectedMessage;
 
-			messageTableModel.deleteRow(selectedMessage);
-			updateMessageCountLabels(getSelectedNode());
-
+			//if we show deleted messages we don't need to remove them from the table
+			if ( ! frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
+				messageTableModel.deleteRow(selectedMessage);
+				updateMessageCountLabels(getSelectedNode());
+			}
+			
 			targetMessage.setDeleted(true);
+			
+			//FIXME: is it needed? needs repaint or the line which crosses the message isn't completely seen
+			this.repaint();
+			
 			Thread saver = new Thread() {
 				public void run() {
 					targetMessage.save();

@@ -91,6 +91,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private boolean checkHideNAMessages;
 	private String checkMaxMessageDisplay;
 	private boolean checkSignedOnly;
+	
+	private boolean checkShowDeletedMessages;
 
 	private JPanel contentAreaPanel = null;
 	private DisplayPanel displayPanel = null;
@@ -460,6 +462,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 
 		saveSettings();
+		
+		
 
 		dispose();
 	}
@@ -523,7 +527,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			|| checkHideNAMessages != frostSettings.getBoolValue("hideNAMessages")
 			|| checkBlock != frostSettings.getBoolValue("blockMessageChecked")
 			|| checkBlockBody
-				!= frostSettings.getBoolValue("blockMessageBodyChecked")) {
+				!= frostSettings.getBoolValue("blockMessageBodyChecked")
+			|| checkShowDeletedMessages
+				!= frostSettings.getBoolValue("showDeletedMessages")) {
 			// at least one setting changed, reload messages
 			shouldReloadMessages = true;
 		}
@@ -546,6 +552,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkHideNAMessages = frostSettings.getBoolValue("hideNAMessages");
 		checkBlock = frostSettings.getBoolValue("blockMessageChecked");
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
+		checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
 	}
 
 	/**

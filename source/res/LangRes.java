@@ -404,6 +404,7 @@ public class LangRes extends ListResourceBundle {
 	{"Choose updating color of SELECTED boards", "Choose updating color of SELECTED boards"},
 	{"Choose updating color of NON-SELECTED boards", "Choose updating color of NON-SELECTED boards"},
 	{"Silently retry failed messages", "Silently retry failed messages"},
+	{"Show deleted messages", "Show deleted messages"},
 	
     // Search Panel
 	{"Image Extension", "Image Extension"},

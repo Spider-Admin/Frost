@@ -60,6 +60,7 @@ class News3Panel extends JPanel {
 	private JLabel notSelectedColorLabel = new JLabel();
 	
 	private JCheckBox silentlyRetryCheckBox = new JCheckBox();
+	private JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
 
 	private JPanel colorPanel = null;
 
@@ -203,6 +204,9 @@ class News3Panel extends JPanel {
 		
 		constraints.gridy = 4;
 		add(silentlyRetryCheckBox, constraints);
+		
+		constraints.gridy = 5;
+		add(showDeletedMessagesCheckBox, constraints);
 
 		// Add listeners
 		showUpdateCheckBox.addActionListener(listener);
@@ -226,6 +230,8 @@ class News3Panel extends JPanel {
 		notSelectedColorLabel.setBackground(notSelectedColor);
 		
 		silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
+		
+		showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
 	}
 	
 	/**
@@ -277,6 +283,7 @@ class News3Panel extends JPanel {
 		notSelectedColorButton.setText(language.getString("Choose"));
 
 		silentlyRetryCheckBox.setText(language.getString("Silently retry failed messages"));
+		showDeletedMessagesCheckBox.setText(language.getString("Show deleted messages"));
 	}
 	
 	/**
@@ -299,6 +306,8 @@ class News3Panel extends JPanel {
 		settings.setObjectValue("boardUpdatingNonSelectedBackgroundColor", notSelectedColor);
 		
 		settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
+		settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
+		
 	}
 	
 	/**

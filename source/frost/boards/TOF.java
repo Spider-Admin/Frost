@@ -357,7 +357,8 @@ public class TOF
                                     message = null;
                                 }
                                 if( message != null &&
-                                	!message.isDeleted() &&
+                                	( MainFrame.frostSettings.getBoolValue("showDeletedMessages") || 
+                                	  !message.isDeleted() ) &&
                                     message.isValid() && 
                                     !blocked(message,board) )
                                 {
