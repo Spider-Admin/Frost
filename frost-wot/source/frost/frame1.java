@@ -1065,7 +1065,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JButton tofNewMessageButton = null;
 	JButton tofReplyButton = null;
 
-	private JTextArea tofTextArea = null;
+	private JAATextArea tofTextArea = null;
 
 	TofTree tofTree = null;
 	JButton tofUpdateButton = null;
@@ -1684,7 +1684,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		});
 		JScrollPane messageTableScrollPane = new JScrollPane(messageTable);
 
-		this.tofTextArea = new JTextArea();
+		tofTextArea = new JAATextArea();
 		JScrollPane tofTextAreaScrollPane = new JScrollPane(tofTextArea);
 		tofTextArea.setEditable(false);
 		tofTextArea.setLineWrap(true);
