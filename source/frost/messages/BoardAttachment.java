@@ -76,7 +76,7 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 		privkey = XMLTools.getChildElementsCDATAValue(e, "privKey");
 		pubkey = XMLTools.getChildElementsCDATAValue(e, "pubKey");
 
-		boardObj = new FrostBoardObject(name, pubkey, privkey, "");
+		boardObj = new FrostBoardObject(name, pubkey, privkey, null);
 	}
 
 	/**

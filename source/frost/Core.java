@@ -281,7 +281,7 @@ public class Core implements Savable {
 
 				// create BoardAttachment objects and pass them to add method
 				// which checks for doubles
-				FrostBoardObject bo = new FrostBoardObject(bname, bpubkey, bprivkey, "");
+				FrostBoardObject bo = new FrostBoardObject(bname, bpubkey, bprivkey, null);
 				BoardAttachment ba = new BoardAttachment(bo);
 				tmpList.add(ba);
 			}
