@@ -432,13 +432,15 @@ public class TOF
     {
         // TODO: remove this later, is already check on incoming message.
         // this is needed as long such messages are in keypool to block these
+        //  and of course its needed if you change the setting Hide unsigned 
         if( message.verifyTime() == false )
         {
             return true;
         }
 
         if( board.getShowSignedOnly() &&
-            !message.isVerifyable() )
+            ( message.getStatus().indexOf("NONE")>-1 || message.getStatus().indexOf("FAKE")>-1 )
+          )  
             return true;
         if( board.getHideBad() &&
             (message.getStatus().indexOf("BAD")>-1))
