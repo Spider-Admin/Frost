@@ -1,6 +1,6 @@
 package frost.identities;
 
-import java.io.*;
+
 import java.util.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -14,7 +14,7 @@ public class Identity implements SafeXMLizable
 {
     private String name;
     private String uniqueName;
-    protected String key, keyaddress;
+    protected String key;
     protected transient FcpConnection con;
     public static final String NA = "NA";
     private static ThreadLocal tmpfile;
@@ -42,12 +42,6 @@ public class Identity implements SafeXMLizable
 		//name
 		Element element = doc.createElement("name");
 		CDATASection cdata = doc.createCDATASection(getUniqueName());
-		element.appendChild( cdata );
-		el.appendChild( element );
-		
-		//key address - we really need to get rid of this, it slows down everything
-		element = doc.createElement("CHK");
-		cdata = doc.createCDATASection(getKeyAddress());
 		element.appendChild( cdata );
 		el.appendChild( element );
 		
@@ -112,7 +106,6 @@ public class Identity implements SafeXMLizable
 				name = uniqueName.substring(0,uniqueName.indexOf("@"));
 				key =  XMLTools.getChildElementsCDATAValue(e, "key");
 				try {
-					keyaddress =  XMLTools.getChildElementsCDATAValue(e, "CHK");
 					String _msg = XMLTools.getChildElementsTextValue(e,"messages");
 					noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
 					String _files = XMLTools.getChildElementsTextValue(e,"files");
@@ -148,68 +141,12 @@ public class Identity implements SafeXMLizable
      */
     public Identity(String name, String keyaddress, String key)
     {
-        this.keyaddress = keyaddress;
         this.key = key;
      	this.name = name;
      	if (name.indexOf("@")!=-1)
      		this.uniqueName = name;
      	else 
      		setName(name);
-    }
-
-    /**
-     * this constructor fetches the key from a SSK,
-     * it blocks so it should be done from the TOFDownload thread (I think)
-     */
-    public Identity(String name, String keyaddress) throws IllegalArgumentException
-    {
-        this.keyaddress = keyaddress;
-
-        con = FcpFactory.getFcpConnectionInstance();
-        if( con == null )
-        {
-            this.key = NA;
-            return;
-        }
-
-        if( !keyaddress.startsWith("CHK@") )
-        {
-            this.key = NA;
-            throw (new IllegalArgumentException("not a CHK"));
-        }
-
-        System.out.println("Identity: Starting to request CHK for '" + name +"'");
-        String targetFile = frame1.frostSettings.getValue("temp.dir") + name + ".key.tmp";
-
-        // try X times to get identity, its too important to not to try it ;)
-        // will lower the amount of N/A messages because of non found keys
-        FcpResults wasOK = null;
-        int maxTries = 3;
-        int tries = 0;
-        while( wasOK == null && tries < maxTries )
-        {
-            try {
-                wasOK = FcpRequest.getFile(keyaddress, null, new File(targetFile), 25, false);
-            }
-            catch(Exception e) { ; }
-            mixed.wait(3500);
-            tries++;
-        }
-
-        if( wasOK != null )
-        {
-            key = FileAccess.read(targetFile);
-            System.out.println("Identity: CHK received for " +name);
-        }
-        else
-        {
-            key=NA;
-            System.out.println("Identity: Failed to get CHK for " +name);
-        }
-        File tfile = new File(targetFile);
-        tfile.delete();
-
-        setName(name); // must be called after key is got!
     }
 
     private void setName(String nam)
@@ -226,10 +163,7 @@ public class Identity implements SafeXMLizable
     {
         return name;
     }
-    public String getKeyAddress()
-    {
-        return keyaddress;
-    }
+    
     public String getKey()
     {
         return key;

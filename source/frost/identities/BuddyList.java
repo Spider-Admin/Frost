@@ -71,4 +71,14 @@ public class BuddyList extends HashMap implements XMLizable
             return null;
         }
     }
+	/* (non-Javadoc)
+	 * @see java.util.Map#remove(java.lang.Object)
+	 */
+	public Object remove(Object key) {
+		if (key instanceof String)
+		return super.remove(mixed.makeFilename((String)key));
+		
+		return super.remove(key);
+	}
+
 }
