@@ -42,7 +42,7 @@ public class DownloadTable extends SortedTable
         getColumnModel().getColumn(2).setCellRenderer(cellRenderer);
 
         // set column sizes
-        int[] widths = {0, 180, 90, 70, 80, 85, 35, 60, 60};
+        int[] widths = {0, 170, 80, 70, 80, 85, 25, 60, 60, 30};
         for (int i = 0; i < widths.length; i++) // col 0 default
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
@@ -54,8 +54,6 @@ public class DownloadTable extends SortedTable
         sortedColumnIndex = 4;
         sortedColumnAscending = true;
         resortTable();
-
-//        setIntercellSpacing( new Dimension( 4, 0 ) );
     }
 
     public void removeSelectedRows()
