@@ -86,6 +86,7 @@ public class FileAccess
             String filename = new String();
             String size = new String();
             String date = new String();
+	    String dateShared = null;
             String key = null;
 	    String SHA1 = null;
 	    String owner = new String();
@@ -129,6 +130,7 @@ public class FileAccess
 		
 		newKey.setKey(XMLTools.getChildElementsTextValue(current, "key"));
 		newKey.setDate(XMLTools.getChildElementsTextValue(current, "date"));
+		newKey.setLastSharedDate(XMLTools.getChildElementsTextValue(current, "dateShared"));
 		newKey.setSize(XMLTools.getChildElementsTextValue(current, "size"));
 		
 		//validate the key
@@ -200,7 +202,7 @@ public class FileAccess
         
 	text.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	    
-	//TODO: signing has to be optional, will do later
+	
 	if (frame1.frostSettings.getBoolValue("signUploads")) 
 		text.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+
 			"\" pubkey = \""+frame1.getMyId().getKey()+"\">");
@@ -234,6 +236,8 @@ public class FileAccess
 		    	text.append("<key>" + current.getKey() + "</key>");
 		    if (current.getDate() != null)
 		    	text.append("<date>" + current.getDate() + "</date>");
+		    if (current.getLastSharedDate() != null)
+		    	text.append("<dateShared>"+ current.getLastSharedDate() +"</dateShared>");
 		    
 		    text.append("</File>");
                 }

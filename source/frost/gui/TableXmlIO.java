@@ -77,6 +77,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
         String targetboardname = XMLTools.getChildElementsTextValue(ulItemElement, "targetboard");
         String state = XMLTools.getChildElementsTextValue(ulItemElement, "state");
         String lastUploadDate = XMLTools.getChildElementsTextValue(ulItemElement, "lastuploaddate");
+	String sharedDate = XMLTools.getChildElementsTextValue(ulItemElement, "dateShared");
         String key = XMLTools.getChildElementsCDATAValue(ulItemElement, "key");
 	String SHA1 = XMLTools.getChildElementsCDATAValue(ulItemElement, "SHA1");
 

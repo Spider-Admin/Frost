@@ -104,6 +104,7 @@ public class insertThread extends Thread
 	    KeyClass newKey = new KeyClass();
 	    newKey.setKey(null);
 	    newKey.setDate(null);
+	    newKey.setLastSharedDate(DateFun.getDate());
 	    newKey.setSHA1(SHA1);  
             newKey.setFilename(destination);
             newKey.setSize(file.length());
