@@ -32,10 +32,14 @@
   <property name="bin.dir" value="bin"/>
   <property name="res.dir" value="res"/>
   <property name="lib.dir" value="lib"/>
+  <property name="src.dir.feclib" value="${lib.dir}/fecImpl"/>
+  <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
   <property name="build.classes" value="${build.dir}/classes"/>
+  <property name="build.classes.feclib" value="${build.dir}/classes_feclib"/>
+  <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
@@ -77,6 +81,8 @@ Build log  : ${logfilename}</echo>
           description="--> compiles the source code">
     <mkdir dir="${build.dir}"/>
     <mkdir dir="${build.classes}"/>
+    <mkdir dir="${build.classes.feclib}"/>
+    <mkdir dir="${build.classes.genchklib}"/>
 
     <javac srcdir="${src.dir}"
            destdir="${build.classes}"
@@ -84,6 +90,25 @@ Build log  : ${logfilename}</echo>
            deprecation="${deprecation}"
            optimize="${optimize}" >
       <classpath refid="classpath" />
+    </javac>
+
+    <javac srcdir="${src.dir.feclib}"
+           destdir="${build.classes.feclib}"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}"
+           classpath="${src.dir.feclib}">
+    </javac>
+
+    <javac srcdir="${src.dir.genchklib}"
+           destdir="${build.classes.genchklib}"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}">
+        <classpath>
+            <pathelement location="${build.classes.feclib}"/>
+<!--            <pathelement location="${src.dir.genchklib}"/>-->
+        </classpath>
     </javac>
 
   </target>
@@ -109,6 +134,30 @@ Build log  : ${logfilename}</echo>
       </fileset>
     </jar>
 
+    <copy todir="${build.classes.feclib}">
+        <fileset dir="${lib.dir}/fecImpl">
+            <include name="**/*.class"/>
+            <include name="**/*.properties"/>
+        </fileset>
+    </copy>
+
+    <delete quiet="true" file="${dist.dir}/lib/fecImpl.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/fecImpl.jar">
+      <fileset dir="${build.classes.feclib}">
+        <include name="**/*.class"/>
+        <include name="**/*.properties"/>
+      </fileset>
+    </jar>
+
+    <delete quiet="true" file="${dist.dir}/lib/genChkImpl.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/genChkImpl.jar">
+      <fileset dir="${build.classes.genchklib}">
+        <include name="**/*.class"/>
+      </fileset>
+    </jar>
+
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -122,9 +171,10 @@ Build log  : ${logfilename}</echo>
       <fileset dir="${bin.dir}"/>
     </copy>
 
-    <mkdir dir="${dist.dir}/lib"/>
     <copy todir="${dist.dir}/lib">
-        <fileset dir="${lib.dir}"/>
+        <fileset dir="${lib.dir}">
+            <filename name="*.jar"/>
+        </fileset>
     </copy>
 
     <mkdir dir="${dist.dir}/downloads"/>
