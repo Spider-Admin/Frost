@@ -20,8 +20,12 @@
 package frost.components.translate;
 
 import java.io.*;
+import java.util.logging.*;
 
 public class WriteAccess {
+	
+	private static Logger logger = Logger.getLogger(WriteAccess.class.getName());
+	
     /**
      * Writes a file "file" to "path"
      */
@@ -32,7 +36,7 @@ public class WriteAccess {
 	    out.write(content);
 	    out.close();
 	} catch (IOException e) {
-	    e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
 	}
     }
 }

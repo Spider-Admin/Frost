@@ -1,6 +1,7 @@
 package frost.identities;
 
 import java.io.IOException;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -16,6 +17,8 @@ import frost.messages.BoardAttachment;
 public class LocalIdentity extends Identity
 {
     private String privKey;
+    
+	private static Logger logger = Logger.getLogger(LocalIdentity.class.getName());
 
 
 	public Element getXMLElement(Document doc) {
@@ -86,7 +89,7 @@ public class LocalIdentity extends Identity
 									getUniqueName(),svk[1],svk[0]));
 			
         }catch(IOException ex){
-        	ex.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
         	board = null;
         }
         
