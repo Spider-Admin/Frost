@@ -1325,8 +1325,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			public void actionPerformed(ActionEvent e) {
 				// make the font size in the TOF text area one point bigger
 				Font f = tofTextArea.getFont();
-				frostSettings.setValue("messageBodyFontSize", f.getSize() + 1);
-				f = f.deriveFont(frostSettings.getFloatValue("messageBodyFontSize"));
+				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, f.getSize() + 1);
+				f = f.deriveFont(frostSettings.getFloatValue(SettingsClass.MESSAGE_BODY_FONT_SIZE));
 				tofTextArea.setFont(f);
 			}
 		});
@@ -1334,8 +1334,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			public void actionPerformed(ActionEvent e) {
 				// make the font size in the TOF text area one point smaller
 				Font f = tofTextArea.getFont();
-				frostSettings.setValue("messageBodyFontSize", f.getSize() - 1);
-				f = f.deriveFont(frostSettings.getFloatValue("messageBodyFontSize"));
+				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, f.getSize() - 1);
+				f = f.deriveFont(frostSettings.getFloatValue(SettingsClass.MESSAGE_BODY_FONT_SIZE));
 				tofTextArea.setFont(f);
 			}
 		});
@@ -1959,11 +1959,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	private DownloadPanel getDownloadPanel() {
 		if (downloadPanel == null) {
-			downloadPanel = new DownloadPanel();
+			downloadPanel = new DownloadPanel(frostSettings);
 			downloadPanel.setDownloadTable(getDownloadTable());
 			downloadPanel.setHealingTable(getHealingTable());
 			downloadPanel.setLanguageResource(languageResource);
-			downloadPanel.setSettingsClass(frostSettings);
 			downloadPanel.initialize();
 		}
 		return downloadPanel;
@@ -2063,7 +2062,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		 */
 	private SearchPanel getSearchPanel() {
 		if (searchPanel == null) {
-			searchPanel = new SearchPanel();
+			searchPanel = new SearchPanel(frostSettings);
 			searchPanel.setSearchTable(getSearchTable());
 			searchPanel.setDownloadTable(getDownloadTable());
 			searchPanel.setTofTree(getTofTree());
@@ -2110,10 +2109,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	private UploadPanel getUploadPanel() {
 		if (uploadPanel == null) {
-			uploadPanel = new UploadPanel();
+			uploadPanel = new UploadPanel(frostSettings);
 			uploadPanel.setUploadTable(getUploadTable());
 			uploadPanel.setTofTree(getTofTree());
-			uploadPanel.setSettingsClass(frostSettings);
 			uploadPanel.setLanguageResource(languageResource);
 			uploadPanel.initialize();
 		}
@@ -2232,8 +2230,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
 
 		// make sure the font size isn't too small to see
-		if (frostSettings.getIntValue("messageBodyFontSize") < 6)
-			frostSettings.setValue("messageBodyFontSize", 6);
+		if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6)
+			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, 6);
 
 		// Load table settings
 		getDownloadTable().load();
@@ -2278,26 +2276,26 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * 
 	 */
 	private void initializeFonts() {
-		String fontName = frostSettings.getValue("messageBodyFontName");
-		int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
-		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
+		String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+		int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+		int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
 		Font font = new Font(fontName, fontStyle, fontSize);
 		if (!font.getFamily().equals(fontName)) {
 			logger.severe("The selected font was not found in your system\n" +
 						   "That selection will be changed to \"Monospaced\".");
-			frostSettings.setValue("messageBodyFontName", "Monospaced");
+			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
 			font = new Font("Monospaced", fontStyle, fontSize);
 		}
 		tofTextArea.setFont(font);
 
-		fontName = frostSettings.getValue("messageListFontName");
-		fontStyle = frostSettings.getIntValue("messageListFontStyle");
-		fontSize = frostSettings.getIntValue("messageListFontSize");
+		fontName = frostSettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
+		fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
+		fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
 		font = new Font(fontName, fontStyle, fontSize);
 		if (!font.getFamily().equals(fontName)) {
 			logger.severe("The selected font was not found in your system\n" +
 						   "That selection will be changed to \"SansSerif\".");
-			frostSettings.setValue("messageListFontName", "SansSerif");
+			frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
 			font = new Font("SansSerif", fontStyle, fontSize);
 		}
 		messageTable.setFont(font);
