@@ -255,7 +255,7 @@ public class FrostDownloadItemObject extends Observable implements FrostDownload
 		setChanged();
 		//deliver the notification in the same thread.
 		//I don't see any locking issues
-		notifyObservers();
+		notifyObservers(getFileName());
 		deleteObservers(); //only once! 
 	}
     }
