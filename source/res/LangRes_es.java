@@ -56,7 +56,6 @@ static final Object[][] contents = {
 {"BoardInfoFrame.UpdateSelectedBoardButton","Refresca Foro Seleccionado"},
 {"Browse","Examina"},
 {"Bulgarian","Búlgaro"},
-{"Cancel","Cancela"},
 {"Change destination board","Cambia foro de destino"},
 {"CHK key","clave CHK"},
 {"CHK key + filename","clave CHK + nombre de fichero"},
@@ -147,8 +146,6 @@ static final Object[][] contents = {
 {"Last upload","Última subida"},
 {"list of nodes","Lista separada por comas de nodos a los que tienes acceso por FCP"},
 {"list of nodes 2","(nodoA:puertoA, nodoB:puertoB, ...)"},
-{"Mark ALL messages read","Marca TODOS los mensajes como leídos"},
-{"Mark message unread","Marca el mensaje como no leído"},
 {"Maximum number of keys to store","Número máximo de claves a guardar"},
 {"Maximum number of retries","Número máximo de reintentos"},
 {"Maximum search results","Número máximo de resultados de búsqueda"},
@@ -454,7 +451,13 @@ static final Object[][] contents = {
 	
 	// Saver AutoTask popup
 	{"Saver.AutoTask.title", "Se ha encontrado un problema."},
-	{"Saver.AutoTask.message", "Frost se ha encontrado con un error mientras grababa un recurso y se cerrará."}
+	{"Saver.AutoTask.message", "Frost se ha encontrado con un error mientras grababa un recurso y se cerrará."},
+	
+	// Popup over message table
+	{"Mark ALL messages read", "Marca TODOS los mensajes como leídos"},
+	{"Mark message unread", "Marca el mensaje como no leído"},
+	{"Delete message", "Borra el mensaje"},
+	{"Cancel","Cancela"}
 	
 	};
 }

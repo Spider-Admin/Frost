@@ -492,6 +492,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private JMenuItem setBadItem = new JMenuItem();
 			private JMenuItem setCheckItem = new JMenuItem();
 			private JMenuItem setGoodItem = new JMenuItem();
+			
+			private JMenuItem deleteItem = new JMenuItem();
 
 			/**
 			 * 
@@ -520,6 +522,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (e.getSource() == setCheckItem) {
 					setCheck();
 				}
+				if (e.getSource() == deleteItem) {
+					deleteMessage();
+				}
+			}
+
+			/**
+			 * 
+			 */
+			private void deleteMessage() {
+				deleteSelectedMessage();				
 			}
 
 			/**
@@ -533,6 +545,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setGoodItem.addActionListener(this);
 				setBadItem.addActionListener(this);
 				setCheckItem.addActionListener(this);
+				deleteItem.addActionListener(this);
+				
+				deleteItem.setEnabled(false); //Until it is finished
 			}
 
 			/* (non-Javadoc)
@@ -566,6 +581,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setGoodItem.setText(languageResource.getString("help user (sets to GOOD)"));
 				setBadItem.setText(languageResource.getString("block user (sets to BAD)"));
 				setCheckItem.setText(languageResource.getString("set to neutral (CHECK)"));
+				deleteItem.setText(languageResource.getString("Delete message"));
 				cancelItem.setText(languageResource.getString("Cancel"));
 			}
 
@@ -628,6 +644,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 								"invalid message state : " + selectedMessage.getStatus());
 					}
 
+					addSeparator();
+					add(deleteItem);
 					addSeparator();
 					add(cancelItem);
 					// ATT: misuse of another menuitem displaying 'Cancel' ;)
@@ -1429,6 +1447,30 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void antialiasing_propertyChanged(PropertyChangeEvent evt) {
 			messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+		}
+		/**
+		 * 
+		 */
+		private void deleteSelectedMessage() {
+			int row = messageTable.getSelectedRow();
+			if (row < 0
+				|| selectedMessage == null
+				|| getSelectedNode() == null
+				|| getSelectedNode().isFolder() == true)
+				return;
+
+			final FrostMessageObject targetMessage = selectedMessage;
+
+			messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+
+			targetMessage.setDeleted(true);
+			Thread saver = new Thread() {
+				public void run() {
+					targetMessage.save();
+				};
+			};
+			saver.start();
+			
 		}
 
 	}
