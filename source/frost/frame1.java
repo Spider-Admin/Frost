@@ -126,6 +126,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     JComboBox searchComboBox = null;
 
+    JTabbedPane tabbedPane = null;
+
     JSplitPane attachmentSplitPane = null;
     JSplitPane boardSplitPane = null;
 
@@ -486,12 +488,14 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private JPanel buildTofMainPanel()
     {
-        JTabbedPane tabbedPane = new JTabbedPane();
+        this.tabbedPane = new JTabbedPane();
         //add a tab for buddies perhaps?
         tabbedPane.add(LangRes.getString("News"), buildMessagePane());
         tabbedPane.add(LangRes.getString("Search"), buildSearchPane());
         tabbedPane.add(LangRes.getString("Downloads"), buildDownloadPane());
         tabbedPane.add(LangRes.getString("Uploads"), buildUploadPane());
+
+        updateOptionsAffectedComponents();
 
         // this rootnode is discarded later, but if we create the tree without parameters,
         // a new Model is created wich contains some sample data by default (swing)
@@ -900,9 +904,10 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         JOptionPane.showMessageDialog(this,
                         "      You are running a TRANSIENT node.  "+
-                        "Filesharing will be disabled!\n"+
-                        "If you want to be able to download/upload files,"+
-                        "run a PERMANENT node.",
+//                        "Filesharing will be disabled!\n"+
+//                        "If you want to be able to download/upload files,"+
+//                        "run a PERMANENT node.",
+                        "Better run a PERMANENT freenet node.",
                         "Transient node detected",
                         JOptionPane.WARNING_MESSAGE);
     }
@@ -1026,8 +1031,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     tofTextArea.setFont(tofTextArea.getFont ().deriveFont (frostSettings.getFloatValue("tofFontSize")));
 
     // Load table settings
-    DownloadTableFun.load(downloadTable);
-    UploadTableFun.load(uploadTable);
+    DownloadTableFun.load(getDownloadTable());
+    UploadTableFun.load(getUploadTable());
 
     // Start tofTree
     resendFailedMessages();
@@ -1112,29 +1117,29 @@ public class frame1 extends JFrame implements ClipboardOwner
         // Upload / Move selected files up
         uploadPopupMoveSelectedFilesUp.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesUp(uploadTable);
+                TableFun.moveSelectedEntriesUp(getUploadTable());
             } });
         // Upload / Move selected files down
         uploadPopupMoveSelectedFilesDown.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesDown(uploadTable);
+                TableFun.moveSelectedEntriesDown(getUploadTable());
             } });
         // Upload / Remove selected files
         uploadPopupRemoveSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.removeSelectedRows(uploadTable);
+                TableFun.removeSelectedRows(getUploadTable());
             } });
         // Upload / Remove all files
         uploadPopupRemoveAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.removeAllRows(uploadTable);
+                TableFun.removeAllRows(getUploadTable());
             } });
         // Upload / Reload selected files
         uploadPopupReloadSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                DefaultTableModel tableModel = (DefaultTableModel)uploadTable.getModel();
-                synchronized (uploadTable) { try {
-                int[] selectedRows = uploadTable.getSelectedRows();
+                DefaultTableModel tableModel = (DefaultTableModel)getUploadTable().getModel();
+                synchronized (getUploadTable()) { try {
+                int[] selectedRows = getUploadTable().getSelectedRows();
                 for (int i = 0; i < selectedRows.length; i++){
                     String state = (String)tableModel.getValueAt(selectedRows[i], 2);
                     // Since it is difficult to identify the states where we are allowed to
@@ -1150,39 +1155,39 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupReloadAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 // Needs to be fixed for proper synchronization and locked against restart
-                synchronized(uploadTable) {
+                synchronized(getUploadTable()) {
                 try{
-                uploadTable.selectAll();
-                TableFun.setSelectedRowsColumnValue(uploadTable, 2, LangRes.getString("Requested"));
+                getUploadTable().selectAll();
+                TableFun.setSelectedRowsColumnValue(getUploadTable(), 2, LangRes.getString("Requested"));
                 }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
                 }
             } });
         // Upload / Set Prefix for selected files
         uploadPopupSetPrefixForSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                UploadTableFun.setPrefixForSelectedFiles(uploadTable);
+                UploadTableFun.setPrefixForSelectedFiles(getUploadTable());
             } });
         // Upload / Set Prefix for all files
         uploadPopupSetPrefixForAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                uploadTable.selectAll();
-                UploadTableFun.setPrefixForSelectedFiles(uploadTable);
+                getUploadTable().selectAll();
+                UploadTableFun.setPrefixForSelectedFiles(getUploadTable());
             } });
         // Upload / Restore default filenames for selected files
         uploadPopupRestoreDefaultFilenamesForSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                UploadTableFun.restoreDefaultFilenames(uploadTable);
+                UploadTableFun.restoreDefaultFilenames(getUploadTable());
             } });
         // Upload / Restore default filenames for all files
         uploadPopupRestoreDefaultFilenamesForAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                uploadTable.selectAll();
-                UploadTableFun.restoreDefaultFilenames(uploadTable);
+                getUploadTable().selectAll();
+                UploadTableFun.restoreDefaultFilenames(getUploadTable());
             } });
         // Upload / Restore default filenames for all files
         uploadPopupAddFilesToBoard.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                UploadTableFun.addFilesToBoard(uploadTable);
+                UploadTableFun.addFilesToBoard(getUploadTable());
             } });
 // construct menu
         uploadPopupMenu.add(uploadPopupRemoveSelectedFiles);
@@ -1224,27 +1229,27 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener
         downloadPopupRemoveSelectedDownloads.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                DownloadTableFun.removeSelectedChunks(downloadTable);
-                TableFun.removeSelectedRows(downloadTable);
+                DownloadTableFun.removeSelectedChunks(getDownloadTable());
+                TableFun.removeSelectedRows(getDownloadTable());
             } });
         downloadPopupRemoveAllDownloads.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                downloadTable.selectAll();
-                DownloadTableFun.removeSelectedChunks(downloadTable);
-                TableFun.removeAllRows(downloadTable);
+                getDownloadTable().selectAll();
+                DownloadTableFun.removeSelectedChunks(getDownloadTable());
+                TableFun.removeAllRows(getDownloadTable());
             } });
         downloadPopupMoveUp.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesUp(downloadTable);
+                TableFun.moveSelectedEntriesUp(getDownloadTable());
             } });
         downloadPopupMoveDown.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesDown(downloadTable);
+                TableFun.moveSelectedEntriesDown(getDownloadTable());
             } });
         downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.setSelectedRowsColumnValue(downloadTable, 4, frostSettings.getValue("htl"));
-                TableFun.setSelectedRowsColumnValue(downloadTable, 3, LangRes.getString("Waiting"));
+                TableFun.setSelectedRowsColumnValue(getDownloadTable(), 4, frostSettings.getValue("htl"));
+                TableFun.setSelectedRowsColumnValue(getDownloadTable(), 3, LangRes.getString("Waiting"));
             } });
 // construct menu
         downloadPopupMenu.add(downloadPopupRemoveSelectedDownloads);
@@ -1495,7 +1500,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         "Unknown",
                         key,
                         frostSettings.getIntValue("htl"),
-                        downloadTable,
+                        getDownloadTable(),
                         getActualNode().toString()); // TODO: pass FrostBoardObject
         }
     }
@@ -1508,7 +1513,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         "Unknown",
                         key,
                         frostSettings.getIntValue("htl"),
-                        downloadTable,
+                        getDownloadTable(),
                         getActualNode().toString()); // TODO: pass FrostBoardObject
         }
     }
@@ -2057,9 +2062,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**Get keyTyped for downloadTable*/
     public void downloadTable_keyPressed(KeyEvent e) {
     char key = e.getKeyChar();
-    if (key == KeyEvent.VK_DELETE && !downloadTable.isEditing()) {
-        DownloadTableFun.removeSelectedChunks(downloadTable);
-        TableFun.removeSelectedRows(downloadTable);
+    if (key == KeyEvent.VK_DELETE && !getDownloadTable().isEditing()) {
+        DownloadTableFun.removeSelectedChunks(getDownloadTable());
+        TableFun.removeSelectedRows(getDownloadTable());
     }
     }
 
@@ -2266,14 +2271,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
 
         if( counter%180 == 0 ) // Check uploadTable every 3 minutes
-            UploadTableFun.update(uploadTable);
+            UploadTableFun.update(getUploadTable());
 
         if( counter%300 == 0 && frostSettings.getBoolValue("removeFinishedDownloads") )
-            DownloadTableFun.removeFinishedDownloads(downloadTable);
+            DownloadTableFun.removeFinishedDownloads(getDownloadTable());
 
         if( updateDownloads || counter%10 == 0 )
         {
-            DownloadTableFun.update(downloadTable, frostSettings.getIntValue("htlMax"), new File(keypool), new File(frostSettings.getValue("downloadDirectory")));
+            DownloadTableFun.update(getDownloadTable(), frostSettings.getIntValue("htlMax"), new File(keypool), new File(frostSettings.getValue("downloadDirectory")));
             updateDownloads = false;
 
             // Sometimes it seems that download table entries do not get reset to "Failed"
@@ -2451,7 +2456,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     String source = null;
                     String key = null;
                     boolean isWaiting = false;
-                    synchronized (downloadTable) {
+                    synchronized (getDownloadTable()) {
                         try {
                             filename = (String)getDownloadTable().getModel().getValueAt(i,0);
                             size = (String)getDownloadTable().getModel().getValueAt(i,1);
@@ -2532,7 +2537,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                                                 "Unknown",
                                                 key,
                                                 frostSettings.getIntValue("htl"),
-                                                downloadTable,
+                                                getDownloadTable(),
                                                 getActualNode().getBoardFilename());
             }
             else
@@ -2671,7 +2676,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             File newFile = (File)allFiles.elementAt(j);
             if (newFile.isFile()) {
                 // TODO: pass FrostBoardObject
-                UploadTableFun.add(uploadTable, newFile, selectedFiles[i], getActualNode().toString());
+                UploadTableFun.add(getUploadTable(), newFile, selectedFiles[i], getActualNode().toString());
             }
             }
         }
@@ -2712,6 +2717,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     newFrame.show();
     if (newFrame.getExitState()) {
         frostSettings.readSettingsFile();
+        updateOptionsAffectedComponents();
     }
     oldMessageHeader = "";
     timeLabel.setText("");
@@ -2739,8 +2745,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void saveOnExit()
     {
         saveSettings();
-        TableFun.saveTable(downloadTable, new File("download.txt"));
-        TableFun.saveTable(uploadTable, new File("upload.txt"));
+        TableFun.saveTable(getDownloadTable(), new File("download.txt"));
+        TableFun.saveTable(getUploadTable(), new File("upload.txt"));
         System.out.println("Bye...");
     }
 
@@ -2775,7 +2781,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             File file = new File(System.getProperty("user.dir") +
                      fileSeparator +
                      frostSettings.getValue("downloadDirectory") +
-                     (String)getDownloadTable().getModel().getValueAt(downloadTable.getSelectedRow(), 0));
+                     (String)getDownloadTable().getModel().getValueAt(getDownloadTable().getSelectedRow(), 0));
             System.out.println(file.getPath());
             if (file.exists())
             Execute.run("exec.bat" + " " + file.getPath());
@@ -2792,7 +2798,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         // Add search result to download table
         if (e.getComponent().equals(searchTable)) {
-            SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
+            SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, getDownloadTable());
         }
 
         }
@@ -2812,7 +2818,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             return;
         }
 
-        if (e.getComponent().equals(uploadTable)) { // Upload Popup
+        if (e.getComponent().equals(getUploadTable())) { // Upload Popup
 
             // Add boards to changeDestinationBoard submenu
             Vector boards = getTofTree().getAllBoards();
@@ -2825,12 +2831,12 @@ public class frame1 extends JFrame implements ClipboardOwner
                 uploadPopupChangeDestinationBoard.add(boardMenuItem);
                 boardMenuItem.addActionListener(new ActionListener()  {
                     public void actionPerformed(ActionEvent e) {
-                        TableFun.setSelectedRowsColumnValue(uploadTable, 4, aBoard.getBoardFilename());
+                        TableFun.setSelectedRowsColumnValue(getUploadTable(), 4, aBoard.getBoardFilename());
                     }
                     });
             }
 
-            if (uploadTable.getSelectedRow() == -1) {
+            if (getUploadTable().getSelectedRow() == -1) {
                 uploadPopupRemoveSelectedFiles.setEnabled(false);
                 uploadPopupReloadSelectedFiles.setEnabled(false);
                 uploadPopupMoveSelectedFilesUp.setEnabled(false);
@@ -2863,8 +2869,8 @@ public class frame1 extends JFrame implements ClipboardOwner
             searchPopupMenu.show(e.getComponent(), e.getX(), e.getY());
         }
 
-        if (e.getComponent().equals(downloadTable)) { // Downloads Popup
-            if (downloadTable.getSelectedRow() == -1) {
+        if (e.getComponent().equals(getDownloadTable())) { // Downloads Popup
+            if (getDownloadTable().getSelectedRow() == -1) {
             downloadPopupRemoveSelectedDownloads.setEnabled(false);
             downloadPopupMoveUp.setEnabled(false);
             downloadPopupMoveDown.setEnabled(false);
@@ -3096,6 +3102,40 @@ public class frame1 extends JFrame implements ClipboardOwner
 // TODO: check if upload was successful before deleting the file!
                 mo.getFile().delete();
             }
+        }
+    }
+
+    /**
+     * Called after the OptionsFrame changed some settings to reflect
+     * the new settings in the GUI.
+     *
+     * E.g. if downloads are disabled, it removes the tabbed panes
+     * 'Search' and 'Downloads'
+     */
+    protected void updateOptionsAffectedComponents()
+    {
+        if( frostSettings.getBoolValue("disableDownloads") == false )
+        {
+            // search + downloads enabled
+            tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Search")), true );
+            tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Downloads")), true );
+        }
+        else
+        {
+            // search + downloads disabled
+            tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Search")), false );
+            tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Downloads")), false );
+        }
+
+        if( frostSettings.getBoolValue("disableRequests") == false )
+        {
+            // uploads enabled
+            tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Uploads")), true );
+        }
+        else
+        {
+            // uploads disabled
+            tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Uploads")), false );
         }
     }
 }
