@@ -1000,6 +1000,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         //File contacts = new File("contacts");
         System.out.println("trying to create/load ids");
         try {
+            if( identities.length() == 0 )
+                identities.delete();
             if( identities.createNewFile() )
             {
                 if( isFreenetOnline() == false )
@@ -1019,7 +1021,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     do
                     {
                         nick = JOptionPane.showInputDialog("Choose an identity name, it doesn't have to be unique\n");
-                        if( nick == null || nick.length() == 0 )
+                        if( !(nick == null || nick.length() == 0) )
                         {
                             // check for a '@' in nick, this is strongly forbidden
                             if( nick.indexOf("@") > -1 )
@@ -1028,11 +1030,16 @@ public class frame1 extends JFrame implements ClipboardOwner
                                                               "Your name must not contain a '@'!",
                                                               "Invalid identity name",
                                                               JOptionPane.ERROR_MESSAGE );
-                                nick=null;
+                                nick="";
                             }
                         }
 
-                    } while( nick == null || nick.length() == 0 );
+                    } while( nick != null && nick.length() == 0 );
+                    if( nick == null )
+                    {
+                        System.out.println("Frost can't run without an identity.");
+                        System.exit(1);
+                    }
                     mySelf = new LocalIdentity(nick);
                     //JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
                 }
