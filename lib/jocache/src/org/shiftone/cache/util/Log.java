@@ -1,5 +1,7 @@
 package org.shiftone.cache.util;
 
+import java.util.logging.*;
+
 
 
 /**
@@ -8,18 +10,19 @@ package org.shiftone.cache.util;
  * @version $Revision$
  * @author <a href="mailto:jeff@shiftone.org">Jeff Drost</a>
  */
-public final class Log
-{
+public final class Log {
+
+	private final static Logger logger = Logger.getLogger(Log.class.getName());
 
     public static final boolean  DEBUG         = false;
     public static final boolean  INFO          = true;
     public static final boolean  MESSAGE       = true;
     public static final boolean  WARNING       = true;
-    public static final int      DEBUG_LEVEL   = 0;
-    public static final int      INFO_LEVEL    = 1;
-    public static final int      MESSAGE_LEVEL = 2;
-    public static final int      WARNING_LEVEL = 3;
-    public static final int      ERROR_LEVEL   = 4;
+    public static final int      DEBUG_LEVEL   = 0;		//Finest
+    public static final int      INFO_LEVEL    = 1;		//Fine
+    public static final int      MESSAGE_LEVEL = 2;		//Info
+    public static final int      WARNING_LEVEL = 3;		//Warning
+    public static final int      ERROR_LEVEL   = 4;		//Severe
     public static final String[] LEVELS        = { "DEBUG", "INFO", "MESSAGE", "WARN", "ERROR" };
     public static final long     START         = System.currentTimeMillis();
     private final Class          klass;
@@ -33,47 +36,56 @@ public final class Log
     public final void debug(Object object)
     {
 
-        if (DEBUG)
+		logger.finest(object.toString());
+
+        /*if (DEBUG)
         {
             log(DEBUG_LEVEL, object);
-        }
+        }*/
     }
 
 
     public final void info(Object object)
     {
 
-        if (INFO)
+		logger.fine(object.toString());
+
+        /*if (INFO)
         {
             log(INFO_LEVEL, object);
-        }
+        }*/
     }
 
 
     public final void warn(Object object)
     {
 
-        if (WARNING)
+		logger.warning(object.toString());
+
+        /*if (WARNING)
         {
             log(WARNING_LEVEL, object);
-        }
+        }*/
     }
 
 
     public final void message(Object object)
     {
 
-        if (MESSAGE)
+		logger.info(object.toString());
+
+		/*if (MESSAGE)
         {
             log(MESSAGE_LEVEL, object);
-        }
+        }*/
     }
 
 
     public final void error(Object object, Throwable throwable)
     {
-        log(ERROR_LEVEL, object);
-        throwable.printStackTrace(System.out);
+		logger.log(Level.SEVERE, object.toString(), throwable);
+        //log(ERROR_LEVEL, object);
+        //throwable.printStackTrace(System.out);
     }
 
 
