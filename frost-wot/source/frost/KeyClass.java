@@ -27,7 +27,7 @@ public class KeyClass
 
     String key = null; // Name of this key
     String date = null; // Last access
-    String SHA1 = new String();  //SHA1 of the file
+    String SHA1 = null;  //SHA1 of the file
     String owner = null;  //person that uploaded the file
     Long size = new Long(0); // Filesize
     String filename = new String();

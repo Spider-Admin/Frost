@@ -139,7 +139,9 @@ public class XMLTools
         ArrayList nodes = getChildElementsByTagName( parent, childname );
         if( nodes.size() == 0 )
             return null;
-        Text txtname = (Text) ((Node)nodes.get(0)).getFirstChild();
+	
+        Text txtname = (Text) (((Node)nodes.get(0)).getFirstChild());
+	
         if( txtname == null )
             return null;
         return txtname.getData().trim();
