@@ -24,7 +24,7 @@ import java.util.Date;
 import java.util.logging.*;
 
 import frost.*;
-import frost.FcpTools.*;
+import frost.fcpTools.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.SharedFileObject;
 
