@@ -129,6 +129,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     // labels that are updated later
     JLabel statusLabel = null;
+    JLabel statusMessageLabel = null;
+    static ImageIcon[] newMessage = new ImageIcon[2];
     JLabel timeLabel = null;
 
     JCheckBox searchAllBoardsCheckBox = null;
@@ -471,9 +473,15 @@ public class frame1 extends JFrame implements ClipboardOwner
     private JPanel buildStatusPanel()
     {
         statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
+        statusMessageLabel = new JLabel();
+
+        newMessage[0] = new ImageIcon(frame1.class.getResource("/data/messagebright.gif"));
+        newMessage[1] = new ImageIcon(frame1.class.getResource("/data/messagedark.gif"));
+        statusMessageLabel.setIcon(newMessage[1]);
 
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(statusLabel, BorderLayout.CENTER); // Statusbar
+        statusPanel.add(statusMessageLabel, BorderLayout.EAST); // Statusbar / new Message
         return statusPanel;
     }
 
@@ -528,7 +536,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         this.saveMessageButton= new JButton(new ImageIcon(frame1.class.getResource("/data/save.gif")));
         this.trustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/trust.gif")));
         this.notTrustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/nottrust.gif")));
-        this.checkTrustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/search.gif")));
+        this.checkTrustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/check.gif")));
 
         configureButton(tofNewMessageButton, "New message", "/data/newmessage_rollover.gif");
         configureButton(tofUpdateButton, "Update", "/data/update_rollover.gif");
@@ -538,7 +546,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif");
         configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
         configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif");
-        configureButton(checkTrustButton, "Observe / CHECK", "/data/search_rollover.gif");
+        configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif");
 
 // add action listener to buttons
         tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2206,10 +2214,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( showNewMessageIcon )
         {
             frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/newmessage.gif")));
+            frame1inst.statusMessageLabel.setIcon(newMessage[0]);
+            frame1inst.setTitle("*Frost*");
         }
         else
         {
             frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+            frame1inst.statusMessageLabel.setIcon(newMessage[1]);
+            frame1inst.setTitle("Frost");
         }
     }
 
