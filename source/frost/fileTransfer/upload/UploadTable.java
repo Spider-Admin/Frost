@@ -10,8 +10,9 @@ import javax.swing.JOptionPane;
 import frost.*;
 import frost.gui.*;
 import frost.messages.SharedFileObject;
+import frost.threads.maintenance.Savable;
 
-public class UploadTable extends SortedTable
+public class UploadTable extends SortedTable implements Savable
 {
 	private static Logger logger = Logger.getLogger(UploadTable.class.getName());
 	
