@@ -8,16 +8,18 @@ import frost.messages.*;
 
 public class FrostMessageObject extends VerifyableMessageObject implements FrostMessage, TableMember
 {
-    protected String dateAndTime = null;
-    protected Boolean messageIsNew = null;
+	
+	protected String dateAndTime = null;
+	protected Boolean messageIsNew = null;
+    	
+	/**
+	 * Constructor can be used to build an empty message for uploading.
+	 */
+	public FrostMessageObject()
+	{
+	    super();
+	}
     
-    /**
-     * Constructor can be used to build an empty message for uploading.
-     */
-    public FrostMessageObject()
-    {
-        super();
-    }
     /**
      * This constructor can be used to build a messageobject from
      * an existing file.
@@ -25,7 +27,7 @@ public class FrostMessageObject extends VerifyableMessageObject implements Frost
      * @param file  The xml file to read
      * @throws Exception  If the file could'nt be loaded
      */
-    public FrostMessageObject(File file) throws Exception
+    FrostMessageObject(File file) throws Exception
     {
         super(file);
         buildVisibleStrings();
@@ -37,7 +39,7 @@ public class FrostMessageObject extends VerifyableMessageObject implements Frost
      * @param file  The xml file to read
      * @throws Exception  If the file could'nt be loaded
      */
-    public FrostMessageObject(String filename) throws Exception
+    FrostMessageObject(String filename) throws Exception
     {
         this(new File(filename));
     }
