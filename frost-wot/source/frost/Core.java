@@ -28,6 +28,7 @@ import org.w3c.dom.*;
 
 import frost.FcpTools.*;
 import frost.crypt.*;
+import frost.gui.components.MiscToolkit;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
@@ -735,7 +736,7 @@ public class Core {
 		FileAccess.cleanKeypool(frame1.keypool);
 
 		if (!isFreenetIsOnline()) {
-			showMessage(
+			MiscToolkit.getInstance().showMessage(
 				languageResource.getString("Core.init.NodeNotRunningBody"),
 				JOptionPane.WARNING_MESSAGE,
 				languageResource.getString("Core.init.NodeNotRunningTitle"));
@@ -744,7 +745,7 @@ public class Core {
 
 		// show a warning if freenet=transient AND only 1 node is used
 		if (isFreenetTransient() && nodes.size() == 1) {
-			showMessage(
+			MiscToolkit.getInstance().showMessage(
 				languageResource.getString("Core.init.TransientNodeBody"),
 				JOptionPane.WARNING_MESSAGE,
 				languageResource.getString("Core.init.TransientNodeTitle"));
@@ -779,21 +780,6 @@ public class Core {
 		started = true;
 	} //end of init()
 
-	/**
-	 * 
-	 */
-	private void showMessage(String message, int type, String title) {
-		JOptionPane optionPane = new JOptionPane(message, type);
-		JFrame frame = new JFrame();
-		frame.setTitle("Frost");
-		java.awt.Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
-		frame.setLocation(dimension.width / 2, dimension.height / 2);
-		frame.setUndecorated(true);
-		frame.show();
-		frame.toFront();
-		optionPane.createDialog(frame, title).show();
-		frame.dispose();	
-	}
 	/**
 	   * Tries to send old messages that have not been sent yet
 	   */

@@ -9,6 +9,8 @@ package frost.gui.components;
 import java.awt.*;
 import java.util.Collection;
 
+import javax.swing.*;
+
 /**
  * @author Administrator
  *
@@ -44,6 +46,10 @@ public class MiscToolkit {
 		}
 	}
 	
+	/**
+	 * @param container
+	 * @param enabled
+	 */
 	private void setContainerEnabledInner(Container container, boolean enabled) {
 			int componentCount = container.getComponentCount();
 			for (int x = 0; x < componentCount; x++) {
@@ -53,7 +59,7 @@ public class MiscToolkit {
 				} else {
 					component.setEnabled(enabled);
 				}
-			}
+			} 
 			container.setEnabled(enabled);
 		}
 	
@@ -80,12 +86,17 @@ public class MiscToolkit {
 		}
 	}
 	
+	/**
+	 * @param container
+	 * @param enabled
+	 * @param exceptions
+	 */
 	private void setContainerEnabledInner(Container container, boolean enabled, Collection exceptions) {
 			int componentCount = container.getComponentCount();
 			for (int x = 0; x < componentCount; x++) {
 				Component component = container.getComponent(x);
 				if (!exceptions.contains(component)) {
-					if (component instanceof Container) {
+					if (component instanceof Container) { 
 						setContainerEnabledInner((Container) component, enabled, exceptions);
 					} else {
 						component.setEnabled(enabled);
@@ -94,6 +105,25 @@ public class MiscToolkit {
 			}
 			container.setEnabled(enabled);
 		}
+		
+	/**
+	 * This method shows a message in a JDialog
+	 * @param message the message to show
+	 * @param type the type of JDialog
+	 * @param title the title of the JDialog
+	 */
+	public void showMessage(String message, int type, String title) {
+		JOptionPane optionPane = new JOptionPane(message, type);
+		JFrame frame = new JFrame();
+		frame.setTitle("Frost");
+		java.awt.Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation(dimension.width / 2, dimension.height / 2);
+		frame.setUndecorated(true);
+		frame.show(); 
+		frame.toFront();
+		optionPane.createDialog(frame, title).show();
+		frame.dispose();	
+	}
 	/**
 	 * Return the unique instance of this class.
 	 *
