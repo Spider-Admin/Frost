@@ -13,9 +13,9 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
+import frost.boards.TofTreeModel;
 import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
-import frost.gui.TofTreeModel;
 import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.threads.maintenance.Truster;

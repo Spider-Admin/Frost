@@ -28,6 +28,7 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 import frost.*;
+import frost.boards.TofTree;
 import frost.gui.model.*;
 import frost.gui.objects.Board;
 import frost.messages.BoardAttachment;

@@ -13,8 +13,8 @@ import java.util.logging.Logger;
 import javax.swing.*;
 
 import frost.*;
+import frost.boards.TofTreeModel;
 import frost.ext.Execute;
-import frost.gui.TofTreeModel;
 import frost.gui.objects.Board;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;

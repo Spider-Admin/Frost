@@ -9,9 +9,9 @@ package frost.fileTransfer.search;
 import java.beans.*;
 
 import frost.*;
+import frost.boards.TofTreeModel;
 import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
-import frost.gui.TofTreeModel;
 import frost.identities.FrostIdentities;
 
 /**
