@@ -92,6 +92,11 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         return isFolder;
     }
 
+    public boolean isLeaf()
+    {
+        return (isFolder() == false);
+    }
+
     public String getPublicKey()
     {
         return publicKey;

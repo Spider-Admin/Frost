@@ -29,6 +29,7 @@ import java.net.*;
 import javax.swing.event.*;
 import javax.swing.text.html.*;
 import javax.swing.filechooser.*;
+import javax.swing.border.*;
 import java.io.*;
 import javax.swing.tree.*;
 import java.awt.datatransfer.*;
@@ -192,6 +193,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     JPopupMenu tofTreePopupMenu = null;
     JMenuItem tofTreePopupRefresh = null;
     JMenuItem tofTreePopupAddNode = null;
+    JMenuItem tofTreePopupAddFolder = null;
     JMenuItem tofTreePopupRemoveNode = null;
     JMenuItem tofTreePopupCutNode = null;
     JMenuItem tofTreePopupPasteNode = null;
@@ -332,7 +334,15 @@ public class frame1 extends JFrame implements ClipboardOwner
      */
     protected void configureButton(JButton button, String toolTipText, String rolloverIcon)
     {
-        button.setToolTipText(LangRes.getString(toolTipText));
+        String text = null;
+        try {
+            text = LangRes.getString(toolTipText);
+        } catch(MissingResourceException ex)
+        {
+            text = toolTipText; // better than nothing ;)
+        }
+        button.setToolTipText(text);
+
         button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setBorderPainted(false);
@@ -357,7 +367,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         checkBox.setFocusPainted(false);
     }
 
-    private JPanel buildButtonPanel() //OK
+    private JPanel buildButtonPanel()
     {
         timeLabel = new JLabel("");
 // configure buttons
@@ -365,6 +375,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         this.configBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/configure.gif")));
 
         JButton newBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newboard.gif")));
+        JButton newFolderButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newfolder.gif")));
         JButton removeBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
         JButton renameBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/rename.gif")));
         JButton cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
@@ -372,6 +383,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         JButton systemTrayButton= new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
 
         configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
+        configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif");
         configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
         configureButton(renameBoardButton, "Rename board", "/data/rename_rollover.gif");
         configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif");
@@ -384,6 +396,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         newBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addNodeToTree();
+            } });
+        newFolderButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addFolderToTree();
             } });
         renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -423,13 +439,17 @@ public class frame1 extends JFrame implements ClipboardOwner
         buttonPanelConstr.gridx = buttonPanelConstr.RELATIVE;
         buttonPanelConstr.insets = new Insets(0,2,0,2);
         buttonPanel.add(newBoardButton,buttonPanelConstr);
+        buttonPanel.add(newFolderButton,buttonPanelConstr);
+// add a separator here
         buttonPanel.add(configBoardButton,buttonPanelConstr);
         buttonPanel.add(renameBoardButton,buttonPanelConstr);
-        buttonPanel.add(removeBoardButton,buttonPanelConstr);
+// add a separator here
         buttonPanel.add(cutBoardButton,buttonPanelConstr);
         buttonPanel.add(pasteBoardButton,buttonPanelConstr);
+        buttonPanel.add(removeBoardButton,buttonPanelConstr);
+// add a separator here
         buttonPanel.add(boardInfoButton,buttonPanelConstr);
-
+// add a separator here
         // The System Tray Icon does only work on Windows machines.
         // It uses the Visual Basic files (compiled ones) in the data directory.
         if ((System.getProperty("os.name").startsWith("Windows")))
@@ -1223,7 +1243,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 // create objects
         tofTreePopupMenu = new JPopupMenu(); // TOF tree popup
         tofTreePopupRefresh = new JMenuItem("Refresh board/folder");
-        tofTreePopupAddNode = new JMenuItem(LangRes.getString("Add new board / folder"));
+        tofTreePopupAddNode = new JMenuItem("Add new board"); // TODO: translate
+        tofTreePopupAddFolder = new JMenuItem("Add new folder");
         tofTreePopupRemoveNode = new JMenuItem(LangRes.getString("Remove selected board / folder"));
         tofTreePopupCutNode = new JMenuItem(LangRes.getString("Cut selected board / folder"));
         tofTreePopupPasteNode = new JMenuItem(LangRes.getString("Paste board / folder"));
@@ -1233,6 +1254,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTreePopupAddNode.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 addNodeToTree();
+            } });
+        tofTreePopupAddFolder.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                addFolderToTree();
             } });
         tofTreePopupRefresh.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -1259,6 +1284,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTreePopupMenu.add(tofTreePopupRefresh);
         tofTreePopupMenu.addSeparator();
         tofTreePopupMenu.add(tofTreePopupAddNode);
+        tofTreePopupMenu.add(tofTreePopupAddFolder);
         tofTreePopupMenu.add(tofTreePopupRemoveNode);
         tofTreePopupMenu.addSeparator();
         tofTreePopupMenu.add(tofTreePopupCutNode);
@@ -1702,16 +1728,27 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     public void addNodeToTree()
     {
-        Object nodeNameOb = JOptionPane.showInputDialog ((Component)this,
-                                                         LangRes.getString ("New Node Name"),
-                                                         LangRes.getString ("New Node Name"),
-                                                         JOptionPane.QUESTION_MESSAGE, null, null,
-                                                         LangRes.getString ("New Folder"));
+        String nodeName = null;
+        do
+        {
+            Object nodeNameOb = JOptionPane.showInputDialog ((Component)this,
+                                                             LangRes.getString ("New Node Name"),
+                                                             LangRes.getString ("New Node Name"),
+                                                             JOptionPane.QUESTION_MESSAGE, null, null,
+                                                             "newboard");
 
-        String nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
+            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
 
-        if( nodeName == null || nodeName.length () == 0 )
-            return;
+            if( nodeName == null )
+                return; // cancelled
+
+            if( getTofTree().getBoardByName( nodeName ) != null )
+            {
+                JOptionPane.showMessageDialog(this, "You already have a board with name '"+nodeName+"'!\nPlease choose a new name.");
+                nodeName = ""; // loop again
+            }
+        } while( nodeName.length()==0 );
+
 
         FrostBoardObject selectedNode = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
         if( selectedNode != null )
@@ -1727,6 +1764,41 @@ public class frame1 extends JFrame implements ClipboardOwner
         int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
         ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( selectedNode, insertedIndex );
     }
+
+    public void addFolderToTree()
+    {
+        String nodeName = null;
+        do
+        {
+            Object nodeNameOb = JOptionPane.showInputDialog((Component)this,
+                                                             "Please enter a name for the new folder:",
+                                                             "New Folder Name",
+                                                             JOptionPane.QUESTION_MESSAGE, null, null,
+                                                             "newfolder");
+
+            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
+
+            if( nodeName == null )
+                return; // cancelled
+
+        } while( nodeName.length()==0 );
+
+
+        FrostBoardObject selectedNode = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
+        if( selectedNode != null )
+        {
+            selectedNode.add(new FrostBoardObject(nodeName, true));
+        }
+        else
+        {
+            // add to root node
+            selectedNode = (FrostBoardObject)getTofTree().getModel().getRoot();
+            selectedNode.add(new FrostBoardObject(nodeName, true));
+        }
+        int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
+        ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( selectedNode, insertedIndex );
+    }
+
 
     public void addNodeTree(FrostBoardObject name)
     {
