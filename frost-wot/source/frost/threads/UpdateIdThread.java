@@ -423,11 +423,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             }
                             
                             //check if fields match those in the index file
-                            if ( !_owner.equals(sharerInFile.getName()) || 
+                            if ( !_owner.equals(sharerInFile.getUniqueName()) || 
                             		!_pubkey.equals(sharerInFile.getKey()) ) {
 
 								Core.getOut().println("the identity in MetaData didn't match the identity in File! :(");
-								Core.getOut().println("file owner : " +sharerInFile.getName());
+								Core.getOut().println("file owner : " +sharerInFile.getUniqueName());
 								Core.getOut().println("file key : " +sharerInFile.getKey());
 								Core.getOut().println("meta owner: "+ _owner);
 								Core.getOut().println("meta key : "+ _pubkey);
