@@ -96,7 +96,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 */
 		private SkinChooser getSkinChooser() {
 			if (skinChooser == null) {
-				skinChooser = new SkinChooser();
+				skinChooser = new SkinChooser(LangRes);
 				skinChooser.setName("SkinChooser");
 			}
 			return skinChooser;
