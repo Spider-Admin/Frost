@@ -17,11 +17,13 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public final static int STATE_ENCODING_REQUESTED  = 5; // an encoding of file is requested
     public final static int STATE_ENCODING   = 6; // the encode is running
     // the strings that are shown in table for the states
+    
+    //Warning: when localizing STATE_UPLOADING_STR, be careful with TableXmlIO.getUploadItemFromElement()
     private final static String STATE_UPLOADED_NEVER_STR     = LangRes.getString("Never");
     private final static String STATE_REQUESTED_STR          = LangRes.getString("Requested");
     private final static String STATE_UPLOADING_STR          = LangRes.getString("Uploading");
-    private final static String STATE_ENCODING_REQUESTED_STR = "Encode requested";
-    private final static String STATE_ENCODING_STR           = "Encoding file...";
+    private final static String STATE_ENCODING_REQUESTED_STR = LangRes.getString("Encode requested");
+    private final static String STATE_ENCODING_STR           = LangRes.getString("Encoding file") + "...";
 
     private String fileName = null;
     private String filePath = null;
