@@ -976,9 +976,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     else
     {
         JOptionPane.showMessageDialog(this,
-        "Make sure your node is running and that you have configured frost correctly."+
-        "Nevertheless, to allow you to read messages, Frost will startup now."+
-        "Don't get confused by some error messages ;)",
+        "Make sure your node is running and that you have configured frost correctly.\n"+
+        "Nevertheless, to allow you to read messages, Frost will startup now.\n"+
+        "Don't get confused by some error messages ;)\n",
 	"Error - could not establish a connection to freenet node.",
 	JOptionPane.WARNING_MESSAGE);
         setFreenetIsOnline(false);
@@ -3751,6 +3751,9 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             pmenu.add(searchPopupCopyAttachment);
             pmenu.addSeparator();
+	    pmenu.add(searchPopupSetGood);
+	    pmenu.add(searchPopupSetBad);
+	    pmenu.addSeparator();
         }
         pmenu.add(searchPopupCancel);
         pmenu.show( e.getComponent(), e.getX(), e.getY() );

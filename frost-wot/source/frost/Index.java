@@ -94,8 +94,8 @@ public class Index
 	
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass) i.next();
-		if ((current.getOwner() != null &&
-			frame1.getFriends().Get(current.getOwner()) != null ||
+		if (current.getOwner() != null &&
+			(frame1.getFriends().Get(current.getOwner()) != null ||
 				frame1.getGoodIds().contains(current.getOwner())) &&
 				frame1.frostSettings.getBoolValue("helpFriends"))
 			mine.put(current.getSHA1(),current);
