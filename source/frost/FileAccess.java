@@ -459,7 +459,7 @@ public class FileAccess
     public static FrostIndex readKeyFile(File source)
     {
     	if (!source.isFile() || !(source.length() > 0))
-    		return null;
+    		return new FrostIndex(new HashMap());
         else
         {
             /*BufferedReader f;

@@ -100,19 +100,17 @@ public class Index
 
         File boardFiles =
             new File(frame1.keypool + board + fileSeparator + "files.xml");
-        if (boardFiles.exists())
-        {
-            totalIdx = FileAccess.readKeyFile(boardFiles);
-        } else totalIdx = new FrostIndex(new HashMap());
-
-		if (boardNewUploads.exists()) {
+    
+        totalIdx = FileAccess.readKeyFile(boardFiles);
+        
+		_toUpload =FileAccess.readKeyFile(boardNewUploads);
 		
-			 _toUpload =FileAccess.readKeyFile(boardNewUploads);
+		if (boardNewUploads.exists()) {
+	 
 			 newFiles = true;
 			 boardNewUploads.delete();
 		}
-		else
-			_toUpload = new FrostIndex(new HashMap());
+		
 			 
         Map toUpload = _toUpload.getFilesMap();
 		
