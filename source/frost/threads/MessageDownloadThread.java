@@ -126,19 +126,26 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     private boolean exists(File file)
     {
         File[] fileList = (file.getParentFile()).listFiles();
+        String one = null;
 
         if( fileList != null )
         {
             for( int i = 0; i < fileList.length; i++ )
             {
                 if( ! fileList[i].equals(file) &&
+                fileList[i].getName().endsWith(".sig") == false && // dont check .sig files
                     fileList[i].getName().indexOf(board.getBoardFilename()) != -1 &&
                     file.getName().indexOf(board.getBoardFilename()) != -1 )
                 {
-                    String one = FileAccess.readFile(file);
+                    if( one == null ) // load new file only 1 time
+                    {
+                        one = FileAccess.readFile(file);
+                    }
                     String two = FileAccess.readFile(fileList[i]);
                     if( one.equals(two) )
+                    {
                         return true;
+                    }
                 }
             }
         }
