@@ -1892,6 +1892,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 		// Add Popup listeners
 		getTofTree().addMouseListener(listener);
+
+		getTofTree().initialize();
 	}
 
 	/**
@@ -2490,8 +2492,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	//**********************************************************************************************
 	/**initialization*/
 	public void initialize() {
-		
-		getTofTree().initialize();
 
 		// step through all messages on disk up to maxMessageDisplay and check if there are new messages
 		// if a new message is in a folder, this folder is show yellow in tree
@@ -2513,7 +2513,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, 6);
 
 		// Load table settings
-		getDownloadTable().load();
 		getUploadTable().load();
 
 		// load size, location and state of window

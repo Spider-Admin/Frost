@@ -25,6 +25,7 @@ public class DownloadManager implements PropertyChangeListener {
 	
 	private DownloadTable table;
 	private DownloadPanel panel;
+	private DownloadTicker ticker;
 
 	private boolean freenetIsOnline;
 
@@ -54,6 +55,8 @@ public class DownloadManager implements PropertyChangeListener {
 		mainFrame.addPanel("Downloads", getPanel());	
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);	
 		updateDownloadStatus();
+		getTable().load();
+		getTicker().start();
 	}
 
 	/**
@@ -86,6 +89,16 @@ public class DownloadManager implements PropertyChangeListener {
 			table = new DownloadTable(downloadTableModel);
 		}
 		return table;
+	}
+	
+	/**
+	 * @return
+	 */
+	public DownloadTicker getTicker() {
+		if (ticker == null) {
+			ticker = new DownloadTicker(settings, getTable(), getPanel());
+		}
+		return ticker;
 	}
 
 	/* (non-Javadoc)
