@@ -121,7 +121,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 } else
                 	Core.getOut().println("not attaching redirect");
                 
-				sfo.setFile(null); //FIXME: why ?
+				sfo.setFile(null); // why ? -> because we never want to give out a real pathname, this is paranoia
                 // BBACKFLAG: serialize the xml file to disk to save the uploading state
                 File tmpFile = new File(this.messageFile.getPath() + ".tmp");
                 boolean wasOK = false; 
