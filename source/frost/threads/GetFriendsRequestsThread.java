@@ -54,8 +54,10 @@ public class GetFriendsRequestsThread extends TimerTask {
 			//Core.getOut().println("current file's owner is "+current.getOwner() 
 			//		+ "and his safe name is "+ mixed.makeFilename(current.getOwner()));	
 			if (
-				current.getOwner().compareTo(Core.getMyId().getUniqueName()) != 0
-				&& // not me 
+				current.getOwner().compareTo(Core.getMyId().getUniqueName()) != 0 //not me
+				&& 
+				current.getOwner().indexOf("//") == -1 // not invalid
+				&&
 			 		(
 						//Core.getFriends().Get(current.getOwner().substring(0,current.getOwner().indexOf("@"))) != null
 						Core.getFriends().containsKey(mixed.makeFilename(current.getOwner()))
