@@ -19,7 +19,7 @@
 package frost.gui;
 
 import java.awt.*;
-import java.awt.event.ActionEvent;
+import java.awt.event.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -43,6 +43,10 @@ public class KnownBoardsFrame extends JDialog
     SortedTable boardsTable;
     KnownBoardsTableModel tableModel;
     NameColumnRenderer nameColRenderer;
+    
+    JPopupMenu tablePopupMenu;
+    
+    boolean savingNeeded = false;
     
     public KnownBoardsFrame(JFrame parent)
     {
@@ -135,24 +139,92 @@ public class KnownBoardsFrame extends JDialog
         this.getContentPane().add(mainPanel, null); // add Main panel
         
         BaddBoard.setEnabled(false);
+        
+        initPopupMenu();
+    }
+    
+    private void initPopupMenu()
+    {
+        tablePopupMenu = new JPopupMenu();
+        JMenuItem addBoardsMenu = new JMenuItem("Add board");
+        JMenuItem removeBoardEntry = new JMenuItem("Remove known board");
+        
+        addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        addBoards_actionPerformed(e);
+                    } });
+        removeBoardEntry.addActionListener( new java.awt.event.ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        deleteBoards_actionPerformed(e);
+                    } });
+
+        tablePopupMenu.add(addBoardsMenu);
+        tablePopupMenu.add(removeBoardEntry);
+                
+        boardsTable.addMouseListener(new TablePopupMenuMouseListener());        
     }
     
     public void startDialog()
     {
         // gets all known boards from Core, and shows all not-doubles in table
-        SortedSet knownboards = Core.getKnownBoards();
         Vector frostboards = frame1.getInstance().getTofTree().getAllBoards();
         
-        Iterator i = knownboards.iterator();
-        while(i.hasNext())
+        synchronized(Core.getKnownBoards())
         {
-            BoardAttachment ba = (BoardAttachment)i.next();
-            
-            // add this new board to table
-            KnownBoardsTableMember member = new KnownBoardsTableMember(ba);
-            this.tableModel.addRow( member );
+            Iterator i = Core.getKnownBoards().iterator();
+            // check each board in list if already in boards tree, if not add to table
+            while(i.hasNext())
+            {
+                BoardAttachment ba = (BoardAttachment)i.next();
+                
+                String bname = ba.getBoardObj().getBoardName();
+                String bprivkey = ba.getBoardObj().getPrivateKey();
+                String bpubkey = ba.getBoardObj().getPublicKey();
+
+                // check if this board is already in boards tree (currently)            
+                boolean addMe = true;
+                Iterator j = frostboards.iterator();
+                while(j.hasNext())
+                {
+                    FrostBoardObject board = (FrostBoardObject)j.next();
+                    if( board.getBoardName().equalsIgnoreCase(bname) &&
+                        ( 
+                          ( board.getPrivateKey() == null &&
+                            bprivkey == null 
+                          ) ||
+                          ( board.getPrivateKey() != null &&
+                            board.getPrivateKey().equals(bprivkey)
+                          )
+                        ) &&
+                        ( 
+                          ( board.getPublicKey() == null &&
+                            bpubkey == null 
+                          ) ||
+                          ( board.getPublicKey() != null &&
+                            board.getPublicKey().equals(bpubkey)
+                          )
+                        )
+                      )
+                      {
+                          // same boards, dont add
+                          addMe = false;
+                          break; 
+                      }
+                }     
+                if( addMe ) 
+                {
+                    // add this new board to table
+                    KnownBoardsTableMember member = new KnownBoardsTableMember(ba);
+                    this.tableModel.addRow( member );
+                }
+            }
         }
         show();
+        // after we return, check if we should save the known boards file ...
+        if( this.savingNeeded )
+        {
+            Core.getInstance().saveKnownBoards();
+        }
     }
     
     private void addBoards_actionPerformed(ActionEvent e)
@@ -172,6 +244,30 @@ public class KnownBoardsFrame extends JDialog
                 KnownBoardsTableMember row = (KnownBoardsTableMember)tableModel.getRow(rowIx);
                 frame1.getInstance().getTofTree().addNewBoard(row.getBoardObject());
                 tableModel.deleteRow(row);
+            }
+            boardsTable.clearSelection();
+        }
+    }
+    
+    private void deleteBoards_actionPerformed(ActionEvent e)
+    {
+        int[] selectedRows = boardsTable.getSelectedRows();
+
+        if( selectedRows.length > 0 )
+        {
+            for( int z=selectedRows.length-1; z>-1; z-- )
+            {
+                int rowIx = selectedRows[z];
+
+                if( rowIx >= tableModel.getRowCount() )
+                    continue; // paranoia
+
+                // add the board(s) to board tree and remove it from table
+                KnownBoardsTableMember row = (KnownBoardsTableMember)tableModel.getRow(rowIx);
+                tableModel.deleteRow(row);
+                // remove from global list of known boards
+                Core.getKnownBoards().remove(row.getBoardAttachment());
+                this.savingNeeded = true;
             }
             boardsTable.clearSelection();
         }
@@ -223,6 +319,10 @@ public class KnownBoardsFrame extends JDialog
         public FrostBoardObject getBoardObject()
         {
             return frostboard;
+        }
+        public BoardAttachment getBoardAttachment()
+        {
+            return boardatt;
         }
     }
     
@@ -301,6 +401,24 @@ public class KnownBoardsFrame extends JDialog
                 setIcon(writeAccessIcon);
             }
             return this;    
+        }
+    }
+    
+    class TablePopupMenuMouseListener implements MouseListener
+    {
+        public void mouseReleased(MouseEvent event) {
+            maybeShowPopup(event);
+        }
+        public void mousePressed(MouseEvent event) {
+            maybeShowPopup(event);
+        }
+        public void mouseClicked(MouseEvent event) {}
+        public void mouseEntered(MouseEvent event) {}
+        public void mouseExited(MouseEvent event) {}
+        protected void maybeShowPopup(MouseEvent e) {
+            if( e.isPopupTrigger() ) {
+                tablePopupMenu.show(boardsTable, e.getX(), e.getY());
+            }
         }
     }
 }
