@@ -71,6 +71,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		translateMenuEntries();
 		translateTabbedPane();
 		translateButtons();
+		translateCheckBox();
 	}
 
 	/**
@@ -78,6 +79,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * objecs. This way we can change the resourceBundle and change
 	 * Frost's language on runtime.
 	 */
+	private void translateCheckBox() {
+		searchAllBoardsCheckBox.setText(languageResource.getString("all boards"));
+	}
 	private void translateMenuEntries() {
 		buildMenuBar();
 		buildPopupMenus();
@@ -1355,14 +1359,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	private void buildPopupMenuMessageTable() {
-		msgTablePopupMarkMessageUnread = new JMenuItem("Mark message unread");
+		msgTablePopupMarkMessageUnread = new JMenuItem(languageResource.getString("Mark message unread"));
 		msgTablePopupMarkMessageUnread.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				markSelectedMessageUnread();
 			}
 		});
 		msgTablePopupMarkAllMessagesRead =
-			new JMenuItem("Mark ALL messages read");
+			new JMenuItem(languageResource.getString("Mark ALL messages read"));
 		msgTablePopupMarkAllMessagesRead
 			.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1486,13 +1490,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		//	uploadPopupAddFilesToBoard =
 		//		new JMenuItem(LangRes.getString("Add files to board"));
 		uploadPopupGenerateChkForSelectedFiles =
-			new JMenuItem("Start encoding of selected files");
+			new JMenuItem(languageResource.getString("Start encoding of selected files"));
 		uploadPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
 
-		uploadPopupCopyToClipboard = new JMenu("Copy to clipboard...");
-		uploadPopupCopyChkKeyToClipboard = new JMenuItem("CHK key");
+		uploadPopupCopyToClipboard = new JMenu(languageResource.getString("Copy to clipboard") + "...");
+		uploadPopupCopyChkKeyToClipboard = new JMenuItem(languageResource.getString("CHK key"));
 		uploadPopupCopyChkKeyAndFilenameToClipboard =
-			new JMenuItem("CHK key + filename");
+			new JMenuItem(languageResource.getString("CHK key + filename"));
 
 		uploadPopupCopyToClipboard.add(uploadPopupCopyChkKeyToClipboard);
 		uploadPopupCopyToClipboard.add(
@@ -1665,34 +1669,34 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private void buildPopupMenuDownload() {
 		// construct objects
 		downloadPopupRestartSelectedDownloads =
-			new JMenuItem("Restart selected downloads");
+			new JMenuItem(languageResource.getString("Restart selected downloads"));
 		downloadPopupRemoveSelectedDownloads =
 			new JMenuItem(languageResource.getString("Remove selected downloads"));
 		downloadPopupRemoveAllDownloads =
 			new JMenuItem(languageResource.getString("Remove all downloads"));
 		//        downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
 		downloadPopupRemoveFinished =
-			new JMenuItem("Remove finished downloads");
+			new JMenuItem(languageResource.getString("Remove finished downloads"));
 
-		downloadPopupEnableAllDownloads = new JMenuItem("Enable all downloads");
+		downloadPopupEnableAllDownloads = new JMenuItem(languageResource.getString("Enable all downloads"));
 		downloadPopupDisableAllDownloads =
-			new JMenuItem("Disable all downloads");
+			new JMenuItem(languageResource.getString("Disable all downloads"));
 		downloadPopupEnableSelectedDownloads =
-			new JMenuItem("Enable selected downloads");
+			new JMenuItem(languageResource.getString("Enable selected downloads"));
 		downloadPopupDisableSelectedDownloads =
-			new JMenuItem("Disable selected downloads");
+			new JMenuItem(languageResource.getString("Disable selected downloads"));
 		downloadPopupInvertEnabledAll =
-			new JMenuItem("Invert enabled state for all downloads");
+			new JMenuItem(languageResource.getString("Invert enabled state for all downloads"));
 		downloadPopupInvertEnabledSelected =
-			new JMenuItem("Invert enabled state for selected downloads");
+			new JMenuItem(languageResource.getString("Invert enabled state for selected downloads"));
 
 		// TODO: implement cancel of downloading
 		downloadPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
 
-		downloadPopupCopyToClipboard = new JMenu("Copy to clipboard...");
-		downloadPopupCopyChkKeyToClipboard = new JMenuItem("CHK key");
+		downloadPopupCopyToClipboard = new JMenu(languageResource.getString("Copy to clipboard") + "...");
+		downloadPopupCopyChkKeyToClipboard = new JMenuItem(languageResource.getString("CHK key"));
 		downloadPopupCopyChkKeyAndFilenameToClipboard =
-			new JMenuItem("CHK key + filename");
+			new JMenuItem(languageResource.getString("CHK key + filename"));
 
 		downloadPopupCopyToClipboard.add(downloadPopupCopyChkKeyToClipboard);
 		downloadPopupCopyToClipboard.add(
@@ -1816,9 +1820,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		tofTextPopupSaveAttachments =
 			new JMenuItem(languageResource.getString("Download attachment(s)"));
 		tofTextPopupSaveAttachment =
-			new JMenuItem("Download selected attachment");
-		tofTextPopupSaveBoards = new JMenuItem("Add board(s)");
-		tofTextPopupSaveBoard = new JMenuItem("Add selected board");
+			new JMenuItem(languageResource.getString("Download selected attachment"));
+		tofTextPopupSaveBoards = new JMenuItem(languageResource.getString("Add Board(s)"));
+		tofTextPopupSaveBoard = new JMenuItem(languageResource.getString("Add selected board"));
 		tofTextPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
 		// add action listener
 		tofTextPopupSaveMessage.addActionListener(new ActionListener() {
@@ -3721,20 +3725,20 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		JMenuItem description = new JMenuItem(dtxt + ": " + board.toString());
 		String dtxt2 = ((board.isFolder()) ? "folder" : "board");
 		description.setEnabled(false);
-		JMenuItem tofTreePopupRefresh = new JMenuItem("Refresh " + dtxt2);
+		JMenuItem tofTreePopupRefresh = new JMenuItem(languageResource.getString("Refresh")  + " "+ languageResource.getString(dtxt2));
 		tofTreePopupRefresh.setIcon(getScaledImage("/data/update.gif"));
 
-		JMenuItem tofTreePopupAddNode = new JMenuItem("Add new board");
+		JMenuItem tofTreePopupAddNode = new JMenuItem(languageResource.getString("Add new board"));
 		// TODO: translate
 		tofTreePopupAddNode.setIcon(getScaledImage("/data/newboard.gif"));
 
-		JMenuItem tofTreePopupAddFolder = new JMenuItem("Add new folder");
+		JMenuItem tofTreePopupAddFolder = new JMenuItem(languageResource.getString("Add new folder"));
 		tofTreePopupAddFolder.setIcon(getScaledImage("/data/newfolder.gif"));
 
-		JMenuItem tofTreePopupRemoveNode = new JMenuItem("Remove " + dtxt2);
+		JMenuItem tofTreePopupRemoveNode = new JMenuItem(languageResource.getString("Remove") + " " + languageResource.getString(dtxt2));
 		tofTreePopupRemoveNode.setIcon(getScaledImage("/data/remove.gif"));
 
-		JMenuItem tofTreePopupCutNode = new JMenuItem("Cut " + dtxt2);
+		JMenuItem tofTreePopupCutNode = new JMenuItem(languageResource.getString("Cut") + " " + languageResource.getString(dtxt2));
 		tofTreePopupCutNode.setIcon(getScaledImage("/data/cut.gif"));
 
 		JMenuItem tofTreePopupPasteNode = null;
@@ -3742,7 +3746,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			String dtxt3 = ((clipboard.isFolder()) ? "folder" : "board");
 			tofTreePopupPasteNode =
 				new JMenuItem(
-					"Paste " + dtxt3 + " '" + clipboard.toString() + "'");
+					languageResource.getString("Paste") + " " + languageResource.getString(dtxt3) + " '" + clipboard.toString() + "'");
 			tofTreePopupPasteNode.setIcon(getScaledImage("/data/paste.gif"));
 			tofTreePopupPasteNode.addActionListener(new ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -3875,7 +3879,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			pmenu.addSeparator();
 		}
 
-		JMenu enabledSubMenu = new JMenu("Enable downloads ...");
+		JMenu enabledSubMenu = new JMenu(languageResource.getString("Enable downloads") + "...");
 		if (getDownloadTable().getSelectedRow() > -1) {
 			enabledSubMenu.add(downloadPopupEnableSelectedDownloads);
 			enabledSubMenu.add(downloadPopupDisableSelectedDownloads);
@@ -3887,7 +3891,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		enabledSubMenu.add(downloadPopupInvertEnabledAll);
 		pmenu.add(enabledSubMenu);
 
-		JMenu removeSubMenu = new JMenu("Remove ...");
+		JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
 		if (getDownloadTable().getSelectedRow() > -1) {
 			removeSubMenu.add(downloadPopupRemoveSelectedDownloads);
 		}
@@ -3916,7 +3920,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			}
 		}
 
-		JMenu removeSubMenu = new JMenu("Remove ...");
+		JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
 		if (getUploadTable().getSelectedRow() > -1) {
 			removeSubMenu.add(uploadPopupRemoveSelectedFiles);
 		}
