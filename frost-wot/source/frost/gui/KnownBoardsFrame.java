@@ -24,6 +24,7 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.table.*;
 
 import frost.*;
 import frost.gui.model.*;
@@ -37,11 +38,16 @@ import frost.gui.objects.FrostBoardObject;
  */
 public class KnownBoardsFrame extends JDialog
 {
+    static ImageIcon boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
+    static ImageIcon writeAccessIcon = new ImageIcon(frame1.class.getResource("/data/waboard.jpg"));
+    static ImageIcon readAccessIcon = new ImageIcon(frame1.class.getResource("/data/raboard.jpg"));
+    
     JButton Bclose;
     JButton BaddBoard;
     JTextField TFlookupBoard;
     SortedTable boardsTable;
     KnownBoardsTableModel tableModel;
+    NameColumnRenderer nameColRenderer;
     
     public KnownBoardsFrame(JFrame parent)
     {
@@ -69,7 +75,15 @@ public class KnownBoardsFrame extends JDialog
         this.setResizable(true);
         
         tableModel = new KnownBoardsTableModel();
-        boardsTable = new SortedTable( tableModel );
+        // add a special renderer to name column which shows the board icon
+        nameColRenderer = new NameColumnRenderer();
+        boardsTable = new SortedTable( tableModel ) {
+                public TableCellRenderer getCellRenderer(int row, int column) {
+                    if( column == 0 ) 
+                        return nameColRenderer;
+                        
+                    return super.getCellRenderer(row, column);
+            }};
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
         
@@ -308,6 +322,42 @@ public class KnownBoardsFrame extends JDialog
             }
         } catch(Exception ex) {}
     }
-
     
+    class NameColumnRenderer extends DefaultTableCellRenderer
+    {
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column)
+        {
+            super.getTableCellRendererComponent(
+                table,
+                value,
+                isSelected,
+                hasFocus,
+                row,
+                column);
+                
+            KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
+            if( memb.getPublicKey() == null && memb.getPrivateKey() == null )
+            {
+                // public board
+                setIcon(boardIcon);    
+            }
+            else if( memb.getPublicKey() != null && memb.getPrivateKey() == null )
+            {
+                // read access board
+                setIcon(readAccessIcon);
+            }
+            else if( memb.getPrivateKey() != null )
+            {
+                // write access board (or write-only)
+                setIcon(writeAccessIcon);
+            }
+            return this;    
+        }
+    }
 }
