@@ -27,7 +27,7 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -44,6 +44,402 @@ import frost.gui.translation.UpdatingLanguageResource;
 
 public class OptionsFrame extends JDialog implements ListSelectionListener {
 
+	/**
+	 * 
+	 */
+	private class DownloadPanel extends JPanel {
+
+		/**
+		 * 
+		 */
+		public class Listener implements ChangeListener, ActionListener {
+
+			/**
+			 * 
+			 */
+			public Listener() {
+				super();
+			}
+
+			/* (non-Javadoc)
+			 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+			 */
+			public void stateChanged(ChangeEvent e) {
+				if (e.getSource() == enableRequestingCheckBox) {
+					enableRequestingChanged();
+				}
+				if (e.getSource() == restartFailedDownloadsCheckBox) {
+					restartFailedDownloadsChanged();
+				}
+				
+			}
+
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == disableDownloadsCheckBox) {
+					disableDownloadsPressed();
+				}	
+				if (e.getSource() == browseDirectoryButton) {
+					browseDirectoryPressed();	
+				}			
+			}
+
+
+
+		}
+		
+		private Listener listener = new Listener();
+		
+		private JCheckBox disableDownloadsCheckBox = new JCheckBox();
+		private JCheckBox enableRequestingCheckBox = new JCheckBox();
+		private JCheckBox restartFailedDownloadsCheckBox = new JCheckBox();
+		private JTextField requestAfterTriesTextField = new JTextField();
+		private JLabel requestAfterTriesLabel = new JLabel();
+		private JTextField maxRetriesTextField = new JTextField();
+		private JLabel maxRetriesLabel = new JLabel();
+		private JTextField waitTimeTextField = new JTextField();
+		private JLabel waitTimeLabel = new JLabel();
+		private JTextField directoryTextField = new JTextField();
+		private JLabel directoryLabel = new JLabel();
+		private JButton browseDirectoryButton = new JButton();
+		private JTextField threadsTextField = new JTextField();
+		private JTextField splitfileThreadsTextField = new JTextField();
+		private JLabel threadsTextLabel = new JLabel();
+		private JLabel splitfileThreadsLabel = new JLabel();
+		private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
+		private JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
+		private JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
+		
+		/**
+		 * 
+		 */
+		public DownloadPanel() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			setName("DownloadPanel");
+			setLayout(new GridBagLayout());
+			refreshLanguage();
+
+			//Adds all of the components			
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			Insets insets0555 = new Insets(0, 5, 5, 5);
+			Insets insets5555 = new Insets(5, 5, 5, 5);
+			Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
+			constraints.weighty = 1;
+			
+			constraints.gridwidth = 4;
+			constraints.insets = insets0555;
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			add(disableDownloadsCheckBox, constraints);
+
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			constraints.weightx = 0.5;
+			constraints.gridwidth = 1;
+			add(directoryLabel, constraints);
+			constraints.insets = insets5555;
+			constraints.gridx = 1;
+			constraints.weightx = 1;
+			constraints.gridwidth = 2;
+			add(directoryTextField, constraints);
+			constraints.gridx = 3;
+			constraints.weightx = 0.1;
+			constraints.gridwidth = 1;
+			add(browseDirectoryButton, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.anchor = GridBagConstraints.NORTHWEST;
+			constraints.gridx = 0;
+			constraints.gridy = 2;
+			constraints.weightx = 0;
+			constraints.gridwidth = 1;
+			add(restartFailedDownloadsCheckBox, constraints);
+			constraints.gridwidth = 3;
+			constraints.insets = insets5555;
+			constraints.gridx = 1;
+			constraints.weightx = 1;
+			constraints.anchor = GridBagConstraints.CENTER;
+			constraints.fill = GridBagConstraints.BOTH;
+			add(getRetriesPanel(), constraints);
+
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.gridwidth = 4;
+			constraints.insets = insets5_30_5_5;
+			constraints.gridy = 3;
+			constraints.gridx = 0;
+			add(enableRequestingCheckBox, constraints);
+			constraints.gridwidth = 3;
+			constraints.insets = insets5555;
+			constraints.gridy = 4;
+			constraints.gridx = 1;
+			constraints.fill = GridBagConstraints.BOTH;
+			add(getRequestPanel(), constraints);
+
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.gridwidth = 1;
+			constraints.insets = insets5_30_5_5;
+			constraints.gridy = 5;
+			constraints.gridx = 0;
+			constraints.weightx = 1;
+			add(threadsTextLabel, constraints);
+			constraints.gridx = 1;
+			constraints.insets = insets5555;
+			add(threadsTextField, constraints);
+			
+			constraints.gridx = 2;
+			constraints.weightx = 3;
+			add(new JPanel(), constraints);	//Filler
+
+			constraints.insets = insets5_30_5_5;
+			constraints.gridy = 6;
+			constraints.gridx = 0;
+			constraints.weightx = 1;
+			add(splitfileThreadsLabel, constraints);
+			constraints.gridx = 1;
+			constraints.insets = insets5555;
+			add(splitfileThreadsTextField, constraints);
+
+			constraints.insets = insets5_30_5_5;
+			constraints.gridwidth = 4;
+			constraints.gridy = 7;
+			constraints.gridx = 0;
+			add(removeFinishedDownloadsCheckBox, constraints);
+			constraints.gridy = 8;
+			add(tryAllSegmentsCheckBox, constraints);
+			constraints.gridy = 9;
+			add(decodeAfterEachSegmentCheckBox, constraints);
+			
+			// Add listeners
+			enableRequestingCheckBox.addChangeListener(listener);
+			restartFailedDownloadsCheckBox.addChangeListener(listener);
+			disableDownloadsCheckBox.addActionListener(listener);
+			browseDirectoryButton.addActionListener(listener);
+		}
+		
+		private JPanel getRetriesPanel() {
+			JPanel subPanel = new JPanel(new GridBagLayout());
+			
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.insets = new Insets(5, 5, 5, 5);			
+			constraints.weightx = 1;
+			constraints.weighty = 1;
+			
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			subPanel.add(maxRetriesLabel, constraints);
+			constraints.gridx = 1;
+			subPanel.add(maxRetriesTextField, constraints);
+			
+			constraints.gridy = 1;
+			constraints.gridx = 0;
+			subPanel.add(waitTimeLabel, constraints);
+			constraints.gridx = 1;
+			subPanel.add(waitTimeTextField, constraints);
+			
+			return subPanel;
+		}
+		
+		private JPanel getRequestPanel() {
+			JPanel subPanel = new JPanel(new GridBagLayout());
+
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.insets = new Insets(5, 5, 5, 5);
+			constraints.weightx = 1;
+			constraints.weighty = 1;
+			
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			subPanel.add(requestAfterTriesLabel, constraints);
+			constraints.gridx = 1;
+			constraints.ipadx = 10;
+			subPanel.add(requestAfterTriesTextField, constraints);
+			
+			return subPanel;
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			String off = languageResource.getString("Off");
+			String on = languageResource.getString("On");
+			String minutes = languageResource.getString("minutes");
+			removeFinishedDownloadsCheckBox.setText(
+				languageResource.getString("Remove finished downloads every 5 minutes")
+					+ " (" + off + ")");
+			restartFailedDownloadsCheckBox.setText(
+				languageResource.getString("Restart failed downloads"));
+			waitTimeLabel.setText(
+				languageResource.getString("Waittime after each try") + " (" + minutes + "): ");
+			maxRetriesLabel.setText(languageResource.getString("Maximum number of retries") + ": ");
+			requestAfterTriesLabel.setText(
+				languageResource.getString("Request file after this count of retries") + ": ");
+			enableRequestingCheckBox.setText(
+				languageResource.getString("Enable requesting of failed download files")
+					+ " (" + on	+ ")");
+			tryAllSegmentsCheckBox.setText(
+				languageResource.getString("Try to download all segments, even if one fails")
+					+ " (" + on	+ ")");
+			decodeAfterEachSegmentCheckBox.setText(
+				languageResource.getString("Decode each segment immediately after its download"));
+			disableDownloadsCheckBox.setText(languageResource.getString("Disable downloads"));
+			
+			directoryLabel.setText(languageResource.getString("Download directory") + ": ");
+			browseDirectoryButton.setText(languageResource.getString("Browse") + "...");
+			threadsTextLabel.setText(languageResource.getString("Number of simultaneous downloads") + " (3)");
+			splitfileThreadsLabel.setText(languageResource.getString("Number of splitfile threads") + " (30)");
+		}
+		
+		/**
+		 * 
+		 */
+		private void restartFailedDownloadsChanged() {
+			maxRetriesTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+			maxRetriesLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+			waitTimeTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+			waitTimeLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+		}
+		
+		public void ok() {
+			saveSettings(frostSettings);
+		}
+		
+		/**
+		 * @param frostSettings
+		 */
+		private void saveSettings(SettingsClass frostSettings) {
+			String downlDirTxt = directoryTextField.getText();
+			String filesep = System.getProperty("file.separator");
+			// always append a fileseparator to the end of string
+			if ((!(downlDirTxt.lastIndexOf(filesep) == (downlDirTxt.length() - 1)))
+				|| downlDirTxt.lastIndexOf(filesep) < 0) {
+				frostSettings.setValue("downloadDirectory", downlDirTxt + filesep);
+			} else {
+				frostSettings.setValue("downloadDirectory", downlDirTxt);
+			}
+			frostSettings.setValue("downloadThreads", threadsTextField.getText());
+			frostSettings.setValue(
+				"removeFinishedDownloads",
+				removeFinishedDownloadsCheckBox.isSelected());
+
+			removeFinishedDownloadsCheckBox.setSelected(//TODO: What is this doing here??
+			frostSettings.getBoolValue("removeFinishedDownloads"));
+
+			frostSettings.setValue("splitfileDownloadThreads", splitfileThreadsTextField.getText());
+			frostSettings.setValue("disableDownloads", disableDownloadsCheckBox.isSelected());
+			frostSettings.setValue(
+				"downloadRestartFailedDownloads",
+				restartFailedDownloadsCheckBox.isSelected());
+			frostSettings.setValue(
+				"downloadEnableRequesting",
+				enableRequestingCheckBox.isSelected());
+			frostSettings.setValue(
+				"downloadRequestAfterTries",
+				requestAfterTriesTextField.getText());
+			frostSettings.setValue("downloadMaxRetries", maxRetriesTextField.getText());
+			frostSettings.setValue("downloadWaittime", waitTimeTextField.getText());
+			frostSettings.setValue("downloadTryAllSegments", tryAllSegmentsCheckBox.isSelected());
+			frostSettings.setValue(
+				"downloadDecodeAfterEachSegment",
+				decodeAfterEachSegmentCheckBox.isSelected());
+		}
+		
+		/**
+		 * Load the settings of this panel
+		 * @param downloadSettings class the settings will be loaded from
+		 */
+		public void loadSettings(SettingsClass downloadSettings) {
+			removeFinishedDownloadsCheckBox.setSelected(
+						frostSettings.getBoolValue("removeFinishedDownloads"));
+			directoryTextField.setText(frostSettings.getValue("downloadDirectory"));
+			//        downloadMinHtlTextField.setText(frostSettings.getValue("htl"));
+			//        downloadMaxHtlTextField.setText(frostSettings.getValue("htlMax"));
+			threadsTextField.setText(frostSettings.getValue("downloadThreads"));
+			splitfileThreadsTextField.setText(frostSettings.getValue("splitfileDownloadThreads"));
+			disableDownloadsCheckBox.setSelected(frostSettings.getBoolValue("disableDownloads"));
+			restartFailedDownloadsCheckBox.setSelected(
+				frostSettings.getBoolValue("downloadRestartFailedDownloads"));
+			enableRequestingCheckBox.setSelected(
+				frostSettings.getBoolValue("downloadEnableRequesting"));
+			requestAfterTriesTextField.setText(
+				"" + frostSettings.getIntValue("downloadRequestAfterTries"));
+			maxRetriesTextField.setText("" + frostSettings.getIntValue("downloadMaxRetries"));
+			waitTimeTextField.setText("" + frostSettings.getIntValue("downloadWaittime"));
+			tryAllSegmentsCheckBox.setSelected(
+				frostSettings.getBoolValue("downloadTryAllSegments"));
+			decodeAfterEachSegmentCheckBox.setSelected(
+				frostSettings.getBoolValue("downloadDecodeAfterEachSegment"));
+
+			requestAfterTriesTextField.setEnabled(enableRequestingCheckBox.isSelected());
+			maxRetriesTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+			waitTimeTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+			requestAfterTriesLabel.setEnabled(enableRequestingCheckBox.isSelected());
+			maxRetriesLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+			waitTimeLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+
+			setEnabled(!disableDownloadsCheckBox.isSelected());
+		}
+
+		/**
+		 * 
+		 */
+		private void disableDownloadsPressed() {
+			// enable panel if checkbox is not selected
+			setEnabled(!disableDownloadsCheckBox.isSelected());
+		}
+
+		/**
+		 * 
+		 */
+		private void enableRequestingChanged() {
+			requestAfterTriesTextField.setEnabled(enableRequestingCheckBox.isSelected());
+			requestAfterTriesLabel.setEnabled(enableRequestingCheckBox.isSelected());
+		}
+		
+		/**
+		 * browseDownloadDirectoryButton Action Listener (Downloads / Browse)
+		 */
+		private void browseDirectoryPressed() {
+			final JFileChooser fc = new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
+			fc.setDialogTitle(languageResource.getString("Select download directory"));
+			fc.setFileHidingEnabled(true);
+			fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
+			fc.setMultiSelectionEnabled(false);
+
+			int returnVal = fc.showOpenDialog(OptionsFrame.this);
+			if (returnVal == JFileChooser.APPROVE_OPTION) {
+				String fileSeparator = System.getProperty("file.separator");
+				File file = fc.getSelectedFile();
+				frostSettings.setValue("lastUsedDirectory", file.getParent());
+				directoryTextField.setText(file.getPath() + fileSeparator);
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.Component#setEnabled(boolean)
+		 */
+		public void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+
+			ArrayList exceptions = new ArrayList();
+			exceptions.add(disableDownloadsCheckBox);
+			MiscToolkit.getInstance().setContainerEnabled(this, enabled, exceptions);
+		}
+
+	}
 	/**
 	 * Display Panel. Contains appearace options: skins and more in the future
 	 */
@@ -114,18 +510,19 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 			//Adds all of the components			
 			GridBagConstraints constraints = new GridBagConstraints();
-			constraints.fill = GridBagConstraints.HORIZONTAL;
-			Insets inset1111 = new Insets(1, 1, 1, 1);
+			constraints.fill = GridBagConstraints.BOTH;
+			constraints.weightx = 1;
+			constraints.weighty = 1;
 			Insets inset5511 = new Insets(5, 5, 1, 1);
 			Insets inset1515 = new Insets(1, 5, 1, 5);
 
-			constraints.insets = inset1111;
+			constraints.insets = inset1515;
 			constraints.gridx = 0;
 			constraints.gridy = 0;
 			skinChooser = new SkinChooser(languageResource.getResourceBundle());
 			add(skinChooser, constraints);
 
-			constraints.insets = inset1111;
+			constraints.insets = inset1515;
 			constraints.gridx = 0;
 			constraints.gridy = 1;
 			moreSkinsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
@@ -136,47 +533,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constraints.gridy = 3;
 			add(fontsLabel, constraints);
 
-			//Fonts panel
-			JPanel fontsPanel = new JPanel(new GridBagLayout());
-			fontsPanel.setBorder(new EmptyBorder(5, 80, 5, 5));
-			GridBagConstraints fontsConstraints = new GridBagConstraints();
-			fontsConstraints.fill = GridBagConstraints.HORIZONTAL;
-
-			fontsConstraints.insets = inset1515;
-			fontsConstraints.gridx = 0;
-			fontsConstraints.gridy = 0;
-			fontsConstraints.weightx = 0.8;
-			fontsPanel.add(messageBodyLabel, fontsConstraints);
-			fontsConstraints.insets = inset1515;
-			fontsConstraints.gridx = 1;
-			fontsConstraints.gridy = 0;
-			fontsConstraints.weightx = 0;
-			fontsPanel.add(messageBodyButton, fontsConstraints);
-			fontsConstraints.insets = inset1515;
-			fontsConstraints.gridx = 2;
-			fontsConstraints.gridy = 0;
-			fontsConstraints.weightx = 1;
-			fontsPanel.add(selectedMessageBodyFontLabel, fontsConstraints);
-
-			fontsConstraints.insets = inset1515;
-			fontsConstraints.gridx = 0;
-			fontsConstraints.gridy = 1;
-			fontsConstraints.weightx = 0.8;
-			fontsPanel.add(messageListLabel, fontsConstraints);
-			fontsConstraints.insets = inset1515;
-			fontsConstraints.gridx = 1;
-			fontsConstraints.gridy = 1;
-			fontsConstraints.weightx = 0;
-			fontsPanel.add(messageListButton, fontsConstraints);
-			fontsConstraints.insets = inset1515;
-			fontsConstraints.gridx = 2;
-			fontsConstraints.gridy = 1;
-			fontsConstraints.weightx = 1;
-			fontsPanel.add(selectedMessageListFontLabel, fontsConstraints);
-
 			constraints.gridx = 0;
 			constraints.gridy = 4;
-			add(fontsPanel, constraints);
+			add(getFontsPanel(), constraints);
 			
 			constraints.gridx = 0;
 			constraints.gridy = 5;
@@ -185,6 +544,50 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			//Add listeners
 			messageBodyButton.addActionListener(listener);
 			messageListButton.addActionListener(listener);
+		}
+		
+		private JPanel getFontsPanel() {
+			JPanel fontsPanel = new JPanel(new GridBagLayout());
+			fontsPanel.setBorder(new EmptyBorder(5, 80, 5, 5));
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.weighty = 1;
+			Insets inset1515 = new Insets(1, 5, 1, 5);
+			Insets inset1519 = new Insets(1, 5, 1, 9);
+
+			constraints.insets = inset1515;
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			constraints.weightx = 0.8;
+			fontsPanel.add(messageBodyLabel, constraints);
+			constraints.insets = inset1519;
+			constraints.gridx = 1;
+			constraints.gridy = 0;
+			constraints.weightx = 0.1;
+			fontsPanel.add(messageBodyButton, constraints);
+			constraints.insets = inset1515;
+			constraints.gridx = 2;
+			constraints.gridy = 0;
+			constraints.weightx = 1;
+			fontsPanel.add(selectedMessageBodyFontLabel, constraints);
+
+			constraints.insets = inset1515;
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			constraints.weightx = 0.8;
+			fontsPanel.add(messageListLabel, constraints);
+			constraints.insets = inset1519;
+			constraints.gridx = 1;
+			constraints.gridy = 1;
+			constraints.weightx = 0.1;
+			fontsPanel.add(messageListButton, constraints);
+			constraints.insets = inset1515;
+			constraints.gridx = 2;
+			constraints.gridy = 1;
+			constraints.weightx = 1;
+			fontsPanel.add(selectedMessageListFontLabel, constraints);
+			
+			return fontsPanel;
 		}
 
 		/**
@@ -329,12 +732,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	//------------------------------------------------------------------------
 	JPanel mainPanel = null;
 	JPanel buttonPanel = null; // OK / Cancel
-	JPanel downloadPanel = null;
+	private DownloadPanel downloadPanel = null;
 	JPanel uploadPanel = null;
 	JPanel tofPanel = null;
 	JPanel tof2Panel = null;
 	JPanel tof3Panel = null;
-	DisplayPanel displayPanel = null;
+	private DisplayPanel displayPanel = null;
 	JPanel miscPanel = null;
 	JPanel searchPanel = null;
 	JPanel contentAreaPanel = null;
@@ -342,11 +745,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	JAATextArea tofTextArea = new JAATextArea(4, 50);
 
-	JTextField downloadDirectoryTextField = new JTextField(30);
-	//    JTextField downloadMinHtlTextField = new JTextField(5);
-	//    JTextField downloadMaxHtlTextField = new JTextField(5);
-	JTextField downloadThreadsTextField = new JTextField(5);
-	JTextField downloadSplitfileThreadsTextField = new JTextField(5);
 	JTextField uploadHtlTextField = new JTextField(5);
 	JTextField uploadThreadsTextField = new JTextField(5);
 	JTextField uploadSplitfileThreadsTextField = new JTextField(5);
@@ -388,19 +786,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JCheckBox helpFriends = new JCheckBox();
 	JCheckBox hideBadFiles = new JCheckBox();
 	JCheckBox hideAnonFiles = new JCheckBox();
-	JCheckBox downloadRemoveFinishedDownloads = new JCheckBox();
-	JCheckBox downloadRestartFailedDownloads = new JCheckBox();
-	JTextField downloadRequestAfterTries = new JTextField(5);
-	JCheckBox downloadEnableRequesting = new JCheckBox();
-	JTextField downloadMaxRetries = new JTextField(5);
-	JTextField downloadWaittime = new JTextField(5);
-	JLabel downloadWaittimeLabel = new JLabel();
-	JLabel downloadMaxRetriesLabel = new JLabel();
-	JLabel downloadRequestAfterTriesLabel = new JLabel();
-
-	JCheckBox downloadTryAllSegments = new JCheckBox();
-	JCheckBox downloadDecodeAfterEachSegment = new JCheckBox();
-
 	JList optionsGroupsList = null;
 
 	// new options in WOT:
@@ -409,7 +794,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JTextField spamTreshold = new JTextField(5);
 
 	JCheckBox uploadDisableRequests = new JCheckBox();
-	JCheckBox downloadDisableDownloads = new JCheckBox();
 	JCheckBox signedOnly = new JCheckBox();
 	JCheckBox hideBadMessages = new JCheckBox();
 	JCheckBox hideCheckMessages = new JCheckBox();
@@ -453,18 +837,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private void translateCheckBox() {
 		miscSplashscreenCheckBox.setText(languageResource.getString("Disable splashscreen"));
 		miscShowSystrayIcon.setText(languageResource.getString("Show systray icon"));
-		downloadEnableRequesting.setText(
-			languageResource.getString("Enable requesting of failed download files")
-				+ " ("
-				+ languageResource.getString("On")
-				+ ")");
-		downloadTryAllSegments.setText(
-			languageResource.getString("Try to download all segments, even if one fails")
-				+ " ("
-				+ languageResource.getString("On")
-				+ ")");
-		downloadDecodeAfterEachSegment.setText(
-			languageResource.getString("Decode each segment immediately after its download"));
 		tofBoardUpdateVisualization.setText(
 			languageResource.getString("Show board update visualization")
 				+ " ("
@@ -487,15 +859,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			languageResource.getString("Help spread files from people marked GOOD"));
 		hideBadFiles.setText(languageResource.getString("Hide files from people marked BAD"));
 		hideAnonFiles.setText(languageResource.getString("Hide files from anonymous users"));
-		downloadRemoveFinishedDownloads.setText(
-			languageResource.getString("Remove finished downloads every 5 minutes")
-				+ " ("
-				+ languageResource.getString("Off")
-				+ ")");
-		downloadRestartFailedDownloads.setText(
-			languageResource.getString("Restart failed downloads"));
 		uploadDisableRequests.setText(languageResource.getString("Disable uploads"));
-		downloadDisableDownloads.setText(languageResource.getString("Disable downloads"));
 		signedOnly.setText(languageResource.getString("Hide unsigned messages"));
 		hideBadMessages.setText(
 			languageResource.getString("Hide messages flagged BAD")
@@ -522,15 +886,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		cleanUP.setText(languageResource.getString("Clean the keypool"));
 	}
 	private void translateLabel() {
-		downloadWaittimeLabel.setText(
-			languageResource.getString("Waittime after each try")
-				+ " ("
-				+ languageResource.getString("minutes")
-				+ "): ");
-		downloadMaxRetriesLabel.setText(
-			languageResource.getString("Maximum number of retries") + ": ");
-		downloadRequestAfterTriesLabel.setText(
-			languageResource.getString("Request file after this count of retries") + ": ");
 		interval.setText(
 			languageResource.getString("Sample interval")
 				+ " ("
@@ -589,7 +944,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		this.getContentPane().add(mainPanel, null); // add Main panel
 
 		// prepare content area panel
-		contentAreaPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
+		contentAreaPanel = new JPanel(new BorderLayout());
 		contentAreaPanel.setBorder(
 			BorderFactory.createCompoundBorder(
 				BorderFactory.createEtchedBorder(),
@@ -701,170 +1056,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 					BorderFactory.createEtchedBorder()));
 		}
 		return optionsGroupsPanel;
-	}
-
-	/**
-	 * Build the download panel.
-	 */
-	protected JPanel getDownloadPanel() {
-		if (downloadPanel == null) {
-			downloadEnableRequesting.addChangeListener(new ChangeListener() {
-				public void stateChanged(ChangeEvent e) {
-					downloadRequestAfterTries.setEnabled(
-						downloadEnableRequesting.isSelected());
-					downloadRequestAfterTriesLabel.setEnabled(
-						downloadEnableRequesting.isSelected());
-				}
-			});
-			downloadRestartFailedDownloads
-				.addChangeListener(new ChangeListener() {
-				public void stateChanged(ChangeEvent e) {
-					downloadMaxRetries.setEnabled(
-						downloadRestartFailedDownloads.isSelected());
-					downloadWaittime.setEnabled(
-						downloadRestartFailedDownloads.isSelected());
-					downloadMaxRetriesLabel.setEnabled(
-						downloadRestartFailedDownloads.isSelected());
-					downloadWaittimeLabel.setEnabled(
-						downloadRestartFailedDownloads.isSelected());
-				}
-			});
-
-			downloadPanel = new JPanel(new GridBagLayout());
-
-			GridBagConstraints constr = new GridBagConstraints();
-			constr.anchor = GridBagConstraints.WEST;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			constr.gridy = 0;
-
-			downloadDisableDownloads
-				.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					// enable panel if checkbox is not selected
-					setPanelEnabled(
-						getDownloadPanel(),
-						(downloadDisableDownloads.isSelected() == false));
-				}
-			});
-			downloadPanel.add(downloadDisableDownloads, constr);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			downloadPanel.add(
-				new JLabel(languageResource.getString("Download directory") + ": "),
-				constr);
-			downloadDirectoryTextField.setEditable(true);
-			constr.gridx = 1;
-			constr.gridwidth = 3;
-			downloadPanel.add(downloadDirectoryTextField, constr);
-
-			JButton browseDownloadDirectoryButton =
-				new JButton(languageResource.getString("Browse") + "...");
-			browseDownloadDirectoryButton
-				.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					browseDownloadDirectoryButton_actionPerformed(e);
-				}
-			});
-
-			constr.gridx = 1;
-			constr.gridy++;
-			constr.gridwidth = 2;
-			constr.anchor = GridBagConstraints.NORTHWEST;
-			constr.insets = new Insets(0, 5, 5, 5);
-			downloadPanel.add(browseDownloadDirectoryButton, constr);
-			constr.gridwidth = 1;
-			constr.insets = new Insets(5, 5, 5, 5);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.gridwidth = 1;
-			downloadPanel.add(downloadRestartFailedDownloads, constr);
-
-			constr.gridwidth = 2;
-			constr.gridx = 1;
-			JPanel subPanel = new JPanel(new GridBagLayout());
-			GridBagConstraints subconstr = new GridBagConstraints();
-			subconstr.gridx = 0;
-			subconstr.gridy = 0;
-			subconstr.insets = new Insets(0, 5, 5, 5);
-			subconstr.anchor = GridBagConstraints.WEST;
-			subPanel.add(downloadMaxRetriesLabel, subconstr);
-			subconstr.gridx = 1;
-			subPanel.add(downloadMaxRetries, subconstr);
-			subconstr.gridy++;
-			subconstr.gridx = 0;
-			subPanel.add(downloadWaittimeLabel, subconstr);
-			subconstr.gridx = 1;
-			subPanel.add(downloadWaittime, subconstr);
-
-			constr.gridx = 1;
-			downloadPanel.add(subPanel, constr);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.gridwidth = 3;
-			constr.insets = new Insets(0, 5, 5, 5);
-			downloadPanel.add(downloadEnableRequesting, constr);
-
-			constr.gridy++;
-			constr.insets = new Insets(0, 25, 15, 5);
-			subPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 5, 0));
-			subPanel.add(downloadRequestAfterTriesLabel);
-			subPanel.add(downloadRequestAfterTries);
-			downloadPanel.add(subPanel, constr);
-
-			constr.gridy++;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			downloadPanel.add(
-				new JLabel(
-			languageResource.getString("Number of simultaneous downloads")
-						+ " (3)"),
-				constr);
-			constr.gridx = 1;
-			downloadPanel.add(downloadThreadsTextField, constr);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			downloadPanel.add(
-				new JLabel(
-			languageResource.getString("Number of splitfile threads")
-						+ " (30)"),
-				constr);
-			constr.gridx = 1;
-			downloadPanel.add(downloadSplitfileThreadsTextField, constr);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.gridwidth = 3;
-			constr.insets = new Insets(5, 5, 5, 5);
-			downloadPanel.add(downloadRemoveFinishedDownloads, constr);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.gridwidth = 3;
-			constr.insets = new Insets(0, 5, 5, 5);
-			downloadPanel.add(downloadTryAllSegments, constr);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.gridwidth = 3;
-			constr.insets = new Insets(0, 5, 5, 5);
-			downloadPanel.add(downloadDecodeAfterEachSegment, constr);
-
-			// filler (glue)
-			constr.gridy++;
-			constr.gridx = 3;
-			constr.gridwidth = 1;
-			constr.weightx = 0.7;
-			constr.weighty = 0.7;
-			constr.insets = new Insets(0, 0, 0, 0);
-			constr.fill = GridBagConstraints.BOTH;
-			downloadPanel.add(new JLabel(" "), constr);
-		}
-		return downloadPanel;
 	}
 
 	/**
@@ -1455,7 +1646,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		if (Olbdata instanceof ListBoxData) {
 			ListBoxData lbdata = (ListBoxData) Olbdata;
 			JPanel newPanel = lbdata.getPanel();
-			contentAreaPanel.add(newPanel);
+			contentAreaPanel.add(newPanel, BorderLayout.CENTER);
 			newPanel.revalidate();
 		}
 		contentAreaPanel.updateUI();
@@ -1497,29 +1688,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		int componentCount = panel.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
 			Component c = panel.getComponent(x);
-			if (c != downloadDisableDownloads && c != uploadDisableRequests) {
+			if (c != uploadDisableRequests) {
 				c.setEnabled(enabled);
 			}
-		}
-	}
-
-	/**
-	 * browseDownloadDirectoryButton Action Listener (Downloads / Browse)
-	 */
-	private void browseDownloadDirectoryButton_actionPerformed(ActionEvent e) {
-		final JFileChooser fc =
-			new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
-		fc.setDialogTitle(languageResource.getString("Select download directory"));
-		fc.setFileHidingEnabled(true);
-		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
-		fc.setMultiSelectionEnabled(false);
-
-		int returnVal = fc.showOpenDialog(OptionsFrame.this);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			String fileSeparator = System.getProperty("file.separator");
-			File file = fc.getSelectedFile();
-			frostSettings.setValue("lastUsedDirectory", file.getParent());
-			downloadDirectoryTextField.setText(file.getPath() + fileSeparator);
 		}
 	}
 
@@ -1554,8 +1725,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.getBoolValue("automaticIndexing"));
 		shareDownloads.setSelected(
 			frostSettings.getBoolValue("shareDownloads"));
-		downloadRemoveFinishedDownloads.setSelected(
-			frostSettings.getBoolValue("removeFinishedDownloads"));
 		allowEvilBertCheckBox.setSelected(
 			frostSettings.getBoolValue("allowEvilBert"));
 		miscAltEditCheckBox.setSelected(
@@ -1579,12 +1748,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		blockBody.setSelected(
 			frostSettings.getBoolValue("blockMessageBodyChecked"));
 		miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
-		downloadDirectoryTextField.setText(
-			frostSettings.getValue("downloadDirectory"));
-		//        downloadMinHtlTextField.setText(frostSettings.getValue("htl"));
-		//        downloadMaxHtlTextField.setText(frostSettings.getValue("htlMax"));
-		downloadThreadsTextField.setText(
-			frostSettings.getValue("downloadThreads"));
 		uploadHtlTextField.setText(frostSettings.getValue("htlUpload"));
 		uploadThreadsTextField.setText(frostSettings.getValue("uploadThreads"));
 		uploadBatchSizeTextField.setText(
@@ -1604,8 +1767,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.getValue("keyDownloadHtl"));
 		miscShowSystrayIcon.setSelected(
 			frostSettings.getBoolValue("showSystrayIcon"));
-		downloadSplitfileThreadsTextField.setText(
-			frostSettings.getValue("splitfileDownloadThreads"));
 		uploadSplitfileThreadsTextField.setText(
 			frostSettings.getValue("splitfileUploadThreads"));
 		miscAvailableNodesTextField.setText(
@@ -1639,8 +1800,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
 		uploadDisableRequests.setSelected(
 			frostSettings.getBoolValue("disableRequests"));
-		downloadDisableDownloads.setSelected(
-			frostSettings.getBoolValue("disableDownloads"));
 
 		TFautomaticUpdate_concurrentBoardUpdates.setText(
 			frostSettings.getValue("automaticUpdate.concurrentBoardUpdates"));
@@ -1653,33 +1812,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		miscAutoSaveInterval.setText(
 			"" + frostSettings.getIntValue("autoSaveInterval"));
 
-		downloadRestartFailedDownloads.setSelected(
-			frostSettings.getBoolValue("downloadRestartFailedDownloads"));
-		downloadEnableRequesting.setSelected(
-			frostSettings.getBoolValue("downloadEnableRequesting"));
-		downloadRequestAfterTries.setText(
-			"" + frostSettings.getIntValue("downloadRequestAfterTries"));
-		downloadMaxRetries.setText(
-			"" + frostSettings.getIntValue("downloadMaxRetries"));
-		downloadWaittime.setText(
-			"" + frostSettings.getIntValue("downloadWaittime"));
-		downloadTryAllSegments.setSelected(
-			frostSettings.getBoolValue("downloadTryAllSegments"));
-		downloadDecodeAfterEachSegment.setSelected(
-			frostSettings.getBoolValue("downloadDecodeAfterEachSegment"));
-
-		downloadRequestAfterTries.setEnabled(
-			downloadEnableRequesting.isSelected());
-		downloadMaxRetries.setEnabled(
-			downloadRestartFailedDownloads.isSelected());
-		downloadWaittime.setEnabled(
-			downloadRestartFailedDownloads.isSelected());
-		downloadRequestAfterTriesLabel.setEnabled(
-			downloadEnableRequesting.isSelected());
-		downloadMaxRetriesLabel.setEnabled(
-			downloadRestartFailedDownloads.isSelected());
-		downloadWaittimeLabel.setEnabled(
-			downloadRestartFailedDownloads.isSelected());
 
 		boardUpdSelectedBackgroundColor =
 			(Color) frostSettings.getObjectValue(
@@ -1697,15 +1829,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Save settings
 	 */
 	private void saveSettings() {
-		String downlDirTxt = downloadDirectoryTextField.getText();
-		String filesep = System.getProperty("file.separator");
-		// always append a fileseparator to the end of string
-		if ((!(downlDirTxt.lastIndexOf(filesep) == (downlDirTxt.length() - 1)))
-			|| downlDirTxt.lastIndexOf(filesep) < 0) {
-			frostSettings.setValue("downloadDirectory", downlDirTxt + filesep);
-		} else {
-			frostSettings.setValue("downloadDirectory", downlDirTxt);
-		}
 
 		//        frostSettings.setValue("htl",  downloadMinHtlTextField.getText());
 		//        frostSettings.setValue("htlMax",  downloadMaxHtlTextField.getText());
@@ -1719,9 +1842,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"indexFileRedundancy",
 			indexFileRedundancyTextField.getText());
-		frostSettings.setValue(
-			"downloadThreads",
-			downloadThreadsTextField.getText());
 		frostSettings.setValue("tofUploadHtl", tofUploadHtlTextField.getText());
 		frostSettings.setValue(
 			"tofDownloadHtl",
@@ -1739,14 +1859,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			"maxMessageDownload",
 			tofDownloadDaysTextField.getText());
 		frostSettings.setValue(
-			"removeFinishedDownloads",
-			downloadRemoveFinishedDownloads.isSelected());
-		frostSettings.setValue(
 			"splitfileUploadThreads",
 			uploadSplitfileThreadsTextField.getText());
-		frostSettings.setValue(
-			"splitfileDownloadThreads",
-			downloadSplitfileThreadsTextField.getText());
 		frostSettings.setValue(
 			"availableNodes",
 			miscAvailableNodesTextField.getText());
@@ -1809,9 +1923,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"disableRequests",
 			uploadDisableRequests.isSelected());
-		frostSettings.setValue(
-			"disableDownloads",
-			downloadDisableDownloads.isSelected());
 
 		frostSettings.setValue(
 			"automaticUpdate.concurrentBoardUpdates",
@@ -1822,26 +1933,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"boardUpdateVisualization",
 			tofBoardUpdateVisualization.isSelected());
-
-		frostSettings.setValue(
-			"downloadRestartFailedDownloads",
-			downloadRestartFailedDownloads.isSelected());
-		frostSettings.setValue(
-			"downloadEnableRequesting",
-			downloadEnableRequesting.isSelected());
-		frostSettings.setValue(
-			"downloadRequestAfterTries",
-			downloadRequestAfterTries.getText());
-		frostSettings.setValue(
-			"downloadMaxRetries",
-			downloadMaxRetries.getText());
-		frostSettings.setValue("downloadWaittime", downloadWaittime.getText());
-		frostSettings.setValue(
-			"downloadTryAllSegments",
-			downloadTryAllSegments.isSelected());
-		frostSettings.setValue(
-			"downloadDecodeAfterEachSegment",
-			downloadDecodeAfterEachSegment.isSelected());
 
 		frostSettings.setObjectValue(
 			"boardUpdatingSelectedBackgroundColor",
@@ -1899,6 +1990,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		if (displayPanel != null) {
 			//If the display panel has been used, commit its changes
 			displayPanel.ok();
+		}
+		
+		if (downloadPanel != null) {
+			//If the display panel has been used, commit its changes
+			downloadPanel.ok();
 		}
 
 		saveSettings();
@@ -2018,14 +2114,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		// enable or disable components
 		// enable panel if checkbox is not selected
 		setPanelEnabled(
-			getDownloadPanel(),
-			(downloadDisableDownloads.isSelected() == false));
-		setPanelEnabled(
 			getUploadPanel(),
 			(uploadDisableRequests.isSelected() == false));
 		// ... but not the checkboxes itself :)
 		uploadDisableRequests.setEnabled(true);
-		downloadDisableDownloads.setEnabled(true);
 
 		// final layouting
 		pack();
@@ -2038,12 +2130,24 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Build the display panel.
 	 */
 
-	protected JPanel getDisplayPanel() {
+	private JPanel getDisplayPanel() {
 		if (displayPanel == null) {
 			displayPanel = new DisplayPanel();
 			displayPanel.loadSettings(frostSettings);
 		}
 		return displayPanel;
 	}
+	
+	/**
+	 * Build the download panel.
+	 */
+
+		private JPanel getDownloadPanel() {
+			if (downloadPanel == null) {
+				downloadPanel = new DownloadPanel();
+				downloadPanel.loadSettings(frostSettings);
+			}
+			return downloadPanel;
+		}
 
 }
