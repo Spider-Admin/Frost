@@ -301,7 +301,7 @@ public class BoardInfoFrame extends JFrame
 
     protected void closeDialog()
     {
-	setDialogShowing( false );
+        setDialogShowing( false );
         dispose();
     }
 
@@ -309,7 +309,7 @@ public class BoardInfoFrame extends JFrame
     {
         if( e.getID() == WindowEvent.WINDOW_CLOSING )
         {
-            setDialogShowing( false );
+            // setDialogShowing( false ); // also done in closeDialog()
             closeDialog();
         }
         super.processWindowEvent(e);
@@ -353,6 +353,7 @@ public class BoardInfoFrame extends JFrame
             {
                 setFont( boldFont );
             }
+
             return this;
         }
     }

@@ -275,6 +275,8 @@ public class SearchThread extends Thread {
 
     public void run()
     {
+        if( DEBUG ) System.out.println("Search for '" + request + "' on " + boards.size() + " boards started.");
+
         if( !request.equals("") )
         {
             int boardCount = boards.size();
