@@ -4,8 +4,6 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <!-- Main settings you maybe want to change:                           -->
 <!--   "zipName"                                                       -->
-<!--   "installerDir"                                                  -->
-<!--   "distributedSourceFiles"                                        -->
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <project name="frost" default="main" basedir=".">
 
@@ -33,6 +31,7 @@
   <property name="src.dir" value="source"/>
   <property name="bin.dir" value="bin"/>
   <property name="res.dir" value="res"/>
+  <property name="lib.dir" value="lib"/>
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
@@ -42,9 +41,10 @@
   <property name="dist.dir" value="${build.dir}/dist"/>
 
   <!--  The CLASSPATH to use for compilation. -->
-  <!--  For compilation of samples the build VSEConnector.jar is used. -->
-<!--  <path id="classpath">
-    <pathelement location="xerces.jar"/>
+  <path id="classpath">
+    <pathelement location="${lib.dir}/xercesImpl.jar"/>
+    <pathelement location="${lib.dir}/xml-apis.jar"/>
+    <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
   </path> -->
 
   <!--  Specify logfile name -->
@@ -83,7 +83,7 @@ Build log  : ${logfilename}</echo>
            debug="${debug}"
            deprecation="${deprecation}"
            optimize="${optimize}" >
-<!--      <classpath refid="classpath" />  -->
+      <classpath refid="classpath" />
     </javac>
 
   </target>
