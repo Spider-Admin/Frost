@@ -58,6 +58,9 @@ public class MessageFrame extends JFrame
     JSplitPane attachmentSplitPane;
     JSplitPane boardSplitPane;
     
+    JPopupMenu attFilesPopupMenu;
+    JPopupMenu attBoardsPopupMenu;
+    
     //------------------------------------------------------------------------
     // Generate objects
     //------------------------------------------------------------------------
@@ -87,10 +90,12 @@ public class MessageFrame extends JFrame
         attBoardsTableModel = new MFAttachedBoardsTableModel();
         attBoardsTable = new MFAttachedBoardsTable(attBoardsTableModel);
         JScrollPane attBoardsScroller = new JScrollPane( attBoardsTable );
+        attBoardsTable.addMouseListener(new AttBoardsTablePopupMenuMouseListener());
         
         attFilesTableModel = new MFAttachedFilesTableModel();
         attFilesTable = new MFAttachedFilesTable(attFilesTableModel);
         JScrollPane attFilesScroller = new JScrollPane( attFilesTable );
+        attFilesTable.addMouseListener(new AttFilesTablePopupMenuMouseListener());
         
         configureButton(Bsend, "Send message", "/data/send_rollover.gif");
         configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
@@ -204,6 +209,31 @@ public class MessageFrame extends JFrame
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(panelMain, BorderLayout.CENTER);
+        
+        initPopupMenu();
+    }
+    
+    protected void initPopupMenu()
+    {
+        attFilesPopupMenu = new JPopupMenu();
+        attBoardsPopupMenu = new JPopupMenu();
+        
+        JMenuItem removeFiles = new JMenuItem("Remove");
+        JMenuItem removeBoards = new JMenuItem("Remove");
+        
+        removeFiles.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                removeSelectedItemsFromTable(attFilesTable);
+            }
+        });
+        removeBoards.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                removeSelectedItemsFromTable(attBoardsTable);
+            }
+        });
+
+        attFilesPopupMenu.add( removeFiles );
+        attBoardsPopupMenu.add( removeBoards );
     }
     
     /**jButton1 Action Listener (Send)*/
@@ -410,6 +440,13 @@ public class MessageFrame extends JFrame
 
     protected void updateAttachmentSplitPanes()
     {
+        if( attBoardsTableModel.getRowCount() == 0 &&
+            attFilesTableModel.getRowCount() == 0 )
+        {
+            resetSplitPanes();
+            return;
+        }
+        
         // Attachment available
         if( attFilesTableModel.getRowCount() > 0 ) 
         {
@@ -442,6 +479,17 @@ public class MessageFrame extends JFrame
         attachmentSplitPane.setDividerLocation(1.0);
         boardSplitPane.setDividerSize(0);
         boardSplitPane.setDividerLocation(1.0);
+    }
+    
+    protected void removeSelectedItemsFromTable( JTable tbl )
+    {
+        SortedTableModel m = (SortedTableModel)tbl.getModel();
+        int[] sel = tbl.getSelectedRows();
+        for(int x=sel.length-1; x>=0; x--)
+        {
+            m.removeRow(sel[x]);
+        }
+        updateAttachmentSplitPanes();
     }
 
     protected void processWindowEvent(WindowEvent e)
@@ -774,5 +822,40 @@ public class MessageFrame extends JFrame
             return s1.toLowerCase().compareTo( s2.toLowerCase() );
         }
     }
+    
+    class AttFilesTablePopupMenuMouseListener implements MouseListener
+    {
+        public void mouseReleased(MouseEvent event) {
+            maybeShowPopup(event);
+        }
+        public void mousePressed(MouseEvent event) {
+            maybeShowPopup(event);
+        }
+        public void mouseClicked(MouseEvent event) {}
+        public void mouseEntered(MouseEvent event) {}
+        public void mouseExited(MouseEvent event) {}
+        protected void maybeShowPopup(MouseEvent e) {
+            if( e.isPopupTrigger() ) {
+                attFilesPopupMenu.show(attFilesTable, e.getX(), e.getY());
+            }
+        }
+    }
+    class AttBoardsTablePopupMenuMouseListener implements MouseListener
+    {
+        public void mouseReleased(MouseEvent event) {
+            maybeShowPopup(event);
+        }
+        public void mousePressed(MouseEvent event) {
+            maybeShowPopup(event);
+        }
+        public void mouseClicked(MouseEvent event) {}
+        public void mouseEntered(MouseEvent event) {}
+        public void mouseExited(MouseEvent event) {}
+        protected void maybeShowPopup(MouseEvent e) {
+            if( e.isPopupTrigger() ) {
+                attBoardsPopupMenu.show(attBoardsTable, e.getX(), e.getY());
+            }
+        }
+    }
+    
 }
-

@@ -199,6 +199,23 @@ public class SortedTableModel extends DefaultTableModel
     }
 
     /**
+     * Removes the row at index <I>row</I>.
+     *
+     * @param row Index of row
+     * @return Instance of ITableMember at index row. <I>null</I> if index contains
+     * no ITableMember
+     */
+    public void removeRow(int row)
+    {
+        if (row<getRowCount())
+        {
+            Object obj = rows.get(row);
+            if (obj instanceof TableMember)
+                deleteRow((TableMember)obj);
+        }
+    }
+    
+    /**
      * Returns the value at <I>column</I> and <I>row</I>. Used by JTable.
      *
      * @param row Row for which the value will be returned.
