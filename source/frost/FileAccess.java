@@ -67,11 +67,11 @@ public class FileAccess
      * @param chk Map that will be used to add the keys
      * @param exchange the exchange flag of KeyClass will be set to this value
      */
-    public static void readKeyFile(String source, Map chk, boolean exchange)
+    public static void readKeyFile(String source, Map chk)
     {
-        readKeyFile(new File(source), chk, exchange);
+        readKeyFile(new File(source), chk);
     }
-    public static void readKeyFile(File source, Map chk, boolean exchange)
+    public static void readKeyFile(File source, Map chk)
     {
         if( source.isFile() && source.length() > 0 )
         {
@@ -164,65 +164,6 @@ public class FileAccess
 		}
 	    }
 	    
-		/*
-            try
-            {
-                f = new BufferedReader(new FileReader(source));
-                while( (line = f.readLine()) != null )
-                {
-                    switch( counter ) {
-                    case 0 :
-                        filename = line;
-                        break;
-                    case 1 :
-                        size = line;
-                        break;
-                    case 2 :
-                        date = line;
-                        break;
-                    case 3 :
-                        key = line;
-                        KeyClass newKey = new KeyClass(key);
-                        newKey.setFilename(filename);
-                        newKey.setSize(size);
-                        newKey.setDate(date);
-                        newKey.setExchange(exchange);
-
-                        if( newKey.isValid() )
-                        {
-
-                            KeyClass keyObject = (KeyClass)chk.get(key);
-                            if( keyObject != null )
-                            {
-                                GregorianCalendar cal = newKey.getCal();
-                                GregorianCalendar keyCal = keyObject.getCal();
-                                keyObject.setExchange(exchange);
-
-                                if( keyCal.before(cal) )
-                                {
-                                    // System.out.println("Updating date for: " + filename);
-                                    keyObject.setDate(newKey.getDate());
-                                }
-                            }
-                            else
-                            {
-                                if( chk.size() < frame1.frostSettings.getIntValue("maxKeys") )
-                                {
-                                    chk.put(key, newKey);
-                                }
-                            }
-                        }
-                        counter = -1;
-                        break;
-                    }
-                    counter++;
-                }
-                f.close();
-            }
-            catch( IOException e )
-            {
-                System.out.println("Read Error: " + source);
-            }*/
         
     }
 

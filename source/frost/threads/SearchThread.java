@@ -305,7 +305,7 @@ public class SearchThread extends Thread {
                             if( keypoolfiles[i].getName().endsWith(".exc") )
                             {
                                 chk.clear();
-                                FileAccess.readKeyFile(keypoolfiles[i], chk, true);
+                                FileAccess.readKeyFile(keypoolfiles[i], chk);
                                 getSearchResults();
                                 if( DEBUG ) System.out.println(keypoolfiles[i].getName() + " - " + chk.size() + ";");
                             }
