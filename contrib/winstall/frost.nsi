@@ -42,12 +42,12 @@ InstallDirRegKey HKEY_LOCAL_MACHINE "Software\Frost" "InstPath"
 Section
   # Required section which copies all the files
 
-  # Have to say to the installer that Frost is 696 Kb since we only copy files
-  AddSize 696
+  # Have to say to the installer that Frost is 685 Kb since we only copy files
+  AddSize 685
 
   # -- Assume Frost is already installed
   StrCpy $2 "Yes"
-  # -- Check if gpg.exe exists
+  # -- Check if frost.class exists
   IfFileExists "$INSTDIR\classes\frost.class" DoUpdate
   StrCpy $2 "No"
 
@@ -102,17 +102,36 @@ Function .onInit
   # Check if Freenet is installed
   ReadRegStr $0 HKEY_LOCAL_MACHINE "Software\Freenet" "instpath"
   StrCmp $0 "" NoFreenet
+
+  # Yes, then get the java path ;)
+  ReadINIStr $4 "$0\FLaunch.ini" "Freenet Launcher" "javaexec"
+  # Get the short path name
+  GetFullPathName /SHORT $3 $4
+
+  ReadINIStr $4 "$0\FLaunch.ini" "Freenet Launcher" "javaw"
+  # Get the short path name
+  GetFullPathName /SHORT $1 $4
   Goto End
 
 NoFreenet:
+  # Try to find it
+  # Search a java.exe file
+  SearchPath $0 "java.exe"
+  StrCmp $0 "" NoJava
+  GetFullPathName /SHORT $3 $0
+
+  # Search a javaw.exe file
+  SearchPath $0 "javaw.exe"
+  StrCmp $0 "" NoJava
+  GetFullPathName /SHORT $1 $0
+  Goto End
+
+NoJava:
   # No, then abort installation
-  MessageBox MB_OK|MB_ICONSTOP "${STR_FREENETNOTFOUND}"
+  MessageBox MB_OK|MB_ICONSTOP "${STR_JAVANOTFOUND}"
   Abort
 
-End:
-  # Yes, then get the java path ;)
-  ReadINIStr $3 "$0\FLaunch.ini" "Freenet Launcher" "javaexec"
-  ReadINIStr $1 "$0\FLaunch.ini" "Freenet Launcher" "javaw"
+End:  
 FunctionEnd
 
 ;-----------------------------------------------------------------------------------

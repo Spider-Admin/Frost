@@ -29,7 +29,7 @@
 !define DET_COPYING "Copying files..."
 
 # Mic strings (in messagebox...)
-!define STR_FREENETNOTFOUND "Frost requires Freenet to work, please install it first."
+!define STR_JAVANOTFOUND "Frost requires Java to work, please install it first (no java.exe/javaw.exe was found)."
 
 # Link strings
 !define LNK_FROSTCONSOLE "Frost (console)"

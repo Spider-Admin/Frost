@@ -17,7 +17,7 @@
 !include config.nsh
 
 Name "Frost ${VERSION}"
-OutFile "frost_${VERSION}.exe"
+OutFile "frost_${VERSION}_windows_installer.exe"
 Icon jtc_inst.ico
 SilentInstall silent
 
