@@ -8,12 +8,12 @@ package frost.identities;
 
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import frost.XMLTools;
+import frost.*;
 import frost.fcp.FecTools;
 import frost.storage.StorageException;
 
@@ -27,6 +27,8 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 	
 	private static final String OLD_FILENAME = "identities";
 	private static final String XML_FILENAME = "identities.xml";
+	private static final String TMP_FILENAME = "identities.xml.tmp";
+	private static final String BAK_FILENAME = "identities.xml.bak";
 	
 	/* (non-Javadoc)
 	 * @see frost.identities.IdentitiesDAO#exists()
@@ -201,6 +203,79 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 			}
 		} catch (IOException ioe) {
 			throw new StorageException("There was a problem while creating the storage.", ioe);
+		}
+	}
+
+	/*
+	 * (non-Javadoc)
+	 * 
+	 * @see frost.identities.IdentitiesDAO#save(frost.identities.FrostIdentities)
+	 */
+	public void save(FrostIdentities identities) throws StorageException {
+		logger.info("Saving " + XML_FILENAME);
+
+		//First we copy "identities.xml" to "identities.xml.bak"
+		File identitiesFile = new File(XML_FILENAME);
+		if (identitiesFile.exists()) {
+			File bakFile = new File(BAK_FILENAME);
+			bakFile.delete();
+			try {
+				FileAccess.copyFile(XML_FILENAME, BAK_FILENAME);
+			} catch (IOException exception) {
+				logger.log(Level.SEVERE, 
+							"Error while copying " + XML_FILENAME + " to " + BAK_FILENAME, 
+							exception);
+			}
+		}
+
+		//We delete "identities.xml.tmp"
+		File identitiesTmpFile = new File(TMP_FILENAME);
+		if (identitiesTmpFile.exists()) {
+			identitiesTmpFile.delete();
+		}
+
+		Document d = XMLTools.createDomDocument();
+		Element rootElement = d.createElement("FrostIdentities");
+		//first save myself
+		rootElement.appendChild(identities.getMyId().getXMLElement(d));
+		//then friends
+		Element friends = identities.getFriends().getXMLElement(d);
+		friends.setAttribute("type", "friends");
+		rootElement.appendChild(friends);
+		//then enemies
+		Element enemies = identities.getEnemies().getXMLElement(d);
+		enemies.setAttribute("type", "enemies");
+		rootElement.appendChild(enemies);
+		//then everybody else
+		Element neutral = identities.getNeutrals().getXMLElement(d);
+		neutral.setAttribute("type", "neutral");
+		rootElement.appendChild(neutral);
+		d.appendChild(rootElement);
+
+		//We save identities to "identities.xml.tmp"
+		if (XMLTools.writeXmlFile(d, TMP_FILENAME)) {
+			//Success
+			if (identitiesTmpFile.exists()) {
+				//We replace "identities.xml" by "identities.xml.tmp"
+				identitiesFile.delete();
+				if (!identitiesTmpFile.renameTo(identitiesFile)) {
+					//Replacement failed. We try to restore "identities.xml"
+					// from "identities.xml.bak"
+					try {
+						FileAccess.copyFile(BAK_FILENAME, XML_FILENAME);
+					} catch (IOException exception) {
+						//Uh, oh, we are having a bad, bad day.
+						throw new StorageException(
+								"Error while restoring " + XML_FILENAME, exception);
+					}
+				}
+			} else {
+				//This shouldn't happen, but...
+				throw new StorageException("Could not save " + XML_FILENAME);
+			}
+		} else {
+			//Failure
+			throw new StorageException("Could not save " + XML_FILENAME);
 		}
 	}
 }

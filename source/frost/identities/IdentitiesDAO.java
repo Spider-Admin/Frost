@@ -29,6 +29,15 @@ public interface IdentitiesDAO {
 	 * @throws StorageException if there was a problem while loading the information.
 	 */
 	public void load(FrostIdentities identities) throws StorageException;
+	
+	/**
+	 * This method saves the information contained in the given FrostIdentities object
+	 * on the storage.
+	 * @param identities FrostIdentities whose information is going to be saved
+	 * @throws StorageException if there was a problem while saving the information.
+	 */
+	public void save(FrostIdentities identities) throws StorageException;
+	
 	/**
 	 * This method creates the underlying storage.
 	 * @throws StorageException if there was a problem while creating the storage.
