@@ -31,8 +31,6 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.*;
 
-import com.l2fprod.gui.plaf.skin.*;
-
 import frost.components.BrowserFrame;
 import frost.components.translate.TranslateFrame;
 import frost.crypt.crypt;
@@ -447,39 +445,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		searchButton.setToolTipText(languageResource.getString("Search"));
 	}
 
-	/**
-	 * Initializes the skins system
-	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
-	 * @param frame the root JFrame to update its UI when skins are activated
-	 */
-	private void initializeSkins(SettingsClass frostSettings, JFrame frame) {
-		String skinsEnabled = frostSettings.getValue("skinsEnabled");
-		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
-			String selectedSkinPath = frostSettings.getValue("selectedSkin");
-			if ((selectedSkinPath != null)
-				&& (!selectedSkinPath.equals("none"))) {
-				try {
-					Skin selectedSkin =
-						SkinLookAndFeel.loadThemePack(selectedSkinPath);
-					SkinLookAndFeel.setSkin(selectedSkin);
-					SkinLookAndFeel.enable();
-					SwingUtilities.updateComponentTreeUI(frame);
-				} catch (UnsupportedLookAndFeelException exception) {
-					System.out.println(
-						"The selected skin is not supported by your system");
-					System.out.println(
-						"Skins will be disabled until you choose another one\n");
-					frostSettings.setValue("skinsEnabled", false);
-				} catch (Exception exception) {
-					System.out.println(
-						"There was an error while loading the selected skin");
-					System.out.println(
-						"Skins will be disabled until you choose another one\n");
-					frostSettings.setValue("skinsEnabled", false);
-				}
-			}
-		}
-	}
 	/**Save settings*/
 	public void saveSettings() {
 		frostSettings.setValue(
@@ -720,21 +685,18 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	/**Construct the frame*/
-	public frame1(String locale, Splashscreen splashscreen) {
+	public frame1(SettingsClass newSettings, String locale, Splashscreen splashscreen) {
 		this.splashscreen = splashscreen;
 
 		splashscreen.setText("Initializing Mainframe");
-		splashscreen.setProgress(10);
+		splashscreen.setProgress(20);
 
 		if (!locale.equals("default"))
 			languageResource.setLanguageResource(
 				ResourceBundle.getBundle("res.LangRes", new Locale(locale)));
 		instance = this;
-		frostSettings = new SettingsClass();
+		frostSettings = newSettings;
 		keypool = frostSettings.getValue("keypool.dir");
-
-		//Initializes the skins
-		initializeSkins(frostSettings, this);
 
 		splashscreen.setText("Hypercube fluctuating!");
 		splashscreen.setProgress(50);
