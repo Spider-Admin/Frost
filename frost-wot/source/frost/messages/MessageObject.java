@@ -373,8 +373,9 @@ public class MessageObject implements XMLizable
         if( file == null || 
             file.exists() == false ||
             file.length() < 20 ) // prolog+needed tags are always > 20, but we need to filter 
-        {                        // out the messages containing "Empty" (encrypted for someone else)   
-            throw new Exception("Invalid input file for MessageObject");
+        {                        // out the messages containing "Empty" (encrypted for someone else)
+        	file.renameTo(new File("badMessage"));   
+            throw new Exception("Invalid input file for MessageObject, send the file \"badMessage\" to a dev");
         }
         this.file = file;
         loadFile();
