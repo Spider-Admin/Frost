@@ -301,57 +301,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     {
                         if( result[0].equals("KeyCollision") )
                         {
-/*                            // ************* Temporary freenet bug workaround ******************
-                            String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
-                            //              String requestMe = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
-                            String requestMe = new StringBuffer().append("KSK@sftmeage/")
-                                                                .append(frame1.frostSettings.getValue("messageBase"))
-                                                                .append("/")
-                                                                .append(date)
-                                                                .append("-")
-                                                                .append(board.getBoardFilename())
-                                                                .append("-")
-                                                                .append(index)
-                                                                .append(".txt").toString();
-                            if( secure && publicKey.startsWith("SSK@") )
-                            {
-                                requestMe = new StringBuffer().append(publicKey)
-                                                            .append("/")
-                                                            .append(board.getBoardFilename())
-                                                            .append("/")
-                                                            .append(date)
-                                                            .append("-")
-                                                            .append(index)
-                                                            .append(".txt").toString();
-                            }
-
-                            if( FcpRequest.getFile(requestMe,
-                                                   "Unknown",
-                                                   keypool + compareMe,
-                                                   messageDownloadHtl,
-                                                   false) )
-                            {
-                                File numberOne = new File(keypool + compareMe);
-                                File numberTwo = new File(destination + uploadMe);
-                                String contentOne = (FileAccess.readFile(numberOne)).trim();
-                                String contentTwo = (FileAccess.readFile(numberTwo)).trim();
-                                if( DEBUG ) System.out.println(contentOne);
-                                if( DEBUG ) System.out.println(contentTwo);
-                                if( contentOne.equals(contentTwo) )
-                                {
-                                    success = true;
-                                }
-                                else
-                                {
-                                    index++;
-                                    System.out.println("TOFUP: Upload collided, increasing index to " + index);
-                                }
-                            }
-                            else
-                            { */
-                                index++;
-                                System.out.println("TOFUP: Upload collided, increasing index to " + index);
-                            //}
+                            index++;
+                            System.out.println("TOFUP: Upload collided, increasing index to " + index);
                         }
                         else
                         {
