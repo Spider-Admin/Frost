@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fcpTools.FcpRequest;
+import frost.fcp.FcpRequest;
 import frost.fileTransfer.upload.*;
 import frost.identities.FrostIdentities;
 /**

@@ -29,7 +29,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import frost.MainFrame;
-import frost.fcpTools.*;
+import frost.fcp.*;
 import frost.gui.objects.FrostBoardObject;
 
 public class BoardSettingsFrame extends JDialog

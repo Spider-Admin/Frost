@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fcpTools.*;
+import frost.fcp.*;
 import frost.crypt.SignMetaData;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.*;

@@ -24,7 +24,7 @@ import java.util.Random;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fcpTools.*;
+import frost.fcp.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.LocalIdentity;
 import frost.messages.*;

@@ -9,7 +9,7 @@ import javax.swing.JOptionPane;
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.fcpTools.FecTools;
+import frost.fcp.FecTools;
 import frost.threads.maintenance.Savable;
 import frost.util.gui.translation.UpdatingLanguageResource;
 

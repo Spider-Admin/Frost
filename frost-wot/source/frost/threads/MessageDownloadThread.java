@@ -26,7 +26,7 @@ import java.util.logging.*;
 import org.w3c.dom.Element;
 
 import frost.*;
-import frost.fcpTools.*;
+import frost.fcp.*;
 import frost.crypt.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.*;

@@ -30,7 +30,7 @@ import javax.swing.event.*;
 import javax.swing.text.BadLocationException;
 
 import frost.*;
-import frost.fcpTools.FcpInsert;
+import frost.fcp.FcpInsert;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.LocalIdentity;

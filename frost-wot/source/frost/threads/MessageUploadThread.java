@@ -29,7 +29,7 @@ import javax.swing.JOptionPane;
 import org.w3c.dom.Document;
 
 import frost.*;
-import frost.fcpTools.*;
+import frost.fcp.*;
 import frost.crypt.SignMetaData;
 import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.MessageUploadFailedDialog;

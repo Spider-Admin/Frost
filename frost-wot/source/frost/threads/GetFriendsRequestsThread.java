@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import frost.*;
-import frost.fcpTools.FcpRequest;
+import frost.fcp.FcpRequest;
 import frost.identities.FrostIdentities;
 import frost.messages.SharedFileObject;
 
