@@ -52,11 +52,13 @@ public class DownloadManager implements PropertyChangeListener {
 	 * 
 	 */
 	public void initialize() {
-		mainFrame.addPanel("Downloads", getPanel());	
-		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);	
+		mainFrame.addPanel("Downloads", getPanel());
+		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
 		updateDownloadStatus();
 		getTable().load();
-		getTicker().start();
+		if (freenetIsOnline) {
+			getTicker().start();
+		}
 	}
 
 	/**
