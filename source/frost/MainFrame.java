@@ -1776,23 +1776,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	/**Selects message icon in lower right corner*/
 	public static void displayNewMessageIcon(boolean showNewMessageIcon) {
-		MainFrame frame1inst = MainFrame.getInstance();
+		MainFrame mainFrame = MainFrame.getInstance();
 		if (showNewMessageIcon) {
-			frame1inst.setIconImage(
-				Toolkit.getDefaultToolkit().createImage(
-					MainFrame.class.getResource("/data/newmessage.gif")));
-			frame1inst.statusMessageLabel.setIcon(newMessage[0]);
+			ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/newmessage.gif"));
+			mainFrame.setIconImage(frameIcon.getImage());
+			mainFrame.statusMessageLabel.setIcon(newMessage[0]);
 			// The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
 			if ((System.getProperty("os.name").startsWith("Windows")) == false) {
-				frame1inst.setTitle("*Frost*");
+				mainFrame.setTitle("*Frost*");
 			}
 		} else {
-			frame1inst.setIconImage(
-				Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
-			frame1inst.statusMessageLabel.setIcon(newMessage[1]);
+			ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
+			mainFrame.setIconImage(frameIcon.getImage());
+			mainFrame.statusMessageLabel.setIcon(newMessage[1]);
 			// The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
 			if ((System.getProperty("os.name").startsWith("Windows")) == false) {
-				frame1inst.setTitle("Frost");
+				mainFrame.setTitle("Frost");
 			}
 		}
 	}
@@ -1918,8 +1917,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
-		setIconImage(
-			Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
+		ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
+		setIconImage(frameIcon.getImage());
 		setResizable(true);
 
 		setTitle("Frost");

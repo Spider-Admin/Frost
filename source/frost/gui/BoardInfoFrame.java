@@ -173,9 +173,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         // Configure objects
         //------------------------------------------------------------------------
 
-        this.setIconImage(Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
-        this.setSize(new Dimension(300, 200));
-        this.setResizable(true);
+		ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
+        setIconImage(frameIcon.getImage());
+        setSize(new Dimension(300, 200));
+        setResizable(true);
 
         boardTable.setRowSelectionAllowed(true);
         boardTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
