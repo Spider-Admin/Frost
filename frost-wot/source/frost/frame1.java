@@ -1928,7 +1928,15 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     public void removeSelectedNode()
     {
-        getTofTree().removeSelectedNode();
+        FrostBoardObject selectedNode = getActualNode();
+        int answer = JOptionPane.showConfirmDialog(this,
+                                      "Do you really want to delete '"+selectedNode.toString()+"' ???",
+                                      "Delete '"+selectedNode.toString()+"'?",
+                                      JOptionPane.YES_NO_OPTION);
+        if( answer == JOptionPane.YES_OPTION )
+        {
+            getTofTree().removeSelectedNode();
+        }
     }
 
     /**
