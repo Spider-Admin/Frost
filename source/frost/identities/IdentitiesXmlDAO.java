@@ -177,6 +177,7 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		if (xmlFile.exists()) {
 			try {
 				loadNewFormat(identities);
+				oldFile.delete();		//In case we have an old file hanging around, we delete it.
 			} catch (Exception e) {
 				throw new StorageException("Exception while loading the new identities format.", e);
 			}

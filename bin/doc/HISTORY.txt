@@ -1,5 +1,7 @@
 Changes since version 2-Dec-2004 dev:
 
+Added: if we have an old identities file, it is deleted after being converted to the new xml format.
+
 Changed: messages are signed by default.
 
 **************************************************************************************************
