@@ -19,6 +19,7 @@
 package frost;
 import java.util.*;
 import java.io.*;
+import java.text.*;
 import javax.swing.event.*; // ListeSelectionEvent
 import javax.swing.*; // JTable
 import javax.swing.table.*; // DefaultTableModel
@@ -340,6 +341,13 @@ public class TOF
      */
     public static boolean blocked(VerifyableMessageObject message, FrostBoardObject board)
     {
+        // TODO: remove this later, is already check on incoming message.
+        // this is needed as long such messages are in keypool to block these
+        if( message.verifyTime() == false )
+        {
+            return true;
+        }
+
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
             !message.isVerifyable() )
             return true;
