@@ -1,0 +1,23 @@
+This is the Frost TODO file. Please maintain it carefully.
+
+***** 2003/05/12 - bback
+Here are Janthos TODOs (german), below i translated it to english:
+
+- Funktion um Keypool aufzuräumen
+- Button um Message Filter an/ab zuschalten
+- Hilfetext mit in Jar File packen
+- Im Browser Dateien speichern können (popup menu)
+
+Translation:
+
+- function to maintain keypool (clean down to dates, ...)
+- button to enable/disable message filters
+- put the help texts/file into the .jar file
+- enable the browser to be able to save files from freesites (popup menu)
+-----
+
+***** 2003/05/12 - bback
+
+- xml format for index files and messages
+- message threads
+-----
