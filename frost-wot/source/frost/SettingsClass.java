@@ -458,6 +458,9 @@ public class SettingsClass
         defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233,233,233) );//"type.color(233,233,233)"
         defaults.put("boardUpdatingSelectedBackgroundColor", new Color(137,137,191) );//"type.color(137,137,191)
 
+		defaults.put("skinsEnabled", "false");
+		defaults.put("selectedSkin", "");
+
         settingsHash.putAll(defaults);
     }
 }
