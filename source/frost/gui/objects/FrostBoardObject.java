@@ -20,6 +20,8 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     private String publicKey = null;
     private String privateKey = null;
 
+    private boolean isUpdating = false;
+
     /**
      * Constructs a new FrostBoardObject wich is a Board.
      */
@@ -231,4 +233,13 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         return sb.toString();
     }
 
+
+    public boolean isUpdating()
+    {
+        return isUpdating;
+    }
+    public void setUpdating( boolean val )
+    {
+        isUpdating = val;
+    }
 }

@@ -39,6 +39,10 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
     ImageIcon boardNewIcon;
     ImageIcon boardSpammedIcon;
     String fileSeparator;
+    Color updatingSelectedColor;
+    Color updatingNonSelectedColor;
+    Color notUpdatingSelectedColor;
+    Color notUpdatingNonSelectedColor;
 
     Font boldFont = null;
     Font normalFont = null;
@@ -57,8 +61,14 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         this.setClosedIcon(new ImageIcon(frame1.class.getResource("/data/closed.gif")));
         this.setOpenIcon(new ImageIcon(frame1.class.getResource("/data/open.gif")));
 
-        normalFont = new JTable().getFont();
+        JTable dummyTable = new JTable();
+        normalFont = dummyTable.getFont();
         boldFont = normalFont.deriveFont( Font.BOLD );
+
+        updatingSelectedColor = new Color( 137, 137, 191 );
+        updatingNonSelectedColor = new Color( 233, 233, 233 );
+        notUpdatingSelectedColor = dummyTable.getSelectionBackground();
+        notUpdatingNonSelectedColor = Color.WHITE;
     }
 
     public Component getTreeCellRendererComponent(JTree tree,
@@ -95,6 +105,17 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         else
         {
             setFont( normalFont );
+        }
+
+        if( board.isUpdating() == true )
+        {
+            setBackgroundNonSelectionColor( updatingNonSelectedColor );
+            setBackgroundSelectionColor( updatingSelectedColor );
+        }
+        else
+        {
+            setBackgroundNonSelectionColor( notUpdatingNonSelectedColor );
+            setBackgroundSelectionColor( notUpdatingSelectedColor );
         }
 
         if( leaf == true )
