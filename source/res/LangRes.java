@@ -615,6 +615,7 @@ public class LangRes extends ListResourceBundle {
 	{"Cut","Cut"},
 	//{"Copy","Copy"}, // Defined above
 	{"Paste","Paste"}
+	//{"Cancel", "Cancel"} // Defined above
 		
     };
 }

@@ -450,6 +450,7 @@ static final Object[][] contents = {
 	{"Cut","Corta"},
 	//{"Copy","Copia"}, // Defined above
 	{"Paste","Pega"},
+	//{"Cancel", "Cancel"}, // Defined above
 	
 	// Saver AutoTask popup
 	{"Saver.AutoTask.title", "Se ha encontrado un problema."},
