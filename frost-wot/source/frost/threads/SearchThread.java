@@ -390,7 +390,7 @@ public class SearchThread extends Thread {
             // default: search all
             request = "*";
         }
-        searchTableModel = (SearchTableModel)frame1.getInstance().getSearchTable().getModel();
+        searchTableModel = frame1.getInstance().getSearchTableModel();
         keypool = newKeypool;
         searchType = newSearchType;
         audioExtension = frame1.frostSettings.getArrayValue("audioExtension");

@@ -993,7 +993,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 	JButton saveMessageButton = null;
 	private SearchPanel searchPanel = null;
-	private SearchTable searchTable = null;
+	private SearchTableModel searchTableModel = null;
 
 	// labels that are updated later
 	JLabel statusLabel = null;
@@ -1985,7 +1985,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private SearchPanel getSearchPanel() {
 		if (searchPanel == null) {
 			searchPanel = new SearchPanel(frostSettings);
-			searchPanel.setSearchTable(getSearchTable());
+			searchPanel.setTableModel(getSearchTableModel());
 			searchPanel.setDownloadTable(getDownloadTable());
 			searchPanel.setTofTree(getTofTree());
 			searchPanel.setKeypool(keypool);
@@ -1995,13 +1995,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 		return searchPanel;
 	}
-	public SearchTable getSearchTable() {
-		if (searchTable == null) {
-			SearchTableModel searchTableModel = new SearchTableModel(languageResource);
-			searchTable = new SearchTable(searchTableModel, core.getIdentities());
-			languageResource.addLanguageListener(searchTableModel);
+	/**
+	 * @return
+	 */
+	public SearchTableModel getSearchTableModel() {
+		if (searchTableModel == null) {
+			searchTableModel = new SearchTableModel(languageResource);
 		}
-		return searchTable;
+		return searchTableModel;
 	}
 
 	public FrostBoardObject getSelectedNode() { //TODO: move this method to TofTree

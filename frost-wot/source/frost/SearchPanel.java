@@ -18,7 +18,6 @@ import frost.gui.model.SearchTableModel;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
 import frost.identities.*;
-import frost.identities.Identity;
 import frost.threads.SearchThread;
 import frost.threads.maintenance.Truster;
 
@@ -283,6 +282,7 @@ public class SearchPanel extends JPanel {
 	private Listener listener = new Listener();
 	
 	private SearchTable searchTable = null;
+	private SearchTableModel searchTableModel = null;
 	private DownloadTable downloadTable = null;
 	private TofTree tofTree = null;
 	private SettingsClass settingsClass = null;
@@ -350,6 +350,7 @@ public class SearchPanel extends JPanel {
 			searchTopPanel.add(searchResultsCountLabel);
 			
 			// create the main search panel
+			searchTable = new SearchTable(searchTableModel, identities);
 			searchTableScrollPane = new JScrollPane(searchTable);
 			setLayout(new BorderLayout());
 			add(searchTopPanel, BorderLayout.NORTH);
@@ -360,6 +361,7 @@ public class SearchPanel extends JPanel {
 			searchTextField.addActionListener(listener);
 			searchDownloadButton.addActionListener(listener);
 			searchButton.addActionListener(listener);
+			searchTable.addMouseListener(listener);
 			searchTableScrollPane.addMouseListener(listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
@@ -539,12 +541,8 @@ public class SearchPanel extends JPanel {
 	 * 
 	 * @param newSearchTable description
 	 */
-	public void setSearchTable(SearchTable newSearchTable) {
-		if (searchTable != null) {
-			searchTable.removeMouseListener(listener);
-		}
-		searchTable = newSearchTable;
-		searchTable.addMouseListener(listener);
+	public void setTableModel(SearchTableModel newSearchTableModel) {
+		searchTableModel = newSearchTableModel;
 	}
 	
 	/**
