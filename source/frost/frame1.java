@@ -3378,6 +3378,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				false);
 		}
 		initializeFonts();	//In case the fonts were changed
+		tofTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
 	}
 	/**
 	 * Fires a nodeChanged (redraw) for all boards.
