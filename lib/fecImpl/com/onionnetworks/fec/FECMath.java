@@ -3,7 +3,7 @@ package com.onionnetworks.fec;
 import com.onionnetworks.util.Util;
 
 /**
- * This class provides the majority of the logic for the pure Java 
+ * This class provides the majority of the logic for the pure Java
  * implementation of the vandermonde FEC codes.  This code is heavily derived
  * from Luigi Rizzo's original C implementation.  Copyright information can
  * be found in the 'LICENSE' file that comes with this distribution.
@@ -14,7 +14,7 @@ import com.onionnetworks.util.Util;
  * @author Justin F. Chapweske (justin@chapweske.com)
  */
 public class FECMath {
-    
+
     /**
      * The following parameter defines how many bits are used for
      * field elements.  This probably only supports 8 and 16 bit codes
@@ -22,10 +22,10 @@ public class FECMath {
      * should perhaps be redone with some sort of template language/
      * precompiler for Java.
      */
-    
+
     // code over GF(2**gfBits) - change to suit
-    public int gfBits;  
-    
+    public int gfBits;
+
     /*
      * You should not need to change anything beyond this point.
      * The first part of the file implements linear algebra in GF.
@@ -35,12 +35,12 @@ public class FECMath {
      */
     // 2^n-1 = the number of elements in this extension field
     public int gfSize; // powers of alpha
-    
+
     /**
      * Primitive polynomials - see Lin & Costello, Appendix A,
      * and  Lee & Messerschmitt, p. 453.
      */
-    public static final String[] prim_polys = {    
+    public static final String[] prim_polys = {
                                 // gfBits	polynomial
         null,  	                //  0            no code
         null,                   //  1            no code
@@ -61,7 +61,7 @@ public class FECMath {
         "11010000000010001"     // 16            1+x+x^3+x^12+x^16
     };
 
-    
+
     /**
      * To speed up computations, we have tables for logarithm, exponent
      * and inverse of a number. If gfBits <= 8, we use a table for
@@ -69,7 +69,7 @@ public class FECMath {
      * especially because it can be pre-initialized an put into a ROM!),
      * otherwhise we use a table of logarithms.
      */
-    
+
     // index->poly form conversion table
     public char[] gf_exp;
     // Poly->index form conversion table
@@ -96,9 +96,10 @@ public class FECMath {
     }
 
     public FECMath(int gfBits) {
+System.out.println("gen for bits: "+gfBits);
         this.gfBits = gfBits;
         this.gfSize = ((1 << gfBits) - 1);
-        
+
         gf_exp = new char[2*gfSize];
         gf_log = new int[gfSize+1];
         inverse = new char[gfSize+1];
@@ -116,7 +117,7 @@ public class FECMath {
         int i;
 
         String primPoly = prim_polys[gfBits];
-        
+
         char mask = 1;	// x ** 0 = 1
         gf_exp[gfBits] = 0; // will be updated at the end of the 1st loop
         /*
@@ -150,7 +151,7 @@ public class FECMath {
         mask = (char) (1 << (gfBits - 1)) ;
         for (i = gfBits + 1; i < gfSize; i++) {
             if (gf_exp[i-1] >= mask) {
-                gf_exp[i] = (char) (gf_exp[gfBits] ^ 
+                gf_exp[i] = (char) (gf_exp[gfBits] ^
                                     ((gf_exp[i-1] ^ mask) << 1));
             } else {
                 gf_exp[i] = (char) (gf_exp[i-1] << 1);
@@ -165,7 +166,7 @@ public class FECMath {
         for (i = 0 ; i < gfSize ; i++) {
             gf_exp[i + gfSize] = gf_exp[i];
         }
-        
+
         /*
          * again special cases. 0 has no inverse. This used to
          * be initialized to gfSize, but it should make no difference
@@ -177,7 +178,7 @@ public class FECMath {
             inverse[i] = gf_exp[gfSize-gf_log[i]];
         }
     }
-    
+
     public final void initMulTable() {
         if (gfBits <= 8) {
             gf_mul_table = new char[gfSize + 1][gfSize + 1];
@@ -210,10 +211,10 @@ public class FECMath {
         if (gfBits <= 8) {
             return gf_mul_table[x][y];
         } else {
-            if (x == 0 || y == 0) { 
+            if (x == 0 || y == 0) {
                 return 0;
             }
-     
+
             return gf_exp[gf_log[x] + gf_log[y]] ;
         }
     }
@@ -231,23 +232,22 @@ public class FECMath {
     public static final char[] createGFMatrix(int rows, int cols) {
         return new char[rows * cols];
     }
-    
+
     /*
      * addMul() computes dst[] = dst[] + c * src[]
      * This is used often, so better optimize it! Currently the loop is
      * unrolled 16 times, a good value for 486 and pentium-class machines.
      * The case c=0 is also optimized, whereas c=1 is not. These
      * calls are unfrequent in my typical apps so I did not bother.
-     * 
+     *
      */
-    public final void addMul(char[] dst, int dstPos, char[] src, 
+    public final void addMul(char[] dst, int dstPos, char[] src,
                              int srcPos, char c, int len) {
         // nop, optimize
         if (c == 0) {
             return;
         }
-
-        int unroll = 16; // unroll the loop 16 times.
+//        int unroll = 16; // unroll the loop 16 times.
         int i = dstPos;
         int j = srcPos;
         int lim = dstPos + len;
@@ -257,14 +257,15 @@ public class FECMath {
             // the gf_mul_table[c] to a local variable since it is going to
             // be used many times.
             char[] gf_mulc = gf_mul_table[c];
-            
-            // Not sure if loop unrolling has any real benefit in Java, but 
-            // what the hey.
-            for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
+
+            // Not sure if loop unrolling has any real benefit in Java, but
+            // what the hey. -> not benefit, but overhead
+//            for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
+            for (;i < lim; i++, j++) {
                 // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
-                
+
                 dst[i] ^= gf_mulc[src[j]];
-                dst[i+1] ^= gf_mulc[src[j+1]];
+/*                dst[i+1] ^= gf_mulc[src[j+1]];
                 dst[i+2] ^= gf_mulc[src[j+2]];
                 dst[i+3] ^= gf_mulc[src[j+3]];
                 dst[i+4] ^= gf_mulc[src[j+4]];
@@ -278,13 +279,13 @@ public class FECMath {
                 dst[i+12] ^= gf_mulc[src[j+12]];
                 dst[i+13] ^= gf_mulc[src[j+13]];
                 dst[i+14] ^= gf_mulc[src[j+14]];
-                dst[i+15] ^= gf_mulc[src[j+15]];
+                dst[i+15] ^= gf_mulc[src[j+15]];*/
             }
-            
+
             // final components
-            for (;i < lim; i++, j++) {
+/*            for (;i < lim; i++, j++) {
                 dst[i] ^= gf_mulc[src[j]];
-            }
+            }*/
 
         } else { // gfBits > 8, no multiplication table
             int mulcPos = gf_log[c];
@@ -305,18 +306,18 @@ public class FECMath {
      * unrolled 16 times, a good value for 486 and pentium-class machines.
      * The case c=0 is also optimized, whereas c=1 is not. These
      * calls are unfrequent in my typical apps so I did not bother.
-     * 
+     *
      */
-    public final void addMul(byte[] dst, int dstPos, byte[] src, 
+    public final void addMul(byte[] dst, int dstPos, byte[] src,
                              int srcPos, byte c, int len) {
         // nop, optimize
         if (c == 0) {
             return;
         }
 
-        int unroll = 16; // unroll the loop 16 times.
-        int i = dstPos;
-        int j = srcPos;
+//        int unroll = 16; // unroll the loop 16 times.
+//        int i = dstPos;
+//        int j = srcPos;
         int lim = dstPos + len;
 
         // use our multiplication table.
@@ -324,14 +325,15 @@ public class FECMath {
         // the gf_mul_table[c] to a local variable since it is going to
         // be used many times.
         char[] gf_mulc = gf_mul_table[c & 0xff];
-        
-        // Not sure if loop unrolling has any real benefit in Java, but 
+
+        // Not sure if loop unrolling has any real benefit in Java, but
         // what the hey.
-        for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
+//        for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
+        for (;dstPos < lim; dstPos++, srcPos++) {
             // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
-            
-            dst[i] ^= gf_mulc[src[j] & 0xff];
-            dst[i+1] ^= gf_mulc[src[j+1] & 0xff];
+
+            dst[dstPos] ^= gf_mulc[ src[srcPos] & 0xff ];
+/*            dst[i+1] ^= gf_mulc[src[j+1] & 0xff];
             dst[i+2] ^= gf_mulc[src[j+2] & 0xff];
             dst[i+3] ^= gf_mulc[src[j+3] & 0xff];
             dst[i+4] ^= gf_mulc[src[j+4] & 0xff];
@@ -345,19 +347,19 @@ public class FECMath {
             dst[i+12] ^= gf_mulc[src[j+12] & 0xff];
             dst[i+13] ^= gf_mulc[src[j+13] & 0xff];
             dst[i+14] ^= gf_mulc[src[j+14] & 0xff];
-            dst[i+15] ^= gf_mulc[src[j+15] & 0xff];
+            dst[i+15] ^= gf_mulc[src[j+15] & 0xff];*/
         }
-        
+
         // final components
-        for (;i < lim; i++, j++) {
+/*        for (;i < lim; i++, j++) {
             dst[i] ^= gf_mulc[src[j] & 0xff];
-        }
+        }*/
     }
 
     /*
      * computes C = AB where A is n*k, B is k*m, C is n*m
      */
-    public final void matMul(char[] a, char[] b, char[] c, 
+    public final void matMul(char[] a, char[] b, char[] c,
                              int n, int k, int m) {
 	matMul(a,0,b,0,c,0,n,k,m);
     }
@@ -380,7 +382,7 @@ public class FECMath {
             }
         }
     }
-    
+
     /*
      * Checks to see if the square matrix is identiy
      * @return whether it is an identity matrix or not
@@ -389,7 +391,7 @@ public class FECMath {
         int pos = 0;
         for (int row=0; row<k; row++) {
             for (int col=0; col<k; col++) {
-                if ((row==col && m[pos] != 1) || 
+                if ((row==col && m[pos] != 1) ||
                     (row!=col && m[pos] != 0)) {
                     return false;
                 } else {
@@ -399,17 +401,17 @@ public class FECMath {
         }
         return true;
     }
-    
-    
+
+
     /*
      * invertMatrix() takes a matrix and produces its inverse
      * k is the size of the matrix.
      * (Gauss-Jordan, adapted from Numerical Recipes in C)
      * Return non-zero if singular.
      */
-    public final void invertMatrix(char[] src, int k) 
+    public final void invertMatrix(char[] src, int k)
         throws IllegalArgumentException {
-        
+
         int[] indxc = new int[k];
         int[] indxr = new int[k];
 
@@ -418,7 +420,7 @@ public class FECMath {
 
         char[] id_row = createGFMatrix(1, k);
         char[] temp_row = createGFMatrix(1, k);
-        
+
         for (int col = 0; col < k ; col++) {
             /*
              * Zeroing column 'col', look for a non-zero element.
@@ -454,11 +456,11 @@ public class FECMath {
             }
 
             // redundant??? I'm too lazy to figure it out -Justin
-            if (!foundPiv && icol == -1) { 
+            if (!foundPiv && icol == -1) {
                 throw new IllegalArgumentException("XXX pivot not found!");
             }
 
-            // Ok, we've found a pivot by this point, so we can set the 
+            // Ok, we've found a pivot by this point, so we can set the
             // foundPiv variable back to false.  The reason that this is
             // so shittily laid out is that the original code had goto's :(
             foundPiv = false;
@@ -515,7 +517,7 @@ public class FECMath {
             }
             id_row[icol] = 0;
         } // done all columns
-        
+
         for (int col = k-1 ; col >= 0 ; col--) {
             if (indxr[col] <0 || indxr[col] >= k) {
                 System.err.println("AARGH, indxr[col] "+indxr[col]);
@@ -533,7 +535,7 @@ public class FECMath {
             }
         }
     }
-    
+
     /*
      * fast code for inverting a vandermonde matrix.
      * XXX NOTE: It assumes that the matrix
@@ -545,13 +547,13 @@ public class FECMath {
      * p = coefficients of the matrix (p_i)
      * q = values of the polynomial (known)
      */
-    
+
     public final void invertVandermonde(char[] src, int k) {
 
         if (k == 1) {	// degenerate case, matrix must be p^0 = 1
             return;
         }
-        
+
         /*
          * c holds the coefficient of P(x) = Prod (x - p_i), i=0..k-1
          * b holds the coefficient for the matrix inversion
@@ -559,7 +561,7 @@ public class FECMath {
         char[] c = createGFMatrix(1, k);
         char[] b = createGFMatrix(1, k);
         char[] p = createGFMatrix(1, k);
-        
+
         for (int j=1,i=0; i < k ; i++, j+=k) {
             c[i] = 0;
             p[i] = src[j];    /* p[i] */
@@ -578,7 +580,7 @@ public class FECMath {
             }
             c[k-1] ^= p_i;
         }
-        
+
         for (int row = 0 ; row < k ; row++ ) {
             /*
              * synthetic division etc.
@@ -597,7 +599,7 @@ public class FECMath {
     }
 
     public final char[] createEncodeMatrix(int k, int n) {
-        if (k > gfSize + 1 || n > gfSize + 1 || 
+        if (k > gfSize + 1 || n > gfSize + 1 ||
 	    k > n ) {
             throw new IllegalArgumentException
 		("Invalid parameters n="+n+",k="+k+",gfSize="+
@@ -606,7 +608,7 @@ public class FECMath {
 
 
         char[] encMatrix = createGFMatrix(n,k);
-	
+
 	/*
 	 * The encoding matrix is computed starting with a Vandermonde matrix,
 	 * and then transforming it into a systematic matrix.
@@ -624,15 +626,15 @@ public class FECMath {
                                            (row*col)];
 	    }
         }
-        
+
         /*
          * quick code to build systematic matrix: invert the top
          * k*k vandermonde matrix, multiply right the bottom n-k rows
          * by the inverse, and construct the identity matrix at the top.
          */
-        // much faster than invertMatrix 
-        invertVandermonde(tmpMatrix, k); 
-        matMul(tmpMatrix,k*k, tmpMatrix,0,encMatrix,k*k, n - k, 
+        // much faster than invertMatrix
+        invertVandermonde(tmpMatrix, k);
+        matMul(tmpMatrix,k*k, tmpMatrix,0,encMatrix,k*k, n - k,
                            k, k);
 
         /*
@@ -642,7 +644,7 @@ public class FECMath {
         for (int i = 0, col = 0; col < k ; col++, i += k+1 ) {
             encMatrix[i] = 1;
 	}
-        
+
         return encMatrix;
     }
 
@@ -652,14 +654,14 @@ public class FECMath {
      */
     protected final char[] createDecodeMatrix(char[] encMatrix, int[] index,
                                               int k, int n) {
-        
+
         char[] matrix = createGFMatrix(k, k);
         for (int i = 0, pos = 0; i < k ; i++, pos += k) {
             System.arraycopy(encMatrix,index[i]*k,matrix,pos,k);
         }
-        
+
         invertMatrix(matrix, k);
-        
+
         return matrix;
     }
 }

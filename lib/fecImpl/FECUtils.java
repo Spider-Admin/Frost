@@ -74,14 +74,12 @@ public class FECUtils {
             throw new IOException("Illegal arguments: requested.length != checkBlocks.length");
         }
 
+        long start = System.currentTimeMillis();
+
         Buffer[] src = readBuffers(blocks,BLOCK_SIZE);
         Buffer[] repair = allocateBuffers(index.length, BLOCK_SIZE);
 
-
-        long start = System.currentTimeMillis();
         code.encode(src, repair, index);
-        System.err.println("Made " + index.length + " " + BLOCK_SIZE + " byte check blocks in "
-                           + (System.currentTimeMillis() - start ) + "ms.");
 
         int i = 0;
         for (i = 0; i < repair.length; i++) {
@@ -89,6 +87,9 @@ public class FECUtils {
             // any of the buckets.
             dumpBlock(repair[i], checkBlocks[i]);
         }
+        System.err.println("Made " + index.length + " " + BLOCK_SIZE + " byte check blocks in "
+                           + (System.currentTimeMillis() - start ) + "ms.");
+
     }
 
     // block size is taken from the size of the first non-null block in
@@ -364,7 +365,7 @@ public class FECUtils {
     private final static void dumpBlock(Buffer block, Bucket b) throws IOException {
         OutputStream out = null;
         try {
-            b.resetWrite();
+//            b.resetWrite();
             out = b.getOutputStream();
             byte[] bytes = block.getBytes();
             int length = bytes.length;

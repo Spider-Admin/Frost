@@ -17,7 +17,7 @@ public class test
     public void run() throws Throwable
     {
         System.out.println("Starting");
-        File inputFile = new File("biginputfile.dat");
+        File inputFile = new File("F:\\dvd\\BigLebowski.mpg");//"biginputfile.dat");
         long filesize = inputFile.length();
 
         OnionFECEncoder encoder = new OnionFECEncoder();
@@ -36,7 +36,9 @@ System.out.println("segment="+z+"  checkblocks="+checkBlockCount+"  checkblocksi
         }
 
         System.out.println("Preparing check blocks file, size="+checkBlocksFileSize);
+
         fecFactory.init("biginputfile.checks", checkBlocksFileSize);
+
         System.out.println("Processing segments");
 
         // block sizes could differ in each segment
@@ -47,9 +49,12 @@ System.out.println("segment="+z+"  checkblocks="+checkBlockCount+"  checkblocksi
             int blockSize = encoder.getBlockSize( actSegment );
 
 System.out.println("seg="+actSegment+"  fsize="+filesize+"  blocks="+blockCount+"  bsize="+blockSize);
+
             Bucket[] actSegmentsDataBlocks = RandomAccessFileBucket.segment(
                     inputFile, blockSize, segmentStartOffset, blockCount, true);
+
 System.out.println("lastb="+actSegmentsDataBlocks[actSegmentsDataBlocks.length-1].size());
+
             encoder.encode( actSegment, actSegmentsDataBlocks, null ); // null = request all checkblocks
 
             segmentStartOffset += encoder.getSegmentSize(actSegment);
@@ -73,7 +78,7 @@ System.out.println("lastb="+actSegmentsDataBlocks[actSegmentsDataBlocks.length-1
 
         public Bucket makeBucket(long size) throws IOException
         {
-            RandomAccessFileBucket b = new RandomAccessFileBucket( checkBlocksFile, actFileOffset, size, false );
+            RandomAccessFileBucket b = new RandomAccessFileBucket( checkBlocksFile, actFileOffset, size, false);
             actFileOffset += size;
             return b;
         }
