@@ -123,7 +123,7 @@ public class SharedFileObject implements XMLizable
     /**Tests if the filename is valid*/
     public boolean checkFilename()
     {
-        if( filename.length() == 0 || filename.length() > 255 )
+        if( filename==null || filename.length() == 0 || filename.length() > 255 )
             return false;
 
         for( int i = 0; i < invalidChars.length; i++ )

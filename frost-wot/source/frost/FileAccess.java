@@ -444,7 +444,7 @@ public class FileAccess
                 return;
             }
 
-            Element main = d.getDocumentElement();
+            Element main = d.getDocumentElement(); // 'Filelist'
             ArrayList files = XMLTools.getChildElementsByTagName(main, "File");
 
             if (files.size() == 0)

@@ -21,15 +21,8 @@
 package frost;
 
 import java.awt.Color;
-import java.io.File;
-import java.io.FileReader;
-import java.io.FileWriter;
-import java.io.LineNumberReader;
-import java.io.PrintWriter;
-import java.util.Hashtable;
-import java.util.Iterator;
-import java.util.StringTokenizer;
-import java.util.TreeMap;
+import java.io.*;
+import java.util.*;
 
 /**
  * Read settings from frost.ini and store them.
@@ -464,9 +457,6 @@ public class SettingsClass
 
         defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233,233,233) );//"type.color(233,233,233)"
         defaults.put("boardUpdatingSelectedBackgroundColor", new Color(137,137,191) );//"type.color(137,137,191)
-
-		defaults.put("skinsEnabled", "false");
-		defaults.put("selectedSkin", "");
 
         settingsHash.putAll(defaults);
     }

@@ -174,8 +174,7 @@ public class Index
                 if( lst.size() > 0 )
                 {
                     Element r = (Element)lst.get(0);          
-                    element.removeChild(r);
-                }
+                    element.removeChild(r);                }
                 else
                 {
                     System.out.println("ERROR - getUploadKeys: Could not locate the 'owner' tag in XML tree!");
@@ -298,8 +297,8 @@ public class Index
 	}
         FileAccess.readKeyFile(indexFile, chk);
         if (chk.get(hash) != null)
-		chk.remove(hash);
-	chk.put(hash, key);
+		  chk.remove(hash);
+	    chk.put(hash, key);
         FileAccess.writeKeyFile(chk, indexFile);
     }
 
