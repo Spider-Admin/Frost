@@ -3374,27 +3374,27 @@ public class frame1 extends JFrame implements ClipboardOwner
     protected void showUploadTablePopupMenu(MouseEvent e)
     {
         JPopupMenu pmenu = new JPopupMenu();
-        if (getUploadTable().getSelectedRow() == -1) {
+        if (getUploadTable().getSelectedRow() > -1) {
             pmenu.add(uploadPopupRemoveSelectedFiles);
         }
         pmenu.add(uploadPopupRemoveAllFiles);
         pmenu.addSeparator();
-        if (getUploadTable().getSelectedRow() == -1) {
+        if (getUploadTable().getSelectedRow() > -1) {
             pmenu.add(uploadPopupReloadSelectedFiles);
         }
         pmenu.add(uploadPopupReloadAllFiles);
         pmenu.addSeparator();
-        if (getUploadTable().getSelectedRow() == -1) {
+        if (getUploadTable().getSelectedRow() > -1) {
             pmenu.add(uploadPopupSetPrefixForSelectedFiles);
         }
         pmenu.add(uploadPopupSetPrefixForAllFiles);
         pmenu.addSeparator();
-        if (getUploadTable().getSelectedRow() == -1) {
+        if (getUploadTable().getSelectedRow() > -1) {
             pmenu.add(uploadPopupRestoreDefaultFilenamesForSelectedFiles);
         }
         pmenu.add(uploadPopupRestoreDefaultFilenamesForAllFiles);
         pmenu.addSeparator();
-        if (getUploadTable().getSelectedRow() == -1)
+        if (getUploadTable().getSelectedRow() > -1)
         {
             // Add boards to changeDestinationBoard submenu
             Vector boards = getTofTree().getAllBoards();
