@@ -7,7 +7,6 @@
 package frost.util.model;
 
 import java.util.*;
-import java.util.List;
 
 /**
  * This class is a Model that stores ModelItems in a certain order. That does not
@@ -30,6 +29,17 @@ public class OrderedModel extends Model {
 
 	}
 	
+	/* (non-Javadoc)
+	 * @see frost.util.Model#addItem(frost.util.ModelItem)
+	 */
+	protected void addItem(ModelItem item) {
+		synchronized(data) {
+			data.add(item);
+			fireItemAdded(item);
+		}
+		item.setModel(this);
+	}
+	
 	/**
 	 * Adds an OrderedModelListener to the listener list for a specific
 	 * field. 
@@ -49,6 +59,8 @@ public class OrderedModel extends Model {
 		changeSupport.addModelListener(fieldID, listener);
 	}
 	
+
+
 	/**
 	 * Adds an OrderedModelListener to the listener list. 
 	 * <p>
@@ -65,7 +77,23 @@ public class OrderedModel extends Model {
 		}
 		changeSupport.addModelListener(listener);
 	}
+
+	/* (non-Javadoc)
+	 * @see frost.util.model.Model#clear()
+	 */
+	public synchronized void clear() {
+		synchronized (data) {
+			Iterator iterator = data.iterator();
+			while (iterator.hasNext()) {
+				ModelItem item = (ModelItem) iterator.next();
+				item.setModel(null);
+			}
+			data.clear();
+			fireModelCleared();
+		}
+	}
 	
+
 	/**
 	 * @param item
 	 */
@@ -78,6 +106,8 @@ public class OrderedModel extends Model {
 	}
 	
 
+
+
 	/**
 	 * @param item
 	 */
@@ -89,6 +119,8 @@ public class OrderedModel extends Model {
 		changeSupport.fireItemChanged(item);
 	}
 	
+
+
 
 	/**
 	 * @param item
@@ -103,16 +135,19 @@ public class OrderedModel extends Model {
 	
 
 	/**
-	 * @param item
+	 * @param positions
+	 * @param items
 	 */
-	protected void fireItemRemoved(int position, ModelItem item) {
-		super.fireItemRemoved(item);
+	private void fireItemsRemoved(int[] positions, ModelItem[] items) {
+		super.fireItemsRemoved(items);
 		if (changeSupport == null) {
 			return;
 		}
-		changeSupport.fireItemRemoved(position, item);
+		changeSupport.fireItemsRemoved(positions, items);		
 	}
-	
+
+
+
 	/**
 	 * @param item
 	 */
@@ -122,52 +157,6 @@ public class OrderedModel extends Model {
 			return;
 		}
 		changeSupport.fireModelCleared();
-	}
-	
-
-
-	
-	/* (non-Javadoc)
-	 * @see frost.util.Model#addItem(frost.util.ModelItem)
-	 */
-	protected void addItem(ModelItem item) {
-		synchronized(data) {
-			data.add(item);
-			fireItemAdded(item);
-		}
-		item.setModel(this);
-	}
-
-	/* (non-Javadoc)
-	 * @see frost.util.Model#removeItem(frost.util.ModelItem)
-	 */
-	public void removeItem(ModelItem item) {
-		item.setModel(null);
-		synchronized(data) {
-			int position = data.indexOf(item);
-			if (position != -1) {
-				data.remove(position);
-				fireItemRemoved(position, item);
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see frost.util.Model#removeItems(frost.util.ModelItem)
-	 */
-	public void removeItems(ModelItem[] items) {
-		for (int i = 0; i < items.length; i++) {
-			items[i].setModel(null);
-		}
-		synchronized (data) {
-			for (int i = 0; i < items.length; i++) {
-				int position = data.indexOf(items[i]);
-				if (position != -1) {
-					data.remove(position);
-					fireItemRemoved(position, items[i]);
-				}
-			}
-		}
 	}
 
 	/**
@@ -198,17 +187,32 @@ public class OrderedModel extends Model {
 	}
 
 	/* (non-Javadoc)
-	 * @see frost.util.model.Model#clear()
+	 * @see frost.util.Model#removeItems(frost.util.ModelItem)
 	 */
-	public synchronized void clear() {
+	public void removeItems(ModelItem[] items) {
+		for (int i = 0; i < items.length; i++) {
+			items[i].setModel(null);
+		}
+		int[] removedPositions = new int[items.length];
+		ModelItem[] removedItems = new ModelItem[items.length];
+		int count = 0;
 		synchronized (data) {
-			Iterator iterator = data.iterator();
-			while (iterator.hasNext()) {
-				ModelItem item = (ModelItem) iterator.next();
-				item.setModel(null);
+			for (int i = 0; i < items.length; i++) {
+				int position = data.indexOf(items[i]);
+				if (position != -1) {
+					data.remove(position);
+					removedItems[count] = items[i];
+					removedPositions[count] = position;
+					count++;
+				}
 			}
-			data.clear();
-			fireModelCleared();
+		}
+		if (count != 0) {
+			int[] croppedPositions = new int[count];
+			ModelItem[] croppedItems = new ModelItem[count];
+			System.arraycopy(removedPositions, 0, croppedPositions, 0, count);
+			System.arraycopy(removedItems, 0, croppedItems, 0, count);
+			fireItemsRemoved(croppedPositions, croppedItems);
 		}
 	}
 
