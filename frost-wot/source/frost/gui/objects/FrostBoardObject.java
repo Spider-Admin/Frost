@@ -247,17 +247,20 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
         return false;
     }
 
-    public int compareTo(Object o)
-    {
-        if( o instanceof FrostBoardObject )
-        {
-            return this.toString().toLowerCase().compareTo( o.toString().toLowerCase() );
-        }
-        else
-        {
-            return 0;
-        }
-    }
+	public int compareTo(Object o) {
+		if (o instanceof FrostBoardObject) {
+			FrostBoardObject board = (FrostBoardObject) o;
+			if (board.isFolder() == isFolder()) {
+				//If both objects are of the same kind, sort by name
+				return toString().toLowerCase().compareTo(o.toString().toLowerCase());
+			} else {
+				//If they are of a different kind, the folder is first.
+				return isFolder() ? -1 : 1;
+			}
+		} else {
+			return 0;
+		}
+	}
 
     /**
      * Returns the String that is shown in tree.
