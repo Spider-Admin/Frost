@@ -23,7 +23,6 @@ package frost;
 import java.awt.*;
 import java.io.*;
 import java.util.*;
-import java.util.logging.Level;
 
 /**
  * Read settings from frost.ini and store them.
@@ -442,7 +441,7 @@ public class SettingsClass {
 		defaults.put("messageBodyAA", "false");
 		
 		defaults.put("logToFile", "true");
-		defaults.put("logLevel", new Integer(Level.WARNING.intValue()).toString());
+		defaults.put("logLevel", "Low");
 		defaults.put("logFileSizeLimit", "1000");
 
 		settingsHash.putAll(defaults);
