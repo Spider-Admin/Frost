@@ -492,7 +492,6 @@ public class DownloadPanel extends JPanel {
 			add(downloadTableScrollPane, BorderLayout.CENTER);
 
 			// listeners
-			downloadTable.addKeyListener(listener);
 			downloadTextField.addActionListener(listener);
 			downloadActivateCheckBox.addItemListener(listener);
 			downloadTableScrollPane.addMouseListener(listener);
