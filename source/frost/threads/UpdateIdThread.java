@@ -612,7 +612,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         String calculatedDigest = frame1.getCrypto().digest(_pubkey.trim()).trim();
         calculatedDigest = mixed.makeFilename( calculatedDigest ).trim();
         
-        if( ! given_digest.equals( calculatedDigest ) )
+        if( ! mixed.makeFilename(given_digest).equals( calculatedDigest ) )
         {
             Core.getOut().println("Warning: public key of sharer didn't match its digest:");
             Core.getOut().println("given digest :'" + given_digest+"'");

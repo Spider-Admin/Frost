@@ -2805,7 +2805,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					+ nextBoard.toString());
 		} else {
 			Core.getOut().println(
-				"*** Automatic board update - no board to update.");
+				"*** Automatic board update - min update interval not reached.  waiting...");
 		}
 		return nextBoard;
 	}

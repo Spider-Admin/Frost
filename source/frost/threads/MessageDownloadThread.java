@@ -331,7 +331,7 @@ public class MessageDownloadThread
                                 }
                                 catch (Exception ex)
                                 {
-                                    ex.printStackTrace();
+                                    ex.printStackTrace(Core.getOut());
                                     // TODO: file could not be read, mark it invalid not to confuse gui
                                     index++;
                                     continue;
