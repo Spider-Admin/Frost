@@ -46,7 +46,7 @@ import frost.threads.maintenance.*;
  * Class hold the more non-gui parts of frame1.java.
  */
 
-public class Core {
+public class Core implements Savable {
 	
 	private static Logger logger = Logger.getLogger(Core.class.getName());
 
@@ -64,7 +64,6 @@ public class Core {
 	private boolean freenetIsTransient = false;
 	
 	private Timer timer = new Timer(true);
-	private Saver saver = new Saver(this);
 
 	public static SettingsClass frostSettings = null;
 	static Hashtable myBatches = new Hashtable();
@@ -76,7 +75,7 @@ public class Core {
 	
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	
-private FrostIdentities identities;
+	private FrostIdentities identities;
 
 	private Core() {
 		
@@ -192,22 +191,19 @@ private FrostIdentities identities;
         	}
     }
     
-    public void saveHashes()
-    {
-        try {
-            synchronized( getMessageSet() )
-            {
-                File hashes = new File("hashes");
-                ObjectOutputStream oos =
-                    new ObjectOutputStream(new FileOutputStream(hashes));
-                oos.writeObject(Core.getMessageSet());
-            }
-        }
-        catch (Throwable t)
-        {
+	private boolean saveHashes() {
+		try {
+			synchronized (getMessageSet()) {
+				File hashes = new File("hashes");
+				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(hashes));
+				oos.writeObject(Core.getMessageSet());
+				return true;
+			}
+		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Exception thrown in saveHashes()", t);
-        }
-    }
+		}
+		return false;
+	}
     
     private void loadKnownBoards()
     {
@@ -295,68 +291,39 @@ private FrostIdentities identities;
         }
     }
     
-    public void saveKnownBoards()
-    {
-        Document doc = XMLTools.createDomDocument();
-        if( doc == null )
-        {
-            logger.severe("Error - saveBoardTree: factory could'nt create XML Document.");
-            return;
-        }
-        
-        Element rootElement = doc.createElement("FrostKnownBoards");
-        doc.appendChild(rootElement);
-        
-        synchronized( getKnownBoards() )
-        {
-            Iterator i = getKnownBoards().iterator();
-            while(i.hasNext())
-            {
-                BoardAttachment current = (BoardAttachment)i.next();
-                Element anAttachment = current.getXMLElement(doc);
-                rootElement.appendChild(anAttachment);
-            }
-        }
-        
-        boolean writeOK = false;
-        try {
-            writeOK = XMLTools.writeXmlFile(doc, "knownboards.xml");
-        }
-        catch(Throwable ex) {
+	public boolean saveKnownBoards() {
+		Document doc = XMLTools.createDomDocument();
+		if (doc == null) {
+			logger.severe("Error - saveBoardTree: factory could'nt create XML Document.");
+			return false;
+		}
+
+		Element rootElement = doc.createElement("FrostKnownBoards");
+		doc.appendChild(rootElement);
+
+		synchronized (getKnownBoards()) {
+			Iterator i = getKnownBoards().iterator();
+			while (i.hasNext()) {
+				BoardAttachment current = (BoardAttachment) i.next();
+				Element anAttachment = current.getXMLElement(doc);
+				rootElement.appendChild(anAttachment);
+			}
+		}
+
+		boolean writeOK = false;
+		try {
+			writeOK = XMLTools.writeXmlFile(doc, "knownboards.xml");
+		} catch (Throwable ex) {
 			logger.log(Level.SEVERE, "Exception while writing knownboards.xml:", ex);
-        }
-        if( !writeOK )
-        {
-            logger.severe("Error while writing knownboards.xml, file was not saved");
-        }
-        else
-        {
-            logger.info("Saved "+getKnownBoards().size()+" known boards.");
-        }            
-        
-/*        try {
-            StringBuffer buf = new StringBuffer();
-            synchronized( getKnownBoards() )
-            {
-                Iterator i = getKnownBoards().iterator();
-                while (i.hasNext())
-                {
-                    String current = (String)i.next();
-                    buf.append(current);
-                    if( i.hasNext() )
-                    {
-                        buf.append(":");
-                    }
-                }
-            }
-            File boards = new File("boards");
-            FileAccess.writeFile(buf.toString(), boards);
-        }
-        catch (Throwable t) {
-            t.printStackTrace(Core.getOut());
-        }
-*/        
-    }
+		}
+		if (!writeOK) {
+			logger.severe("Error while writing knownboards.xml, file was not saved");
+		} else {
+			logger.info("Saved " + getKnownBoards().size() + " known boards.");
+		}
+		return writeOK;
+		
+	}
     
     private void loadBatches()
     {
@@ -379,37 +346,31 @@ private FrostIdentities identities;
         	}
     }
     
-    public void saveBatches()
-    {
-        try {
-            StringBuffer buf = new StringBuffer();
-            synchronized( getMyBatches() )
-            {
-                Iterator i = getMyBatches().keySet().iterator();
-                while (i.hasNext())
-                {
-                    String current = (String)i.next();
-                    if (current.length() > 0)
-                    {
-                        buf.append(current);
-                        if( i.hasNext() )
-                        {
-                            buf.append("_");
-                        }
-                    }
-                    else
-                    {
-                        i.remove(); //make sure no empty batches are saved
-                    }
-                }
-            }
-            File batches = new File("batches");
-            FileAccess.writeFile(buf.toString(), batches);
-        }
-        catch (Throwable t) {
+	private boolean saveBatches() {
+		try {
+			StringBuffer buf = new StringBuffer();
+			synchronized (getMyBatches()) {
+				Iterator i = getMyBatches().keySet().iterator();
+				while (i.hasNext()) {
+					String current = (String) i.next();
+					if (current.length() > 0) {
+						buf.append(current);
+						if (i.hasNext()) {
+							buf.append("_");
+						}
+					} else {
+						i.remove(); //make sure no empty batches are saved
+					}
+				}
+			}
+			File batches = new File("batches");
+			FileAccess.writeFile(buf.toString(), batches);
+			return true;
+		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Exception thrown in saveBatches():", t);
-        }
-    }
+		}
+		return false;
+	}
     
 	public static crypt getCrypto() {
 		return crypto;
@@ -663,17 +624,20 @@ private FrostIdentities identities;
 		timer.schedule(cleaner, 30 * 60 * 1000, 30 * 60 * 1000);	//30 minutes
 
 		//We initialize the task that saves data
-		TimerTask autoSaver = new TimerTask() {
-			public void run() {
-				saver.autoSave();
-			}
-		};
-		int autoSaveIntervalMinutes = frostSettings.getIntValue("autoSaveInterval");
-		timer.schedule(
-			autoSaver,
-			autoSaveIntervalMinutes * 60 * 1000,
-			autoSaveIntervalMinutes * 60 * 1000);
-			
+		
+		Saver saver = new Saver(frostSettings);
+		saver.addAutoSavable(this);
+		saver.addAutoSavable(getIdentities());
+		saver.addAutoSavable(frame1.getInstance().getTofTree());
+		saver.addAutoSavable(frame1.getInstance().getDownloadTable());
+		saver.addAutoSavable(frame1.getInstance().getUploadTable());
+		saver.addExitSavable(this);
+		saver.addExitSavable(getIdentities());
+		saver.addExitSavable(frame1.getInstance().getTofTree());
+		saver.addExitSavable(frame1.getInstance().getDownloadTable());
+		saver.addExitSavable(frame1.getInstance().getUploadTable());
+		saver.addExitSavable(frostSettings);
+					
 		// We initialize the task that helps requests of friends
 		if (frostSettings.getBoolValue("helpFriends"))
 			timer.schedule(new GetFriendsRequestsThread(identities), 5 * 60 * 1000, 3 * 60 * 60 * 1000);
@@ -700,41 +664,52 @@ private FrostIdentities identities;
 		Core.locale = locale;
 	}
 
-/**
- * Initializes the skins system
- * @param frostSettings the SettingsClass that has the preferences to initialize the skins
- */
-private void initializeSkins() {
-	String skinsEnabled = frostSettings.getValue("skinsEnabled");
-	if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
-		String selectedSkinPath = frostSettings.getValue("selectedSkin");
-		if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
-			try {
-				Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
-				SkinLookAndFeel.setSkin(selectedSkin);
-				SkinLookAndFeel.enable();
-			} catch (UnsupportedLookAndFeelException exception) {
-				logger.severe("The selected skin is not supported by your system\n" +
-							  "Skins will be disabled until you choose another one");
-				frostSettings.setValue("skinsEnabled", false);
-			} catch (Exception exception) {
-				logger.severe("There was an error while loading the selected skin\n" +
-							  "Skins will be disabled until you choose another one");
-				frostSettings.setValue("skinsEnabled", false);
+	/**
+ 	 * Initializes the skins system
+ 	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
+ 	 */
+	private void initializeSkins() {
+		String skinsEnabled = frostSettings.getValue("skinsEnabled");
+		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
+			String selectedSkinPath = frostSettings.getValue("selectedSkin");
+			if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
+				try {
+					Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
+					SkinLookAndFeel.setSkin(selectedSkin);
+					SkinLookAndFeel.enable();
+				} catch (UnsupportedLookAndFeelException exception) {
+					logger.severe("The selected skin is not supported by your system\n" +
+							  	"Skins will be disabled until you choose another one");
+					frostSettings.setValue("skinsEnabled", false);
+				} catch (Exception exception) {
+					logger.severe("There was an error while loading the selected skin\n" +
+							  	"Skins will be disabled until you choose another one");
+					frostSettings.setValue("skinsEnabled", false);
+				}
 			}
 		}
 	}
-}
 
-/**
- * description
- * 
- * @return description
- */
-public FrostIdentities getIdentities() {
-	if (identities == null) {
-		identities = new FrostIdentities(languageResource);
+	/**
+ 	 * description
+ 	 * 
+ 	 * @return description
+ 	 */
+	public FrostIdentities getIdentities() {
+		if (identities == null) {
+			identities = new FrostIdentities(languageResource);
+		}
+		return identities;
 	}
-	return identities;
-}
+
+	/* (non-Javadoc)
+  	 * @see frost.threads.maintenance.Savable#save()
+ 	 */
+	public boolean save() {
+		boolean saveOK;
+		saveOK = saveBatches();
+		saveOK &= saveHashes();
+		saveOK &= saveKnownBoards();
+		return saveOK;		
+	}
 }
