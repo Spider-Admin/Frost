@@ -61,7 +61,18 @@ public class mixed
         catch (InterruptedException e)
         {}
     }
-
+    /**
+     * Makes sure that the string does not contain ]]> - the only 
+     * sequence that breaks CDATA, converts them to ___
+     * @param text the text to be checked
+     * @return the string with ]]> converted to ___
+     */
+public static String makeSafeXML(String text) {
+	int index;
+	while((index = text.indexOf("]]>")) !=-1) 
+		text = text.substring(0,index) + "___"+text.substring(index+3,text.length());
+	return text;
+}
     /**
      * Replaces characters that are not 0-9, a-z or in 'allowedCharacters'
      * with '_' and returns a lowerCase String
