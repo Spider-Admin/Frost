@@ -37,7 +37,7 @@ public class CheckForSpam extends TimerTask
                 if (current.getBlockedCount() > Core.frostSettings.getIntValue("spamTreshold"))
                 {
                     //board is spammed
-                    logger.warning("######### board '" + current.toString() + "' is spammed, update stops for 24h ############");
+                    logger.warning("######### board '" + current.getName() + "' is spammed, update stops for 24h ############");
                     current.setSpammed(true);
                     // clear spam status in 24 hours
                     Core.schedule(new ClearSpam(core, current),24*60*60*1000);

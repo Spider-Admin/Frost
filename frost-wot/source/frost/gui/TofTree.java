@@ -295,7 +295,7 @@ public class TofTree extends JDragTree implements Savable {
 		Enumeration e = node.depthFirstEnumeration();
 		while (e.hasMoreElements()) {
 			Board child = (Board) e.nextElement();
-			if (child.toString().compareToIgnoreCase(boardName) == 0) {
+			if (child.getName().compareToIgnoreCase(boardName) == 0) {
 				return child;
 			}
 		}

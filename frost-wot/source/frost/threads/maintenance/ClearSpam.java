@@ -24,7 +24,7 @@ class ClearSpam extends TimerTask
 	this.core = core; }
     public void run()
     {
-        logger.info("############ clearing spam status for board '"+clearMe.toString()+"' ###########");
+        logger.info("############ clearing spam status for board '"+clearMe.getName()+"' ###########");
         clearMe.setSpammed(false);
     }
 }

@@ -327,7 +327,7 @@ public class UploadPanel extends JPanel {
 					changeDestinationBoardMenu.removeAll();
 					for (int i = 0; i < boards.size(); i++) {
 						final Board aBoard = (Board) boards.elementAt(i);
-						JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
+						JMenuItem boardMenuItem = new JMenuItem(aBoard.getName());
 						changeDestinationBoardMenu.add(boardMenuItem);
 						// add all boards to menu + set action listener for each board menu item
 						boardMenuItem.addActionListener(new ActionListener() {
@@ -569,7 +569,7 @@ public class UploadPanel extends JPanel {
 		fc.setDialogTitle(
 			language.getString("Select files you want to upload to the")
 				+ " "
-				+ board.toString()
+				+ board.getName()
 				+ " "
 				+ language.getString("board")
 				+ ".");

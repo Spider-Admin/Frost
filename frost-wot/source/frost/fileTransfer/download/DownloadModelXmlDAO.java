@@ -203,7 +203,7 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 		// sourceboard
 		if (downloadItem.getSourceBoard() != null) {
 			element = doc.createElement("sourceboard");
-			text = doc.createTextNode(downloadItem.getSourceBoard().toString());
+			text = doc.createTextNode(downloadItem.getSourceBoard().getName());
 			element.appendChild(text);
 			itemElement.appendChild(element);
 		}

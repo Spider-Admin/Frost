@@ -160,7 +160,7 @@ public class TOF
                         public void run() {
                             // check if tof table shows this board
                             MainFrame.getInstance().updateTofTree(board);
-                            if( MainFrame.getInstance().getSelectedNode().toString().equals( board.toString() ) )
+                            if( MainFrame.getInstance().getSelectedNode().getName().equals( board.getName() ) )
                             {
                                 tableModel.addRow(message);
                                 MainFrame.getInstance().updateMessageCountLabels(board);
@@ -235,7 +235,7 @@ public class TOF
 
         public String toString()
         {
-            return board.toString();
+            return board.getName();
         }
 
         public void run()
@@ -268,7 +268,7 @@ public class TOF
                     public void run()
                     {
                         // check if tof table shows this board
-                        if( MainFrame.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
+                        if( MainFrame.getInstance().getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                         {
                             MessageTableModel model = (MessageTableModel)table.getModel();
                             model.clearDataModel();
@@ -343,7 +343,7 @@ public class TOF
                                         public void run()
                                         {
                                             // check if tof table shows this board
-                                            if( MainFrame.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
+                                            if( MainFrame.getInstance().getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                                             {
                                                 tableModel.addRow(finalMessage);
                                                 if(updateMessagesCountLabels)
@@ -377,7 +377,7 @@ public class TOF
                     public void run()
                     {
                         MainFrame.getInstance().updateTofTree(innerTargetBoard);
-                        if( MainFrame.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
+                        if( MainFrame.getInstance().getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                         {
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }

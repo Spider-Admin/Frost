@@ -749,7 +749,7 @@ public class MessageFrame extends JFrame
 					JOptionPane.showConfirmDialog(
 						this,
 						"You have the private key to "
-							+ board.toString()
+							+ board.getName()
 							+ ".  Are you sure you want it attached?\n "
 							+ "If you choose NO, only the public key will be attached.",
 						"Include private board key?",
@@ -960,7 +960,7 @@ public class MessageFrame extends JFrame
 				language);
 
 			TFboard.setEditable(false);
-			TFboard.setText(board.toString());
+			TFboard.setText(board.getName());
 			fromTextField.setText(from);
 
 			subjectTextField.setText(subject);
