@@ -36,6 +36,7 @@ import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.LocalIdentity;
 import frost.messages.*;
+import frost.util.gui.*;
 
 public class MessageFrame extends JFrame
 {
@@ -84,7 +85,7 @@ public class MessageFrame extends JFrame
     private JTextField fromTextField = new JTextField(); // From
     JTextField TFsubject = new JTextField(); // Subject
 
-    private MessageTextArea messageTextArea = new MessageTextArea(); // Text
+    private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
     private String oldSender = null;
 
@@ -667,7 +668,7 @@ public class MessageFrame extends JFrame
 		}
 		messageTextArea.setFont(tofFont);
 		messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
-		MessageDocument messageDocument = new MessageDocument();
+		ImmutableAreasDocument messageDocument = new ImmutableAreasDocument();
 		headerArea = new ImmutableArea(messageDocument);
 		messageDocument.addImmutableArea(headerArea);	//So that the user can't modify the header of the message
 		messageTextArea.setDocument(messageDocument);

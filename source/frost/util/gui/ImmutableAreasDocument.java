@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package frost.gui.components;
+package frost.util.gui;
 
 import java.util.*;
 import java.util.ArrayList;
@@ -18,7 +18,7 @@ import javax.swing.text.*;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class MessageDocument extends PlainDocument {
+public class ImmutableAreasDocument extends PlainDocument {
 
 	private ArrayList immutableAreas = new ArrayList();
 	private MessageFilter filter = new MessageFilter();
@@ -220,7 +220,7 @@ public class MessageDocument extends PlainDocument {
 	/**
 	 * 
 	 */
-	public MessageDocument() {
+	public ImmutableAreasDocument() {
 		super();
 		setDocumentFilter(filter);
 	}
@@ -242,7 +242,7 @@ public class MessageDocument extends PlainDocument {
 	/**
 	 * @param c
 	 */
-	public MessageDocument(Content c) {
+	public ImmutableAreasDocument(Content c) {
 		super(c);
 		setDocumentFilter(filter);
 	}

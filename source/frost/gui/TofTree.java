@@ -32,10 +32,10 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.gui.components.JDragTree;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.UpdatingLanguageResource;
 import frost.threads.maintenance.Savable;
+import frost.util.gui.JDragTree;
 
 public class TofTree extends JDragTree implements Savable {
 	

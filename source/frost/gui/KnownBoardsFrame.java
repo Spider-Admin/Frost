@@ -28,10 +28,10 @@ import javax.swing.event.*;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.BoardAttachment;
+import frost.util.gui.JSkinnablePopupMenu;
 
 public class KnownBoardsFrame extends JDialog
 {

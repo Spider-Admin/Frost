@@ -35,7 +35,6 @@ import frost.ext.JSysTrayIcon;
 import frost.fileTransfer.download.DownloadManager;
 import frost.fileTransfer.upload.UploadManager;
 import frost.gui.Splashscreen;
-import frost.gui.components.MiscToolkit;
 import frost.gui.objects.*;
 import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.FrostIdentities;
@@ -44,6 +43,7 @@ import frost.fileTransfer.search.SearchManager;
 import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.FlexibleObserver;
+import frost.util.gui.MiscToolkit;
 
 /**
  * Class hold the more non-gui parts of frame1.java.

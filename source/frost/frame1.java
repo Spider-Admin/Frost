@@ -48,6 +48,7 @@ import frost.messages.*;
 import frost.fileTransfer.search.FrostSearchItem;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
+import frost.util.gui.*;
 
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)
@@ -741,7 +742,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		private JButton updateButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
 
-		private MessageTextArea messageTextArea = null;
+		private AntialiasedTextArea messageTextArea = null;
 		private JSplitPane attachmentSplitPane = null;
 		private JSplitPane boardSplitPane = null;
 		private JTable attachmentTable = null;
@@ -998,7 +999,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				JScrollPane messageTableScrollPane = new JScrollPane(messageTable);
 
 				// build message content area (text, attached files and attached boards)
-				messageTextArea = new MessageTextArea();
+				messageTextArea = new AntialiasedTextArea();
 				messageTextArea.setEditable(false);
 				messageTextArea.setLineWrap(true);
 				messageTextArea.setWrapStyleWord(true);

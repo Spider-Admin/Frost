@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 
-import frost.gui.components.MiscToolkit;
+import frost.util.gui.MiscToolkit;
 
 public class Frost {
 
