@@ -161,7 +161,7 @@ public class TableXmlIO
             return null;
         }
 
-        // create FrostUploadItemObject
+        // create FrostUploadItem
         FrostUploadItem ulItem = new FrostUploadItem( filename,
                                                                   filepath,
                                                                   uploadFile.length(),
@@ -216,13 +216,13 @@ public class TableXmlIO
 
     protected static void appendDownloadTableItemToModel(Element dlItemElement, DownloadTableModel model)
     {
-        FrostDownloadItemObject dlObj = getDownloadItemFromElement( dlItemElement );
+        FrostDownloadItem dlObj = getDownloadItemFromElement( dlItemElement );
         if( dlObj == null )
             return;
         model.addRow( dlObj );
     }
 
-    protected static FrostDownloadItemObject getDownloadItemFromElement(Element dlItemElement)
+    protected static FrostDownloadItem getDownloadItemFromElement(Element dlItemElement)
     {
         String filename = XMLTools.getChildElementsCDATAValue(dlItemElement, "filename");
         String filesize = XMLTools.getChildElementsTextValue(dlItemElement, "filesize");
@@ -259,15 +259,15 @@ public class TableXmlIO
             // old format: states are saved in XML as LangRes Strings
             if( state.equals(LangRes.getString("Done")) == false )
             {
-                iState = FrostDownloadItemObject.STATE_WAITING;
+                iState = FrostDownloadItem.STATE_WAITING;
             }
         }
         else
         {
             // new format: states are saved in XML as numbers
-            if( iState != FrostDownloadItemObject.STATE_DONE )
+            if( iState != FrostDownloadItem.STATE_DONE )
             {
-                iState = FrostDownloadItemObject.STATE_WAITING;
+                iState = FrostDownloadItem.STATE_WAITING;
             }
         }
 
@@ -292,8 +292,8 @@ public class TableXmlIO
             }
         }
 
-        // create FrostDownloadItemObject
-        FrostDownloadItemObject dlItem = new FrostDownloadItemObject(filename,
+        // create FrostDownloadItem
+        FrostDownloadItem dlItem = new FrostDownloadItem(filename,
                                                                      filesize,
                                                                      fileage,
                                                                      key,
@@ -425,7 +425,7 @@ public class TableXmlIO
         // now add all items to itemsRoot
         for( int x=0; x<model.getRowCount(); x++ )
         {
-            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow( x );
+            FrostDownloadItem dlItem = (FrostDownloadItem)model.getRow( x );
             appendDownloadItemToDomTree( itemsRoot, dlItem, doc );
         }
 
@@ -442,7 +442,7 @@ public class TableXmlIO
         return writeOK;
     }
 
-    protected static void appendDownloadItemToDomTree( Element parent, FrostDownloadItemObject dlItem, Document doc )
+    protected static void appendDownloadItemToDomTree( Element parent, FrostDownloadItem dlItem, Document doc )
     {
         Element itemElement = doc.createElement("FrostDownloadTableItem");
         String isDownloadEnabled;

@@ -49,7 +49,7 @@ public class DownloadThread extends Thread {
 	private DownloadTable downloadTable;
 	private FrostBoardObject board;
 
-	private FrostDownloadItemObject downloadItem;
+	private FrostDownloadItem downloadItem;
 
 	public void run() {
 		// increase thread counter
@@ -68,7 +68,7 @@ public class DownloadThread extends Thread {
 			// request it by SHA1
 			if (key == null) {
 				logger.info("FILEDN: Requesting " + filename);
-				downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTING);
+				downloadItem.setState(FrostDownloadItem.STATE_REQUESTING);
 				tableModel.updateRow(downloadItem);
 
 				//request the file itself
@@ -78,7 +78,7 @@ public class DownloadThread extends Thread {
 				} catch (Throwable t) {
 					logger.log(Level.SEVERE, "FILEDN: Uploading request failed for " + filename, t);
 				}
-				downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTED);
+				downloadItem.setState(FrostDownloadItem.STATE_REQUESTED);
 				tableModel.updateRow(downloadItem);
 
 				downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
@@ -109,7 +109,7 @@ public class DownloadThread extends Thread {
 			// file might be erased from table during download...
 			boolean inTable = false;
 			for (int x = 0; x < tableModel.getRowCount(); x++) {
-				FrostDownloadItemObject actItem = (FrostDownloadItemObject) tableModel.getRow(x);
+				FrostDownloadItem actItem = (FrostDownloadItem) tableModel.getRow(x);
 				if (actItem.getKey() != null && actItem.getKey().equals(downloadItem.getKey())) {
 					inTable = true;
 					break;
@@ -132,7 +132,7 @@ public class DownloadThread extends Thread {
 						&& this.owner != null) // upload requests only if they are NOT manually added
 						{
 						logger.info("FILEDN: Download failed, uploading request for " + filename);
-						downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTING);
+						downloadItem.setState(FrostDownloadItem.STATE_REQUESTING);
 						tableModel.updateRow(downloadItem);
 
 						// We may not do the request here due to the synchronize
@@ -156,13 +156,13 @@ public class DownloadThread extends Thread {
 					if (downloadItem.getRetries()
 						> settings.getIntValue("downloadMaxRetries")) {
 						if (settings.getBoolValue("downloadRestartFailedDownloads")) {
-							downloadItem.setState(FrostDownloadItemObject.STATE_WAITING);
+							downloadItem.setState(FrostDownloadItem.STATE_WAITING);
 							downloadItem.setRetries(0);
 						} else {
-							downloadItem.setState(FrostDownloadItemObject.STATE_FAILED);
+							downloadItem.setState(FrostDownloadItem.STATE_FAILED);
 						}
 					} else {
-						downloadItem.setState(FrostDownloadItemObject.STATE_WAITING);
+						downloadItem.setState(FrostDownloadItem.STATE_WAITING);
 					}
 
 					tableModel.updateRow(downloadItem);
@@ -185,7 +185,7 @@ public class DownloadThread extends Thread {
 				}
 
 				downloadItem.setFileSize(newFile.length());
-				downloadItem.setState(FrostDownloadItemObject.STATE_DONE);
+				downloadItem.setState(FrostDownloadItem.STATE_DONE);
 				downloadItem.setEnableDownload(Boolean.valueOf(false));
 
 				logger.info("FILEDN: Download of " + filename + " was successful.");
@@ -432,7 +432,7 @@ public class DownloadThread extends Thread {
 	/**Constructor*/
 	public DownloadThread(
 		DownloadTicker newTicker,
-		FrostDownloadItemObject item,
+		FrostDownloadItem item,
 		DownloadTable table,
 		SettingsClass frostSettings) {
 

@@ -62,12 +62,12 @@ public class DownloadTable extends SortedTable implements Savable
     /**
      * Will add this item to table model if not already in model.
      */
-    public boolean addDownloadItem(FrostDownloadItemObject dlItem)
+    public boolean addDownloadItem(FrostDownloadItem dlItem)
     {
         DownloadTableModel model = (DownloadTableModel)getModel();
         for( int x=0; x<model.getRowCount(); x++ )
         {
-            FrostDownloadItemObject tableItem = (FrostDownloadItemObject)model.getRow(x);
+            FrostDownloadItem tableItem = (FrostDownloadItem)model.getRow(x);
             if( tableItem.getSHA1() != null && tableItem.getSHA1().equals( dlItem.getSHA1() ) &&
                 tableItem.getSourceBoard().toString().equals( dlItem.getSourceBoard().toString() )
               )
@@ -112,8 +112,8 @@ public class DownloadTable extends SortedTable implements Savable
         DownloadTableModel tableModel = (DownloadTableModel)getModel();
         for( int i = tableModel.getRowCount()  - 1; i >= 0; i-- )
         {
-            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)tableModel.getRow( i );
-            if( dlItem.getState() == FrostDownloadItemObject.STATE_DONE )
+            FrostDownloadItem dlItem = (FrostDownloadItem)tableModel.getRow( i );
+            if( dlItem.getState() == FrostDownloadItem.STATE_DONE )
             {
                 tableModel.deleteRow( dlItem );
             }
@@ -215,7 +215,7 @@ public class DownloadTable extends SortedTable implements Savable
         ArrayList oldChunkFilesList = new ArrayList( selectedRows.length + 1 );
         for( int i = 0; i < selectedRows.length; i++ )
         {
-            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)tableModel.getRow( selectedRows[i] );
+            FrostDownloadItem dlItem = (FrostDownloadItem)tableModel.getRow( selectedRows[i] );
             oldChunkFilesList.add( dlItem.getFileName() );
         }
 
@@ -291,13 +291,13 @@ public class DownloadTable extends SortedTable implements Savable
         int[] selectedRows = getSelectedRows();
         for( int x=selectedRows.length-1; x>=0; x-- )
         {
-            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
+            FrostDownloadItem dlItem = (FrostDownloadItem)dlModel.getRow( selectedRows[x] );
             // reset only waiting+failed items
-            if( dlItem.getState() == FrostDownloadItemObject.STATE_FAILED ||
-                dlItem.getState() == FrostDownloadItemObject.STATE_WAITING ||
-                dlItem.getState() == FrostDownloadItemObject.STATE_DONE )
+            if( dlItem.getState() == FrostDownloadItem.STATE_FAILED ||
+                dlItem.getState() == FrostDownloadItem.STATE_WAITING ||
+                dlItem.getState() == FrostDownloadItem.STATE_DONE )
             {
-                dlItem.setState( FrostDownloadItemObject.STATE_WAITING );
+                dlItem.setState( FrostDownloadItem.STATE_WAITING );
                 dlItem.setRetries(0);
                 dlItem.setLastDownloadStopTimeMillis(0);
                 dlItem.setEnableDownload( Boolean.valueOf(true) );  // enable download on restart
@@ -314,7 +314,7 @@ public class DownloadTable extends SortedTable implements Savable
         DownloadTableModel model = (DownloadTableModel)getModel();
         for( int x=0; x<model.getRowCount(); x++ )
         {
-            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
+            FrostDownloadItem dlItem = (FrostDownloadItem)model.getRow(x);
             if( dlItem.getSHA1() != null &&
                 dlItem.getSHA1().equals( key ) )
             {
@@ -333,8 +333,8 @@ public class DownloadTable extends SortedTable implements Savable
         {
             for( int x=0; x<model.getRowCount(); x++ )
             {
-                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
-                if( dlItem.getState() != FrostDownloadItemObject.STATE_DONE ) // do not enable finished if changing ALL
+                FrostDownloadItem dlItem = (FrostDownloadItem)model.getRow(x);
+                if( dlItem.getState() != FrostDownloadItem.STATE_DONE ) // do not enable finished if changing ALL
                 {
                     setDownloadEnabled( mode, dlItem );
                     model.updateRow( dlItem );
@@ -347,7 +347,7 @@ public class DownloadTable extends SortedTable implements Savable
             int[] selectedRows = getSelectedRows();
             for( int x=selectedRows.length-1; x>=0; x-- )
             {
-                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
+                FrostDownloadItem dlItem = (FrostDownloadItem)dlModel.getRow( selectedRows[x] );
                 setDownloadEnabled( mode, dlItem );
                 model.updateRow( dlItem );
             }
@@ -359,7 +359,7 @@ public class DownloadTable extends SortedTable implements Savable
      * mode 1 = set true
      * mode 2 = invert
      */
-    private void setDownloadEnabled(int mode, FrostDownloadItemObject dlItem)
+    private void setDownloadEnabled(int mode, FrostDownloadItem dlItem)
     {
         if( mode == 0 )
             dlItem.setEnableDownload( Boolean.valueOf(false) );

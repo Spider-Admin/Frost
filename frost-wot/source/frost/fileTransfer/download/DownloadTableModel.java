@@ -75,7 +75,7 @@ public class DownloadTableModel extends SortedTableModel implements LanguageList
 
     public void setValueAt(Object aValue, int row, int column)
     {
-        FrostDownloadItemObject dlItem = (FrostDownloadItemObject)getRow(row);
+        FrostDownloadItem dlItem = (FrostDownloadItem)getRow(row);
         dlItem.setEnableDownload( (Boolean)aValue );
     }
 

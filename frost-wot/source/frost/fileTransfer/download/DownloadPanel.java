@@ -229,8 +229,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			DownloadTableModel tableModel = (DownloadTableModel) downloadTable.getModel();
 			int selectedRow = downloadTable.getSelectedRow();
 			if (selectedRow > -1) {
-				FrostDownloadItemObject dlItem =
-					(FrostDownloadItemObject) tableModel.getRow(selectedRow);
+				FrostDownloadItem dlItem =
+					(FrostDownloadItem) tableModel.getRow(selectedRow);
 				String chkKey = dlItem.getKey();
 				String filename = dlItem.getFileName();
 				if (chkKey != null && filename != null) {
@@ -246,8 +246,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			DownloadTableModel tableModel = (DownloadTableModel) downloadTable.getModel();
 			int selectedRow = downloadTable.getSelectedRow();
 			if (selectedRow > -1) {
-				FrostDownloadItemObject dlItem =
-					(FrostDownloadItemObject) tableModel.getRow(selectedRow);
+				FrostDownloadItem dlItem =
+					(FrostDownloadItem) tableModel.getRow(selectedRow);
 				String chkKey = dlItem.getKey();
 				if (chkKey != null) {
 					mixed.setSystemClipboard(chkKey);
@@ -270,8 +270,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			if (downloadTable.getSelectedRowCount() == 1) {
 				// if 1 item is selected
-				FrostDownloadItemObject dlItem =
-					(FrostDownloadItemObject)
+				FrostDownloadItem dlItem =
+					(FrostDownloadItem)
 						((DownloadTableModel) downloadTable.getModel()).getRow(
 						downloadTable.getSelectedRow());
 				if (dlItem.getKey() != null) {
@@ -648,7 +648,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 					key = key.substring(0, key.indexOf("/"));
 
 				// add valid key to download table
-				FrostDownloadItemObject dlItem = new FrostDownloadItemObject(fileName, key, null);
+				FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key, null);
 				//users weren't happy with '_'
 				boolean isAdded = downloadTable.addDownloadItem(dlItem);
 
@@ -774,8 +774,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			return;
 
 		DownloadTableModel dlModel = (DownloadTableModel) downloadTable.getModel();
-		FrostDownloadItemObject dlItem =
-			(FrostDownloadItemObject) dlModel.getRow(downloadTable.getSelectedRow());
+		FrostDownloadItem dlItem =
+			(FrostDownloadItem) dlModel.getRow(downloadTable.getSelectedRow());
 		String execFilename =
 			new StringBuffer()
 				.append(System.getProperty("user.dir"))
