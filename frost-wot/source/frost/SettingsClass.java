@@ -59,17 +59,23 @@ public class SettingsClass
         settingsHash.put("unsent.dir", "localdata"+fs+"unsent"+fs);
     }
 
-    private String setSystemsFileSeparator(String origPath)
+    private String setSystemsFileSeparator(String path)
     {
         if( fs.equals("\\") )
         {
-            origPath = origPath.replace( '/', File.separatorChar );
+            path = path.replace( '/', File.separatorChar );
         }
         else if( fs.equals("/") )
         {
-            origPath = origPath.replace( '\\', File.separatorChar );
+            path = path.replace( '\\', File.separatorChar );
         }
-        return origPath;
+
+        // append fileseparator to end if needed
+        if( path.endsWith( fs ) == false )
+        {
+            path = path + fs;
+        }
+        return path;
     }
 
     public String getDefaultValue(String key)
@@ -179,12 +185,14 @@ public class SettingsClass
         catch( Exception e ) {
             e.printStackTrace();
         }
-        System.out.println("Read user configuration");
+
         if( this.getValue("messageBase").equals("") )
         {
             this.setValue("messageBase",  "news");
             //System.out.println("!!! set messageBase to default 'news' !!!");
         }
+
+        System.out.println("Read user configuration");
         return true;
     }
 
