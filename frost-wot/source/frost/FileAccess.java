@@ -233,10 +233,19 @@ public class FileAccess
     }
     public static String readZipFile(File file)
     {
+        byte[] content = readZipFileBinary( file );
+        if( content != null )
+        {
+            return new String(content);
+        }
+        return null;
+    }
+    
+    public static byte[] readZipFileBinary(File file)
+    {
         if( !file.isFile() || file.length() == 0 )
             return null;
 
-        StringBuffer sb = new StringBuffer();
         int bufferSize = 4096;
         try
         {
@@ -244,8 +253,11 @@ public class FileAccess
             ZipInputStream zis = new ZipInputStream(fis);
 
             try {
+                ArrayList chunks = new ArrayList();
+                ArrayList chunkLen = new ArrayList();
+                
                 zis.getNextEntry();
-                byte[] zipData = new byte[bufferSize];
+                byte[] zipData = null;
                 int len;
                 boolean bur = true; // Buffer underrun
                 int off = 0;
@@ -256,6 +268,7 @@ public class FileAccess
                     bur = true;
                     off = 0;
                     num = bufferSize;
+                    zipData = new byte[bufferSize];
                     while( bur && zis.available() == 1 )
                     {
                         len = zis.read(zipData, off, num);
@@ -265,14 +278,36 @@ public class FileAccess
                         else
                             num = num - len;
                     }
-                    sb.append(new String(zipData));
+                    // first add allo chunks and assemble them later
+                    chunks.add(zipData);
+                    chunkLen.add( new Integer(off));
                 }
                 fis.close();
                 zis.close();
+                // now put all chunks into 1 byte array
+                int overallLen = 0;
+                Iterator i = chunkLen.iterator();
+                while(i.hasNext())
+                {
+                    Integer aChunkLen = (Integer)i.next();
+                    overallLen += aChunkLen.intValue();
+                }
+                byte[] resultbytes = new byte[overallLen];
+                int actOffset = 0;
+                for(int x=0; x<chunks.size(); x++)
+                {
+                    byte[] aChunk = (byte[])chunks.get(x);
+                    Integer aChunkLen = (Integer)chunkLen.get(x);
+                    
+                    System.arraycopy(aChunk, 0, resultbytes, actOffset, aChunkLen.intValue());
+                    actOffset += aChunkLen.intValue();
+                }
+                
+                return resultbytes;
             }
             catch( IOException e ) {
                 e.printStackTrace(Core.getOut());
-                Core.getOut().println("offeding file saved as badfile.zip, send to a dev for analysis");
+                Core.getOut().println("offending file saved as badfile.zip, send to a dev for analysis");
                 File badFile = new File("badfile.zip");
                 file.renameTo(badFile);
             }
@@ -280,7 +315,7 @@ public class FileAccess
         catch( FileNotFoundException e ) {
             Core.getOut().println("files.readZipFile: " + e);
         }
-        return sb.toString();
+        return null;
     }
 
     /**

@@ -166,10 +166,10 @@ public class Identity implements XMLizable
 
         // try X times to get identity, its too important to not to try it ;)
         // will lower the amount of N/A messages because of non found keys
-        boolean wasOK = false;
+        FcpResults wasOK = null;
         int maxTries = 3;
         int tries = 0;
-        while( wasOK == false && tries < maxTries )
+        while( wasOK == null && tries < maxTries )
         {
             try {
                 wasOK = FcpRequest.getFile(keyaddress, null, new File(targetFile), 25, false);
@@ -179,7 +179,7 @@ public class Identity implements XMLizable
             tries++;
         }
 
-        if( wasOK )
+        if( wasOK != null )
         {
             key = FileAccess.read(targetFile);
             System.out.println("Identity: CHK received for " +name);
