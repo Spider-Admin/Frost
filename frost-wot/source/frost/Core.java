@@ -29,7 +29,7 @@ import org.w3c.dom.*;
 
 import com.l2fprod.gui.plaf.skin.*;
 
-import frost.FcpTools.*;
+import frost.fcpTools.*;
 import frost.crypt.*;
 import frost.ext.JSysTrayIcon;
 import frost.fileTransfer.download.DownloadManager;

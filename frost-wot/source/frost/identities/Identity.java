@@ -8,7 +8,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.FcpTools.FcpConnection;
+import frost.fcpTools.FcpConnection;
 import frost.messages.*;
 
 /**
