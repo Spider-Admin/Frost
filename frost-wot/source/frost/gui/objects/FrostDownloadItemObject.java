@@ -35,6 +35,9 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private String owner = null;
     private String SHA1 = null;
     private String batch = null;
+    
+    private String redirect;
+    
 
     private int state = 0;
 
@@ -57,8 +60,12 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         retries = new Integer(0);
 
         state = STATE_WAITING;
+        
+        redirect = searchItem.getRedirect();
+        
     }
 
+    //TODO: add .redirect to this or fix it to use SharedFileObject
     public FrostDownloadItemObject( String fileName, String key, FrostBoardObject board )
     {
         this.fileName = fileName;
@@ -296,5 +303,12 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         fileName = string;
     }
+
+	/**
+	 * @return Returns the redirect.
+	 */
+	public String getRedirect() {
+		return redirect;
+	}
 
 }

@@ -52,6 +52,9 @@ public abstract class RedirectFileObject extends SharedFileObject {
 		super();
 	}
 
+	
+	public abstract String getRedirect();
+	
 	public static SharedFileObject getRedirectInstance(Element e) throws SAXException{
 		assert e.getAttribute("redirect").length() > 0 &&
 		XMLTools.getChildElementsByTagName(e,"redirect").size() > 0: "element does not contain redirect";
