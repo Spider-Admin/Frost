@@ -31,25 +31,26 @@ import frost.gui.objects.*;
  * Downloads file requests
  */
  //TODO: VERY IMPORTANT:  this channel is very easily spammable.  We need a solution
-public class GetRequestsThread extends BoardUpdateThreadObject implements BoardUpdateThread
+ //SOLUTION: it will always run in the background, so I'm removing the accounting stuff
+public class GetRequestsThread extends Thread
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
-    public FrostBoardObject board;
+    //public FrostBoardObject board;
     private int downloadHtl;
     private String keypool;
     private String destination;
     private String fileSeparator = System.getProperty("file.separator");
     private JTable uploadTable;
 
-    public int getThreadType()
+    /*public int getThreadType()
     {
         return BoardUpdateThread.BOARD_FILE_UPLOAD;
-    }
+    }*/
 
     public void run()
     {
-        notifyThreadStarted(this);
+       // notifyThreadStarted(this);
         try {
 
         // Wait some random time to speed up the update of the TOF table
@@ -62,9 +63,13 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
 
         String dirdate = DateFun.getDate();
 
-        destination = new StringBuffer().append(keypool)
+        /*destination = new StringBuffer().append(keypool)
                         .append(board.getBoardFilename()).append(fileSeparator)
-                        .append(dirdate).append(fileSeparator).toString();
+                        .append(dirdate).append(fileSeparator).toString();*/
+	
+	//yes mister spammer, this is a special for you!
+	destination = new StringBuffer().append("requests")
+			.append(fileSeparator).append(frame1.getMyId().getUniqueName()).toString();
 
         File makedir = new File(destination);
         if( !makedir.exists() )
@@ -75,10 +80,15 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
 
         if( isInterrupted() )
         {
-            notifyThreadFinished(this);
+            //notifyThreadFinished(this);
             return;
         }
-
+	
+	//start the request loop
+	while (true) {
+	Iterator it = frame1.getMyBatches().keySet().iterator();
+	while (it.hasNext()) {
+	String currentBatch = (String)it.next();
         int index = 0;
         int failures = 0;
         int maxFailures = 3; // increased, skips now up to 3 request indicies (in case if gaps occured)
@@ -87,7 +97,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             String val = new StringBuffer().append(destination)
                                            .append(dirdate)
                                            .append("-")
-                                           .append(board.getBoardFilename())
+                                           .append(currentBatch)
                                            .append("-")
                                            .append(index)
                                            .append(".req.sha").toString();
@@ -168,19 +178,22 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
         }
 
         }
+	}} //people with nice ides can refactor :-P
         catch(Throwable t)
         {
             System.out.println(Thread.currentThread().getName()+": Oo. EXCEPTION in GetRequestsThread:");
             t.printStackTrace();
         }
-        notifyThreadFinished(this);
+	
+	
+        //notifyThreadFinished(this);
     }
 
     /**Constructor*/
     public GetRequestsThread(FrostBoardObject boa, int dlHtl, String kpool, JTable uploadTable)
     {
-        super(boa);
-        this.board = boa;
+        //super(boa);
+        //this.board = boa;
         this.downloadHtl = dlHtl;
         this.keypool = kpool;
         this.uploadTable = uploadTable;
