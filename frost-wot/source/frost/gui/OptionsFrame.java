@@ -113,9 +113,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField spamTreshold = new JTextField(5);
     JTextField tofBlockMessageBodyTextField = new JTextField(32);
 
-    JCheckBox CBdisableRequests = new JCheckBox("Disable uploads");
-    JCheckBox CBdisableDownloads = new JCheckBox("Disable downloads");
-    
+    JCheckBox uploadDisableRequests = new JCheckBox("Disable uploads");
+    JCheckBox downloadDisableDownloads = new JCheckBox("Disable downloads");
+
     JCheckBox signedOnly = new JCheckBox("Show only signed messages (off)");
     JCheckBox goodOnly = new JCheckBox("Show only GOOD messages (off)");
     JCheckBox block = new JCheckBox("Block message from/subject containing:");
@@ -287,6 +287,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.anchor = GridBagConstraints.WEST;
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0; constr.gridy = 0;
+
+            downloadDisableDownloads.addActionListener(new java.awt.event.ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        downloadDisableDownloads_actionPerformed(e);
+                    }
+                });
+            downloadPanel.add(downloadDisableDownloads, constr);
+
+            constr.gridy++;
+            constr.gridx = 0;
             downloadPanel.add(new JLabel(LangRes.getString("Download directory:")), constr);
             downloadDirectoryTextField.setEditable(true);
             constr.gridx = 1;
@@ -334,19 +346,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             downloadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + "(3)"), constr);
             constr.gridx = 1;
             downloadPanel.add(downloadSplitfileThreadsTextField, constr);
-	    //constr.gridx = 1;
-	    constr.gridy++;
-	    
-            
-            constr.gridx = 0;
-            downloadPanel.add(CBdisableDownloads, constr);
-            
+
             constr.gridy++;
             constr.gridx = 0;
             constr.gridwidth = 3;
             constr.insets = new Insets(5,5,5,5);
             downloadPanel.add(removeFinishedDownloadsCheckBox, constr);
-	    
+
             // filler (glue)
             constr.gridy++;
             constr.gridx = 3;
@@ -373,6 +379,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0;
             constr.gridy = 0;
+            uploadDisableRequests.addActionListener(new java.awt.event.ActionListener()
+                {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        uploadDisableRequests_actionPerformed(e);
+                    }
+                });
+            uploadPanel.add(uploadDisableRequests,constr);
+            constr.gridy++;
+            constr.gridx=0;
             uploadPanel.add(new JLabel(LangRes.getString("Upload HTL:") + "(8)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadHtlTextField, constr);
@@ -387,9 +403,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             uploadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + "(3)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadSplitfileThreadsTextField, constr);
-	    constr.gridy++;
-	    constr.gridx=0;
-	    uploadPanel.add(CBdisableRequests,constr);
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -440,7 +453,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             tofPanel.add(tofMessageBaseTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            
+
             tofPanel.add(new JLabel(LangRes.getString("Signature")), constr);
             constr.gridy++;
             constr.gridx = 0;
@@ -776,6 +789,53 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         cancel();
     }
 
+    private void downloadDisableDownloads_actionPerformed(ActionEvent e)
+    {
+        boolean enableComponents;
+        if( downloadDisableDownloads.isSelected() )
+        {
+            // downloads disabled
+            enableComponents = false;
+        }
+        else
+        {
+            // downloads enabled
+            enableComponents = true;
+        }
+        int componentCount = getDownloadPanel().getComponentCount();
+        for( int x=0; x<componentCount; x++ )
+        {
+            Component c = getDownloadPanel().getComponent(x);
+            if( c != downloadDisableDownloads )
+            {
+                c.setEnabled( enableComponents );
+            }
+        }
+    }
+    private void uploadDisableRequests_actionPerformed(ActionEvent e)
+    {
+        boolean enableComponents;
+        if( uploadDisableRequests.isSelected() )
+        {
+            // uploads disabled
+            enableComponents = false;
+        }
+        else
+        {
+            // uploads enabled
+            enableComponents = true;
+        }
+        int componentCount = getUploadPanel().getComponentCount();
+        for( int x=0; x<componentCount; x++ )
+        {
+            Component c = getUploadPanel().getComponent(x);
+            if( c != uploadDisableRequests )
+            {
+                c.setEnabled( enableComponents );
+            }
+        }
+    }
+
     /**
      * browseDownloadDirectoryButton Action Listener (Downloads / Browse)
      */
@@ -858,9 +918,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         searchExecutableExtensionTextField.setText(frostSettings.getValue("executableExtension"));
         searchArchiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
         cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
-        CBdisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
-	CBdisableDownloads.setSelected(frostSettings.getBoolValue("disableDownloads"));
-	
+        uploadDisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
+        downloadDisableDownloads.setSelected(frostSettings.getBoolValue("disableDownloads"));
+
         TFautomaticUpdate_concurrentBoardUpdates.setText(
             frostSettings.getValue("automaticUpdate.concurrentBoardUpdates") );
         TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
@@ -925,9 +985,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("goodOnly", goodOnly.isSelected());
         frostSettings.setValue("altEdit", miscAltEditTextField.getText());
         frostSettings.setValue("doCleanUp",cleanUP.isSelected());
-        frostSettings.setValue("disableRequests",CBdisableRequests.isSelected());
-	frostSettings.setValue("disableDownloads",CBdisableDownloads.isSelected());
-	
+        frostSettings.setValue("disableRequests",uploadDisableRequests.isSelected());
+        frostSettings.setValue("disableDownloads",downloadDisableDownloads.isSelected());
+
         frostSettings.setValue("automaticUpdate.concurrentBoardUpdates",
                                TFautomaticUpdate_concurrentBoardUpdates.getText());
         frostSettings.setValue("automaticUpdate.boardsMinimumUpdateInterval",
@@ -1017,6 +1077,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         }
         // set initial selection (also sets panel)
         optionsGroupsList.setSelectedIndex(0);
+        // enable or disable components
+        uploadDisableRequests_actionPerformed(null);
+        downloadDisableDownloads_actionPerformed(null);
         // final layouting
         pack();
         // center dialog on parent
