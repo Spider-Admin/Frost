@@ -406,7 +406,9 @@ static final Object[][] contents = {
 	/// BoardSettingsFrame
 	///
 	
-	  {"BoardSettingsFrame.description","Descripción:"},
+	{"BoardSettingsFrame.description","Descripción:"},
+	{"BoardSettingsFrame.confirmTitle","¿Cambiar el Foro a Público?"},
+	{"BoardSettingsFrame.confirmBody","Si cambias este foro a público perderás sus claves. ¿Estás seguro que de quieres hacerlo?:"},
 	
 	///
 	/// Misc (appear in several classes)
