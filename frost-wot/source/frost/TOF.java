@@ -412,24 +412,51 @@ public class TOF
         return false;
     }
 
-    public static void initialSearchNewMessages(JTree tree)
+    public static void initialSearchNewMessages()
     {
-        DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
-        Enumeration e = ((DefaultMutableTreeNode)model.getRoot()).depthFirstEnumeration();
-        String keypool = frame1.keypool;
-        while( e.hasMoreElements() )
+        new SearchAllNewMessages().start();
+    }
+
+    private static class SearchAllNewMessages extends Thread
+    {
+        public void run()
         {
-            FrostBoardObject board = (FrostBoardObject)e.nextElement();
-            initialSearchNewMessages(tree,board);
+            JTree tree = frame1.getInstance().getTofTree();
+            DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
+            Enumeration e = ((DefaultMutableTreeNode)model.getRoot()).depthFirstEnumeration();
+            String keypool = frame1.keypool;
+            while( e.hasMoreElements() )
+            {
+                FrostBoardObject board = (FrostBoardObject)e.nextElement();
+                searchNewMessages(tree, board);
+            }
         }
     }
 
-    public static void initialSearchNewMessages(JTree tree, final FrostBoardObject board)
+    public static void initialSearchNewMessages(FrostBoardObject board)
+    {
+        new SearchNewMessages( board );
+    }
+
+    private static class SearchNewMessages extends Thread
+    {
+        FrostBoardObject board;
+        public SearchNewMessages(FrostBoardObject b)
+        {
+            board = b;
+        }
+        public void run()
+        {
+            searchNewMessages( frame1.getInstance().getTofTree(), board );
+        }
+    }
+
+    private static void searchNewMessages(JTree tree, final FrostBoardObject board)
     {
         String keypool = frame1.keypool;
         int daysToRead = board.getMaxMessageDisplay();
 
-        board.setNewMessageCount( 0 ); // reset count
+        int beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
 
         if( board.isFolder() == true )
             return;
@@ -447,10 +474,10 @@ public class TOF
         firstDate.set(Calendar.YEAR, 2001);
         firstDate.set(Calendar.MONTH, 5);
         firstDate.set(Calendar.DATE, 11);
-        int msgcount=0;
-        int counter = 0;
+        int dayCounter = 0;
+        int newMessages = 0;
 
-        while( cal.after(firstDate) && counter < daysToRead )
+        while( cal.after(firstDate) && dayCounter < daysToRead )
         {
             String date = DateFun.getDateOfCalendar(cal);
             File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).append(fileSeparator)
@@ -490,7 +517,7 @@ public class TOF
                             if( message.isValid() && !blocked(message,board) )
                             {
                                 // update the node that contains new messages
-                                board.incNewMessageCount();
+                                newMessages++;
                             }
                             else
                             {
@@ -501,9 +528,16 @@ public class TOF
                     }
                 }
             }
-            counter++;
+            dayCounter++;
             cal.add(Calendar.DATE, -1); // process previous day
         }
+        // count new messages arrived while processing
+        int arrivedMessages = board.getNewMessageCount() - beforeMessages;
+        if( arrivedMessages > 0 )
+            newMessages += arrivedMessages;
+
+        board.setNewMessageCount(newMessages);
+
         // now a board is finished, update the tree
         SwingUtilities.invokeLater( new Runnable() {
                public void run()

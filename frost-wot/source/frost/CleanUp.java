@@ -14,14 +14,13 @@ import java.util.*;
 public class CleanUp {
 
    private String folder;
-   private int daysOld;
 
    /**
     * @param Folder Folder for cleaning
     * @param DaysOld Days of files to keep
     */
-   public CleanUp(String Folder, int DaysOld) {
-    this(Folder, DaysOld, false);
+   public CleanUp(String Folder) {
+    this(Folder, false);
    }
 
    /**
@@ -29,9 +28,8 @@ public class CleanUp {
     * @param DaysOld Days of files to keep
     * @param goNow Clean immediately
     */
-   public CleanUp(String Folder, int DaysOld, boolean goNow) {
+   public CleanUp(String Folder, boolean goNow) {
     folder = Folder;
-    daysOld = DaysOld;
     if (goNow) {
         doCleanup();
     }
@@ -67,8 +65,6 @@ public class CleanUp {
       } else
       processItem(dirItem);
       list=null;
-   //   vd=null;
- //     vf=null;
     }
 
    /**
@@ -76,6 +72,7 @@ public class CleanUp {
     */
     private void processItem(String dirItem)
     {
+        int daysOld = frame1.frostSettings.getIntValue("maxMessageDisplay")+1;
         File f = new File(dirItem);
         long expiration = new Date().getTime() - (daysOld * 24 * 60 * 60 * 1000);
         if (f.lastModified() < expiration || f.isDirectory() && !f.getName().endsWith(".key"))
