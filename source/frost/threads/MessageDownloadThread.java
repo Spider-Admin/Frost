@@ -23,6 +23,7 @@ import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
+import java.text.*;
 
 import frost.*;
 import frost.identities.*;
@@ -149,18 +150,68 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         return false;
     }
 
-    private void verify()
+    private void verify(GregorianCalendar dirDate)
     {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
+
         System.out.println("TOFDN: ****** Verifying incoming message ******");
         try { // if something fails here, set msg. to N/A (maybe harmful message)
 
             // TODO:
             // first check for valid date:
-            // USE: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'  _AND_
-            // USE:  date in message  ( date=2003.6.9 ; time=09:32:31GMT )
+            // USE: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'   = given value 'dirDate'
+            // USE:  date in message  ( date=2003.6.9 ; time=09:32:31GMT )              = extracted from message
             //
             // - if date in msg. is greater than in url (in days), set msg. date the url date+put txt that it was changed into msg.
             // - if date in msg. is smaller than url date, replace with url date (allow 2 days difference)
+            String msgDateStr = currentMsg.getDate();
+            Date msgDateTmp = null;
+            try {
+                msgDateTmp = dateFormat.parse( msgDateStr );
+            } catch(Exception ex) { }
+            if( msgDateTmp == null )
+            {
+                System.out.println("TOFDN: Invalid date string found, will discard message: "+msgDateStr);
+                currentMsg.setDate(""); // -> leads to isValid()==false + msg. file is written with content = "Empty"
+                return;
+            }
+            GregorianCalendar msgDate = new GregorianCalendar();
+            msgDate.setTime(msgDateTmp);
+            // set both dates to same time to allow computing millis
+            msgDate.set(Calendar.HOUR_OF_DAY, 1);
+            msgDate.set(Calendar.MINUTE, 0);
+            msgDate.set(Calendar.SECOND, 0);
+            msgDate.set(Calendar.MILLISECOND, 0);
+            dirDate.set(Calendar.HOUR_OF_DAY, 1);
+            dirDate.set(Calendar.MINUTE, 0);
+            dirDate.set(Calendar.SECOND, 0);
+            dirDate.set(Calendar.MILLISECOND, 0);
+            long dirMillis = dirDate.getTimeInMillis();
+            long msgMillis = msgDate.getTimeInMillis();
+            // compute difference dir - msg
+            long ONE_DAY = (1000 * 60 * 60 * 24);
+            int diffDays = (int)((dirMillis - msgMillis) / ONE_DAY);
+            // now compare dirDate and msgDate using above rules
+            if( Math.abs(diffDays) < 1 )
+            {
+                // message is of this day (less than 1 day difference)
+                // msg is OK, do nothing here
+            }
+            else
+            if( diffDays < 0 )
+            {
+                // msgDate is later than dirDate
+                System.out.println("TOFDN: Date in message is later than date in URL, will discard message: "+msgDateStr);
+                currentMsg.setDate(""); // -> leads to isValid()==false + msg. file is written with content = "Empty"
+                return;
+            }
+            else if( diffDays > 1 ) // more than 1 day older
+            {
+                // dirDate is later than msgDate
+                System.out.println("TOFDN: Date in message is earlier than date in URL, will discard message: "+msgDateStr);
+                currentMsg.setDate(""); // -> leads to isValid()==false + msg. file is written with content = "Empty"
+                return;
+            }
 
             if( (currentMsg.getKeyAddress() == "none") || (currentMsg.getFrom().indexOf("@") == -1) )
             {
@@ -334,11 +385,16 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             currentMsg.getSubject().indexOf(frame1.getMyId().getName()) == -1 )
                         {
                             System.out.println("TOFDN: Message is encrypted for someone else.");
+                            // need to be deleted, because later there will be no check for encrypted msg. if messages are loaded into table
+                            // TODO: implement later check for enc. msg and not delete the file here,
+                            // because we download it again and again ...
                             testMe.delete();
                             index++;
                             continue;
                         }
-                        verify();
+                        // verify the message
+                        verify( calDL );
+
                         File sig = new File(testMe.getPath() + ".sig");
 
                         // Is this a valid message?
