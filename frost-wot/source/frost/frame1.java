@@ -752,7 +752,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				new UploadTableModel(languageResource);
 			uploadTable = new UploadTable(uploadTableModel);
 			languageResource.addLanguageListener(uploadTableModel);
-			uploadTableModel.addTableModelListener(uploadTable);
 		}
 		return uploadTable;
 	}
@@ -779,7 +778,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			SearchTableModel searchTableModel = new SearchTableModel(languageResource);
 			searchTable = new SearchTable(searchTableModel);
 			languageResource.addLanguageListener(searchTableModel);
-			searchTableModel.addTableModelListener(searchTable);
 		}
 		return searchTable;
 	}
@@ -805,7 +803,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				new DownloadTableModel(languageResource);
 			downloadTable = new DownloadTable(downloadTableModel);
 			languageResource.addLanguageListener(downloadTableModel);
-			downloadTableModel.addTableModelListener(downloadTable);
 		}
 		return downloadTable;
 	}
