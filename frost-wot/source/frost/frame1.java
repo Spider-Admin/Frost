@@ -1099,6 +1099,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		splashscreen.setProgress(20);
 
 		keypool = frostSettings.getValue("keypool.dir");
+		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
 		splashscreen.setText(languageResource.getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(50);
@@ -1928,7 +1929,22 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		        Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayKill.exe");
 		    }catch(IOException _IoExc) { }*/
 
-		System.exit(0);
+		if (getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
+			int result =
+				JOptionPane.showConfirmDialog(
+					this,
+						  "If you exit now, some of the messages\n"
+						+ "that you are uploading may appear duplicated.\n"
+						+ "Do you want to exit anyway?",
+					"Uploads underway",
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+			if (result == JOptionPane.YES_OPTION) {
+				System.exit(0);
+			}
+		} else {
+			System.exit(0);
+		}
 	}
 	public JTable getAttachedBoardsTable() {
 		return boardTable;
