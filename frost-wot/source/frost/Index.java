@@ -82,9 +82,11 @@ public class Index
 
 
         
-        
+        boolean reSharing = false;
+        boolean newFiles = false;
         
         FrostIndex totalIdx=null;
+        FrostIndex _toUpload = null;
         
         Core.getOut().println("Index.getUploadKeys(" + board + ")");
         
@@ -101,14 +103,22 @@ public class Index
         if (boardFiles.exists())
         {
             totalIdx = FileAccess.readKeyFile(boardFiles);
-        }
+        } else totalIdx = new FrostIndex(new HashMap());
 
-		FrostIndex _toUpload =FileAccess.readKeyFile(boardNewUploads); 
-        Map toUpload = _toUpload!=null ? _toUpload.getFilesMap() : new HashMap();
+		if (boardNewUploads.exists()) {
+		
+			 _toUpload =FileAccess.readKeyFile(boardNewUploads);
+			 newFiles = true;
+			 boardNewUploads.delete();
+		}
+		else
+			_toUpload = new FrostIndex(new HashMap());
+			 
+        Map toUpload = _toUpload.getFilesMap();
 		
         //add friends's files 
         // TODO:  add a limit
-        if (totalIdx==null) totalIdx = new FrostIndex(new HashMap());
+        
         Iterator i = totalIdx.getFiles().iterator();
         int downloadBack =
             frame1.frostSettings.getIntValue("maxMessageDownload");
@@ -151,44 +161,20 @@ public class Index
                     current.setLastSharedDate(DateFun.getDate());
                     toUpload.put(current.getSHA1(),current);
                     Core.getOut().print("d");
+                    reSharing=true;
                     //d means it was shared too long ago
                 }
             }
         }
 
         //update the lastSharedDate of the shared files
-        FileAccess.writeKeyFile(totalIdx, board);
+        if (reSharing)
+        	FileAccess.writeKeyFile(totalIdx, board);
         
-        
-        
 
-        //StringBuffer keyFile = new StringBuffer();
-        //	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
-        int keyCount = 0;
-
-  
-
-        synchronized (toUpload)
-        {
-            Iterator j = toUpload.values().iterator();
-            while (j.hasNext())
-            {
-                SharedFileObject current = (SharedFileObject)j.next();
-                boolean my =
-                    current.getOwner() != null
-                        && frame1.getMyId().getUniqueName().compareTo(
-                            current.getOwner())
-                            == 0;
-
-                if (my)
-                {
-                    keyCount++;
-                }
-
-
-            }
-        }
-        if (keyCount > 0)
+		//return anything only if we either re-shared old files or
+		//have new files to upload.
+        if (reSharing || newFiles)
             return toUpload;
         else
             return null;
