@@ -181,8 +181,8 @@ public class SearchThread extends Thread {
      Iterator it = results.iterator();
      while (it.hasNext()) {
      	KeyClass key = (KeyClass)it.next();
-	if (key.getOwner() == null || 
-		(key.getOwner()!=null && key.getOwner().compareToIgnoreCase("anonymous")==0) &&
+	if ((key.getOwner() == null || 
+		key.getOwner()!=null && key.getOwner().compareToIgnoreCase("anonymous")==0) &&
 		hideAnon) {
 		it.remove();
 		continue;
