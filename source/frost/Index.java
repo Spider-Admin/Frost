@@ -239,6 +239,9 @@ public class Index
         final String fileSeparator = System.getProperty("file.separator");
         final String hash = key.getSHA1();
 	
+	if (key.getKey() != null)
+		updateDownloadTable(key);
+	
 	//I'm removing the entire first letter thing.  
 	//String firstLetter = ")";
 	//if (key.getKey() != null)
@@ -305,6 +308,11 @@ public class Index
         Iterator i = chunk.values().iterator();
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass)i.next();
+		
+		//update the download table
+		if (current.getKey() !=null)
+			updateDownloadTable(current);
+		
 		KeyClass old = (KeyClass)whole.get(current.getSHA1());
 		
 		if (old == null) {
