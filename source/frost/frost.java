@@ -20,8 +20,6 @@ package frost;
 
 import java.awt.Dimension;
 import java.awt.Toolkit;
-import com.l2fprod.gui.plaf.skin.*;
-//import com.l2fprod.*;
 
 import javax.swing.UIManager;
 
@@ -140,16 +138,7 @@ public class frost
         }
 
         try {
-			
-					System.out.println("Testing skins! ");
-					SkinLookAndFeel.setSkin(SkinLookAndFeel.loadThemePack("xplunathemepack.zip"));
-					SkinLookAndFeel.enable();
-					//LinuxLookAndFeel.enable();
-			
-					//System.out.println("Agh! " + exception.getMessage());
-					//System.exit(1);
-			
-            //UIManager.setLookAndFeel(lookAndFeel);
+            UIManager.setLookAndFeel(lookAndFeel);
         }
         catch( Exception e ) {
 	    System.out.println(e.getMessage());
