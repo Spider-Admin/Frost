@@ -67,7 +67,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		private JMenuItem pasteNodeItem = new JMenuItem(getScaledImage("/data/paste.gif"));
 		private JMenuItem configureBoardItem = new JMenuItem(getScaledImage("/data/configure.gif"));
 		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem sortFolderItem = new JMenuItem();
+		private JMenuItem sortFolderItem = new JMenuItem(getScaledImage("/data/sort.gif"));
 		
 		private FrostBoardObject selectedTreeNode = null;
 
