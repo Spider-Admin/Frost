@@ -1,7 +1,0 @@
-- Funktion um Keypool aufzuräumen
-- Button um Message Filter an/ab zuschalten
-- Hilfetext mit in Jar File packen
-- Alle Board in einem Folder updaten, falls dieser ausgewählt ist
-- Im Browser Dateien speichern können (popup menu)
-
-
