@@ -56,10 +56,11 @@ public class HelpFrame extends JFrame {
     // Configure objects
     //------------------------------------------------------------------------
 
-this.setIconImage(Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
-    this.setTitle("Help frame");
-    this.setSize(new Dimension(600, 500));
-    this.setResizable(true);
+    ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
+	setIconImage(frameIcon.getImage());
+    setTitle("Help frame");
+    setSize(new Dimension(600, 500));
+    setResizable(true);
 
     textArea.setLineWrap(true);
     textArea.setWrapStyleWord(true);

@@ -13,6 +13,8 @@ Changed: skinlf updated to 1.2.10
          
 Bugfix: some information was being saved duplicated on the identities.xml file.
 Bugfix: with Java 1.5 Frost was failing to start from time to time (deadlock when showing the main frame).
+Bugfix: Images that were created with Toolkit.getDefaultToolkit().createImage and were not being checked 
+        with a MediaTracker could cause problems. Now replaced by ImageIcon.
 
 **************************************************************************************************
 

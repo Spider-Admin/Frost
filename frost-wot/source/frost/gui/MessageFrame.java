@@ -765,7 +765,8 @@ public class MessageFrame extends JFrame
 			refreshLanguage();
 			languageResource.addLanguageListener(listener);
 
-			setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/data/newmessage.gif")));
+			ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/newmessage.gif"));
+			setIconImage(frameIcon.getImage());
 			setResizable(true);
 
 			boardsTableModel = new MFAttachedBoardsTableModel();
