@@ -12,13 +12,13 @@ import org.xml.sax.*;
  */
 public class XMLTools {
 
-/** 
+/**
  *Parses an XML file and returns a DOM document.
  * If validating is true, the contents is validated against the DTD
  * specified in the file.
  */
 public static Document parseXmlFile(String filename, boolean validating)
-	throws IllegalArgumentException
+    throws IllegalArgumentException
     {
         try {
             // Create a builder factory
@@ -30,23 +30,29 @@ public static Document parseXmlFile(String filename, boolean validating)
             return doc;
         } catch (SAXException e) {
             // A parsing error occurred; the xml input is not valid
-	    throw new IllegalArgumentException();
+        throw new IllegalArgumentException();
         } catch (ParserConfigurationException e) {
         } catch (IOException e) {
         }
         return null;
-    }	
-    
+    }
+
     /**
      * gets a true or false attribute from an element
      */
-     public static boolean getBoolValue(Element el, String attr) {
-     	String res = el.getAttribute(attr);
-	if (res == null || res.toLowerCase().equals("true") == false )
-		return false;
-	return true;
+     public static boolean getBoolValueFromAttribute(Element el, String attr, boolean defaultVal)
+     {
+        String res = el.getAttribute(attr);
+
+        if (res == null )
+            return defaultVal;
+
+        if( res.toLowerCase().equals("true") == true )
+            return true;
+        else
+            return true;
      }
-     
+
      /**
      * Returns a list containing all Elements of this parent with given tag name.
      */
