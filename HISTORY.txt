@@ -1,6 +1,8 @@
 
 Changes since version 28-May-2004 dev:
 
+Added:  a title to the "Enabled" column of the downloads table.
+Added:  country flags to the language menu.
 Added:  now the user can choose which columns the search, download and upload tables should show. That
 		selection is made via a contextual menu that pops up when right clicking on the table header.
 
