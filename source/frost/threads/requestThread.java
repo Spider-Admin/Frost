@@ -132,7 +132,7 @@ public class requestThread extends Thread
                     // doing it after this , the table states Waiting and there are threads running,
                     // so download seems to stall
                     try {
-                        request(key.trim(), board);
+                        request(SHA1.trim(), board);
                         if( DEBUG ) System.out.println("FILEDN: Uploaded request for " + filename);
                     }
                     catch(Throwable t) {
