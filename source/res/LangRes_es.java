@@ -245,6 +245,7 @@ static final Object[][] contents = {
 {"Sign shared files","Firma ficheros compartidos"},
 {"Signature","Firma"},
 {"Size","Tamaño"},
+{"Sort folder", "Ordena carpeta"},
 {"Source","Origen"},
 {"Spanish","Español"},
 {"set to neutral (CHECK)","marca como neutral (COMPROBAR)"},
