@@ -116,9 +116,17 @@ public class FileAccess
 		KeyClass newKey = new KeyClass();
 		
 		//extract the values
+		try {
 		newKey.setFilename(XMLTools.getChildElementsCDATAValue(current, "name"));
-		newKey.setOwner(XMLTools.getChildElementsTextValue(current, "owner"));
 		newKey.setSHA1(XMLTools.getChildElementsCDATAValue(current, "SHA1"));
+		}catch (ClassCastException e) {
+			System.out.println("received an index from early beta. grr");
+			newKey.setSHA1(XMLTools.getChildElementsTextValue(current, "SHA1"));
+			newKey.setFilename(XMLTools.getChildElementsTextValue(current, "name"));
+			
+		}
+		newKey.setOwner(XMLTools.getChildElementsTextValue(current, "owner"));
+		
 		newKey.setKey(XMLTools.getChildElementsTextValue(current, "key"));
 		newKey.setDate(XMLTools.getChildElementsTextValue(current, "date"));
 		newKey.setSize(XMLTools.getChildElementsTextValue(current, "size"));
