@@ -106,6 +106,7 @@ public class LangRes extends ListResourceBundle {
 	{"French", "French"},
 	{"Italian", "Italian"},
 	{"Spanish", "Spanish"},
+	{"Bulgarian","Bulgarian"},
 		
 	// Menu Help
     {"Help", "Help"},

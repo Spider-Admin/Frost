@@ -1917,6 +1917,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		JMenuItem languageItalianMenuItem = new JMenuItem(languageResource.getString("Italian"));
 		JMenuItem languageJapaneseMenuItem = new JMenuItem(languageResource.getString("Japanese"));
 		JMenuItem languageSpanishMenuItem = new JMenuItem(languageResource.getString("Spanish"));
+		JMenuItem languageBulgarianMenuItem = new JMenuItem(languageResource.getString("Bulgarian"));
 		
 		//Help Menu
 		JMenu helpMenu = new JMenu(languageResource.getString("Help"));
@@ -2042,6 +2043,15 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setLanguageResource(bundle);
 			}
 		});
+		languageBulgarianMenuItem.addActionListener(new ActionListener() {
+					public void actionPerformed(ActionEvent e) {
+						java.util.ResourceBundle bundle =
+							java.util.ResourceBundle.getBundle(
+									"res.LangRes",
+									new Locale("bg"));
+						setLanguageResource(bundle);
+					}
+				});
 		helpHelpMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				HelpFrame dlg = new HelpFrame(getInstance());
@@ -2080,6 +2090,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		languageMenu.add(languageItalianMenuItem);	
 		languageMenu.add(languageJapaneseMenuItem);	
 		languageMenu.add(languageSpanishMenuItem);		
+		languageMenu.add(languageBulgarianMenuItem);
 		// Help Menu
 		helpMenu.add(helpHelpMenuItem);
 		helpMenu.add(helpAboutMenuItem);
