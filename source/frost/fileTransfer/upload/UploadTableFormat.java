@@ -6,7 +6,7 @@
  */
 package frost.fileTransfer.upload;
 
-import java.awt.Component;
+import java.awt.*;
 import java.util.Comparator;
 
 import javax.swing.*;
@@ -23,6 +23,46 @@ import frost.util.model.gui.*;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 class UploadTableFormat extends SortedTableFormat implements LanguageListener {
+	/**
+	 * This inner class implements the renderer for the column "Name"
+	 */
+	private class NameRenderer extends DefaultTableCellRenderer {
+
+		private SortedModelTable modelTable;
+
+		/**
+		 * 
+		 */
+		public NameRenderer(SortedModelTable newModelTable) {
+			super();
+			modelTable = newModelTable;
+		}
+			
+		/* (non-Javadoc)
+		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+		 */
+		public Component getTableCellRendererComponent(
+			JTable table,
+			Object value,
+			boolean isSelected,
+			boolean hasFocus,
+			int row,
+			int column) {
+
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+
+			ModelItem item = modelTable.getItemAt(row); //It may be null
+			if (item != null) {
+				FrostUploadItem uploadItem = (FrostUploadItem) item;
+				if (uploadItem.getSHA1() != null) {
+					Font font = getFont();
+					setFont(font.deriveFont(Font.BOLD));
+				}
+			}
+			return this;
+		}
+
+}
 	
 	/**
 	 * This inner class implements the renderer for the column "FileSize"
@@ -203,12 +243,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		FrostUploadItem uploadItem = (FrostUploadItem) item;
 		switch (columnIndex) {
 			case 0 :	//Filename
-				if (uploadItem.getSHA1() == null) {
-					return "<html><font color=\"gray\">" + uploadItem.getFileName() + "</font></html>";
-				} else {
-					return "<html><b>" + uploadItem.getFileName() + "</b></html>";
-				}
-				
+				return uploadItem.getFileName();
+								
 			case 1 :	//Size
 				return uploadItem.getFileSize();
 				
@@ -290,8 +326,11 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}
 		
+		// Column "Name"
+		columnModel.getColumn(0).setCellRenderer(new NameRenderer((SortedModelTable) modelTable));
+		
 		// Column "Size"
-		columnModel.getColumn(1).setCellRenderer(new FileSizeRenderer());
+		columnModel.getColumn(1).setCellRenderer(new FileSizeRenderer());		
 	}
 
 	/* (non-Javadoc)
