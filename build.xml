@@ -87,6 +87,11 @@ Build log  : ${logfilename}</echo>
           depends="startmsg"
           description="--> compiles the source code">
     <mkdir dir="${build.dir}"/>
+    
+    <delete quiet="true" dir="${build.classes}"/>
+ 	<delete quiet="true" dir="${build.classes.feclib}"/>
+    <delete quiet="true" dir="${build.classes.genchklib}"/>
+    <delete quiet="true" dir="${build.classes.skinlfFixLib}"/>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>
