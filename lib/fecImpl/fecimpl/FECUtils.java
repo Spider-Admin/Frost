@@ -368,7 +368,7 @@ public class FECUtils {
     private final static void dumpBlock(Buffer block, Bucket b) throws IOException {
         OutputStream out = null;
         try {
-//            b.resetWrite();
+            b.resetWrite();
             out = b.getOutputStream();
             byte[] bytes = block.getBytes();
             int length = bytes.length;

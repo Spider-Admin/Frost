@@ -140,7 +140,7 @@ public class Core {
 								FcpFactory.getFcpConnectionInstance();
 							if (con != null) {
 								String tmp =
-									con.putKeyFromFile(
+									con.putKeyFromArray(
 										"CHK@",
 										pubkeydata,
 										null,

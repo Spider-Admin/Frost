@@ -188,34 +188,34 @@ public class DownloadTable extends SortedTable
             oldChunkFilesList.add( dlItem.getFileName() );
         }
 
-        String keypoolDir = frame1.frostSettings.getValue("keypool.dir");
+        String dlDir = frame1.frostSettings.getValue("downloadDirectory");
 
-        RemoveSelectedFilesChunksThread t = new RemoveSelectedFilesChunksThread( oldChunkFilesList, keypoolDir );
+        RemoveSelectedFilesChunksThread t = new RemoveSelectedFilesChunksThread( oldChunkFilesList, dlDir );
         t.start();
     }
 
     private class RemoveSelectedFilesChunksThread extends Thread
     {
         ArrayList oldChunkFilesList;
-        String keypoolDir;
-        public RemoveSelectedFilesChunksThread(ArrayList al, String keypoolDir)
+        String dlDir;
+        public RemoveSelectedFilesChunksThread(ArrayList al, String dlDir)
         {
             this.oldChunkFilesList = al;
-            this.keypoolDir = keypoolDir;
+            this.dlDir = dlDir;
         }
 
         public void run()
         {
-            File[] files = (new File(keypoolDir)).listFiles();
+            File[] files = (new File(dlDir)).listFiles();
             for( int i=0; i < oldChunkFilesList.size(); i++ )
             {
                 String filename = (String)oldChunkFilesList.get( i );
-                System.out.println("Searchin chunks for " + filename);
                 for( int j = 0; j < files.length; j++ )
                 {
-                    if( (files[j].getName()).startsWith( filename ) &&
-                        files[j].isFile() &&
-                        !(files[j].getName()).endsWith(".idx") )
+                    // remove filename.data , .redirect, .checkblocks
+                    if( files[j].getName().equals( filename + ".data" ) ||
+                        files[j].getName().equals( filename + ".redirect" ) ||
+                        files[j].getName().equals( filename + ".checkblocks" ) )
                     {
                         System.out.println("Removing " + files[j].getName());
                         files[j].delete();

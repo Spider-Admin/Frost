@@ -28,6 +28,8 @@ import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
 
+import frost.FcpTools.*;
+
 /**
  * Uploads a message to a certain message board
  */
@@ -41,7 +43,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private String from;
     private String subject;
     private String text;
-    private String messageUploadHtl;
+    private int messageUploadHtl;
     private String messageDownloadHtl;
     private String date;
     private String time;
@@ -122,8 +124,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         {
             try {
                 result = FcpInsert.putFile("CHK@",
-                                           attachment,
-                                           frame1.frostSettings.getValue("htlUpload"),
+                                           new File(attachment),
+                                           frame1.frostSettings.getIntValue("htlUpload"),
                                            true,
                                            true,
                                            board.getBoardFilename());
@@ -303,7 +305,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
                     try {
                         result = FcpInsert.putFile(upKey,
-                                                   messageFile.getPath(),
+                                                   messageFile,
                                                    messageUploadHtl,
                                                    false,
                                                    true,
@@ -434,7 +436,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         this.from = from;
         this.subject = subject;
         this.text = text;
-        this.messageUploadHtl = msgUplHtl;
+        this.messageUploadHtl = new Integer(msgUplHtl).intValue();
         this.keypool = keypool;
         this.messageDownloadHtl = msgDlHtl;
 
