@@ -607,292 +607,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * 
 	 */
-	private class PopupMenuDownload extends JPopupMenu implements ActionListener, LanguageListener {
-		
-		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem copyChkKeyAndFilenameToClipboardItem = new JMenuItem();
-		private JMenuItem copyChkKeyToClipboardItem = new JMenuItem();
-		private JMenuItem disableAllDownloadsItem = new JMenuItem();
-		private JMenuItem disableSelectedDownloadsItem = new JMenuItem();
-		private JMenuItem enableAllDownloadsItem = new JMenuItem();
-		private JMenuItem enableSelectedDownloadsItem = new JMenuItem();
-		private JMenuItem invertEnabledAllItem = new JMenuItem();
-		private JMenuItem invertEnabledSelectedItem = new JMenuItem();
-		private JMenuItem removeAllDownloadsItem = new JMenuItem();
-		private JMenuItem removeFinishedItem = new JMenuItem();
-		private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
-		private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
-		
-		private JMenu copyToClipboardMenu = new JMenu();
-
-		/**
-		 * 
-		 */
-		public PopupMenuDownload() {
-			super();
-			initialize();
-		}
-
-		/**
-		 * 
-		 */
-		private void initialize() {
-			refreshLanguage();
-
-			// TODO: implement cancel of downloading
-
-			copyToClipboardMenu.add(copyChkKeyToClipboardItem);
-			copyToClipboardMenu.add(copyChkKeyAndFilenameToClipboardItem);
-
-			copyChkKeyToClipboardItem.addActionListener(this);
-			copyChkKeyAndFilenameToClipboardItem.addActionListener(this);
-			restartSelectedDownloadsItem.addActionListener(this);
-			removeSelectedDownloadsItem.addActionListener(this);
-			removeAllDownloadsItem.addActionListener(this);
-			removeFinishedItem.addActionListener(this);
-			enableAllDownloadsItem.addActionListener(this);
-			disableAllDownloadsItem.addActionListener(this);
-			enableSelectedDownloadsItem.addActionListener(this);
-			disableSelectedDownloadsItem.addActionListener(this);
-			invertEnabledAllItem.addActionListener(this);
-			invertEnabledSelectedItem.addActionListener(this);
-		}
-		
-		private void refreshLanguage() {
-			restartSelectedDownloadsItem.setText(languageResource.getString("Restart selected downloads"));
-			removeSelectedDownloadsItem.setText(languageResource.getString("Remove selected downloads"));
-			removeAllDownloadsItem.setText(languageResource.getString("Remove all downloads"));
-			//downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-			removeFinishedItem.setText(languageResource.getString("Remove finished downloads"));
-			enableAllDownloadsItem.setText(languageResource.getString("Enable all downloads"));
-			disableAllDownloadsItem.setText(languageResource.getString("Disable all downloads"));
-			enableSelectedDownloadsItem.setText(languageResource.getString("Enable selected downloads"));
-			disableSelectedDownloadsItem.setText(languageResource.getString("Disable selected downloads"));
-			invertEnabledAllItem.setText(languageResource.getString("Invert enabled state for all downloads"));
-			invertEnabledSelectedItem.setText(languageResource.getString("Invert enabled state for selected downloads"));
-			cancelItem.setText(languageResource.getString("Cancel"));
-			copyChkKeyToClipboardItem.setText(languageResource.getString("CHK key"));
-			copyChkKeyAndFilenameToClipboardItem.setText(languageResource.getString("CHK key + filename"));
-			
-			copyToClipboardMenu.setText(languageResource.getString("Copy to clipboard") + "...");
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == copyChkKeyToClipboardItem) {
-				copyChkKeyToClipboard();
-			}
-			if (e.getSource() == copyChkKeyAndFilenameToClipboardItem) {
-				copyChkKeyAndFilenameToClipboard();
-			}
-			if (e.getSource() == restartSelectedDownloadsItem) {
-				restartSelectedDownloads();
-			}
-			if (e.getSource() == removeSelectedDownloadsItem) {
-				removeSelectedDownloads();
-			}
-			if (e.getSource() == removeAllDownloadsItem) {
-				removeAllDownloads();
-			}
-			if (e.getSource() == removeFinishedItem) {
-				removeFinished();
-			}
-			if (e.getSource() == enableAllDownloadsItem) {
-				enableAllDownloads();
-			}
-			if (e.getSource() == disableAllDownloadsItem) {
-				disableAllDownloads();
-			}
-			if (e.getSource() == enableSelectedDownloadsItem) {
-				enableSelectedDownloads();
-			}
-			if (e.getSource() == disableSelectedDownloadsItem) {
-				disableSelectedDownloads();
-			}
-			if (e.getSource() == invertEnabledAllItem) {
-				invertEnabledAll();
-			}
-			if (e.getSource() == invertEnabledSelectedItem) {
-				invertEnabledSelected();
-			}
-		}
-
-		/**
-		 * 
-		 */
-		private void invertEnabledSelected() {
-			getDownloadTable().setDownloadEnabled(2, false);
-			// 2=invert , false means SELECTED in table!
-		}
-
-		/**
-		 * 
-		 */
-		private void invertEnabledAll() {
-			getDownloadTable().setDownloadEnabled(2, true);
-			// 2=invert , true means ALL in table!
-		}
-
-		/**
-		 * 
-		 */
-		private void disableSelectedDownloads() {
-			getDownloadTable().setDownloadEnabled(0, false);
-			// 0=disabled , false means SELECTED in table!
-		}
-
-		/**
-		 * 
-		 */
-		private void enableSelectedDownloads() {
-			getDownloadTable().setDownloadEnabled(1, false);
-			// 1=enabled , false means SELECTED in table!
-		}
-
-		/**
-		 * 
-		 */
-		private void disableAllDownloads() {
-			getDownloadTable().setDownloadEnabled(0, true);
-			// 0=disabled , true means ALL in table!
-		}
-
-		/**
-		 * 
-		 */
-		private void enableAllDownloads() {
-			getDownloadTable().setDownloadEnabled(1, true);
-			// 1=enabled , true means ALL in table!	
-		}
-
-		/**
-		 * 
-		 */
-		private void removeFinished() {
-			getDownloadTable().removeFinishedDownloads();
-		}
-
-		/**
-		 * 
-		 */
-		private void removeAllDownloads() {
-			getDownloadTable().removeAllItemsFromTable();	
-		}
-
-		/**
-		 * 
-		 */
-		private void removeSelectedDownloads() {
-			getDownloadTable().removeSelectedItemsFromTable();	
-		}
-
-		/**
-		 * 
-		 */
-		private void restartSelectedDownloads() {
-			getDownloadTable().restartSelectedDownloads();
-		}
-
-		/**
-		 * add CHK key + filename to clipboard 
-		 */
-		private void copyChkKeyAndFilenameToClipboard() {
-			DownloadTableModel tableModel = (DownloadTableModel) getDownloadTable().getModel();
-			int selectedRow = getDownloadTable().getSelectedRow();
-			if (selectedRow > -1) {
-				FrostDownloadItemObject dlItem =
-					(FrostDownloadItemObject) tableModel.getRow(selectedRow);
-				String chkKey = dlItem.getKey();
-				String filename = dlItem.getFileName();
-				if (chkKey != null && filename != null) {
-					mixed.setSystemClipboard(chkKey + "/" + filename);
-				}
-			}
-		}
-
-		/**
-		 * add CHK key to clipboard
-		 */
-		private void copyChkKeyToClipboard() {
-			DownloadTableModel tableModel = (DownloadTableModel) getDownloadTable().getModel();
-			int selectedRow = getDownloadTable().getSelectedRow();
-			if (selectedRow > -1) {
-				FrostDownloadItemObject dlItem =
-					(FrostDownloadItemObject) tableModel.getRow(selectedRow);
-				String chkKey = dlItem.getKey();
-				if (chkKey != null) {
-					mixed.setSystemClipboard(chkKey);
-				}
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-		 */
-		public void show(Component invoker, int x, int y) {
-			removeAll();
-
-			if (getDownloadTable().getSelectedRowCount() == 1) {
-				// if 1 item is selected
-				FrostDownloadItemObject dlItem =
-					(FrostDownloadItemObject)
-						((DownloadTableModel) getDownloadTable().getModel()).getRow(
-						getDownloadTable().getSelectedRow());
-				if (dlItem.getKey() != null) {
-					add(copyToClipboardMenu);
-					addSeparator();
-				}
-			}
-
-			if (getDownloadTable().getSelectedRow() > -1) {
-				add(restartSelectedDownloadsItem);
-				addSeparator();
-			}
-
-			JMenu enabledSubMenu =
-				new JMenu(languageResource.getString("Enable downloads") + "...");
-			if (getDownloadTable().getSelectedRow() > -1) {
-				enabledSubMenu.add(enableSelectedDownloadsItem);
-				enabledSubMenu.add(disableSelectedDownloadsItem);
-				enabledSubMenu.add(invertEnabledSelectedItem);
-				enabledSubMenu.addSeparator();
-			}
-			enabledSubMenu.add(enableAllDownloadsItem);
-			enabledSubMenu.add(disableAllDownloadsItem);
-			enabledSubMenu.add(invertEnabledAllItem);
-			add(enabledSubMenu);
-
-			JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
-			if (getDownloadTable().getSelectedRow() > -1) {
-				removeSubMenu.add(removeSelectedDownloadsItem);
-			}
-			removeSubMenu.add(removeAllDownloadsItem);
-			add(removeSubMenu);
-
-			addSeparator();
-			add(removeFinishedItem);
-			addSeparator();
-			add(cancelItem);
-
-			super.show(invoker, x, y);
-		}
-
-	}
-	
-	private PopupMenuDownload popupMenuDownload = null;
-	
-	/**
-	 * 
-	 */
 	private class PopupMenuUpload extends JPopupMenu implements ActionListener, LanguageListener {
 		
 		private JMenuItem cancelItem = new JMenuItem();
@@ -1238,7 +952,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	private void translateCheckBox() {
 		searchAllBoardsCheckBox.setText(languageResource.getString("all boards"));
-		downloadActivateCheckBox.setToolTipText(languageResource.getString("Activate downloading"));
 	}
 	private void translateMenuEntries() {
 		buildMenuBar();
@@ -1276,8 +989,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		checkTrustButton.setToolTipText(languageResource.getString("Set to CHECK"));
 		tofUpdateButton.setToolTipText(languageResource.getString("Update"));
 		uploadAddFilesButton.setToolTipText(languageResource.getString("Browse")+"...");
-		downloadShowHealingInfo.setToolTipText(
-			languageResource.getString("Show healing information"));
 		searchButton.setToolTipText(languageResource.getString("Search"));
 	}
 
@@ -1285,7 +996,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	public void saveSettings() {
 		frostSettings.setValue(
 			"downloadingActivated",
-			downloadActivateCheckBox.isSelected());
+			getDownloadPanel().isDownloadingActivated());
 		//      frostSettings.setValue("uploadingActivated", uploadActivateCheckBox.isSelected());
 		frostSettings.setValue(
 			"searchAllBoards",
@@ -1372,7 +1083,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JButton tofUpdateButton = null;
 
 	JButton uploadAddFilesButton = null;
-	JButton downloadShowHealingInfo = null;
 	JButton searchButton = null;
 
 	// labels that are updated later
@@ -1382,7 +1092,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JLabel timeLabel = null;
 
 	JCheckBox searchAllBoardsCheckBox = null;
-	JCheckBox downloadActivateCheckBox = null;
 	JCheckBoxMenuItem tofAutomaticUpdateMenuItem = null;
 
 	JComboBox searchComboBox = null;
@@ -1396,8 +1105,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	final String newMessagesCountPrefix = "New: ";
 	JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 	JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
-
-	JLabel downloadItemCountLabel = new JLabel();
 
 	private String searchResultsCountPrefix = null;
 	JLabel searchResultsCountLabel = new JLabel();
@@ -1413,8 +1120,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private HealingTable healingTable = null;
 
 	private JTextArea tofTextArea = null;
-	private JTextField downloadTextField = null;
 	private JTextField searchTextField = null;
+	
+	//Panels
+	private DownloadPanel downloadPanel = null;
 	
 	public static Hashtable getMyBatches() {
 		return Core.getMyBatches();
@@ -1437,9 +1146,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		return searchTable;
 	}
 	public DownloadTable getDownloadTable() {
+		if (downloadTable == null) {
+			DownloadTableModel downloadTableModel = new DownloadTableModel();
+			downloadTable = new DownloadTable(downloadTableModel);	
+		}
 		return downloadTable;
 	}
-	public HealingTable getHealingTable() {
+	private HealingTable getHealingTable() {
+		if (healingTable == null) {
+			HealingTableModel htModel = new HealingTableModel();
+			healingTable = new HealingTable(htModel);	
+		}
 		return healingTable;
 	}
 	public JTable getAttachmentTable() {
@@ -1560,37 +1277,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		button.setBorderPainted(false);
 		button.setFocusPainted(false);
 	}
-	/**
-	 * Configures a CheckBox to be a default icon CheckBox
-	 * @param checkBox The new icon CheckBox
-	 * @param toolTipText Is displayed when the mousepointer is some seconds over the CheckBox
-	 * @param rolloverIcon Displayed when mouse is over the CheckBox
-	 * @param selectedIcon Displayed when CheckBox is checked
-	 * @param rolloverSelectedIcon Displayed when mouse is over the selected CheckBox
-	 */
-	public void configureCheckBox(
-		JCheckBox checkBox,
-		String toolTipText,
-		String rolloverIcon,
-		String selectedIcon,
-		String rolloverSelectedIcon) {
-		String text = null;
-		try {
-			text = languageResource.getString(toolTipText);
-		} catch (MissingResourceException ex) {
-			text = toolTipText; // better than nothing ;)
-		}
-		checkBox.setToolTipText(text);
-		checkBox.setRolloverIcon(
-			new ImageIcon(frame1.class.getResource(rolloverIcon)));
-		checkBox.setSelectedIcon(
-			new ImageIcon(frame1.class.getResource(selectedIcon)));
-		checkBox.setRolloverSelectedIcon(
-			new ImageIcon(frame1.class.getResource(rolloverSelectedIcon)));
-		checkBox.setMargin(new Insets(0, 0, 0, 0));
-		checkBox.setFocusPainted(false);
-	}
-
 	private JToolBar buildButtonPanel() {
 		timeLabel = new JLabel("");
 		// configure buttons
@@ -1792,7 +1478,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		//add a tab for buddies perhaps?
 		tabbedPane.add(languageResource.getString("News"), buildMessagePane());
 		tabbedPane.add(languageResource.getString("Search"), buildSearchPane());
-		tabbedPane.add(languageResource.getString("Downloads"), buildDownloadPane());
+		tabbedPane.add(languageResource.getString("Downloads"), getDownloadPanel());
 		tabbedPane.add(languageResource.getString("Uploads"), buildUploadPane());
 
 		updateOptionsAffectedComponents();
@@ -2169,89 +1855,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		return searchMainPanel;
 	}
 
-	private JPanel buildDownloadPane() {
-		// create objects for buttons toolbar panel
-		this.downloadActivateCheckBox =
-			new JCheckBox(
-				new ImageIcon(frame1.class.getResource("/data/down.gif")),
-				true);
-		configureCheckBox(
-			downloadActivateCheckBox,
-			languageResource.getString("Activate downloading"),
-			"/data/down_rollover.gif",
-			"/data/down_selected.gif",
-			"/data/down_selected_rollover.gif");
-
-		this.downloadTextField = new JTextField(25);
-		downloadTextField
-			.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				downloadTextField_actionPerformed(e);
-			}
-		});
-		this.downloadShowHealingInfo =
-			new JButton(
-				new ImageIcon(
-					frame1.class.getResource("/data/healinginfo.gif")));
-		configureButton(
-			this.downloadShowHealingInfo,
-			languageResource.getString("Show healing information"),
-			"/data/healinginfo_rollover.gif");
-		// disabled until implemented ;)
-		this.downloadShowHealingInfo.setEnabled(false);
-
-		// create buttons toolbar panel
-		JPanel downloadTopPanel = new JPanel();
-		BoxLayout dummyLayout =
-			new BoxLayout(downloadTopPanel, BoxLayout.X_AXIS);
-		downloadTopPanel.setLayout(dummyLayout);
-		downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
-		downloadTopPanel.add(downloadTextField); //Download/Quickload
-		downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		downloadTopPanel.add(downloadActivateCheckBox);
-		//Download/Start transfer
-		downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		downloadTopPanel.add(this.downloadShowHealingInfo);
-		downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
-		downloadTopPanel.add(Box.createHorizontalGlue());
-
-		String downloadCountPrefix = languageResource.getString("Waiting");
-		JLabel dummyLabel = new JLabel(downloadCountPrefix + " : 00000");
-		dummyLabel.doLayout();
-		Dimension labelSize = dummyLabel.getPreferredSize();
-		downloadItemCountLabel.setPreferredSize(labelSize);
-		downloadItemCountLabel.setMinimumSize(labelSize);
-		downloadItemCountLabel.setText(downloadCountPrefix + " : 0");
-		downloadTopPanel.add(downloadItemCountLabel);
-
-		// create downloadTable
-		DownloadTableModel downloadTableModel = new DownloadTableModel();
-		this.downloadTable = new DownloadTable(downloadTableModel);
-		JScrollPane downloadTableScrollPane = new JScrollPane(downloadTable);
-
-		// create healing table, is not contained in downloadPanel, but belongs to here
-		HealingTableModel htModel = new HealingTableModel();
-		this.healingTable = new HealingTable(htModel);
-
-		//Downloads / KeyEvent
-		downloadTable.addKeyListener(new KeyListener() {
-			public void keyTyped(KeyEvent e) {
-			}
-			public void keyPressed(KeyEvent e) {
-				downloadTable_keyPressed(e);
-			}
-			public void keyReleased(KeyEvent e) {
-			}
-		});
-		// create the main download panel
-		JPanel downloadMainPanel = new JPanel(new BorderLayout());
-		downloadMainPanel.add(downloadTopPanel, BorderLayout.NORTH);
-		// Download/Buttons
-		downloadMainPanel.add(downloadTableScrollPane, BorderLayout.CENTER);
-		//Downloadlist
-		return downloadMainPanel;
-	}
-
 	private JPanel buildUploadPane() {
 		// create upload table
 		UploadTableModel uploadTableModel = new UploadTableModel();
@@ -2328,7 +1931,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		// Add Popup listeners
 		MouseListener popupListener = new PopupListener();
-		getDownloadTable().addMouseListener(popupListener);
 		getSearchTable().addMouseListener(popupListener);
 		getUploadTable().addMouseListener(popupListener);
 		tofTextArea.addMouseListener(popupListener);
@@ -2362,12 +1964,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		TOF.initialSearchNewMessages();
 
 		if (core.isFreenetOnline()) {
-			downloadActivateCheckBox.setSelected(
-				frostSettings.getBoolValue("downloadingActivated"));
+			getDownloadPanel().setDownloadingActivated(frostSettings.getBoolValue("downloadingActivated"));
 			tofAutomaticUpdateMenuItem.setSelected(
 				frostSettings.getBoolValue("automaticUpdate"));
 		} else {
-			downloadActivateCheckBox.setSelected(false);
+			getDownloadPanel().setDownloadingActivated(false);
 			tofAutomaticUpdateMenuItem.setSelected(false);
 		}
 		searchAllBoardsCheckBox.setSelected(
@@ -3186,15 +2787,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 	}
 
-	/**Get keyTyped for downloadTable*/
-	public void downloadTable_keyPressed(KeyEvent e) {
-		char key = e.getKeyChar();
-		if (key == KeyEvent.VK_DELETE && !getDownloadTable().isEditing()) {
-			getDownloadTable().removeSelectedChunks();
-			getDownloadTable().removeSelectedRows();
-		}
-	}
-
 	/**valueChanged messageTable (messageTableListModel / TOF)*/
 	public void messageTableListModel_valueChanged(ListSelectionEvent e) {
 		FrostBoardObject selectedBoard = getSelectedNode();
@@ -3536,7 +3128,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			&& // check all 3 seconds if a download could be started
 		activeDthreads
 				< frostSettings.getIntValue("downloadThreads")
-			&& downloadActivateCheckBox.isSelected()) {
+			&& getDownloadPanel().isDownloadingActivated()) {
 			// choose first item
 			FrostDownloadItemObject dlItem = selectNextDownloadItem();
 			if (dlItem != null) {
@@ -3687,86 +3279,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private void searchTextField_actionPerformed(ActionEvent e) {
 		if (searchButton.isEnabled()) {
 			searchButton_actionPerformed(e);
-		}
-	}
-
-	/**downloadTextField Action Listener (Download/Quickload)*/
-	private void downloadTextField_actionPerformed(ActionEvent e) {
-		String key = (downloadTextField.getText()).trim();
-		if (key.length() > 0) {
-			// strip the 'browser' prefix
-			String stripMe = "http://127.0.0.1:8888/";
-			if (key.startsWith(stripMe)) {
-				key = key.substring(stripMe.length());
-			}
-			// strip the 'freenet:' prefix
-			stripMe = "freenet:";
-			if (key.startsWith(stripMe)) {
-				key = key.substring(stripMe.length());
-			}
-
-			String validkeys[] = { "SSK@", "CHK@", "KSK@" };
-			int keyType = -1; // invalid
-
-			for (int i = 0; i < validkeys.length; i++) {
-				if (key
-					.substring(0, validkeys[i].length())
-					.equals(validkeys[i])) {
-					keyType = i;
-					break;
-				}
-			}
-
-			if (keyType > -1) {
-				// added a way to specify a file name. The filename is preceeded by a colon.
-				String fileName;
-
-				int sepIndex = key.lastIndexOf(":");
-
-				if (sepIndex != -1) {
-					fileName = key.substring(sepIndex + 1);
-					key = key.substring(0, sepIndex);
-				}
-				// take the filename from the last part the SSK or KSK
-				else if (-1 != (sepIndex = key.lastIndexOf("/"))) {
-					fileName = key.substring(sepIndex + 1);
-				} else {
-					fileName = key.substring(4);
-				}
-				//  zab, why did you comment this out, its needed, because otherwise you
-				//  use a wrong CHK key for download! i pasted a CHK@afcdf432dk/mytargetfilename.data
-				//FIXED: it happened when sha1 was still kept in this variable - and sha1 can contain "/"
-
-				// remove filename from key for CHK
-				if (keyType == 1) // CHK?
-					key = key.substring(0, key.indexOf("/"));
-
-				// add valid key to download table
-				FrostDownloadItemObject dlItem =
-					new FrostDownloadItemObject(fileName,
-					//users weren't happy with '_'
-	key, null);
-				boolean isAdded = getDownloadTable().addDownloadItem(dlItem);
-
-				if (isAdded == true)
-					downloadTextField.setText("");
-			} else {
-				// show messagebox that key is invalid
-				String keylist = "";
-				for (int i = 0; i < validkeys.length; i++) {
-					if (i > 0)
-						keylist += ", ";
-					keylist += validkeys[i];
-				}
-				JOptionPane.showMessageDialog(
-					this,
-					languageResource.getString(
-						"Invalid key.  Key must begin with one of")
-						+ ": "
-						+ keylist,
-					languageResource.getString("Invalid key"),
-					JOptionPane.ERROR_MESSAGE);
-			}
 		}
 	}
 
@@ -4091,10 +3603,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			} else if (e.getComponent().equals(searchTable)) { // Search Popup
 				showSearchTablePopupMenu(e);
 			} else if (
-				e.getComponent().equals(
-					getDownloadTable())) { // Downloads Popup
-				showDownloadTablePopupMenu(e);
-			} else if (
 				e.getComponent().equals(tofTextArea)) { // TOF text popup
 				showTofTextAreaPopupMenu(e);
 			} else if (e.getComponent().equals(boardTable)) {
@@ -4169,13 +3677,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				waitingItems++;
 			}
 		}
-		String s =
-			new StringBuffer()
-				.append(languageResource.getString("Waiting"))
-				.append(" : ")
-				.append(waitingItems)
-				.toString();
-		downloadItemCountLabel.setText(s);
+		getDownloadPanel().setDownloadItemCount(waitingItems);
 	}
 
 	private void trustButton_actionPerformed(ActionEvent e) {
@@ -4400,10 +3902,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	protected void showDownloadTablePopupMenu(MouseEvent e) {		
-		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
-	}
-
 	protected void showUploadTablePopupMenu(MouseEvent e) {
 		getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -4536,17 +4034,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * @return
 	 */
-	private PopupMenuDownload getPopupMenuDownload() {
-		if (popupMenuDownload == null) {
-			popupMenuDownload = new PopupMenuDownload();
-			languageResource.addLanguageListener(popupMenuDownload);	
-		}
-		return popupMenuDownload;
-	}
-
-	/**
-	 * @return
-	 */
 	private PopupMenuAttachmentBoard getPopupMenuAttachmentBoard() {
 		if (popupMenuAttachmentBoard == null) {
 			popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
@@ -4613,4 +4100,19 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		truster.start();
 	}
 
+	/**
+	 * @return
+	 */
+	private DownloadPanel getDownloadPanel() {
+		if (downloadPanel == null) {
+			downloadPanel = new DownloadPanel();
+			downloadPanel.setDownloadTable(getDownloadTable());
+			downloadPanel.setHealingTable(getHealingTable());
+			downloadPanel.setLanguageResource(languageResource);
+			downloadPanel.initialize();
+		}
+		return downloadPanel;
+	}
+
 }
+
