@@ -243,12 +243,9 @@ public class LangRes extends ListResourceBundle {
 	{"board", "board"},
 
 	// Popup over uploads table    
-	{"Copy to clipboard", "Copy to clipboard"},
-		{"CHK key", "CHK key"},
-		{"CHK key + filename", "CHK key + filename"},
 	//{"Remove", "Remove"}, // Defined above
-		{"Remove selected files", "Remove selected files"},
-		{"Remove all files", "Remove all files"},
+	{"Remove selected files", "Remove selected files"},
+	{"Remove all files", "Remove all files"},
 	{"Start encoding of selected files", "Start encoding of selected files"},
 	{"Upload selected files", "Upload selected files"},
 	{"Upload all files", "Upload all files"},
@@ -638,7 +635,17 @@ public class LangRes extends ListResourceBundle {
 	{"UploadStatusPanel.Uploading", "Uploading:"}, 
 	{"StatusPanel.file", "file"},
     {"StatusPanel.files", "files"},
-	{"DownloadStatusPanel.Downloading", "Downloading:"}
+	{"DownloadStatusPanel.Downloading", "Downloading:"},
+	
+	// Copy to clipboard submenu
+	{"Copy to clipboard", "Copy to clipboard"},
+	{"Copy keys only", "Copy keys only"},
+	{"Copy keys with filenames", "Copy keys with filenames"},
+	{"Copy extended info", "Copy extended info"},
+	{"Key not available yet", "Key not available yet"},
+	{"clipboard.File:",  "File:  "},	//These three strings are a special case.
+	{"clipboard.Key:",   "Key:   "},	//They must have the same length so that the
+	{"clipboard.Bytes:", "Bytes: "}	//format of the output is preserved.
 	
     };
 }

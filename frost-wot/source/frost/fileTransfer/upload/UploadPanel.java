@@ -4,6 +4,7 @@
 package frost.fileTransfer.upload;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.io.File;
@@ -30,11 +31,12 @@ public class UploadPanel extends JPanel {
 	/**
 	 *  
 	 */
-	private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
+	private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
 
 		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem copyChkKeyAndFilenameToClipboardItem = new JMenuItem();
-		private JMenuItem copyChkKeyToClipboardItem = new JMenuItem();
+		private JMenuItem copyKeysAndNamesItem = new JMenuItem();
+		private JMenuItem copyKeysItem = new JMenuItem();
+		private JMenuItem copyExtendedInfoItem = new JMenuItem();
 		private JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
 		private JMenuItem reloadAllFilesItem = new JMenuItem();
 		private JMenuItem reloadSelectedFilesItem = new JMenuItem();
@@ -47,6 +49,13 @@ public class UploadPanel extends JPanel {
 
 		private JMenu changeDestinationBoardMenu = new JMenu();
 		private JMenu copyToClipboardMenu = new JMenu();
+		
+		private String keyNotAvailableMessage;
+		private String fileMessage;
+		private String keyMessage;
+		private String bytesMessage;
+		
+		private Clipboard clipboard;
 
 		/**
 		 *  
@@ -62,11 +71,13 @@ public class UploadPanel extends JPanel {
 		private void initialize() {
 			refreshLanguage();
 
-			copyToClipboardMenu.add(copyChkKeyToClipboardItem);
-			copyToClipboardMenu.add(copyChkKeyAndFilenameToClipboardItem);
+			copyToClipboardMenu.add(copyKeysAndNamesItem);
+			copyToClipboardMenu.add(copyKeysItem);
+			copyToClipboardMenu.add(copyExtendedInfoItem);
 
-			copyChkKeyToClipboardItem.addActionListener(this);
-			copyChkKeyAndFilenameToClipboardItem.addActionListener(this);
+			copyKeysAndNamesItem.addActionListener(this);
+			copyKeysItem.addActionListener(this);
+			copyExtendedInfoItem.addActionListener(this);
 			removeSelectedFilesItem.addActionListener(this);
 			removeAllFilesItem.addActionListener(this);
 			reloadSelectedFilesItem.addActionListener(this);
@@ -82,10 +93,15 @@ public class UploadPanel extends JPanel {
 		 * 
 		 */
 		private void refreshLanguage() {
+			keyNotAvailableMessage = language.getString("Key not available yet");
+			fileMessage = language.getString("clipboard.File:");
+			keyMessage = language.getString("clipboard.Key:");
+			bytesMessage = language.getString("clipboard.Bytes:");
+			
 			cancelItem.setText(language.getString("Cancel"));
-			copyChkKeyAndFilenameToClipboardItem.setText(
-					language.getString("CHK key + filename"));
-			copyChkKeyToClipboardItem.setText(language.getString("CHK key"));
+			copyKeysItem.setText(language.getString("Copy keys only"));
+			copyKeysAndNamesItem.setText(language.getString("Copy keys with filenames"));
+			copyExtendedInfoItem.setText(language.getString("Copy extended info"));
 			generateChkForSelectedFilesItem.setText(
 					language.getString("Start encoding of selected files"));
 			reloadAllFilesItem.setText(language.getString("Reload all files"));
@@ -105,16 +121,29 @@ public class UploadPanel extends JPanel {
 					language.getString("Change destination board"));
 			copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
 		}
+		
+		/**
+		 * @return
+		 */
+		private Clipboard getClipboard() {
+			if (clipboard == null) {
+				clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+			}
+			return clipboard;
+		}
 
 		/* (non-Javadoc)
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == copyChkKeyToClipboardItem) {
-				copyChkKeyToClipboard();
+			if (e.getSource() == copyKeysItem) {
+				copyKeys();
 			}
-			if (e.getSource() == copyChkKeyAndFilenameToClipboardItem) {
-				copyChkKeyAndFilenameToClipboard();
+			if (e.getSource() == copyKeysAndNamesItem) {
+				copyKeysAndNames();
+			}
+			if (e.getSource() == copyExtendedInfoItem) {
+				copyExtendedInfo();
 			}
 			if (e.getSource() == removeSelectedFilesItem) {
 				removeSelectedFiles();
@@ -223,31 +252,78 @@ public class UploadPanel extends JPanel {
 		}
 
 		/**
-		 * add CHK key + filename to clipboard 
+		 * This method copies the CHK keys and file names of the selected items (if any) to
+		 * the clipboard.
 		 */
-		private void copyChkKeyAndFilenameToClipboard() {
-			ModelItem selectedItem = modelTable.getSelectedItem();
-			if (selectedItem != null) {
-				FrostUploadItem ulItem = (FrostUploadItem) selectedItem;
-				String chkKey = ulItem.getKey();
-				String filename = ulItem.getFileName();
-				if (chkKey != null && filename != null) {
-					Mixed.setSystemClipboard(chkKey + "/" + filename);
-				}
+		private void copyKeysAndNames() {
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			if (selectedItems.length > 0) {
+				StringBuffer textToCopy = new StringBuffer();
+				for (int i = 0; i < selectedItems.length; i++) {
+					FrostUploadItem item = (FrostUploadItem) selectedItems[i];
+					String key = item.getKey();
+					if (key == null) {
+						key = keyNotAvailableMessage;
+					}
+					textToCopy.append(key);
+					textToCopy.append("/");
+					textToCopy.append(item.getFileName());
+					textToCopy.append("\n");
+				}				
+				StringSelection selection = new StringSelection(textToCopy.toString());
+				getClipboard().setContents(selection, this);	
 			}
 		}
 
 		/**
-		 * add CHK key to clipboard
+		 * This method copies extended information about the selected items (if any) to
+		 * the clipboard. That information is composed of the filename, the key and
+		 * the size in bytes.
 		 */
-		private void copyChkKeyToClipboard() {
-			ModelItem selectedItem = modelTable.getSelectedItem();
-			if (selectedItem != null) {
-				FrostUploadItem ulItem = (FrostUploadItem) selectedItem;
-				String chkKey = ulItem.getKey();
-				if (chkKey != null) {
-					Mixed.setSystemClipboard(chkKey);
-				}
+		private void copyExtendedInfo() {
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			if (selectedItems.length > 0) {
+				StringBuffer textToCopy = new StringBuffer();
+				for (int i = 0; i < selectedItems.length; i++) {
+					FrostUploadItem item = (FrostUploadItem) selectedItems[i];
+					String key = item.getKey();
+					if (key == null) {
+						key = keyNotAvailableMessage;
+					}
+					textToCopy.append(fileMessage);
+					textToCopy.append(item.getFileName() + "\n");
+					textToCopy.append(keyMessage);
+					textToCopy.append(key + "\n");
+					textToCopy.append(bytesMessage);
+					textToCopy.append(item.getFileSize() + "\n\n");
+				}				
+				//We remove the additional \n at the end
+				String result = textToCopy.substring(0, textToCopy.length() - 1);
+				
+				StringSelection selection = new StringSelection(result);
+				getClipboard().setContents(selection, this);	
+			}
+		}
+		
+		/**
+		 * This method copies the CHK keys of the selected items (if any) to
+		 * the clipboard.
+		 */
+		private void copyKeys() {
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			if (selectedItems.length > 0) {
+				StringBuffer textToCopy = new StringBuffer();
+				for (int i = 0; i < selectedItems.length; i++) {
+					FrostUploadItem item = (FrostUploadItem) selectedItems[i];
+					String key = item.getKey();
+					if (key == null) {
+						key = keyNotAvailableMessage;
+					}
+					textToCopy.append(key);
+					textToCopy.append("\n");
+				}				
+				StringSelection selection = new StringSelection(textToCopy.toString());
+				getClipboard().setContents(selection, this);	
 			}
 		}
 
@@ -266,13 +342,10 @@ public class UploadPanel extends JPanel {
 
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 
-			if (selectedItems.length == 1) {
-				// if 1 item is selected
-				FrostUploadItem item = (FrostUploadItem) selectedItems[0];
-				if (item.getKey() != null) {
-					add(copyToClipboardMenu);
-					addSeparator();
-				}
+			if (selectedItems.length > 0) {
+				// if at least 1 item is selected
+				add(copyToClipboardMenu);
+				addSeparator();
 			}
 
 			JMenu removeSubMenu = new JMenu(language.getString("Remove") + "...");
@@ -351,6 +424,13 @@ public class UploadPanel extends JPanel {
 			add(cancelItem);
 
 			super.show(invoker, x, y);
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
+		 */
+		public void lostOwnership(Clipboard clipboard, Transferable contents) {
+			// Nothing here			
 		}
 
 	}

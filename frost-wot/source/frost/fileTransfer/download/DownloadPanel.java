@@ -103,9 +103,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			invertEnabledSelectedItem.setText(
 					language.getString("Invert enabled state for selected downloads"));
 			cancelItem.setText(language.getString("Cancel"));
-			copyChkKeyToClipboardItem.setText(language.getString("CHK key"));
+			copyChkKeyToClipboardItem.setText(language.getString("Copy keys only"));
 			copyChkKeyAndFilenameToClipboardItem.setText(
-					language.getString("CHK key + filename"));
+					language.getString("Copy keys with filenames"));
 
 			copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
 		}
