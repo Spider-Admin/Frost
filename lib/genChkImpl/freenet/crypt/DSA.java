@@ -2,7 +2,6 @@ package freenet.crypt;
 
 import java.math.BigInteger;
 import java.util.Random;
-import java.io.*;
 
 /**
  * Implements the Digital Signature Algorithm (DSA) described in FIPS-186

@@ -21,28 +21,25 @@
 package frost;
 
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.table.*;
-import java.util.*;
-import java.net.*;
-import javax.swing.event.*;
-import javax.swing.text.html.*;
-import javax.swing.filechooser.*;
-import javax.swing.border.*;
-import java.io.*;
-import javax.swing.tree.*;
 import java.awt.datatransfer.*;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
+
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.*;
 
 import frost.FcpTools.*;
+import frost.components.BrowserFrame;
+import frost.crypt.*;
+import frost.ext.Execute;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
-import frost.ext.*;
-import frost.components.*;
-import frost.crypt.*;
-import frost.threads.*;
 import frost.identities.*;
+import frost.threads.*;
 
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)
@@ -1307,10 +1304,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRows[i] );
                     // Since it is difficult to identify the states where we are allowed to
                     // start an upload we decide based on the states in which we are not allowed
-                    if( ulItem.getState() != ulItem.STATE_UPLOADING &&
-                        ulItem.getState() != ulItem.STATE_PROGRESS )
+                    if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
+                        ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS )
                     {
-                        ulItem.setState( ulItem.STATE_REQUESTED );
+                        ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                         tableModel.updateRow(ulItem);
                     }
                 }
@@ -1323,10 +1320,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( i );
                     // Since it is difficult to identify the states where we are allowed to
                     // start an upload we decide based on the states in which we are not allowed
-                    if( ulItem.getState() != ulItem.STATE_UPLOADING &&
-                        ulItem.getState() != ulItem.STATE_PROGRESS )
+                    if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
+                        ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS )
                     {
-                        ulItem.setState( ulItem.STATE_REQUESTED );
+                        ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                         tableModel.updateRow(ulItem);
                     }
                 }
@@ -2520,10 +2517,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                 for( int i = 0; i < ulModel.getRowCount(); i++ )
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
-                    if( ulItem.getState() == ulItem.STATE_REQUESTED &&
+                    if( ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED &&
                         ulItem.getKey() != null )
                     {
-                        ulItem.setState( ulItem.STATE_UPLOADING );
+                        ulItem.setState( FrostUploadItemObject.STATE_UPLOADING );
                         ulModel.updateRow( ulItem );
                         insertThread newInsert = new insertThread(ulItem, frostSettings, true);
                         newInsert.start();
@@ -2550,7 +2547,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             {
                 DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
 
-                dlItem.setState( dlItem.STATE_TRYING );
+                dlItem.setState( FrostDownloadItemObject.STATE_TRYING );
                 dlModel.updateRow( dlItem );
 
                 requestThread newRequest = new requestThread( dlItem, getDownloadTable() );
@@ -2615,7 +2612,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         for( int i = 0; i < dlModel.getRowCount(); i++ )
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-            if( dlItem.getState() == dlItem.STATE_WAITING &&
+            if( dlItem.getState() == FrostDownloadItemObject.STATE_WAITING &&
                 ( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true )
 //                && dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
               )
@@ -3222,7 +3219,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         for(int x=0; x<model.getRowCount(); x++)
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
-            if( dlItem.getState() == dlItem.STATE_WAITING )
+            if( dlItem.getState() == FrostDownloadItemObject.STATE_WAITING )
             {
                 waitingItems++;
             }

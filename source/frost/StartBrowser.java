@@ -17,9 +17,9 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
-import javax.swing.UIManager;
 import java.awt.*;
-import frost.components.*;
+
+import frost.components.BrowserFrame;
 
 public class StartBrowser {
     boolean packFrame = false;

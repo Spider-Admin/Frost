@@ -20,10 +20,11 @@
 
 package frost.gui;
 
-import javax.swing.*;
-import javax.swing.plaf.basic.*;
 import java.awt.*;
 import java.awt.event.*;
+
+import javax.swing.*;
+import javax.swing.plaf.basic.BasicOptionPaneUI;
 
 public class MessageUploadFailedDialog extends JDialog
 {
@@ -58,7 +59,7 @@ public class MessageUploadFailedDialog extends JDialog
         this.getContentPane().setLayout(contentPaneLayout);
         GridBagConstraints constr = new GridBagConstraints();
         Insets insets = new Insets(20,10,10,10);
-        constr.anchor = constr.WEST;
+        constr.anchor = GridBagConstraints.WEST;
         constr.insets = insets;
 
         timer = new Timer(1000, new ActionListener()
@@ -84,17 +85,17 @@ public class MessageUploadFailedDialog extends JDialog
 
         this.getContentPane().add(new JLabel(new IconFromUI().getIcon()), constr);
 
-        constr.anchor = constr.CENTER;
-        constr.gridwidth = constr.REMAINDER;
+        constr.anchor = GridBagConstraints.CENTER;
+        constr.gridwidth = GridBagConstraints.REMAINDER;
 
         this.getContentPane().add(new JLabel(message), constr);
 
         buttonPanel = new JPanel(new GridBagLayout());
         this.getContentPane().add(buttonPanel, constr);
 
-        constr.gridwidth = constr.RELATIVE;
+        constr.gridwidth = GridBagConstraints.RELATIVE;
         buttonPanel.add(okButton,constr);
-        constr.gridwidth = constr.REMAINDER;
+        constr.gridwidth = GridBagConstraints.REMAINDER;
         buttonPanel.add(tryOnNextStartupButton,constr);
         buttonPanel.add(cancelButton,constr);
         this.setSize(contentPaneLayout.preferredLayoutSize(this));

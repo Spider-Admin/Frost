@@ -1,7 +1,7 @@
 package freenet.crypt;
 
-import java.math.BigInteger;
 import java.io.*;
+import java.math.BigInteger;
 
 public class DSAPublicKey extends CryptoKey {
     

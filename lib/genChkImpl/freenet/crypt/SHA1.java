@@ -22,7 +22,8 @@
  *      34AA973C D4C4DAA4 F61EEB2B DBAD2731 6534016F
  </pre>*/
 package freenet.crypt;
-import java.util.*;
+import java.util.Random;
+
 import freenet.support.Fields;
 
 /**

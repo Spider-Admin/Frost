@@ -4,14 +4,8 @@
  */
 package freenet.crypt.ciphers;
 
-import java.io.FileInputStream;
-import java.io.FileNotFoundException;
-import java.io.InputStream;
-import java.io.IOException;
-import java.io.PrintWriter;
-import java.io.PrintStream;
-import java.util.Enumeration;
-import java.util.Properties;
+import java.io.*;
+import java.util.*;
 
 /**
  * This class acts as a central repository for an algorithm specific

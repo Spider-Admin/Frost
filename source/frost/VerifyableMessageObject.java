@@ -19,11 +19,12 @@
 
 package frost;
 
-import java.io.*;
-import java.text.*;
+import java.io.File;
+import java.text.SimpleDateFormat;
 import java.util.*;
+
 import frost.crypt.crypt;
-import frost.identities.*;
+import frost.identities.Identity;
 
 public class VerifyableMessageObject extends MessageObject implements Cloneable
 {

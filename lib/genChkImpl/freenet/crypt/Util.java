@@ -1,11 +1,11 @@
 package freenet.crypt;
 
-import freenet.crypt.ciphers.*;
-import freenet.support.Loader;
-import freenet.support.Bucket;
-import java.math.BigInteger;
 import java.io.*;
+import java.math.BigInteger;
 import java.util.Random;
+
+import freenet.crypt.ciphers.*;
+import freenet.support.*;
 
 /*
   This code is part of the Java Adaptive Network Client by Ian Clarke.

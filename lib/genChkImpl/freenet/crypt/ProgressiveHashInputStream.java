@@ -1,13 +1,9 @@
 package freenet.crypt;
-import freenet.support.io.*;
-import freenet.support.FileBucket;
-import freenet.Presentation;
-import freenet.Key;
-//import freenet.Address;
-
 import java.io.*;
-import java.util.Stack;
-import java.io.IOException;
+
+import freenet.Presentation;
+import freenet.support.FileBucket;
+import freenet.support.io.*;
 
 
 /**

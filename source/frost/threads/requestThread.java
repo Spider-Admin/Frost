@@ -20,14 +20,12 @@ package frost.threads;
 
 import java.io.*;
 import java.text.SimpleDateFormat;
-import java.util.*;
-import javax.swing.table.*;
-import javax.swing.*;
+import java.util.Date;
 
 import frost.*;
-import frost.gui.*;
+import frost.gui.DownloadTable;
+import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
-import frost.gui.model.*;
 
 public class requestThread extends Thread
 {
@@ -97,7 +95,7 @@ public class requestThread extends Thread
                     board != null && board.isFolder() == false )
                 {
                     if( DEBUG ) System.out.println("FILEDN: Download failed, uploading request for " + filename);
-                    downloadItem.setState( downloadItem.STATE_REQUESTING );
+                    downloadItem.setState( FrostDownloadItemObject.STATE_REQUESTING );
                     tableModel.updateRow( downloadItem );
 
                     // We may not do the request here due to the synchronize
@@ -122,17 +120,17 @@ public class requestThread extends Thread
                 {
                     if( frame1.frostSettings.getBoolValue("downloadRestartFailedDownloads" ) )
                     {
-                        downloadItem.setState( downloadItem.STATE_WAITING );
+                        downloadItem.setState( FrostDownloadItemObject.STATE_WAITING );
                         downloadItem.setRetries( 0 );
                     }
                     else
                     {
-                        downloadItem.setState( downloadItem.STATE_FAILED );
+                        downloadItem.setState( FrostDownloadItemObject.STATE_FAILED );
                     }
                 }
                 else
                 {
-                    downloadItem.setState( downloadItem.STATE_WAITING );
+                    downloadItem.setState( FrostDownloadItemObject.STATE_WAITING );
                 }
 
                 tableModel.updateRow( downloadItem );
@@ -153,7 +151,7 @@ public class requestThread extends Thread
             }
 
             downloadItem.setFileSize( newFile.length() );
-            downloadItem.setState( downloadItem.STATE_DONE );
+            downloadItem.setState( FrostDownloadItemObject.STATE_DONE );
             downloadItem.setEnableDownload( Boolean.valueOf(false) );
 
             tableModel.updateRow( downloadItem );

@@ -1,6 +1,5 @@
 package com.onionnetworks.fec;
 
-import com.onionnetworks.util.Util;
 import com.onionnetworks.util.Buffer;
 
 /**

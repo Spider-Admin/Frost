@@ -1,11 +1,8 @@
 package freenet.crypt;
 
-import java.math.BigInteger;
-import java.util.Random;
-import java.util.StringTokenizer;
-import java.util.Vector;
-import freenet.support.Fields;
 import java.io.*;
+import java.math.BigInteger;
+import java.util.*;
 
 /**
  * Holds DSA group parameters.  These are the public (possibly shared) values

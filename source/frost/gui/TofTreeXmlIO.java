@@ -1,16 +1,14 @@
 package frost.gui;
 
-import java.io.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import java.util.ArrayList;
 
-import java.util.*;
-import javax.swing.*;
+import javax.swing.JTree;
 import javax.swing.tree.*;
 
-import frost.*;
-import frost.gui.objects.*;
+import org.w3c.dom.*;
+
+import frost.XMLTools;
+import frost.gui.objects.FrostBoardObject;
 
 public class TofTreeXmlIO
 {

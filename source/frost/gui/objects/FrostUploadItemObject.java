@@ -1,9 +1,9 @@
 package frost.gui.objects;
 
-import java.io.*;
+import java.io.File;
 
-import frost.*;
-import frost.gui.model.*;
+import frost.mixed;
+import frost.gui.model.TableMember;
 
 public class FrostUploadItemObject implements FrostUploadItem, TableMember
 {

@@ -1,9 +1,6 @@
 package freenet.support;
-import java.util.StringTokenizer;
-import java.util.GregorianCalendar;
-import java.util.Date;
-import java.text.DateFormat;
-import java.text.SimpleDateFormat;
+import java.text.*;
+import java.util.*;
 
 /**
  * This class contains static methods used for parsing 

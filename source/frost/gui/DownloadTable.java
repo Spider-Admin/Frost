@@ -1,19 +1,15 @@
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.dnd.*;
-import java.util.*;
+import java.awt.Component;
+import java.io.File;
+import java.util.ArrayList;
+
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.table.*;
-import javax.swing.tree.*;
 
-import java.io.*;
-
-import frost.*;
-import frost.gui.model.*;
-import frost.gui.objects.*;
+import frost.frame1;
+import frost.gui.model.DownloadTableModel;
+import frost.gui.objects.FrostDownloadItemObject;
 
 public class DownloadTable extends SortedTable
 {
@@ -86,7 +82,7 @@ public class DownloadTable extends SortedTable
         for( int i = tableModel.getRowCount()  - 1; i >= 0; i-- )
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)tableModel.getRow( i );
-            if( dlItem.getState() == dlItem.STATE_DONE )
+            if( dlItem.getState() == FrostDownloadItemObject.STATE_DONE )
             {
                 tableModel.deleteRow( dlItem );
             }
@@ -266,11 +262,11 @@ public class DownloadTable extends SortedTable
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
             // reset only waiting+failed items
-            if( dlItem.getState() == dlItem.STATE_FAILED ||
-                dlItem.getState() == dlItem.STATE_WAITING ||
-                dlItem.getState() == dlItem.STATE_DONE )
+            if( dlItem.getState() == FrostDownloadItemObject.STATE_FAILED ||
+                dlItem.getState() == FrostDownloadItemObject.STATE_WAITING ||
+                dlItem.getState() == FrostDownloadItemObject.STATE_DONE )
             {
-                dlItem.setState( dlItem.STATE_WAITING );
+                dlItem.setState( FrostDownloadItemObject.STATE_WAITING );
                 dlItem.setRetries(0);
                 dlItem.setLastDownloadStopTimeMillis(0);
                 dlItem.setEnableDownload( Boolean.valueOf(true) );  // enable download on restart
@@ -307,7 +303,7 @@ public class DownloadTable extends SortedTable
             for( int x=0; x<model.getRowCount(); x++ )
             {
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
-                if( dlItem.getState() != dlItem.STATE_DONE ) // do not enable finished if changing ALL
+                if( dlItem.getState() != FrostDownloadItemObject.STATE_DONE ) // do not enable finished if changing ALL
                 {
                     setDownloadEnabled( mode, dlItem );
                     model.updateRow( dlItem );

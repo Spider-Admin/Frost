@@ -19,8 +19,7 @@
 
 package frost.gui.model;
 
-import javax.swing.table.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostDownloadItemObject;
 
 public class DownloadTableModel extends SortedTableModel
 {

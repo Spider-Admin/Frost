@@ -2,9 +2,6 @@ package org.bouncycastle.crypto.paddings;
 
 import java.security.SecureRandom;
 
-import java.lang.IllegalStateException;
-
-import org.bouncycastle.crypto.CipherParameters;
 import org.bouncycastle.crypto.InvalidCipherTextException;
 
 /**

@@ -1,6 +1,6 @@
 package frost.threads;
 
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 public interface BoardUpdateThread
 {

@@ -1,7 +1,7 @@
 package frost.identities;
 
+import java.io.Serializable;
 import java.util.HashMap;
-import java.io.*;
 
 /**
  * contains the people the local user trusts

@@ -20,9 +20,9 @@
 
 package frost;
 
-import java.util.*;
+import java.awt.Color;
 import java.io.*;
-import java.awt.*;
+import java.util.*;
 
 /**
  * Read settings from frost.ini and store them.

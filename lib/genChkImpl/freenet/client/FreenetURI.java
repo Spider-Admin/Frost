@@ -1,10 +1,9 @@
 package freenet.client;
 
-import freenet.*;
-import freenet.support.Loader;
-import java.util.*;
 import java.net.MalformedURLException;
-import java.lang.reflect.InvocationTargetException;
+import java.util.*;
+
+import freenet.FieldSet;
 
 /**
  * FreenetURI handles parsing and creation of the Freenet URI format, defined 

@@ -39,7 +39,7 @@ public class Board implements Serializable {
 	public BoardAdvertisement getNewBoardAd() {
 		BoardAdvertisement ba = new BoardAdvertisement();
 		ba.setBoard(board);
-		ba.setStatus(ba.NEW);
+		ba.setStatus(BoardAdvertisement.NEW);
 		ba.setKey(key);
 		ba.setDescription(description);
 		return ba;
@@ -48,7 +48,7 @@ public class Board implements Serializable {
         public BoardAdvertisement getDailyBoardAd() {
             BoardAdvertisement ba = new BoardAdvertisement();
             ba.setBoard(board);
-            ba.setStatus(ba.DAILY);
+            ba.setStatus(BoardAdvertisement.DAILY);
             ba.setKey(key);
             ba.setDescription(description);
             return ba;

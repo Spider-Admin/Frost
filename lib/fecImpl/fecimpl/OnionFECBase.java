@@ -1,12 +1,9 @@
 package fecimpl;
 
 //import freenet.FieldSet;
-import freenet.client.FECDecoder;
-import freenet.support.Bucket;
-import freenet.support.BucketFactory;
+import com.onionnetworks.fec.*;
 
-import com.onionnetworks.fec.FECCode;
-import com.onionnetworks.fec.DefaultFECCodeFactory;
+import freenet.support.BucketFactory;
 
 /*
   This code is distributed under the GNU Public Licence (GPL)
@@ -17,7 +14,7 @@ import com.onionnetworks.fec.DefaultFECCodeFactory;
  * Implementation base class that contains functionality
  * common to Onion codec based encoders and decoders.
  **/
-class OnionFECBase {
+public class OnionFECBase {
     // coder parameters
     protected String name = null;
     protected int redundancyNumerator = -1;
@@ -54,7 +51,7 @@ class OnionFECBase {
                         BucketFactory factory) {
         release();
 
-        this.name = name;
+        //this.name = name;
         this.segParams = calculateParams(fileSize);
 
         this.bucketFactory = factory;

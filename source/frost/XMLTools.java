@@ -1,12 +1,13 @@
 package frost;
 
 import java.io.*;
-import java.util.*;
+import java.util.ArrayList;
+
 import javax.xml.parsers.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
 
 import org.apache.xml.serialize.*;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 /**
  * A place to hold utility methods for XML processing.

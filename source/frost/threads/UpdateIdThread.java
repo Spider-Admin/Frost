@@ -18,11 +18,10 @@
 */
 package frost.threads;
 
-import java.util.*;
-import java.io.*;
+import java.io.File;
 
 import frost.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {

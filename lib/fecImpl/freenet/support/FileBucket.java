@@ -1,7 +1,8 @@
 package freenet.support;
 
-import freenet.support.io.NullInputStream;
 import java.io.*;
+
+import freenet.support.io.NullInputStream;
 
 /**
  * A file Bucket is an implementation of Bucket that writes to a file.

@@ -1,7 +1,7 @@
 package org.bouncycastle.crypto.params;
 
-import java.security.SecureRandom;
 import java.math.BigInteger;
+import java.security.SecureRandom;
 
 import org.bouncycastle.crypto.KeyGenerationParameters;
 

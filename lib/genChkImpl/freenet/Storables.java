@@ -1,9 +1,10 @@
 package freenet;
 
-import freenet.crypt.*;
-import freenet.support.Fields;
 import java.math.BigInteger;
 import java.util.Random;
+
+import freenet.crypt.*;
+import freenet.support.Fields;
 
 /** A simple wrapper around a FieldSet for dealing with the Storable.*
   * fields in a Freenet message.

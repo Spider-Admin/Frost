@@ -1,26 +1,16 @@
 package frost.crypt;
 
-import java.io.*;
-import java.util.*;
 import java.math.BigInteger;
 import java.security.SecureRandom;
+import java.util.StringTokenizer;
 
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.BufferedAsymmetricBlockCipher;
-import org.bouncycastle.crypto.CryptoException;
-import org.bouncycastle.crypto.InvalidCipherTextException;
-import org.bouncycastle.crypto.engines.RSAEngine;
-import org.bouncycastle.crypto.engines.TwofishEngine;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
-import org.bouncycastle.crypto.params.KeyParameter;
-import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
+import org.bouncycastle.crypto.*;
 import org.bouncycastle.crypto.digests.SHA1Digest;
-import org.bouncycastle.crypto.signers.PSSSigner;
+import org.bouncycastle.crypto.engines.*;
 import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
+import org.bouncycastle.crypto.params.*;
+import org.bouncycastle.crypto.signers.PSSSigner;
 import org.bouncycastle.util.encoders.Base64;
-//import org.bouncycastle.crypto.paddings.PaddedBufferedBlockCipher;
-import org.bouncycastle.crypto.BufferedBlockCipher;
 //import org.bouncycastle.crypto.paddings.X923Padding;
 
 
@@ -69,28 +59,28 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 	StringBuffer temp = new StringBuffer("");
 
 	//create the keys
-	temp.append(new String(texter.encode(PubKey.getExponent().toByteArray())));
+	temp.append(new String(Base64.encode(PubKey.getExponent().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PubKey.getModulus().toByteArray())));
+	temp.append(new String(Base64.encode(PubKey.getModulus().toByteArray())));
 	result[1] = temp.toString();
 
 	//rince and repeat, this time exactly the way its done in the constructor
 	temp = new StringBuffer("");
-	temp.append(new String(texter.encode(PrivKey.getModulus().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getModulus().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PrivKey.getPublicExponent().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getPublicExponent().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PrivKey.getExponent().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getExponent().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PrivKey.getP().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getP().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PrivKey.getQ().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getQ().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PrivKey.getDP().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getDP().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PrivKey.getDQ().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getDQ().toByteArray())));
 	temp.append(":");
-	temp.append(new String(texter.encode(PrivKey.getQInv().toByteArray())));
+	temp.append(new String(Base64.encode(PrivKey.getQInv().toByteArray())));
 	result[0] = temp.toString();
 
 	//that's it
@@ -107,14 +97,14 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 	signedMessage.append(message);
 	StringTokenizer keycutter = new StringTokenizer(key,":");
 	RSAPrivateCrtKeyParameters privKey =new RSAPrivateCrtKeyParameters(
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())));
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())));
 
 	//initialize the signer
 
@@ -125,7 +115,7 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 	try {
             byte[] signature = signer.generateSignature();
             signedMessage.append("\n=== Frost message signature: ===\n");
-            signedMessage.append(new String(texter.encode(signature)));
+            signedMessage.append(new String(Base64.encode(signature)));
             signedMessage.append("\n=== End of Signature. ===");
         } catch (CryptoException e) {
             System.err.println("CryptoException in Verifier.sign: " + e.getMessage());
@@ -160,14 +150,14 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 
 	//extract the key
 	StringTokenizer keycutter = new StringTokenizer(key,":");
-	BigInteger Exponent = new BigInteger(texter.decode(keycutter.nextToken()));
-        BigInteger Modulus = new BigInteger(texter.decode(keycutter.nextToken()));
+	BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
+        BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
 	signer.init(false,new RSAKeyParameters(true,Modulus,Exponent));
 
 	//and verify!
 	signer.update(plaintext.getBytes(),0,plaintext.length());
 
-	boolean result= signer.verifySignature(texter.decode(signature.getBytes()));
+	boolean result= signer.verifySignature(Base64.decode(signature.getBytes()));
 	signer.reset();
 	return result;
 
@@ -179,7 +169,7 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
         stomach.update(food, 0, food.length);
         byte[] poop = new byte[64];
         stomach.doFinal(poop,0);
-        return (new String(texter.encode(poop))).substring(0,27);
+        return (new String(Base64.encode(poop))).substring(0,27);
     }
 
  public synchronized String simEncrypt(String what, String key){/*
@@ -245,8 +235,8 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 
  	//initialize d_encryptor
  	StringTokenizer keycutter = new StringTokenizer(otherKey,":");
-	BigInteger Exponent = new BigInteger(texter.decode(keycutter.nextToken()));
-        BigInteger Modulus = new BigInteger(texter.decode(keycutter.nextToken()));
+	BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
+        BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
 	RSAEngine rsa = new RSAEngine();
 	rsa.init(true, new RSAKeyParameters(false,Modulus,Exponent));
  	//d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
@@ -279,7 +269,7 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 	for (int i=0;i<noRuns;i++) {
 	System.arraycopy(rsa.processBlock(str,i*size,size),0,tmp,i*outSize,outSize);
 	}
-	result = new String(texter.encode(tmp));
+	result = new String(Base64.encode(tmp));
 	//d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
 	//result = result + (new String(texter.encode(d_encryptor.doFinal())));
 
@@ -306,21 +296,21 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 
 	StringTokenizer keycutter = new StringTokenizer(otherKey,":");
 	RSAPrivateCrtKeyParameters privKey =new RSAPrivateCrtKeyParameters(
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())),
-						new BigInteger(texter.decode(keycutter.nextToken())));
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())),
+						new BigInteger(Base64.decode(keycutter.nextToken())));
  	rsa.init(false,privKey);
 
 	int size = rsa.getInputBlockSize();
 	int outSize = rsa.getOutputBlockSize();
 
 	//decode the text
-	byte [] cipherText = texter.decode(what.getBytes());
+	byte [] cipherText = Base64.decode(what.getBytes());
 	byte [] plainText = new byte[cipherText.length*128/size];
 
 

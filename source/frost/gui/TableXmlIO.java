@@ -1,17 +1,13 @@
 package frost.gui;
 
-import java.io.*;
-import javax.xml.parsers.*;
-import org.w3c.dom.*;
-import org.xml.sax.*;
+import java.io.File;
+import java.util.ArrayList;
 
-import java.util.*;
-import javax.swing.*;
-import javax.swing.tree.*;
+import org.w3c.dom.*;
 
 import frost.*;
-import frost.gui.objects.*;
 import frost.gui.model.*;
+import frost.gui.objects.*;
 
 public class TableXmlIO
 {

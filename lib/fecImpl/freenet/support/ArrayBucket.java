@@ -1,8 +1,6 @@
 package freenet.support;
-import freenet.*;
 import java.io.*;
-import java.util.Vector;
-import java.util.Enumeration;
+import java.util.*;
 
 /**
  * A bucket that stores data in the memory.

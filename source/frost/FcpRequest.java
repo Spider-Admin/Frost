@@ -1,16 +1,14 @@
 package frost;
 
 import java.io.*;
-import java.lang.*;
 import java.net.*;
 import java.util.*;
 
-import frost.gui.model.*;
-import frost.gui.objects.*;
-
+import fillament.util.WorkQueue;
 import frost.FcpTools.*;
+import frost.gui.model.DownloadTableModel;
+import frost.gui.objects.FrostDownloadItemObject;
 import frost.threads.*;
-import fillament.util.*;
 
 /**
  * Requests a key from freenet
@@ -133,7 +131,7 @@ public class FcpRequest
             dlItem.setBlockProgress( 0,
                                      totalRequiredBlocks,
                                      totalAvailableBlocks);
-            dlItem.setState( dlItem.STATE_PROGRESS );
+            dlItem.setState( FrostDownloadItemObject.STATE_PROGRESS );
 
             ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
         }
@@ -709,7 +707,7 @@ public class FcpRequest
 
             // Check if file is a splitfile.
             boolean isSplitfile = false;
-            if( tempFile.length() < 65536 ) // TODO: is redirect file of this max size?
+            if( tempFile.length() < 65536 ) // TODO: is redirect file really of this max size?
             {
                 String content[] = FileAccess.readFile(tempFile).split("\n");
                 for( int i = 0; i < content.length; i++ )
@@ -980,7 +978,7 @@ Document
             dlItem.setBlockProgress( 0,
                                      intBlockCount,
                                      intBlockCount);
-            dlItem.setState( dlItem.STATE_PROGRESS );
+            dlItem.setState( FrostDownloadItemObject.STATE_PROGRESS );
             ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
         }
 

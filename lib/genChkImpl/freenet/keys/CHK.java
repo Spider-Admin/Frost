@@ -1,10 +1,9 @@
 package freenet.keys;
-import freenet.crypt.*;
-import freenet.support.Fields;
-import freenet.support.io.*;
-//import freenet.message.DataSend;
+import java.io.InputStream;
+
 import freenet.*;
-import java.io.*;
+import freenet.crypt.*;
+import freenet.support.io.*;
 
 public class CHK extends Key {
 

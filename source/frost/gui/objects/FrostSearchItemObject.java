@@ -1,7 +1,7 @@
 package frost.gui.objects;
 
-import frost.*;
-import frost.gui.model.*;
+import frost.KeyClass;
+import frost.gui.model.TableMember;
 
 
 public class FrostSearchItemObject implements FrostSearchItem, TableMember

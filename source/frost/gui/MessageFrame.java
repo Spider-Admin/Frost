@@ -20,15 +20,14 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+import java.util.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
-import java.util.*;
-import java.io.*;
 
 import frost.*;
-import frost.FcpTools.*;
-import frost.threads.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 public class MessageFrame extends JFrame
 {

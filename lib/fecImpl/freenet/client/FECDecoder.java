@@ -1,9 +1,8 @@
 package freenet.client;
 
-import freenet.support.Bucket;
-import freenet.support.BucketFactory;
-//import freenet.client.metadata.SplitFile;
 import java.io.IOException;
+
+import freenet.support.*;
 
 /*
   This code is distributed under the GNU Public Licence (GPL)

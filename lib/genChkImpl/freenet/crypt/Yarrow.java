@@ -1,8 +1,7 @@
 package freenet.crypt;
 
-import java.math.BigInteger;
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 /*
   This code is part of the Java Adaptive Network Client by Ian Clarke.

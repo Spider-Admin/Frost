@@ -1,6 +1,5 @@
 package org.bouncycastle.crypto;
 
-import java.lang.IllegalStateException;
 
 /**
  * A wrapper class that allows block ciphers to be used to process data in

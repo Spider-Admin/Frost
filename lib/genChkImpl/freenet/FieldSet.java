@@ -1,12 +1,12 @@
 package freenet;
 
-import freenet.crypt.*;
-import freenet.support.*;
-import freenet.support.sort.*;
-import freenet.support.io.*;
 import java.io.*;
-import java.util.Hashtable;
-import java.util.Enumeration;
+import java.util.*;
+
+import freenet.crypt.Digest;
+import freenet.support.Fields;
+import freenet.support.io.*;
+import freenet.support.sort.*;
 
 /**
  * This is a wrapper for a Hashtable containing strings and other FieldsSets

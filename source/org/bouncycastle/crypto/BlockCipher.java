@@ -1,6 +1,5 @@
 package org.bouncycastle.crypto;
 
-import java.lang.IllegalStateException;
 
 /**
  * Block cipher engines are expected to conform to this interface.

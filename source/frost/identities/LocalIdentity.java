@@ -1,12 +1,9 @@
 package frost.identities;
 
-import java.util.*;
 import java.io.*;
-import javax.swing.*;
 
-import frost.*;
-import frost.FcpTools.*;
-import frost.crypt.*;
+import frost.frame1;
+import frost.FcpTools.FcpFactory;
 
 /**
  * Represents the main user's identity

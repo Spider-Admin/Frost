@@ -1,16 +1,10 @@
 package fecimpl;
 
-import freenet.client.FECDecoder;
-import freenet.support.Bucket;
-import freenet.support.BucketFactory;
-import freenet.support.StripedBucketArray;
-import com.onionnetworks.fec.FECCode;
-import com.onionnetworks.fec.DefaultFECCodeFactory;
-
-import java.util.Hashtable;
-import java.util.Vector;
-import java.util.Enumeration;
 import java.io.IOException;
+import java.util.*;
+
+import freenet.client.FECDecoder;
+import freenet.support.*;
 
 /*
   This code is distributed under the GNU Public Licence (GPL)

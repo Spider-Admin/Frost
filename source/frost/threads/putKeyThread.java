@@ -1,13 +1,11 @@
 package frost.threads;
 
 import java.io.*;
-import java.net.*;
-import java.util.*;
 
 import frost.*;
 import frost.FcpTools.*;
-import frost.gui.objects.*;
-import frost.gui.model.*;
+import frost.gui.model.UploadTableModel;
+import frost.gui.objects.FrostUploadItemObject;
 
 public class putKeyThread extends Thread {
 

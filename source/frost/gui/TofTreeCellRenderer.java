@@ -19,15 +19,13 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 
 package frost.gui;
 
-import javax.swing.*;
-import javax.swing.tree.*;
 import java.awt.*;
-import java.awt.event.*;
-import java.io.*;
-import java.util.*;
 
-import frost.*;
-import frost.gui.objects.*;
+import javax.swing.*;
+import javax.swing.tree.DefaultTreeCellRenderer;
+
+import frost.frame1;
+import frost.gui.objects.FrostBoardObject;
 
 public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 {

@@ -19,19 +19,14 @@
 
 package frost.threads;
 
+import java.awt.Frame;
 import java.io.*;
-import java.util.*;
-import java.text.SimpleDateFormat;
-import javax.swing.*;
-import javax.swing.table.*;
-import java.awt.*;
-import java.awt.event.*;
+import java.util.Vector;
 
-import frost.crypt.*;
 import frost.*;
-import frost.identities.*;
-import frost.gui.*;
-import frost.gui.objects.*;
+import frost.gui.MessageUploadFailedDialog;
+import frost.gui.objects.FrostBoardObject;
+import frost.identities.Identity;
 
 /**
  * Uploads a message to a certain message board

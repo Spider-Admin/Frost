@@ -19,7 +19,6 @@
 
 package frost.gui.model;
 
-import javax.swing.table.*;
 
 public class MessageTableModel extends SortedTableModel2
 {

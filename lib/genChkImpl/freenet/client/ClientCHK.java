@@ -1,10 +1,11 @@
 package freenet.client;
-import freenet.*;
-import freenet.keys.CHK;
-import freenet.crypt.*;
-import freenet.support.*;
 import java.io.*;
 import java.util.Random;
+
+import freenet.*;
+import freenet.crypt.*;
+import freenet.keys.CHK;
+import freenet.support.Bucket;
 
 /**
  * ClientKey implementation for CHKs.

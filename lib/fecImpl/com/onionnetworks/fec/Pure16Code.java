@@ -1,7 +1,6 @@
 package com.onionnetworks.fec;
 
 import com.onionnetworks.util.Util;
-import com.onionnetworks.util.Buffer;
 /**
  * This class, along with FECMath, provides the implementation of the pure
  * Java 16 bit FEC codes.  This is heavily dervied from Luigi Rizzos original

@@ -1,6 +1,5 @@
 package org.bouncycastle.crypto;
 
-import java.math.BigInteger;
 
 /**
  * base interface that a public/private key block cipher needs

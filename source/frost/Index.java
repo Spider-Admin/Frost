@@ -18,13 +18,8 @@
 */
 package frost;
 
-import java.io.*;
-import java.util.zip.*;
+import java.io.File;
 import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.*;
 
 public class Index
 {
