@@ -26,7 +26,7 @@ public interface MessageHashesDAO {
 	 * in the storage
 	 * @throws StorageException if there was a problem while loading the information.
 	 */
-	public void load(MessageHashes MessageHashes) throws StorageException;
+	public void load(MessageHashes messageHashes) throws StorageException;
 	
 	/**
 	 * This method saves the information contained in the given MessageHashes object
@@ -34,7 +34,7 @@ public interface MessageHashesDAO {
 	 * @param messageHashes MessageHashes whose information is going to be saved
 	 * @throws StorageException if there was a problem while saving the information.
 	 */
-	public void save(MessageHashes MessageHashes) throws StorageException;
+	public void save(MessageHashes messageHashes) throws StorageException;
 	
 	/**
 	 * This method creates the underlying storage.

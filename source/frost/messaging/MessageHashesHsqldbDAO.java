@@ -23,7 +23,7 @@ public class MessageHashesHsqldbDAO implements MessageHashesDAO {
 	/* (non-Javadoc)
 	 * @see frost.messaging.MessageHashesDAO#load(frost.messaging.MessageHashes)
 	 */
-	public void load(MessageHashes MessageHashes) throws StorageException {
+	public void load(MessageHashes messageHashes) throws StorageException {
 		// TODO Auto-generated method stub
 		
 	}
@@ -31,7 +31,7 @@ public class MessageHashesHsqldbDAO implements MessageHashesDAO {
 	/* (non-Javadoc)
 	 * @see frost.messaging.MessageHashesDAO#save(frost.messaging.MessageHashes)
 	 */
-	public void save(MessageHashes MessageHashes) throws StorageException {
+	public void save(MessageHashes messageHashes) throws StorageException {
 		// TODO Auto-generated method stub
 		
 	}
