@@ -2497,7 +2497,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 
 		// enable the machine ;)
-		runningBoardUpdateThreads = new RunningBoardUpdateThreads(core);
+		runningBoardUpdateThreads = new RunningBoardUpdateThreads(core.getIdentities(), core.getLanguageResource());
 		//note: changed this from timertask so that I can give it a name --zab
 		Thread tickerThread = new Thread("tick tack") {
 			public void run() {

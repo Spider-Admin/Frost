@@ -5,7 +5,9 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.identities.FrostIdentities;
 import frost.messages.MessageObject;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * This class maintains the message download and upload threads.
@@ -13,9 +15,10 @@ import frost.messages.MessageObject;
  */
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
-	private Core core;
-
 	private static Logger logger = Logger.getLogger(RunningBoardUpdateThreads.class.getName());
+	
+	private FrostIdentities identities;
+	private UpdatingLanguageResource languageResource;
 	
     // listeners are notified of each finished thread
     Hashtable threadListenersForBoard = null; // contains all listeners registered for 1 board
@@ -26,9 +29,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     // contains key=board, data=vector of BoardUpdateThread's (multiple of kind MSG_UPLOAD)
     Hashtable runningUploadThreads = null;
 
-    public RunningBoardUpdateThreads(Core newCore)
+    public RunningBoardUpdateThreads(FrostIdentities identities, UpdatingLanguageResource languageResource)
     {
-    	core = newCore;
+    	this.identities = identities;
+    	this.languageResource = languageResource;
     	
         threadListenersForBoard = new Hashtable();
         threadListenersForAllBoards = new Vector();
@@ -54,7 +58,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 				config.getIntValue("tofDownloadHtl"),
 				config.getValue("keypool.dir"),
 				config.getValue("maxMessageDownload"),
-				core.getIdentities());
+				identities);
 
 		// register listener and this class as listener
 		tofd.addBoardUpdateThreadListener(this);
@@ -85,7 +89,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 				config.getIntValue("tofDownloadHtl"),
 				config.getValue("keypool.dir"),
 				config.getValue("maxMessageDownload"),
-				core.getIdentities());
+				identities);
 
 		// register listener and this class as listener
 		backload.addBoardUpdateThreadListener(this);
@@ -141,7 +145,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
    
 	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
 	for (int i =0;i<downloadBack;i++) 
-		threads[i] = new UpdateIdThread(board,DateFun.getDate(i), core.getIdentities());
+		threads[i] = new UpdateIdThread(board,DateFun.getDate(i), identities);
         
 	//NOTE: since we now do deep requests, it takes a lot of time for
 	//all these threads to finish.  So I'll notify the gui that the message downlaod thread is done updating
@@ -185,7 +189,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 		BoardUpdateThreadListener listener) {
 			
 		MessageUploadThread msgUploadThread =
-			new MessageUploadThread(board, mo, core.getIdentities());
+			new MessageUploadThread(board, mo, identities, languageResource);
 		// register listener and this class as listener
 		msgUploadThread.addBoardUpdateThreadListener(this);
 		if (listener != null) {
