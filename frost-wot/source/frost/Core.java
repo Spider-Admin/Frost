@@ -248,7 +248,7 @@ public class Core {
 
 		//load the batches
 		File batches = new File("batches");
-		if (batches.exists())
+		if (batches.exists() && batches.length() > 0) //fix previous version bug
 			try {
 				String allBatches = FileAccess.readFileRaw(batches);
 				String[] _batches = allBatches.split("_");
