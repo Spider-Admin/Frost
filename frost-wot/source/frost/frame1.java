@@ -45,10 +45,7 @@ import frost.threads.*;
 import frost.identities.*;
 
 //++++ TODO: count running downloads+waiting
-//++++ TODO: use listeners in upload/download threads
 //++++ TODO: rework identities stuff + save to xml
-//++++ TODO: if a person is set to BAD, clean all new-message indicators (.lck files) in all boards for this person
-//             -> like done in TOF.initialSearchNewMessages on startup
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
@@ -1712,56 +1709,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
+    /**
+     * Thread is invoked if the Trust or NotTrust button is clicked.
+     */
     private class Truster extends Thread
     {
         private boolean trust;
         private Identity newFriend;
         private VerifyableMessageObject currentMsg;
-
-        private void recursDir(String dirItem)
-        {
-            String list[];
-            File file = new File(dirItem);
-            if( file.isDirectory() && file.listFiles().length > 0 )
-            {
-                //System.out.println("\n"+file+":");
-                Vector vd = new Vector();
-                Vector vf = new Vector();
-                list = file.list();
-                Arrays.sort(list,String.CASE_INSENSITIVE_ORDER);
-
-                for( int i = 0; i < list.length; i++ )
-                {
-                    File f = new File(dirItem + File.separatorChar + list[i]);
-                    if( f.isDirectory() ) vd.add(list[i]);
-                    else vf.add(list[i]);
-                }
-                for( int a=0; a < vf.size(); a++ )
-                    recursDir (dirItem + File.separatorChar + vf.get(a));
-                for( int d=0; d < vd.size(); d++ )
-                    recursDir (dirItem + File.separatorChar + vd.get(d));
-            }
-            else
-                processItem(dirItem);
-            list=null;
-
-        }
-
-        private void processItem(String dirItem)
-        {
-            File f = new File(dirItem);
-            FrostMessageObject temp;
-            if( f.getPath().endsWith(".txt") )
-            {//open file and check it
-                temp = new FrostMessageObject(f);
-                if( temp.getFrom().equals(currentMsg.getFrom()) &&
-                    temp.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
-                    if( trust ) temp.setStatus(VerifyableMessageObject.VERIFIED);
-                    else temp.setStatus(VerifyableMessageObject.FAILED);
-            }
-            f=null;
-            temp =null;
-        }
 
         public Truster(boolean what)
         {
@@ -1776,13 +1731,38 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         public void run()
         {
-            System.out.println("starting to update .sigs");
-            newFriend = new Identity(currentMsg.getFrom(),currentMsg.getKeyAddress());
-            if( trust ) friends.Add(newFriend);
-            else enemies.Add(newFriend);
+            System.out.println("Truster: starting to update messages, setting '"+currentMsg.getFrom()+"' to '"+
+                               ((trust==true)?"GOOD":"BAD")+"'");
 
-            recursDir("keypool");
+            newFriend = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
+            if( trust )
+                friends.Add(newFriend);
+            else
+                enemies.Add(newFriend);
+
+            // get all .txt files in keypool
+            Vector entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
+                                                       ".txt");
+            Iterator i = entries.iterator();
+            while( i.hasNext() )
+            {
+                String txtFile = (String)i.next();
+                FrostMessageObject tempMsg = new FrostMessageObject( txtFile );
+                if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
+                    tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
+                {
+                    if( trust )
+                        tempMsg.setStatus(VerifyableMessageObject.VERIFIED);
+                    else
+                        tempMsg.setStatus(VerifyableMessageObject.FAILED);
+                }
+            }
             tofTree_actionPerformed(null);
+            // finally step through all board files, count new messages and delete new messages from enemies
+            TOF.initialSearchNewMessages( getTofTree(), frostSettings.getIntValue("maxMessageDisplay") );
+
+            System.out.println("Truster: finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
+                               ((trust==true)?"GOOD":"BAD")+"'");
         }
     }
 
@@ -1799,7 +1779,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     if (current.getBlockedCount() > frostSettings.getIntValue("spamTreshold"))
                     {
                         //board is spammed
-                        System.out.println("#########setting spam status############");
+                        System.out.println("######### board '"+current.toString()+"' is spammed, update stops for 24h ############");
                         current.setSpammed(true);
                         // clear spam status in 24 hours
                         timer2.schedule(new ClearSpam(current),24*60*60*1000);
@@ -1827,7 +1807,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         public ClearSpam(FrostBoardObject which) { clearMe = which; }
         public void run()
         {
-            System.out.println("############clearing spam status for board "+clearMe.toString()+" ###########");
+            System.out.println("############ clearing spam status for board '"+clearMe.toString()+"' ###########");
             clearMe.setSpammed(false);
         }
     }
@@ -3044,7 +3024,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             if( friends.containsKey(selectedMessage.getFrom()) )
             {
                 if( JOptionPane.showConfirmDialog(getInstance(),
-                          "are you sure you want to revoke trust to user " +
+                          "Are you sure you want to revoke trust to user " +
                           selectedMessage.getFrom().substring(0,selectedMessage.getFrom().indexOf("@")) +
                           " ? \n If you choose yes, future messages from this user will be marked BAD",
                           "revoke trust",

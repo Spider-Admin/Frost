@@ -407,6 +407,8 @@ public class TOF
         while( e.hasMoreElements() )
         {
             final FrostBoardObject board = (FrostBoardObject)e.nextElement();
+            board.setNewMessageCount( 0 ); // reset count
+
             if( board.isFolder() == true )
                 continue;
 

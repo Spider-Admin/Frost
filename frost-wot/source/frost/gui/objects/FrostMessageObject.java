@@ -6,7 +6,6 @@ import frost.*;
 
 public class FrostMessageObject extends VerifyableMessageObject implements FrostMessage
 {
-
     public FrostMessageObject()
     {
         super();
@@ -15,5 +14,8 @@ public class FrostMessageObject extends VerifyableMessageObject implements Frost
     {
         super(file);
     }
-
+    public FrostMessageObject(String filename)
+    {
+        this(new File(filename));
+    }
 }
