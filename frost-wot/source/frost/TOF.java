@@ -440,7 +440,7 @@ public class TOF
 
     public static void initialSearchNewMessages(FrostBoardObject board)
     {
-        new SearchNewMessages( board );
+        new SearchNewMessages( board ).start();
     }
 
     private static class SearchNewMessages extends Thread
