@@ -38,6 +38,8 @@ import frost.gui.objects.*;
 public class TofTree extends JTree
 implements DragGestureListener, DropTargetListener, DragSourceListener
 {
+    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+
     final public static DataFlavor NODE_FLAVOR = new DataFlavor(TofTree.class, "Tof Tree Node");
     static DataFlavor flavors[] = { NODE_FLAVOR };
 
@@ -131,11 +133,6 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
             TreePath destPath = getPathForLocation(loc.x, loc.y);
             DefaultMutableTreeNode newParent = (DefaultMutableTreeNode)destPath.getLastPathComponent();
             DefaultMutableTreeNode oldParent = (DefaultMutableTreeNode)dragNode.getParent();
-            //      if (newParent.isRoot()) {
-            //      e.rejectDrop();
-            //      e.getDropTargetContext().dropComplete(false);
-            //      return;
-            //      }
             // we need to verify that the drag/drop operation is valid
             try
             {
@@ -345,4 +342,87 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
         // the method scans the toftree
         return xmlio.saveBoardTree( this, boardIniFilename );
     }
+
+    /**
+     * Opens dialog, gets new name for folder, checks for double names, adds node to tree
+     */
+    public void createNewBoard(Frame parent)
+    {
+        String nodeName = null;
+        do
+        {
+            Object nodeNameOb = JOptionPane.showInputDialog (parent,
+                                                             LangRes.getString ("New Node Name"),
+                                                             LangRes.getString ("New Node Name"),
+                                                             JOptionPane.QUESTION_MESSAGE, null, null,
+                                                             "newboard");
+
+            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
+
+            if( nodeName == null )
+                return; // cancelled
+
+            if( getBoardByName( nodeName ) != null )
+            {
+                JOptionPane.showMessageDialog(this, "You already have a board with name '"+nodeName+"'!\nPlease choose a new name.");
+                nodeName = ""; // loop again
+            }
+        } while( nodeName.length()==0 );
+
+        addNodeToTree( new FrostBoardObject(nodeName) );
+    }
+
+    /**
+     * Opens dialog, gets new name for folder, checks for double names, adds node to tree
+     */
+    public void createNewFolder(Frame parent)
+    {
+        String nodeName = null;
+        do
+        {
+            Object nodeNameOb = JOptionPane.showInputDialog(parent,
+                                                            "Please enter a name for the new folder:",
+                                                            "New Folder Name",
+                                                            JOptionPane.QUESTION_MESSAGE, null, null,
+                                                            "newfolder");
+
+            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
+
+            if( nodeName == null )
+                return; // cancelled
+
+        } while( nodeName.length()==0 );
+
+        addNodeToTree( new FrostBoardObject(nodeName, true) );
+    }
+
+    /**
+     * Adds a node to tof tree, adds only under folders, begins with selected node.
+     */
+    public void addNodeToTree(FrostBoardObject newNode)
+    {
+        FrostBoardObject selectedNode = (FrostBoardObject)getLastSelectedPathComponent();
+        if( selectedNode != null)
+        {
+            if( selectedNode.isFolder()==true )
+            {
+                selectedNode.add(newNode);
+            }
+            else
+            {
+                // add to parent of selected node
+                selectedNode = (FrostBoardObject)selectedNode.getParent();
+                selectedNode.add(newNode);
+            }
+        }
+        else
+        {
+            // add to root node
+            selectedNode = (FrostBoardObject)getModel().getRoot();
+            selectedNode.add(newNode);
+        }
+        int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
+        ((DefaultTreeModel)getModel()).nodesWereInserted( selectedNode, insertedIndex );
+    }
+
 }
