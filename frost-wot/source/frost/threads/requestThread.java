@@ -59,7 +59,7 @@ public class requestThread extends Thread
         File newFile = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
         boolean do_request = false;
 
-        System.out.println("Download of " + filename + " with HTL " + htl.toString() + " started.");
+        System.out.println("FILEDN: Download of " + filename + " with HTL " + htl.toString() + " started.");
 
         // Download file
         boolean success = false;
@@ -83,7 +83,7 @@ public class requestThread extends Thread
         // download failed
         if( !success )
         {
-            System.out.println("Download of " + filename + " failed.");
+            System.out.println("FILEDN: Download of " + filename + " failed.");
             if( inTable == true )
             {
                 // Upload request to request stack
@@ -91,7 +91,7 @@ public class requestThread extends Thread
 
                 if( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl") )
                 {
-                    if( DEBUG ) System.out.println("Download failed, uploading request for " + filename);
+                    if( DEBUG ) System.out.println("FILEDN: Download failed, uploading request for " + filename);
                     downloadItem.setState( downloadItem.STATE_REQUESTING );
                     tableModel.updateRow( downloadItem );
 
@@ -101,15 +101,15 @@ public class requestThread extends Thread
                     // so download seems to stall
                     try {
                         request(key.trim(), board);
-                        if( DEBUG ) System.out.println("Uploaded request for " + filename);
+                        if( DEBUG ) System.out.println("FILEDN: Uploaded request for " + filename);
                     }
                     catch(Throwable t) {
-                        System.out.println("Uploading request failed for "+filename);
+                        System.out.println("FILEDN: Uploading request failed for "+filename);
                     }
                 }
                 else
                 {
-                    if( DEBUG ) System.out.println("Download failed, but htl is too low to request it.");
+                    if( DEBUG ) System.out.println("FILEDN: Download failed, but htl is too low to request it.");
                 }
                 // Download / restart failed downloads
                 int columnDataHtl = downloadItem.getHtl().intValue();
@@ -162,7 +162,7 @@ public class requestThread extends Thread
         String messageUploadHtl = frame1.frostSettings.getValue("tofUploadHtl");
         boolean requested = false;
 
-        if( DEBUG ) System.out.println("Uploading request, key=" + key + " ; board=" + board.toString());
+        if( DEBUG ) System.out.println("FILEDN: Uploading request for '"+filename+"' to board '" + board.toString()+"'");
 
         String fileSeparator = System.getProperty("file.separator");
         String destination = new StringBuffer().append(frame1.keypool)
@@ -190,7 +190,7 @@ public class requestThread extends Thread
             if( content.equals(key) )
             {
                 requested = true;
-                System.out.println("File was already requested");
+                System.out.println("FILEDN: File '"+filename+"' was already requested");
                 break;
             }
         }
@@ -226,7 +226,7 @@ public class requestThread extends Thread
                 if( testMe.length() > 0 )
                 { // already downloaded
                     index++;
-                    if( DEBUG ) System.out.println("File exists, increasing index to " + index);
+                    if( DEBUG ) System.out.println("FILEDN: File exists, increasing index to " + index);
                     continue; // while
                 }
                 else
@@ -245,7 +245,7 @@ public class requestThread extends Thread
                     {
                         // another thread tries to insert using this index, try next
                         index++;
-                        if( DEBUG ) System.out.println("Other thread tries this index, increasing index to " + index);
+                        if( DEBUG ) System.out.println("FILEDN: Other thread tries this index, increasing index to " + index);
                         continue; // while
                     }
                     else
@@ -317,13 +317,13 @@ public class requestThread extends Thread
 
                             if( contentOne.equals(contentTwo) )
                             {
-                                if( DEBUG ) System.out.println("Key Collision and file was already requested");
+                                if( DEBUG ) System.out.println("FILEDN: Key Collision and file was already requested");
                                 success = true;
                             }
                             else
                             {
                                 index++;
-                                System.out.println("Request Upload collided, increasing index to " + index);
+                                System.out.println("FILEDN: Request Upload collided, increasing index to " + index);
 
                                 if( frame1.frostSettings.getBoolValue("disableRequests") == true )
                                 {
@@ -339,7 +339,7 @@ public class requestThread extends Thread
                         }
                         else
                         {
-                            System.out.println("Request upload failed (" + tries + "), retrying index " + index);
+                            System.out.println("FILEDN: Request upload failed (" + tries + "), retrying index " + index);
                             if( tries > 5 )
                             {
                                 success = true;
@@ -357,16 +357,16 @@ public class requestThread extends Thread
             {
                 requestFile.renameTo(testMe);
 
-                System.out.println("\n*********************************************************************");
-                System.out.println("Request successfuly uploaded to board '" + board + "'.");
+                System.out.println("*********************************************************************");
+                System.out.println("Request for '"+filename+"' successfully uploaded to board '" + board + "'.");
                 System.out.println("*********************************************************************");
             }
             else
             {
-                System.out.println("\nError while uploading request.");
+                System.out.println("\nFILEDN: Error while uploading request for '"+filename+"' to board '" + board + "'.");
                 requestFile.delete();
             }
-            System.out.println("Request Upload Thread finished");
+            System.out.println("FILEDN: Request Upload Thread finished");
         }
     }
 
