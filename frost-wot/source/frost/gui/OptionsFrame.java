@@ -98,11 +98,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
 
     JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox(LangRes.getString("Remove finished downloads every 5 minutes.") +
-                                                              LangRes.getString("(Off)"));
+							      " " + LangRes.getString("(Off)"));
 
-    JCheckBox allowEvilBertCheckBox = new JCheckBox(LangRes.getString("Allow 2 byte characters") +
+    JCheckBox allowEvilBertCheckBox = new JCheckBox(LangRes.getString("Allow 2 byte characters") + " " +
                                                     LangRes.getString("(Off)"));
-    JCheckBox miscAltEditCheckBox = new JCheckBox(LangRes.getString("Use editor for writing messages: ") +
+    JCheckBox miscAltEditCheckBox = new JCheckBox(LangRes.getString("Use editor for writing messages: ") + " " +
                                                   LangRes.getString("(Off)"));
 
     JList optionsGroupsList = null;
@@ -114,18 +114,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField tofBlockMessageBodyTextField = new JTextField(32);
     JTextField startRequestingAfterHtlTextField = new JTextField(5);
 
-    JCheckBox uploadDisableRequests = new JCheckBox("Disable uploads");
-    JCheckBox downloadDisableDownloads = new JCheckBox("Disable downloads");
+    JCheckBox uploadDisableRequests = new JCheckBox(LangRes.getString("Disable uploads"));
+    JCheckBox downloadDisableDownloads = new JCheckBox(LangRes.getString("Disable downloads"));
 
-    JCheckBox signedOnly = new JCheckBox("Show only signed messages (off)");
-    JCheckBox goodOnly = new JCheckBox("Show only GOOD messages (off)");
-    JCheckBox block = new JCheckBox("Block message from/subject containing:");
-    JCheckBox blockBody = new JCheckBox("Block message body containing:");
-    JCheckBox doBoardBackoff = new JCheckBox("Do spam detection (experimental)");
-    JLabel interval = new JLabel("Sample interval (hours)");
-    JLabel treshold = new JLabel("Treshold of blocked messages");
-    JLabel startRequestingAfterHtlLabel = new JLabel("Insert request if HTL tops: (10) ");
-    JCheckBox cleanUP = new JCheckBox("Clean the keypool");
+    JCheckBox signedOnly = new JCheckBox(LangRes.getString("Show only signed messages"));
+    JCheckBox goodOnly = new JCheckBox(LangRes.getString("Show only GOOD messages") + " " + LangRes.getString("(Off)"));
+    JCheckBox block = new JCheckBox(LangRes.getString("Block message from/subject containing:"));
+    JCheckBox blockBody = new JCheckBox(LangRes.getString("Block message body containing:"));
+    JCheckBox doBoardBackoff = new JCheckBox(LangRes.getString("Do spam detection") + " (experimental)");
+    JLabel interval = new JLabel(LangRes.getString("Sample interval (hours)"));
+    JLabel treshold = new JLabel(LangRes.getString("Threshold of blocked messages"));
+    JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
+    JCheckBox cleanUP = new JCheckBox(LangRes.getString("Clean the keypool"));
 
     /**
      * Build up the whole GUI.
@@ -328,12 +328,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx = 0;
             constr.anchor = GridBagConstraints.WEST;
-            downloadPanel.add(new JLabel(LangRes.getString("Minimum HTL:")  + "(5)"), constr);
+            downloadPanel.add(new JLabel(LangRes.getString("Minimum HTL:")  + " (5)"), constr);
             constr.gridx = 1;
             downloadPanel.add(downloadMinHtlTextField, constr);
 
             constr.gridx = 2;
-            downloadPanel.add(new JLabel(LangRes.getString("Maximum HTL:") + "(30)"),constr);
+            downloadPanel.add(new JLabel(LangRes.getString("Maximum HTL:") + " (30)"),constr);
             constr.gridx = 3;
             downloadPanel.add(downloadMaxHtlTextField, constr);
 
@@ -345,13 +345,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
             constr.gridy++;
             constr.gridx = 0;
-            downloadPanel.add(new JLabel(LangRes.getString("Number of simultaneous downloads:") + "(3)"), constr);
+            downloadPanel.add(new JLabel(LangRes.getString("Number of simultaneous downloads:") + " (3)"), constr);
             constr.gridx = 1;
             downloadPanel.add(downloadThreadsTextField, constr);
 
             constr.gridy++;
             constr.gridx = 0;
-            downloadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + "(3)"), constr);
+            downloadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + " (3)"), constr);
             constr.gridx = 1;
             downloadPanel.add(downloadSplitfileThreadsTextField, constr);
 
@@ -397,18 +397,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             uploadPanel.add(uploadDisableRequests,constr);
             constr.gridy++;
             constr.gridx=0;
-            uploadPanel.add(new JLabel(LangRes.getString("Upload HTL:") + "(8)"),constr);
+            uploadPanel.add(new JLabel(LangRes.getString("Upload HTL:") + " (8)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadHtlTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            uploadPanel.add(new JLabel(LangRes.getString("Number of simultaneous uploads:") + "(3)"),constr);
+            uploadPanel.add(new JLabel(LangRes.getString("Number of simultaneous uploads:") + " (3)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadThreadsTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
             constr.insets = new Insets(5,5,5,5);
-            uploadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + "(3)"),constr);
+            uploadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + " (3)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadSplitfileThreadsTextField, constr);
             // filler (glue)
@@ -436,27 +436,27 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0;
             constr.gridy = 0;
-            tofPanel.add(new JLabel(LangRes.getString("Message upload HTL:") + "(21)"), constr);
+            tofPanel.add(new JLabel(LangRes.getString("Message upload HTL:") + " (21)"), constr);
             constr.gridx = 1;
             tofPanel.add(tofUploadHtlTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            tofPanel.add(new JLabel(LangRes.getString("Message download HTL:") + "(23)"), constr);
+            tofPanel.add(new JLabel(LangRes.getString("Message download HTL:") + " (23)"), constr);
             constr.gridx = 1;
             tofPanel.add(tofDownloadHtlTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            tofPanel.add(new JLabel(LangRes.getString("Number of days to display:") + "(10)"), constr);
+            tofPanel.add(new JLabel(LangRes.getString("Number of days to display:") + " (10)"), constr);
             constr.gridx = 1;
             tofPanel.add(tofDisplayDaysTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            tofPanel.add(new JLabel(LangRes.getString("Number of days to download backwards:") + "(3)"), constr);
+            tofPanel.add(new JLabel(LangRes.getString("Number of days to download backwards:") + " (3)"), constr);
             constr.gridx = 1;
             tofPanel.add(tofDownloadDaysTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            tofPanel.add(new JLabel(LangRes.getString("Message base:") + "(news)"), constr);
+            tofPanel.add(new JLabel(LangRes.getString("Message base:") + " (news)"), constr);
             constr.gridx = 1;
             tofPanel.add(tofMessageBaseTextField, constr);
             constr.gridy++;
@@ -557,18 +557,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0;
             constr.gridy = 0;
-            tof3Panel.add(new JLabel("Automatic update options"), constr);
+            tof3Panel.add(new JLabel(LangRes.getString("Automatic update options")), constr);
             constr.gridy++;
             constr.gridx = 0;
             constr.insets = new Insets(5, 25, 5, 5);
-            tof3Panel.add(new JLabel("Minimum update interval of a board (minutes):" + "(5)"), constr);
+            tof3Panel.add(new JLabel(LangRes.getString("Minimum update interval of a board (minutes) :") + " (5)"), constr);
             constr.gridx = 1;
             constr.insets = new Insets(5, 5, 5, 5);
             tof3Panel.add(TFautomaticUpdate_boardsMinimumUpdateInterval, constr);
             constr.gridy++;
             constr.gridx = 0;
             constr.insets = new Insets(5, 25, 5, 5);
-            tof3Panel.add(new JLabel("Number of concurrent updating boards:" + "(5)"), constr);
+            tof3Panel.add(new JLabel(LangRes.getString("Number of concurrently updating boards:") + " (5)"), constr);
             constr.gridx = 1;
             constr.insets = new Insets(5, 5, 5, 5);
             tof3Panel.add(TFautomaticUpdate_concurrentBoardUpdates, constr);
@@ -598,27 +598,27 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0;
             constr.gridy = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Keyfile upload HTL:") + "(21)"), constr);
+            miscPanel.add(new JLabel(LangRes.getString("Keyfile upload HTL:") + " (21)"), constr);
             constr.gridx = 1;
             miscPanel.add(miscKeyUploadHtlTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Keyfile download HTL:") + "(24)"), constr);
+            miscPanel.add(new JLabel(LangRes.getString("Keyfile download HTL:") + " (24)"), constr);
             constr.gridx = 1;
             miscPanel.add(miscKeyDownloadHtlTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Node address:") + "(127.0.0.1)"), constr);
+            miscPanel.add(new JLabel(LangRes.getString("Node address:") + " (127.0.0.1)"), constr);
             constr.gridx = 1;
             miscPanel.add(miscNodeAddressTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Node port:") + "(8481)"), constr);
+            miscPanel.add(new JLabel(LangRes.getString("Node port:") + " (8481)"), constr);
             constr.gridx = 1;
             miscPanel.add(miscNodePortTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Maximum number of keys to store:") + "(100000)"),constr);
+            miscPanel.add(new JLabel(LangRes.getString("Maximum number of keys to store:") + " (100000)"),constr);
             constr.gridx = 1;
             miscPanel.add(miscMaxKeysTextField, constr);
             constr.gridy++;

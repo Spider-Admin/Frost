@@ -109,6 +109,23 @@ public class LangRes extends ListResourceBundle {
 	{"Download directory:", "Download directory:"},
 	{"Minimum HTL:", "Minimum HTL:"},
 	{"Maximum HTL:", "Maximum HTL:"},
+
+	{"Disable uploads", "Disable uploads"},
+	{"Disable downloads", "Disable downloads"},
+	{"Show only signed messages", "Show only signed messages"},
+	{"Show only GOOD messages", "Show only GOOD messages"},
+	{"Block message body containing:", "Block message body containing:"},
+	{"Block message from/subject containing:", "Block message from/subject containing:"},
+	{"Do spam detection", "Do spam detection"},
+	{"Sample interval (hours)", "Sample interval (hours)"},
+	{"Threshold of blocked messages", "Threshold of blocked messages"},
+	{"Insert request if HTL tops:", "Insert request if HTL tops:"},
+	{"Clean the keypool", "Clean the keypool"},
+
+	{"Automatic update options", "Automatic update options"},
+	{"Minimum update interval of a board (minutes) :", "Minimum update interval of a board (minutes) :"},
+	{"Number of concurrently updating boards:", "Number of concurrently updating boards:"},
+
 	{"Number of simultaneous downloads:", "Number of simultaneous downloads:"},
 	{"Number of splitfile threads:", "Number of splitfile threads:"},
 	{"Remove finished downloads every 5 minutes.", "Remove finished downloads every 5 minutes."},

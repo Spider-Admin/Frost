@@ -104,6 +104,23 @@ public class LangRes_de extends ListResourceBundle {
 	{"Download directory:", "Zielverzeichnis:"},
 	{"Minimum HTL:", "Minimale HTL:"},
 	{"Maximum HTL:", "Maximale HTL:"},
+
+	{"Disable uploads", "Hochladen deaktivieren"},
+	{"Disable downloads", "Herunterladen deaktivieren"},
+	{"Show only signed messages", "Zeige nur signierte Nachrichten"},
+	{"Show only GOOD messages", "Zeige nur Nachrichten mit GOOD-Flag"},
+	{"Block message body containing:", "Blocke Nachrichten die enthalten:"},
+	{"Block message from/subject containing:", "Blocke Nachrichten deren from/subject enthält:"},
+	{"Do spam detection", "Spamerkennung an"},
+	{"Sample interval (hours)", "Testinterval (Stunden)"},
+	{"Threshold of blocked messages", "Schwellwert für zu blockierende Nachrichten"},
+	{"Insert request if HTL tops:", "Aktive Anfrage senden wenn HTL größer:"},
+	{"Clean the keypool", "Räume den 'keypool' auf"},
+
+	{"Automatic update options", "Einstellungen zum automatischen Update"},
+	{"Minimum update interval of a board (minutes) :", "Mindestdauer zwischen Board-Updates (Minuten) :"},
+	{"Number of concurrently updating boards:", "Anzahl gleichzeitig aufzufrischender Boards:"},
+
 	{"Number of simultaneous downloads:", "Gleichzeitge Downloads:"},
 	{"Number of splitfile threads:", "Simultaner Splitfile Threads:"},
 	{"Remove finished downloads every 5 minutes.", "Fertige Downloads nach 5 Minuten aus der Liste entfernen."},
