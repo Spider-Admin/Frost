@@ -74,6 +74,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			}
 
 
+
 		}
 		
 		private Listener listener = new Listener();
@@ -89,6 +90,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JLabel messageListLabel = new JLabel();
 		private JButton messageListButton = new JButton();
 		private JLabel selectedMessageListFontLabel = new JLabel();
+		
+		private JCheckBox messageBodyAACheckBox = new JCheckBox();
 		
 		private Font selectedBodyFont = null;
 		private Font selectedListFont = null;
@@ -174,6 +177,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constraints.gridx = 0;
 			constraints.gridy = 4;
 			add(fontsPanel, constraints);
+			
+			constraints.gridx = 0;
+			constraints.gridy = 5;
+			add(messageBodyAACheckBox, constraints);
 
 			//Add listeners
 			messageBodyButton.addActionListener(listener);
@@ -192,6 +199,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			messageListLabel.setText(languageResource.getString("Message List"));
 			messageListButton.setText(languageResource.getString("Choose"));
 			selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));
+			messageBodyAACheckBox.setText(languageResource.getString("EnableMessageBodyAA"));
 		}
 
 		/**
@@ -248,6 +256,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				displaySettings.setValue("messageListFontStyle", selectedListFont.getStyle());
 				displaySettings.setValue("messageListFontSize", selectedListFont.getSize());
 			}
+			displaySettings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
 		}
 
 		/**
@@ -270,7 +279,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			fontSize = displaySettings.getIntValue("messageListFontSize");
 			fontStyle = displaySettings.getIntValue("messageListFontStyle");
 			selectedListFont = new Font(fontName, fontStyle, fontSize); 
-			selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));			
+			selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));
+			
+			messageBodyAACheckBox.setSelected(displaySettings.getBoolValue("messageBodyAA"));	
 		}
 		
 		/**
@@ -284,10 +295,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			Font selectedFontTemp = fontChooser.getSelectedFont();
 			if (selectedFontTemp != null) {
 				selectedBodyFont = selectedFontTemp;
-				selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));	
+				selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
 			}
 		}
-		
+
 		/**
 		 * 
 		 */
