@@ -40,11 +40,6 @@ public class LangRes extends ListResourceBundle {
 	// Unknown translations
 	// Have to look where in the GUI these translations are needed
 	///////////////////////////////////////////////////
-	{"Upload of message failed", "Upload of message failed"},
-	{"Frost was not able to upload your message.", "Frost was not able to upload your message."},
-	{"Retry", "Retry"},
-	{"Retry on next startup", "Retry on next startup"},
-	{"Discard message", "Discard message"},
 	{"Minimize to System Tray", "Minimize to System Tray"},
 	{"Index", "Index"},
 	{"From", "From"},
@@ -594,7 +589,16 @@ public class LangRes extends ListResourceBundle {
 	//	Frost startup error messages
 	{"Frost.lockFileFound", "This indicates that another Frost instance is already running in this directory.\n" +
 	  					  	"Running Frost concurrently will cause data loss.\n"+
-							"If you are REALLY SURE that Frost is not already running, delete the lockfile:\n"}
+							"If you are REALLY SURE that Frost is not already running, delete the lockfile:\n"},
+							
+	//
+	//  Message upload failed dialog
+	//
+	{"Upload of message failed", "Upload of message failed"},
+	{"Frost was not able to upload your message.", "Frost was not able to upload your message."},
+	{"Retry", "Retry"},
+	{"Retry on next startup", "Retry on next startup"},
+	{"Discard message", "Discard message"}
 		
     };
 }
