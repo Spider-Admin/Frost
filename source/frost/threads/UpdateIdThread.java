@@ -187,6 +187,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private void uploadIndexFile()//int i)
     {
     	//load the indices for the current date
+	//currentDate = DateFun.getDate();
     	loadIndex(currentDate);
         File indexFile = new File(keypool + board.getBoardFilename() + "_upload.txt");
         boolean success = false;

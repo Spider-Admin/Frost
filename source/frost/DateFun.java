@@ -41,9 +41,10 @@ public class DateFun
      */
     public static String getDate(int daysAgo) {
     	GregorianCalendar cal = new GregorianCalendar();
+	cal.add(Calendar.DATE,-daysAgo);
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append(".")
-        .append(cal.get(Calendar.MONTH) + 1).append(".").append(cal.get(Calendar.DATE)-daysAgo).toString();
+        .append(cal.get(Calendar.MONTH) + 1).append(".").append(cal.get(Calendar.DATE)).toString();
     }
 
     /**
