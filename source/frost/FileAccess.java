@@ -416,6 +416,17 @@ public class FileAccess
             Core.getOut().println("Write Error: " + file.getPath());
         }
     }
+    
+	public static void writeFile(String content, File file, String encoding) {
+		try {
+			FileOutputStream outputStream = new FileOutputStream(file);
+			OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream, encoding);
+			streamWriter.write(content);
+			streamWriter.close();
+		} catch (IOException e) {
+			Core.getOut().println("Write Error: " + file.getPath());
+		}
+	}
 
     /**
      * Returns filenames in a directory
