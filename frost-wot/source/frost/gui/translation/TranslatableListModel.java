@@ -49,4 +49,30 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 		return super.getElementAt(selectedIndex).toString();
 	}
 
+	/**
+	 * This method returns the position of the key in the model
+	 * @param key
+	 * @return the position
+	 */
+	public int indexOfKey(Object key) {
+		return super.indexOf(key);
+	}
+
+	/**
+	 * This method returns the position of the first occurrence of the
+	 * internationalized element in the model
+	 * @param elem internationalized item
+	 * @return the position
+	 */
+	public int indexOf(Object elem) {
+		int position = -1;
+		for (int i = 0; (i < getSize() - 1) || (position != -1);i++) {
+			String localizedValue = languageResource.getString(getKeyAt(i));
+			if (elem.equals(localizedValue)) {
+				position = i;	
+			}
+		} 
+		return super.indexOf(elem);
+	}
+
 }
