@@ -20,6 +20,8 @@ Changed: copy to clipboard submenus on both the uploads and downloads tables imp
 
 Bugfix: obsolete strings in the language resources were causing an exception when trying to open 
         the translation frame.
+Bugfix: message hashes are now thread safe, thus preventing a possible ConcurrentModificationException while
+		saving them.
 
 **************************************************************************************************
 
