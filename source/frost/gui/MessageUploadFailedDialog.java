@@ -22,133 +22,165 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
+import java.util.Timer;
 
 import javax.swing.*;
-import javax.swing.plaf.basic.BasicOptionPaneUI;
+import javax.swing.border.EmptyBorder;
 
-public class MessageUploadFailedDialog extends JDialog
-{
-    private JButton okButton, cancelButton, tryOnNextStartupButton;
-    private int userAnswer = 1; // 1 = 1st button, 2=2nd button, 3=3rd button (ok, retry on next startup, cancel)
-    private Timer timer;
-    private int secs;
-    private JPanel buttonPanel, messagePanel;
-    private String okButtonText;
-    /*
-     * Takes the arguments: Frame owner
-     *                      int secs (seconds to wait) if (<= 0) no timeout
-     *                      String title (title of the Dialog)
-     *                      String message (warningmessage to display)
-     *                      String okButtonText (text of the ok-button)
-     *                      String cancelButtonText (text of the cancel-button)
-     */
+import frost.util.gui.translation.UpdatingLanguageResource;
 
-    public MessageUploadFailedDialog(Frame owner,
-                                     int secs,
-                                     String title,
-                                     String message,
-                                     String okButtonText,
-                                     String tryOnNextStartupText,
-                                     String cancelButtonText)
-    {
-        super(owner,title, true);
-        this.secs = secs;
-        this.okButtonText = okButtonText;
+/**
+ * @author $author$
+ * @version $revision$
+ */
+public class MessageUploadFailedDialog extends JDialog {
+	
+	/**
+	 * 
+	 */
+	private class ButtonListener implements ActionListener {
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == retryButton) {
+				userAnswer = RETRY_VALUE;
+			} else if (e.getSource() == tryOnNextStartupButton) {
+				userAnswer = RETRY_NEXT_STARTUP_VALUE;
+			} else if (e.getSource() == discardButton) {
+				userAnswer = DISCARD_VALUE;
+			}
+			dispose();
+		}
+		
+	}
 
-        GridBagLayout contentPaneLayout = new GridBagLayout();
-        this.getContentPane().setLayout(contentPaneLayout);
-        GridBagConstraints constr = new GridBagConstraints();
-        Insets insets = new Insets(20,10,10,10);
-        constr.anchor = GridBagConstraints.WEST;
-        constr.insets = insets;
+	/**
+	 * @author $author$
+	 * @version $revision$
+	 */
+	private class RetryButtonTimer extends Timer {
 
-        timer = new Timer(1000, new ActionListener()
-                          {
-                              public void actionPerformed(ActionEvent a)
-                              {
-                                  timerTriggered();
-                              }
-                          });
+		private int secs;
 
-        ButtonListener bl = new ButtonListener();
-        if( secs > 0 )
-            okButton = new JButton(okButtonText + " - " + secs);
-        else
-            okButton = new JButton(okButtonText);
+		/**
+		 * @param secs
+		 */
+		public RetryButtonTimer(int secs) {
+			this.secs = secs;
+		}
 
-        okButton.addActionListener(bl);
-        cancelButton = new JButton (cancelButtonText);
-        cancelButton.addActionListener(bl);
+		/**
+		 * 
+		 */
+		public void start() {
+			scheduleAtFixedRate(new TimerTask() {
+				public void run() {
+					timerTriggered();
+				}
+			}, 1000, 1000);
+		}
 
-        tryOnNextStartupButton = new JButton( tryOnNextStartupText );
-        tryOnNextStartupButton.addActionListener( bl );
+		/**
+		 * 
+		 */
+		private void timerTriggered() {
+			secs--;
+			retryButton.setText(retryButtonText + secs);
+			if (secs == 0) {
+				userAnswer = RETRY_VALUE;
+				dispose();
+			}
+		}
+
+	}
+	
+	private static final int SECONDS_TO_WAIT = 30;
+	
+	public static final int NO_VALUE = 0;
+	public static final int RETRY_VALUE = 1;
+	public static final int RETRY_NEXT_STARTUP_VALUE = 2;
+	public static final int DISCARD_VALUE = 3;	
+	
+	private JPanel messagePanel;
+	private JButton retryButton, discardButton, tryOnNextStartupButton;
+	private String retryButtonText;
+	private RetryButtonTimer timer;
+	private int userAnswer = NO_VALUE;
+	
+	/**
+	 * @param owner
+	 * @param languageResource
+	 */
+
+	public MessageUploadFailedDialog(Frame owner, UpdatingLanguageResource languageResource) {
+		super(owner, true);
+		retryButtonText = languageResource.getString("Retry") + " - ";
+
+		setTitle(languageResource.getString("Upload of message failed"));
+
+		JPanel mainPanel = new JPanel();
+		mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
+		getContentPane().add(mainPanel);
+
+		BorderLayout layout = new BorderLayout(0, 15);
+		mainPanel.setLayout(layout);
+
+		timer = new RetryButtonTimer(SECONDS_TO_WAIT);
 
 		Icon warningIcon = UIManager.getIcon("OptionPane.warningIcon");
-	    getContentPane().add(new JLabel(warningIcon), constr);
+		String warningText = "  " + languageResource.getString("Frost was not able to upload your message.");
+		mainPanel.add(new JLabel(warningText, warningIcon, SwingConstants.LEFT), BorderLayout.NORTH);
 
-        constr.anchor = GridBagConstraints.CENTER;
-        constr.gridwidth = GridBagConstraints.REMAINDER;
+		mainPanel.add(getButtonPanel(languageResource), BorderLayout.SOUTH);
 
-        this.getContentPane().add(new JLabel(message), constr);
+		ButtonListener bl = new ButtonListener();
+		retryButton.addActionListener(bl);
+		tryOnNextStartupButton.addActionListener(bl);
+		discardButton.addActionListener(bl);
 
-        buttonPanel = new JPanel(new GridBagLayout());
-        this.getContentPane().add(buttonPanel, constr);
+		setResizable(false);
+		setDefaultCloseOperation(JDialog.DO_NOTHING_ON_CLOSE);
+		pack();
+		setLocationRelativeTo(owner);
+	}
+	
+	/**
+	 * @return
+	 */
+	public int startDialog() {
+		retryButton.requestFocus();
+		timer.start();
+		setModal(true); // paranoia
+		show();
+		return userAnswer;
+	}
+	
+	/**
+	 * @return
+	 */
+	private JPanel getButtonPanel(UpdatingLanguageResource languageResource) {
+		JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
+				
+		retryButton = new JButton(retryButtonText + SECONDS_TO_WAIT);
+		discardButton = new JButton(languageResource.getString("Discard message"));
+		tryOnNextStartupButton = new JButton(languageResource.getString("Retry on next startup"));
+		
+		buttonsPanel.add(retryButton);
+		buttonsPanel.add(tryOnNextStartupButton);
+		buttonsPanel.add(discardButton);
+		
+		return buttonsPanel;
+	}
 
-        constr.gridwidth = GridBagConstraints.RELATIVE;
-        buttonPanel.add(okButton,constr);
-        constr.gridwidth = GridBagConstraints.REMAINDER;
-        buttonPanel.add(tryOnNextStartupButton,constr);
-        buttonPanel.add(cancelButton,constr);
-        this.setSize(contentPaneLayout.preferredLayoutSize(this));
-        this.setResizable(false);
+	/* (non-Javadoc)
+	 * @see java.awt.Window#dispose()
+	 */
+	public void dispose() {
+		timer.cancel();
+		super.dispose();
+	}
 
-        setLocationRelativeTo( owner );
-    }
-
-    private void timerTriggered()
-    {
-        secs--;
-        okButton.setText(okButtonText + " - " + secs);
-        if( secs == 0 )
-        {
-            this.hide();
-        }
-    }
-    private void optionButtonPressed(Object obj)
-    {
-    }
-
-    public int startDialog()
-    {
-        if( secs > 0 )
-        {
-            timer.start();
-        }
-        okButton.requestFocus();
-        this.userAnswer = 0; // unset
-        setModal(true); // paranoia
-        show();
-        return this.userAnswer;
-    }
-
-    class ButtonListener implements ActionListener
-    {
-        public void actionPerformed(ActionEvent e)
-        {
-            if( e.getSource() == okButton )
-            {
-                userAnswer = 1;
-            }
-            else if( e.getSource() == tryOnNextStartupButton )
-            {
-                userAnswer = 2;
-            }
-            else if( e.getSource() == cancelButton )
-            {
-                userAnswer = 3;
-            }
-            hide();
-        }
-    }
-    
 }
