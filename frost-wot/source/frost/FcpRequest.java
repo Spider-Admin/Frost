@@ -21,7 +21,6 @@ public class FcpRequest {
     private static ThreadLocal healer = new ThreadLocal();
     //private static ThreadLocal toheal = new ThreadLocal();
 
-
     private static class HealerThread extends Thread
     {
         private WorkQueue wq;
@@ -33,21 +32,18 @@ public class FcpRequest {
         }
         public void run()
         {
-
-            System.out.println("healer starting for " + Name);
+            System.out.println("Healer starting for " + Name);
             String [][]results = new String[1][2];
 
             while( wq.hasMore() )
             {
                 File block = (File)wq.next();
-                System.out.println("\ntrying to heal " + Name + " with " + block.getPath());
-
-
+                System.out.println("\nTrying to heal " + Name + " with " + block.getPath());
                 Thread inserter = new putKeyThread("CHK@",block,5,results,0,true);
                 inserter.run();
                 block.delete();
             }
-            System.out.println("healer ending for " + Name);
+            System.out.println("Healer ending for " + Name);
         }
     }
 
@@ -633,8 +629,20 @@ public class FcpRequest {
 
     public static boolean getFile(String key, String size, File target, int htl, boolean doRedirect) {
     File tempFile = new File(target + ".tmp");
-    if (DEBUG) System.out.println("Retrieving " + key + " to " + tempFile.getPath());
-
+    if( DEBUG )
+    {
+        String keyPrefix = "";
+        if( key.indexOf("@") > -1 )  keyPrefix = key.substring(0, key.indexOf("@")+1);
+        String keyUrl = "";
+        if( key.indexOf("/") > -1 )  keyUrl = key.substring(key.indexOf("/"));
+        String out = new StringBuffer().append("Retrieving ")
+                                  .append(keyPrefix)
+                                  .append("...")
+                                  .append(keyUrl)
+                                  .append(" to ")
+                                  .append(tempFile.getPath()).toString();
+        System.out.println(out);
+    }
     // First we just download the file, not knowing what lies ahead
     if (getKey(key, size, tempFile, htl)) {
         String[] content = FileAccess.readFile(tempFile).split("\n");
@@ -708,23 +716,27 @@ public class FcpRequest {
         try {
         connection.getKeyToFile(key, target.getPath(), htl);
         }
+        catch(DataNotFoundException ex) // frost.FcpTools.DataNotFoundException
+        {
+            // do nothing, data not found is usual ...
+        }
         catch (FcpToolsException e) {
-        if (DEBUG) System.out.println("FcpToolsException " + e);
+        if (DEBUG) System.out.println("FcpRequest.getKey: FcpToolsException " + e);
         }
         catch (IOException e) {
-        if (DEBUG) System.out.println("IOException " + e);
+        if (DEBUG) System.out.println("FcpRequest.getKey: IOException " + e);
         }
     }
     catch (FcpToolsException e) {
-        if (DEBUG) System.out.println("FcpToolsException " + e);
+        if (DEBUG) System.out.println("FcpRequest.getKey: FcpToolsException " + e);
         frame1.displayWarning(e.toString());
     }
     catch (UnknownHostException e) {
-        if (DEBUG) System.out.println("UnknownHostException " + e);
+        if (DEBUG) System.out.println("FcpRequest.getKey: UnknownHostException " + e);
         frame1.displayWarning(e.toString());
     }
     catch (IOException e) {
-        if (DEBUG) System.out.println("IOException " + e);
+        if (DEBUG) System.out.println("FcpRequest.getKey: IOException " + e);
         frame1.displayWarning(e.toString());
     }
 
@@ -738,13 +750,12 @@ public class FcpRequest {
 
     if (target.length() > 0) {
         if (intSize == -1 || target.length() == intSize || intSize >= chunkSize) {
-        if (DEBUG) System.out.println("File " + target.getName() + " with key " + key + " has correct size :)");
+        if (DEBUG) System.out.println("File " + target.getName() + " successfully downloaded :)");
         return true;
         }
     }
     target.delete();
-    if (DEBUG) System.out.println("File " + target.getName() + " with key " + key + " not found or wrong size :(");
+    if (DEBUG) System.out.println("File " + target.getName() + " not found :(");
     return false;
     }
-
 }

@@ -275,6 +275,7 @@ public class SettingsClass
         defaults.put("automaticUpdate", "true");
         defaults.put("automaticUpdate.concurrentBoardUpdates", "5"); // no. of concurrent updating boards in auto update
         defaults.put("automaticUpdate.boardsMinimumUpdateInterval", "5"); // time in min to wait between start of updates for 1 board
+        defaults.put("boardUpdateVisualization", "true");
         defaults.put("doBoardBackoff","false");
         defaults.put("spamTreshold","5");
         defaults.put("sampleInterval","5");
@@ -283,9 +284,8 @@ public class SettingsClass
         defaults.put("blockMessageBody","");
         defaults.put("blockMessageBodyChecked","false");
         defaults.put("signedOnly","false");
-        //defaults.put("goodOnly","false");
-	defaults.put("hideBadMessages","false");
-	defaults.put("hideCheckMessages","false");
+        defaults.put("hideBadMessages","false");
+        defaults.put("hideCheckMessages","false");
         defaults.put("downloadDirectory", "downloads" + fs);
         defaults.put("downloadThreads", "3");
         defaults.put("downloadingActivated", "true");
@@ -302,7 +302,7 @@ public class SettingsClass
         defaults.put("lastUsedDirectory", "." + fs);
         defaults.put("maxAge", "20");
         defaults.put("maxKeys", "200000");
-        defaults.put("maxMessageDisplay", "5");
+        defaults.put("maxMessageDisplay", "10");
         defaults.put("maxMessageDownload", "3");
         defaults.put("messageBase", "news");
         defaults.put("nodeAddress", "127.0.0.1");
@@ -310,8 +310,8 @@ public class SettingsClass
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
         defaults.put("searchAllBoards", "true");
-        defaults.put("splitfileDownloadThreads", "15");
-        defaults.put("splitfileUploadThreads", "6");
+        defaults.put("splitfileDownloadThreads", "3");
+        defaults.put("splitfileUploadThreads", "3");
         defaults.put("startRequestingAfterHtl", "10");
         defaults.put("tofDownloadHtl", "23");
         defaults.put("tofFontSize", "12.0");

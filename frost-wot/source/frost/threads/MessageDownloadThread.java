@@ -224,7 +224,6 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         File makedir = new File(destination);
         if( !makedir.exists() )
         {
-            System.out.println("creating directory: " + destination);
             makedir.mkdirs();
         }
 
@@ -328,7 +327,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             if( TOF.blocked(currentMsg) && testMe.length() > 0 )
                             {
                                 board.incBlocked();
-                                System.out.println("\nTOFDN: ########### blocked message #########\n");
+                                System.out.println("\nTOFDN: ########### blocked message for board '"+board.toString()+"' #########\n");
                             }
                             else
                             {
@@ -365,7 +364,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 {
                     if( !flagNew )
                     {
-                        System.out.println("TOFDN: ***** Increased TOF index *****");
+                        System.out.println("TOFDN: *** Increased TOF index for board '"+board.toString()+"' ***");
                     }
                     failures++;
                     index++;

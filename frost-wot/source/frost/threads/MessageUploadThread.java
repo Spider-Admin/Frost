@@ -38,9 +38,8 @@ import frost.gui.objects.*;
  */
 public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
-    private static boolean debug=true;
+    final static boolean DEBUG = true;
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
-    final static boolean DEBUG = false;
 
     private Frame frameToLock;
     private FrostBoardObject board;
@@ -59,7 +58,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private boolean signed;
     private boolean encryptSign;
     private Identity recipient;
-
 
     public int getThreadType()
     {
@@ -86,11 +84,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     }
 
     /**
-     *sign
+     * sign
      */
     private void sign() {
         if (from.compareTo(frame1.getMyId().getName())==0) { //nick same as my identity
-    if(debug) System.out.println("signing message");
+        System.out.println("Signing message");
         text=new String(text +"<key>" + (frame1.getMyId()).getKeyAddress() + "</key>");
         if (encryptSign && recipient !=null) {
             System.out.println("TOFUP: Encrypting message");
@@ -116,7 +114,10 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         String attachment = (String)attachments.elementAt(i);
         String[] result = {"", ""};
 
-        System.out.println("TOFUP: Uploading attachment " + attachment + " with HTL " + frame1.frostSettings.getValue("htlUpload") + ".");
+        System.out.println("TOFUP: Uploading attachment " +
+                           attachment +
+                           " with HTL " +
+                           frame1.frostSettings.getValue("htlUpload"));
 
         while( !result[0].equals("KeyCollision") && !result[0].equals("Success"))
         result = FcpInsert.putFile("CHK@", attachment, frame1.frostSettings.getValue("htlUpload"), true, true,
@@ -151,8 +152,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             secure = false;
         }
 
-        if( DEBUG ) System.out.println("tofUpload: " + board.toString() + " secure: " + secure);
-        System.out.println("TOFUP: Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl + ".");
+        System.out.println("TOFUP: Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl);
 
         uploadAttachments();
         sign();
@@ -318,6 +318,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                             }
                         }
                     }
+                    // finally delete the index lock file
+                    lockRequestIndex.delete();
                 }
             }
 

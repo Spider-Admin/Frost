@@ -54,9 +54,9 @@ public class LocalIdentity extends Identity implements Serializable
         //this is not so brutal anymore.
         FileAccess.writeFile(key,"pubkey.txt");
         try {
-            String tmp =con.putKeyFromFile("CHK@", "pubkey.txt",0, false);
+            String tmp = con.putKeyFromFile("CHK@", "pubkey.txt",0, false);
             keyaddress = tmp.substring(tmp.indexOf("CHK@"),tmp.indexOf("CHK@") + 58);
-            System.out.println("\ncalculated my public key CHK: " + keyaddress + "\n");
+            System.out.println("\nCalculated my public key CHK: " + keyaddress + "\n");
         }
         catch( IOException e ) {
             System.out.println("couldn't get key CHK");

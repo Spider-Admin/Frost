@@ -182,7 +182,7 @@ public class BoardSettingsFrame extends JDialog
         }
         catch( FcpToolsException ex )
         {
-            System.out.println("FcpToolsException " + ex);
+            System.out.println("BoardSettingsFrame.generateKey: FcpToolsException " + ex);
         }
         catch( IOException ex )
         {
