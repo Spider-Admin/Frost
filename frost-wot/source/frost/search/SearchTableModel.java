@@ -23,7 +23,7 @@ import frost.gui.model.SortedTableModel;
 import frost.gui.translation.*;
 
 
-public class SearchTableModel extends SortedTableModel implements LanguageListener
+class SearchTableModel extends SortedTableModel implements LanguageListener
 {
 	private UpdatingLanguageResource languageResource = null;
 	
