@@ -17,8 +17,6 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-//TODO: implement listener for threadStopped, ...
-
 package frost.threads;
 
 import java.io.*;
@@ -62,6 +60,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     {
         notifyThreadStarted(this);
 
+        try {
+
         String tofType;
         if( flagNew )
             tofType="TOF Download";
@@ -73,15 +73,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         int waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
         mixed.wait(waitTime);
 
-        System.out.println(tofType + " Thread started for board "+board.toString());
-
-        /*UpdateIdThread uit=null;
-        if( flagNew && )
-        {
-            uit= new UpdateIdThread(board);
-            uit.start();
-            mixed.wait(5000);
-        }*/
+        System.out.println("TOFDN: "+tofType + " Thread started for board "+board.toString());
 
         if( isInterrupted() )
         {
@@ -105,15 +97,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
         if( this.flagNew )
         {
-            // download actual date
+            // download only actual date
             downloadDate(cal);
-
-            // maybe wait for update id thread to finish
-           /* if( uit != null )
-            {
-                try { uit.join(); }
-                catch(InterruptedException ex) {}
-            }*/
         }
         else
         {
@@ -131,8 +116,13 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 downloadDate(cal);
             }
         }
-        System.out.println(tofType + " Thread stopped for board "+board.toString());
-
+        System.out.println("TOFDN: "+tofType+" Thread stopped for board "+board.toString());
+        }
+        catch(Throwable t)
+        {
+            System.out.println("Oo. Exception in MessageDownloadThread:");
+            t.printStackTrace();
+        }
         notifyThreadFinished(this);
     }
 
@@ -161,7 +151,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
     private void verify()
     {
-        System.out.println("verifying...");
+        System.out.println("TOFDN: Verifying ...");
         if( (currentMsg.getKeyAddress() == "none") || (currentMsg.getFrom().indexOf("@") == -1) )
         {
             currentMsg.setStatus(VerifyableMessageObject.OLD);
@@ -172,44 +162,52 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             // see if we have this name on our list
             if( frame1.getFriends().containsKey(currentMsg.getFrom()) )
             {
-                System.out.println("have this person on our list");
+                System.out.println("TOFDN: Found sender of message in list of FRIENDS.");
                 //yes, we have that person, see if the addreses are the same
                 currentId = frame1.getFriends().Get(currentMsg.getFrom());
                 //check if the key addreses are the same, verify
                 if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
                     frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
+                {
                     currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
+                }
                 else // verification FAILED!
+                {
                     currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                }
             }
             else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
+            {
+                System.out.println("TOFDN: Found sender of message in list of ENEMIES.");
                 currentMsg.setStatus(VerifyableMessageObject.FAILED);
-
+            }
             else
-            { //we don't have that person
+            {
+                //we don't have that person
                 //check if the message is authentic anyways
-                System.out.println("trying to add");
-                try
-                {
+                System.out.println("TOFDN: Don't found sender of message in our lists, trying to add him.");
+                try {
                     currentId =new Identity(currentMsg.getFrom(),currentMsg.getKeyAddress());
                 }
-                catch( IllegalArgumentException e )
-                {
-                    System.out.println("illegal argument exception");
+                catch( IllegalArgumentException e ) {
+                    System.out.println("TODDN: IllegalArgumentException, setting sender to state N/A.");
                     currentMsg.setStatus(VerifyableMessageObject.NA);return;
                 }
+
                 if( currentId.getKey() == Identity.NA )
+                {
                     currentMsg.setStatus(VerifyableMessageObject.NA);
-                else
-                    if( frame1.getCrypto().verify(currentMsg.getContent(),currentId.getKey()) )
+                }
+                else if( frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
                 {
                     currentMsg.setStatus(VerifyableMessageObject.PENDING);
                     //frame1.getFriends().Add(currentId);
                     //TODO: the thread that will update all the ids
                 }
-
                 else //failed authentication, don't ask the user
+                {
                     currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                }
             }
         }
     }
@@ -233,16 +231,21 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         File checkLockfile = new File(destination + "locked.lck");
         int index = 0;
         int failures = 0;
-        int maxFailures = 2;
+        int maxFailures = 3; // skip a maximum of 3 empty slots
 
         while( failures < maxFailures && (flagNew || !checkLockfile.exists()) )
         {
-
-            String val = new StringBuffer().append(destination).append(System.currentTimeMillis())
-                .append(".txt.msg").toString();
+            String val = new StringBuffer().append(destination)
+                                           .append(System.currentTimeMillis())
+                                           .append(".txt.msg").toString();
             File testMe = new File(val);
-            val = new StringBuffer().append(destination).append(dirdate).append("-").append(board.getBoardFilename())
-                  .append("-").append(index).append(".txt").toString();
+            val = new StringBuffer().append(destination)
+                                    .append(dirdate)
+                                    .append("-")
+                                    .append(board.getBoardFilename())
+                                    .append("-")
+                                    .append(index)
+                                    .append(".txt").toString();
             File testMe2 = new File(val);
             if( testMe2.length() > 0 ) // already downloaded
             {
@@ -251,25 +254,36 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             }
             else
             {
+                String downKey = null;
                 if( secure )
                 {
-                    val=new StringBuffer().append(publicKey).append("/")
-                        .append(board.getBoardFilename()).append("/").append(dirdate)
-                        .append("-").append(index).append(".txt").toString();
-                    String downKey = val;
-                    FcpRequest.getFile(downKey, "Unknown", testMe, downloadHtl, false);
+                    downKey = new StringBuffer().append(publicKey)
+                                                .append("/")
+                                                .append(board.getBoardFilename())
+                                                .append("/")
+                                                .append(dirdate)
+                                                .append("-")
+                                                .append(index)
+                                                .append(".txt").toString();
                 }
                 else
                 {
-                    val=new StringBuffer().append(frame1.frostSettings.getValue("messageBase"))
-                        .append("/").append(dirdate)
-                        .append("-").append(board.getBoardFilename())
-                        .append("-").append(index).append(".txt").toString();
+                    downKey = new StringBuffer().append("KSK@frost/message/")
+                                                .append(frame1.frostSettings.getValue("messageBase"))
+                                                .append("/")
+                                                .append(dirdate)
+                                                .append("-")
+                                                .append(board.getBoardFilename())
+                                                .append("-")
+                                                .append(index)
+                                                .append(".txt").toString();
+                }
 
-                    FcpRequest.getFile("KSK@sftmeage/"+val, "Unknown", testMe, downloadHtl, false);
-// Temporary hack due to namespace error
-                    FcpRequest.getFile("KSK@frost/message/"+val, "Unknown", testMe, downloadHtl, false);
-// End temporary hack
+                try { FcpRequest.getFile(downKey, "Unknown", testMe, downloadHtl, false); }
+                catch(Throwable t)
+                {
+                    System.out.println("TOFDN - Error in run()/FcpRequest.getFile:");
+                    t.printStackTrace();
                 }
 
                 // Download successful?
@@ -281,14 +295,14 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     if( !exists(testMe) )
                     {
                         //test if encrypted and decrypt
-                        String contents =FileAccess.readFile(testMe);
+                        String contents = FileAccess.readFile(testMe);
                         //System.out.println(contents);
-                        String plaintext;//==== Frost Signed+Encrypted Message ====
-                        int encstart =contents.indexOf("==== Frost Signed+Encrypted Message ====");
-                        //System.out.println("index of header is " + encstart);
+                        String plaintext;
+                        int encstart = contents.indexOf("==== Frost Signed+Encrypted Message ====");
+
                         if( encstart != -1 )
                         {
-                            System.out.println("decrypting...");
+                            System.out.println("TOFDN: Decrypting message ...");
                             plaintext = frame1.getCrypto().decrypt(contents.substring(encstart,contents.length()),
                                                                    frame1.getMyId().getPrivKey());
                             contents = contents.substring(0,encstart) + plaintext;
@@ -300,7 +314,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         if( currentMsg.getSubject().trim().indexOf("ENCRYPTED MSG FOR") != -1 &&
                             currentMsg.getSubject().indexOf(frame1.getMyId().getName()) == -1 )
                         {
-                            System.out.println("encrypted for someone else");
+                            System.out.println("TOFDN: Message is encrypted for someone else.");
                             testMe.delete();
                             index++;
                             continue;
@@ -314,7 +328,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             if( TOF.blocked(currentMsg) && testMe.length() > 0 )
                             {
                                 board.incBlocked();
-                                System.out.println("\n########### blocked message #########\n");
+                                System.out.println("\nTOFDN: ########### blocked message #########\n");
                             }
                             else
                             {
@@ -341,31 +355,25 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     }
                     else
                     { // duplicate message
-                        System.out.println("****** Duplicate Message : " + testMe.getName() + " *****");
+                        System.out.println("TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
                         FileAccess.writeFile("Empty", testMe);
                     }
-                    //if (((BoardStat)frame1.boardStats.get(currentMsg.getBoard())).spammed()) index+=(new Random()).nextInt(100);
                     index++;
                     failures = 0;
                 }
                 else
                 {
                     if( !flagNew )
-                        System.out.println("***** Increased TOF index *****");
+                    {
+                        System.out.println("TOFDN: ***** Increased TOF index *****");
+                    }
                     failures++;
                     index++;
                 }
             }
-
             if( isInterrupted() )
                 return;
-
         } // end-of: while
-
-        /*if (!flagNew) {
-            String text = String.valueOf(index - 2);
-            FileAccess.writeFile(text, destination + "locked.lck");
-        }*/
     }
 
     /**Constructor*/ //

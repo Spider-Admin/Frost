@@ -25,116 +25,138 @@ import javax.swing.plaf.basic.*;
 import java.awt.*;
 import java.awt.event.*;
 
-public class MessageUploadFailedDialog extends JDialog {
-    private JButton okButton, cancelButton;
-    private boolean goOn = true;
+public class MessageUploadFailedDialog extends JDialog
+{
+    private JButton okButton, cancelButton, tryOnNextStartupButton;
+    private int userAnswer = 1; // 1 = 1st button, 2=2nd button, 3=3rd button (ok, retry on next startup, cancel)
     private Timer timer;
     private int secs;
     private JPanel buttonPanel, messagePanel;
     private String okButtonText;
-/*
- * Takes the arguments: Frame owner
- *                      int secs (seconds to wait) if (<= 0) no timeout
- *                      String title (title of the Dialog)
- *                      String message (warningmessage to display)
- *                      String okButtonText (text of the ok-button)
- *                      String cancelButtonText (text of the cancel-button)
- */
+    /*
+     * Takes the arguments: Frame owner
+     *                      int secs (seconds to wait) if (<= 0) no timeout
+     *                      String title (title of the Dialog)
+     *                      String message (warningmessage to display)
+     *                      String okButtonText (text of the ok-button)
+     *                      String cancelButtonText (text of the cancel-button)
+     */
 
-    public MessageUploadFailedDialog(Frame owner, int secs, String title, String message, String okButtonText, String cancelButtonText){
-    super(owner,title, true);
-    this.secs = secs;
-    this.okButtonText = okButtonText;
+    public MessageUploadFailedDialog(Frame owner,
+                                     int secs,
+                                     String title,
+                                     String message,
+                                     String okButtonText,
+                                     String tryOnNextStartupText,
+                                     String cancelButtonText)
+    {
+        super(owner,title, true);
+        this.secs = secs;
+        this.okButtonText = okButtonText;
 
-    GridBagLayout contentPaneLayout = new GridBagLayout();
-    this.getContentPane().setLayout(contentPaneLayout);
-    GridBagConstraints constr = new GridBagConstraints();
-    Insets insets = new Insets(20,10,10,10);
-    constr.anchor = constr.WEST;
-    constr.insets = insets;
+        GridBagLayout contentPaneLayout = new GridBagLayout();
+        this.getContentPane().setLayout(contentPaneLayout);
+        GridBagConstraints constr = new GridBagConstraints();
+        Insets insets = new Insets(20,10,10,10);
+        constr.anchor = constr.WEST;
+        constr.insets = insets;
 
-    timer = new Timer(1000, new ActionListener() {
-        public void actionPerformed(ActionEvent a) {
-            timerTriggered();
-        }
-        });
+        timer = new Timer(1000, new ActionListener()
+                          {
+                              public void actionPerformed(ActionEvent a)
+                              {
+                                  timerTriggered();
+                              }
+                          });
 
-    ButtonListener bl = new ButtonListener();
-    if(secs > 0)
-        okButton = new JButton(okButtonText + " - " + secs);
-    else
-        okButton = new JButton(okButtonText);
+        ButtonListener bl = new ButtonListener();
+        if( secs > 0 )
+            okButton = new JButton(okButtonText + " - " + secs);
+        else
+            okButton = new JButton(okButtonText);
 
-    okButton.addActionListener(bl);
-    cancelButton = new JButton (cancelButtonText);
-    cancelButton.addActionListener(bl);
+        okButton.addActionListener(bl);
+        cancelButton = new JButton (cancelButtonText);
+        cancelButton.addActionListener(bl);
 
-    this.getContentPane().add(new JLabel(new IconFromUI().getIcon()), constr);
+        tryOnNextStartupButton = new JButton( tryOnNextStartupText );
+        tryOnNextStartupButton.addActionListener( bl );
 
-    constr.anchor = constr.CENTER;
-    constr.gridwidth = constr.REMAINDER;
+        this.getContentPane().add(new JLabel(new IconFromUI().getIcon()), constr);
 
-    this.getContentPane().add(new JLabel(message), constr);
+        constr.anchor = constr.CENTER;
+        constr.gridwidth = constr.REMAINDER;
 
-    buttonPanel = new JPanel(new GridBagLayout());
-    this.getContentPane().add(buttonPanel, constr);
+        this.getContentPane().add(new JLabel(message), constr);
 
-    constr.gridwidth = constr.RELATIVE;
-    buttonPanel.add(okButton,constr);
-    constr.gridwidth = constr.REMAINDER;
+        buttonPanel = new JPanel(new GridBagLayout());
+        this.getContentPane().add(buttonPanel, constr);
+
+        constr.gridwidth = constr.RELATIVE;
+        buttonPanel.add(okButton,constr);
+        constr.gridwidth = constr.REMAINDER;
+        buttonPanel.add(tryOnNextStartupButton,constr);
         buttonPanel.add(cancelButton,constr);
         this.setSize(contentPaneLayout.preferredLayoutSize(this));
-    this.setResizable(false);
+        this.setResizable(false);
 
-    // thanks JanTho ;)
-    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-    Dimension frameSize = this.getSize();
-
-    if (frameSize.height > screenSize.height) {
-        frameSize.height = screenSize.height;
-    }
-    if (frameSize.width > screenSize.width) {
-        frameSize.width = screenSize.width;
-    }
-    this.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+        setLocationRelativeTo( owner );
     }
 
-    public boolean getAnswer(){
-    return goOn;
+    private void timerTriggered()
+    {
+        secs--;
+        okButton.setText(okButtonText + " - " + secs);
+        if( secs == 0 )
+        {
+            this.hide();
+        }
+    }
+    private void optionButtonPressed(Object obj)
+    {
     }
 
-    private void timerTriggered(){
-    secs--;
-    okButton.setText(okButtonText + " - " + secs);
-    if(secs == 0){
-        this.hide();
-    }
-    }
-    private void optionButtonPressed(Object obj){
-        if(obj == okButton)
-        goOn = true;
-        else if(obj == cancelButton)
-        goOn = false;
-        this.hide();
-    }
-    public void show(){
-    if(secs > 0)
-        timer.start();
-    okButton.requestFocus();
-    super.show();
+    public int startDialog()
+    {
+        if( secs > 0 )
+        {
+            timer.start();
+        }
+        okButton.requestFocus();
+        this.userAnswer = 0; // unset
+        setModal(true); // paranoia
+        show();
+        return this.userAnswer;
     }
 
-    class ButtonListener implements ActionListener{
-    public void actionPerformed(ActionEvent e){
-        optionButtonPressed(e.getSource());
+    class ButtonListener implements ActionListener
+    {
+        public void actionPerformed(ActionEvent e)
+        {
+            if( e.getSource() == okButton )
+            {
+                userAnswer = 1;
+            }
+            else if( e.getSource() == tryOnNextStartupButton )
+            {
+                userAnswer = 2;
+            }
+            else if( e.getSource() == cancelButton )
+            {
+                userAnswer = 3;
+            }
+            hide();
+        }
     }
-    }
-    class IconFromUI extends BasicOptionPaneUI{
-    public IconFromUI (){
-        super();
-    }
-    public Icon getIcon(){
-        return super.getIconForType(JOptionPane.WARNING_MESSAGE);
-    }
+    class IconFromUI extends BasicOptionPaneUI
+    {
+        public IconFromUI ()
+        {
+            super();
+        }
+        public Icon getIcon()
+        {
+            return super.getIconForType(JOptionPane.WARNING_MESSAGE);
+        }
     }
 }
