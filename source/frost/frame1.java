@@ -49,12 +49,11 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
-    String clipboard = new String();
+    FrostBoardObject clipboard = null;
     long counter = 55;
 
     private static frame1 instance = null; // set in constructor
     boolean started = false;
-    boolean stopTofTreeUpdate = false;
     public static boolean updateDownloads = true;
 
     public static boolean updateTof = false;
@@ -194,7 +193,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem tofTreePopupRefresh = null;
     JMenuItem tofTreePopupAddNode = null;
     JMenuItem tofTreePopupRemoveNode = null;
-    JMenuItem tofTreePopupCopyNode = null;
     JMenuItem tofTreePopupCutNode = null;
     JMenuItem tofTreePopupPasteNode = null;
     JMenuItem tofTreePopupConfigureBoard = null;
@@ -240,7 +238,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             // nothing selected? unbelievable ! so select the root ...
             getTofTree().setSelectionRow(0);
-            node = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
+            node = (FrostBoardObject)getTofTree().getModel().getRoot();
         }
         return node;
     }
@@ -370,7 +368,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         JButton removeBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
         JButton renameBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/rename.gif")));
         JButton cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
-        JButton copyBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/copy.gif")));
         JButton boardInfoButton= new JButton(new ImageIcon(frame1.class.getResource("/data/info.gif")));
         JButton systemTrayButton= new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
 
@@ -379,7 +376,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         configureButton(renameBoardButton, "Rename board", "/data/rename_rollover.gif");
         configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif");
         configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif");
-        configureButton(copyBoardButton, "Copy board", "/data/copy_rollover.gif");
         configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif");
         configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif");
         configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif");
@@ -400,10 +396,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         cutBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 cutSelectedNode();
-            } });
-        copyBoardButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                copyToClipboard();
             } });
         pasteBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -435,7 +427,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         buttonPanel.add(renameBoardButton,buttonPanelConstr);
         buttonPanel.add(removeBoardButton,buttonPanelConstr);
         buttonPanel.add(cutBoardButton,buttonPanelConstr);
-        buttonPanel.add(copyBoardButton,buttonPanelConstr);
         buttonPanel.add(pasteBoardButton,buttonPanelConstr);
         buttonPanel.add(boardInfoButton,buttonPanelConstr);
 
@@ -473,8 +464,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tabbedPane.add(LangRes.getString("Downloads"), buildDownloadPane());
         tabbedPane.add(LangRes.getString("Uploads"), buildUploadPane());
 
-        FrostBoardObject tofTreeNode = new FrostBoardObject("Frost Message System", true); // is a folder
-        tofTree = new TofTree(tofTreeNode);
+        tofTree = new TofTree();
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
         tofTree.setRootVisible(true);
         tofTree.setEditable(true);
@@ -857,21 +847,23 @@ public class frame1 extends JFrame implements ClipboardOwner
     //File contacts = new File("contacts");
     System.out.println("trying to create/load ids");
     try {
-        if (identities.createNewFile()) {//create new identities
+        if(identities.createNewFile()) {//create new identities
 
             try {
                 String nick = null;
-                do{
+                do {
                     nick = JOptionPane.showInputDialog("Choose an identity name, it doesn't have to be unique\n");
-                }while(nick.compareTo("") == 0);
+                } while(nick == null || nick.length() == 0 );
                 mySelf = new LocalIdentity(nick);
-        //JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
-
+//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
             }
-            catch(Exception e) {System.out.println("couldn't create new identitiy");
-            System.out.println(e.toString());}
+            catch(Exception e) {
+                System.out.println("couldn't create new identitiy");
+                System.out.println(e.toString());
+            }
             friends = new BuddyList();
-            if (friends.Add(frame1.getMyId())) System.out.println("added myself to list");
+            if (friends.Add(frame1.getMyId()))
+                System.out.println("added myself to list");
             enemies = new BuddyList();
         } else try {
         BufferedReader fin = new BufferedReader(new FileReader(identities));
@@ -937,10 +929,11 @@ public class frame1 extends JFrame implements ClipboardOwner
     timer2.schedule(KeyReinserter,0,60*60*1000);
 
     //on with other stuff
-    File boardsfile = new File("boards.txt");
 
-    getTofTree().loadTree(boardsfile);
-    getTofTree().readTreeState(new File("toftree.txt"));
+    getTofTree().initialize();
+
+    // step through all messages on disk up to maxMessageDisplay and check if there are new messages
+    // if a new message is in a folder, this folder is show yellow in tree
     TOF.initialSearchNewMessages(getTofTree(), frostSettings.getIntValue("maxMessageDisplay"));
 
     loadSettings(); //check this!
@@ -1228,7 +1221,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTreePopupRefresh = new JMenuItem("Refresh board/folder");
         tofTreePopupAddNode = new JMenuItem(LangRes.getString("Add new board / folder"));
         tofTreePopupRemoveNode = new JMenuItem(LangRes.getString("Remove selected board / folder"));
-        tofTreePopupCopyNode = new JMenuItem(LangRes.getString("Copy selected board / folder"));
         tofTreePopupCutNode = new JMenuItem(LangRes.getString("Cut selected board / folder"));
         tofTreePopupPasteNode = new JMenuItem(LangRes.getString("Paste board / folder"));
         tofTreePopupConfigureBoard = new JMenuItem(LangRes.getString("Configure selected board"));
@@ -1250,10 +1242,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 cutSelectedNode();
             } });
-        tofTreePopupCopyNode.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                copyToClipboard();
-            } });
         tofTreePopupPasteNode.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 pasteFromClipboard();
@@ -1269,7 +1257,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTreePopupMenu.add(tofTreePopupAddNode);
         tofTreePopupMenu.add(tofTreePopupRemoveNode);
         tofTreePopupMenu.addSeparator();
-        tofTreePopupMenu.add(tofTreePopupCopyNode);
         tofTreePopupMenu.add(tofTreePopupCutNode);
         tofTreePopupMenu.add(tofTreePopupPasteNode);
         tofTreePopupMenu.addSeparator();
@@ -1425,83 +1412,45 @@ public class frame1 extends JFrame implements ClipboardOwner
         int[] selectedRows = getAttachedBoardsTable().getSelectedRows();
 
         if( selectedRows.length == 0 )
-            for( int i = 0; i < getAttachedBoardsTable().getModel().getRowCount(); i++ )
-            {
-                String name = (String)getAttachedBoardsTable().getModel().getValueAt(i, 0);
-                String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(i, 1);
-                String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(i, 2);
-
-                File newBoard = new File(keypool + name.toLowerCase() + ".key");
-
-                //ask if we already have the board
-                if( newBoard.exists() )
-                    if( JOptionPane.showConfirmDialog(this, "you already have a board named " + name + "\n" +
-                                                      "are you sure you want to download this one over it?","board exists",
-                                                      JOptionPane.YES_NO_OPTION) !=0 ) continue;
-
-                //create the key file
-                try
-                {
-                    newBoard.createNewFile();
-                }
-                catch( IOException e )
-                {
-                    System.out.println(e.toString());
-                }
-
-                //create the content of the file
-                String content = new String();
-                if( privKey.compareTo("N/A") == 0 )
-                    content = content + "privateKey=\n";
-                else content = content + "privateKey="+privKey+"\n";
-                content = content + "publicKey="+pubKey+"\n";
-                if( privKey.compareTo("N/A") == 0 )
-                    content = content + "state=readAccess";
-                else content = content + "state=writeAccess";
-
-                FileAccess.writeFile(content,newBoard);
-                addNodeTree( new FrostBoardObject(name) );
-            }
-        else
+        {
+            // add all rows
+            getAttachedBoardsTable().selectAll();
+            selectedRows = getAttachedBoardsTable().getSelectedRows();
+            if( selectedRows.length == 0 )
+                return;
+        }
             for( int i = 0; i < selectedRows.length; i++ )
             {
                 String name = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 0);
                 String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 1);
                 String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 2);
 
-                File newBoard = new File(keypool + name + ".key");
+            FrostBoardObject board = getTofTree().getBoardByName( name );
 
-                //ask if we already have the board
-                if( newBoard.exists() )
-                    if( JOptionPane.showConfirmDialog(this, "you already have a board named " + name + "\n" +
-                                                      "are you sure you want to download this one over it?","board exists",
-                                                      JOptionPane.YES_NO_OPTION) !=0 )
-                    {
-                        continue;
-                    }
-                //create the key file
-                try
-                {
-                    newBoard.createNewFile();
-                }
-                catch( IOException e )
-                {
-                    System.out.println(e.toString());
-                }
-
-                //create the content of the file
-                String content = new String();
-                if( privKey.compareTo("N/A") == 0 )
-                    content = content + "privateKey=\n";
-                else content = content + "privateKey="+privKey+"\n";
-                content = content + "publicKey="+pubKey+"\n";
-                if( privKey.compareTo("N/A") == 0 )
-                    content = content + "state=readAccess";
-                else content = content + "state=writeAccess";
-
-                FileAccess.writeFile(content,newBoard);
-                addNodeTree( new FrostBoardObject(name) );
+            //ask if we already have the board
+            if( board != null )
+            {
+                if( JOptionPane.showConfirmDialog(this, "You already have a board named " + name + ".\n" +
+                                                  "Are you sure you want to download this one over it?",
+                                                  "Board already exists",
+                                                  JOptionPane.YES_NO_OPTION) !=0 )
+                    continue; // next row of table / next attached board
             }
+
+            // prepare key vars for creation of FrostBoardObject (val=null if key is empty)
+            if( privKey.compareTo("N/A") == 0 ||
+                privKey.length() == 0 )
+            {
+                privKey = null;
+            }
+            if( pubKey.compareTo("N/A") == 0 ||
+                pubKey.length() == 0 )
+            {
+                pubKey = null;
+            }
+
+            addNodeTree( new FrostBoardObject(name, pubKey, privKey) );
+        }
     }
 
     // Test if board should be updated
@@ -1561,27 +1510,15 @@ public class frame1 extends JFrame implements ClipboardOwner
         // fire update for node
         DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
         model.nodeChanged( board );
-    }
-
-    public void updateTofTree()
-    {
-        stopTofTreeUpdate = true;
-        // fire update for each node
-        DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
-        Enumeration nodes = ((DefaultMutableTreeNode)getTofTree().getModel().getRoot()).depthFirstEnumeration();
-        while( nodes.hasMoreElements() )
+        if( board == getActualNode() ) // is the board actually shown?
         {
-            DefaultMutableTreeNode n = (DefaultMutableTreeNode)nodes.nextElement();
-            model.nodeChanged( n );
+            updateButtons(board);
         }
-        stopTofTreeUpdate = false;
-        updateButtons();
     }
 
-    private void updateButtons()
+    private void updateButtons(FrostBoardObject board)
     {
-        String state = SettingsFun.getValue(keypool + getActualNode().getBoardFilename() + ".key", "state");
-        if( state.equals("readAccess") )
+        if( board.isReadAccessBoard() )
         {
             tofNewMessageButton.setEnabled(false);
             uploadAddFilesButton.setEnabled(false);
@@ -1728,11 +1665,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             selectedTreePath = e.getNewLeadSelectionPath();
         }
 
-        if(stopTofTreeUpdate)
-        {
-            return;
-        }
-
         FrostBoardObject node = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
 
         resetMessageViewSplitPanes(); // clear message view
@@ -1745,7 +1677,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 saveMessageButton.setEnabled(false);
                 configBoardButton.setEnabled(true);
 
-                updateButtons();
+                updateButtons(node);
 
                 System.out.println( "Board "+node.toString()+" blocked count: "+node.getBlockedCount() );
 
@@ -1762,11 +1694,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                 configBoardButton.setEnabled(false);
             }
         }
-/*        else
-        {
-            // no node selected
-        }
-*/
     }
 
     public void addNodeToTree()
@@ -1836,28 +1763,24 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     public void pasteFromClipboard()
     {
+        if( clipboard == null )
+        {
+            pasteBoardButton.setEnabled(false);
+            return;
+        }
+
         if( getTofTree().pasteFromClipboard(clipboard) == true )
         {
-            clipboard = "";
+            clipboard = null;
             pasteBoardButton.setEnabled(false);
         }
     }
 
     public void cutSelectedNode() {
-        String cuttedNode = getTofTree().cutSelectedNode();
+        FrostBoardObject cuttedNode = getTofTree().cutSelectedNode();
         if( cuttedNode != null )
         {
             clipboard = cuttedNode;
-            pasteBoardButton.setEnabled(true);
-        }
-    }
-
-    public void copyToClipboard()
-    {
-        String copiedNode = getTofTree().copySelectedNode();
-        if( copiedNode != null )
-        {
-            clipboard = copiedNode;
             pasteBoardButton.setEnabled(true);
         }
     }
@@ -1874,8 +1797,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         cutSelectedNode();
         if (key == KeyEvent.VK_V)
         pasteFromClipboard();
-        if (key == KeyEvent.VK_C)
-        copyToClipboard();
     }
     }
 
@@ -1892,6 +1813,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void messageTableListModel_valueChanged(ListSelectionEvent e)
     {
         FrostBoardObject selectedBoard = getActualNode();
+        if( selectedBoard.isFolder() )
+            return;
         selectedMessage = TOF.evalSelection(e, messageTable, selectedBoard);
         if( selectedMessage != null )
         {
@@ -1900,9 +1823,10 @@ public class frame1 extends JFrame implements ClipboardOwner
             downloadBoardsButton.setEnabled(false);
 
             lastSelectedMessage = selectedMessage.getSubject();
-            String state = SettingsFun.getValue(keypool + getActualNode().getBoardFilename() + ".key", "state");
-            if( !state.equals("readAccess") )
+            if( selectedBoard.isReadAccessBoard() == false )
+            {
                 tofReplyButton.setEnabled(true);
+            }
 
             if( selectedMessage.getStatus().trim().compareTo(VerifyableMessageObject.PENDING) == 0 )
             {
@@ -2403,21 +2327,27 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**tofNewMessageButton Action Listener (tof/ New Message)*/
     private void tofNewMessageButton_actionPerformed(ActionEvent e)
     {
-        String[] args = {getActualNode().toString(), // TODO: pass FrostBoardObject
-            frostSettings.getValue("userName"),
-            "No subject", "",
-            frostSettings.getValue("lastUsedDirectory")
-        };
+        String subject = "No subject";
 
         if( frostSettings.getBoolValue("useAltEdit") )
         {
             // TODO: pass FrostBoardObject
-            altEdit = new AltEdit(getActualNode().toString(),"No subject", "", keypool, frostSettings, this);
+            altEdit = new AltEdit(getActualNode(),
+                                  frostSettings.getValue("userName"),
+                                  subject, // subject
+                                  "", // new msg
+                                  frostSettings,
+                                  this);
             altEdit.start();
         }
         else
         {
-            MessageFrame newMessage = new MessageFrame(args, keypool, frostSettings, this);
+            MessageFrame newMessage = new MessageFrame(getActualNode(),
+                                                       frostSettings.getValue("userName"),
+                                                       subject, // subject
+                                                       "",
+                                                       frostSettings,
+                                                       this);
             newMessage.show();
         }
     }
@@ -2425,25 +2355,29 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**tofReplyButton Action Listener (tof/Reply)*/
     private void tofReplyButton_actionPerformed(ActionEvent e)
     {
-        String subject = "No subject";
-        int selectedRow = messageTable.getSelectedRow();
-        String[] args = {getActualNode().toString(), // TODO: pass FrostBoardObject
-            frostSettings.getValue("userName"),
-            lastSelectedMessage,
-            getTofTextAreaText(),
-            frostSettings.getValue("lastUsedDirectory")};
-        if( !args[2].startsWith("Re:") )
-            args[2] = "Re: " + args[2];
+        String subject = lastSelectedMessage;
+
+        if( subject.startsWith("Re:") == false )
+            subject = "Re: " + subject;
 
         if( frostSettings.getBoolValue("useAltEdit") )
         {
-            // TODO: pass FrostBoardObject
-            altEdit = new AltEdit(getActualNode().toString(), args[2], args[3], keypool, frostSettings, this);
+            altEdit = new AltEdit(getActualNode(),
+                                  frostSettings.getValue("userName"),
+                                  subject, // subject
+                                  getTofTextAreaText(),
+                                  frostSettings,
+                                  this);
             altEdit.start();
         }
         else
         {
-            MessageFrame newMessage = new MessageFrame(args, keypool, frostSettings , this);
+            MessageFrame newMessage = new MessageFrame(getActualNode(),
+                                                       frostSettings.getValue("userName"),
+                                                       subject, // subject
+                                                       getTofTextAreaText(),
+                                                       frostSettings,
+                                                       this);
             newMessage.show();
         }
     }
@@ -2498,13 +2432,17 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**News | Configure Board action performed*/
-    private void tofConfigureBoardMenuItem_actionPerformed(ActionEvent e) {
-    BoardSettingsFrame newFrame = new BoardSettingsFrame(this, getActualNode().toString());  // TODO: pass FrostBoardObject
-    newFrame.setModal(true); // lock main window
-    newFrame.show();
-    if (newFrame.getExitState()) {
-        updateTofTree();
-    }
+    private void tofConfigureBoardMenuItem_actionPerformed(ActionEvent e)
+    {
+        FrostBoardObject board = getActualNode();
+        if( board.isFolder() )
+            return;
+
+        BoardSettingsFrame newFrame = new BoardSettingsFrame(this, board);
+        if( newFrame.runDialog() == true ) // OK pressed?
+        {
+            updateTofTree(board);
+        }
     }
 
     /**Options | Preferences action performed*/
@@ -2556,8 +2494,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         //      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
         frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
         frostSettings.writeSettingsFile();
-        getTofTree().saveTree(new File("boards.txt"));
-        getTofTree().writeTreeState(new File("toftree.txt"));
+        getTofTree().saveTree();
     }
 
     /**Load Settings*/
@@ -2749,19 +2686,17 @@ public class frame1 extends JFrame implements ClipboardOwner
             tofTreePopupConfigureBoard.setEnabled(false);
             tofTreePopupRemoveNode.setEnabled(false);
             tofTreePopupCutNode.setEnabled(false);
-            tofTreePopupCopyNode.setEnabled(false);
             tofTreePopupPasteNode.setEnabled(false);
             if (node != null) {
             DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
             if (parent != null) {
                 tofTreePopupRemoveNode.setEnabled(true);
                 tofTreePopupCutNode.setEnabled(true);
-                tofTreePopupCopyNode.setEnabled(true);
                 if (node.isLeaf())
-                tofTreePopupConfigureBoard.setEnabled(true);
+                    tofTreePopupConfigureBoard.setEnabled(true);
             }
             }
-            if (!clipboard.equals(""))
+            if( clipboard != null )
                 tofTreePopupPasteNode.setEnabled(true);
 
             tofTreePopupMenu.show(e.getComponent(), e.getX(), e.getY());
@@ -2868,9 +2803,16 @@ public class frame1 extends JFrame implements ClipboardOwner
                 VerifyableMessageObject mo = new VerifyableMessageObject((File)entries.elementAt(i));
                 if( mo.isValid() )
                 {
-// TODO: find board in tree, if existing -> pass FrostBoardObject
-                    getRunningBoardUpdateThreads().startMessageUpload(
-                        new FrostBoardObject(mo.getBoard()),
+                    FrostBoardObject board = getTofTree().getBoardByName( mo.getBoard() );
+                    if( board == null )
+                    {
+                        System.out.println("Can't resend Message '"+mo.getSubject()+"', the target board '"+mo.getBoard()+
+                                           "' was not found in your boardlist.");
+                        // TODO: maybe delete msg? or it will always be retried to send
+                        return;
+                    }
+                     getRunningBoardUpdateThreads().startMessageUpload(
+                        board,
                         mo.getFrom(),
                         mo.getSubject(),
                         mo.getContent(),
@@ -2880,13 +2822,12 @@ public class frame1 extends JFrame implements ClipboardOwner
                         frostSettings,
                         this,
                         null);
-                    System.out.println("Message " + mo.getSubject() + " will be resent.");
+                    System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
                 }
 // TODO: check if upload was successful before deleting the file!
                 mo.getFile().delete();
             }
         }
     }
-
 }
 

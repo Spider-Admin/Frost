@@ -36,7 +36,7 @@ public class MessageFrame extends JFrame {
     //------------------------------------------------------------------------
     // Class Vars
     //------------------------------------------------------------------------
-    String board;
+    FrostBoardObject board;
     String from;
     String subject;
     String text;
@@ -45,7 +45,6 @@ public class MessageFrame extends JFrame {
     String fileSeparator = System.getProperty("file.separator");
     String recipient;
     boolean state;
-    boolean secure;
     boolean encrypt;
     Frame parentFrame;
     SettingsClass frostSettings;
@@ -121,15 +120,8 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
     configureButton(jButton3, "Add attachment(s)", "/data/save_rollover.gif");
     configureButton(uploadBoardsButton, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
 
-    String displayBoard = board;
-    secure = false;
-    if (board.startsWith("<html>") && board.length() > 41) {
-        displayBoard = board.substring(27, board.length() - 14);
-        secure = true;
-        jTextField1.setEnabled(false);
-    }
-
-    jTextField1.setText(displayBoard);
+    jTextField1.setEnabled(false);
+    jTextField1.setText(board.toString());
     jTextField2.setText(from);
 
     encryptBox.setSelected(false);
@@ -257,8 +249,6 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
     /**jButton1 Action Listener (Send)*/
     private void jButton1_actionPerformed(ActionEvent e) {
     state = true;
-    if (!secure)
-        board = jTextField1.getText();
     from = jTextField2.getText();
     subject = jTextField3.getText();
     text = jTextArea1.getText();
@@ -292,7 +282,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         }
 
         frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-            new FrostBoardObject(board), // TODO: pass FrostBoardObject
+            board, // TODO: pass FrostBoardObject
             from,
             subject,
             text,
@@ -389,6 +379,22 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
     }
    }
 
+   /**
+    * Configures a button to be a default icon button
+    * @param button The new icon button
+    * @param toolTipText Is displayed when the mousepointer is some seconds over a button
+    * @param rolloverIcon Displayed when mouse is over button
+    */
+   protected void configureButton(JButton button, String toolTipText, String rolloverIcon)
+   {
+       button.setToolTipText(LangRes.getString(toolTipText));
+       button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
+       button.setMargin(new Insets(0, 0, 0, 0));
+       button.setBorderPainted(false);
+       button.setFocusPainted(false);
+   }
+
+
     protected void processWindowEvent(WindowEvent e) {
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
         dispose();
@@ -397,52 +403,45 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
     }
 
     /**Constructor*/
-    public MessageFrame(String[] args, String keypool, SettingsClass frostSettings, Frame parentFrame) {
-    super();
-    this.parentFrame = parentFrame;
-    this.board = args[0];
-    this.from = args[1];
-    this.subject = args[2];
-    this.text = args[3];
-    this.lastUsedDirectory = args[4];
-    this.state = false;
-    this.keypool = keypool;
-    this.frostSettings = frostSettings;
-
-    String date = DateFun.getDate() + " - " + DateFun.getTime();
-    String lineSeparator = System.getProperty("line.separator");
-    if (this.text.length() > 0)
-        this.text += lineSeparator + "----- " + this.from + " ----- " + date + " -----" + lineSeparator + lineSeparator;
-
-    File signature = new File("signature.txt");
-    if (signature.isFile())
-        this.text += FileAccess.readFile("signature.txt");
-
-    enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-    try {
-        Init();
-    }
-    catch(Exception e) {
-        e.printStackTrace();
-    }
-    pack();
-    setLocationRelativeTo(parentFrame);
-    }
-
-    /**
-     * Configures a button to be a default icon button
-     * @param button The new icon button
-     * @param toolTipText Is displayed when the mousepointer is some seconds over a button
-     * @param rolloverIcon Displayed when mouse is over button
-     */
-    protected void configureButton(JButton button, String toolTipText, String rolloverIcon)
+    public MessageFrame(FrostBoardObject board, String from, String subject, String text,
+                        SettingsClass config, Frame parentFrame)
     {
-        button.setToolTipText(LangRes.getString(toolTipText));
-        button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
-        button.setMargin(new Insets(0, 0, 0, 0));
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-    }
+        super();
+        this.parentFrame = parentFrame;
+        this.board = board;
+        this.from=from;
+        this.subject=subject;
+        this.text=text;
+        this.lastUsedDirectory = config.getValue("lastUsedDirectory");
+        this.state = false;
+        this.keypool = config.getValue("keypool.dir");
+        this.frostSettings = frostSettings;
 
+        String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime();
+        String lineSeparator = System.getProperty("line.separator");
+        if( this.text.length() > 0 )
+        {
+            // on new message
+            this.text += lineSeparator + "----- " +
+                            this.from + " ----- " + date + " -----" +
+                            lineSeparator + lineSeparator;
+        }
+
+        File signature = new File("signature.txt");
+        if( signature.isFile() )
+            this.text += FileAccess.readFile("signature.txt");
+
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+        try
+        {
+            Init();
+        }
+        catch( Exception e )
+        {
+            e.printStackTrace();
+        }
+        pack();
+        setLocationRelativeTo(parentFrame);
+    }
 }
 

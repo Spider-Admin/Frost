@@ -89,15 +89,12 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         }
 
         // switch public / secure board
-        String val = new StringBuffer().append(frame1.keypool).append(board.getBoardFilename())
-                      .append(".key").toString();
-        String state = SettingsFun.getValue(val, "state");
-        if( state.equals("writeAccess") || state.equals("readAccess") )
+        if( board.isPublicBoard() == false )
         {
-            publicKey = SettingsFun.getValue(val, "publicKey");
+            publicKey = board.getPublicKey();
             secure = true;
         }
-        else
+        else // public board
         {
             secure = false;
         }

@@ -204,11 +204,11 @@ public class UpdateIdThread extends Thread {
         insertHtl = frame1.frostSettings.getValue("keyUploadHtl");
         keypool = frame1.keypool;
         maxKeys = frame1.frostSettings.getIntValue("maxKeys");
-        publicKey = SettingsFun.getValue(keypool + board.getBoardFilename() + ".key", "publicKey");
-        privateKey = SettingsFun.getValue(keypool + board.getBoardFilename() + ".key", "privateKey");
-        boardState = SettingsFun.getValue(keypool + board.getBoardFilename() + ".key", "state");
 
-        if( publicKey.startsWith("SSK@") && !boardState.equals("publicBoard") )
+        publicKey = board.getPublicKey();
+        privateKey = board.getPrivateKey();
+
+        if( board.isPublicBoard()==false && publicKey != null )
         {
             requestKey = new StringBuffer().append(publicKey).append("/").append(date).append("/").toString();
             requestKeyWorkaround = null;
@@ -227,7 +227,7 @@ public class UpdateIdThread extends Thread {
                                    .append("/").toString();
         }
 
-        if( privateKey.startsWith("SSK@") && !boardState.equals("publicBoard") )
+        if( board.isPublicBoard()==false && privateKey != null )
             insertKey = new StringBuffer().append(privateKey).append("/").append(date).append("/").toString();
         else
             insertKey = new StringBuffer().append("KSK@frost/index/").append(board.getBoardFilename())

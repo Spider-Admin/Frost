@@ -155,8 +155,7 @@ public class TOF
                 updateThread.cancel();
             }
         }
-        // start new thread
-        // the thread will set hinmself to updateThread,
+        // start new thread, the thread will set itself to updateThread,
         // but first it waits before the actual thread is finished
         nextUpdateThread = new UpdateTofFilesThread(board,keypool,daysToRead,table);
         nextUpdateThread.start();
@@ -247,7 +246,6 @@ public class TOF
             int counter = 0;
             int newMsgCount = 0;
             String targetBoard = board.getBoardFilename();
-            board.setNewMessageCount(0);
             while( cal.after(firstDate) && counter < daysToRead )
             {
                 String date = DateFun.getDateOfCalendar(cal);
