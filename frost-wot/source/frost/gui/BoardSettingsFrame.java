@@ -49,8 +49,6 @@ public class BoardSettingsFrame extends JDialog
 
     JRadioButton publicBoardRadioButton = new JRadioButton(LangRes.getString("Public board"));
     JRadioButton secureBoardRadioButton = new JRadioButton(LangRes.getString("Secure board"));
-    ButtonGroup isSecureGroup = new ButtonGroup();
-
 
     JButton okButton = new JButton(LangRes.getString("OK"));
     JButton cancelButton = new JButton(LangRes.getString("Cancel"));
@@ -58,6 +56,27 @@ public class BoardSettingsFrame extends JDialog
 
     JTextField privateKeyTextField = new JTextField(32);
     JTextField publicKeyTextField = new JTextField(32);
+
+    JCheckBox overrideSettings = new JCheckBox("Override default settings");
+
+    JRadioButton maxMsg_default = new JRadioButton("Use default");
+    JRadioButton maxMsg_set = new JRadioButton("Set to:");
+    JTextField maxMsg_value = new JTextField(6);
+
+    JRadioButton signedOnly_default = new JRadioButton("Use default");
+    JRadioButton signedOnly_true = new JRadioButton("Yes");
+    JRadioButton signedOnly_false = new JRadioButton("No");
+
+    JRadioButton hideBad_default = new JRadioButton("Use default");
+    JRadioButton hideBad_true = new JRadioButton("Yes");
+    JRadioButton hideBad_false = new JRadioButton("No");
+
+    JRadioButton hideCheck_default = new JRadioButton("Use default");
+    JRadioButton hideCheck_true = new JRadioButton("Yes");
+    JRadioButton hideCheck_false = new JRadioButton("No");
+
+    JRadioButton autoUpdate_true = new JRadioButton("On");
+    JRadioButton autoUpdate_false = new JRadioButton("Off");
 
     /**Constructor*/
     public BoardSettingsFrame(Frame parent, FrostBoardObject board)
@@ -119,6 +138,7 @@ public class BoardSettingsFrame extends JDialog
         // Append objects
         //------------------------------------------------------------------------
 
+        ButtonGroup isSecureGroup = new ButtonGroup();
         isSecureGroup.add(publicBoardRadioButton);
         isSecureGroup.add(secureBoardRadioButton);
 
@@ -156,6 +176,7 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridy++;
         constr.gridwidth=2;
+        constr.weightx=0.7;
         constr.fill=constr.HORIZONTAL;
         JPanel settings = getSettingsPanel();
         keyPanel.add(settings, constr);
@@ -178,17 +199,126 @@ public class BoardSettingsFrame extends JDialog
         generateKeyButton.setEnabled(false);
 
         loadKeypair();
+        loadBoardSettings();
         pack();
         setLocationRelativeTo(parent);
     }
 
     private JPanel getSettingsPanel()
     {
-        JPanel panel = new JPanel(new GridBagLayout());
+        ButtonGroup bg1 = new ButtonGroup();
+        bg1.add(autoUpdate_false);
+        bg1.add(autoUpdate_true);
+        ButtonGroup bg2 = new ButtonGroup();
+        bg2.add(maxMsg_default);
+        bg2.add(maxMsg_set);
+        ButtonGroup bg3 = new ButtonGroup();
+        bg3.add(signedOnly_default);
+        bg3.add(signedOnly_false);
+        bg3.add(signedOnly_true);
+        ButtonGroup bg4 = new ButtonGroup();
+        bg4.add(hideBad_default);
+        bg4.add(hideBad_true);
+        bg4.add(hideBad_false);
+        ButtonGroup bg5 = new ButtonGroup();
+        bg5.add(hideCheck_default);
+        bg5.add(hideCheck_true);
+        bg5.add(hideCheck_false);
+
+        final JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints constr = new GridBagConstraints();
         constr.anchor = GridBagConstraints.WEST;
         constr.insets = new Insets(5, 5, 5, 5);
         constr.gridx = 0; constr.gridy = 0;
+
+        constr.gridwidth=3;
+        panel.add(overrideSettings, constr);
+        constr.gridy++;
+        constr.insets = new Insets(5, 25, 5, 5);
+        panel.add(new JLabel("Automatic board update"), constr);
+        constr.insets = new Insets(5, 35, 5, 5);
+        constr.gridwidth=1;
+        constr.gridy++;
+        constr.gridx=1;
+        panel.add(autoUpdate_true, constr);
+        constr.gridx=2;
+        panel.add(autoUpdate_false, constr);
+        constr.gridy++;
+
+        constr.gridwidth=3;
+        constr.gridx=0;
+        constr.insets = new Insets(5, 25, 5, 5);
+        panel.add(new JLabel("Maximum message display (days)"), constr);
+        constr.insets = new Insets(5, 35, 5, 5);
+        constr.gridwidth=1;
+        constr.gridy++;
+        constr.gridx=0;
+        panel.add(maxMsg_default, constr);
+        constr.gridx=1;
+        panel.add(maxMsg_set, constr);
+        constr.gridx=2;
+        panel.add(maxMsg_value, constr);
+        constr.gridy++;
+
+        constr.gridwidth=3;
+        constr.gridx=0;
+        constr.insets = new Insets(5, 25, 5, 5);
+        panel.add(new JLabel("Show signed messages only"), constr);
+        constr.insets = new Insets(5, 35, 5, 5);
+        constr.gridwidth=1;
+        constr.gridy++;
+        constr.gridx=0;
+        panel.add(signedOnly_default, constr);
+        constr.gridx=1;
+        panel.add(signedOnly_true, constr);
+        constr.gridx=2;
+        panel.add(signedOnly_false, constr);
+        constr.gridy++;
+
+        constr.gridwidth=3;
+        constr.gridx=0;
+        constr.insets = new Insets(5, 25, 5, 5);
+        panel.add(new JLabel("Hide BAD messages"), constr);
+        constr.insets = new Insets(5, 35, 5, 5);
+        constr.gridwidth=1;
+        constr.gridy++;
+        constr.gridx=0;
+        panel.add(hideBad_default, constr);
+        constr.gridx=1;
+        panel.add(hideBad_true, constr);
+        constr.gridx=2;
+        panel.add(hideBad_false, constr);
+        constr.gridy++;
+
+        constr.gridwidth=3;
+        constr.gridx=0;
+        constr.insets = new Insets(5, 25, 5, 5);
+        panel.add(new JLabel("Hide CHECK messages"), constr);
+        constr.insets = new Insets(5, 35, 5, 5);
+        constr.gridwidth=1;
+        constr.gridy++;
+        constr.gridx=0;
+        panel.add(hideCheck_default, constr);
+        constr.gridx=1;
+        panel.add(hideCheck_true, constr);
+        constr.gridx=2;
+        panel.add(hideCheck_false, constr);
+        // filler (glue)
+        constr.gridy++;
+        constr.gridx = 3;
+        constr.gridwidth = 1;
+        constr.weightx = 0.7;
+        constr.weighty = 0.7;
+        constr.insets = new Insets(0,0,0,0);
+        constr.fill = GridBagConstraints.HORIZONTAL;
+        panel.add(new JLabel(" "), constr);
+
+        overrideSettings.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setPanelEnabled( panel, overrideSettings.isSelected() );
+            } });
+
+        setPanelEnabled( panel, board.isConfigured() );
 
         return panel;
     }
@@ -282,6 +412,34 @@ public class BoardSettingsFrame extends JDialog
                 board.setPrivateKey( privateKey );
             }
         }
+        if( overrideSettings.isSelected() )
+        {
+            board.setConfigured(true);
+            board.setAutoUpdateEnabled( autoUpdate_true.isSelected() );
+            if( maxMsg_default.isSelected() == false )
+                board.setMaxMessageDays( new Integer( maxMsg_value.getText() ) );
+            else
+                board.setMaxMessageDays( null );
+
+            if( signedOnly_default.isSelected() == false )
+                board.setShowSignedOnly( new Boolean( signedOnly_true.isSelected() ) );
+            else
+                board.setShowSignedOnly( null );
+
+            if( hideBad_default.isSelected() == false )
+                board.setHideBad( new Boolean( hideBad_true.isSelected() ) );
+            else
+                board.setHideBad( null );
+
+            if( hideCheck_default.isSelected() == false )
+                board.setHideCheck( new Boolean( hideCheck_true.isSelected() ) );
+            else
+                board.setHideCheck( null );
+        }
+        else
+        {
+            board.setConfigured(false);
+        }
         dispose();
     }
 
@@ -322,6 +480,66 @@ public class BoardSettingsFrame extends JDialog
             publicKeyTextField.setEnabled(false);
             generateKeyButton.setEnabled(false);
             publicBoardRadioButton.setSelected(true);
+        }
+    }
+
+    /**
+     * Set initial values for board settings.
+     */
+    private void loadBoardSettings()
+    {
+        overrideSettings.setSelected(board.isConfigured());
+
+        if( board.getMaxMessageDisplayObj() == null )
+            maxMsg_default.setSelected(true);
+        else
+        {
+            maxMsg_set.setSelected(true);
+            maxMsg_value.setText( ""+board.getMaxMessageDisplay() );
+        }
+
+        if( board.isConfigured() )
+        {
+            if( board.getAutoUpdateEnabled() )
+                autoUpdate_true.setSelected(true);
+            else
+                autoUpdate_false.setSelected(true);
+        }
+        else
+            autoUpdate_true.setSelected(true);
+
+        if( board.getShowSignedOnlyObj() == null )
+            signedOnly_default.setSelected(true);
+        else if(board.getShowSignedOnly())
+            signedOnly_true.setSelected(true);
+        else
+            signedOnly_false.setSelected(true);
+
+        if( board.getHideBadObj() == null )
+            hideBad_default.setSelected(true);
+        else if(board.getHideBad())
+            hideBad_true.setSelected(true);
+        else
+            hideBad_false.setSelected(true);
+
+        if( board.getHideCheckObj() == null )
+            hideCheck_default.setSelected(true);
+        else if(board.getHideCheck())
+            hideCheck_true.setSelected(true);
+        else
+            hideCheck_false.setSelected(true);
+    }
+
+    private void setPanelEnabled(JPanel panel, boolean enabled)
+    {
+        int componentCount = panel.getComponentCount();
+        for( int x=0; x<componentCount; x++ )
+        {
+            Component c = panel.getComponent(x);
+            if( c != overrideSettings )
+            {
+                c.setEnabled( enabled );
+            }
         }
     }
 
