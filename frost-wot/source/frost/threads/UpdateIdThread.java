@@ -65,33 +65,41 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
     public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
-    /**
-     * Generates a new index file containing keys to upload.
-     * @return true if index file was created, else false.
-     */
-     
-     
-    private void loadIndex(String date) {
-    	indicesFile = new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indices-"+date);
-	
-	//indices = new Vector();
-	
-	try {
-		if (indicesFile.exists()) {
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
-			indices = (Vector)in.readObject();
-			in.close();
-		}else {
-			indices = new Vector(100);
-			for (int i = 0;i < 100;i++)
-				indices.add(new Integer(0));
+	/**
+	 * Generates a new index file containing keys to upload.
+	 * @return true if index file was created, else false.
+	 */
+	private void loadIndex(String date) {
+		indicesFile =
+			new File(
+				MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indices-" + date);
+
+		//indices = new Vector();
+
+		try {
+			if (indicesFile.exists()) {
+				ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
+				indices = (Vector) in.readObject();
+				in.close();
+			} else {
+				indices = new Vector(100);
+				for (int i = 0; i < 100; i++)
+					indices.add(new Integer(0));
+			}
+		} catch (IOException exception) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in loadIndex(String date) - Date: '" + date + 
+					"' - Board name: '" + board.getBoardFilename()	+ "'",
+				exception);
+		} catch (ClassNotFoundException exception) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in loadIndex(String date) - Date: '" + date
+					+ "' - Board name: '" + board.getBoardFilename() + "'",
+				exception);
 		}
-	}catch(IOException e) {
-		logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date)", e);
-	}catch(ClassNotFoundException e) {
-		logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date)", e);
 	}
-    }
     private void commit() {
     	try{
 		indicesFile.delete();
