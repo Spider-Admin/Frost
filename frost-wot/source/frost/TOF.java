@@ -105,7 +105,7 @@ public class TOF
           )
         {
             final FrostMessageObject message = new FrostMessageObject(newMsgFile);
-            if( message.isValid() && !blocked(message) )
+            if( message.isValid() && !blocked(message, board) )
             {
                 final String[] sMessage = message.getVRow();
 
@@ -137,8 +137,9 @@ public class TOF
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public static void updateTofTable(FrostBoardObject board, String keypool, int daysToRead)
+    public static void updateTofTable(FrostBoardObject board, String keypool)
     {
+        int daysToRead = board.getMaxMessageDisplay();
         // change to not block the swing thread
         JTable table = frame1.getInstance().getMessageTable();
 
@@ -272,7 +273,7 @@ public class TOF
                               )
                             {
                                 FrostMessageObject message = new FrostMessageObject(filePointers[j]);
-                                if( message.isValid() && !blocked(message) )
+                                if( message.isValid() && !blocked(message,board) )
                                 {
                                     msgcount++;
                                     final String[] sMessage = message.getVRow();
@@ -337,17 +338,17 @@ public class TOF
      * @param message The message object to check
      * @return true if message is blocked, else false
      */
-    public static boolean blocked(VerifyableMessageObject message)
+    public static boolean blocked(VerifyableMessageObject message, FrostBoardObject board)
     {
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
             !message.isVerifyable() )
             return true;
-        if( frame1.frostSettings.getBoolValue("signedOnly") &&
-            frame1.frostSettings.getBoolValue("hideBadMessages") &&
+        if( board.getShowSignedOnly() &&
+            board.getHideBad() &&
             (message.getStatus().indexOf("BAD")!=-1))
             return true;
-        if( frame1.frostSettings.getBoolValue("signedOnly") &&
-            frame1.frostSettings.getBoolValue("hideCheckMessages") &&
+        if( board.getShowSignedOnly() &&
+            board.getHideCheck() &&
             (message.getStatus().indexOf("CHECK")!=-1))
             return true;
 
@@ -407,7 +408,7 @@ public class TOF
         return false;
     }
 
-    public static void initialSearchNewMessages(JTree tree, int daysToRead)
+    public static void initialSearchNewMessages(JTree tree)
     {
         DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
         Enumeration e = ((DefaultMutableTreeNode)model.getRoot()).depthFirstEnumeration();
@@ -415,6 +416,8 @@ public class TOF
         while( e.hasMoreElements() )
         {
             final FrostBoardObject board = (FrostBoardObject)e.nextElement();
+            int daysToRead = board.getMaxMessageDisplay();
+
             board.setNewMessageCount( 0 ); // reset count
 
             if( board.isFolder() == true )
@@ -473,7 +476,7 @@ public class TOF
                                     continue;  // next .lck file
                                 }
                                 FrostMessageObject message = new FrostMessageObject(filePointers[k]);
-                                if( message.isValid() && !blocked(message) )
+                                if( message.isValid() && !blocked(message,board) )
                                 {
                                     // update the node that contains new messages
                                     board.incNewMessageCount();

@@ -374,7 +374,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
         configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif");
         configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
-        configureButton(renameBoardButton, "Rename board", "/data/rename_rollover.gif");
+        configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif");
         configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif");
         configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif");
         configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif");
@@ -929,7 +929,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     // step through all messages on disk up to maxMessageDisplay and check if there are new messages
     // if a new message is in a folder, this folder is show yellow in tree
-    TOF.initialSearchNewMessages(getTofTree(), frostSettings.getIntValue("maxMessageDisplay"));
+    TOF.initialSearchNewMessages(getTofTree());
 
     loadSettings(); //check this!
     Startup.startupCheck();
@@ -1689,7 +1689,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 }
             }
             // finally step through all board files, count new messages and delete new messages from enemies
-            TOF.initialSearchNewMessages( getTofTree(), frostSettings.getIntValue("maxMessageDisplay") );
+            TOF.initialSearchNewMessages( getTofTree() );
 
             SwingUtilities.invokeLater(new Runnable() {
                     public void run()
@@ -1785,7 +1785,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 downloadBoardsButton.setEnabled(false);
 
                 // read all messages for this board into message table
-                TOF.updateTofTable(node, keypool, frostSettings.getIntValue("maxMessageDisplay"));
+                TOF.updateTofTable(node, keypool);
                 messageTable.clearSelection();
             }
             else
@@ -2071,47 +2071,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
-    /**
-     * Chooses the next FrostBoard to update (automatic update).
-     * First sorts by lastUpdateStarted time, then chooses first board
-     * that is allowed to update.
-     * Used only for automatic updating.
-     * Returns NULL if no board to update is found.
-     */
-    public FrostBoardObject selectNextBoard(Vector boards)
-    {
-        Collections.sort(boards, lastUpdateStartMillisCmp);
-        // now first board in list should be the one with latest update of all
-        FrostBoardObject board;
-        FrostBoardObject nextBoard = null;
-
-        long curTime = System.currentTimeMillis();
-        // get in minutes
-        int minUpdateInterval = frostSettings.getIntValue("automaticUpdate.boardsMinimumUpdateInterval");
-        // min -> ms
-        long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
-
-        for (int i = 0; i < boards.size(); i++)
-        {
-            board = (FrostBoardObject)boards.get(i);
-            if( nextBoard == null &&
-                doUpdate(board) &&
-                (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
-              )
-            {
-                nextBoard = board;
-                break;
-            }
-        }
-        System.out.println("*****************************************");
-        if( nextBoard != null )
-            System.out.println("Automatic board update - starting update for: "+nextBoard.toString());
-        else
-            System.out.println("Automatic board update - no board to update");
-        System.out.println("*****************************************");
-        return nextBoard;
-    }
-
     /**timer Action Listener (automatic download)*/
     private void timer_actionPerformed()
     {
@@ -2271,6 +2230,48 @@ public class frame1 extends JFrame implements ClipboardOwner
                 newRequest.start();
             }
         }
+    }
+
+    /**
+     * Chooses the next FrostBoard to update (automatic update).
+     * First sorts by lastUpdateStarted time, then chooses first board
+     * that is allowed to update.
+     * Used only for automatic updating.
+     * Returns NULL if no board to update is found.
+     */
+    public FrostBoardObject selectNextBoard(Vector boards)
+    {
+        Collections.sort(boards, lastUpdateStartMillisCmp);
+        // now first board in list should be the one with latest update of all
+        FrostBoardObject board;
+        FrostBoardObject nextBoard = null;
+
+        long curTime = System.currentTimeMillis();
+        // get in minutes
+        int minUpdateInterval = frostSettings.getIntValue("automaticUpdate.boardsMinimumUpdateInterval");
+        // min -> ms
+        long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
+
+        for (int i = 0; i < boards.size(); i++)
+        {
+            board = (FrostBoardObject)boards.get(i);
+            if( nextBoard == null &&
+                doUpdate(board) &&
+                (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() && // minInterval
+                ( ( board.isConfigured() && board.getAutoUpdateEnabled() ) || !board.isConfigured() )
+              )
+            {
+                nextBoard = board;
+                break;
+            }
+        }
+        System.out.println("*****************************************");
+        if( nextBoard != null )
+            System.out.println("Automatic board update - starting update for: "+nextBoard.toString());
+        else
+            System.out.println("Automatic board update - no board to update");
+        System.out.println("*****************************************");
+        return nextBoard;
     }
 
     /**
@@ -2668,7 +2669,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             if( optionsDlg.shouldReloadMessages() )
             {
                 // update the new msg. count for all boards
-                TOF.initialSearchNewMessages(getTofTree(), frostSettings.getIntValue("maxMessageDisplay"));
+                TOF.initialSearchNewMessages(getTofTree());
                 // reload all messages
                 tofTree_actionPerformed(null);
             }
