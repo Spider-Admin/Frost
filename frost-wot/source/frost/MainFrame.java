@@ -31,6 +31,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
+import javax.swing.text.JTextComponent;
 import javax.swing.tree.*;
 
 import frost.components.BrowserFrame;
@@ -640,16 +641,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					 */
 		private class PopupMenuTofText
 			extends JSkinnablePopupMenu
-			implements ActionListener, LanguageListener {
+			implements ActionListener, LanguageListener, ClipboardOwner {
 
+			private Clipboard clipboard;
+			
+			private JTextComponent sourceTextComponent;
+			
+			private JMenuItem copyItem = new JMenuItem();
 			private JMenuItem cancelItem = new JMenuItem();
 			private JMenuItem saveMessageItem = new JMenuItem();
 
 			/**
 			 * 
 			 */
-			public PopupMenuTofText() {
+			public PopupMenuTofText(JTextComponent sourceTextComponent) {
 				super();
+				this.sourceTextComponent = sourceTextComponent;
 				initialize();
 			}
 
@@ -660,6 +667,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (e.getSource() == saveMessageItem) {
 					saveMessage();
 				}
+				if (e.getSource() == copyItem) {
+					copySelectedText();
+				}
+			}
+
+			/**
+			 * 
+			 */
+			private void copySelectedText() {
+				StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
+				clipboard.setContents(selection, this);
 			}
 
 			/**
@@ -667,9 +685,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 */
 			private void initialize() {
 				refreshLanguage();
+				
+				Toolkit toolkit = Toolkit.getDefaultToolkit();
+				clipboard = toolkit.getSystemClipboard();
 
+				copyItem.addActionListener(this);
 				saveMessageItem.addActionListener(this);
 
+				add(copyItem);
+				addSeparator();
 				add(saveMessageItem);
 				addSeparator();
 				add(cancelItem);
@@ -686,6 +710,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * 
 			 */
 			private void refreshLanguage() {
+				copyItem.setText(languageResource.getString("Copy"));
 				saveMessageItem.setText(languageResource.getString("Save message to disk"));
 				cancelItem.setText(languageResource.getString("Cancel"));
 			}
@@ -696,7 +721,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private void saveMessage() {
 				FileAccess.saveDialog(
 					getInstance(),
-					messageTextArea.getText(),
+					sourceTextComponent.getText(),
 					frostSettings.getValue("lastUsedDirectory"),
 					languageResource.getString("Save message to disk"));
 			}
@@ -706,8 +731,20 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 */
 			public void show(Component invoker, int x, int y) {
 				if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
+					if (sourceTextComponent.getSelectedText() != null) {
+						copyItem.setEnabled(true);
+					} else {
+						copyItem.setEnabled(false);
+					}
 					super.show(invoker, x, y);
 				}
+			}
+
+			/* (non-Javadoc)
+			 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
+			 */
+			public void lostOwnership(Clipboard clipboard, Transferable contents) {
+				// Nothing here
 			}
 
 		}
@@ -985,7 +1022,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private PopupMenuTofText getPopupMenuTofText() {
 			if (popupMenuTofText == null) {
-				popupMenuTofText = new PopupMenuTofText();
+				popupMenuTofText = new PopupMenuTofText(messageTextArea);
 				languageResource.addLanguageListener(popupMenuTofText);
 			}
 			return popupMenuTofText;

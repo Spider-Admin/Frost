@@ -170,6 +170,7 @@ public class LangRes extends ListResourceBundle {
 	{"Cancel", "Cancel"},	
 
 	// Popup over message
+	{"Copy","Copy"},
 	{"Save message to disk", "Save message to disk"},
 	//{"Cancel", "Cancel"}, // Defined above
 

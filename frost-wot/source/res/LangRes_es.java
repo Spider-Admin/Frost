@@ -216,7 +216,6 @@ static final Object[][] contents = {
 {"Results","Resultados"},
 {"Sample interval","Intervalo de muestreo"},
 {"Save message","Graba mensaje"},
-{"Save message to disk","Graba mensaje a disco"},
 {"Search","Busca"},
 {"Secure board","Foro seguro"},
 {"Select a board to view its content.", "Selecciona un foro para ver su contenido."},
@@ -440,7 +439,12 @@ static final Object[][] contents = {
 	{"KnownBoardsFrame.List of known boards","Lista de foros conocidos"},
 	{"KnownBoardsFrame.Lookup","Busca"},
 	{"KnownBoardsFrame.Remove board","Elimina foro"},
-	{"KnownBoardsTableModel.Boardname","Nombre"}
+	{"KnownBoardsTableModel.Boardname","Nombre"},
+	
+	// Popup over message
+	{"Copy","Copia"},
+	{"Save message to disk","Graba mensaje a disco"}
+	//{"Cancel", "Cancel"}, // Defined above
 	
 	};
 }
