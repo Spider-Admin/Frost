@@ -101,7 +101,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 }
 
                 tries++;
-                result = FcpInsert.putFile(insertKey + index + ".idx.zip",
+                result = FcpInsert.putFile(insertKey + index + ".idx.sha.zip",
                                            new File(keypool + board.getBoardFilename() + "_upload.txt"),
                                            insertHtl,
                                            true,
@@ -186,7 +186,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             {
                 if( DEBUG ) System.out.println("FILEDN: Requesting index " + index);
                 // Download the keyfile
-                FcpRequest.getFile(requestKey + index + ".idx.zip",
+                FcpRequest.getFile(requestKey + index + ".idx.sha.zip",
                                    null,
                                    target,
                                    requestHtl,
