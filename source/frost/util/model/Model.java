@@ -6,9 +6,6 @@
  */
 package frost.util.model;
 
-import java.beans.PropertyChangeSupport;
-import java.util.*;
-import java.util.Collection;
 
 /**
  * @author Administrator
@@ -65,13 +62,13 @@ public abstract class Model {
 	}
 	
 	/**
-	 * @param item
+	 * @param items
 	 */
-	protected void fireItemRemoved(ModelItem item) {
+	protected void fireItemsRemoved(ModelItem[] items) {
 		if (changeSupport == null) {
 			return;
 		}
-		changeSupport.fireItemRemoved(item);
+		changeSupport.fireItemsRemoved(items);
 	}
 	
 	/**
@@ -143,13 +140,7 @@ public abstract class Model {
 	public abstract void removeItems(ModelItem[] items);
 	
 	/**
-	 * Removes an item from the model
-	 * @param item
-	 */
-	public abstract void removeItem(ModelItem items);  
-
-	/**
-	 *	Returns the nomber of items the model has.
+	 *	Returns the number of items the model has.
 	 */
 	public abstract int getItemCount();
 
