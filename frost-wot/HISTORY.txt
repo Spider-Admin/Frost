@@ -5,12 +5,13 @@ Added:  a title to the "Enabled" column of the downloads table.
 Added:  country flags to the language menu.
 Added:  now the user can choose which columns the search, download and upload tables should show. That
 		selection is made via a contextual menu that pops up when right clicking on the table header.
+Added:  French translation vastly updated (thanks to RapHHfr).
 
-Changed: splash screen logo replaced by a new one (thanks to Frédéric Scheer)
+Changed: splash screen logo replaced by a new one (thanks to FrÃ©dÃ©ric Scheer).
 
 Bugfix: when the text in the "Name" column of the uploads table is written in bold and it doesn't fit
 		in the cell it isn't cropped correctly. Fixed now (it no longer uses HTML internally to display 
-		it in bold)
+		it in bold).
 		
 **************************************************************************************************
 
