@@ -87,6 +87,7 @@ public class GetRequestsThread extends Thread
 	
 	//start the request loop
 	while (true) {
+	try{
 	Iterator it = frame1.getMyBatches().keySet().iterator();
 	while (it.hasNext()) {
 	String currentBatch = (String)it.next();
@@ -184,8 +185,11 @@ public class GetRequestsThread extends Thread
 
         }
 	mixed.wait(5*60*1000);
-	}
 	
+	}catch(ConcurrentModificationException e) {
+		continue;
+	}
+	}
 	} //people with nice ides can refactor :-P
         catch(Throwable t)
         {

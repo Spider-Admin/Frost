@@ -98,18 +98,22 @@ public class Index
 	
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass) i.next();
-		if (current.getOwner() != null &&
-			(frame1.getFriends().Get(current.getOwner()) != null ||
-				frame1.getGoodIds().contains(current.getOwner())) &&
-				frame1.frostSettings.getBoolValue("helpFriends"))
+		if (current.getOwner() != null && //not anonymous
+			frame1.getMyId().getUniqueName().compareTo(current.getOwner()) !=0 && //not myself
+			frame1.frostSettings.getBoolValue("helpFriends") && //and helping is enabled
+			(frame1.getFriends().Get(current.getOwner()) != null || //and marked GOOD
+				frame1.getGoodIds().contains(current.getOwner()))) //or marked to be helped 
+				
 			mine.put(current.getSHA1(),current);
 		//also add the file if its been shared too long ago
-		if (current.getLastSharedDate() != null) {
-			int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
-			if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
-				current.setLastSharedDate(DateFun.getDate());
-				mine.put(current.getSHA1(),current);
-			}
+		if (current.getOwner()!=null && //not anonymous 
+			current.getOwner().compareTo(frame1.getMyId().getUniqueName())==0 && //from myself
+			current.getLastSharedDate() != null) { //not from the old format
+				int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
+				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
+					current.setLastSharedDate(DateFun.getDate());
+					mine.put(current.getSHA1(),current);
+				}
 		}
 			
 	}
