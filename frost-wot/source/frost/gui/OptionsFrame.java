@@ -26,7 +26,7 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
 import java.util.*;
 
 import javax.swing.*;
@@ -47,6 +47,234 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * 
 	 */
+	private class MiscPanel extends JPanel {
+
+		/**
+		 * 
+		 */
+		private class Listener implements ChangeListener {
+
+			/* (non-Javadoc)
+			 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+			 */
+			public void stateChanged(ChangeEvent e) {
+				if (e.getSource() == altEditCheckBox) {
+					altEditChanged();	
+				}				
+			}
+		}		
+
+		private Listener listener = new Listener();
+
+		private JLabel keyUploadHtlLabel = new JLabel();
+		private JLabel keyDownloadHtlLabel = new JLabel();
+		private JLabel availableNodesLabel1 = new JLabel();
+		private JLabel availableNodesLabel2 = new JLabel();
+		private JLabel maxKeysLabel = new JLabel();
+		private JLabel autoSaveIntervalLabel = new JLabel();
+
+		private JTextField keyUploadHtlTextField = new JTextField(8);
+		private JTextField keyDownloadHtlTextField = new JTextField(8);
+		private JTextField availableNodesTextField = new JTextField();
+		private JTextField maxKeysTextField = new JTextField(8);
+		private JTextField altEditTextField = new JTextField();
+		private JTextField autoSaveIntervalTextField = new JTextField(8);
+
+		private JCheckBox allowEvilBertCheckBox = new JCheckBox();
+		private JCheckBox altEditCheckBox = new JCheckBox();
+		private JCheckBox splashScreenCheckBox = new JCheckBox();
+		private JCheckBox showSystrayIconCheckBox = new JCheckBox();
+		private JCheckBox cleanupCheckBox = new JCheckBox();
+
+		/**
+		 * 
+		 */
+		public MiscPanel() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			setName("MiscPanel");
+			setLayout(new GridBagLayout());
+			refreshLanguage();
+
+			// Adds all of the components
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			Insets insets5555 = new Insets(5, 5, 5, 5);
+			constraints.weighty = 1;
+			
+			constraints.weightx = 0;
+			constraints.gridwidth = 1;
+			constraints.insets = insets5555;
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			add(keyUploadHtlLabel, constraints);
+			constraints.gridx = 1;
+			add(keyUploadHtlTextField, constraints);
+			
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			add(keyDownloadHtlLabel, constraints);
+			constraints.gridx = 1;
+			add(keyDownloadHtlTextField, constraints);
+			
+			constraints.anchor = GridBagConstraints.SOUTH;
+			constraints.gridx = 0;
+			constraints.gridy = 2;
+			add(availableNodesLabel1, constraints);
+			constraints.anchor = GridBagConstraints.NORTH;
+			constraints.gridy = 3;
+			add(availableNodesLabel2, constraints);
+			constraints.gridx = 1;
+			constraints.weightx = 1;
+			constraints.gridwidth = 2;
+			add(availableNodesTextField, constraints);
+
+			constraints.anchor = GridBagConstraints.CENTER;
+			constraints.weightx = 0;
+			constraints.gridwidth = 1;
+			constraints.gridx = 0;
+			constraints.gridy = 4;
+			add(maxKeysLabel, constraints);
+			constraints.gridx = 1;
+			add(maxKeysTextField, constraints);
+			
+			constraints.gridx = 0;
+			constraints.gridy = 5;
+			add(altEditCheckBox, constraints);
+			constraints.gridx = 1;
+			constraints.gridwidth = 2;
+			constraints.weightx = 1;
+			add(altEditTextField, constraints);
+			
+			constraints.weightx = 0;
+			constraints.gridwidth = 1;
+			constraints.gridx = 0;
+			constraints.gridy = 6;
+			add(autoSaveIntervalLabel, constraints);
+			constraints.gridx = 1;
+			add(autoSaveIntervalTextField, constraints);
+	
+			constraints.gridx = 0;
+			constraints.gridy = 7;
+			add(allowEvilBertCheckBox, constraints);			
+			constraints.gridx = 1;
+			constraints.gridwidth = 2;
+			constraints.weightx = 1;
+			add(cleanupCheckBox, constraints);	
+			
+			constraints.weightx = 0;
+			constraints.gridwidth = 1;
+			constraints.gridx = 0;
+			constraints.gridy = 8;
+			add(splashScreenCheckBox, constraints);
+			constraints.gridx = 1;
+			constraints.gridwidth = 2;
+			constraints.weightx = 1;
+			add(showSystrayIconCheckBox, constraints);	
+			
+			// Add listeners
+			altEditCheckBox.addChangeListener(listener);
+		}
+		
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			keyUploadHtlLabel.setText(languageResource.getString("Keyfile upload HTL") + " (21)");
+			keyDownloadHtlLabel.setText(
+				languageResource.getString("Keyfile download HTL") + " (24)");
+			availableNodesLabel1.setText(languageResource.getString("list of nodes"));
+			availableNodesLabel2.setText(languageResource.getString("list of nodes 2"));
+			maxKeysLabel.setText(
+				languageResource.getString("Maximum number of keys to store") + " (100000)");
+			autoSaveIntervalLabel.setText(
+				languageResource.getString("Automatic saving interval") + " (15)");
+			splashScreenCheckBox.setText(languageResource.getString("Disable splashscreen"));
+			showSystrayIconCheckBox.setText(languageResource.getString("Show systray icon"));
+			String off = languageResource.getString("Off");
+			allowEvilBertCheckBox.setText(
+				languageResource.getString("Allow 2 byte characters") + " (" + off + ")");
+			altEditCheckBox.setText(
+				languageResource.getString("Use editor for writing messages") + " (" + off + ")");
+			cleanupCheckBox.setText(languageResource.getString("Clean the keypool"));
+		}
+
+		public void ok() {
+			saveSettings(frostSettings);
+		}
+
+		/**
+		 * @param frostSettings
+		 */
+		private void saveSettings(SettingsClass frostSettings) {
+			frostSettings.setValue("keyUploadHtl", keyUploadHtlTextField.getText());
+			frostSettings.setValue("keyDownloadHtl", keyDownloadHtlTextField.getText());
+			frostSettings.setValue("availableNodes", availableNodesTextField.getText());
+			frostSettings.setValue("maxKeys", maxKeysTextField.getText());
+			frostSettings.setValue("showSystrayIcon", showSystrayIconCheckBox.isSelected());
+			frostSettings.setValue("allowEvilBert", allowEvilBertCheckBox.isSelected());
+			frostSettings.setValue("useAltEdit", altEditCheckBox.isSelected());
+			frostSettings.setValue("altEdit", altEditTextField.getText());
+			frostSettings.setValue("doCleanUp", cleanupCheckBox.isSelected());
+			frostSettings.setValue("autoSaveInterval", autoSaveIntervalTextField.getText());
+
+			// Save splashchk
+			try {
+				File splashFile = new File("nosplash.chk");
+				if (splashScreenCheckBox.isSelected()) {
+					splashFile.createNewFile();
+				} else {
+					splashFile.delete();
+				}
+			} catch (IOException ioex) {
+				System.out.println("Could not create splashscreen checkfile: " + ioex);
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private void altEditChanged() {
+			altEditTextField.setEnabled(altEditCheckBox.isSelected());
+		}
+
+		/**
+		 * Load the settings of this panel
+		 * @param miscSettings class the settings will be loaded from
+		 */
+		public void loadSettings(SettingsClass miscSettings) {
+			allowEvilBertCheckBox.setSelected(frostSettings.getBoolValue("allowEvilBert"));
+			altEditCheckBox.setSelected(frostSettings.getBoolValue("useAltEdit"));
+			altEditTextField.setEnabled(altEditCheckBox.isSelected());
+			keyUploadHtlTextField.setText(frostSettings.getValue("keyUploadHtl"));
+			keyDownloadHtlTextField.setText(frostSettings.getValue("keyDownloadHtl"));
+			showSystrayIconCheckBox.setSelected(frostSettings.getBoolValue("showSystrayIcon"));
+			availableNodesTextField.setText(frostSettings.getValue("availableNodes"));
+			altEditTextField.setText(frostSettings.getValue("altEdit"));
+			maxKeysTextField.setText(frostSettings.getValue("maxKeys"));
+			cleanupCheckBox.setSelected(frostSettings.getBoolValue("doCleanUp"));
+			autoSaveIntervalTextField.setText(
+				Integer.toString(frostSettings.getIntValue("autoSaveInterval")));
+				
+			// "Load" splashchk
+			File splashchk = new File("nosplash.chk");
+			if (splashchk.exists()) {
+				splashScreenCheckBox.setSelected(true);
+			} else {
+				splashScreenCheckBox.setSelected(false);
+			}
+		}
+
+	}
+	/**
+	 * 
+	 */
 	private class SearchPanel extends JPanel {
 		
 		private JLabel archiveExtensionLabel = new JLabel();
@@ -63,7 +291,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JTextField executableExtensionTextField = new JTextField();
 		private JTextField imageExtensionTextField = new JTextField();
 		private JTextField videoExtensionTextField = new JTextField();
-		private JTextField maxSearchResultsTextField = new JTextField(6);
+		private JTextField maxSearchResultsTextField = new JTextField(8);
 		
 		private JCheckBox hideAnonFilesCheckBox = new JCheckBox();
 		private JCheckBox hideBadFilesCheckBox = new JCheckBox();
@@ -86,6 +314,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			setLayout(new GridBagLayout());
 			refreshLanguage();
 
+			// Adds all of the components
 			GridBagConstraints constraints = new GridBagConstraints();
 			constraints.fill = GridBagConstraints.HORIZONTAL;
 			constraints.insets = new Insets(5, 5, 5, 5);
@@ -245,7 +474,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 					disableUploadsPressed();
 				}
 			}
-
 		}
 		
 		private Listener listener = new Listener();
@@ -256,11 +484,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JCheckBox shareDownloadsCheckBox = new JCheckBox();
 		private JCheckBox signUploadsCheckBox = new JCheckBox();
 	
-		private JTextField htlTextField = new JTextField(6);
-		private JTextField threadsTextField = new JTextField(6);
-		private JTextField splitfileThreadsTextField = new JTextField(6);
-		private JTextField batchSizeTextField = new JTextField(6);
-		private JTextField indexFileRedundancyTextField = new JTextField(6);
+		private JTextField htlTextField = new JTextField(8);
+		private JTextField threadsTextField = new JTextField(8);
+		private JTextField splitfileThreadsTextField = new JTextField(8);
+		private JTextField batchSizeTextField = new JTextField(8);
+		private JTextField indexFileRedundancyTextField = new JTextField(8);
 		
 		private JLabel htlLabel = new JLabel();
 		private JLabel htlExplanationLabel = new JLabel();
@@ -296,6 +524,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
 			constraints.weighty = 1;
 			
+			constraints.weightx = 1;
 			constraints.gridwidth = 3;
 			constraints.insets = insets0555;
 			constraints.gridx = 0;
@@ -517,11 +746,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JButton browseDirectoryButton = new JButton();
 		
 		private JTextField directoryTextField = new JTextField();
-		private JTextField requestAfterTriesTextField = new JTextField(6);
-		private JTextField maxRetriesTextField = new JTextField(6);
-		private JTextField waitTimeTextField = new JTextField(6);
-		private JTextField threadsTextField = new JTextField(6);
-		private JTextField splitfileThreadsTextField = new JTextField(6);
+		private JTextField requestAfterTriesTextField = new JTextField(8);
+		private JTextField maxRetriesTextField = new JTextField(8);
+		private JTextField waitTimeTextField = new JTextField(8);
+		private JTextField threadsTextField = new JTextField(8);
+		private JTextField splitfileThreadsTextField = new JTextField(8);
 		
 		private JLabel waitTimeLabel = new JLabel();
 		private JLabel directoryLabel = new JLabel();
@@ -1159,7 +1388,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel tof2Panel = null;
 	JPanel tof3Panel = null;
 	private DisplayPanel displayPanel = null;
-	JPanel miscPanel = null;
+	private MiscPanel miscPanel = null;
 	private SearchPanel searchPanel = null;
 	JPanel contentAreaPanel = null;
 	JPanel optionsGroupsPanel = null;
@@ -1173,21 +1402,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JTextField tofMessageBaseTextField = new JTextField(8);
 	JTextField tofBlockMessageTextField = new JTextField(42);
 	JTextField tofBlockMessageBodyTextField = new JTextField(42);
-	JTextField miscKeyUploadHtlTextField = new JTextField(5);
-	JTextField miscKeyDownloadHtlTextField = new JTextField(5);
-	JTextField miscAvailableNodesTextField = new JTextField(35);
-	//JTextField miscNodePortTextField = new JTextField(8);
-	JTextField miscMaxKeysTextField = new JTextField(8);
-	JTextField miscAltEditTextField = new JTextField(30);
-	JTextField miscAutoSaveInterval = new JTextField(5);
-	JCheckBox miscShowSystrayIcon = new JCheckBox();
 	JTextField TFautomaticUpdate_boardsMinimumUpdateInterval =
 		new JTextField(5);
 	JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
 	JCheckBox tofBoardUpdateVisualization = new JCheckBox();
-	JCheckBox allowEvilBertCheckBox = new JCheckBox();
-	JCheckBox miscAltEditCheckBox = new JCheckBox();
-	JCheckBox miscSplashscreenCheckBox = new JCheckBox();
 	JList optionsGroupsList = null;
 
 	// new options in WOT:
@@ -1206,7 +1424,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JLabel interval = new JLabel();
 	JLabel treshold = new JLabel();
 	//    JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
-	JCheckBox cleanUP = new JCheckBox();
 
 	JButton chooseBoardUpdSelectedBackgroundColor = new JButton("   ");
 	JButton chooseBoardUpdNonSelectedBackgroundColor = new JButton("   ");
@@ -1236,22 +1453,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * not apply text anywhere else.
 	 */
 	private void translateCheckBox() {
-		miscSplashscreenCheckBox.setText(languageResource.getString("Disable splashscreen"));
-		miscShowSystrayIcon.setText(languageResource.getString("Show systray icon"));
 		tofBoardUpdateVisualization.setText(
 			languageResource.getString("Show board update visualization")
 				+ " ("
 				+ languageResource.getString("On")
-				+ ")");
-		allowEvilBertCheckBox.setText(
-			languageResource.getString("Allow 2 byte characters")
-				+ " ("
-				+ languageResource.getString("Off")
-				+ ")");
-		miscAltEditCheckBox.setText(
-			languageResource.getString("Use editor for writing messages")
-				+ " ("
-				+ languageResource.getString("Off")
 				+ ")");
 		signedOnly.setText(languageResource.getString("Hide unsigned messages"));
 		hideBadMessages.setText(
@@ -1276,7 +1481,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			languageResource.getString("Block messages with body containing (separate by ';' )")
 				+ ": ");
 		doBoardBackoff.setText(languageResource.getString("Do spam detection"));
-		cleanUP.setText(languageResource.getString("Clean the keypool"));
 	}
 	private void translateLabel() {
 		interval.setText(
@@ -1301,13 +1505,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		//------------------------------------------------------------------------
 		// ChangeListener
 		//------------------------------------------------------------------------
-		miscAltEditCheckBox.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				if (e.getSource().equals(miscAltEditCheckBox))
-					miscAltEditTextField.setEditable(
-						miscAltEditCheckBox.isSelected());
-			}
-		});
 		block.addChangeListener(new ChangeListener() {
 			public void stateChanged(ChangeEvent e) {
 				if (e.getSource().equals(block))
@@ -1732,98 +1929,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * Build the misc. panel.
 	 */
-	protected JPanel getMiscPanel() {
+	private MiscPanel getMiscPanel() {
 		if (miscPanel == null) {
-			miscPanel = new JPanel(new GridBagLayout());
-			GridBagConstraints constr = new GridBagConstraints();
-			constr.anchor = GridBagConstraints.WEST;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			constr.gridy = 0;
-			miscPanel.add(
-				new JLabel(languageResource.getString("Keyfile upload HTL") + " (21)"),
-				constr);
-			constr.gridx = 1;
-			miscPanel.add(miscKeyUploadHtlTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			miscPanel.add(
-				new JLabel(
-			languageResource.getString("Keyfile download HTL") + " (24)"),
-				constr);
-			constr.gridx = 1;
-			miscPanel.add(miscKeyDownloadHtlTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			miscPanel.add(
-				new JLabel(languageResource.getString("list of nodes")),
-				constr);
-			constr.insets = new Insets(0, 5, 5, 5);
-			constr.gridy++;
-			miscPanel.add(
-				new JLabel(" (nodeA:port1, nodeB:port2, ...)"),
-				constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			miscPanel.add(miscAvailableNodesTextField, constr);
-			//miscAvailableNodesTextField.setEnabled(false); 
-			//constr.gridy++;
-			//constr.gridx = 0;
-			//miscPanel.add(new JLabel(LangRes.getString("Node port:") + " (8481)"), constr);
-			//constr.gridx = 1;
-			//miscPanel.add(miscNodePortTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(5, 5, 5, 5);
-			miscPanel.add(
-				new JLabel(
-			languageResource.getString("Maximum number of keys to store")
-						+ " (100000)"),
-				constr);
-			constr.gridx = 1;
-			miscPanel.add(miscMaxKeysTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.gridwidth = 2;
-			miscPanel.add(allowEvilBertCheckBox, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			miscPanel.add(miscAltEditCheckBox, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(0, 25, 10, 5);
-			miscPanel.add(miscAltEditTextField, constr);
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridy++;
-			constr.gridx = 0;
-			miscPanel.add(cleanUP, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			miscPanel.add(
-				new JLabel(
-			languageResource.getString("Automatic saving interval") + " (15)"),
-				constr);
-			constr.gridx = 1;
-			miscPanel.add(miscAutoSaveInterval, constr);
-
-			constr.gridy++;
-			constr.gridx = 0;
-			File splashchk = new File("nosplash.chk");
-			if (splashchk.exists()) {
-				miscSplashscreenCheckBox.setSelected(true);
-			} else {
-				miscSplashscreenCheckBox.setSelected(false);
-			}
-			miscPanel.add(miscSplashscreenCheckBox, constr);
-
-			// filler (glue)
-			constr.gridy++;
-			constr.gridx = 1;
-			constr.weightx = 0.7;
-			constr.weighty = 0.7;
-			constr.insets = new Insets(0, 0, 0, 0);
-			constr.fill = GridBagConstraints.BOTH;
-			miscPanel.add(new JLabel(" "), constr);
+			miscPanel = new MiscPanel();
+			miscPanel.loadSettings(frostSettings);
 		}
 		return miscPanel;
 	}
@@ -1949,10 +2058,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
 
 		// now load
-		allowEvilBertCheckBox.setSelected(
-			frostSettings.getBoolValue("allowEvilBert"));
-		miscAltEditCheckBox.setSelected(
-			frostSettings.getBoolValue("useAltEdit"));
 		signedOnly.setSelected(frostSettings.getBoolValue("signedOnly"));
 		doBoardBackoff.setSelected(
 			frostSettings.getBoolValue("doBoardBackoff"));
@@ -1971,7 +2076,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		block.setSelected(frostSettings.getBoolValue("blockMessageChecked"));
 		blockBody.setSelected(
 			frostSettings.getBoolValue("blockMessageBodyChecked"));
-		miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
 		tofUploadHtlTextField.setText(frostSettings.getValue("tofUploadHtl"));
 		tofDownloadHtlTextField.setText(
 			frostSettings.getValue("tofDownloadHtl"));
@@ -1979,17 +2083,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.getValue("maxMessageDisplay"));
 		tofDownloadDaysTextField.setText(
 			frostSettings.getValue("maxMessageDownload"));
-		miscKeyUploadHtlTextField.setText(
-			frostSettings.getValue("keyUploadHtl"));
-		miscKeyDownloadHtlTextField.setText(
-			frostSettings.getValue("keyDownloadHtl"));
-		miscShowSystrayIcon.setSelected(
-			frostSettings.getBoolValue("showSystrayIcon"));
-		miscAvailableNodesTextField.setText(
-			frostSettings.getValue("availableNodes"));
-		//miscNodePortTextField.setText(frostSettings.getValue("nodePort"));
-		miscAltEditTextField.setText(frostSettings.getValue("altEdit"));
-		miscMaxKeysTextField.setText(frostSettings.getValue("maxKeys"));
 		tofMessageBaseTextField.setText(frostSettings.getValue("messageBase"));
 		tofBlockMessageTextField.setText(
 			frostSettings.getValue("blockMessage"));
@@ -1999,7 +2092,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.getValue("blockMessageBody"));
 		tofBlockMessageBodyTextField.setEnabled(
 			frostSettings.getBoolValue("blockMessageBodyChecked"));
-		cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
 		TFautomaticUpdate_concurrentBoardUpdates.setText(
 			frostSettings.getValue("automaticUpdate.concurrentBoardUpdates"));
 		TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
@@ -2007,10 +2099,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				"automaticUpdate.boardsMinimumUpdateInterval"));
 		tofBoardUpdateVisualization.setSelected(
 			frostSettings.getBoolValue("boardUpdateVisualization"));
-
-		miscAutoSaveInterval.setText(
-			"" + frostSettings.getIntValue("autoSaveInterval"));
-
 
 		boardUpdSelectedBackgroundColor =
 			(Color) frostSettings.getObjectValue(
@@ -2033,28 +2121,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			"tofDownloadHtl",
 			tofDownloadHtlTextField.getText());
 		frostSettings.setValue(
-			"keyUploadHtl",
-			miscKeyUploadHtlTextField.getText());
-		frostSettings.setValue(
-			"keyDownloadHtl",
-			miscKeyDownloadHtlTextField.getText());
-		frostSettings.setValue(
 			"maxMessageDisplay",
 			tofDisplayDaysTextField.getText());
 		frostSettings.setValue(
 			"maxMessageDownload",
 			tofDownloadDaysTextField.getText());
 		frostSettings.setValue(
-			"availableNodes",
-			miscAvailableNodesTextField.getText());
-		//frostSettings.setValue("nodePort", miscNodePortTextField.getText());
-		frostSettings.setValue("maxKeys", miscMaxKeysTextField.getText());
-		frostSettings.setValue(
 			"messageBase",
 			((tofMessageBaseTextField.getText()).trim()).toLowerCase());
-		frostSettings.setValue(
-			"showSystrayIcon",
-			miscShowSystrayIcon.isSelected());
 
 		frostSettings.setValue(
 			"blockMessage",
@@ -2070,18 +2144,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue("spamTreshold", spamTreshold.getText());
 		frostSettings.setValue("sampleInterval", sampleInterval.getText());
 
-		frostSettings.setValue(
-			"allowEvilBert",
-			allowEvilBertCheckBox.isSelected());
-		frostSettings.setValue("useAltEdit", miscAltEditCheckBox.isSelected());
 		frostSettings.setValue("signedOnly", signedOnly.isSelected());
 		frostSettings.setValue("hideBadMessages", hideBadMessages.isSelected());
 		frostSettings.setValue(
 			"hideCheckMessages",
 			hideCheckMessages.isSelected());
 		frostSettings.setValue("hideNAMessages", hideNAMessages.isSelected());
-		frostSettings.setValue("altEdit", miscAltEditTextField.getText());
-		frostSettings.setValue("doCleanUp", cleanUP.isSelected());
 
 		frostSettings.setValue(
 			"automaticUpdate.concurrentBoardUpdates",
@@ -2099,10 +2167,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setObjectValue(
 			"boardUpdatingNonSelectedBackgroundColor",
 			boardUpdNonSelectedBackgroundColor);
-
-		frostSettings.setValue(
-			"autoSaveInterval",
-			miscAutoSaveInterval.getText());
 
 		frostSettings.writeSettingsFile();
 
@@ -2157,22 +2221,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			//If the upload panel has been used, commit its changes
 			uploadPanel.ok();
 		}
+		
+		if (miscPanel != null) {
+			//If the upload panel has been used, commit its changes
+			miscPanel.ok();
+		}
 
 		saveSettings();
 		saveSignature();
-
-		//Save splashchk
-		try {
-			File splashFile = new File("nosplash.chk");
-			if (miscSplashscreenCheckBox.isSelected()) {
-				splashFile.createNewFile();
-			} else {
-				splashFile.delete();
-			}
-		} catch (java.io.IOException ioex) {
-			System.out.println(
-				"Could not create splashscreen checkfile: " + ioex);
-		}
 
 		dispose();
 	}
@@ -2282,7 +2338,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * Build the display panel.
 	 */
-
 	private DisplayPanel getDisplayPanel() {
 		if (displayPanel == null) {
 			displayPanel = new DisplayPanel();
@@ -2294,13 +2349,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * Build the download panel.
 	 */
-
-		private DownloadPanel getDownloadPanel() {
-			if (downloadPanel == null) {
-				downloadPanel = new DownloadPanel();
-				downloadPanel.loadSettings(frostSettings);
-			}
-			return downloadPanel;
+	private DownloadPanel getDownloadPanel() {
+		if (downloadPanel == null) {
+			downloadPanel = new DownloadPanel();
+			downloadPanel.loadSettings(frostSettings);
 		}
+		return downloadPanel;
+	}
 
 }
