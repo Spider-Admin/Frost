@@ -301,15 +301,34 @@ public class UploadPanel extends JPanel {
 			}
 			add(reloadAllFilesItem);
 			addSeparator();
+			//these options available only if automatic indexing is off and file is not 
+			//hashed already.
+			//the options that operate on all files (not only selected) are removed for now
+			//because making them check whether the file has been indexed or not is a pain
+			//feel free to implement ;)
+			if (!Core.frostSettings.getBoolValue("automaticIndexing")) {
+				UploadTableModel ulModel = (UploadTableModel) uploadTable.getModel();
+				boolean shouldEnable = true;
+				int[] selectedRows = uploadTable.getSelectedRows();
+				for (int xy = 0; xy < selectedRows.length;xy++) {
+					FrostUploadItemObject ulItem =
+					(FrostUploadItemObject) ulModel.getRow(selectedRows[xy]);
+					if (ulItem.getSHA1() != null && ulItem.getSHA1().length()>0){
+						shouldEnable=false;
+						break;
+					}	
+				}
 			if (uploadTable.getSelectedRow() > -1) {
 				add(setPrefixForSelectedFilesItem);
+				setPrefixForSelectedFilesItem.setEnabled(shouldEnable);
 			}
-			add(setPrefixForAllFilesItem);
-			addSeparator();
+		//	add(setPrefixForAllFilesItem);
+		//	addSeparator();
 			if (uploadTable.getSelectedRow() > -1) {
 				add(restoreDefaultFilenamesForSelectedFilesItem);
+				restoreDefaultFilenamesForSelectedFilesItem.setEnabled(shouldEnable);
 			}
-			add(restoreDefaultFilenamesForAllFilesItem);
+		//	add(restoreDefaultFilenamesForAllFilesItem);
 			addSeparator();
 			if (uploadTable.getSelectedRow() > -1) {
 				// Add boards to changeDestinationBoard submenu
@@ -329,6 +348,8 @@ public class UploadPanel extends JPanel {
 							for (int x = 0; x < selectedRows.length; x++) {
 								FrostUploadItemObject ulItem =
 									(FrostUploadItemObject) ulModel.getRow(selectedRows[x]);
+								//also check whether the item has not been hashed, i.e. added to
+								//an index already - big mess to change it if that's the case
 								ulItem.setTargetBoard(aBoard);
 								ulModel.updateRow(ulItem);
 							}
@@ -336,7 +357,9 @@ public class UploadPanel extends JPanel {
 					});
 				}
 				add(changeDestinationBoardMenu);
+				changeDestinationBoardMenu.setEnabled(shouldEnable);
 			}
+			}//end of options which are available if automatic indexing turned off
 			addSeparator();
 			add(cancelItem);
 
