@@ -229,9 +229,7 @@ public class GetRequestsThread extends Thread
                                                     .STATE_UPLOADING
                                                 && ulItem.getState()
                                                     != FrostUploadItemObject
-                                                        .STATE_PROGRESS
-                                                && ulItem.getBatch().equals(
-                                                    currentBatch)) //TOTHINK: this is optional
+                                                        .STATE_PROGRESS) //TOTHINK: this is optional
                                             {
                                                 Core.getOut().println(
                                                     "Request matches row " + i);
