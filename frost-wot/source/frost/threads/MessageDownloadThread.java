@@ -373,8 +373,6 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             continue;
                         }
                         
-                        //------------------REWORKED BELOW,BUT NOT ABOVE-----------//
-                        
                         // verify the message date and time
                         if( currentMsg.isValidFormat( calDL ) == false )
                         {

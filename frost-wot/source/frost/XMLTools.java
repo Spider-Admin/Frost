@@ -46,13 +46,22 @@ public class XMLTools
 	
 	public static byte [] getRawXMLDocument (XMLizable element){
 		Document doc = getXMLDocument(element);
-		File tmp = new File("tmp");
+        // create a proper temp file (deleted on VM emergency exit)
+        File tmp = null;
+        try {
+            tmp = File.createTempFile("xmltools_", 
+                                      ".tmp", 
+                                      new File(frame1.frostSettings.getValue("temp.dir")));
+        }
+        catch(Exception ex) {
+            // this should never happen, but for the case ...
+            tmp = new File("xmltools_"+System.currentTimeMillis());
+        }
 		byte [] result=null;
 		try {
-		
-		writeXmlFile(doc,tmp.getPath());
-		result = FileAccess.readByteArray(tmp);
-		tmp.delete();
+    		writeXmlFile(doc, tmp.getPath());
+    		result = FileAccess.readByteArray(tmp);
+    		tmp.delete();
 		} catch (Throwable t) {
 			t.printStackTrace(Core.getOut());
 		}
@@ -218,5 +227,4 @@ public class XMLTools
             return null;
         return txtname.getData().trim();
     }
-
 }
