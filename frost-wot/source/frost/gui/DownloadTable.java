@@ -159,7 +159,6 @@ public class DownloadTable extends SortedTable
                     }
                     dlItem.setDownloadProgress( downloaded );
                     dlItem.setState( dlItem.STATE_PROGRESS );
-                    //dlItem.setState( downloaded/1024 + " Kb" );
                 }
             }
             tableModel.updateRow( dlItem ); // finally tell model that row was updated
@@ -216,6 +215,53 @@ public class DownloadTable extends SortedTable
                         files[j].delete();
                     }
                 }
+            }
+        }
+    }
+
+    /**
+     * Called to remove all items from download table.
+     */
+    public void removeAllItemsFromTable()
+    {
+        // TODO: also stop all threads!
+
+        selectAll();
+        removeSelectedChunks();
+        DownloadTableModel model = (DownloadTableModel)getModel();
+        model.clearDataModel();
+    }
+
+    /**
+     * Called to remove selected items from download table.
+     */
+    public void removeSelectedItemsFromTable()
+    {
+        // TODO: also stop threads!
+
+        removeSelectedChunks();
+        removeSelectedRows();
+    }
+
+    /**
+     * Called to reset the HTL value of the selected items.
+     */
+    public void resetHtlForSelectedItems()
+    {
+        // TODO: stop thread
+
+        DownloadTableModel dlModel = (DownloadTableModel)getModel();
+        int[] selectedRows = getSelectedRows();
+        for( int x=0; x<selectedRows.length; x++ )
+        {
+            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
+            // reset only waiting+failed items
+            if( dlItem.getState() == dlItem.STATE_FAILED ||
+                dlItem.getState() == dlItem.STATE_WAITING )
+            {
+                dlItem.setHtl( frame1.frostSettings.getIntValue("htl") );
+                dlItem.setState( dlItem.STATE_WAITING );
+                dlModel.updateRow( dlItem );
             }
         }
     }

@@ -10,6 +10,8 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 
 import frost.gui.model.*;
+import frost.gui.objects.*;
+import frost.*;
 
 public class SearchTable extends SortedTable
 {
@@ -28,6 +30,42 @@ public class SearchTable extends SortedTable
         sortedColumnIndex = 0;
         sortedColumnAscending = true;
         resortTable();
+    }
+
+    /**
+     * Adds all selected items in searchtable to download table.
+     */
+    public void addSelectedSearchItemsToDownloadTable(DownloadTable dlTable, int initialHTL)
+    {
+        SearchTableModel searchTableModel = (SearchTableModel)getModel();
+        int[] selectedRows = getSelectedRows();
+
+        for (int i = 0; i < selectedRows.length; i++)
+        {
+            FrostSearchItem searchItem = (FrostSearchItem)searchTableModel.getRow( selectedRows[i] );
+            FrostDownloadItemObject dlItem = new FrostDownloadItemObject(searchItem, initialHTL);
+
+            boolean isAdded = dlTable.addDownloadItem( dlItem ); // will not add if item is already in table
+        }
+    }
+
+    /**
+     * Builds a String with contains all selected files from searchtable as attachements.
+     */
+    public String getSelectedSearchItemsAsAttachmentsString()
+    {
+        SearchTableModel searchTableModel = (SearchTableModel)getModel();
+        int[] selectedRows = getSelectedRows();
+        String attachments = "";
+        for( int i = 0; i < selectedRows.length; i++ )
+        {
+            FrostSearchItemObject srItem = (FrostSearchItemObject)searchTableModel.getRow( selectedRows[i] );
+
+            String key = srItem.getKey();
+            String filename = srItem.getFilename();
+            attachments += "<attached>" + filename + " * " + key + "</attached>\n";
+        }
+        return(attachments);
     }
 }
 

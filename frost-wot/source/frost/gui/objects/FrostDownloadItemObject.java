@@ -115,6 +115,11 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         return fileSize;
     }
+    public void setFileSize(long s)
+    {
+        fileSize = new Long( s );
+    }
+
     public String getFileAge()
     {
         return fileAge;
