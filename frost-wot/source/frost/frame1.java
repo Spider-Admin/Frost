@@ -185,7 +185,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setGoodItem.setEnabled(false);
 				setCheckItem.setEnabled(false);
 				setBadItem.setEnabled(false);
-				if (messageTable.getSelectedRow() > -1) {
+				if (messageTable.getSelectedRow() > -1 && selectedMessage != null ) {
 					//fscking html on all these..
 					if (selectedMessage
 						.getStatus()
@@ -205,7 +205,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 							> -1) {
 						setGoodItem.setEnabled(true);
 						setCheckItem.setEnabled(true);
-					} else
+					} else 
 						Core.getOut().println(
 							"invalid message state : "
 								+ selectedMessage.getStatus());
