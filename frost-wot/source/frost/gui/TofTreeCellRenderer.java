@@ -70,14 +70,15 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-        FrostBoardObject board = (FrostBoardObject)value;
-        String boardname = value.toString();
+        if( value == null )
+            return this;
 
+        FrostBoardObject board = (FrostBoardObject)value;
         boolean containsNewMessage = board.containsNewMessage();
 
         if( leaf == true )
         {
-            if( isPublicBoard(board) )
+            if( board.isPublicBoard() )
             {
                 if( containsNewMessage )
                 {
@@ -92,7 +93,7 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
             {
                 setIcon(boardSpammedIcon);
             }
-            else if( isWriteAccessBoard(board) )
+            else if( board.isWriteAccessBoard() )
             {
                 if( containsNewMessage )
                 {
@@ -103,7 +104,7 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
                     setIcon(writeAccessIcon);
                 }
             }
-            else if( isReadAccessBoard(board) )
+            else if( board.isReadAccessBoard() )
             {
                 if( containsNewMessage )
                 {
@@ -116,37 +117,5 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
             }
         }
         return this;
-    }
-
-    protected boolean isPublicBoard(FrostBoardObject board)
-    {
-        String nodeText = board.getBoardFilename();
-        String boardKeyFileName = new StringBuffer().append(frame1.keypool).append(nodeText).append(".key").toString();
-        if( !(new File(boardKeyFileName).exists()) )
-            return true;
-        if( SettingsFun.getValue(boardKeyFileName, "state").equals("publicBoard") )
-            return true;
-        else
-            return false;
-    }
-
-    protected boolean isWriteAccessBoard(FrostBoardObject board)
-    {
-        String nodeText = board.getBoardFilename();
-        String boardKeyFileName = new StringBuffer().append(frame1.keypool).append(nodeText).append(".key").toString();
-        if( SettingsFun.getValue(boardKeyFileName, "state").equals("writeAccess") )
-            return true;
-        else
-            return false;
-    }
-
-    protected boolean isReadAccessBoard(FrostBoardObject board)
-    {
-        String nodeText = board.getBoardFilename();
-        String boardKeyFileName = new StringBuffer().append(frame1.keypool).append(nodeText).append(".key").toString();
-        if( SettingsFun.getValue(boardKeyFileName, "state").equals("readAccess") )
-            return true;
-        else
-            return false;
     }
 }

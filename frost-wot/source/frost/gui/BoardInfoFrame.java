@@ -15,14 +15,6 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
--------------------------------------------------------------------------
-  CHANGELOG:
-  ----------
-  2003/03/29 - bback
-    - added close button, popup menu and updateAll button.
-    - on double click the clicked member is updated now
-    - multiple interval selection in table
-
 */
 package frost.gui;
 
@@ -43,38 +35,6 @@ public class BoardInfoFrame extends JFrame
 {
     frame1 parent = null;
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
-
-    class PlainOrBoldString implements Comparable
-    {
-        boolean isBold = false;
-        String string;
-
-        public PlainOrBoldString(String str, boolean bold)
-        {
-            string = str;
-            isBold = bold;
-        }
-        public String toString()
-        {
-            return string;
-        }
-        public boolean isBold()
-        {
-            return isBold;
-        }
-        public void setBold(boolean bold)
-        {
-            isBold = bold;
-        }
-        public int compareTo(Object o)
-        {
-            if( o instanceof PlainOrBoldString )
-            {
-                return toString().compareTo( o.toString() );
-            }
-            return 1;
-        }
-    }
 
     //------------------------------------------------------------------------
     // Class Vars
@@ -266,13 +226,13 @@ public class BoardInfoFrame extends JFrame
         int fileCount = 0;
         int boardCount = 0;
         boards = parent.getTofTree().getAllBoards();
-        TableFun.removeAllRows(boardTable);
+        ((SortedTableModel2)boardTable.getModel()).clearDataModel();
         for( int i = 0; i < boards.size(); i++ )
         {
             FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
             String boardName = board.toString();
 
-            BoardInfoTableMember newRow = new BoardInfoTableMember(board, getState(board) );
+            BoardInfoTableMember newRow = new BoardInfoTableMember(board);
             fillInBoardCounts(board, newRow);
 
             // count statistics
@@ -449,21 +409,6 @@ public class BoardInfoFrame extends JFrame
     }
 
     /**
-     * Gets state of a board
-     * @param board name of the board
-     * @return String with state value of the board
-     */
-    public String getState(FrostBoardObject board)
-    {
-        String val = new StringBuffer().append(frame1.keypool).append(board.getBoardFilename()).append(".key").toString();
-        String state = SettingsFun.getValue(val, "state");
-        if( state.length()==0 )
-            return "publicBoard";
-        else
-            return state;
-    }
-
-    /**
      * Used to count the files of a board.
      * see fillInBoardCounts
      * was in FileAccess, but only used from here ...
@@ -492,16 +437,14 @@ public class BoardInfoFrame extends JFrame
     class BoardInfoTableMember implements TableMember
     {
         FrostBoardObject board;
-        String state;
         Integer allmsg;
         Integer newmsg;
         Integer files;
         boolean isUpdating = false;
 
-        public BoardInfoTableMember(FrostBoardObject board, String state)
+        public BoardInfoTableMember(FrostBoardObject board)
         {
             this.board = board;
-            this.state = state;
             this.allmsg = null;
             this.newmsg = null;
             this.files = null;
@@ -512,7 +455,7 @@ public class BoardInfoFrame extends JFrame
             switch( column )
             {
                 case 0: return board.toString();
-                case 1: return state;
+                case 1: return board.getStateString();
                 case 2: return allmsg;
                 case 3: return newmsg;
                 case 4: return files;

@@ -29,11 +29,11 @@ import java.io.*;
 import java.util.*;
 
 import frost.*;
+import frost.gui.objects.*;
 import frost.FcpTools.*;
 
 public class BoardSettingsFrame extends JDialog
 {
-
     //------------------------------------------------------------------------
     // Class Vars
     //------------------------------------------------------------------------
@@ -41,7 +41,7 @@ public class BoardSettingsFrame extends JDialog
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
     public boolean exitState;
     public String returnValue;
-    public String board;
+    public FrostBoardObject board;
 
     //------------------------------------------------------------------------
     // Generate objects
@@ -79,49 +79,30 @@ public class BoardSettingsFrame extends JDialog
         //------------------------------------------------------------------------
 
         // Public board radio button
-        publicBoardRadioButton.addActionListener(new java.awt.event.ActionListener()
-                                                 {
-                                                     public void actionPerformed(ActionEvent e)
-                                                     {
+        publicBoardRadioButton.addActionListener(new java.awt.event.ActionListener() {
+                                                     public void actionPerformed(ActionEvent e) {
                                                          radioButton_actionPerformed(e);
-                                                     }
-                                                 });
-
+                                                     } });
         // Private board radio button
-        secureBoardRadioButton.addActionListener(new java.awt.event.ActionListener()
-                                                 {
-                                                     public void actionPerformed(ActionEvent e)
-                                                     {
+        secureBoardRadioButton.addActionListener(new java.awt.event.ActionListener() {
+                                                     public void actionPerformed(ActionEvent e) {
                                                          radioButton_actionPerformed(e);
-                                                     }
-                                                 });
-
+                                                     } });
         // generate key
-        generateKeyButton.addActionListener(new java.awt.event.ActionListener()
-                                            {
-                                                public void actionPerformed(ActionEvent e)
-                                                {
+        generateKeyButton.addActionListener(new java.awt.event.ActionListener() {
+                                                public void actionPerformed(ActionEvent e) {
                                                     generateKeyButton_actionPerformed(e);
-                                                }
-                                            });
-
+                                                } });
         // Ok
-        okButton.addActionListener(new java.awt.event.ActionListener()
-                                   {
-                                       public void actionPerformed(ActionEvent e)
-                                       {
+        okButton.addActionListener(new java.awt.event.ActionListener() {
+                                       public void actionPerformed(ActionEvent e) {
                                            okButton_actionPerformed(e);
-                                       }
-                                   });
-
+                                       } });
         // Cancel
-        cancelButton.addActionListener(new java.awt.event.ActionListener()
-                                       {
-                                           public void actionPerformed(ActionEvent e)
-                                           {
+        cancelButton.addActionListener(new java.awt.event.ActionListener() {
+                                           public void actionPerformed(ActionEvent e) {
                                                cancelButton_actionPerformed(e);
-                                           }
-                                       });
+                                           } });
 
         //------------------------------------------------------------------------
         // Append objects
@@ -186,7 +167,8 @@ public class BoardSettingsFrame extends JDialog
     {
         try
         {
-            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
+                                                         frame1.frostSettings.getValue("nodePort"));
             try
             {
                 String[] keyPair = connection.getKeyPair();
@@ -228,39 +210,26 @@ public class BoardSettingsFrame extends JDialog
         return exitState;
     }
 
-    /**Return exitState*/
-    public String getReturnValue()
-    {
-        return returnValue;
-    }
-
     //------------------------------------------------------------------------
 
     /**Close window and save settings*/
     private void ok()
     {
         exitState = true;
-        returnValue = "publicBoard";
         String privateKey = privateKeyTextField.getText();
         String publicKey = publicKeyTextField.getText();
-        File keyFile = new File(frame1.keypool + board + ".key");
 
         if( secureBoardRadioButton.isSelected() )
         {
-
-            if( publicKey.startsWith("SSK@") && !privateKey.startsWith("SSK@") )
-                returnValue = "readAccess";
-
-            if( publicKey.startsWith("SSK@") && privateKey.startsWith("SSK@") )
-                returnValue = "writeAccess";
-
+            if( publicKey.startsWith("SSK@") )
+            {
+                board.setPublicKey( publicKey );
+            }
+            if( privateKey.startsWith("SSK@") )
+            {
+                board.setPrivateKey( privateKey );
+            }
         }
-        String lineSeparator = System.getProperty("line.separator");
-        String text = "privateKey=" + privateKey + lineSeparator;
-        text += "publicKey=" + publicKey + lineSeparator;
-        text += "state=" + returnValue + lineSeparator;
-        FileAccess.writeFile(text, frame1.keypool + board + ".key");
-
         dispose();
     }
 
@@ -274,34 +243,30 @@ public class BoardSettingsFrame extends JDialog
     /** Loads keypair from file */
     private void loadKeypair()
     {
-        File keyFile = new File(frame1.keypool + board + ".key");
         privateKeyTextField.setText(LangRes.getString("Not available"));
         publicKeyTextField.setText(LangRes.getString("Not available"));
 
-        if( keyFile.isFile() && keyFile.length() > 0 )
-        {
-            String privateKey = SettingsFun.getValue(keyFile, "privateKey");
-            String publicKey = SettingsFun.getValue(keyFile, "publicKey");
-            String state = SettingsFun.getValue(keyFile, "state");
-            if( !privateKey.equals("") )
-                privateKeyTextField.setText(privateKey);
-            if( !publicKey.equals("") )
-                publicKeyTextField.setText(publicKey);
+        String privateKey = board.getPrivateKey();
+        String publicKey = board.getPublicKey();
 
-            if( state.equals("writeAccess") || state.equals("readAccess") )
-            {
-                privateKeyTextField.setEnabled(true);
-                publicKeyTextField.setEnabled(true);
-                generateKeyButton.setEnabled(true);
-                secureBoardRadioButton.setSelected(true);
-            }
-            else
-            {
-                privateKeyTextField.setEnabled(false);
-                publicKeyTextField.setEnabled(false);
-                generateKeyButton.setEnabled(false);
-                publicBoardRadioButton.setSelected(true);
-            }
+        if( privateKey != null )
+            privateKeyTextField.setText(privateKey);
+        if( publicKey != null )
+            publicKeyTextField.setText(publicKey);
+
+        if( board.isWriteAccessBoard() || board.isReadAccessBoard() )
+        {
+            privateKeyTextField.setEnabled(true);
+            publicKeyTextField.setEnabled(true);
+            generateKeyButton.setEnabled(true);
+            secureBoardRadioButton.setSelected(true);
+        }
+        else // its a public board
+        {
+            privateKeyTextField.setEnabled(false);
+            publicKeyTextField.setEnabled(false);
+            generateKeyButton.setEnabled(false);
+            publicBoardRadioButton.setSelected(true);
         }
     }
 
@@ -314,19 +279,24 @@ public class BoardSettingsFrame extends JDialog
         super.processWindowEvent(e);
     }
 
+    public boolean runDialog()
+    {
+        // we are modal
+        show();
+        return exitState;
+    }
+
     /**Constructor*/
-    public BoardSettingsFrame(Frame parent, String board)
+    public BoardSettingsFrame(Frame parent, FrostBoardObject board)
     {
         super(parent);
-        this.board = board.toLowerCase();
-
+        setModal(true);
+        this.board = board;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try
-        {
+        try {
             Init();
         }
-        catch( Exception e )
-        {
+        catch( Exception e ) {
             e.printStackTrace();
         }
         pack();

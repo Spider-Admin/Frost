@@ -44,6 +44,8 @@ public class LocalIdentity extends Identity implements Serializable
         catch( IOException e ) {
             this.key=NA;
         }
+        if( con == null )
+            return;
 
         //this is not so brutal anymore.
         FileAccess.writeFile(key,"pubkey.txt");
@@ -55,6 +57,7 @@ public class LocalIdentity extends Identity implements Serializable
         catch( IOException e ) {
             System.out.println("couldn't get key CHK");
         }
+
         Thread keyUploader = new Thread()
         {
             public void run()

@@ -17,6 +17,9 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     private boolean spammed = false;
     private int numberBlocked = 0; // number of blocked messages for this board
 
+    private String publicKey = null;
+    private String privateKey = null;
+
     /**
      * Constructs a new FrostBoardObject wich is a Board.
      */
@@ -25,6 +28,15 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         super();
         boardName = name;
         boardFileName = mixed.makeFilename( boardName );
+    }
+    /**
+     * Constructs a new FrostBoardObject wich is a Board.
+     */
+    public FrostBoardObject(String name, String pubKey, String privKey)
+    {
+        this(name);
+        this.publicKey = pubKey;
+        this.privateKey = privKey;
     }
     /**
      * Constructs a new FrostBoardObject.
@@ -36,6 +48,24 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         isFolder = isFold;
     }
 
+    public boolean isWriteAccessBoard()
+    {
+        if( publicKey != null && privateKey != null )
+            return true;
+        return false;
+    }
+    public boolean isReadAccessBoard()
+    {
+        if( publicKey != null && privateKey == null )
+            return true;
+        return false;
+    }
+    public boolean isPublicBoard()
+    {
+        if( publicKey == null && privateKey == null )
+            return true;
+        return false;
+    }
 
     public String getBoardName()
     {
@@ -54,6 +84,41 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     public boolean isFolder()
     {
         return isFolder;
+    }
+
+    public String getPublicKey()
+    {
+        return publicKey;
+    }
+    public void setPublicKey( String val )
+    {
+        publicKey = val;
+    }
+    public String getPrivateKey()
+    {
+        return privateKey;
+    }
+    public void setPrivateKey( String val )
+    {
+        privateKey = val;
+    }
+
+    public String getStateString()
+    {
+        // TODO: translate
+        if( isReadAccessBoard() )
+        {
+            return "read access";
+        }
+        else if( isWriteAccessBoard() )
+        {
+            return "write access";
+        }
+        else if( isPublicBoard() )
+        {
+            return "public board";
+        }
+        return "*ERROR*";
     }
 
 

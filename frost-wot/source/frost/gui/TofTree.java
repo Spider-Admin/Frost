@@ -49,18 +49,28 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
     private DragGestureRecognizer dgRecognizer = null;
     private DropTarget dropTarget = null;
 
-    public TofTree(DefaultMutableTreeNode node)
+    public TofTree()
     {
-        super(node);
+        super();
+        // install drag n drop support
         this.dragSource=DragSource.getDefaultDragSource();
-        //  this.dgListener=new DGListener();
-        //  this.dsListener=new DSListener();
         dgRecognizer = this.dragSource.createDefaultDragGestureRecognizer( this,
                                                                            DnDConstants.ACTION_MOVE,
                                                                            this);
         // don't act on right mouse button
         dgRecognizer.setSourceActions(dgRecognizer.getSourceActions() & ~InputEvent.BUTTON3_MASK & ~InputEvent.BUTTON2_MASK);
         dropTarget = new DropTarget(this, this);
+    }
+
+    public void initialize()
+    {
+        // load nodes from disk
+        if( loadTree() == false )
+        {
+            FrostBoardObject newRoot = new FrostBoardObject("Frost Message System", true);
+            DefaultTreeModel model = new DefaultTreeModel(newRoot);
+            setModel( model );
+        }
     }
 
     // DragGestureListener interface method
@@ -212,28 +222,14 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
     public void dropActionChanged(DropTargetDragEvent e) {}
 
 
-    public String cutSelectedNode()
+    public FrostBoardObject cutSelectedNode()
     {
-        String result = copySelectedNode();
+        FrostBoardObject result = (FrostBoardObject)this.getLastSelectedPathComponent();
         if( result != null )
         {
             removeSelectedNode();
         }
         return result;
-    }
-
-    public String copySelectedNode()
-    {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)this.getLastSelectedPathComponent();
-        DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
-        StringBuffer result = new StringBuffer();
-        if( node != null && parent != null )
-        {
-            result.append(">").append( (String)node.getUserObject() ).append("\r\n")
-            .append( recTreeRead(node, "") );
-            return result.toString();
-        }
-        return null;
     }
 
     public void removeSelectedNode()
@@ -243,7 +239,7 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
         if( node != null && parent != null )
         {
             int[] childIndices = { parent.getIndex(node)};
-            Object[] removedChilds = { node};
+            Object[] removedChilds = { node };
 
             node.removeFromParent();
 
@@ -254,48 +250,20 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
         }
     }
 
-    public boolean pasteFromClipboard(String clipboard)
+    public boolean pasteFromClipboard(FrostBoardObject clipboard)
     {
         FrostBoardObject node = (FrostBoardObject)getLastSelectedPathComponent();
-        if( node != null && !clipboard.equals("") )
-        {
-            FrostBoardObject actualNode = node;
+        if( node == null || clipboard == null )
+            return false;
+        if( node.isFolder() == false ) // dont allow to add to boards
+            return false;
 
-            Vector lines = new Vector();
-            clipboard = clipboard.trim();
-            while( clipboard.indexOf("\r\n") != -1 )
-            {
-                lines.add(clipboard.substring(0, clipboard.indexOf("\r\n")));
-                clipboard = clipboard.substring(clipboard.indexOf("\r\n") + 2, clipboard.length());
-            }
-            for( int i = 0; i < lines.size(); i++ )
-            {
-                String line = ((String)lines.elementAt(i)).trim();
-                String name = line.substring(1, line.length());
+        node.add( clipboard );
 
-                if( line.startsWith("=") )
-                {
-                    actualNode.add(new FrostBoardObject(name));
-                    int insertedIndex[] = { actualNode.getChildCount()-1 }; // last in list is the newly added
-                    ((DefaultTreeModel)getModel()).nodesWereInserted( actualNode, insertedIndex );
-                }
-                else if( line.startsWith(">") )
-                {
-                    FrostBoardObject newNode = new FrostBoardObject(name, true);
-                    actualNode.add(newNode);
-                    int insertedIndex[] = { actualNode.getChildCount()-1 }; // last in list is the newly added
-                    ((DefaultTreeModel)getModel()).nodesWereInserted( actualNode, insertedIndex );
+        int insertedIndex[] = { node.getChildCount()-1 }; // last in list is the newly added
+        ((DefaultTreeModel)getModel()).nodesWereInserted( node, insertedIndex );
 
-                    actualNode = newNode;
-                }
-                else if( line.startsWith("<") )
-                {
-                    actualNode = (FrostBoardObject)actualNode.getParent();
-                }
-            }
-            return true;
-        }
-        return false;
+        return true;
     }
 
     /**
@@ -318,41 +286,20 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
         return boards;
     }
 
-
-
-    /**
-     * Save TOF tree's content to a file
-     * @param node Save this nodes content
-     * @param file The destination file
-     */
-    public void saveTree(File file)
+    public FrostBoardObject getBoardByName(String boardName)
     {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)this.getModel().getRoot();
-        String text = recTreeRead(node, "");
-        FileAccess.writeFile(text, file);
-    }
-
-    /**
-     * Generates a textfile that describes a tree
-     * @param node This node will be described
-     * @param text If not an empty String, recTreeRead will append this tree's description
-     * @return The description of that tree
-     */
-    public String recTreeRead(DefaultMutableTreeNode node, String text)
-    {
-
-        for( int i = 0; i < node.getChildCount(); i ++ )
+        FrostBoardObject node = (FrostBoardObject)this.getModel().getRoot();
+        Vector boards = new Vector();
+        Enumeration e = node.depthFirstEnumeration();
+        while( e.hasMoreElements() )
         {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode)node.getChildAt(i);
-            if( child.isLeaf() )
-                text += "=" + (String)child.toString() + "\r\n";
-            else
+            FrostBoardObject child = (FrostBoardObject)e.nextElement();
+            if( child.toString().equals( boardName ) )
             {
-                text += ">" + (String)child.toString() + "\r\n";
-                text = recTreeRead(child, text);
+                return child;
             }
         }
-        return text + "<\r\n";
+        return null; // not found
     }
 
     /**
@@ -360,67 +307,34 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
      * @param node The content of the file will be added to this node
      * @param file This file will be read
      */
-    public void loadTree(File file)
+    public boolean loadTree()
     {
-        FrostBoardObject node = (FrostBoardObject)this.getModel().getRoot();
-        Vector lines = FileAccess.readLines(file);
-        FrostBoardObject actualNode = node;
-
-        for( int i = 0; i < lines.size(); i++ )
+        TofTreeXmlIO xmlio = new TofTreeXmlIO();
+        String boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml";
+        // the call changes the toftree and loads nodes into it
+        File iniFile = new File(boardIniFilename);
+        if( iniFile.exists() == false )
         {
-            String line = ((String)lines.elementAt(i)).trim();
-            if( line.length() == 0 )
-                continue;
-            String name = line.substring(1, line.length());
-
-            if( line.startsWith("=") ) // this is a leaf
-            {
-                actualNode.add(new FrostBoardObject(name));
-            }
-            else if( line.startsWith(">") ) // this is a folder
-            {
-                FrostBoardObject newNode = new FrostBoardObject(name, true);
-                actualNode.add(newNode);
-                actualNode = newNode;
-            }
-            else if( line.startsWith("<") ) // end of a folder + its childs
-            {
-                actualNode = (FrostBoardObject)actualNode.getParent();
-            }
+            System.out.println("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
+            boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml.default";
         }
+        return xmlio.loadBoardTree( this, boardIniFilename );
     }
 
     /**
-     * Writes tree state to a file
-     * @param tree This tree will be saved to disk
-     * @param file This file will be created
+     * Save TOF tree's content to a file
+     * @param node Save this nodes content
+     * @param file The destination file
      */
-    public void writeTreeState(File file)
+    public void saveTree()
     {
-        int rowCount = this.getRowCount();
-        StringBuffer text = new StringBuffer();
-        for( int i = 0; i < rowCount; i++ )
+        TofTreeXmlIO xmlio = new TofTreeXmlIO();
+        String boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml";
+        // the call changes the toftree and loads nodes into it
+        if( xmlio.saveBoardTree( this, boardIniFilename ) == false ) // save OK?
         {
-            text.append(i).append("=").append(this.isExpanded(i)).append("\r\n");
-        }
-        FileAccess.writeFile(text.toString(), file);
-    }
-
-    /**
-     * Reads tree state from a file
-     * @param tree This tree will be changed according to the files content
-     * @param file This file will be read
-     */
-    public void readTreeState(File file)
-    {
-        int i = 0;
-        String value = SettingsFun.getValue(file, String.valueOf(i));
-        while( !value.equals("") )
-        {
-            if( value.equals("true") )
-                this.expandRow(i);
-            i++;
-            value = SettingsFun.getValue(file, String.valueOf(i));
+            // TODO: write new config file, rename old
+            return;
         }
     }
 }

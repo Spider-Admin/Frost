@@ -42,7 +42,6 @@ public class SettingsClass
         {
             writeSettingsFile();
         }
-        setValue("keypool.dir", frame1.keypool);
     }
 
     public SettingsClass (File settingsFile)
@@ -56,7 +55,7 @@ public class SettingsClass
         }
     }
 
-    public String getDefValue(String key)
+    public String getDefaultValue(String key)
     {
         String val = (String)defaults.get(key);
         if( val == null )
@@ -81,7 +80,8 @@ public class SettingsClass
         try {
             while( (line = settingsReader.readLine()) != null )
             {
-                if( line.length() != 0 && line.indexOf("#") != 0 )
+                line = line.trim();
+                if( line.length() != 0 && line.startsWith("#") == false )
                 {
                     StringTokenizer strtok = new StringTokenizer(line, "=");
                     String key = "";
@@ -102,7 +102,6 @@ public class SettingsClass
         }
         catch( Exception e ) {
             e.printStackTrace();
-            return false;
         }
 
         try {
@@ -111,20 +110,18 @@ public class SettingsClass
         catch( Exception e ) {
             e.printStackTrace();
         }
+        System.out.println("Read user configuration");
         if( this.getValue("messageBase").equals("") )
         {
             this.setValue("messageBase",  "news");
-            System.out.println("!!! set messageBase to default 'news' !!!");
+            //System.out.println("!!! set messageBase to default 'news' !!!");
         }
-        System.out.println("Read user configuration");
-        return false;
+        return true;
     }
 
     public boolean writeSettingsFile ()
     {
         PrintWriter settingsWriter = null;
-        Enumeration settingsEnum = settingsHash.keys();
-
         try {
             settingsWriter = new PrintWriter(new FileWriter(settingsFile));
         }
@@ -133,19 +130,22 @@ public class SettingsClass
             return false;
         }
 
-        while( settingsEnum.hasMoreElements() )
+        TreeMap sortedSettings = new TreeMap( settingsHash ); // sort the lines
+        Iterator i = sortedSettings.keySet().iterator();
+        while( i.hasNext() )
         {
-            String key = (String) settingsEnum.nextElement();
-            settingsWriter.println(key + "=" + settingsHash.get(key));
+            String key = (String)i.next();
+            settingsWriter.println(key + "=" + sortedSettings.get(key));
         }
 
         try {
             settingsWriter.close();
+            System.out.println("Wrote configuration");
+            return true;
         }
         catch( Exception e ) {
             e.printStackTrace();
         }
-        System.out.println("Wrote configuration");
         return false;
     }
 
@@ -188,7 +188,7 @@ public class SettingsClass
         catch( NullPointerException e ) {
             return false;
         }
-        return getBoolValue(getDefValue(key));
+        return getBoolValue(getDefaultValue(key));
     }
 
     public int getIntValue (String key)
@@ -199,7 +199,7 @@ public class SettingsClass
             val = Integer.parseInt(str);
         }
         catch( NumberFormatException e ) {
-            return getIntValue(getDefValue(key));
+            return getIntValue(getDefaultValue(key));
         }
         catch( Exception e ) {
             return 0;
@@ -215,7 +215,7 @@ public class SettingsClass
             val = Float.parseFloat(str);
         }
         catch( NumberFormatException e ) {
-            return getFloatValue(getDefValue(key));
+            return getFloatValue(getDefaultValue(key));
         }
         catch( Exception e ) {
             return 0.0f;
@@ -261,6 +261,10 @@ public class SettingsClass
 
         String fs = System.getProperty("file.separator");
         File fn = File.listRoots()[0];
+
+        defaults.put("keypool.dir", frame1.keypool);
+        defaults.put("config.dir", "config"+fs);
+
 
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");

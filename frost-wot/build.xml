@@ -45,7 +45,7 @@
     <pathelement location="${lib.dir}/xercesImpl.jar"/>
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
-  </path> -->
+  </path>
 
   <!--  Specify logfile name -->
   <property name="logfilename" value="build.log"/>
@@ -122,11 +122,15 @@ Build log  : ${logfilename}</echo>
       <fileset dir="${bin.dir}"/>
     </copy>
 
+    <mkdir dir="${dist.dir}/lib"/>
+    <copy todir="${dist.dir}/lib">
+        <fileset dir="${lib.dir}"/>
+    </copy>
+
     <mkdir dir="${dist.dir}/downloads"/>
     <mkdir dir="${dist.dir}/exec"/>
 
     <zip basedir="${dist.dir}" destfile="${build.dir}/${zipName}"/>
-
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->

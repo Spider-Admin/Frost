@@ -1,0 +1,95 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<FrostBoardTree>
+    <FrostBoardTreeEntry isfolder="true" isexpanded="true">
+        <name>Frost Message System</name>
+        <FrostBoardTreeEntry>
+            <name>frost-announce</name>
+            <publicKey>SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM</publicKey>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
+            <name>spam-hq</name>
+            <publicKey>SSK@RQq1UXamxynFMpAgHx6AmuaHAbMPAgM</publicKey>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
+            <name>public</name>
+            <privateKey>SSK@P6lGZQDMKSGZH0naN-PKAOT0LqY</privateKey>
+            <publicKey>SSK@TCHFI5EBJWFOCXJNKmQeftTFJo0PAgM</publicKey>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
+            <name>test</name>
+            <privateKey>SSK@P6lGZQDMKSGZH0naN-PKAOT0LqY</privateKey>
+            <publicKey>SSK@TCHFI5EBJWFOCXJNKmQeftTFJo0PAgM</publicKey>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry isfolder="true" isexpanded="false">
+            <name>freenet</name>
+            <FrostBoardTreeEntry>
+                <name>freenet</name>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>frost</name>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>frost-wot</name>
+                <privateKey>SSK@ZVaQ955z2rfwP0l9BaBXsN3Rbw4</privateKey>
+                <publicKey>SSK@WR7Fq4LmCLIYtWRFHoxzvrZMDNoPAgM</publicKey>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>fuqid-public</name>
+                <privateKey>SSK@ALbN9vLjIZ3PBS58ZHw6jY71mFhD</privateKey>
+                <publicKey>SSK@5o9nBkbkt9Hwsm0PJpKYJEa8cSMPAgM</publicKey>
+            </FrostBoardTreeEntry>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry isfolder="true" isexpanded="false">
+            <name>content</name>
+            <FrostBoardTreeEntry>
+                <name>mp3</name>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>mp3ogg</name>
+                <publicKey>SSK@PJONkPZC6a4EuhHE~dP0nYyWK-oPAgM</publicKey>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>ogg</name>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>movies</name>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>movies.priv</name>
+                <publicKey>SSK@VFD2~-cBbe~yaMjlZVP6nF11cicPAgM</publicKey>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>warez</name>
+            </FrostBoardTreeEntry>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry isfolder="true" isexpanded="false">
+            <name>chat</name>
+            <FrostBoardTreeEntry>
+                <name>politics</name>
+                <privateKey>SSK@HIadAGUdNecfDbP0J7~F3bIu-mE</privateKey>
+                <publicKey>SSK@iGlg-Kq4cK-dsHGtKgl4475yk1MPAgM</publicKey>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>news</name>
+                <privateKey>SSK@HwIKgwmZNeomqzd~omIf7TDmDoA</privateKey>
+                <publicKey>SSK@ikIO3S9hxfW0UHpgDnuU38qMFt4PAgM</publicKey>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>privacy</name>
+                <privateKey>SSK@eBIgNfMKNEBd8zl5oG47iIshq7A</privateKey>
+                <publicKey>SSK@TYkr3bANz6wN3zgQft2NR4iMJ7QPAgM</publicKey>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>software</name>
+                <privateKey>SSK@AIU9BQ0F8~zT3hJDHy8fC64plTVS</privateKey>
+                <publicKey>SSK@qeoLwwwut~sp9YdbWA-FM3PdW34PAgM</publicKey>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
+                <name>flamewarz</name>
+                <privateKey>SSK@AMTxRQ3QX47HMOMD0R9lEEyzfE7k</privateKey>
+                <publicKey>SSK@EqzFSnXUPj6TtFobM-VXxQI8TJcPAgM</publicKey>
+            </FrostBoardTreeEntry>
+        </FrostBoardTreeEntry>
+    </FrostBoardTreeEntry>
+</FrostBoardTree>
+

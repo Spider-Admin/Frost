@@ -12,8 +12,7 @@ import frost.gui.objects.*;
 public class AltEdit extends Thread {
     private Frame parentFrame;
     private String linesep;
-    private String board;
-    private String boardNew;
+    private FrostBoardObject board;
     private String from;
     private String fromNew;
     private String subject;
@@ -28,32 +27,31 @@ public class AltEdit extends Thread {
     private String lastUsedDirectory;
     private SettingsClass frostSettings;
 
-
-    private String getFileContent(File editFile){
+    private String getFileContent(File editFile)
+    {
         String fileContent = "";
-    try{
+        try {
 
-        BufferedReader fileContentReader = new BufferedReader(new FileReader(editFile));
-        char[] buf = new char[256];
-        while (fileContentReader.read(buf, 0, 256) >= 0){
-        fileContent += new String(buf);
+            BufferedReader fileContentReader = new BufferedReader(new FileReader(editFile));
+            char[] buf = new char[256];
+            while( fileContentReader.read(buf, 0, 256) >= 0 )
+            {
+                fileContent += new String(buf);
+            }
+            fileContentReader.close();
         }
-        fileContentReader.close();
+        catch( Exception e ) {
+            e.printStackTrace();
+        }
+        return fileContent;
     }
-    catch(Exception e){
-        e.printStackTrace();
-    }
-    return fileContent;
-    }
-
-
 
     public void run(){
     System.out.println("run is started");
     String fileContentOld = "";
     String fileContentNew = "";
     String editContent = "";
-    editContent += "board=" + board + linesep;
+    editContent += "board=" + board.toString() + "(is unchangeable)" + linesep;
     editContent += "from=" + from + linesep;
     editContent += "subject=" + subject + linesep;
     editContent += "--- message ---" + linesep;
@@ -66,7 +64,6 @@ public class AltEdit extends Thread {
         editFile.deleteOnExit();
         FileWriter editWriter = new FileWriter(editFile);
         editWriter.write(editContent, 0, editContent.length());
-        editWriter.flush();
         editWriter.close();
         fileContentOld = getFileContent(editFile);
         System.out.println(fileContentOld);
@@ -83,35 +80,17 @@ public class AltEdit extends Thread {
         editorProcess = Runtime.getRuntime().exec(myEdit);
         editorProcess.waitFor();
         }
-        catch(Exception e){
-        System.out.println("Can not start alternative editor, using builtin!");
-        String[] args = {board,
-                 from,
-                 subject,
-                 text,
-                 lastUsedDirectory
-        };
-        MessageFrame newMessage = new MessageFrame(args, keypool, frostSettings, parentFrame);
-/*        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension frameSize = newMessage.getSize();
-        if (frameSize.height > screenSize.height) {
-            frameSize.height = screenSize.height;
+        catch(Exception e)
+        {
+            System.out.println("Can not start alternative editor, please check options!");
         }
-        if (frameSize.width > screenSize.width) {
-            frameSize.width = screenSize.width;
-        }
-        newMessage.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-*/
-        newMessage.show();
-        }
-        try{
+        try {
         fileContentNew = getFileContent(editFile);
         System.out.println(fileContentNew);
         BufferedReader editReader = new BufferedReader(new FileReader(editFile));
         String line = " ";
         boolean inMessage = false;
         textNew = "";
-        boardNew = board;
         fromNew = from;
         subjectNew = subject;
         while (line != null){
@@ -126,7 +105,7 @@ public class AltEdit extends Thread {
             if(strtok.countTokens() == 2){
                 String keyToken = strtok.nextToken();
                 if(keyToken.equals("board")){
-                boardNew = strtok.nextToken();
+                ; // do nothing, board is unchangeable
                 }
                 else if(keyToken.equals("from")){
                 fromNew = strtok.nextToken();
@@ -156,7 +135,7 @@ public class AltEdit extends Thread {
     if(!fileContentNew.equals(fileContentOld)){
         frostSettings.setValue("userName", from);
         frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-            new FrostBoardObject(boardNew),
+            board,
             fromNew,
             subjectNew,
             textNew,
@@ -172,31 +151,35 @@ public class AltEdit extends Thread {
     }
     }
 
+    public AltEdit(FrostBoardObject board,
+                   String subject,
+                   String text,
+                   String keypool,
+                   SettingsClass frostSettings,
+                   Frame parentFrame)
+    {
+        this.parentFrame = parentFrame;
+        this.frostSettings = frostSettings;
+        this.board = board;
+        this.from = frostSettings.getValue("userName");
+        this.subject = subject;
+        this.text = text;
+        this.lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
 
-    public AltEdit (String board, String subject, String text, String keypool, SettingsClass frostSettings, Frame parentFrame){
-    this.parentFrame = parentFrame;
-    this.frostSettings = frostSettings;
-    this.board = board;
-    this.from = frostSettings.getValue("userName");
-    this.subject = subject;
-    this.text = text;
-    this.lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
+        this.editor_pre_file = "";
+        this.editor_post_file = "";
 
+        this.editor = frostSettings.getValue("altEdit");
+        if(editor.indexOf("%f") != -1)
+        {
+            this.editor_pre_file = editor.substring(0, editor.indexOf("%f"));
+            this.editor_post_file = editor.substring(editor.indexOf("%f") + 2, editor.length());
+        }
 
-    this.editor_pre_file = "";
-    this.editor_post_file = "";
+        System.out.println("pre_file = " + editor_pre_file);
+        System.out.println("post_file = " + editor_post_file);
 
-
-    this.editor = frostSettings.getValue("altEdit");
-    if(editor.indexOf("%f") != -1){
-        this.editor_pre_file = editor.substring(0, editor.indexOf("%f"));
-        this.editor_post_file = editor.substring(editor.indexOf("%f") + 2, editor.length());
-    }
-
-    System.out.println("pre_file = " + editor_pre_file);
-    System.out.println("post_file = " + editor_post_file);
-
-    this.keypool = keypool;
-    linesep = System.getProperty("line.separator");
+        this.keypool = frostSettings.getValue("keypool.dir");
+        linesep = System.getProperty("line.separator");
     }
 }

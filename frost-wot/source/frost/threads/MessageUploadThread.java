@@ -133,219 +133,213 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
     public void run()
     {
-    notifyThreadStarted(this);
+        notifyThreadStarted(this);
 
-    boolean retry = true;
+        boolean retry = true;
 
-    // switch public / secure board
-    String state = SettingsFun.getValue(frame1.keypool + board.getBoardFilename() + ".key", "state");
-    if (state.equals("writeAccess")) {
-        privateKey = SettingsFun.getValue(frame1.keypool + board.getBoardFilename() + ".key", "privateKey");
-        publicKey = SettingsFun.getValue(frame1.keypool + board.getBoardFilename() + ".key", "publicKey");
-        secure = true;
-    }
-    else {
-        secure = false;
-    }
-
-    if (DEBUG) System.out.println("tofUpload: " + board.toString() + " secure: " + privateKey);
-    System.out.println("Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl + ".");
-
-    uploadAttachments();
-    sign();
-
-    String fileSeparator = System.getProperty("file.separator");
-    destination = keypool + board.getBoardFilename() + fileSeparator + DateFun.getDate() + fileSeparator;
-    File checkDestination = new File(destination);
-    if (!checkDestination.isDirectory())
-        checkDestination.mkdirs();
-
-    if( date.length() == 0 && time.length() == 0 ){
-        // System.out.println( "Generating new Date and Time." );
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        date = cal.get(Calendar.YEAR) + ".";
-        int month = cal.get(Calendar.MONTH) + 1;
-        date += month + ".";
-        int day = cal.get(Calendar.DATE);
-        date += day;
-
-        time = "";
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        if (hour < 10) {
-        time +=  "0" + hour + ":";
-        } else {
-        time +=  hour + ":";
+        // switch public / secure board
+        if( board.isWriteAccessBoard() )
+        {
+            privateKey = board.getPrivateKey();
+            publicKey = board.getPublicKey();
+            secure = true;
         }
-        int minute = cal.get(Calendar.MINUTE);
-        if (minute < 10) {
-        time +=  "0" + minute + ":";
-        } else {
-        time +=  minute + ":";
+        else
+        {
+            secure = false;
         }
-        int second = cal.get(Calendar.SECOND);
-        if (second < 10) {
-        time +=  "0" + second + "GMT";
-        } else {
-        time +=  second + "GMT";
-        }
-    }
 
-    // Generate file to upload
-    String uploadMe = "unsent" + String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
-    String content = new String();
-    content += "board=" + board.toString() + "\r\n";
-    content += "from=" + from + "\r\n";
-    content += "subject=" + subject + "\r\n";
-    content += "date=" + date + "\r\n";
-    content += "time=" + time + "\r\n";
-    content += "--- message ---\r\n";
-    content += text;
+        if( DEBUG ) System.out.println("tofUpload: " + board.toString() + " secure: " + secure);
+        System.out.println("Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl + ".");
 
-    File messageFile = new File(destination + uploadMe);
-    FileAccess.writeFile(content, messageFile); // Write to disk
+        uploadAttachments();
+        sign();
 
-    while (retry) {
-        // Search empty slut (hehe)
-        boolean success = false;
-        int index = 0;
-        String output = new String();
-        int tries = 0;
-        boolean error = false;
-        while (!success) {
-        // Does this index already exist?
-        File testMe = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
-        if (testMe.length() > 0) { // already downloaded
-            String contentOne = (FileAccess.readFile(messageFile)).trim();
-            String contentTwo = (FileAccess.readFile(testMe)).trim();
-            if (DEBUG) System.out.println(contentOne);
-            if (DEBUG) System.out.println(contentTwo);
-            if (contentOne.equals(contentTwo)) {
-            if (DEBUG) System.out.println("Message has already been uploaded.");
-            success = true;
-            }
-            else{
-            index++;
-            if (DEBUG) System.out.println("File exists, increasing index to " + index);
-            }
-        }
-        else { // probably empty
-            String[] result = new String[2];
-            if (secure) {
+        String fileSeparator = System.getProperty("file.separator");
+        destination = keypool + board.getBoardFilename() + fileSeparator + DateFun.getDate() + fileSeparator;
+        File checkDestination = new File(destination);
+        if( !checkDestination.isDirectory() )
+            checkDestination.mkdirs();
 
-            String upKey = privateKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
-            if (DEBUG) System.out.println(upKey);
-            result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
-            }
-            else {
-            // Temporary hack for wrong name space
-            String upKey = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
-            if (DEBUG) System.out.println(upKey);
-            result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
-            // END Temporary hack for wrong name space
-            if (result[0].equals("Success")){
-                /* String */ upKey = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
-                if (DEBUG) System.out.println(upKey);
-                /*result =*/ FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
-            }
-            }
+        // Generate file to upload
+        String uploadMe = "unsent" + String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
+        String content = new String();
+        content += "board=" + board.toString() + "\r\n";
+        content += "from=" + from + "\r\n";
+        content += "subject=" + subject + "\r\n";
+        content += "date=" + date + "\r\n";
+        content += "time=" + time + "\r\n";
+        content += "--- message ---\r\n";
+        content += text;
 
-            if (result[0] == null || result[1] == null) {
-            result[0] = "Error";
-            result[1] = "Error";
-            }
+        File messageFile = new File(destination + uploadMe);
+        FileAccess.writeFile(content, messageFile); // Write to disk
 
-            if (result[0].equals("Success")) {
-            success = true;
-            } else {
-            if (result[0].equals("KeyCollision")) {
-
-                // ************* Temporary freenet bug workaround ******************
-                String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
-//              String requestMe = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
-                String requestMe = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
-                if (secure && publicKey.startsWith("SSK@")) {
-                requestMe = publicKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
+        while( retry )
+        {
+            // Search empty slut (hehe)
+            boolean success = false;
+            int index = 0;
+            String output = new String();
+            int tries = 0;
+            boolean error = false;
+            while( !success )
+            {
+                // Does this index already exist?
+                File testMe = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
+                if( testMe.length() > 0 )
+                { // already downloaded
+                    String contentOne = (FileAccess.readFile(messageFile)).trim();
+                    String contentTwo = (FileAccess.readFile(testMe)).trim();
+                    if( DEBUG ) System.out.println(contentOne);
+                    if( DEBUG ) System.out.println(contentTwo);
+                    if( contentOne.equals(contentTwo) )
+                    {
+                        if( DEBUG ) System.out.println("Message has already been uploaded.");
+                        success = true;
+                    }
+                    else
+                    {
+                        index++;
+                        if( DEBUG ) System.out.println("File exists, increasing index to " + index);
+                    }
                 }
+                else
+                { // probably empty
+                    String[] result = new String[2];
+                    if( secure )
+                    {
 
-                if (FcpRequest.getFile(requestMe,
-                           "Unknown",
-                           keypool + compareMe,
-                           messageDownloadHtl,
-                           false)) {
-                File numberOne = new File(keypool + compareMe);
-                File numberTwo = new File(destination + uploadMe);
-                String contentOne = (FileAccess.readFile(numberOne)).trim();
-                String contentTwo = (FileAccess.readFile(numberTwo)).trim();
-                if (DEBUG) System.out.println(contentOne);
-                if (DEBUG) System.out.println(contentTwo);
-                if (contentOne.equals(contentTwo)) {
-                    success = true;
-                }
-                else {
-                    index++;
-                    System.out.println("TOF Upload collided, increasing index to " + index);
-                }
-                }
-                else {
-                index++;
-                System.out.println("TOF Upload collided, increasing index to " + index);
+                        String upKey = privateKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
+                        if( DEBUG ) System.out.println(upKey);
+                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
+                    }
+                    else
+                    {
+                        // Temporary hack for wrong name space
+                        String upKey = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
+                        if( DEBUG ) System.out.println(upKey);
+                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
+                        // END Temporary hack for wrong name space
+                        if( result[0].equals("Success") )
+                        {
+                            /* String */
+                            upKey = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
+                            if( DEBUG ) System.out.println(upKey);
+                            /*result =*/FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
+                        }
+                    }
+
+                    if( result[0] == null || result[1] == null )
+                    {
+                        result[0] = "Error";
+                        result[1] = "Error";
+                    }
+
+                    if( result[0].equals("Success") )
+                    {
+                        success = true;
+                    }
+                    else
+                    {
+                        if( result[0].equals("KeyCollision") )
+                        {
+
+                            // ************* Temporary freenet bug workaround ******************
+                            String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
+                            //              String requestMe = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
+                            String requestMe = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
+                            if( secure && publicKey.startsWith("SSK@") )
+                            {
+                                requestMe = publicKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
+                            }
+
+                            if( FcpRequest.getFile(requestMe,
+                                                   "Unknown",
+                                                   keypool + compareMe,
+                                                   messageDownloadHtl,
+                                                   false) )
+                            {
+                                File numberOne = new File(keypool + compareMe);
+                                File numberTwo = new File(destination + uploadMe);
+                                String contentOne = (FileAccess.readFile(numberOne)).trim();
+                                String contentTwo = (FileAccess.readFile(numberTwo)).trim();
+                                if( DEBUG ) System.out.println(contentOne);
+                                if( DEBUG ) System.out.println(contentTwo);
+                                if( contentOne.equals(contentTwo) )
+                                {
+                                    success = true;
+                                }
+                                else
+                                {
+                                    index++;
+                                    System.out.println("TOF Upload collided, increasing index to " + index);
+                                }
+                            }
+                            else
+                            {
+                                index++;
+                                System.out.println("TOF Upload collided, increasing index to " + index);
+                            }
+                        }
+                        else
+                        {
+                            System.out.println("TOF upload failed (" + tries + "), retrying index " + index);
+                            if( tries > 5 )
+                            {
+                                success = true;
+                                error = true;
+                            }
+                            tries++;
+                        }
+                    }
                 }
             }
-            else {
-                System.out.println("TOF upload failed (" + tries + "), retrying index " + index);
-                if (tries > 5) {
-                success = true;
-                error = true;
+
+            if( !error )
+            {
+
+                File killMe = new File(destination + uploadMe);
+                File newMessage = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
+                if( signed )
+                    FileAccess.writeFile("GOOD", newMessage.getPath() + ".sig");
+                killMe.renameTo(newMessage);
+
+                frame1.updateTof = true;
+                System.out.println("*********************************************************************");
+                System.out.println("Message successfuly uploaded to the '" + board.toString() + "' board.");
+                System.out.println("*********************************************************************");
+                retry = false;
+
+            }
+            else
+            {
+                System.out.println("Error while uploading message.");
+
+                // Uploading of that message failed. Ask the user if Frost
+                // should try to upload the message another time.
+                if( !silent )
+                {
+                    MessageUploadFailedDialog faildialog =
+                    new MessageUploadFailedDialog(frameToLock,
+                                                  10,
+                                                  LangRes.getString("Upload of message failed"),
+                                                  LangRes.getString("I was not able to upload your message."),
+                                                  LangRes.getString("Retry"),
+                                                  LangRes.getString("Cancel"));
+                    faildialog.show();
+                    retry = faildialog.getAnswer();
+                    System.out.println("Will try to upload again: " + retry);
+                    faildialog.dispose();
                 }
-                tries++;
+                if( !retry )
+                    messageFile.delete();
             }
-            }
+
+            System.out.println("TOF Upload Thread finished");
         }
-        }
-
-        if (!error) {
-
-        File killMe = new File(destination + uploadMe);
-        File newMessage = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
-        if (signed)
-            FileAccess.writeFile("GOOD", newMessage.getPath() + ".sig");
-        killMe.renameTo(newMessage);
-
-        frame1.updateTof = true;
-        System.out.println("*********************************************************************");
-        System.out.println("Message successfuly uploaded to the '" + board.toString() + "' board.");
-        System.out.println("*********************************************************************");
-        retry = false;
-
-        }
-        else {
-        System.out.println("Error while uploading message.");
-
-        // Uploading of that message failed. Ask the user if Frost
-        // should try to upload the message another time.
-        if (!silent) {
-            MessageUploadFailedDialog faildialog =
-                new MessageUploadFailedDialog(frameToLock,
-                                              10,
-                                              LangRes.getString("Upload of message failed"),
-                                              LangRes.getString("I was not able to upload your message."),
-                                              LangRes.getString("Retry"),
-                                              LangRes.getString("Cancel"));
-            faildialog.show();
-            retry = faildialog.getAnswer();
-            System.out.println("Will try to upload again: " + retry);
-            faildialog.dispose();
-        }
-        if (!retry)
-            messageFile.delete();
-        }
-
-        System.out.println("TOF Upload Thread finished");
-    }
-    notifyThreadFinished(this);
-
-    }
+        notifyThreadFinished(this);
+    } // end-of: run()
 
     /**Constructor*/
     public MessageUploadThread(FrostBoardObject board,
@@ -368,8 +362,15 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         this.messageUploadHtl = msgUplHtl;
         this.keypool = keypool;
         this.messageDownloadHtl = msgDlHtl;
+
+        if( date.length() == 0 && time.length() == 0 )
+        {
+            date = DateFun.getDate();
+            time = DateFun.getFullExtendedTime();
+        }
         this.date = date;
         this.time = time;
+
         if( recipient != null && recipient.length() > 0 )
         {
             encryptSign=true;
