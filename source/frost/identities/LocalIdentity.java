@@ -47,6 +47,9 @@ public class LocalIdentity extends Identity implements Serializable
         privKey=keys[0];
     }
 
+	public LocalIdentity(Element el){
+		super(el);
+	}
     /**
      * constructor that creates an RSA Keypair,
      * and inserts it in freenet

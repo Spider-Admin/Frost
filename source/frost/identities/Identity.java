@@ -104,8 +104,10 @@ public class Identity implements XMLizable
 					Core.getOut().println("no data about # of messages found for identity " + uniqueName);
 				}
 				
-				
-				Element trusteesList = (Element) XMLTools.getChildElementsByTagName(e,"trustees").get(0);
+				ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
+				Element trusteesList = null;
+				if (_trusteesList.size() > 0)
+					trusteesList = (Element) _trusteesList.get(0);
 				if (trusteesList != null) {
 					if (trustees == null)
 						trustees = new LinkedList();
