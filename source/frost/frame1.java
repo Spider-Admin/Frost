@@ -1264,6 +1264,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         System.out.println("ME = '"+getMyId().getUniqueName()+"'");
 	
 	File batches = new File("batches");
+	if (batches.exists())
 	try{
 		String allBatches = FileAccess.readFileRaw(batches);
 		String[] _batches = allBatches.split("*"); //dumb.  will fix later
