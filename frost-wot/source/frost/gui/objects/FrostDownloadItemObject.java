@@ -51,7 +51,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public FrostDownloadItemObject( String fileName, String key, FrostBoardObject board, int initialHtl )
     {
         this.fileName = fileName;
-        fileSize = new Long(-1);//null; // not set yet
+        fileSize = null; // not set yet
         fileAge = null;
         this.key = key;
         sourceBoard = board;

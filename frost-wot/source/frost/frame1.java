@@ -1554,23 +1554,11 @@ public class frame1 extends JFrame implements ClipboardOwner
             if( selectedRows.length == 0 )
                 return;
         }
-            for( int i = 0; i < selectedRows.length; i++ )
-            {
-                String name = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 0);
-                String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 1);
-                String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 2);
-
-            FrostBoardObject board = getTofTree().getBoardByName( name );
-
-            //ask if we already have the board
-            if( board != null )
-            {
-                if( JOptionPane.showConfirmDialog(this, "You already have a board named " + name + ".\n" +
-                                                  "Are you sure you want to download this one over it?",
-                                                  "Board already exists",
-                                                  JOptionPane.YES_NO_OPTION) !=0 )
-                    continue; // next row of table / next attached board
-            }
+        for( int i = 0; i < selectedRows.length; i++ )
+        {
+            String name = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 0);
+            String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 1);
+            String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 2);
 
             // prepare key vars for creation of FrostBoardObject (val=null if key is empty)
             if( privKey.compareTo("N/A") == 0 || privKey.length() == 0 )
@@ -1582,7 +1570,33 @@ public class frame1 extends JFrame implements ClipboardOwner
                 pubKey = null;
             }
 
-            getTofTree().addNodeToTree( new FrostBoardObject(name, pubKey, privKey) );
+            // search board in exising boards list
+            FrostBoardObject board = getTofTree().getBoardByName( name );
+
+            //ask if we already have the board
+            if( board != null )
+            {
+                if( JOptionPane.showConfirmDialog(this, "You already have a board named " + name + ".\n" +
+                                                  "Are you sure you want to download this one over it?",
+                                                  "Board already exists",
+                                                  JOptionPane.YES_NO_OPTION) != 0 )
+                {
+                    continue; // next row of table / next attached board
+                }
+                else
+                {
+                    // change existing board keys to keys of new board
+                    board.setPublicKey( pubKey );
+                    board.setPrivateKey( privKey );
+                    updateTofTree( board );
+                }
+            }
+            else
+            {
+                // its a new board
+
+                getTofTree().addNodeToTree( new FrostBoardObject(name, pubKey, privKey) );
+            }
         }
     }
 
@@ -2146,20 +2160,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**
-     * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
-     */
-    static final Comparator lastUpdateStartMillisCmp = new Comparator() {
-        public int compare(Object o1, Object o2) {
-        FrostBoardObject value1 = (FrostBoardObject)o1;
-        FrostBoardObject value2 = (FrostBoardObject)o2;
-        if( value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis() )
-            return 1;
-        else
-            return -1;
-        }
-    };
-
-    /**
      * Chooses the next FrostBoard to update (automatic update).
      * First sorts by lastUpdateStarted time, then chooses first board
      * that is allowed to update.
@@ -2345,78 +2345,12 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( activeDthreads < frostSettings.getIntValue("downloadThreads") &&
             downloadActivateCheckBox.isSelected() )
         {
-            DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
+            // choose first item
+            FrostDownloadItemObject dlItem = selectNextDownloadItem();
+            if( dlItem != null )
+            {
+                DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
 
-            // get the item with state "Waiting", minimum htl and not over maximum htl
-            ArrayList waitingItems = new ArrayList();
-            for( int i = 0; i < dlModel.getRowCount(); i++ )
-            {
-                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-                if( dlItem.getState() == dlItem.STATE_WAITING )
-                {
-                    if( dlItem.getHtl().intValue() <= frostSettings.getIntValue("htlMax") )
-                    {
-                        waitingItems.add( dlItem );
-                    }
-                    else
-                    {
-                        // set item to failed state
-                        dlItem.setState( dlItem.STATE_FAILED );
-                        dlModel.updateRow( dlItem );
-                    }
-                }
-                else if( dlItem.getState() == dlItem.STATE_FAILED )
-                {
-                    if( frostSettings.getBoolValue("downloadRestartFailedDownloads") &&
-                        dlItem.getHtl().intValue() == frostSettings.getIntValue("htlMax") )
-                    {
-                        // prepare item for restart in next loop
-                        dlItem.setState( dlItem.STATE_WAITING );
-                        dlItem.setHtl( frostSettings.getIntValue("htl") );
-                        dlModel.updateRow( dlItem );
-                    }
-                }
-            }
-            if( waitingItems.size() > 0 )
-            {
-                if( waitingItems.size() > 1 ) // performance issues
-                {
-                    // sort waiting items by htl or lastDownloadStartTimeMillis, ascending
-                    if( frostSettings.getBoolValue( "downloadMethodLeastHtl" ) )
-                    {
-                        Collections.sort( waitingItems, downloadHtlCmp );
-                        int minHtl = ((FrostDownloadItemObject)waitingItems.get(0)).getHtl().intValue();
-                        int x = 0;
-                        ArrayList minHtlItems = new ArrayList();
-                        for( int z=0; z<waitingItems.size(); z++ )
-                        {
-                            FrostDownloadItemObject dlItemobj = (FrostDownloadItemObject)waitingItems.get(z);
-                            if( dlItemobj != null &&
-                                dlItemobj.getHtl().intValue() == minHtl )
-                            {
-                                minHtlItems.add( waitingItems.get(z) );
-                                x++;
-                            }
-                            else
-                            {
-                                break;
-                            }
-                        }
-                        if( minHtlItems.size() > 1 )
-                        {
-                            // sort minHtl items by lastDownloadSTartedMillis
-                            Collections.sort( minHtlItems, downloadDlStartMillisCmp );
-                        }
-                        waitingItems = minHtlItems;
-                    }
-                    else
-                    {
-                        // one by one
-                        Collections.sort( waitingItems, downloadDlStartMillisCmp );
-                    }
-                }
-                // choose first item
-                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)waitingItems.get(0);
                 dlItem.setState( dlItem.STATE_TRYING );
                 dlModel.updateRow( dlItem );
 
@@ -2428,6 +2362,86 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**
+     * Chooses next download item to start from download table.
+     */
+    protected FrostDownloadItemObject selectNextDownloadItem()
+    {
+        DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
+
+        // get the item with state "Waiting", minimum htl and not over maximum htl
+        ArrayList waitingItems = new ArrayList();
+        for( int i = 0; i < dlModel.getRowCount(); i++ )
+        {
+            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
+            if( dlItem.getState() == dlItem.STATE_WAITING )
+            {
+                if( dlItem.getHtl().intValue() <= frostSettings.getIntValue("htlMax") )
+                {
+                    waitingItems.add( dlItem );
+                }
+                else
+                {
+                    // set item to failed state
+                    dlItem.setState( dlItem.STATE_FAILED );
+                    dlModel.updateRow( dlItem );
+                }
+            }
+            else if( dlItem.getState() == dlItem.STATE_FAILED )
+            {
+                if( frostSettings.getBoolValue("downloadRestartFailedDownloads") &&
+                    dlItem.getHtl().intValue() == frostSettings.getIntValue("htlMax") )
+                {
+                    // prepare item for restart in next loop
+                    dlItem.setState( dlItem.STATE_WAITING );
+                    dlItem.setHtl( frostSettings.getIntValue("htl") );
+                    dlModel.updateRow( dlItem );
+                }
+            }
+        }
+        if( waitingItems.size() == 0 )
+            return null;
+
+        if( waitingItems.size() > 1 ) // performance issues
+        {
+            // sort waiting items by htl or lastDownloadStartTimeMillis, ascending
+            if( frostSettings.getBoolValue( "downloadMethodLeastHtl" ) )
+            {
+                Collections.sort( waitingItems, downloadHtlCmp );
+                // now get all items with minimum HTL in list and sort them by lastUpdateStarted
+                int minHtl = ((FrostDownloadItemObject)waitingItems.get(0)).getHtl().intValue();
+                int x = 0;
+                ArrayList minHtlItems = new ArrayList();
+                for( int z=0; z<waitingItems.size(); z++ )
+                {
+                    FrostDownloadItemObject dlItemobj = (FrostDownloadItemObject)waitingItems.get(z);
+                    if( dlItemobj != null &&
+                        dlItemobj.getHtl().intValue() == minHtl )
+                    {
+                        minHtlItems.add( waitingItems.get(z) );
+                        x++;
+                    }
+                    else
+                    {
+                        break;
+                    }
+                }
+                if( minHtlItems.size() > 1 )
+                {
+                    // sort minHtl items by lastDownloadSTartedMillis
+                    Collections.sort( minHtlItems, downloadDlStartMillisCmp );
+                }
+                waitingItems = minHtlItems;
+            }
+            else
+            {
+                // one by one
+                Collections.sort( waitingItems, downloadDlStartMillisCmp );
+            }
+        }
+        return (FrostDownloadItemObject)waitingItems.get(0);
+    }
+
+    /**
      * Used to sort FrostDownloadItemObjects by htl ascending.
      */
     static final Comparator downloadHtlCmp = new Comparator() {
@@ -2436,8 +2450,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         FrostDownloadItemObject value2 = (FrostDownloadItemObject)o2;
         if( value1.getHtl().intValue() > value2.getHtl().intValue() )
             return 1;
-        else
+        else if( value1.getHtl().intValue() < value2.getHtl().intValue() )
             return -1;
+        else
+            return 0;
         }
     };
     /**
@@ -2449,8 +2465,26 @@ public class frame1 extends JFrame implements ClipboardOwner
         FrostDownloadItemObject value2 = (FrostDownloadItemObject)o2;
         if( value1.getLastDownloadStartTimeMillis() > value2.getLastDownloadStartTimeMillis() )
             return 1;
-        else
+        else if( value1.getLastDownloadStartTimeMillis() < value2.getLastDownloadStartTimeMillis() )
             return -1;
+        else
+            return 0;
+        }
+    };
+
+    /**
+     * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
+     */
+    static final Comparator lastUpdateStartMillisCmp = new Comparator() {
+        public int compare(Object o1, Object o2) {
+        FrostBoardObject value1 = (FrostBoardObject)o1;
+        FrostBoardObject value2 = (FrostBoardObject)o2;
+        if( value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis() )
+            return 1;
+        else if( value1.getLastUpdateStartMillis() < value2.getLastUpdateStartMillis() )
+            return -1;
+        else
+            return 0;
         }
     };
 
