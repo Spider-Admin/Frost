@@ -313,27 +313,26 @@ public class requestThread extends Thread
                     }
                     else if( result[0].equals("KeyCollision") )
                     {
-
                         // Check if the collided key is perhapes the requested one
-                        String compareMe = frame1.keypool + String.valueOf(System.currentTimeMillis()) + ".txt";
-                        String requestMe = new StringBuffer()
-                                            .append("KSK@frost/request/")
-                                            .append(frame1.frostSettings.getValue("messageBase"))
-                                            .append("/")
-                                            .append(date)
-                                            .append("-")
-                                            .append(board.getBoardFilename())
-                                            .append("-")
-                                            .append(index)
-                                            .append(".req").toString();
+                        File compareMe = null;
+                        try {
+                            compareMe = File.createTempFile("reqUploadCmpDnload_", null, new File( frame1.frostSettings.getValue("temp.dir") ) );
+                        }
+                        catch(Exception ex)
+                        {
+                            compareMe = new File( frame1.frostSettings.getValue("temp.dir") + System.currentTimeMillis()+".tmp" );
+                        }
+                        compareMe.deleteOnExit();
+
+                        String requestMe = upKey;
 
                         if( FcpRequest.getFile(requestMe,
                                                "Unknown",
-                                               new File(compareMe),
+                                               compareMe,
                                                25,
                                                false) )
                         {
-                            File numberOne = new File(compareMe);
+                            File numberOne = compareMe;
                             File numberTwo = requestFile;
                             String contentOne = (FileAccess.readFile(numberOne)).trim();
                             String contentTwo = (FileAccess.readFile(numberTwo)).trim();
@@ -373,6 +372,7 @@ public class requestThread extends Thread
                             }
                             tries++;
                         }
+                        compareMe.delete();
                     }
                     // finally delete the index lock file
                     lockRequestIndex.delete();
