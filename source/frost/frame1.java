@@ -3097,17 +3097,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				frostSettings.setValue("lastUsedDirectory", file.getParent());
 				File[] selectedFiles = fc.getSelectedFiles();
 
-				for (int i = 0; i < selectedFiles.length; i++) {
+				for (int i = 0; i < selectedFiles.length; i++) 
+                {
 					// collect all choosed files + files in all choosed directories
-					ArrayList allFiles =
-						FileAccess.getAllEntries(selectedFiles[i], "");
-					for (int j = 0; j < allFiles.size(); j++) {
+					ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+					for (int j = 0; j < allFiles.size(); j++) 
+                    {
 						File newFile = (File) allFiles.get(j);
-						if (newFile.isFile() && newFile.length() > 0) {
-							FrostUploadItemObject ulItem =
-								new FrostUploadItemObject(newFile, board);
-							boolean isAdded =
-								getUploadTable().addUploadItem(ulItem);
+						if (newFile.isFile() && newFile.length() > 0) 
+                        {
+							FrostUploadItemObject ulItem = new FrostUploadItemObject(newFile, board);
+							boolean isAdded = getUploadTable().addUploadItem(ulItem);
 						}
 					}
 				}

@@ -172,7 +172,9 @@ public class FileAccess
         return content.toString();
     }
 
-    /**Returns an ArrayList of File objects with all Directories and files*/
+    /**
+     * Returns all files starting from given directory/file that have a given extension.
+     */
     public static ArrayList getAllEntries(File file, final String extension)
     {
         ArrayList files = new ArrayList();
