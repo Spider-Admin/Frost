@@ -45,12 +45,6 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
      */
 
     private String currentStatus;
-    private final boolean isVerifyable;
-
-    public boolean isVerifyable()
-    {
-        return isVerifyable;
-    }
 
     public VerifyableMessageObject copy() throws CloneNotSupportedException
     {
@@ -72,12 +66,6 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         return currentStatus;
     }
 
-    /** is the message verified?*/
-    public boolean isVerified()
-    {
-        return(currentStatus.compareTo(VERIFIED) == 0);
-    }
-
     /** set the status */
     public void setStatus(String newStatus)
     {
@@ -89,7 +77,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     public VerifyableMessageObject(File file) throws Exception
     {
         super(file); // throws exception if loading failed
-        isVerifyable = true;
+        //isVerifyable = true;
         
 
         /*if( metadata == null)
