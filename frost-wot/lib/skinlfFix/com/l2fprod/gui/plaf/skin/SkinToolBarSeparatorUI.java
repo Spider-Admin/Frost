@@ -13,6 +13,12 @@ import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicToolBarSeparatorUI;
 
 
+/**
+ * @author Administrator
+ *
+ * This class was added so Toolbar separators don't lose their size 
+ * when going back to the Swing L&F
+ */
 public class SkinToolBarSeparatorUI extends BasicToolBarSeparatorUI {
 
 	/* (non-Javadoc)
@@ -45,6 +51,9 @@ public class SkinToolBarSeparatorUI extends BasicToolBarSeparatorUI {
 		return size;
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.plaf.ComponentUI#createUI(javax.swing.JComponent)
+	 */
 	public static ComponentUI createUI(JComponent c) {
 		return new SkinToolBarSeparatorUI();
 	}
