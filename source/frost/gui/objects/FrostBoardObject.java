@@ -211,4 +211,24 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         }
     }
 
+    /**
+     * Returns the String that is shown in tree.
+     * Appends new message count in brackets behind board name.
+     */
+    public String getVisibleText()
+    {
+        if( getNewMessageCount() == 0 )
+        {
+            return toString();
+        }
+
+        StringBuffer sb = new StringBuffer();
+        sb.append( toString() )
+          .append( " (")
+          .append( getNewMessageCount() )
+          .append(")");
+
+        return sb.toString();
+    }
+
 }

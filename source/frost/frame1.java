@@ -2995,7 +2995,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             int allMessages = model.getRowCount();
             allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
 
-            int newMessages=board.getNewMessageCount();
+            int newMessages = board.getNewMessageCount();
             newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
         }
     }
