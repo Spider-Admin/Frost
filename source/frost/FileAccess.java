@@ -431,7 +431,7 @@ public class FileAccess
             Document d= null;
             try{
             d = XMLTools.parseXmlFile(source.getPath(), false);
-            }catch (Throwable t){
+            }catch (IllegalArgumentException t){
             	t.printStackTrace(Core.getOut());
             	File badfile = new File("badfile.xml");
             	source.renameTo(badfile);
