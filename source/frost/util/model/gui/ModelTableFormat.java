@@ -50,4 +50,12 @@ public interface ModelTableFormat {
 	 * 		   the information of the given model field
 	 */
 	public int[] getColumnNumbers(int fieldID);
+
+	/**
+	 * This method adds a new table to the list of tables affected
+	 * by this format (so that it can notify them when, for instance, 
+	 * the language of the application changes).
+	 * @param table a new table affected by this format
+	 */
+	public void addTable(JTable table);
 }
