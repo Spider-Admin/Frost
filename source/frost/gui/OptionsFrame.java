@@ -59,14 +59,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
-				if (e.getSource() == blockCheckBox) {
+				if (e.getSource() == blockSubjectCheckBox) {
 					blockSubjectPressed();
 				}
 				if (e.getSource() == blockBodyCheckBox) {
 					blockBodyPressed();
 				}
+				if (e.getSource() == blockBoardCheckBox) {
+					blockBoardPressed();
+				}
 				if (e.getSource() == doBoardBackoffCheckBox) {
-					doSpamDetectionPressed();
+					refreshSpamDetectionState();
 				}
 			}
 		}
@@ -78,16 +81,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		
 		private JTextField sampleIntervalTextField = new JTextField(8);
 		private JTextField spamTresholdTextField = new JTextField(8);
-		private JTextField blockMessageBodyTextField = new JTextField();
-		private JTextField blockMessageTextField = new JTextField();
+		private JTextField blockBodyTextField = new JTextField();
+		private JTextField blockSubjectTextField = new JTextField();
+		private JTextField blockBoardTextField = new JTextField();
 		
 		private JCheckBox signedOnlyCheckBox = new JCheckBox();
 		private JCheckBox doBoardBackoffCheckBox = new JCheckBox();
 		private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
 		private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
 		private JCheckBox hideNAMessagesCheckBox = new JCheckBox();
-		private JCheckBox blockCheckBox = new JCheckBox();
+		private JCheckBox blockSubjectCheckBox = new JCheckBox();
 		private JCheckBox blockBodyCheckBox = new JCheckBox();
+		private JCheckBox blockBoardCheckBox = new JCheckBox();
 
 		/**
 		 * 
@@ -117,42 +122,50 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 			constraints.gridx = 0;
 			constraints.gridy = 0;
-			add(blockCheckBox, constraints);
+			add(blockSubjectCheckBox, constraints);
 			constraints.insets = insets5_30_5_5;
 			constraints.gridy = 1;
-			add(blockMessageTextField, constraints);
+			add(blockSubjectTextField, constraints);
 			
 			constraints.insets = insets5555;
 			constraints.gridy = 2;
 			add(blockBodyCheckBox, constraints);
 			constraints.insets = insets5_30_5_5;
 			constraints.gridy = 3;
-			add(blockMessageBodyTextField, constraints);
+			add(blockBodyTextField, constraints);
+			
+			constraints.insets = insets5555;
+			constraints.gridy = 4;
+			add(blockBoardCheckBox, constraints);
+			constraints.insets = insets5_30_5_5;
+			constraints.gridy = 5;
+			add(blockBoardTextField, constraints);
 						
 			constraints.insets = insets5555;
 			constraints.gridwidth = 1;
 			constraints.gridx = 0;
-			constraints.gridy = 4;
+			constraints.gridy = 6;
 			add(signedOnlyCheckBox, constraints);
 			constraints.gridx = 1;
 			add(hideBadMessagesCheckBox, constraints);
 			constraints.gridx = 0;
-			constraints.gridy = 5;
+			constraints.gridy = 7;
 			add(hideCheckMessagesCheckBox, constraints);
 			constraints.gridx = 1;
 			add(hideNAMessagesCheckBox, constraints);
 						
 			constraints.gridwidth = 2;
 			constraints.gridx = 0;
-			constraints.gridy = 6;
+			constraints.gridy = 8;
 			add(doBoardBackoffCheckBox, constraints);
-			constraints.gridy = 7;
+			constraints.gridy = 9;
 			constraints.weighty = 0;
 			add(getSpamPanel(), constraints);
 						
 			// Add listeners
-			blockCheckBox.addActionListener(listener);
+			blockSubjectCheckBox.addActionListener(listener);
 			blockBodyCheckBox.addActionListener(listener);
+			blockBoardCheckBox.addActionListener(listener);
 			doBoardBackoffCheckBox.addActionListener(listener);						
 		}
 		
@@ -208,13 +221,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				languageResource.getString("Hide messages flagged CHECK") + " (" + off + ")");
 			hideNAMessagesCheckBox.setText(
 				languageResource.getString("Hide messages flagged N/A") + " (" + off + ")");
-			blockCheckBox.setText(
+			blockSubjectCheckBox.setText(
 				languageResource.getString(
 					"Block messages with subject containing (separate by ';' )")
 					+ ": ");
 			blockBodyCheckBox.setText(
 				languageResource.getString(
 					"Block messages with body containing (separate by ';' )")
+					+ ": ");
+			blockBoardCheckBox.setText(
+				languageResource.getString(
+					"Block messages with these attached boards (separate by ';' )")
 					+ ": ");
 			doBoardBackoffCheckBox.setText(languageResource.getString("Do spam detection"));
 		}
@@ -225,23 +242,24 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 */
 		public void loadSettings(SettingsClass news2Settings) {
 			signedOnlyCheckBox.setSelected(news2Settings.getBoolValue("signedOnly"));
-			doBoardBackoffCheckBox.setSelected(news2Settings.getBoolValue("doBoardBackoff"));
-			intervalLabel.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
-			tresholdLabel.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
-			sampleIntervalTextField.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
-			spamTresholdTextField.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
-			sampleIntervalTextField.setText(news2Settings.getValue("sampleInterval"));
-			spamTresholdTextField.setText(news2Settings.getValue("spamTreshold"));
 			hideBadMessagesCheckBox.setSelected(news2Settings.getBoolValue("hideBadMessages"));
 			hideCheckMessagesCheckBox.setSelected(news2Settings.getBoolValue("hideCheckMessages"));
 			hideNAMessagesCheckBox.setSelected(news2Settings.getBoolValue("hideNAMessages"));
-			blockCheckBox.setSelected(news2Settings.getBoolValue("blockMessageChecked"));
+			
+			blockSubjectCheckBox.setSelected(news2Settings.getBoolValue("blockMessageChecked"));
+			blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());
+			blockSubjectTextField.setText(news2Settings.getValue("blockMessage"));
 			blockBodyCheckBox.setSelected(news2Settings.getBoolValue("blockMessageBodyChecked"));
-			blockMessageTextField.setText(news2Settings.getValue("blockMessage"));
-			blockMessageTextField.setEnabled(news2Settings.getBoolValue("blockMessageChecked"));
-			blockMessageBodyTextField.setText(news2Settings.getValue("blockMessageBody"));
-			blockMessageBodyTextField.setEnabled(
-				news2Settings.getBoolValue("blockMessageBodyChecked"));
+			blockBodyTextField.setEnabled(blockBodyCheckBox.isSelected());
+			blockBodyTextField.setText(news2Settings.getValue("blockMessageBody"));
+			blockBoardCheckBox.setSelected(news2Settings.getBoolValue("blockMessageBoardChecked"));
+			blockBoardTextField.setEnabled(blockBoardCheckBox.isSelected());
+			blockBoardTextField.setText(news2Settings.getValue("blockMessageBoard"));
+			
+			doBoardBackoffCheckBox.setSelected(news2Settings.getBoolValue("doBoardBackoff"));
+			sampleIntervalTextField.setText(news2Settings.getValue("sampleInterval"));
+			spamTresholdTextField.setText(news2Settings.getValue("spamTreshold"));
+			refreshSpamDetectionState();
 		}
 		
 		/**
@@ -250,12 +268,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private void saveSettings(SettingsClass news2Settings) {
 			news2Settings.setValue(
 				"blockMessage",
-				((blockMessageTextField.getText()).trim()).toLowerCase());
-			news2Settings.setValue("blockMessageChecked", blockCheckBox.isSelected());
+				((blockSubjectTextField.getText()).trim()).toLowerCase());
+			news2Settings.setValue("blockMessageChecked", blockSubjectCheckBox.isSelected());
 			news2Settings.setValue(
 				"blockMessageBody",
-				((blockMessageBodyTextField.getText()).trim()).toLowerCase());
+				((blockBodyTextField.getText()).trim()).toLowerCase());
 			news2Settings.setValue("blockMessageBodyChecked", blockBodyCheckBox.isSelected());
+			news2Settings.setValue(
+				"blockMessageBoard",
+				((blockBoardTextField.getText()).trim()).toLowerCase());
+			news2Settings.setValue("blockMessageBoardChecked", blockBoardCheckBox.isSelected());
 			news2Settings.setValue("doBoardBackoff", doBoardBackoffCheckBox.isSelected());
 			news2Settings.setValue("spamTreshold", spamTresholdTextField.getText());
 			news2Settings.setValue("sampleInterval", sampleIntervalTextField.getText());
@@ -263,6 +285,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			news2Settings.setValue("hideBadMessages", hideBadMessagesCheckBox.isSelected());
 			news2Settings.setValue("hideCheckMessages", hideCheckMessagesCheckBox.isSelected());
 			news2Settings.setValue("hideNAMessages", hideNAMessagesCheckBox.isSelected());
+		}
+		
+		/**
+		 * 
+		 */
+		private void refreshSpamDetectionState() {
+			boolean enableSpamDetection = doBoardBackoffCheckBox.isSelected();
+			sampleIntervalTextField.setEnabled(enableSpamDetection);
+			spamTresholdTextField.setEnabled(enableSpamDetection);
+			tresholdLabel.setEnabled(enableSpamDetection);
+			intervalLabel.setEnabled(enableSpamDetection);
 		}
 		
 		public void ok() {
@@ -273,25 +306,22 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		/**
 		 * 
 		 */
-		private void doSpamDetectionPressed() {
-			sampleIntervalTextField.setEnabled(doBoardBackoffCheckBox.isSelected());
-			spamTresholdTextField.setEnabled(doBoardBackoffCheckBox.isSelected());
-			tresholdLabel.setEnabled(doBoardBackoffCheckBox.isSelected());
-			intervalLabel.setEnabled(doBoardBackoffCheckBox.isSelected());		
+		private void blockBodyPressed() {
+			blockBodyTextField.setEnabled(blockBodyCheckBox.isSelected());				
 		}
-
+		
 		/**
 		 * 
 		 */
-		private void blockBodyPressed() {
-			blockMessageBodyTextField.setEnabled(blockBodyCheckBox.isSelected());				
+		private void blockBoardPressed() {
+			blockBoardTextField.setEnabled(blockBoardCheckBox.isSelected());				
 		}
 
 		/**
 		 * 
 		 */
 		private void blockSubjectPressed() {
-			blockMessageTextField.setEnabled(blockCheckBox.isSelected());	
+			blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());	
 		}		
 	}
 	
