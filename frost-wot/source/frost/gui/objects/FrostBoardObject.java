@@ -29,7 +29,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 
 	private boolean autoUpdateEnabled = true; // must apply, no default
 	private String b64FileName = null;
-	private String boardDescription;
+	private String boardDescription = null;
 	private String boardFileName = null;
 	private String boardName = null;
 	private Boolean hideBad = null;
@@ -76,6 +76,10 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	}
 	/**
 	 * Constructs a new FrostBoardObject wich is a Board.
+	 * @param name
+	 * @param pubKey
+	 * @param privKey
+	 * @param description the description of the board, or null if none.
 	 */
 	public FrostBoardObject(String name, String pubKey, String privKey, String description) {
 		this(name);
@@ -165,6 +169,14 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	 */
 	public String getBoardName() {
 		return boardName;
+	}
+	
+
+	/**
+	 * @return
+	 */
+	public String getDescription() {
+		return boardDescription;
 	}
 
 	/**
