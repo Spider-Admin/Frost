@@ -392,9 +392,9 @@ public class Core {
 			setFreenetIsOnline(false);
 		}
 
-		if (isFreenetTransient()) {
-			//FIXME; this probably shouldn't be displayed if the user has more than one nodes
-			// even if both are transient
+        // show a warning if freenet=transient AND only 1 node is used
+		if( isFreenetTransient() && nodes.size() == 1 ) 
+        {
 			JOptionPane.showMessageDialog(
 				frame1.getInstance(),
 				"      You are running a TRANSIENT node.  "
