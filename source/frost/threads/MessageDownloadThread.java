@@ -221,7 +221,10 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                                                 .append(".txt").toString();
                 }
 
-                try { FcpRequest.getFile(downKey, null, testMe, downloadHtl, false); }
+                try { 
+                    FcpRequest.getFile(downKey, null, testMe, downloadHtl, false);
+                    mixed.wait(333); // wait some time to not to hurt the node 
+                }
                 catch(Throwable t)
                 {
                     System.out.println(Thread.currentThread().getName()+" :TOFDN - Error in run()/FcpRequest.getFile:");
