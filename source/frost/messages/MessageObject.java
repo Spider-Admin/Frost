@@ -142,7 +142,7 @@ public class MessageObject implements XMLizable
             {
                 Vector rows = new Vector();
                 rows.add(sfo.getFilename());
-                rows.add(sfo.getKey());
+                rows.add(sfo.getSize());  //don't really need key
                 table.add(rows);
             } 
         }
@@ -162,13 +162,18 @@ public class MessageObject implements XMLizable
         {
             BoardAttachment ba = (BoardAttachment)i.next();
             FrostBoardObject aBoard = ba.getBoardObj();
-            String pubkey = (aBoard.getPublicKey()==null)?"N/A":aBoard.getPublicKey();
-            String privkey = (aBoard.getPrivateKey()==null)?"N/A":aBoard.getPrivateKey();
+            
             
             Vector rows = new Vector();
             rows.add(aBoard.getBoardName());
-            rows.add(pubkey);
-            rows.add(privkey);
+            if (aBoard.getPublicKey() ==null &&
+            	aBoard.getPrivateKey()==null)
+            	rows.add("public");
+            else if (aBoard.getPublicKey() != null)
+            	rows.add("read-only");
+            else
+            	rows.add("write access");
+            
             table.add(rows);
         }
         return table;
