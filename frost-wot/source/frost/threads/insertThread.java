@@ -51,7 +51,9 @@ public class insertThread extends Thread
                 frame1.activeUploadThreads++;
             }
         else
-            frame1.generateCHK = true;
+        {
+            frame1.setGeneratingCHK( true );
+        }
 
         try {
 
@@ -130,7 +132,7 @@ public class insertThread extends Thread
         }
         else
         {
-            frame1.generateCHK = false;
+            frame1.setGeneratingCHK( false );
         }
     }
 
