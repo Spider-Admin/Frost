@@ -344,13 +344,18 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			core.init();
 			runningBoardUpdateThreads = new RunningBoardUpdateThreads();
 			this.guiUpdateTimer = new java.util.Timer();
-			this.guiUpdateTimer.schedule(new TimerTask() {
-				public void run() {
-					//TODO: refactor this method in Core. lots of work :)
-					timer_actionPerformed();
-				}
-			}, 1000, 1000);
-
+			//note: changed this from timertask so that I can give it a name --zab
+			Thread tickerThread = new Thread("tick tack"){
+						public void run() {
+							while(true) {
+								mixed.wait(1000);
+								//TODO: refactor this method in Core. lots of work :)
+								timer_actionPerformed();
+							}
+							
+						}
+				};
+		    tickerThread.start();
 		} catch (Throwable t) {
 			t.printStackTrace(Core.getOut());
 		}
@@ -2532,6 +2537,30 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 	}
 
+	
+	public void prepareUploadHashes() {
+		UploadTableModel ulModel =
+						(UploadTableModel) getUploadTable().getModel();
+		if (ulModel.getRowCount() > 0) 
+			for (int i = 0; i < ulModel.getRowCount(); i++) {
+				FrostUploadItemObject ulItem =
+					(FrostUploadItemObject) ulModel.getRow(i);
+				if (ulItem.getSHA1() == null) {
+					setGeneratingCHK(true);
+					ulItem.setKey("Working...");
+					ulModel.updateRow(ulItem);
+					insertThread newInsert =
+						new insertThread(
+							ulItem,
+							frostSettings,
+							insertThread.MODE_GENERATE_SHA1);
+					newInsert.start();
+					break; //start only one thread/second
+				}
+			}
+					
+	}
+	
 	/**timer Action Listener (automatic download)*/
 	public void timer_actionPerformed() {
 		// this method is called by a timer each second, so this counter counts seconds
@@ -2563,7 +2592,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		//////////////////////////////////////////////////
 		//   Automatic TOF update
 		//////////////////////////////////////////////////
-		if (counter % 5 == 0
+		if (counter % 15 == 0
 			&& // check all 5 seconds if a board update could be started
 		tofAutomaticUpdateMenuItem
 				.isSelected()
@@ -2622,28 +2651,21 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// Generate CHK's for upload table entries
 		//////////////////////////////////////////////////
 		/**  Do not generate CHKs, get SHA1 only! */
+		//do this only if the automatic index handling is set
 		/**  and generate CHK if requested ... */
+		boolean automaticIndexing = true;
 		if (isGeneratingCHK() == false)
 			// do not start another generate if there is already 1 running
 			{
+			if (automaticIndexing)
+				prepareUploadHashes();
 			UploadTableModel ulModel =
 				(UploadTableModel) getUploadTable().getModel();
 			if (ulModel.getRowCount() > 0) {
 				for (int i = 0; i < ulModel.getRowCount(); i++) {
 					FrostUploadItemObject ulItem =
 						(FrostUploadItemObject) ulModel.getRow(i);
-					if (ulItem.getSHA1() == null) {
-						setGeneratingCHK(true);
-						ulItem.setKey("Working...");
-						ulModel.updateRow(ulItem);
-						insertThread newInsert =
-							new insertThread(
-								ulItem,
-								frostSettings,
-								insertThread.MODE_GENERATE_SHA1);
-						newInsert.start();
-						break; // start only 1 thread per loop (=second)
-					} else if (
+					 if (
 						ulItem.getState()
 							== FrostUploadItemObject.STATE_ENCODING_REQUESTED
 							|| (ulItem.getKey() == null
