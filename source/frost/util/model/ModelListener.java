@@ -40,8 +40,8 @@ public interface ModelListener extends EventListener {
 	void modelCleared();
 
 	/**
-	 * @param item
+	 * @param items
 	 */
-	void itemRemoved(ModelItem item);
+	void itemsRemoved(ModelItem[] items);
 
 }

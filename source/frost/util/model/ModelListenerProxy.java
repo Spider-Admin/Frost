@@ -13,7 +13,7 @@
  */
 package frost.util.model;
 
-import java.util.*;
+import java.util.EventListenerProxy;
 
 /**
  * This class forwards model change events a listener delegate. Its purpose
@@ -73,12 +73,12 @@ class ModelListenerProxy extends EventListenerProxy implements ModelListener {
 	}
 	
 	/**
-	 * Forwards the item removed event to the listener delegate.
+	 * Forwards the items removed event to the listener delegate.
 	 *
-	 * @param evt the model item that has been removed
+	 * @param items the model items that have been removed
 	 */
-	public void itemRemoved(ModelItem item) {
-		((ModelListener)getListener()).itemRemoved(item);		
+	public void itemsRemoved(ModelItem[] items) {
+		((ModelListener)getListener()).itemsRemoved(items);		
 	}
 
 	/* (non-Javadoc)
