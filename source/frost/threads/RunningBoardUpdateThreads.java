@@ -242,16 +242,16 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param key
      * @return
      */
-    protected Vector getVectorFromHashtable(Hashtable t, Object key)
+    private Vector getVectorFromHashtable(Hashtable t, Board key)
     {
         Vector retval = null;
         synchronized( t )
         {
-            retval = (Vector)t.get(key.toString());
+            retval = (Vector)t.get(key.getName());
             if( retval == null )
             {
                 retval = new Vector();
-                t.put(key.toString(), retval);
+                t.put(key.getName(), retval);
             }
         }
         return retval;
