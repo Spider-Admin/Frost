@@ -2399,26 +2399,29 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
             if( waitingItems.size() > 0 )
             {
-                // sort waiting items by htl or lastDownloadStartTimeMillis, ascending
-                if( frostSettings.getBoolValue( "downloadMethodLeastHtl" ) )
+                if( waitingItems.size() > 1 ) // performance issues
                 {
-                    Collections.sort( waitingItems, downloadHtlCmp );
-                    int minHtl = ((FrostDownloadItemObject)waitingItems.get(0)).getHtl().intValue();
-                    int x = 0;
-                    ArrayList minHtlItems = new ArrayList();
-                    while( ((FrostDownloadItemObject)waitingItems.get(x)).getHtl().intValue() == minHtl)
+                    // sort waiting items by htl or lastDownloadStartTimeMillis, ascending
+                    if( frostSettings.getBoolValue( "downloadMethodLeastHtl" ) )
                     {
-                        minHtlItems.add( waitingItems.get(x) );
-                        x++;
+                        Collections.sort( waitingItems, downloadHtlCmp );
+                        int minHtl = ((FrostDownloadItemObject)waitingItems.get(0)).getHtl().intValue();
+                        int x = 0;
+                        ArrayList minHtlItems = new ArrayList();
+                        while( ((FrostDownloadItemObject)waitingItems.get(x)).getHtl().intValue() == minHtl)
+                        {
+                            minHtlItems.add( waitingItems.get(x) );
+                            x++;
+                        }
+                        // sort minHtl items by lastDownloadSTartedMillis
+                        Collections.sort( minHtlItems, downloadDlStartMillisCmp );
+                        waitingItems = minHtlItems;
                     }
-                    // sort minHtl items by lastDownloadSTartedMillis
-                    Collections.sort( minHtlItems, downloadDlStartMillisCmp );
-                    waitingItems = minHtlItems;
-                }
-                else
-                {
-                    // one by one
-                    Collections.sort( waitingItems, downloadDlStartMillisCmp );
+                    else
+                    {
+                        // one by one
+                        Collections.sort( waitingItems, downloadDlStartMillisCmp );
+                    }
                 }
                 // choose first item
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)waitingItems.get(0);
