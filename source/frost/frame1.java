@@ -1727,12 +1727,19 @@ public class frame1 extends JFrame implements ClipboardOwner
             if( trust == null )
             {
                 // set enemy/friend to CHECK
-                newIdentity=friends.Get(from);
+                newIdentity = friends.Get(from);
                 if( newIdentity==null )
                     newIdentity=enemies.Get(from);
 
-                friends.remove( from );
-                enemies.remove( from );
+                if( newIdentity == null ) // not found -> paranoia
+                {
+                    newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
+                }
+                else
+                {
+                    friends.remove( from );
+                    enemies.remove( from );
+                }
             }
             else if( friends.containsKey(from) && trust.booleanValue() == false )
             {

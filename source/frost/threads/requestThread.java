@@ -204,8 +204,14 @@ public class requestThread extends Thread
             String time = DateFun.getFullExtendedTime() + "GMT";
 
             // Generate file to upload
-            String uploadMe = String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
-            File requestFile = new File(destination + uploadMe);
+            File requestFile = null;
+            try {
+                requestFile = File.createTempFile("reqUpload_", null, new File( frame1.frostSettings.getValue("temp.dir") ) );
+            }
+            catch(Exception ex)
+            {
+                requestFile = new File( frame1.frostSettings.getValue("temp.dir") + System.currentTimeMillis()+".tmp" );
+            }
             FileAccess.writeFile(key, requestFile); // Write requested key to disk
 
             // Search empty slot

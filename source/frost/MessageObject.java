@@ -205,56 +205,57 @@ public class MessageObject {
     }
 
     /**Set all values*/
-    public void analyzeFile() {
-    String message= new String(FileAccess.readByteArray(file));
-    if (!message.startsWith("Empty")) {
-        Vector lines = FileAccess.readLines(file);
-        this.board = SettingsFun.getValue(lines, "board");
-        this.from = SettingsFun.getValue(lines, "from");
-        this.subject = SettingsFun.getValue(lines, "subject");
-        this.board = SettingsFun.getValue(lines, "board");
-        this.date = SettingsFun.getValue(lines, "date");
-        this.time = SettingsFun.getValue(lines, "time");
-        this.publicKey = SettingsFun.getValue(lines, "publicKey");
+    public void analyzeFile()
+    {
+        try {
+            String message = new String(FileAccess.readByteArray(file));
+            if( !message.startsWith("Empty") )
+            {
+                Vector lines = FileAccess.readLines(file);
+                this.board = SettingsFun.getValue(lines, "board");
+                this.from = SettingsFun.getValue(lines, "from");
+                this.subject = SettingsFun.getValue(lines, "subject");
+                this.board = SettingsFun.getValue(lines, "board");
+                this.date = SettingsFun.getValue(lines, "date");
+                this.time = SettingsFun.getValue(lines, "time");
+                this.publicKey = SettingsFun.getValue(lines, "publicKey");
 
-        int offset = 17;
-        int contentStart = message.indexOf("--- message ---\r\n");
-        if (contentStart == -1) {
-        contentStart = message.indexOf("--- message ---");
-        offset = 15;
+                int offset = 17;
+                int contentStart = message.indexOf("--- message ---\r\n");
+                if( contentStart == -1 )
+                {
+                    contentStart = message.indexOf("--- message ---");
+                    offset = 15;
+                }
+
+                if( contentStart != -1 )
+                    this.content = message.substring(contentStart + offset, message.length());
+                else
+                    this.content = "";
+
+                String filename = file.getName();
+                this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".txt"))).trim();
+
+                for( int i = 0; i < evilChars.length; i++ )
+                {
+                    this.from = this.from.replace(evilChars[i], '_');
+                    this.subject = this.subject.replace(evilChars[i], '_');
+                    this.date = this.date.replace(evilChars[i], '_');
+                    this.time = this.time.replace(evilChars[i], '_');
+                }
+            }
+        } catch(Exception ex) {
+            System.out.println("ERROR in MessageObject: could not read file '"+file.getPath()+"'");
+            ex.printStackTrace();
         }
-
-        if (contentStart != -1)
-        this.content = message.substring(contentStart + offset, message.length());
-        else
-        this.content = "";
-
-        String filename = file.getName();
-        this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".txt"))).trim();
-
-        for (int i = 0; i < evilChars.length; i++) {
-        this.from = this.from.replace(evilChars[i], '_');
-        this.subject = this.subject.replace(evilChars[i], '_');
-        this.date = this.date.replace(evilChars[i], '_');
-        this.time = this.time.replace(evilChars[i], '_');
-        }
-    }
-    else {
-        this.board = "";
-        this.from = "";
-        this.subject = "";
-        this.board = "";
-        this.date = "";
-        this.time = "";
-        this.content = "";
-        this.publicKey = "";
-    }
     }
 
     /**Constructor*/
-    public MessageObject(File file) {
-    this.file = file;
-    analyzeFile();
+    public MessageObject(File file)
+    {
+        this();
+        this.file = file;
+        analyzeFile();
     }
 
     /**Constructor*/
