@@ -178,25 +178,39 @@ public class insertThread extends Thread
             {
                 frame1.setGeneratingCHK(true);
                 Core.getOut().println("CHK generation started for file: " + file);
-
-                FecSplitfile splitfile = new FecSplitfile( file );
-                boolean alreadyEncoded = splitfile.uploadInit();
-                if( !alreadyEncoded )
+                String chkkey = null;
+                
+                if( file.length() <= FcpInsert.smallestChunk )
                 {
-                    try {
-                        splitfile.encode();
-                    }
-                    catch(Throwable t)
-                    {
-                        Core.getOut().println("Encoding failed:");
-                        t.printStackTrace();
-                        return;
-                    }
+                    System.out.println("File too short, does'nt need encoding.");
+                    // generate only CHK
+                    chkkey = FecTools.generateCHK(file);
                 }
-                // yes, this destroys any upload progress, but we come only here if 
-                // chkKey == null, so the file should'nt be uploaded until now 
-                splitfile.createRedirectFile(false); // gen normal redirect file for CHK generation
-                String chkkey = FecTools.generateCHK(splitfile.getRedirectFile(), splitfile.getRedirectFile().length());
+                else
+                {
+                    FecSplitfile splitfile = new FecSplitfile( file );
+                    boolean alreadyEncoded = splitfile.uploadInit();
+                    if( !alreadyEncoded )
+                    {
+                        try {
+                            splitfile.encode();
+                        }
+                        catch(Throwable t)
+                        {
+                            Core.getOut().println("Encoding failed:");
+                            t.printStackTrace();
+                            uploadItem.setState(FrostUploadItemObject.STATE_IDLE);
+                            ((UploadTableModel)frame1.getInstance().getUploadTable().getModel()).updateRow(uploadItem);
+                            return;
+                        }
+                    }
+                    // yes, this destroys any upload progress, but we come only here if 
+                    // chkKey == null, so the file should'nt be uploaded until now 
+                    splitfile.createRedirectFile(false); // gen normal redirect file for CHK generation
+                    
+                    chkkey = FecTools.generateCHK(splitfile.getRedirectFile(), splitfile.getRedirectFile().length());
+                }
+                
                 if( chkkey != null )
                 {
                     String prefix = new String("freenet:");
@@ -211,13 +225,13 @@ public class insertThread extends Thread
                 uploadItem.setState(this.nextState);
                 frame1.setGeneratingCHK(false);
             }
-
             ((UploadTableModel)frame1.getInstance().getUploadTable().getModel()).updateRow(uploadItem);
         }
         catch (Throwable t)
         {
             t.printStackTrace(Core.getOut());
         }
+        frame1.setGeneratingCHK(false);
     }
 
     /**Constructor*/
