@@ -315,12 +315,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
         saver = new Thread() {
         public void run() {
             System.out.println("saving identities");
-            File identities = new File("identities");
+            File identities = new File("contacts");
 
-            try{
+            try{ //TODO: complete this
                 id_writer = new ObjectOutputStream(new FileOutputStream(identities));
-            System.out.println("myself: " + frame1.getMyId().toString());
-            id_writer.writeObject(frame1.getMyId());
+            //System.out.println("myself: " + frame1.getMyId().toString());
+            //id_writer.writeObject(frame1.getMyId());
             System.out.println("friends: " + frame1.getFriends().toString());
             id_writer.writeObject(frame1.getFriends());
             System.out.println("enemies: " + frame1.getEnemies().toString());
@@ -1360,6 +1360,7 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     //load the identities
 
     File identities = new File("identities");
+    File contacts = new File("contacts");
     System.out.println("trying to create/load ids");
     try {
         if (identities.createNewFile()) {//create new identities
@@ -1379,15 +1380,31 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
             if (friends.Add(frame1.getMyId())) System.out.println("added myself to list");
             enemies = new BuddyList();
         } else try {
-            id_reader = new ObjectInputStream(new FileInputStream(identities));
-            mySelf = (LocalIdentity)id_reader.readObject();
+		BufferedReader fin = new BufferedReader(new FileReader(identities));
+		String name = fin.readLine();
+		String address = fin.readLine();
+		String keys[] = new String[2];
+		keys[1] = fin.readLine();
+		keys[0] = fin.readLine();
+		mySelf = new LocalIdentity(name, keys, address);
+		
+            id_reader = new ObjectInputStream(new FileInputStream(contacts));
+	    
+	    
+            //mySelf = (LocalIdentity)id_reader.readObject();
             System.out.println("loaded myself with name " + mySelf.getName());
             System.out.println("and public key" + mySelf.getKey());
             friends = (BuddyList)id_reader.readObject();
             enemies = (BuddyList)id_reader.readObject();
             id_reader.close();
-        }catch(ClassNotFoundException e) {System.out.println("failed opening identities");}
-        catch(IOException e) {System.out.println("IOException :" + e.toString());}
+	    
+        }
+        catch(IOException e) {
+		System.out.println("IOException :" + e.toString());
+		friends = new BuddyList();
+		enemies = new BuddyList();
+		friends.Add(mySelf);
+	}
         catch(Exception e) {System.out.println(e.toString());}
 
 
