@@ -6,11 +6,11 @@
  */
 package frost.util.gui;
 
-import java.awt.*;
-import java.awt.Graphics;
+import swingwt.awt.*;
+import swingwt.awt.Graphics;
 
-import javax.swing.JTextArea;
-import javax.swing.text.Document;
+import swingwtx.swing.JTextArea;
+import swingwtx.swing.text.Document;
 
 /**
  * @author Administrator
@@ -89,7 +89,7 @@ public class AntialiasedTextArea extends JTextArea {
 	}
 
 	/* (non-Javadoc)
-	 * @see java.awt.Component#paint(java.awt.Graphics)
+	 * @see swingwt.awt.Component#paint(java.awt.Graphics)
 	 */
 	public void paint(Graphics g) {
 		if (antiAliasEnabled) {

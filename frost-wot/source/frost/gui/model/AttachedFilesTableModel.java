@@ -19,7 +19,7 @@
 
 package frost.gui.model;
 
-import javax.swing.table.DefaultTableModel;
+import swingwtx.swing.table.DefaultTableModel;
 
 
 public class AttachedFilesTableModel extends DefaultTableModel

@@ -18,16 +18,16 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.io.File;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.text.BadLocationException;
+import swingwtx.swing.*;
+import swingwtx.swing.border.*;
+import swingwtx.swing.event.*;
+import swingwtx.swing.text.BadLocationException;
 
 import frost.*;
 import frost.fcp.FcpInsert;
@@ -139,27 +139,27 @@ public class MessageFrame extends JFrame
 			//------------------------------------------------------------------------
 			// Actionlistener
 			//------------------------------------------------------------------------
-			Bsend.addActionListener(new java.awt.event.ActionListener() {
+			Bsend.addActionListener(new swingwt.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					send_actionPerformed(e);
 				}
 			});
-			Bcancel.addActionListener(new java.awt.event.ActionListener() {
+			Bcancel.addActionListener(new swingwt.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					cancel_actionPerformed(e);
 				}
 			});
-			BattachFile.addActionListener(new java.awt.event.ActionListener() {
+			BattachFile.addActionListener(new swingwt.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					attachFile_actionPerformed(e);
 				}
 			});
-			BattachBoard.addActionListener(new java.awt.event.ActionListener() {
+			BattachBoard.addActionListener(new swingwt.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					attachBoards_actionPerformed(e);
 				}
 			});
-			sign.addActionListener(new java.awt.event.ActionListener() {
+			sign.addActionListener(new swingwt.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					sign_ActionPerformed(e);
 				}
@@ -244,12 +244,12 @@ public class MessageFrame extends JFrame
         JMenuItem removeFiles = new JMenuItem(LangRes.getString("Remove"));
         JMenuItem removeBoards = new JMenuItem(LangRes.getString("Remove"));
         
-        removeFiles.addActionListener(new java.awt.event.ActionListener() {
+        removeFiles.addActionListener(new swingwt.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 removeSelectedItemsFromTable(attFilesTable);
             }
         });
-        removeBoards.addActionListener(new java.awt.event.ActionListener() {
+        removeBoards.addActionListener(new swingwt.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 removeSelectedItemsFromTable(attBoardsTable);
             }
@@ -288,7 +288,7 @@ public class MessageFrame extends JFrame
             JOptionPane.showMessageDialog( this,
                                            LangRes.getString("You must enter a subject!"),
                                            LangRes.getString("No subject specified!"),
-                                           JOptionPane.ERROR);
+                                           JOptionPane.ERROR_MESSAGE);
             return;                               
         }
         if( from.length() == 0)
@@ -296,7 +296,7 @@ public class MessageFrame extends JFrame
             JOptionPane.showMessageDialog( this,
                                            LangRes.getString("You must enter a sender name!"),
                                            LangRes.getString("No 'From' specified!"),
-                                           JOptionPane.ERROR);
+                                           JOptionPane.ERROR_MESSAGE);
             return;                               
         }
 
@@ -568,7 +568,7 @@ public class MessageFrame extends JFrame
 			}
 		}
 
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		//enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		try {
 			Init();
 		} catch (Exception e) {
@@ -600,7 +600,7 @@ public class MessageFrame extends JFrame
 		.start();
 
 		// Properly positions the caret (AKA cursor)
-		messageTextArea.requestFocusInWindow();
+		messageTextArea.getPeer().forceFocus();
 		messageTextArea.getCaret().setDot(caretPos);
 		messageTextArea.getCaret().setVisible(true);
 	}
@@ -656,12 +656,12 @@ public class MessageFrame extends JFrame
 		int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
 		int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
 		Font tofFont = new Font(fontName, fontStyle, fontSize);
-		if (!tofFont.getFamily().equals(fontName)) {
+		/*if (!tofFont.getFamily().equals(fontName)) {
 			logger.severe("The selected font was not found in your system\n" + 
 						  "That selection will be changed to \"Monospaced\".");
 			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
 			tofFont = new Font("Monospaced", fontStyle, fontSize);
-		}
+		}*/
 		messageTextArea.setFont(tofFont);
 		messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
 		ImmutableAreasDocument messageDocument = new ImmutableAreasDocument();

@@ -21,7 +21,7 @@ package frost.gui.model;
 import java.util.*;
 import java.util.logging.Logger;
 
-import javax.swing.table.DefaultTableModel;
+import swingwtx.swing.table.DefaultTableModel;
 
 import frost.gui.SortedTable;
 

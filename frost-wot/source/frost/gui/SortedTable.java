@@ -18,11 +18,11 @@
 */
 package frost.gui;
 
-import java.awt.event.*;
+import swingwt.awt.event.*;
 import java.util.*;
 
-import javax.swing.JTable;
-import javax.swing.table.*;
+import swingwtx.swing.JTable;
+import swingwtx.swing.table.*;
 
 import frost.gui.model.SortedTableModel;
 
@@ -31,7 +31,7 @@ public class SortedTable extends JTable
     protected int sortedColumnIndex = 0;
     protected boolean sortedColumnAscending = true;
     
-    private SortHeaderRenderer columnHeadersRenderer = new SortHeaderRenderer();
+    //private SortHeaderRenderer columnHeadersRenderer = new SortHeaderRenderer();
 
     public SortedTable(SortedTableModel model)
     {
@@ -124,11 +124,11 @@ public class SortedTable extends JTable
 	 * one put by the skin) for it to finish the job.
 	 */
 	protected void initSortHeader() {
-		Enumeration enumeration = getColumnModel().getColumns();
+		/*Enumeration enumeration = getColumnModel().getColumns();
 		while (enumeration.hasMoreElements()) {
 			TableColumn column = (TableColumn) enumeration.nextElement();
 			column.setHeaderRenderer(columnHeadersRenderer);
-		}
+		}*/
 		getTableHeader().addMouseListener(new HeaderMouseListener());
 	}
 

@@ -22,8 +22,8 @@ import java.io.*;
 import java.util.Locale;
 import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
+import swingwtx.swing.*;
+import swingwtx.swing.UIManager.LookAndFeelInfo;
 
 import frost.util.gui.MiscToolkit;
 

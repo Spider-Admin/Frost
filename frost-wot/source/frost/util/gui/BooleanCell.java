@@ -6,10 +6,10 @@
  */
 package frost.util.gui;
 
-import java.awt.Component;
+import swingwt.awt.Component;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import swingwtx.swing.*;
+import swingwtx.swing.table.*;
 
 /**
  * @author Administrator
@@ -48,7 +48,7 @@ public class BooleanCell {
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+		 * @see swingwtx.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 		 */
 		public Component getTableCellRendererComponent(
 			JTable table,

@@ -18,11 +18,11 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.util.ResourceBundle;
 
-import javax.swing.*;
+import swingwtx.swing.*;
 
 public class AboutBox extends JDialog implements ActionListener {
 	private ResourceBundle languageResource = null;
@@ -58,7 +58,7 @@ public class AboutBox extends JDialog implements ActionListener {
 	public AboutBox(Frame parent, ResourceBundle newLanguageResource) {
 		super(parent);
 		languageResource = newLanguageResource;
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+	//	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		jbInit();
 		pack();
 		setLocationRelativeTo(parent);

@@ -18,26 +18,27 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.dnd.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.awt.image.BufferedImage;
+import swingwt.awt.*;
+import swingwt.awt.datatransfer.*;
+import swingwt.awt.dnd.*;
+import swingwt.awt.event.*;
+import swingwt.awt.geom.*;
+import swingwt.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.tree.*;
+import org.eclipse.swt.widgets.Tree;
+
+import swingwtx.swing.*;
+import swingwtx.swing.tree.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.threads.maintenance.Savable;
-import frost.util.gui.JDragTree;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
-public class TofTree extends JDragTree implements Savable {
+public class TofTree extends JTree implements Savable {
 	
 	/**
 	 * @author Administrator
@@ -68,10 +69,10 @@ public class TofTree extends JDragTree implements Savable {
 			writeAccessNewIcon = new ImageIcon(MainFrame.class.getResource("/data/waboardnew.jpg"));
 			readAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/raboard.jpg"));
 			readAccessNewIcon = new ImageIcon(MainFrame.class.getResource("/data/raboardnew.jpg"));
-			this.setLeafIcon(new ImageIcon(MainFrame.class.getResource("/data/board.gif")));
-			this.setClosedIcon(new ImageIcon(MainFrame.class.getResource("/data/closed.gif")));
-			this.setOpenIcon(new ImageIcon(MainFrame.class.getResource("/data/open.gif")));
-
+			//this.setLeafIcon(new ImageIcon(MainFrame.class.getResource("/data/board.gif")));
+			//this.setClosedIcon(new ImageIcon(MainFrame.class.getResource("/data/closed.gif")));
+			//this.setOpenIcon(new ImageIcon(MainFrame.class.getResource("/data/open.gif")));
+			
 			JTable dummyTable = new JTable();
 			normalFont = dummyTable.getFont();
 			boldFont = normalFont.deriveFont(Font.BOLD);
@@ -130,19 +131,19 @@ public class TofTree extends JDragTree implements Savable {
 				c =
 					(Color) MainFrame.frostSettings.getObjectValue(
 						"boardUpdatingNonSelectedBackgroundColor");
-				setBackgroundNonSelectionColor(c);
-
+				//setBackgroundNonSelectionColor(c);
+				
 				c =
 					(Color) MainFrame.frostSettings.getObjectValue(
 						"boardUpdatingSelectedBackgroundColor");
-				setBackgroundSelectionColor(c);
+				//setBackgroundSelectionColor(c);
 
 			} else {
 				// refresh colours from the L&F
-				setTextSelectionColor(UIManager.getColor("Tree.selectionForeground"));
-				setTextNonSelectionColor(UIManager.getColor("Tree.textForeground"));
-				setBackgroundNonSelectionColor(UIManager.getColor("Tree.textBackground"));
-				setBackgroundSelectionColor(UIManager.getColor("Tree.selectionBackground"));
+				//setTextSelectionColor(UIManager.getColor("Tree.selectionForeground"));
+				//setTextNonSelectionColor(UIManager.getColor("Tree.textForeground"));
+				//setBackgroundNonSelectionColor(UIManager.getColor("Tree.textBackground"));
+				//setBackgroundSelectionColor(UIManager.getColor("Tree.selectionBackground"));
 			}
 
 			// set the icon
@@ -250,17 +251,22 @@ public class TofTree extends JDragTree implements Savable {
     public Vector getAllBoards()
     {
         FrostBoardObject node = (FrostBoardObject)this.getModel().getRoot();
-        Vector boards = new Vector();
-        Enumeration e = node.depthFirstEnumeration();
-        while( e.hasMoreElements() )
+        return getAllBoardsRec(node);
+    }
+    
+    private Vector getAllBoardsRec(FrostBoardObject node) {
+    	Vector ret = new Vector();
+    	int children = this.getModel().getChildCount(node);
+    	for (int i =0;i<children;i++)
         {
-            FrostBoardObject child = (FrostBoardObject)e.nextElement();
-            if( child.isFolder() == false )
-            {
-                boards.add( child );
+            FrostBoardObject child = (FrostBoardObject)getModel().getChild(node,i);
+            if( child.isLeaf()){
+            	if (child.isFolder() == false )
+            		ret.add( child );
             }
+            else ret.addAll(getAllBoardsRec(child));
         }
-        return boards;
+        return ret;
     }
 
 	/**
@@ -272,7 +278,7 @@ public class TofTree extends JDragTree implements Savable {
 	public FrostBoardObject getBoardByName(String boardName) {
 		FrostBoardObject node = (FrostBoardObject) this.getModel().getRoot();
 		Vector boards = new Vector();
-		Enumeration e = node.depthFirstEnumeration();
+		Enumeration e = getAllBoardsRec(node).elements();
 		while (e.hasMoreElements()) {
 			FrostBoardObject child = (FrostBoardObject) e.nextElement();
 			if (child.toString().compareToIgnoreCase(boardName) == 0) {
@@ -369,7 +375,7 @@ public class TofTree extends JDragTree implements Savable {
 		if (getBoardByName(bname) != null) {
 			int answer =
 				JOptionPane.showConfirmDialog(
-					getTopLevelAncestor(),
+					this.getParent(),
 					languageResource.getString("You already have a board with name")
 						+ " '"
 						+ bname
@@ -473,7 +479,10 @@ public class TofTree extends JDragTree implements Savable {
 		FrostBoardObject node = (FrostBoardObject) getLastSelectedPathComponent();
 		if (node == null) {
 			// nothing selected? unbelievable ! so select the root ...
-			setSelectionRow(0);
+			
+			Tree swtTree = (Tree)getPeer();
+			swtTree.setSelection(new org.eclipse.swt.widgets.TreeItem[]
+											{swtTree.getTopItem()});
 			node = (FrostBoardObject) getModel().getRoot();
 		}
 		return node;

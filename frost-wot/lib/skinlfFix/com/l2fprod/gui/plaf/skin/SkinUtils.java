@@ -49,18 +49,18 @@ package com.l2fprod.gui.plaf.skin;
 
 import com.l2fprod.util.ImageUtils;
 
-import java.awt.Font;
-import java.awt.Image;
-import java.awt.Insets;
-import java.awt.Toolkit;
+import swingwt.awt.Font;
+import swingwt.awt.Image;
+import swingwt.awt.Insets;
+import swingwt.awt.Toolkit;
 import java.io.File;
 import java.net.URL;
 import java.util.Enumeration;
 import java.util.StringTokenizer;
 
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.plaf.FontUIResource;
+import swingwtx.swing.UIDefaults;
+import swingwtx.swing.UIManager;
+import swingwtx.swing.plaf.FontUIResource;
 
 /**
  * @author    $Author$

@@ -20,11 +20,11 @@
 
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 
-import javax.swing.*;
-import javax.swing.plaf.basic.BasicOptionPaneUI;
+import swingwtx.swing.*;
+//import swingwtx.swing.plaf.basic.BasicOptionPaneUI;
 
 public class MessageUploadFailedDialog extends JDialog
 {
@@ -83,7 +83,7 @@ public class MessageUploadFailedDialog extends JDialog
         tryOnNextStartupButton = new JButton( tryOnNextStartupText );
         tryOnNextStartupButton.addActionListener( bl );
 
-        this.getContentPane().add(new JLabel(new IconFromUI().getIcon()), constr);
+        this.getContentPane().add(new JLabel("stub for some icon"), constr);
 
         constr.anchor = GridBagConstraints.CENTER;
         constr.gridwidth = GridBagConstraints.REMAINDER;
@@ -149,7 +149,7 @@ public class MessageUploadFailedDialog extends JDialog
             hide();
         }
     }
-    class IconFromUI extends BasicOptionPaneUI
+/*    class IconFromUI extends BasicOptionPaneUI
     {
         public IconFromUI ()
         {
@@ -159,5 +159,5 @@ public class MessageUploadFailedDialog extends JDialog
         {
             return super.getIconForType(JOptionPane.WARNING_MESSAGE);
         }
-    }
+    }*/
 }

@@ -3,7 +3,7 @@
  */
 package frost.util.gui.translation;
 
-import javax.swing.JComboBox;
+import swingwtx.swing.JComboBox;
 
 /**
  * @author Administrator

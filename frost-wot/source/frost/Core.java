@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.Timer;
 import java.util.logging.*;
 
-import javax.swing.*;
+import swingwtx.swing.*;
 
 import org.w3c.dom.*;
 
@@ -526,7 +526,7 @@ public class Core implements Savable {
 
 		//Initializes the logging and skins
 		new Logging(frostSettings);
-		initializeSkins();
+		//initializeSkins();
 
 		splashscreen.setText(languageResource.getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(50);
@@ -709,7 +709,7 @@ public class Core implements Savable {
 	/**
  	 * Initializes the skins system
  	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
- 	 */
+ 	 *
 	private void initializeSkins() {
 		String skinsEnabled = frostSettings.getValue("skinsEnabled");
 		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {

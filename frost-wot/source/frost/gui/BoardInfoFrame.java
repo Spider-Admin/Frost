@@ -18,16 +18,16 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.io.File;
 import java.util.Vector;
 import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.border.*;
-import javax.swing.event.*;
-import javax.swing.table.DefaultTableCellRenderer;
+import swingwtx.swing.*;
+import swingwtx.swing.border.*;
+import swingwtx.swing.event.*;
+import swingwtx.swing.table.DefaultTableCellRenderer;
 
 import frost.*;
 import frost.gui.model.*;
@@ -51,7 +51,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
 		public void mouseClicked(MouseEvent e) {
 			if (e.getClickCount() == 2) {
@@ -60,28 +60,28 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 		 */
 		public void mouseEntered(MouseEvent e) {
 			//Nothing here			
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
 		public void mouseExited(MouseEvent e) {
 			//Nothing here
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
 		public void mousePressed(MouseEvent e) {
 			maybeShowPopup(e);			
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 		 */
 		public void mouseReleased(MouseEvent e) {
 			maybeShowPopup(e);			
@@ -153,7 +153,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 		languageResource = newLanguageResource;
 		refreshLanguage();
         parent = p;
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+    //    enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             Init();
         }
@@ -181,8 +181,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         boardTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
 
         BoardInfoTableCellRenderer cellRenderer = new BoardInfoTableCellRenderer();
-        boardTable.setDefaultRenderer( Object.class, cellRenderer );
-        boardTable.setDefaultRenderer( Number.class, cellRenderer );
+//        boardTable.setDefaultRenderer( Object.class, cellRenderer );
+  //      boardTable.setDefaultRenderer( Number.class, cellRenderer );
 
         updateSelectedBoardButton.setEnabled(false);
 
@@ -195,7 +195,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                      } });
 
         // updateButton
-        ActionListener al = new java.awt.event.ActionListener() {
+        ActionListener al = new swingwt.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         updateButton_actionPerformed(e);
                     } };
@@ -203,7 +203,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         MIupdate.addActionListener(al);
 
         // updateSelectedBoardButton
-        al = new java.awt.event.ActionListener() {
+        al = new swingwt.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 updateSelectedBoardButton_actionPerformed(e);
             } };
@@ -211,7 +211,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         MIupdateSelectedBoard.addActionListener(al);
 
         // updateAllBoardsButton
-        al = new java.awt.event.ActionListener() {
+        al = new swingwt.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 updateAllBoardsButton_actionPerformed(e);
             } };
@@ -219,7 +219,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         MIupdateAllBoards.addActionListener(al);
 
         // Bclose
-        al = new java.awt.event.ActionListener() {
+        al = new swingwt.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 closeDialog();
             } };

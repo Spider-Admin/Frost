@@ -19,14 +19,14 @@
 
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.io.IOException;
 import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.border.*;
+import swingwtx.swing.*;
+import swingwtx.swing.border.*;
 
 import frost.MainFrame;
 import frost.fcp.*;
@@ -49,7 +49,7 @@ public class BoardSettingsFrame extends JDialog {
 	private class Listener implements ActionListener {
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == publicBoardRadioButton) { // Public board radio button
@@ -141,7 +141,7 @@ public class BoardSettingsFrame extends JDialog {
 		this.board = board;
 		this.languageResource = languageResource;
 		setModal(true);
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		//enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		initialize();
 		pack();
 		setLocationRelativeTo(parent);

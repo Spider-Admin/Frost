@@ -6,11 +6,11 @@
  */
 package frost.fileTransfer.download;
 
-import java.awt.Component;
+import swingwt.awt.Component;
 import java.util.Comparator;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import swingwtx.swing.*;
+import swingwtx.swing.table.*;
 
 import frost.gui.objects.FrostBoardObject;
 import frost.util.gui.BooleanCell;
@@ -32,7 +32,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	private class SizeRenderer extends DefaultTableCellRenderer {
 
 		/* (non-Javadoc)
-		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+		 * @see swingwtx.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
 		 */
 		public Component getTableCellRendererComponent(
 			JTable table,
@@ -44,7 +44,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 			setHorizontalAlignment(SwingConstants.RIGHT);
 			// col is right aligned, give some space to next column
-			setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+			setBorder(new swingwtx.swing.border.EmptyBorder(0, 0, 0, 3));
 			return this;
 		}
 

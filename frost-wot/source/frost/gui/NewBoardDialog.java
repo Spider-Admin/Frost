@@ -6,12 +6,12 @@
  */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.*;
+import swingwtx.swing.*;
+import swingwtx.swing.border.EmptyBorder;
+import swingwtx.swing.event.*;
 
 import frost.util.gui.translation.UpdatingLanguageResource;
 
@@ -32,7 +32,7 @@ public class NewBoardDialog extends JDialog {
 	private class Listener implements DocumentListener, ActionListener {
 
 		/* (non-Javadoc)
-		 * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
+		 * @see swingwtx.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
 		 */
 		public void changedUpdate(DocumentEvent e) {
 			if (e.getDocument() == nameTextField.getDocument()) {
@@ -41,7 +41,7 @@ public class NewBoardDialog extends JDialog {
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
+		 * @see swingwtx.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
 		 */
 		public void insertUpdate(DocumentEvent e) {
 			if (e.getDocument() == nameTextField.getDocument()) {
@@ -50,7 +50,7 @@ public class NewBoardDialog extends JDialog {
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
+		 * @see swingwtx.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
 		 */
 		public void removeUpdate(DocumentEvent e) {
 			if (e.getDocument() == nameTextField.getDocument()) {
@@ -59,7 +59,7 @@ public class NewBoardDialog extends JDialog {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == addButton) {
@@ -95,7 +95,7 @@ public class NewBoardDialog extends JDialog {
 	private String boardDescription;
 
 	/**
-	 * @throws java.awt.HeadlessException
+	 * @throws swingwt.awt.HeadlessException
 	 */
 	public NewBoardDialog(Frame owner, UpdatingLanguageResource languageResource) throws HeadlessException {
 		super(owner);

@@ -21,8 +21,8 @@ package frost.gui;
 import java.util.ArrayList;
 import java.util.logging.*;
 
-import javax.swing.JTree;
-import javax.swing.tree.*;
+import swingwtx.swing.JTree;
+import swingwtx.swing.tree.*;
 
 import org.w3c.dom.*;
 
@@ -101,7 +101,7 @@ public class TofTreeXmlIO
 
         refreshModel( model, treeRootNode );
 
-        tree.updateUI();
+        tree.repaint();
 
 		logger.info("Board tree loaded successfully.");
 
@@ -479,13 +479,14 @@ public class TofTreeXmlIO
         rootBoardElement.setAttribute("isfolder", "true");
         boolean expanded;
         String expandedstr;
-        expanded = tree.isExpanded( new TreePath(model.getPathToRoot(board)) );
+        /*expanded = tree.isExpanded( new TreePath(model.getPathToRoot(board)) );
+        
         if( expanded )
             expandedstr = "true";
         else
             expandedstr = "false";
 
-        rootBoardElement.setAttribute("isexpanded", expandedstr);
+        rootBoardElement.setAttribute("isexpanded", expandedstr);*/
         // <name>
         Element element = doc.createElement("name");
         Text text = doc.createTextNode( board.toString() );

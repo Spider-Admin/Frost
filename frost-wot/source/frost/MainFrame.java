@@ -20,20 +20,20 @@
 
 package frost;
 
-import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.datatransfer.*;
+import swingwt.awt.event.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.tree.*;
+import swingwtx.swing.*;
+import swingwtx.swing.event.*;
+import swingwtx.swing.table.DefaultTableModel;
+import swingwtx.swing.tree.*;
 
-import frost.components.BrowserFrame;
+
 import frost.components.translate.TranslateFrame;
 import frost.ext.JSysTrayIcon;
 import frost.fileTransfer.download.*;
@@ -98,19 +98,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		}
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
 		public void mouseClicked(MouseEvent e) {
 			//Nothing here			
 		}
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 		 */
 		public void mouseEntered(MouseEvent e) {
 			//Nothing here				
 		}
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
 		public void mouseExited(MouseEvent e) {
 			//Nothing here				
@@ -124,7 +124,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			maybeShowPopup(e);
 		}
 		/* (non-Javadoc)
-		 * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
+		 * @see swingwt.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
 		 */
 		public void windowClosing(WindowEvent e) {
 			// save size,location and state of window
@@ -174,7 +174,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == updateButton) {
@@ -227,21 +227,21 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+			 * @see swingwt.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 			 */
 			public void mousePressed(MouseEvent e) {
 				maybeShowPopup(e);
 			}
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+			 * @see swingwt.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 			 */
 			public void mouseReleased(MouseEvent e) {
 				maybeShowPopup(e);
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+			 * @see swingwtx.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 			 */
 			public void valueChanged(ListSelectionEvent e) {
 				messageTable_itemSelected(e);
@@ -266,35 +266,35 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.TreeSelectionListener#valueChanged(javax.swing.event.TreeSelectionEvent)
+			 * @see swingwtx.swing.event.TreeSelectionListener#valueChanged(javax.swing.event.TreeSelectionEvent)
 			 */
 			public void valueChanged(TreeSelectionEvent e) {
 				boardsTree_actionPerformed(e);
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.TreeModelListener#treeNodesChanged(javax.swing.event.TreeModelEvent)
+			 * @see swingwtx.swing.event.TreeModelListener#treeNodesChanged(javax.swing.event.TreeModelEvent)
 			 */
 			public void treeNodesChanged(TreeModelEvent e) {
 				boardsTreeNode_Changed(e);
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.TreeModelListener#treeNodesInserted(javax.swing.event.TreeModelEvent)
+			 * @see swingwtx.swing.event.TreeModelListener#treeNodesInserted(javax.swing.event.TreeModelEvent)
 			 */
 			public void treeNodesInserted(TreeModelEvent e) {
 				//Nothing here				
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.TreeModelListener#treeNodesRemoved(javax.swing.event.TreeModelEvent)
+			 * @see swingwtx.swing.event.TreeModelListener#treeNodesRemoved(javax.swing.event.TreeModelEvent)
 			 */
 			public void treeNodesRemoved(TreeModelEvent e) {
 				//Nothing here					
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.TreeModelListener#treeStructureChanged(javax.swing.event.TreeModelEvent)
+			 * @see swingwtx.swing.event.TreeModelListener#treeStructureChanged(javax.swing.event.TreeModelEvent)
 			 */
 			public void treeStructureChanged(TreeModelEvent e) {
 				//Nothing here						
@@ -326,7 +326,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				initialize();
 			}
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == saveBoardsItem) {
@@ -374,7 +374,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 * @see swingwtx.swing.JPopupMenu#show(swingwt.awt.Component, int, int)
 			 */
 			public void show(Component invoker, int x, int y) {
 				removeAll();
@@ -402,14 +402,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private JMenuItem saveAttachmentItem = new JMenuItem();
 			private JMenuItem saveAttachmentsItem = new JMenuItem();
 			/**
-			 * @throws java.awt.HeadlessException
+			 * @throws swingwt.awt.HeadlessException
 			 */
 			public PopupMenuAttachmentTable() throws HeadlessException {
 				super();
 				initialize();
 			}
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == saveAttachmentsItem) {
@@ -458,7 +458,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 * @see swingwtx.swing.JPopupMenu#show(swingwt.awt.Component, int, int)
 			 */
 			public void show(Component invoker, int x, int y) {
 				removeAll();
@@ -499,7 +499,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == markMessageUnreadItem) {
@@ -587,7 +587,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setMessageTrust(new Boolean(true));
 			}
 			/* (non-Javadoc)
-			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 * @see swingwtx.swing.JPopupMenu#show(swingwt.awt.Component, int, int)
 			 */
 			public void show(Component invoker, int x, int y) {
 				if (!getSelectedNode().isFolder()) {
@@ -653,7 +653,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == saveMessageItem) {
@@ -701,7 +701,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 * @see swingwtx.swing.JPopupMenu#show(swingwt.awt.Component, int, int)
 			 */
 			public void show(Component invoker, int x, int y) {
 				if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
@@ -1068,7 +1068,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * 
 		 */
 		private void fontChanged() {
-			String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+	/*		String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
 			int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
 			int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
 			Font font = new Font(fontName, fontStyle, fontSize);
@@ -1092,7 +1092,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
 				font = new Font("SansSerif", fontStyle, fontSize);
 			}
-			messageTable.setFont(font);
+			messageTable.setFont(font);*/
 		}
 
 		/**
@@ -1426,7 +1426,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
 			final Object source = e.getSource();
@@ -1550,7 +1550,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 * @see swingwtx.swing.JPopupMenu#show(swingwt.awt.Component, int, int)
 		 */
 		public void show(Component invoker, int x, int y) {
 			int selRow = getTofTree().getRowForLocation(x, y);
@@ -1843,7 +1843,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 		frostSettings.addUpdater(this);
 
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		//enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
 		setIconImage(
 			Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
@@ -1914,47 +1914,47 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			"/data/knownboards_rollover.gif");
 
 		// add action listener
-		knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
+		knownBoardsButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				tofDisplayKnownBoardsMenuItem_actionPerformed(e);
 			}
 		});
-		newBoardButton.addActionListener(new java.awt.event.ActionListener() {
+		newBoardButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getTofTree().createNewBoard(MainFrame.getInstance());
 			}
 		});
-		newFolderButton.addActionListener(new java.awt.event.ActionListener() {
+		newFolderButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getTofTree().createNewFolder(MainFrame.getInstance());
 			}
 		});
-		renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
+		renameBoardButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				renameNode(getSelectedNode());
 			}
 		});
-		removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
+		removeBoardButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				removeNode(getSelectedNode());
 			}
 		});
-		cutBoardButton.addActionListener(new java.awt.event.ActionListener() {
+		cutBoardButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				cutNode(getSelectedNode());
 			}
 		});
-		pasteBoardButton.addActionListener(new java.awt.event.ActionListener() {
+		pasteBoardButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				pasteFromClipboard(getSelectedNode());
 			}
 		});
-		configBoardButton.addActionListener(new java.awt.event.ActionListener() {
+		configBoardButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				tofConfigureBoardMenuItem_actionPerformed(getSelectedNode());
 			}
 		});
-		systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
+		systemTrayButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				try { // Hide the Frost window
 					if (JSysTrayIcon.getInstance() != null) {
@@ -1965,7 +1965,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				}
 			}
 		});
-		boardInfoButton.addActionListener(new java.awt.event.ActionListener() {
+		boardInfoButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				tofDisplayBoardInfoMenuItem_actionPerformed(e);
 			}
@@ -2059,12 +2059,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				tofDisplayKnownBoardsMenuItem_actionPerformed(e);
 			}
 		});
-		pluginBrowserMenuItem.addActionListener(new ActionListener() {
+		/*pluginBrowserMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				BrowserFrame browser = new BrowserFrame(true);
 				browser.show();
 			}
-		});
+		});*/
 		pluginTranslateMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TranslateFrame translate = new TranslateFrame(true);
@@ -2391,7 +2391,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		FrostBoardObject node = (FrostBoardObject) getTofTree().getLastSelectedPathComponent();
 		if (node == null) {
 			// nothing selected? unbelievable ! so select the root ...
-			getTofTree().setSelectionRow(0);
+			//getTofTree().setSelectionRow(0);
 			node = (FrostBoardObject) getTofTree().getModel().getRoot();
 		}
 		return node;
@@ -2450,7 +2450,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		//      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
 
 		if (getTofTree().getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
-			getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
+		//	getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
 
 		// make sure the font size isn't too small to see
 		if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6)
@@ -2535,7 +2535,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 		FrostMessageObject targetMessage = selectedMessage;
 
-		messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+	//	messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
 
 		targetMessage.setMessageNew(true);
 		// let renderer check for new state
@@ -2648,10 +2648,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					this,
 					txt,
 					"Delete directory of '" + selectedNode.toString() + "'?",
-					JOptionPane.YES_NO_CANCEL_OPTION);
+					JOptionPane.YES_NO_OPTION);
 			if (answer == JOptionPane.YES_OPTION) {
 				deleteDirectory = true;
-			} else if (answer == JOptionPane.CANCEL_OPTION) {
+			} else {
 				return;
 			}
 		}
@@ -3124,7 +3124,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	public void updateTofTree() {
 		// fire update for node
 		DefaultTreeModel model = (DefaultTreeModel) getTofTree().getModel();
-		Enumeration e = ((FrostBoardObject) model.getRoot()).depthFirstEnumeration();
+		//Enumeration e = ((FrostBoardObject) model.getRoot()).depthFirstEnumeration();
+		Enumeration e= getTofTree().getAllBoards().elements();
 		while (e.hasMoreElements()) {
 			model.nodeChanged(((FrostBoardObject) e.nextElement()));
 		}

@@ -6,12 +6,12 @@
  */
 package frost.util.model.gui;
 
-import java.awt.Font;
+import swingwt.awt.Font;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.table.AbstractTableModel;
+import swingwtx.swing.*;
+import swingwtx.swing.table.AbstractTableModel;
 
 import frost.util.model.*;
 
@@ -77,6 +77,7 @@ public class ModelTable extends AbstractTableModel {
 	
 	/**
 	 * Helper class to be able to safely get the selection fron any thread
+	 * note - don't know how SWT handles this stuff, so I just commented them out --zab
 	 */
 	protected class SelectionGetter implements Runnable {
 
@@ -94,9 +95,9 @@ public class ModelTable extends AbstractTableModel {
 		 */
 		public ModelItem[] getSelectedItems() {
 			mode = MODE_MULTIPLE;
-			if (SwingUtilities.isEventDispatchThread()) {
+		//	if (SwingUtilities.isEventDispatchThread()) {
 				run();
-			} else {
+		/*	} else {
 				try {
 					SwingUtilities.invokeAndWait(this);
 				} catch (InterruptedException e) {
@@ -104,7 +105,7 @@ public class ModelTable extends AbstractTableModel {
 				} catch (InvocationTargetException e) {
 					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
 				}
-			}
+			}*/
 			return selectedItems;
 		}
 
@@ -113,9 +114,9 @@ public class ModelTable extends AbstractTableModel {
 		 */
 		public ModelItem getSelectedItem() {
 			mode = MODE_SINGLE;
-			if (SwingUtilities.isEventDispatchThread()) {
+			//if (SwingUtilities.isEventDispatchThread()) {
 				run();
-			} else {
+		/*	} else {
 				try {
 					SwingUtilities.invokeAndWait(this);
 				} catch (InterruptedException e) {
@@ -123,7 +124,7 @@ public class ModelTable extends AbstractTableModel {
 				} catch (InvocationTargetException e) {
 					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
 				}
-			}
+			}*/
 			return selectedItem;
 		}
 
@@ -197,21 +198,21 @@ public class ModelTable extends AbstractTableModel {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getColumnCount()
+	 * @see swingwtx.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
 		return tableFormat.getColumnCount();
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getRowCount()
+	 * @see swingwtx.swing.table.TableModel#getRowCount()
 	 */
 	public int getRowCount() {
 		return model.getItemCount();
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getValueAt(int, int)
+	 * @see swingwtx.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		return tableFormat.getCellValue(model.getItemAt(rowIndex), columnIndex);
@@ -256,7 +257,7 @@ public class ModelTable extends AbstractTableModel {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getColumnName(int)
+	 * @see swingwtx.swing.table.TableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
 		return tableFormat.getColumnName(column);
@@ -278,14 +279,14 @@ public class ModelTable extends AbstractTableModel {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#isCellEditable(int, int)
+	 * @see swingwtx.swing.table.TableModel#isCellEditable(int, int)
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
 		return tableFormat.isColumnEditable(columnIndex);
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
+	 * @see swingwtx.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
 	 */
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		tableFormat.setCellValue(aValue, model.getItemAt(rowIndex), columnIndex);

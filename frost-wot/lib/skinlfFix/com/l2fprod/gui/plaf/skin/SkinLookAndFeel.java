@@ -44,11 +44,11 @@ import com.l2fprod.util.OS;
 import com.l2fprod.util.StringUtils;
 import com.l2fprod.util.ZipResourceLoader;
 
-import java.awt.Color;
-import java.awt.Dimension;
-import java.awt.Font;
-import java.awt.Insets;
-import java.awt.event.KeyEvent;
+import swingwt.awt.Color;
+import swingwt.awt.Dimension;
+import swingwt.awt.Font;
+import swingwt.awt.Insets;
+import swingwt.awt.event.KeyEvent;
 import java.io.BufferedInputStream;
 import java.io.ByteArrayOutputStream;
 import java.io.File;
@@ -58,24 +58,24 @@ import java.util.Arrays;
 import java.util.Enumeration;
 import java.util.ResourceBundle;
 
-import javax.swing.BorderFactory;
-import javax.swing.ImageIcon;
-import javax.swing.JOptionPane;
-import javax.swing.JTextField;
-import javax.swing.UIDefaults;
-import javax.swing.UIManager;
-import javax.swing.border.*;
-import javax.swing.border.Border;
-import javax.swing.border.CompoundBorder;
-import javax.swing.plaf.BorderUIResource;
-import javax.swing.plaf.ColorUIResource;
-import javax.swing.plaf.DimensionUIResource;
-import javax.swing.plaf.FontUIResource;
-import javax.swing.plaf.IconUIResource;
-import javax.swing.plaf.InsetsUIResource;
-import javax.swing.plaf.basic.*;
-import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.JTextComponent;
+import swingwtx.swing.BorderFactory;
+import swingwtx.swing.ImageIcon;
+import swingwtx.swing.JOptionPane;
+import swingwtx.swing.JTextField;
+import swingwtx.swing.UIDefaults;
+import swingwtx.swing.UIManager;
+import swingwtx.swing.border.*;
+import swingwtx.swing.border.Border;
+import swingwtx.swing.border.CompoundBorder;
+import swingwtx.swing.plaf.BorderUIResource;
+import swingwtx.swing.plaf.ColorUIResource;
+import swingwtx.swing.plaf.DimensionUIResource;
+import swingwtx.swing.plaf.FontUIResource;
+import swingwtx.swing.plaf.IconUIResource;
+import swingwtx.swing.plaf.InsetsUIResource;
+import swingwtx.swing.plaf.basic.*;
+import swingwtx.swing.text.DefaultEditorKit;
+import swingwtx.swing.text.JTextComponent;
 
 /**
  * Skin Look And Feel Main Class. <br>Use this class to set the current skin
@@ -254,11 +254,11 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
 			"FileChooserUI",
 				SkinFileChooserUI.class.getName(),
 				"TextFieldUI",
-				"javax.swing.plaf.metal.MetalTextFieldUI",
+				"swingwtx.swing.plaf.metal.MetalTextFieldUI",
 				"SplitPaneUI",
 				(Boolean.TRUE.equals(UIManager.get("JSplitPane.alternateUI"))
 					? (SkinSplitPaneUI.class.getName())
-					: "javax.swing.plaf.basic.BasicSplitPaneUI"),
+					: "swingwtx.swing.plaf.basic.BasicSplitPaneUI"),
 				"TreeUI",
 				SkinTreeUI.class.getName(),
 				"OptionPaneUI",
@@ -376,8 +376,8 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
 		// bug fixed by Christopher R. Staley [Chris.Staley@itpwebsolutions.com]
 		// for JDK1.3 we use InputMap and for JDK1.1,1.2 we use KeyBindings
 		try {
-			Class.forName("javax.swing.InputMap");
-			Class uidefaults = Class.forName("javax.swing.UIDefaults");
+			Class.forName("swingwtx.swing.InputMap");
+			Class uidefaults = Class.forName("swingwtx.swing.UIDefaults");
 			Class[] innerClasses = uidefaults.getClasses();
 			java.lang.reflect.Constructor c = null;
 
@@ -840,7 +840,7 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
 	/**
 	 * @deprecated no longer needed
 	 */
-	public static void enable() throws javax.swing.UnsupportedLookAndFeelException {
+	public static void enable() throws swingwtx.swing.UnsupportedLookAndFeelException {
 		SkinLookAndFeel lnf = new SkinLookAndFeel();
 		UIManager.setLookAndFeel(lnf);
 
@@ -998,25 +998,25 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
 					"String".equalsIgnoreCase(type) || "java.lang.String".equalsIgnoreCase(type)) {
 					UIManager.put(element.getProperty("NAME"), element.getProperty("VALUE"));
 				} else if (
-					"Color".equalsIgnoreCase(type) || "java.awt.Color".equalsIgnoreCase(type)) {
+					"Color".equalsIgnoreCase(type) || "swingwt.awt.Color".equalsIgnoreCase(type)) {
 					Color color = Color.decode(element.getProperty("VALUE"));
 					UIManager.put(element.getProperty("NAME"), new ColorUIResource(color));
 				} else if (
-					"Insets".equalsIgnoreCase(type) || "java.awt.Insets".equalsIgnoreCase(type)) {
+					"Insets".equalsIgnoreCase(type) || "swingwt.awt.Insets".equalsIgnoreCase(type)) {
 					Insets insets = parseInsets(element.getProperty("VALUE"));
 					UIManager.put(
 						element.getProperty("NAME"),
 						new InsetsUIResource(insets.top, insets.left, insets.bottom, insets.right));
 				} else if (
 					"Dimension".equalsIgnoreCase(type)
-						|| "java.awt.Dimension".equalsIgnoreCase(type)) {
+						|| "swingwt.awt.Dimension".equalsIgnoreCase(type)) {
 					Dimension dim = parseDimension(element.getProperty("VALUE"));
 					UIManager.put(
 						element.getProperty("NAME"),
 						new DimensionUIResource(dim.width, dim.height));
 				} else if (
 					"LineBorder".equalsIgnoreCase(type)
-						|| "javax.swing.border.LineBorder".equalsIgnoreCase(type)) {
+						|| "swingwtx.swing.border.LineBorder".equalsIgnoreCase(type)) {
 
 					boolean rounded = false;
 					Color color = Color.black;
@@ -1059,9 +1059,9 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
 					UIManager.put(element.getProperty("NAME"), new BorderUIResource(border));
 				} else if (
 					"EmptyBorder".equalsIgnoreCase(type)
-						|| "javax.swing.border.EmptyBorder".equalsIgnoreCase(type)) {
+						|| "swingwtx.swing.border.EmptyBorder".equalsIgnoreCase(type)) {
 					Insets insets = parseInsets(element.getProperty("VALUE"));
-					Border border = new javax.swing.border.EmptyBorder(insets);
+					Border border = new swingwtx.swing.border.EmptyBorder(insets);
 					UIManager.put(element.getProperty("NAME"), new BorderUIResource(border));
 				}
 			} else if ("font".equalsIgnoreCase(tagName)) {

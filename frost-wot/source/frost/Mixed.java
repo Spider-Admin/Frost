@@ -18,8 +18,8 @@
 */
 package frost;
 
-import java.awt.Toolkit;
-import java.awt.datatransfer.*;
+import swingwt.awt.Toolkit;
+import swingwt.awt.datatransfer.*;
 import java.io.*;
 import java.util.logging.Logger;
 
@@ -196,8 +196,9 @@ public static String makeSafeXML(String text) {
      */
     public static void setSystemClipboard(String str)
     {
-        StringSelection ss = new StringSelection(str);
-        Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
+        java.awt.datatransfer.StringSelection ss = 
+        	new java.awt.datatransfer.StringSelection(str);
+        java.awt.Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
     }
     
     public static boolean binaryCompare(byte[] src, int offs, String searchTxt)

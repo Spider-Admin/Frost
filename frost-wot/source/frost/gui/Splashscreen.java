@@ -18,21 +18,21 @@
 */
 package frost.gui;
 
-import java.awt.*;
+import swingwt.awt.*;
 import java.io.File;
 import java.util.logging.Logger;
 
-import javax.swing.*;
+import swingwtx.swing.*;
 
 /**
  * @author Administrator
  *
  * Problem with JProgressBar: a user reported having problems when starting Frost. He was getting this stack trace:
  * Exception in thread "main" java.lang.NullPointerException
- *       at java.awt.Dimension.<init>(Unknown Source)
- *       at javax.swing.plaf.basic.BasicProgressBarUI.getPreferredSize(Unknown Source)
+ *       at swingwt.awt.Dimension.<init>(Unknown Source)
+ *       at swingwtx.swing.plaf.basic.BasicProgressBarUI.getPreferredSize(Unknown Source)
  *     	 [..]
- * 		 at java.awt.Window.pack(Unknown Source)
+ * 		 at swingwt.awt.Window.pack(Unknown Source)
  *       at frost.gui.Splashscreen.init(Splashscreen.java:66)
  * 		 [..]
  * The suggested workaround was to create the nosplash.chk file to completely disable the splash screen, but it would
@@ -84,7 +84,7 @@ public class Splashscreen extends JDialog {
 	/**Component initialization*/
 	private void init() {
 
-		setUndecorated(true);
+		//setUndecorated(true);
 		setResizable(false);
 
 		pictureLabel.setIcon(frostLogo);
@@ -129,7 +129,7 @@ public class Splashscreen extends JDialog {
 	}
 
 	/* (non-Javadoc)
-	 * @see java.awt.Component#setVisible(boolean)
+	 * @see swingwt.awt.Component#setVisible(boolean)
 	 */
 	public void setVisible(boolean b) {
 		if (!noSplash) {

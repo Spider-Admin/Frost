@@ -6,11 +6,11 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
-import java.awt.Dimension;
+import swingwt.awt.Dimension;
 
-import javax.swing.*;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicToolBarSeparatorUI;
+import swingwtx.swing.*;
+import swingwtx.swing.plaf.ComponentUI;
+import swingwtx.swing.plaf.basic.BasicToolBarSeparatorUI;
 
 
 /**
@@ -22,7 +22,7 @@ import javax.swing.plaf.basic.BasicToolBarSeparatorUI;
 public class SkinToolBarSeparatorUI extends BasicToolBarSeparatorUI {
 
 	/* (non-Javadoc)
-	 * @see javax.swing.plaf.ComponentUI#getMaximumSize(javax.swing.JComponent)
+	 * @see swingwtx.swing.plaf.ComponentUI#getMaximumSize(javax.swing.JComponent)
 	 */
 	public Dimension getMaximumSize(JComponent c) {
 		Dimension pref = getPreferredSize(c);
@@ -34,7 +34,7 @@ public class SkinToolBarSeparatorUI extends BasicToolBarSeparatorUI {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.plaf.ComponentUI#getPreferredSize(javax.swing.JComponent)
+	 * @see swingwtx.swing.plaf.ComponentUI#getPreferredSize(javax.swing.JComponent)
 	 */
 	public Dimension getPreferredSize(JComponent c) {
 		Dimension size = ((JToolBar.Separator) c).getSeparatorSize();
@@ -52,7 +52,7 @@ public class SkinToolBarSeparatorUI extends BasicToolBarSeparatorUI {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.plaf.ComponentUI#createUI(javax.swing.JComponent)
+	 * @see swingwtx.swing.plaf.ComponentUI#createUI(javax.swing.JComponent)
 	 */
 	public static ComponentUI createUI(JComponent c) {
 		return new SkinToolBarSeparatorUI();

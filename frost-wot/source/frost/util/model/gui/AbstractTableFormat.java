@@ -9,8 +9,8 @@ package frost.util.model.gui;
 import java.util.*;
 import java.util.logging.Logger;
 
-import javax.swing.JTable;
-import javax.swing.table.*;
+import swingwtx.swing.JTable;
+import swingwtx.swing.table.*;
 
 import frost.util.model.ModelItem;
 
@@ -60,7 +60,7 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 	}
 
 	/* (non-Javadoc)
-	 * @see frost.util.model.gui.ModelTableFormat#addTable(javax.swing.JTable)
+	 * @see frost.util.model.gui.ModelTableFormat#addTable(swingwtx.swing.JTable)
 	 */
 	public synchronized void addTable(JTable table) {
 		if (tables == null) { 

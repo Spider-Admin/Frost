@@ -1,6 +1,6 @@
 package frost;
 /*
-import java.awt.Frame;
+import swingwt.awt.Frame;
 import java.io.*;
 import java.util.StringTokenizer;
 

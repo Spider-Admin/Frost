@@ -6,7 +6,7 @@ package frost.util.gui;
 import java.lang.ref.WeakReference;
 import java.util.Vector;
 
-import javax.swing.JPopupMenu;
+import swingwtx.swing.JPopupMenu;
 
 /**
  * 

@@ -18,22 +18,23 @@
 */
 package frost.gui;
 
-import java.awt.*;
+import swingwt.awt.*;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
+import swingwtx.swing.JTable;
+import swingwtx.swing.table.DefaultTableCellRenderer;
 
 import frost.gui.model.MessageTableModel;
 import frost.gui.objects.FrostMessageObject;
 
 public class MessageTable extends SortedTable
 {
-	private CellRenderer cellRenderer = new CellRenderer();
+	//private CellRenderer cellRenderer = new CellRenderer();
 	
 	public MessageTable(MessageTableModel m) {
 		super(m);
 
-		setDefaultRenderer(Object.class, cellRenderer);
+	//	setRenderer(Object.class, cellRenderer);
+		
 
 		// default for messages: sort by date descending
 		sortedColumnIndex = 4;
@@ -44,7 +45,7 @@ public class MessageTable extends SortedTable
     /**
      * This renderer renders rows in different colors.
      * New messages gets a bold look, messages with attachments a blue color.
-     */
+     *//*
     private class CellRenderer extends DefaultTableCellRenderer
     {
         Font boldFont = null;
@@ -93,21 +94,19 @@ public class MessageTable extends SortedTable
 			}
 			return this;
 		}
-		/* (non-Javadoc)
-		 * @see java.awt.Component#setFont(java.awt.Font)
-		 */
+		
 		public void setFont(Font font) {
 			super.setFont(font);
 			normalFont = font.deriveFont(Font.PLAIN);
 			boldFont = font.deriveFont(Font.BOLD);
 		}
 
-    }
+    }*/
 	/* (non-Javadoc)
-	 * @see javax.swing.JTable#createDefaultColumnsFromModel()
+	 * @see swingwtx.swing.JTable#createDefaultColumnsFromModel()
 	 */
 	public void createDefaultColumnsFromModel() {
-		super.createDefaultColumnsFromModel();
+		//super.createDefaultColumnsFromModel();
 
 		// set column sizes
 		int[] widths = { 30, 150, 250, 50, 150 };
@@ -117,13 +116,13 @@ public class MessageTable extends SortedTable
 	}
 
 	/* (non-Javadoc)
-	 * @see java.awt.Component#setFont(java.awt.Font)
+	 * @see swingwt.awt.Component#setFont(java.awt.Font)
 	 */
 	public void setFont(Font font) {
-		super.setFont(font);
+	/*	super.setFont(font);
 		if (cellRenderer != null) {
 			cellRenderer.setFont(font);
-		}
+		}*/
 		setRowHeight(font.getSize() + 5);
 	}
 

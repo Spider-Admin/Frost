@@ -6,7 +6,7 @@
  */
 package frost.threads.maintenance;
 
-import java.awt.Frame;
+import swingwt.awt.Frame;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.*;

@@ -21,7 +21,7 @@ package frost.gui.objects;
 import java.io.File;
 import java.util.Collections;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import swingwtx.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
 
@@ -358,7 +358,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.tree.TreeNode#isLeaf()
+	 * @see swingwtx.swing.tree.TreeNode#isLeaf()
 	 */
 	public boolean isLeaf() {
 		return (isFolder() == false);

@@ -19,11 +19,11 @@
 
 package frost.components.translate;
 
-import java.awt.*;
-import java.awt.event.WindowEvent;
+import swingwt.awt.*;
+import swingwt.awt.event.WindowEvent;
 import java.util.logging.*;
 
-import javax.swing.JFrame;
+import swingwtx.swing.JFrame;
 
 public class TranslateFrame extends JFrame {    
 	
@@ -60,7 +60,7 @@ public class TranslateFrame extends JFrame {
 
 	this.plugin = plugin;
 
-	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+	//enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 	try {
 	    Init();
 	}

@@ -4,7 +4,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JOptionPane;
+import swingwtx.swing.JOptionPane;
 
 import org.w3c.dom.*;
 
@@ -60,8 +60,8 @@ public class FrostIdentities implements Savable {
 					String nick = null;
 					do {
 						nick =
-							JOptionPane.showInputDialog(
-								languageResource.getString("Core.loadIdentities.ChooseName"));
+							JOptionPane.showInputDialog(null,null,
+								languageResource.getString("Core.loadIdentities.ChooseName"),0);
 						if (!(nick == null || nick.length() == 0)) {
 							// check for a '@' in nick, this is strongly forbidden
 							if (nick.indexOf("@") > -1) {

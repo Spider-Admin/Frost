@@ -6,7 +6,7 @@
  */
 package frost.util.model.gui;
 
-import javax.swing.JTable;
+import swingwtx.swing.JTable;
 
 import frost.util.model.ModelItem;
 

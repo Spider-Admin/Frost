@@ -23,7 +23,7 @@ import java.net.UnknownHostException;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JOptionPane;
+import swingwtx.swing.JOptionPane;
 
 import frost.*;
 import frost.fileTransfer.upload.FrostUploadItem;

@@ -10,7 +10,7 @@ import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.*;
 
-import javax.swing.SwingUtilities;
+import swingwtx.swing.SwingUtilities;
 
 import frost.*;
 import frost.gui.objects.*;

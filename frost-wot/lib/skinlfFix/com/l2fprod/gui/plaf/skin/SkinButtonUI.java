@@ -47,12 +47,12 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
-import javax.swing.plaf.basic.*;
-import javax.swing.plaf.*;
-import javax.swing.*;
-import javax.swing.text.View;
+import swingwtx.swing.plaf.basic.*;
+import swingwtx.swing.plaf.*;
+import swingwtx.swing.*;
+import swingwtx.swing.text.View;
 
-import java.awt.*;
+import swingwt.awt.*;
 
 /**
  * @author    $Author$

@@ -6,8 +6,8 @@
  */
 package frost.util.gui;
 
-import javax.swing.text.*;
-import javax.swing.text.Position;
+import swingwtx.swing.text.*;
+import swingwtx.swing.text.Position;
 
 
 /**

@@ -6,7 +6,7 @@ package frost.util.gui.translation;
 
 import java.util.*;
 
-import javax.swing.event.EventListenerList;
+import swingwtx.swing.event.EventListenerList;
 
 public class UpdatingLanguageResource {
 

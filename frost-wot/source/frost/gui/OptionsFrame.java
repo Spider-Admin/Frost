@@ -24,15 +24,15 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.border.EmptyBorder;
-import javax.swing.event.*;
+import swingwtx.swing.*;
+import swingwtx.swing.border.EmptyBorder;
+import swingwtx.swing.event.*;
 
 import frost.*;
 import frost.util.gui.*;
@@ -56,7 +56,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private class Listener implements ActionListener {
 
 			/* (non-Javadoc) 
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == blockSubjectCheckBox) {
@@ -336,7 +336,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private class Listener implements ChangeListener, ActionListener {
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+			 * @see swingwtx.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
 			 */
 			public void stateChanged(ChangeEvent e) {
 				if (e.getSource() == altEditCheckBox) {
@@ -345,7 +345,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			}
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == enableLoggingCheckBox) {
@@ -839,7 +839,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private class Listener implements ActionListener {
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == disableRequestsCheckBox) {
@@ -1016,7 +1016,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		
 		/* (non-Javadoc)
-		 * @see java.awt.Component#setEnabled(boolean)
+		 * @see swingwt.awt.Component#setEnabled(boolean)
 		 */
 		public void setEnabled(boolean enabled) {
 			super.setEnabled(enabled);
@@ -1078,7 +1078,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			}
 
 			/* (non-Javadoc)
-			 * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
+			 * @see swingwtx.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
 			 */
 			public void stateChanged(ChangeEvent e) {
 				if (e.getSource() == enableRequestingCheckBox) {
@@ -1091,7 +1091,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			}
 
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == disableDownloadsCheckBox) {
@@ -1456,7 +1456,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.Component#setEnabled(boolean)
+		 * @see swingwt.awt.Component#setEnabled(boolean)
 		 */
 		public void setEnabled(boolean enabled) {
 			super.setEnabled(enabled);
@@ -1484,7 +1484,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				super();
 			}
 			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == messageBodyButton) {
@@ -1501,7 +1501,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		
 		private Listener listener = new Listener();
 		
-		private SkinChooser skinChooser = null;
+	//	private SkinChooser skinChooser = null;
 		private JLabel moreSkinsLabel = new JLabel();
 		private JLabel fontsLabel = new JLabel();
 		
@@ -1550,8 +1550,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constraints.insets = inset1515;
 			constraints.gridx = 0;
 			constraints.gridy = 0;
-			skinChooser = new SkinChooser(languageResource.getResourceBundle());
-			add(skinChooser, constraints);
+		/*	skinChooser = new SkinChooser(languageResource.getResourceBundle());
+			add(skinChooser, constraints);*/
 
 			constraints.insets = inset1515;
 			constraints.gridx = 0;
@@ -1649,13 +1649,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			fontsLabel.setText(languageResource.getString("Fonts"));
 			messageBodyLabel.setText(languageResource.getString("Message Body"));
 			messageBodyButton.setText(languageResource.getString("Choose"));
-			selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
+	//		selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
 			messageListLabel.setText(languageResource.getString("Message List"));
 			messageListButton.setText(languageResource.getString("Choose"));
-			selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
+		//	selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
 			fileListLabel.setText(languageResource.getString("File List"));
 			fileListButton.setText(languageResource.getString("Choose"));
-			selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
+		//	selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 			messageBodyAACheckBox.setText(languageResource.getString("EnableMessageBodyAA"));
 		}
 
@@ -1663,8 +1663,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 * @param font
 		 * @return
 		 */
-		private String getFontLabel(Font font) {
-			if (font == null) {
+	/*	private String getFontLabel(Font font) {
+		/*	if (font == null) {
 				return "";
 			} else {
 				StringBuffer returnValue = new StringBuffer();
@@ -1678,15 +1678,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				returnValue.append(", " + font.getSize());
 				return returnValue.toString();
 			}
-		}
+		}*/
 
 		public void ok() {
-			skinChooser.commitChanges();
+		//	skinChooser.commitChanges();
 			saveSettings(frostSettings);
 		}
 
 		public void cancel() {
-			skinChooser.cancelChanges();
+			//skinChooser.cancelChanges();
 		}
 
 		/** 
@@ -1694,7 +1694,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 * @param displaySettings class where the settings will be stored
 		 */
 		private void saveSettings(SettingsClass displaySettings) {
-			boolean skinsEnabled = skinChooser.isSkinsEnabled();
+	/*		boolean skinsEnabled = skinChooser.isSkinsEnabled();
 			displaySettings.setValue("skinsEnabled", skinsEnabled);
 
 			String selectedSkin = skinChooser.getSelectedSkin();
@@ -1718,7 +1718,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				displaySettings.setValue(SettingsClass.FILE_LIST_FONT_STYLE, selectedFileListFont.getStyle());
 				displaySettings.setValue(SettingsClass.FILE_LIST_FONT_SIZE, selectedFileListFont.getSize());
 			}
-			displaySettings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
+			displaySettings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());*/
 		}
 
 		/**
@@ -1726,7 +1726,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 * @param displaySettings class the settings will be loaded from
 		 */
 		public void loadSettings(SettingsClass displaySettings) {
-			boolean skinsEnabled = displaySettings.getBoolValue("skinsEnabled");
+		/*	boolean skinsEnabled = displaySettings.getBoolValue("skinsEnabled");
 			skinChooser.setSkinsEnabled(skinsEnabled);
 			String selectedSkinPath = displaySettings.getValue("selectedSkin");
 			skinChooser.setSelectedSkin(selectedSkinPath);
@@ -1749,14 +1749,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			selectedFileListFont = new Font(fontName, fontStyle, fontSize); 
 			selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 			
-			messageBodyAACheckBox.setSelected(displaySettings.getBoolValue("messageBodyAA"));	
+			messageBodyAACheckBox.setSelected(displaySettings.getBoolValue("messageBodyAA"));*/	
 		}
 		
 		/**
 		 * 
 		 */
 		private void messageBodyButtonPressed() {
-			FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
+		/*	FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
 			fontChooser.setModal(true);
 			fontChooser.setSelectedFont(selectedBodyFont);
 			fontChooser.show();
@@ -1764,14 +1764,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			if (selectedFontTemp != null) {
 				selectedBodyFont = selectedFontTemp;
 				selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
-			}
+			}*/
 		}
 
 		/**
 		 * 
 		 */
 		private void messageListButtonPressed() {
-			FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
+			/*FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
 			fontChooser.setModal(true);
 			fontChooser.setSelectedFont(selectedMessageListFont);
 			fontChooser.show();
@@ -1779,14 +1779,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			if (selectedFontTemp != null) {
 				selectedMessageListFont = selectedFontTemp;
 				selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
-			}
+			}*/
 		}
 		
 		/**
 		 * 
 		 */
 		private void fileListButtonPressed() {
-			FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
+		/*	FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
 			fontChooser.setModal(true);
 			fontChooser.setSelectedFont(selectedFileListFont);
 			fontChooser.show();
@@ -1794,7 +1794,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			if (selectedFontTemp != null) {
 				selectedFileListFont = selectedFontTemp;
 				selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
-			}
+			}*/
 		}
 
 	}
@@ -1825,7 +1825,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel contentAreaPanel = null;
 	JPanel optionsGroupsPanel = null;
 
-	AntialiasedTextArea tofTextArea = new AntialiasedTextArea(4, 50);
+	TextArea tofTextArea = new TextArea(4, 50);
 
 	JTextField tofUploadHtlTextField = new JTextField(5);
 	JTextField tofDownloadHtlTextField = new JTextField(5);
@@ -2024,14 +2024,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
 			int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
 			Font tofFont = new Font(fontName, fontStyle, fontSize);
-			if (!tofFont.getFamily().equals(fontName)) {
+	/*		if (!tofFont.getFamily().equals(fontName)) {
 				logger.severe("The selected font was not found in your system\n" +
 							  "That selection will be changed to \"Monospaced\".");
 				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
 				tofFont = new Font("Monospaced", fontStyle, fontSize);
 			}
-			tofTextArea.setFont(tofFont);
-			tofTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+			tofTextArea.setFont(tofFont);*/
+	//		tofTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
 			
 			//Build the panel
 			tofPanel = new JPanel(new GridBagLayout());
@@ -2262,13 +2262,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			JButton okButton = new JButton(languageResource.getString("OK"));
 			JButton cancelButton = new JButton(languageResource.getString("Cancel"));
 
-			okButton.addActionListener(new java.awt.event.ActionListener() {
+			okButton.addActionListener(new swingwt.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					okButton_actionPerformed(e);
 				}
 			});
 			cancelButton
-				.addActionListener(new java.awt.event.ActionListener() {
+				.addActionListener(new swingwt.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
 					cancelButton_actionPerformed(e);
 				}
@@ -2584,7 +2584,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		setDataElements();
 		loadSignature();
 
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		//enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		try {
 			Init();
 		} catch (Exception e) {

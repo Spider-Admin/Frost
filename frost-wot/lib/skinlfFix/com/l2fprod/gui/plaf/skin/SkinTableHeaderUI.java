@@ -47,10 +47,10 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
-import javax.swing.JComponent;
-import javax.swing.plaf.ComponentUI;
-import javax.swing.plaf.basic.BasicTableHeaderUI;
-import javax.swing.table.TableCellRenderer;
+import swingwtx.swing.JComponent;
+import swingwtx.swing.plaf.ComponentUI;
+import swingwtx.swing.plaf.basic.BasicTableHeaderUI;
+import swingwtx.swing.table.TableCellRenderer;
 
 /**
  * @author    $Author$
@@ -102,7 +102,7 @@ public class SkinTableHeaderUI extends BasicTableHeaderUI {
 	}
 
 	/* (non-Javadoc)
-	 * @see javax.swing.plaf.ComponentUI#uninstallUI(javax.swing.JComponent)
+	 * @see swingwtx.swing.plaf.ComponentUI#uninstallUI(javax.swing.JComponent)
 	 */
 	public void uninstallUI(JComponent c) {
 

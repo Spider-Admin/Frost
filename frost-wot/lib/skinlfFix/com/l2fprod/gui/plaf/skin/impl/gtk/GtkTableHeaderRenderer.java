@@ -49,12 +49,12 @@ package com.l2fprod.gui.plaf.skin.impl.gtk;
 
 import com.l2fprod.gui.plaf.skin.DefaultButton;
 
-import java.awt.Component;
-import java.awt.Graphics;
+import swingwt.awt.Component;
+import swingwt.awt.Graphics;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
-import javax.swing.table.JTableHeader;
+import swingwtx.swing.JTable;
+import swingwtx.swing.table.DefaultTableCellRenderer;
+import swingwtx.swing.table.JTableHeader;
 
 /**
  * Description of the Class
@@ -64,7 +64,7 @@ import javax.swing.table.JTableHeader;
  */
 public class GtkTableHeaderRenderer
   extends DefaultTableCellRenderer
-  implements javax.swing.plaf.UIResource {
+  implements swingwtx.swing.plaf.UIResource {
 
   boolean isSelected;
   boolean hasFocus;

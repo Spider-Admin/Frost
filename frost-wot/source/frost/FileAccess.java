@@ -18,14 +18,14 @@
 */
 
 package frost;
-import java.awt.Component;
+import swingwt.awt.Component;
 import java.io.*;
 import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.logging.*;
 import java.util.zip.*;
 
-import javax.swing.JFileChooser;
+import swingwtx.swing.JFileChooser;
 
 import org.w3c.dom.Document;
 

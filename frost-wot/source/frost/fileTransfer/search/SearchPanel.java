@@ -3,14 +3,14 @@
  */
 package frost.fileTransfer.search;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.beans.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import swingwtx.swing.*;
+import swingwtx.swing.event.*;
 
 import frost.*;
 import frost.fileTransfer.download.DownloadModel;
@@ -89,7 +89,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		}
 	
 		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == downloadSelectedKeysItem) {
@@ -165,7 +165,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		}
 	
 		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 * @see swingwtx.swing.JPopupMenu#show(swingwt.awt.Component, int, int)
 		 */
 		public void show(Component invoker, int x, int y) {
 			removeAll();
@@ -220,7 +220,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == searchTextField) {
@@ -235,7 +235,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
 		public void mousePressed(MouseEvent e) {
 			if (e.getClickCount() == 2) {
@@ -251,7 +251,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 		 */
 		public void mouseReleased(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
@@ -286,7 +286,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+		 * @see swingwtx.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 		 */
 		public void valueChanged(ListSelectionEvent e) {
 			listSelectionChanged(e);			

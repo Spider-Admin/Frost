@@ -6,9 +6,9 @@
  */
 package frost.util.gui.translation;
 
-import java.awt.Component;
+import swingwt.awt.Component;
 
-import javax.swing.JTabbedPane;
+import swingwtx.swing.JTabbedPane;
 
 /**
  * @author Administrator
@@ -35,7 +35,7 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 	 * This method returns the localized title
 	 * of the tab in the specified position.
 	 * 
-	 * @see javax.swing.JTabbedPane#getTitleAt(int)
+	 * @see swingwtx.swing.JTabbedPane#getTitleAt(int)
 	 */
 	public String getTitleAt(int index) {
 		String key = super.getTitleAt(index); 
@@ -47,7 +47,7 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 	 * has the UpdatingLanguageResource key passed as a parameter, 
 	 * or -1 if no one was found.
 	 * 
-	 * @see javax.swing.JTabbedPane#indexOfTab(java.lang.String)
+	 * @see swingwtx.swing.JTabbedPane#indexOfTab(java.lang.String)
 	 */
 	public int indexOfTab(String key) {
 		for (int i = 0; i < getTabCount(); i++) {

@@ -18,12 +18,12 @@
 */
 package frost.components.translate;
 
-import java.awt.event.*;
+import swingwt.awt.event.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JTable;
-import javax.swing.table.*;
+import swingwtx.swing.JTable;
+import swingwtx.swing.table.*;
 
 /**
  * Sorting the table
@@ -50,7 +50,7 @@ public class TranslateTableSorter {
 				logger.log(Level.SEVERE, "tableFun.removeAllRows NOT GOOD", e);
 			}
 		}
-		table.updateUI();
+		table.repaint();
 	}
 
 	/**

@@ -18,14 +18,14 @@
 */
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
+import swingwtx.swing.*;
+import swingwtx.swing.event.*;
+import swingwtx.swing.table.*;
 
 import frost.*;
 import frost.gui.model.*;
@@ -58,7 +58,7 @@ public class KnownBoardsFrame extends JDialog
     {
         super();
 		KnownBoardsFrame.LangRes = LangRes;
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+      //  enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             init();
         }
@@ -116,11 +116,11 @@ public class KnownBoardsFrame extends JDialog
                      public void valueChanged(ListSelectionEvent e) {
                          boardsTableListModel_valueChanged(e);
                      } });
-        BaddBoard.addActionListener( new java.awt.event.ActionListener() {
+        BaddBoard.addActionListener( new swingwt.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         addBoards_actionPerformed(e);
                     } });
-        Bclose.addActionListener( new java.awt.event.ActionListener() {
+        Bclose.addActionListener( new swingwt.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         dispose();
                     } });
@@ -156,11 +156,11 @@ public class KnownBoardsFrame extends JDialog
         JMenuItem addBoardsMenu = new JMenuItem(LangRes.getString("KnownBoardsFrame.Add board"));
         JMenuItem removeBoardEntry = new JMenuItem(LangRes.getString("KnownBoardsFrame.Remove board"));
         
-        addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
+        addBoardsMenu.addActionListener( new swingwt.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         addBoards_actionPerformed(e);
                     } });
-        removeBoardEntry.addActionListener( new java.awt.event.ActionListener() {
+        removeBoardEntry.addActionListener( new swingwt.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         deleteBoards_actionPerformed(e);
                     } });
@@ -354,7 +354,7 @@ public class KnownBoardsFrame extends JDialog
                     // now scroll to selected row, try to show it on top of table
                     
                     // determine the count of showed rows
-                    int visibleRows = (int)(boardsTable.getVisibleRect().getHeight() / boardsTable.getCellRect(row,0,true).getHeight());
+                    /*int visibleRows = (int)(boardsTable.getVisibleRect().getHeight() / boardsTable.getCellRect(row,0,true).getHeight());
                     int scrollToRow;
                     if( row + visibleRows > tableModel.getRowCount() )
                     {
@@ -367,7 +367,7 @@ public class KnownBoardsFrame extends JDialog
                     if( scrollToRow > row ) scrollToRow--;
                     // scroll 2 times to make sure row is displayed                    
                     boardsTable.scrollRectToVisible(boardsTable.getCellRect(row,0,true));
-                    boardsTable.scrollRectToVisible(boardsTable.getCellRect(scrollToRow,0,true));
+                    boardsTable.scrollRectToVisible(boardsTable.getCellRect(scrollToRow,0,true));*/
                     break;
                 }
             }

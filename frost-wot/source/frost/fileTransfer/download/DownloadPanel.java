@@ -4,13 +4,13 @@
  */
 package frost.fileTransfer.download;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.beans.*;
 import java.io.File;
 import java.util.logging.Logger;
 
-import javax.swing.*;
+import swingwtx.swing.*;
 
 import frost.*;
 import frost.ext.Execute;
@@ -106,7 +106,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == copyChkKeyToClipboardItem) {
@@ -259,7 +259,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 * @see swingwtx.swing.JPopupMenu#show(swingwt.awt.Component, int, int)
 		 */
 		public void show(Component invoker, int x, int y) {
 			removeAll();
@@ -334,7 +334,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 * @see swingwt.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == downloadTextField) {
@@ -349,7 +349,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+		 * @see swingwt.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
 		 */
 		public void keyPressed(KeyEvent e) {
 			if (e.getSource() == modelTable.getTable()) {
@@ -358,21 +358,21 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+		 * @see swingwt.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
 		 */
 		public void keyReleased(KeyEvent e) {
 			// Nothing here	
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+		 * @see swingwt.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
 		 */
 		public void keyTyped(KeyEvent e) {
 			// Nothing here
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
 		public void mousePressed(MouseEvent e) {
 			if (e.getClickCount() == 2) {
@@ -389,7 +389,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 * @see swingwt.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 		 */
 		public void mouseReleased(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {

@@ -21,9 +21,9 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.tree.*;
+import swingwtx.swing.*;
+import swingwtx.swing.event.ListSelectionEvent;
+import swingwtx.swing.tree.*;
 
 import frost.gui.model.*;
 import frost.gui.objects.*;
@@ -475,9 +475,10 @@ public class TOF
     {
         public void run()
         {
-            JTree tree = MainFrame.getInstance().getTofTree();
+            frost.gui.TofTree tree = MainFrame.getInstance().getTofTree();
             DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
-            Enumeration e = ((DefaultMutableTreeNode)model.getRoot()).depthFirstEnumeration();
+            
+            Enumeration e = tree.getAllBoards().elements();
             String keypool = MainFrame.keypool;
             while( e.hasMoreElements() )
             {

@@ -6,11 +6,11 @@
  */
 package frost.util.gui;
 
-import java.awt.*;
+import swingwt.awt.*;
 import java.util.*;
 import java.util.logging.Logger;
 
-import javax.swing.*;
+import swingwtx.swing.*;
 
 /**
  * @author Administrator
@@ -156,16 +156,19 @@ public class MiscToolkit {
 	 * @param title the title of the JDialog
 	 */
 	public void showMessage(String message, int type, String title) {
-		JOptionPane optionPane = new JOptionPane(message, type);
+		/*JOptionPane optionPane = new JOptionPane(message, type);
+		JOptionPane optionPane = new JOptionPane();
+		optionPane.s*/
 		JFrame frame = new JFrame();
 		frame.setTitle("Frost");
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dimension.width / 2, dimension.height / 2);
-		frame.setUndecorated(true);
+		//frame.setUndecorated(true);
 		frame.show();
 		frame.toFront();
-		optionPane.createDialog(frame, title).show();
+		JOptionPane.showMessageDialog(frame,null,message,type);
 		frame.dispose();
+		
 	}
 
 }

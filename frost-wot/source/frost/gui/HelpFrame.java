@@ -19,12 +19,12 @@
 
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
+import swingwt.awt.*;
+import swingwt.awt.event.*;
 import java.io.File;
 import java.util.logging.*;
 
-import javax.swing.*;
+import swingwtx.swing.*;
 
 import frost.*;
 
@@ -69,7 +69,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(MainFrame.class.getRes
     //------------------------------------------------------------------------
     // Actionlistener
     //------------------------------------------------------------------------
-    comboBox.addActionListener(new java.awt.event.ActionListener() {
+    comboBox.addActionListener(new swingwt.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
             textArea.setText(FileAccess.readFile("help/" + (String)comboBox.getSelectedItem() + ".txt"));
             textArea.setCaretPosition(0);
@@ -102,7 +102,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(MainFrame.class.getRes
     /**Constructor*/
     public HelpFrame(JFrame parent) {
     super();
-    enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+  //  enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     try {
         Init();
     }

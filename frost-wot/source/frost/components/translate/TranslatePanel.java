@@ -19,14 +19,14 @@
 
 package frost.components.translate;
 
-import java.awt.BorderLayout;
-import java.awt.event.ActionEvent;
+import swingwt.awt.BorderLayout;
+import swingwt.awt.event.ActionEvent;
 import java.io.File;
 import java.util.*;
 
-import javax.swing.*;
-//import javax.swing.event.*;
-//import javax.swing.table.*;
+import swingwtx.swing.*;
+//import swingwtx.swing.event.*;
+//import swingwtx.swing.table.*;
 
 /**
  * Translate Component
@@ -101,7 +101,7 @@ public class TranslatePanel extends JPanel {
 			parent,
 			"1. Select the language you want to translate.\n2. Translate each row of the table.\n3. Save your translation\n4. Send us the saved 'LangRes_xx.java'  file in your Frost directory\n   or upload it with frost.\n\nThank you!",
 			"Instructions",
-			JOptionPane.PLAIN_MESSAGE);
+			JOptionPane.INFORMATION_MESSAGE);
 	}
 
 	/**
@@ -152,8 +152,8 @@ public class TranslatePanel extends JPanel {
 	 * Adds action listeners for the comboBox
 	 */
 	private void generateComboBoxListeners() {
-		comboBox.addItemListener(new java.awt.event.ItemListener() {
-			public void itemStateChanged(java.awt.event.ItemEvent e) {
+		comboBox.addItemListener(new swingwt.awt.event.ItemListener() {
+			public void itemStateChanged(swingwt.awt.event.ItemEvent e) {
 				configureTable((String) comboBox.getSelectedItem());
 			}
 		});
@@ -172,7 +172,7 @@ public class TranslatePanel extends JPanel {
 	 * Generates button listeners
 	 */
 	private void generateButtonListeners() {
-		saveButton.addActionListener(new java.awt.event.ActionListener() {
+		saveButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String languageCode = getSelectedLanguageCode();
 				String content =
@@ -186,7 +186,7 @@ public class TranslatePanel extends JPanel {
 				}
 			}
 		});
-		loadButton.addActionListener(new java.awt.event.ActionListener() {
+		loadButton.addActionListener(new swingwt.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				loadLanguageFile();
 			}

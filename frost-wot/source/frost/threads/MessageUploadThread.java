@@ -19,12 +19,12 @@
 
 package frost.threads;
 
-import java.awt.Frame;
+import swingwt.awt.Frame;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JOptionPane;
+import swingwtx.swing.JOptionPane;
 
 import org.w3c.dom.Document;
 

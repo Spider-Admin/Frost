@@ -20,7 +20,7 @@
 
 package frost;
 
-import java.awt.*;
+import swingwt.awt.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;

@@ -9,7 +9,7 @@ package frost.util.gui;
 import java.util.*;
 import java.util.ArrayList;
 
-import javax.swing.text.*;
+import swingwtx.swing.text.*;
 
 
 /**
@@ -42,7 +42,7 @@ public class ImmutableAreasDocument extends PlainDocument {
 		}
 		
 		/* (non-Javadoc)
-		 * @see javax.swing.text.DocumentFilter#replace(javax.swing.text.DocumentFilter.FilterBypass, int, int, java.lang.String, javax.swing.text.AttributeSet)
+		 * @see swingwtx.swing.text.DocumentFilter#replace(javax.swing.text.DocumentFilter.FilterBypass, int, int, java.lang.String, javax.swing.text.AttributeSet)
 		 */
 		public void replace(FilterBypass fb, int offset, int length, String text, AttributeSet attrs)
 			throws BadLocationException {
@@ -94,7 +94,7 @@ public class ImmutableAreasDocument extends PlainDocument {
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.text.DocumentFilter#insertString(javax.swing.text.DocumentFilter.FilterBypass, int, java.lang.String, javax.swing.text.AttributeSet)
+		 * @see swingwtx.swing.text.DocumentFilter#insertString(javax.swing.text.DocumentFilter.FilterBypass, int, java.lang.String, javax.swing.text.AttributeSet)
 		 */
 		public void insertString(FilterBypass fb, int offset, String string, AttributeSet attr)
 			throws BadLocationException {
@@ -118,7 +118,7 @@ public class ImmutableAreasDocument extends PlainDocument {
 		}
 
 		/* (non-Javadoc)
-		 * @see javax.swing.text.DocumentFilter#remove(javax.swing.text.DocumentFilter.FilterBypass, int, int)
+		 * @see swingwtx.swing.text.DocumentFilter#remove(javax.swing.text.DocumentFilter.FilterBypass, int, int)
 		 */
 		public void remove(FilterBypass fb, int offset, int length) throws BadLocationException {
 			
@@ -222,7 +222,7 @@ public class ImmutableAreasDocument extends PlainDocument {
 	 */
 	public ImmutableAreasDocument() {
 		super();
-		setDocumentFilter(filter);
+		//setDocumentFilter(filter);
 	}
 	
 	/**
@@ -244,7 +244,10 @@ public class ImmutableAreasDocument extends PlainDocument {
 	 */
 	public ImmutableAreasDocument(Content c) {
 		super(c);
-		setDocumentFilter(filter);
+		//setDocumentFilter(filter);
+		
 	}
+	
+
 
 }
