@@ -332,7 +332,13 @@ static final Object[][] contents = {
 	{"No","No"},
 	{"Enable automatic board update","Activa refresco automático del foro"},
 	{"Maximum message display (days)","Número de días a mostrar"},
-	{"Warning","Aviso"}
+	{"Warning","Aviso"},
+	
+	//Uploads underway warning when exiting
+	{"UploadsUnderway.title","Subidas en curso"},
+	{"UploadsUnderway.body","Si sales ahora, algunos de los mensajes\n"
+							 + "que estás subiendo pueden aparecer duplicados.\n"
+							 + "¿Quieres salir de todas maneras?"}
 
 };
 }

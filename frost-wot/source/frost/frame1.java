@@ -1934,10 +1934,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			int result =
 				JOptionPane.showConfirmDialog(
 					this,
-						  "If you exit now, some of the messages\n"
-						+ "that you are uploading may appear duplicated.\n"
-						+ "Do you want to exit anyway?",
-					"Uploads underway",
+					languageResource.getString("UploadsUnderway.body"),
+					languageResource.getString("UploadsUnderway.title"),
 					JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
