@@ -183,7 +183,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         if( DEBUG ) Core.getOut().println("FILEDN: UpdateIdThread.makeIndexFile for " + board.toString());
 
         // Calculate the keys to be uploaded
-        Set files = Index.getUploadKeys(board.getBoardFilename());
+        Map files = Index.getUploadKeys(board.getBoardFilename());
         
 		if (files == null)
 			return null;

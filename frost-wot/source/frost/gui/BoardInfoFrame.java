@@ -32,6 +32,7 @@ import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.threads.*;
+import frost.messages.*;
 
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 {
@@ -401,10 +402,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      */
     public int getLineCount(File file)
     {
-       Map current = new HashMap();
-       FileAccess.readKeyFile(file,current);
+       FrostIndex current = FileAccess.readKeyFile(file); 
+       
 	    
-        return current.size();
+        return current.getFilesMap().size();
     }
 
     public static boolean isDialogShowing()

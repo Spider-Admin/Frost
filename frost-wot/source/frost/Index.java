@@ -77,16 +77,14 @@ public class Index
 
     //this method puts the SharedFileObjects into the target set and 
     //returns the number of the files shared by the user himself
-    public static Set getUploadKeys(String board)
+    public static Map getUploadKeys(String board)
     {
 
-        //final Map mine = Collections.synchronizedMap(new HashMap());
-        //final Map total = Collections.synchronizedMap(new HashMap());
-        //final Map updated = Collections.synchronizedMap(new HashMap());
-        final Set toUpload = Collections.synchronizedSet(new HashSet());
+
         
         
-        FrostIndex totalIdx;
+        
+        FrostIndex totalIdx=null;
         
         Core.getOut().println("Index.getUploadKeys(" + board + ")");
         
@@ -105,7 +103,7 @@ public class Index
             totalIdx = FileAccess.readKeyFile(boardFiles);
         }
 
-        toUpload = FileAccess.readKeyFile(boardNewUploads).getFiles();
+        Map toUpload = FileAccess.readKeyFile(boardNewUploads).getFilesMap();
 		
         //add friends's files 
         // TODO:  add a limit
@@ -130,7 +128,7 @@ public class Index
                         mixed.makeFilename(
                             current.getOwner())))) //and marked GOOD
             {
-                toUpload.add(current);
+                toUpload.put(current.getSHA1(),current);
                 Core.getOut().print("f"); //f means added file from friend
             }
             //also add the file if its been shared too long ago
@@ -149,7 +147,7 @@ public class Index
                     > 0)
                 {
                     current.setLastSharedDate(DateFun.getDate());
-                    toUpload.add(current);
+                    toUpload.put(current.getSHA1(),current);
                     Core.getOut().print("d");
                     //d means it was shared too long ago
                 }
@@ -166,26 +164,11 @@ public class Index
         //	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
         int keyCount = 0;
 
-        // FIXME: TEST XML code, especially the removing of "owner"
-        //  Document doc = XMLTools.createDomDocument();
-        // if( doc == null )
-        //{
-        //   System.out.println("Error - getUploadKeys: factory could'nt create XML Document.");
-        //     return -1;
-        // }
+  
 
-        // Element rootElement = doc.createElement("Filelist");
-        //only add personal info if we chose to sign
-        // if (signUploads)
-        //{
-        //  rootElement.setAttribute("sharer", frame1.getMyId().getUniqueName());
-        // rootElement.setAttribute("pubkey", frame1.getMyId().getKey());
-        //  }
-        //  doc.appendChild(rootElement);
-
-        synchronized (mine)
+        synchronized (toUpload)
         {
-            Iterator j = mine.values().iterator();
+            Iterator j = toUpload.values().iterator();
             while (j.hasNext())
             {
                 SharedFileObject current = (SharedFileObject)j.next();
@@ -200,79 +183,11 @@ public class Index
                     keyCount++;
                 }
 
-                //Element element = current.getXMLElement(doc);
 
-                // if( current.getOwner() != null && my && !signUploads )
-                // {  //REDFLAG: don't forget to remove these
-                // remove owner, we don't want to sign ...
-                //     ArrayList lst = XMLTools.getChildElementsByTagName(element, "owner");
-                //     if( lst.size() > 0 )
-                //    {
-                //        Element r = (Element)lst.get(0);          
-                //       element.removeChild(r);                }
-                //   else
-                //   {
-                //       System.out.println("ERROR - getUploadKeys: Could not locate the 'owner' tag in XML tree!");
-                //   }
-                //  }
-                //   rootElement.appendChild( element );
             }
         }
-        /*        synchronized(mine)
-                {
-                     Iterator j = mine.values().iterator();
-                     while( j.hasNext() )
-                     {
-                          SharedFileObject current = (SharedFileObject)j.next();
-        		  boolean my = current.getOwner()!= null &&
-        		  	frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0;
-        		  //make an update only if the user has inserted at least one file
-                          if(my)                 
-                                keyCount++;
-        			
-                          keyFile.append("<File>\n");
-        		  keyFile.append("<name><![CDATA[" + current.getFilename()+"]]></name>\n");
-        		  keyFile.append("<SHA1><![CDATA[" + current.getSHA1()+"]]></SHA1>\n");
-        		  keyFile.append("<size>" + current.getSize()+"</size>\n");
-        		  keyFile.append("<batch>"+ current.getBatch()+"</batch>\n");
-        		    
-        		  if (current.getOwner() != null  &&
-        		  	!(my && !signUploads))
-        		    	keyFile.append("<owner>" + current.getOwner() + "</owner>\n");
-        		  if (current.getKey() != null)
-        		    	keyFile.append("<key>" + current.getKey() + "</key>\n");
-        		  if (current.getDate() != null)
-        		    	keyFile.append("<date>" + current.getDate() + "</date>\n");
-        		    
-        		  keyFile.append("</File>\n");
-        			 
-                     }
-               }
-                        
-                    
-                
-                //keyFile.append("<redundancy>_redNo</redundancy>"); //this will be replaced with redundancy #
-        	keyFile.append("</Filelist>");
-        */
-        //String signed = frame1.getCrypto().sign(keyFile.toString(),frame1.getMyId().getPrivKey());
-        // Make keyfile
-        //if( keyCount > 0 )
-        // {
-        //     boolean writeOK = false;
-        //     try {
-        //         writeOK = XMLTools.writeXmlFile(doc, frame1.keypool + board + "_upload.txt");
-        //     } catch(Throwable t)
-        //     {
-        //         System.out.println("Exception - getUploadKeys:");
-        //         t.printStackTrace(System.out);
-        //         return -1; // keep newUploads file
-        //     }
-        //  }
-
-        //clear the new uploads
-        //	boardNewUploads.delete();
         if (keyCount > 0)
-            return new HashSet(mine.values());
+            return toUpload;
         else
             return null;
     }
@@ -377,7 +292,7 @@ public class Index
     public static void add(File keyfile, File target, Identity owner)
     {
 
-        final Map chunk = Collections.synchronizedMap(new HashMap());
+        
 
         try
         {
@@ -388,8 +303,8 @@ public class Index
         {
             e.printStackTrace(Core.getOut());
         }
-        FileAccess.readKeyFile(keyfile, chunk);
-        Iterator it = chunk.values().iterator();
+        FrostIndex chunk = FileAccess.readKeyFile(keyfile);
+        Iterator it = chunk.getFiles().iterator();
         if (!owner.getUniqueName().equals(Core.getMyId().getUniqueName()))
             while (it.hasNext())
             {
@@ -413,8 +328,6 @@ public class Index
      */
     public static void add(File keyfile, File target, String owner)
     {
-        final Map chunk = Collections.synchronizedMap(new HashMap());
-
         try
         {
             if (!target.exists())
@@ -424,9 +337,13 @@ public class Index
         {
             e.printStackTrace(Core.getOut());
         }
-        FileAccess.readKeyFile(keyfile, chunk);
+        FrostIndex idx = FileAccess.readKeyFile(keyfile);
 
-        add(chunk, target, owner);
+        add(idx, target, owner);
+    }
+    
+    public static void add(FrostIndex a, File b){
+    	add(a.getFilesMap(),b);
     }
     /**
      * Adds a Map to an index located at target dir.
@@ -472,12 +389,18 @@ public class Index
         FileAccess.writeKeyFile(whole, target);
     }
 
+	public static void add(FrostIndex a, File b, String owner){
+		add(a.getFilesMap(),b,owner);
+	}
+	
     protected static void add(Map chunk, File target, String owner)
     {
-        final Map whole = Collections.synchronizedMap(new HashMap());
+        
         if (owner == null)
             owner = "Anonymous";
-        FileAccess.readKeyFile(target, whole);
+        
+        FrostIndex idx = FileAccess.readKeyFile(target); 
+        
 
         //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
         //  target.mkdir();
@@ -494,11 +417,11 @@ public class Index
                 updateDownloadTable(current);
 
             SharedFileObject old =
-                (SharedFileObject)whole.get(current.getSHA1());
+                (SharedFileObject)idx.getFilesMap().get(current.getSHA1());
 
             if (old == null)
             {
-                whole.put(current.getSHA1(), current);
+                idx.getFilesMap().put(current.getSHA1(), current);
                 continue;
             }
             old.setDate(current.getDate());
@@ -506,7 +429,7 @@ public class Index
             //TODO: allow unsigned files to be appropriated
         }
 
-        FileAccess.writeKeyFile(whole, target);
+        FileAccess.writeKeyFile(idx, target);
     }
 
     private static void updateDownloadTable(SharedFileObject key)
