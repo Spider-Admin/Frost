@@ -278,7 +278,7 @@ public class Core {
 				String []_boards = allBoards.split(":");
 				for (int i=0;i<_boards.length;i++)
                 {
-System.out.println("DBG-loadedBoard: '"+_boards[i].trim()+"'");
+//System.out.println("DBG-loadedBoard: '"+_boards[i].trim()+"'");
                     knownBoards.add(_boards[i].trim());
                 }
 				out.println("loaded "+ _boards.length +" known boards");

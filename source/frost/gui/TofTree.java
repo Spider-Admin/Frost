@@ -576,7 +576,7 @@ implements DragGestureListener, DragSourceListener
     }
 
     /**
-     * Opens dialog, gets new name for folder, checks for double names, adds node to tree
+     * Opens dialog, gets new name for board, checks for double names, adds node to tree
      */
     public void createNewBoard(Frame parent)
     {
@@ -602,6 +602,28 @@ implements DragGestureListener, DragSourceListener
         } while( nodeName.length()==0 );
 
         FrostBoardObject newBoard = new FrostBoardObject(nodeName);
+        addNodeToTree( newBoard );
+        // maybe this boardfolder already exists, scan for new messages
+        TOF.initialSearchNewMessages( newBoard );
+    }
+    
+    /**
+     * Checks if board is already existent, adds board to board tree.
+     */
+    public void addNewBoard(String bname, String bpubkey, String bprivkey)
+    {
+        if( getBoardByName( bname ) != null )
+        {
+            int answer = JOptionPane.showConfirmDialog(this, 
+                            "You already have a board with name '"+bname+
+                            "'!\nDo you really want to overwrite it?\n(This will not delete messages)", 
+                            "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE );
+            if( answer == JOptionPane.NO_OPTION )
+            {
+                return; // do not add
+            }
+        }
+        FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey);
         addNodeToTree( newBoard );
         // maybe this boardfolder already exists, scan for new messages
         TOF.initialSearchNewMessages( newBoard );
