@@ -96,6 +96,9 @@ public class LangRes_fr extends ListResourceBundle {
 	{"Show time in titlebar", "Show Time in titlebar"},
 	{"Show time", "Show time"},
 
+	//	Preferences. Display panel		//TODO: Translate
+	{"EnableSkins", "Enable Skins"}, 	
+	{"MessageBodyFont", "Message Body Font"}, 
 
 	// Preferences / Tabbed Pane
 	{"Downloads", "Téléchargements"},
@@ -103,6 +106,7 @@ public class LangRes_fr extends ListResourceBundle {
 	{"Miscellaneous", "Divers"},
 	{"Skins", "Thèmes"},
 	{"News", "Forums"},
+	{"Display", "Display"},		//TODO: Translate
 
 	// Search table
 	{"Filename", "Nom du fichier"},
@@ -163,6 +167,11 @@ public class LangRes_fr extends ListResourceBundle {
 	{"   TOFDO: ", "   TOFTE: "},
 	{"   Results: ", "   Résultats: "},
 	{"   Files: ", "   Fichiers: "},
+
+	//	Skin chooser				//TODO: Translate
+	{"AvailableSkins", "Available Skins"},
+	{"Preview", "Preview"},
+	{"RefreshList", "Refresh List"},
 
 	// Other 
 	{"Frost by Jantho", "Frost par Jantho"},

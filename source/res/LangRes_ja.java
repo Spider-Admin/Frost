@@ -103,12 +103,17 @@ public class LangRes_ja extends ListResourceBundle {
 	{"Show time in titlebar", "Show Time in titlebar"},
 	{"Show time", "Show time"},
 
+	//	Preferences. Display panel		//TODO: Translate
+	{"EnableSkins", "Enable Skins"}, 	
+	{"MessageBodyFont", "Message Body Font"}, 
+
 	// Preferences / Tabbed Pane
 	{"Downloads", "\u30c0\u30a6\u30f3\u30ed\u30fc\u30c9"},
 	{"Uploads", "\u30a2\u30c3\u30d7\u30ed\u30fc\u30c9"},
 	{"Miscellaneous", "\u3044\u308d\u3044\u308d\u306a\u8a2d\u5b9a"},
 	{"Skins", "\u30b9\u30ad\u30f3"},
 	{"News", "\u30cb\u30e5\u30fc\u30b9"},
+	{"Display", "Display"},		//TODO: Translate
 
 	// Search table
 	{"Filename", "\u30d5\u30a1\u30a4\u30eb\u540d"},
@@ -171,6 +176,11 @@ public class LangRes_ja extends ListResourceBundle {
 	{"   Results: ", "   \u691c\u7d22\u7d50\u679c: "},	
 	{"   Files: ", "   \u7dcf\u30d5\u30a1\u30a4\u30eb\u6570: "},	
 
+    //	Skin chooser				//TODO: Translate
+	{"AvailableSkins", "Available Skins"},
+	{"Preview", "Preview"},
+	{"RefreshList", "Refresh List"},
+ 
 	// Other 
 	{"Anonymous", "\u540d\u7121\u3057\u3055\u3093"},
 	{"Frost by Jantho", "Frost by Jantho"},
