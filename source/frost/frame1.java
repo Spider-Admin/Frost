@@ -717,7 +717,8 @@ public class frame1 extends JFrame implements ClipboardOwner
             } });
         searchDownloadButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                addSelectedSearchItemsToDownloadTable();
+                getSearchTable().addSelectedSearchItemsToDownloadTable( getDownloadTable(),
+                                                                        frame1.frostSettings.getIntValue("htl"));
             } });
         searchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1088,16 +1089,18 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener
         searchPopupDownloadSelectedKeys.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                addSelectedSearchItemsToDownloadTable();
+                getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable(),
+                                                      frame1.frostSettings.getIntValue("htl"));
             } });
         searchPopupDownloadAllKeys.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 searchTable.selectAll();
-                addSelectedSearchItemsToDownloadTable();
+                getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable(),
+                                                                       frame1.frostSettings.getIntValue("htl"));
             } });
         searchPopupCopyAttachment.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String srcData = getSelectedSearchItemsAsAttachmentsString();
+                String srcData = getSearchTable().getSelectedSearchItemsAsAttachmentsString();
                 Clipboard clipboard = getToolkit().getSystemClipboard();
                 StringSelection contents = new StringSelection(srcData);
                 clipboard.setContents(contents, frame1.this);
@@ -1220,7 +1223,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupMenu.add(uploadPopupAddFilesToBoard);
         uploadPopupMenu.addSeparator();
         uploadPopupMenu.add(uploadPopupCancel);
-
     }
 
     /**
@@ -1238,37 +1240,24 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         // TODO: implement cancel of downloading
         downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+
 // add action listener
         downloadPopupRemoveSelectedDownloads.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                getDownloadTable().removeSelectedChunks();
-                getDownloadTable().removeSelectedRows();
+                getDownloadTable().removeSelectedItemsFromTable();
             } });
         downloadPopupRemoveAllDownloads.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                getDownloadTable().selectAll();
-                getDownloadTable().removeSelectedChunks();
-                DownloadTableModel model = (DownloadTableModel)getDownloadTable().getModel();
-                model.clearDataModel();
+                getDownloadTable().removeAllItemsFromTable();
             } });
         downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                // reset HTL for all selected items in download table
-                DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
-                int[] selectedRows = getDownloadTable().getSelectedRows();
-                for( int x=0; x<selectedRows.length; x++ )
-                {
-                    FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
-                    dlItem.setHtl( frostSettings.getIntValue("htl"));
-                    dlItem.setState( dlItem.STATE_WAITING );
-                    dlModel.updateRow( dlItem );
-                }
+                getDownloadTable().resetHtlForSelectedItems();
             } });
         downloadPopupRemoveFinished.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e)
-                {
-                    getDownloadTable().removeFinishedDownloads();
-                } });
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().removeFinishedDownloads();
+            } });
 // construct menu
         downloadPopupMenu.add(downloadPopupRemoveSelectedDownloads);
         downloadPopupMenu.add(downloadPopupRemoveAllDownloads);
@@ -1493,6 +1482,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     //------------------------------------------------------------------------
+    //------------------------------------------------------------------------
 
     public static void displayWarning(String message)
     {
@@ -1593,7 +1583,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             else
             {
                 // its a new board
-
                 getTofTree().addNodeToTree( new FrostBoardObject(name, pubKey, privKey) );
             }
         }
@@ -1718,7 +1707,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                     } });
         }
     }
-
 
     /**
      * Fires a nodeChanged (redraw) for this board and updates buttons.
@@ -1939,16 +1927,31 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
+    /**
+     * Removes the currently selected tree node, asks before deleting.
+     */
     public void removeSelectedNode()
     {
         FrostBoardObject selectedNode = getActualNode();
+        String txt;
+        if( selectedNode.isFolder() )
+        {
+            txt = "Do you really want to delete folder '"+selectedNode.toString()+"' ???" +
+                  "\nNOTE: Removing it will also remove all boards/folders inside this folder!!!";
+        }
+        else
+        {
+            txt = "Do you really want to delete board '"+selectedNode.toString()+"' ???";
+        }
+
         int answer = JOptionPane.showConfirmDialog(this,
-                                      "Do you really want to delete '"+selectedNode.toString()+"' ???",
+                                      txt,
                                       "Delete '"+selectedNode.toString()+"'?",
                                       JOptionPane.YES_NO_OPTION);
         if( answer == JOptionPane.YES_OPTION )
         {
             getTofTree().removeSelectedNode();
+            // TODO: ask user if to delete board directory also
         }
     }
 
@@ -1958,7 +1961,6 @@ public class frame1 extends JFrame implements ClipboardOwner
      */
     public void renameSelectedNode()
     {
-        // getTofTree().startEditingAtPath(getTofTree().getSelectionPath());
         FrostBoardObject selected = getActualNode();
         if( selected == null )
             return;
@@ -1979,7 +1981,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         } while( newname.length()==0 );
 
         selected.setBoardName(newname);
-        ((DefaultTreeModel)getTofTree().getModel()).nodeChanged( selected );
+        updateTofTree( selected );
     }
 
     public void pasteFromClipboard()
@@ -1997,7 +1999,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
-    public void cutSelectedNode() {
+    public void cutSelectedNode()
+    {
         FrostBoardObject cuttedNode = getTofTree().cutSelectedNode();
         if( cuttedNode != null )
         {
@@ -2545,8 +2548,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( mixed.makeFilename(fileName),
                                                                               key,
                                                                               getActualNode(),
-                                                                              frostSettings.getIntValue("htl")
-                                                                            );
+                                                                              frostSettings.getIntValue("htl") );
                 boolean isAdded = getDownloadTable().addDownloadItem( dlItem );
             }
             else
@@ -2869,7 +2871,8 @@ public class frame1 extends JFrame implements ClipboardOwner
             // Add search result to download table
             if( e.getComponent().equals(searchTable) )
             {
-                addSelectedSearchItemsToDownloadTable();
+                getSearchTable().addSelectedSearchItemsToDownloadTable( getDownloadTable(),
+                                                       frame1.frostSettings.getIntValue("htl"));
             }
 
         }
@@ -3266,42 +3269,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             // uploads disabled
             tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Uploads")), false );
         }
-    }
-
-    /**
-     * Adds all selected items in searchtable to download table.
-     */
-    protected void addSelectedSearchItemsToDownloadTable()
-    {
-        SearchTableModel searchTableModel = (SearchTableModel)getSearchTable().getModel();
-        int[] selectedRows = searchTable.getSelectedRows();
-
-        for (int i = 0; i < selectedRows.length; i++)
-        {
-            FrostSearchItem searchItem = (FrostSearchItem)searchTableModel.getRow( selectedRows[i] );
-            FrostDownloadItemObject dlItem = new FrostDownloadItemObject(searchItem, frostSettings.getIntValue("htl"));
-
-            boolean isAdded = getDownloadTable().addDownloadItem( dlItem ); // will not add if item is already in table
-        }
-    }
-
-    /**
-     * Builds a String with contains all selected files from searchtable as attachements.
-     */
-    public String getSelectedSearchItemsAsAttachmentsString()
-    {
-        SearchTableModel searchTableModel = (SearchTableModel)searchTable.getModel();
-        int[] selectedRows = searchTable.getSelectedRows();
-        String attachments = "";
-        for( int i = 0; i < selectedRows.length; i++ )
-        {
-            FrostSearchItemObject srItem = (FrostSearchItemObject)searchTableModel.getRow( selectedRows[i] );
-
-            String key = srItem.getKey();
-            String filename = srItem.getFilename();
-            attachments += "<attached>" + filename + " * " + key + "</attached>\n";
-        }
-        return(attachments);
     }
 }
 

@@ -138,6 +138,7 @@ public class requestThread extends Thread
             newKey.setExchange(false);
             Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
 
+            downloadItem.setFileSize( newFile.length() );
             downloadItem.setState( downloadItem.STATE_DONE );
 
             tableModel.updateRow( downloadItem );
