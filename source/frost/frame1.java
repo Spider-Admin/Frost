@@ -2608,6 +2608,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                 else if( -1 != (sepIndex = key.lastIndexOf("/")) )
                 {
                     fileName = key.substring(sepIndex + 1);
+                    // remove filename from key
+                    key = key.substring(0, key.indexOf("/") );
                 }
                 else
                 {
@@ -2616,8 +2618,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                 // add valid key to download table
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( mixed.makeFilename(fileName),
                                                                               key,
-                                                                              getActualNode() );
+                                                                              null );
                 boolean isAdded = getDownloadTable().addDownloadItem( dlItem );
+
+                downloadTextField.setText("");
             }
             else
             {
@@ -2776,7 +2780,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     for( int j = 0; j < allFiles.size(); j++ )
                     {
                         File newFile = (File)allFiles.get(j);
-                        if( newFile.isFile() )
+                        if( newFile.isFile() && newFile.length() > 0 )
                         {
                             FrostUploadItemObject ulItem = new FrostUploadItemObject( newFile, board );
                             boolean isAdded = getUploadTable().addUploadItem( ulItem );

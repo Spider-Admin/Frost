@@ -108,6 +108,12 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         else
             blocks = "";
 
+        String board;
+        if( sourceBoard != null )
+            board = sourceBoard.toString();
+        else
+            board = "";
+
         switch(column) {
             case 0: return fileName;                //LangRes.getString("Filename"),
             case 1: return aFileSize;               //LangRes.getString("Size"),
@@ -115,7 +121,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
             case 3: return getStateString( state ); //LangRes.getString("State"),
             case 4: return blocks;                  //LangRes.getString("Blocks"),
             case 5: return retries;                 //LangRes.getString("Retries"),
-            case 6: return sourceBoard.toString();  //LangRes.getString("Source"),
+            case 6: return board;                   //LangRes.getString("Source"),
             case 7: return key;                     //LangRes.getString("Key")
             default: return "*ERR*";
         }

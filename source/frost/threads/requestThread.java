@@ -95,7 +95,8 @@ public class requestThread extends Thread
             {
                 // Upload request to request stack
                 if( frame1.frostSettings.getBoolValue("downloadEnableRequesting") &&
-                    downloadItem.getRetries() >= frame1.frostSettings.getIntValue("downloadRequestAfterTries") )
+                    downloadItem.getRetries() >= frame1.frostSettings.getIntValue("downloadRequestAfterTries") &&
+                    board != null && board.isFolder() == false )
                 {
                     if( DEBUG ) System.out.println("FILEDN: Download failed, uploading request for " + filename);
                     downloadItem.setState( downloadItem.STATE_REQUESTING );
@@ -141,13 +142,16 @@ public class requestThread extends Thread
         // download successfull
         else
         {
-            // Add successful downloaded key to database
-            KeyClass newKey = new KeyClass(key);
-            newKey.setFilename(filename);
-            newKey.setSize(newFile.length());
-            newKey.setDate(date);
-            newKey.setExchange(false);
-            Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+            if( board != null && board.isFolder() == false )
+            {
+                // Add successful downloaded key to database
+                KeyClass newKey = new KeyClass(key);
+                newKey.setFilename(filename);
+                newKey.setSize(newFile.length());
+                newKey.setDate(date);
+                newKey.setExchange(false);
+                Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+            }
 
             downloadItem.setFileSize( newFile.length() );
             downloadItem.setState( downloadItem.STATE_DONE );
