@@ -61,6 +61,7 @@ public class LangRes extends ListResourceBundle {
     {"Automatic update", "Automatic update"},
     {"Activate downloading", "Activate downloading"},
     {"Activate uploading", "Activate uploading"},
+    {"Automatic Indexing", "Automatic Indexing"},
 
     // Popup Menues
     {"Download selected keys", "Download selected keys"},

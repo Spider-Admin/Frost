@@ -204,6 +204,9 @@ public class Core {
 				e.printStackTrace(getOut());				
 			}
 			Core.getOut().println("loaded "+friends.size() +" friends and "+ enemies.size() +" enemies and "+ neutral.size()+" neutrals.");
+			if (friends.Add(frame1.getMyId())) 
+				out.println("added myself to list");
+			
 		}else {
 		try {
 				
