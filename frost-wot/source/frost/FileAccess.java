@@ -449,6 +449,12 @@ public class FileAccess
 
             if (files.size() == 0)
             {
+            	if (source.length() > 0 ) {
+            		Core.getOut().println("\n\n****Index empty but file is not!***");
+            		Core.getOut().println("send badfile.xml to dev for analysis\n\n");
+					File badfile = new File ("badfile.xml");
+					source.renameTo(badfile);
+            	}
                 Core.getOut().println("Index empty!");
                 return;
             }
@@ -467,7 +473,7 @@ public class FileAccess
                 	File badfile = new File ("badfile.xml");
                 	source.renameTo(badfile);
                 	Core.getOut().println("invalid index received.  Its saved as badfile.xml, send that file to the devs for analysis");
-                	continue;
+                	break;
                 }
                 
                 //validate the key
