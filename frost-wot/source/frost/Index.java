@@ -167,7 +167,7 @@ public class Index
 
         //update the lastSharedDate of the shared files
         if (reSharing)
-        	FileAccess.writeKeyFile(totalIdx, board);
+        	FileAccess.writeKeyFile(totalIdx, boardFiles);
         
 
 		//return anything only if we either re-shared old files or
