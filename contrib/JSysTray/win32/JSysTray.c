@@ -29,7 +29,7 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 #include <windows.h>
 #include <stdio.h>
 
-#include "JSysTrayIcon.h"
+#include "frost_ext_JSysTrayIcon.h"
 
 #include "resource.h"
 
@@ -321,7 +321,7 @@ int JDeleteSystrayIcon(void* hSystray)
  * Method:    nativeShowWindow
  * Signature: (Ljava/lang/String;I)I
  */
-JNIEXPORT jint JNICALL Java_JSysTrayIcon_nativeShowWindow(JNIEnv* env,jobject obj,jstring title,jint cmd)
+JNIEXPORT jint JNICALL Java_frost_ext_JSysTrayIcon_nativeShowWindow(JNIEnv* env,jobject obj,jstring title,jint cmd)
 {
   int rc;
 
@@ -335,7 +335,7 @@ JNIEXPORT jint JNICALL Java_JSysTrayIcon_nativeShowWindow(JNIEnv* env,jobject ob
  * Method:    nativeCreateSystrayIcon
  * Signature: (ILjava/lang/String;Ljava/lang/String;)I
  */
-JNIEXPORT jint JNICALL Java_JSysTrayIcon_nativeCreateSystrayIcon(JNIEnv* env,jobject obj,jint iconIndex,jstring tooltip,jstring title)
+JNIEXPORT jint JNICALL Java_frost_ext_JSysTrayIcon_nativeCreateSystrayIcon(JNIEnv* env,jobject obj,jint iconIndex,jstring tooltip,jstring title)
 {
   void* rc;
   LPSTR  szTitle = NULL;
@@ -356,7 +356,7 @@ JNIEXPORT jint JNICALL Java_JSysTrayIcon_nativeCreateSystrayIcon(JNIEnv* env,job
  * Method:    nativeModifySystrayIcon
  * Signature: (IILjava/lang/String;Ljava/lang/String;)I
  */
-JNIEXPORT jint JNICALL Java_JSysTrayIcon_nativeModifySystrayIcon(JNIEnv* env,jobject obj,jint handle,jint iconIndex,jstring tooltip,jstring title)
+JNIEXPORT jint JNICALL Java_frost_ext_JSysTrayIcon_nativeModifySystrayIcon(JNIEnv* env,jobject obj,jint handle,jint iconIndex,jstring tooltip,jstring title)
 {
   int    rc;
   LPSTR  szTitle = NULL;
@@ -377,7 +377,7 @@ JNIEXPORT jint JNICALL Java_JSysTrayIcon_nativeModifySystrayIcon(JNIEnv* env,job
  * Method:    nativeDeleteSystrayIcon
  * Signature: (I)I
  */
-JNIEXPORT jint JNICALL Java_JSysTrayIcon_nativeDeleteSystrayIcon(JNIEnv* env,jobject obj,jint handle)
+JNIEXPORT jint JNICALL Java_frost_ext_JSysTrayIcon_nativeDeleteSystrayIcon(JNIEnv* env,jobject obj,jint handle)
 {
   int rc;
 

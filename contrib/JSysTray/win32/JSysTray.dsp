@@ -102,7 +102,7 @@ SOURCE=.\JSysTray.rc
 # PROP Default_Filter "h;hpp;hxx;hm;inl"
 # Begin Source File
 
-SOURCE=.\JSysTrayIcon.h
+SOURCE=.\frost_ext_JSysTrayIcon.h
 # End Source File
 # Begin Source File
 
