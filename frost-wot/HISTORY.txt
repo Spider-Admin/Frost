@@ -33,3 +33,4 @@ Legend:
 + added 'Mark ALL messages read' to popup menu of message table  --bback
 + added support for detached signatures  in the crypto --zab
 * started moving towards more unified logging, will finish later --zab
++ added most of the infrastructure for multiple nodes support --zab
