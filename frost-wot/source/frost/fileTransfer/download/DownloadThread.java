@@ -375,7 +375,7 @@ public class DownloadThread extends Thread {
 									"FILEDN: Request Upload collided, increasing index to "
 										+ index);
 
-								if (frame1.frostSettings.getBoolValue("disableRequests") == true) {
+								if (frame1.frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == true) {
 									// uploading is disabled, therefore already existing requests are not
 									// written to disk, causing key collosions on every request insert.
 
