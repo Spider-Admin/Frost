@@ -34,6 +34,7 @@ public class BoardsManager {
 	 * 
 	 */
 	public void initialize() {
+		TOF.initialize();
 		getTofTree().initialize();
 		mainFrame.setTofTree(getTofTree());
 		mainFrame.setTofTreeModel(getTofTreeModel());

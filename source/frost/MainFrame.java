@@ -546,7 +546,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * 
 			 */
 			private void markAllMessagesRead() {
-				TOF.setAllMessagesRead(getMessageTable(), getSelectedNode());
+				TOF.getInstance().setAllMessagesRead(getMessageTable(), getSelectedNode());
 			}
 
 			/**
@@ -1182,7 +1182,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			Board selectedBoard = getSelectedNode();
 			if (selectedBoard.isFolder())
 				return;
-			selectedMessage = TOF.evalSelection(e, messageTable, selectedBoard);
+			selectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
 			if (selectedMessage != null) {
 				displayNewMessageIcon(false);
 				downloadAttachmentsButton.setEnabled(false);
@@ -2401,7 +2401,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // step through all messages on disk up to maxMessageDisplay and check
         // if there are new messages
         // if a new message is in a folder, this folder is show yellow in tree
-        TOF.initialSearchNewMessages();
+        TOF.getInstance().initialSearchNewMessages();
 
         if (core.isFreenetOnline()) {
             tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
@@ -2527,7 +2527,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			// check if signed only+hideCheck+hideBad or blocking words settings changed
 			if (optionsDlg.shouldReloadMessages()) {
 				// update the new msg. count for all boards
-				TOF.initialSearchNewMessages();
+				TOF.getInstance().initialSearchNewMessages();
 				// reload all messages
 				tofTree_actionPerformed(null);
 			}
@@ -2814,7 +2814,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				renameBoardButton.setEnabled(false);
 
 				// read all messages for this board into message table
-				TOF.updateTofTable(node, keypool);
+				TOF.getInstance().updateTofTable(node, keypool);
 				messageTable.clearSelection();
 			} else {
 				// node is a folder

@@ -752,7 +752,7 @@ public class TofTree extends JDragTree implements Savable {
 					Board newBoard = new Board(boardName, boardDescription);
 					model.addNodeToTree(newBoard);
 					// maybe this boardfolder already exists, scan for new messages
-					TOF.initialSearchNewMessages(newBoard);
+					TOF.getInstance().initialSearchNewMessages(newBoard);
 					isDone = true; //added
 				}
 
@@ -791,7 +791,7 @@ public class TofTree extends JDragTree implements Savable {
 		Board newBoard = new Board(bname, bpubkey, bprivkey, description);
 		model.addNodeToTree(newBoard);
 		// maybe this boardfolder already exists, scan for new messages
-		TOF.initialSearchNewMessages(newBoard);
+		TOF.getInstance().initialSearchNewMessages(newBoard);
 	}
 
 	/**
@@ -1009,7 +1009,7 @@ public class TofTree extends JDragTree implements Savable {
 			{
 			mainFrame.updateTofTree(board);
 			// update the new msg. count for board
-			TOF.initialSearchNewMessages(board);
+			TOF.getInstance().initialSearchNewMessages(board);
 	
 			if (board == model.getSelectedNode()) {
 				// reload all messages if board is shown
