@@ -3357,7 +3357,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	private void tofDisplayKnownBoardsMenuItem_actionPerformed(ActionEvent e) {
-		KnownBoardsFrame knownBoards = new KnownBoardsFrame(this);
+		KnownBoardsFrame knownBoards = new KnownBoardsFrame(this, languageResource.getResourceBundle());
 		knownBoards.startDialog();
 	}
 
