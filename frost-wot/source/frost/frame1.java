@@ -2228,6 +2228,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             // Sometimes it seems that download table entries do not get reset to "Failed"
             // I did not find the bug yet, but if there is no download thread active
             // all unfinished downloads are set to "Waiting"
+/*
             if( activeDownloadThreads == 0 && downloadActivateCheckBox.isSelected() )
             {
                 DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
@@ -2241,6 +2242,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     }
                 }
             }
+*/
         }
 
         //////////////////////////////////////////////////
@@ -2375,16 +2377,35 @@ public class frame1 extends JFrame implements ClipboardOwner
                         dlModel.updateRow( dlItem );
                     }
                 }
+                else if( dlItem.getState().equals(LangRes.getString("Failed")) )
+                {
+                    if( frostSettings.getBoolValue("downloadRestartFailedDownloads") &&
+                        dlItem.getHtl().intValue() == frostSettings.getIntValue("htlMax") )
+                    {
+                        // prepare item for restart in next loop
+                        dlItem.setState( LangRes.getString("Waiting") );
+                        dlItem.setHtl( frostSettings.getIntValue("htl") );
+                        dlModel.updateRow( dlItem );
+                    }
+                }
             }
             if( waitingItems.size() > 0 )
             {
-                // sort waiting items by htl ascending
-                Collections.sort( waitingItems, downloadHtlCmp );
+                // sort waiting items by htl or lastDownloadStartTimeMillis, ascending
+                if( frostSettings.getBoolValue( "downloadMethodLeastHtl" ) )
+                {
+                    Collections.sort( waitingItems, downloadHtlCmp );
+                }
+                else
+                {
+                    Collections.sort( waitingItems, downloadDlStartMillisCmp );
+                }
                 // choose first item
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)waitingItems.get(0);
                 dlItem.setState( LangRes.getString("Trying") );
                 dlModel.updateRow( dlItem );
 
+                dlItem.setLastDownloadStartTimeMillis( System.currentTimeMillis() );
                 requestThread newRequest = new requestThread( dlItem, getDownloadTable() );
                 newRequest.start();
             }
@@ -2399,6 +2420,19 @@ public class frame1 extends JFrame implements ClipboardOwner
         FrostDownloadItemObject value1 = (FrostDownloadItemObject)o1;
         FrostDownloadItemObject value2 = (FrostDownloadItemObject)o2;
         if( value1.getHtl().intValue() > value2.getHtl().intValue() )
+            return 1;
+        else
+            return -1;
+        }
+    };
+    /**
+     * Used to sort FrostDownloadItemObjects by lastUpdateStartTimeMillis ascending.
+     */
+    static final Comparator downloadDlStartMillisCmp = new Comparator() {
+        public int compare(Object o1, Object o2) {
+        FrostDownloadItemObject value1 = (FrostDownloadItemObject)o1;
+        FrostDownloadItemObject value2 = (FrostDownloadItemObject)o2;
+        if( value1.getLastDownloadStartTimeMillis() > value2.getLastDownloadStartTimeMillis() )
             return 1;
         else
             return -1;

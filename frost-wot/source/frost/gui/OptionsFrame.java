@@ -110,6 +110,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox miscAltEditCheckBox = new JCheckBox(LangRes.getString("Use editor for writing messages: ") + " " +
                                                   LangRes.getString("(Off)"));
 
+    JRadioButton downloadUpdateMethodLeastHtlFirst = new JRadioButton( "Files with smallest HTL first" );
+    JRadioButton downloadUpdateMethodOneByOne = new JRadioButton( "Files one by one, no matter which HTL" );
+    ButtonGroup downloadUpdateMethod = new ButtonGroup();
+
+    JCheckBox downloadRestartFailedDownloads = new JCheckBox("Restart failed downloads with minimum HTL");
+
     JList optionsGroupsList = null;
 
     // new options in WOT:
@@ -342,11 +348,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 3;
             downloadPanel.add(downloadMaxHtlTextField, constr);
 
-        constr.gridy++;
-        constr.gridx = 0;
-        downloadPanel.add(startRequestingAfterHtlLabel, constr);
-        constr.gridx = 1;
-        downloadPanel.add(startRequestingAfterHtlTextField, constr);
+            constr.gridy++;
+            constr.gridx = 0;
+            downloadPanel.add(startRequestingAfterHtlLabel, constr);
+            constr.gridx = 1;
+            downloadPanel.add(startRequestingAfterHtlTextField, constr);
+
+            constr.gridy++;
+            constr.gridx = 0;
+            downloadPanel.add(downloadRestartFailedDownloads, constr);
 
             constr.gridy++;
             constr.gridx = 0;
@@ -365,6 +375,27 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridwidth = 3;
             constr.insets = new Insets(5,5,5,5);
             downloadPanel.add(removeFinishedDownloadsCheckBox, constr);
+
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.gridwidth = 3;
+            constr.insets = new Insets(7,5,5,5);
+            downloadPanel.add(new JLabel("Method for choosing the next file from download table"), constr);
+
+            downloadUpdateMethod.add( downloadUpdateMethodLeastHtlFirst );
+            downloadUpdateMethod.add( downloadUpdateMethodOneByOne );
+
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.gridwidth = 3;
+            constr.insets = new Insets(0,25,5,5);
+            downloadPanel.add(downloadUpdateMethodLeastHtlFirst, constr);
+
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.gridwidth = 3;
+            constr.insets = new Insets(0,25,5,5);
+            downloadPanel.add(downloadUpdateMethodOneByOne, constr);
 
             // filler (glue)
             constr.gridy++;
@@ -930,7 +961,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         searchDocumentExtensionTextField.setText(frostSettings.getValue("documentExtension"));
         searchExecutableExtensionTextField.setText(frostSettings.getValue("executableExtension"));
         searchArchiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
-    startRequestingAfterHtlTextField.setText(frostSettings.getValue("startRequestingAfterHtl"));
+        startRequestingAfterHtlTextField.setText(frostSettings.getValue("startRequestingAfterHtl"));
         cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
         uploadDisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
         downloadDisableDownloads.setSelected(frostSettings.getBoolValue("disableDownloads"));
@@ -939,6 +970,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             frostSettings.getValue("automaticUpdate.concurrentBoardUpdates") );
         TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
             frostSettings.getValue("automaticUpdate.boardsMinimumUpdateInterval") );
+
+        downloadRestartFailedDownloads.setSelected(frostSettings.getBoolValue("downloadRestartFailedDownloads"));
+
+        if( frostSettings.getBoolValue("downloadMethodLeastHtl") )
+        {
+            downloadUpdateMethodLeastHtlFirst.setSelected(true);
+        }
+        else
+        {
+            downloadUpdateMethodOneByOne.setSelected(true);
+        }
     }
 
     /**
@@ -974,7 +1016,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
         frostSettings.setValue("splitfileUploadThreads", uploadSplitfileThreadsTextField.getText());
         frostSettings.setValue("splitfileDownloadThreads", downloadSplitfileThreadsTextField.getText());
-    frostSettings.setValue("startRequestingAfterHtl", startRequestingAfterHtlTextField.getText());
+        frostSettings.setValue("startRequestingAfterHtl", startRequestingAfterHtlTextField.getText());
         frostSettings.setValue("nodeAddress", miscNodeAddressTextField.getText());
         frostSettings.setValue("nodePort", miscNodePortTextField.getText());
         frostSettings.setValue("maxKeys", miscMaxKeysTextField.getText());
@@ -1008,6 +1050,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("automaticUpdate.boardsMinimumUpdateInterval",
                                TFautomaticUpdate_boardsMinimumUpdateInterval.getText());
 
+        frostSettings.setValue("downloadRestartFailedDownloads", downloadRestartFailedDownloads.isSelected());
+
+        if( downloadUpdateMethod.isSelected( downloadUpdateMethodLeastHtlFirst.getModel() ) )
+        {
+            frostSettings.setValue("downloadMethodLeastHtl", true);
+            frostSettings.setValue("downloadMethodOneByOne", false);
+        }
+        else
+        {
+            frostSettings.setValue("downloadMethodOneByOne", true);
+            frostSettings.setValue("downloadMethodLeastHtl", false);
+        }
         frostSettings.writeSettingsFile();
     }
 

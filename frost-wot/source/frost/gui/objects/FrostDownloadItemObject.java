@@ -16,6 +16,8 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
 
     String state = null;
 
+    long lastDownloadStartTimeMillis = 0; // used for one by one update mode
+
     public FrostDownloadItemObject( FrostSearchItem searchItem, int initialHtl )
     {
         fileName = searchItem.getFilename();
@@ -124,4 +126,15 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         state = v;
     }
+
+
+    public long getLastDownloadStartTimeMillis()
+    {
+        return lastDownloadStartTimeMillis;
+    }
+    public void setLastDownloadStartTimeMillis( long val )
+    {
+        lastDownloadStartTimeMillis = val;
+    }
+
 }
