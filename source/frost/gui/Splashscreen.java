@@ -41,6 +41,9 @@ import javax.swing.*;
  * Update: the suggested workaround didn't work. It threw another strage Swing exception later, when the main frame 
  * was about to be shown, so I assupe it may be a problem with the gfx card drivers or a bug with the JVM itself 
  * (probably the first).
+ * 
+ * Update: it seems the problem lies on the com.sun.java.swing.plaf.windows.WindowsLookAndFeel. If the user chooses
+ * another one (like Metal) from the command line options, the issue is solved.
  */
 public class Splashscreen extends JDialog {
 
