@@ -283,9 +283,9 @@ System.out.println("gen for bits: "+gfBits);
             }
 
             // final components
-/*            for (;i < lim; i++, j++) {
+            for (;i < lim; i++, j++) {
                 dst[i] ^= gf_mulc[src[j]];
-            }*/
+            }
 
         } else { // gfBits > 8, no multiplication table
             int mulcPos = gf_log[c];
@@ -314,10 +314,13 @@ System.out.println("gen for bits: "+gfBits);
         if (c == 0) {
             return;
         }
+// hmm, the Intel Pentium cpu likes this unrolling -> much faster
+// but the AMD XP cpu seems not to like it, this cpu is faster without unrolling it
+// tested with sun java 1.4.2
 
-//        int unroll = 16; // unroll the loop 16 times.
-//        int i = dstPos;
-//        int j = srcPos;
+        int unroll = 16; // unroll the loop 16 times.
+        int i = dstPos;
+        int j = srcPos;
         int lim = dstPos + len;
 
         // use our multiplication table.
@@ -328,12 +331,45 @@ System.out.println("gen for bits: "+gfBits);
 
         // Not sure if loop unrolling has any real benefit in Java, but
         // what the hey.
-//        for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
-        for (;dstPos < lim; dstPos++, srcPos++) {
+        for (;i < lim && (lim-i) > unroll; ){//i += unroll, j += unroll) {
+//        for (;i < lim;){// i++, j++) {
             // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
 
-            dst[dstPos] ^= gf_mulc[ src[srcPos] & 0xff ];
-/*            dst[i+1] ^= gf_mulc[src[j+1] & 0xff];
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            i++; j++;
+
+/*            dst[i] ^= gf_mulc[ src[j] & 0xff ];
+            dst[i+1] ^= gf_mulc[src[j+1] & 0xff];
             dst[i+2] ^= gf_mulc[src[j+2] & 0xff];
             dst[i+3] ^= gf_mulc[src[j+3] & 0xff];
             dst[i+4] ^= gf_mulc[src[j+4] & 0xff];
@@ -351,9 +387,9 @@ System.out.println("gen for bits: "+gfBits);
         }
 
         // final components
-/*        for (;i < lim; i++, j++) {
+        for (;i < lim; i++, j++) {
             dst[i] ^= gf_mulc[src[j] & 0xff];
-        }*/
+        }
     }
 
     /*

@@ -17,7 +17,8 @@ public class test
     public void run() throws Throwable
     {
         System.out.println("Starting");
-        File inputFile = new File("F:\\dvd\\BigLebowski.mpg");//"biginputfile.dat");
+//        File inputFile = new File("F:\\dvd\\BigLebowski.mpg");//"biginputfile.dat");
+        File inputFile = new File("biginputfile.dat");
         long filesize = inputFile.length();
 
         OnionFECEncoder encoder = new OnionFECEncoder();
@@ -43,6 +44,7 @@ System.out.println("segment="+z+"  checkblocks="+checkBlockCount+"  checkblocksi
 
         // block sizes could differ in each segment
         long segmentStartOffset = 0;
+        RandomAccessFile raf = new RandomAccessFile( inputFile, "r" );
         for(int actSegment = 0; actSegment < segmentCount; actSegment++)
         {
             int blockCount = encoder.getK( actSegment );
@@ -50,8 +52,8 @@ System.out.println("segment="+z+"  checkblocks="+checkBlockCount+"  checkblocksi
 
 System.out.println("seg="+actSegment+"  fsize="+filesize+"  blocks="+blockCount+"  bsize="+blockSize);
 
-            Bucket[] actSegmentsDataBlocks = RandomAccessFileBucket.segment(
-                    inputFile, blockSize, segmentStartOffset, blockCount, true);
+            Bucket[] actSegmentsDataBlocks = RandomAccessFileBucket2.segment(
+                    inputFile, blockSize, segmentStartOffset, blockCount, true, raf);
 
 System.out.println("lastb="+actSegmentsDataBlocks[actSegmentsDataBlocks.length-1].size());
 
@@ -67,18 +69,21 @@ System.out.println("lastb="+actSegmentsDataBlocks[actSegmentsDataBlocks.length-1
         int checkBlockCounter = 0;
         File checkBlocksFile;
         long actFileOffset = 0;
+        RandomAccessFile raf = null;
 
         public void init(String checkBlocksFileName, long checkBlocksFileSize) throws IOException
         {
             checkBlocksFile = new File(checkBlocksFileName);
-            RandomAccessFile raf = new RandomAccessFile( checkBlocksFile, "rw" );
+            checkBlocksFile.delete();
+
+            raf = new RandomAccessFile( checkBlocksFile, "rw" );
             raf.setLength( checkBlocksFileSize );
-            raf.close();
+            //raf.close();
         }
 
         public Bucket makeBucket(long size) throws IOException
         {
-            RandomAccessFileBucket b = new RandomAccessFileBucket( checkBlocksFile, actFileOffset, size, false);
+            RandomAccessFileBucket2 b = new RandomAccessFileBucket2( checkBlocksFile, actFileOffset, size, false, raf);
             actFileOffset += size;
             return b;
         }
