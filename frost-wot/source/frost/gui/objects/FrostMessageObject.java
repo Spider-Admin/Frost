@@ -13,14 +13,6 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
 	protected Boolean messageIsNew = null;
     	
 	/**
-	 * Constructor can be used to build an empty message for uploading.
-	 */
-	public FrostMessageObject()
-	{
-	    super();
-	}
-    
-    /**
      * This constructor can be used to build a messageobject from
      * an existing file.
      * 
