@@ -11,6 +11,7 @@ Added:  del key deletes selected message
 Added:  new message window by double click on a message, ESC closes it
 Added:  details to the dialog that pops up when there is an error while automatically saving a resource.
 Added:  popup menus to some other text fields (to perform the usual clipboard operations).
+Added:  now you can enable/disable upload items.
 
 Changed: messages are signed by default.
 Changed: now the sizes of the new message window, the known boards window and the boards info window are
