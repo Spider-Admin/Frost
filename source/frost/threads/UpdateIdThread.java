@@ -75,7 +75,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         String[] result = {"Error", "Error"};
 
         if( indexFile.length() > 0 && indexFile.isFile() )
-        { //TODO:zip
+        {
             String tozip = FileAccess.readFile(indexFile);
             FileAccess.writeZipFile(tozip, "entry",indexFile);
             while( !success && tries <= maxFailures )
@@ -183,7 +183,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 }
                 else
                 {
-                    // Damned, the download failed. Sometimes there are some 0 byte
+                    // download failed. Sometimes there are some 0 byte
                     // files left, we better remove them now.
                     target.delete();
                     failures++;
