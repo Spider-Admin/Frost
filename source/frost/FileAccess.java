@@ -271,7 +271,10 @@ public class FileAccess
                 zis.close();
             }
             catch( IOException e ) {
-                Core.getOut().println("files.readZipFile: " + e);
+                e.printStackTrace(Core.getOut());
+                Core.getOut().println("offeding file saved as badfile.zip, send to a dev for analysis");
+                File badFile = new File("badfile.zip");
+                file.renameTo(badFile);
             }
         }
         catch( FileNotFoundException e ) {
