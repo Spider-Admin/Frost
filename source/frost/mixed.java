@@ -126,7 +126,38 @@ public static String makeSafeXML(String text) {
 
         return newText.toString();
     }
+    
+    /**
+     * Filters all non-english characters as well as those filtered by makeFilename
+     * @param text the text to be filtered
+     * @return the filtered text
+     */
+    public static String makeASCIIFilename(String text){
+		
+		StringBuffer newText = new StringBuffer();
+		String allowedCharacters = "()-!.";
+		for (int i = 0; i < text.length(); i++)
+			  {
+			       int value = Character.getNumericValue(text.charAt(i));
+			       char character = text.charAt(i);
+				   if ((value >= 0 && value < 36)
+				       || allowedCharacters.indexOf(character) != -1)
+				       newText.append(character);
+				   else
+				       newText.append("_");
+			 }
+		return makeFilename(newText.toString());  //run through the other filter just in case
+    }
 
+    /**
+     * checks if the string contains non-english characters
+     * @param text the string
+     * @return whether it contains foreign chars
+     */
+    public static boolean containsForeign(String text){
+    	//REDFLAG: implement?
+    	return false;
+    }
     /**
      * If a string is on the system clipboard, this method returns it;
      * otherwise it returns null.
