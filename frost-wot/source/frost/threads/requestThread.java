@@ -69,7 +69,7 @@ public class requestThread extends Thread
         boolean success = false;
 
         try {
-            success = FcpRequest.getFile(key, size, newFile, 25, true, false);
+            success = FcpRequest.getFile(key, size, newFile, 25, true, false, downloadItem);
         }
         catch(Throwable t) { ; }
 

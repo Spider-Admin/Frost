@@ -111,7 +111,7 @@ public class FcpInsert
     /**
      * Updates the 'state' column for a file that is in table.
      */
-    private static void updateUploadTable(File file, int progress, boolean mode)
+    private static void updateUploadTable(File file, long progress, boolean mode)
     {
         if( mode == false ) // uploading mode?
         {
@@ -144,200 +144,15 @@ public class FcpInsert
         }
     }
 
-    public static String[] putSplitFile(String uri, File file, int htl, boolean mode) {
-    int fileLength = (int)file.length();
-    int chunkSize = smallestChunk;
-
-    if (fileLength > 67108864)
-        chunkSize = Math.abs(fileLength / 256);
-
-    if (DEBUG) System.out.println("ChunkSize: " + chunkSize);
-
-    int c;
-    int chunk = 0;
-    String output = new String();
-    Thread[] threads = new Thread[fileLength / chunkSize + 1];
-    int threadCount = 0;
-    int maxThreads = frame1.frostSettings.getIntValue("splitfileUploadThreads");
-    String[][] results = new String[threads.length][2];
-
-    try {
-        FileInputStream fileIn = new FileInputStream(file);
-
-        // get all full size chunks
-        if (DEBUG) System.out.println("File size: " + fileLength);
-        for (int i = chunkSize; i <= fileLength; i += chunkSize) {
-        if (DEBUG) System.out.println("Full Size Chunk: " + i);
-        // read chunkSize bytes
-        int bytesRead = 0;
-        int count = 0;
-        byte[] data = new byte[chunkSize];
-        while (bytesRead < chunkSize) {
-            count = fileIn.read(data, bytesRead, chunkSize - bytesRead);
-            if (count < 0) {
-            break;
-            }
-            else {
-            bytesRead += count;
-            }
-        }
-
-        File uploadMe = new File(frame1.frostSettings.getValue("temp.dir") +
-                                 String.valueOf(System.currentTimeMillis()) +
-                                 ".tmp");
-        uploadMe.deleteOnExit();
-        FileAccess.writeByteArray(data, uploadMe);
-
-        data = null;
-
-        while (getActiveThreads(threads) >= maxThreads)
-            mixed.wait(5000);
-
-        threads[threadCount] = new putKeyThread("CHK@",
-                            uploadMe,
-                            htl,
-                            results,
-                            threadCount,
-                            mode);
-        threads[threadCount].start();
-        threadCount++;
-        updateUploadTable(file, i, mode);
-        mixed.wait(3000);
-        }
-
-        // read chunkSize bytes
-        int bytesRead = 0;
-        int count = 0;
-        int lastChunk = (fileLength - threadCount * chunkSize);
-
-        if (lastChunk > 0) {
-        if (DEBUG) System.out.println("lastChunk:" + lastChunk);
-        byte[] lastPart = new byte[lastChunk];
-        while (bytesRead < lastChunk) {
-            count = fileIn.read(lastPart, bytesRead, lastChunk - bytesRead);
-            if (count < 0) {
-            break;
-            }
-            else {
-            bytesRead += count;
-            }
-        }
-
-        File uploadMe = new File(frame1.frostSettings.getValue("temp.dir") +
-                                 String.valueOf(System.currentTimeMillis()) +
-                                 ".tmp");
-        uploadMe.deleteOnExit();
-        FileAccess.writeByteArray(lastPart, uploadMe);
-
-        lastPart = null;
-
-        if (uploadMe.length() > 0) {
-            threads[threadCount] = new putKeyThread("CHK@",
-                                uploadMe,
-                                htl,
-                                results,
-                                threadCount,
-                                mode);
-            threads[threadCount].start();
-
-            threadCount++;
-        }
-
-        lastPart = null;
-        }
-
-        // wait until all threads are done
-        while (getActiveThreads(threads) > 0) {
-        if (DEBUG) System.out.println("Active Splitfile inserts remaining: " + getActiveThreads(threads));
-        mixed.wait(8000);
-        }
-
-        fileIn.close();
-        threads = null;
-
-    }
-    catch (IOException e) {}
-
-    // Generate redirect
-    String redirect = new String();
-    redirect = "Version\nRevision=1\nEndPart\nDocument\n";
-    redirect += "SplitFile.Size=" + Integer.toHexString(fileLength) + "\n";
-    redirect += "SplitFile.Blocksize=" + Integer.toHexString(chunkSize) + "\n";
-    redirect += "SplitFile.BlockCount=" + Integer.toHexString(threadCount) + "\n";
-
-    for (int i = 0; i < threadCount; i++) {
-        String message = results[i][0];
-        String chk = results[i][1];
-
-        if (chk == null) { // Thread aborted without obvious reason (shit happens)
-        String[] returnError = {"Error", "Error"};
-        if (DEBUG) System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        if (DEBUG) System.out.println("Chunk " + i + " thread returned no value!");
-        if (DEBUG) System.out.println("Aborting upload of " + file.getName());
-        if (DEBUG) System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-        return returnError;
-        }
-        else {
-        if (chk.indexOf("Error") != -1) {
-            String[] returnError = {"Error", "Error"};
-            if (DEBUG) System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            if (DEBUG) System.out.println("Chunk " + i + " upload failed!");
-            if (DEBUG) System.out.println("Aborting upload of " + file.getName());
-            if (DEBUG) System.out.println("!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!!");
-            return returnError;
-        }
-        }
-        redirect += "SplitFile.Block." + Integer.toHexString(i + 1) + "=freenet:" + chk + "\n";
-    }
-
-    redirect += "Info.Format=Frost\n";
-    redirect += "End\n";
-
-    if (DEBUG) System.out.println(redirect);
-
-    // Upload redirect file
-    // Try 8 times
-    // Only stop after Success or KeyCollision
-    int tries = 0;
-    String[] result = {"Error", "Error"};
-    while (!result[0].equals("Success") &&
-           !result[0].equals("KeyCollision") &&
-           tries < 8) {
-        tries++;
-        try {
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
-        output = connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, mode);
-        }
-        catch (FcpToolsException e) {
-        if (DEBUG) System.out.println("FcpToolsException " + e);
-        frame1.displayWarning(e.toString());
-        }
-        catch (UnknownHostException e) {
-        if (DEBUG) System.out.println("UnknownHostException");
-        frame1.displayWarning(e.toString());
-        }
-        catch (IOException e) {
-        if (DEBUG) System.out.println("IOException");
-        frame1.displayWarning(e.toString());
-        }
-
-        result = result(output);
-        mixed.wait(3000);
-        if (DEBUG) System.out.println("*****" + result[0] + " " + result[1] + " ");
-    }
-
-    return result(output);
-    }
-
     public static String[] putFECSplitFile(String boardfilename, String uri, File file,
                                            int htl, boolean mode) {
-        FcpFECUtils fecutils = null;
+    FcpFECUtils fecutils = null;
     Vector segmentHeaders = null;
     Vector segmentFileMaps = new Vector();
     Vector checkFileMaps = new Vector();
     Vector segmentKeyMaps = new Vector();
     Vector checkKeyMaps = new Vector();
-    int fileLength = (int)file.length();
+    long fileLength = file.length();
 
     String output = new String();
     int maxThreads = frame1.frostSettings.getIntValue("splitfileUploadThreads");
@@ -380,10 +195,13 @@ public class FcpInsert
             {
                 System.out.println("Processing segment " + i);
                 fileIn.skip(((FcpFECUtilsSegmentHeader)segmentHeaders.get(i)).Offset);
-                long segLength = ((FcpFECUtilsSegmentHeader)segmentHeaders.get(i)).BlockCount * ((FcpFECUtilsSegmentHeader)segmentHeaders.get(i)).BlockSize;
+                long segLength = ((FcpFECUtilsSegmentHeader)segmentHeaders.get(i)).BlockCount *
+                                  ((FcpFECUtilsSegmentHeader)segmentHeaders.get(i)).BlockSize;
                 System.out.println("segLength = " + Long.toHexString(segLength));
                 String headerString = "SegmentHeader\n" + ((FcpFECUtilsSegmentHeader)segmentHeaders.get(i)).reconstruct() + "EndMessage\n";
-                String dataHeaderString = "\0\0\0\2FECEncodeSegment\nMetadataLength=" + Long.toHexString(headerString.length()) + "\nDataLength=" + Long.toHexString(headerString.length() + segLength) + "\nData\n" + headerString;
+                String dataHeaderString = "\0\0\0\2FECEncodeSegment\nMetadataLength=" + Long.toHexString(headerString.length()) +
+                                          "\nDataLength=" + Long.toHexString(headerString.length() + segLength) +
+                                          "\nData\n" + headerString;
                 System.out.print(dataHeaderString);
                 fcpOut.print(dataHeaderString);
                 long count = 0;
@@ -484,7 +302,7 @@ public class FcpInsert
         // upload all chunk blocks
 
         int chunkNo = 0;
-        int uploadedBytes = 0;
+        long uploadedBytes = 0;
         for (int i = 0; i < segmentFileMaps.size(); i++) {
             File[] currentFileMap = (File[])segmentFileMaps.get(i);
         chunkThreads = new Thread[currentFileMap.length];   // We have as many results as we have files
