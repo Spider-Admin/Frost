@@ -31,27 +31,6 @@ public class Startup
      */
     public static void startupCheck()
     {
-        File runLock = new File(".frost_run_lock");
-        boolean fileCreated = false;
-        try {
-            fileCreated = runLock.createNewFile();
-        } catch(IOException ex) {
-            ex.printStackTrace(System.out);
-        }
-
-        if( fileCreated == false )
-        {
-            System.out.println("ERROR: Found frost lock file '.frost_run_lock'.\n" +
-                               "This indicates that another frost instance is already running in "+
-                               "this directory. Running frost concurrently will cause data "+
-                               "loss.\nIf you are REALLY SURE that frost is not already running, "+
-                               "delete the lockfile '"+runLock.getPath()+"'.");
-            System.out.println("\nTERMINATING...\n");
-            System.exit(1);
-        }
-
-        runLock.deleteOnExit();
-
         checkDirectories();
         copyFiles();
         cleanTempDir();
