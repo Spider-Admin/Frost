@@ -109,7 +109,7 @@ public class FrostIndex implements XMLizable {
 		
 		
 		if (Core.frostSettings.getBoolValue("signUploads"))
-			sharer = Core.getMyId();
+			sharer = Core.getInstance().getIdentities().getMyId();
 		else 
 			sharer = null;
 	}
@@ -119,7 +119,7 @@ public class FrostIndex implements XMLizable {
 		
 		
 		if (Core.frostSettings.getBoolValue("signUploads"))
-			sharer = Core.getMyId();
+			sharer = Core.getInstance().getIdentities().getMyId();
 		else 
 			sharer = null;
 	}

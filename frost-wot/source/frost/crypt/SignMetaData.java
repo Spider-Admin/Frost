@@ -13,6 +13,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
+import frost.identities.*;
 import frost.identities.Identity;
 
 
@@ -48,10 +49,10 @@ public class SignMetaData extends MetaData {
 	 * represents a metadata of something about to be sent
 	 * @param plaintext
 	 */
-	public SignMetaData(byte[] plaintext) {
-		this.person = Core.getMyId();
+	public SignMetaData(byte[] plaintext, LocalIdentity myId) {
+		this.person = myId;
 		this.plaintext = plaintext;
-		sig = Core.getCrypto().detachedSign(plaintext, Core.getMyId().getPrivKey());
+		sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivKey());
 	}
 	
 	public SignMetaData(byte [] plaintext, byte [] metadata) throws Throwable

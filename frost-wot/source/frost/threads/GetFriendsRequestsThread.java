@@ -24,6 +24,7 @@ import java.util.logging.Logger;
 
 import frost.*;
 import frost.FcpTools.FcpRequest;
+import frost.identities.FrostIdentities;
 import frost.messages.SharedFileObject;
 
 /**
@@ -34,9 +35,19 @@ import frost.messages.SharedFileObject;
  */
 public class GetFriendsRequestsThread extends TimerTask {
 
+	private FrostIdentities identities;
+
 	private static Logger logger = Logger.getLogger(GetFriendsRequestsThread.class.getName());
 
 	Set prefixes;
+
+	/**
+	 * 
+	 */
+	public GetFriendsRequestsThread(FrostIdentities newIdentities) {
+		super();
+		identities = newIdentities;
+	}
 
 	private final void generatePrefixes() {
 		File keypool = new File(frame1.keypool);
@@ -62,7 +73,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 			set.addAll(FileAccess.readKeyFile(current).getFiles());
 		}
 		logger.info("helper will traverse through " + set.size() + " files against " +
-					Core.getFriends().size() + " friends ");
+					identities.getFriends().size() + " friends ");
 		//get the prefixes of the good people
 		it = set.iterator();
 		while (it.hasNext()) {
@@ -72,13 +83,13 @@ public class GetFriendsRequestsThread extends TimerTask {
 			//Core.getOut().println("current file's owner is "+current.getOwner() 
 			//		+ "and his safe name is "+ mixed.makeFilename(current.getOwner()));	
 			if (
-				current.getOwner().compareTo(Core.getMyId().getUniqueName()) != 0 //not me
+				current.getOwner().compareTo(identities.getMyId().getUniqueName()) != 0 //not me
 				&&
 			 		(
 						//Core.getFriends().Get(current.getOwner().substring(0,current.getOwner().indexOf("@"))) != null
-						Core.getFriends().containsKey(mixed.makeFilename(current.getOwner()))
+						identities.getFriends().containsKey(mixed.makeFilename(current.getOwner()))
 							|| //marked GOOD
-						Core.getGoodIds().contains(current.getOwner())
+						identities.getGoodIds().contains(current.getOwner())
 					) //marked to be helped
 			) {
 				String newPrefix = new String("KSK@frost/request/"

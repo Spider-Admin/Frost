@@ -49,7 +49,7 @@ public class Saver extends Thread
      */
     public void autoSave()
     {
-        core.saveIdentities();
+        core.getIdentities().save();
         core.saveBatches();
         core.saveKnownBoards();
         core.saveHashes();

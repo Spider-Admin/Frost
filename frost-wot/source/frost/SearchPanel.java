@@ -17,13 +17,10 @@ import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
+import frost.identities.*;
 import frost.identities.Identity;
 import frost.threads.SearchThread;
 import frost.threads.maintenance.Truster;
-
-/**
- * 
- */
 
 /**
  * 
@@ -118,7 +115,7 @@ public class SearchPanel extends JPanel {
 	
 				Truster truster =
 					new Truster(
-						Core.getInstance(),
+						identities,
 						new Boolean(false),
 						owner_id.getUniqueName());
 				truster.start();
@@ -136,7 +133,7 @@ public class SearchPanel extends JPanel {
 	
 				Truster truster =
 					new Truster(
-						Core.getInstance(),
+						identities,
 						new Boolean(true),
 						owner_id.getUniqueName());
 				truster.start();
@@ -277,6 +274,8 @@ public class SearchPanel extends JPanel {
 
 	}
 	
+	private FrostIdentities identities;
+
 	private static Logger logger = Logger.getLogger(SearchPanel.class.getName());
 	
 	private PopupMenuSearch popupMenuSearch = null;
@@ -436,7 +435,8 @@ public class SearchPanel extends JPanel {
 				boardsToSearch,
 				keypool,
 				searchComboBox.getSelectedKey(),
-				this);
+				this, 
+				identities);
 		searchThread.start();
 	}
 	
@@ -589,6 +589,13 @@ public class SearchPanel extends JPanel {
 		}
 		return popupMenuSearch;
 	}
+
+/**
+ * @param identities
+ */
+public void setIdentities(FrostIdentities newIdentities) {
+	identities = newIdentities;
+}
 
 
 

@@ -126,14 +126,14 @@ public class Index
             SharedFileObject current = (SharedFileObject)i.next();
             if (current.getOwner() != null
                 && //not anonymous
-            Core.getMyId().getUniqueName().compareTo(
+			Core.getInstance().getIdentities().getMyId().getUniqueName().compareTo(
                 current.getOwner())
                     != 0
                 && //not myself
             frame1.frostSettings.getBoolValue("helpFriends")
                 && //and helping is enabled
              (
-                    Core.getFriends().containsKey(
+				Core.getInstance().getIdentities().getFriends().containsKey(
                         mixed.makeFilename(
                             current.getOwner())))) //and marked GOOD
             {
@@ -144,7 +144,7 @@ public class Index
             if (current.getOwner() != null
                 && //not anonymous 
             current.getOwner().compareTo(
-                Core.getMyId().getUniqueName())
+				Core.getInstance().getIdentities().getMyId().getUniqueName())
                     == 0
                 && //from myself
             current.getLastSharedDate() != null)
@@ -311,7 +311,7 @@ public class Index
         }
         FrostIndex chunk = FileAccess.readKeyFile(keyfile);
         Iterator it = chunk.getFiles().iterator();
-        if (!owner.getUniqueName().equals(Core.getMyId().getUniqueName()))
+        if (!owner.getUniqueName().equals(Core.getInstance().getIdentities().getMyId().getUniqueName()))
             while (it.hasNext())
             {
                 SharedFileObject current = (SharedFileObject)it.next();

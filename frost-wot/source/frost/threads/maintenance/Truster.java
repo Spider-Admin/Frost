@@ -14,6 +14,7 @@ import javax.swing.SwingUtilities;
 
 import frost.*;
 import frost.gui.objects.*;
+import frost.identities.*;
 import frost.identities.Identity;
 import frost.messages.VerifyableMessageObject;
 
@@ -23,16 +24,18 @@ import frost.messages.VerifyableMessageObject;
  */
 public class Truster extends Thread
 {
+	private FrostIdentities identities;
+
 	private static Logger logger = Logger.getLogger(Truster.class.getName());
 	
-	private final Core core;
     private Boolean trust;
     private Identity newIdentity;
     private String from;
-    public Truster(Core core, Boolean what, String from)
+    
+    public Truster(FrostIdentities newIdentities, Boolean what, String from)
     {
         trust=what;
-		this.core = core;
+		identities = newIdentities;
         this.from=mixed.makeFilename(from);
     }
 
@@ -49,36 +52,36 @@ public class Truster extends Thread
         if( trust == null )
         {
          
-        		newIdentity = Core.friends.Get(from);
-        		if (newIdentity==null) newIdentity = Core.enemies.Get(from);
-                Core.friends.remove( from );
-                Core.enemies.remove( from );
-                Core.getNeutral().Add(newIdentity);
+        		newIdentity = identities.getFriends().Get(from);
+        		if (newIdentity==null) newIdentity = identities.getEnemies().Get(from);
+				identities.getFriends().remove( from );
+				identities.getEnemies().remove( from );
+				identities.getNeutrals().Add(newIdentity);
         }
-        else if( Core.friends.containsKey(from) && trust.booleanValue() == false )
+        else if( identities.getFriends().containsKey(from) && trust.booleanValue() == false )
         {
             // set friend to bad
-            newIdentity = Core.friends.Get(from);
-            Core.friends.remove( from );
-            Core.enemies.Add( newIdentity );
+            newIdentity = identities.getFriends().Get(from);
+			identities.getFriends().remove( from );
+			identities.getEnemies().Add( newIdentity );
         }
-        else if( Core.enemies.containsKey(from) && trust.booleanValue() == true )
+        else if( identities.getEnemies().containsKey(from) && trust.booleanValue() == true )
         {
             // set enemy to good
-            newIdentity = Core.enemies.Get(from);
-            Core.enemies.remove( newIdentity );
-            Core.friends.Add( newIdentity );
+            newIdentity = identities.getEnemies().Get(from);
+			identities.getEnemies().remove( newIdentity );
+			identities.getFriends().Add( newIdentity );
         }
         else
         {
             // new new enemy/friend
-            newIdentity = Core.getNeutral().Get(from);
+            newIdentity = identities.getNeutrals().Get(from);
             if (newIdentity==null) logger.warning("neutral list not working :(");
-            Core.getNeutral().remove(newIdentity);
+			identities.getNeutrals().remove(newIdentity);
             if( trust.booleanValue() )
-                Core.friends.Add(newIdentity);
+				identities.getFriends().Add(newIdentity);
             else
-                Core.enemies.Add(newIdentity);
+				identities.getEnemies().Add(newIdentity);
         }
 
         if( newIdentity == null || Identity.NA.equals( newIdentity.getKey() ) )

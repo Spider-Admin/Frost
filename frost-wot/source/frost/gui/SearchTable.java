@@ -27,14 +27,19 @@ import javax.swing.table.*;
 import frost.Core;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
+import frost.identities.*;
 import frost.identities.Identity;
 
 public class SearchTable extends SortedTable
 {
+	private FrostIdentities identities;
+
 	private CellRenderer cellRenderer = new CellRenderer();
 	
-	public SearchTable(TableModel m) {
+	public SearchTable(TableModel m, FrostIdentities newIdentities) {
 		super(m);
+
+		identities = newIdentities;
 
 		setDefaultRenderer( Object.class, cellRenderer );
 		setDefaultRenderer( Number.class, cellRenderer );
@@ -74,15 +79,15 @@ public class SearchTable extends SortedTable
 				(FrostSearchItemObject) searchTableModel.getRow(selectedRows[i]);
 			String owner = srItem.getOwner();
 			//check if null or from myself
-			if (owner == null || owner.compareTo(Core.getMyId().getUniqueName()) == 0)
+			if (owner == null || owner.compareTo(identities.getMyId().getUniqueName()) == 0)
 				continue;
 
 			//see if already on some list
-			Identity id = Core.getFriends().Get(owner);
+			Identity id = identities.getFriends().Get(owner);
 			if (id == null)
-				id = Core.getEnemies().Get(owner);
+				id = identities.getEnemies().Get(owner);
 			if (id == null)
-				id = Core.getNeutral().Get(owner);
+				id = identities.getNeutrals().Get(owner);
 			//and if still null, add the string
 			if (id != null)
 				result.add(id);
