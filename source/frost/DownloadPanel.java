@@ -6,9 +6,11 @@ package frost;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
 
 import javax.swing.*;
 
+import frost.ext.Execute;
 import frost.gui.*;
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.FrostDownloadItemObject;
@@ -393,13 +395,16 @@ public class DownloadPanel extends JPanel {
 		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
 		public void mousePressed(MouseEvent e) {
-			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-
+			if (e.getClickCount() == 2) {
+				if (e.getSource() == downloadTable) {
+					// Start file from download table. Is this a good idea?
+					downloadTableDoubleClick(e);
+				}
+			} else if (e.isPopupTrigger()) {
 				if ((e.getSource() == downloadTable)
 					|| (e.getSource() == downloadTableScrollPane)) {
 					showDownloadTablePopupMenu(e);
 				}
-
 			}
 		}
 
@@ -424,6 +429,7 @@ public class DownloadPanel extends JPanel {
 
 	private DownloadTable downloadTable = null;
 	private HealingTable healingTable = null;
+	private SettingsClass settingsClass = null;
 
 	private UpdatingLanguageResource languageResource = null;
 
@@ -440,6 +446,7 @@ public class DownloadPanel extends JPanel {
 
 	private boolean initialized = false;
 
+	private String fileSeparator = System.getProperty("file.separator");
 	private boolean downloadingActivated = false;
 	private long downloadItemCount = 0;
 
@@ -729,5 +736,39 @@ public class DownloadPanel extends JPanel {
     private void downloadPauseButtonPressed(ActionEvent e) {
         setDownloadingActivated(false);
     }
+
+	/**
+	 * @param class1
+	 */
+	public void setSettingsClass(SettingsClass newSettingsClass) {
+		settingsClass = newSettingsClass;
+	}
+	
+	/**
+	 * @param e
+	 */
+	private void downloadTableDoubleClick(MouseEvent e) {
+		int clickedCol = downloadTable.columnAtPoint(e.getPoint());
+		int modelIx = downloadTable.getColumnModel().getColumn(clickedCol).getModelIndex();
+		if (modelIx == 0)
+			return;
+
+		DownloadTableModel dlModel = (DownloadTableModel) downloadTable.getModel();
+		FrostDownloadItemObject dlItem =
+			(FrostDownloadItemObject) dlModel.getRow(downloadTable.getSelectedRow());
+		String execFilename =
+			new StringBuffer()
+				.append(System.getProperty("user.dir"))
+				.append(fileSeparator)
+				.append(settingsClass.getValue("downloadDirectory"))
+				.append(dlItem.getFileName())
+				.toString();
+		File file = new File(execFilename);
+		Core.getOut().println("Executing: " + file.getPath());
+		if (file.exists()) {
+			Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
+		}
+
+	}
 
 }

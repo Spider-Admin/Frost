@@ -2939,54 +2939,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	class PopupListener extends MouseAdapter {
 		public void mousePressed(MouseEvent e) {
-			if (e.getClickCount() == 2) {
-				// Start file from download table
-				if (e.getComponent().equals(getDownloadTable())) {
-					int clickedCol =
-						getDownloadTable().columnAtPoint(e.getPoint());
-					int modelIx =
-						getDownloadTable()
-							.getColumnModel()
-							.getColumn(clickedCol)
-							.getModelIndex();
-					if (modelIx == 0)
-						return;
-
-					DownloadTableModel dlModel =
-						(DownloadTableModel) getDownloadTable().getModel();
-					FrostDownloadItemObject dlItem =
-						(FrostDownloadItemObject) dlModel.getRow(
-							getDownloadTable().getSelectedRow());
-					String execFilename =
-						new StringBuffer()
-							.append(System.getProperty("user.dir"))
-							.append(fileSeparator)
-							.append(frostSettings.getValue("downloadDirectory"))
-							.append(dlItem.getFileName())
-							.toString();
-					File file = new File(execFilename);
-					Core.getOut().println("Executing: " + file.getPath());
-					if (file.exists()) {
-						Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
-					}
-				}
-
-				// Start file from upload table
-				if (e.getComponent().equals(getUploadTable())) {
-					UploadTableModel ulModel =
-						(UploadTableModel) getUploadTable().getModel();
-					FrostUploadItemObject ulItem =
-						(FrostUploadItemObject) ulModel.getRow(
-							getUploadTable().getSelectedRow());
-					File file = new File(ulItem.getFilePath());
-					Core.getOut().println("Executing: " + file.getPath());
-					if (file.exists()) {
-						Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
-					}
-				}
-			} else {
+			if (e.getClickCount() != 2)
 				maybeShowPopup(e);
-			}
 		}
 
 		public void mouseReleased(MouseEvent e) {
@@ -3475,6 +3429,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			downloadPanel.setDownloadTable(getDownloadTable());
 			downloadPanel.setHealingTable(getHealingTable());
 			downloadPanel.setLanguageResource(languageResource);
+			downloadPanel.setSettingsClass(frostSettings);
 			downloadPanel.initialize();
 		}
 		return downloadPanel;
