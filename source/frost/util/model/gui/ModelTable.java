@@ -260,4 +260,18 @@ public class ModelTable extends AbstractTableModel {
 		table.setRowHeight(font.getSize() + 5);
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.table.TableModel#isCellEditable(int, int)
+	 */
+	public boolean isCellEditable(int rowIndex, int columnIndex) {
+		return tableFormat.isColumnEditable(columnIndex);
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
+	 */
+	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
+		tableFormat.setCellValue(aValue, model.getItemAt(rowIndex), columnIndex);
+	}
+
 }

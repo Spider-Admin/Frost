@@ -37,6 +37,13 @@ public interface ModelTableFormat {
 	public Object getCellValue(ModelItem item, int columnIndex);
 	
 	/**
+	 * @param value
+	 * @param item
+	 * @param columnIndex
+	 */
+	public void setCellValue(Object value, ModelItem item, int columnIndex);
+	
+	/**
 	 * @param table
 	 */
 	public void customizeTable(JTable table);
@@ -50,6 +57,12 @@ public interface ModelTableFormat {
 	 * 		   the information of the given model field
 	 */
 	public int[] getColumnNumbers(int fieldID);
+	
+	/**
+	 * @param column
+	 * @return
+	 */
+	public boolean isColumnEditable(int column);
 
 	/**
 	 * This method adds a new table to the list of tables affected
