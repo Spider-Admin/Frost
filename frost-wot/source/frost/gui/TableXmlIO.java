@@ -204,6 +204,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
 	String owner = XMLTools.getChildElementsTextValue(dlItemElement, "owner");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
         String enableDownload = dlItemElement.getAttribute("enableDownload");
+	String SHA1 = XMLTools.getChildElementsTextValue(dlItemElement, "SHA1");
 
         if( filename == null || key == null || state == null )
         {
@@ -264,6 +265,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
                                                                      key,
                                                                      retries,
 								     owner,
+								     SHA1,
                                                                      iState,
                                                                      isDownloadEnabled,
                                                                      board);

@@ -11,6 +11,8 @@ public interface FrostSearchItem
     public String getKey();
     
     public String getOwner();
+    
+    public String getSHA1();
 
     public FrostBoardObject getBoard();
 }
