@@ -863,6 +863,36 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     //finally start something maybe time for thread?
 
+    //check whether the user is running a transient node
+    FcpConnection con1 = null;
+    String []nodeInfo=null;
+    try {
+            con1 = new FcpConnection(frostSettings.getValue("nodeAddress"),
+                                    frostSettings.getValue("nodePort"));
+	    nodeInfo = con1.getInfo();
+    }catch(Exception e) {
+    	System.out.println("Error - could not establish a connection to freenet node.");
+	System.out.println("make sure your node is running and that you have configured frost correctly");
+	return;
+    }
+    boolean TransientNode = false;
+    for (int ij=0;ij<nodeInfo.length;ij++) 
+    	if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
+		TransientNode=true;
+    
+   if (TransientNode)
+   	JOptionPane.showMessageDialog(this,
+					"      You are running a TRANSIENT node.  "+
+					"Filesharing will be disabled!\n"+
+					"If you want to be able to download/upload files,"+
+					"run a PERMANENT node.",
+					"Transient node detected",
+					JOptionPane.WARNING_MESSAGE);
+					
+   
+   
+   con1=null;nodeInfo=null;
+   
     //create a crypt object
     crypto = new FrostCrypt();
     //load the identities
