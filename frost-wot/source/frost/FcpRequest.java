@@ -569,7 +569,7 @@ public class FcpRequest
                         }
                         catch( ArrayIndexOutOfBoundsException e )
                         {
-                            e.printStackTrace();
+                            e.printStackTrace(System.out);
                         }
                         catch( Exception e )
                         {
@@ -668,7 +668,7 @@ public class FcpRequest
             }
             catch( IOException ex )
             {
-                ex.printStackTrace();
+                ex.printStackTrace(System.out);
                 return false;
             }
         }

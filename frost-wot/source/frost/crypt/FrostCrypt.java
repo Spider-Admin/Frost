@@ -183,7 +183,7 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 	try {
 		chan = (new FileInputStream(file)).getChannel();
 	}catch(IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
 	byte []temp = new byte[1024*1024];
 	ByteBuffer _temp = ByteBuffer.wrap(temp);
@@ -201,7 +201,7 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 		}
 		chan.close();
 	}catch (IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
 	stomach.doFinal(poop,0);
         return (new String(Base64.encode(poop))).substring(0,27);

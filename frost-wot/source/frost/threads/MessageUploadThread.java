@@ -256,7 +256,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     try { lockFileCreated = lockRequestIndex.createNewFile(); }
                     catch(IOException ex) {
                         System.out.println("ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...");
-                        ex.printStackTrace();
+                        ex.printStackTrace(System.out);
                         notifyThreadFinished(this);
                         return;
                     }
@@ -311,7 +311,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     } catch(Throwable t)
                     {
                         System.out.println("TOFUP - Error in run()/FcpInsert.putFile:");
-                        t.printStackTrace();
+                        t.printStackTrace(System.out);
                     }
 
                     if( result[0] == null || result[1] == null )
@@ -392,7 +392,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         retry = false;
 
                         try { messageFile.delete(); }
-                        catch(Exception ex) { System.out.println("TOFUP - Exception:"); ex.printStackTrace(); }
+                        catch(Exception ex) { System.out.println("TOFUP - Exception:"); ex.printStackTrace(System.out); }
 
                         System.out.println("TOFUP: Will NOT try to upload message again.");
                     }
@@ -411,7 +411,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         catch(Throwable t)
         {
             System.out.println("Oo. EXCEPTION in MessageUploadThread:");
-            t.printStackTrace();
+            t.printStackTrace(System.out);
         }
 
         notifyThreadFinished(this);

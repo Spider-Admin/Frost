@@ -36,7 +36,7 @@ public class Startup
         try {
             fileCreated = runLock.createNewFile();
         } catch(IOException ex) {
-            ex.printStackTrace();
+            ex.printStackTrace(System.out);
         }
 
         if( fileCreated == false )

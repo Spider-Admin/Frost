@@ -565,7 +565,7 @@ public class FileAccess
 		buf.flip();
 		result = charset.decode(buf).toString();
 	} catch (IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 		return new String();
 	}
 	return result;

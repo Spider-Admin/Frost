@@ -116,7 +116,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         catch(Throwable t)
         {
             System.out.println(Thread.currentThread().getName()+": Oo. Exception in MessageDownloadThread:");
-            t.printStackTrace();
+            t.printStackTrace(System.out);
         }
         notifyThreadFinished(this);
     }
@@ -224,7 +224,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 catch(Throwable t)
                 {
                     System.out.println(Thread.currentThread().getName()+" :TOFDN - Error in run()/FcpRequest.getFile:");
-                    t.printStackTrace();
+                    t.printStackTrace(System.out);
                 }
 
                 // Download successful?
@@ -318,7 +318,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             if( isInterrupted() )
                 return;
 	 }catch(Throwable t) {
-	 	t.printStackTrace();
+	 	t.printStackTrace(System.out);
 		index++;
 	 }
         } // end-of: while
