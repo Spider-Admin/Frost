@@ -574,7 +574,7 @@ public class SettingsClass {
 		defaults.put("signUploads", "true");
 		defaults.put("helpFriends", "true");
 		defaults.put("hideBadFiles", "true");
-		defaults.put("hideAnonFiles", "true");
+		defaults.put("hideAnonFiles", "false");
 		defaults.put("useAltEdit", "false");
 		defaults.put("userName", "Anonymous");
 		defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod");
