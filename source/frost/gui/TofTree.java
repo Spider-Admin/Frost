@@ -263,21 +263,24 @@ public class TofTree extends JDragTree implements Savable {
         return boards;
     }
 
-    public FrostBoardObject getBoardByName(String boardName)
-    {
-        FrostBoardObject node = (FrostBoardObject)this.getModel().getRoot();
-        Vector boards = new Vector();
-        Enumeration e = node.depthFirstEnumeration();
-        while( e.hasMoreElements() )
-        {
-            FrostBoardObject child = (FrostBoardObject)e.nextElement();
-            if( child.toString().equals( boardName ) )
-            {
-                return child;
-            }
-        }
-        return null; // not found
-    }
+	/**
+	 * This method looks for a board with the name passed as a parameter. The comparation
+	 * is not case sensitive.
+	 * @param boardName the name of the board to look for
+	 * @return the FrostBoardObject if there was a board with that name. Null otherwise.
+	 */
+	public FrostBoardObject getBoardByName(String boardName) {
+		FrostBoardObject node = (FrostBoardObject) this.getModel().getRoot();
+		Vector boards = new Vector();
+		Enumeration e = node.depthFirstEnumeration();
+		while (e.hasMoreElements()) {
+			FrostBoardObject child = (FrostBoardObject) e.nextElement();
+			if (child.toString().compareToIgnoreCase(boardName) == 0) {
+				return child;
+			}
+		}
+		return null; // not found
+	}
 
     /**
      * Loads a tree description file
@@ -326,40 +329,36 @@ public class TofTree extends JDragTree implements Savable {
 	/**
 	 * Opens dialog, gets new name for board, checks for double names, adds node to tree
 	 */
-	public void createNewBoard(Frame parent) {		
-		String nodeName = null;
-		do {
-			Object nodeNameOb =
-				JOptionPane.showInputDialog(
-					parent,
-					languageResource.getString("Please enter a name for the new board") + ":",
-					languageResource.getString("New Node Name"),
-					JOptionPane.QUESTION_MESSAGE,
-					null,
-					null,
-					languageResource.getString("newboard"));
+	public void createNewBoard(Frame parent) {
+		boolean isDone = false;
 
-			nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString());
+		while (!isDone) {
+			NewBoardDialog dialog = new NewBoardDialog(parent, languageResource);
+			dialog.setVisible(true);
 
-			if (nodeName == null)
-				return; // cancelled
+			if (dialog.getChoice() == NewBoardDialog.CHOICE_CANCEL) {
+				isDone = true; //cancelled	
+			} else {
+				String boardName = dialog.getBoardName(); 
+				
+				if (getBoardByName(boardName) != null) {
+					JOptionPane.showMessageDialog(
+						parent,
+						languageResource.getString("You already have a board with name")
+							+ " '"
+							+ boardName
+							+ "'!\n"
+							+ languageResource.getString("Please choose a new name"));
+				} else {
+					FrostBoardObject newBoard = new FrostBoardObject(boardName);
+					addNodeToTree(newBoard);
+					// maybe this boardfolder already exists, scan for new messages
+					TOF.initialSearchNewMessages(newBoard);
+					isDone = true; //added
+				}
 
-			if (getBoardByName(nodeName) != null) {
-				JOptionPane.showMessageDialog(
-					parent,
-					languageResource.getString("You already have a board with name")
-						+ " '"
-						+ nodeName 
-						+ "'!\n"
-						+ languageResource.getString("Please choose a new name"));
-				nodeName = ""; // loop again
 			}
-		} while (nodeName.length() == 0);
-
-		FrostBoardObject newBoard = new FrostBoardObject(nodeName);
-		addNodeToTree(newBoard);
-		// maybe this boardfolder already exists, scan for new messages
-		TOF.initialSearchNewMessages(newBoard);
+		}
 	}
     
 	/**
