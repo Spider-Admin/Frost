@@ -13,7 +13,7 @@ import java.util.logging.*;
 import javax.swing.SwingUtilities;
 
 import frost.*;
-import frost.gui.objects.FrostMessageObject;
+import frost.gui.objects.*;
 import frost.identities.Identity;
 import frost.messages.VerifyableMessageObject;
 
@@ -100,7 +100,7 @@ public class Truster extends Thread
             if (msgFile.getName().equals("new_files.xml")) continue;
             FrostMessageObject tempMsg = null;
             try {
-            tempMsg = new FrostMessageObject( msgFile );
+            	tempMsg = FrostMessageFactory.createFrostMessageObject(msgFile);
             }catch (Exception e){
 				logger.log(Level.SEVERE, "Exception thrown in run()", e);
             }
