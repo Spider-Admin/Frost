@@ -17,8 +17,6 @@
 
 package frost.components.translate;
 
-import java.io.*;
-
 public class UnicodeFormatter  {
 
     static public String byteToHex(byte b) {
