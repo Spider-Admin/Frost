@@ -22,6 +22,7 @@ package frost.messages;
 import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
+import java.util.logging.*;
 
 import frost.FileAccess;
 
@@ -29,6 +30,8 @@ import frost.FileAccess;
 
 public class VerifyableMessageObject extends MessageObject implements Cloneable
 {
+	private static Logger logger = Logger.getLogger(VerifyableMessageObject.class.getName());
+	
     public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
     public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
     public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
@@ -132,8 +135,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         }
         catch(Throwable t)
         {
-            System.out.println("Oo. Exception in isValidFormat() - skipping Message.");
-            t.printStackTrace(System.out);
+			logger.log(Level.SEVERE, "Oo. Exception in isValidFormat() - skipping Message.", t);
             return false;
         }
         return true;
@@ -282,7 +284,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         } catch(Exception ex) { }
         if( msgDateTmp == null )
         {
-            System.out.println("* verifyDate(): Invalid date string found, will block message: "+msgDateStr);
+            logger.warning("* verifyDate(): Invalid date string found, will block message: " + msgDateStr);
             return false;
         }
         GregorianCalendar msgDate = new GregorianCalendar();
@@ -311,13 +313,13 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         else if( diffDays < 0 )
         {
             // msgDate is later than dirDate
-            System.out.println("* verifyDate(): Date in message is later than date in URL, will block message: "+msgDateStr);
+            logger.warning("* verifyDate(): Date in message is later than date in URL, will block message: " + msgDateStr);
             return false;
         }
         else if( diffDays > 1 ) // more than 1 day older
         {
             // dirDate is later than msgDate
-            System.out.println("* verifyDate(): Date in message is earlier than date in URL, will block message: "+msgDateStr);
+            logger.warning("* verifyDate(): Date in message is earlier than date in URL, will block message: " + msgDateStr);
             return false;
         }
         return true;
@@ -330,14 +332,14 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         String timeStr = currentMsg.getTime();
         if( timeStr == null )
         {
-            System.out.println("* verifyTime(): Time is NULL, blocking message.");
+            logger.warning("* verifyTime(): Time is NULL, blocking message.");
             return false;
         }
         timeStr = timeStr.trim();
 
         if( timeStr.length() != 11 )
         {
-            System.out.println("* verifyTime(): Time string have invalid length (!=11), blocking message: "+timeStr);
+			logger.warning("* verifyTime(): Time string have invalid length (!=11), blocking message: " + timeStr);
             return false;
         }
         // check format
@@ -353,7 +355,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             !(timeStr.charAt(9) == 'M') ||
             !(timeStr.charAt(10) == 'T') )
         {
-            System.out.println("* verifyTime(): Time string have invalid format (xx:xx:xxGMT), blocking message: "+timeStr);
+			logger.warning("* verifyTime(): Time string have invalid format (xx:xx:xxGMT), blocking message: " + timeStr);
             return false;
         }
         // check for valid values :)
@@ -369,14 +371,14 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             iseconds = Integer.parseInt( seconds );
         } catch(Exception ex)
         {
-            System.out.println("* verifyTime(): Could not parse the numbers, blocking message: " + timeStr);
+			logger.warning("* verifyTime(): Could not parse the numbers, blocking message: " + timeStr);
             return false;
         }
         if( ihours < 0 || ihours > 23 ||
             iminutes < 0 || iminutes > 59 ||
             iseconds < 0 || iseconds > 59 )
         {
-            System.out.println("* verifyTime(): Time is invalid, blocking message: " + timeStr);
+			logger.warning("* verifyTime(): Time is invalid, blocking message: " + timeStr);
             return false;
         }
 //        System.out.println("* verifyTime(): Checked time of message, seems to be OK ("+timeStr+").");

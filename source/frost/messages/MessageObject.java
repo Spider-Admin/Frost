@@ -20,6 +20,7 @@
 package frost.messages;
 import java.io.File;
 import java.util.*;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -29,6 +30,8 @@ import frost.gui.objects.FrostBoardObject;
 
 public class MessageObject implements XMLizable 
 {
+	private static Logger logger = Logger.getLogger(MessageObject.class.getName());
+	
 	AttachmentList attachments; // this is never null!
 	
 	public Element getXMLElement(Document d){
@@ -276,9 +279,10 @@ public class MessageObject implements XMLizable
         if( from == null || date == null ||  time == null ||
             board == null || !isValid() )
         {
-        	Core.getOut().println("Analyze file failed.  File saved as \"badMessage\", send to a dev.  Reason:");
-        	if (!isValid()) Core.getOut().println("isValid failed");
-        	if (content==null) Core.getOut().println("content null");
+        	String message = "Analyze file failed.  File saved as \"badMessage\", send to a dev.  Reason:\n";
+        	if (!isValid()) message = message + "isValid failed";
+        	if (content==null) message = message + "content null";
+        	logger.severe(message);
         	file.renameTo(new File("badMessage"));
             throw new Exception("Message have invalid or missing fields.");
             
@@ -305,8 +309,7 @@ public class MessageObject implements XMLizable
         } catch(Exception ex) {  // xml format error
 			File badMessage = new File("badmessage.xml");
 			if (file.renameTo(badMessage))
-				Core.getOut().println("Error - send the file badmessage.xml to a dev for analysis, more details below:");
-        	ex.printStackTrace(Core.getOut()); 
+				logger.log(Level.SEVERE, "Error - send the file badmessage.xml to a dev for analysis, more details below:", ex);
         } 
 
         if( doc == null )
@@ -320,7 +323,7 @@ public class MessageObject implements XMLizable
         {
         	File badMessage = new File("badmessage.xml");
         	if (file.renameTo(badMessage))
-        		Core.getOut().println("Error - send the file badmessage.xml to a dev for analysis, more details below:");
+        		logger.severe("Error - send the file badmessage.xml to a dev for analysis.");
             throw new Exception("Error - invalid message: does not contain the root tag 'FrostMessage'");
         }
         

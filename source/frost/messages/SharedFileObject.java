@@ -20,6 +20,7 @@ package frost.messages;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -38,6 +39,8 @@ import frost.gui.objects.FrostBoardObject;
 
 public class SharedFileObject implements XMLizable
 {
+	private static Logger logger = Logger.getLogger(SharedFileObject.class.getName());
+	
     private boolean DEBUG = false;
     private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
 
@@ -86,21 +89,21 @@ public class SharedFileObject implements XMLizable
         	fileDate=DateFun.getCalendarFromDate(date);
         	oldestDate=DateFun.getCalendarFromDate(_oldestDate);
         }catch (NumberFormatException e){
-        	Core.getOut().println("file "+filename+" has invalid date: "+date);
+        	logger.warning("file " + filename + " has invalid date: " + date);
         	return false;
         }
         
 
         if( oldestDate.after(fileDate) )
         {
-		    Core.getOut().println(filename + " is outdated");
+			logger.warning(filename + " is outdated");
             return false;
         }
 
         today.add(Calendar.DATE, 2); // Accept one day into future
         if( fileDate.after(today) )
         {
-        	Core.getOut().println("Future date of " + filename + " " + date);
+			logger.warning("Future date of " + filename + " " + date);
         	return false;
         }
 
@@ -120,7 +123,7 @@ public class SharedFileObject implements XMLizable
         {
             if( filename.indexOf(invalidChars[i]) != -1 )
             {
-                Core.getOut().println(filename + " has invalid filename");
+                logger.warning(filename + " has invalid filename");
                 return false;
             }
         }
@@ -152,7 +155,7 @@ public class SharedFileObject implements XMLizable
     	if (key == null) return true;
         if( key.startsWith("CHK@") && key.length() == 58 ) return true;
         //  if (DEBUG) System.out.println("Invalid key in " + filename);
-       Core.getOut().println("invalid key in "+ filename);
+        logger.warning("invalid key in " + filename);
         return false;
     }
 
@@ -503,9 +506,8 @@ public class SharedFileObject implements XMLizable
 				return result;
 			}
 		}catch(SAXException ex){
-				Core.getOut().println("parsing file failed.");
-				ex.printStackTrace(Core.getOut());
-				return null;
+			logger.log(Level.SEVERE, "parsing file failed.", ex);
+			return null;
 		}
 	}
 }
