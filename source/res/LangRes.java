@@ -35,6 +35,7 @@ public class LangRes extends ListResourceBundle {
     }
     static final Object[][] contents = {
 	
+	
 	///////////////////////////////////////////////////
 	// Unknown translations
 	// Have to look where in the GUI these translations are needed
@@ -58,7 +59,7 @@ public class LangRes extends ListResourceBundle {
 	{"Destination", "Destination"},
 	{"Frost by Jantho", "Frost by Jantho"},
 	{"Reload selected files", "Upload selected files"},
-	{"Reload all files", "Upload all files"}, //reload????
+	{"Reload all files", "Reload all files"}, //reload????
 	{"Trying", "Trying"},
 	{"Done", "Done"},
 	{"Failed", "Failed"},
@@ -66,7 +67,21 @@ public class LangRes extends ListResourceBundle {
 	{"Requested", "Requested"},
 	{"Uploading", "Uploading"},
 	{"Unknown", "Unkown"},
-
+	{"Show systray icon","Show SysTray icon"},
+	{"Display","Display"},
+	{"Miscellaneous","Miscellaneous"},
+	{"Messages Today","Messages Today"},
+	//{"Board information","Board information"},
+	//{"Boards","Boards"},
+	{"Public board","Public board"},
+	{"Secure board","Secure board"},
+	{"Generate new keypair","Generate new keypair"},
+	{"Private key","Private key"},
+	{"Public key","Public key"},
+	{"Not available","Not available"},
+	{"New Node Name","New Board name"},
+	
+	
 	///////////////////////////////////////////////////
     // Welcome message
 	///////////////////////////////////////////////////
@@ -99,6 +114,7 @@ public class LangRes extends ListResourceBundle {
 
 	// Menu Language
 	{"Language", "Language"},
+	{"Default", "Default"},
 	{"German", "German"},
 	{"English", "English"},
 	{"Dutch", "Dutch"},
@@ -412,25 +428,8 @@ public class LangRes extends ListResourceBundle {
 	{"KnownBoardsFrame.Add board","Add board"},
 	{"KnownBoardsFrame.Lookup","Lookup"},
 	{"KnownBoardsFrame.Add board","Add board"},
-	{"KnownBoardsFrame.Remove board","Remove board"},
+	{"KnownBoardsFrame.Remove board","Remove board"}
 
-	///////////////////////////////////////////////////
-	// other stuff which people forget to include
-	///////////////////////////////////////////////////
-	{"Show systray icon","show SysTray icon"},
-	{"Display","Display"},
-	{"Miscellaneous","Miscellaneous"},
-	{"Messages Today","Messages Today"},
-	//{"Board information","Board information"},
-	//{"Boards","Boards"},
-	{"Public board","Public board"},
-	{"Secure board","Secure board"},
-	{"Generate new keypair","Generate new keypair"},
-	{"Private key","Private key"},
-	{"Public key","Public key"},
-	{"Not available","Not available"},
-	{"New Node Name","New Board name"}
-	
     };
 }
 
