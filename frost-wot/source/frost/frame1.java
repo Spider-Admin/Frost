@@ -1327,8 +1327,10 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     dummyLayout = new BoxLayout( searchTopPanel, BoxLayout.X_AXIS );
     searchTopPanel.setLayout( dummyLayout );
 
+    searchTextField.setMaximumSize( searchTextField.getPreferredSize() );
     searchTopPanel.add(searchTextField); // Search / text
     searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+    searchComboBox.setMaximumSize( searchComboBox.getPreferredSize() );
     searchTopPanel.add(searchComboBox);
     searchTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
     searchTopPanel.add(searchButton); // Search / Search button
