@@ -18,10 +18,14 @@
 */
 package frost.threads.maintenance;
 
+import java.util.logging.Logger;
+
 import frost.*;
 
 public class Saver extends Thread
 {
+	private static Logger logger = Logger.getLogger(Saver.class.getName());
+	
     private final Core core;
     
     public Saver(Core core)
@@ -59,13 +63,13 @@ public class Saver extends Thread
      */ 
     public void run()
     {
-        Core.getOut().println("Saving settings ...");
+        logger.info("Saving settings ...");
         
         autoSave();
         exitSave();
         FileAccess.cleanKeypool(frame1.keypool);
         
-        Core.getOut().println("Bye!");
+        logger.info("Bye!");
     }
 }
 

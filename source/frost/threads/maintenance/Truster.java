@@ -8,6 +8,7 @@ package frost.threads.maintenance;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.*;
 
 import javax.swing.SwingUtilities;
 
@@ -22,6 +23,8 @@ import frost.messages.VerifyableMessageObject;
  */
 public class Truster extends Thread
 {
+	private static Logger logger = Logger.getLogger(Truster.class.getName());
+	
 	private final Core core;
     private Boolean trust;
     private Identity newIdentity;
@@ -41,11 +44,7 @@ public class Truster extends Thread
         else if( trust.booleanValue() == true ) newState = "GOOD";
         else newState = "BAD";
 
-        System.out.println("Truster: Setting '"+
-                           from+
-                           "' to '"+
-                           newState+
-                           "'.");
+        logger.info("Truster: Setting '" + from + "' to '" + newState + "'.");
 
         if( trust == null )
         {
@@ -74,7 +73,7 @@ public class Truster extends Thread
         {
             // new new enemy/friend
             newIdentity = Core.getNeutral().Get(from);
-            if (newIdentity==null) Core.getOut().println("neutral list not working :(");
+            if (newIdentity==null) logger.warning("neutral list not working :(");
             Core.getNeutral().remove(newIdentity);
             if( trust.booleanValue() )
                 Core.friends.Add(newIdentity);
@@ -84,15 +83,15 @@ public class Truster extends Thread
 
         if( newIdentity == null || Identity.NA.equals( newIdentity.getKey() ) )
         {
-            System.out.println("Truster - ERROR: could not get public key for '"+from+"'");
-            System.out.println("Truster: Will stop to set message states!!!");
+            logger.warning("Truster - ERROR: could not get public key for '" + from + "'\n" +
+            			   "Truster: Will stop to set message states!!!");
             return;
         }
 
         // get all .xml files in keypool
         ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
                                                    ".xml");
-        System.out.println("Truster: Starting to update messages:");
+        logger.info("Truster: Starting to update messages:");
 
         for( int ii=0; ii<entries.size(); ii++ )
         {
@@ -103,7 +102,7 @@ public class Truster extends Thread
             try {
             tempMsg = new FrostMessageObject( msgFile );
             }catch (Exception e){
-            	e.printStackTrace(Core.getOut());
+				logger.log(Level.SEVERE, "Exception thrown in run()", e);
             }
             if( tempMsg != null && tempMsg.getFrom().equals(from) &&
                 (
@@ -123,13 +122,11 @@ public class Truster extends Thread
                         tempMsg.setStatus(VerifyableMessageObject.VERIFIED);
                     else
                         tempMsg.setStatus(VerifyableMessageObject.FAILED);
-
-                    System.out.print("."); // progress
                 }
                 else
                 {
-                    System.out.println("\n!Truster: Could not verify message, maybe the message is faked!" +
-                                       " Message state set to N/A for '"+msgFile.getPath()+"'.");
+                    logger.warning("!Truster: Could not verify message, maybe the message is faked!" +
+                                       " Message state set to N/A for '" + msgFile.getPath() + "'.");
                     tempMsg.setStatus(VerifyableMessageObject.NA);
                 }
             }
@@ -141,7 +138,6 @@ public class Truster extends Thread
                 public void run() {
                     frame1.getInstance().tofTree_actionPerformed(null);
                 } });
-        System.out.println("\nTruster: Finished to update messages, set '"+from+"' to '"+
-                           newState+"'");
+        logger.info("Truster: Finished to update messages, set '" + from + "' to '" + newState+"'");
     }
 }

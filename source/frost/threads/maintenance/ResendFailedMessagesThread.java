@@ -9,6 +9,7 @@ package frost.threads.maintenance;
 import java.awt.Frame;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
@@ -17,6 +18,8 @@ import frost.messages.VerifyableMessageObject;
 
 public class ResendFailedMessagesThread extends Thread
 {
+	private static Logger logger = Logger.getLogger(ResendFailedMessagesThread.class.getName());
+	
 	private final Core core;
     Frame frameToLock;
     public ResendFailedMessagesThread(Core core, Frame frameToLock)
@@ -32,7 +35,7 @@ public class ResendFailedMessagesThread extends Thread
         if( isInterrupted() )
             return;
 
-        System.out.println("Starting search for unsent messages ...");
+        logger.info("Starting search for unsent messages ...");
 
         ArrayList entries = FileAccess.getAllEntries(new File(Core.frostSettings.getValue("unsent.dir")), 
                                                      ".xml");
@@ -48,8 +51,7 @@ public class ResendFailedMessagesThread extends Thread
                     mo = new VerifyableMessageObject(unsentMsgFile);
                 } catch(Exception ex)
                 {
-                    Core.getOut().println("Could'nt read the message file, will not send message.");
-                    ex.printStackTrace();
+					logger.log(Level.SEVERE, "Couldn't read the message file, will not send message.", ex);
                 }
                 
                 if( mo != null && mo.isValid() )
@@ -57,7 +59,7 @@ public class ResendFailedMessagesThread extends Thread
                     FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( mo.getBoard() );
                     if( board == null )
                     {
-                        System.out.println("Can't resend Message '"+mo.getSubject()+"', the target board '"+mo.getBoard()+
+                        logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoard() +
                                            "' was not found in your boardlist.");
                         // TODO: maybe delete msg? or it will always be retried to send
                         continue;
@@ -68,13 +70,13 @@ public class ResendFailedMessagesThread extends Thread
                         board,
                         mo,
                         null);
-                    System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
+                    logger.info("Message '" + mo.getSubject() + "' will be resent to board '" + board.toString() + "'.");
                 }
                 // check if upload was successful before deleting the file -
                 //  is not needed, the upload thread creates new unsent file
                 unsentMsgFile.delete();
             }
         }
-        System.out.println("Finished search for unsent messages ...");
+        logger.info("Finished search for unsent messages ...");
     }
 }

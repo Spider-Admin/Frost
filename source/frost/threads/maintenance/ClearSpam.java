@@ -7,6 +7,7 @@
 package frost.threads.maintenance;
 
 import java.util.TimerTask;
+import java.util.logging.Logger;
 
 import frost.Core;
 import frost.gui.objects.FrostBoardObject;
@@ -16,12 +17,14 @@ class ClearSpam extends TimerTask
 {
 	private final Core core;
     private FrostBoardObject clearMe;
+    
+	private static Logger logger = Logger.getLogger(ClearSpam.class.getName());
 
     public ClearSpam(Core core, FrostBoardObject which) { clearMe = which;
 	this.core = core; }
     public void run()
     {
-        System.out.println("############ clearing spam status for board '"+clearMe.toString()+"' ###########");
+        logger.info("############ clearing spam status for board '"+clearMe.toString()+"' ###########");
         clearMe.setSpammed(false);
     }
 }
