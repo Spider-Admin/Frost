@@ -113,6 +113,11 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
             {
                 iState = FrostUploadItemObject.STATE_REQUESTED;
             }
+            else if( iState == FrostUploadItemObject.STATE_ENCODING ||
+                     iState == FrostUploadItemObject.STATE_ENCODING_REQUESTED )
+            {
+                iState = FrostUploadItemObject.STATE_IDLE;
+            }
         }
 
         if( key != null && key.startsWith("CHK@") == false )
