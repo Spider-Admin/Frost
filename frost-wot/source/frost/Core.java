@@ -21,7 +21,7 @@ package frost;
 import java.io.*;
 import java.util.*;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import org.w3c.dom.*;
 
@@ -744,25 +744,21 @@ public class Core {
 		FileAccess.cleanKeypool(frame1.keypool);
 
 		if (!isFreenetIsOnline()) {
-			JOptionPane.showMessageDialog(
-				frame1.getInstance(),
-				"Make sure your node is running and that you have configured frost correctly.\n"
-					+ "Nevertheless, to allow you to read messages, Frost will startup now.\n"
-					+ "Don't get confused by some error messages ;)\n",
-				"Error - could not establish a connection to freenet node.",
-				JOptionPane.WARNING_MESSAGE);
+			showMessage("Make sure your node is running and that you have configured frost correctly.\n"
+							+ "Nevertheless, to allow you to read messages, Frost will startup now.\n"
+							+ "Don't get confused by some error messages ;)\n",
+							JOptionPane.WARNING_MESSAGE,
+							"Error - could not establish a connection to freenet node."
+							);
 			setFreenetIsOnline(false);
 		}
 
         // show a warning if freenet=transient AND only 1 node is used
-		if( isFreenetTransient() && nodes.size() == 1 ) 
-        {
-			JOptionPane.showMessageDialog(
-				frame1.getInstance(),
-				"      You are running a TRANSIENT node.  "
-					+ "Better run a PERMANENT freenet node.",
-				"Transient node detected",
-				JOptionPane.WARNING_MESSAGE);
+		if( isFreenetTransient() && nodes.size() == 1 ) {
+			showMessage("You are running a TRANSIENT node. "
+							+ "Better run a PERMANENT freenet node.",
+							JOptionPane.WARNING_MESSAGE,
+							"Transient node detected");
 		}
 
 		//create a crypt object
@@ -792,6 +788,21 @@ public class Core {
 		started = true;
 	} //end of init()
 
+	/**
+	 * 
+	 */
+	private void showMessage(String message, int type, String title) {
+		JOptionPane optionPane = new JOptionPane(message, type);
+		JFrame frame = new JFrame();
+		frame.setTitle("Frost");
+		java.awt.Dimension dimension = java.awt.Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation(dimension.width / 2, dimension.height / 2);
+		frame.setUndecorated(true);
+		frame.show();
+		frame.toFront();
+		optionPane.createDialog(frame, title).show();
+		frame.dispose();	
+	}
 	/**
 	   * Tries to send old messages that have not been sent yet
 	   */
