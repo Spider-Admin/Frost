@@ -153,7 +153,7 @@ public class requestThread extends Thread
             downloadItem.setState( downloadItem.STATE_DONE );
 
             tableModel.updateRow( downloadItem );
-            frame1.updateDownloads = true;
+//            frame1.updateDownloads = true;
         }
         }
         catch(Throwable t)

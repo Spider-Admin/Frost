@@ -63,7 +63,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private static frame1 instance = null; // set in constructor
     boolean started = false;
-    public static boolean updateDownloads = true;
+//    public static boolean updateDownloads = true;
 
     private boolean freenetIsOnline = false;
     private boolean freenetIsTransient = false;
@@ -2308,13 +2308,13 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             getDownloadTable().removeFinishedDownloads();
         }
-
+/*
         if( updateDownloads || counter%10 == 0 )
         {
             getDownloadTable().update( frostSettings );
             updateDownloads = false;
         }
-
+*/
         updateDownloadCountLabel();
 
         //////////////////////////////////////////////////
@@ -2504,8 +2504,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 // doing this frost will always try to download each file after startup -> nice.
 // but also means if you lower the maxRetries value in options, download will start 1 time more
 // even if maxRetries is lower, after the try its set to FAILED
-//                &&
-//                dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
+                &&
+                dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
               )
             {
                 // check if waittime is expired

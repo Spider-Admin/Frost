@@ -6,6 +6,8 @@ import java.util.*;
 
 import frost.*;
 import frost.FcpTools.*;
+import frost.gui.objects.*;
+import frost.gui.model.*;
 
 public class putKeyThread extends Thread {
 
@@ -15,6 +17,7 @@ public class putKeyThread extends Thread {
     private String[][] results;
     private int index;
     private boolean mode;
+    private FrostUploadItemObject uploadItem;
     private static String[] keywords = {"Success",
                     "RouteNotFound",
                     "KeyCollision",
@@ -48,7 +51,11 @@ public class putKeyThread extends Thread {
     String[] result = {"Error", "Error"};
     while (!result[0].equals("Success") &&
            !result[0].equals("KeyCollision") &&
-           tries < 8) {
+           tries < 8)
+    {
+        if( tries > 0 )
+            mixed.wait(3000); // wait some time between 2 tries
+
         tries++;
         System.out.println("putKeyThread: Splitfile upload: " + tries);
         String output = new String();
@@ -76,8 +83,20 @@ public class putKeyThread extends Thread {
         }
 
         result = result(output);
-        mixed.wait(3000);
     }
+
+    // maybe update upload table
+    if( uploadItem != null &&
+        ( result[0].equals("KeyCollision") || result[0].equals("Success") )
+      )
+    {
+        // block successfully uploaded, update progress in uploadtable
+        uploadItem.incUploadProgressDoneBlocks(); // 1 block more successful
+
+        UploadTableModel model = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
+        model.updateRow( uploadItem );
+    }
+
     results[index][0] = result[0];
     results[index][1] = result[1];
     uploadMe.delete();
@@ -88,13 +107,23 @@ public class putKeyThread extends Thread {
      * Constructor
      * @param p Process to get the Input Stream from
      */
-    public putKeyThread (String uri, File uploadMe, int htl, String[][] results, int index, boolean mode) {
-    this.uri = uri;
-    this.uploadMe = uploadMe;
-    this.htl = htl;
-    this.results = results;
-    this.index = index;
-    this.mode = mode;
+    public putKeyThread (String uri, File uploadMe, int htl, String[][] results, int index, boolean mode)
+    {
+        this.uri = uri;
+        this.uploadMe = uploadMe;
+        this.htl = htl;
+        this.results = results;
+        this.index = index;
+        this.mode = mode;
+        this.uploadItem = null;
     }
+
+    public putKeyThread (String uri, File uploadMe, int htl, String[][] results, int index, boolean mode,
+                         FrostUploadItemObject ulItem)
+    {
+        this(uri,uploadMe,htl,results,index,mode);
+        this.uploadItem = ulItem;
+    }
+
 
 }

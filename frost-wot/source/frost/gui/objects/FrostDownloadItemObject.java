@@ -32,9 +32,10 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private Integer retries = null;
 
     private int state = 0;
-    private long downloadProgress = 0; // the count of downloaded bytes
 
-    private String blockProgress = null;
+    int doneBlocks = 0;
+    int requiredBlocks = 0;
+    int totalBlocks = 0;
 
     private long lastDownloadStartTimeMillis = 0; // used for one by one update mode
     private long lastDownloadStopTimeMillis = 0; // time when download try finished, used for pause between tries
@@ -101,8 +102,11 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         else
             aFileSize = fileSize;
 
-        String blocks = ( (blockProgress==null) ? "" : blockProgress );
-
+        String blocks;
+        if( totalBlocks > 0 )
+            blocks = getBlockProgressStr();
+        else
+            blocks = "";
 
         switch(column) {
             case 0: return fileName;                //LangRes.getString("Filename"),
@@ -115,6 +119,30 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
             case 7: return key;                     //LangRes.getString("Key")
             default: return "*ERR*";
         }
+    }
+
+    private String getBlockProgressStr()
+    {
+        return( doneBlocks + " / " +requiredBlocks + " ("+totalBlocks+")" );
+    }
+
+    public String getStateString(int state)
+    {
+        String statestr = "*ERR*";
+        switch( state )
+        {
+        case STATE_WAITING:     statestr = STATE_WAITING_STR; break;
+        case STATE_TRYING:      statestr = STATE_TRYING_STR; break;
+        case STATE_FAILED:      statestr = STATE_FAILED_STR; break;
+        case STATE_DONE:        statestr = STATE_DONE_STR; break;
+        case STATE_REQUESTING:  statestr = STATE_REQUESTING_STR; break;
+        case STATE_PROGRESS:    if( totalBlocks > 0 )
+                                    statestr = (int)((doneBlocks*100)/requiredBlocks) + "%";
+                                else
+                                    statestr = "0%";
+                                break;
+        }
+        return statestr;
     }
 
     public int compareTo( TableMember anOther, int tableColumIndex )
@@ -168,20 +196,6 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         state = v;
     }
-    public String getStateString(int state)
-    {
-        String statestr = "*ERR*";
-        switch( state )
-        {
-        case STATE_WAITING:     statestr = STATE_WAITING_STR; break;
-        case STATE_TRYING:      statestr = STATE_TRYING_STR; break;
-        case STATE_FAILED:      statestr = STATE_FAILED_STR; break;
-        case STATE_DONE:        statestr = STATE_DONE_STR; break;
-        case STATE_REQUESTING:  statestr = STATE_REQUESTING_STR; break;
-        case STATE_PROGRESS:    statestr = (downloadProgress/1024) + STATE_PROGRESS_STR; break;
-        }
-        return statestr;
-    }
 
     public long getLastDownloadStartTimeMillis()
     {
@@ -202,15 +216,6 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         lastDownloadStopTimeMillis = val;
     }
 
-    public long getDownloadProgress()
-    {
-        return downloadProgress;
-    }
-    public void setDownloadProgress( long val )
-    {
-        downloadProgress = val;
-    }
-
     public int getRetries()
     {
         return retries.intValue();
@@ -222,7 +227,9 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
 
     public void setBlockProgress( int actualBlocks, int requiredBlocks, int allAvailableBlocks )
     {
-        blockProgress = actualBlocks + " / " +requiredBlocks + " ("+allAvailableBlocks+")";
+        this.doneBlocks = actualBlocks;
+        this.requiredBlocks = requiredBlocks;
+        this.totalBlocks = allAvailableBlocks;
     }
 
 }
