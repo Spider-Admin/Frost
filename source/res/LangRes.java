@@ -81,6 +81,14 @@ public class LangRes extends ListResourceBundle {
 	{"Not available","Not available"},
 	{"New Node Name","New Board name"},
 	
+	///////////////////////////////////////////////////
+	// Splash messages
+	///////////////////////////////////////////////////
+	{"Initializing Mainframe","Initializing Mainframe"},
+	{"Hypercube fluctuating!","Hypercube fluctuating!"},
+	{"Sending IP address to NSA","Sending IP address to NSA"},
+	{"Wasting more time","Wasting more time"},
+	{"Reaching ridiculous speed...","Reaching ridiculous speed..."},
 	
 	///////////////////////////////////////////////////
     // Welcome message
