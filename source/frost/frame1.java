@@ -2009,20 +2009,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			}
 			
 		} else {
+			LinkedList attachments = selectedMessage
+					.getAttachmentList()
+					.getAllOfType(Attachment.FILE);
 			for (int i = 0; i < selectedRows.length; i++) {
-				String filename =
-					(String) getAttachmentTable().getModel().getValueAt(
-						selectedRows[i],
-						0);
-				String key =
-					(String) getAttachmentTable().getModel().getValueAt(
-						selectedRows[i],
-						1);
+				FileAttachment fo = (FileAttachment)attachments.get(selectedRows[i]);
+				SharedFileObject sfo = fo.getFileObj();
+				FrostSearchItemObject fsio = new FrostSearchItemObject(getSelectedNode(),
+						sfo,
+						FrostSearchItemObject.STATE_NONE);
 				FrostDownloadItemObject dlItem =
-					new FrostDownloadItemObject(
-						filename,
-						key,
-						getSelectedNode());
+					new FrostDownloadItemObject(fsio);
 				boolean added = getDownloadTable().addDownloadItem(dlItem);
 			}
 		}
@@ -2042,27 +2039,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			if (selectedRows.length == 0)
 				return;
 		}
+		LinkedList boards = selectedMessage.getAttachmentList().getAllOfType(Attachment.BOARD);
 		for (int i = 0; i < selectedRows.length; i++) {
-			String name =
-				(String) getAttachedBoardsTable().getModel().getValueAt(
-					selectedRows[i],
-					0);
-			String pubKey =
-				(String) getAttachedBoardsTable().getModel().getValueAt(
-					selectedRows[i],
-					1);
-			String privKey =
-				(String) getAttachedBoardsTable().getModel().getValueAt(
-					selectedRows[i],
-					2);
-
-			// prepare key vars for creation of FrostBoardObject (val=null if key is empty)
-			if (privKey.compareTo("N/A") == 0 || privKey.length() == 0) {
-				privKey = null;
-			}
-			if (pubKey.compareTo("N/A") == 0 || pubKey.length() == 0) {
-				pubKey = null;
-			}
+			BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
+			FrostBoardObject fbo = ba.getBoardObj();
+			String name =fbo.getBoardName();
+				
 
 			// search board in exising boards list
 			FrostBoardObject board = getTofTree().getBoardByName(name);
@@ -2082,14 +2064,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					continue; // next row of table / next attached board
 				} else {
 					// change existing board keys to keys of new board
-					board.setPublicKey(pubKey);
-					board.setPrivateKey(privKey);
+					board.setPublicKey(fbo.getPublicKey());
+					board.setPrivateKey(fbo.getPrivateKey());
 					updateTofTree(board);
 				}
 			} else {
 				// its a new board
-				getTofTree().addNodeToTree(
-					new FrostBoardObject(name, pubKey, privKey));
+				getTofTree().addNodeToTree(fbo);
 			}
 		}
 	}
