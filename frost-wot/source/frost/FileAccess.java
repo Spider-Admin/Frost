@@ -25,7 +25,7 @@ import java.util.zip.*;
 
 import javax.swing.JFileChooser;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+
 
 import frost.messages.*;
 public class FileAccess
@@ -452,15 +452,17 @@ public class FileAccess
      * @param chk Map that will be used to add the keys
      * @param exchange the exchange flag of SharedFileObject will be set to this value
      */
-    public static void readKeyFile(String source, Map chk)
+    public static FrostIndex readKeyFile(String source)
     {
-        readKeyFile(new File(source), chk);
+        return readKeyFile(new File(source));
     }
-    public static void readKeyFile(File source, Map chk)
+    public static FrostIndex readKeyFile(File source)
     {
-        if (source.isFile() && source.length() > 0)
+    	if (!source.isFile() || !(source.length() > 0))
+    		return null;
+        else
         {
-            BufferedReader f;
+            /*BufferedReader f;
             String line = new String();
             String filename = new String();
             String size = new String();
@@ -469,7 +471,7 @@ public class FileAccess
             String key = null;
             String SHA1 = null;
             String owner = new String();
-            String batch = null;
+            String batch = null;*/
             int counter = 0;
 
             //parse the xml file
@@ -486,10 +488,13 @@ public class FileAccess
             if (d == null)
             {
                 Core.getOut().println("Couldn't parse index file.");
-                return;
+                return null;
             }
 
-            Element main = d.getDocumentElement(); // 'Filelist'
+			FrostIndex idx = new FrostIndex(d.getDocumentElement());
+			
+			
+            /*Element main = d.getDocumentElement(); // 'Filelist'
             ArrayList files = XMLTools.getChildElementsByTagName(main, "File");
 
             if (files.size() == 0)
@@ -506,31 +511,24 @@ public class FileAccess
                 Core.getOut().println("Index empty!");
                 return;
             }
-
-            //now get all the files
-            Iterator i = files.iterator();
+*/
+            //now go through all the files
+            Iterator i = idx.getFiles().iterator();
 
             while (i.hasNext())
             {
-                Element current = (Element)i.next();
-                SharedFileObject newKey = new SharedFileObject();
-                try {
-					newKey.loadXMLElement(current);
-                }catch (SAXException e){
-                	e.printStackTrace(Core.getOut());
-                	File badfile = new File ("badfile.xml");
-                	source.renameTo(badfile);
-                	Core.getOut().println("invalid index received.  Its saved as badfile.xml, send that file to the devs for analysis");
-                	break;
-                }
+                //Element current = (Element)i.next();
+                SharedFileObject newKey = (SharedFileObject)i.next();
+               
                 
                 //validate the key
                 if (!newKey.isValid())
                 {
+                	i.remove();
                     Core.getOut().println("invalid key found");
                     continue;
                 }
-
+/*
                 //check if we already have such key in the map
                 SharedFileObject oldKey = (SharedFileObject)chk.get(newKey.getSHA1());
 
@@ -575,19 +573,20 @@ public class FileAccess
                 }
 
                 //check if it (??? what ???) 
-
+*/
             }
-        }
-
+        return idx;
+        } 
+        
     }
 
-    public static void writeKeyFile(Map chk, String destination)
+    public static void writeKeyFile(FrostIndex idx, String destination)
     {
-        writeKeyFile(chk, new File(destination));
+        writeKeyFile(idx, new File(destination));
     }
-    public static void writeKeyFile(Map chk, File destination)
+    public static void writeKeyFile(FrostIndex idx, File destination)
     {
-        if( chk.size() == 0 )
+        if( idx.getFiles().size() == 0 )
         {
             // no items to write
             return;
@@ -595,38 +594,27 @@ public class FileAccess
         
         File tmpFile = new File( destination.getPath() + ".tmp" );
         
-        Document doc = XMLTools.createDomDocument();
-        if( doc == null )
-        {
-            System.out.println("Error - writeKeyFile: factory could'nt create XML Document.");
-            return;
-        }
-
-        Element rootElement = doc.createElement("Filelist");
-        if (frame1.frostSettings.getBoolValue("signUploads"))
-        {
-            rootElement.setAttribute("sharer", frame1.getMyId().getUniqueName());
-            rootElement.setAttribute("pubkey", frame1.getMyId().getKey());
-        }
-        doc.appendChild(rootElement);
+        //use FrostIndex object
 
         int itemsAppended = 0;
-        synchronized (chk)
+        synchronized (idx)
         {
-            Iterator i = chk.values().iterator();
+            Iterator i = idx.getFiles().iterator();
             while (i.hasNext())
             {
                 SharedFileObject current = (SharedFileObject)i.next();
 				if (current.getOwner() != null
 								&& frame1.getEnemies().Get(current.getOwner()) != null)
 							{
-								Core.getOut().println("skipping file from BAD user");
+								Core.getOut().println("removing file from BAD user");
+								i.remove();
 								continue;
 							}
-                rootElement.appendChild( current.getXMLElement(doc) );
+
                 itemsAppended++;
             }
         }
+		
         
         if( itemsAppended == 0 )
         {
@@ -638,6 +626,7 @@ public class FileAccess
         
         boolean writeOK = false;
         try {
+        	Document doc = XMLTools.getXMLDocument(idx);
             writeOK = XMLTools.writeXmlFile(doc, tmpFile.getPath());
         } catch(Throwable t)
         {

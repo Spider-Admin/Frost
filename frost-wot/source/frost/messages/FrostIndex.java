@@ -21,6 +21,7 @@ import frost.identities.*;
 public class FrostIndex implements XMLizable {
 	Identity sharer;
 	Set files;
+	Map filesMap;
 
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
@@ -71,15 +72,18 @@ public class FrostIndex implements XMLizable {
 			
 		List _files = XMLTools.getChildElementsByTagName(e,"File");
 		
-		files = new HashSet(); //TODO: maybe put a TreeSet and keep all sorted
+		filesMap = new HashMap(); //TODO: maybe put a TreeSet and keep all sorted
 		Iterator it = _files.iterator();
 		while (it.hasNext()) {
 			Element el = (Element)it.next();
 			SharedFileObject file = new SharedFileObject();
 			file.loadXMLElement(el);
-			files.add(file);
+			//files.add(file);
+			if (file.getSHA1()!=null)
+				filesMap.put(file.getSHA1(),file);
 		}
-
+		
+		files = new HashSet(filesMap.values());
 	}
 
 	public FrostIndex(Element e) {
@@ -91,12 +95,34 @@ public class FrostIndex implements XMLizable {
 	}
 
 	public FrostIndex(Set files) {
-		this.files = files;
+		
+		Iterator it = files.iterator();
+		while (it.hasNext()) {
+			SharedFileObject current = (SharedFileObject)it.next();
+			if (current.getSHA1() != null)
+				filesMap.put(current.getSHA1(),current);
+		}
+		
+		//wrap the set around the Map set, so that changes will be visible in both
+		this.files = new HashSet(filesMap.values());
+		
+		
 		if (Core.frostSettings.getBoolValue("signUploads"))
 			sharer = Core.getMyId();
 		else 
 			sharer = null;
 	}
+	
+	public FrostIndex (Map filesMap){
+		this.filesMap = filesMap;
+		files = new HashSet(filesMap.values());
+		
+		if (Core.frostSettings.getBoolValue("signUploads"))
+			sharer = Core.getMyId();
+		else 
+			sharer = null;
+	}
+	
 
 	/**
 	 * @return the set of files contained in this index
@@ -110,6 +136,13 @@ public class FrostIndex implements XMLizable {
 	 */
 	public Identity getSharer() {
 		return sharer;
+	}
+
+	/**
+	 * @return
+	 */
+	public Map getFilesMap() {
+		return filesMap;
 	}
 
 }

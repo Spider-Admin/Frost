@@ -350,17 +350,19 @@ public class SharedFileObject implements XMLizable
 			 element.appendChild( cdata );
 			 fileelement.appendChild( element );
               
-             //only add SHA1 if the board is not null
-             //if board is null means this file is an attachment that does not wish to be
-             //indexed
+             //always add SHA1
+             
+			 element = doc.createElement("SHA1");
+			 cdata = doc.createCDATASection(getSHA1());
+			 element.appendChild( cdata );
+			 fileelement.appendChild( element );
+             
+             //if boardObj is not null, add an emtpy board element
+             
              if (board!=null) {
-             	Core.getOut().println("board not null, setting SHA1 in xml");
-			 	element = doc.createElement("SHA1");
-			 	cdata = doc.createCDATASection(getSHA1());
-			    element.appendChild( cdata );
-			 	fileelement.appendChild( element );
-             }  else
-             	Core.getOut().println("my boardObj is null! :(");
+	             element = doc.createElement("indexed");
+    	         fileelement.appendChild(element);
+             }
               
 			 element = doc.createElement("size");
 			 Text textnode = doc.createTextNode(""+getSize());
@@ -439,6 +441,10 @@ public class SharedFileObject implements XMLizable
 						  XMLTools.getChildElementsTextValue(current, "size"));
 					  setBatch(
 						  XMLTools.getChildElementsTextValue(current, "batch"));
+						  
+					 //check if file was indexed
+					 if (XMLTools.getChildElementsByTagName(current,"indexed").size() >0)
+					 	setBoard(new FrostBoardObject("","",""));
     }
     
     
