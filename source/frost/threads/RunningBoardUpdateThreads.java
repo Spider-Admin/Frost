@@ -157,7 +157,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     }
 
     /**
-     * gets an Vector from a Hashtable with given key. If key is not contained
+     * Gets an Vector from a Hashtable with given key. If key is not contained
      * in Hashtable, an empty Vector will be created and put in the Hashtable.
      */
     protected Vector getVectorFromHashtable(Hashtable t, Object key)

@@ -409,15 +409,6 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
     this.frostSettings = frostSettings;
 
     String date = DateFun.getDate() + " - " + DateFun.getTime();
-/*    GregorianCalendar cal = new GregorianCalendar();
-    cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-    cal.get(Calendar.YEAR) + ".";
-    date += cal.get(Calendar.MONTH) + 1 + ".";
-    date += cal.get(Calendar.DATE) + " - ";
-    date += cal.get(Calendar.HOUR_OF_DAY) + ":";
-    date += cal.get(Calendar.MINUTE) + ":";
-    date += cal.get(Calendar.SECOND);
-*/
     String lineSeparator = System.getProperty("line.separator");
     if (this.text.length() > 0)
         this.text += lineSeparator + "----- " + this.from + " ----- " + date + " -----" + lineSeparator + lineSeparator;
