@@ -632,16 +632,12 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 			}
 		}
 
-		String result = output.toString();
-
-		logger.fine("putKeyFromArray: Key='" + key + "', Output='" + result + "'");
-
 		//    fcpSock.close();
 		dOut.close();
 		fcpOut.close();
 		fcpIn.close();
 		fcpSock.close();
-		return result;
+		return output.toString();
 	}
 
     /**
