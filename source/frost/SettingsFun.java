@@ -21,10 +21,11 @@ package frost;
 
 import java.io.File;
 import java.util.Vector;
+import java.util.logging.Logger;
 
 public class SettingsFun
 {
-    final static boolean DEBUG = false;
+	private static Logger logger = Logger.getLogger(SettingsFun.class.getName());
 
     /**
      * Reads a settings file and returns the requested value
@@ -67,7 +68,7 @@ public class SettingsFun
                 }
             }
         }
-        if( DEBUG ) System.out.println("Setting not found: " + value);
+        logger.fine("Setting not found: " + value);
         return "";
     }
 

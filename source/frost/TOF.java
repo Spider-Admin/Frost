@@ -19,6 +19,7 @@
 package frost;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
@@ -33,6 +34,8 @@ public class TOF
 //    private static Hashtable messages = null;
     private static UpdateTofFilesThread updateThread = null;
     private static UpdateTofFilesThread nextUpdateThread = null;
+    
+	private static Logger logger = Logger.getLogger(TOF.class.getName());
 
     /**
      * Gets the content of the message selected in the tofTable.
@@ -140,8 +143,8 @@ public class TOF
             }
             catch(Exception ex)
             {
-                Core.getOut().println("Error: skipping to load file '"+newMsgFile.getPath()+
-                                      "', reason:\n"+ex.getMessage());
+				logger.log(Level.SEVERE, "Error: skipping to load file '" + newMsgFile.getPath()+
+                                         "', reason:\n" + ex.getMessage(), ex);
                 return;                      
             }
             if( message.isValid() && !blocked(message, board) )
