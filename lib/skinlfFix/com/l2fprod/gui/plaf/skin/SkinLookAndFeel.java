@@ -56,6 +56,7 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.*;
+import javax.swing.plaf.basic.*;
 import javax.swing.plaf.basic.BasicLookAndFeel;
 import javax.swing.text.*;
 
@@ -269,8 +270,10 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
     Object treeCollapsedIcon = SkinTreeUI.CollapsedIcon.createCollapsedIcon();
 
     Object checkIcon = new SkinCheckBoxIcon();
-    
-	Border buttonBorder = new BorderUIResource.EmptyBorderUIResource(0,0,0,0);
+        
+	Border buttonBorder = new BorderUIResource.CompoundBorderUIResource(
+								new EmptyBorder(2,3,3,3),
+								new BasicBorders.MarginBorder());
 
     Object[] defaults = {
       //  	    // Buttons
