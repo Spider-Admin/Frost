@@ -7,7 +7,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.fcpTools.FcpFactory;
+import frost.fcp.FcpFactory;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.BoardAttachment;
 

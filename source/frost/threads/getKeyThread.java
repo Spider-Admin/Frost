@@ -3,7 +3,7 @@ package frost.threads;
 import java.io.*;
 import java.util.logging.Logger;
 
-import frost.fcpTools.*;
+import frost.fcp.*;
 
 /**
  * Reads a key from Freenet
