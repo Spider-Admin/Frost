@@ -328,6 +328,9 @@ public class MessageObject implements XMLizable
 
         if( rootNode.getTagName().equals("FrostMessage") == false )
         {
+        	File badMessage = new File("badmessage.xml");
+        	if (file.renameTo(badMessage))
+        		Core.getOut().println("Error - send the file badmessage.xml to a dev for analysis, more details below:");
             throw new Exception("Error - invalid message: does not contain the root tag 'FrostMessage'");
         }
         
