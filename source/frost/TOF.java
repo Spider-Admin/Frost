@@ -51,42 +51,49 @@ public class TOF
             {
                 String index = (String)tableModel.getValueAt(row, 0);
                 String date = (String)tableModel.getValueAt(row, 4);
-                String from = (String)tableModel.getValueAt(row, 1);
 
                 FrostMessageObject message = (FrostMessageObject)messages.get(index+date);
 
                 if( message != null )
                 {
-                    boolean newMessage = false;
                     // Test if lockfile exists, remove it and update the tree display
-                    File messageLock = new File( (message.getFile()).getPath() + ".lck");
-                    if( messageLock.isFile() )
+                    final File messageLock = new File( message.getFile().getPath() + ".lck" );
+                    if( messageLock.exists() == false )
                     {
-                        // this is a new message
-                        newMessage = true;
-                        messageLock.delete();
-                        board.decNewMessageCount();
+                        // its a read message, nothing more to do here ...
+                        return message;
                     }
+
+                    // this is a new message
+
+                    Runnable deleter = new Runnable() {
+                            public void run() {
+                                messageLock.delete();
+                            } };
+                    new Thread( deleter ).start(); // do IO in another thread, not here in Swing thread
+
+                    board.decNewMessageCount();
 
                     // here we reset the bold-look from sender column,
                     // wich was set by MessageObject.getRow()
+                    String from = (String)tableModel.getValueAt(row, 1);
+
                     if( from.indexOf("<font color=\"blue\">") != -1 )
                     {
-                        StringBuffer sbtmp = new StringBuffer();
-                        sbtmp.append("<html><font color=\"blue\">");
-                        sbtmp.append(message.getFrom());
-                        sbtmp.append("</font></html>");
-                        tableModel.setValueAt( sbtmp.toString(), row, 1); // Message with attachment
+                        String sbtmp = new StringBuffer()
+                        .append("<html><font color=\"blue\">")
+                        .append(message.getFrom())
+                        .append("</font></html>").toString();
+                        tableModel.setValueAt( sbtmp, row, 1); // Message with attachment
                     }
                     else
                     {
                         tableModel.setValueAt(message.getFrom(), row, 1);
                     }
-                    if( newMessage == true )
-                    {
-                        frame1.getInstance().updateMessageCountLabels(board);
-                        frame1.getInstance().updateTofTree(board);
-                    }
+
+                    frame1.getInstance().updateMessageCountLabels(board);
+                    frame1.getInstance().updateTofTree(board);
+
                     return message;
                 }
             }
@@ -141,7 +148,7 @@ public class TOF
     public static void updateTofTable(FrostBoardObject board, String keypool)
     {
         int daysToRead = board.getMaxMessageDisplay();
-        // change to not block the swing thread
+        // changed to not block the swing thread
         JTable table = frame1.getInstance().getMessageTable();
 
         if( updateThread != null )
