@@ -21,6 +21,7 @@ package frost.threads;
 
 import java.io.File;
 import java.util.Random;
+import java.util.logging.*;
 
 import frost.*;
 import frost.FcpTools.*;
@@ -31,6 +32,8 @@ import frost.messages.*;
 public class insertThread extends Thread
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    
+	private static Logger logger = Logger.getLogger(insertThread.class.getName());
     
     public static final int MODE_GENERATE_SHA1 = 1;
     public static final int MODE_GENERATE_CHK  = 2;
@@ -57,9 +60,9 @@ public class insertThread extends Thread
     public void run()
     {
     	if (batchId==null) {
-    		Error er = new Error();
+    		Exception er = new Exception();
     		er.fillInStackTrace();
-    		er.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in run()", er);
     	}
     	if (Core.getMyBatches().values().size()==0)
     		Core.getMyBatches().put(batchId,batchId);
@@ -74,7 +77,7 @@ public class insertThread extends Thread
 
             if( mode == MODE_UPLOAD )
             { //real upload
-                Core.getOut().println("Upload of " + file + " with HTL " + htl + " started.");
+                logger.info("Upload of " + file + " with HTL " + htl + " started.");
                 synchronized (frame1.threadCountLock)
                 {
                     frame1.activeUploadThreads++;
@@ -93,13 +96,13 @@ public class insertThread extends Thread
                     result[0].equals("KeyCollision") )
                 {
                     success = true;
-                    Core.getOut().println("Upload of " + file + " was successful.");
+                    logger.info("Upload of " + file + " was successful.");
                     uploadItem.setKey(result[1]);
                     lastUploadDate = currentDate;
                 }
                 else
                 {
-                    Core.getOut().println("Upload of " + file + " was NOT successful.");
+                    logger.warning("Upload of " + file + " was NOT successful.");
                 }
 
                 // item uploaded (maybe)
@@ -123,7 +126,7 @@ public class insertThread extends Thread
 					SharedFileObject current;
                 	
 					if (uploadItem.getFileSize().longValue() > FcpInsert.smallestChunk ) {
-						Core.getOut().println("attaching redirect to file "+file.getName());
+						logger.fine("attaching redirect to file " + file.getName());
 						current = new FECRedirectFileObject();
 						FecSplitfile splitFile = new FecSplitfile(file);
 						if (!splitFile.uploadInit()) 
@@ -137,7 +140,7 @@ public class insertThread extends Thread
 					}
 					else {
 						current = new SharedFileObject();
-						Core.getOut().println("not attaching redirect");
+						logger.fine("not attaching redirect");
 					}
                 	
 					
@@ -176,11 +179,7 @@ public class insertThread extends Thread
 
                 long now = System.currentTimeMillis();
                 String SHA1 = frame1.getCrypto().digest(file);
-                Core.getOut().println(
-                    "digest generated in "
-                        + (System.currentTimeMillis() - now)
-                        + "  "
-                        + SHA1);
+                logger.fine("digest generated in " + (System.currentTimeMillis() - now) + "  " + SHA1);
 
                 //create new KeyClass
                 SharedFileObject newKey = new SharedFileObject();
@@ -210,12 +209,12 @@ public class insertThread extends Thread
             else if( mode == MODE_GENERATE_CHK )
             {
                 frame1.setGeneratingCHK(true);
-                Core.getOut().println("CHK generation started for file: " + file);
+                logger.info("CHK generation started for file: " + file);
                 String chkkey = null;
                 
                 if( file.length() <= FcpInsert.smallestChunk )
                 {
-                    System.out.println("File too short, does'nt need encoding.");
+                    logger.info("File too short, doesn't need encoding.");
                     // generate only CHK
                     chkkey = FecTools.generateCHK(file);
                 }
@@ -230,8 +229,7 @@ public class insertThread extends Thread
                         }
                         catch(Throwable t)
                         {
-                            Core.getOut().println("Encoding failed:");
-                            t.printStackTrace();
+							logger.log(Level.SEVERE, "Encoding failed", t);
                             uploadItem.setState(FrostUploadItemObject.STATE_IDLE);
                             ((UploadTableModel)frame1.getInstance().getUploadTable().getModel()).updateRow(uploadItem);
                             return;
@@ -251,7 +249,7 @@ public class insertThread extends Thread
                 }
                 else
                 {
-                    Core.getOut().println("Could not generate CHK key for redirect file.");
+                    logger.warning("Could not generate CHK key for redirect file.");
                 }
                 uploadItem.setKey(chkkey);
                 
@@ -271,7 +269,7 @@ public class insertThread extends Thread
         }
         catch (Throwable t)
         {
-            t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in run()", t);
         }
         frame1.setGeneratingCHK(false);
     }
