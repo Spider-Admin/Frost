@@ -504,8 +504,15 @@ public class LangRes extends ListResourceBundle {
 	 {"UploadsUnderway.title","Uploads underway"},
 	 {"UploadsUnderway.body","If you exit now, some of the messages\n"
 							 + "that you are uploading may appear duplicated.\n"
-							 + "Do you want to exit anyway?"}
-
+							 + "Do you want to exit anyway?"},
+							 
+	//email notification stuff
+	{"SMTP.server","server address"},
+	{"SMTP.username","username"},
+	{"SMTP.password","password"},
+	{"Email.address","send notification to"},
+	{"Email.body",
+		"Enter the body of the email.  \"<filename>\" will be replaced with the name of the file"},
     };
 }
 
