@@ -570,7 +570,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			miscSettings.setValue("useAltEdit", altEditCheckBox.isSelected());
 			miscSettings.setValue("altEdit", altEditTextField.getText());
 			miscSettings.setValue("doCleanUp", cleanupCheckBox.isSelected());
-			miscSettings.setValue("autoSaveInterval", autoSaveIntervalTextField.getText());
+			miscSettings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());
 			miscSettings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
 			miscSettings.setValue(
 				SettingsClass.LOG_FILE_SIZE_LIMIT,
@@ -624,7 +624,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			maxKeysTextField.setText(miscSettings.getValue("maxKeys"));
 			cleanupCheckBox.setSelected(miscSettings.getBoolValue("doCleanUp"));
 			autoSaveIntervalTextField.setText(
-				Integer.toString(miscSettings.getIntValue("autoSaveInterval")));
+				Integer.toString(miscSettings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
 			enableLoggingCheckBox.setSelected(miscSettings.getBoolValue(SettingsClass.LOG_TO_FILE));
 			logFileSizeTextField.setText(
 				Integer.toString(miscSettings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
