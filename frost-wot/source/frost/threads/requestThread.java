@@ -226,8 +226,8 @@ public class requestThread extends Thread
                     newKey.setSize(newFile.length());
                     newKey.setSHA1(SHA1);
                     newKey.setDate(date);
-                    newKey.setExchange(false);
-                    Index.addMine(newKey, board);
+                    if (Core.frostSettings.getBoolValue("shareDownloads"))
+                    	Index.addMine(newKey, board);
                 }
 
                 downloadItem.setFileSize(newFile.length());
