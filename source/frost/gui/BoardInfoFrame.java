@@ -221,42 +221,66 @@ public class BoardInfoFrame extends JFrame
         }
     }
 
+    private static UpdateBoardInfoTableThread updateBoardInfoTableThread = null;
+
     private void updateButton_actionPerformed(ActionEvent e)
     {
-        int messageCount = 0;
-        int fileCount = 0;
-        int boardCount = 0;
-        boards = parent.getTofTree().getAllBoards();
+        if( updateBoardInfoTableThread != null )
+            return;
+
         ((SortedTableModel2)boardTable.getModel()).clearDataModel();
-        for( int i = 0; i < boards.size(); i++ )
-        {
-            FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
-            String boardName = board.toString();
 
-            BoardInfoTableMember newRow = new BoardInfoTableMember(board);
-            fillInBoardCounts(board, newRow);
+        updateBoardInfoTableThread = new UpdateBoardInfoTableThread();
+        updateBoardInfoTableThread.start();
 
-            // count statistics
-            messageCount += newRow.getAllMessageCount().intValue();
-            fileCount += newRow.getFilesCount().intValue();
-            boardCount++;
-
-            if( parent.isUpdating(board) == true )
-            {
-                // this board is updating right now
-                newRow.setUpdating(true);
-            }
-
-            boardTableModel.addRow(newRow);
-        }
-        summaryLabel.setText(LangRes.getString("Boards: ") +
-                             boardCount +
-                             LangRes.getString("   Messages: ") +
-                             messageCount +
-                             LangRes.getString("   Files: ") +
-                             fileCount);
         updateSelectedBoardButton.setEnabled(false);
         MIupdateSelectedBoard.setEnabled(false);
+    }
+
+    private class UpdateBoardInfoTableThread extends Thread
+    {
+        public void run()
+        {
+            int messageCount = 0;
+            int fileCount = 0;
+            int boardCount = 0;
+            boards = parent.getTofTree().getAllBoards();
+            for( int i = 0; i < boards.size(); i++ )
+            {
+                FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
+                String boardName = board.toString();
+
+                BoardInfoTableMember newRow = new BoardInfoTableMember(board);
+                fillInBoardCounts(board, newRow);
+
+                // count statistics
+                messageCount += newRow.getAllMessageCount().intValue();
+                fileCount += newRow.getFilesCount().intValue();
+                boardCount++;
+
+                if( parent.isUpdating(board) == true )
+                {
+                    // this board is updating right now
+                    newRow.setUpdating(true);
+                }
+
+                final BoardInfoTableMember finalRow = newRow;
+                final int finalBoardCount = boardCount;
+                final int finalMessageCount = messageCount;
+                final int finalFileCount = fileCount;
+                SwingUtilities.invokeLater(new Runnable() {
+                        public void run() {
+                            boardTableModel.addRow(finalRow);
+                            summaryLabel.setText(LangRes.getString("Boards: ") +
+                                                 finalBoardCount +
+                                                 LangRes.getString("   Messages: ") +
+                                                 finalMessageCount +
+                                                 LangRes.getString("   Files: ") +
+                                                 finalFileCount);
+                        }});
+            }
+            updateBoardInfoTableThread = null;
+        }
     }
 
     // simple hack, but does the thing
