@@ -111,31 +111,26 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	/**
 	 * @return
 	 */
-	public boolean containsFolderNewMessages() {
-		Board board = this;
-		int childs = getChildCount(); 
-		boolean newMessage = false;
-
-		for (int c = 0; c < childs; c++) {
-			Board childBoard = (Board) board.getChildAt(c);
-			if ((childBoard.isFolder() && childBoard.containsFolderNewMessages())
-				|| childBoard.containsNewMessage()) {
-				newMessage = true;
-				break;
+	public boolean containsNewMessages() {
+		if (!isFolder) {
+			// Node is a board			
+			if (newMessageCount > 0) {
+				return true;
+			} else {
+				return false;
 			}
+		} else {
+			// Node is a folder
+			for (int c = 0; c < getChildCount(); c++) {
+				Board child = (Board) getChildAt(c);
+				if (child.containsNewMessages()) {
+					return true;
+				}
+			}
+			return false;
 		}
-		return newMessage;
 	}
 
-	/**
-	 * @return
-	 */
-	public boolean containsNewMessage() {
-		if (getNewMessageCount() > 0)
-			return true; 
-		return false;
-	}
-	
 	/**
 	 * 
 	 */
@@ -310,21 +305,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 			return "public board";
 		}
 		return "*ERROR*";
-	}
-
-	/**
-	 * Returns the String that is shown in tree.
-	 * Appends new message count in brackets behind board name.
-	 */
-	public String getVisibleText() {
-		if (getNewMessageCount() == 0) {
-			return toString();
-		}
-
-		StringBuffer sb = new StringBuffer();
-		sb.append(toString()).append(" (").append(getNewMessageCount()).append(")");
-
-		return sb.toString();
 	}
 
 	/**
@@ -532,11 +512,18 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 		Collections.sort(children);
 	}
 
-	/* (non-Javadoc)
+	/**
+	 * When there are new messages, appends the number in brackets after board name.
 	 * @see java.lang.Object#toString()
 	 */
 	public String toString() {
-		return boardName;
+		if (getNewMessageCount() == 0) {
+			return boardName;
+		}
+
+		StringBuffer sb = new StringBuffer();
+		sb.append(boardName).append(" (").append(newMessageCount).append(")");
+		return sb.toString();
 	}
 
 }
