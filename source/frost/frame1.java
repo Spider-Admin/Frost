@@ -2380,7 +2380,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		if (downloadTable == null) {
 			DownloadTableModel downloadTableModel = new DownloadTableModel(languageResource);
 			downloadTable = new DownloadTable(downloadTableModel);
-			languageResource.addLanguageListener(downloadTableModel);
 		}
 		return downloadTable;
 	}
@@ -2470,7 +2469,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		if (uploadTable == null) {
 			UploadTableModel uploadTableModel = new UploadTableModel(languageResource);
 			uploadTable = new UploadTable(uploadTableModel);
-			languageResource.addLanguageListener(uploadTableModel);
 		}
 		return uploadTable;
 	}
