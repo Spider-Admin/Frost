@@ -2444,7 +2444,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			// a new Model is created wich contains some sample data by default (swing)
 			// this confuses our renderer wich only expects FrostBoardObjects in the tree
 			FrostBoardObject dummyRootNode = new FrostBoardObject("Frost Message System", true);
-			tofTree = new TofTree(dummyRootNode);
+			tofTree = new TofTree(dummyRootNode, languageResource);
 		}
 		return tofTree;
 	}
