@@ -25,7 +25,7 @@ import java.util.zip.*;
 
 import javax.swing.JFileChooser;
 import org.w3c.dom.*;
-
+import org.xml.sax.SAXException;
 public class FileAccess
 {
     /**
@@ -460,39 +460,16 @@ public class FileAccess
             {
                 Element current = (Element)i.next();
                 SharedFileObject newKey = new SharedFileObject();
-
-                //extract the values
-                try
-                {
-                    newKey.setFilename(
-                        XMLTools.getChildElementsCDATAValue(current, "name"));
-                    newKey.setSHA1(
-                        XMLTools.getChildElementsCDATAValue(current, "SHA1"));
+                try {
+					newKey.loadXMLElement(current);
+                }catch (SAXException e){
+                	e.printStackTrace(Core.getOut());
+                	File badfile = new File ("badfile.xml");
+                	source.renameTo(badfile);
+                	Core.getOut().println("invalid index received.  Its saved as badfile.xml, send that file to the devs for analysis");
+                	continue;
                 }
-                catch (ClassCastException e)
-                {
-                    Core.getOut().println(
-                        "received an index from early beta. grr");
-                    newKey.setSHA1(
-                        XMLTools.getChildElementsTextValue(current, "SHA1"));
-                    newKey.setFilename(
-                        XMLTools.getChildElementsTextValue(current, "name"));
-
-                }
-                newKey.setOwner(
-                    XMLTools.getChildElementsTextValue(current, "owner"));
-
-                newKey.setKey(
-                    XMLTools.getChildElementsTextValue(current, "key"));
-                newKey.setDate(
-                    XMLTools.getChildElementsTextValue(current, "date"));
-                newKey.setLastSharedDate(
-                    XMLTools.getChildElementsTextValue(current, "dateShared"));
-                newKey.setSize(
-                    XMLTools.getChildElementsTextValue(current, "size"));
-                newKey.setBatch(
-                    XMLTools.getChildElementsTextValue(current, "batch"));
-
+                
                 //validate the key
                 if (!newKey.isValid())
                 {
@@ -577,73 +554,14 @@ public class FileAccess
             while (i.hasNext())
             {
                 SharedFileObject current = (SharedFileObject)i.next();
-
-                //we do not add keys who are not signed by people we marked as GOOD!
-                //but we add unsigned keys for now; this will probably change soon
-                if (current.getOwner() != null
-                    && frame1.getEnemies().Get(current.getOwner()) != null)
-                {
-                    Core.getOut().println("skipping file from BAD user");
-                    continue;
-                }
+				if (current.getOwner() != null
+								&& frame1.getEnemies().Get(current.getOwner()) != null)
+							{
+								Core.getOut().println("skipping file from BAD user");
+								continue;
+							}
                 
-                Element fileelement = doc.createElement("File");
-                
-                Element element = doc.createElement("name");
-                CDATASection cdata = doc.createCDATASection(current.getFilename());
-                element.appendChild( cdata );
-                fileelement.appendChild( element );
-                
-                element = doc.createElement("SHA1");
-                cdata = doc.createCDATASection(current.getSHA1());
-                element.appendChild( cdata );
-                fileelement.appendChild( element );
-                
-                element = doc.createElement("size");
-                Text textnode = doc.createTextNode(""+current.getSize());
-                element.appendChild( textnode );
-                fileelement.appendChild( element );
-                
-                if( current.getBatch() != null )
-                {
-                    element = doc.createElement("batch");
-                    textnode = doc.createTextNode(current.getBatch());
-                    element.appendChild( textnode );
-                    fileelement.appendChild( element );
-                }
-
-// f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
-
-                if (current.getOwner() != null)
-                {
-                    element = doc.createElement("owner");
-                    textnode = doc.createTextNode(current.getOwner());
-                    element.appendChild( textnode );
-                    fileelement.appendChild( element );
-                }
-                if (current.getKey() != null)
-                {
-                    element = doc.createElement("key");
-                    textnode = doc.createTextNode(current.getKey());
-                    element.appendChild( textnode );
-                    fileelement.appendChild( element );
-                }
-                if (current.getDate() != null)
-                {
-                    element = doc.createElement("date");
-                    textnode = doc.createTextNode(current.getDate());
-                    element.appendChild( textnode );
-                    fileelement.appendChild( element );
-                }
-                if (current.getLastSharedDate() != null)
-                {
-                    element = doc.createElement("dateShared");
-                    textnode = doc.createTextNode(current.getLastSharedDate());
-                    element.appendChild( textnode );
-                    fileelement.appendChild( element );
-                }
-                
-                rootElement.appendChild( fileelement );
+                rootElement.appendChild( current.getXMLElement(doc) );
             }
         }
         

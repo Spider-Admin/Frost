@@ -19,6 +19,8 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 package frost;
 
 import java.util.*;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
 
 //Renamed this class to SharedFileObject.
@@ -29,7 +31,7 @@ import java.util.*;
 //why do this?  Because in the future we may want to add more descriptions,
 //maybe some categories, user comments, etc.  Its all possible with xml ;)
 
-public class SharedFileObject
+public class SharedFileObject implements XMLizable
 {
     private boolean DEBUG = false;
     private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
@@ -292,4 +294,104 @@ public class SharedFileObject
     public SharedFileObject() {
     	exchange=true;
     }
+    
+    public Element getXMLElement(Document doc)  {
+
+			 //we do not add keys who are not signed by people we marked as GOOD!
+			 //but we add unsigned keys for now; this will probably change soon
+			
+			
+                
+			 Element fileelement = doc.createElement("File");
+                
+			 Element element = doc.createElement("name");
+			 CDATASection cdata = doc.createCDATASection(getFilename());
+			 element.appendChild( cdata );
+			 fileelement.appendChild( element );
+                
+			 element = doc.createElement("SHA1");
+			 cdata = doc.createCDATASection(getSHA1());
+			 element.appendChild( cdata );
+			 fileelement.appendChild( element );
+                
+			 element = doc.createElement("size");
+			 Text textnode = doc.createTextNode(""+getSize());
+			 element.appendChild( textnode );
+			 fileelement.appendChild( element );
+                
+			 if( getBatch() != null )
+			 {
+				 element = doc.createElement("batch");
+				 textnode = doc.createTextNode(getBatch());
+				 element.appendChild( textnode );
+				 fileelement.appendChild( element );
+			 }
+
+//f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
+
+			 if (getOwner() != null)
+			 {
+				 element = doc.createElement("owner");
+				 textnode = doc.createTextNode(getOwner());
+				 element.appendChild( textnode );
+				 fileelement.appendChild( element );
+			 }
+			 if (getKey() != null)
+			 {
+				 element = doc.createElement("key");
+				 textnode = doc.createTextNode(getKey());
+				 element.appendChild( textnode );
+				 fileelement.appendChild( element );
+			 }
+			 if (getDate() != null)
+			 {
+				 element = doc.createElement("date");
+				 textnode = doc.createTextNode(getDate());
+				 element.appendChild( textnode );
+				 fileelement.appendChild( element );
+			 }
+			 if (getLastSharedDate() != null)
+			 {
+				 element = doc.createElement("dateShared");
+				 textnode = doc.createTextNode(getLastSharedDate());
+				 element.appendChild( textnode );
+				 fileelement.appendChild( element );
+			 }
+			 return fileelement;
+    }
+    
+    public void loadXMLElement(Element current) throws SAXException{
+//		extract the values
+					  try
+					  {
+						  setFilename(
+							  XMLTools.getChildElementsCDATAValue(current, "name"));
+						  setSHA1(
+							  XMLTools.getChildElementsCDATAValue(current, "SHA1"));
+					  }
+					  catch (ClassCastException e)
+					  {
+						  Core.getOut().println(
+							  "received an index from early beta. grr");
+						  setSHA1(
+							  XMLTools.getChildElementsTextValue(current, "SHA1"));
+						  setFilename(
+							  XMLTools.getChildElementsTextValue(current, "name"));
+					  }
+					  setOwner(
+						  XMLTools.getChildElementsTextValue(current, "owner"));
+
+					  setKey(
+						  XMLTools.getChildElementsTextValue(current, "key"));
+					  setDate(
+						  XMLTools.getChildElementsTextValue(current, "date"));
+					  setLastSharedDate(
+						  XMLTools.getChildElementsTextValue(current, "dateShared"));
+					  setSize(
+						  XMLTools.getChildElementsTextValue(current, "size"));
+					  setBatch(
+						  XMLTools.getChildElementsTextValue(current, "batch"));
+    }
+    
+    
 }
