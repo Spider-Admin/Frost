@@ -4,6 +4,7 @@ Added:  now the dialogs that may pop up when Frost is started create a dummy fra
         see on the task bar that there is activity going on.
 Added:  in case Frost finds an error while auto saving a resource, a popup is shown to warn the user
         about the situation and the application closes itself.
+Added:  popup menu to the message body of the new message frame (cut, copy and paste).
 
 Changed: when an unsigned message is received with the @ character in the from field, it is automatically
          blocked.
