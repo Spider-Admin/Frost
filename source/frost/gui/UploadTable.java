@@ -143,6 +143,7 @@ public class UploadTable extends SortedTable
 		if (ulItem.getKey() !=null)
 			newKey.setKey(ulItem.getKey());
                 Index.addMine( newKey, ulItem.getTargetBoard() );
+		Index.add(newKey, ulItem.getTargetBoard());  //also to the big file.
             }
         }
     }

@@ -88,6 +88,7 @@ public class insertThread extends Thread
 	    current.setSize(uploadItem.getFileSize().longValue());
 	    current.setDate(lastUploadDate);
 	    Index.addMine(current,board);
+	    Index.add(current,board);
 	}
         else
         {
@@ -113,6 +114,7 @@ public class insertThread extends Thread
 	    
 	    //add to index
             Index.addMine(newKey, board);
+	    Index.add(newKey,board);
 	    
 	    frame1.setGeneratingCHK( false );
 	    
