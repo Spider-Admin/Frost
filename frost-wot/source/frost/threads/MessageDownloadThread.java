@@ -389,7 +389,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         String metaDataHash = mixed.makeFilename(Core.getCrypto().digest(
                         				metaData.getSharer().getKey()));
                         String messageHash = mixed.makeFilename(currentMsg.getFrom().substring(
-                        						currentMsg.getFrom().indexOf("@"),
+                        						currentMsg.getFrom().indexOf("@")+1,
                         						currentMsg.getFrom().length()));
                         
                         if (!metaDataHash.equals(messageHash)) {
