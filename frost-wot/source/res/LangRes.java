@@ -562,7 +562,17 @@ public class LangRes extends ListResourceBundle {
 	{"Uploading","Uploading"},
 	{"Encode requested","Encode requested"},
 	{"Encoding file","Encoding file"},
-	{"Unknown", "Unknown"}
+	{"Unknown", "Unknown"},
+	
+	///
+	///	NewBoardDialog
+	///
+	
+	{"NewBoardDialog.title", "Add a new board"},
+	{"NewBoardDialog.details", "Please enter the details of the new board"},
+	{"NewBoardDialog.name","Name:"},
+	{"NewBoardDialog.description","Description (optional):"},
+	{"NewBoardDialog.add","Add Board"}
 		
     };
 }
