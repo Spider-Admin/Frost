@@ -37,4 +37,12 @@ public class IdentitiesHsqldbDAO implements IdentitiesDAO {
 		
 	}
 
+	/* (non-Javadoc)
+	 * @see frost.identities.IdentitiesDAO#save(frost.identities.FrostIdentities)
+	 */
+	public void save(FrostIdentities identities) throws StorageException {
+		// TODO Auto-generated method stub
+		
+	}
+
 }

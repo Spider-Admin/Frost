@@ -1,14 +1,10 @@
 package frost.identities;
 
-import java.io.*;
 import java.util.Hashtable;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
-import org.w3c.dom.*;
-
-import frost.*;
 import frost.storage.*;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
@@ -92,72 +88,8 @@ public class FrostIdentities implements Savable {
 	 * @see frost.storage.Savable#save()
 	 */
 	public void save() throws StorageException {
-		logger.info("saving identities.xml");
-
-		String identitiesName = "identities.xml";
-		String identitiesTmpName = "identities.xml.tmp";
-		String identitiesBakName = "identities.xml.bak";
-
-		//First we copy "identities.xml" to "identities.xml.bak"
-		File identitiesFile = new File(identitiesName);
-		if (identitiesFile.exists()) {
-			File bakFile = new File(identitiesBakName);
-			bakFile.delete();
-			try {
-				FileAccess.copyFile(identitiesName, identitiesBakName);
-			} catch (IOException exception) {
-				logger.log(Level.SEVERE, "Error while saving identities.xml", exception);
-			}
-		}
-
-		//We delete "identities.xml.tmp"
-		File identitiesTmpFile = new File(identitiesTmpName);
-		if (identitiesTmpFile.exists()) {
-			identitiesTmpFile.delete();
-		}
-
-		Document d = XMLTools.createDomDocument();
-		Element rootElement = d.createElement("FrostIdentities");
-		//first save myself
-		rootElement.appendChild(mySelf.getXMLElement(d));
-		//then friends
-		Element friends = getFriends().getXMLElement(d);
-		friends.setAttribute("type", "friends");
-		rootElement.appendChild(friends);
-		//then enemies 
-		Element enemies = getEnemies().getXMLElement(d);
-		enemies.setAttribute("type", "enemies");
-		rootElement.appendChild(enemies);
-		//then everybody else
-		Element neutral = getNeutrals().getXMLElement(d);
-		neutral.setAttribute("type", "neutral");
-		rootElement.appendChild(neutral);
-		d.appendChild(rootElement);
-
-		//We save identities to "identities.xml.tmp"
-		if (XMLTools.writeXmlFile(d, identitiesTmpName)) {
-			//Success	
-			if (identitiesTmpFile.exists()) {
-				//We replace "identities.xml" by "identities.xml.tmp"
-				identitiesFile.delete();
-				if (!identitiesTmpFile.renameTo(identitiesFile)) {
-					//Replacement failed. We try to restore "identities.xml" from "identities.xml.bak"
-					try {
-						FileAccess.copyFile(identitiesBakName, identitiesName);
-					} catch (IOException exception) {
-						//Uh, oh, we are having a bad, bad day.
-						logger.log(Level.SEVERE, "Error while restoring identities.xml", exception);
-					}
-				}
-			} else {
-				//This shouldn't happen, but...
-				logger.severe("Could not save identities.xml");
-			}
-		} else {
-			//Failure
-			logger.severe("Could not save identities.xml");
-		}
-		throw new StorageException("Error while saving the identities.");
+		IdentitiesDAO identitiesDAO = DAOFactory.getFactory(DAOFactory.XML).getIdentitiesDAO();
+		identitiesDAO.save(this);
 	}
 
 	/**
