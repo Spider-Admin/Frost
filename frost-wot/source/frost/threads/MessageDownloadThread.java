@@ -115,7 +115,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         }
         catch(Throwable t)
         {
-            System.out.println("Oo. Exception in MessageDownloadThread:");
+            System.out.println(Thread.currentThread().getName()+": Oo. Exception in MessageDownloadThread:");
             t.printStackTrace();
         }
         notifyThreadFinished(this);
@@ -222,7 +222,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 try { FcpRequest.getFile(downKey, null, testMe, downloadHtl, false); }
                 catch(Throwable t)
                 {
-                    System.out.println("TOFDN - Error in run()/FcpRequest.getFile:");
+                    System.out.println(Thread.currentThread().getName()+" :TOFDN - Error in run()/FcpRequest.getFile:");
                     t.printStackTrace();
                 }
 
@@ -298,7 +298,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     }
                     else
                     { // duplicate message
-                        System.out.println("TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
+                        System.out.println(Thread.currentThread().getName()+": TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
                         FileAccess.writeFile("Empty", testMe);
                     }
                     index++;

@@ -570,10 +570,14 @@ public class FileAccess
     }
     public static void writeFile(String content, File file)
     {
-        FileWriter f1;
+        
         try {
-            f1 = new FileWriter(file);
-            f1.write(content);
+	    FileChannel f1 = (new FileOutputStream(file)).getChannel();
+	    ByteBuffer buf = charset.encode(content);
+            
+	    while(buf.remaining()>0)
+	    	f1.write(buf);
+	    
             f1.close();
         }
         catch( IOException e ) {
