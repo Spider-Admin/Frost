@@ -442,6 +442,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 				boardsToSearch,
 				searchComboBox.getSelectedKey(),
 				searchManager);
+		searchThread.setLanguageResource(languageResource);
 		searchThread.start();
 	}
 	

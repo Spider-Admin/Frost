@@ -782,6 +782,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 					SharedFileObject sfo = fa.getFileObj();
 					FrostSearchItemObject fsio =
 						new FrostSearchItemObject(
+							languageResource,
 							getSelectedNode(),
 							sfo,
 							FrostSearchItemObject.STATE_NONE);
@@ -798,6 +799,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 					SharedFileObject sfo = fo.getFileObj();
 					FrostSearchItemObject fsio =
 						new FrostSearchItemObject(
+							languageResource,
 							getSelectedNode(),
 							sfo,
 							FrostSearchItemObject.STATE_NONE);
