@@ -104,7 +104,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
      */
     public Object getValueAt(int column)
     {
-        String aFileAge = ( (fileAge==null) ? "Unknown" : fileAge );
+        String aFileAge = ( (fileAge==null && fileSize !=null) ? "offline" : fileAge );
         Object aFileSize;
         if( fileSize == null ) // unknown
             aFileSize = "Unknown";

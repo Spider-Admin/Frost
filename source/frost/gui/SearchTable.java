@@ -1,12 +1,15 @@
 package frost.gui;
 
 import java.awt.*;
+import java.util.LinkedList;
 
 import javax.swing.JTable;
 import javax.swing.table.*;
 
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
+import frost.identities.*;
+import frost.frame1;
 
 public class SearchTable extends SortedTable
 {
@@ -46,7 +49,36 @@ public class SearchTable extends SortedTable
             boolean isAdded = dlTable.addDownloadItem( dlItem ); // will not add if item is already in table
         }
     }
-
+    
+    /**
+     * returns a list of the identities of the owners of the selected items
+     */
+    public java.util.List getSelectedItemsOwners() {
+    	SearchTableModel searchTableModel = (SearchTableModel)getModel();
+        int[] selectedRows = getSelectedRows();
+	java.util.List result = new LinkedList();
+	for (int i =0;i<selectedRows.length;i++) {
+		FrostSearchItemObject srItem = (FrostSearchItemObject)searchTableModel.getRow( selectedRows[i] );
+		String owner = srItem.getOwner();
+		//check if null or from myself
+		if (owner == null ||
+			owner.compareTo(frame1.getMyId().getUniqueName())==0) continue;
+			
+		//see if already on some list
+		Identity id = frame1.getFriends().Get(owner);
+		if (id==null)
+			id = frame1.getEnemies().Get(owner);
+		//and if still null, add the string
+		if (id==null)
+			result.add(owner);
+		else 
+			result.add(id);
+		
+	}
+	return result;
+	
+    }
+    
     /**
      * Builds a String with contains all selected files from searchtable as attachements.
      */
