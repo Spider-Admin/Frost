@@ -2961,8 +2961,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
 
         if (e.getComponent().equals(tofTextArea)) { // TOF text popup
-            String text = selectedMessage.getContent();
-            if (text != null) {
+            if(selectedMessage!= null &&  selectedMessage.getContent() != null) {
                 tofTextPopupSaveBoard.setEnabled(false);
             tofTextPopupSaveBoards.setEnabled(false);
             tofTextPopupSaveAttachment.setEnabled(false);
