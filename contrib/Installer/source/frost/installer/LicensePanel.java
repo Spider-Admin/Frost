@@ -19,7 +19,7 @@ import javax.swing.*;
 public class LicensePanel extends JPanel {
 	
 	private InstallerApplet applet;
-	private URL licenseURL = null;
+	private String licenseLocation = null;
 	private javax.swing.JPanel topPanel = null;
 	private javax.swing.JPanel bottomPanel = null;
 	private javax.swing.JLabel jLabel1 = null;
@@ -267,14 +267,15 @@ public class LicensePanel extends JPanel {
 		if (licenseTextArea == null) {
 			licenseTextArea = new javax.swing.JTextArea();
 			licenseTextArea.setFont(new java.awt.Font("Dialog", java.awt.Font.PLAIN, 11));
-			licenseTextArea.setMargin(new Insets(2,5,2,2));
+			licenseTextArea.setMargin(new Insets(2, 5, 2, 2));
 			licenseTextArea.setEditable(false);
 			licenseTextArea.setWrapStyleWord(true);
 			licenseTextArea.setLineWrap(true);
-			if (licenseURL != null) {
+			if (licenseLocation != null) {
 				try {
-					FileReader fileReader = new FileReader(licenseURL.getFile());
-					BufferedReader licenseReader = new BufferedReader(fileReader);
+					BufferedReader licenseReader =
+						new BufferedReader(
+							new InputStreamReader(getClass().getResourceAsStream(licenseLocation)));
 					String line = licenseReader.readLine();
 					while (line != null) {
 						licenseTextArea.append(line + "\n");
@@ -294,9 +295,9 @@ public class LicensePanel extends JPanel {
 	}
 	
 	/**
-	 * @param url
+	 * @param newLocation
 	 */
-	void setLicenseURL(URL url) { 
-		licenseURL = url;			
+	void setLicenseLocation(String newLocation) { 
+		licenseLocation = newLocation;			
 	}
 }

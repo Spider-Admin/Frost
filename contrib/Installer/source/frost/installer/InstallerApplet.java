@@ -217,7 +217,7 @@ public class InstallerApplet extends JApplet {
 	private LicensePanel getLicensePanel() {
 		if (licensePanel == null) {
 			licensePanel = new LicensePanel(this);
-			licensePanel.setLicenseURL(getClass().getResource(LICENSE_LOCATION));
+			licensePanel.setLicenseLocation(LICENSE_LOCATION);
 			licensePanel.initialize();
 		}
 		return licensePanel;
@@ -249,7 +249,7 @@ public class InstallerApplet extends JApplet {
 		if (installingPanel == null) {
 			installingPanel = new InstallingPanel(this);
 			installingPanel.setJnlpRemoteLocation(jnlpRemoteLocation);
-			installingPanel.setDtdLocation(getClass().getResource(DTD_LOCATION));
+			installingPanel.setDtdURL(getClass().getResource(DTD_LOCATION));
 			installingPanel.initialize();
 		}
 		return installingPanel;
