@@ -59,6 +59,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JPanel uploadPanel = null;
     JPanel tofPanel = null;
     JPanel tof2Panel = null;
+    JPanel tof3Panel = null;
     JPanel miscPanel = null;
     JPanel searchPanel = null;
     JPanel contentAreaPanel = null;
@@ -67,21 +68,21 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextArea tofTextArea = new JTextArea(4,50);
 
     JTextField downloadDirectoryTextField = new JTextField(30);
-    JTextField downloadMinHtlTextField = new JTextField(8);
-    JTextField downloadMaxHtlTextField = new JTextField(8);
-    JTextField downloadThreadsTextField = new JTextField(8);
-    JTextField downloadSplitfileThreadsTextField = new JTextField(8);
-    JTextField uploadHtlTextField = new JTextField(8);
-    JTextField uploadThreadsTextField = new JTextField(8);
-    JTextField uploadSplitfileThreadsTextField = new JTextField(8);
-    JTextField tofUploadHtlTextField = new JTextField(8);
-    JTextField tofDownloadHtlTextField = new JTextField(8);
-    JTextField tofDisplayDaysTextField = new JTextField(8);
-    JTextField tofDownloadDaysTextField = new JTextField(8);
+    JTextField downloadMinHtlTextField = new JTextField(5);
+    JTextField downloadMaxHtlTextField = new JTextField(5);
+    JTextField downloadThreadsTextField = new JTextField(5);
+    JTextField downloadSplitfileThreadsTextField = new JTextField(5);
+    JTextField uploadHtlTextField = new JTextField(5);
+    JTextField uploadThreadsTextField = new JTextField(5);
+    JTextField uploadSplitfileThreadsTextField = new JTextField(5);
+    JTextField tofUploadHtlTextField = new JTextField(5);
+    JTextField tofDownloadHtlTextField = new JTextField(5);
+    JTextField tofDisplayDaysTextField = new JTextField(5);
+    JTextField tofDownloadDaysTextField = new JTextField(5);
     JTextField tofMessageBaseTextField = new JTextField(8);
     JTextField tofBlockMessageTextField = new JTextField(32);
-    JTextField miscKeyUploadHtlTextField = new JTextField(8);
-    JTextField miscKeyDownloadHtlTextField = new JTextField(8);
+    JTextField miscKeyUploadHtlTextField = new JTextField(5);
+    JTextField miscKeyDownloadHtlTextField = new JTextField(5);
     JTextField miscNodeAddressTextField = new JTextField(11);
     JTextField miscNodePortTextField = new JTextField(8);
     JTextField miscMaxKeysTextField = new JTextField(8);
@@ -92,6 +93,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField searchExecutableExtensionTextField = new JTextField(30);
     JTextField searchImageExtensionTextField = new JTextField(30);
     JTextField searchArchiveExtensionTextField = new JTextField(30);
+
+    JTextField TFautomaticUpdate_boardsMinimumUpdateInterval = new JTextField(5);
+    JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
 
     JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox(LangRes.getString("Remove finished downloads every 5 minutes.") +
                                                               LangRes.getString("(Off)"));
@@ -244,8 +248,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             Vector listData = new Vector();
             listData.add( new ListBoxData( " "+LangRes.getString("Downloads")+" ",     getDownloadPanel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Uploads")+" ",       getUploadPanel() ) );
-            listData.add( new ListBoxData( " "+LangRes.getString("News")+" (1) ",          getTofPanel() ) );
-            listData.add( new ListBoxData( " "+LangRes.getString("News")+" (2) ",        getTof2Panel() ) );
+            listData.add( new ListBoxData( " "+LangRes.getString("News")+" (1) ",      getTofPanel() ) );
+            listData.add( new ListBoxData( " "+LangRes.getString("News")+" (2) ",      getTof2Panel() ) );
+            listData.add( new ListBoxData( " "+LangRes.getString("News")+" (3) ",      getTof3Panel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Search")+" ",        getSearchPanel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Miscellaneous")+" ", getMiscPanel() ) );
             optionsGroupsList = new JList( listData );
@@ -452,7 +457,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     }
 
     /**
-     * Build the tof2 panel.
+     * Build the tof2 panel (spam options).
      */
     protected JPanel getTof2Panel()
     {
@@ -510,6 +515,47 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         }
         return tof2Panel;
     }
+
+    /**
+     * Build the tof3 panel (automatic update options).
+     */
+    protected JPanel getTof3Panel()
+    {
+        if( tof3Panel == null )
+        {
+            tof3Panel = new JPanel(new GridBagLayout());
+            GridBagConstraints constr = new GridBagConstraints();
+            constr.anchor = GridBagConstraints.WEST;
+            constr.insets = new Insets(5, 5, 5, 5);
+            constr.gridx = 0;
+            constr.gridy = 0;
+            tof3Panel.add(new JLabel("Automatic update options"), constr);
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.insets = new Insets(5, 25, 5, 5);
+            tof3Panel.add(new JLabel("Minimum update interval of a board (minutes):" + "(5)"), constr);
+            constr.gridx = 1;
+            constr.insets = new Insets(5, 5, 5, 5);
+            tof3Panel.add(TFautomaticUpdate_boardsMinimumUpdateInterval, constr);
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.insets = new Insets(5, 25, 5, 5);
+            tof3Panel.add(new JLabel("Number of concurrent updating boards:" + "(5)"), constr);
+            constr.gridx = 1;
+            constr.insets = new Insets(5, 5, 5, 5);
+            tof3Panel.add(TFautomaticUpdate_concurrentBoardUpdates, constr);
+            // filler (glue)
+            constr.gridy++;
+            constr.gridx = 1;
+            constr.weightx = 0.7;
+            constr.weighty = 0.7;
+            constr.insets = new Insets(0,0,0,0);
+            constr.fill = GridBagConstraints.BOTH;
+            tof3Panel.add(new JLabel(" "), constr);
+        }
+        return tof3Panel;
+    }
+
 
     /**
      * Build the misc. panel.
@@ -806,6 +852,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         searchArchiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
         cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
         CBdisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
+
+        TFautomaticUpdate_concurrentBoardUpdates.setText(
+            frostSettings.getValue("automaticUpdate.concurrentBoardUpdates") );
+        TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
+            frostSettings.getValue("automaticUpdate.boardsMinimumUpdateInterval") );
     }
 
     /**
@@ -867,6 +918,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("altEdit", miscAltEditTextField.getText());
         frostSettings.setValue("doCleanUp",cleanUP.isSelected());
         frostSettings.setValue("disableRequests",CBdisableRequests.isSelected());
+
+        frostSettings.setValue("automaticUpdate.concurrentBoardUpdates",
+                               TFautomaticUpdate_concurrentBoardUpdates.getText());
+        frostSettings.setValue("automaticUpdate.boardsMinimumUpdateInterval",
+                               TFautomaticUpdate_boardsMinimumUpdateInterval.getText());
+
         frostSettings.writeSettingsFile();
     }
 

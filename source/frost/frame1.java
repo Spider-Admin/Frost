@@ -2194,7 +2194,9 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
         }
 
+        //////////////////////////////////////////////////
         // Start upload thread
+        //////////////////////////////////////////////////
         int activeUthreads = 0;
         synchronized(threadCountLock)
         {
@@ -2244,7 +2246,9 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
         }
 
+        //////////////////////////////////////////////////
         // Start download thread
+        //////////////////////////////////////////////////
         int activeDthreads = 0;
         synchronized(threadCountLock) {
             activeDthreads=activeDownloadThreads;

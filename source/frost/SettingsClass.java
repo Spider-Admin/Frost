@@ -24,49 +24,46 @@ import java.util.*;
 import java.io.*;
 
 /**
- * Read settings from frost.ini and store them
+ * Read settings from frost.ini and store them.
  */
 public class SettingsClass
 {
     private File settingsFile;
     private Hashtable settingsHash;
-    private Defaults defaults = new Defaults();
+    private Hashtable defaults = null;
 
-
-    public void loadDefaults()
+    //Constructors
+    public SettingsClass ()
     {
-        System.out.println("Loading default configuration");
-
-        for( int i = 0; i < defaults.val.length; i++ )
+        settingsFile = new File ("frost.ini");
+        settingsHash = new Hashtable(); //limited to 100 entries!
+        loadDefaults();
+        if( !readSettingsFile() )
         {
-            String key = "";
-            String value = "";
+            writeSettingsFile();
+        }
+        setValue("keypool.dir", frame1.keypool);
+    }
 
-            for( int j =  0; j < defaults.val[i].length; j++ )
-            {
-                if( j == 0 )
-                {
-                    key = defaults.val[i][j];
-                }
-                else
-                {
-                    value = defaults.val[i][j];
-                }
-            }
-            settingsHash.put(key, value);
+    public SettingsClass (File settingsFile)
+    {
+        this.settingsFile = settingsFile;
+        settingsHash = new Hashtable(); //limited to 100 entries!
+        loadDefaults();
+        if( !readSettingsFile() )
+        {
+            writeSettingsFile();
         }
     }
 
     public String getDefValue(String key)
     {
-        for( int i = 0; i < defaults.val.length; i++ )
+        String val = (String)defaults.get(key);
+        if( val == null )
         {
-            if( defaults.val[i][0].equals(key) )
-            {
-                return defaults.val[i][1];
-            }
+            val = "";
         }
-        return "";
+        return val;
     }
 
     public boolean readSettingsFile()
@@ -117,7 +114,7 @@ public class SettingsClass
         if( this.getValue("messageBase").equals("") )
         {
             this.setValue("messageBase",  "news");
-            System.out.println("!!!substituted news for empty messageBase setting!!!");
+            System.out.println("!!! set messageBase to default 'news' !!!");
         }
         System.out.println("Read user configuration");
         return false;
@@ -170,7 +167,7 @@ public class SettingsClass
 
         for( int i = 0; strtok.hasMoreElements(); i++ )
         {
-            returnStrArr[i] = (String) strtok.nextToken();
+            returnStrArr[i] = (String)strtok.nextToken();
         }
         return returnStrArr;
     }
@@ -179,11 +176,11 @@ public class SettingsClass
     {
         String str = (String) settingsHash.get(key);
         try {
-            if( str.equals("false") )
+            if( str.toLowerCase().equals("false") )
             {
                 return false;
             }
-            if( str.equals("true") )
+            if( str.toLowerCase().equals("true") )
             {
                 return true;
             }
@@ -228,12 +225,7 @@ public class SettingsClass
 
     public void setValue (String key, String value)
     {
-        //if (value!="")
         settingsHash.put(key, value);
-        //else {
-        //settingsHash.put(key, "");
-        //System.out.println("^^^^^^^^^^got an empty value");
-
     }
     public void setValue(String key, Integer value)
     {
@@ -260,88 +252,69 @@ public class SettingsClass
         this.setValue(key, String.valueOf(value));
     }
 
-
-    //Constructors
-    public SettingsClass ()
+    /**
+     * Contains all default values that are used if no value is found in .ini file.
+     */
+    public void loadDefaults()
     {
-        settingsFile = new File ("frost.ini");
-        settingsHash = new Hashtable(); //limited to 100 entries!
-        loadDefaults();
-        if( !readSettingsFile() )
-        {
-            writeSettingsFile();
-        }
-        setValue("keypool.dir", frame1.keypool);
-    }
+        defaults = new Hashtable();
 
-    public SettingsClass (File settingsFile)
-    {
-        this.settingsFile = settingsFile;
-        settingsHash = new Hashtable(); //limited to 100 entries!
-        loadDefaults();
-        if( !readSettingsFile() )
-        {
-            writeSettingsFile();
-        }
-    }
+        String fs = System.getProperty("file.separator");
+        File fn = File.listRoots()[0];
 
-    class Defaults
-    {
-        private String fs = System.getProperty("file.separator");
-        private File fn = File.listRoots()[0];
-        public String[][] val = {
-            {"allowEvilBert", "false"},
-            {"altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f"},
-            {"automaticUpdate", "true"},
-            {"automaticUpdate.concurrentBoardUpdates", "5"}, // no. of concurrent updating boards in auto update
-            {"automaticUpdate.boardsMinimumUpdateInterval", "5"}, // time in min to wait between start of updates for 1 board
-            {"doBoardBackoff","false"},
-            {"spamTreshold","5"},
-            {"sampleInterval","5"},
-            {"blockMessage", ""},
-            {"blockMessageChecked","false"},
-            {"blockMessageBody",""},
-            {"blockMessageBodyChecked","false"},
-            {"signedOnly","false"},
-            {"goodOnly","false"},
-            {"downloadDirectory", "downloads" + fs},
-            {"downloadThreads", "3"},
-            {"downloadingActivated", "true"},
-            {"disableRequests", "false"},
-            {"htl", "5"},
-            {"htlMax", "30"},
-            {"htlUpload", "21"},
-            {"keyDownloadHtl", "24"},
-            {"keyUploadHtl", "21"},
-            {"lastUsedDirectory", "." + fs},
-            {"maxAge", "20"},
-            {"maxKeys", "200000"},
-            {"maxMessageDisplay", "5"},
-            {"maxMessageDownload", "3"},
-            {"messageBase", "news"},
-            {"nodeAddress", "127.0.0.1"},
-            {"nodePort", "8481"},
-            {"removeFinishedDownloads", "false"},
-            {"reducedBlockCheck", "false"},
-            {"searchAllBoards", "true"},
-            {"splitfileDownloadThreads", "15"},
-            {"splitfileUploadThreads", "6"},
-            {"tofDownloadHtl", "23"},
-            {"tofFontSize", "12.0"},
-            {"tofTreeSelectedRow", "0"},
-            {"tofUploadHtl", "21"},
-            {"uploadThreads", "3"},
-            {"uploadingActivated", "true"},
-            {"useAltEdit", "false"},
-            {"userName", "Anonymous"},
-            {"audioExtension", ".mp3;.ogg;.wav;.mid;.mod"},
-            {"videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm"},
-            {"documentExtension", ".doc;.txt;.tex;.pdf;.dvi"},
-            {"executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin"},
-            {"archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar"},
-            {"imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm"},
-            {"doCleanUp","false"}
-        };
+        defaults.put("allowEvilBert", "false");
+        defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
+        defaults.put("automaticUpdate", "true");
+        defaults.put("automaticUpdate.concurrentBoardUpdates", "5"); // no. of concurrent updating boards in auto update
+        defaults.put("automaticUpdate.boardsMinimumUpdateInterval", "5"); // time in min to wait between start of updates for 1 board
+        defaults.put("doBoardBackoff","false");
+        defaults.put("spamTreshold","5");
+        defaults.put("sampleInterval","5");
+        defaults.put("blockMessage", "");
+        defaults.put("blockMessageChecked","false");
+        defaults.put("blockMessageBody","");
+        defaults.put("blockMessageBodyChecked","false");
+        defaults.put("signedOnly","false");
+        defaults.put("goodOnly","false");
+        defaults.put("downloadDirectory", "downloads" + fs);
+        defaults.put("downloadThreads", "3");
+        defaults.put("downloadingActivated", "true");
+        defaults.put("disableRequests", "false");
+        defaults.put("htl", "5");
+        defaults.put("htlMax", "30");
+        defaults.put("htlUpload", "21");
+        defaults.put("keyDownloadHtl", "24");
+        defaults.put("keyUploadHtl", "21");
+        defaults.put("lastUsedDirectory", "." + fs);
+        defaults.put("maxAge", "20");
+        defaults.put("maxKeys", "200000");
+        defaults.put("maxMessageDisplay", "5");
+        defaults.put("maxMessageDownload", "3");
+        defaults.put("messageBase", "news");
+        defaults.put("nodeAddress", "127.0.0.1");
+        defaults.put("nodePort", "8481");
+        defaults.put("removeFinishedDownloads", "false");
+        defaults.put("reducedBlockCheck", "false");
+        defaults.put("searchAllBoards", "true");
+        defaults.put("splitfileDownloadThreads", "15");
+        defaults.put("splitfileUploadThreads", "6");
+        defaults.put("tofDownloadHtl", "23");
+        defaults.put("tofFontSize", "12.0");
+        defaults.put("tofTreeSelectedRow", "0");
+        defaults.put("tofUploadHtl", "21");
+        defaults.put("uploadThreads", "3");
+        defaults.put("uploadingActivated", "true");
+        defaults.put("useAltEdit", "false");
+        defaults.put("userName", "Anonymous");
+        defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod");
+        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm");
+        defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi");
+        defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin");
+        defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
+        defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
+        defaults.put("doCleanUp","false");
+
+        settingsHash.putAll(defaults);
     }
 }
 
