@@ -224,6 +224,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 try { 
                     boolean fastDownload = !flagNew; // for backload use fast download, deep for today
                     // FIXME: maybe enable doRedirect=true to split larger messages?
+                    // To do that we need to check the size of the file before downloading, and we
+                    // can do that only after we have the CHK
                     FcpRequest.getFile(downKey, null, testMe, downloadHtl, false, fastDownload);
                     mixed.wait(111); // wait some time to not to hurt the node on next retry 
                 }

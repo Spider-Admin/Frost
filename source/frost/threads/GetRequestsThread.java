@@ -161,9 +161,12 @@ public class GetRequestsThread extends Thread
                         File requestLock = new File(destination + SHA1 + ".lck");
                         if( !requestLock.exists() )
                         {
-                            // FIXME: (IMPORTANT, ideas needed!) what to do if state is ENCODING ? In this case actually encoding runs,
+                            // (IMPORTANT, ideas needed!) what to do if state is ENCODING ? In this case actually encoding runs,
                             // and the next state should be REQUESTED.
                             // maybe we need to set the REQUESTED as next state in insertThread ...
+                            // FIXED (MAYBE):well, if the user click "encode" then if we switch to state requested Frost will 
+                            //start uploading.  Maybe the easiest thing to do is remove the "Encode only" option
+                            //and make the next state REQUESTED
                             
                             // changing state ENCODING_REQUESTED to REQUESTED is ok!
                             if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
