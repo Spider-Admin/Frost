@@ -178,6 +178,9 @@ public class LangRes extends ListResourceBundle {
 	{"Download selected attachment", "Download selected attachment"},	
 	//{"Cancel", "Cancel"}, // Defined above
 	
+	//Message table header
+	{"Sig", "Sig"},	
+	
 	///////////////////////////////////////////////////
 	// Main Window Search Tab
 	///////////////////////////////////////////////////
