@@ -171,7 +171,8 @@ public class AboutBox extends JDialog {
 			moreTextArea.append("   Thomas Mueller\n");
 			moreTextArea.append("   Jim Hunziker\n");
 			moreTextArea.append("   Stefan Majewski\n");
-			moreTextArea.append("   José Manuel Arnesto\n\n");
+			moreTextArea.append("   José Manuel Arnesto\n");
+			moreTextArea.append("   Roman Glebov\n\n");
 			moreTextArea.append(language.getString("Windows Installer:") + "\n");
 			moreTextArea.append("   Benoit Laniel\n\n");
 			moreTextArea.append(language.getString("System Tray Executables:") + "\n");
