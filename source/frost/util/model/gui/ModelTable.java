@@ -157,11 +157,20 @@ public class ModelTable extends AbstractTableModel {
 
 	private Listener listener = new Listener();
 
-	private ModelTableFormat tableFormat;	
+	protected ModelTableFormat tableFormat;	
 	protected OrderedModel model;
 	
 	protected JTable table;
 	private JScrollPane scrollPane;
+
+	/**
+	 * 
+	 */
+	protected ModelTable(ModelTableFormat newTableFormat) {
+		super();
+	
+		tableFormat = newTableFormat;
+	}
 
 	/**
 	 * 
@@ -172,6 +181,13 @@ public class ModelTable extends AbstractTableModel {
 		model = newModel;
 		tableFormat = newTableFormat;
 				
+		initialize();
+	}
+	
+	/**
+	 * 
+	 */
+	protected void initialize() {
 		table = new JTable(this);
 		scrollPane = new JScrollPane(table);
 		tableFormat.addTable(table);
@@ -273,6 +289,13 @@ public class ModelTable extends AbstractTableModel {
 	 */
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
 		tableFormat.setCellValue(aValue, model.getItemAt(rowIndex), columnIndex);
+	}
+
+	/**
+	 * @param model
+	 */
+	protected void setModel(OrderedModel newModel) {
+		model = newModel;
 	}
 
 }
