@@ -72,7 +72,7 @@ public class UpdatingLanguageResource {
 			// Process the listeners last to first, notifying
 			// those that are interested in this event
 			for (int i = listeners.length-2; i>=0; i-=2) {
-				if (listeners[i]==LanguageEvent.class) {
+				if (listeners[i]==LanguageListener.class) {
 					// Lazily create the event:
 					if (e == null) {
 						  e = new LanguageEvent(UpdatingLanguageResource.this);
