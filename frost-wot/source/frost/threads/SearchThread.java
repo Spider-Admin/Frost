@@ -234,6 +234,11 @@ public class SearchThread extends Thread {
                 // this file is in download table -> blue
                 searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
             }
+            else if( frame1.getInstance().getUploadTable().containsItemWithKey( keyData ) )
+            {
+                // this file is in upload table -> green
+                searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
+            }
 
             final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key, searchItemState);
 

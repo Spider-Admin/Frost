@@ -217,8 +217,8 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                     }
                     else // verification FAILED!
                     {
-                        System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
-                        currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                        System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
+                        currentMsg.setStatus(VerifyableMessageObject.NA);
                     }
                 }
                 else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
