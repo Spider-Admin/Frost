@@ -72,6 +72,14 @@ public class requestThread extends Thread
         else
             sizeStr = htl.toString();
 
+        // TODO: if this call completes in very short time, wait some time
+        /*
+    Name:   failureTableTime   (--failureTableTime)
+    Arguments:  <milliseconds>
+    Default val:    1800000
+    Description:    The amount of time to keep keys cache keys that could not be found and automatically
+                fail requests for them.
+        */
         try {
             success = FcpRequest.getFile(key, sizeStr, newFile, htl.intValue(), true, false);
         }

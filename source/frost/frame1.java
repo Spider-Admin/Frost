@@ -2019,16 +2019,22 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             txt = "Do you want to delete also the board directory '"+ boardRelDir + "' ?\n"+
                     "This directory contains all received messages and file lists for this board.\n"+
-                    "(NOTE: The board MUST not updating to delete it! "+
-                    "Currently there is no way to stop the updating of a board, so please ensure this board is'nt updating"+
-                    "right now, or you have to live with the consequences ;)";
+                    "(NOTE: The board MUST not updating to delete it!\n"+
+                    "Currently there is no way to stop the updating of a board,\n"+
+                    "so please ensure this board is'nt updating right now,\n"+
+                    "or you have to live with the consequences ;) )\n\n"+
+                    "You can also delete the directory by yourself after shutdown of Frost.";
             answer = JOptionPane.showConfirmDialog(this,
                                           txt,
                                           "Delete directory of '"+selectedNode.toString()+"'?",
-                                          JOptionPane.YES_NO_OPTION);
+                                          JOptionPane.YES_NO_CANCEL_OPTION);
             if( answer == JOptionPane.YES_OPTION )
             {
                 deleteDirectory = true;
+            }
+            else if( answer == JOptionPane.CANCEL_OPTION )
+            {
+                return;
             }
         }
 
