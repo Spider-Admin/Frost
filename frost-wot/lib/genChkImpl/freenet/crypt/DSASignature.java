@@ -1,8 +1,7 @@
 package freenet.crypt;
 
-import java.math.BigInteger;
 import java.io.*;
-import java.util.Random;
+import java.math.BigInteger;
 
 
 public class DSASignature implements CryptoElement, java.io.Serializable {

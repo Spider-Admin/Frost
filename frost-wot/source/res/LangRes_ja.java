@@ -1,6 +1,6 @@
 package res;
 
-import java.util.*;
+import java.util.ListResourceBundle;
 public class LangRes_ja extends ListResourceBundle {																			 
 	
     public Object[][] getContents() { 

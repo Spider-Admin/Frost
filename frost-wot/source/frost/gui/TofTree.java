@@ -18,25 +18,20 @@
 */
 package frost.gui;
 
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.plaf.metal.*;
-import javax.swing.tree.*;
-
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.dnd.*;
-import java.awt.dnd.peer.*;
 import java.awt.event.*;
 import java.awt.geom.*;
-import java.awt.image.*;
-
-
+import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
 
+import javax.swing.*;
+import javax.swing.tree.*;
+
 import frost.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 public class TofTree extends JTree
 implements DragGestureListener, DragSourceListener

@@ -1,6 +1,6 @@
 package frost.ext;
 
-import java.util.*;
+import java.util.Vector;
 
 /**
  * Transports any kind of data

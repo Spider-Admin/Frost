@@ -1,12 +1,12 @@
 package freenet.client;
 
-import freenet.Key;
-import freenet.crypt.*;
-import freenet.crypt.ciphers.*;
-import freenet.support.io.DataNotValidIOException;
-import java.util.*;
 import java.io.*;
 import java.math.BigInteger;
+import java.util.Vector;
+
+import freenet.Key;
+import freenet.crypt.*;
+import freenet.support.io.DataNotValidIOException;
 
 /*
   This code is part of the Java Adaptive Network Client by Ian Clarke. 

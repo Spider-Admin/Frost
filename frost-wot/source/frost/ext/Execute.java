@@ -1,6 +1,5 @@
 package frost.ext;
 
-import java.io.*;
 
 /**
  * Supports execution of external programs

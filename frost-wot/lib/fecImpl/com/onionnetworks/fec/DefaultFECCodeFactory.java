@@ -1,10 +1,10 @@
 package com.onionnetworks.fec;
 
-import java.util.*;
 import java.io.IOException;
-import java.lang.reflect.*;
+import java.lang.reflect.Constructor;
+import java.util.*;
+
 import com.onionnetworks.util.Tuple;
-import com.onionnetworks.util.TimedSoftHashMap;
 
 /**
  * This is the default FECCodeFactory that wraps all of the FECCode 

@@ -1,10 +1,10 @@
 package frost.threads;
 
+import java.awt.Frame;
 import java.util.*;
-import java.awt.*;
 
 import frost.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 /**
  * This class maintains the message download and upload threads.

@@ -1,6 +1,6 @@
 package frost.gui.objects;
 
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
 

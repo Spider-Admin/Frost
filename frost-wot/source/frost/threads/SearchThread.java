@@ -18,17 +18,14 @@
 */
 package frost.threads;
 
-import java.io.*;
-import java.awt.*;
+import java.io.File;
 import java.util.*;
-import javax.swing.*;
-import java.awt.event.*;
-import javax.swing.table.*;
-import javax.swing.event.*;
+
+import javax.swing.SwingUtilities;
 
 import frost.*;
+import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
-import frost.gui.model.*;
 
 public class SearchThread extends Thread {
     private static boolean DEBUG = false;

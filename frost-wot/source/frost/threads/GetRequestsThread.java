@@ -18,14 +18,14 @@
 */
 package frost.threads;
 
-import java.io.*;
+import java.io.File;
 import java.util.*;
-import javax.swing.table.*;
-import javax.swing.*;
+
+import javax.swing.JTable;
 
 import frost.*;
+import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
-import frost.gui.model.*;
 
 /**
  * Downloads file requests
@@ -135,11 +135,11 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                         File requestLock = new File(destination + chk + ".lck");
                         if( !requestLock.exists() )
                         {
-                            if( ulItem.getState() != ulItem.STATE_UPLOADING &&
-                                ulItem.getState() != ulItem.STATE_PROGRESS )
+                            if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
+                                ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS )
                             {
                                 System.out.println("Request matches row " + i);
-                                ulItem.setState( ulItem.STATE_REQUESTED );
+                                ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                                 tableModel.updateRow( ulItem );
                             }
                         }

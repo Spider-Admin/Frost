@@ -21,15 +21,11 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.io.File;
+
 import javax.swing.*;
-import javax.swing.event.*;
-import java.util.*;
-import java.io.*;
-import javax.swing.table.*;
-import javax.swing.tree.*;
 
 import frost.*;
-import frost.gui.model.*;
 
 public class HelpFrame extends JFrame {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");

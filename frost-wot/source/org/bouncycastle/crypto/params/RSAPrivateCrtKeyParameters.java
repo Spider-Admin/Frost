@@ -1,7 +1,6 @@
 package org.bouncycastle.crypto.params;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
 public class RSAPrivateCrtKeyParameters
     extends RSAKeyParameters

@@ -2,7 +2,7 @@ package com.onionnetworks.fec;
 
 //import java.security.AccessController;
 //import sun.security.action.*;
-import com.onionnetworks.util.*;
+import com.onionnetworks.util.NativeDeployer;
 
 /**
  * This class is the frontend for the JNI wrapper for the C implementation of

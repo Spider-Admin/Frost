@@ -1,10 +1,5 @@
 package freenet;
 
-import java.io.InputStream;
-import java.io.OutputStream;
-import java.io.IOException;
-import java.io.EOFException;
-import java.lang.CharSequence;
 
 /**
  * Implementations of Presentation are used to handle connections

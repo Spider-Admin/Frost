@@ -1,9 +1,10 @@
 package fillament.meltdown;
 
-import frost.FcpTools.*;
-import fillament.util.*;
 import java.io.*;
 import java.util.*;
+
+import fillament.util.*;
+import frost.FcpTools.*;
 
 public class InsertThread extends WorkThread {
 

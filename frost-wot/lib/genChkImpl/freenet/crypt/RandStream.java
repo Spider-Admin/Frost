@@ -1,5 +1,4 @@
 package freenet.crypt;
-import freenet.Core;
 import java.io.*;
 
 /*

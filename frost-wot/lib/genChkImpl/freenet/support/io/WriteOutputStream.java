@@ -2,7 +2,6 @@ package freenet.support.io;
 //import freenet.Core;
 //import freenet.support.Logger;
 import java.io.*;
-import java.util.Vector;
 /**
  * An OutputStream for writing to Freenet streams. This is like a simpler,
  * platform constant version of PrintStream (instead of the platforms encoding

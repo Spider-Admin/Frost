@@ -20,9 +20,9 @@
 package frost.components;
 
 import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import frost.components.*;
+import java.awt.event.WindowEvent;
+
+import javax.swing.JFrame;
 
 public class BrowserFrame extends JFrame {    
     boolean plugin;

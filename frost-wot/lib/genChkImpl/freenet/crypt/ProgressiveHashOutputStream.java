@@ -1,9 +1,9 @@
 package freenet.crypt;
-import freenet.support.io.*;
-import freenet.support.Bucket;
-import freenet.Presentation;
 import java.io.*;
 import java.util.Stack;
+
+import freenet.Presentation;
+import freenet.support.Bucket;
 
 /**
  * A progressive hash stream is a stream of data where each part is preceded

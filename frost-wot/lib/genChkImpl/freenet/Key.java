@@ -1,12 +1,12 @@
 package freenet;
 
-import freenet.support.*;
-import freenet.support.io.*;
-import freenet.crypt.*;
+import java.io.InputStream;
 import java.lang.reflect.*;
 import java.util.Hashtable;
-import java.io.InputStream;
-import java.math.BigInteger;
+
+import freenet.crypt.*;
+import freenet.support.*;
+import freenet.support.io.*;
 
 /**
  * A base implementation of all keys. Used as superclass for other types,

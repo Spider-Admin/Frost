@@ -12,8 +12,9 @@ package fillament.meltdown;
  */
 
 import java.io.*;
-import java.util.*;
-import fillament.util.*;
+import java.util.Hashtable;
+
+import fillament.util.WorkQueue;
 
 public class Meltdown {
 

@@ -2,13 +2,11 @@ package frost;
 import java.io.*;
 import java.net.*;
 import java.util.*;
-import javax.swing.*;
 
 import frost.FcpTools.*;
-import frost.threads.*;
-
-import frost.gui.objects.*;
-import frost.gui.model.*;
+import frost.gui.model.UploadTableModel;
+import frost.gui.objects.FrostUploadItemObject;
+import frost.threads.putKeyThread;
 
 /**
  * Requests a CHK key from freenet
@@ -336,7 +334,7 @@ public class FcpInsert
                 }
                 ulItem.setUploadProgressTotalBlocks( totalBlocks );
                 ulItem.setUploadProgressDoneBlocks( 0 );
-                ulItem.setState( ulItem.STATE_PROGRESS );
+                ulItem.setState( FrostUploadItemObject.STATE_PROGRESS );
                 UploadTableModel model = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
                 model.updateRow( ulItem );
             }

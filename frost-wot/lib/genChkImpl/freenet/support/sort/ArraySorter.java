@@ -1,6 +1,6 @@
 package freenet.support.sort;
 
-import freenet.support.Comparator;
+import freenet.support.*;
 import freenet.support.Comparable;
 
 /** An object that can be passed to the HeapSorter, or other sorters

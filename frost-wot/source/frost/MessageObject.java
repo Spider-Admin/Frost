@@ -18,8 +18,8 @@
 */
 
 package frost;
-import java.io.*;
-import java.util.*;
+import java.io.File;
+import java.util.Vector;
 
 public class MessageObject {
 

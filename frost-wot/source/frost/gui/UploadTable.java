@@ -1,20 +1,15 @@
 package frost.gui;
 
-import java.awt.*;
-import java.awt.event.*;
-import java.awt.dnd.*;
-import java.util.*;
-import java.text.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.tree.*;
+import java.io.File;
+import java.text.SimpleDateFormat;
+import java.util.Date;
 
-import java.io.*;
+import javax.swing.JOptionPane;
+import javax.swing.table.TableModel;
 
 import frost.*;
-import frost.gui.model.*;
-import frost.gui.objects.*;
+import frost.gui.model.UploadTableModel;
+import frost.gui.objects.FrostUploadItemObject;
 
 public class UploadTable extends SortedTable
 {

@@ -1,17 +1,12 @@
 package frost.gui;
 
 import java.awt.*;
-import java.awt.event.*;
-import java.awt.dnd.*;
-import java.util.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import javax.swing.table.*;
-import javax.swing.tree.*;
 
-import frost.gui.model.*;
+import javax.swing.JTable;
+import javax.swing.table.*;
+
+import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
-import frost.*;
 
 public class SearchTable extends SortedTable
 {
@@ -86,15 +81,15 @@ public class SearchTable extends SortedTable
                 SearchTableModel model = (SearchTableModel)getModel();
                 FrostSearchItemObject sItem = (FrostSearchItemObject)model.getRow(row);
 
-                if( sItem.getState() == sItem.STATE_DOWNLOADED )
+                if( sItem.getState() == FrostSearchItemObject.STATE_DOWNLOADED )
                 {
                     setForeground( Color.LIGHT_GRAY );
                 }
-                else if( sItem.getState() == sItem.STATE_DOWNLOADING )
+                else if( sItem.getState() == FrostSearchItemObject.STATE_DOWNLOADING )
                 {
                     setForeground( Color.BLUE );
                 }
-                else if(sItem.getState() == sItem.STATE_UPLOADING )
+                else if(sItem.getState() == FrostSearchItemObject.STATE_UPLOADING )
                 {
                     setForeground( Color.GREEN );
                 }

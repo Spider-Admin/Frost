@@ -1,9 +1,8 @@
 package freenet.crypt;
 
-import java.math.BigInteger;
-import java.lang.reflect.*;
-import java.util.Hashtable;
 import java.io.*;
+import java.lang.reflect.Method;
+import java.math.BigInteger;
 
 public abstract class CryptoKey implements CryptoElement, Serializable {
 

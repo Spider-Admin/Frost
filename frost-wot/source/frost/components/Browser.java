@@ -20,13 +20,12 @@
 package frost.components;
 
 import java.awt.*;
-import java.awt.event.*;
+import java.awt.event.ActionEvent;
+import java.io.*;
+import java.util.Vector;
+
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.text.html.*;
-import java.net.*;
-import java.util.*;
-import java.io.*;
 
 /**
  * Browser Component

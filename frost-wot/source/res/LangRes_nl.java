@@ -1,5 +1,5 @@
 package res;
-import java.util.*;
+import java.util.ListResourceBundle;
 
 public class LangRes_nl extends ListResourceBundle {
     public Object[][] getContents() {

@@ -1,13 +1,10 @@
 package frost;
 
-import java.lang.*;
+import java.awt.Frame;
 import java.io.*;
-import java.awt.*;
-import java.util.*;
+import java.util.StringTokenizer;
 
-import frost.gui.*;
-import frost.threads.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 public class AltEdit extends Thread {
     private Frame parentFrame;

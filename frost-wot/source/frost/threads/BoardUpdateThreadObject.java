@@ -2,7 +2,7 @@ package frost.threads;
 
 import java.util.*;
 
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 /**
  * This class implements most methods needed by the BoardUpdateThread interface.

@@ -18,8 +18,9 @@
 */
 package frost;
 
-import javax.swing.UIManager;
 import java.awt.*;
+
+import javax.swing.UIManager;
 
 public class frost
 {

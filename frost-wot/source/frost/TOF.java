@@ -17,15 +17,14 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
-import java.util.*;
 import java.io.*;
-import java.text.*;
-import javax.swing.event.*; // ListeSelectionEvent
-import javax.swing.*; // JTable
-import javax.swing.table.*; // DefaultTableModel
+import java.util.*;
+
+import javax.swing.*;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.*;
 
-import frost.gui.*;
 import frost.gui.objects.*;
 
 public class TOF

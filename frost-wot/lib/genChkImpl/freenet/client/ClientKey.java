@@ -1,10 +1,11 @@
 package freenet.client;
 
+import java.io.*;
+
 import freenet.*;
+import freenet.crypt.UnsupportedCipherException;
 import freenet.support.Bucket;
 import freenet.support.io.DataNotValidIOException;
-import freenet.crypt.UnsupportedCipherException;
-import java.io.*;
 
 /**
  * This defines an interface for Client key objects, used to generate Freenet

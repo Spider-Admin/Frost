@@ -18,14 +18,12 @@
 */
 
 package frost;
+import java.awt.Component;
 import java.io.*;
-import java.util.zip.*;
 import java.util.*;
-import java.awt.*;
-import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.filechooser.*;
-import javax.swing.table.*;
+import java.util.zip.*;
+
+import javax.swing.JFileChooser;
 
 public class FileAccess
 {

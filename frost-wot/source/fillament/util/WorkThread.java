@@ -1,6 +1,5 @@
 package fillament.util;
 
-import java.util.*;
 
 public class WorkThread extends Thread {
 

@@ -1,9 +1,8 @@
 package freenet.crypt.ciphers;
 
-import freenet.Core;
-import freenet.crypt.BlockCipher;
-import freenet.crypt.UnsupportedCipherException;
 import java.security.InvalidKeyException;
+
+import freenet.crypt.*;
 
 /*
   This code is part of the Java Adaptive Network Client by Ian Clarke.

@@ -1,7 +1,7 @@
 package fillament.meltdown;
 
 import java.io.*;
-import java.util.*;
+import java.util.Hashtable;
 
 public class BoardImport {
 

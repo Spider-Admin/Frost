@@ -18,12 +18,11 @@ Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: -103284
 
 import java.io.*;
 import java.util.Properties;
-import com.onionnetworks.fec.*;
-import com.onionnetworks.util.*;
 
-import freenet.support.Bucket;
-import freenet.support.BucketFactory;
-import freenet.support.RandomAccessFileBucket;
+import com.onionnetworks.fec.*;
+import com.onionnetworks.util.Buffer;
+
+import freenet.support.*;
 
 /**
  * Wrap the Onion Networks FEC routines so that they can operate on Buckets.

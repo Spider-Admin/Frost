@@ -19,18 +19,16 @@
 
 package frost.gui;
 
-import javax.swing.*;
-import java.awt.Dimension;
 import java.awt.*;
 import java.awt.event.*;
+import java.io.IOException;
+
 import javax.swing.*;
 import javax.swing.border.*;
-import java.io.*;
-import java.util.*;
 
-import frost.*;
-import frost.gui.objects.*;
+import frost.frame1;
 import frost.FcpTools.*;
+import frost.gui.objects.FrostBoardObject;
 
 public class BoardSettingsFrame extends JDialog
 {
@@ -157,32 +155,32 @@ public class BoardSettingsFrame extends JDialog
         constr.insets = new Insets(0, 5, 5, 5);
         keyPanel.add(secureBoardRadioButton, constr);
         constr.gridx=1;
-        constr.anchor=constr.EAST;
+        constr.anchor=GridBagConstraints.EAST;
         keyPanel.add( generateKeyButton , constr );
         constr.gridx=0;
-        constr.anchor=constr.WEST;
+        constr.anchor=GridBagConstraints.WEST;
 
         constr.gridy++;
         constr.insets = new Insets(0, 25, 5, 5);
         keyPanel.add( new JLabel(LangRes.getString("Private key :")) , constr );
         constr.gridx = 1;
-        constr.fill=constr.HORIZONTAL;
+        constr.fill=GridBagConstraints.HORIZONTAL;
         keyPanel.add( privateKeyTextField , constr );
-        constr.fill=constr.NONE;
+        constr.fill=GridBagConstraints.NONE;
         constr.gridx = 0;
         constr.gridy++;
         keyPanel.add( new JLabel(LangRes.getString("Public key :")) , constr );
         constr.gridx = 1;
-        constr.fill=constr.HORIZONTAL;
+        constr.fill=GridBagConstraints.HORIZONTAL;
         keyPanel.add( publicKeyTextField , constr );
 
-        constr.fill=constr.NONE;
+        constr.fill=GridBagConstraints.NONE;
         constr.gridx = 0;
         constr.insets = new Insets(0, 0, 0, 0);
         constr.gridy++;
         constr.gridwidth=2;
         constr.weightx=0.7;
-        constr.fill=constr.HORIZONTAL;
+        constr.fill=GridBagConstraints.HORIZONTAL;
         JPanel settings = getSettingsPanel();
         settings.setBorder( new CompoundBorder( new EmptyBorder(new Insets(5,5,5,5)),
                                                 new CompoundBorder(new EtchedBorder(),
@@ -198,7 +196,7 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridy++;
         constr.gridwidth=2;
-        constr.fill=constr.HORIZONTAL;
+        constr.fill=GridBagConstraints.HORIZONTAL;
         constr.insets = new Insets(0, 0, 4, 0);
         keyPanel.add( buttonPanel, constr );
 

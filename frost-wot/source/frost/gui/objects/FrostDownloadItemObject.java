@@ -1,9 +1,6 @@
 package frost.gui.objects;
 
-import javax.swing.*;
-
-import frost.*;
-import frost.gui.model.*;
+import frost.gui.model.TableMember;
 
 public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
 {

@@ -1,6 +1,5 @@
 package frost.threads;
 
-import java.util.*;
 
 public interface BoardUpdateThreadListener
 {

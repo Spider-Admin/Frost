@@ -20,16 +20,17 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.*;
-import javax.swing.event.*;
-import java.util.*;
 import java.io.*;
-import javax.swing.table.*;
-import javax.swing.tree.*;
+import java.util.Vector;
+
+import javax.swing.*;
 import javax.swing.border.*;
-import frost.gui.model.*;
-import frost.gui.objects.*;
+import javax.swing.event.*;
+import javax.swing.table.DefaultTableCellRenderer;
+
 import frost.*;
+import frost.gui.model.*;
+import frost.gui.objects.FrostBoardObject;
 import frost.threads.*;
 
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener

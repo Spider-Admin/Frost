@@ -1,14 +1,9 @@
 package org.bouncycastle.crypto.generators;
 
 import java.math.BigInteger;
-import java.security.SecureRandom;
 
-import org.bouncycastle.crypto.KeyGenerationParameters;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPair;
-import org.bouncycastle.crypto.AsymmetricCipherKeyPairGenerator;
-import org.bouncycastle.crypto.params.RSAKeyGenerationParameters;
-import org.bouncycastle.crypto.params.RSAKeyParameters;
-import org.bouncycastle.crypto.params.RSAPrivateCrtKeyParameters;
+import org.bouncycastle.crypto.*;
+import org.bouncycastle.crypto.params.*;
 
 /**
  * an RSA key pair generator.

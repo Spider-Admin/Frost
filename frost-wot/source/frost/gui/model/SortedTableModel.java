@@ -1,8 +1,8 @@
 package frost.gui.model;
 
 import java.util.*;
-import javax.swing.*;
-import javax.swing.table.*;
+
+import javax.swing.table.DefaultTableModel;
 
 import frost.gui.SortedTable;
 

@@ -1,12 +1,13 @@
 package freenet.client;
 
+import java.io.*;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Random;
+
 import freenet.*;
 import freenet.crypt.*;
-import freenet.support.*;
+import freenet.support.Bucket;
 import freenet.support.io.DataNotValidIOException;
-import java.io.*;
-import java.util.Random;
-import java.lang.reflect.*;
 
 /** Shared functionality between ClientKey implementations.
   * @author tavin

@@ -19,15 +19,11 @@
 
 package frost.threads;
 
-import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.*;
-
-import javax.swing.*;
+import java.io.File;
 
 import frost.*;
+import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
-import frost.gui.model.*;
 
 public class insertThread extends Thread
 {
@@ -111,7 +107,7 @@ public class insertThread extends Thread
                 String newKey = result[1];
                 uploadItem.setKey( newKey );
             }
-            uploadItem.setState( uploadItem.STATE_IDLE );
+            uploadItem.setState( FrostUploadItemObject.STATE_IDLE );
 
             UploadTableModel tableModel = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
             tableModel.updateRow( uploadItem );
