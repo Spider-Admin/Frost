@@ -6,7 +6,7 @@
  */
 package frost.util.model;
 
-import java.util.*;
+import java.util.EventListenerProxy;
 
 /**
  * This class forwards model change events a listener delegate. Its purpose
@@ -72,14 +72,14 @@ public class OrderedModelListenerProxy extends EventListenerProxy implements Ord
 	}
 
 	/**
-	 * Forwards the item removed event to the listener delegate.
+	 * Forwards the items removed event to the listener delegate.
 	 *
-	 * @param position the position in the model the removed item had
-	 * 		  prior to its removal
-	 * @param item the item that has been removed
+	 * @param positions the positions in the model the removed items had
+	 * 		  prior to their removal
+	 * @param items the items that have been removed
 	 */
-	public void itemRemoved(int position, ModelItem item) {
-		((OrderedModelListener)getListener()).itemRemoved(position, item);			
+	public void itemsRemoved(int[] positions, ModelItem[] items) {
+		((OrderedModelListener)getListener()).itemsRemoved(positions, items);			
 	}
 	
 	/**
