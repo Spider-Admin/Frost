@@ -32,11 +32,12 @@ import com.l2fprod.gui.plaf.skin.*;
 import frost.FcpTools.*;
 import frost.crypt.*;
 import frost.ext.JSysTrayIcon;
+import frost.fileTransfer.download.DownloadManager;
 import frost.gui.Splashscreen;
 import frost.gui.components.MiscToolkit;
 import frost.gui.objects.*;
 import frost.gui.translation.UpdatingLanguageResource;
-import frost.identities.*;
+import frost.identities.FrostIdentities;
 import frost.messages.*;
 import frost.search.SearchManager;
 import frost.threads.*;
@@ -73,6 +74,7 @@ public class Core implements Savable {
 	
 	private frame1 mainFrame;
 	private SearchManager searchManager;
+	private DownloadManager downloadManager;
 	
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	
@@ -538,7 +540,8 @@ public class Core implements Savable {
 		//Main frame		
 		mainFrame = new frame1(frostSettings, languageResource);
 		mainFrame.validate();
-		initializeSearch();
+		getSearchManager().initialize();
+		getDownloadManager().initialize();
 
 		splashscreen.setText(languageResource.getString("Wasting more time"));
 		splashscreen.setProgress(70);
@@ -589,14 +592,27 @@ public class Core implements Savable {
 	/**
 	 * 
 	 */
-	private void initializeSearch() {
-		searchManager = new SearchManager(languageResource, frostSettings);
-		searchManager.setMainFrame(mainFrame);
-		searchManager.setDownloadTable(mainFrame.getDownloadTable());
-		searchManager.setTofTree(mainFrame.getTofTree()); 
-		searchManager.setKeypool(frame1.keypool); 
-		searchManager.setIdentities(getIdentities());
-		searchManager.initialize();
+	private SearchManager getSearchManager() {
+		if (searchManager == null) {
+			searchManager = new SearchManager(languageResource, frostSettings);
+			searchManager.setMainFrame(mainFrame);
+			searchManager.setDownloadTable(mainFrame.getDownloadTable());
+			searchManager.setTofTree(mainFrame.getTofTree());
+			searchManager.setKeypool(keypool);
+			searchManager.setIdentities(getIdentities());
+		}
+		return searchManager;
+	}
+	
+	/**
+	 * 
+	 */
+	private DownloadManager getDownloadManager() {
+		if (downloadManager == null) {
+			downloadManager = new DownloadManager(languageResource, frostSettings);
+			downloadManager.setMainFrame(mainFrame);
+		}
+		return downloadManager;
 	}
 
 	/**
