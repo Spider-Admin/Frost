@@ -421,16 +421,16 @@ public class TofTree extends JDragTree implements Savable {
 		 */
 		public CellRenderer() {
 			fileSeparator = System.getProperty("file.separator");
-			boardIcon = new ImageIcon(MainFrame.class.getResource("/data/board.gif"));
-			boardNewIcon = new ImageIcon(MainFrame.class.getResource("/data/boardnew.gif"));
-			boardSpammedIcon = new ImageIcon(MainFrame.class.getResource("/data/boardspam.gif"));
-			writeAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/waboard.jpg"));
-			writeAccessNewIcon = new ImageIcon(MainFrame.class.getResource("/data/waboardnew.jpg"));
-			readAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/raboard.jpg"));
-			readAccessNewIcon = new ImageIcon(MainFrame.class.getResource("/data/raboardnew.jpg"));
-			this.setLeafIcon(new ImageIcon(MainFrame.class.getResource("/data/board.gif")));
-			this.setClosedIcon(new ImageIcon(MainFrame.class.getResource("/data/closed.gif")));
-			this.setOpenIcon(new ImageIcon(MainFrame.class.getResource("/data/open.gif")));
+			boardIcon = new ImageIcon(getClass().getResource("/data/board.gif"));
+			boardNewIcon = new ImageIcon(getClass().getResource("/data/boardnew.gif"));
+			boardSpammedIcon = new ImageIcon(getClass().getResource("/data/boardspam.gif"));
+			writeAccessIcon = new ImageIcon(getClass().getResource("/data/waboard.jpg"));
+			writeAccessNewIcon = new ImageIcon(getClass().getResource("/data/waboardnew.jpg"));
+			readAccessIcon = new ImageIcon(getClass().getResource("/data/raboard.jpg"));
+			readAccessNewIcon = new ImageIcon(getClass().getResource("/data/raboardnew.jpg"));
+			this.setLeafIcon(new ImageIcon(getClass().getResource("/data/board.gif")));
+			this.setClosedIcon(new ImageIcon(getClass().getResource("/data/closed.gif")));
+			this.setOpenIcon(new ImageIcon(getClass().getResource("/data/open.gif")));
 
 			JTable dummyTable = new JTable();
 			normalFont = dummyTable.getFont();
@@ -488,16 +488,14 @@ public class TofTree extends JDragTree implements Savable {
 			}
 
 			// maybe update visualization
-			if (MainFrame.frostSettings.getBoolValue("boardUpdateVisualization")
+			if (settings.getBoolValue("boardUpdateVisualization")
 				&& board.isUpdating() == true) {
 				// set special updating colors
 				Color c;
-				c =	(Color) MainFrame.frostSettings.getObjectValue(
-										"boardUpdatingNonSelectedBackgroundColor");
+				c =	(Color) settings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
 				setBackgroundNonSelectionColor(c);
 
-				c =	(Color) MainFrame.frostSettings.getObjectValue(
-										"boardUpdatingSelectedBackgroundColor");
+				c =	(Color) settings.getObjectValue("boardUpdatingSelectedBackgroundColor");
 				setBackgroundSelectionColor(c);
 
 			} else {
@@ -673,7 +671,7 @@ public class TofTree extends JDragTree implements Savable {
 			if (key == KeyEvent.VK_DELETE)
 				removeNode(model.getSelectedNode());
 			if (key == KeyEvent.VK_N)
-				createNewBoard(MainFrame.getInstance());
+				createNewBoard(mainFrame);
 			if (key == KeyEvent.VK_X)
 				cutNode(model.getSelectedNode());
 			if (key == KeyEvent.VK_V)
@@ -687,13 +685,13 @@ public class TofTree extends JDragTree implements Savable {
     private boolean loadTree()
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        String boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml";
+        String boardIniFilename = settings.getValue("config.dir") + "boards.xml";
         // the call changes the toftree and loads nodes into it
         File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false )
         {
             logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
-            boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml.default";
+            boardIniFilename = settings.getValue("config.dir") + "boards.xml.default";
         }
         return xmlio.loadBoardTree( this, model, boardIniFilename );
     }
@@ -704,12 +702,12 @@ public class TofTree extends JDragTree implements Savable {
     public void save() throws StorageException
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        String boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml";
+        String boardIniFilename = settings.getValue("config.dir") + "boards.xml";
         File check = new File( boardIniFilename );
         if( check.exists() )
         {
             // rename old file to .bak, overwrite older .bak
-            String bakBoardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml.bak";
+            String bakBoardIniFilename = settings.getValue("config.dir") + "boards.xml.bak";
             File bakFile = new File(bakBoardIniFilename);
             if( bakFile.exists() )
             {
