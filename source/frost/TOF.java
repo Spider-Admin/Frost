@@ -386,90 +386,85 @@ public class TOF
         }
     }
 
-    /**
-     * Returns true if the message should not be displayed
-     * @param message The message object to check
-     * @return true if message is blocked, else false
-     */
-    public static boolean blocked(VerifyableMessageObject message, FrostBoardObject board)
-    {
-        // TODO: remove this later, is already check on incoming message.
-        // this is needed as long such messages are in keypool to block these
-        //  and of course its needed if you change the setting Hide unsigned 
-        if( message.verifyTime() == false )
-        {
-            return true;
-        }
+	/**
+	 * Returns true if the message should not be displayed
+	 * @param message The message object to check
+	 * @return true if message is blocked, else false
+	 */
+	public static boolean blocked(VerifyableMessageObject message, FrostBoardObject board) {
+		// TODO: remove this later, is already check on incoming message.
+		// this is needed as long such messages are in keypool to block these
+		//  and of course its needed if you change the setting Hide unsigned 
+		if (message.verifyTime() == false) {
+			return true;
+		}
 
-        if( board.getShowSignedOnly() &&
-            ( message.getStatus().indexOf("NONE")>-1 || message.getStatus().indexOf("FAKE")>-1 )
-          )  
-            return true;
-        if( board.getHideBad() &&
-            (message.getStatus().indexOf("BAD")>-1))
-            return true;
-        if( board.getHideCheck() &&
-            (message.getStatus().indexOf("CHECK")>-1))
-            return true;
-        if( board.getHideNA() &&
-            (message.getStatus().indexOf("N/A")>-1))
-            return true;
+		if (board.getShowSignedOnly()
+			&& (message.getStatus().indexOf("NONE") > -1 || message.getStatus().indexOf("FAKE") > -1))
+			return true;
+		if (board.getHideBad() && (message.getStatus().indexOf("BAD") > -1))
+			return true;
+		if (board.getHideCheck() && (message.getStatus().indexOf("CHECK") > -1))
+			return true;
+		if (board.getHideNA() && (message.getStatus().indexOf("N/A") > -1))
+			return true;
 
-        if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
-        {
-            String header = ( message.getSubject() + message.getDate() + message.getTime()).toLowerCase();//message.getFrom()+
-            int index = frame1.frostSettings.getValue("blockMessage").indexOf(";");
-            int pos = 0;
-
-            while( index != -1 )
-            {
-                String block = (frame1.frostSettings.getValue("blockMessage").substring(pos, index)).trim();
-                if( header.indexOf(block) != -1 && block.length() > 0 )
-                    return true;
-                pos = index + 1;
-                index = frame1.frostSettings.getValue("blockMessage").indexOf(";", pos);
-            }
-            if( !frame1.frostSettings.getValue("blockMessage").endsWith(";") )
-            {
-                index =  frame1.frostSettings.getValue("blockMessage").lastIndexOf(";");
-                if( index == -1 )
-                    index = 0;
-                else
-                    index++;
-                String block = (frame1.frostSettings.getValue("blockMessage").substring(index, frame1.frostSettings.getValue("blockMessage").length())).trim();
-                if( header.indexOf(block) != -1 && block.length() > 0 )
-                    return true;
-            }
-        }
-        //same with body
-        if( frame1.frostSettings.getBoolValue("blockMessageBodyChecked") )
-        {
-            int index = frame1.frostSettings.getValue("blockMessageBody").indexOf(";");
-            int pos = 0;
-
-            while( index != -1 )
-            {
-                String block = (frame1.frostSettings.getValue("blockMessageBody").substring(pos, index)).trim();
-                if( message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0 )
-                    return true;
-
-                pos = index + 1;
-                index = frame1.frostSettings.getValue("blockMessageBody").indexOf(";", pos);
-            }
-            if( !frame1.frostSettings.getValue("blockMessageBody").endsWith(";") )
-            {
-                index =  frame1.frostSettings.getValue("blockMessageBody").lastIndexOf(";");
-                if( index == -1 )
-                    index = 0;
-                else
-                    index++;
-                String block = (frame1.frostSettings.getValue("blockMessageBody").substring(index, frame1.frostSettings.getValue("blockMessageBody").length())).trim();
-                if( message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0 )
-                    return true;
-            }
-        }
-        return false;
-    }
+		// Block by subject (and rest of the header)
+		if (frame1.frostSettings.getBoolValue("blockMessageChecked")) {
+			String header =
+				(message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
+			StringTokenizer blockWords =
+				new StringTokenizer(frame1.frostSettings.getValue("blockMessage"), ";");
+			boolean found = false;
+			while (blockWords.hasMoreTokens() && !found) {
+				String blockWord = blockWords.nextToken().trim();
+				if ((blockWord.length() > 0) && (header.indexOf(blockWord) != -1)) {
+					found = true;
+				}
+			}
+			if (found) {
+				return true;
+			}
+		}
+		// Block by body
+		if (frame1.frostSettings.getBoolValue("blockMessageBodyChecked")) {
+			String content = message.getContent().toLowerCase();
+			StringTokenizer blockWords =
+				new StringTokenizer(frame1.frostSettings.getValue("blockMessageBody"), ";");
+			boolean found = false;
+			while (blockWords.hasMoreTokens() && !found) {
+				String blockWord = blockWords.nextToken().trim();
+				if ((blockWord.length() > 0) && (content.indexOf(blockWord) != -1)) {
+					found = true;
+				}
+			}
+			if (found) {
+				return true;
+			}
+		}
+		// Block by attached boards
+		if (frame1.frostSettings.getBoolValue("blockMessageBoardChecked")) {
+			Vector boardsVector = message.getBoardAttachments();
+			StringTokenizer blockWords =
+				new StringTokenizer(frame1.frostSettings.getValue("blockMessageBoard"), ";");
+			boolean found = false;
+			while (blockWords.hasMoreTokens() && !found) {
+				String blockWord = blockWords.nextToken().trim();
+				Enumeration boardsEnumeration = boardsVector.elements();
+				while (boardsEnumeration.hasMoreElements() && !found) {
+					Vector row = (Vector) boardsEnumeration.nextElement();
+					String attachedBoardName = ((String) row.get(0)).toLowerCase();
+					if ((blockWord.length() > 0) && (attachedBoardName.equals(blockWord))) {
+						found = true;
+					}
+				}
+			}
+			if (found) {
+				return true;
+			}
+		}
+		return false;
+	}
 
     public static void initialSearchNewMessages()
     {
