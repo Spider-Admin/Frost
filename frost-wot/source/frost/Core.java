@@ -24,9 +24,8 @@ public class Core {
 	private static PrintStream out = System.out; //default is System.out
 	private static final Set nodes = new HashSet(); //list of available nodes
 	private static final SortedSet knownBoards = new TreeSet(); //list of known boards
-	
+	private static Core self = null;
 	public Core() {
-		
 		out = System.out; //when we want to redirect to file just change this.
 		
 		frostSettings = frame1.frostSettings;
@@ -336,7 +335,7 @@ public class Core {
 	}
 
 	public void init() {
-
+		self = this;
 		timer2 = new java.util.Timer(true);
 		timer2.schedule(
 			new checkForSpam(this),
@@ -459,7 +458,7 @@ public class Core {
 				frame1.getInstance().getUploadTable());
 		requestsThread.start();
 		if(frostSettings.getBoolValue("helpFriends"))
-			timer2.schedule(new GetFriendsRequestsThread(), 30*1000, 3*60*60*1000); //TODO: raise to 5 mins initial
+			timer2.schedule(new GetFriendsRequestsThread(), 5*60*1000);
 		
 		started = true;
 	} //end of init()
@@ -549,6 +548,14 @@ public class Core {
 	 */
 	public static SortedSet getKnownBoards() {
 		return knownBoards;
+	}
+	
+	/**
+	 * 
+	 * @return pointer to the live core
+	 */
+	public static Core getInstance(){
+		return self;
 	}
 
 }
