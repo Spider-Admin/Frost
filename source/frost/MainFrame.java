@@ -1669,14 +1669,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	//	public static String newMessageHeader = new String("");
 	//	public static String oldMessageHeader = new String("");
 
-	public static Core core;
+	private static Core core;
 
-	public static String fileSeparator = System.getProperty("file.separator");
+	private static String fileSeparator = System.getProperty("file.separator");
 	// saved to frost.ini
 	public static SettingsClass frostSettings = null;
-
-	//the identity stuff.  This really shouldn't be here but where else?
-	public static ObjectInputStream id_reader;
 
 	private static MainFrame instance = null; // set in constructor
 	// "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
@@ -1686,7 +1683,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
 	 */
-	static final Comparator lastUpdateStartMillisCmp = new Comparator() {
+	private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
 		public int compare(Object o1, Object o2) {
 			FrostBoardObject value1 = (FrostBoardObject) o1;
 			FrostBoardObject value2 = (FrostBoardObject) o2;
@@ -1700,11 +1697,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	};
 
 	private static Logger logger = Logger.getLogger(MainFrame.class.getName());
-	static ImageIcon[] newMessage = new ImageIcon[2];
+	private static ImageIcon[] newMessage = new ImageIcon[2];
 
-	public static FrostMessageObject selectedMessage = new FrostMessageObject();
-
-	public static volatile Object threadCountLock = new Object();
+	private static FrostMessageObject selectedMessage = new FrostMessageObject();
 
 	/**Selects message icon in lower right corner*/
 	public static void displayNewMessageIcon(boolean showNewMessageIcon) {
@@ -1738,42 +1733,42 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		return instance;
 	}
 
-	final String allMessagesCountPrefix = "Msg: ";
-	JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
+	private final String allMessagesCountPrefix = "Msg: ";
+	private JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 
-	JButton boardInfoButton = null;
-	FrostBoardObject clipboard = null;
-	JButton configBoardButton = null;
-	long counter = 55;
-	JButton cutBoardButton = null;
+	private JButton boardInfoButton = null;
+	private FrostBoardObject clipboard = null;
+	private JButton configBoardButton = null;
+	private long counter = 55;
+	private JButton cutBoardButton = null;
 
 	//Panels
 	private DownloadModel downloadModel = null;
-	JMenuItem fileExitMenuItem = new JMenuItem();
+	private JMenuItem fileExitMenuItem = new JMenuItem();
 
 	//File Menu
-	JMenu fileMenu = new JMenu();
+	private JMenu fileMenu = new JMenu();
 
-	JMenuItem helpAboutMenuItem = new JMenuItem();
-	JMenuItem helpHelpMenuItem = new JMenuItem();
+	private JMenuItem helpAboutMenuItem = new JMenuItem();
+	private JMenuItem helpHelpMenuItem = new JMenuItem();
 
 	//Help Menu
-	JMenu helpMenu = new JMenu();
-	JButton knownBoardsButton = null;
-	JRadioButtonMenuItem languageBulgarianMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem languageDefaultMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem languageDutchMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem languageEnglishMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem languageFrenchMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem languageGermanMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem languageItalianMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem languageJapaneseMenuItem = new JRadioButtonMenuItem();
+	private JMenu helpMenu = new JMenu();
+	private JButton knownBoardsButton = null;
+	private JRadioButtonMenuItem languageBulgarianMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageDefaultMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageDutchMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageEnglishMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageFrenchMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageGermanMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageItalianMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageJapaneseMenuItem = new JRadioButtonMenuItem();
 
 	//Language Menu
-	JMenu languageMenu = new JMenu();
+	private JMenu languageMenu = new JMenu();
 
 	private UpdatingLanguageResource languageResource = null;
-	JRadioButtonMenuItem languageSpanishMenuItem = new JRadioButtonMenuItem();
+	private JRadioButtonMenuItem languageSpanishMenuItem = new JRadioButtonMenuItem();
 	private String lastSelectedMessage;
 
 	private Listener listener = new Listener();
@@ -1783,55 +1778,55 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	//------------------------------------------------------------------------
 
 	// The main menu
-	JMenuBar menuBar = new JMenuBar();
+	private JMenuBar menuBar = new JMenuBar();
 	private MessagePanel messagePanel = null;
 	private MessageTable messageTable = null;
 
 	// buttons that are enabled/disabled later
-	JButton newBoardButton = null;
-	JButton newFolderButton = null;
+	private JButton newBoardButton = null;
+	private JButton newFolderButton = null;
 
-	final String newMessagesCountPrefix = "New: ";
-	JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
+	private final String newMessagesCountPrefix = "New: ";
+	private JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
 
 	//Options Menu
-	JMenu optionsMenu = new JMenu();
-	JMenuItem optionsPreferencesMenuItem = new JMenuItem();
-	JButton pasteBoardButton = null;
-	JMenuItem pluginBrowserMenuItem = new JMenuItem();
+	private JMenu optionsMenu = new JMenu();
+	private JMenuItem optionsPreferencesMenuItem = new JMenuItem();
+	private JButton pasteBoardButton = null;
+	private JMenuItem pluginBrowserMenuItem = new JMenuItem();
 
 	//Plugin Menu
-	JMenu pluginMenu = new JMenu();
-	JMenuItem pluginTranslateMenuItem = new JMenuItem();
+	private JMenu pluginMenu = new JMenu();
+	private JMenuItem pluginTranslateMenuItem = new JMenuItem();
 
 	//Popups
 	private PopupMenuTofTree popupMenuTofTree = null;
-	JButton removeBoardButton = null;
-	JButton renameBoardButton = null;
+	private JButton removeBoardButton = null;
+	private JButton renameBoardButton = null;
 
 	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
 	// labels that are updated later
-	JLabel statusLabel = null;
-	JLabel statusMessageLabel = null;
-	JButton systemTrayButton = null;
+	private JLabel statusLabel = null;
+	private JLabel statusMessageLabel = null;
+	private JButton systemTrayButton = null;
 
 	private JTranslatableTabbedPane tabbedPane = null;
-	JLabel timeLabel = null;
+	private JLabel timeLabel = null;
 
-	JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
-	JMenuItem tofConfigureBoardMenuItem = new JMenuItem();
-	JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem();
+	private JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
+	private JMenuItem tofConfigureBoardMenuItem = new JMenuItem();
+	private JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem();
 
-	JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
-	JMenuItem tofDisplayKnownBoards = new JMenuItem();
+	private JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
+	private JMenuItem tofDisplayKnownBoards = new JMenuItem();
 
-	JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem();
+	private JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem();
 
 	//Messages (tof) Menu
-	JMenu tofMenu = new JMenu();
+	private JMenu tofMenu = new JMenu();
 
-	TofTree tofTree = null;
+	private TofTree tofTree = null;
 	private UploadPanel uploadPanel = null;
 
 	/**Construct the frame*/
