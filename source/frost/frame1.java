@@ -3004,7 +3004,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		if (board == null || board.isFolder())
 			return;
 
-		BoardSettingsFrame newFrame = new BoardSettingsFrame(this, board);
+		BoardSettingsFrame newFrame = new BoardSettingsFrame(this, board, languageResource.getResourceBundle());
 		if (newFrame.runDialog() == true) // OK pressed?
 			{
 			updateTofTree(board);
