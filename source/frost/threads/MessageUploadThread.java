@@ -298,19 +298,21 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
             if( !error )
             {
+                // this will show the message after receiving it
+                messageFile.delete();
 
-                File killMe = new File(destination + uploadMe);
+/*                File killMe = new File(destination + uploadMe);
+                File killMe = messageFile;
                 File newMessage = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
                 if( signed )
                     FileAccess.writeFile("GOOD", newMessage.getPath() + ".sig");
-                killMe.renameTo(newMessage);
+                killMe.renameTo(newMessage);*/
 
                 frame1.updateTof = true;
                 System.out.println("*********************************************************************");
                 System.out.println("Message successfuly uploaded to the '" + board.toString() + "' board.");
                 System.out.println("*********************************************************************");
                 retry = false;
-
             }
             else
             {
@@ -318,6 +320,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
                 // Uploading of that message failed. Ask the user if Frost
                 // should try to upload the message another time.
+
+                // TODO: allow to upload on next frost startup (simply not delete the messageFile)
                 if( !silent )
                 {
                     MessageUploadFailedDialog faildialog =
