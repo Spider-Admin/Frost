@@ -364,4 +364,24 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     {
         hideNA = val;
     }
+
+    public boolean containsFolderNewMessages()
+    {
+        FrostBoardObject board = this;
+        int childs = getChildCount();
+        boolean newMessage = false;
+
+        for(int c=0; c<childs; c++)
+        {
+            FrostBoardObject childBoard = (FrostBoardObject)board.getChildAt(c);
+            if( (childBoard.isFolder() && childBoard.containsFolderNewMessages()) ||
+                childBoard.containsNewMessage() )
+            {
+                newMessage = true;
+                break;
+            }
+        }
+        return newMessage;
+    }
+
 }
