@@ -298,6 +298,13 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                                 		FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
                                 		// add new message or notify of arrival
                                 		TOF.addNewMessageToTable(testMe, board);
+                                		//add all files indexed files
+                                		Iterator it = currentMsg.getAttachmentList().getAllOfType(Attachment.FILE).iterator();
+                                		while (it.hasNext()){
+                                			SharedFileObject current = (SharedFileObject)it.next();
+                                			if (current.getSHA1()!=null && current.getSHA1().length()>0)
+                                				Index.add(current,board);
+                                		}
                             		}
         	               }
                         	else
@@ -360,7 +367,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 			
                         					
                         //unzip
-                        //REDFLAG: encoding
+                        
                         byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
                         FileAccess.writeByteArray(unzippedXml,testMe);
                         
@@ -441,6 +448,14 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                                 FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
                                 // add new message or notify of arrival
                                 TOF.addNewMessageToTable(testMe, board);
+//								add all files indexed files
+							  Iterator it = currentMsg.getAttachmentList().getAllOfType(Attachment.FILE).iterator();
+							  while (it.hasNext()){
+								  SharedFileObject current = (SharedFileObject)it.next();
+							  	  if (current.getSHA1()!=null && current.getSHA1().length()>0)
+									  Index.add(current,board);
+							  }
+																  
                             }
                         }
                         else
