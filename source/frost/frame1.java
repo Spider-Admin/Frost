@@ -52,7 +52,6 @@ import frost.identities.*;
 public class frame1 extends JFrame implements ClipboardOwner
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
-    static ImageIcon[] newMessage = new ImageIcon[2];
 
     private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
@@ -122,8 +121,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     // labels that are updated later
     JLabel statusLabel = null;
-    JLabel statusMessageLabel = null;
-
     JLabel timeLabel = null;
 
     JCheckBox searchAllBoardsCheckBox = null;
@@ -478,11 +475,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     private JPanel buildStatusPanel()
     {
         statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
-        statusMessageLabel = new JLabel();
 
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(statusLabel, BorderLayout.CENTER); // Statusbar
-        statusPanel.add(statusMessageLabel, BorderLayout.EAST); // Statusbar / new Message
         return statusPanel;
     }
 
@@ -875,9 +870,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     //------------------------------------------------------------------------
 
-    newMessage[0] = new ImageIcon(frame1.class.getResource("/data/messagebright.gif"));
-    newMessage[1] = new ImageIcon(frame1.class.getResource("/data/messagedark.gif"));
-    statusMessageLabel.setIcon(newMessage[1]);
     tofReplyButton.setEnabled(false);
     downloadAttachmentsButton.setEnabled(false);
     downloadBoardsButton.setEnabled(false);
@@ -886,8 +878,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     searchAllBoardsCheckBox.setSelected(true);
     trustButton.setEnabled(false);
     notTrustButton.setEnabled(false);
-
-    //finally start something maybe time for thread?
 
     //check whether the user is running a transient node
     FcpConnection con1 = null;
@@ -1717,6 +1707,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
 
+    /**
+     * Fires a nodeChanged (redraw) for this board and updates buttons.
+     */
     public void updateTofTree(FrostBoardObject board)
     {
         // fire update for node
@@ -1725,6 +1718,20 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( board == getActualNode() ) // is the board actually shown?
         {
             updateButtons(board);
+        }
+    }
+    /**
+     * Fires a nodeChanged (redraw) for all boards.
+     * Used to redraw tree after run of OptionsFrame.
+     */
+    public void updateTofTree()
+    {
+        // fire update for node
+        DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
+        Enumeration e = ((FrostBoardObject)model.getRoot()).depthFirstEnumeration();
+        while( e.hasMoreElements() )
+        {
+            model.nodeChanged( ((FrostBoardObject)e.nextElement()) );
         }
     }
 
@@ -2131,12 +2138,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( showNewMessageIcon )
         {
             frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/newmessage.gif")));
-            frame1inst.statusMessageLabel.setIcon(newMessage[0]);
         }
         else
         {
             frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
-            frame1inst.statusMessageLabel.setIcon(newMessage[1]);
         }
     }
 
@@ -2698,6 +2703,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             // read new settings
             frostSettings.readSettingsFile();
+            updateTofTree(); // redraw whole tree, in case the update visualization was enabled or disabled
 
             // now check if settings changed and maybe update something
 

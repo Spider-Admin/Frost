@@ -131,7 +131,7 @@ public class getKeyThread extends Thread {
         }
         }
         catch (FcpToolsException e) {
-        if (DEBUG) System.out.println("FcpToolsException " + e);
+        if (DEBUG) System.out.println("getKeyThread: FcpToolsException " + e);
         frame1.displayWarning(e.toString());
         }
         catch (UnknownHostException e) {

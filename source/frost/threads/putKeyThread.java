@@ -50,27 +50,28 @@ public class putKeyThread extends Thread {
            !result[0].equals("KeyCollision") &&
            tries < 8) {
         tries++;
-        System.out.println("Splitfile upload: " + tries);
+        System.out.println("putKeyThread: Splitfile upload: " + tries);
         String output = new String();
         try {
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
+                                                     frame1.frostSettings.getValue("nodePort"));
         try {
             output = connection.putKeyFromFile(uri, uploadMe.getPath(), htl, mode);
         }
         catch (IOException e) {
-            System.out.println("IOException");
+            System.out.println("putKeyThread: IOException"+e);
         }
         }
         catch (FcpToolsException e) {
-        System.out.println("FcpToolsException " + e);
+        System.out.println("putKeyThread: FcpToolsException " + e);
         frame1.displayWarning(e.toString());
         }
         catch (UnknownHostException e) {
-        System.out.println("UnknownHostException");
+        System.out.println("putKeyThread: UnknownHostException"+e);
         frame1.displayWarning(e.toString());
         }
         catch (IOException e) {
-        System.out.println("IOException");
+        System.out.println("putKeyThread: IOException"+e);
         frame1.displayWarning(e.toString());
         }
 

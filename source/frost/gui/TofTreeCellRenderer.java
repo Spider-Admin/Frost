@@ -96,8 +96,8 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 
         boolean containsNewMessage = board.containsNewMessage();
 
+        // set the sdpecial text (board name + if new msg. a ' (2)' is appended and bold)
         setText( board.getVisibleText() );
-
         if( board.getNewMessageCount() > 0 )
         {
             setFont( boldFont );
@@ -107,17 +107,22 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
             setFont( normalFont );
         }
 
-        if( board.isUpdating() == true )
+        // maybe update visualization
+        if( frame1.frostSettings.getBoolValue("boardUpdateVisualization") &&
+            board.isUpdating() == true )
         {
+            // set special updating colors
             setBackgroundNonSelectionColor( updatingNonSelectedColor );
             setBackgroundSelectionColor( updatingSelectedColor );
         }
         else
         {
+            // set normal colors
             setBackgroundNonSelectionColor( notUpdatingNonSelectedColor );
             setBackgroundSelectionColor( notUpdatingSelectedColor );
         }
 
+        // set the icon
         if( leaf == true )
         {
             if( board.isPublicBoard() )

@@ -21,10 +21,6 @@
   actual config from properties file, and on 'OK' it saves all
   settings to the properties file and informs the caller to reload
   this file.
---------------------------------------------------------------------------
-  CHANGELOG:
-  03/27/2003 - bback
-    - changed layout from tabbed pane to a mozilla-like look
 */
 package frost.gui;
 import javax.swing.*;
@@ -101,6 +97,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
     JTextField TFautomaticUpdate_boardsMinimumUpdateInterval = new JTextField(5);
     JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
+    JCheckBox  tofBoardUpdateVisualization = new JCheckBox("Show board update visualization (on)");
 
     JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox(LangRes.getString("Remove finished downloads every 5 minutes.") +
                                   " " + LangRes.getString("(Off)"));
@@ -596,6 +593,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 1;
             constr.insets = new Insets(5, 5, 5, 5);
             tof3Panel.add(TFautomaticUpdate_concurrentBoardUpdates, constr);
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.insets = new Insets(15, 5, 5, 5);
+            tof3Panel.add( tofBoardUpdateVisualization, constr );
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -607,7 +608,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         }
         return tof3Panel;
     }
-
 
     /**
      * Build the misc. panel.
@@ -945,6 +945,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             frostSettings.getValue("automaticUpdate.concurrentBoardUpdates") );
         TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
             frostSettings.getValue("automaticUpdate.boardsMinimumUpdateInterval") );
+        tofBoardUpdateVisualization.setSelected( frostSettings.getBoolValue("boardUpdateVisualization") );
 
         downloadRestartFailedDownloads.setSelected(frostSettings.getBoolValue("downloadRestartFailedDownloads"));
 
@@ -1025,6 +1026,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
                                TFautomaticUpdate_concurrentBoardUpdates.getText());
         frostSettings.setValue("automaticUpdate.boardsMinimumUpdateInterval",
                                TFautomaticUpdate_boardsMinimumUpdateInterval.getText());
+        frostSettings.setValue("boardUpdateVisualization", tofBoardUpdateVisualization.isSelected());
 
         frostSettings.setValue("downloadRestartFailedDownloads", downloadRestartFailedDownloads.isSelected());
 

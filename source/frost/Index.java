@@ -191,7 +191,7 @@ public class Index
                 String firstLetter = (hash.substring(4, 5)).toLowerCase();
                 if( !firstLetter.equals(oldFirstLetter) )
                 {
-                    System.out.print(".");
+                    // System.out.print(".");
                     if( chunk.size() > 0 )
                     {
                         add(chunk, target, oldFirstLetter);
