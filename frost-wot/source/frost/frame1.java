@@ -936,6 +936,13 @@ public class frame1 extends JFrame implements ClipboardOwner
     // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
     Startup.startupCheck();
 
+    FileAccess.cleanKeypool(keypool);
+
+    // Display the tray icon
+    try {
+        Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTray.exe");
+    }catch(IOException _IoExc) { }
+
     //check whether the user is running a transient node
     setFreenetIsTransient(false);
     setFreenetIsOnline(false);
@@ -999,13 +1006,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     searchAllBoardsCheckBox.setSelected(frostSettings.getBoolValue("searchAllBoards"));
     //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
     //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
-
-    FileAccess.cleanKeypool(keypool);
-
-    // Display the tray icon
-    try {
-        Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTray.exe");
-    }catch(IOException _IoExc) { }
 
     if(getTofTree().getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
        getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
@@ -3686,8 +3686,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**
      * Marks messages currently in table as read.
      */
-    private void markAllMessagesRead()
+/*    private void markAllMessagesRead()
     {
-    }
+    }*/
 }
 
