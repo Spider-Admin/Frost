@@ -487,7 +487,18 @@ public class LangRes extends ListResourceBundle {
 	{"Core.loadIdentities.ConnectionNotEstablishedTitle","Connect to Freenet node failed"},
 	{"Core.loadIdentities.ChooseName","Choose an identity name, it doesn't have to be unique\n"},
 	{"Core.loadIdentities.InvalidNameBody","Your name must not contain a '@'!"},
-	{"Core.loadIdentities.InvalidNameTitle","Invalid identity name"}
+	{"Core.loadIdentities.InvalidNameTitle","Invalid identity name"},
+
+	//Board Settings Dialog
+	{"Settings for board","Settings for board"},
+	{"Override default settings","Override default settings"},
+	{"Use default","Use default"},
+	{"Set to","Set to"},
+	{"Yes","Yes"},
+	{"No","No"},
+	{"Enable automatic board update","Enable automatic board update"},
+	{"Maximum message display (days)","Maximum message display (days)"},
+	{"Warning","Warning"}
 
     };
 }
