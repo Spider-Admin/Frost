@@ -79,7 +79,9 @@ public class FECUtils {
         Buffer[] src = readBuffers(blocks,BLOCK_SIZE);
         Buffer[] repair = allocateBuffers(index.length, BLOCK_SIZE);
 
+        long start2 = System.currentTimeMillis();
         code.encode(src, repair, index);
+        long end2 = System.currentTimeMillis();
 
         int i = 0;
         for (i = 0; i < repair.length; i++) {
@@ -88,7 +90,8 @@ public class FECUtils {
             dumpBlock(repair[i], checkBlocks[i]);
         }
         System.err.println("Made " + index.length + " " + BLOCK_SIZE + " byte check blocks in "
-                           + (System.currentTimeMillis() - start ) + "ms.");
+                           + (System.currentTimeMillis() - start ) + "ms ("+
+                           (end2-start2)+"ms for computing).");
 
     }
 

@@ -1,7 +1,7 @@
 import freenet.client.FECEncoder;
 import freenet.support.Bucket;
 import freenet.support.BucketFactory;
-import freenet.support.StripedBucketArray;
+import freenet.support.StripedBucketArray2;
 
 import com.onionnetworks.fec.FECCode;
 import com.onionnetworks.fec.DefaultFECCodeFactory;
@@ -85,7 +85,7 @@ public class OnionFECEncoder extends OnionFECBase implements FECEncoder {
 
         Bucket[] ret = null;
         // Allocate Buckets to hold the check blocks.
-        Bucket[] checkBlocks = FECUtils.makeBuckets(bucketFactory, requested.length, blockSize, true);
+        Bucket[] checkBlocks = FECUtils.makeBuckets(bucketFactory, requested.length, blockSize, false);
         try {
             if (stripeWidth == -1) {
                 // No striping.
@@ -98,8 +98,8 @@ public class OnionFECEncoder extends OnionFECBase implements FECEncoder {
                 //
                 // We do this to limit RAM usage.
                 //
-                StripedBucketArray dataArray = new StripedBucketArray();
-                StripedBucketArray checkArray = new StripedBucketArray();
+                StripedBucketArray2 dataArray = new StripedBucketArray2();
+                StripedBucketArray2 checkArray = new StripedBucketArray2();
 
                 try {
                     // REDFLAG: assert( blockSize % stripeWidth == 0)
