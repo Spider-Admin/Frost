@@ -3124,7 +3124,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	/**Help | About action performed*/
 	private void helpAboutMenuItem_actionPerformed(ActionEvent e) {
-		AboutBox dlg = new AboutBox(this);
+		AboutBox dlg = new AboutBox(this, languageResource.getResourceBundle());
 		dlg.setModal(true);
 		dlg.show();
 	}
