@@ -20,7 +20,7 @@ public class CacheConfiguration
 {
 
     private static final Log       LOG                  = new Log(CacheConfiguration.class);
-    private static final String    DEFAULT_CACHE_CONFIG = "cache.properties";
+    private static final String    DEFAULT_CACHE_CONFIG = "/cache.properties";
     private ConfigurationInternals internals;
 
     /**
