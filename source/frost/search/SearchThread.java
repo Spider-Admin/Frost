@@ -283,22 +283,22 @@ class SearchThread extends Thread {
 				logger.warning("SHA1 null in SearchThread!!! ");
 			}
 
-			int searchItemState = FrostSearchItemObject.STATE_NONE;
+			int searchItemState = FrostSearchItem.STATE_NONE;
 
 			// Already downloaded files get a nice color outfit (see renderer in SearchTable)
 			File file = new File(settings.getValue("downloadDirectory") + filename);
 			if (file.exists()) {
 				// file is already downloaded -> light_gray
-				searchItemState = FrostSearchItemObject.STATE_DOWNLOADED;
+				searchItemState = FrostSearchItem.STATE_DOWNLOADED;
 			} else if (downloadModel.containsItemWithKey(SHA1)) {
 				// this file is in download table -> blue
-				searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
+				searchItemState = FrostSearchItem.STATE_DOWNLOADING;
 			} else if (uploadModel.containsItemWithKey(SHA1)) {
 				// this file is in upload table -> green
-				searchItemState = FrostSearchItemObject.STATE_UPLOADING;
+				searchItemState = FrostSearchItem.STATE_UPLOADING;
 			} else if (isOffline(key)) {
 				// this file is offline -> gray
-				searchItemState = FrostSearchItemObject.STATE_OFFLINE;
+				searchItemState = FrostSearchItem.STATE_OFFLINE;
 			}
 
 			// filter by searchItemState
@@ -306,8 +306,8 @@ class SearchThread extends Thread {
 				continue;
 			}
 
-			final FrostSearchItemObject searchItem =
-				new FrostSearchItemObject(languageResource, board, key, searchItemState);
+			final FrostSearchItem searchItem =
+				new FrostSearchItem(languageResource, board, key, searchItemState);
 
 			boolean updateLabel2 = false;
 			if (allFileCount > 9 && allFileCount % 10 == 0) {
