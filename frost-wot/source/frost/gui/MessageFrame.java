@@ -35,6 +35,7 @@ import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.LocalIdentity;
 import frost.messages.*;
+import frost.storage.StorageException;
 import frost.util.gui.*;
 
 public class MessageFrame extends JFrame
@@ -400,7 +401,11 @@ public class MessageFrame extends JFrame
                                               null);
 
         frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
-        frostSettings.save();
+        try {
+        	frostSettings.save();
+		} catch (StorageException se) {
+			logger.log(Level.SEVERE, "Error while saving the settings.", se);
+		}
         
         state = true; // exit state
         

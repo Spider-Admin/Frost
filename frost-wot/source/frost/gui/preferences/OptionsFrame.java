@@ -33,6 +33,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.SettingsClass;
+import frost.storage.StorageException;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
 /*******************************
@@ -471,8 +472,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Save settings
 	 */
 	private void saveSettings() {
-
-		frostSettings.save();
+		try {
+			frostSettings.save();
+		} catch (StorageException se) {
+			logger.log(Level.SEVERE, "Error while saving the settings.", se);
+		}
 
 		// now check if some settings changed
 		if (checkDisableRequests == true

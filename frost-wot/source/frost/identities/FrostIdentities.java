@@ -88,7 +88,10 @@ public class FrostIdentities implements Savable {
 		}
 	}
 	
-	public boolean save() {
+	/* (non-Javadoc)
+	 * @see frost.storage.Savable#save()
+	 */
+	public void save() throws StorageException {
 		logger.info("saving identities.xml");
 
 		String identitiesName = "identities.xml";
@@ -145,8 +148,6 @@ public class FrostIdentities implements Savable {
 						//Uh, oh, we are having a bad, bad day.
 						logger.log(Level.SEVERE, "Error while restoring identities.xml", exception);
 					}
-				} else {
-					return true;
 				}
 			} else {
 				//This shouldn't happen, but...
@@ -156,7 +157,7 @@ public class FrostIdentities implements Savable {
 			//Failure
 			logger.severe("Could not save identities.xml");
 		}
-		return false;
+		throw new StorageException("Error while saving the identities.");
 	}
 
 	/**

@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 
 import frost.SettingsClass;
 import frost.gui.TableXmlIO;
-import frost.storage.Savable;
+import frost.storage.*;
 import frost.util.model.*;
 
 /**
@@ -235,7 +235,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 	/**
 	 * Saves the download model to disk.
 	 */
-	public boolean save() {
+	public void save() throws StorageException {
 		String filename = settings.getValue("config.dir") + "downloads.xml";
 		File check = new File(filename);
 		if (check.exists()) {
@@ -247,7 +247,9 @@ public class DownloadModel extends OrderedModel implements Savable {
 			}
 			check.renameTo(bakFile);
 		}
-		return TableXmlIO.saveDownloadModel(this, filename);
+		if (!TableXmlIO.saveDownloadModel(this, filename)) {
+			throw new StorageException("Error while saving the downloads model.");
+		}
 	}
 	
 	/**
