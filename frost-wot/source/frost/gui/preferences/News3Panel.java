@@ -11,6 +11,7 @@ import javax.swing.*;
 import javax.swing.border.*;
 
 import frost.SettingsClass;
+import frost.util.gui.*;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
@@ -46,9 +47,9 @@ class News3Panel extends JPanel {
 
 	private JLabel autoUpdateLabel = new JLabel();
 	private JLabel minimumIntervalLabel = new JLabel();
-	private JTextField minimumIntervalTextField = new JTextField(8);
+	private JClipboardTextField minimumIntervalTextField;
 	private JLabel concurrentUpdatesLabel = new JLabel();
-	private JTextField concurrentUpdatesTextField = new JTextField(8);
+	private JClipboardTextField concurrentUpdatesTextField;
 
 	private JCheckBox showUpdateCheckBox = new JCheckBox();
 	private JButton selectedColorButton = new JButton();
@@ -177,6 +178,10 @@ class News3Panel extends JPanel {
 		setLayout(new GridBagLayout());
 		refreshLanguage();
 
+		// We create the components
+		minimumIntervalTextField = new JClipboardTextField(8, languageResource);
+		concurrentUpdatesTextField = new JClipboardTextField(8, languageResource);
+		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;

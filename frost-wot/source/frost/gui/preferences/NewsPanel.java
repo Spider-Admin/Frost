@@ -13,6 +13,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 
 import frost.*;
+import frost.util.gui.*;
 import frost.util.gui.AntialiasedTextArea;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
@@ -34,11 +35,11 @@ class NewsPanel extends JPanel {
 	private JLabel messageBaseLabel = new JLabel();
 	private JLabel signatureLabel = new JLabel();
 		
-	private JTextField uploadHtlTextField = new JTextField(8);
-	private JTextField downloadHtlTextField = new JTextField(8);
-	private JTextField displayDaysTextField = new JTextField(8);
-	private JTextField downloadDaysTextField = new JTextField(8);
-	private JTextField messageBaseTextField = new JTextField(16);
+	private JClipboardTextField uploadHtlTextField;
+	private JClipboardTextField downloadHtlTextField;
+	private JClipboardTextField displayDaysTextField;
+	private JClipboardTextField downloadDaysTextField;
+	private JClipboardTextField messageBaseTextField;
 		
 	private AntialiasedTextArea signatureTextArea;
 
@@ -64,6 +65,13 @@ class NewsPanel extends JPanel {
 		setLayout(new GridBagLayout());
 		refreshLanguage();
 
+		// We create the components
+		uploadHtlTextField = new JClipboardTextField(8, languageResource);
+		downloadHtlTextField = new JClipboardTextField(8, languageResource);
+		displayDaysTextField = new JClipboardTextField(8, languageResource);
+		downloadDaysTextField = new JClipboardTextField(8, languageResource);
+		messageBaseTextField = new JClipboardTextField(16, languageResource);
+		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.NONE;

@@ -15,6 +15,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.SettingsClass;
+import frost.util.gui.*;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
@@ -71,26 +72,26 @@ class DownloadPanel extends JPanel {
 	private JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
 	private JLabel directoryLabel = new JLabel();
 
-	private JTextField directoryTextField = new JTextField();
+	private JClipboardTextField directoryTextField;
 
 	private JCheckBox disableDownloadsCheckBox = new JCheckBox();
 	private JCheckBox enableRequestingCheckBox = new JCheckBox();
 
 	private Listener listener = new Listener();
 	private JLabel maxRetriesLabel = new JLabel();
-	private JTextField maxRetriesTextField = new JTextField(8);
+	private JClipboardTextField maxRetriesTextField;
 	private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
 	private JLabel requestAfterTriesLabel = new JLabel();
-	private JTextField requestAfterTriesTextField = new JTextField(8);
+	private JClipboardTextField requestAfterTriesTextField;
 	private JCheckBox restartFailedDownloadsCheckBox = new JCheckBox();
 	private JLabel splitfileThreadsLabel = new JLabel();
-	private JTextField splitfileThreadsTextField = new JTextField(8);
-	private JTextField threadsTextField = new JTextField(8);
+	private JClipboardTextField splitfileThreadsTextField;
+	private JClipboardTextField threadsTextField;
 	private JLabel threadsTextLabel = new JLabel();
 	private JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
 
 	private JLabel waitTimeLabel = new JLabel();
-	private JTextField waitTimeTextField = new JTextField(8);
+	private JClipboardTextField waitTimeTextField;
 
 	/**
 	 * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -189,6 +190,14 @@ class DownloadPanel extends JPanel {
 		setLayout(new GridBagLayout());
 		refreshLanguage();
 
+		//We create the components
+		directoryTextField = new JClipboardTextField(languageResource);
+		maxRetriesTextField = new JClipboardTextField(8, languageResource);
+		requestAfterTriesTextField = new JClipboardTextField(8, languageResource);
+		splitfileThreadsTextField = new JClipboardTextField(8, languageResource);
+		threadsTextField = new JClipboardTextField(8, languageResource);
+		waitTimeTextField = new JClipboardTextField(8, languageResource);		
+		
 		//Adds all of the components			
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;
