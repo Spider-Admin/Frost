@@ -16,12 +16,15 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.gui;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
 import java.util.*;
 import java.io.*;
+
+import frost.*;
 import frost.FcpTools.*;
 
 public class MessageFrame extends JFrame {
@@ -90,7 +93,7 @@ public class MessageFrame extends JFrame {
     //------------------------------------------------------------------------
     // Configure objects
     //------------------------------------------------------------------------
-    
+
 this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getResource("/data/newmessage.gif")));
     this.setTitle(LangRes.getString("Create message"));
     this.setResizable(true);

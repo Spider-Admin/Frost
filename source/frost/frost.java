@@ -17,6 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
+
 import javax.swing.UIManager;
 import java.awt.*;
 
@@ -25,72 +26,72 @@ public class frost {
 
     public frost() {
 
-	frame1 frame = new frame1();
+    frame1 frame = new frame1();
 
-	if (packFrame) {
-	    frame.pack();
-	}
-	else {
-	    frame.validate();
-	}
+    if (packFrame) {
+        frame.pack();
+    }
+    else {
+        frame.validate();
+    }
 
-	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	Dimension frameSize = frame.getSize();
-	if (frameSize.height > screenSize.height) {
-	    frameSize.height = screenSize.height;
-	}
-	if (frameSize.width > screenSize.width) {
-	    frameSize.width = screenSize.width;
-	}
-	frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-	frame.setVisible(true);
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    Dimension frameSize = frame.getSize();
+    if (frameSize.height > screenSize.height) {
+        frameSize.height = screenSize.height;
+    }
+    if (frameSize.width > screenSize.width) {
+        frameSize.width = screenSize.width;
+    }
+    frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+    frame.setVisible(true);
     }
 
     /**Main method*/
     public static void main(String[] args) {
 
-	System.out.println();
-	System.out.println("Frost, Copyright (C) 2001 Jan-Thomas Czornack");
-	System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
-	System.out.println("This is free software, and you are welcome to");
-	System.out.println("redistribute it under certain conditions.");
-	System.out.println();
-	System.out.println();
+    System.out.println();
+    System.out.println("Frost, Copyright (C) 2001 Jan-Thomas Czornack");
+    System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
+    System.out.println("This is free software, and you are welcome to");
+    System.out.println("redistribute it under certain conditions.");
+    System.out.println();
+    System.out.println();
 
-	String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+    String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
 
-	if (args.length == 1) {
-	    if (args[0].equals("-?") || 
-		args[0].equals("-help") || 
-		args[0].equals("--help") ||
-		args[0].equals("/?") ||
-		args[0].equals("/help")) {
+    if (args.length == 1) {
+        if (args[0].equals("-?") ||
+        args[0].equals("-help") ||
+        args[0].equals("--help") ||
+        args[0].equals("/?") ||
+        args[0].equals("/help")) {
 
-		System.out.println("frost [-lf]");
-		System.out.println();
-		System.out.println("-lf     Allows to set the used 'Look and Feel'.");
-		System.out.println("        javax.swing.plaf.metal.MetalLookAndFeel");
-		System.out.println("        com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-		System.out.println("        com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-		System.out.println("        javax.swing.plaf.mac.MacLookAndFeel");
+        System.out.println("frost [-lf]");
+        System.out.println();
+        System.out.println("-lf     Allows to set the used 'Look and Feel'.");
+        System.out.println("        javax.swing.plaf.metal.MetalLookAndFeel");
+        System.out.println("        com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+        System.out.println("        com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+        System.out.println("        javax.swing.plaf.mac.MacLookAndFeel");
 
-		System.exit(0);
-	    }
-	}
+        System.exit(0);
+        }
+    }
 
-	if (args.length == 2) {
-	    if (args[0].equals("-lf")) {
-		lookAndFeel = args[1]; 
-	    }
-	}
+    if (args.length == 2) {
+        if (args[0].equals("-lf")) {
+        lookAndFeel = args[1];
+        }
+    }
 
-	try {
-	    UIManager.setLookAndFeel(lookAndFeel);
-	}
-	catch(Exception e) {
-// 	    e.printStackTrace();
-	    System.out.println("The selected Look and Feel was not found. I'm using default now.");
-	}
-	new frost();
+    try {
+        UIManager.setLookAndFeel(lookAndFeel);
+    }
+    catch(Exception e) {
+//      e.printStackTrace();
+        System.out.println("The selected Look and Feel was not found. I'm using default now.");
+    }
+    new frost();
     }
 }
