@@ -336,7 +336,7 @@ public class MessageObject implements XMLizable {
         Document doc = null;
         try {
             doc = XMLTools.parseXmlFile(this.file, false);
-        } catch(Exception ex) { ; } // xml format error
+        } catch(Exception ex) { ex.printStackTrace(Core.getOut()); } // xml format error
 
         if( doc == null )
         {

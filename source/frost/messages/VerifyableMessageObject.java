@@ -23,11 +23,9 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import frost.Core;
-import frost.FileAccess;
-import frost.frame1;
-import frost.crypt.crypt;
-import frost.identities.Identity;
+import frost.*;
+
+
 
 public class VerifyableMessageObject extends MessageObject implements Cloneable
 {
@@ -39,7 +37,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     public static final String TAMPERED = "FAKE :(";
     
     /**
-     *  BAD = signature tampered
+     *  FAKE :( = signature tampered
      *  N/A = couldn't retrieve key (will be obsoleted by xml messages)
      */
 
@@ -57,16 +55,16 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     }
 
     /** get the verification key*/
-    public String getKeyAddress()
+    /**public String getKeyAddress()
     {
         int start = content.lastIndexOf("<key>");
         int end = content.indexOf("</key>",start);
         if( (start == -1) || (end == -1) || (end-start < 55) ) return new String("none");
         return content.substring(start+5,end);
-    }
+    }*/  //deprecate
 
     /**gets the plaintext only */
-    public String getPlaintext()
+    /*public String getPlaintext()
     {
         int offset =0;
         if( isVerifyable() ) offset = crypt.MSG_HEADER_SIZE;
@@ -86,6 +84,9 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             else
                 return content.substring(offset, content.indexOf("<attached>"));
         }
+    }*/
+    public String getPlaintext() {
+    	return content;
     }
 
     /**gets the status of the message*/
@@ -119,17 +120,17 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     public VerifyableMessageObject(File file) throws Exception
     {
         super(file); // throws exception if loading failed
+        isVerifyable = true;
+        
 
-        if( from.indexOf("@") == -1 ||
-            content.indexOf("===Frost signed message===\n") == -1 ||
-            content.indexOf("\n=== Frost message signature: ===\n") == -1 )
+        /*if( metadata == null)
         {
             isVerifyable=false;
         }
         else
         {
             isVerifyable = true;
-        }
+        }*/
 
         File sigFile = new File(file.getPath() + ".sig");
         if( !sigFile.exists() )
@@ -193,6 +194,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
      */
     public void verifyIncoming(GregorianCalendar dirDate)
     {
+    	/*
         VerifyableMessageObject currentMsg = this;
         System.out.println("TOFDN: ****** Verifying incoming message ******");
         try { // if something fails here, set msg. to N/A (maybe harmful message)
@@ -206,7 +208,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             Identity currentId;
 
             // now as the date is correct, go on to verify
-            if( (currentMsg.getKeyAddress() == "none") || (currentMsg.getFrom().indexOf("@") == -1) )
+            if(  (currentMsg.getFrom().indexOf("@") == -1) )
             {
                 System.out.println("TOFDN: *** Message is NOT signed at all: "+currentMsg.getFrom());
                 currentMsg.setStatus(VerifyableMessageObject.OLD);
@@ -317,7 +319,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             System.out.println("Oo. Exception in verify() - setting message state to N/A.");
             t.printStackTrace(System.out);
             currentMsg.setStatus(VerifyableMessageObject.NA);
-        }
+        }*/
     }
 
     public boolean verifyDate(GregorianCalendar dirDate)

@@ -23,9 +23,11 @@ import java.io.File;
 import java.util.*;
 
 import frost.*;
+import frost.crypt.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.FcpTools.*;
+import frost.identities.*;
 
 /**
  * Downloads messages
@@ -184,6 +186,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
         while( failures < maxFailures && (flagNew || !checkLockfile.exists()) )
         {
+        	byte [] metadata = null;
 	    try { //make a wide net so that evil messages don't kill us
             String val = new StringBuffer().append(destination)
                                            .append(System.currentTimeMillis())
@@ -233,8 +236,10 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 	
                     boolean fastDownload = !flagNew; // for backload use fast download, deep for today
                     
-                    //FIXME: get the metadata here
-                    FcpRequest.getFile(downKey, null, testMe, downloadHtl, false, fastDownload);
+                    
+                    FcpResults res = FcpRequest.getFile(downKey, null, testMe, downloadHtl, false, fastDownload);
+                    metadata = res.getRawMetadata();
+                    //TODO: if metadata==null, not signed message
                     mixed.wait(111); // wait some time to not to hurt the node on next retry 
                 }
                 catch(Throwable t)
@@ -251,11 +256,45 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     // Does a duplicate message exist?
                     if( !exists(testMe) )
                     {
-                        //test if encrypted and decrypt
-                        String contents = FileAccess.readFileRaw(testMe);
+                        //verify the zipped message
+                        
+                        byte [] plaintext = FileAccess.readByteArray(testMe);
+                        MetaData metaData = new MetaData(plaintext,metadata);
+                        
+                        //TODO: check if encrypted somehow
+                        
+                        //check if we have the owner already on the lists
+                        String _owner = metaData.getSharer().getUniqueName();
+                        if (Core.getEnemies().containsKey(_owner)) {
+                        	//the person is blacklisted... do something
+                        }
+                        Identity owner;
+                        //check friends
+                        owner = Core.getFriends().Get(_owner);
+                        //if not, check neutral
+                        if (owner == null)
+                        	owner = Core.getNeutral().Get(_owner);
+                        //if still not, use the parsed id
+                        if (owner == null) {
+                        	owner = metaData.getSharer();
+                        	owner.noFiles = 0;
+                        	owner.noMessages =1;
+                        	Core.getNeutral().Add(owner);
+                    	} 
+                        
+                        //verify! :)
+                        boolean valid = Core.getCrypto().detachedVerify(
+                        					plaintext,
+                        					owner.getKey(),
+                        					metaData.getSig());
+                        					
+                        //that's it for today, I"m too tired
+                        //----------------------LEGACY CODE BELOW------------------
+                        
+                        
                         //Core.getOut().println(contents);
-                        String plaintext;
-                        int encstart = contents.indexOf("==== Frost Signed+Encrypted Message ====");
+                        
+                        
 
                         if( encstart != -1 )
                         {

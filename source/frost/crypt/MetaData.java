@@ -11,6 +11,8 @@ import frost.identities.*;
 import frost.XMLizable;
 
 import java.util.*;
+import java.io.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -33,6 +35,7 @@ public class MetaData implements XMLizable {
 
 	Identity sharer;
 	byte [] plaintext,sig;
+	boolean signed; //true = signed, false = encrypted
 	
 	public MetaData(){
 			sharer =null;
@@ -48,6 +51,21 @@ public class MetaData implements XMLizable {
 		this.sharer = Core.getMyId();
 		this.plaintext = plaintext;
 		sig = Core.getCrypto().detachedSign(plaintext, Core.getMyId().getPrivKey());
+	}
+	
+	public MetaData(byte [] plaintext, byte [] metadata){
+		File tmp = new File("metadataTemp"+ System.currentTimeMillis());
+		FileAccess.writeByteArray(metadata,tmp);
+		Document d = XMLTools.parseXmlFile(tmp,false);
+		Element el = d.getDocumentElement();
+		this.plaintext = plaintext;
+		try {
+			loadXMLElement(el);
+		}catch (SAXException e){
+			e.printStackTrace(Core.getOut());
+			plaintext = null;
+		}
+		tmp.delete();
 	}
 	
 	/**
