@@ -1096,26 +1096,26 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			}
 		}
 
-		splashscreen.setText("Initializing Mainframe");
+		splashscreen.setText(languageResource.getString("Initializing Mainframe"));
 		splashscreen.setProgress(20);
 
 		keypool = frostSettings.getValue("keypool.dir");
 
-		splashscreen.setText("Hypercube fluctuating!");
+		splashscreen.setText(languageResource.getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(50);
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		// enable the machine ;)
 		try {
 			core = new Core();
-			splashscreen.setText("sending IP address to NSA");
+			splashscreen.setText(languageResource.getString("Sending IP address to NSA"));
 			splashscreen.setProgress(60);
 			jbInit();
-			splashscreen.setText("wasting more time");
+			splashscreen.setText(languageResource.getString("Wasting more time"));
 			splashscreen.setProgress(70);
 			core.init();
 
-			splashscreen.setText("Reaching ridiculous speed...");
+			splashscreen.setText(languageResource.getString("Reaching ridiculous speed..."));
 			splashscreen.setProgress(80);
 
 			runningBoardUpdateThreads = new RunningBoardUpdateThreads();
