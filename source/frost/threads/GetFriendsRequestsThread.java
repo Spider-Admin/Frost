@@ -21,7 +21,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 
 	Set prefixes;
 
-	private void generatePrefixes() {
+	private final void generatePrefixes() {
 		File keypool = new File(frame1.keypool);
 		File[] boardDirs = keypool.listFiles();
 		LinkedList indices = new LinkedList();
@@ -47,7 +47,10 @@ public class GetFriendsRequestsThread extends TimerTask {
 		it = allFiles.values().iterator();
 		while (it.hasNext()) {
 			SharedFileObject current = (SharedFileObject) it.next();
-			if (current.getOwner().compareTo(Core.getMyId().getUniqueName())
+			if (current.getOwner() == null || current.getBatch() ==null)
+				continue; //do not request anonymous files or broken batches
+			if (
+				current.getOwner().compareTo(Core.getMyId().getUniqueName())
 				!= 0
 				&& // not me 
 			 (
@@ -59,6 +62,8 @@ public class GetFriendsRequestsThread extends TimerTask {
 				prefixes.add(
 					new String(
 						"KSK@frost/request/"
+							+ Core.frostSettings.getValue("messageBase")
+							+ "/"
 							+ current.getOwner()
 							+ "-"
 							+ current.getBatch()));
@@ -69,10 +74,18 @@ public class GetFriendsRequestsThread extends TimerTask {
 	}
 
 	public synchronized void run() {
+		Core.getOut().println("starting to request requests for friends");
 		prefixes = new HashSet();
 		generatePrefixes();
 		
+		Core.getOut().println("will help total of "+ prefixes.size() +" batches");
 		Iterator it = prefixes.iterator();
+		File tempFile = null;
+		try {
+			tempFile = File.createTempFile("tmp"+System.currentTimeMillis(),null);
+		}catch (IOException e) {
+			e.printStackTrace(Core.getOut());
+		}
 		while (it.hasNext()){
 			String currentPrefix = (String)it.next();
 			
@@ -81,23 +94,26 @@ public class GetFriendsRequestsThread extends TimerTask {
 			
 				String date = DateFun.getDate();
 				int index =0;
-				File tempFile = null;
-				try {
-				tempFile = File.createTempFile("tmp"+System.currentTimeMillis(),null);
-				}catch (IOException e) {
-					e.printStackTrace(Core.getOut());
-				}
+				
 				do{
 					tempFile.delete();
-					FcpRequest.getFile(currentPrefix + "-"+date+"-"+index+".req.sha",
+					String slot = currentPrefix +"-"+date+"-"+index+".req.sha";
+					Core.getOut().println("friend's request address is "+slot);
+					FcpRequest.getFile(slot,
 													null,
 													tempFile,
 													25,
 													true, //do redirect
 													false); //deep request
+					index++;
 				} while(tempFile.exists() && tempFile.length() > 0); //break when dnfs
 			
+			Core.getOut().println("batch of "+currentPrefix+ " had "+ (index--) + " requests");
 		}
+		tempFile.delete();
+		prefixes = null;
+		
+		Core.getOut().println("finishing requesting friend's requests");
 	}
 
 }
