@@ -23,15 +23,43 @@
   this file.
 */
 package frost.gui;
-import java.awt.*;
-import java.awt.event.*;
+import java.awt.AWTEvent;
+import java.awt.BorderLayout;
+import java.awt.Color;
+import java.awt.Component;
+import java.awt.Dimension;
+import java.awt.FlowLayout;
+import java.awt.Frame;
+import java.awt.GridBagConstraints;
+import java.awt.GridBagLayout;
+import java.awt.Insets;
+import java.awt.event.ActionEvent;
+import java.awt.event.ActionListener;
+import java.awt.event.WindowEvent;
 import java.io.File;
 import java.util.Vector;
 
-import javax.swing.*;
-import javax.swing.event.*;
+import javax.swing.BorderFactory;
+import javax.swing.DefaultListSelectionModel;
+import javax.swing.JButton;
+import javax.swing.JCheckBox;
+import javax.swing.JColorChooser;
+import javax.swing.JDialog;
+import javax.swing.JFileChooser;
+import javax.swing.JLabel;
+import javax.swing.JList;
+import javax.swing.JPanel;
+import javax.swing.JScrollPane;
+import javax.swing.JTextArea;
+import javax.swing.JTextField;
+import javax.swing.ListModel;
+import javax.swing.event.ChangeEvent;
+import javax.swing.event.ChangeListener;
+import javax.swing.event.ListSelectionEvent;
+import javax.swing.event.ListSelectionListener;
 
-import frost.*;
+import frost.FileAccess;
+import frost.SettingsClass;
 
 /*******************************
  * TODO: - add thread listeners (listen to all running threads) to change the
@@ -40,6 +68,105 @@ import frost.*;
 
 public class OptionsFrame extends JDialog implements ListSelectionListener
 {
+	/**
+ 	 * Display Panel. Contains appearace options: skins and more in the future
+ 	 */
+	public class DisplayPanel extends JPanel {
+
+		/**
+		 * Inner class to handle all the events
+		 */
+		public class EventHandler implements ActionListener {
+
+			/**
+			 * Method called when an actionEvent is fired
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent event) {
+				if (event.getSource() == DisplayPanel.this.getEnableSkinsCheckBox())
+					getSkinChooser().setEnabled(getEnableSkinsCheckBox().isSelected());
+			}
+		}
+		
+		EventHandler eventHandler = new EventHandler();
+
+		private JCheckBox enableSkinsCheckBox = null;
+		private SkinChooser skinChooser = null;
+		private BorderLayout displayPanelBorderLayout = null;
+
+		/**
+		 * Constructor
+		 */
+		public DisplayPanel() {
+			super();
+			initialize();
+		}
+		
+		/**
+		 * Initialize the class.
+		 */
+		private void initialize() {
+			setName("DisplayPanel");
+			//setBorder(new EmptyBorder(10, 10, 10, 10));
+			setLayout(getDisplayPanelBorderLayout());
+			//setSize(763, 538);
+			add(getSkinChooser(), "Center");
+			add(getEnableSkinsCheckBox(), "North");
+			initConnections();
+		}
+		
+		/**
+		 * Initializes connections
+		 */
+		/* WARNING: THIS METHOD WILL BE REGENERATED. */
+		private void initConnections() {
+			getEnableSkinsCheckBox().addActionListener(eventHandler);
+		}
+
+		
+		/**
+		 * Return the DisplayPanelBorderLayout property value.
+		 * @return java.awt.BorderLayout
+		 */
+		private BorderLayout getDisplayPanelBorderLayout() {
+			if (displayPanelBorderLayout == null) {
+				/* Create part */
+				displayPanelBorderLayout = new BorderLayout();
+				displayPanelBorderLayout.setVgap(10);
+			}
+			return displayPanelBorderLayout;
+		}
+		
+		/**
+		 * Return the SkinChooser property value.
+		 * @return pruebasSkins.SkinChooser
+		 */
+		private SkinChooser getSkinChooser() {
+			if (skinChooser == null) {
+				skinChooser = new SkinChooser();
+				skinChooser.setName("SkinChooser");
+			}
+			return skinChooser;
+		}
+		
+		/**
+		 * Return the EnableSkinsCheckBox property value.
+		 * @return javax.swing.JCheckBox
+		 */
+		private JCheckBox getEnableSkinsCheckBox() {
+			if (enableSkinsCheckBox == null) {
+				enableSkinsCheckBox = new javax.swing.JCheckBox();
+				enableSkinsCheckBox.setName("EnableSkinsCheckBox");
+				enableSkinsCheckBox.setText("EnableSkins");
+				enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
+				enableSkinsCheckBox.setSelected(true);
+			}
+			return enableSkinsCheckBox;
+		}
+
+
+
+	}
     //------------------------------------------------------------------------
     // Class Vars
     //------------------------------------------------------------------------
@@ -59,6 +186,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JPanel tofPanel = null;
     JPanel tof2Panel = null;
     JPanel tof3Panel = null;
+    JPanel displayPanel = null;
     JPanel miscPanel = null;
     JPanel searchPanel = null;
     JPanel contentAreaPanel = null;
@@ -284,6 +412,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             listData.add( new ListBoxData( " "+LangRes.getString("News")+" (2) ",      getTof2Panel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("News")+" (3) ",      getTof3Panel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Search")+" ",        getSearchPanel() ) );
+			//listData.add( new ListBoxData( " "+LangRes.getString("Display")+" ",       getDisplayPanel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Miscellaneous")+" ", getMiscPanel() ) );
             optionsGroupsList = new JList( listData );
             optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
@@ -1337,5 +1466,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         // center dialog on parent
         setLocationRelativeTo(parent);
     }
+    
+	/**
+	 * Build the display panel.
+	 */
+
+	protected JPanel getDisplayPanel() {
+		if (displayPanel == null) {
+			displayPanel = new DisplayPanel();
+		}
+		return displayPanel;
+	}
+
 }
 
