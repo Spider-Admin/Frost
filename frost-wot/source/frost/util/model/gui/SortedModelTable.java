@@ -6,10 +6,7 @@
  */
 package frost.util.model.gui;
 
-import java.lang.reflect.InvocationTargetException;
-import java.util.logging.*;
-
-import javax.swing.SwingUtilities;
+import java.util.logging.Logger;
 
 import frost.util.gui.SwingWorker;
 import frost.util.model.*;

@@ -2,7 +2,6 @@ package frost.threads;
 
 import java.util.*;
 
-import frost.Core;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.FrostIdentities;
 

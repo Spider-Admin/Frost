@@ -7,11 +7,9 @@
 package frost.threads.maintenance;
 
 import java.util.*;
-import java.util.Timer;
 import java.util.logging.Logger;
 
 import frost.*;
-import frost.Core;
 
 /**
  * @author Administrator

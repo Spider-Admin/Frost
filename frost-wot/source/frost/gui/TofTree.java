@@ -19,14 +19,9 @@
 package frost.gui;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
-import java.awt.dnd.*;
-import java.awt.event.*;
-import java.awt.geom.*;
-import java.awt.image.BufferedImage;
-import java.io.*;
+import java.io.File;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.tree.*;

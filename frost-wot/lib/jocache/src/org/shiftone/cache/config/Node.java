@@ -2,14 +2,10 @@ package org.shiftone.cache.config;
 
 
 
+import java.util.*;
+
 import org.shiftone.cache.ConfigurationException;
 import org.shiftone.cache.util.Log;
-
-import java.io.PrintStream;
-import java.util.Collection;
-import java.util.HashMap;
-import java.util.Iterator;
-import java.util.Map;
 
 
 /**
