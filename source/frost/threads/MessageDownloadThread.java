@@ -35,7 +35,7 @@ import frost.gui.objects.*;
 public class MessageDownloadThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
     public FrostBoardObject board;
-    private String downloadHtl;
+    private int downloadHtl;
     private String keypool;
     private int maxMessageDownload;
     private String destination;
@@ -324,7 +324,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     }
 
     /**Constructor*/ //
-    public MessageDownloadThread(boolean fn, FrostBoardObject boa, String dlHtl, String kpool, String maxmsg)
+    public MessageDownloadThread(boolean fn, FrostBoardObject boa, int dlHtl, String kpool, String maxmsg)
     {
         super(boa);
         this.flagNew = fn;

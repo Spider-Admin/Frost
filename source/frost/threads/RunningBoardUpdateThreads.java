@@ -41,7 +41,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         MessageDownloadThread tofd = new MessageDownloadThread(
             true,
             board,
-            config.getValue("tofDownloadHtl"),
+            config.getIntValue("tofDownloadHtl"),
             config.getValue("keypool.dir"),
             config.getValue("maxMessageDownload") );
 
@@ -69,7 +69,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         MessageDownloadThread backload = new MessageDownloadThread(
             false,
             board,
-            config.getValue("tofDownloadHtl"),
+            config.getIntValue("tofDownloadHtl"),
             config.getValue("keypool.dir"),
             config.getValue("maxMessageDownload") );
 
@@ -97,7 +97,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     {
         GetRequestsThread grt = new GetRequestsThread(
            board,
-           config.getValue("tofDownloadHtl"),
+           config.getIntValue("tofDownloadHtl"),
            config.getValue("keypool.dir"),
            frame1.getInstance().getUploadTable()
          );

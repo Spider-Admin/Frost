@@ -935,16 +935,24 @@ public class frame1 extends JFrame implements ClipboardOwner
         public void run() {
             if( isFreenetOnline() == false )
                 return;
-            File pkey = new File("pubkey.txt");
-            if( pkey.exists() )
-            {
-                System.out.println("KeyReinserter: Re-uploading public key...");
-                FcpInsert.putFile("CHK@",pkey,25,false,true,null);
-                System.out.println("KeyReinserter: Finished re-uploading public key.");
+            File tempUploadfile = null;
+            try {
+                tempUploadfile = File.createTempFile("pubkey_", null, new File(frame1.frostSettings.getValue("temp.dir")) );
             }
+            catch(Exception ex)
+            {
+                tempUploadfile = new File(frame1.frostSettings.getValue("temp.dir") + "pubkey_"+System.currentTimeMillis()+".tmp");
+            }
+            tempUploadfile.deleteOnExit();
+            FileAccess.writeFile(mySelf.getKey(), tempUploadfile);
+
+            System.out.println("KeyReinserter: Re-uploading public key...");
+            FcpInsert.putFile("CHK@",tempUploadfile,25,false,true,null);
+            System.out.println("KeyReinserter: Finished re-uploading public key.");
+            tempUploadfile.delete();
         }
     };
-    timer2.schedule(KeyReinserter,0,60*60*1000);
+    timer2.schedule(KeyReinserter,0,60*60*1000); // run each hour
 
     //on with other stuff
 
@@ -3297,6 +3305,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         pmenu.add(description);
         pmenu.addSeparator();
         pmenu.add(tofTreePopupRefresh);
+        if( board.isFolder() == false )
+        {
+            pmenu.addSeparator();
+            pmenu.add(tofTreePopupConfigureBoard);
+        }
         pmenu.addSeparator();
         pmenu.add(tofTreePopupAddNode);
         pmenu.add(tofTreePopupAddFolder);
@@ -3314,11 +3327,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             pmenu.add(tofTreePopupPasteNode);
         }
         pmenu.addSeparator();
-        if( board.isFolder() == false )
-        {
-            pmenu.add(tofTreePopupConfigureBoard);
-            pmenu.addSeparator();
-        }
         pmenu.add(tofTreePopupCancel);
         pmenu.show( e.getComponent(), e.getX(), e.getY() );
     }
