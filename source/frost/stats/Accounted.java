@@ -7,7 +7,7 @@
 package frost.stats;
 
 /**
- * @author zab
+ * @author zlatinb
  *
  * Interface that things that we keep statistics on should implement
  */
