@@ -37,30 +37,30 @@ public class KnownBoardsFrame extends JDialog
 {
 	private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
 	
-	static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+	private ResourceBundle languageResource;
 
-    static ImageIcon boardIcon = new ImageIcon(MainFrame.class.getResource("/data/board.gif"));
-    static ImageIcon writeAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/waboard.jpg"));
-    static ImageIcon readAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/raboard.jpg"));
+    private static ImageIcon boardIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/board.gif"));
+    private static ImageIcon writeAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/waboard.jpg"));
+    private static ImageIcon readAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/raboard.jpg"));
     
-    JButton Bclose;
-    JButton BaddBoard;
-    JTextField TFlookupBoard;
-    SortedTable boardsTable;
-    KnownBoardsTableModel tableModel;
-    NameColumnRenderer nameColRenderer;
+    private JButton Bclose;
+    private JButton BaddBoard;
+    private JTextField TFlookupBoard;
+    private SortedTable boardsTable;
+    private KnownBoardsTableModel tableModel;
+    private NameColumnRenderer nameColRenderer;
     
-	JSkinnablePopupMenu tablePopupMenu;
+    private JSkinnablePopupMenu tablePopupMenu;
     
-    boolean savingNeeded = false;
+	private boolean savingNeeded = false;
     
-    public KnownBoardsFrame(JFrame parent, ResourceBundle LangRes)
+    public KnownBoardsFrame(JFrame parent, ResourceBundle languageResource)
     {
         super();
-		KnownBoardsFrame.LangRes = LangRes;
+		this.languageResource = languageResource;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
-            init();
+            initialize();
         }
         catch( Exception e ) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
@@ -73,14 +73,14 @@ public class KnownBoardsFrame extends JDialog
     /**
      * Build the GUI.
      */
-    public void init()
+    private void initialize()
     {
         setModal(true);
-        setTitle(LangRes.getString("KnownBoardsFrame.List of known boards"));
+        setTitle(languageResource.getString("KnownBoardsFrame.List of known boards"));
         
         this.setResizable(true);
         
-        tableModel = new KnownBoardsTableModel(LangRes);
+        tableModel = new KnownBoardsTableModel(languageResource);
         // add a special renderer to name column which shows the board icon
         nameColRenderer = new NameColumnRenderer();
         boardsTable = new SortedTable( tableModel ) {
@@ -93,8 +93,8 @@ public class KnownBoardsFrame extends JDialog
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
         
-        Bclose = new JButton(LangRes.getString("KnownBoardsFrame.Close"));
-        BaddBoard = new JButton(LangRes.getString("KnownBoardsFrame.Add board"));
+        Bclose = new JButton(languageResource.getString("KnownBoardsFrame.Close"));
+        BaddBoard = new JButton(languageResource.getString("KnownBoardsFrame.Add board"));
 
         TFlookupBoard = new JTextField(10);
         // force a max size, needed for BoxLayout
@@ -130,7 +130,7 @@ public class KnownBoardsFrame extends JDialog
         
         JPanel buttons = new JPanel(new BorderLayout());
         buttons.setLayout( new BoxLayout( buttons, BoxLayout.X_AXIS ));
-        buttons.add( new JLabel(LangRes.getString("KnownBoardsFrame.Lookup") + ":"));
+        buttons.add( new JLabel(languageResource.getString("KnownBoardsFrame.Lookup") + ":"));
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( TFlookupBoard );
         buttons.add( Box.createHorizontalGlue() );
@@ -153,8 +153,8 @@ public class KnownBoardsFrame extends JDialog
     private void initPopupMenu()
     {
         tablePopupMenu = new JSkinnablePopupMenu();
-        JMenuItem addBoardsMenu = new JMenuItem(LangRes.getString("KnownBoardsFrame.Add board"));
-        JMenuItem removeBoardEntry = new JMenuItem(LangRes.getString("KnownBoardsFrame.Remove board"));
+        JMenuItem addBoardsMenu = new JMenuItem(languageResource.getString("KnownBoardsFrame.Add board"));
+        JMenuItem removeBoardEntry = new JMenuItem(languageResource.getString("KnownBoardsFrame.Remove board"));
         
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
