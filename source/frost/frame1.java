@@ -2696,7 +2696,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             // 2. check if singned only+hideCheck+hideBad settings changed, if yes update tof tree
 
             // update gui parts
-            //timeLabel.setText(""); // ?
             updateOptionsAffectedComponents();
         }
         oldMessageHeader = "";
