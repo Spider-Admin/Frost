@@ -13,6 +13,13 @@ public class MessageCreationException extends Exception {
 	private boolean empty = false;
 	
 	/**
+	 * @param message
+	 * @param cause
+	 */
+	public MessageCreationException(String message, Throwable cause) {
+		super(message, cause);
+	}
+	/**
 	 * This method creates a new MessageCreationException with the given
 	 * message.
 	 * @param message a string describing the exception
