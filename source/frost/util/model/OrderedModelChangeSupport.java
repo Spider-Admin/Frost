@@ -7,7 +7,6 @@
 package frost.util.model;
 
 import java.util.*;
-import java.util.Vector;
 
 /**
  * This class provides support for sending change events of models 
@@ -78,7 +77,7 @@ public class OrderedModelChangeSupport {
 	 * @param oldValue
 	 * @param newValue
 	 */
-	protected void fireItemChanged(int position, ModelItem item, int fieldID, Object oldValue, Object newValue) {
+	private void fireItemChanged(int position, ModelItem item, int fieldID, Object oldValue, Object newValue) {
 		
 		if (oldValue != null && newValue != null && oldValue.equals(newValue)) {
 			return;
@@ -127,7 +126,7 @@ public class OrderedModelChangeSupport {
 			}
 		}
 	}
-
+	
 	/**
 	 * @param item
 	 */
@@ -148,11 +147,11 @@ public class OrderedModelChangeSupport {
 			}
 		}
 	}
-
+	
 	/**
-	 * @param item
+	 * @param items
 	 */
-	public void fireItemRemoved(int position, ModelItem item) {
+	public void fireItemsRemoved(int[] positions, ModelItem[] items) {
 		Vector targets = null;
 		synchronized (this) {
 			if (listeners != null) {
@@ -163,7 +162,7 @@ public class OrderedModelChangeSupport {
 		if (targets != null) {
 			for (int i = 0; i < targets.size(); i++) {
 				OrderedModelListener target = (OrderedModelListener) targets.elementAt(i);
-				target.itemRemoved(position, item);
+				target.itemsRemoved(positions, items);
 			}
 		}
 	}
