@@ -14,6 +14,7 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     public static final int STATE_DOWNLOADED  = 2; // set if the item is already downloaded and is found in download folder
     public static final int STATE_DOWNLOADING = 3; // set if file is not already downloaded, but in download table
     public static final int STATE_UPLOADING   = 4; // set if file is in upload table
+    public static final int STATE_OFFLINE     = 5; // set if file is offline
 
     public FrostSearchItemObject( FrostBoardObject board, SharedFileObject key, int state )
     {
@@ -35,10 +36,8 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
         switch(column) {
             case 0: return key.getFilename();
             case 1: return key.getSize();
-            case 2: if (isOffline())
-			          return "offline";
-		            else
-	    		      return key.getDate();
+            case 2: if( getState() == STATE_OFFLINE )  return "offline";
+		            else  return key.getDate();
             case 3: if (key.getOwner()==null || key.getOwner().length()==0)
 	    		      return "Anonymous";
 		            else
@@ -48,13 +47,6 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
         }
     }
     
-    public boolean isOffline()
-    {
-        boolean offline = (key.getDate() == null || key.getDate().length()==0) &&
-                (key.getKey() == null || key.getKey().length() ==0);
-        return offline;                
-    }
-
     public int compareTo( TableMember anOther, int tableColumIndex )
     {
         // special sort handling for DATE column:

@@ -152,13 +152,12 @@ public class SearchThread extends Thread {
 
         int age = 1;
         try { age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos)); }
-        catch (NumberFormatException e) {  Core.getOut().println("Did not recognice age, using default 1"); }
+        catch (NumberFormatException e) { Core.getOut().println("Did not recognice age, using default 1."); }
 
-         Core.getOut().println("AGE = " + age);
+        Core.getOut().println("AGE = " + age);
 
         GregorianCalendar today = new GregorianCalendar();
         today.setTimeZone(TimeZone.getTimeZone("GMT"));
-
 	
         for (int i = results.size() - 1; i >= 0; i--) {
         	SharedFileObject key = (SharedFileObject)results.elementAt(i);
@@ -176,9 +175,9 @@ public class SearchThread extends Thread {
         }
     }
     
-    
     boolean hideAnon = frame1.frostSettings.getBoolValue("hideAnonFiles");
     boolean hideBad = frame1.frostSettings.getBoolValue("hideBadFiles");
+    
     //check if file anonymous
      Iterator it = results.iterator();
      while (it.hasNext()) {
@@ -233,6 +232,16 @@ public class SearchThread extends Thread {
         }
     }
     }
+    
+    /**
+     * Filters items by setting of Hide offline, Hide downloaded/downloading.
+     * @param state
+     * @return
+     */
+    private boolean filterBySearchItemState( int state )
+    {
+        return true;
+    }
 
     /**
      * Displays search results in search table
@@ -255,13 +264,15 @@ public class SearchThread extends Thread {
             Long size = key.getSize();
             String date = key.getDate();
             String keyData = key.getKey();
-	    String SHA1 = key.getSHA1();
-	    
-	    if (SHA1 == null) 
-	    	System.err.println(" SHA1 null in SearchThread!!! ");
-
+    	    String SHA1 = key.getSHA1();
+    	    
+    	    if (SHA1 == null)
+            { 
+                System.err.println(" SHA1 null in SearchThread!!! ");
+            }
+    
             int searchItemState = FrostSearchItemObject.STATE_NONE;
-
+    
             // Already downloaded files get a nice color outfit (see renderer in SearchTable)
             File file = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
             if( file.exists() )
@@ -277,34 +288,48 @@ public class SearchThread extends Thread {
             else if( frame1.getInstance().getUploadTable().containsItemWithKey( SHA1 ) )
             {
                 // this file is in upload table -> green
-                searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
+                searchItemState = FrostSearchItemObject.STATE_UPLOADING;
             }
-
+            else if( isOffline(key) )
+            {
+                // this file is offline -> gray
+                searchItemState = FrostSearchItemObject.STATE_OFFLINE;
+            }
+            
+            // filter by searchItemState
+            if( filterBySearchItemState(searchItemState) == false ) 
+            {
+                continue;
+            }
+    
             final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key, searchItemState);
-
+    
             boolean updateLabel2 = false;
             if( allFileCount > 9 && allFileCount%10==0 )
             {
                 updateLabel2 = true;
             }
             final boolean updateLabel = updateLabel2;
-            SwingUtilities.invokeLater(
-                new Runnable()
-                {
-                    public void run()
-                    {
+            SwingUtilities.invokeLater( new Runnable() {
+                    public void run(){
                         searchTableModel.addRow(searchItem);
                         if( updateLabel )
                         {
                             frame1.getInstance().updateSearchResultCountLabel();
                         }
-                    }
-                });
+                    } });
         }
         SwingUtilities.invokeLater( new Runnable() {
                 public void run() {
                     frame1.getInstance().updateSearchResultCountLabel();
                 } });
+    }
+    
+    private boolean isOffline(SharedFileObject key)
+    {
+        boolean offline = (key.getDate() == null || key.getDate().length()==0) &&
+                (key.getKey() == null || key.getKey().length() ==0);
+        return offline;                
     }
 
     public void run()

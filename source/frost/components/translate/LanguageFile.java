@@ -20,7 +20,7 @@
 package frost.components.translate;
 
 import java.io.*;
-import javax.swing.table.*;
+//import javax.swing.table.*;
 
 /**
  * Reads and generates Frost language resource files.
