@@ -103,7 +103,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     }
                     else
                     {
-                        if( DEBUG ) System.out.println("***** Unknown upload error (" + tries + "), retrying. *****");
+                        String tv = result[0];
+                        if( tv == null ) tv="";
+                        if( DEBUG ) System.out.println("***** Unknown upload error (#" + tries + ", '"+tv+"'), retrying. *****");
                     }
                 }
             }
@@ -185,7 +187,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     String unzipped = FileAccess.readZipFile(target);
                     FileAccess.writeFile(unzipped,target);
                     Index.add(target, new File(keypool + board.getBoardFilename()));
-
 
                     index++;
                     failures = 0;

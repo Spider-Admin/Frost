@@ -190,6 +190,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             int index = 0;
             String output = new String();
             int tries = 0;
+            int maxTries = 5;
             boolean error = false;
             while( !success )
             {
@@ -248,64 +249,42 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
                     // try to insert message
                     String[] result = new String[2];
+                    String upKey = null;
                     if( secure )
                     {
-                        String upKey = new StringBuffer().append(privateKey)
-                                                         .append("/")
-                                                         .append(board.getBoardFilename())
-                                                         .append("/")
-                                                         .append(date)
-                                                         .append("-")
-                                                         .append(index)
-                                                         .append(".txt").toString();
-                        // if( DEBUG ) System.out.println(upKey);
-                        result = FcpInsert.putFile(upKey,
-                                                   destination + uploadMe,
-                                                   messageUploadHtl,
-                                                   false,
-                                                   true,
-                                                   board.getBoardFilename());
+                        upKey = new StringBuffer().append(privateKey)
+                                                  .append("/")
+                                                  .append(board.getBoardFilename())
+                                                  .append("/")
+                                                  .append(date)
+                                                  .append("-")
+                                                  .append(index)
+                                                  .append(".txt").toString();
                     }
                     else
                     {
-                        // Temporary hack for wrong name space
-                        String upKey = new StringBuffer().append("KSK@sftmeage/")
-                                                         .append(frame1.frostSettings.getValue("messageBase"))
-                                                         .append("/")
-                                                         .append(date)
-                                                         .append("-")
-                                                         .append(board.getBoardFilename())
-                                                         .append("-")
-                                                         .append(index)
-                                                         .append(".txt").toString();
-                        // if( DEBUG ) System.out.println(upKey);
+                        upKey = new StringBuffer().append("KSK@frost/message/")
+                                                  .append(frame1.frostSettings.getValue("messageBase"))
+                                                  .append("/")
+                                                  .append(date)
+                                                  .append("-")
+                                                  .append(board.getBoardFilename())
+                                                  .append("-")
+                                                  .append(index)
+                                                  .append(".txt").toString();
+                    }
+
+                    try {
                         result = FcpInsert.putFile(upKey,
-                                                   destination + uploadMe,
+                                                   messageFile.getPath(),
                                                    messageUploadHtl,
                                                    false,
                                                    true,
                                                    board.getBoardFilename());
-                        // END Temporary hack for wrong name space
-                        if( result[0].equals("Success") )
-                        {
-                            /* String */
-                            upKey = new StringBuffer().append("KSK@frost/message/")
-                                                      .append(frame1.frostSettings.getValue("messageBase"))
-                                                      .append("/")
-                                                      .append(date)
-                                                      .append("-")
-                                                      .append(board.getBoardFilename())
-                                                      .append("-")
-                                                      .append(index)
-                                                      .append(".txt").toString();
-                            // if( DEBUG ) System.out.println(upKey);
-                            /*result =*/FcpInsert.putFile(upKey,
-                                                          destination + uploadMe,
-                                                          messageUploadHtl,
-                                                          false,
-                                                          true,
-                                                          board.getBoardFilename());
-                        }
+                    } catch(Throwable t)
+                    {
+                        System.out.println("TOFUP - Error in run()/FcpInsert.putFile:");
+                        t.printStackTrace();
                     }
 
                     if( result[0] == null || result[1] == null )
@@ -322,8 +301,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     {
                         if( result[0].equals("KeyCollision") )
                         {
-
-                            // ************* Temporary freenet bug workaround ******************
+/*                            // ************* Temporary freenet bug workaround ******************
                             String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
                             //              String requestMe = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
                             String requestMe = new StringBuffer().append("KSK@sftmeage/")
@@ -370,20 +348,23 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                 }
                             }
                             else
-                            {
+                            { */
                                 index++;
                                 System.out.println("TOFUP: Upload collided, increasing index to " + index);
-                            }
+                            //}
                         }
                         else
                         {
-                            System.out.println("TOFUP: Upload failed (" + tries + "), retrying index " + index);
-                            if( tries > 5 )
+                            if( tries > maxTries )
                             {
                                 success = true;
                                 error = true;
                             }
-                            tries++;
+                            else
+                            {
+                                System.out.println("TOFUP: Upload failed (try no. "+tries+" of "+maxTries+"), retrying index " + index);
+                                tries++;
+                            }
                         }
                     }
                 }
@@ -405,8 +386,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
                 // Uploading of that message failed. Ask the user if Frost
                 // should try to upload the message another time.
-
-                // TODO: allow to upload on next frost startup (simply not delete the messageFile)
                 if( !silent )
                 {
                     MessageUploadFailedDialog faildialog =
@@ -415,14 +394,35 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                   LangRes.getString("Upload of message failed"),
                                                   LangRes.getString("I was not able to upload your message."),
                                                   LangRes.getString("Retry"),
+                                                  "Retry on next startup", // TODO: translate
                                                   LangRes.getString("Cancel"));
-                    faildialog.show();
-                    retry = faildialog.getAnswer();
-                    System.out.println("TOFUP: Will try to upload again: " + retry);
+                    int answer = faildialog.startDialog();
+                    if( answer == 1 ) // Retry now - pressed
+                    {
+                        retry = true;
+                        System.out.println("TOFUP: Will try to upload again.");
+                    }
+                    else if( answer == 2 ) // retry on next startup - pressed
+                    {
+                        retry = false; // dont delete msg. file, will be found+upload on next startup
+                        System.out.println("TOFUP: Will try to upload again on next startup.");
+                    }
+                    else if( answer == 3 ) // cancel - pressed
+                    {
+                        retry = false;
+
+                        try { messageFile.delete(); }
+                        catch(Exception ex) { System.out.println("TOFUP - Exception:"); ex.printStackTrace(); }
+
+                        System.out.println("TOFUP: Will NOT try to upload message again.");
+                    }
+                    else  // paranoia
+                    {
+                        retry = true;
+                        System.out.println("TOFUP: Paranoia - will try to upload message again.");
+                    }
                     faildialog.dispose();
                 }
-                if( !retry )
-                    messageFile.delete();
             }
             System.out.println("TOFUP: Upload Thread finished");
         }
