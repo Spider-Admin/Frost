@@ -6,6 +6,7 @@ package frost;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.io.File;
 import java.util.logging.Logger;
 
@@ -319,7 +320,8 @@ public class DownloadPanel extends JPanel {
 	 * 
 	 */
 	private class Listener
-		implements LanguageListener, ActionListener, KeyListener, MouseListener {
+		extends MouseAdapter
+		implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener {
 		/**
 		 * 
 		 */
@@ -373,27 +375,6 @@ public class DownloadPanel extends JPanel {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-		 */
-		public void mouseClicked(MouseEvent e) {
-			// Nothing here				
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-		 */
-		public void mouseEntered(MouseEvent e) {
-			// Nothing here			
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-		 */
-		public void mouseExited(MouseEvent e) {
-			// Nothing here				
-		}
-
-		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
 		public void mousePressed(MouseEvent e) {
@@ -423,6 +404,22 @@ public class DownloadPanel extends JPanel {
 
 			}
 		}
+		
+		/* (non-Javadoc)
+		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+		 */
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
+				fontChanged();
+			}
+		}
+		
 	}
 
 	private PopupMenuDownload popupMenuDownload = null;
@@ -457,8 +454,9 @@ public class DownloadPanel extends JPanel {
 	/**
 	 * 
 	 */
-	public DownloadPanel() {
+	public DownloadPanel(SettingsClass newSettingsClass) {
 		super();
+		settingsClass = newSettingsClass;
 	}
 
 	/**
@@ -497,12 +495,16 @@ public class DownloadPanel extends JPanel {
 			setLayout(new BorderLayout());
 			add(downloadTopPanel, BorderLayout.NORTH);
 			add(downloadTableScrollPane, BorderLayout.CENTER);
+			fontChanged();
 
 			// listeners
 			downloadTextField.addActionListener(listener);
 			downloadActivateButton.addActionListener(listener);
             downloadPauseButton.addActionListener(listener);
 			downloadTableScrollPane.addMouseListener(listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
 			initialized = true;
 		}
@@ -729,6 +731,23 @@ public class DownloadPanel extends JPanel {
 	private void showDownloadTablePopupMenu(MouseEvent e) {
 		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
+	
+	/**
+	 * 
+	 */
+	private void fontChanged() {
+		String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+		int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+		int fontSize = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+		Font font = new Font(fontName, fontStyle, fontSize);
+		if (!font.getFamily().equals(fontName)) {
+			logger.severe("The selected font was not found in your system\n" +
+						   "That selection will be changed to \"SansSerif\".");
+			settingsClass.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
+			font = new Font("SansSerif", fontStyle, fontSize);
+		}
+		downloadTable.setFont(font);
+	}
 
 	/**
 	 * @param e
@@ -741,13 +760,6 @@ public class DownloadPanel extends JPanel {
         setDownloadingActivated(false);
     }
 
-	/**
-	 * @param class1
-	 */
-	public void setSettingsClass(SettingsClass newSettingsClass) {
-		settingsClass = newSettingsClass;
-	}
-	
 	/**
 	 * @param e
 	 */
