@@ -47,17 +47,10 @@ public class BoardSettingsFrame extends JDialog
     // Generate objects
     //------------------------------------------------------------------------
 
-    JPanel mainPanel = new JPanel(new BorderLayout());
-    JPanel radioButtonPanel = new JPanel(new BorderLayout());
-    JPanel keyPanel = new JPanel(new GridLayout(3, 1));
-    JPanel privateKeyPanel = new JPanel(new BorderLayout());
-    JPanel publicKeyPanel = new JPanel(new BorderLayout());
-    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10)); // OK / Cancel
-
     JRadioButton publicBoardRadioButton = new JRadioButton(LangRes.getString("Public board"));
     JRadioButton secureBoardRadioButton = new JRadioButton(LangRes.getString("Secure board"));
+    ButtonGroup isSecureGroup = new ButtonGroup();
 
-    ButtonGroup group = new ButtonGroup();
 
     JButton okButton = new JButton(LangRes.getString("OK"));
     JButton cancelButton = new JButton(LangRes.getString("Cancel"));
@@ -66,13 +59,32 @@ public class BoardSettingsFrame extends JDialog
     JTextField privateKeyTextField = new JTextField(32);
     JTextField publicKeyTextField = new JTextField(32);
 
-    private void Init() throws Exception {
-        //------------------------------------------------------------------------
-        // Configure objects
-        //------------------------------------------------------------------------
-        this.setTitle(LangRes.getString("Board settings for ") + board);
+    /**Constructor*/
+    public BoardSettingsFrame(Frame parent, FrostBoardObject board)
+    {
+        super(parent);
+        setModal(true);
+        this.board = board;
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+        try {
+            Init(parent);
+        }
+        catch( Exception e ) {
+            e.printStackTrace();
+        }
+    }
+
+    public boolean runDialog()
+    {
+        setModal(true); // paranoia
+        show();
+        return exitState;
+    }
+
+    private void Init(Frame parent) throws Exception
+    {
+        this.setTitle("Settings for board '" + board + "'");
         this.setResizable(false);
-        this.setSize(new Dimension(680, 480));
 
         //------------------------------------------------------------------------
         // Actionlistener
@@ -80,65 +92,105 @@ public class BoardSettingsFrame extends JDialog
 
         // Public board radio button
         publicBoardRadioButton.addActionListener(new java.awt.event.ActionListener() {
-                                                     public void actionPerformed(ActionEvent e) {
-                                                         radioButton_actionPerformed(e);
-                                                     } });
+                         public void actionPerformed(ActionEvent e) {
+                             radioButton_actionPerformed(e);
+                         } });
         // Private board radio button
         secureBoardRadioButton.addActionListener(new java.awt.event.ActionListener() {
-                                                     public void actionPerformed(ActionEvent e) {
-                                                         radioButton_actionPerformed(e);
-                                                     } });
+                         public void actionPerformed(ActionEvent e) {
+                             radioButton_actionPerformed(e);
+                         } });
         // generate key
         generateKeyButton.addActionListener(new java.awt.event.ActionListener() {
-                                                public void actionPerformed(ActionEvent e) {
-                                                    generateKeyButton_actionPerformed(e);
-                                                } });
+                        public void actionPerformed(ActionEvent e) {
+                            generateKeyButton_actionPerformed(e);
+                        } });
         // Ok
         okButton.addActionListener(new java.awt.event.ActionListener() {
-                                       public void actionPerformed(ActionEvent e) {
-                                           okButton_actionPerformed(e);
-                                       } });
+                       public void actionPerformed(ActionEvent e) {
+                           okButton_actionPerformed(e);
+                       } });
         // Cancel
         cancelButton.addActionListener(new java.awt.event.ActionListener() {
-                                           public void actionPerformed(ActionEvent e) {
-                                               cancelButton_actionPerformed(e);
-                                           } });
-
+                       public void actionPerformed(ActionEvent e) {
+                           cancelButton_actionPerformed(e);
+                       } });
         //------------------------------------------------------------------------
         // Append objects
         //------------------------------------------------------------------------
 
-        this.getContentPane().add(mainPanel, null); // add Main panel
-
-        group.add(publicBoardRadioButton);
-        group.add(secureBoardRadioButton);
-        radioButtonPanel.add(publicBoardRadioButton, BorderLayout.NORTH);
-        radioButtonPanel.add(secureBoardRadioButton, BorderLayout.SOUTH);
+        isSecureGroup.add(publicBoardRadioButton);
+        isSecureGroup.add(secureBoardRadioButton);
 
         // key panel
-        privateKeyPanel.add(new Label(LangRes.getString("Private key :")), BorderLayout.WEST);
-        privateKeyPanel.add(privateKeyTextField, BorderLayout.EAST);
-        publicKeyPanel.add(new Label(LangRes.getString("Public key :")), BorderLayout.WEST);
-        publicKeyPanel.add(publicKeyTextField, BorderLayout.EAST);
+        JPanel keyPanel = new JPanel(new GridBagLayout());
+        GridBagConstraints constr = new GridBagConstraints();
+        constr.anchor = GridBagConstraints.WEST;
+        constr.insets = new Insets(5, 5, 5, 5);
+        constr.gridx = 0; constr.gridy = 0;
+
+        keyPanel.add(publicBoardRadioButton, constr);
+        constr.gridy++;
+        keyPanel.add(secureBoardRadioButton, constr);
+        constr.gridx=1;
+        constr.anchor=constr.EAST;
+        keyPanel.add( generateKeyButton , constr );
+        constr.gridx=0;
+        constr.anchor=constr.WEST;
+
+        constr.gridy++;
+        constr.insets = new Insets(5, 25, 5, 5);
+        keyPanel.add( new JLabel(LangRes.getString("Private key :")) , constr );
+        constr.gridx = 1;
+        constr.fill=constr.HORIZONTAL;
+        keyPanel.add( privateKeyTextField , constr );
+        constr.fill=constr.NONE;
+        constr.gridx = 0;
+        constr.gridy++;
+        keyPanel.add( new JLabel(LangRes.getString("Public key :")) , constr );
+        constr.gridx = 1;
+        constr.fill=constr.HORIZONTAL;
+        keyPanel.add( publicKeyTextField , constr );
+        constr.fill=constr.NONE;
+        constr.gridx = 0;
+
+        constr.gridy++;
+        constr.gridwidth=2;
+        constr.fill=constr.HORIZONTAL;
+        JPanel settings = getSettingsPanel();
+        keyPanel.add(settings, constr);
+
+        // OK / Cancel buttons
+        JPanel buttonPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 5) );
+        buttonPanel.add(okButton);
+        buttonPanel.add(cancelButton);
+
+        constr.gridy++;
+        constr.gridwidth=2;
+        constr.fill=constr.HORIZONTAL;
+        keyPanel.add( buttonPanel, constr );
+
+        this.getContentPane().add(keyPanel, BorderLayout.CENTER); // add Main panel
+
+        publicBoardRadioButton.setSelected(true);
         privateKeyTextField.setEnabled(false);
         publicKeyTextField.setEnabled(false);
         generateKeyButton.setEnabled(false);
 
-        keyPanel.add(privateKeyPanel);
-        keyPanel.add(publicKeyPanel);
-        keyPanel.add(generateKeyButton);
-
-        // Main
-        mainPanel.add(radioButtonPanel, BorderLayout.NORTH);
-        mainPanel.add(keyPanel, BorderLayout.CENTER);
-        mainPanel.add(buttonPanel, BorderLayout.SOUTH);
-
-        // OK / Cancel buttons
-        buttonPanel.add(okButton);
-        buttonPanel.add(cancelButton);
-
-        publicBoardRadioButton.setSelected(true);
         loadKeypair();
+        pack();
+        setLocationRelativeTo(parent);
+    }
+
+    private JPanel getSettingsPanel()
+    {
+        JPanel panel = new JPanel(new GridBagLayout());
+        GridBagConstraints constr = new GridBagConstraints();
+        constr.anchor = GridBagConstraints.WEST;
+        constr.insets = new Insets(5, 5, 5, 5);
+        constr.gridx = 0; constr.gridy = 0;
+
+        return panel;
     }
 
     //------------------------------------------------------------------------
@@ -282,28 +334,5 @@ public class BoardSettingsFrame extends JDialog
         super.processWindowEvent(e);
     }
 
-    public boolean runDialog()
-    {
-        setModal(true); // paranoia
-        show();
-        return exitState;
-    }
-
-    /**Constructor*/
-    public BoardSettingsFrame(Frame parent, FrostBoardObject board)
-    {
-        super(parent);
-        setModal(true);
-        this.board = board;
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            Init();
-        }
-        catch( Exception e ) {
-            e.printStackTrace();
-        }
-        pack();
-        setLocationRelativeTo(parent);
-    }
 }
 
