@@ -301,7 +301,7 @@ public class SearchPanel extends JPanel {
 
 	private JPanel searchTopPanel = new JPanel();
 	private JCheckBox searchAllBoardsCheckBox = new JCheckBox("", true);
-	private JComboBox searchComboBox = new JComboBox();
+	private JTranslatableComboBox searchComboBox = null;
 	private JButton searchButton =
 		new JButton(new ImageIcon(getClass().getResource("/data/search.gif")));
 	private JButton searchDownloadButton =
@@ -332,10 +332,9 @@ public class SearchPanel extends JPanel {
 			// create the top panel
 			searchAllBoardsCheckBox.setEnabled(true);
 
-			// TODO: Temporary. Until I make a TranslatableComboBox
-			String[] searchComboBoxItems =
+			String[] searchComboBoxKeys =
 				{ "All files", "Audio", "Video", "Images", "Documents", "Executables", "Archives" };
-			searchComboBox = new JComboBox(searchComboBoxItems);
+			searchComboBox = new JTranslatableComboBox(languageResource, searchComboBoxKeys);
 
 			configureButton(searchButton, "/data/search_rollover.gif");
 			configureButton(searchDownloadButton, "/data/save_rollover.gif");
@@ -439,7 +438,7 @@ public class SearchPanel extends JPanel {
 				searchTextField.getText(),
 				boardsToSearch,
 				keypool,
-				(String) searchComboBox.getSelectedItem(),
+				searchComboBox.getSelectedKey(),
 				this);
 		searchThread.start();
 	}

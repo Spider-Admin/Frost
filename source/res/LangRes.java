@@ -196,6 +196,15 @@ public class LangRes extends ListResourceBundle {
 	{"block user (sets to BAD)", "block user (sets to BAD)"},
 	{"set to neutral (CHECK)","set to neutral (CHECK)"},
 	//{"Cancel", "Cancel"}, // Defined above
+	
+	//SearchComboBox
+	{"All files","All files"},
+	{"Audio","Audio"},
+	{"Video","Video"},
+	{"Images","Images"},
+	{"Documents","Documents"},
+	{"Executables","Executables"},
+	{"Archives","Archives"},
 		
 	///////////////////////////////////////////////////
     // Main Window Downloads Tab
