@@ -36,11 +36,13 @@ public class SkinChooser extends JPanel {
 		 */
 		public void actionPerformed(ActionEvent event) {
 			if (event.getSource() == SkinChooser.this.getPreviewButton())
-				previewButtonPressed();
+				previewButtonPressed(event);
 			if (event.getSource() == SkinChooser.this.getRefreshButton())
 				refreshButtonPressed(event);
+			if (event.getSource() == SkinChooser.this.getEnableSkinsCheckBox())
+				enableSkinsPressed(event);
 		}
-
+		
 		/**
 		 * Method called when a ListSelectionEvent is fired
 		 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
@@ -48,10 +50,10 @@ public class SkinChooser extends JPanel {
 		public void valueChanged(ListSelectionEvent event) {
 			if (event.getSource() == SkinChooser.this.getSkinsList())
 				skinSelected(event);
-		};
-
+		}
 	}
 
+		
 	EventHandler eventHandler = new EventHandler();
 
 	private JPanel buttonsPanel = null;
@@ -61,11 +63,16 @@ public class SkinChooser extends JPanel {
 	private JLabel availableSkinsLabel = null;
 	private JScrollPane listScrollPane = null;
 	private JList skinsList = null;
+	private JCheckBox enableSkinsCheckBox = null;
 	
 	private ResourceBundle languageBundle = null;
 	private boolean noSkinsFound = true;
-	private LookAndFeel previousLookAndFeel = null;
-	private Skin previousSkin = null;
+	
+	private LookAndFeel initialLookAndFeel = null;
+	private Skin initialSkin = null;
+	
+	private boolean skinsEnabled = false;
+	private String selectedSkin = null;
 
 	/**
 	 * 	Constructor
@@ -93,10 +100,11 @@ public class SkinChooser extends JPanel {
 		setName("SkinChooser");
 
 		BorderLayout borderLayout = new BorderLayout();
-		borderLayout.setVgap(0);
+		borderLayout.setVgap(10);
 		borderLayout.setHgap(0);
 		setLayout(borderLayout);
 
+		add(getEnableSkinsCheckBox(), "North");
 		add(getListScrollPane(), "Center");
 		add(getButtonsPanel(), "South");
 		add(getLabelPanel(), "West");
@@ -107,12 +115,27 @@ public class SkinChooser extends JPanel {
 	}
 	
 	/**
+			 * Return the EnableSkinsCheckBox property value.
+			 * @return javax.swing.JCheckBox
+			 */
+			private JCheckBox getEnableSkinsCheckBox() {
+				if (enableSkinsCheckBox == null) {
+					enableSkinsCheckBox = new javax.swing.JCheckBox();
+					enableSkinsCheckBox.setName("EnableSkinsCheckBox");
+					enableSkinsCheckBox.setText("EnableSkins");
+					enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
+					enableSkinsCheckBox.setSelected(true);
+				}
+				return enableSkinsCheckBox;
+			}
+	
+	/**
 	 * Stores the state of the Look And Feel system
 	 */
 	private void storeLookAndFeelState() {
-		previousLookAndFeel = UIManager.getLookAndFeel();
-		if (previousLookAndFeel instanceof SkinLookAndFeel) {
-			previousSkin = SkinLookAndFeel.getSkin();
+		initialLookAndFeel = UIManager.getLookAndFeel();
+		if (initialLookAndFeel instanceof SkinLookAndFeel) {
+			initialSkin = SkinLookAndFeel.getSkin();
 		}
 	}
 	
@@ -134,12 +157,8 @@ public class SkinChooser extends JPanel {
 	 * Return the full path of the selected skin. 
 	 * @return java.lang.String the path of the skin, or null if no skin was selected
 	 */
-	public String getSelectedSkinPath() {
-		if (getSkinsList().getSelectedIndex() == -1) {
-			return null; //No selection
-		} else {
-			return getSkinsList().getSelectedValue().toString();
-		}
+	public String getSelectedSkin() {
+		return selectedSkin;
 	}
 	
 	/**
@@ -147,13 +166,20 @@ public class SkinChooser extends JPanel {
 	 * this request is simply ignored
 	 * @param skinPath the absolute path of the skin to select
 	 */
-	public void selectSkin(String skinPath) {
-		getSkinsList().setSelectedValue(skinPath, true);
+	public void setSelectedSkin(String selectedSkin) {
+		getSkinsList().setSelectedValue(selectedSkin, true);
+		if ((!getSkinsList().isSelectionEmpty()) && (selectedSkin.equals("none"))) {
+			this.selectedSkin = selectedSkin;
+			if (skinsEnabled) {
+				getPreviewButton().setEnabled(true);
+			}
+		}
 	}
 	/**
 	 * Initializes event connections
 	 */
 	private void initConnections() {
+		getEnableSkinsCheckBox().addActionListener(eventHandler);
 		getPreviewButton().addActionListener(eventHandler);
 		getRefreshButton().addActionListener(eventHandler);
 		getSkinsList().addListSelectionListener(eventHandler);
@@ -163,36 +189,59 @@ public class SkinChooser extends JPanel {
 	 * Method called when the Preview Button is pressed
 	 * @param actionEvent The action event
 	 */
-	public void previewButtonPressed() {
-		if (!getSkinsList().isSelectionEmpty()) {
-			String selectedItem = getSkinsList().getSelectedValue().toString();
-			try {
-				Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedItem);
-				SkinLookAndFeel.setSkin(selectedSkin);
-				SkinLookAndFeel.enable();
-				updateComponentTreesUI();
-			} catch (UnsupportedLookAndFeelException exception) {
-				System.out.println("The selected skin is not supported by your system:\n" + exception.getMessage() + "\n");
-				getSkinsList().clearSelection();
-			} catch (Exception exception) {
-				System.out.println("There was an error while loading the selected skin:\n" + exception.getMessage() + "\n");
-				getSkinsList().clearSelection();
-			}
-		}
+	protected void previewButtonPressed(ActionEvent actionEvent) {
+		commitChanges();
 	}
 
 	/**
 	 * Method called when the Refresh List Button is pressed
 	 * @param actionEvent The action event
 	 */
-	public void refreshButtonPressed(ActionEvent actionEvent) {
+	protected void refreshButtonPressed(ActionEvent actionEvent) {
 		refreshSkinsList();
+		selectedSkin = null;
+		getPreviewButton().setEnabled(false);
 	}
+
+		/**
+		 *	This method is executed when the state of the enableSkins checkBox changes
+		 */
+		protected void enableSkinsPressed(ActionEvent actionEvent) {
+			setSkinsEnabled(getEnableSkinsCheckBox().isSelected());
+		}
+		
+		/**
+		 * This method is called to commit the changes
+		 */
+		public void commitChanges() {
+			if ((selectedSkin != null) && (skinsEnabled)) {
+				try {
+					Skin skin = SkinLookAndFeel.loadThemePack(selectedSkin);
+					SkinLookAndFeel.setSkin(skin);
+					SkinLookAndFeel.enable();
+					updateComponentTreesUI();
+				} catch (UnsupportedLookAndFeelException exception) {
+					System.out.println("The selected skin is not supported by your system:\n" + exception.getMessage() + "\n");
+					setSelectedSkin("none");
+				} catch (Exception exception) {
+					System.out.println("There was an error while loading the selected skin:\n" + exception.getMessage() + "\n");
+					setSelectedSkin("none");
+				}
+			} else {
+				String systemLF = UIManager.getSystemLookAndFeelClassName();
+				try {
+					UIManager.setLookAndFeel(systemLF);
+					updateComponentTreesUI();
+				} catch (Exception exception) {
+					System.out.println("There was an error while setting the system look and feel:\n" + exception.getMessage());
+				}
+			}
+		}
 
 	/**
 	 *	Refreshes the list of available skins
 	 */
-	public void refreshSkinsList() {
+	private void refreshSkinsList() {
 		LinkedList skinsListData = new LinkedList();
 		try {
 			buildSkinsList(skinsListData, new File(THEMES_DIR));
@@ -256,12 +305,16 @@ public class SkinChooser extends JPanel {
 	 * Method called when a Skin from the List is selected
 	 * @param listSelectionEvent The list selection event
 	 */
-	public void skinSelected(ListSelectionEvent listSelectionEvent) {
+	protected void skinSelected(ListSelectionEvent listSelectionEvent) {
 		if (!listSelectionEvent.getValueIsAdjusting()) { //We ignore "adjusting" events
 			if (getSkinsList().getSelectedIndex() == -1) {
-				getPreviewButton().setEnabled(false); //No selection
+				selectedSkin = null;
+				getPreviewButton().setEnabled(false);
 			} else {
-				getPreviewButton().setEnabled(true);
+				selectedSkin = getSkinsList().getSelectedValue().toString();
+				if (skinsEnabled) {
+					getPreviewButton().setEnabled(true);
+				}
 			}
 		}
 	}
@@ -370,36 +423,14 @@ public class SkinChooser extends JPanel {
 		return refreshButton;
 	}
 
-	/** 
-	 * Overriden to enable/disable all of the components of the SkinChooser
-	 * @see java.awt.Component#setEnabled(boolean)
-	 */
-	public void setEnabled(boolean enabled) {
-		super.setEnabled(enabled);
-
-		if (noSkinsFound) { //If there are no skins, the list remains disabled
-			getSkinsList().setEnabled(false);
-		} else {
-			getSkinsList().setEnabled(enabled);
-		}
-
-		getRefreshButton().setEnabled(enabled);
-
-		if (enabled && (getSkinsList().getSelectedIndex() != -1)) { //Only enable the preview button if there is a selected skin
-			getPreviewButton().setEnabled(true);
-		} else {
-			getPreviewButton().setEnabled(false);
-		}
-	}
-	
 	/**
 	 * Reverts the L&F state to the one when this component was created
 	 */
-	public void undoPreview() {
+	public void cancelChanges() {
 		try {
-			UIManager.setLookAndFeel(previousLookAndFeel);
-			if (previousLookAndFeel instanceof SkinLookAndFeel) {
-				SkinLookAndFeel.setSkin(previousSkin);
+			UIManager.setLookAndFeel(initialLookAndFeel);
+			if (initialLookAndFeel instanceof SkinLookAndFeel) {
+				SkinLookAndFeel.setSkin(initialSkin);
 			}
 			updateComponentTreesUI();
 		} catch (UnsupportedLookAndFeelException exception) { //This exception will never be throwed, but just in case...
@@ -423,17 +454,27 @@ public class SkinChooser extends JPanel {
 		}
 	}
 	
-	public void enableSkins() {
-		previewButtonPressed();
-	}
-
-	public void disableSkins() {
-		String systemLF = UIManager.getSystemLookAndFeelClassName();
-		try {
-			UIManager.setLookAndFeel(systemLF);
-		} catch (Exception exception) {
-			System.out.println("There was an error while restoring the system look and feel:\n" + exception.getMessage());
+	/**
+	 * Sets the skinsEnabled property
+	 * @param skinsEnabled
+	 */
+	public void setSkinsEnabled(boolean skinsEnabled) {
+		this.skinsEnabled = skinsEnabled;
+		if ((skinsEnabled) && (selectedSkin != null)) {
+			getPreviewButton().setEnabled(true);
+		} else {
+			getPreviewButton().setEnabled(false);
 		}
-		updateComponentTreesUI();
+		getEnableSkinsCheckBox().setSelected(skinsEnabled);
+		getRefreshButton().setEnabled(skinsEnabled);
+		getSkinsList().setEnabled(skinsEnabled);
+	}
+	
+	/**
+	 * Returns the skinsEnabled property
+	 * @return the skinsEnabled property
+	 */
+	public boolean isSkinsEnabled() {
+		return skinsEnabled;
 	}
 }
