@@ -7,5 +7,12 @@ Legend:
 
 * Changes since upd6 (next planned release: upd7)
 
-- fixed 'Minimize to tray and never come up again' bug on Windows systems
-* changed file transfer methods to 'bleeding edge' (?)
+- fixed 'Minimize to tray and never come up again' bug on Windows systems --bback
+* changed file transfer methods to 'bleeding edge' : 
+	*  Reworked the indexing scheme, serialized in object format in "indices-date" format
+	*  There is only one request thread, each batch of files has its own request channel
+	+  Files shared more than N days ago are re-shared
+	+  Frost looks for indices up to N days ago	
+	--zab
++ made the FileAccess methods explicitly define the encoding and use nio --zab
+* added some short comments explaining what the different options do in the gui --zab

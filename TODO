@@ -1,5 +1,12 @@
 This is the Frost TODO file. Please maintain it carefully.
 
+
+***** 2003/09/10 - zab
+- Decide whether choosing to help someone's files should mark them GOOD. 
+  also rework the serialization of those lists, its not well structured now
+- Implement statistic keeping and some smarter polling algorithm (SVMs?)
+- Redundancy?
+
 ***** 2003/07/21 - zab
 
 - Make it look more like netscape mail/outlook :
