@@ -41,6 +41,7 @@ import frost.messages.*;
 import frost.search.SearchManager;
 import frost.threads.*;
 import frost.threads.maintenance.*;
+import frost.util.FlexibleObserver;
 
 /**
  * Class hold the more non-gui parts of frame1.java.
@@ -653,7 +654,7 @@ public class Core implements Savable {
 	/**
 	 * @return the thread that will notify the user for email
 	 */
-	public static Observer getEmailNotifier(){
+	public static FlexibleObserver getEmailNotifier(){
 		return emailNotifier;
 	}
 
