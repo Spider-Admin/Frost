@@ -1311,6 +1311,13 @@ public class frame1 extends JFrame implements ClipboardOwner
                 downloadBoards();
             } });
     }
+    
+    private ImageIcon getScaledImage(String imgPath)
+    {
+        ImageIcon icon = new ImageIcon(frame1.class.getResource(imgPath));
+        icon = new ImageIcon(icon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
+        return icon;
+    }
 
     /**
      * Build the menu bar.
@@ -1326,11 +1333,17 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         JMenu tofMenu = new JMenu(LangRes.getString("News"));
         JMenuItem tofConfigureBoardMenuItem = new JMenuItem(LangRes.getString("Configure selected board"));
+        tofConfigureBoardMenuItem.setIcon(getScaledImage("/data/configure.gif"));
+
         JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem(LangRes.getString("Display board information window"));
+        tofDisplayBoardInfoMenuItem.setIcon(getScaledImage("/data/info.gif"));
+        
         this.tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem(LangRes.getString("Automatic message update"), true);
         JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Increase Font Size"));
         JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Decrease Font Size"));
+        
         JMenuItem tofDisplayKnownBoards = new JMenuItem("Display known boards");
+        tofDisplayKnownBoards.setIcon(getScaledImage("/data/knownboards.gif"));
 
         JMenu optionsMenu = new JMenu(LangRes.getString("Options"));
         JMenuItem optionsPreferencesMenuItem = new JMenuItem(LangRes.getString("Preferences"));
@@ -3044,16 +3057,26 @@ public class frame1 extends JFrame implements ClipboardOwner
         String dtxt2 = ((board.isFolder())?"folder":"board");
         description.setEnabled(false);
         JMenuItem tofTreePopupRefresh = new JMenuItem("Refresh "+dtxt2);
+        tofTreePopupRefresh.setIcon(getScaledImage("/data/update.gif"));
+        
         JMenuItem tofTreePopupAddNode = new JMenuItem("Add new board"); // TODO: translate
+        tofTreePopupAddNode.setIcon(getScaledImage("/data/newboard.gif"));
+        
         JMenuItem tofTreePopupAddFolder = new JMenuItem("Add new folder");
+        tofTreePopupAddFolder.setIcon(getScaledImage("/data/newfolder.gif"));
+        
         JMenuItem tofTreePopupRemoveNode = new JMenuItem("Remove "+dtxt2);
+        tofTreePopupRemoveNode.setIcon(getScaledImage("/data/remove.gif"));
+        
         JMenuItem tofTreePopupCutNode = new JMenuItem("Cut "+dtxt2);
+        tofTreePopupCutNode.setIcon(getScaledImage("/data/cut.gif"));
 
         JMenuItem tofTreePopupPasteNode = null;
         if( clipboard != null )
         {
             String dtxt3 = ((clipboard.isFolder())?"folder":"board");
             tofTreePopupPasteNode = new JMenuItem("Paste "+dtxt3+" '"+clipboard.toString()+"'");
+            tofTreePopupPasteNode.setIcon(getScaledImage("/data/paste.gif"));
             tofTreePopupPasteNode.addActionListener(new ActionListener()  {
                 public void actionPerformed(ActionEvent e) {
                     pasteFromClipboard(board);
@@ -3061,6 +3084,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
 
         JMenuItem tofTreePopupConfigureBoard = new JMenuItem(LangRes.getString("Configure selected board"));
+        tofTreePopupConfigureBoard.setIcon(getScaledImage("/data/configure.gif"));
         JMenuItem tofTreePopupCancel = new JMenuItem(LangRes.getString("Cancel"));
         // add action listeners
         tofTreePopupAddNode.addActionListener(new ActionListener()  {
