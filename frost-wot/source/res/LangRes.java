@@ -199,6 +199,7 @@ public class LangRes extends ListResourceBundle {
 	///////////////////////////////////////////////////
 	// ToolBar in Downloads Tab
 	{"Activate downloading", "Activate downloading"},
+    {"Pause downloading", "Pause downloading"},
 	{"Show healing information", "Show healing information"},
     
     // Popup over download table

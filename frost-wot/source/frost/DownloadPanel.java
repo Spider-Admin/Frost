@@ -315,7 +315,7 @@ public class DownloadPanel extends JPanel {
 	 * 
 	 */
 	private class Listener
-		implements LanguageListener, ActionListener, KeyListener, MouseListener, ItemListener {
+		implements LanguageListener, ActionListener, KeyListener, MouseListener {
 		/**
 		 * 
 		 */
@@ -337,6 +337,12 @@ public class DownloadPanel extends JPanel {
 			if (e.getSource() == downloadTextField) {
 				downloadTextField_actionPerformed(e);
 			}
+            else if (e.getSource() == downloadActivateButton) {
+                downloadActivateButtonPressed(e);
+            }
+            else if (e.getSource() == downloadPauseButton) {
+                downloadPauseButtonPressed(e);
+            }
 		}
 
 		/* (non-Javadoc)
@@ -410,16 +416,6 @@ public class DownloadPanel extends JPanel {
 
 			}
 		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ItemListener#itemStateChanged(java.awt.event.ItemEvent)
-		 */
-		public void itemStateChanged(ItemEvent e) {
-			if (e.getSource() == downloadActivateCheckBox) {
-				activateCheckBoxChanged(e);
-			}
-		}
-
 	}
 
 	private PopupMenuDownload popupMenuDownload = null;
@@ -432,8 +428,10 @@ public class DownloadPanel extends JPanel {
 	private UpdatingLanguageResource languageResource = null;
 
 	private JPanel downloadTopPanel = new JPanel();
-	private JCheckBox downloadActivateCheckBox =
-		new JCheckBox(new ImageIcon(getClass().getResource("/data/down.gif")), true);
+	private JButton downloadActivateButton =
+        new JButton(new ImageIcon(getClass().getResource("/data/down_selected.gif")));
+    private JButton downloadPauseButton =
+        new JButton(new ImageIcon(getClass().getResource("/data/down.gif")));
 	private JTextField downloadTextField = new JTextField(25);
 	private JButton downloadShowHealingInfo =
 		new JButton(new ImageIcon(getClass().getResource("/data/healinginfo.gif")));
@@ -460,11 +458,13 @@ public class DownloadPanel extends JPanel {
 			refreshLanguage();
 
 			//create the top panel
-			configureCheckBox(
-				downloadActivateCheckBox,
-				"/data/down_rollover.gif",
-				"/data/down_selected.gif",
-				"/data/down_selected_rollover.gif");
+			configureButton(
+				downloadActivateButton,
+				"/data/down_selected_rollover.gif"); // play_rollover
+            configureButton(
+                downloadPauseButton,
+               "/data/down_rollover.gif"); // pause_rollover
+                
 			configureButton(downloadShowHealingInfo, "/data/healinginfo_rollover.gif");
 			downloadShowHealingInfo.setEnabled(false); // disabled until implemented ;)
 
@@ -473,7 +473,8 @@ public class DownloadPanel extends JPanel {
 			downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
 			downloadTopPanel.add(downloadTextField); //Download/Quickload
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-			downloadTopPanel.add(downloadActivateCheckBox); //Download/Start transfer
+			downloadTopPanel.add(downloadActivateButton); //Download/Start transfer
+            downloadTopPanel.add(downloadPauseButton); //Download/Start transfer
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
 			downloadTopPanel.add(downloadShowHealingInfo);
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
@@ -488,7 +489,8 @@ public class DownloadPanel extends JPanel {
 
 			// listeners
 			downloadTextField.addActionListener(listener);
-			downloadActivateCheckBox.addItemListener(listener);
+			downloadActivateButton.addActionListener(listener);
+            downloadPauseButton.addActionListener(listener);
 			downloadTableScrollPane.addMouseListener(listener);
 
 			initialized = true;
@@ -505,7 +507,8 @@ public class DownloadPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		downloadActivateCheckBox.setToolTipText(languageResource.getString("Activate downloading"));
+		downloadActivateButton.setToolTipText(languageResource.getString("Activate downloading"));
+        downloadPauseButton.setToolTipText(languageResource.getString("Pause downloading"));
 		downloadShowHealingInfo.setToolTipText(
 			languageResource.getString("Show healing information"));
 
@@ -681,7 +684,9 @@ public class DownloadPanel extends JPanel {
 	 */
 	public void setDownloadingActivated(boolean b) {
 		downloadingActivated = b;
-		downloadActivateCheckBox.setSelected(downloadingActivated);
+        
+        downloadActivateButton.setEnabled(!downloadingActivated);
+        downloadPauseButton.setEnabled(downloadingActivated);
 	}
 
 	/**
@@ -717,13 +722,12 @@ public class DownloadPanel extends JPanel {
 	/**
 	 * @param e
 	 */
-	private void activateCheckBoxChanged(ItemEvent e) {
-		if (e.getStateChange() == ItemEvent.SELECTED) {
-			downloadingActivated = true;
-		} else {
-			downloadingActivated = false;
-		}
-
+	private void downloadActivateButtonPressed(ActionEvent e) {
+		setDownloadingActivated(true);
 	}
+    
+    private void downloadPauseButtonPressed(ActionEvent e) {
+        setDownloadingActivated(false);
+    }
 
 }
