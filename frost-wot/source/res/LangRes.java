@@ -279,6 +279,7 @@ public class LangRes extends ListResourceBundle {
 	//{"Remove board", "Remove board"}, // Defined above
 	//{"Cut board", "Cut board"}, // Defined above
 	//{"Cancel", "Cancel"}, // Defined above
+	{"Sort folder", "Sort folder"},
     
 	///////////////////////////////////////////////////
     // Main Window Status Bar
