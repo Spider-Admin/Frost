@@ -211,10 +211,6 @@ public class FileAccess
     /**
      * Writes zip file
      */
-    public static void writeZipFile(String content, String entry, File file)
-    {
-        writeZipFile(content.getBytes(), entry, file);
-    }
     public static void writeZipFile(byte[] content, String entry, File file)
     {
         try {

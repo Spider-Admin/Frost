@@ -376,6 +376,9 @@ public class Index
         FileAccess.writeKeyFile(whole, target);
     }
 
+	public static void add(FrostIndex a, FrostBoardObject b, String owner){
+		add(a.getFilesMap(),new File(b.getBoardFilename()),owner);
+	}
 	public static void add(FrostIndex a, File b, String owner){
 		add(a.getFilesMap(),b,owner);
 	}
