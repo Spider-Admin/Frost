@@ -22,5 +22,9 @@ Legend:
   - native encoding plugins supported (same as for freenet)
   - stores temp files in data,checkblocks sand redirect file, not longer 1 file for each block
   - reliable handling of uploads and downloads
+! to insert a file directly, add it to upload table, right click it and choose 'Reload'
+  you can also encode a newly added file on demand (see popup menu) to prepare it for upload,
+  but file will also be encoded if you choose to reload (upload) it or if file is requested  --bback
 - fixed bug within reloading of saved upload items  --bback
 + added check for JAR files on startup of frost  --bback
++ added 'pause' statement to frost.bat, should make life for many windows users easier if errors occur  --bback
