@@ -6,6 +6,10 @@ import java.awt.*;
 import frost.*;
 import frost.gui.objects.*;
 
+/**
+ * This class maintains the message download and upload threads.
+ * Listeners for thread started and thread finished are provided.
+ */
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
     // listeners are notified of each finished thread
@@ -84,9 +88,9 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         return true;
     }
     /**
-     * if you specify a listener and the method returns true (thread is started), the listener
+     * If you specify a listener and the method returns true (thread is started), the listener
      * will be notified if THIS thread is finished
-    * before starting a thread you should check if it is'nt updating already.
+     * before starting a thread you should check if it is'nt updating already.
      */
     public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
@@ -97,22 +101,22 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
            config.getValue("keypool.dir"),
            frame1.getInstance().getUploadTable()
          );
-	UpdateIdThread uit = new UpdateIdThread(board);
-	uit.addBoardUpdateThreadListener( this );
+        UpdateIdThread uit = new UpdateIdThread(board);
+        uit.addBoardUpdateThreadListener( this );
         // register listener and this class as listener
         grt.addBoardUpdateThreadListener( this );
         if( listener != null )
         {
             grt.addBoardUpdateThreadListener( listener );
-	    uit.addBoardUpdateThreadListener( listener );
+            uit.addBoardUpdateThreadListener( listener );
         }
 
         // store thread in threads list
         getVectorFromHashtable( runningDownloadThreads, board ).add(grt);
-	getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
+        getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
         // start thread
         grt.start();
-	uit.start();
+        uit.start();
 
         return true;
     }
@@ -291,7 +295,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Returns the count of ALL running download threads (of all boards).
      */
-    public int getRunningDownloadThreadCount() // msg_today, msg_back, files_update
+    public int getRunningDownloadThreadCount() // msg_today, msg_back, files_update, update_id
     {
         int downloadingThreads = 0;
 
@@ -407,7 +411,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         }
     }
 /*
-maybe usaable if the counters are set on thread start/end
+maybe useable if the counters are set on thread start/end
     int updatingBoards = 0;
     int uploadingBoards = 0;
     int downloadThreads = 0;

@@ -24,7 +24,8 @@ import java.io.*;
 import frost.*;
 import frost.gui.objects.*;
 
-public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread {
+public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
+{
     private static boolean DEBUG = true;
     private static int maxFailures = 3;
     private static int keyCount = 0;
@@ -45,60 +46,67 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private String insertKey;
     private String boardState;
 
-    
-    public int getThreadType(){return BoardUpdateThread.ID_THREAD;}
+    public int getThreadType() { return BoardUpdateThread.ID_THREAD; }
+
     /**
      * Generates a new index file containing keys to upload.
      * @return true if index file was created, else false.
      */
-    private boolean makeIndexFile() {
-    if (DEBUG) System.out.println("UpdateIdThread.makeIndexFile for " + board.toString());
+    private boolean makeIndexFile()
+    {
+        if( DEBUG ) System.out.println("UpdateIdThread.makeIndexFile for " + board.toString());
 
-    // Calculate the keys to be uploaded
-    keyCount = Index.getUploadKeys(board.getBoardFilename());
+        // Calculate the keys to be uploaded
+        keyCount = Index.getUploadKeys(board.getBoardFilename());
 
-    // Adjust maxAge
-    adjustMaxAge(keyCount);
+        // Adjust maxAge
+        adjustMaxAge(keyCount);
 
-    if (keyCount > 0)
-        return true;
-    else
-        return false;
+        if( keyCount > 0 )
+            return true;
+        else
+            return false;
     }
 
-    private void uploadIndexFile(int i) {
-    File indexFile = new File(keypool + board.getBoardFilename() + "_upload.txt");
-    boolean success = false;
-    int tries = 0;
-    String[] result = {"Error", "Error"};
+    private void uploadIndexFile(int i)
+    {
+        File indexFile = new File(keypool + board.getBoardFilename() + "_upload.txt");
+        boolean success = false;
+        int tries = 0;
+        String[] result = {"Error", "Error"};
 
-    if (indexFile.length() > 0 &&
-        indexFile.isFile()) { //TODO:zip
-        String tozip = FileAccess.readFile(indexFile);
-        FileAccess.writeZipFile(tozip, "entry",indexFile);
-        while (!success && tries <= maxFailures) {
-        tries++;
-        result = FcpInsert.putFile(insertKey + i + ".idx.zip",
-                       keypool + board.getBoardFilename() + "_upload.txt",
-                       insertHtl,
-                       true,
-                       true);
+        if( indexFile.length() > 0 && indexFile.isFile() )
+        { //TODO:zip
+            String tozip = FileAccess.readFile(indexFile);
+            FileAccess.writeZipFile(tozip, "entry",indexFile);
+            while( !success && tries <= maxFailures )
+            {
+                tries++;
+                result = FcpInsert.putFile(insertKey + i + ".idx.zip",
+                                           keypool + board.getBoardFilename() + "_upload.txt",
+                                           insertHtl,
+                                           true,
+                                           true);
 
-        if (result[0].equals("Success")) {
-            success = true;
-            if (DEBUG) System.out.println("***** Index file successfully uploaded *****");
-        }
-        else {
-            if (result[0].equals("KeyCollision")) {
-            i++;
-            if (DEBUG) System.out.println("***** Index file collided, increasing index. *****");
+                if( result[0].equals("Success") )
+                {
+                    success = true;
+                    if( DEBUG ) System.out.println("***** Index file successfully uploaded *****");
+                }
+                else
+                {
+                    if( result[0].equals("KeyCollision") )
+                    {
+                        i++;
+                        if( DEBUG ) System.out.println("***** Index file collided, increasing index. *****");
+                    }
+                    else
+                    {
+                        if( DEBUG ) System.out.println("***** Unknown upload error (" + tries + "), retrying. *****");
+                    }
+                }
             }
-            else {
-            if (DEBUG) System.out.println("***** Unknown upload error (" + tries + "), retrying. *****");
-            }
         }
-        }
-    }
     }
 
     // If we're getting too much files on a board, we lower
@@ -122,90 +130,108 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     if (DEBUG) System.out.println("AdjustMaxAge: new value = " + maxAge);
     }
 
-    public void run() {
-    int index = 0;
-    int failures = 0;
+    public void run()
+    {
+        notifyThreadStarted(this);
 
-    while (failures < maxFailures) {
-        File target = new File(keypool + date + "-" + board.getBoardFilename() + "-" + index + ".idx");
-        if (DEBUG) System.out.println("Requesting index " + index);
+        int index = 0;
+        int failures = 0;
 
-        // First look if this keyfile has already been downloaded
-        // and increase the index until we found the last index
-        if (target.isFile() && target.length() > 0) {
-        if (DEBUG) System.out.println("Keyfile " + index + " existed, skipping download");
-        index++;
-        }
-        else {
-        // Download the keyfile
-// Namespace bug temporary fix
-        if( requestKeyWorkaround != null )
+        while( failures < maxFailures )
         {
-            FcpRequest.getFile(requestKeyWorkaround + index + ".idx.zip",
-                           "Unknown",
-                           target,
-                           requestHtl,
-                           true);
-        }
-        FcpRequest.getFile(requestKey + index + ".idx.zip",
-                       "Unknown",
-                       target,
-                       requestHtl,
-                       true);
-        if (target.length() > 0) {
-//      if (FcpRequest.getFile(requestKey + index + ".idx",
-//                     "Unknown",
-//                     target,
-//                     requestHtl,
-//                     true)) {
-// End workaround
+            File target = new File(keypool + date + "-" + board.getBoardFilename() + "-" + index + ".idx");
+            if( DEBUG ) System.out.println("Requesting index " + index);
 
-            // Add it to the index //TODO:unzip
-            String unzipped = FileAccess.readZipFile(target);
-            FileAccess.writeFile(unzipped,target);
-            Index.add(target, new File(keypool + board.getBoardFilename()));
+            // First look if this keyfile has already been downloaded
+            // and increase the index until we found the last index
+            if( target.isFile() && target.length() > 0 )
+            {
+                if( DEBUG ) System.out.println("Keyfile " + index + " existed, skipping download");
+                index++;
+            }
+            else
+            {
+                // Download the keyfile
+                // Namespace bug temporary fix
+                if( requestKeyWorkaround != null )
+                {
+                    FcpRequest.getFile(requestKeyWorkaround + index + ".idx.zip",
+                                       "Unknown",
+                                       target,
+                                       requestHtl,
+                                       true);
+                }
+                FcpRequest.getFile(requestKey + index + ".idx.zip",
+                                   "Unknown",
+                                   target,
+                                   requestHtl,
+                                   true);
+                if( target.length() > 0 )
+                {
+                    //      if (FcpRequest.getFile(requestKey + index + ".idx",
+                    //                     "Unknown",
+                    //                     target,
+                    //                     requestHtl,
+                    //                     true)) {
+                    // End workaround
+
+                    // Add it to the index //TODO:unzip
+                    String unzipped = FileAccess.readZipFile(target);
+                    FileAccess.writeFile(unzipped,target);
+                    Index.add(target, new File(keypool + board.getBoardFilename()));
 
 
-            index++;
-            failures = 0;
+                    index++;
+                    failures = 0;
+                }
+                else
+                {
+                    // Damned, the download failed. Sometimes there are some 0 byte
+                    // files left, we better remove them now.
+                    target.delete();
+                    failures++;
+                    index++;
+                }
+            }
+            if( isInterrupted() ) // check if thread should stop
+            {
+                notifyThreadFinished(this);
+                return;
+            }
         }
-        else {
-            // Damned, the download failed. Sometimes there are some 0 byte
-            // files left, we better remove them now.
-            target.delete();
-            failures++;
-            index++;
-        }
-        }
-    }
 
-    // Ok, we're done with downloading the keyfiles
-    // Now calculate whitch keys we want to upload.
-    // We only upload own keyfiles if:
-    // 1. We've got more than minKeyCount keys to upload
-    // 2. We don't upload any more files
-    index -= maxFailures;
-    if (makeIndexFile()) {
-        if(!frame1.generateCHK ||
-           keyCount >= minKeyCount) {
-        if (DEBUG) System.out.println("UpdateIdThread (" + board.toString() + "): UploadFiles = " + keyCount);
-        uploadIndexFile(index);
+        // Ok, we're done with downloading the keyfiles
+        // Now calculate whitch keys we want to upload.
+        // We only upload own keyfiles if:
+        // 1. We've got more than minKeyCount keys to upload
+        // 2. We don't upload any more files
+        index -= maxFailures;
+        if( makeIndexFile() )
+        {
+            if( !frame1.generateCHK ||
+                keyCount >= minKeyCount )
+            {
+                if( DEBUG ) System.out.println("UpdateIdThread (" + board.toString() + "): UploadFiles = " + keyCount);
+                uploadIndexFile(index);
+            }
         }
-    }
-    else {
-        if (DEBUG) System.out.println("No keys to upload, stopping UpdateIdThread for " + board.toString() + ".");
-    }
+        else
+        {
+            if( DEBUG ) System.out.println("No keys to upload, stopping UpdateIdThread for " + board.toString() + ".");
+        }
+
+        notifyThreadFinished( this );
     }
 
     /**Constructor*/
     public UpdateIdThread(FrostBoardObject board)
     {
-	super(board);    
+        super(board);
         this.board = board;
         date = DateFun.getExtendedDate();
         requestHtl = frame1.frostSettings.getValue("keyDownloadHtl");
         insertHtl = frame1.frostSettings.getValue("keyUploadHtl");
-        keypool = frame1.keypool;
+        keypool = frame1.frostSettings.getValue("keypool.dir");
         maxKeys = frame1.frostSettings.getIntValue("maxKeys");
 
         publicKey = board.getPublicKey();
