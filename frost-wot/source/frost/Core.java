@@ -771,44 +771,7 @@ public class Core {
         loadKnownBoards();
         loadHashes();
         
-		// a class that reinserts the pubkey each hour
-		TimerTask KeyReinserter = new TimerTask() {
-			public void run() {
-				if (isFreenetOnline() == false)
-					return;
-				File tempUploadfile = null;
-				try {
-					tempUploadfile =
-						File.createTempFile(
-							"pubkey_",
-							null,
-							new File(
-								frame1.frostSettings.getValue("temp.dir")));
-				} catch (Exception ex) {
-					tempUploadfile =
-						new File(
-							frame1.frostSettings.getValue("temp.dir")
-								+ "pubkey_"
-								+ System.currentTimeMillis()
-								+ ".tmp");
-				}
-				FileAccess.writeFile(mySelf.getKey(), tempUploadfile);
 
-				out.println("KeyReinserter: Re-uploading public key...");
-				FcpInsert.putFile(
-					"CHK@",
-					tempUploadfile,
-					25,
-					false // doRedirect
-					);
-				out.println(
-					"KeyReinserter: Finished re-uploading public key.");
-
-				tempUploadfile.deleteOnExit();
-				tempUploadfile.delete();
-			}
-		};
-		timer2.schedule(KeyReinserter, 0, 60 * 60 * 1000); // run each hour
 		// Start tofTree
 		if (isFreenetOnline()) {
 			resendFailedMessages();
