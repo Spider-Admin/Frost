@@ -21,7 +21,7 @@ package frost.threads;
 import java.io.*;
 import java.util.Vector;
 
-import org.w3c.dom.*;
+
 
 import frost.*;
 import frost.FcpTools.*;
@@ -217,7 +217,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             {
                 byte[] zipped = FileAccess.readByteArray(indexFile);
                 MetaData md = new MetaData(zipped);
-                metadata = md.getRawXmlContent();
+                metadata = XMLTools.getRawXMLDocument(md);
             }
             
             // search empty slot

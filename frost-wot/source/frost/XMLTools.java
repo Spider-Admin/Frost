@@ -32,6 +32,32 @@ import org.xml.sax.SAXException;
  */
 public class XMLTools
 {
+	/**
+	 * creates a document containing a single element - the one 
+	 * returned by getXMLElement of the argument
+	 * @param element the object that will be contained by the document
+	 * @return the document
+	 */
+	public static Document getXMLDocument(XMLizable element){
+		Document doc = createDomDocument();
+		doc.appendChild(element.getXMLElement(doc));
+		return doc;
+	}
+	
+	public static byte [] getRawXMLDocument (XMLizable element){
+		Document doc = getXMLDocument(element);
+		File tmp = new File("tmp");
+		byte [] result=null;
+		try {
+		
+		writeXmlFile(doc,tmp.getPath());
+		result = FileAccess.readByteArray(tmp);
+		tmp.delete();
+		} catch (Throwable t) {
+			t.printStackTrace(Core.getOut());
+		}
+		return result;
+	}
     /**
      * Parses an XML file and returns a DOM document.
      * If validating is true, the contents is validated against the DTD
