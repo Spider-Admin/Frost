@@ -85,11 +85,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField tofBlockMessageBodyTextField = new JTextField(42);
     JTextField miscKeyUploadHtlTextField = new JTextField(5);
     JTextField miscKeyDownloadHtlTextField = new JTextField(5);
-    JTextField miscAvailableNodesTextField = new JTextField(30);
+    JTextField miscAvailableNodesTextField = new JTextField(35);
     //JTextField miscNodePortTextField = new JTextField(8);
     JTextField miscMaxKeysTextField = new JTextField(8);
     JTextField miscAltEditTextField = new JTextField(30);
     JTextField miscAutoSaveInterval = new JTextField(5);
+    JCheckBox miscShowSystrayIcon = new JCheckBox("Show systray icon");
     JTextField searchAudioExtensionTextField = new JTextField(30);
     JTextField searchVideoExtensionTextField = new JTextField(30);
     JTextField searchDocumentExtensionTextField = new JTextField(30);
@@ -755,19 +756,21 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx = 0;
             miscPanel.add(new JLabel(LangRes.getString("list of nodes")),constr);
+            constr.insets = new Insets(0, 5, 5, 5);
             constr.gridy++;
             miscPanel.add(new JLabel(" (nodeA:port1, nodeB:port2, ...)"), constr);
             constr.gridy++;
             constr.gridx = 0;
             miscPanel.add(miscAvailableNodesTextField, constr);
             //miscAvailableNodesTextField.setEnabled(false); 
-            constr.gridy++;
-            constr.gridx = 0;
+            //constr.gridy++;
+            //constr.gridx = 0;
             //miscPanel.add(new JLabel(LangRes.getString("Node port:") + " (8481)"), constr);
             //constr.gridx = 1;
             //miscPanel.add(miscNodePortTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
+            constr.insets = new Insets(5, 5, 5, 5);
             miscPanel.add(new JLabel(LangRes.getString("Maximum number of keys to store:") + " (100000)"),constr);
             constr.gridx = 1;
             miscPanel.add(miscMaxKeysTextField, constr);
@@ -1050,6 +1053,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         tofDownloadDaysTextField.setText(frostSettings.getValue("maxMessageDownload"));
         miscKeyUploadHtlTextField.setText(frostSettings.getValue("keyUploadHtl"));
         miscKeyDownloadHtlTextField.setText(frostSettings.getValue("keyDownloadHtl"));
+        miscShowSystrayIcon.setSelected(frostSettings.getBoolValue("showSystrayIcon"));
         downloadSplitfileThreadsTextField.setText(frostSettings.getValue("splitfileDownloadThreads"));
         uploadSplitfileThreadsTextField.setText(frostSettings.getValue("splitfileUploadThreads"));
         miscAvailableNodesTextField.setText(frostSettings.getValue("availableNodes"));
@@ -1140,6 +1144,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         //frostSettings.setValue("nodePort", miscNodePortTextField.getText());
         frostSettings.setValue("maxKeys", miscMaxKeysTextField.getText());
         frostSettings.setValue("messageBase", ((tofMessageBaseTextField.getText()).trim()).toLowerCase());
+        frostSettings.setValue("showSystrayIcon", miscShowSystrayIcon.isSelected());
 
         frostSettings.setValue("blockMessage", ((tofBlockMessageTextField.getText()).trim()).toLowerCase());
         frostSettings.setValue("blockMessageChecked", block.isSelected());

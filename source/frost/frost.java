@@ -44,9 +44,12 @@ public class frost
         frame.show();
         
         // Display the tray icon
-        if( JSysTrayIcon.createInstance(0, "Frost", "Frost") == false )
+        if( frame1.frostSettings.getBoolValue("showSystrayIcon") == true )
         {
-            System.out.println("Could not create systray icon.");
+            if( JSysTrayIcon.createInstance(0, "Frost", "Frost") == false )
+            {
+                System.out.println("Could not create systray icon.");
+            }
         }
 
         // this really obscuring stuff is needed to change the divider size
