@@ -70,10 +70,19 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		e.printStackTrace();
 	}
     }
-    private int findFreeIndex() {
+    private int findFreeUploadIndex() {
     	for (int i = 0;i<indices.size();i++){
 		Integer current = (Integer)indices.elementAt(i);
-		if (current.intValue() == 0 || current.intValue() == MAX_TRIES)
+		if (current.intValue() > -1)
+			return i;
+	}
+	return -1;
+    }
+    
+    private int findFreeDownloadIndex() {
+    	for (int i = 0;i<indices.size();i++){
+		Integer current = (Integer)indices.elementAt(i);
+		if (current.intValue() > -1 && current.intValue() < MAX_TRIES)
 			return i;
 	}
 	return -1;
@@ -135,7 +144,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             FileAccess.writeZipFile(tozip, "entry", indexFile);
 
             // search empty slot
-            int index = findFreeIndex();
+            int index = findFreeUploadIndex();
             while( !success && tries <= MAX_TRIES )
             {
                 // Does this index already exist?
@@ -203,7 +212,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         int waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
         mixed.wait(waitTime);
 
-        int index = findFreeIndex();
+        int index = findFreeDownloadIndex();
         int failures = 0;
 
         while( failures < maxFailures )
@@ -308,7 +317,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         // delete the file and try a re download???
                     }
 
-                    index = findFreeIndex();
+                    index = findFreeDownloadIndex();
                     failures = 0;
                 }
                 else
