@@ -224,7 +224,7 @@ public class UploadPanel extends JPanel {
 				String chkKey = ulItem.getKey();
 				String filename = ulItem.getFileName();
 				if (chkKey != null && filename != null) {
-					mixed.setSystemClipboard(chkKey + "/" + filename);
+					Mixed.setSystemClipboard(chkKey + "/" + filename);
 				}
 			}
 		}
@@ -238,7 +238,7 @@ public class UploadPanel extends JPanel {
 				FrostUploadItem ulItem = (FrostUploadItem) selectedItem;
 				String chkKey = ulItem.getKey();
 				if (chkKey != null) {
-					mixed.setSystemClipboard(chkKey);
+					Mixed.setSystemClipboard(chkKey);
 				}
 			}
 		}
@@ -606,7 +606,7 @@ public class UploadPanel extends JPanel {
 	 * @param rolloverIcon Displayed when mouse is over button
 	 */
 	private void configureButton(JButton button, String rolloverIcon) {
-		button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
+		button.setRolloverIcon(new ImageIcon(MainFrame.class.getResource(rolloverIcon)));
 		button.setMargin(new Insets(0, 0, 0, 0));
 		button.setBorderPainted(false);
 		button.setFocusPainted(false);

@@ -23,9 +23,9 @@ import java.awt.datatransfer.*;
 import java.io.*;
 import java.util.logging.Logger;
 
-public final class mixed
+public final class Mixed
 {
-	private static Logger logger = Logger.getLogger(mixed.class.getName());
+	private static Logger logger = Logger.getLogger(Mixed.class.getName());
 
     /**
      * Copys a file from the jar file to disk
@@ -37,7 +37,7 @@ public final class mixed
     {
         if (!file.isFile())
         {
-            InputStream input = frame1.class.getResourceAsStream(resource);
+            InputStream input = MainFrame.class.getResourceAsStream(resource);
             FileOutputStream output = new FileOutputStream(file);
             byte[] data = new byte[128];
             int bytesRead;

@@ -114,7 +114,7 @@ public class NotifyByEmailThread extends Thread implements FlexibleObserver {
 					logger.log(Level.SEVERE, "couldn't connect to smtp server", e);
 					//TODO:decide what to do. I think just wait 5 mins and try
 					// again?
-					mixed.wait(5 * 60 * 1000);
+					Mixed.wait(5 * 60 * 1000);
 					queue.addFirst(currentName);
 					continue running;
 				}
@@ -139,7 +139,7 @@ public class NotifyByEmailThread extends Thread implements FlexibleObserver {
 			} catch (SendFailedException e) {
 				logger.log(Level.SEVERE, "Exception thrown in run()", e);
 				//wait 5 mins, retry
-				mixed.wait(5 * 60 * 1000);
+				Mixed.wait(5 * 60 * 1000);
 				queue.addFirst(currentName);
 				continue running;
 			} catch (MessagingException e) {

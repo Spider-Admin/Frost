@@ -155,7 +155,7 @@ public class TableXmlIO
         }
 
         // check if target board exists in board tree
-        FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( targetboardname );
+        FrostBoardObject board = MainFrame.getInstance().getTofTree().getBoardByName( targetboardname );
         if( board == null )
         {
             logger.warning("UploadTable: target board '" + targetboardname + "' for file '" + filepath + "' was not found, removing file from table.");
@@ -290,7 +290,7 @@ public class TableXmlIO
         FrostBoardObject board = null;
         if( sourceboardname != null )
         {
-            board = frame1.getInstance().getTofTree().getBoardByName( sourceboardname );
+            board = MainFrame.getInstance().getTofTree().getBoardByName( sourceboardname );
             if( board == null )
             {
                 logger.warning("DownloadTable: source board '" + sourceboardname + "' for file '" + filename + "' was not found, removing file from table.");

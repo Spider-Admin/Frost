@@ -232,7 +232,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				String chkKey = dlItem.getKey();
 				String filename = dlItem.getFileName();
 				if (chkKey != null && filename != null) {
-					mixed.setSystemClipboard(chkKey + "/" + filename);
+					Mixed.setSystemClipboard(chkKey + "/" + filename);
 				}
 			}
 		}
@@ -246,7 +246,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
 				String chkKey = dlItem.getKey();
 				if (chkKey != null) {
-					mixed.setSystemClipboard(chkKey);
+					Mixed.setSystemClipboard(chkKey);
 				}
 			}
 		}

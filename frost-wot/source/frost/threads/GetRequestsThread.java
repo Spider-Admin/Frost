@@ -78,7 +78,7 @@ public class GetRequestsThread extends Thread
 			// ... and to not to flood the node
 			int waitTime = (int) (Math.random() * 5000);
 			// wait a max. of 5 seconds between start of threads
-			mixed.wait(waitTime);
+			Mixed.wait(waitTime);
 
 			GregorianCalendar cal = new GregorianCalendar();
 			cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -94,7 +94,7 @@ public class GetRequestsThread extends Thread
 				new StringBuffer()
 					.append("requests")
 					.append(fileSeparator)
-					.append(mixed.makeFilename(identities.getMyId().getUniqueName()))
+					.append(Mixed.makeFilename(identities.getMyId().getUniqueName()))
 					.toString();
 
 			File makedir = new File(destination);
@@ -110,14 +110,14 @@ public class GetRequestsThread extends Thread
 			}
 
 			//start the request loop
-			mixed.wait(60 * 1000); // wait 1 min before first start
+			Mixed.wait(60 * 1000); // wait 1 min before first start
 			boolean firstRun = true;
 			while (true) {
 				dirdate = date;
 				if (firstRun) {
 					firstRun = false;
 				} else {
-					mixed.wait(15 * 60 * 1000);
+					Mixed.wait(15 * 60 * 1000);
 				}
 				if (Core.getMyBatches().isEmpty())
 					continue;
@@ -162,9 +162,9 @@ public class GetRequestsThread extends Thread
 
 								FcpRequest.getFile(
 									"KSK@frost/request/"
-										+ frame1.frostSettings.getValue("messageBase")
+										+ MainFrame.frostSettings.getValue("messageBase")
 										+ "/"
-										+ mixed.makeFilename(identities.getMyId().getUniqueName())
+										+ Mixed.makeFilename(identities.getMyId().getUniqueName())
 										+ "-"
 										+ testMe.getName(),
 									null,

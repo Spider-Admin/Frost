@@ -25,10 +25,10 @@ public class BuddyList implements XMLizable {
 	 * returns false if the user exists
 	 */
 	public synchronized boolean add(Identity user) {
-		if (containsKey(mixed.makeFilename(user.getUniqueName()))) {
+		if (containsKey(Mixed.makeFilename(user.getUniqueName()))) {
 			return false;
 		} else {
-			hashMap.put(mixed.makeFilename(user.getUniqueName()), user);
+			hashMap.put(Mixed.makeFilename(user.getUniqueName()), user);
 			return true;
 		}
 	}
@@ -38,15 +38,15 @@ public class BuddyList implements XMLizable {
 	 * @return
 	 */
 	public boolean containsKey(String key) {
-		return hashMap.containsKey(mixed.makeFilename((String) key));
+		return hashMap.containsKey(Mixed.makeFilename((String) key));
 	}
 
 	/**
 	 * returns the user in the list, null if not in
 	 */
 	public synchronized Identity get(String name) {
-		if (containsKey(mixed.makeFilename(name))) {
-			return (Identity) hashMap.get(mixed.makeFilename(name));
+		if (containsKey(Mixed.makeFilename(name))) {
+			return (Identity) hashMap.get(Mixed.makeFilename(name));
 		} else {
 			return null;
 		}
@@ -81,7 +81,7 @@ public class BuddyList implements XMLizable {
 	 * @return
 	 */
 	public Object remove(String key) {
-		return hashMap.remove(mixed.makeFilename(key));
+		return hashMap.remove(Mixed.makeFilename(key));
 	}
 	
 	/**

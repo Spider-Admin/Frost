@@ -438,7 +438,7 @@ public class DownloadThread extends Thread {
 		batch = item.getBatch();
 		if (item.getOwner() != null) // owner is null for manually added files
 			{
-			this.owner = mixed.makeFilename(item.getOwner());
+			this.owner = Mixed.makeFilename(item.getOwner());
 		} else {
 			this.owner = null;
 		}

@@ -99,7 +99,7 @@ public class UploadTicker extends Thread {
 	public void run() {
 		super.run();
 		while (true) {
-			mixed.wait(1000);
+			Mixed.wait(1000);
 			// this is executed each second, so this counter counts seconds
 			counter++;
 			removeNotExistingFiles();

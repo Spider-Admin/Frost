@@ -72,7 +72,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
      
      
     private void loadIndex(String date) {
-    	indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices-"+date);
+    	indicesFile = new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indices-"+date);
 	
 	//indices = new Vector();
 	
@@ -205,7 +205,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
         if( indexFile.length() > 0 && indexFile.isFile() )
         {
-            boolean signUpload = frame1.frostSettings.getBoolValue("signUploads");
+            boolean signUpload = MainFrame.frostSettings.getBoolValue("signUploads");
             byte[] metadata = null;
             
             // first zip, then maybe sign the zipped file
@@ -287,7 +287,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			// ... and to not to flood the node
 			int waitTime = (int) (Math.random() * 5000);
 			// wait a max. of 5 seconds between start of threads
-			mixed.wait(waitTime);
+			Mixed.wait(waitTime);
 
 			int index = findFreeDownloadIndex();
 			int failures = 0;
@@ -301,7 +301,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					File.createTempFile(
 						"frost-index-" + index,
 						board.getBoardFilename(),
-						new File(frame1.frostSettings.getValue("temp.dir"))); 
+						new File(MainFrame.frostSettings.getValue("temp.dir"))); 
 
 				logger.info(
 					"FILEDN: Requesting index " + index + " for board " + board.getBoardName() + " for date " + date);
@@ -387,7 +387,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							String _owner = null;
 							String _pubkey = null;
 							if (md.getPerson() != null) {
-								_owner = mixed.makeFilename(md.getPerson().getUniqueName());
+								_owner = Mixed.makeFilename(md.getPerson().getUniqueName());
 								_pubkey = md.getPerson().getKey();
 							}
 
@@ -401,7 +401,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							}
 
 							//check if fields match those in the index file
-							if (!_owner.equals(mixed.makeFilename(sharerInFile.getUniqueName()))
+							if (!_owner.equals(Mixed.makeFilename(sharerInFile.getUniqueName()))
 								|| !_pubkey.equals(sharerInFile.getKey())) {
 
 								logger.warning("The identity in MetaData didn't match the identity in File! :(\n" +
@@ -439,7 +439,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 									sharer = identities.getNeutrals().get(_owner);
 									logger.info(message + ", a neutral");
 								} else if (identities.getEnemies().containsKey(_owner)) {
-									if (frame1.frostSettings.getBoolValue("hideBadFiles")) {
+									if (MainFrame.frostSettings.getBoolValue("hideBadFiles")) {
 										logger.info("Skipped index file from BAD user " + _owner);
 										target.delete();
 										unzippedTarget.delete();
@@ -464,7 +464,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 								}
 							}
 						} // end-of: if metadata != null
-						else if (frame1.frostSettings.getBoolValue("hideAnonFiles")) {
+						else if (MainFrame.frostSettings.getBoolValue("hideAnonFiles")) {
 							unzippedTarget.delete();
 							target.delete();
 							index = findFreeDownloadIndex();
@@ -549,9 +549,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
                                                 _sharer.length()).trim();
         String calculatedDigest = Core.getCrypto().digest(_pubkey.trim()).trim();
-        calculatedDigest = mixed.makeFilename( calculatedDigest ).trim();
+        calculatedDigest = Mixed.makeFilename( calculatedDigest ).trim();
         
-        if( ! mixed.makeFilename(given_digest).equals( calculatedDigest ) )
+        if( ! Mixed.makeFilename(given_digest).equals( calculatedDigest ) )
         {
             logger.warning("Warning: public key of sharer didn't match its digest:\n" +
             			   "given digest :'" + given_digest + "'\n" +
@@ -573,10 +573,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		this.board = board;
 		this.date = date;
 		currentDate = DateFun.getDate();
-		requestHtl = frame1.frostSettings.getIntValue("keyDownloadHtl");
-		insertHtl = frame1.frostSettings.getIntValue("keyUploadHtl");
-		keypool = frame1.frostSettings.getValue("keypool.dir");
-		maxKeys = frame1.frostSettings.getIntValue("maxKeys");
+		requestHtl = MainFrame.frostSettings.getIntValue("keyDownloadHtl");
+		insertHtl = MainFrame.frostSettings.getIntValue("keyUploadHtl");
+		keypool = MainFrame.frostSettings.getValue("keypool.dir");
+		maxKeys = MainFrame.frostSettings.getIntValue("maxKeys");
 
 		//first load the index with the date we wish to download
 		loadIndex(date);

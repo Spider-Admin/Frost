@@ -75,7 +75,7 @@ public class MessageFrame extends JFrame
     JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
     JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
     JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
-    JButton BattachBoard= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
+    JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
 
     JCheckBox sign = new JCheckBox();
     JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
@@ -330,7 +330,7 @@ public class MessageFrame extends JFrame
 			if( addAttachedFilesToUploadTable.isSelected() )
 			{
 						sfo.setOwner(sign.isSelected() ?
-											mixed.makeFilename(myId.getUniqueName()) :
+											Mixed.makeFilename(myId.getUniqueName()) :
 											"Anonymous");
 			}
 			
@@ -347,7 +347,7 @@ public class MessageFrame extends JFrame
         }
 
         // start upload thread which also saves the file, uploads attachments+signs if choosed
-        frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
+        MainFrame.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
                                               board,
                                               mo,
                                               null);
@@ -441,7 +441,7 @@ public class MessageFrame extends JFrame
 
     private void attachBoards_actionPerformed(ActionEvent e)
     {
-        Vector allBoards = frame1.getInstance().getTofTree().getAllBoards();
+        Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
         if( allBoards.size() == 0 )
             return;
         Collections.sort(allBoards);
@@ -493,7 +493,7 @@ public class MessageFrame extends JFrame
     protected void configureButton(JButton button, String toolTipText, String rolloverIcon)
     {
         button.setToolTipText(LangRes.getString(toolTipText));
-        button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
+        button.setRolloverIcon(new ImageIcon(MainFrame.class.getResource(rolloverIcon)));
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
@@ -592,7 +592,7 @@ public class MessageFrame extends JFrame
 		});
 		new Thread() {
 			public void run() {
-				mixed.wait(10);
+				Mixed.wait(10);
 				SwingUtilities.invokeLater(new Runnable() {
 					public void run() {
 						resetSplitPanes();

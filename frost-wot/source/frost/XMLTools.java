@@ -74,7 +74,7 @@ public class XMLTools
         try {
             tmp = File.createTempFile("xmltools_", 
                                       ".tmp", 
-                                      new File(frame1.frostSettings.getValue("temp.dir")));
+                                      new File(MainFrame.frostSettings.getValue("temp.dir")));
         }
         catch(Exception ex) {
             // this should never happen, but for the case ...

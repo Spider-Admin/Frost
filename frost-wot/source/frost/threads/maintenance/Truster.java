@@ -36,7 +36,7 @@ public class Truster extends Thread
     {
         trust=what;
 		identities = newIdentities;
-        this.from=mixed.makeFilename(from);
+        this.from=Mixed.makeFilename(from);
     }
 
     public void run()
@@ -92,7 +92,7 @@ public class Truster extends Thread
         }
 
         // get all .xml files in keypool
-        ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
+        ArrayList entries = FileAccess.getAllEntries( new File(MainFrame.frostSettings.getValue("keypool.dir")),
                                                    ".xml");
         logger.info("Truster: Starting to update messages:");
 
@@ -116,7 +116,7 @@ public class Truster extends Thread
               )
             {
                 // check if message is correctly signed
-                if( mixed.makeFilename(newIdentity.getUniqueName()).equals( mixed.makeFilename(tempMsg.getFrom()) ))
+                if( Mixed.makeFilename(newIdentity.getUniqueName()).equals( Mixed.makeFilename(tempMsg.getFrom()) ))
                 {
                     // set new state of message
                     if( trust == null )
@@ -139,7 +139,7 @@ public class Truster extends Thread
 
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
-                    frame1.getInstance().tofTree_actionPerformed(null);
+                    MainFrame.getInstance().tofTree_actionPerformed(null);
                 } });
         logger.info("Truster: Finished to update messages, set '" + from + "' to '" + newState+"'");
     }

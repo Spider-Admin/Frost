@@ -56,7 +56,7 @@ public class ResendFailedMessagesThread extends Thread
                 
                 if( mo != null && mo.isValid() )
                 {
-                    FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( mo.getBoard() );
+                    FrostBoardObject board = MainFrame.getInstance().getTofTree().getBoardByName( mo.getBoard() );
                     if( board == null )
                     {
                         logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoard() +
@@ -66,7 +66,7 @@ public class ResendFailedMessagesThread extends Thread
                     }
                     // message will be resigned before send, actual date/time will be used
                     // no more faking here :)
-                    frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
+                    MainFrame.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
                         board,
                         mo,
                         null);

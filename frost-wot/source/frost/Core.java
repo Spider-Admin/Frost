@@ -73,7 +73,7 @@ public class Core implements Savable {
 
 	private static crypt crypto = new FrostCrypt();
 	
-	private frame1 mainFrame;
+	private MainFrame mainFrame;
 	private SearchManager searchManager;
 	private DownloadManager downloadManager;
 	private UploadManager uploadManager;
@@ -395,7 +395,7 @@ public class Core implements Savable {
 		// start a thread that waits some seconds for gui to appear, then searches for
 		// unsent messages
 		ResendFailedMessagesThread t =
-			new ResendFailedMessagesThread(this, frame1.getInstance());
+			new ResendFailedMessagesThread(this, MainFrame.getInstance());
 		t.start();
 	}
 
@@ -544,7 +544,7 @@ public class Core implements Savable {
 		splashscreen.setProgress(60);
 
 		//Main frame		
-		mainFrame = new frame1(frostSettings, languageResource);
+		mainFrame = new MainFrame(frostSettings, languageResource);
 		getDownloadManager().initialize();
 		getUploadManager().initialize();
 		getSearchManager().initialize();
@@ -645,7 +645,7 @@ public class Core implements Savable {
 	private void initializeTasks() {
 		//We initialize the task that checks for spam
 		timer.schedule(
-			new checkForSpam(this),
+			new CheckForSpam(this),
 			0,
 			frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
 
@@ -671,12 +671,12 @@ public class Core implements Savable {
 		Saver saver = new Saver(frostSettings);
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
-		saver.addAutoSavable(frame1.getInstance().getTofTree());
+		saver.addAutoSavable(MainFrame.getInstance().getTofTree());
 		saver.addAutoSavable(getDownloadManager().getModel());
 		saver.addAutoSavable(getUploadManager().getModel());
 		saver.addExitSavable(this);
 		saver.addExitSavable(getIdentities());
-		saver.addExitSavable(frame1.getInstance().getTofTree());
+		saver.addExitSavable(MainFrame.getInstance().getTofTree());
 		saver.addExitSavable(getDownloadManager().getModel());
 		saver.addExitSavable(getUploadManager().getModel());
 		saver.addExitSavable(frostSettings);

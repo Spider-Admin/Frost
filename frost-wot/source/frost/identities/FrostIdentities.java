@@ -47,7 +47,7 @@ public class FrostIdentities implements Savable {
 			if (identities.createNewFile() && identitiesxml.createNewFile()) {
 				if (freenetIsOnline == false) {
 					JOptionPane.showMessageDialog(
-						frame1.getInstance(),
+						MainFrame.getInstance(),
 						languageResource.getString(
 							"Core.loadIdentities.ConnectionNotEstablishedBody"),
 						languageResource.getString(
@@ -66,7 +66,7 @@ public class FrostIdentities implements Savable {
 							// check for a '@' in nick, this is strongly forbidden
 							if (nick.indexOf("@") > -1) {
 								JOptionPane.showMessageDialog(
-									frame1.getInstance(),
+									MainFrame.getInstance(),
 									languageResource.getString(
 										"Core.loadIdentities.InvalidNameBody"),
 									languageResource.getString(

@@ -80,7 +80,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	    assert sfo.getFile()!=null : "message.getOfflineFiles() failed!";
 	    
             String[] result = {"", ""};
-            int uploadHtl = frame1.frostSettings.getIntValue("htlUpload");
+            int uploadHtl = MainFrame.frostSettings.getIntValue("htlUpload");
             logger.info("TOFUP: Uploading attachment " +
                                sfo.getFile().getPath() +
                                " with HTL " + uploadHtl);
@@ -247,7 +247,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         // now maybe sign the msg before start to upload,
         // we have to sign if the From is our complete unique id set by MessageFrame
         if( message.getFrom().equals(identities.getMyId().getUniqueName()) //nick same as my identity
-         || message.getFrom().equals(mixed.makeFilename(identities.getMyId().getUniqueName())))  //serialization may have changed it
+         || message.getFrom().equals(Mixed.makeFilename(identities.getMyId().getUniqueName())))  //serialization may have changed it
         {
             byte[] zipped = FileAccess.readByteArray(uploadZipFile);
             SignMetaData md = new SignMetaData(zipped, identities.getMyId());
@@ -353,7 +353,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     else
                     {
                         upKey = new StringBuffer().append("KSK@frost/message/")
-                                                  .append(frame1.frostSettings.getValue("messageBase"))
+                                                  .append(MainFrame.frostSettings.getValue("messageBase"))
                                                   .append("/")
                                                   .append(this.message.getDate())
                                                   .append("-")
@@ -492,15 +492,15 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		mo.setTime(DateFun.getFullExtendedTime() + "GMT");
 		mo.setDate(DateFun.getDate());
 
-		this.messageUploadHtl = frame1.frostSettings.getIntValue("tofUploadHtl");
-		this.keypool = frame1.frostSettings.getValue("keypool.dir");
-		this.frameToLock = frame1.getInstance();
+		this.messageUploadHtl = MainFrame.frostSettings.getIntValue("tofUploadHtl");
+		this.keypool = MainFrame.frostSettings.getValue("keypool.dir");
+		this.frameToLock = MainFrame.getInstance();
 
 		// this class always creates a new msg file on hd and deletes the file 
 		// after upload was successful, or keeps it for next try
 		String uploadMe =
 			new StringBuffer()
-				.append(frame1.frostSettings.getValue("unsent.dir"))
+				.append(MainFrame.frostSettings.getValue("unsent.dir"))
 				.append("unsent")
 				.append(String.valueOf(System.currentTimeMillis()))
 				.append(".xml")

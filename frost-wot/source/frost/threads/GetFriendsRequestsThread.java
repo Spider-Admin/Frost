@@ -50,7 +50,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 	}
 
 	private final void generatePrefixes() {
-		File keypool = new File(frame1.keypool);
+		File keypool = new File(MainFrame.keypool);
 		File[] boardDirs = keypool.listFiles();
 		LinkedList indices = new LinkedList();
 		//Map allFiles = new HashMap();
@@ -87,7 +87,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 				&&
 			 		(
 						//Core.getFriends().Get(current.getOwner().substring(0,current.getOwner().indexOf("@"))) != null
-						identities.getFriends().containsKey(mixed.makeFilename(current.getOwner()))
+						identities.getFriends().containsKey(Mixed.makeFilename(current.getOwner()))
 							|| //marked GOOD
 						identities.getGoodIds().contains(current.getOwner())
 					) //marked to be helped
@@ -95,7 +95,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 				String newPrefix = new String("KSK@frost/request/"
 					+ Core.frostSettings.getValue("messageBase")
 					+ "/"
-					+ mixed.makeFilename(current.getOwner())
+					+ Mixed.makeFilename(current.getOwner())
 					+ "-"
 					+ current.getBatch()); 
 				prefixes.add(newPrefix);

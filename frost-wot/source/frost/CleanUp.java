@@ -88,7 +88,7 @@ public class CleanUp {
     */
     private void processItem(String dirItem)
     {
-        int daysOld = frame1.frostSettings.getIntValue("maxMessageDisplay")+1;
+        int daysOld = MainFrame.frostSettings.getIntValue("maxMessageDisplay")+1;
         File f = new File(dirItem);
         long expiration = new Date().getTime() - (daysOld * 24 * 60 * 60 * 1000);
         if (f.lastModified() < expiration || f.isDirectory() && !f.getName().endsWith(".key"))

@@ -88,7 +88,7 @@ public class DownloadTicker extends Thread {
 	public void run() {
 		super.run();
 		while (true) {
-			mixed.wait(1000);
+			Mixed.wait(1000);
 			// this method is called by a timer each second, so this counter counts seconds
 			counter++;
 			updateDownloadCountLabel();
