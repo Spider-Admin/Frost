@@ -100,6 +100,7 @@ public class XMLTools
         {
             // A parsing error occurred; the xml input is not valid
 	    e.printStackTrace(Core.getOut());
+	    	file.renameTo(new File("badfile.xml"));
             throw new IllegalArgumentException();
         }
         catch( ParserConfigurationException e )

@@ -427,7 +427,7 @@ public final class FrostCrypt implements crypt {
 				"CryptoException in Verifier.detachedSign: " + e.getMessage());
 		}
 		signer.reset();
-		String result=new String(texter.encode(signature));
+		String result=new String(Base64.encode(signature));
 		return result;
 	}
 
@@ -438,7 +438,7 @@ public final class FrostCrypt implements crypt {
 	 * @see frost.crypt.crypt#detachedVerify(java.lang.String, java.lang.String, byte[])
 	 */
 	public synchronized boolean detachedVerify(byte [] message, String key, String _sig) {
-		byte [] sig = texter.decode(_sig.getBytes());
+		byte [] sig = Base64.decode(_sig.getBytes());
 		StringTokenizer keycutter = new StringTokenizer(key, ":");
 		BigInteger Exponent =
 			new BigInteger(Base64.decode(keycutter.nextToken()));
