@@ -34,17 +34,17 @@ import javax.swing.tree.*;
 import com.l2fprod.gui.plaf.skin.*;
 
 import frost.components.BrowserFrame;
-import frost.components.translate.*;
+import frost.components.translate.TranslateFrame;
 import frost.crypt.crypt;
 import frost.ext.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
-import frost.gui.translation.UpdatingLanguageResource;
+import frost.gui.translation.*;
 import frost.identities.*;
-import frost.messages.*;
+import frost.messages.VerifyableMessageObject;
 import frost.threads.*;
-import frost.threads.maintenance.*;
+import frost.threads.maintenance.Truster;
 
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)
@@ -55,7 +55,329 @@ import frost.threads.maintenance.*;
 //   the tofTree is updated)
 
 public class frame1 extends JFrame implements ClipboardOwner {
+	/**
+	 * 
+	 */
+	private class PopupMenuUpload extends JPopupMenu implements ActionListener, LanguageListener {
+		
+		private JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem copyChkKeyAndFilenameToClipboardItem = new JMenuItem();
+		private JMenuItem copyChkKeyToClipboardItem = new JMenuItem();
+		private JMenuItem generateChkForSelectedFilesItem = new JMenuItem();
+		private JMenuItem reloadAllFilesItem = new JMenuItem();
+		private JMenuItem reloadSelectedFilesItem = new JMenuItem();
+		private JMenuItem removeAllFilesItem = new JMenuItem();
+		private JMenuItem removeSelectedFilesItem = new JMenuItem();
+		private JMenuItem restoreDefaultFilenamesForAllFilesItem = new JMenuItem();
+		private JMenuItem restoreDefaultFilenamesForSelectedFilesItem = new JMenuItem();
+		private JMenuItem setPrefixForAllFilesItem = new JMenuItem();
+		private JMenuItem setPrefixForSelectedFilesItem = new JMenuItem();
+		
+		private JMenu changeDestinationBoardMenu = new JMenu();
+		private JMenu copyToClipboardMenu = new JMenu();
+				
+		/**
+		 * 
+		 */
+		public PopupMenuUpload() {
+			super();
+			initialize();
+		}
+		
+		private void initialize() {
+			refreshLanguage();
 
+			copyToClipboardMenu.add(copyChkKeyToClipboardItem);
+			copyToClipboardMenu.add(copyChkKeyAndFilenameToClipboardItem);
+
+			copyChkKeyToClipboardItem.addActionListener(this);
+			copyChkKeyAndFilenameToClipboardItem.addActionListener(this);
+			removeSelectedFilesItem.addActionListener(this);
+			removeAllFilesItem.addActionListener(this);
+			reloadSelectedFilesItem.addActionListener(this);
+			reloadAllFilesItem.addActionListener(this);
+			generateChkForSelectedFilesItem.addActionListener(this);
+			setPrefixForSelectedFilesItem.addActionListener(this);
+			setPrefixForAllFilesItem.addActionListener(this);
+			restoreDefaultFilenamesForSelectedFilesItem.addActionListener(this);
+			restoreDefaultFilenamesForAllFilesItem.addActionListener(this);
+		}
+		
+		private void refreshLanguage() {
+			cancelItem.setText(languageResource.getString("Cancel"));
+			copyChkKeyAndFilenameToClipboardItem.setText(languageResource.getString("CHK key + filename"));
+			copyChkKeyToClipboardItem.setText(languageResource.getString("CHK key"));
+			generateChkForSelectedFilesItem.setText(languageResource.getString("Start encoding of selected files"));
+			reloadAllFilesItem.setText(languageResource.getString("Reload all files"));
+			reloadSelectedFilesItem.setText(languageResource.getString("Reload selected files"));
+			removeAllFilesItem.setText(languageResource.getString("Remove all files"));
+			removeSelectedFilesItem.setText(languageResource.getString("Remove selected files"));
+			restoreDefaultFilenamesForAllFilesItem.setText(languageResource.getString("Restore default filenames for all files"));
+			restoreDefaultFilenamesForSelectedFilesItem.setText(languageResource.getString("Restore default filenames for selected files"));
+			setPrefixForAllFilesItem.setText(languageResource.getString("Set prefix for all files"));
+			setPrefixForSelectedFilesItem.setText(languageResource.getString("Set prefix for selected files"));
+			
+			changeDestinationBoardMenu.setText(languageResource.getString("Change destination board"));
+			copyToClipboardMenu.setText(languageResource.getString("Copy to clipboard") + "...");
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == copyChkKeyToClipboardItem) {
+				copyChkKeyToClipboard();
+			}
+			if (e.getSource() == copyChkKeyAndFilenameToClipboardItem) {
+				copyChkKeyAndFilenameToClipboard();
+			}
+			if (e.getSource() == removeSelectedFilesItem) {
+				removeSelectedFiles();
+			}
+			if (e.getSource() == removeAllFilesItem) {
+				removeAllFiles();
+			}
+			if (e.getSource() == reloadSelectedFilesItem) {
+				reloadSelectedFiles();
+			}
+			if (e.getSource() == reloadAllFilesItem) {
+				reloadAllFiles();
+			}
+			if (e.getSource() == generateChkForSelectedFilesItem) {
+				generateChkForSelectedFiles();
+			}
+			if (e.getSource() == setPrefixForSelectedFilesItem) {
+				setPrefixForSelectedFiles();
+			}
+			if (e.getSource() == setPrefixForAllFilesItem) {
+				setPrefixForAllFiles();
+			}
+			if (e.getSource() == restoreDefaultFilenamesForSelectedFilesItem) {
+				restoreDefaultFilenamesForSelectedFiles();
+			}
+			if (e.getSource() == restoreDefaultFilenamesForAllFilesItem) {
+				restoreDefaultFilenamesForAllFiles();
+			}
+		}
+
+		/**
+		 * Restore default filenames for all files
+		 */
+		private void restoreDefaultFilenamesForAllFiles() {
+			getUploadTable().selectAll();
+			getUploadTable().restoreOriginalFilenamesForSelectedRows();
+		}
+
+		/**
+		 * Restore default filenames for selected files
+		 */
+		private void restoreDefaultFilenamesForSelectedFiles() {
+			getUploadTable().restoreOriginalFilenamesForSelectedRows();
+		}
+
+		/**
+		 * Set Prefix for all files
+		 */
+		private void setPrefixForAllFiles() {
+			getUploadTable().selectAll();
+			getUploadTable().setPrefixForSelectedFiles();
+		}
+
+		/**
+		 * Set Prefix for selected files
+		 */
+		private void setPrefixForSelectedFiles() {
+			getUploadTable().setPrefixForSelectedFiles();
+		}
+
+		/**
+		 * Generate CHK for selected files 
+		 */
+		private void generateChkForSelectedFiles() {
+			UploadTableModel tableModel = (UploadTableModel) getUploadTable().getModel();
+			int[] selectedRows = getUploadTable().getSelectedRows();
+			for (int i = 0; i < selectedRows.length; i++) {
+				FrostUploadItemObject ulItem =
+					(FrostUploadItemObject) tableModel.getRow(selectedRows[i]);
+				// start gen chk only if IDLE
+				if (ulItem.getState() == FrostUploadItemObject.STATE_IDLE
+					&& ulItem.getKey() == null) {
+					ulItem.setState(FrostUploadItemObject.STATE_ENCODING_REQUESTED);
+					tableModel.updateRow(ulItem);
+				}
+			}
+		}	/**
+		 * Reload all files
+		 */
+		private void reloadAllFiles() {
+			UploadTableModel tableModel = (UploadTableModel) getUploadTable().getModel();
+			for (int i = 0; i < tableModel.getRowCount(); i++) {
+				FrostUploadItemObject ulItem = (FrostUploadItemObject) tableModel.getRow(i);
+				// Since it is difficult to identify the states where we are allowed to
+				// start an upload we decide based on the states in which we are not allowed
+				if (ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING
+					&& ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS
+					&& ulItem.getState() != FrostUploadItemObject.STATE_ENCODING) {
+					ulItem.setState(FrostUploadItemObject.STATE_REQUESTED);
+					tableModel.updateRow(ulItem);
+				}
+			}
+		}
+
+		/**
+		 * Reload selected files
+		 */
+		private void reloadSelectedFiles() {
+			UploadTableModel tableModel = (UploadTableModel) getUploadTable().getModel();
+			int[] selectedRows = getUploadTable().getSelectedRows();
+			for (int i = 0; i < selectedRows.length; i++) {
+				FrostUploadItemObject ulItem =
+					(FrostUploadItemObject) tableModel.getRow(selectedRows[i]);
+				// Since it is difficult to identify the states where we are allowed to
+				// start an upload we decide based on the states in which we are not allowed
+				if (ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING
+					&& ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS
+					&& ulItem.getState() != FrostUploadItemObject.STATE_ENCODING) {
+					ulItem.setState(FrostUploadItemObject.STATE_REQUESTED);
+					tableModel.updateRow(ulItem);
+				}
+			}
+		}
+
+		/**
+		 * Remove all files
+		 */
+		private void removeAllFiles() {
+			UploadTableModel model = (UploadTableModel) getUploadTable().getModel();
+			model.clearDataModel();
+		}
+
+		/**
+		 * Remove selected files
+		 */
+		private void removeSelectedFiles() {
+			getUploadTable().removeSelectedRows();
+		}
+
+		/**
+		 * add CHK key + filename to clipboard 
+		 */
+		private void copyChkKeyAndFilenameToClipboard() {
+			UploadTableModel tableModel = (UploadTableModel) getUploadTable().getModel();
+			int selectedRow = getUploadTable().getSelectedRow();
+			if (selectedRow > -1) {
+				FrostUploadItemObject ulItem =
+					(FrostUploadItemObject) tableModel.getRow(selectedRow);
+				String chkKey = ulItem.getKey();
+				String filename = ulItem.getFileName();
+				if (chkKey != null && filename != null) {
+					mixed.setSystemClipboard(chkKey + "/" + filename);
+				}
+			}
+		}
+
+		/**
+		 * add CHK key to clipboard
+		 */
+		private void copyChkKeyToClipboard() {
+			UploadTableModel tableModel = (UploadTableModel) getUploadTable().getModel();
+			int selectedRow = getUploadTable().getSelectedRow();
+			if (selectedRow > -1) {
+				FrostUploadItemObject ulItem =
+					(FrostUploadItemObject) tableModel.getRow(selectedRow);
+				String chkKey = ulItem.getKey();
+				if (chkKey != null) {
+					mixed.setSystemClipboard(chkKey);
+				}
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();
+		}
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			removeAll();
+
+			if (getUploadTable().getSelectedRowCount() == 1) {
+				// if 1 item is selected
+				FrostUploadItemObject ulItem =
+					(FrostUploadItemObject)
+						((UploadTableModel) getUploadTable().getModel()).getRow(
+						getUploadTable().getSelectedRow());
+				if (ulItem.getKey() != null) {
+					add(copyToClipboardMenu);
+					addSeparator();
+				}
+			}
+
+			JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
+			if (getUploadTable().getSelectedRow() > -1) {
+				removeSubMenu.add(removeSelectedFilesItem);
+			}
+			removeSubMenu.add(removeAllFilesItem);
+
+			add(removeSubMenu);
+			addSeparator();
+			if (getUploadTable().getSelectedRow() > -1) {
+				add(generateChkForSelectedFilesItem);
+				add(reloadSelectedFilesItem);
+			}
+			add(reloadAllFilesItem);
+			addSeparator();
+			if (getUploadTable().getSelectedRow() > -1) {
+				add(setPrefixForSelectedFilesItem);
+			}
+			add(setPrefixForAllFilesItem);
+			addSeparator();
+			if (getUploadTable().getSelectedRow() > -1) {
+				add(restoreDefaultFilenamesForSelectedFilesItem);
+			}
+			add(restoreDefaultFilenamesForAllFilesItem);
+			addSeparator();
+			if (getUploadTable().getSelectedRow() > -1) {
+				// Add boards to changeDestinationBoard submenu
+				Vector boards = getTofTree().getAllBoards();
+				Collections.sort(boards);
+				changeDestinationBoardMenu.removeAll();
+				for (int i = 0; i < boards.size(); i++) {
+					final FrostBoardObject aBoard = (FrostBoardObject) boards.elementAt(i);
+					JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
+					changeDestinationBoardMenu.add(boardMenuItem);
+					// add all boards to menu + set action listener for each board menu item
+					boardMenuItem.addActionListener(new ActionListener() {
+						public void actionPerformed(ActionEvent e) {
+							// set new board for all selected rows
+							UploadTableModel ulModel =
+								(UploadTableModel) getUploadTable().getModel();
+							int[] selectedRows = getUploadTable().getSelectedRows();
+							for (int x = 0; x < selectedRows.length; x++) {
+								FrostUploadItemObject ulItem =
+									(FrostUploadItemObject) ulModel.getRow(selectedRows[x]);
+								ulItem.setTargetBoard(aBoard);
+								ulModel.updateRow(ulItem);
+							}
+						}
+					});
+				}
+				add(changeDestinationBoardMenu);
+			}
+			addSeparator();
+			add(cancelItem);
+
+			super.show(invoker, x, y);
+		}
+
+	}
+	
+	private PopupMenuUpload popupMenuUpload = null;
+	
+	
 	/**
 	 * Getter for the language resource bundle
 	 */
@@ -303,22 +625,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JMenuItem searchPopupSetGood = null;
 	JMenuItem searchPopupSetBad = null;
 	JMenuItem searchPopupCancel = null;
-
-	JMenuItem uploadPopupRemoveSelectedFiles = null;
-	JMenuItem uploadPopupRemoveAllFiles = null;
-	JMenuItem uploadPopupReloadSelectedFiles = null;
-	JMenuItem uploadPopupReloadAllFiles = null;
-	JMenuItem uploadPopupSetPrefixForSelectedFiles = null;
-	JMenuItem uploadPopupSetPrefixForAllFiles = null;
-	JMenuItem uploadPopupRestoreDefaultFilenamesForSelectedFiles = null;
-	JMenuItem uploadPopupRestoreDefaultFilenamesForAllFiles = null;
-	JMenu uploadPopupChangeDestinationBoard = null;
-	//JMenuItem uploadPopupAddFilesToBoard = null;
-	JMenuItem uploadPopupGenerateChkForSelectedFiles = null;
-	JMenuItem uploadPopupCancel = null;
-	JMenu uploadPopupCopyToClipboard = null;
-	JMenuItem uploadPopupCopyChkKeyToClipboard = null;
-	JMenuItem uploadPopupCopyChkKeyAndFilenameToClipboard = null;
 
 	JMenuItem downloadPopupRestartSelectedDownloads = null;
 	JMenuItem downloadPopupRemoveSelectedDownloads = null;
@@ -1353,7 +1659,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	private void buildPopupMenus() {
 		buildPopupMenuSearch();
-		buildPopupMenuUpload();
 		buildPopupMenuDownload();
 		buildPopupMenuTofText();
 		buildPopupMenuMessageTable();
@@ -1459,208 +1764,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				//String
 			}
 		});
-	}
-
-	/**
-	 * Build the upload table popup menu.
-	 * Should be called only once.
-	 */
-	private void buildPopupMenuUpload() {
-		// create objects
-		uploadPopupRemoveSelectedFiles =
-			new JMenuItem(languageResource.getString("Remove selected files"));
-		uploadPopupRemoveAllFiles =
-			new JMenuItem(languageResource.getString("Remove all files"));
-		uploadPopupReloadSelectedFiles =
-			new JMenuItem(languageResource.getString("Reload selected files"));
-		uploadPopupReloadAllFiles =
-			new JMenuItem(languageResource.getString("Reload all files"));
-		uploadPopupSetPrefixForSelectedFiles =
-			new JMenuItem(languageResource.getString("Set prefix for selected files"));
-		uploadPopupSetPrefixForAllFiles =
-			new JMenuItem(languageResource.getString("Set prefix for all files"));
-		uploadPopupRestoreDefaultFilenamesForSelectedFiles =
-			new JMenuItem(
-				languageResource.getString(
-					"Restore default filenames for selected files"));
-		uploadPopupRestoreDefaultFilenamesForAllFiles =
-			new JMenuItem(
-				languageResource.getString("Restore default filenames for all files"));
-		uploadPopupChangeDestinationBoard =
-			new JMenu(languageResource.getString("Change destination board"));
-		//	uploadPopupAddFilesToBoard =
-		//		new JMenuItem(LangRes.getString("Add files to board"));
-		uploadPopupGenerateChkForSelectedFiles =
-			new JMenuItem(languageResource.getString("Start encoding of selected files"));
-		uploadPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
-
-		uploadPopupCopyToClipboard = new JMenu(languageResource.getString("Copy to clipboard") + "...");
-		uploadPopupCopyChkKeyToClipboard = new JMenuItem(languageResource.getString("CHK key"));
-		uploadPopupCopyChkKeyAndFilenameToClipboard =
-			new JMenuItem(languageResource.getString("CHK key + filename"));
-
-		uploadPopupCopyToClipboard.add(uploadPopupCopyChkKeyToClipboard);
-		uploadPopupCopyToClipboard.add(
-			uploadPopupCopyChkKeyAndFilenameToClipboard);
-
-		// add action listener
-		// add CHK key to clipboard
-		uploadPopupCopyChkKeyToClipboard
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				UploadTableModel tableModel =
-					(UploadTableModel) getUploadTable().getModel();
-				int selectedRow = getUploadTable().getSelectedRow();
-				if (selectedRow > -1) {
-					FrostUploadItemObject ulItem =
-						(FrostUploadItemObject) tableModel.getRow(selectedRow);
-					String chkKey = ulItem.getKey();
-					if (chkKey != null) {
-						mixed.setSystemClipboard(chkKey);
-					}
-				}
-			}
-		});
-		// add CHK key + filename to clipboard    
-		uploadPopupCopyChkKeyAndFilenameToClipboard
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				UploadTableModel tableModel =
-					(UploadTableModel) getUploadTable().getModel();
-				int selectedRow = getUploadTable().getSelectedRow();
-				if (selectedRow > -1) {
-					FrostUploadItemObject ulItem =
-						(FrostUploadItemObject) tableModel.getRow(selectedRow);
-					String chkKey = ulItem.getKey();
-					String filename = ulItem.getFileName();
-					if (chkKey != null && filename != null) {
-						mixed.setSystemClipboard(chkKey + "/" + filename);
-					}
-				}
-			}
-		});
-
-		// Upload / Remove selected files
-		uploadPopupRemoveSelectedFiles.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getUploadTable().removeSelectedRows();
-			}
-		});
-		// Upload / Remove all files
-		uploadPopupRemoveAllFiles.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				UploadTableModel model =
-					(UploadTableModel) getUploadTable().getModel();
-				model.clearDataModel();
-			}
-		});
-		// Upload / Reload selected files
-		uploadPopupReloadSelectedFiles.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				UploadTableModel tableModel =
-					(UploadTableModel) getUploadTable().getModel();
-				int[] selectedRows = getUploadTable().getSelectedRows();
-				for (int i = 0; i < selectedRows.length; i++) {
-					FrostUploadItemObject ulItem =
-						(FrostUploadItemObject) tableModel.getRow(
-							selectedRows[i]);
-					// Since it is difficult to identify the states where we are allowed to
-					// start an upload we decide based on the states in which we are not allowed
-					if (ulItem.getState()
-						!= FrostUploadItemObject.STATE_UPLOADING
-						&& ulItem.getState()
-							!= FrostUploadItemObject.STATE_PROGRESS
-						&& ulItem.getState()
-							!= FrostUploadItemObject.STATE_ENCODING) {
-						ulItem.setState(FrostUploadItemObject.STATE_REQUESTED);
-						tableModel.updateRow(ulItem);
-					}
-				}
-			}
-		});
-		// Upload / Reload all files
-		uploadPopupReloadAllFiles.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				UploadTableModel tableModel =
-					(UploadTableModel) getUploadTable().getModel();
-				for (int i = 0; i < tableModel.getRowCount(); i++) {
-					FrostUploadItemObject ulItem =
-						(FrostUploadItemObject) tableModel.getRow(i);
-					// Since it is difficult to identify the states where we are allowed to
-					// start an upload we decide based on the states in which we are not allowed
-					if (ulItem.getState()
-						!= FrostUploadItemObject.STATE_UPLOADING
-						&& ulItem.getState()
-							!= FrostUploadItemObject.STATE_PROGRESS
-						&& ulItem.getState()
-							!= FrostUploadItemObject.STATE_ENCODING) {
-						ulItem.setState(FrostUploadItemObject.STATE_REQUESTED);
-						tableModel.updateRow(ulItem);
-					}
-				}
-			}
-		});
-		// Generate CHK for selected files
-		uploadPopupGenerateChkForSelectedFiles
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				UploadTableModel tableModel =
-					(UploadTableModel) getUploadTable().getModel();
-				int[] selectedRows = getUploadTable().getSelectedRows();
-				for (int i = 0; i < selectedRows.length; i++) {
-					FrostUploadItemObject ulItem =
-						(FrostUploadItemObject) tableModel.getRow(
-							selectedRows[i]);
-					// start gen chk only if IDLE
-					if (ulItem.getState() == FrostUploadItemObject.STATE_IDLE
-						&& ulItem.getKey() == null) {
-						ulItem.setState(
-							FrostUploadItemObject.STATE_ENCODING_REQUESTED);
-						tableModel.updateRow(ulItem);
-					}
-				}
-			}
-		});
-		// Upload / Set Prefix for selected files
-		uploadPopupSetPrefixForSelectedFiles
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getUploadTable().setPrefixForSelectedFiles();
-			}
-		});
-		// Upload / Set Prefix for all files
-		uploadPopupSetPrefixForAllFiles
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getUploadTable().selectAll();
-				getUploadTable().setPrefixForSelectedFiles();
-			}
-		});
-		// Upload / Restore default filenames for selected files
-		uploadPopupRestoreDefaultFilenamesForSelectedFiles
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getUploadTable().restoreOriginalFilenamesForSelectedRows();
-			}
-		});
-		// Upload / Restore default filenames for all files
-		uploadPopupRestoreDefaultFilenamesForAllFiles
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getUploadTable().selectAll();
-				getUploadTable().restoreOriginalFilenamesForSelectedRows();
-			}
-		});
-		// Upload / Restore default filenames for all files
-		//		uploadPopupAddFilesToBoard.addActionListener(new ActionListener() {
-		//			public void actionPerformed(ActionEvent e) {
-		//				getUploadTable().addFilesToBoardIndex();
-		// FIXME: ZAB! - what does this do? -- ANSWERED, see below!
-		// bback: is'nt my code, but i assume this was intended to add the
-		// selected files to board files list (e.g. after you changed target board).
-		// i'm not sure if longer needed, just comment it out and wait for comments ;)
-		//			}
-		//		});
 	}
 
 	/**
@@ -3907,77 +4010,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	protected void showUploadTablePopupMenu(MouseEvent e) {
-		JPopupMenu pmenu = new JPopupMenu();
-
-		if (getUploadTable().getSelectedRowCount() == 1) {
-			// if 1 item is selected
-			FrostUploadItemObject ulItem =
-				(FrostUploadItemObject)
-					((UploadTableModel) getUploadTable().getModel()).getRow(
-					getUploadTable().getSelectedRow());
-			if (ulItem.getKey() != null) {
-				pmenu.add(uploadPopupCopyToClipboard);
-				pmenu.addSeparator();
-			}
-		}
-
-		JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
-		if (getUploadTable().getSelectedRow() > -1) {
-			removeSubMenu.add(uploadPopupRemoveSelectedFiles);
-		}
-		removeSubMenu.add(uploadPopupRemoveAllFiles);
-
-		pmenu.add(removeSubMenu);
-		pmenu.addSeparator();
-		if (getUploadTable().getSelectedRow() > -1) {
-			pmenu.add(uploadPopupGenerateChkForSelectedFiles);
-			pmenu.add(uploadPopupReloadSelectedFiles);
-		}
-		pmenu.add(uploadPopupReloadAllFiles);
-		pmenu.addSeparator();
-		if (getUploadTable().getSelectedRow() > -1) {
-			pmenu.add(uploadPopupSetPrefixForSelectedFiles);
-		}
-		pmenu.add(uploadPopupSetPrefixForAllFiles);
-		pmenu.addSeparator();
-		if (getUploadTable().getSelectedRow() > -1) {
-			pmenu.add(uploadPopupRestoreDefaultFilenamesForSelectedFiles);
-		}
-		pmenu.add(uploadPopupRestoreDefaultFilenamesForAllFiles);
-		pmenu.addSeparator();
-		if (getUploadTable().getSelectedRow() > -1) {
-			// Add boards to changeDestinationBoard submenu
-			Vector boards = getTofTree().getAllBoards();
-			Collections.sort(boards);
-			uploadPopupChangeDestinationBoard.removeAll();
-			for (int i = 0; i < boards.size(); i++) {
-				final FrostBoardObject aBoard =
-					(FrostBoardObject) boards.elementAt(i);
-				JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
-				uploadPopupChangeDestinationBoard.add(boardMenuItem);
-				// add all boards to menu + set action listener for each board menu item
-				boardMenuItem.addActionListener(new ActionListener() {
-					public void actionPerformed(ActionEvent e) {
-						// set new board for all selected rows
-						UploadTableModel ulModel =
-							(UploadTableModel) getUploadTable().getModel();
-						int[] selectedRows = getUploadTable().getSelectedRows();
-						for (int x = 0; x < selectedRows.length; x++) {
-							FrostUploadItemObject ulItem =
-								(FrostUploadItemObject) ulModel.getRow(
-									selectedRows[x]);
-							ulItem.setTargetBoard(aBoard);
-							ulModel.updateRow(ulItem);
-						}
-					}
-				});
-			}
-			pmenu.add(uploadPopupChangeDestinationBoard);
-		}
-		//pmenu.add(uploadPopupAddFilesToBoard);
-		pmenu.addSeparator();
-		pmenu.add(uploadPopupCancel);
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+		getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	protected void showSearchTablePopupMenu(MouseEvent e) {
@@ -4098,6 +4131,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	public static LocalIdentity getMyId() {
 		return Core.getMyId();
+	}
+
+	/**
+	 * @return
+	 */
+	private PopupMenuUpload getPopupMenuUpload() {
+		if (popupMenuUpload == null) {
+			popupMenuUpload = new PopupMenuUpload();
+			languageResource.addLanguageListener(popupMenuUpload);	
+		}
+		return popupMenuUpload;
 	}
 
 }
