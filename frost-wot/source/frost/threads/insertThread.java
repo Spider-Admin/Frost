@@ -118,7 +118,7 @@ public class insertThread extends Thread
                 //what was it before?
                 if( success == true )
                 {
-                    KeyClass current = new KeyClass(uploadItem.getKey());
+                    SharedFileObject current = new SharedFileObject(uploadItem.getKey());
                     if (sign)
                         current.setOwner(frame1.getMyId().getUniqueName());
                     current.setFilename(uploadItem.getFileName());
@@ -158,7 +158,7 @@ public class insertThread extends Thread
                         + SHA1);
 
                 //create new KeyClass
-                KeyClass newKey = new KeyClass();
+                SharedFileObject newKey = new SharedFileObject();
                 newKey.setKey(null);
                 newKey.setDate(null);
                 newKey.setLastSharedDate(DateFun.getDate());

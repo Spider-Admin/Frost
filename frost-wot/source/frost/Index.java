@@ -29,15 +29,15 @@ public class Index
     /**
      * Calculates keys that should be uploaded to the keyindex
      * @param board The boardsname (in filename type)
-     * @return Vector with KeyClass objects
+     * @return Vector with SharedFileObject objects
      */
  
     private static final String fileSeparator = System.getProperty("file.separator");
-    public static KeyClass getKey(String SHA1,FrostBoardObject board) {
+    public static SharedFileObject getKey(String SHA1,FrostBoardObject board) {
     	return getKey(SHA1,board.getBoardFilename());
     }
     
-    public static KeyClass getKey(String SHA1,String board) {
+    public static SharedFileObject getKey(String SHA1,String board) {
     	final Map keys = Collections.synchronizedMap(new HashMap());
 	//final String fileSeparator = System.getProperty("file.separator");
 	
@@ -51,7 +51,7 @@ public class Index
 		
 	
 	FileAccess.readKeyFile(keyFile, keys);
-	KeyClass result = (KeyClass) keys.get(SHA1);
+	SharedFileObject result = (SharedFileObject) keys.get(SHA1);
 	if (result==null) {
 		//try the recently uploaded files
 		keyFile = new File(frame1.keypool + board + fileSeparator + "new_files.xml");
@@ -62,7 +62,7 @@ public class Index
 		keys.clear();
 		FileAccess.readKeyFile(keyFile,keys);
 	}
-	return (KeyClass)keys.get(SHA1);
+	return (SharedFileObject)keys.get(SHA1);
 	
     }
     
@@ -100,7 +100,7 @@ public class Index
 	int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
 	Core.getOut().println("re-sharing files shared before "+DateFun.getDate(downloadBack));
 	while (i.hasNext()) {
-		KeyClass current = (KeyClass) i.next();
+		SharedFileObject current = (SharedFileObject) i.next();
 		if (current.getOwner() != null && //not anonymous
 			frame1.getMyId().getUniqueName().compareTo(current.getOwner()) !=0 && //not myself
 			frame1.frostSettings.getBoolValue("helpFriends") && //and helping is enabled
@@ -144,7 +144,7 @@ public class Index
              Iterator j = mine.values().iterator();
              while( j.hasNext() )
              {
-                  KeyClass current = (KeyClass)j.next();
+                  SharedFileObject current = (SharedFileObject)j.next();
 		  boolean my = current.getOwner()!= null &&
 		  	frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0;
 		  //make an update only if the user has inserted at least one file
@@ -190,7 +190,7 @@ public class Index
 	
     }
 
-    public static void add(KeyClass key, FrostBoardObject board) {
+    public static void add(SharedFileObject key, FrostBoardObject board) {
         //final String fileSeparator = System.getProperty("file.separator");
 	File boardDir = new File(board.getBoardFilename());
 	if (!(boardDir.exists() && boardDir.isDirectory())) boardDir.mkdir();
@@ -199,7 +199,7 @@ public class Index
     	add(key,new File(frame1.keypool + board.getBoardFilename()+fileSeparator+"files.xml"));
     }
     
-    public static void addMine(KeyClass key, FrostBoardObject board) {
+    public static void addMine(SharedFileObject key, FrostBoardObject board) {
         //final String fileSeparator = System.getProperty("file.separator");
 	File boardDir = new File(frame1.keypool + board.getBoardFilename());
 	if (!(boardDir.exists() && boardDir.isDirectory())) boardDir.mkdir();
@@ -218,7 +218,7 @@ public class Index
      * @param key the key to add to the index
      * @param target directory containing index
      */
-    public static void add(KeyClass key, File target)
+    public static void add(SharedFileObject key, File target)
     {
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         //final String fileSeparator = System.getProperty("file.separator");
@@ -308,13 +308,13 @@ public class Index
 
         Iterator i = chunk.values().iterator();
 	while (i.hasNext()) {
-		KeyClass current = (KeyClass)i.next();
+		SharedFileObject current = (SharedFileObject)i.next();
 		
 		//update the download table
 		if (current.getKey() !=null)
 			updateDownloadTable(current);
 		
-		KeyClass old = (KeyClass)whole.get(current.getSHA1());
+		SharedFileObject old = (SharedFileObject)whole.get(current.getSHA1());
 		
 		if (old == null) {
 			whole.put(current.getSHA1(),current);
@@ -340,14 +340,14 @@ public class Index
 
         Iterator i = chunk.values().iterator();
 	while (i.hasNext()) {
-		KeyClass current = (KeyClass)i.next();
+		SharedFileObject current = (SharedFileObject)i.next();
 		if (current.getOwner() != null &&
 			!current.getOwner().equals(owner)) continue;
 		//update the download table
 		if (current.getKey() !=null)
 			updateDownloadTable(current);
 		
-		KeyClass old = (KeyClass)whole.get(current.getSHA1());
+		SharedFileObject old = (SharedFileObject)whole.get(current.getSHA1());
 		
 		if (old == null) {
 			whole.put(current.getSHA1(),current);
@@ -361,7 +361,7 @@ public class Index
 	FileAccess.writeKeyFile(whole,target);
     }
     
-    private static void updateDownloadTable(KeyClass key) {
+    private static void updateDownloadTable(SharedFileObject key) {
     	//this really shouldn't happen
     	if (key==null || key.getSHA1()==null) {
 		Core.getOut().println("null value in index.updateDownloadTable");

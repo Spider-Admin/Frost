@@ -222,7 +222,7 @@ public class requestThread extends Thread
                 if (board != null && board.isFolder() == false)
                 {
                     // Add successful downloaded key to database
-                    KeyClass newKey = new KeyClass(key);
+                    SharedFileObject newKey = new SharedFileObject(key);
                     newKey.setFilename(filename);
                     newKey.setSize(newFile.length());
                     newKey.setSHA1(SHA1);

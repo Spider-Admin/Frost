@@ -20,7 +20,16 @@ package frost;
 
 import java.util.*;
 
-public class KeyClass
+
+//Renamed this class to SharedFileObject.
+//there will be more refactoring of it:
+//base will be IndexedFileObject
+//extended by OwnedFileObject
+
+//why do this?  Because in the future we may want to add more descriptions,
+//maybe some categories, user comments, etc.  Its all possible with xml ;)
+
+public class SharedFileObject
 {
     private boolean DEBUG = false;
     private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
@@ -273,14 +282,14 @@ public class KeyClass
     }
 
     /** Constructor*/
-    public KeyClass(String key)
+    public SharedFileObject(String key)
     {
         this.key = key;
         this.exchange = true;
     }
     
     /** also an empty constructor, just in case*/
-    public KeyClass() {
+    public SharedFileObject() {
     	exchange=true;
     }
 }

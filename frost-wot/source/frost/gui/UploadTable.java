@@ -142,7 +142,7 @@ public class UploadTable extends SortedTable
             FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( i );
             if( ulItem.getSHA1() != null)
             {
-                KeyClass newKey = new KeyClass();
+                SharedFileObject newKey = new SharedFileObject();
                 newKey.setFilename( ulItem.getFileName() );
                 newKey.setSize( ulItem.getFileSize().toString() ); // TODO: pass object, not string
                 //newKey.setDate( date );
