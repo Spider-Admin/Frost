@@ -247,11 +247,21 @@ Build log  : ${logfilename}</echo>
     <copy todir="${release.dir}">
       <fileset dir="${dist.dir}">
       	<filename name="${jarName}"/>
-      </fileset>
-    </copy>
+      </fileset> 
+   </copy>
 
     <delete quiet="true" file="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
+    <delete quiet="true" file="${release.dir}/${distJarNamePrefix}-latest.jar"/>
+    
     <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
+
+    <copy todir="${release.dir}">
+          <fileset dir="${dist.dir}">
+	          <filename name="${jarName}"/>
+	</fileset>
+   </copy>
+   <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}$-latest.jar}.jar"/>
+			    
 
     <!-- Prepares the source zip -->
 
