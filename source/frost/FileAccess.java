@@ -613,7 +613,8 @@ public class FileAccess
 				if (current.getOwner() != null
 								&& frame1.getEnemies().Get(current.getOwner()) != null)
 							{
-								Core.getOut().println("removing file from BAD user");
+								//Core.getOut().println("removing file from BAD user");
+								//FIXME: this has been happening too often.  Debug properly
 								i.remove();
 								continue;
 							}
@@ -626,6 +627,7 @@ public class FileAccess
         if( itemsAppended == 0 )
         {
             // don't write file
+        	Core.getOut().println("writeKeyFile called with no files to add?");
             return;
         }
         
