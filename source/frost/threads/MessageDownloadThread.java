@@ -96,12 +96,12 @@ public class MessageDownloadThread extends Thread
         {
             // download actual date
             downloadDate(cal);
-            // maybe wait for update id thread
+
+            // maybe wait for update id thread to finish
             if( uit != null )
             {
                 try { uit.join(); }
                 catch(InterruptedException ex) {}
-                //mixed.wait(6000); // join already waits for thread to finish
             }
         }
         else
@@ -120,7 +120,6 @@ public class MessageDownloadThread extends Thread
                 downloadDate(cal);
             }
         }
-
         System.out.println(tofType + " Thread stopped for board "+board);
         frame1.activeTofThreads.removeElement(board);
         frame1.tofDownloadThreads--;
@@ -150,7 +149,6 @@ public class MessageDownloadThread extends Thread
                 }
             }
         }
-
         return false;
     }
 
@@ -269,7 +267,6 @@ public class MessageDownloadThread extends Thread
                 // Download successful?
                 if( testMe.length() > 0 )
                 {
-
                     testMe.renameTo(testMe2);
                     testMe=testMe2;
                     // Does a duplicate message exist?
@@ -363,12 +360,10 @@ public class MessageDownloadThread extends Thread
 
         } // end-of: while
 
-
         /*if (!flagNew) {
             String text = String.valueOf(index - 2);
             FileAccess.writeFile(text, destination + "locked.lck");
         }*/
-
     }
 
     /**Constructor*/ //

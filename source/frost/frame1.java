@@ -2073,16 +2073,19 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**Selects message icon in lower right corner*/
-    public static void displayNewMessageIcon(boolean showNewMessageIcon) {
-    if (showNewMessageIcon) {
-
-frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/newmessage.gif")));
-        frame1.getInstance().statusMessageLabel.setIcon(newMessage[0]);
-    }
-    else {
-frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
-        frame1.getInstance().statusMessageLabel.setIcon(newMessage[1]);
-    }
+    public static void displayNewMessageIcon(boolean showNewMessageIcon)
+    {
+        frame1 frame1inst = frame1.getInstance();
+        if( showNewMessageIcon )
+        {
+            frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/newmessage.gif")));
+            frame1inst.statusMessageLabel.setIcon(newMessage[0]);
+        }
+        else
+        {
+            frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+            frame1inst.statusMessageLabel.setIcon(newMessage[1]);
+        }
     }
 
     public static void incTries(String board) {
@@ -2132,7 +2135,6 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
     Random rand = new Random(System.currentTimeMillis());
     String board = new String();
     BoardStat[] statArray = new BoardStat[boardCount];
-
 
     // Copy all board statistics into one array, statArray
     // and increase the access counter
@@ -2767,7 +2769,7 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
             tofTextPopupSaveBoards.setEnabled(false);
             tofTextPopupSaveAttachment.setEnabled(false);
             tofTextPopupSaveAttachments.setEnabled(false);
-        /*
+/*
             if (text.indexOf("<attached>") != -1 && text.indexOf("</attached>") != -1) {
                 tofTextPopupSaveAttachments.setEnabled(true);
             }
@@ -2778,10 +2780,8 @@ frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1
                 tofTextPopupSaveBoards.setEnabled(true);
             }
             else
-                tofTextPopupSaveBoards.setEnabled(false);*/
-
-
-
+                tofTextPopupSaveBoards.setEnabled(false);
+*/
             tofTextPopupSaveMessage.setEnabled(true);
             tofTextPopupMenu.show(e.getComponent(), e.getX(), e.getY());
             }
