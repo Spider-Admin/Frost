@@ -42,12 +42,12 @@ public class DownloadTableModel extends SortedTableModel implements LanguageList
         String.class
     };
 
-    public DownloadTableModel(UpdatingLanguageResource newLanguageResource)
-    {
-        super();
-        languageResource = newLanguageResource;
-        refreshLanguage();
-    }
+	public DownloadTableModel(UpdatingLanguageResource newLanguageResource) {
+		super();
+		languageResource = newLanguageResource;
+		languageResource.addLanguageListener(this);
+		refreshLanguage();
+	}
 
     public boolean isCellEditable(int row, int col)
     {

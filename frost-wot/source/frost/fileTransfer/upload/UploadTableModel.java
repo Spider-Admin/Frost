@@ -41,6 +41,7 @@ public class UploadTableModel extends SortedTableModel implements LanguageListen
 	public UploadTableModel(UpdatingLanguageResource newLanguageResource) {
 		super();
 		languageResource = newLanguageResource;
+		languageResource.addLanguageListener(this);
 		refreshLanguage();
 	}
 
