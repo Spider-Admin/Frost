@@ -152,8 +152,14 @@ public class KnownBoardsFrame extends JDialog
         while(i.hasNext())
         {
             String aboardstr = (String)i.next(); // format: "name * pubkey * privkey"
+            if( aboardstr.length() < 13 || aboardstr.indexOf("*") < 3 ||
+                ! ( aboardstr.indexOf("*") < aboardstr.lastIndexOf("*") ) )
+            {
+                continue;
+            }
             String bname, bpubkey, bprivkey;
             int pos = aboardstr.indexOf("*");
+            // BBACKFLAG: maybe there is no * in string ;)
             bname = aboardstr.substring(0, pos).trim();
             int pos2 = aboardstr.indexOf("*", pos+1);
             bpubkey = aboardstr.substring(pos+1, pos2).trim();
