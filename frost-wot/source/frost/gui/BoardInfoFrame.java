@@ -31,7 +31,7 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.*;
 import frost.gui.model.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.messages.FrostIndex;
 import frost.threads.*;
 import frost.util.gui.JSkinnablePopupMenu;
@@ -332,7 +332,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             Vector boards = parent.getTofTree().getAllBoards();
             for( int i = 0; i < boards.size(); i++ )
             {
-                FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
+                Board board = (Board)boards.elementAt(i);
                 String boardName = board.toString();
 
                 BoardInfoTableMember newRow = new BoardInfoTableMember(board);
@@ -373,7 +373,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         Vector boards = parent.getTofTree().getAllBoards();
         for( int i = 0; i < boards.size(); i++ )
         {
-            FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
+            Board board = (Board)boards.elementAt(i);
             if( parent.isUpdateAllowed(board) == true ) // is update allowed for this board?
             {
                 parent.updateBoard(board);
@@ -415,7 +415,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      * @param board name of the board
      * @return Integer value
      */
-    public BoardInfoTableMember fillInBoardCounts(FrostBoardObject board, BoardInfoTableMember row)
+    public BoardInfoTableMember fillInBoardCounts(Board board, BoardInfoTableMember row)
     {
         int countNewMessages = 0;
         int countAllMessages = 0;
@@ -520,7 +520,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      */
     class BoardInfoTableMember implements TableMember
     {
-        FrostBoardObject board;
+        Board board;
         Integer allmsg;
         Integer newmsg;
         Integer files;
@@ -528,7 +528,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         /**
          * @param board
          */
-        public BoardInfoTableMember(FrostBoardObject board)
+        public BoardInfoTableMember(Board board)
         {
             this.board = board;
             this.allmsg = null;
@@ -565,7 +565,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         /**
          * @return
          */
-        public FrostBoardObject getBoard()
+        public Board getBoard()
         {
             return board;
         }

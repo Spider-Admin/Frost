@@ -10,17 +10,17 @@ import java.util.TimerTask;
 import java.util.logging.Logger;
 
 import frost.Core;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 
 
 class ClearSpam extends TimerTask
 {
 	private final Core core;
-    private FrostBoardObject clearMe;
+    private Board clearMe;
     
 	private static Logger logger = Logger.getLogger(ClearSpam.class.getName());
 
-    public ClearSpam(Core core, FrostBoardObject which) { clearMe = which;
+    public ClearSpam(Core core, Board which) { clearMe = which;
 	this.core = core; }
     public void run()
     {

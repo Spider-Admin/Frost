@@ -1,6 +1,6 @@
 package frost.threads;
 
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 
 public interface BoardUpdateThread
 {
@@ -14,7 +14,7 @@ public interface BoardUpdateThread
     int getThreadType();
 
     // FrostBoard getTargetBoard()
-    public FrostBoardObject getTargetBoard();
+    public Board getTargetBoard();
 
     public long getStartTimeMillis();
 

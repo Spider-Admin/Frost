@@ -11,7 +11,7 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.storage.StorageException;
 
 /**
@@ -105,7 +105,7 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 
 		// check if target board exists in board tree
 
-		FrostBoardObject board = null;
+		Board board = null;
 		if (sourceboardname != null) {
 			board = MainFrame.getInstance().getTofTree().getBoardByName(sourceboardname);
 			if (board == null) {

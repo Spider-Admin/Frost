@@ -2,7 +2,7 @@ package frost.threads;
 
 import java.util.*;
 
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
 
 /**
@@ -12,12 +12,12 @@ import frost.identities.FrostIdentities;
 public class BoardUpdateThreadObject extends Thread
 {
     protected FrostIdentities identities;
-	FrostBoardObject targetBoard = null;
+	Board targetBoard = null;
     long startTimeMillis = -1;
     boolean isFinished = false;
     Vector registeredListeners = null;
 
-    public BoardUpdateThreadObject(FrostBoardObject board, FrostIdentities newIdentities)
+    public BoardUpdateThreadObject(Board board, FrostIdentities newIdentities)
     {
     	super(board.getBoardName());
         this.targetBoard = board;
@@ -26,7 +26,7 @@ public class BoardUpdateThreadObject extends Thread
     }
 
     // FrostBoard getTargetBoard()
-    public FrostBoardObject getTargetBoard()
+    public Board getTargetBoard()
     {
         return targetBoard;
     }

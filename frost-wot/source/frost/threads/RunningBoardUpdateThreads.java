@@ -6,7 +6,7 @@ import java.util.logging.*;
 import javax.swing.JFrame;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
 import frost.messages.MessageObject;
 
@@ -60,7 +60,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	 * @return
 	 */
 	public boolean startMessageDownloadToday(
-		FrostBoardObject board,
+		Board board,
 		SettingsClass config,
 		BoardUpdateThreadListener listener) {
 			
@@ -95,7 +95,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	 * @return
 	 */
 	public boolean startMessageDownloadBack(
-		FrostBoardObject board,
+		Board board,
 		SettingsClass config,
 		BoardUpdateThreadListener listener) {
 			
@@ -130,7 +130,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param listener
      * @return
      */
-    public boolean startBoardFilesUpload(FrostBoardObject board, SettingsClass config,
+    public boolean startBoardFilesUpload(Board board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
         /*GetRequestsThread grt = new GetRequestsThread(
@@ -163,7 +163,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param listener
      * @return
      */
-    public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
+    public boolean startBoardFilesDownload(Board board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
     	final int downloadBack=MainFrame.frostSettings.getIntValue("maxMessageDownload");
@@ -213,7 +213,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	 * @return
 	 */
 	public boolean startMessageUpload(
-		FrostBoardObject board,
+		Board board,
 		MessageObject mo,
 		BoardUpdateThreadListener listener) {
 			
@@ -263,7 +263,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param board
      * @return
      */
-    public Vector getDownloadThreadsForBoard(FrostBoardObject board)
+    public Vector getDownloadThreadsForBoard(Board board)
     {
         return getVectorFromHashtable( runningDownloadThreads, board );
     }
@@ -274,7 +274,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param board
      * @return
      */
-    public Vector getUploadThreadsForBoard(FrostBoardObject board)
+    public Vector getUploadThreadsForBoard(Board board)
     {
         return getVectorFromHashtable( runningUploadThreads, board );
     }
@@ -286,7 +286,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param board
      * @param listener
      */
-    public void addBoardUpdateThreadListener(FrostBoardObject board, BoardUpdateThreadListener listener)
+    public void addBoardUpdateThreadListener(Board board, BoardUpdateThreadListener listener)
     {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener); // no doubles allowed
         getVectorFromHashtable(threadListenersForBoard, board).add(listener);
@@ -309,7 +309,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param board
      * @param listener
      */
-    public void removeBoardUpdateThreadListener(FrostBoardObject board, BoardUpdateThreadListener listener)
+    public void removeBoardUpdateThreadListener(Board board, BoardUpdateThreadListener listener)
     {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener);
     }
@@ -498,7 +498,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param board
      * @return
      */
-    public boolean isUpdating(FrostBoardObject board)
+    public boolean isUpdating(Board board)
     {
         if( getVectorFromHashtable(runningDownloadThreads, board).size() > 0 )
         {
@@ -514,7 +514,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param board
      * @return
      */
-    public boolean isUploading(FrostBoardObject board)
+    public boolean isUploading(Board board)
     {
         if( getVectorFromHashtable(runningUploadThreads, board).size() > 0 )
         {
@@ -531,7 +531,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * @param type
      * @return
      */
-    public boolean isThreadOfTypeRunning(FrostBoardObject board, int type)
+    public boolean isThreadOfTypeRunning(Board board, int type)
     {
         Vector threads = getDownloadThreadsForBoard(board);
         for( int x=0; x<threads.size(); x++ )

@@ -16,7 +16,7 @@ import frost.*;
 import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
 import frost.gui.TofTree;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.threads.maintenance.Truster;
 import frost.util.gui.*;
@@ -487,7 +487,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 				Enumeration enu = tofTree.getSelectedNode().depthFirstEnumeration();
 				boardsToSearch = new Vector();
 				while (enu.hasMoreElements()) {
-					FrostBoardObject b = (FrostBoardObject) enu.nextElement();
+					Board b = (Board) enu.nextElement();
 					if (b.isFolder() == false) {
 						boardsToSearch.add(b);
 					}

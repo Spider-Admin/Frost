@@ -25,7 +25,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.fcp.*;
 import frost.crypt.SignMetaData;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.identities.Identity;
 import frost.messages.FrostIndex;
@@ -50,7 +50,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private int requestHtl;
     private int insertHtl;
     private String keypool;
-    private FrostBoardObject board;
+    private Board board;
     private String publicKey;
     private String privateKey;
     private String requestKey;
@@ -575,7 +575,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     }
 
 	/**Constructor*/
-	public UpdateIdThread(FrostBoardObject board, String date, FrostIdentities newIdentities) {
+	public UpdateIdThread(Board board, String date, FrostIdentities newIdentities) {
 		super(board, newIdentities);
 		
 		this.board = board;

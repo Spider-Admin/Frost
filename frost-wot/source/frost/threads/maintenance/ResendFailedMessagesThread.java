@@ -12,7 +12,7 @@ import java.util.ArrayList;
 import java.util.logging.*;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.messages.VerifyableMessageObject;
 
 
@@ -56,7 +56,7 @@ public class ResendFailedMessagesThread extends Thread
                 
                 if( mo != null && mo.isValid() )
                 {
-                    FrostBoardObject board = MainFrame.getInstance().getTofTree().getBoardByName( mo.getBoard() );
+                    Board board = MainFrame.getInstance().getTofTree().getBoardByName( mo.getBoard() );
                     if( board == null )
                     {
                         logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoard() +

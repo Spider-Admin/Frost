@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.fileTransfer.download.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.messages.*;
 
@@ -102,7 +102,7 @@ public class Index {
 	 * @param board
 	 * @param owner
 	 */
-	public static void add(File keyFile, FrostBoardObject board, Identity owner) {
+	public static void add(File keyFile, Board board, Identity owner) {
 		add(
 			keyFile,
 			new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "files.xml"),
@@ -130,7 +130,7 @@ public class Index {
 	 * @param b
 	 * @param owner
 	 */
-	public static void add(FrostIndex a, FrostBoardObject b, String owner) {
+	public static void add(FrostIndex a, Board b, String owner) {
 		add(
 			a.getFilesMap(),
 			new File(MainFrame.keypool + b.getBoardFilename() + File.separator + "files.xml"),
@@ -257,7 +257,7 @@ public class Index {
 	 * @param key
 	 * @param board
 	 */
-	public static void add(SharedFileObject key, FrostBoardObject board) {
+	public static void add(SharedFileObject key, Board board) {
 		//final String fileSeparator = System.getProperty("file.separator");
 		File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
 
@@ -274,7 +274,7 @@ public class Index {
 	 * @param key
 	 * @param board
 	 */
-	public static void addMine(SharedFileObject key, FrostBoardObject board) {
+	public static void addMine(SharedFileObject key, Board board) {
 		//final String fileSeparator = System.getProperty("file.separator");
 		File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
 

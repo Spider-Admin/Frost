@@ -8,7 +8,7 @@ import org.xml.sax.SAXException;
 
 import frost.*;
 import frost.fcp.FcpFactory;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.messages.BoardAttachment;
 
 /**
@@ -83,7 +83,7 @@ public class LocalIdentity extends Identity
 		}
 		try {
 			String[] svk = con.getKeyPair();
-			board = new BoardAttachment(new FrostBoardObject(getUniqueName(), svk[1], svk[0], null));
+			board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
 
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);

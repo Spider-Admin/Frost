@@ -11,7 +11,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 
 /**
  * @author zlatinb
@@ -21,7 +21,7 @@ import frost.gui.objects.FrostBoardObject;
  */
 public class BoardAttachment extends Attachment implements SafeXMLizable {
 
-	private FrostBoardObject boardObj;
+	private Board boardObj;
 
 	/* (non-Javadoc) 
 	 * @see frost.messages.Attachment#getType()
@@ -85,7 +85,7 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 		pubkey = XMLTools.getChildElementsCDATAValue(e, "pubKey");
 		description = XMLTools.getChildElementsCDATAValue(e, "description");
 
-		boardObj = new FrostBoardObject(name, pubkey, privkey, description);
+		boardObj = new Board(name, pubkey, privkey, description);
 	}
 
 	/**
@@ -99,14 +99,14 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 	/**
 	 * @param obj
 	 */
-	public BoardAttachment(FrostBoardObject obj) {
+	public BoardAttachment(Board obj) {
 		boardObj = obj;
 	}
 
 	/**
 	 * @return a FrostBoardObject
 	 */
-	public FrostBoardObject getBoardObj() {
+	public Board getBoardObj() {
 		return boardObj;
 	}
 

@@ -29,7 +29,7 @@ import javax.swing.table.*;
 
 import frost.*;
 import frost.gui.model.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.messages.BoardAttachment;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.translation.Language;
@@ -207,7 +207,7 @@ public class KnownBoardsFrame extends JDialog
                 Iterator j = frostboards.iterator();
                 while(j.hasNext())
                 {
-                    FrostBoardObject board = (FrostBoardObject)j.next();
+                    Board board = (Board)j.next();
                     if( board.getBoardName().equalsIgnoreCase(bname) &&
                         ( 
                           ( board.getPrivateKey() == null &&
@@ -322,7 +322,7 @@ public class KnownBoardsFrame extends JDialog
     class KnownBoardsTableMember implements TableMember
     {
         BoardAttachment boardatt;
-        FrostBoardObject frostboard;
+        Board frostboard;
 
         /**
          * @param ba
@@ -363,7 +363,7 @@ public class KnownBoardsFrame extends JDialog
         /**
          * @return
          */
-        public FrostBoardObject getBoardObject()
+        public Board getBoardObject()
         {
             return frostboard;
         }

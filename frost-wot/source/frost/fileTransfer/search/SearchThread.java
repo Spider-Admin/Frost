@@ -25,7 +25,7 @@ import java.util.logging.Logger;
 import frost.*;
 import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
 import frost.messages.SharedFileObject;
 
@@ -257,7 +257,7 @@ class SearchThread extends Thread {
 	/**
 	 * Displays search results in search table
 	 */
-	private void displaySearchResults(FrostBoardObject board) {
+	private void displaySearchResults(Board board) {
 		for (int i = 0; i < results.size(); i++) {
 			allFileCount++;
 
@@ -325,7 +325,7 @@ class SearchThread extends Thread {
 
             for( int j = 0; j < boardCount; j++ )
             {
-                FrostBoardObject frostBoard = (FrostBoardObject)boards.elementAt(j);
+                Board frostBoard = (Board)boards.elementAt(j);
                 String board = frostBoard.getBoardFilename();
 
                 logger.fine("Search for '" + request + "' on " + board + " started.");

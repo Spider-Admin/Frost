@@ -27,7 +27,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.storage.*;
 import frost.util.gui.JDragTree;
 import frost.util.gui.translation.Language;
@@ -90,9 +90,9 @@ public class TofTree extends JDragTree implements Savable {
 			boolean hasFocus) {
 			super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-			FrostBoardObject board = null;
-			if (value instanceof FrostBoardObject) {
-				board = (FrostBoardObject) value;
+			Board board = null;
+			if (value instanceof Board) {
+				board = (Board) value;
 			} else {
 				logger.severe(
 					"Error - TofTreeCellRenderer: got a tree value wich is no FrostBoardObject:\n"
@@ -204,7 +204,7 @@ public class TofTree extends JDragTree implements Savable {
         // load nodes from disk
         if( loadTree() == false )
         {
-            FrostBoardObject newRoot = new FrostBoardObject("Frost Message System", true);
+            Board newRoot = new Board("Frost Message System", true);
             DefaultTreeModel model = new DefaultTreeModel(newRoot);
             setModel( model );
         }
@@ -214,7 +214,7 @@ public class TofTree extends JDragTree implements Savable {
      * @param result
      * @return
      */
-    public FrostBoardObject cutNode(FrostBoardObject result)
+    public Board cutNode(Board result)
     {
         if( result != null )
         {
@@ -248,7 +248,7 @@ public class TofTree extends JDragTree implements Savable {
      * @param node
      * @return
      */
-    public boolean pasteFromClipboard(FrostBoardObject clipboard, FrostBoardObject node)
+    public boolean pasteFromClipboard(Board clipboard, Board node)
     {
         if( node == null || clipboard == null )
             return false;
@@ -269,12 +269,12 @@ public class TofTree extends JDragTree implements Savable {
      */
     public Vector getAllBoards()
     {
-        FrostBoardObject node = (FrostBoardObject)this.getModel().getRoot();
+        Board node = (Board)this.getModel().getRoot();
         Vector boards = new Vector();
         Enumeration e = node.depthFirstEnumeration();
         while( e.hasMoreElements() )
         {
-            FrostBoardObject child = (FrostBoardObject)e.nextElement();
+            Board child = (Board)e.nextElement();
             if( child.isFolder() == false )
             {
                 boards.add( child );
@@ -289,12 +289,12 @@ public class TofTree extends JDragTree implements Savable {
 	 * @param boardName the name of the board to look for
 	 * @return the FrostBoardObject if there was a board with that name. Null otherwise.
 	 */
-	public FrostBoardObject getBoardByName(String boardName) {
-		FrostBoardObject node = (FrostBoardObject) this.getModel().getRoot();
+	public Board getBoardByName(String boardName) {
+		Board node = (Board) this.getModel().getRoot();
 		Vector boards = new Vector();
 		Enumeration e = node.depthFirstEnumeration();
 		while (e.hasMoreElements()) {
-			FrostBoardObject child = (FrostBoardObject) e.nextElement();
+			Board child = (Board) e.nextElement();
 			if (child.toString().compareToIgnoreCase(boardName) == 0) {
 				return child;
 			}
@@ -370,7 +370,7 @@ public class TofTree extends JDragTree implements Savable {
 							+ "'!\n"
 							+ language.getString("Please choose a new name"));
 				} else {
-					FrostBoardObject newBoard = new FrostBoardObject(boardName, boardDescription);
+					Board newBoard = new Board(boardName, boardDescription);
 					addNodeToTree(newBoard);
 					// maybe this boardfolder already exists, scan for new messages
 					TOF.initialSearchNewMessages(newBoard);
@@ -409,7 +409,7 @@ public class TofTree extends JDragTree implements Savable {
 				return; // do not add
 			}
 		}
-		FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey, description);
+		Board newBoard = new Board(bname, bpubkey, bprivkey, description);
 		addNodeToTree(newBoard);
 		// maybe this boardfolder already exists, scan for new messages
 		TOF.initialSearchNewMessages(newBoard);
@@ -419,7 +419,7 @@ public class TofTree extends JDragTree implements Savable {
 	 * Checks if board is already existent, adds board to board tree.
 	 * @param fbobj
 	 */
-	public void addNewBoard(FrostBoardObject fbobj) {
+	public void addNewBoard(Board fbobj) {
 		addNewBoard(
 			fbobj.getBoardName(),
 			fbobj.getPublicKey(),
@@ -451,16 +451,16 @@ public class TofTree extends JDragTree implements Savable {
 
 		} while (nodeName.length() == 0);
 
-		addNodeToTree(new FrostBoardObject(nodeName, true));
+		addNodeToTree(new Board(nodeName, true));
 	}
 
     /**
      * Adds a node to tof tree, adds only under folders, begins with selected node.
      * @param newNode
      */
-    public void addNodeToTree(FrostBoardObject newNode)
+    public void addNodeToTree(Board newNode)
     {
-        FrostBoardObject selectedNode = (FrostBoardObject)getLastSelectedPathComponent();
+        Board selectedNode = (Board)getLastSelectedPathComponent();
         if( selectedNode != null)
         {
             if( selectedNode.isFolder()==true )
@@ -470,14 +470,14 @@ public class TofTree extends JDragTree implements Savable {
             else
             {
                 // add to parent of selected node
-                selectedNode = (FrostBoardObject)selectedNode.getParent();
+                selectedNode = (Board)selectedNode.getParent();
                 selectedNode.add(newNode);
             }
         }
         else
         {
             // add to root node
-            selectedNode = (FrostBoardObject)getModel().getRoot();
+            selectedNode = (Board)getModel().getRoot();
             selectedNode.add(newNode);
         }
         int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
@@ -499,12 +499,12 @@ public class TofTree extends JDragTree implements Savable {
 	/**
 	 * @return
 	 */
-	public FrostBoardObject getSelectedNode() {
-		FrostBoardObject node = (FrostBoardObject) getLastSelectedPathComponent();
+	public Board getSelectedNode() {
+		Board node = (Board) getLastSelectedPathComponent();
 		if (node == null) {
 			// nothing selected? unbelievable ! so select the root ...
 			setSelectionRow(0);
-			node = (FrostBoardObject) getModel().getRoot();
+			node = (Board) getModel().getRoot();
 		}
 		return node;
 	}

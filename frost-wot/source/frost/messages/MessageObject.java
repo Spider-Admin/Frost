@@ -26,7 +26,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 
 public class MessageObject implements XMLizable 
 {
@@ -128,7 +128,7 @@ public class MessageObject implements XMLizable
 		Iterator i = boards.iterator();
 		while (i.hasNext()) {
 			BoardAttachment ba = (BoardAttachment) i.next();
-			FrostBoardObject aBoard = ba.getBoardObj();
+			Board aBoard = ba.getBoardObj();
 
 			Vector rows = new Vector();
 			rows.add(aBoard.getBoardName());
