@@ -192,8 +192,23 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     /**
      * First time verify.
      */
-    public void verifyIncoming(GregorianCalendar dirDate)
+    public boolean isValidFormat(GregorianCalendar dirDate)
     {
+        //System.out.println("TOFDN: ****** Verifying incoming message ******");
+        try { // if something fails here, set msg. to N/A (maybe harmful message)
+
+            if( verifyDate(dirDate) == false || verifyTime() == false )
+            {
+                return false;
+            }
+        }
+        catch(Throwable t)
+        {
+            System.out.println("Oo. Exception in isValidFormat() - skipping Message.");
+            t.printStackTrace(System.out);
+            return false;
+        }
+        return true;
     	/*
         VerifyableMessageObject currentMsg = this;
         System.out.println("TOFDN: ****** Verifying incoming message ******");
