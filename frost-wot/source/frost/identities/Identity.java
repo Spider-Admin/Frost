@@ -100,7 +100,7 @@ public class Identity implements XMLizable
 					keyaddress =  XMLTools.getChildElementsCDATAValue(e, "CHK");
 					noMessages = (new Integer(XMLTools.getChildElementsTextValue(e,"messages"))).intValue();
 					noFiles = (new Integer(XMLTools.getChildElementsTextValue(e,"files"))).intValue();
-				}catch (NullPointerException npe) {
+				}catch (Exception npe) {
 					Core.getOut().println("no data about # of messages found for identity " + uniqueName);
 				}
 				
