@@ -56,10 +56,10 @@ public class ModelTable extends AbstractTableModel {
 		}
 
 		/* (non-Javadoc)
-		 * @see frost.util.model.OrderedModelListener#itemRemoved(int, frost.util.model.ModelItem)
+		 * @see frost.util.model.OrderedModelListener#itemsRemoved(int[], frost.util.model.ModelItem[])
 		 */
-		public void itemRemoved(int position, ModelItem item) {
-			fireTableRowsDeleted(position, position);			
+		public void itemsRemoved(int[] positions, ModelItem[] items) {
+			fireTableRowsDeleted(positions);			
 		}
 
 		/* (non-Javadoc)
@@ -194,6 +194,15 @@ public class ModelTable extends AbstractTableModel {
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		return tableFormat.getCellValue(model.getItemAt(rowIndex), columnIndex);
+	}
+	
+	/**
+	 * @param positions
+	 */
+	protected void fireTableRowsDeleted(int[] positions) {
+		for (int i = 0; i < positions.length; i++) {
+			fireTableRowsDeleted(positions[i], positions[i]);	
+		}			
 	}
 	
 	/**
