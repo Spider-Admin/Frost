@@ -59,13 +59,13 @@ public class SearchThread extends Thread {
 
     while(tmp.indexOf(" ") != -1) {
         int pos = tmp.indexOf(" ");
-//      if (DEBUG) System.out.println("Search request: " + (tmp.substring(0, pos)).trim());
+//      if (DEBUG) Core.getOut().println("Search request: " + (tmp.substring(0, pos)).trim());
         singleRequests.add((tmp.substring(0, pos)).trim());
         tmp = (tmp.substring(pos, tmp.length())).trim();
     }
 
     if (tmp.length() > 0) {
-//      if (DEBUG) System.out.println("Search request: " + (tmp));
+//      if (DEBUG) Core.getOut().println("Search request: " + (tmp));
         singleRequests.add(tmp);
     }
 
@@ -151,9 +151,9 @@ public class SearchThread extends Thread {
 
         int age = 1;
         try { age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos)); }
-        catch (NumberFormatException e) { if (DEBUG) System.out.println("Did not recognice age, using default 1"); }
+        catch (NumberFormatException e) { if (DEBUG) Core.getOut().println("Did not recognice age, using default 1"); }
 
-        if (DEBUG) System.out.println("AGE = " + age);
+        if (DEBUG) Core.getOut().println("AGE = " + age);
 
         GregorianCalendar today = new GregorianCalendar();
         today.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -241,7 +241,7 @@ public class SearchThread extends Thread {
 
             if( allFileCount > this.maxSearchResults )
             {
-                System.out.println("\nNOTE: maxSearchResults reached ("+maxSearchResults+")!");
+                Core.getOut().println("\nNOTE: maxSearchResults reached ("+maxSearchResults+")!");
                 return;
             }
 
@@ -305,7 +305,7 @@ public class SearchThread extends Thread {
 
     public void run()
     {
-        if( DEBUG ) System.out.println("Search for '" + request + "' on " + boards.size() + " boards started.");
+        if( DEBUG ) Core.getOut().println("Search for '" + request + "' on " + boards.size() + " boards started.");
 
         if( !request.equals("") )
         {
@@ -318,7 +318,7 @@ public class SearchThread extends Thread {
                 FrostBoardObject frostBoard = (FrostBoardObject)boards.elementAt(j);
                 String board = frostBoard.getBoardFilename();
 
-                if( DEBUG ) System.out.println("Search for '" + request + "' on " + board + " started.");
+                if( DEBUG ) Core.getOut().println("Search for '" + request + "' on " + board + " started.");
                 File keypoolDir = new File(keypool + board);
                 if( keypoolDir.isDirectory() )
                 {
@@ -328,7 +328,7 @@ public class SearchThread extends Thread {
                          chk.clear();
                          FileAccess.readKeyFile(shaIndex, chk);
                          getSearchResults();
-                         if( DEBUG ) System.out.println(shaIndex.getName() + " - " + chk.size() + ";");
+                         if( DEBUG ) Core.getOut().println(shaIndex.getName() + " - " + chk.size() + ";");
                         
                         
                     }

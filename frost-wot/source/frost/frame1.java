@@ -273,7 +273,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             } }, 1000, 1000);
             
         }catch (Throwable t) {
-        	t.printStackTrace(System.out);
+        	t.printStackTrace(Core.getOut());
         }
     }
 
@@ -1396,7 +1396,7 @@ public class frame1 extends JFrame implements ClipboardOwner
      */
     private void downloadBoards()
     {
-        System.out.println("adding boards");
+        Core.getOut().println("adding boards");
         int[] selectedRows = getAttachedBoardsTable().getSelectedRows();
 
         if( selectedRows.length == 0 )
@@ -1504,7 +1504,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             getRunningBoardUpdateThreads().startMessageDownloadToday(board, frostSettings, listener);
             mixed.wait(111);
-            System.out.println("Starting update (MSG_TODAY) of " + board.toString());
+            Core.getOut().println("Starting update (MSG_TODAY) of " + board.toString());
             threadStarted = true;
         }
 
@@ -1515,7 +1515,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, listener);
             mixed.wait(111);
-            System.out.println("Starting update (BOARD_UPLOAD) of " + board.toString());
+            Core.getOut().println("Starting update (BOARD_UPLOAD) of " + board.toString());
             threadStarted = true;
         }
 
@@ -1525,7 +1525,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, listener);
             mixed.wait(111);
-            System.out.println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
+            Core.getOut().println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
             threadStarted = true;
         }
 
@@ -1534,7 +1534,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, listener);
             mixed.wait(111);
-            System.out.println("Starting update (MSG_BACKLOAD) of " + board.toString());
+            Core.getOut().println("Starting update (MSG_BACKLOAD) of " + board.toString());
             threadStarted = true;
         }
 
@@ -1627,7 +1627,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**TOF Board selected*/
-    // TODO:
+    // Core.getOut()
     // if e == NULL, the method is called by truster or by the reloader after options were changed
     // in this cases we usually should left select the actual message (if one) while reloading the table
     public void tofTree_actionPerformed(TreeSelectionEvent e)
@@ -1656,7 +1656,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
                 updateButtons(node);
 
-                System.out.println( "Board "+node.toString()+" blocked count: "+node.getBlockedCount() );
+                Core.getOut().println( "Board "+node.toString()+" blocked count: "+node.getBlockedCount() );
 
                 uploadAddFilesButton.setEnabled(true);
                 renameBoardButton.setEnabled(false);
@@ -1780,7 +1780,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
             else
             {
-                System.out.println("WARNING: Although being warned, you tried to delete a board with is updating! Skipped ...");
+                Core.getOut().println("WARNING: Although being warned, you tried to delete a board with is updating! Skipped ...");
             }
         }
     }
@@ -2228,11 +2228,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         if( nextBoard != null )
         {
-            System.out.println("*** Automatic board update started for: "+nextBoard.toString());
+            Core.getOut().println("*** Automatic board update started for: "+nextBoard.toString());
         }
         else
         {
-            System.out.println("*** Automatic board update - no board to update.");
+            Core.getOut().println("*** Automatic board update - no board to update.");
         }
         return nextBoard;
     }
@@ -2695,7 +2695,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                                             .append(frostSettings.getValue("downloadDirectory"))
                                             .append(dlItem.getFileName()).toString();
                 File file = new File( execFilename );
-                System.out.println("Executing: " + file.getPath());
+                Core.getOut().println("Executing: " + file.getPath());
                 if( file.exists() )
                 {
                     Execute.run("exec.bat" + " " + file.getPath());
@@ -2708,7 +2708,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
                 FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( getUploadTable().getSelectedRow() );
                 File file = new File( ulItem.getFilePath() );
-                System.out.println("Executing: "+file.getPath());
+                Core.getOut().println("Executing: "+file.getPath());
                 if( file.exists() )
                 {
                     Execute.run("exec.bat" + " " + file.getPath());
@@ -2774,7 +2774,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     } // end of class popuplistener
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
-    //System.out.println("Clipboard contents replaced");
+    //Core.getOut().println("Clipboard contents replaced");
     }
 
     /**

@@ -75,7 +75,7 @@ public class GetRequestsThread extends Thread
         File makedir = new File(destination);
         if( !makedir.exists() )
         {
-            System.out.println(Thread.currentThread().getName()+ ": Creating directory: " + destination);
+            Core.getOut().println(Thread.currentThread().getName()+ ": Creating directory: " + destination);
             makedir.mkdirs();
         }
 
@@ -123,7 +123,7 @@ public class GetRequestsThread extends Thread
                                         .append(testMe.getName())
                                         .append(", failures = ")
                                         .append(failures).toString();
-                System.out.println( tmp );
+                Core.getOut().println( tmp );
 
                 FcpRequest.getFile("KSK@frost/request/" +
                                    frame1.frostSettings.getValue("messageBase") + "/" +
@@ -139,10 +139,10 @@ public class GetRequestsThread extends Thread
             // Download successful?
             if( testMe.length() > 0 /* && justDownloaded */ )
             {
-                System.out.println(Thread.currentThread().getName()+" Received request " + testMe.getName());
+                Core.getOut().println(Thread.currentThread().getName()+" Received request " + testMe.getName());
 
                 String content = (FileAccess.readFileRaw(testMe)).trim();
-                System.out.println("Request content is " + content);
+                Core.getOut().println("Request content is " + content);
                 UploadTableModel tableModel = (UploadTableModel)uploadTable.getModel();
                 int rowCount = tableModel.getRowCount();
 
@@ -161,14 +161,14 @@ public class GetRequestsThread extends Thread
                                 ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
 				ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
                             {
-                                System.out.println("Request matches row " + i);
+                                Core.getOut().println("Request matches row " + i);
                                 ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                                 tableModel.updateRow( ulItem );
                             }
                         }
                         else
                         {
-                            System.out.println("File with hash " + SHA1 + " was requested, but already uploaded today");
+                            Core.getOut().println("File with hash " + SHA1 + " was requested, but already uploaded today");
                         }
                     }
                 }
@@ -196,8 +196,8 @@ public class GetRequestsThread extends Thread
 	} //people with nice ides can refactor :-P
         catch(Throwable t)
         {
-            System.out.println(Thread.currentThread().getName()+": Oo. EXCEPTION in GetRequestsThread:");
-            t.printStackTrace(System.out);
+            Core.getOut().println(Thread.currentThread().getName()+": Oo. EXCEPTION in GetRequestsThread:");
+            t.printStackTrace(Core.getOut());
         }
 	
 	

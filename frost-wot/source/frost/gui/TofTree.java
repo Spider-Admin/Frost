@@ -145,7 +145,7 @@ implements DragGestureListener, DragSourceListener
 
         setSelectionPath(path); // Select this path in the tree
 
-//      System.out.println("DRAGGING: "+path.getLastPathComponent());
+//      Core.getOut().println("DRAGGING: "+path.getLastPathComponent());
 
         // Wrap the path being transferred into a Transferable object
         Transferable transferable = new CTransferableTreePath(path);
@@ -326,7 +326,7 @@ implements DragGestureListener, DragSourceListener
                             return;
                         }
 
-                        // System.out.println("DROPPING: "+pathSource.getLastPathComponent());
+                        // Core.getOut().println("DROPPING: "+pathSource.getLastPathComponent());
                         DefaultTreeModel model = (DefaultTreeModel)getModel();
                         TreePath pathNewChild = null;
 
@@ -337,7 +337,7 @@ implements DragGestureListener, DragSourceListener
                             int idx = newParent.getIndex(targetNode);
                             if( idx < 0 )
                             {
-                                System.out.println("child not found in parent!!!");
+                                Core.getOut().println("child not found in parent!!!");
                                 e.dropComplete(false);
                                 return;
                             }
@@ -386,13 +386,13 @@ implements DragGestureListener, DragSourceListener
                     }
                     catch (UnsupportedFlavorException ufe)
                     {
-                        System.out.println(ufe);
+                        Core.getOut().println(ufe);
                         e.dropComplete(false);
                         return;
                     }
                     catch (IOException ioe)
                     {
-                        System.out.println(ioe);
+                        Core.getOut().println(ioe);
                         e.dropComplete(false);
                         return;
                     }
@@ -544,7 +544,7 @@ implements DragGestureListener, DragSourceListener
         File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false )
         {
-            System.out.println("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
+            Core.getOut().println("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
             boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml.default";
         }
         return xmlio.loadBoardTree( this, boardIniFilename );

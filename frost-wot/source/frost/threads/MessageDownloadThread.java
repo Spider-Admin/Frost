@@ -69,7 +69,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         int waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
         mixed.wait(waitTime);
 
-        System.out.println("TOFDN: "+tofType + " Thread started for board "+board.toString());
+        Core.getOut().println("TOFDN: "+tofType + " Thread started for board "+board.toString());
 
         if( isInterrupted() )
         {
@@ -112,12 +112,12 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 downloadDate(cal);
             }
         }
-        System.out.println("TOFDN: "+tofType+" Thread stopped for board "+board.toString());
+        Core.getOut().println("TOFDN: "+tofType+" Thread stopped for board "+board.toString());
         }
         catch(Throwable t)
         {
-            System.out.println(Thread.currentThread().getName()+": Oo. Exception in MessageDownloadThread:");
-            t.printStackTrace(System.out);
+            Core.getOut().println(Thread.currentThread().getName()+": Oo. Exception in MessageDownloadThread:");
+            t.printStackTrace(Core.getOut());
         }
         notifyThreadFinished(this);
     }
@@ -227,8 +227,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 }
                 catch(Throwable t)
                 {
-                    System.out.println(Thread.currentThread().getName()+" :TOFDN - Error in run()/FcpRequest.getFile:");
-                    t.printStackTrace(System.out);
+                    Core.getOut().println(Thread.currentThread().getName()+" :TOFDN - Error in run()/FcpRequest.getFile:");
+                    t.printStackTrace(Core.getOut());
                 }
 
                 // Download successful?
@@ -241,17 +241,17 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     {
                         //test if encrypted and decrypt
                         String contents = FileAccess.readFileRaw(testMe);
-                        //System.out.println(contents);
+                        //Core.getOut().println(contents);
                         String plaintext;
                         int encstart = contents.indexOf("==== Frost Signed+Encrypted Message ====");
 
                         if( encstart != -1 )
                         {
-                            System.out.println("TOFDN: Decrypting message ...");
+                            Core.getOut().println("TOFDN: Decrypting message ...");
                             plaintext = frame1.getCrypto().decrypt(contents.substring(encstart,contents.length()),
                                                                    frame1.getMyId().getPrivKey());
                             contents = contents.substring(0,encstart) + plaintext;
-                            //  System.out.println(contents);
+                            //  Core.getOut().println(contents);
                             FileAccess.writeFile(contents,testMe);
                         }
 
@@ -259,7 +259,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         if( currentMsg.getSubject().trim().indexOf("ENCRYPTED MSG FOR") != -1 &&
                             currentMsg.getSubject().indexOf(frame1.getMyId().getName()) == -1 )
                         {
-                            System.out.println("TOFDN: Message is encrypted for someone else.");
+                            Core.getOut().println("TOFDN: Message is encrypted for someone else.");
                             //testMe.delete();
                             FileAccess.writeFile("Empty", testMe); // no more checking if for me, no more downloading
                             index++;
@@ -276,7 +276,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             if( TOF.blocked(currentMsg,board) && testMe.length() > 0 )
                             {
                                 board.incBlocked();
-                                System.out.println("\nTOFDN: ########### blocked message for board '"+board.toString()+"' #########\n");
+                                Core.getOut().println("\nTOFDN: ########### blocked message for board '"+board.toString()+"' #########\n");
                             }
                             else
                             {
@@ -303,7 +303,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     }
                     else
                     { // duplicate message
-                        System.out.println(Thread.currentThread().getName()+": TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
+                        Core.getOut().println(Thread.currentThread().getName()+": TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
                         FileAccess.writeFile("Empty", testMe);
                     }
                     index++;
@@ -313,7 +313,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 {
 /*                    if( !flagNew )
                     {
-                        System.out.println("TOFDN: *** Increased TOF index for board '"+board.toString()+"' ***");
+                        Core.getOut().println("TOFDN: *** Increased TOF index for board '"+board.toString()+"' ***");
                     }*/
                     failures++;
                     index++;
@@ -322,7 +322,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             if( isInterrupted() )
                 return;
 	 }catch(Throwable t) {
-	 	t.printStackTrace(System.out);
+	 	t.printStackTrace(Core.getOut());
 		index++;
 	 }
         } // end-of: while

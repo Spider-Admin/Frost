@@ -65,7 +65,7 @@ public class insertThread extends Thread
 
             if( mode == MODE_UPLOAD )
             { //real upload
-                System.out.println("Upload of " + file + " with HTL " + htl + " started.");
+                Core.getOut().println("Upload of " + file + " with HTL " + htl + " started.");
                 synchronized (frame1.threadCountLock)
                 {
                     frame1.activeUploadThreads++;
@@ -84,13 +84,13 @@ public class insertThread extends Thread
                     result[0].equals("KeyCollision") )
                 {
                     success = true;
-                    System.out.println("Upload of " + file + " was successful.");
+                    Core.getOut().println("Upload of " + file + " was successful.");
                     uploadItem.setKey(result[1]);
                     lastUploadDate = currentDate;
                 }
                 else
                 {
-                    System.out.println("Upload of " + file + " was NOT successful.");
+                    Core.getOut().println("Upload of " + file + " was NOT successful.");
                 }
 
                 // item uploaded (maybe)
@@ -143,7 +143,7 @@ public class insertThread extends Thread
 
                 long now = System.currentTimeMillis();
                 String SHA1 = frame1.getCrypto().digest(file);
-                System.out.println(
+                Core.getOut().println(
                     "digest generated in "
                         + (System.currentTimeMillis() - now)
                         + "  "
@@ -177,7 +177,7 @@ public class insertThread extends Thread
             else if( mode == MODE_GENERATE_CHK )
             {
                 frame1.setGeneratingCHK(true);
-                System.out.println("CHK generation started for file: " + file);
+                Core.getOut().println("CHK generation started for file: " + file);
 
                 FecSplitfile splitfile = new FecSplitfile( file );
                 boolean alreadyEncoded = splitfile.uploadInit();
@@ -188,7 +188,7 @@ public class insertThread extends Thread
                     }
                     catch(Throwable t)
                     {
-                        System.out.println("Encoding failed:");
+                        Core.getOut().println("Encoding failed:");
                         t.printStackTrace();
                         return;
                     }
@@ -204,7 +204,7 @@ public class insertThread extends Thread
                 }
                 else
                 {
-                    System.out.println("Could not generate CHK key for redirect file.");
+                    Core.getOut().println("Could not generate CHK key for redirect file.");
                 }
                 uploadItem.setKey(chkkey);
                 
@@ -216,7 +216,7 @@ public class insertThread extends Thread
         }
         catch (Throwable t)
         {
-            t.printStackTrace(System.out);
+            t.printStackTrace(Core.getOut());
         }
     }
 
