@@ -51,14 +51,16 @@ public class FontChooser extends JDialog {
 		 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 		 */
 		public void valueChanged(ListSelectionEvent e) {
-			if (e.getSource() == fontNamesList) {
-				fontNameValueChanged();
-			}
-			if (e.getSource() == fontStylesList) {
-				fontStyleValueChanged();
-			}
-			if (e.getSource() == fontSizesList) {
-				fontSizeValueChanged();
+			if (!e.getValueIsAdjusting()) { // We ignore adjusting events
+				if (e.getSource() == fontNamesList) {
+					fontNameValueChanged();
+				}
+				if (e.getSource() == fontStylesList) {
+					fontStyleValueChanged();
+				}
+				if (e.getSource() == fontSizesList) {
+					fontSizeValueChanged();
+				}
 			}
 		}
 
