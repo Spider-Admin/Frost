@@ -102,9 +102,8 @@ public class BoardInfoFrame extends JFrame
     JMenuItem MIupdateSelectedBoard = new JMenuItem(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
     JMenuItem MIupdateAllBoards = new JMenuItem("Update all boards");
 
-
     BoardInfoTableModel boardTableModel = new BoardInfoTableModel();
-    DefaultListSelectionModel boardTableListModel = new DefaultListSelectionModel();
+//    DefaultListSelectionModel boardTableListModel = new DefaultListSelectionModel();
     SortedTable boardTable = new SortedTable(boardTableModel);
 
     //DefaultListModel boardListModel = new DefaultListModel();
@@ -120,55 +119,29 @@ public class BoardInfoFrame extends JFrame
         // Configure objects
         //------------------------------------------------------------------------
 
-this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+        this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
         this.setTitle(LangRes.getString("Board information"));
         this.setSize(new Dimension(300, 200));
         this.setResizable(true);
 
-        boardTable.setSelectionModel(boardTableListModel);
         boardTable.setDefaultRenderer(Object.class, new BoardInfoTableCellRenderer());
-
-        updateSelectedBoardButton.setEnabled(false);
-
-        //TableSorter.addMouseListenerToHeaderInTable(boardTable);
         boardTable.setRowSelectionAllowed(true);
         boardTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
 
-        Vector boardColumnNames = new Vector();
-        boardColumnNames.add(LangRes.getString("Board"));
-        boardColumnNames.add(LangRes.getString("State"));
-        boardColumnNames.add(LangRes.getString("Messages"));
-        boardColumnNames.add(LangRes.getString("New messages"));
-        boardColumnNames.add(LangRes.getString("Files"));
-        boardTableModel.setDataVector(new Vector(), boardColumnNames);
+        updateSelectedBoardButton.setEnabled(false);
 
-        //boardlistScrollPane.setPreferredSize(new Dimension(150, 100));
         //------------------------------------------------------------------------
         // Actionlistener
         //------------------------------------------------------------------------
-
-        // boardList / valueChanged
-        /*boardList.addListSelectionListener(new ListSelectionListener() {
-            public void valueChanged(ListSelectionEvent e){
-                boardListModel_valueChanged(e);
-            }
-            });
-        */
-        // boardTable / valueChanged
-
-        boardTableListModel.addListSelectionListener(new ListSelectionListener()
-                                                     {
-                                                         public void valueChanged(ListSelectionEvent e)
-                                                         {
-                                                             boardTableListModel_valueChanged(e);
-                                                         }
-                                                     });
+        boardTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
+                         public void valueChanged(ListSelectionEvent e) {
+                             boardTableListModel_valueChanged(e);
+                         }
+                     });
 
         // updateButton
-        ActionListener al = new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        ActionListener al = new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 updateButton_actionPerformed(e);
             }
         };
@@ -194,10 +167,8 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
         MIupdateSelectedBoard.addActionListener(al);
 
         // updateAllBoardsButton
-        al = new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        al = new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 updateAllBoardsButton_actionPerformed(e);
             }
         };
@@ -205,10 +176,8 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
         MIupdateAllBoards.addActionListener(al);
 
         // Bclose
-        al = new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        al = new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 closeDialog();
             }
         };
@@ -275,48 +244,30 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
 */
     class TableDoubleClickMouseListener implements MouseListener
     {
-        public void mouseReleased(MouseEvent event)
-        {
-        }
-        public void mousePressed(MouseEvent event)
-        {
-        }
-        public void mouseClicked(MouseEvent event)
-        {
+        public void mouseReleased(MouseEvent event) {}
+        public void mousePressed(MouseEvent event) {}
+        public void mouseClicked(MouseEvent event) {
             if( event.getClickCount() == 2 )
             {
                 updateSelectedBoardButton_actionPerformed(null);
             }
         }
-        public void mouseEntered(MouseEvent event)
-        {
-        }
-        public void mouseExited(MouseEvent event)
-        {
-        }
+        public void mouseEntered(MouseEvent event) {}
+        public void mouseExited(MouseEvent event) {}
     }
 
     class TablePopupMenuMouseListener implements MouseListener
     {
-        public void mouseReleased(MouseEvent event)
-        {
+        public void mouseReleased(MouseEvent event) {
             maybeShowPopup(event);
         }
-        public void mousePressed(MouseEvent event)
-        {
+        public void mousePressed(MouseEvent event) {
             maybeShowPopup(event);
         }
-        public void mouseClicked(MouseEvent event)
-        {
-        }
-        public void mouseEntered(MouseEvent event)
-        {
-        }
-        public void mouseExited(MouseEvent event)
-        {
-        }
-        protected void maybeShowPopup(MouseEvent e)
-        {
+        public void mouseClicked(MouseEvent event) {}
+        public void mouseEntered(MouseEvent event) {}
+        public void mouseExited(MouseEvent event) {}
+        protected void maybeShowPopup(MouseEvent e) {
             if( e.isPopupTrigger() )
             {
                 popupMenu.show(boardTable, e.getX(), e.getY());
@@ -521,12 +472,10 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
         super();
         parent = p;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try
-        {
+        try {
             Init();
         }
-        catch( Exception e )
-        {
+        catch( Exception e ) {
             e.printStackTrace();
         }
         pack();
@@ -559,28 +508,6 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
             return this;
         }
     }
-
-    /**
-     * Gets number of all files of a board
-     * @param board name of the board
-     * @return Integer value
-     */
-/*    public int allFileCount(String board) {
-    board = board.toLowerCase();
-    int count = 0;
-    File boardDir = new File(frame1.keypool + board);
-    if (boardDir.isDirectory()) {
-        File[] entries = boardDir.listFiles();
-        if (entries != null) {
-        for (int i = 0; i < entries.length; i++) {
-            if (entries[i].getName().endsWith(".exc")) {
-            count += FileAccess.getLineCount(entries[i]);
-            }
-        }
-        }
-    }
-    return count / 4;
-    }*/
 
     /**
      * Gets number of new+all messages and files of a board
@@ -637,34 +564,6 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
     }
 
     /**
-     * Gets number of all messages of a board
-     * @param board name of the board
-     * @return Integer value
-     */
-/*    public int allMessageCount(String board) {
-    board = board.toLowerCase();
-    int count = 0;
-
-    File boardDir = new File(frame1.keypool + board);
-    if (boardDir.isDirectory()) {
-        File[] entries = boardDir.listFiles();
-
-        if (entries != null) {
-        for (int i = 0; i < entries.length; i++) {
-            if (entries[i].isDirectory()) {
-            String[] messages = entries[i].list();
-            for (int j = 0; j < messages.length; j++) {
-                if (messages[j].endsWith(".txt"))
-                count++;
-            }
-            }
-        }
-        }
-    }
-    return count;
-    }
-
-    /**
      * Gets state of a board
      * @param board name of the board
      * @return String with state value of the board
@@ -691,17 +590,17 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
     {
         BufferedReader f;
         int count = 0;
-
-        try
-        {
+        try {
             f = new BufferedReader(new FileReader(file));
             while( (f.readLine()) != null )
+            {
                 count++;
+            }
             f.close();
         }
         catch( IOException e )
         {
-            System.out.println("Read Error: " + file);
+            System.out.println("getLineCount() - Read Error: " + file);
         }
         return count;
     }
