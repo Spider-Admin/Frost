@@ -141,11 +141,12 @@ public class FrostIdentities implements Savable {
 					//Replacement failed. We try to restore "identities.xml" from "identities.xml.bak"
 					try {
 						FileAccess.copyFile(identitiesBakName, identitiesName);
-						return true;
 					} catch (IOException exception) {
 						//Uh, oh, we are having a bad, bad day.
 						logger.log(Level.SEVERE, "Error while restoring identities.xml", exception);
 					}
+				} else {
+					return true;
 				}
 			} else {
 				//This shouldn't happen, but...
