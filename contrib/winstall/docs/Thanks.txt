@@ -1,0 +1,3 @@
+* Jan-Thomas Czornack and Jim Hunziker for their great program
+* Sebastian Spaëth, some code was taken from his Freenet Windows Installer
+* Guys at Nullsoft

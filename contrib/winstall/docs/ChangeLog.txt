@@ -1,0 +1,9 @@
+2001-11-11  Benoit Laniel <nels@pgroupe.net>
+
+    * Changed the source tree
+    * Added a make.bat script to make compilation easier
+    * If install fails, files are now deleted (only if any previous version of
+      Frost was not found)
+    * Renamed versions.nsh to config.nsh (I think I will use this to store some
+      configuration options later)
+    * Added a Frost icon to the installer

@@ -1,0 +1,2 @@
+* Allow user to install Frost even if Freenet was not found and/or find Freenet
+  the hardcore way
