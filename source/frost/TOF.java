@@ -259,7 +259,7 @@ public class TOF
             firstDate.set(Calendar.DATE, 11);
             int msgcount=0;
             int counter = 0;
-            int newMsgCount = 0;
+            //int newMsgCount = 0;
             String targetBoard = board.getBoardFilename();
             while( cal.after(firstDate) && counter < daysToRead )
             {
@@ -272,7 +272,7 @@ public class TOF
                     {
                         String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ )
-                        {
+                        {/*
                             if( filePointers[j].getName().endsWith(".txt.lck") )
                             {
                                 // update the node that contains new messages
@@ -283,7 +283,8 @@ public class TOF
                                         frame1.getInstance().updateTofTree(board);
                                     } });
                             }
-                            else if( (filePointers[j].getName()).endsWith(".txt") &&
+                            else */
+                            if( (filePointers[j].getName()).endsWith(".txt") &&
                                  filePointers[j].length() > 0 &&
                                  filePointers[j].length() < 32000 &&
                                  filePointers[j].getName().startsWith(sdate)
@@ -335,6 +336,8 @@ public class TOF
                 counter++;
                 cal.add(Calendar.DATE, -1);
             }
+
+//            board.setNewMessageCount( newMsgCount );
 
             SwingUtilities.invokeLater( new Runnable() {
                     public void run()
@@ -475,9 +478,8 @@ public class TOF
                                            frame1.getInstance().updateTofTree(board);
                                        }
                                    });
-                                // the exact count of new msg is'nt important here, will be counted if
-                                // board is shown and all msg are loaded
-                                break; // process next board
+                                // search through all to get correct newMessageCount
+                                //break; // process next board
                             }
                         }
                     }
