@@ -505,8 +505,7 @@ public class LangRes extends ListResourceBundle {
 	
 	//	Uploads underway warning when exiting
 	 {"UploadsUnderway.title","Uploads underway"},
-	 {"UploadsUnderway.body","If you exit now, some of the messages\n"
-							 + "that you are uploading may appear duplicated.\n"
+	 {"UploadsUnderway.body","Some messages are still being uploaded.\n"
 							 + "Do you want to exit anyway?"},
 							 
 	//email notification stuff

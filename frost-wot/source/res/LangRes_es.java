@@ -331,8 +331,7 @@ static final Object[][] contents = {
 	
 	//Uploads underway warning when exiting
 	{"UploadsUnderway.title","Subidas en curso"},
-	{"UploadsUnderway.body","Si sales ahora, algunos de los mensajes\n"
-							 + "que estás subiendo pueden aparecer duplicados.\n"
+	{"UploadsUnderway.body","Algunos mensajes todavía están siendo subidos.\n"
 							 + "¿Quieres salir de todas maneras?"},
 							 
 	//Logging (misc preferences panel)

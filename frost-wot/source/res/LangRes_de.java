@@ -338,7 +338,7 @@ static final Object[][] contents = {
 {"Upload selected files","Gewählte Dateien hochladen"},
 {"Uploading","beim Hochladen"}, //?
 {"Uploads","Hochladen"}, //Menü: Optionen -> Einstellungen -> Hochladen
-{"UploadsUnderway.body","If you exit now, some of the messages\nthat you are uploading may appear duplicated.\nDo you want to exit anyway?"},
+{"UploadsUnderway.body","Some messages are still being uploaded.\nDo you want to exit anyway?"},
 {"UploadsUnderway.title","Uploads underway"},
 {"Use default","Voreinstellung benutzen"}, //?
 {"Use editor for writing messages","Editor zum Verfassen von Nachrichten verwenden"},
