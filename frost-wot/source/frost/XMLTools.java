@@ -36,6 +36,25 @@ public class XMLTools
 	
 	private static Logger logger = Logger.getLogger(XMLTools.class.getName());
 	
+	private static DocumentBuilderFactory validatingFactory = DocumentBuilderFactory.newInstance();
+	private static DocumentBuilderFactory nonValidatingFactory = DocumentBuilderFactory.newInstance();
+	
+	{
+		validatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
+		validatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
+		validatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
+		validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
+		validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
+		validatingFactory.setValidating(true);
+		
+		nonValidatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
+		nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
+		nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
+		nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
+		nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
+		nonValidatingFactory.setValidating(false);
+	}
+	
 	/**
 	 * creates a document containing a single element - the one 
 	 * returned by getXMLElement of the argument
@@ -82,46 +101,46 @@ public class XMLTools
         return parseXmlFile(new File(filename), validating);
     }
     
-    /**
-     * Parses an XML file and returns a DOM document.
-     * If validating is true, the contents is validated against the DTD
-     * specified in the file.
-     */
-    public static Document parseXmlFile(File file, boolean validating)
-    throws IllegalArgumentException
-    {
-        try
-        {
-            // Create a builder factory
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
-            factory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
-            factory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
-			factory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
-			factory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
-            factory.setValidating(validating);
-
-            // Create the builder and parse the file
-            Document doc = factory.newDocumentBuilder().parse(file);
-            return doc;
-        }
-        catch( SAXException e )
-        {
-            // A parsing error occurred; the xml input is not valid
-			logger.log(Level.SEVERE, "Parsing of xml file failed.  Send badfile.xml to a dev for analysis", e);
-	    	file.renameTo(new File("badfile.xml"));
-            throw new IllegalArgumentException();
-        }
-        catch( ParserConfigurationException e )
-        {
-			logger.log(Level.SEVERE, "Exception thrown in parseXmlFile(File file, boolean validating)", e);
-        }
-        catch( IOException e )
-        {
-			logger.log(Level.SEVERE, "Exception thrown in parseXmlFile(File file, boolean validating)", e);
-        }
-        return null;
-    }
+	/**
+	 * Parses an XML file and returns a DOM document.
+	 * If validating is true, the contents is validated against the DTD
+	 * specified in the file.
+	 */
+	public static Document parseXmlFile(File file, boolean validating)
+		throws IllegalArgumentException {
+		try {
+			DocumentBuilder builder;
+			if (validating) {
+				synchronized (validatingFactory) {
+					builder = validatingFactory.newDocumentBuilder();
+				}
+			} else {
+				synchronized (nonValidatingFactory) {
+					builder = nonValidatingFactory.newDocumentBuilder();
+				}
+			}
+			return builder.parse(file);
+		} catch (SAXException e) {
+			// A parsing error occurred; the xml input is not valid
+			logger.log(
+				Level.SEVERE,
+				"Parsing of xml file failed.  Send badfile.xml to a dev for analysis",
+				e);
+			file.renameTo(new File("badfile.xml"));
+			throw new IllegalArgumentException();
+		} catch (ParserConfigurationException e) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in parseXmlFile(File file, boolean validating)",
+				e);
+		} catch (IOException e) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in parseXmlFile(File file, boolean validating)",
+				e);
+		}
+		return null;
+	}
 
     /**
      * This method writes a DOM document to a file.
