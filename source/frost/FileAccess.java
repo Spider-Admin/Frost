@@ -189,8 +189,9 @@ public class FileAccess
             {
                 // Remove 0 byte and tmp files
                 if( chunks[i].length() == 0 ||
-                    chunks[i].getName().endsWith(".tmp") ||
-                    chunks[i].getName().endsWith(".txt") )
+                    chunks[i].getName().endsWith(".tmp") //||
+                    //chunks[i].getName().endsWith(".txt")
+                    )
                     chunks[i].delete();
 
                 // Remove keyfiles and their locks

@@ -2777,10 +2777,13 @@ public class frame1 extends JFrame implements ClipboardOwner
             // read new settings
             frostSettings.readSettingsFile();
 
-            // check if signed only+hideCheck+hideBad or block settings changed
+            // check if signed only+hideCheck+hideBad or blocking words settings changed
             if( optionsDlg.shouldReloadMessages() )
             {
-                tofTree_actionPerformed(null); // reload all messages
+                // update the new msg. count for all boards
+                TOF.initialSearchNewMessages(getTofTree(), frostSettings.getIntValue("maxMessageDisplay"));
+                // reload all messages
+                tofTree_actionPerformed(null);
             }
 
             updateTofTree(); // redraw whole tree, in case the update visualization was enabled or disabled (or others)
