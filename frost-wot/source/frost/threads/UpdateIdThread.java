@@ -207,17 +207,18 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         if( indexFile.length() > 0 && indexFile.isFile() )
         {
             boolean signUpload = frame1.frostSettings.getBoolValue("signUploads");
-            byte[] toZip = FileAccess.readByteArray(indexFile);
             byte[] metadata = null;
-            // TODO: first zip, then sign the zipped file
+            
+            // first zip, then maybe sign the zipped file
+            FileAccess.writeZipFile(FileAccess.readByteArray(indexFile), 
+                                    "entry", indexFile); // WRITE TO SAME NAME???
             
             if( signUpload )
             {
-                MetaData md = new MetaData(toZip);
+                byte[] zipped = FileAccess.readByteArray(indexFile);
+                MetaData md = new MetaData(zipped);
                 metadata = md.getRawXmlContent();
             }
-            
-            FileAccess.writeZipFile(toZip, "entry", indexFile); // WRITE TO SAME NAME???
             
             // search empty slot
             int index = findFreeUploadIndex();
@@ -226,7 +227,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 // Does this index already exist?
 		           
                 result = FcpInsert.putFile(insertKey + index + ".idx.sha2.zip",
-                                           new File(keypool + board.getBoardFilename() + "_upload.txt"),
+                                           indexFile,
                                            metadata,
                                            insertHtl,
                                            false); // doRedirect
