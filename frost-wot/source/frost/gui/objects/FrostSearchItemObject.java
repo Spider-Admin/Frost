@@ -58,6 +58,28 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
 
     public int compareTo( TableMember anOther, int tableColumIndex )
     {
+        // special sort handling for DATE column:
+        // sort alphanum chars behind digits always (check first char).
+        // this is intended to move the OFFLINE files behind the online files always
+        if( tableColumIndex == 2 )
+        {
+            String c1 = (String)getValueAt(tableColumIndex);
+            String c2 = (String)anOther.getValueAt(tableColumIndex);
+            if( c1.length() > 0 && c2.length() > 0 )
+            {
+                if( Character.isDigit(c1.charAt(0)) && !Character.isDigit(c2.charAt(0)) )
+                {
+                    return 1;
+                }
+                if( Character.isDigit(c2.charAt(0)) && !Character.isDigit(c1.charAt(0)) )
+                {
+                    // c2 starts with digit, c1 not
+                    return -1;
+                }
+            }
+            // otherwise use standard comparing
+        }
+        
         Comparable c1 = (Comparable)getValueAt(tableColumIndex);
         Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
         return c1.compareTo( c2 );
