@@ -259,7 +259,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     String messageId = Core.getCrypto().digest(testMe);                   
                     		
                     // Does a duplicate message exist?
-                    if( !exists(testMe) && Core.getMessageSet().contains(messageId))
+                    if( !exists(testMe) && !Core.getMessageSet().contains(messageId))
                     {
 		    
                     	Core.getMessageSet().add(messageId);
@@ -318,6 +318,10 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         {
                         	//TODO: metadata failed, do something
                             t.printStackTrace(Core.getOut());
+			    Core.getOut().println("metadata couldn't be read. "+
+			    		"offending file saved as badmetadata.xml - send to a dev for analysis");
+			    File badmetadata = new File("badmetadata.xml");
+			    FileAccess.writeByteArray(metadata,badmetadata);
                             //please, please, PLEASE don't just catch them and do nothing!
                             // i know, i just added a TODO as in rest of file because i don't
                             // know what to do if failed...
