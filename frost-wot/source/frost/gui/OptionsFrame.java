@@ -34,6 +34,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
 import frost.*;
+import frost.gui.components.*;
 import frost.gui.translation.UpdatingLanguageResource;
 
 /*******************************

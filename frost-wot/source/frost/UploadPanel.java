@@ -12,6 +12,7 @@ import javax.swing.*;
 
 import frost.ext.Execute;
 import frost.gui.*;
+import frost.gui.components.*;
 import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
 import frost.gui.translation.*;
