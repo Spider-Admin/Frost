@@ -27,7 +27,6 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import frost.MainFrame;
 import frost.fcp.*;
 import frost.gui.objects.Board;
 import frost.util.gui.translation.Language;
@@ -66,12 +65,13 @@ public class BoardSettingsFrame extends JDialog {
 	
 	private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
 	
-	private Language language = null;
+	private Language language;
+	private Board board;
+	private JFrame parentFrame;
 	
 	private Listener listener = new Listener();
 
 	private JCheckBox autoUpdateEnabled = new JCheckBox();
-	private Board board;
 	private JButton cancelButton = new JButton();
 	private boolean exitState;
 	private JButton generateKeyButton = new JButton();
@@ -122,22 +122,21 @@ public class BoardSettingsFrame extends JDialog {
 	private JScrollPane descriptionScrollPane;
 
 	/**
-	 * @param parent
+	 * @param parentFrame
 	 * @param board
 	 */
-	public BoardSettingsFrame(
-		Frame parent,
-		Board board) {
+	public BoardSettingsFrame(JFrame parentFrame, Board board) {
+		super(parentFrame);
 
-		super(parent);
-
+		this.parentFrame = parentFrame;
 		this.board = board;
 		this.language = Language.getInstance();
+		
 		setModal(true);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		initialize();
 		pack();
-		setLocationRelativeTo(parent);
+		setLocationRelativeTo(parentFrame);
 	}
 
 	/**
@@ -170,7 +169,7 @@ public class BoardSettingsFrame extends JDialog {
 			privateKeyTextField.setText(keyPair[0]);
 			publicKeyTextField.setText(keyPair[1]);
 		} catch (IOException ex) {
-			JOptionPane.showMessageDialog(MainFrame.getInstance(), ex.toString(), // message
+			JOptionPane.showMessageDialog(parentFrame, ex.toString(), // message
 					language.getString("Warning"), JOptionPane.WARNING_MESSAGE);
 		}
 	}
