@@ -146,11 +146,11 @@ public final class SkinUtils {
       createImage(imageByte, 0, imageByte.length);
 
     CustomImageObserver custom = new CustomImageObserver();
-    int width = img.getWidth(custom);
-    int height = img.getHeight(custom);
     Object lock = custom.getLock();
     
     synchronized (lock) {
+		int width = img.getWidth(custom);
+		int height = img.getHeight(custom);
       if (height < 1 && width < 1)
         lock.wait();
     }
