@@ -40,6 +40,7 @@ import frost.*;
 
 public class OptionsFrame extends JDialog implements ListSelectionListener
 {
+
 	/**
  	 * Display Panel. Contains appearace options: skins and more in the future
  	 */

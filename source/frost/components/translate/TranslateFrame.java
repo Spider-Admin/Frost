@@ -21,7 +21,7 @@ package frost.components.translate;
 
 import java.awt.*;
 import java.awt.event.WindowEvent;
-
+import java.util.*;
 import javax.swing.JFrame;
 
 public class TranslateFrame extends JFrame {    
