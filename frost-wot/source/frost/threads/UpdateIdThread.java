@@ -92,6 +92,19 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 	commit();
 		
     }
+    
+    private void setIndexSuccessfull(int i) {
+    	int current = ((Integer)indices.elementAt(i)).intValue();
+	if (current == -1 || current > MAX_TRIES) {
+		System.err.println("\n\nWARNING - index sequence screwed. report to a dev\n\n");
+		return;
+	}
+	
+	indices.setElementAt(new Integer(-1),i);
+	
+	commit();
+    }
+    
     private boolean makeIndexFile()
     {
         if( DEBUG ) System.out.println("FILEDN: UpdateIdThread.makeIndexFile for " + board.toString());
@@ -122,28 +135,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             FileAccess.writeZipFile(tozip, "entry", indexFile);
 
             // search empty slot
-            int index = 0;
-            while( !success && tries <= maxFailures )
+            int index = findFreeIndex();
+            while( !success && tries <= MAX_TRIES )
             {
                 // Does this index already exist?
-		
-		
-                /*String testFilename = new StringBuffer().append(keypool)
-                                                        .append(date)
-                                                        .append("-")
-                                                        .append(board.getBoardFilename())
-                                                        .append("-")
-                                                        .append(index)
-                                                        .append(".idx").toString();
-                File testMe = new File(testFilename);
-                if( testMe.length() > 0 )
-                {
-                    index++;
-                    //if( DEBUG ) System.out.println("FILEDN: File exists, increasing index to " + index);
-                    continue;
-                }*/
-
-                tries++;
+		           
                 result = FcpInsert.putFile(insertKey + index + ".idx.sha.zip",
                                            new File(keypool + board.getBoardFilename() + "_upload.txt"),
                                            insertHtl,
@@ -154,6 +150,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 if( result[0].equals("Success") )
                 {
                     success = true;
+		    setIndexSuccessfull(index);
                     if( DEBUG ) System.out.println("FILEDN:***** Index file successfully uploaded *****");
                 }
                 else
@@ -180,7 +177,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     // sooner. With the new index system it should be possible
     // to work with large numbers of keys because they are
     // no longer kept in memory, but on disk.
-    private void adjustMaxAge(int count) {
+    private void adjustMaxAge(int count) {/*  //this is not used
     //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: old value = " + frame1.frostSettings.getValue("maxAge"));
 
     int lowerLimit = 10 * maxKeys / 100;
@@ -193,7 +190,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         maxAge--;
 
     frame1.frostSettings.setValue("maxAge", maxAge);
-    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: new value = " + maxAge);
+    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: new value = " + maxAge);*/
     }
 
     public void run()
@@ -206,27 +203,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         int waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
         mixed.wait(waitTime);
 
-        int index = 0;
+        int index = findFreeIndex();
         int failures = 0;
 
         while( failures < maxFailures )
         {
-            String filename = new StringBuffer().append(keypool)
-                                                .append(date)
-                                                .append("-")
-                                                .append(board.getBoardFilename())
-                                                .append("-")
-                                                .append(index)
-                                                .append(".idx").toString();
-            File target = new File(filename);
-            // First look if this keyfile has already been downloaded
-            // and increase the index until we found the last index
-            if( target.isFile() && target.length() > 0 )
-            {
-                index++;
-            }
-            else
-            {
+            
+		File target = File.createTempFile("frost-index-"+index,board.getBoardFilename());
                 if( DEBUG ) System.out.println("FILEDN: Requesting index " + index);
                 // Download the keyfile
                 FcpRequest.getFile(requestKey + index + ".idx.sha.zip",
@@ -236,6 +219,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                    true);
                 if( target.length() > 0 )
                 {
+			//mark it as successful
+			setIndexSuccessfull(index);
                     // Add it to the index
                     try {
                         // maybe the file is corrupted ... so try
@@ -312,7 +297,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			}
 			
                         FileAccess.writeFile(unzipped,target);
-                        Index.add(target, new File(keypool + board.getBoardFilename()));
+                       //FIXME: adding an entire file to board index --> Index.add(target, board);
+			target.delete();
                     }
                     catch(Throwable t)
                     {
@@ -320,7 +306,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         // delete the file and try a re download???
                     }
 
-                    index++;
+                    index = findFreeIndex();
                     failures = 0;
                 }
                 else
@@ -328,6 +314,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     // download failed. Sometimes there are some 0 byte
                     // files left, we better remove them now.
                     target.delete();
+		    setIndexFailed(index);
                     failures++;
                     index++;
                 }
@@ -337,7 +324,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 notifyThreadFinished(this);
                 return;
             }
-        }
+        
 
         // Ok, we're done with downloading the keyfiles
         // Now calculate whitch keys we want to upload.
@@ -366,6 +353,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         }
 
         notifyThreadFinished( this );
+	commit();
     }
 
     /**Constructor*/
