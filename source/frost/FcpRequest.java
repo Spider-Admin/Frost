@@ -820,7 +820,6 @@ public class FcpRequest
                                                          frame1.frostSettings.getValue("nodePort"));
             try
             {
-//System.out.println("getKeyToFile: key="+key+"  target="+target.getPath()+"  htl="+htl);
                 connection.getKeyToFile(key, target.getPath(), htl);
             }
             catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException

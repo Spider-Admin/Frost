@@ -39,7 +39,6 @@ public class requestThread extends Thread
     private String filename;
     private Long size;
     private String key;
-    private Integer htl;
     private DownloadTable downloadTable;
     private FrostBoardObject board;
 
@@ -52,6 +51,9 @@ public class requestThread extends Thread
         {
             frame1.activeDownloadThreads++;
         }
+
+        downloadItem.setLastDownloadStartTimeMillis( System.currentTimeMillis() );
+
         try {
         // some vars
         final DownloadTableModel tableModel = (DownloadTableModel)downloadTable.getModel();
@@ -61,7 +63,7 @@ public class requestThread extends Thread
         File newFile = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
         boolean do_request = false;
 
-        System.out.println("FILEDN: Download of " + filename + " with HTL " + htl.toString() + " started.");
+        System.out.println("FILEDN: Download of '" + filename + "' started.");
 
         // Download file
         boolean success = false;
@@ -70,18 +72,11 @@ public class requestThread extends Thread
         if( size == null )
             sizeStr = "Unknown";
         else
-            sizeStr = htl.toString();
+            sizeStr = size.toString();
 
-        // TODO: if this call completes in very short time, wait some time
-        /*
-    Name:   failureTableTime   (--failureTableTime)
-    Arguments:  <milliseconds>
-    Default val:    1800000
-    Description:    The amount of time to keep keys cache keys that could not be found and automatically
-                fail requests for them.
-        */
         try {
-            success = FcpRequest.getFile(key, sizeStr, newFile, htl.intValue(), true, false);
+            // TODO: size -> long (FcpRequest.getKeyToFile)
+            success = FcpRequest.getFile(key, sizeStr, newFile, 25, true, false);
         }
         catch(Throwable t) { ; }
 
@@ -100,13 +95,14 @@ public class requestThread extends Thread
         // download failed
         if( !success )
         {
+            downloadItem.setRetries( downloadItem.getRetries() + 1 );
+
             System.out.println("FILEDN: Download of " + filename + " failed.");
             if( inTable == true )
             {
                 // Upload request to request stack
-                int intHtl = htl.intValue();
-
-                if( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl") )
+                if( frame1.frostSettings.getBoolValue("downloadEnableRequesting") &&
+                    downloadItem.getRetries() >= frame1.frostSettings.getIntValue("downloadRequestAfterTries") )
                 {
                     if( DEBUG ) System.out.println("FILEDN: Download failed, uploading request for " + filename);
                     downloadItem.setState( downloadItem.STATE_REQUESTING );
@@ -128,17 +124,22 @@ public class requestThread extends Thread
                 {
                     if( DEBUG ) System.out.println("FILEDN: Download failed, but htl is too low to request it.");
                 }
-                // Download / restart failed downloads
-                int columnDataHtl = downloadItem.getHtl().intValue();
-                if( columnDataHtl < frame1.frostSettings.getIntValue("htlMax") )
+
+                // set new state -> failed or waiting for another try
+                if( frame1.frostSettings.getBoolValue("downloadRestartFailedDownloads" ) )
                 {
-                    columnDataHtl += 1;
-                    downloadItem.setHtl( columnDataHtl );
-                    downloadItem.setState( downloadItem.STATE_WAITING );
+                    if( downloadItem.getRetries() > frame1.frostSettings.getIntValue("downloadMaxRetries") )
+                    {
+                        downloadItem.setState( downloadItem.STATE_FAILED );
+                    }
+                    else
+                    {
+                        downloadItem.setState( downloadItem.STATE_WAITING );
+                    }
                 }
                 else
                 {
-                    downloadItem.setState( downloadItem.STATE_FAILED ); // max htl reached, no more updating
+                    downloadItem.setState( downloadItem.STATE_FAILED );
                 }
 
                 tableModel.updateRow( downloadItem );
@@ -172,6 +173,7 @@ public class requestThread extends Thread
         {
             frame1.activeDownloadThreads--;
         }
+        downloadItem.setLastDownloadStopTimeMillis( System.currentTimeMillis() );
     }
 
     // Request a certain CHK from a board
@@ -328,7 +330,7 @@ public class requestThread extends Thread
                         if( FcpRequest.getFile(requestMe,
                                                "Unknown",
                                                new File(compareMe),
-                                               htl.intValue(),
+                                               25,
                                                false) )
                         {
                             File numberOne = new File(compareMe);
@@ -399,7 +401,6 @@ public class requestThread extends Thread
     {
         this.filename = dlItem.getFileName();
         this.size = dlItem.getFileSize();
-        this.htl = dlItem.getHtl();
         this.key = dlItem.getKey();
         this.board = dlItem.getSourceBoard();
 

@@ -246,7 +246,7 @@ public class DownloadTable extends SortedTable
     /**
      * Called to reset the HTL value of the selected items.
      */
-    public void resetHtlForSelectedItems()
+    public void restartSelectedDownloads()
     {
         // TODO: stop thread
 
@@ -257,10 +257,13 @@ public class DownloadTable extends SortedTable
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
             // reset only waiting+failed items
             if( dlItem.getState() == dlItem.STATE_FAILED ||
-                dlItem.getState() == dlItem.STATE_WAITING )
+                dlItem.getState() == dlItem.STATE_WAITING ||
+                dlItem.getState() == dlItem.STATE_DONE )
             {
-                dlItem.setHtl( frame1.frostSettings.getIntValue("htl") );
                 dlItem.setState( dlItem.STATE_WAITING );
+                dlItem.setRetries(0);
+                dlItem.setLastDownloadStartTimeMillis(0);
+                dlItem.setLastDownloadStopTimeMillis(0);
                 dlModel.updateRow( dlItem );
             }
         }

@@ -188,9 +188,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem uploadPopupAddFilesToBoard = null;
     JMenuItem uploadPopupCancel = null;
 
+    JMenuItem downloadPopupRestartSelectedDownloads = null;
     JMenuItem downloadPopupRemoveSelectedDownloads = null;
     JMenuItem downloadPopupRemoveAllDownloads = null;
-    JMenuItem downloadPopupResetHtlValues = null;
     JMenuItem downloadPopupRemoveFinished = null;
     JMenuItem downloadPopupCancel = null;
 
@@ -739,8 +739,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             } });
         searchDownloadButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                getSearchTable().addSelectedSearchItemsToDownloadTable( getDownloadTable(),
-                                                                        frame1.frostSettings.getIntValue("htl"));
+                getSearchTable().addSelectedSearchItemsToDownloadTable( getDownloadTable() );
             } });
         searchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1170,14 +1169,12 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener
         searchPopupDownloadSelectedKeys.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable(),
-                                                      frame1.frostSettings.getIntValue("htl"));
+                getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable() );
             } });
         searchPopupDownloadAllKeys.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 searchTable.selectAll();
-                getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable(),
-                                                                       frame1.frostSettings.getIntValue("htl"));
+                getSearchTable().addSelectedSearchItemsToDownloadTable(getDownloadTable() );
             } });
         searchPopupCopyAttachment.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1287,15 +1284,20 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void buildPopupMenuDownload()
     {
 // construct objects
+        downloadPopupRestartSelectedDownloads = new JMenuItem("Restart selected downloads");
         downloadPopupRemoveSelectedDownloads = new JMenuItem(LangRes.getString("Remove selected downloads"));
         downloadPopupRemoveAllDownloads = new JMenuItem(LangRes.getString("Remove all downloads"));
-        downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
+//        downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
         downloadPopupRemoveFinished = new JMenuItem("Remove finished downloads");
 
         // TODO: implement cancel of downloading
         downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
 
 // add action listener
+        downloadPopupRestartSelectedDownloads.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().restartSelectedDownloads();
+            } });
         downloadPopupRemoveSelectedDownloads.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().removeSelectedItemsFromTable();
@@ -1304,10 +1306,10 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().removeAllItemsFromTable();
             } });
-        downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
+/*        downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().resetHtlForSelectedItems();
-            } });
+            } });*/
         downloadPopupRemoveFinished.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().removeFinishedDownloads();
@@ -1478,8 +1480,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 String key = (String)getAttachmentTable().getModel().getValueAt(i, 1);
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( filename,
                                                                               key,
-                                                                              getActualNode(),
-                                                                              frostSettings.getIntValue("htl")
+                                                                              getActualNode()
                                                                             );
                  boolean added = getDownloadTable().addDownloadItem( dlItem );
             }
@@ -1492,8 +1493,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 String key = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],1);
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( filename,
                                                                               key,
-                                                                              getActualNode(),
-                                                                              frostSettings.getIntValue("htl")
+                                                                              getActualNode()
                                                                             );
                  boolean added = getDownloadTable().addDownloadItem( dlItem );
             }
@@ -2437,7 +2437,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                 dlItem.setState( dlItem.STATE_TRYING );
                 dlModel.updateRow( dlItem );
 
-                dlItem.setLastDownloadStartTimeMillis( System.currentTimeMillis() );
                 requestThread newRequest = new requestThread( dlItem, getDownloadTable() );
                 newRequest.start();
             }
@@ -2502,87 +2501,28 @@ public class frame1 extends JFrame implements ClipboardOwner
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
             if( dlItem.getState() == dlItem.STATE_WAITING )
             {
-                if( dlItem.getHtl().intValue() <= frostSettings.getIntValue("htlMax") )
+                // check if waittime is expired
+                long waittimeMillis = frostSettings.getIntValue("downloadWaittime") * 60 * 1000; // min->millisec
+                if( frostSettings.getBoolValue("downloadRestartFailedDownloads") &&
+                    (System.currentTimeMillis() - dlItem.getLastDownloadStopTimeMillis()) > waittimeMillis )
                 {
                     waitingItems.add( dlItem );
                 }
-                else
-                {
-                    // set item to failed state
-                    dlItem.setState( dlItem.STATE_FAILED );
-                    dlModel.updateRow( dlItem );
-                }
             }
-            else if( dlItem.getState() == dlItem.STATE_FAILED )
+/*            else if( dlItem.getState() == dlItem.STATE_FAILED )
             {
-                if( frostSettings.getBoolValue("downloadRestartFailedDownloads") &&
-                    dlItem.getHtl().intValue() == frostSettings.getIntValue("htlMax") )
-                {
-                    // prepare item for restart in next loop
-                    dlItem.setState( dlItem.STATE_WAITING );
-                    dlItem.setHtl( frostSettings.getIntValue("htl") );
-                    dlModel.updateRow( dlItem );
-                }
-            }
+            }*/
         }
         if( waitingItems.size() == 0 )
             return null;
 
         if( waitingItems.size() > 1 ) // performance issues
         {
-            // sort waiting items by htl or lastDownloadStartTimeMillis, ascending
-            if( frostSettings.getBoolValue( "downloadMethodLeastHtl" ) )
-            {
-                Collections.sort( waitingItems, downloadHtlCmp );
-                // now get all items with minimum HTL in list and sort them by lastUpdateStarted
-                int minHtl = ((FrostDownloadItemObject)waitingItems.get(0)).getHtl().intValue();
-                int x = 0;
-                ArrayList minHtlItems = new ArrayList();
-                for( int z=0; z<waitingItems.size(); z++ )
-                {
-                    FrostDownloadItemObject dlItemobj = (FrostDownloadItemObject)waitingItems.get(z);
-                    if( dlItemobj != null &&
-                        dlItemobj.getHtl().intValue() == minHtl )
-                    {
-                        minHtlItems.add( waitingItems.get(z) );
-                        x++;
-                    }
-                    else
-                    {
-                        break;
-                    }
-                }
-                if( minHtlItems.size() > 1 )
-                {
-                    // sort minHtl items by lastDownloadSTartedMillis
-                    Collections.sort( minHtlItems, downloadDlStartMillisCmp );
-                }
-                waitingItems = minHtlItems;
-            }
-            else
-            {
-                // one by one
-                Collections.sort( waitingItems, downloadDlStartMillisCmp );
-            }
+            Collections.sort( waitingItems, downloadDlStartMillisCmp );
         }
         return (FrostDownloadItemObject)waitingItems.get(0);
     }
 
-    /**
-     * Used to sort FrostDownloadItemObjects by htl ascending.
-     */
-    static final Comparator downloadHtlCmp = new Comparator() {
-        public int compare(Object o1, Object o2) {
-        FrostDownloadItemObject value1 = (FrostDownloadItemObject)o1;
-        FrostDownloadItemObject value2 = (FrostDownloadItemObject)o2;
-        if( value1.getHtl().intValue() > value2.getHtl().intValue() )
-            return 1;
-        else if( value1.getHtl().intValue() < value2.getHtl().intValue() )
-            return -1;
-        else
-            return 0;
-        }
-    };
     /**
      * Used to sort FrostDownloadItemObjects by lastUpdateStartTimeMillis ascending.
      */
@@ -2669,8 +2609,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 // add valid key to download table
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( mixed.makeFilename(fileName),
                                                                               key,
-                                                                              getActualNode(),
-                                                                              frostSettings.getIntValue("htl") );
+                                                                              getActualNode() );
                 boolean isAdded = getDownloadTable().addDownloadItem( dlItem );
             }
             else
@@ -3028,8 +2967,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             // Add search result to download table
             if( e.getComponent().equals(searchTable) )
             {
-                getSearchTable().addSelectedSearchItemsToDownloadTable( getDownloadTable(),
-                                                       frame1.frostSettings.getIntValue("htl"));
+                getSearchTable().addSelectedSearchItemsToDownloadTable( getDownloadTable() );
             }
 
         }
@@ -3454,15 +3392,15 @@ public class frame1 extends JFrame implements ClipboardOwner
         JPopupMenu pmenu = new JPopupMenu();
         if (getDownloadTable().getSelectedRow() > -1)
         {
+            pmenu.add(downloadPopupRestartSelectedDownloads);
+            pmenu.addSeparator();
+        }
+        if (getDownloadTable().getSelectedRow() > -1)
+        {
             pmenu.add(downloadPopupRemoveSelectedDownloads);
         }
         pmenu.add(downloadPopupRemoveAllDownloads);
         pmenu.addSeparator();
-        if (getDownloadTable().getSelectedRow() > -1)
-        {
-            pmenu.add(downloadPopupResetHtlValues);
-            pmenu.addSeparator();
-        }
         pmenu.add(downloadPopupRemoveFinished);
         pmenu.addSeparator();
         pmenu.add(downloadPopupCancel);

@@ -30,7 +30,7 @@ public class DownloadTableModel extends SortedTableModel
         LangRes.getString("Size"),
         LangRes.getString("Age"),
         LangRes.getString("State"),
-        LangRes.getString("HTL"),
+        "Tries",
         LangRes.getString("Source"),
         LangRes.getString("Key")
     };
@@ -39,7 +39,7 @@ public class DownloadTableModel extends SortedTableModel
         Long.class,   //LangRes.getString("Size"),
         String.class, //LangRes.getString("Age"),
         String.class, //LangRes.getString("State"),
-        Integer.class,//LangRes.getString("HTL"),
+        Integer.class,//LangRes.getString("Retries"),
         String.class, //LangRes.getString("Source"),
         String.class  //LangRes.getString("Key")
     };

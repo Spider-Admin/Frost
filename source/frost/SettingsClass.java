@@ -397,13 +397,19 @@ public class SettingsClass
         defaults.put("downloadDirectory", "downloads" + fs);
         defaults.put("downloadThreads", "3");
         defaults.put("downloadingActivated", "true");
-        defaults.put("downloadMethodLeastHtl", "false");
-        defaults.put("downloadMethodOneByOne", "true");
+//        defaults.put("downloadMethodLeastHtl", "false");
+//        defaults.put("downloadMethodOneByOne", "true");
         defaults.put("downloadRestartFailedDownloads", "true");
+        defaults.put("downloadEnableRequesting", "true");
+
+        defaults.put("downloadRequestAfterTries", "5");
+        defaults.put("downloadMaxRetries", "5");
+        defaults.put("downloadWaittime", "5");
+
         defaults.put("disableRequests", "false");
         defaults.put("disableDownloads","false");
-        defaults.put("htl", "5");
-        defaults.put("htlMax", "30");
+//        defaults.put("htl", "5");
+//        defaults.put("htlMax", "30");
         defaults.put("htlUpload", "21");
         defaults.put("keyDownloadHtl", "24");
         defaults.put("keyUploadHtl", "21");
@@ -420,7 +426,7 @@ public class SettingsClass
         defaults.put("searchAllBoards", "true");
         defaults.put("splitfileDownloadThreads", "3");
         defaults.put("splitfileUploadThreads", "3");
-        defaults.put("startRequestingAfterHtl", "10");
+//        defaults.put("startRequestingAfterHtl", "10");
         defaults.put("tofDownloadHtl", "23");
         defaults.put("tofFontSize", "12.0");
         defaults.put("tofTreeSelectedRow", "0");
