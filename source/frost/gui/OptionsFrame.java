@@ -28,6 +28,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
@@ -196,7 +197,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constraints.gridx = 0;
 			constraints.gridy = 9;
 			constraints.gridwidth = 3;
-			getLoggingPanel(); 			//TODO: add(getLoggingPanel(), constraints);
+			add(getLoggingPanel(), constraints);
 			
 			// Add listeners
 			enableLoggingCheckBox.addActionListener(listener);
@@ -303,7 +304,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 					splashFile.delete();
 				}
 			} catch (IOException ioex) {
-				System.out.println("Could not create splashscreen checkfile: " + ioex);
+				logger.log(Level.SEVERE, "Could not create splashscreen checkfile", ioex);
 			}
 		}
 		
@@ -1462,6 +1463,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private UpdatingLanguageResource languageResource = null;
 	SettingsClass frostSettings;
 
+	private static Logger logger = Logger.getLogger(OptionsFrame.class.getName());
+
 	boolean exitState;
 
 	//------------------------------------------------------------------------
@@ -1757,8 +1760,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			int fontSize = frostSettings.getIntValue("messageBodyFontSize");
 			Font tofFont = new Font(fontName, fontStyle, fontSize);
 			if (!tofFont.getFamily().equals(fontName)) {
-				System.out.println("The selected font was not found in your system");
-				System.out.println("That selection will be changed to \"Monospaced\".\n");
+				logger.severe("The selected font was not found in your system\n" +
+							  "That selection will be changed to \"Monospaced\".");
 				frostSettings.setValue("messageBodyFontName", "Monospaced");
 				tofFont = new Font("Monospaced", fontStyle, fontSize);
 			}
@@ -2400,14 +2403,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * Constructor, reads init file and inits the gui.
 	 */
-	public OptionsFrame(Frame parent, UpdatingLanguageResource newLanguageResource) {
+	public OptionsFrame(Frame parent, SettingsClass newSettingsClass, UpdatingLanguageResource newLanguageResource) {
 		super(parent);
 		languageResource = newLanguageResource;
 		setModal(true);
 		translateCheckBox();
 		translateLabel();
 
-		frostSettings = new SettingsClass();
+		frostSettings = newSettingsClass;
 		setDataElements();
 		loadSignature();
 
@@ -2415,7 +2418,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		try {
 			Init();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 		}
 		// set initial selection (also sets panel)
 		optionsGroupsList.setSelectedIndex(0);
