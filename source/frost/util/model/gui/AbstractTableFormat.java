@@ -16,19 +16,29 @@ import javax.swing.JTable;
  */
 public abstract class AbstractTableFormat implements ModelTableFormat {
 
+	private int columnCount;
+
 	/**
 	 * 
 	 */
-	public AbstractTableFormat() {
+	protected AbstractTableFormat(int newColumnCount) {
 		super();
+		columnCount = newColumnCount;
 	}
 
 	/* (non-Javadoc)
 	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(javax.swing.JTable)
 	 */
 	public void customizeTable(JTable table) {
-		// TODO Auto-generated method stub
+		// Nothing here. Override in subclasses if necessary.
 
+	}
+
+	/**
+	 * @return
+	 */
+	public int getColumnCount() {
+		return columnCount;
 	}
 
 }
