@@ -126,7 +126,7 @@ public class TranslatePanel extends JPanel {
 	 */
 	private void generateComboBox() {
 		Locale actualLocale = LangRes.getLocale();
-		Locale availableLocales[] = actualLocale.getAvailableLocales();
+		Locale availableLocales[] = Locale.getAvailableLocales();
 		for (int i = 0; i < availableLocales.length; i++) {
 			comboBox.addItem(
 				availableLocales[i].getDisplayName()
