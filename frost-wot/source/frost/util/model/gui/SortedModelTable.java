@@ -6,38 +6,128 @@
  */
 package frost.util.model.gui;
 
-import java.awt.Component;
-import java.awt.event.*;
-import java.net.URL;
-import java.util.*;
-import java.util.logging.Logger;
+import java.lang.reflect.InvocationTargetException;
+import java.util.Comparator;
+import java.util.logging.*;
 
-import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.SwingUtilities;
 
-import frost.util.model.OrderedModel;
+import frost.util.gui.SwingWorker;
+import frost.util.model.*;
 
 /**
  * @author Administrator
  *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * //TODO: Solve race conditions in the SortedSelectionGetter and in getValueAt() 
+ * 		    when deleting rows.
  */
 public class SortedModelTable extends ModelTable {
+	/**
+	 * Helper class to be able to safely get the selection fron any thread
+	 */
+	private class SortedSelectionGetter implements Runnable {
 	
-	private OrderedModel sortedModel;
-
+		private final int MODE_SINGLE = 0;
+		private final int MODE_MULTIPLE = 1;
+	
+		int mode = 0;
+	
+		ModelItem[] selectedItems;
+		ModelItem selectedItem;
+	
+		/**
+		 * 
+		 */
+		public ModelItem[] getSelectedItems() {
+			mode = MODE_MULTIPLE;
+			if (SwingUtilities.isEventDispatchThread()) {
+				run();
+			} else {
+				try {
+					SwingUtilities.invokeAndWait(this);
+				} catch (InterruptedException e) {
+					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+				} catch (InvocationTargetException e) {
+					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+				}
+			}
+			return selectedItems;
+		}
+	
+		/**
+		 * 
+		 */
+		public ModelItem getSelectedItem() {
+			mode = MODE_SINGLE;
+			if (SwingUtilities.isEventDispatchThread()) {
+				run();
+			} else {
+				try {
+					SwingUtilities.invokeAndWait(this);
+				} catch (InterruptedException e) {
+					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+				} catch (InvocationTargetException e) {
+					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
+				}
+			}
+			return selectedItem;
+		}
+	
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
+		public void run() {
+			synchronized (model) {
+				switch (mode) {
+					case MODE_MULTIPLE :
+						try {
+							int selectionCount = table.getSelectedRowCount();
+							selectedItems = new ModelItem[selectionCount];
+							int[] selectedRows = table.getSelectedRows();
+							for (int i = 0; i < selectedRows.length; i++) {
+								int pos = sortingArray[selectedRows[i]];
+								selectedItems[i] = model.getItemAt(pos);
+							}
+						} catch (Exception exception) {
+							logger.log(
+								Level.FINE,
+								"Race condition in SortedSelectionGetter.run()",
+								exception);
+							selectedItems = new ModelItem[0];
+						}
+						break;
+					case MODE_SINGLE :
+						try {
+							int selectedRow = table.getSelectedRow();
+							if (selectedRow != -1) {
+								int pos = sortingArray[selectedRow];
+								selectedItem = model.getItemAt(pos);
+							}
+						} catch (Exception exception) {
+							logger.log(
+								Level.FINE,
+								"Race condition in SortedSelectionGetter.run()",
+								exception);
+						}
+						break;
+				}
+			}
+		}
+	
+	}
+	
 	private SortedTableFormat sortedTableFormat;
 
 	private static Logger logger = Logger.getLogger(SortedModelTable.class.getName());
 	
 	private static final int INSERTIONSORT_THRESHOLD = 7;	
 	
+	private boolean sorted = false;
 	private int currentColumnNumber = -1;
 	private boolean ascending;
 	
-	private int[] sortingArray = new int[100];
-	private int sortingArraySize = 0;
+	private int[] sortingArray = new int[50];
+	private int itemsCount;
 	
 	/**
 	 * @param newModel
@@ -49,7 +139,6 @@ public class SortedModelTable extends ModelTable {
 			
 		super(newModel, newTableFormat);
 		
-		sortedModel = newModel;
 		sortedTableFormat = newTableFormat;
 		
 		getTable().setTableHeader(new SortedTableHeader(this));
@@ -58,37 +147,55 @@ public class SortedModelTable extends ModelTable {
 	 * @param columnNumber
 	 */
 	void columnClicked(int columnNumber) {
-	
 		if (columnNumber != currentColumnNumber) {
 			currentColumnNumber = columnNumber;
 			ascending = true;
 		} else {
-			ascending = !ascending;	
+			ascending = !ascending;
 		}
-		
-		resortTable();
-	
-		getTable().getTableHeader().revalidate();
-		getTable().getTableHeader().repaint();
+
+		SwingWorker worker = new SwingWorker(table) {
+
+			private int[] newSorterArray;
+
+			protected void doNonUILogic() throws RuntimeException {
+				newSorterArray = getNewSortedArray();
+			}
+
+			protected void doUIUpdateLogic() throws RuntimeException {
+				sortingArray = newSorterArray;
+				sorted = true;
+				table.revalidate();
+				table.repaint();
+			}
+
+		};
+		worker.start();
 	}
 	
 	/**
-	 * 
+	 * @return
 	 */
-	private void resortTable() {
-		Comparator comparator = sortedTableFormat.getComparator(currentColumnNumber);
-		
-		int[] newSortingArray = new int[sortingArray.length];
-		System.arraycopy(sortingArray, 0, newSortingArray, 0, sortingArraySize);
-		
-		if (ascending) {
-			mergeSortAscending(sortingArray, newSortingArray, sortedModel, comparator, 0, sortingArraySize, 0); 
+	public ModelItem getSelectedItem() {
+		if (sorted) {
+			return new SortedSelectionGetter().getSelectedItem();
 		} else {
-			mergeSortDescending(sortingArray, newSortingArray, sortedModel, comparator, 0, sortingArraySize, 0); 
+			return new SelectionGetter().getSelectedItem();
 		}
-		
-		sortingArray = newSortingArray;	
 	}
+	
+
+	/**
+	 * @return
+	 */
+	public ModelItem[] getSelectedItems() {
+		if (sorted) {
+			return new SortedSelectionGetter().getSelectedItems();
+		} else {
+			return new SelectionGetter().getSelectedItems();
+		}
+	}
+	
 		
 	/**
 	 * @param srcArray is the source array that starts at index 0
@@ -248,116 +355,142 @@ public class SortedModelTable extends ModelTable {
 	boolean isAscending() {
 		return ascending;
 	}
+	
+	/**
+	 * This method generates a new sorting array without altering the existing one.
+	 * The existing one should be replaced by the new one in the Swing event thread.
+	 *
+	 * @return the new sorting array
+	 */
+	private int[] getNewSortedArray() {
+
+		int[] srcArray = new int[itemsCount];
+		for (int i = 0; i < itemsCount; i++) {
+			srcArray[i] = i;
+		}
+
+		Comparator comparator = sortedTableFormat.getComparator(currentColumnNumber);
+
+		int[] dstArray = new int[srcArray.length];
+		System.arraycopy(srcArray, 0, dstArray, 0, srcArray.length);
+
+		if (ascending) {
+			mergeSortAscending(srcArray, dstArray, model,
+								comparator, 0, srcArray.length, 0);
+		} else {
+			mergeSortDescending(srcArray, dstArray, model,
+								comparator,	0, srcArray.length, 0);
+		}
+		return dstArray;
+	}
 
 	/* (non-Javadoc)
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return super.getValueAt(sortingArray[rowIndex], columnIndex);
+		if (sorted) {
+			try {
+				return super.getValueAt(sortingArray[rowIndex], columnIndex);
+			} catch (Exception exception) {
+				logger.log(Level.FINE, "Race condition in SortedModelTable.getValueAt()", exception);
+				return null;
+			}
+		} else {
+			return super.getValueAt(rowIndex, columnIndex);
+		}
 	}
 
-	/** 
-	 * This method is executed when a new row has been deleted from the model.
-	 * For performance reasons, rows should only be deleted at the end if possible. 
-	 * 
-	 * If we ever need to delete many rows from the middle, we should implement 
-	 * launching those delete events in blocks, instead of individually. 
-	 *  
-	 * @see javax.swing.table.AbstractTableModel#fireTableRowsDeleted(int, int)
+	/**
+	 * @param positions
 	 */
-	public void fireTableRowsDeleted(int firstRow, int lastRow) {
-		//We check if they have been deleted from the end (hopefully) or not.
-		if (firstRow < sortingArraySize) {
-			deleteFromSortingArray(firstRow, lastRow - firstRow + 1);
+	protected void fireTableRowsDeleted(int[] positions) {
+		itemsCount -= positions.length;
+		if (!sorted) {
+			super.fireTableRowsDeleted(positions);
 		} else {
-			sortingArraySize -= lastRow - firstRow + 1;
+			final int[] finalPositions = positions;
+
+			SwingWorker worker = new SwingWorker(table) {
+
+				private int[] newSorterArray;
+
+				protected void doNonUILogic() throws RuntimeException {
+					newSorterArray = getNewSortedArray();
+				}
+
+				protected void doUIUpdateLogic() throws RuntimeException {
+					sortingArray = newSorterArray;
+					sorted = true;
+					SortedModelTable.super.fireTableRowsDeleted(finalPositions);
+					table.revalidate();
+					table.repaint();
+				}
+
+			};
+			worker.start();
 		}
-		super.fireTableRowsDeleted(firstRow, lastRow);
 	}
 
 	/** 
 	 * This method is executed when a new row has been inserted into the model.
-	 * For performance reasons, rows should only be added at the end. If we ever
-	 * need to insert many rows in the middle, we should implement launching those
-	 * insert events in blocks, instead of individually. 
 	 *  
 	 * @see javax.swing.table.AbstractTableModel#fireTableRowsInserted(int, int)
 	 */
 	public void fireTableRowsInserted(int firstRow, int lastRow) {
-		//First we check if the new rows fit into the sortingArray
-		if (lastRow > sortingArray.length) {
-			growSortingArray(lastRow);
-		}
-		//Now we check if they have been added at the end (hopefully) or not.
-		if (firstRow < sortingArraySize) {
-			insertInSortingArray(firstRow, lastRow - firstRow + 1);
+		itemsCount += lastRow - firstRow + 1;
+		if (!sorted) {
+			super.fireTableRowsInserted(firstRow, lastRow);
 		} else {
-			for (int i = firstRow; i <= lastRow; i++) {
-				sortingArray[i] = i;
-				sortingArraySize++;
-			}
-		}
-		super.fireTableRowsInserted(firstRow, lastRow);
-	}
-	
-	/**
-	 * This method inserts items into the sorting array. The values
-	 * of the positions ar the right will be increased and moved accordingly
-	 * @param position position where the new values are to be inserted
-	 * @param number number of values to insert.
-	 */
-	private void insertInSortingArray(int position, int number) {
-		//First we displace the ones at the right
-		int numberToDisplace = sortingArraySize - position;
-		int newPositionStart = position + number;
-		int newPositionEnd =  position + number + numberToDisplace;
-		for (int i = newPositionStart; i <= newPositionEnd; i++) {
-			sortingArray[i + numberToDisplace] = sortingArray[i] + number;
-		} 
-		//Then we insert the new ones
-		int positionEnd = position + number;
-		for (int i = position; i < positionEnd; i++) {
-			sortingArray[i] = i;
-		}	
-		sortingArraySize += number;	
-	}
-	
-	/**
-	 * This method deletes items from the sorting array. The values
-	 * of the positions at the right will be decreased and moved accordingly
-	 * @param position position where the new values are to be inserted
-	 * @param number number of values to insert.
-	 */
-	private void deleteFromSortingArray(int position, int number) {
-		int numberToDisplace = sortingArraySize - (position + number);
-		int newPositionStart = position + number;
-		for (int i = newPositionStart; i >= position; i--) {
-			sortingArray[i] = sortingArray[i + numberToDisplace] - number;
-		}
-		sortingArraySize -= number;	 		
-	}
-	/**
-	 * This method grows the sortingArray when a row has been added
-	 * to the model and its number is greater than the length of the
-	 * array. 
-	 * It is passed the number of that row, and the length of the new
-	 * sorting array will be that number + 25%.
-	 * @param exceededValue the number of the row that is greater than
-	 *        the length of the sortingArray
-	 */
-	private void growSortingArray(int exceededValue) {
-		int newLength = (int) (exceededValue * 1.25);
-		int[] newSortingArray = new int[newLength]; 
-		System.arraycopy(sortingArray, 0, newSortingArray, 0, sortingArray.length);
-		sortingArray = newSortingArray;
-	}
+			final int firstRowFinal = firstRow;
+			final int lastRowFinal = lastRow;
 
+			SwingWorker worker = new SwingWorker(table) {
+
+				private int[] newSorterArray;
+
+				protected void doNonUILogic() throws RuntimeException {
+					newSorterArray = getNewSortedArray();
+				}
+
+				protected void doUIUpdateLogic() throws RuntimeException {
+					sortingArray = newSorterArray;
+					sorted = true;
+					SortedModelTable.super.fireTableRowsInserted(firstRowFinal, lastRowFinal);
+					table.revalidate();
+					table.repaint();
+				}
+
+			};
+			worker.start();
+		}
+	}
 	/* (non-Javadoc)
 	 * @see javax.swing.table.AbstractTableModel#fireTableDataChanged()
 	 */
 	public void fireTableDataChanged() {
-		sortingArraySize = getRowCount();
-		super.fireTableDataChanged();
+		itemsCount = model.getItemCount();
+		if (!sorted) {
+			super.fireTableDataChanged();
+		} else {
+			SwingWorker worker = new SwingWorker(table) {
+
+				private int[] newSorterArray;
+
+				protected void doNonUILogic() throws RuntimeException {
+					newSorterArray = getNewSortedArray();
+				}
+
+				protected void doUIUpdateLogic() throws RuntimeException {
+					sortingArray = newSorterArray;
+					sorted = true;
+					SortedModelTable.super.fireTableDataChanged();
+					table.revalidate();
+					table.repaint();
+				}
+
+			};
+			worker.start();
+		}
 	}
 
 }
