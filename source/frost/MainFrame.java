@@ -42,6 +42,7 @@ import frost.fileTransfer.upload.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
+import frost.gui.preferences.OptionsFrame;
 import frost.identities.Identity;
 import frost.messages.*;
 import frost.threads.*;
