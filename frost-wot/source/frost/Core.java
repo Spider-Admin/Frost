@@ -37,16 +37,15 @@ import frost.fileTransfer.download.DownloadManager;
 import frost.fileTransfer.search.SearchManager;
 import frost.fileTransfer.upload.UploadManager;
 import frost.gui.Splashscreen;
-import frost.gui.objects.*;
+import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
 import frost.storage.*;
-import frost.storage.Savable;
 import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.FlexibleObserver;
 import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.*;
+import frost.util.gui.translation.Language;
 
 /**
  * Class hold the more non-gui parts of frame1.java.
@@ -429,21 +428,6 @@ public class Core implements Savable {
 		(new DeleteWholeDirThread(this, which)).start();
 	}
 
-	/**
-	 * @param what
-	 * @param which
-	 */
-	public void startTruster(boolean what, FrostMessageObject which) {
-		new Truster(getIdentities(), Boolean.valueOf(what), which.getFrom()).start();
-	}
-
-	/**
-	 * @param which
-	 */
-	public void startTruster(FrostMessageObject which) {
-		new Truster(getIdentities(), null, which.getFrom()).start();
-	}
-	
 	/**
 	 * @param task
 	 * @param delay
