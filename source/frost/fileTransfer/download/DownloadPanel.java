@@ -14,7 +14,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.ext.Execute;
-import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
 import frost.util.model.gui.SortedModelTable;
@@ -463,27 +463,24 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			refreshLanguage();
 
 			//create the top panel
-			configureButton(
-				downloadActivateButton,
-				"/data/down_selected_rollover.gif"); // play_rollover
-            configureButton(
-                downloadPauseButton,
-               "/data/down_rollover.gif"); // pause_rollover
-                
+			MiscToolkit toolkit = MiscToolkit.getInstance();
+			toolkit.configureButton(downloadActivateButton, "/data/down_selected_rollover.gif"); // play_rollover
+			toolkit.configureButton(downloadPauseButton, "/data/down_rollover.gif"); // pause_rollover
+
 			BoxLayout dummyLayout = new BoxLayout(downloadTopPanel, BoxLayout.X_AXIS);
 			downloadTopPanel.setLayout(dummyLayout);
 			downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
 			downloadTopPanel.add(downloadTextField); //Download/Quickload
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
 			downloadTopPanel.add(downloadActivateButton); //Download/Start transfer
-            downloadTopPanel.add(downloadPauseButton); //Download/Start transfer
+			downloadTopPanel.add(downloadPauseButton); //Download/Start transfer
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			downloadTopPanel.add(Box.createHorizontalGlue());
 			downloadTopPanel.add(downloadItemCountLabel);
 
 			// create the main download panel
 			DownloadTableFormat tableFormat = new DownloadTableFormat(languageResource);
-			
+
 			modelTable = new SortedModelTable(model, tableFormat);
 			setLayout(new BorderLayout());
 			add(downloadTopPanel, BorderLayout.NORTH);
@@ -493,7 +490,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			// listeners
 			downloadTextField.addActionListener(listener);
 			downloadActivateButton.addActionListener(listener);
-            downloadPauseButton.addActionListener(listener);
+			downloadPauseButton.addActionListener(listener);
 			modelTable.getScrollPane().addMouseListener(listener);
 			modelTable.getTable().addKeyListener(listener);
 			modelTable.getTable().addMouseListener(listener);
@@ -565,18 +562,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			new ImageIcon(getClass().getResource(rolloverSelectedIcon)));
 		checkBox.setMargin(new Insets(0, 0, 0, 0));
 		checkBox.setFocusPainted(false);
-	}
-
-	/**
-	 * Configures a button to be a default icon button
-	 * @param button The new icon button
-	 * @param rolloverIcon Displayed when mouse is over button
-	 */
-	private void configureButton(JButton button, String rolloverIcon) {
-		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setBorderPainted(false);
-		button.setFocusPainted(false);
 	}
 
 	/**
