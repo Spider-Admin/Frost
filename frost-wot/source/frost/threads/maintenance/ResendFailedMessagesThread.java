@@ -36,7 +36,8 @@ public class ResendFailedMessagesThread extends Thread
 
         System.out.println("Starting search for unsent messages ...");
 
-        ArrayList entries = FileAccess.getAllEntries(new File(Core.frostSettings.getValue("unsent.dir")), ".txt");
+        ArrayList entries = FileAccess.getAllEntries(new File(Core.frostSettings.getValue("unsent.dir")), 
+                                                     ".xml");
 
         for( int i = 0; i < entries.size(); i++ )
         {
@@ -66,12 +67,7 @@ public class ResendFailedMessagesThread extends Thread
                     // no more faking here :)
                     frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
                         board,
-                        mo.getFrom(),
-                        mo.getSubject(),
-                        mo.getContent(),
-                        "",
-                        Core.frostSettings,
-                        frameToLock,
+                        mo,
                         null);
                     System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
                 }

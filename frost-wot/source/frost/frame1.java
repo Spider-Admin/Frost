@@ -3031,14 +3031,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**tofNewMessageButton Action Listener (tof/ New Message)*/
 	private void tofNewMessageButton_actionPerformed(ActionEvent e) {
 		String subject = "No subject";
-
+/*
 		if (frostSettings.getBoolValue("useAltEdit")) {
 			// TODO: pass FrostBoardObject
 				altEdit = new AltEdit(getSelectedNode(), subject, // subject
 		"", // new msg
 	frostSettings, this);
 			altEdit.start();
-		} else {
+		} else {*/
 			MessageFrame newMessage =
 				new MessageFrame(
 					getSelectedNode(),
@@ -3047,7 +3047,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				// subject
 	"", frostSettings, this);
 			newMessage.show();
-		}
+		//}
 	}
 
 	/**tofReplyButton Action Listener (tof/Reply)*/
@@ -3056,12 +3056,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		if (subject.startsWith("Re:") == false)
 			subject = "Re: " + subject;
-
+/*
 		if (frostSettings.getBoolValue("useAltEdit")) {
 				altEdit = new AltEdit(getSelectedNode(), subject, // subject
 	getTofTextAreaText(), frostSettings, this);
 			altEdit.start();
-		} else {
+		} else {*/
 			MessageFrame newMessage =
 				new MessageFrame(
 					getSelectedNode(),
@@ -3070,7 +3070,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				// subject
 	getTofTextAreaText(), frostSettings, this);
 			newMessage.show();
-		}
+//		}
 	}
 
 	private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e) {

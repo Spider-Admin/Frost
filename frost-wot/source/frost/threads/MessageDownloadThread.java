@@ -273,9 +273,9 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         	//TODO: metadata failed, do something
                             t.printStackTrace(Core.getOut());
                             //please, please, PLEASE don't just catch them and do nothing!
+                            // i know, i just added a TODO as in rest of file because i don't
+                            // know what to do if failed...
                         }
-                        
-                        
                         
                         //check if we have the owner already on the lists
                         String _owner = metaData.getSharer().getUniqueName();
@@ -305,8 +305,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         					
                         //unzip
                         //REDFLAG: encoding
-                        String unzipped = FileAccess.readZipFile(testMe);
-                        FileAccess.writeFile(unzipped,testMe);
+                        byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
+                        FileAccess.writeByteArray(unzippedXml,testMe);
                         
                         //create object
                         VerifyableMessageObject vmo = null;
