@@ -1,7 +1,7 @@
 @echo off
 
 rem *** Define the makensis.exe path here ***
-set makensis=c:\nsis\makensis.exe
+set makensis=c:\nsis\makensis-bz2.exe
 
 echo Cleaning directories...
 del *.exe

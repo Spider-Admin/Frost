@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Translator : first_name last_name <email_address>
-# Last check : 011207
+# Last check : 011214
 
 !include config.nsh
 

@@ -28,9 +28,7 @@ DisabledBitmap no.bmp
 
 InstProgressFlags smooth
 
-LicenseData "data\frost\docs\gpl.txt"
-
-UninstallExeName Uninstall-Frost.exe
+LicenseData "data\frost\doc\gpl.txt"
 
 InstProgressFlags smooth
 # !packhdr will further optimize your installer package if you have upx.exe in your directory
@@ -41,9 +39,9 @@ InstallDirRegKey HKEY_LOCAL_MACHINE "Software\Frost" "InstPath"
 
 ;-----------------------------------------------------------------------------------
 Section
-  # Required section which copies all the files
+  # -- Required section which copies all the files
 
-  # Have to say to the installer that Frost is 685 Kb since we only copy files
+  # -- Have to say to the installer that Frost is 685 Kb since we only copy files
   AddSize ${CONF_SIZE}
 
   # -- Assume Frost is already installed
@@ -57,17 +55,20 @@ DoUpdate:
   SetOutPath "$INSTDIR"
   CopyFiles "$EXEDIR\frost\*.*" "$INSTDIR"
 
-  # Register installpath
+  # -- Register installpath
   WriteRegStr HKEY_LOCAL_MACHINE "Software\Frost" "InstPath" '$INSTDIR'
 
-  # Create uninstall keys
+  # -- Generate Uninstaller
+  WriteUninstaller "$INSTDIR\Uninstall-Frost.exe"
+
+  # -- Create uninstall keys
   WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Frost" "DisplayName" "Frost ${CONF_VERSION}"
   WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Frost" "UninstallString" '"$INSTDIR\Uninstall-Frost.exe"'
 SectionEnd
 
 ;-----------------------------------------------------------------------------------
 Section "${SEC_ICONS}"
-  # This section creates the startmenu icons
+  # -- This section creates the startmenu icons
   SectionIn 1,2
 
   CreateDirectory "$SMPROGRAMS\Frost"
@@ -79,15 +80,15 @@ SectionEnd
 
 ;-----------------------------------------------------------------------------------
 Section "${SEC_DESKTOPICON}"
-  # This section creates a desktop icon
+  # -- This section creates a desktop icon
   SectionIn 1,2
 
-  CreateShortCut "$DESKTOP\Frost.lnk" "$1" "-cp .;classes;data frost" "$INSTDIR\jtc.ico" 0
+  CreateShortCut "$DESKTOP\Frost.lnk" "$1" "-cp frost.jar frost" "$INSTDIR\jtc.ico" 0
 SectionEnd
 
 ;-----------------------------------------------------------------------------------
 Section "Uninstall"
-  # Uninstall section
+  # -- Uninstall section
   RMDir /r "$INSTDIR"
   Delete "$DESKTOP\Frost.lnk"
   RMDir /r "$SMPROGRAMS\Frost"
@@ -98,35 +99,35 @@ SectionEnd
 
 ;-----------------------------------------------------------------------------------
 Function .onInit
-  # Check if Freenet is installed
+  # -- Check if Freenet is installed
   ReadRegStr $0 HKEY_LOCAL_MACHINE "Software\Freenet" "instpath"
   StrCmp $0 "" NoFreenet
 
-  # Yes, then get the java path ;)
+  # -- Yes, then get the java path ;)
   ReadINIStr $4 "$0\FLaunch.ini" "Freenet Launcher" "javaexec"
-  # Get the short path name
+  # -- Get the short path name
   GetFullPathName /SHORT $3 $4
 
   ReadINIStr $4 "$0\FLaunch.ini" "Freenet Launcher" "javaw"
-  # Get the short path name
+  # -- Get the short path name
   GetFullPathName /SHORT $1 $4
   Goto End
 
 NoFreenet:
-  # Try to find it
-  # Search a java.exe file
+  # -- Try to find it
+  # -- Search a java.exe file
   SearchPath $0 "java.exe"
   StrCmp $0 "" NoJava
   GetFullPathName /SHORT $3 $0
 
-  # Search a javaw.exe file
+  # -- Search a javaw.exe file
   SearchPath $0 "javaw.exe"
   StrCmp $0 "" NoJava
   GetFullPathName /SHORT $1 $0
   Goto End
 
 NoJava:
-  # No, then abort installation
+  # -- No, then abort installation
   MessageBox MB_OK|MB_ICONSTOP "${STR_JAVANOTFOUND}"
   Abort
 
@@ -135,7 +136,7 @@ FunctionEnd
 
 ;-----------------------------------------------------------------------------------
 Function .onInstFailed
-  # -- Do not delete INSTDIR if frost.class was there before installation
+  # -- Do not delete INSTDIR if frost.jar was there before installation
   StrCmp $2 "Yes" DontDelete
   RMDir /r "$INSTDIR"
 

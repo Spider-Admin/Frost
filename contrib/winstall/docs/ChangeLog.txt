@@ -1,3 +1,11 @@
+2001-12-16  Benoit Laniel <nels@pgroupe.net>
+
+    * Fixed a bug in the desktop shortcut
+
+2001-12-11  Benoit Laniel <nels@pgroupe.net>
+
+    * Minor changes for NSIS 1.80 compatibility
+
 2001-12-07  Benoit Laniel <nels@pgroupe.net>
 
     * Changed the classpath in shortcuts since Frost is now in a JAR file

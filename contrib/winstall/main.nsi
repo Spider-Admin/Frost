@@ -22,6 +22,9 @@ OutFile "frost_${CONF_VERSION}_windows_installer.exe"
 Icon jtc_inst.ico
 SilentInstall silent
 
+# !packhdr will further optimize your installer package if you have upx.exe in your directory
+!packhdr temp.dat "upx.exe --best temp.dat"
+
 Section
   SetOutPath "$TEMP\frost_inst"
   File /r "data\*.*"

@@ -17,7 +17,7 @@
 
 !ifndef CONF_VERSION
   # -- Current Frost version
-  !define CONF_VERSION "011207"
+  !define CONF_VERSION "011214"
   # -- Size of the 'data\frost' directory (right click and 'Properties' will give it)
-  !define CONF_SIZE 581
+  !define CONF_SIZE 600
 !endif

@@ -16,7 +16,7 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Translator : Benoit Laniel <nels@pgroupe.net>
-# Last check : 011207
+# Last check : 011214
 
 !include config.nsh
 !define LANG "fr"

@@ -5,7 +5,7 @@
 What do you need?
 -----------------
 
-You need NSIS >=1.60 to compile the installer.
+You need NSIS >=1.80 to compile the installer.
 You can find it at http://www.firehose.net/free/nsis
 
 You can optionally get UPX to compress the installer headers.
