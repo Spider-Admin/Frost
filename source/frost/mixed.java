@@ -17,24 +17,11 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
+
 import java.util.*;
 import java.io.*;
 
 public class mixed {
-
-    /**
-     * Compares a String with all elements of an array.
-     * Returns true if element exists in array, else false.
-     * @param element String to be compared
-     * @param array Array of Strings to be compared
-     * @return true if element exists in array, else false
-     */
-    public static boolean isElementOf(String element, String[] array) {
-    for (int i = 0; i < array.length; i++)
-        if (element.equals(array[i]))
-        return true;
-    return false;
-    }
 
     /**
      * Copys a file from the jar file to disk
@@ -100,6 +87,4 @@ public class mixed {
 
     return newText.toString();
     }
-
-    /***** the date functions are all in DateFun now ******/
 }

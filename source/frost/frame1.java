@@ -398,11 +398,11 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener
         newBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                addNodeToTree();
+                getTofTree().createNewBoard(frame1.getInstance());
             } });
         newFolderButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                addFolderToTree();
+                getTofTree().createNewFolder(frame1.getInstance());
             } });
         renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -504,7 +504,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTree = new TofTree(dummyRootNode);
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
         tofTree.setRootVisible(true);
-        tofTree.setEditable(true);
+        //tofTree.setEditable(true);
         tofTree.setCellRenderer(new TofTreeCellRenderer());
         tofTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         // tofTree selection listener
@@ -1348,11 +1348,11 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener
         tofTreePopupAddNode.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                addNodeToTree();
+                getTofTree().createNewBoard(frame1.getInstance());
             } });
         tofTreePopupAddFolder.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                addFolderToTree();
+                getTofTree().createNewFolder(frame1.getInstance());
             } });
         tofTreePopupRefresh.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -1583,7 +1583,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 pubKey = null;
             }
 
-            addNodeTree( new FrostBoardObject(name, pubKey, privKey) );
+            getTofTree().addNodeToTree( new FrostBoardObject(name, pubKey, privKey) );
         }
     }
 
@@ -1872,6 +1872,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 downloadAttachmentsButton.setEnabled(false);
                 downloadBoardsButton.setEnabled(false);
 
+                // read all messages for this board into message table
                 TOF.updateTofTable(node, keypool, frostSettings.getIntValue("maxMessageDisplay"));
                 messageTable.clearSelection();
             }
@@ -1889,122 +1890,27 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
-    public void addNodeToTree()
-    {
-        String nodeName = null;
-        do
-        {
-            Object nodeNameOb = JOptionPane.showInputDialog ((Component)this,
-                                                             LangRes.getString ("New Node Name"),
-                                                             LangRes.getString ("New Node Name"),
-                                                             JOptionPane.QUESTION_MESSAGE, null, null,
-                                                             "newboard");
-
-            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
-
-            if( nodeName == null )
-                return; // cancelled
-
-            if( getTofTree().getBoardByName( nodeName ) != null )
-            {
-                JOptionPane.showMessageDialog(this, "You already have a board with name '"+nodeName+"'!\nPlease choose a new name.");
-                nodeName = ""; // loop again
-            }
-        } while( nodeName.length()==0 );
-
-
-        FrostBoardObject selectedNode = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
-        if( selectedNode != null )
-        {
-            if( selectedNode.isFolder()==true )
-            {
-                selectedNode.add(new FrostBoardObject(nodeName));
-            }
-            else
-            {
-                // add to parent of selected node
-                selectedNode = (FrostBoardObject)selectedNode.getParent();
-                selectedNode.add(new FrostBoardObject(nodeName));
-            }
-        }
-        else
-        {
-            // add to root node
-            selectedNode = (FrostBoardObject)getTofTree().getModel().getRoot();
-            selectedNode.add(new FrostBoardObject(nodeName));
-        }
-        int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
-        ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( selectedNode, insertedIndex );
-    }
-
-    public void addFolderToTree()
-    {
-        String nodeName = null;
-        do
-        {
-            Object nodeNameOb = JOptionPane.showInputDialog((Component)this,
-                                                             "Please enter a name for the new folder:",
-                                                             "New Folder Name",
-                                                             JOptionPane.QUESTION_MESSAGE, null, null,
-                                                             "newfolder");
-
-            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
-
-            if( nodeName == null )
-                return; // cancelled
-
-        } while( nodeName.length()==0 );
-
-        FrostBoardObject selectedNode = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
-        if( selectedNode != null)
-        {
-            if( selectedNode.isFolder()==true )
-            {
-                selectedNode.add(new FrostBoardObject(nodeName, true));
-            }
-            else
-            {
-                // add to parent of selected node
-                selectedNode = (FrostBoardObject)selectedNode.getParent();
-                selectedNode.add(new FrostBoardObject(nodeName, true));
-            }
-        }
-        else
-        {
-            // add to root node
-            selectedNode = (FrostBoardObject)getTofTree().getModel().getRoot();
-            selectedNode.add(new FrostBoardObject(nodeName, true));
-        }
-        int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
-        ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( selectedNode, insertedIndex );
-    }
-
-
-    public void addNodeTree(FrostBoardObject name)
-    {
-        FrostBoardObject current = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
-        current = (FrostBoardObject)current.getRoot();
-        current.add(name);
-
-        int insertedIndex[] = { current.getChildCount()-1}; // last in list is the newly added
-        ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( current, insertedIndex );
-    }
-
+    /**
+     * starts update for the selected board, or for all childs (and their childs) of a folder
+     */
     private void refreshNode(FrostBoardObject node)
     {
-        if( node!=null )
-            if( node.isLeaf() )
-            { //TODO: refresh current board
-                if( isUpdateAllowed( node ) )
-                {
-                    updateBoard(node);
-                }
-            }
-            else
+        if( node==null )
+            return;
+
+        if( node.isFolder() == false )
+        {
+            if( isUpdateAllowed( node ) )
             {
-                Enumeration leafs = node.children();
-                while( leafs.hasMoreElements() ) refreshNode((FrostBoardObject)leafs.nextElement());
+                updateBoard(node);
             }
+        }
+        else
+        {
+            // update all childs recursiv
+            Enumeration leafs = node.children();
+            while( leafs.hasMoreElements() ) refreshNode((FrostBoardObject)leafs.nextElement());
+        }
     }
 
     public void removeSelectedNode()
@@ -2012,6 +1918,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         getTofTree().removeSelectedNode();
     }
 
+    /**
+     * Opens dialog to rename the board / folder.
+     * For boards it checks for double names.
+     */
     public void renameSelectedNode()
     {
         // getTofTree().startEditingAtPath(getTofTree().getSelectionPath());
@@ -2025,18 +1935,16 @@ public class frame1 extends JFrame implements ClipboardOwner
                                                   "Please enter the new name:\n",
                                                   selected.toString() );
             if( newname == null )
-                break;
-            if( getTofTree().getBoardByName( newname ) != null )
+                return; // cancel
+            if( selected.isFolder() == false && // double folder names are ok
+                getTofTree().getBoardByName( newname ) != null )
             {
                 JOptionPane.showMessageDialog(this, "You already have a board with name '"+newname+"'!\nPlease choose a new name.");
                 newname = ""; // loop again
             }
         } while( newname.length()==0 );
-        if( newname == null )
-            return; // cancelled
 
         selected.setBoardName(newname);
-
         ((DefaultTreeModel)getTofTree().getModel()).nodeChanged( selected );
     }
 
@@ -2067,15 +1975,16 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**Get keyTyped for tofTree*/
     public void tofTree_keyPressed(KeyEvent e) {
     char key = e.getKeyChar();
-    if (!getTofTree().isEditing()) {
+    if (!getTofTree().isEditing())
+    {
         if (key == KeyEvent.VK_DELETE)
-        removeSelectedNode();
+            removeSelectedNode();
         if (key == KeyEvent.VK_N)
-        addNodeToTree();
+            getTofTree().createNewBoard(frame1.getInstance());
         if (key == KeyEvent.VK_X)
-        cutSelectedNode();
+            cutSelectedNode();
         if (key == KeyEvent.VK_V)
-        pasteFromClipboard();
+            pasteFromClipboard();
     }
     }
 
@@ -2245,7 +2154,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         Collections.sort(boards, lastUpdateStartMillisCmp);
         // now first board in list should be the one with latest update of all
-
         FrostBoardObject board;
         FrostBoardObject nextBoard = null;
 
@@ -2258,7 +2166,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         for (int i = 0; i < boards.size(); i++)
         {
             board = (FrostBoardObject)boards.get(i);
-//            System.out.println( "lastUpdate= "+board.getLastUpdateStartMillis()+" ; Board = "+board.toString() );
             if( nextBoard == null &&
                 doUpdate(board) &&
                 (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
@@ -2389,7 +2296,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         ulModel.updateRow( ulItem );
                         insertThread newInsert = new insertThread(ulItem, frostSettings, false);
                         newInsert.start();
-                        break; // start generate for 1 item per loop
+                        break; // start only 1 thread per loop (=second)
                     }
                 }
             }
@@ -2419,7 +2326,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         ulModel.updateRow( ulItem );
                         insertThread newInsert = new insertThread(ulItem, frostSettings, true);
                         newInsert.start();
-                        break;
+                        break; // start only 1 thread per loop (=second)
                     }
                 }
             }
@@ -2432,7 +2339,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         synchronized(threadCountLock) {
             activeDthreads=activeDownloadThreads;
         }
-        if( activeDthreads < frostSettings.getIntValue("downloadThreads") && downloadActivateCheckBox.isSelected() )
+        if( activeDthreads < frostSettings.getIntValue("downloadThreads") &&
+            downloadActivateCheckBox.isSelected() )
         {
             DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
             for( int i = 0; i < dlModel.getRowCount(); i++ )
@@ -2445,7 +2353,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
                     requestThread newRequest = new requestThread( dlItem, getDownloadTable() );
                     newRequest.start();
-                    break; // start only 1 download per loop
+                    break; // start only 1 thread per loop (=second)
                 }
             }
         }
