@@ -420,7 +420,7 @@ public class MessageObject implements XMLizable
 			board = XMLTools.getChildElementsCDATAValue(e,"Board");
 			content = XMLTools.getChildElementsCDATAValue(e,"Body");
 			
-			if (XMLTools.getChildElementsCDATAValue(e,"Deleted") != null) {
+			if (!XMLTools.getChildElementsByTagName(e,"Deleted").isEmpty()) {
 				deleted = true;
 			}
 			

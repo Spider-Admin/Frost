@@ -546,8 +546,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setBadItem.addActionListener(this);
 				setCheckItem.addActionListener(this);
 				deleteItem.addActionListener(this);
-				
-				deleteItem.setEnabled(false); //Until it is finished
 			}
 
 			/* (non-Javadoc)
@@ -1053,7 +1051,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				languageResource.addLanguageListener(listener);
 
 				// build messages list scroll pane
-				MessageTableModel messageTableModel = new MessageTableModel(languageResource);
+				messageTableModel = new MessageTableModel(languageResource);
 				languageResource.addLanguageListener(messageTableModel);
 				messageTable = new MessageTable(messageTableModel);
 				messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
@@ -1461,7 +1459,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 			final FrostMessageObject targetMessage = selectedMessage;
 
-			messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+			messageTableModel.deleteRow(selectedMessage);
 
 			targetMessage.setDeleted(true);
 			Thread saver = new Thread() {
@@ -1855,6 +1853,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JMenuBar menuBar = new JMenuBar();
 	private MessagePanel messagePanel = null;
 	private MessageTable messageTable = null;
+	private MessageTableModel messageTableModel;
 
 	// buttons that are enabled/disabled later
 	private JButton newBoardButton = null;

@@ -325,6 +325,7 @@ public class TOF
                                     message = null;
                                 }
                                 if( message != null &&
+                                	!message.isDeleted() &&
                                     message.isValid() && 
                                     !blocked(message,board) )
                                 {
