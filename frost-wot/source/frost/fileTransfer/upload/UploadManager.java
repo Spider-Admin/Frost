@@ -11,6 +11,7 @@ import java.beans.*;
 import frost.*;
 import frost.gui.TofTree;
 import frost.identities.LocalIdentity;
+import frost.storage.StorageException;
 
 /**
  * @author $Author$
@@ -40,11 +41,11 @@ public class UploadManager implements PropertyChangeListener {
 	/**
 	 * 
 	 */
-	public void initialize() {
+	public void initialize() throws StorageException {
 		mainFrame.addPanel("Uploads", getPanel());
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_REQUESTS, this);
 		updateUploadStatus();
-		getModel().load();
+		getModel().initialize();
 		if (freenetIsOnline) {
 			getTicker().start();
 		}

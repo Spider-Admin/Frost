@@ -10,7 +10,6 @@ import java.io.File;
 import java.util.*;
 
 import frost.SettingsClass;
-import frost.gui.TableXmlIO;
 import frost.storage.*;
 import frost.util.model.*;
 
@@ -140,20 +139,8 @@ public class UploadModel extends OrderedModel implements Savable {
 	 * Saves the upload model to disk.
 	 */
 	public void save() throws StorageException {
-		String filename = settings.getValue("config.dir") + "uploads.xml";
-		File check = new File(filename);
-		if (check.exists()) {
-			// rename old file to .bak, overwrite older .bak
-			String bakFilename = settings.getValue("config.dir") + "uploads.xml.bak";
-			File bakFile = new File(bakFilename);
-			if (bakFile.exists()) {
-				bakFile.delete();
-			}
-			check.renameTo(bakFile);
-		}
-		if (!TableXmlIO.saveUploadModel(this, filename)) {
-			throw new StorageException("Error while saving the uploads model.");
-		}
+		UploadModelDAO uploadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getUploadModelDAO();
+		uploadModelDAO.save(this);
 	}
 
 	/**
@@ -207,16 +194,17 @@ public class UploadModel extends OrderedModel implements Savable {
 	}
 
 	/**
-	 * Loads the upload model from disk
+	 * Initializes the model
 	 */
-	public boolean load() {
-		String filename = settings.getValue("config.dir") + "uploads.xml";
-		// the call changes the tablemodel and loads nodes into it
-		File iniFile = new File(filename);
-		if (iniFile.exists() == false) {
-			return true; // nothing loaded, but no error
+	public void initialize() throws StorageException {
+		UploadModelDAO uploadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getUploadModelDAO();
+		if (!uploadModelDAO.exists()) {
+			// The storage doesn't exist yet. We create it.
+			uploadModelDAO.create();
+		} else {
+			// Storage exists. Load from it.
+			uploadModelDAO.load(this);
 		}
-		return TableXmlIO.loadUploadModel(this, filename);
 	}
 
 }
