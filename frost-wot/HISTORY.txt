@@ -21,6 +21,7 @@ Bugfix: The message upload failed dialog works now. Some strings were missing fr
 		(thanks to SSY)
 Bugfix: From Freenet 5099 on, keywords may be longer than 64 characters. Thanks to mxbee for reporting it.
 Bugfix: The HopsToLive parameter must be in hexadecimal. Thanks to mxbee.
+Bugfix: With Java 1.5, the attachment split panes of the main frame were not working well.
 		
 **************************************************************************************************
 
