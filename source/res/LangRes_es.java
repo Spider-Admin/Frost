@@ -321,7 +321,18 @@ static final Object[][] contents = {
 	{"Message Body","Cuerpo del Mensaje"},
 	{"Message List","Lista de Mensajes"},
 	{"Choose","Escoge"},
-	{"EnableMessageBodyAA", "Activa antialiasing para el Cuerpo del Mensaje"}
+	{"EnableMessageBodyAA", "Activa antialiasing para el Cuerpo del Mensaje"},
+	
+	//	Board Settings Dialog
+	{"Settings for board","Configuración del foro"},
+	{"Override default settings","Ignora valores por defecto"},
+	{"Use default","Valor por defecto"},
+	{"Set to","Establece a"},
+	{"Yes","Sí"},
+	{"No","No"},
+	{"Enable automatic board update","Activa refresco automático del foro"},
+	{"Maximum message display (days)","Número de días a mostrar"},
+	{"Warning","Aviso"}
 
 };
 }
