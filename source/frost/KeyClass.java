@@ -32,6 +32,7 @@ public class KeyClass
     String owner = null;  //person that uploaded the file
     Long size = new Long(0); // Filesize
     String filename = new String();
+    String batch = null;
     boolean exchange;
 
     public GregorianCalendar getCal()
@@ -78,14 +79,16 @@ public class KeyClass
 
                 if( today.after(cal) )
                 {
-                    if( DEBUG ) System.out.println(filename + " is outdated");
+                    //if( DEBUG ) 
+		    System.out.println(filename + " is outdated");
                     return false;
                 }
 
                 today.add(Calendar.DATE, (maxAge + 2)); // Accept one day into future
                 if( cal.after(today) )
                 {
-                    if( DEBUG ) System.out.println("Future date of " + filename + " " + year + month + day);
+                    //if( DEBUG ) 
+		    System.out.println("Future date of " + filename + " " + year + month + day);
                     return false;
                 }
 
@@ -93,13 +96,15 @@ public class KeyClass
             }
             catch( NumberFormatException e )
             {
-                if( DEBUG ) System.out.println("Date of " + filename + " is invalid");
+                //if( DEBUG ) 
+		System.out.println("Date of " + filename + " is invalid");
                 return false;
             }
         }
         else
         {
-            if( DEBUG ) System.out.println(filename + " has invalid date");
+            //if( DEBUG ) 
+	    System.out.println(filename + " has invalid date");
             return false;
         }
     }
@@ -258,6 +263,14 @@ public class KeyClass
     	lastSharedDate=newdate;
     }
     
+    public String getBatch() {
+    	return batch;
+    }
+    
+    public void setBatch(String what) {
+    	batch=what;
+    	
+    }
 
     /** Constructor*/
     public KeyClass(String key)
