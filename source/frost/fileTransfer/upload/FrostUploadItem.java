@@ -3,7 +3,7 @@ package frost.fileTransfer.upload;
 import java.io.File;
 
 import frost.gui.model.TableMember;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.util.model.ModelItem;
 
 public class FrostUploadItem extends ModelItem
@@ -36,7 +36,7 @@ public class FrostUploadItem extends ModelItem
     private Long fileSize;					//FIELD_ID_FILE_SIZE
 	private String key;					//FIELD_ID_KEY
 	private String sha1;					//FIELD_ID_SHA
-	private FrostBoardObject targetBoard;	//FIELD_ID_TARGET_BOARD
+	private Board targetBoard;	//FIELD_ID_TARGET_BOARD
 	private int totalBlocks = -1;			//FIELD_ID_TOTAL_BLOCKS
 	private int doneBlocks = -1;			//FIELD_ID_DONE_BLOCKS
 	private String lastUploadDate;			//FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
@@ -49,7 +49,7 @@ public class FrostUploadItem extends ModelItem
 	 * @param file
 	 * @param newBoard
 	 */
-	public FrostUploadItem(File file, FrostBoardObject newBoard) {
+	public FrostUploadItem(File file, Board newBoard) {
 		if (file != null) {
 			fileName = file.getName();
 			filePath = file.getPath();
@@ -66,7 +66,7 @@ public class FrostUploadItem extends ModelItem
     /**
      * Constructor used by loadUploadTable
      */
-    public FrostUploadItem(String newFilename, String newFilepath, long newFilesize, FrostBoardObject newBoard,
+    public FrostUploadItem(String newFilename, String newFilepath, long newFilesize, Board newBoard,
                                  int newState, String newLastUploadDate, String newKey, String newSha1)
     {
         fileName = newFilename;
@@ -175,14 +175,14 @@ public class FrostUploadItem extends ModelItem
 	/**
 	 * @return
 	 */
-	public FrostBoardObject getTargetBoard() {
+	public Board getTargetBoard() {
 		return targetBoard;
 	}
 	/**
 	 * @param val
 	 */
-	public void setTargetBoard(FrostBoardObject newBoard) {
-		FrostBoardObject oldBoard = targetBoard;
+	public void setTargetBoard(Board newBoard) {
+		Board oldBoard = targetBoard;
 		targetBoard = newBoard;
 		fireFieldChange(FIELD_ID_TARGET_BOARD, oldBoard, newBoard);
 	}

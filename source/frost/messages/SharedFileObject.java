@@ -26,7 +26,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 
 
 //Renamed this class to SharedFileObject.
@@ -53,7 +53,7 @@ public class SharedFileObject implements XMLizable
     String filename = new String();
     File file = null; //the file itself
     String batch = null;
-    FrostBoardObject board;
+    Board board;
     boolean exchange;
 
     public GregorianCalendar getCal()
@@ -300,7 +300,7 @@ public class SharedFileObject implements XMLizable
      * @param board the board to which index to add the file.  If null, the file will
      * not be added to any index and won't participate in the request system.
      */
-    public SharedFileObject(File file, FrostBoardObject board) {
+    public SharedFileObject(File file, Board board) {
     	SHA1 = Core.getCrypto().digest(file);
     	size = new Long(file.length());
     	filename = file.getName();
@@ -438,7 +438,7 @@ public class SharedFileObject implements XMLizable
 	/**
 	 * @return the board this file will be uploaded to, if any
 	 */
-	public FrostBoardObject getBoard() {
+	public Board getBoard() {
 		return board;
 	}
 	
@@ -470,7 +470,7 @@ public class SharedFileObject implements XMLizable
 	/**
 	 * @param object
 	 */
-	public void setBoard(FrostBoardObject object) {
+	public void setBoard(Board object) {
 		board = object;
 	}
 

@@ -1,7 +1,7 @@
 package frost.fileTransfer.download;
 
 import frost.fileTransfer.search.FrostSearchItem;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.util.model.ModelItem;
 
 public class FrostDownloadItem extends ModelItem {
@@ -38,7 +38,7 @@ public class FrostDownloadItem extends ModelItem {
 	private Long fileSize = null;			//FIELD_ID_FILE_SIZE
 	private String fileAge = null;		//FIELD_ID_FILE_AGE
 	private String key = null;			//FIELD_ID_KEY
-	private FrostBoardObject sourceBoard;	//FIELD_ID_SOURCE_BOARD
+	private Board sourceBoard;	//FIELD_ID_SOURCE_BOARD
 	private int retries;					//FIELD_ID_RETRIES
 	private Boolean enableDownload = 
 				new Boolean(true);			//FIELD_ID_ENABLED
@@ -78,7 +78,7 @@ public class FrostDownloadItem extends ModelItem {
 	}
 
 	//TODO: add .redirect to this or fix it to use SharedFileObject
-	public FrostDownloadItem(String fileName, String key, FrostBoardObject board) {
+	public FrostDownloadItem(String fileName, String key, Board board) {
 		
 		this.fileName = fileName;
 		fileSize = null; // not set yet
@@ -100,7 +100,7 @@ public class FrostDownloadItem extends ModelItem {
 		String SHA1,
 		int state,
 		boolean isDownloadEnabled,
-		FrostBoardObject board) {
+		Board board) {
 		this.fileName = fileName;
 		if (fileSize != null)
 			this.fileSize = new Long(fileSize);
@@ -156,7 +156,7 @@ public class FrostDownloadItem extends ModelItem {
 		key = newKey;
 		fireFieldChange(FIELD_ID_KEY, oldKey, newKey);
 	}
-	public FrostBoardObject getSourceBoard() {
+	public Board getSourceBoard() {
 		return sourceBoard;
 	}
 

@@ -29,7 +29,7 @@ import javax.swing.border.*;
 
 import frost.MainFrame;
 import frost.fcp.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.util.gui.translation.Language;
 
 /**
@@ -71,7 +71,7 @@ public class BoardSettingsFrame extends JDialog {
 	private Listener listener = new Listener();
 
 	private JCheckBox autoUpdateEnabled = new JCheckBox();
-	private FrostBoardObject board;
+	private Board board;
 	private JButton cancelButton = new JButton();
 	private boolean exitState;
 	private JButton generateKeyButton = new JButton();
@@ -127,7 +127,7 @@ public class BoardSettingsFrame extends JDialog {
 	 */
 	public BoardSettingsFrame(
 		Frame parent,
-		FrostBoardObject board) {
+		Board board) {
 
 		super(parent);
 

@@ -10,7 +10,7 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.threads.BoardUpdateThread;
 
 
@@ -33,7 +33,7 @@ public class CheckForSpam extends TimerTask
             Iterator iter = MainFrame.getInstance().getTofTree().getAllBoards().iterator();
             while (iter.hasNext())
             {
-                FrostBoardObject current = (FrostBoardObject)iter.next();
+                Board current = (Board)iter.next();
                 if (current.getBlockedCount() > Core.frostSettings.getIntValue("spamTreshold"))
                 {
                     //board is spammed

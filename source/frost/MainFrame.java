@@ -921,11 +921,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			LinkedList boards = selectedMessage.getAttachmentList().getAllOfType(Attachment.BOARD);
 			for (int i = 0; i < selectedRows.length; i++) {
 				BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
-				FrostBoardObject fbo = ba.getBoardObj();
+				Board fbo = ba.getBoardObj();
 				String name = fbo.getBoardName();
 
 				// search board in exising boards list
-				FrostBoardObject board = getTofTree().getBoardByName(name);
+				Board board = getTofTree().getBoardByName(name);
 
 				//ask if we already have the board
 				if (board != null) {
@@ -1213,7 +1213,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @param e
 		 */
 		private void messageTable_itemSelected(ListSelectionEvent e) {
-			FrostBoardObject selectedBoard = getSelectedNode();
+			Board selectedBoard = getSelectedNode();
 			if (selectedBoard.isFolder())
 				return;
 			selectedMessage = TOF.evalSelection(e, messageTable, selectedBoard);
@@ -1464,8 +1464,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				messageTextArea.setText(language.getString("Welcome message"));
 			} else {
 				//There are boards.
-				FrostBoardObject node =
-					(FrostBoardObject) getTofTree().getLastSelectedPathComponent();
+				Board node =
+					(Board) getTofTree().getLastSelectedPathComponent();
 				if (node != null) {
 					if (!node.isFolder()) {
 						// node is a board
@@ -1497,7 +1497,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void boardsTreeNode_Changed(TreeModelEvent e) {
 			Object[] path = e.getPath();
-			FrostBoardObject board = (FrostBoardObject) path[path.length - 1];
+			Board board = (Board) path[path.length - 1];
 
 			if (board == getSelectedNode()) { // is the board actually shown?
 				if (board.isReadAccessBoard()) {
@@ -1558,7 +1558,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private JMenuItem refreshItem = new JMenuItem(getScaledImage("/data/update.gif"));
 		private JMenuItem removeNodeItem = new JMenuItem(getScaledImage("/data/remove.gif"));
 
-		private FrostBoardObject selectedTreeNode = null;
+		private Board selectedTreeNode = null;
 		private JMenuItem sortFolderItem = new JMenuItem(getScaledImage("/data/sort.gif"));
 
 		/**
@@ -1703,7 +1703,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				removeAll();
 
 				TreePath selPath = getTofTree().getPathForLocation(x, y);
-				selectedTreeNode = (FrostBoardObject) selPath.getLastPathComponent();
+				selectedTreeNode = (Board) selPath.getLastPathComponent();
 
 				String folderOrBoard1 =
 					((selectedTreeNode.isFolder())
@@ -1782,7 +1782,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			Iterator i = getTofTree().getAllBoards().iterator();
 
 			while (i.hasNext()) {
-				FrostBoardObject board = (FrostBoardObject) i.next();
+				Board board = (Board) i.next();
 
 				String destination =
 					new StringBuffer()
@@ -1833,8 +1833,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		public int compare(Object o1, Object o2) {
-			FrostBoardObject value1 = (FrostBoardObject) o1;
-			FrostBoardObject value2 = (FrostBoardObject) o2;
+			Board value1 = (Board) o1;
+			Board value2 = (Board) o2;
 			if (value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis())
 				return 1;
 			else if (value1.getLastUpdateStartMillis() < value2.getLastUpdateStartMillis())
@@ -1885,7 +1885,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 
 	private JButton boardInfoButton = null;
-	private FrostBoardObject clipboard = null;
+	private Board clipboard = null;
 	private JButton configBoardButton = null;
 	private long counter = 55;
 	private JButton cutBoardButton = null;
@@ -2444,7 +2444,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @param cuttedNode
 	 */
-	public void cutNode(FrostBoardObject cuttedNode) {
+	public void cutNode(Board cuttedNode) {
 		cuttedNode = getTofTree().cutNode(cuttedNode);
 		if (cuttedNode != null) {
 			clipboard = cuttedNode;
@@ -2458,7 +2458,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param board
 	 * @return
 	 */
-	public boolean doUpdate(FrostBoardObject board) {
+	public boolean doUpdate(Board board) {
 		if (isUpdateAllowed(board) == false)
 			return false;
 
@@ -2551,12 +2551,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	public FrostBoardObject getSelectedNode() { //TODO: move this method to TofTree
-		FrostBoardObject node = (FrostBoardObject) getTofTree().getLastSelectedPathComponent();
+	public Board getSelectedNode() { //TODO: move this method to TofTree
+		Board node = (Board) getTofTree().getLastSelectedPathComponent();
 		if (node == null) {
 			// nothing selected? unbelievable ! so select the root ...
 			getTofTree().setSelectionRow(0);
-			node = (FrostBoardObject) getTofTree().getModel().getRoot();
+			node = (Board) getTofTree().getModel().getRoot();
 		}
 		return node;
 	}
@@ -2569,7 +2569,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			// this rootnode is discarded later, but if we create the tree without parameters,
 			// a new Model is created wich contains some sample data by default (swing)
 			// this confuses our renderer wich only expects FrostBoardObjects in the tree
-			FrostBoardObject dummyRootNode = new FrostBoardObject("Frost Message System", true);
+			Board dummyRootNode = new Board("Frost Message System", true);
 			tofTree = new TofTree(dummyRootNode);
 		}
 		return tofTree;
@@ -2591,7 +2591,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param board
 	 * @return
 	 */
-	public boolean isUpdateAllowed(FrostBoardObject board) {
+	public boolean isUpdateAllowed(Board board) {
 		if (board == null)
 			return false;
 		// Do not allow folders to update
@@ -2758,7 +2758,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @param node
 	 */
-	public void pasteFromClipboard(FrostBoardObject node) {
+	public void pasteFromClipboard(Board node) {
 		if (clipboard == null) {
 			pasteBoardButton.setEnabled(false);
 			return;
@@ -2774,7 +2774,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * starts update for the selected board, or for all childs (and their childs) of a folder
 	 * @param node
 	 */
-	private void refreshNode(FrostBoardObject node) {
+	private void refreshNode(Board node) {
 		if (node == null)
 			return;
 
@@ -2786,7 +2786,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			// update all childs recursiv
 			Enumeration leafs = node.children();
 			while (leafs.hasMoreElements())
-				refreshNode((FrostBoardObject) leafs.nextElement());
+				refreshNode((Board) leafs.nextElement());
 		}
 	}
 
@@ -2794,7 +2794,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * Removes the given tree node, asks before deleting.
 	 * @param selectedNode
 	 */
-	public void removeNode(FrostBoardObject selectedNode) {
+	public void removeNode(Board selectedNode) {
 		String txt;
 		if (selectedNode.isFolder()) {
 			txt =
@@ -2863,7 +2863,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * For boards it checks for double names.
 	 * @param selected
 	 */
-	public void renameNode(FrostBoardObject selected) {
+	public void renameNode(Board selected) {
 		if (selected == null)
 			return;
 		String newname = null;
@@ -2900,11 +2900,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param boards
 	 * @return
 	 */
-	public FrostBoardObject selectNextBoard(Vector boards) {
+	public Board selectNextBoard(Vector boards) {
 		Collections.sort(boards, lastUpdateStartMillisCmp);
 		// now first board in list should be the one with latest update of all
-		FrostBoardObject board;
-		FrostBoardObject nextBoard = null;
+		Board board;
+		Board nextBoard = null;
 
 		long curTime = System.currentTimeMillis();
 		// get in minutes
@@ -2914,7 +2914,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
 
 		for (int i = 0; i < boards.size(); i++) {
-			board = (FrostBoardObject) boards.get(i);
+			board = (Board) boards.get(i);
 			if (nextBoard == null
 				&& doUpdate(board)
 				&& (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis()
@@ -3019,7 +3019,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				< frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")) {
 			Vector boards = getTofTree().getAllBoards();
 			if (boards.size() > 0) {
-				FrostBoardObject actualBoard = selectNextBoard(boards);
+				Board actualBoard = selectNextBoard(boards);
 				if (actualBoard != null) {
 					updateBoard(actualBoard);
 				}
@@ -3066,7 +3066,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * News | Configure Board action performed
 	 * @param board
 	 */
-	private void tofConfigureBoardMenuItem_actionPerformed(FrostBoardObject board) {
+	private void tofConfigureBoardMenuItem_actionPerformed(Board board) {
 		if (board == null || board.isFolder())
 			return;
 
@@ -3133,7 +3133,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			frostSettings.setValue("tofTreeSelectedRow", i[0]);
 		}
 
-		FrostBoardObject node = (FrostBoardObject) getTofTree().getLastSelectedPathComponent();
+		Board node = (Board) getTofTree().getLastSelectedPathComponent();
 
 		if (node != null) {
 			if (node.isFolder() == false) {
@@ -3248,7 +3248,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * not-running threads for this board.
 	 * @param board
 	 */
-	public void updateBoard(FrostBoardObject board) {
+	public void updateBoard(Board board) {
 		if (board == null || board.isFolder())
 			return;
 
@@ -3303,7 +3303,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @param board
 	 */
-	private void updateButtons(FrostBoardObject board) {
+	private void updateButtons(Board board) {
 		if (board.isReadAccessBoard()) {
 			uploadPanel.setAddFilesButtonEnabled(false);
 		} else {
@@ -3316,7 +3316,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * Expects that the boards messages are shown in table
 	 * @param board
 	 */
-	public void updateMessageCountLabels(FrostBoardObject board) {
+	public void updateMessageCountLabels(Board board) {
 		if (board.isFolder() == true) {
 			allMessagesCountLabel.setText("");
 			newMessagesCountLabel.setText("");
@@ -3345,21 +3345,21 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	public void updateTofTree() {
 		// fire update for node
 		DefaultTreeModel model = (DefaultTreeModel) getTofTree().getModel();
-		Enumeration e = ((FrostBoardObject) model.getRoot()).depthFirstEnumeration();
+		Enumeration e = ((Board) model.getRoot()).depthFirstEnumeration();
 		while (e.hasMoreElements()) {
-			model.nodeChanged(((FrostBoardObject) e.nextElement()));
+			model.nodeChanged(((Board) e.nextElement()));
 		}
 	}
 
 	/**
 	 * Fires a nodeChanged (redraw) for this board and updates buttons.
 	 */
-	public void updateTofTree(FrostBoardObject board) {
+	public void updateTofTree(Board board) {
 		// fire update for node
 		DefaultTreeModel model = (DefaultTreeModel) getTofTree().getModel();
 		model.nodeChanged(board);
 		// also update all parents
-		TreeNode parentFolder = (FrostBoardObject) board.getParent();
+		TreeNode parentFolder = (Board) board.getParent();
 		if (parentFolder != null) {
 			model.nodeChanged(parentFolder);
 			parentFolder = parentFolder.getParent();

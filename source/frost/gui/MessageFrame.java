@@ -33,7 +33,7 @@ import javax.swing.text.*;
 import frost.*;
 import frost.fcp.FcpInsert;
 import frost.gui.model.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.LocalIdentity;
 import frost.messages.*;
 import frost.storage.StorageException;
@@ -358,12 +358,12 @@ public class MessageFrame extends JFrame
      */
     private class MFAttachedBoard implements TableMember
     {
-        FrostBoardObject aBoard;
+        Board aBoard;
         
         /**
          * @param ab
          */
-        public MFAttachedBoard(FrostBoardObject ab)
+        public MFAttachedBoard(Board ab)
         {
             aBoard = ab;
         }
@@ -381,7 +381,7 @@ public class MessageFrame extends JFrame
         /**
          * @return
          */
-        public FrostBoardObject getBoardObject()
+        public Board getBoardObject()
         {
             return aBoard;
         }
@@ -643,7 +643,7 @@ public class MessageFrame extends JFrame
 
     private boolean initialized = false;
     
-    private FrostBoardObject board;
+    private Board board;
     private String from;
     private String subject;
     private String lastUsedDirectory;
@@ -740,7 +740,7 @@ public class MessageFrame extends JFrame
 		}
 
 		for (int i = 0; i < chosedBoards.size(); i++) {
-			FrostBoardObject board = (FrostBoardObject) chosedBoards.get(i);
+			Board board = (Board) chosedBoards.get(i);
 
 			String privKey = board.getPrivateKey();
 
@@ -759,8 +759,8 @@ public class MessageFrame extends JFrame
 				}
 			}
 			// build a new board because maybe privKey should'nt be uploaded
-			FrostBoardObject aNewBoard =
-				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, board.getDescription());
+			Board aNewBoard =
+				new Board(board.getBoardName(), board.getPublicKey(), privKey, board.getDescription());
 			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
 			boardsTableModel.addRow(ab);
 		}
@@ -827,7 +827,7 @@ public class MessageFrame extends JFrame
 	 * @param isReply
 	 */
 	private void composeMessage(
-		FrostBoardObject newBoard,
+		Board newBoard,
 		String newFrom,
 		String newSubject,
 		String newText,
@@ -888,7 +888,7 @@ public class MessageFrame extends JFrame
 	 * @param newSubject
 	 * @param newText
 	 */
-	public void composeNewMessage(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
+	public void composeNewMessage(Board newBoard, String newFrom, String newSubject, String newText) {
 		composeMessage(newBoard, newFrom, newSubject, newText, false);
 	}
     
@@ -898,7 +898,7 @@ public class MessageFrame extends JFrame
 	 * @param newSubject
 	 * @param newText
 	 */
-	public void composeReply(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
+	public void composeReply(Board newBoard, String newFrom, String newSubject, String newText) {
 			composeMessage(newBoard, newFrom, newSubject, newText, true);
 	}
     
@@ -1280,7 +1280,7 @@ public class MessageFrame extends JFrame
         {
             MFAttachedFile af = (MFAttachedFile)filesTableModel.getRow(x);
             File aChosedFile = af.getFile();
-            FrostBoardObject boardObj = null;
+            Board boardObj = null;
             
             SharedFileObject sfo;
             if (aChosedFile.length() > FcpInsert.smallestChunk)
@@ -1301,7 +1301,7 @@ public class MessageFrame extends JFrame
         for(int x=0; x < boardsTableModel.getRowCount(); x++)
         {
             MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
-            FrostBoardObject aChosedBoard = ab.getBoardObject();
+            Board aChosedBoard = ab.getBoardObject();
             BoardAttachment ba = new BoardAttachment(aChosedBoard);
             mo.getAttachmentList().add(ba);
         }

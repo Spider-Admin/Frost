@@ -25,7 +25,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.LocalIdentity;
 import frost.messages.*;
 
@@ -47,7 +47,7 @@ class UploadThread extends Thread
     private String destination;
     private File file;
     private int htl;
-    private FrostBoardObject board;
+    private Board board;
     private int mode;
     private static int fileIndex=1;
     private static Random r = new Random();

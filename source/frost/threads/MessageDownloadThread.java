@@ -28,7 +28,7 @@ import org.w3c.dom.Element;
 import frost.*;
 import frost.fcp.*;
 import frost.crypt.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.identities.Identity;
 import frost.messages.*;
@@ -40,7 +40,7 @@ public class MessageDownloadThread
     extends BoardUpdateThreadObject
     implements BoardUpdateThread
 {
-    public FrostBoardObject board;
+    public Board board;
     private int downloadHtl;
     private String keypool;
     private int maxMessageDownload;
@@ -591,7 +591,7 @@ public class MessageDownloadThread
 	/**Constructor*/ //
 	public MessageDownloadThread(
 		boolean fn,
-		FrostBoardObject boa,
+		Board boa,
 		int dlHtl,
 		String kpool,
 		String maxmsg,

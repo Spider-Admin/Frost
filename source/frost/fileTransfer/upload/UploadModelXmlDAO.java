@@ -12,7 +12,7 @@ import java.util.logging.Logger;
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.storage.StorageException;
 
 /**
@@ -156,7 +156,7 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 		}
 
 		// check if target board exists in board tree
-		FrostBoardObject board = MainFrame.getInstance().getTofTree().getBoardByName(
+		Board board = MainFrame.getInstance().getTofTree().getBoardByName(
 				targetboardname);
 		if (board == null) {
 			logger.warning("Upload item found (" + filepath + ") whose target board (" +

@@ -25,7 +25,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
 
-public class FrostBoardObject extends DefaultMutableTreeNode implements Comparable {
+public class Board extends DefaultMutableTreeNode implements Comparable {
 
 	private boolean autoUpdateEnabled = true; // must apply, no default
 	private String b64FileName = null;
@@ -58,7 +58,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	/**
 	 * Constructs a new FrostBoardObject wich is a Board.
 	 */
-	public FrostBoardObject(String name, String description) {
+	public Board(String name, String description) {
 		super();
 		boardName = name;
 		boardDescription = description;
@@ -73,7 +73,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	 * @param name
 	 * @param isFold if true, this will be a folder, else a board.
 	 */
-	public FrostBoardObject(String name, boolean isFold) {
+	public Board(String name, boolean isFold) {
 		this(name, null);
 		isFolder = isFold;
 	}
@@ -84,7 +84,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	 * @param privKey
 	 * @param description the description of the board, or null if none.
 	 */
-	public FrostBoardObject(String name, String pubKey, String privKey, String description) {
+	public Board(String name, String pubKey, String privKey, String description) {
 		this(name, description);
 		setPublicKey(pubKey);
 		setPrivateKey(privKey);
@@ -94,8 +94,8 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	 * @see java.lang.Comparable#compareTo(java.lang.Object)
 	 */
 	public int compareTo(Object o) {
-		if (o instanceof FrostBoardObject) { 
-			FrostBoardObject board = (FrostBoardObject) o;
+		if (o instanceof Board) { 
+			Board board = (Board) o;
 			if (board.isFolder() == isFolder()) {
 				//If both objects are of the same kind, sort by name
 				return toString().toLowerCase().compareTo(o.toString().toLowerCase());
@@ -112,12 +112,12 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	 * @return
 	 */
 	public boolean containsFolderNewMessages() {
-		FrostBoardObject board = this;
+		Board board = this;
 		int childs = getChildCount(); 
 		boolean newMessage = false;
 
 		for (int c = 0; c < childs; c++) {
-			FrostBoardObject childBoard = (FrostBoardObject) board.getChildAt(c);
+			Board childBoard = (Board) board.getChildAt(c);
 			if ((childBoard.isFolder() && childBoard.containsFolderNewMessages())
 				|| childBoard.containsNewMessage()) {
 				newMessage = true;

@@ -25,7 +25,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.messages.SharedFileObject;
 
 /**
@@ -50,7 +50,7 @@ public class DownloadThread extends Thread {
 	private String SHA1;
 	private String batch;
 	private String owner;
-	private FrostBoardObject board;
+	private Board board;
 
 	private FrostDownloadItem downloadItem;
 	private DownloadModel downloadModel;

@@ -1,13 +1,13 @@
 package frost.fileTransfer.search;
 
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.messages.*;
 import frost.util.model.ModelItem;
 
 
 public class FrostSearchItem extends ModelItem
 {
-	private FrostBoardObject board;
+	private Board board;
 	private SharedFileObject sfo;
 	private int state;
 
@@ -18,7 +18,7 @@ public class FrostSearchItem extends ModelItem
     public static final int STATE_OFFLINE     = 5; // set if file is offline
 
 	public FrostSearchItem(
-		FrostBoardObject newBoard,
+		Board newBoard,
 		SharedFileObject newKey,
 		int newState) {
 			
@@ -47,7 +47,7 @@ public class FrostSearchItem extends ModelItem
         return sfo.getKey();
     }
 
-    public FrostBoardObject getBoard()
+    public Board getBoard()
     {
         return board;
     }

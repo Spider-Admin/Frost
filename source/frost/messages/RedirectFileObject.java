@@ -11,7 +11,7 @@ import java.io.File;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.*;
 
 
@@ -41,7 +41,7 @@ public abstract class RedirectFileObject extends SharedFileObject {
 	 * @param file
 	 * @param board
 	 */
-	public RedirectFileObject(File file, FrostBoardObject board) {
+	public RedirectFileObject(File file, Board board) {
 		super(file, board);
 	}
 

@@ -14,7 +14,7 @@ import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import frost.XMLTools;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 
 /**
  * @author zlatinb
@@ -69,7 +69,7 @@ public class FECRedirectFileObject extends RedirectFileObject {
 	 * @param file
 	 * @param board
 	 */
-	public FECRedirectFileObject(File file, FrostBoardObject board) {
+	public FECRedirectFileObject(File file, Board board) {
 		super(file, board);
 		redirect = null;
 	}

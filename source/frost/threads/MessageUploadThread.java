@@ -32,7 +32,7 @@ import frost.crypt.SignMetaData;
 import frost.fcp.*;
 import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.MessageUploadFailedDialog;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
 
@@ -47,7 +47,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	
     private SettingsClass frostSettings;
 	private JFrame parentFrame;
-    private FrostBoardObject board;
+    private Board board;
     
     private String destinationBase;
 
@@ -71,7 +71,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	 * @param frostSettings
 	 */
 	public MessageUploadThread(
-		FrostBoardObject board,
+		Board board,
 		MessageObject mo,
 		FrostIdentities newIdentities,
 		SettingsClass frostSettings) {

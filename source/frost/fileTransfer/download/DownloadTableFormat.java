@@ -12,7 +12,7 @@ import java.util.Comparator;
 import javax.swing.*;
 import javax.swing.table.*;
 
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.util.gui.BooleanCell;
 import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
@@ -101,8 +101,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		public int compare(Object o1, Object o2) {
-			FrostBoardObject source1 = ((FrostDownloadItem) o1).getSourceBoard();
-			FrostBoardObject source2 = ((FrostDownloadItem) o2).getSourceBoard();
+			Board source1 = ((FrostDownloadItem) o1).getSourceBoard();
+			Board source2 = ((FrostDownloadItem) o2).getSourceBoard();
 			String name1 = "";
 			String name2 = "";
 			if (source1 != null) {

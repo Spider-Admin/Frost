@@ -44,7 +44,7 @@ public class TOF
      * @param messages A Vector containing all MessageObjects that are just displayed by the table
      * @return The content of the message
      */
-    public static FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, FrostBoardObject board)
+    public static FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board)
     {
         MessageTableModel tableModel = (MessageTableModel)table.getModel();
         if( !e.getValueIsAdjusting() && !table.isEditing() )
@@ -85,7 +85,7 @@ public class TOF
      * @param table  the messages table
      * @param board  the board to reset
      */
-    public static void setAllMessagesRead(final JTable table, final FrostBoardObject board)
+    public static void setAllMessagesRead(final JTable table, final Board board)
     {
         Runnable resetter = new Runnable() {
             public void run()
@@ -127,7 +127,7 @@ public class TOF
     }
     
     // called by non-swing thread
-    public static void addNewMessageToTable(File newMsgFile, final FrostBoardObject board, boolean markNew)
+    public static void addNewMessageToTable(File newMsgFile, final Board board, boolean markNew)
     {
         JTable table = MainFrame.getInstance().getMessageTable();
         final SortedTableModel tableModel = (SortedTableModel)table.getModel();
@@ -180,7 +180,7 @@ public class TOF
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public static void updateTofTable(FrostBoardObject board, String keypool)
+    public static void updateTofTable(Board board, String keypool)
     {
         int daysToRead = board.getMaxMessageDisplay();
         // changed to not block the swing thread
@@ -207,7 +207,7 @@ public class TOF
 
     static class UpdateTofFilesThread extends Thread
     {
-        FrostBoardObject board;
+        Board board;
         String keypool;
         int daysToRead;
         JTable table;
@@ -215,7 +215,7 @@ public class TOF
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
 
-        public UpdateTofFilesThread(FrostBoardObject board, String keypool, int daysToRead, JTable table)
+        public UpdateTofFilesThread(Board board, String keypool, int daysToRead, JTable table)
         {
             this.board = board;
             this.keypool = keypool;
@@ -263,7 +263,7 @@ public class TOF
             //messages = new Hashtable();
 
             // Clear tofTable
-            final FrostBoardObject innerTargetBoard = board;
+            final Board innerTargetBoard = board;
             SwingUtilities.invokeLater( new Runnable() {
                     public void run()
                     {
@@ -392,7 +392,7 @@ public class TOF
 	 * @param message The message object to check
 	 * @return true if message is blocked, else false
 	 */
-	public static boolean blocked(VerifyableMessageObject message, FrostBoardObject board) {
+	public static boolean blocked(VerifyableMessageObject message, Board board) {
 		// TODO: remove this later, is already check on incoming message.
 		// this is needed as long such messages are in keypool to block these
 		//  and of course its needed if you change the setting Hide unsigned 
@@ -486,21 +486,21 @@ public class TOF
             String keypool = MainFrame.keypool;
             while( e.hasMoreElements() )
             {
-                FrostBoardObject board = (FrostBoardObject)e.nextElement();
+                Board board = (Board)e.nextElement();
                 searchNewMessages(tree, board);
             }
         }
     }
 
-    public static void initialSearchNewMessages(FrostBoardObject board)
+    public static void initialSearchNewMessages(Board board)
     {
         new SearchNewMessages( board ).start();
     }
 
     private static class SearchNewMessages extends Thread
     {
-        FrostBoardObject board;
-        public SearchNewMessages(FrostBoardObject b)
+        Board board;
+        public SearchNewMessages(Board b)
         {
             board = b;
         }
@@ -510,7 +510,7 @@ public class TOF
         }
     }
 
-    private static void searchNewMessages(JTree tree, final FrostBoardObject board)
+    private static void searchNewMessages(JTree tree, final Board board)
     {
         String keypool = MainFrame.keypool;
         int daysToRead = board.getMaxMessageDisplay();

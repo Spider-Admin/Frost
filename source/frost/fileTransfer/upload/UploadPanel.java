@@ -15,7 +15,7 @@ import javax.swing.*;
 import frost.*;
 import frost.ext.Execute;
 import frost.gui.TofTree;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.objects.Board;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
@@ -326,7 +326,7 @@ public class UploadPanel extends JPanel {
 					Collections.sort(boards);
 					changeDestinationBoardMenu.removeAll();
 					for (int i = 0; i < boards.size(); i++) {
-						final FrostBoardObject aBoard = (FrostBoardObject) boards.elementAt(i);
+						final Board aBoard = (Board) boards.elementAt(i);
 						JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
 						changeDestinationBoardMenu.add(boardMenuItem);
 						// add all boards to menu + set action listener for each board menu item
@@ -561,7 +561,7 @@ public class UploadPanel extends JPanel {
 	 * @param e
 	 */
 	public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
-		FrostBoardObject board = tofTree.getSelectedNode();
+		Board board = tofTree.getSelectedNode();
 		if (board.isFolder())
 			return;
 
