@@ -34,9 +34,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 {
     private static boolean DEBUG = true;
     private static int maxFailures = 4;
-    private static int keyCount = 0;
-    private static int minKeyCount = 50;
-    private static int maxKeysPerFile = 5000;
+    //private static int keyCount = 0;
+    //private static int minKeyCount = 50;
+    //private static int maxKeysPerFile = 5000;
     
     private static final int MAX_TRIES = 2; //number of times each index will be tried -1
 
@@ -348,13 +348,31 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         byte[] zippedXml = FileAccess.readByteArray(target);
 						//we need to unzip here to check if identity IN FILE == identity IN METADATA
 						byte[] unzippedXml = FileAccess.readZipFileBinary(target);
-						File unzippedTarget = new File (target.getPath() + "_unzipped");
-						FileAccess.writeByteArray(unzippedXml, unzippedTarget);
+                        if( unzippedXml == null )
+                        {
+                            Core.getOut().println("Could not extract received zip file, skipping.");
+                            target.delete();
+                            index = findFreeDownloadIndex();
+                            continue;
+                        }
 						
+                        File unzippedTarget = new File (target.getPath() + "_unzipped");
+                        FileAccess.writeByteArray(unzippedXml, unzippedTarget);
+                        
 						//create the FrostIndex object
-                        FrostIndex receivedIndex = new FrostIndex(
-                        					XMLTools.parseXmlFile(unzippedTarget,false)
-                        					.getDocumentElement());
+                        FrostIndex receivedIndex = null;
+                        try {
+                            receivedIndex = new FrostIndex(
+                                XMLTools.parseXmlFile(unzippedTarget,false)
+                                .getDocumentElement());
+                        } catch(Exception ex)
+                        {
+                            Core.getOut().println("Could not parse the index file, skipping.");
+                            target.delete();
+                            unzippedTarget.delete();
+                            index = findFreeDownloadIndex();
+                            continue;
+                        }
                         
                         Identity sharer = null;
                         Identity sharerInFile = receivedIndex.getSharer();
@@ -380,6 +398,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             //metadata says we're signed.  Check if there is identity in the file
                             if (sharerInFile == null){
                             	Core.getOut().println("MetaData present, but file didn't contain an identity :(");
+                                unzippedTarget.delete();
 								target.delete();
 								index = findFreeDownloadIndex();
 								continue;
@@ -397,6 +416,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                 _pubkey == null || _pubkey.length() == 0 )
                             {
                                 Core.getOut().println("XML metadata have missing fields, skipping file index.");
+                                unzippedTarget.delete();
                                 target.delete();
                                 index = findFreeDownloadIndex();
                                 continue;
@@ -407,6 +427,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             		!_pubkey.equals(sharerInFile.getKey()) ) {
 
 								Core.getOut().println("the identity in MetaData didn't match the identity in File! :(");
+                                unzippedTarget.delete();
 								target.delete();
 								index = findFreeDownloadIndex();
 								continue;                            			
@@ -421,6 +442,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             if( valid == false )
                             {
                                 Core.getOut().println("Invalid sign for index file from "+_owner);
+                                unzippedTarget.delete();
                                 target.delete();
                                 index = findFreeDownloadIndex();
                                 continue;
@@ -454,6 +476,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                     	Core.getOut().println(""); //complete the .print from above
                                         Core.getOut().println("Skipped index file from BAD user "+_owner);
                                         target.delete();
+                                        unzippedTarget.delete();
                                         index = findFreeDownloadIndex();
                                         continue;
                                     }
@@ -468,6 +491,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                     sharer = addNewSharer(_owner, _pubkey);
                                     if( sharer == null ) // digest did not match, block file
                                     {
+                                        unzippedTarget.delete();
                                         target.delete();
                                         index = findFreeDownloadIndex();
                                         continue;
@@ -477,6 +501,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         } // end-of: if metadata != null
                         else if(frame1.frostSettings.getBoolValue("hideAnonFiles"))
                         {
+                            unzippedTarget.delete();
                             target.delete();
                             index = findFreeDownloadIndex();
                             continue; //do not show index.
@@ -546,9 +571,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     if (DEBUG)
                         Core.getOut().println(
                             "FILEDN: Starting upload of index file to board '"
-                                + board.toString()
-                                + "'; uploadFiles = "
-                                + keyCount);
+                                + board.toString());
+/*                                + "'; uploadFiles = "
+                                + keyCount);*/ // who sets the keyCount? or not needed?
                     uploadIndexFile(frostIndex);
     //            }
             }
