@@ -75,6 +75,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         {
             SharedFileObject sfo = (SharedFileObject)i.next();
             
+	    assert sfo.getFile()!=null : "message.getOfflineFiles() failed!";
+	    
             String[] result = {"", ""};
             int uploadHtl = frame1.frostSettings.getIntValue("htlUpload");
             Core.getOut().println("TOFUP: Uploading attachment " +
