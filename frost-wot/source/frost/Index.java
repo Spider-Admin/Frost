@@ -362,6 +362,14 @@ public class Index
     }
     
     private static void updateDownloadTable(KeyClass key) {
+    	//this really shouldn't happen
+    	if (key==null || key.getSHA1()==null) {
+		Core.getOut().println("null value in index.updateDownloadTable");
+		if (key!=null) Core.getOut().println("SHA1 null!");
+		else Core.getOut().println("key null!");
+		return;
+	}
+	
     	DownloadTableModel dlModel = (DownloadTableModel)frame1.getInstance().getDownloadTable().getModel();
 	for (int i = 0;i < dlModel.getRowCount();i++) {
 		FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
