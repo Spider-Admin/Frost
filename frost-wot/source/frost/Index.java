@@ -21,6 +21,7 @@ package frost;
 import java.io.*;
 import java.util.*;
 import frost.gui.objects.*;
+import frost.gui.model.*;
 
 public class Index
 {
@@ -41,10 +42,24 @@ public class Index
 	File keyFile = new File(frame1.keypool + board + fileSeparator + "files.xml");
 	
 	//if no such file exists, return null
-	if (!keyFile.exists()) return null;
+	if (!keyFile.exists()) {
+		System.out.println("keyfile didn't exist??");
+		return null;
+	}
+		
 	
 	FileAccess.readKeyFile(keyFile, keys);
-	
+	KeyClass result = (KeyClass) keys.get(SHA1);
+	if (result==null) {
+		//try the recently uploaded files
+		keyFile = new File(frame1.keypool + board + fileSeparator + "new_files.xml");
+		if (!keyFile.exists()) {
+			System.out.println(keyFile.getPath() + " didn't exist");
+			return null;
+		}
+		keys.clear();
+		FileAccess.readKeyFile(keyFile,keys);
+	}
 	return (KeyClass)keys.get(SHA1);
 	
     }
@@ -201,6 +216,8 @@ public class Index
 
     public static void add(KeyClass key, FrostBoardObject board) {
         final String fileSeparator = System.getProperty("file.separator");
+	if (key.getKey() != null)
+		updateDownloadTable(key);
     	add(key,new File(frame1.keypool + board.getBoardFilename()+fileSeparator+"files.xml"));
     }
     
@@ -300,5 +317,18 @@ public class Index
 	}
 	
 	FileAccess.writeKeyFile(whole,target);
+    }
+    
+    private static void updateDownloadTable(KeyClass key) {
+    	DownloadTableModel dlModel = (DownloadTableModel)frame1.getInstance().getDownloadTable().getModel();
+	for (int i = 0;i < dlModel.getRowCount();i++) {
+		FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
+		if (dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED &&
+			dlItem.getSHA1().compareTo(key.getSHA1()) == 0) {
+				dlItem.setKey(key.getKey());
+				break;
+		}
+		
+	}
     }
 }

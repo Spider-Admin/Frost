@@ -205,6 +205,9 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         return key;
     }
+    public void setKey(String newkey) {
+    	key = newkey;
+    }
     public FrostBoardObject getSourceBoard()
     {
         return sourceBoard;

@@ -80,7 +80,7 @@ public class FileAccess
             String filename = new String();
             String size = new String();
             String date = new String();
-            String key = new String();
+            String key = null;
 	    String SHA1 = null;
 	    String owner = new String();
             int counter = 0;
