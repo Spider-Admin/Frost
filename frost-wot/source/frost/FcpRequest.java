@@ -731,7 +731,8 @@ public class FcpRequest {
     public static boolean getKey(String key, String size, File target, int htl) {
         if (key.indexOf("null") != -1) return false;
     try {
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
+                                                     frame1.frostSettings.getValue("nodePort"));
         try {
         connection.getKeyToFile(key, target.getPath(), htl);
         }
