@@ -316,7 +316,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 // Download the keyfile
                 
                 FcpResults fcpresults = FcpRequest.getFile(
-                        requestKey + index + ".idx.sha2.zip",
+                        requestKey + index + ".idx.sha3.zip",   //this format is sha3 ;)
                         null,
                         target,
                         requestHtl
@@ -328,15 +328,36 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
                     //mark it as successful
                     setIndexSuccessfull(index);
-
+                    failures = 0;
+					
+					//check if we have received such file before
+					String digest = Core.getCrypto().digest(target);
+					if (Core.getMessageSet().contains(digest)) {
+						//we have.  erase and continue
+						target.delete();
+						index = findFreeDownloadIndex();
+						continue;
+					}
+					//else add it to the set of received files to prevent duplicates
+					Core.getMessageSet().add(digest);
+					
                     // Add it to the index
                     try
                     {
                         // first check if received ZIP file is correctly signed
                         byte[] zippedXml = FileAccess.readByteArray(target);
-                        
+						//we need to unzip here to check if identity IN FILE == identity IN METADATA
+						byte[] unzippedXml = FileAccess.readZipFileBinary(target);
+						File unzippedTarget = new File (target.getPath() + "_unzipped");
+						FileAccess.writeByteArray(unzippedXml, unzippedTarget);
+						
+						//create the FrostIndex object
+                        FrostIndex receivedIndex = new FrostIndex(
+                        					XMLTools.parseXmlFile(unzippedTarget,false)
+                        					.getDocumentElement());
                         
                         Identity sharer = null;
+                        Identity sharerInFile = receivedIndex.getSharer();
                         
                         // verify the file if it is signed
                         if( fcpresults.getRawMetadata() != null ) 
@@ -348,16 +369,30 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             catch(Throwable t)
                             {
                                 // reading of xml metadata failed, handle
+                                t.printStackTrace(Core.getOut()); //get traces ALWAYS, please!
                                 Core.getOut().println("Could not read the XML metadata, skipping file index.");
                                 target.delete();
                                 index = findFreeDownloadIndex();
                                 continue;
                             }
                             
-                            //check if we have the owner already on the lists
-                            String _owner = md.getSharer().getUniqueName();
-                            String _pubkey = md.getSharer().getKey();
                             
+                            //metadata says we're signed.  Check if there is identity in the file
+                            if (sharerInFile == null){
+                            	Core.getOut().println("MetaData present, but file didn't contain an identity :(");
+								target.delete();
+								index = findFreeDownloadIndex();
+								continue;
+                            }
+                            
+                            String _owner = null;
+                            String _pubkey =null;
+                            if (md.getSharer() != null ){
+                            	_owner = md.getSharer().getUniqueName();
+                            	_pubkey = md.getSharer().getKey();
+                            }
+                            
+                            //check if metadata is proper
                             if( _owner == null || _owner.length() == 0 ||
                                 _pubkey == null || _pubkey.length() == 0 )
                             {
@@ -365,6 +400,16 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                 target.delete();
                                 index = findFreeDownloadIndex();
                                 continue;
+                            }
+                            
+                            //check if fields match those in the index file
+                            if ( !_owner.equals(sharerInFile.getName()) || 
+                            		!_pubkey.equals(sharerInFile.getKey()) ) {
+
+								Core.getOut().println("the identity in MetaData didn't match the identity in File! :(");
+								target.delete();
+								index = findFreeDownloadIndex();
+								continue;                            			
                             }
                         
                             //verify! :)
@@ -380,7 +425,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                 index = findFreeDownloadIndex();
                                 continue;
                             }
-
+                            
+                            
+							//check if we have the owner already on the lists
                             if( Core.getMyId().getUniqueName().trim().equals(_owner) )
                             {
                                 Core.getOut().println("Received index file from myself");
@@ -388,29 +435,36 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             }
                             else
                             {
-                                Core.getOut().println("Received index file from " + _owner);
+                                Core.getOut().print("Received index file from " + _owner);
                                 if( Core.getFriends().containsKey(_owner) )
                                 {
                                     sharer = Core.getFriends().Get(_owner);
+                                    Core.getOut().println(", a friend");
                                 }
                                 else if( Core.getNeutral().containsKey(_owner) )
                                 {
                                     sharer = Core.getNeutral().Get(_owner);
+                                    Core.getOut().println(", a neutral");
                                 }
                                 //check if person is blocked
                                 else if( Core.getEnemies().containsKey(_owner) )
                                 {
                                     if( frame1.frostSettings.getBoolValue("hideBadFiles") )
                                     {
+                                    	Core.getOut().println(""); //complete the .print from above
                                         Core.getOut().println("Skipped index file from BAD user "+_owner);
                                         target.delete();
                                         index = findFreeDownloadIndex();
                                         continue;
                                     }
+                                    //we may chose not to block files from bad people
+                                    sharer = Core.getEnemies().Get(_owner);
+                                    Core.getOut().println(", an enemy");
                                 }
                                 else
                                 {
                                     // a new sharer, put to neutral list
+                                    Core.getOut().println(", a new contact");
                                     sharer = addNewSharer(_owner, _pubkey);
                                     if( sharer == null ) // digest did not match, block file
                                     {
@@ -428,10 +482,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             continue; //do not show index.
                         }
                         
-                        // now unzip and write unzipped xml to file
-                        byte[] unzippedXml = FileAccess.readZipFileBinary(target);
-                        FileAccess.writeByteArray(unzippedXml, target);
+                        //TODO: rework the Index.java methods to use FrostIndex object
+                        //for now just rename the file and use old methods
+                        unzippedTarget.renameTo(target);
 
+						//if the user is not on the GOOD list..
                         if( sharer == null ||
                             Core.getFriends().containsKey(sharer.getUniqueName()) == false )
                         {
@@ -440,7 +495,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         }
                         else
                         {
-                            // add all files
+                            // if user is, add all files
                             Index.add(target, board, sharer);
                         }
                         target.delete();
@@ -482,10 +537,12 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             FrostIndex frostIndex = makeIndexFile();
             if (frostIndex!=null)
             {
-                if (frame1.isGeneratingCHK() == false) //FIXME: why not uploading while genKey runs?
-                                                       // when will it be tried the 2nd time? 
-                 //   || keyCount >= minKeyCount) //FIXME: what is this minKeyCount?
-                {
+                //if (frame1.isGeneratingCHK() == false) //FIXME: why not uploading while genKey runs?
+                														//no idea.. don't even know who wrote this
+                                                       // when will it be tried the 2nd time?
+                                                       //when we stop uploading.. that's bad.  I'm removing the entire thing 
+                 
+             //   {
                     if (DEBUG)
                         Core.getOut().println(
                             "FILEDN: Starting upload of index file to board '"
@@ -493,7 +550,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                 + "'; uploadFiles = "
                                 + keyCount);
                     uploadIndexFile(frostIndex);
-                }
+    //            }
             }
             else
             {
@@ -501,7 +558,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     Core.getOut().println(
                         "FILEDN: No keys to upload, stopping UpdateIdThread for "
                             + board.toString());
-            }
+           }
 
         }
         catch (Throwable t)
@@ -534,7 +591,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         
         if( ! given_digest.equals( calculatedDigest ) )
         {
-            Core.getOut().println("Warning: public key in index file didn't match digest:");
+            Core.getOut().println("Warning: public key of sharer didn't match its digest:");
             Core.getOut().println("given digest :'" + given_digest+"'");
             Core.getOut().println("pubkey       :'" + _pubkey.trim()+"'");
             Core.getOut().println("calc. digest :'"+calculatedDigest+"'");
