@@ -2749,9 +2749,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				messageTable.clearSelection();
 			} else {
 				// node is a folder
-				DefaultTableModel model =
-					(DefaultTableModel) getMessageTable().getModel();
-				model.setRowCount(0);
+				MessageTableModel model =
+					(MessageTableModel) getMessageTable().getModel();
+				model.clearDataModel();
 				updateMessageCountLabels(node);
 
 				uploadAddFilesButton.setEnabled(false);
