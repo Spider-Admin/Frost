@@ -49,6 +49,7 @@ public class SearchManager implements PropertyChangeListener {
 	public void initialize() {
 		mainFrame.addPanel("Search", getPanel());	
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);	
+		updateDownloadStatus();
 	}
 
 	/**
@@ -118,17 +119,16 @@ public class SearchManager implements PropertyChangeListener {
 	 */
 	public void propertyChange(PropertyChangeEvent evt) {
 		if (evt.getPropertyName().equals(SettingsClass.DISABLE_DOWNLOADS)) {
-			downloadStatusChanged();
+			updateDownloadStatus();
 		}
 	}
 
 	/**
 	 * 
 	 */
-	private void downloadStatusChanged() {
+	private void updateDownloadStatus() {
 		boolean disableDownloads = settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS);
 		mainFrame.setPanelEnabled("Search", !disableDownloads);
-		
 	}
 
 	/**
