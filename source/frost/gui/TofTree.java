@@ -181,20 +181,15 @@ public class TofTree extends JDragTree implements Savable {
 	private Language language;
 
 	private static Logger logger = Logger.getLogger(TofTree.class.getName());
-
-    /**
-	 * @param root
-	 */
-	public TofTree(TreeNode root) {
-		super(root);
-		initialize();
-	}
 	
+	private TofTreeModel model;
+
     /**
 	 * @param root
 	 */
 	public TofTree(TofTreeModel model) {
 		super(model);
+		this.model = model;
 		initialize();
 	}
 
@@ -325,7 +320,7 @@ public class TofTree extends JDragTree implements Savable {
             logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
             boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml.default";
         }
-        return xmlio.loadBoardTree( this, boardIniFilename );
+        return xmlio.loadBoardTree( this, model, boardIniFilename );
     }
 
     /**
@@ -348,7 +343,7 @@ public class TofTree extends JDragTree implements Savable {
             check.renameTo(bakFile);
         }
         // the method scans the toftree
-        if (!xmlio.saveBoardTree( this, boardIniFilename )) {
+        if (!xmlio.saveBoardTree( this, model, boardIniFilename )) {
         	throw new StorageException("Error while saving the TofTree.");
         }
     }

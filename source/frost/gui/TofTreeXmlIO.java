@@ -43,7 +43,7 @@ public class TofTreeXmlIO
      * Model needs to be created here because we want to expand rows on loading.
      * So we also need the tree to call expandRow() on it.
      */
-    public boolean loadBoardTree(JTree tree, String filename)
+    public boolean loadBoardTree(TofTree tree, TofTreeModel model, String filename)
     {
         Document doc = null;
         try {
@@ -91,8 +91,7 @@ public class TofTreeXmlIO
         }
 
         Board treeRootNode = new Board(name, true);
-        DefaultTreeModel model = new DefaultTreeModel(treeRootNode);
-        tree.setModel( model );
+        model.setRoot(treeRootNode);
 
         // now process all childs of this node recursively
         // and add all boards/folder to root node
@@ -330,7 +329,7 @@ public class TofTreeXmlIO
      * TREE SAVE METHODS ******************************
      **************************************************/
 
-    public boolean saveBoardTree(JTree tree, String filename)
+    public boolean saveBoardTree(TofTree tree, TofTreeModel model, String filename)
     {
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
@@ -339,8 +338,7 @@ public class TofTreeXmlIO
             return false;
         }
 
-        DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
-        Board root = (Board)model.getRoot();
+        Board root = (Board) model.getRoot();
 
         Element rootElement = doc.createElement("FrostBoardTree");
         doc.appendChild(rootElement);
