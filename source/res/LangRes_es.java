@@ -390,7 +390,17 @@ static final Object[][] contents = {
 	{"Uploading","Subiendo"},
 	{"Encode requested","Codificación pedida"},
 	{"Encoding file","Codificando fichero"},
-	{"Unknown","Desconocida"}
+	{"Unknown","Desconocida"},
+	
+	///
+	///	NewBoardDialog
+	///
+	
+	{"NewBoardDialog.title", "Añade un foro nuevo"},
+	{"NewBoardDialog.details", "Por favor, introduce los detalles del nuevo foro:"},
+	{"NewBoardDialog.name","Nombre:"},
+	{"NewBoardDialog.description","Descripción (opcional):"},
+	{"NewBoardDialog.add","Añade foro"}
 	
 	};
 }
