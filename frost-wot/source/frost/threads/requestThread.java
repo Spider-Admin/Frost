@@ -103,7 +103,7 @@ public class requestThread extends Thread
         for( int x=0; x<tableModel.getRowCount(); x++ )
         {
             FrostDownloadItemObject actItem = (FrostDownloadItemObject)tableModel.getRow(x);
-            if( actItem.getKey().equals( downloadItem.getKey() ) )
+            if( actItem.getKey()!=null && actItem.getKey().equals( downloadItem.getKey() ) )
             {
                 inTable = true;
                 break;
