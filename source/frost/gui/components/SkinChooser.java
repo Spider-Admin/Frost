@@ -11,6 +11,7 @@ import java.awt.Window;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -21,6 +22,8 @@ import com.l2fprod.gui.plaf.skin.*;
  * Swing component to choose among the available Skins
  */
 public class SkinChooser extends JPanel {
+	
+	private static Logger logger = Logger.getLogger(SkinChooser.class.getName());
 
 	private static final String THEMES_DIR = "themes"; //Directory where themes are stored
 
@@ -212,10 +215,10 @@ public class SkinChooser extends JPanel {
 					SkinLookAndFeel.enable();
 					updateComponentTreesUI();
 				} catch (UnsupportedLookAndFeelException exception) {
-					System.out.println("The selected skin is not supported by your system:\n" + exception.getMessage() + "\n");
+					logger.log(Level.SEVERE, "The selected skin is not supported by your system", exception);
 					setSelectedSkin("none");
 				} catch (Exception exception) {
-					System.out.println("There was an error while loading the selected skin:\n" + exception.getMessage() + "\n");
+					logger.log(Level.SEVERE, "There was an error while loading the selected skin", exception);
 					setSelectedSkin("none");
 				}
 			} else {
@@ -224,7 +227,7 @@ public class SkinChooser extends JPanel {
 					UIManager.setLookAndFeel(systemLF);
 					updateComponentTreesUI();
 				} catch (Exception exception) {
-					System.out.println("There was an error while setting the system look and feel:\n" + exception.getMessage());
+					logger.log(Level.SEVERE, "There was an error while setting the system look and feel", exception);
 				}
 			}
 		}
@@ -251,7 +254,7 @@ public class SkinChooser extends JPanel {
 			}
 			getSkinsList().setListData(skinsListData.toArray());
 		} catch (IOException exception) {
-			System.out.println(exception.getMessage() + "\n");
+			logger.log(Level.SEVERE, "Exception thrown in refreshSkinsList()", exception);
 		}
 	}
 
@@ -425,7 +428,7 @@ public class SkinChooser extends JPanel {
 			}
 			updateComponentTreesUI();
 		} catch (UnsupportedLookAndFeelException exception) { //This exception will never be throwed, but just in case...
-			System.out.println("There was an exception when restoring the state of the Look and Feel: \n" + exception.getMessage());
+			logger.log(Level.SEVERE, "There was an exception when restoring the state of the Look and Feel", exception);
 		}
 	}
 	
