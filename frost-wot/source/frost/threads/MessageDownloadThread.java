@@ -548,7 +548,7 @@ public class MessageDownloadThread
     {
         if (currentMsg.isValid())
         {
-            if (TOF.blocked(currentMsg, board) && testMe.length() > 0)
+            if (TOF.getInstance().blocked(currentMsg, board) && testMe.length() > 0)
             {
                 board.incBlocked();
                 logger.info("TOFDN: ########### blocked message for board '" +
@@ -565,7 +565,7 @@ public class MessageDownloadThread
                         testMe.getPath() + ".lck");
                 }
                 // add new message or notify of arrival
-                TOF.addNewMessageToTable(testMe, board, markAsNew);
+                TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
                 //add all files indexed files
                 Iterator it =
                     currentMsg

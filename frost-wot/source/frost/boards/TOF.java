@@ -23,7 +23,7 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.tree.*;
+import javax.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
 import frost.gui.model.*;
@@ -31,16 +31,51 @@ import frost.gui.objects.*;
 import frost.messages.VerifyableMessageObject;
 
 /**
+ * @pattern Singleton
+ * 
  * @author $Author$
  * @version $Revision$
  */
 public class TOF
-{
-	// private static Hashtable messages = null;
-    private static UpdateTofFilesThread updateThread = null;
-    private static UpdateTofFilesThread nextUpdateThread = null;
-    
+{    
 	private static Logger logger = Logger.getLogger(TOF.class.getName());
+	
+	private UpdateTofFilesThread updateThread = null;
+	private UpdateTofFilesThread nextUpdateThread = null;
+	
+	private static boolean initialized = false;
+	
+	/**
+	 * The unique instance of this class.
+	 */
+	private static TOF instance = null;
+	
+	/**
+	 * Return the unique instance of this class.
+	 *
+	 * @return the unique instance of this class
+	 */
+	public static TOF getInstance() {
+		return instance;
+	}
+	
+	/**
+	 * Prevent instances of this class from being created.
+	 */
+	private TOF() {
+		super();
+	}
+	
+	/**
+	 * This method initializes the TOF.
+	 * If it has already been initialized, this method does nothing.
+	 */
+	public static void initialize() {
+		if (!initialized) {
+			initialized = true;
+			instance = new TOF();
+		}
+	}
 
     /**
      * Gets the content of the message selected in the tofTable.
@@ -49,7 +84,7 @@ public class TOF
      * @param messages A Vector containing all MessageObjects that are just displayed by the table
      * @return The content of the message
      */
-    public static FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board)
+    public FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board)
     {
         MessageTableModel tableModel = (MessageTableModel)table.getModel();
         if( !e.getValueIsAdjusting() && !table.isEditing() )
@@ -90,7 +125,7 @@ public class TOF
      * @param table  the messages table
      * @param board  the board to reset
      */
-    public static void setAllMessagesRead(final JTable table, final Board board)
+    public void setAllMessagesRead(final JTable table, final Board board)
     {
         Runnable resetter = new Runnable() {
             public void run()
@@ -137,7 +172,7 @@ public class TOF
      * @param board
      * @param markNew
      */
-    public static void addNewMessageToTable(File newMsgFile, final Board board, boolean markNew)
+    public void addNewMessageToTable(File newMsgFile, final Board board, boolean markNew)
     {
         JTable table = MainFrame.getInstance().getMessageTable();
         final SortedTableModel tableModel = (SortedTableModel)table.getModel();
@@ -190,7 +225,7 @@ public class TOF
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public static void updateTofTable(Board board, String keypool)
+    public void updateTofTable(Board board, String keypool)
     {
         int daysToRead = board.getMaxMessageDisplay();
         // changed to not block the swing thread
@@ -218,7 +253,7 @@ public class TOF
     /**
      * 
      */
-    static class UpdateTofFilesThread extends Thread
+    private class UpdateTofFilesThread extends Thread
     {
         Board board;
         String keypool;
@@ -425,7 +460,7 @@ public class TOF
 	 * @param message The message object to check
 	 * @return true if message is blocked, else false
 	 */
-	public static boolean blocked(VerifyableMessageObject message, Board board) {
+	public boolean blocked(VerifyableMessageObject message, Board board) {
 		// TODO: remove this later, is already check on incoming message.
 		// this is needed as long such messages are in keypool to block these
 		//  and of course its needed if you change the setting Hide unsigned 
@@ -507,7 +542,7 @@ public class TOF
     /**
      * 
      */
-    public static void initialSearchNewMessages()
+    public void initialSearchNewMessages()
     {
         new SearchAllNewMessages().start();
     }
@@ -515,7 +550,7 @@ public class TOF
     /**
      * 
      */
-    private static class SearchAllNewMessages extends Thread
+    private class SearchAllNewMessages extends Thread
     {
         /* (non-Javadoc)
          * @see java.lang.Runnable#run()
@@ -536,7 +571,7 @@ public class TOF
     /**
      * @param board
      */
-    public static void initialSearchNewMessages(Board board)
+    public void initialSearchNewMessages(Board board)
     {
         new SearchNewMessages( board ).start();
     }
@@ -544,7 +579,7 @@ public class TOF
     /**
      * 
      */
-    private static class SearchNewMessages extends Thread
+    private class SearchNewMessages extends Thread
     {
         private Board board;
         /**
@@ -566,7 +601,7 @@ public class TOF
     /**
      * @param board
      */
-    private static void searchNewMessages(final Board board)
+    private void searchNewMessages(final Board board)
     {
         String keypool = MainFrame.keypool;
         int daysToRead = board.getMaxMessageDisplay();

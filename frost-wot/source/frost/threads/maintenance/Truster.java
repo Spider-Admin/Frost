@@ -136,7 +136,7 @@ public class Truster extends Thread
             }
         }
         // finally step through all board files, count new messages and delete new messages from enemies
-        TOF.initialSearchNewMessages();
+        TOF.getInstance().initialSearchNewMessages();
 
         SwingUtilities.invokeLater(new Runnable() {
                 public void run() {
