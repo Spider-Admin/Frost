@@ -60,7 +60,7 @@
 	    </FrostBoardTreeEntry>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry isfolder="true" isexpanded="false">
-            <name>chat</name>
+            <name>discussion</name>
             <FrostBoardTreeEntry>
                 <name>politics</name>
                 <privateKey>SSK@HIadAGUdNecfDbP0J7~F3bIu-mE</privateKey>
