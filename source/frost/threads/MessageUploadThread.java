@@ -29,8 +29,8 @@ import javax.swing.JOptionPane;
 import org.w3c.dom.Document;
 
 import frost.*;
-import frost.fcp.*;
 import frost.crypt.SignMetaData;
+import frost.fcp.*;
 import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
@@ -42,442 +42,26 @@ import frost.messages.*;
  */
 public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+    private static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
     
 	private static Logger logger = Logger.getLogger(MessageUploadThread.class.getName());
+	
+    private FrostBoardObject board;
+    
+    private String destinationBase;
 
     private Frame frameToLock;
-    private FrostBoardObject board;
-    private MessageObject message;
-    private int messageUploadHtl;
     private String keypool;
+    private MessageObject message;
+    
+	private File messageFile;
+    private int messageUploadHtl;
     private String privateKey;
     private String publicKey;
     private boolean secure;
-//    private Identity recipient;
     
-    File messageFile;
-    
-    private byte[] metadata = null;
-
-    public int getThreadType()
-    {
-        return BoardUpdateThread.MSG_UPLOAD;
-    }
-
-    /**
-     * Uploads attachments.
-     * This inserts the attached files into freenet.
-     */
-    private boolean uploadAttachments() 
-    {
-        List fileAttachments = this.message.getOfflineFiles();
-        Iterator i = fileAttachments.iterator();
-        while(i.hasNext())
-        {
-            SharedFileObject sfo = (SharedFileObject)i.next();
-            
-	    assert sfo.getFile()!=null : "message.getOfflineFiles() failed!";
-	    
-            String[] result = {"", ""};
-            int uploadHtl = MainFrame.frostSettings.getIntValue("htlUpload");
-            logger.info("TOFUP: Uploading attachment " +
-                               sfo.getFile().getPath() +
-                               " with HTL " + uploadHtl);
-            
-            int maxTries = 3;
-            int tries = 0;
-            while( tries < maxTries &&
-                   !result[0].equals("KeyCollision") &&
-                   !result[0].equals("Success"))
-            {
-                try {
-                    result = FcpInsert.putFile("CHK@",
-                                               sfo.getFile(),
-                    						   null,
-                                               uploadHtl,
-                                               true,new FrostUploadItem(null,null)); // doRedirect
-                }
-                catch(Exception ex)
-                {
-                    result = new String[1];
-                    result[0]="Error";
-                }
-                tries++;
-            }
-            if( result[0].equals("KeyCollision") ||
-                result[0].equals("Success") )
-            {
-                logger.info("TOFUP: Upload of attachment '" + sfo.getFile().getPath() + "' was successful.");
-                String chk = result[1];
-                sfo.setKey(chk);
-                sfo.setFilename( sfo.getFile().getName()); // remove path from filename
-                
-                
-                if (sfo instanceof FECRedirectFileObject){
-					logger.fine("attaching redirect to file " + sfo.getFile().getName());
-
-						FecSplitfile splitFile = new FecSplitfile(sfo.getFile());
-						if (!splitFile.uploadInit()) 
-							throw new Error("file was just uploaded, but .redirect missing!");
-						
-						((FECRedirectFileObject)sfo).setRedirect(
-								new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
-						splitFile.finishUpload(true);
-                } else
-                	logger.fine("not attaching redirect");
-                
-				sfo.setFile(null); // why ? -> because we never want to give out a real pathname, this is paranoia
-                // BBACKFLAG: serialize the xml file to disk to save the uploading state
-                File tmpFile = new File(this.messageFile.getPath() + ".tmp");
-                boolean wasOK = false; 
-                try {
-                    Document doc = XMLTools.createDomDocument();
-                    doc.appendChild( message.getXMLElement(doc) );
-                    wasOK = XMLTools.writeXmlFile(doc, tmpFile.getPath());
-                }
-                catch(Throwable ex)
-                {
-					logger.log(Level.SEVERE, "Exception thrown in uploadAttachments()", ex);
-                }
-                if( wasOK && tmpFile.length() > 0 )
-                {
-                    this.messageFile.delete();
-                    tmpFile.renameTo( this.messageFile );
-                }
-                else
-                {
-                    // not successful, will not track this upload, but continue uploading
-                    tmpFile.delete();
-                }
-                //return true;
-            }
-            else
-            {
-                logger.warning("TOFUP: Upload of attachment '" + sfo.getFile().getPath() + "' was NOT successful.");
-                return false;
-            }
-        }
-        return true; // nothing to upload
-    }
-
-    public void run()
-    {
-        notifyThreadStarted(this);
-        try {
-
-        boolean retry = true;
-
-        // switch public / secure board
-        if( board.isWriteAccessBoard() )
-        {
-            privateKey = board.getPrivateKey();
-            publicKey = board.getPublicKey();
-            secure = true;
-        }
-        else
-        {
-            secure = false;
-        }
-
-        logger.info("TOFUP: Uploading message to board '" + board.toString() + "' with HTL " + messageUploadHtl);
-        
-        // first save msg to be able to resend on crash        
-        boolean wasOK = false; 
-        try {
-            Document doc = XMLTools.createDomDocument();
-            doc.appendChild( message.getXMLElement(doc) );
-            wasOK = XMLTools.writeXmlFile(doc, this.messageFile.getPath());
-        }
-        catch(Throwable ex)
-        {
-			logger.log(Level.SEVERE, "Exception thrown in run()", ex);
-        }
-        if( !wasOK || messageFile.length() == 0)
-        {
-            // now we really have a problem:
-            //  writing of file was not successful, so this msg will be lost!
-            logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
-            notifyThreadFinished(this);
-            return;
-        }
-        
-
-// BBACKFLAG: ask user if uploading of X files is allowed!
-        boolean uploadOK = uploadAttachments();
-        if( uploadOK == false )
-        {
-            JOptionPane.showMessageDialog(frameToLock, 
-                    "One or more attachments failed to upload.\n" +
-                    "Will retry to upload attachments and message on next startup.", 
-                    "Attachment upload failed", 
-                    JOptionPane.ERROR_MESSAGE);
-            // don't delete message file for uploading on next startup                    
-            notifyThreadFinished(this);
-            return;
-        }
-        
-        // Generate file to upload
-        wasOK = false; 
-        try {
-            Document doc = XMLTools.createDomDocument();
-            doc.appendChild( message.getXMLElement(doc) );
-            wasOK = XMLTools.writeXmlFile(doc, this.messageFile.getPath());
-        }
-        catch(Throwable ex)
-        {
-			logger.log(Level.SEVERE, "Exception thrown in run()", ex);
-        }
-        if( !wasOK || messageFile.length() == 0)
-        {
-            // now we really have a problem:
-            //  writing of file was not successful, so this msg will be lost!
-            logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
-            notifyThreadFinished(this);
-            return;
-        }
- 
-        // zip the xml file to a temp file, sign this file and upload it
-        File uploadZipFile = new File( this.messageFile.getPath() + ".upltmp" );
-        uploadZipFile.delete(); 		// just in case it already exists
-        uploadZipFile.deleteOnExit();	// so that it is deleted when Frost exits
-        
-        FileAccess.writeZipFile(FileAccess.readByteArray( this.messageFile ), 
-                                "entry", uploadZipFile); 
-        
-        // now maybe sign the msg before start to upload,
-        // we have to sign if the From is our complete unique id set by MessageFrame
-        if( message.getFrom().equals(identities.getMyId().getUniqueName()) //nick same as my identity
-         || message.getFrom().equals(Mixed.makeFilename(identities.getMyId().getUniqueName())))  //serialization may have changed it
-        {
-            byte[] zipped = FileAccess.readByteArray(uploadZipFile);
-            SignMetaData md = new SignMetaData(zipped, identities.getMyId());
-            this.metadata = XMLTools.getRawXMLDocument(md);
-        }
-
-        // define the destination where we check for existing files
-        String fileSeparator = System.getProperty("file.separator");
-        String destination = new StringBuffer().append(keypool)
-                                               .append(board.getBoardFilename())
-                                               .append(fileSeparator)
-                                               .append(DateFun.getDate())
-                                               .append(fileSeparator).toString();
-        File makedir = new File(destination);
-        if( !makedir.exists() )
-        {
-            makedir.mkdirs();
-        }
-
-        while( retry )
-        {
-            // Search empty slot
-            boolean success = false;
-            int index = 0;
-            String output = new String();
-            int tries = 0;
-            int maxTries = 5;
-            boolean error = false;
-            while( !success )
-            {
-                // Does this index already exist?
-                String testFilename = new StringBuffer().append(destination)
-                                                        .append(this.message.getDate())
-                                                        .append("-")
-                                                        .append(board.getBoardFilename())
-                                                        .append("-")
-                                                        .append(index)
-                                                        .append(".xml").toString();
-                File testMe = new File(testFilename);
-                if( testMe.exists() && testMe.length() > 0 )
-                {
-                    // already on local disk, compare contents
-                    // TODO: load file and compare contents, but not
-                    //       date + time, these will be different always
-/*                    
-                    String contentOne = (FileAccess.readFile(messageFile)).trim();
-                    String contentTwo = (FileAccess.readFile(testMe)).trim();
-                    //if( DEBUG ) System.out.println(contentOne);
-                    //if( DEBUG ) System.out.println(contentTwo);
-                    if( contentOne.equals(contentTwo) )
-                    {
-                        if( DEBUG ) System.out.println("TOFUP: Message has already been uploaded.");
-                        success = true;
-                    }
-                    else
-                    {
-                        index++;
-                        //if( DEBUG ) System.out.println("TOFUP: File exists, increasing index to " + index);
-                    }
-*/                    
-                    index++;
-                }
-                else
-                {
-                    // probably empty, check if other threads currently try to insert to this index
-                    File lockRequestIndex = new File( testMe.getPath() + ".lock" );
-                    boolean lockFileCreated = false;
-                    try { lockFileCreated = lockRequestIndex.createNewFile(); }
-                    catch(IOException ex) {
-						logger.log(Level.SEVERE, 
-									"ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...", ex);
-                        notifyThreadFinished(this);
-                        return;
-                    }
-
-                    if( lockFileCreated == false )
-                    {
-                        // another thread tries to insert using this index, try next
-                        index++;
-                        logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
-                        continue; // while
-                    }
-                    else
-                    {
-                        // we try this index
-                        lockRequestIndex.deleteOnExit();
-                    }
-
-                    // try to insert message
-                    String[] result = new String[2];
-                    String upKey = null;
-                    if( secure )
-                    {
-                        upKey = new StringBuffer().append(privateKey)
-                                                  .append("/")
-                                                  .append(board.getBoardFilename())
-                                                  .append("/")
-                                                  .append(this.message.getDate())
-                                                  .append("-")
-                                                  .append(index)
-                                                  .append(".xml").toString();
-                    }
-                    else
-                    {
-                        upKey = new StringBuffer().append("KSK@frost/message/")
-                                                  .append(MainFrame.frostSettings.getValue("messageBase"))
-                                                  .append("/")
-                                                  .append(this.message.getDate())
-                                                  .append("-")
-                                                  .append(board.getBoardFilename())
-                                                  .append("-")
-                                                  .append(index)
-                                                  .append(".xml").toString();
-                    }
-
-                    try {
-                        result = FcpInsert.putFile(upKey,
-                                                   uploadZipFile,
-                                                   this.metadata, // is null for unsigned upload
-                                                   messageUploadHtl,
-                                                   false); // doRedirect
-                    } catch(Throwable t)
-                    {
-						logger.log(Level.SEVERE, "TOFUP - Error in run()/FcpInsert.putFile", t);
-                    }
-
-                    if( result[0] == null || result[1] == null )
-                    {
-                        result[0] = "Error";
-                        result[1] = "Error";
-                    }
-
-                    if( result[0].equals("Success") )
-                    {
-                        success = true;
-                    }
-                    else
-                    {
-                        if( result[0].equals("KeyCollision") )
-                        {
-                            index++;
-                            logger.fine("TOFUP: Upload collided, increasing index to " + index);
-                        }
-                        else
-                        {
-                            if( tries > maxTries )
-                            {
-                                success = true;
-                                error = true;
-                            }
-                            else
-                            {
-                                logger.info("TOFUP: Upload failed (try no. "+tries+" of "+maxTries+"), retrying index " + index);
-                                tries++;
-                            }
-                        }
-                    }
-                    // finally delete the index lock file
-                    if( lockFileCreated == true )
-                    {
-                        lockRequestIndex.delete();
-                    }
-                }
-            }
-            
-            if( !error )
-            {
-                // we will see the message if received from freenet
-                messageFile.delete();
-                uploadZipFile.delete();
-
-                logger.info("*********************************************************************\n" +
-                			"Message successfuly uploaded to board '" + board.toString() + "'.\n" +
-                			"*********************************************************************");
-                retry = false;
-            }
-            else
-            {
-                logger.warning("TOFUP: Error while uploading message.");
-
-                // Uploading of that message failed. Ask the user if Frost
-                // should try to upload the message another time.
-                MessageUploadFailedDialog faildialog =
-                new MessageUploadFailedDialog(frameToLock,
-                                              10,
-                                              LangRes.getString("Upload of message failed"),
-                                              LangRes.getString("I was not able to upload your message."),
-                                              LangRes.getString("Retry"),
-                                              "Retry on next startup", // TODO: translate
-                                              "Discard message");
-                int answer = faildialog.startDialog();
-                if( answer == 1 ) // Retry now - pressed
-                {
-                    retry = true;
-                    logger.info("TOFUP: Will try to upload again.");
-                }
-                else if( answer == 2 ) // retry on next startup - pressed
-                {
-                    uploadZipFile.delete();
-                    retry = false; // dont delete msg. file, will be found+upload on next startup
-					logger.info("TOFUP: Will try to upload again on next startup.");
-                }
-                else if( answer == 3 ) // cancel - pressed
-                {
-                    retry = false;
-
-                    uploadZipFile.delete();
-                    messageFile.delete(); 
-
-					logger.warning("TOFUP: Will NOT try to upload message again.");
-                }
-                else  // paranoia
-                {
-                    retry = true;
-                    logger.warning("TOFUP: Paranoia - will try to upload message again.");
-                }
-                faildialog.dispose();
-            }
-            logger.info("TOFUP: Upload Thread finished");
-        }
-
-        }
-        catch(Throwable t)
-        {
-			logger.log(Level.SEVERE, "Oo. EXCEPTION in MessageUploadThread", t);
-        }
-
-        notifyThreadFinished(this);
-    } // end-of: run()
+    private byte[] signMetadata;
+	private File zipFile;
 
 
 	/**Constructor*/
@@ -489,13 +73,16 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		this.board = board;
 		this.message = mo;
 
-		// we start to upload now, so set actual time
-		mo.setTime(DateFun.getFullExtendedTime() + "GMT");
-		mo.setDate(DateFun.getDate());
+		// we only set the date&time if they are not already set
+		// (in case the uploading was pending from before)
+		if (mo.getDate() == "") {
+			mo.setTime(DateFun.getFullExtendedTime() + "GMT");
+			mo.setDate(DateFun.getDate());
+		}
 
-		this.messageUploadHtl = MainFrame.frostSettings.getIntValue("tofUploadHtl");
-		this.keypool = MainFrame.frostSettings.getValue("keypool.dir");
-		this.frameToLock = MainFrame.getInstance();
+		messageUploadHtl = MainFrame.frostSettings.getIntValue("tofUploadHtl");
+		keypool = MainFrame.frostSettings.getValue("keypool.dir");
+		frameToLock = MainFrame.getInstance();
 
 		// this class always creates a new msg file on hd and deletes the file 
 		// after upload was successful, or keeps it for next try
@@ -507,5 +94,535 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 				.append(".xml")
 				.toString();
 		messageFile = new File(uploadMe);
+	}
+
+	/**
+	 * This method compares the message that is to be uploaded with
+	 * a local message to see if they are equal
+	 * @param localFile the local message to compare the message to
+	 *  	   be uploaded with.
+	 * @return true if they are equal. False otherwise.
+	 */
+	private boolean checkLocalMessage(File localFile) {
+		try {
+			MessageObject localMessage = new MessageObject(localFile);
+			//We compare the messages by content (body), subject, from and attachments
+			if (!localMessage.getContent().equals(message.getContent())) {
+				return false;	
+			} 
+			if (!localMessage.getSubject().equals(message.getSubject())) {
+				return false;	
+			} 
+			if (!localMessage.getFrom().equals(message.getFrom())) {
+				return false;	
+			} 
+			AttachmentList attachments1 = message.getAttachmentList();
+			AttachmentList attachments2 = localMessage.getAttachmentList();
+			if (attachments1.size() != attachments2.size()) {
+				return false;	
+			}
+			Iterator iterator1 = attachments1.iterator();
+			Iterator iterator2 = attachments2.iterator();
+			while (iterator1.hasNext()) {
+				Attachment attachment1 = (Attachment) iterator1.next();	
+				Attachment attachment2 = (Attachment) iterator2.next();
+				if (attachment1.compareTo(attachment2) != 0) {
+					return false;
+				}
+			}
+			return true;
+		} catch (Exception exception) {
+			logger.log(
+				Level.SEVERE,
+				"Exception while loading the local file in checkLocalMessage()",
+				exception);
+			return false; //We assume that the local message is different (it may be corrupted)
+		}
+	}
+
+	/**
+	 * This method is called when there has been a key collision. It checks
+	 * if the remote message with that key is the same as the message that is
+	 * being uploaded
+	 * @param upKey the key of the remote message to compare with the message
+	 * 		   that is being uploaded.
+	 * @return true if the remote message with the given key equals the 
+	 * 			message that is being uploaded. False otherwise.
+	 */
+	private boolean checkRemoteFile(String key) {
+
+		File remoteFile = new File(messageFile.getPath() + ".coll");
+		remoteFile.delete(); // just in case it already exists
+		remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
+
+		FcpResults res = FcpRequest.getFile(key, null, remoteFile, messageUploadHtl, false, false);
+		if (remoteFile.length() > 0) {
+			byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
+			FileAccess.writeByteArray(unzippedXml, remoteFile);
+			return checkLocalMessage(remoteFile);
+		} else {
+			return false;
+			//We could not retrieve the remote file. We assume they are different.	
+		}
+	}
+	
+	/**
+	 * This method composes the downloading key for the message, given a
+	 * certain index number
+	 * @param index index number to use to compose the key
+	 * @return they composed key
+	 */
+	private String composeDownKey(int index) {
+		String key;
+		if (secure) {
+			key =
+				new StringBuffer()
+					.append(publicKey)
+					.append("/")
+					.append(board.getBoardFilename())
+					.append("/")
+					.append(message.getDate())
+					.append("-")
+					.append(index)
+					.append(".xml")
+					.toString();
+		} else {
+			key =
+				new StringBuffer()
+					.append("KSK@frost/message/")
+					.append(MainFrame.frostSettings.getValue("messageBase"))
+					.append("/")
+					.append(message.getDate())
+					.append("-")
+					.append(board.getBoardFilename())
+					.append("-")
+					.append(index)
+					.append(".xml")
+					.toString();
+		}
+		return key;
+	}
+
+	/**
+	 * This method composes the uploading key for the message, given a
+	 * certain index number
+	 * @param index index number to use to compose the key
+	 * @return they composed key
+	 */
+	private String composeUpKey(int index) {
+		String key;
+		if (secure) {
+			key =
+				new StringBuffer()
+					.append(privateKey)
+					.append("/")
+					.append(board.getBoardFilename())
+					.append("/")
+					.append(message.getDate())
+					.append("-")
+					.append(index)
+					.append(".xml")
+					.toString();
+		} else {
+			key =
+				new StringBuffer()
+					.append("KSK@frost/message/")
+					.append(MainFrame.frostSettings.getValue("messageBase"))
+					.append("/")
+					.append(message.getDate())
+					.append("-")
+					.append(board.getBoardFilename())
+					.append("-")
+					.append(index)
+					.append(".xml")
+					.toString();
+		}
+		return key;
+	}
+	
+	/**
+	 * This method returns the base path from which we look for
+	 * existing files while looking for the next available index to use.
+	 * That directory is also created if it doesn't exist.
+	 * @return the base path to use when looking for existing files while
+	 * 			looking for the next index.
+	 */
+	private String getDestinationBase() {
+		if (destinationBase == null) {
+			String fileSeparator = System.getProperty("file.separator");
+			destinationBase =
+				new StringBuffer()
+					.append(keypool)
+					.append(board.getBoardFilename())
+					.append(fileSeparator)
+					.append(DateFun.getDate())
+					.append(fileSeparator)
+					.toString();
+			File makedir = new File(destinationBase);
+			if (!makedir.exists()) {
+				makedir.mkdirs();
+			}
+		}
+		return destinationBase;
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.threads.BoardUpdateThread#getThreadType()
+	 */
+	public int getThreadType() {
+		return BoardUpdateThread.MSG_UPLOAD;
+	}
+
+	/**
+	 * This method performs several tasks before uploading the message.
+	 * @return true if the initialization was successful. False otherwise.
+	 */
+	private boolean initialize() {
+
+		// switch public / secure board
+		if (board.isWriteAccessBoard()) {
+			privateKey = board.getPrivateKey();
+			publicKey = board.getPublicKey();
+			secure = true;
+		} else {
+			secure = false;
+		}
+
+		logger.info(
+			"TOFUP: Uploading message to board '"
+				+ board.toString()
+				+ "' with HTL "
+				+ messageUploadHtl);
+
+		// first save msg to be able to resend on crash   
+		if (!saveMessage(message, messageFile)) {
+			logger.severe(
+				"This was a HARD error and the file to upload is lost, please report to a dev!");
+			return false;
+		}
+
+		// BBACKFLAG: ask user if uploading of X files is allowed!
+		if (!uploadAttachments(message, messageFile)) {
+			return false;
+		}
+
+		// zip the xml file to a temp file
+		zipFile = new File(messageFile.getPath() + ".upltmp");
+		zipFile.delete(); // just in case it already exists
+		zipFile.deleteOnExit(); // so that it is deleted when Frost exits
+		FileAccess.writeZipFile(FileAccess.readByteArray(messageFile), "entry", zipFile);
+
+		//sign the zipped file if necessary
+		String sender = message.getFrom();
+		String myId = identities.getMyId().getUniqueName();
+		if (sender.equals(myId) //nick same as my identity
+			|| sender.equals(Mixed.makeFilename(myId))) //serialization may have changed it
+			{
+			byte[] zipped = FileAccess.readByteArray(zipFile);
+			SignMetaData md = new SignMetaData(zipped, identities.getMyId());
+			signMetadata = XMLTools.getRawXMLDocument(md);
+		}
+		return true;
+	}
+
+	public void run() {
+		notifyThreadStarted(this);
+
+		boolean retry = true;
+		try {
+			if (initialize()) {
+				while (retry) {
+					retry = uploadMessage();
+				}
+			}
+		} catch (IOException ex) {
+			logger.log(
+				Level.SEVERE,
+				"ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...",
+				ex);
+		} catch (MessageAlreadyUploadedException exception) {
+			logger.info("The message had already been uploaded. Therefore it will not be uploaded again.");
+			messageFile.delete();
+		} catch (Throwable t) {
+			logger.log(Level.SEVERE, "Oo. EXCEPTION in MessageUploadThread", t);
+		}
+
+		notifyThreadFinished(this);
+	}
+	
+	/**
+	 * This method saves a message to disk in XML format 
+	 * @param msg the MessageObject to save
+	 * @param file the file whose path will be used to save the message
+	 * @return true if successful. False otherwise.
+	 */
+	private boolean saveMessage(MessageObject msg, File file) {
+		File tmpFile = new File(file.getPath() + ".tmp");
+		boolean success = false;
+		try {
+			Document doc = XMLTools.createDomDocument();
+			doc.appendChild(msg.getXMLElement(doc));
+			success = XMLTools.writeXmlFile(doc, tmpFile.getPath());
+		} catch (Throwable ex) {
+			logger.log(Level.SEVERE, "Exception thrown in saveMessage()", ex);
+		}
+		if (success && tmpFile.length() > 0) {
+			messageFile.delete();
+			tmpFile.renameTo(messageFile);
+			return true;
+		} else {
+			tmpFile.delete();
+			return false;
+		}
+	}
+	
+	/**
+	 * This inserts an attached SharedFileObject into freenet
+	 * @param attachment the SharedFileObject to upload
+	 * @return true if successful. False otherwise.
+	 */
+	private boolean uploadAttachment(SharedFileObject attachment) {
+
+		assert attachment.getFile() != null : "message.getOfflineFiles() failed!";
+
+		String[] result = { "", "" };
+		int uploadHtl = MainFrame.frostSettings.getIntValue("htlUpload");
+		logger.info(
+			"TOFUP: Uploading attachment "
+				+ attachment.getFile().getPath()
+				+ " with HTL "
+				+ uploadHtl);
+
+		int maxTries = 3;
+		int tries = 0;
+		while (tries < maxTries
+			&& !result[0].equals("KeyCollision")
+			&& !result[0].equals("Success")) {
+			try {
+				result =
+					FcpInsert.putFile(
+						"CHK@",
+						attachment.getFile(),
+						null,
+						uploadHtl,
+						true,
+						new FrostUploadItem(null, null));
+				// doRedirect
+			} catch (Exception ex) {
+				result = new String[1];
+				result[0] = "Error";
+			}
+			tries++;
+		}
+		if (result[0].equals("KeyCollision") || result[0].equals("Success")) {
+			logger.info(
+				"TOFUP: Upload of attachment '"
+					+ attachment.getFile().getPath()
+					+ "' was successful.");
+			String chk = result[1];
+			attachment.setKey(chk);
+			attachment.setFilename(attachment.getFile().getName()); // remove path from filename
+
+			if (attachment instanceof FECRedirectFileObject) {
+				logger.fine("attaching redirect to file " + attachment.getFile().getName());
+
+				FecSplitfile splitFile = new FecSplitfile(attachment.getFile());
+				if (!splitFile.uploadInit())
+					throw new Error("file was just uploaded, but .redirect missing!");
+
+				((FECRedirectFileObject) attachment).setRedirect(
+					new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
+				splitFile.finishUpload(true);
+			} else
+				logger.fine("not attaching redirect");
+
+			attachment.setFile(null); // we never want to give out a real pathname, this is paranoia
+			return true;
+		} else {
+			logger.warning(
+				"TOFUP: Upload of attachment '"
+					+ attachment.getFile().getPath()
+					+ "' was NOT successful.");
+			return false;
+		}
+	}
+
+	/**
+	 * Uploads all the attachments of a MessageObject and updates its
+	 * XML representation on disk
+	 * @param msg the MessageObject whose attachments will be uploaded
+	 * @param file file whose path will be used to save the MessageObject to disk.
+	 * @return true if successful. False otherwise.
+	 */
+	private boolean uploadAttachments(MessageObject msg, File file) {
+		boolean success = true;
+		List fileAttachments = msg.getOfflineFiles();
+		Iterator i = fileAttachments.iterator();
+		while (i.hasNext()) {
+			SharedFileObject attachment = (SharedFileObject) i.next();
+			if(uploadAttachment(attachment)) {
+				//If the attachment was successfully inserted, we update the message on disk.
+				saveMessage(msg, file);
+			} else {
+				success = false;	
+			}
+		}
+
+		if (!success) {
+			JOptionPane.showMessageDialog(
+				frameToLock,
+				"One or more attachments failed to upload.\n"
+					+ "Will retry to upload attachments and message on next startup.",
+				"Attachment upload failed",
+				JOptionPane.ERROR_MESSAGE);
+		}
+
+		return success;
+	}
+	
+	/**
+	 * @return
+	 */
+	private boolean uploadMessage() throws IOException, MessageAlreadyUploadedException {
+		boolean success = false;
+		int index = 0;
+		int tries = 0;
+		int maxTries = 5;
+		boolean error = false;
+		boolean tryAgain;
+		while (!success) {
+			// Does this index already exist?
+			String testFilename =
+				new StringBuffer()
+					.append(getDestinationBase())
+					.append(message.getDate())
+					.append("-")
+					.append(board.getBoardFilename())
+					.append("-")
+					.append(index)
+					.append(".xml")
+					.toString();
+			File testMe = new File(testFilename);
+			if (testMe.exists() && testMe.length() > 0) {
+				if (checkLocalMessage(testMe)) {
+					throw new MessageAlreadyUploadedException();	
+				} else {
+					index++;
+				}
+			} else {
+				// probably empty, check if other threads currently try to insert to this index
+				File lockRequestIndex = new File(testMe.getPath() + ".lock");
+				boolean lockFileCreated = false;
+				lockFileCreated = lockRequestIndex.createNewFile();
+
+				if (lockFileCreated == false) {
+					// another thread tries to insert using this index, try next
+					index++;
+					logger.fine(
+						"TOFUP: Other thread tries this index, increasing index to " + index);
+					continue; // while
+				} else {
+					// we try this index
+					lockRequestIndex.deleteOnExit();
+				}
+
+				// try to insert message
+				String[] result = new String[2];
+				String upKey = composeUpKey(index);
+				String downKey = composeDownKey(index);
+
+				try {
+					//signMetadata is null for unsigned upload. Do not do redirect (false)
+					result =
+						FcpInsert.putFile(upKey, zipFile, signMetadata, messageUploadHtl, false);
+				} catch (Throwable t) {
+					logger.log(Level.SEVERE, "TOFUP - Error in run()/FcpInsert.putFile", t);
+				}
+
+				if (result[0] == null || result[1] == null) {
+					result[0] = "Error";
+					result[1] = "Error";
+				}
+
+				if (result[0].equals("Success")) {
+					success = true;
+				} else {
+					if (result[0].equals("KeyCollision")) {
+						if (checkRemoteFile(downKey)) {
+							throw new MessageAlreadyUploadedException();
+						} else {
+							index++;
+							logger.fine("TOFUP: Upload collided, increasing index to " + index);
+						}
+					} else {
+						if (tries > maxTries) {
+							success = true;
+							error = true;
+						} else {
+							logger.info(
+								"TOFUP: Upload failed (try no. "
+									+ tries
+									+ " of "
+									+ maxTries
+									+ "), retrying index "
+									+ index);
+							tries++;
+						}
+					}
+				}
+				// finally delete the index lock file
+				if (lockFileCreated == true) {
+					lockRequestIndex.delete();
+				}
+			}
+		}
+
+		if (!error) {
+			// we will see the message if received from freenet
+			messageFile.delete();
+			zipFile.delete();
+
+			logger.info(
+				"*********************************************************************\n"
+					+ "Message successfuly uploaded to board '"
+					+ board.toString()
+					+ "'.\n"
+					+ "*********************************************************************");
+			tryAgain = false;
+		} else {
+			logger.warning("TOFUP: Error while uploading message.");
+
+			// Uploading of that message failed. Ask the user if Frost
+			// should try to upload the message another time.
+			MessageUploadFailedDialog faildialog =
+				new MessageUploadFailedDialog(
+					frameToLock,
+					10,
+					LangRes.getString("Upload of message failed"),
+					LangRes.getString("I was not able to upload your message."),
+					LangRes.getString("Retry"),
+					"Retry on next startup",
+					"Discard message");
+			int answer = faildialog.startDialog();
+			if (answer == 1) { // Retry now - pressed
+				logger.info("TOFUP: Will try to upload again.");
+				tryAgain = true;
+			} else if (answer == 2) { // retry on next startup - pressed
+				zipFile.delete();
+				logger.info("TOFUP: Will try to upload again on next startup.");
+				tryAgain = false;
+			} else if (answer == 3) { // cancel - pressed
+				zipFile.delete();
+				messageFile.delete();
+				logger.warning("TOFUP: Will NOT try to upload message again.");
+				tryAgain = false;
+			} else { // paranoia
+				logger.warning("TOFUP: Paranoia - will try to upload message again.");
+				tryAgain = false;
+			}
+			faildialog.dispose();
+		}
+		logger.info("TOFUP: Upload Thread finished");
+		return tryAgain;
 	}
 }
