@@ -133,6 +133,10 @@ public class LangRes extends ListResourceBundle {
     {"Remove finished downloads every 5 minutes.", "Remove finished downloads every 5 minutes."},
 
     {"Upload HTL:", "Upload HTL:"},
+    {"Sign shared files", "Sign shared files"},
+    {"Hide files from people marked BAD","Hide files from people marked BAD"},
+    {"Hide files from anonymous users","Hide files from anonymous users"},
+    {"Help spread files from people marked GOOD","Help spread files from people marked GOOD"},
     {"Number of simultaneous uploads:", "Number of simultaneous uploads:"},
     {"Number of splitfile threads:", "Number of splitfile threads:"},
 

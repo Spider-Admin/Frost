@@ -108,6 +108,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox miscAltEditCheckBox = new JCheckBox(LangRes.getString("Use editor for writing messages: ") + " " +
                                                   LangRes.getString("(Off)"));
 
+    JCheckBox signUploads = new JCheckBox(LangRes.getString("Sign shared files"));
+    JCheckBox helpFriends = new JCheckBox(LangRes.getString("Help spread files from people marked GOOD"));
+    JCheckBox hideBadFiles = new JCheckBox(LangRes.getString("Hide files from people marked BAD"));
+    JCheckBox hideAnonFiles = new JCheckBox(LangRes.getString("Hide files from anonymous users"));
+    
     JCheckBox downloadRestartFailedDownloads = new JCheckBox("Restart failed downloads");
     JTextField downloadRequestAfterTries = new JTextField(5);
     JCheckBox downloadEnableRequesting = new JCheckBox("Enable requesting of failed download files (on)");
@@ -158,6 +163,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     // the result of this
     boolean shouldRemoveDummyReqFiles = false;
     boolean shouldReloadMessages = false;
+    boolean _signUploads,_helpFriends,_hideBad,_hideAnon;
 
     /**
      * Build up the whole GUI.
@@ -443,6 +449,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             uploadPanel.add(uploadDisableRequests,constr);
             constr.gridy++;
             constr.gridx=0;
+	    uploadPanel.add(signUploads,constr);
+	    constr.gridx=1;
+	    uploadPanel.add(helpFriends,constr);
+	    constr.gridy++;
+	    constr.gridx=0;
             uploadPanel.add(new JLabel(LangRes.getString("Upload HTL:") + " (8)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadHtlTextField, constr);
@@ -799,6 +810,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             searchPanel.add(new JLabel("Maximum search results: "), constr);
             constr.gridx = 1;
             searchPanel.add(searchMaxSearchResults, constr);
+	    constr.gridy++;
+	    constr.gridx=0;
+	    searchPanel.add(hideBadFiles,constr);
+	    constr.gridx=1;
+	    searchPanel.add(hideAnonFiles,constr);
 
             // filler (glue)
             constr.gridy++;
