@@ -46,7 +46,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private String insertKey;
     private String boardState;
 
-    public int getThreadType() { return BoardUpdateThread.ID_THREAD; }
+    public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
     /**
      * Generates a new index file containing keys to upload.
