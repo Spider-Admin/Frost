@@ -5,6 +5,7 @@ This is the Frost TODO file. Please maintain it carefully.
 - The Translation tool needs some explanation/documentation
 - Select actual used language automatically in the translation tool
 - Save all Strings as Escape Sequences
+- LangRes.java has to be cleaned up. Lots of unused translations in there.
 
 ***** 2003/09/10 - zab
 - Decide whether choosing to help someone's files should mark them GOOD. 
