@@ -40,4 +40,31 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
         return c1.compareTo( c2 );
     }
 
+////// Implementing the FrostSearchItem interface //////
+
+    public String getFilename()
+    {
+        return key.getFilename();
+    }
+
+    public Long getSize()
+    {
+        return key.getSize();
+    }
+
+    public String getDate()
+    {
+        return key.getDate();
+    }
+
+    public String getKey()
+    {
+        return key.getKey();
+    }
+
+    public FrostBoardObject getBoard()
+    {
+        return board;
+    }
+
 }
