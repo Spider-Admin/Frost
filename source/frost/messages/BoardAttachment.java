@@ -18,7 +18,7 @@ import org.xml.sax.SAXException;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class BoardAttachment implements Attachment {
+public class BoardAttachment implements Attachment, Comparable {
 
 	FrostBoardObject boardObj;
 	/* (non-Javadoc)
@@ -85,12 +85,35 @@ public class BoardAttachment implements Attachment {
 		boardObj=obj;
 	}
 
-
 	/**
 	 * @return a FrostBoardObject
 	 */
 	public FrostBoardObject getBoardObj() {
 		return boardObj;
 	}
+
+    
+    
+    /**
+     * A toString to enable the SortedSet to sort by boardname
+     */
+    public String toString()
+    {
+        if( getBoardObj() != null )
+        {
+            return getBoardObj().getBoardName();
+        }
+        return "*ERR*";
+    }
+
+    /* 
+     * @see java.lang.Comparable#compareTo(java.lang.Object)
+     */
+    public int compareTo(Object o)
+    {
+        String me = toString();
+        String other = ((BoardAttachment)o).toString();
+        return me.compareToIgnoreCase(other);
+    }
 
 }

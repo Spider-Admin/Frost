@@ -561,6 +561,9 @@ public class MessageDownloadThread
                     if (current.getOwner() != null) 
                         	Index.add(current, board);
                 }
+                //add all boards to the list of known boards
+                Core.addNewKnownBoards(
+                    currentMsg.getAttachmentList().getAllOfType(Attachment.BOARD) );
             }
         }
         else

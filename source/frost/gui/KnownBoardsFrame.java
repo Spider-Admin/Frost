@@ -29,7 +29,8 @@ import javax.swing.table.*;
 import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
-
+import frost.messages.BoardAttachment;
+// BBACKFLAG: Implement removing of known boards via popup menu !
 public class KnownBoardsFrame extends JDialog
 {
     static ImageIcon boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
@@ -145,57 +146,11 @@ public class KnownBoardsFrame extends JDialog
         Iterator i = knownboards.iterator();
         while(i.hasNext())
         {
-            String aboardstr = (String)i.next(); // format: "name * pubkey or N/A * privkey or N/A"
-            if( aboardstr.length() < 13 || aboardstr.indexOf("*") < 3 ||
-                ! ( aboardstr.indexOf("*") < aboardstr.lastIndexOf("*") ) )
-            {
-                continue;
-            }
-            String bname, bpubkey, bprivkey;
-            int pos = aboardstr.indexOf("*");
-            bname = aboardstr.substring(0, pos).trim();
-            int pos2 = aboardstr.indexOf("*", pos+1);
-            bpubkey = aboardstr.substring(pos+1, pos2).trim();
-            bprivkey = aboardstr.substring(pos2+1).trim();
-            if( bpubkey.length() < 10 )  bpubkey = null;
-            if( bprivkey.length() < 10 )  bprivkey = null;
+            BoardAttachment ba = (BoardAttachment)i.next();
             
-            // check if this board is already contained in frostboards, if not add to list
-            Iterator j = frostboards.iterator();
-            boolean addMe = true;
-            while(j.hasNext())
-            {
-                FrostBoardObject board = (FrostBoardObject)j.next();
-                if( board.getBoardName().equalsIgnoreCase(bname) &&
-                    ( 
-                      ( board.getPrivateKey() == null &&
-                        bprivkey == null 
-                      ) ||
-                      ( board.getPrivateKey() != null &&
-                        board.getPrivateKey().equals(bprivkey)
-                      )
-                    ) &&
-                    ( 
-                      ( board.getPublicKey() == null &&
-                        bpubkey == null 
-                      ) ||
-                      ( board.getPublicKey() != null &&
-                        board.getPublicKey().equals(bpubkey)
-                      )
-                    )
-                  )
-                  {
-                      // same boards, dont add
-                      addMe = false;
-                      break; 
-                  }
-            }
-            if( addMe == true )
-            {
-                // add this new board to table
-                KnownBoardsTableMember member = new KnownBoardsTableMember(bname, bpubkey, bprivkey);
-                this.tableModel.addRow( member );
-            }
+            // add this new board to table
+            KnownBoardsTableMember member = new KnownBoardsTableMember(ba);
+            this.tableModel.addRow( member );
         }
         show();
     }
@@ -215,9 +170,7 @@ public class KnownBoardsFrame extends JDialog
 
                 // add the board(s) to board tree and remove it from table
                 KnownBoardsTableMember row = (KnownBoardsTableMember)tableModel.getRow(rowIx);
-                frame1.getInstance().getTofTree().addNewBoard(row.getBoardName(), 
-                                                              row.getPublicKey(),
-                                                              row.getPrivateKey());
+                frame1.getInstance().getTofTree().addNewBoard(row.getBoardObject());
                 tableModel.deleteRow(row);
             }
             boardsTable.clearSelection();
@@ -242,24 +195,22 @@ public class KnownBoardsFrame extends JDialog
      */
     class KnownBoardsTableMember implements TableMember
     {
-        String name;
-        String pubkey;
-        String privkey;
+        BoardAttachment boardatt;
+        FrostBoardObject frostboard;
 
-        public KnownBoardsTableMember(String bn, String bpubk, String bprivk)
+        public KnownBoardsTableMember(BoardAttachment ba)
         {
-            this.name = bn;
-            this.pubkey = bpubk;
-            this.privkey = bprivk;
+            this.boardatt = ba;
+            this.frostboard = ba.getBoardObj();
         }
 
         public Object getValueAt(int column)
         {
             switch( column )
             {
-                case 0: return name;
-                case 1: return ((pubkey==null)?"":pubkey);
-                case 2: return ((privkey==null)?"":privkey);
+                case 0: return frostboard.getBoardName();
+                case 1: return ((frostboard.getPublicKey()==null)?"":frostboard.getPublicKey());
+                case 2: return ((frostboard.getPrivateKey()==null)?"":frostboard.getPrivateKey());
             }
             return "*ERR*";
         }
@@ -269,17 +220,9 @@ public class KnownBoardsFrame extends JDialog
             String c2 = (String)anOther.getValueAt(tableColumIndex);
             return c1.compareToIgnoreCase( c2 );
         }
-        public String getBoardName()
+        public FrostBoardObject getBoardObject()
         {
-            return name;
-        }
-        public String getPublicKey()
-        {
-            return pubkey;
-        }
-        public String getPrivateKey()
-        {
-            return privkey;
+            return frostboard;
         }
     }
     
@@ -295,7 +238,7 @@ public class KnownBoardsFrame extends JDialog
             for( int row=0; row < tableModel.getRowCount(); row++ )
             {
                 KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-                if( memb.getBoardName().toLowerCase().startsWith(txt.toLowerCase()) )
+                if( memb.getBoardObject().getBoardName().toLowerCase().startsWith(txt.toLowerCase()) )
                 {
                     boardsTable.getSelectionModel().setSelectionInterval(row, row);
                     // now scroll to selected row, try to show it on top of table
@@ -340,17 +283,19 @@ public class KnownBoardsFrame extends JDialog
                 column);
                 
             KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-            if( memb.getPublicKey() == null && memb.getPrivateKey() == null )
+            if( memb.getBoardObject().getPublicKey() == null && 
+                memb.getBoardObject().getPrivateKey() == null )
             {
                 // public board
                 setIcon(boardIcon);    
             }
-            else if( memb.getPublicKey() != null && memb.getPrivateKey() == null )
+            else if( memb.getBoardObject().getPublicKey() != null && 
+                     memb.getBoardObject().getPrivateKey() == null )
             {
                 // read access board
                 setIcon(readAccessIcon);
             }
-            else if( memb.getPrivateKey() != null )
+            else if( memb.getBoardObject().getPrivateKey() != null )
             {
                 // write access board (or write-only)
                 setIcon(writeAccessIcon);

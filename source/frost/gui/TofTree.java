@@ -630,6 +630,16 @@ implements DragGestureListener, DragSourceListener
     }
 
     /**
+     * Checks if board is already existent, adds board to board tree.
+     */
+    public void addNewBoard(FrostBoardObject fbobj)
+    {
+        addNewBoard( fbobj.getBoardName(),
+                     fbobj.getPublicKey(),
+                     fbobj.getPrivateKey());
+    }
+    
+    /**
      * Opens dialog, gets new name for folder, checks for double names, adds node to tree
      */
     public void createNewFolder(Frame parent)
