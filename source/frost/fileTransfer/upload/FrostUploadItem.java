@@ -20,6 +20,7 @@ public class FrostUploadItem extends ModelItem
 	public final static int FIELD_ID_STATE = 108;
 	public final static int FIELD_ID_TARGET_BOARD = 109;
 	public final static int FIELD_ID_ENABLED = 110;
+	public final static int FIELD_ID_RETRIES = 111;
 
     // the constants representing upload states
     public final static int STATE_IDLE       = 1; // shows either last date uploaded or Never
@@ -41,6 +42,7 @@ public class FrostUploadItem extends ModelItem
 	private int doneBlocks = -1;		//FIELD_ID_DONE_BLOCKS
 	private String lastUploadDate;		//FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
 	private Boolean enabled = new Boolean(true);	//FIELD_ID_ENABLED
+	private int retries;					//FIELD_ID_RETRIES
     
     private int nextState = 0;
 
@@ -249,6 +251,22 @@ public class FrostUploadItem extends ModelItem
 		int oldTotalBlocks = totalBlocks; 
 		totalBlocks = newTotalBlocks;
 		fireFieldChange(FIELD_ID_TOTAL_BLOCKS, oldTotalBlocks, newTotalBlocks);
+	}
+	
+	/**
+	 * @return
+	 */
+	public int getRetries() {
+		return retries;
+	}
+	
+	/**
+	 * @param newRetries
+	 */
+	public void setRetries(int newRetries) {
+		int oldRetries = retries;
+		retries = newRetries;
+		fireFieldChange(FIELD_ID_RETRIES, oldRetries, newRetries);
 	}
 
 	/**
