@@ -67,8 +67,8 @@ public class MessageFrame extends JFrame
 					boolean isSelected, boolean cellHasFocus) {
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				if (value != null) {
-					Board board = (Board) value;
-					setText(board.getName());
+					BoardAttachment board = (BoardAttachment) value;
+					setText(board.getBoardObj().getName());
 				}	
 				return this;
 			}
@@ -757,21 +757,18 @@ public class MessageFrame extends JFrame
 	 * @param e
 	 */
 	private void attachBoards_actionPerformed(ActionEvent e) {
-		Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
-		if (allBoards.size() == 0)
-			return;
-		Collections.sort(allBoards);
+		List knownBoards = Core.getKnownBoards();
 
-		AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
+		AttachBoardsChooser chooser = new AttachBoardsChooser(knownBoards);
 		chooser.setLocationRelativeTo(this);
-		Vector chosedBoards = chooser.runDialog();
-		if (chosedBoards == null || chosedBoards.size() == 0) // nothing chosed or cancelled
+		Vector chosenBoards = chooser.runDialog();
+		if (chosenBoards == null || chosenBoards.size() == 0) // nothing chosed or cancelled
 			{
 			return;
 		}
 
-		for (int i = 0; i < chosedBoards.size(); i++) {
-			Board board = (Board) chosedBoards.get(i);
+		for (int i = 0; i < chosenBoards.size(); i++) {
+			Board board = ((BoardAttachment) chosenBoards.get(i)).getBoardObj();
 
 			String privKey = board.getPrivateKey();
 
@@ -779,17 +776,16 @@ public class MessageFrame extends JFrame
 				int answer =
 					JOptionPane.showConfirmDialog(
 						this,
-						"You have the private key to "
-							+ board.getName()
-							+ ".  Are you sure you want it attached?\n "
-							+ "If you choose NO, only the public key will be attached.",
-						"Include private board key?",
+						language.getString("MessageFrame.ConfirmBody1") + 
+							board.getName() +
+							language.getString("MessageFrame.ConfirmBody2"),
+						language.getString("MessageFrame.ConfirmTitle"),
 						JOptionPane.YES_NO_OPTION);
 				if (answer == JOptionPane.NO_OPTION) {
-					privKey = null; // dont provide privkey
+					privKey = null; // don't provide privkey
 				}
 			}
-			// build a new board because maybe privKey should'nt be uploaded
+			// build a new board because maybe privKey shouldn't be uploaded
 			Board aNewBoard =
 				new Board(board.getName(), board.getPublicKey(), privKey, board.getDescription());
 			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);

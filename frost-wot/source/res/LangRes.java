@@ -615,9 +615,15 @@ public class LangRes extends ListResourceBundle {
 	// Popup over message body (message frame)
 	{"Cut","Cut"},
 	//{"Copy","Copy"}, // Defined above
-	{"Paste","Paste"}
+	{"Paste","Paste"},
 	//{"Cancel", "Cancel"} // Defined above
 		
+	// Attach Boards Chooser (message frame)
+	{"MessageFrame.ConfirmBody1", "You have the private key to board '"},
+	{"MessageFrame.ConfirmBody2", "'.  Are you sure you want it attached?\n" +
+								  "If you choose NO, only the public key will be attached.",},
+	{"MessageFrame.ConfirmTitle", "Include private board key?"}
+	
     };
 }
 
