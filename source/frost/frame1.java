@@ -2378,10 +2378,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
             if( waitingItems.size() > 0 )
             {
-                // with current behaviour of sort, this revering ensures that of all items
-                // with minimum htl the last item is taken ( i hope ).
-                // otherwise we would have to do more than the waitingItems.get(0) below ...
-                Collections.reverse( waitingItems );
                 // sort waiting items by htl ascending
                 Collections.sort( waitingItems, downloadHtlCmp );
                 // choose first item
