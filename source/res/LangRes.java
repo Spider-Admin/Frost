@@ -433,6 +433,12 @@ public class LangRes extends ListResourceBundle {
 	{"RefreshList","Refresh List"},
 	{"NoSkinsFound","No skins found!"},
 	{"AvailableSkins","Available Skins"},
+	{"Plain","Plain"},
+	{"Italic","Italic"},
+	{"Bold","Bold"},
+	{"Bold Italic","Bold Italic"},
+	{"Sample","Sample"},
+	{"Choose a Font","Choose a Font"},
 
 	///////////////////////////////////////////////////
 	// Board Information Window
