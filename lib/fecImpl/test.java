@@ -30,7 +30,8 @@ public class test
         for(int z=0; z<segmentCount; z++)
         {
             int checkBlockSize = encoder.getCheckBlockSize(z);
-            int checkBlockCount = encoder.getN() - encoder.getK();
+            int checkBlockCount = encoder.getN(z) - encoder.getK(z);
+System.out.println("segment="+z+"  checkblocks="+checkBlockCount+"  checkblocksize="+checkBlockSize);
             checkBlocksFileSize += checkBlockSize * checkBlockCount;
         }
 

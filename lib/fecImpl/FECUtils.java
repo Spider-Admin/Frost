@@ -323,6 +323,9 @@ public class FECUtils {
     // reads Buffers from buckets
     // changed for frost to create always blocks of blocksize, even if processing the
     // last few bytes of an input file.
+    // Bucket size() can be 0 or even <0, if so pad buffer to correct length
+    // Bucket size is 0 or <0 if the input file have not enough data, so this buffer would be
+    // behind end of input file
     // needed for fec encoding, rest of buffer is padded with 0
     private final static Buffer[] readBuffers(Bucket[] buckets, int blockSize)
         throws IOException {
@@ -330,16 +333,20 @@ public class FECUtils {
 
         for (int i = 0; i < buckets.length; i++) {
             byte buf[] = new byte[ blockSize ];
-            read(buckets[i], buf, 0);
-            if( (int)buckets[i].size() < blockSize )
+            int bucketSize = (int)buckets[i].size();
+            if( bucketSize > 0 )
+                read(buckets[i], buf, 0);
+            else
+                bucketSize = 0;
+
+            if( bucketSize < blockSize )
             {
                 // pad buffer with 0
-                for( int z=(int)buckets[i].size(); z < blockSize; z++ )
+                for( int z=bucketSize; z<blockSize; z++ )
                     buf[z]=0;
             }
             ret[i] = new Buffer(buf);
         }
-
         return ret;
     }
 
