@@ -186,8 +186,8 @@ public class LangRes_fr extends ListResourceBundle {
 	{"Upload of message failed", "L'envoi du message à échoué"},
 	
 	//	Frost startup error messages
-	{"Frost.lockFileFound", "Ceci indique qu'une autre instance est déjà lancée dans ce répertoire.\n" +
-							"Un lancement concourant de Frost entrainera la perte de données.\n"+
+	{"Frost.lockFileFound", "Ceci indique que Frost est déjà lancé à partir de ce répertoire.\n" +
+							"Le lancement simultané de plusieurs sessions de Frost entrainera une perte de données.\n"+
 							"Si vous êtes VRAIMENT SUR que Frost n'est pas déjà lancé, supprimez le fichier:\n"}
     };
 }
