@@ -157,6 +157,7 @@ public class UploadTable extends SortedTable
 		}
 		
 		newKey.setBatch(batchId);
+		ulItem.setBatch(batchId);
                 Index.addMine( newKey, ulItem.getTargetBoard() );
 		Index.add(newKey, ulItem.getTargetBoard());  //also to the big file.
             }

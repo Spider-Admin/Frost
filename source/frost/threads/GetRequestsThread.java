@@ -150,7 +150,8 @@ public class GetRequestsThread extends Thread
                         if( !requestLock.exists() )
                         {
                             if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
-                                ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS )
+                                ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
+				ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
                             {
                                 System.out.println("Request matches row " + i);
                                 ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
