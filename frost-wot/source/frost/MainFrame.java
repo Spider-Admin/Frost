@@ -1460,6 +1460,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			final FrostMessageObject targetMessage = selectedMessage;
 
 			messageTableModel.deleteRow(selectedMessage);
+			updateMessageCountLabels(getSelectedNode());
 
 			targetMessage.setDeleted(true);
 			Thread saver = new Thread() {
