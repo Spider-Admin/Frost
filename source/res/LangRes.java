@@ -371,7 +371,16 @@ public class LangRes extends ListResourceBundle {
     {"EnableSkins", "Enable Skins"}, 	
 	{"MessageBodyFont", "Message Body Font"}, 
 	{"MoreSkinsAt", "You can get more skins at"},
+	{"Preview","Preview"},
+	{"RefreshList","Refresh List"},
+	{"NoSkinsFound","No skins found!"},
+	{"AvailableSkins","Available Skins"},
 
+	{"BoardInfoFrame.UpdateSelectedBoardButton","Update Selected Board"},
+	{"Show systray icon","show SysTray icon"},
+	{"Display","Display"},
+	{"Miscellaneous","Miscellaneous"},
+	
     };
 }
 
