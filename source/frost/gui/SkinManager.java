@@ -17,7 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost.gui; 
+package frost.gui;
 
 import javax.swing.*;
 import java.awt.*;
@@ -25,222 +25,269 @@ import java.awt.event.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 import java.util.*;
+import javax.swing.table.*;
 
 public class SkinManager extends JFrame {
-//     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
-
-    //------------------------------------------------------------------------
-    // Objects
-    //------------------------------------------------------------------------
-    
-    static DefaultMutableTreeNode rootNode = new DefaultMutableTreeNode("Root Frame");
-    TreeCellRenderer treeCellRenderer = new TreeCellRenderer();
-    static Map objectMap = new HashMap();
-    
-    //------------------------------------------------------------------------
-    // GUI objects
-    //------------------------------------------------------------------------
-    JPanel mainPanel = new JPanel(new BorderLayout());
-    JToolBar toolBar = new JToolBar();
-    JTree objectTree = new JTree(rootNode);
-       
-    JTextArea textArea = new JTextArea();
-
-    JScrollPane objectTreeScrollPane = new JScrollPane(objectTree);
-    JScrollPane attribScrollPane = new JScrollPane(textArea);
-    JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, 
-					  objectTreeScrollPane, 
-					  attribScrollPane);
-
-    JButton loadSkinButton = new JButton();
-    JButton saveSkinButton = new JButton();
-    JButton defaultSkinButton = new JButton();
-    JButton applyChangesButton = new JButton();
-
-    private void Init() throws Exception {
-        //------------------------------------------------------------------------
-        // Configure objects
-        //------------------------------------------------------------------------
-
-//         this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getResource("/data/newmessage.gif")));
-        this.setTitle("Skin Manager 100% Megablast - Ultimate Edition"); // Yep :-)
-        this.setResizable(true);
-
-	objectTree.setRootVisible(true);
-	objectTree.setCellRenderer(treeCellRenderer);
+	//     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
 	//------------------------------------------------------------------------
-        // Actionlistener
-        //------------------------------------------------------------------------
+	// Objects
+	//------------------------------------------------------------------------
 
-        objectTree.addTreeSelectionListener(new TreeSelectionListener() {
-            public void valueChanged(TreeSelectionEvent e) {
-                objectTree_actionPerformed(e);
-        } });
+	static DefaultMutableTreeNode rootNode =
+		new DefaultMutableTreeNode("Root Frame");
+	TreeCellRenderer treeCellRenderer = new TreeCellRenderer();
+	static Map objectMap = new HashMap();
+	Vector columnHeader = new Vector();
+	DefaultTableModel tableModel = new DefaultTableModel();
 
-        // saveSkin
-        saveSkinButton.addActionListener(new java.awt.event.ActionListener() {
-		public void actionPerformed(ActionEvent e) {
-		    //saveSkin_actionPerformed(e);
-		} });
+	//------------------------------------------------------------------------
+	// GUI objects
+	//------------------------------------------------------------------------
+	JPanel mainPanel = new JPanel(new BorderLayout());
+	JToolBar toolBar = new JToolBar();
+	JTree objectTree = new JTree(rootNode);
+	JTable settingsTable = new JTable(tableModel);
 
-        //------------------------------------------------------------------------
-        // Append objects
-        //------------------------------------------------------------------------
-        this.getContentPane().add(mainPanel, null); // add Main panel
-	mainPanel.add(toolBar, BorderLayout.NORTH);
-	mainPanel.add(splitPane, BorderLayout.CENTER);
+	JScrollPane objectTreeScrollPane = new JScrollPane(objectTree);
+	JScrollPane attribScrollPane = new JScrollPane(settingsTable);
+	JSplitPane splitPane =
+		new JSplitPane(
+			JSplitPane.HORIZONTAL_SPLIT,
+			objectTreeScrollPane,
+			attribScrollPane);
 
-	toolBar.add(loadSkinButton);
-	toolBar.add(saveSkinButton);
-	toolBar.add(defaultSkinButton);
-       
-    }
+	JButton loadSkinButton = new JButton();
+	JButton saveSkinButton = new JButton();
+	JButton defaultSkinButton = new JButton();
+	JButton applyChangesButton = new JButton();
 
-    protected void processWindowEvent(WindowEvent e)
-    {
-        if( e.getID() == WindowEvent.WINDOW_CLOSING )
-        {
-            dispose();
-        }
-        super.processWindowEvent(e);
-    }
+	private void Init() throws Exception {
+		//------------------------------------------------------------------------
+		// Configure objects
+		//------------------------------------------------------------------------
 
-    /**Constructor*/
-//     public SkinManager(JFrame parentFrame)
-//     {
+		//         this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getResource("/data/newmessage.gif")));
+		this.setTitle("Skin Manager 100% Megablast - Ultimate Edition");
+		// Yep :-)
+		this.setResizable(true);
 
-//         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-//         try {
-//             Init();
-//         }
-//         catch( Exception e ) {
-//             e.printStackTrace();
-//         }
+		objectTree.setRootVisible(true);
+		objectTree.setCellRenderer(treeCellRenderer);
 
-//         pack();
-//         setLocationRelativeTo(parentFrame);
-//     }
-    /**Constructor*/
-    public SkinManager(JFrame frame)
-    {
+		columnHeader.add("Attribute");
+		columnHeader.add("Value");
+		tableModel.setColumnIdentifiers(columnHeader);
 
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            Init();
-        }
-        catch( Exception e ) {
-            e.printStackTrace();
-        }
+		//------------------------------------------------------------------------
+		// Actionlistener
+		//------------------------------------------------------------------------
 
-        pack();
-	configFrame(frame);
-    }
+		objectTree.addTreeSelectionListener(new TreeSelectionListener() {
+			public void valueChanged(TreeSelectionEvent e) {
+				objectTree_actionPerformed(e);
+			}
+		});
 
-    public static void configFrame(JFrame frame) {
+		// saveSkin
+		saveSkinButton.addActionListener(new java.awt.event.ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				//saveSkin_actionPerformed(e);
+			}
+		});
 
-	System.out.println("Config Frame:");
-	System.out.println("=============");
+		//------------------------------------------------------------------------
+		// Append objects
+		//------------------------------------------------------------------------
+		this.getContentPane().add(mainPanel, null); // add Main panel
+		mainPanel.add(toolBar, BorderLayout.NORTH);
+		mainPanel.add(splitPane, BorderLayout.CENTER);
 
-	Container contentPane = frame.getContentPane();
-	
-	System.out.println("#Objects in contentPane: " + contentPane.getComponentCount());	
+		toolBar.add(loadSkinButton);
+		toolBar.add(saveSkinButton);
+		toolBar.add(defaultSkinButton);
 
-	rootNode.setUserObject(contentPane.toString());
-	objectMap.put(contentPane.toString(), contentPane);
-
-	for (int i = 0; i < contentPane.getComponentCount(); i++) {
-	    rootNode.add(new DefaultMutableTreeNode(contentPane.getComponent(i).toString()));
-	    objectMap.put(contentPane.getComponent(i).toString(), contentPane.getComponent(i));
-	    recursiveDescent((JComponent)contentPane.getComponent(i), rootNode);
-	}
-	
-    }
-
-    private static void recursiveDescent(JComponent component, DefaultMutableTreeNode treeNode) {
-	System.out.println("Recursive Descent started for " + component);
-
-	String componentInfo = component.toString();
-	
-	for (int i = 0; i < component.getComponentCount(); i++) {
-	    
-	    try {
-		JComponent recursiveComponent = (JComponent)component.getComponent(i);
-		System.out.println(recursiveComponent.getName());
-		
-		DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(recursiveComponent.toString());
-		treeNode.add(newNode);
-		objectMap.put(recursiveComponent.toString(), recursiveComponent);
-		System.out.println(recursiveComponent);
-		
-		if (recursiveComponent.getComponentCount() > 0)
-		    recursiveDescent(recursiveComponent, newNode);
-	    }
-	    catch (ClassCastException e) {
-		DefaultMutableTreeNode newNode = new DefaultMutableTreeNode("ClassCastException");
-		treeNode.add(newNode);
-	    }
-	    
 	}
 
-	System.out.println("Up one level...");
-	
-    }
-
-    private class TreeCellRenderer extends DefaultTreeCellRenderer
-    {
-	
-	public TreeCellRenderer()
-	{
-	    
+	protected void processWindowEvent(WindowEvent e) {
+		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+			dispose();
+		}
+		super.processWindowEvent(e);
 	}
-	
-	public Component getTreeCellRendererComponent(JTree tree,
-						      Object value,
-						      boolean sel,
-						      boolean expanded,
-						      boolean leaf,
-						      int row,
-						      boolean hasFocus)
-	{
-	    super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
- 	    String objectID = value.toString();
-	    
- 	    if (objectMap.containsKey(objectID)) {
- 		JComponent component = (JComponent)objectMap.get(objectID);
-		String display = component.toString();
+	/**Constructor*/
+	//     public SkinManager(JFrame parentFrame)
+	//     {
 
-		if (display.indexOf("[") != -1 && display.startsWith("javax.swing."))
-		    display = display.substring(12, display.indexOf("["));
+	//         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+	//         try {
+	//             Init();
+	//         }
+	//         catch( Exception e ) {
+	//             e.printStackTrace();
+	//         }
 
-		if (component.getName() != null)
-		    display += " - " + component.getName();
+	//         pack();
+	//         setLocationRelativeTo(parentFrame);
+	//     }
+	/**Constructor*/
+	public SkinManager(JFrame frame) {
 
-		setText(display);
- 	    }
+		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		try {
+			Init();
+		} catch (Exception e) {
+			e.printStackTrace();
+		}
 
-	    return this;
+		pack();
+		configFrame(frame);
 	}
-    }
 
-    public void objectTree_actionPerformed(TreeSelectionEvent e) {
-	DefaultMutableTreeNode node = (DefaultMutableTreeNode) objectTree.getLastSelectedPathComponent();
-        String userObject = (String)node.getUserObject();
-	
-	if (objectMap.containsKey(userObject)) {
-	    JComponent component = (JComponent)objectMap.get(userObject);
-	    String display = "ToolTipText: " + component.getToolTipText();
-	    
-	    textArea.setText(display);
+	public static void configFrame(JFrame frame) {
+
+		System.out.println("Config Frame:");
+		System.out.println("=============");
+
+		Container contentPane = frame.getContentPane();
+
+		System.out.println(
+			"#Objects in contentPane: " + contentPane.getComponentCount());
+
+		rootNode.setUserObject(contentPane.toString());
+		objectMap.put(contentPane.toString(), contentPane);
+
+		for (int i = 0; i < contentPane.getComponentCount(); i++) {
+			rootNode.add(
+				new DefaultMutableTreeNode(
+					contentPane.getComponent(i).toString()));
+			objectMap.put(
+				contentPane.getComponent(i).toString(),
+				contentPane.getComponent(i));
+			recursiveDescent(
+				(JComponent) contentPane.getComponent(i),
+				rootNode);
+		}
+
 	}
-    }
 
-//     public static void main (String agrs[]) {
-// 	SkinManager newSkinManager = new SkinManager();
-// 	newSkinManager.show();
-       
-//     }
+	private static void recursiveDescent(
+		JComponent component,
+		DefaultMutableTreeNode treeNode) {
+		System.out.println("Recursive Descent started for " + component);
 
+		String componentInfo = component.toString();
+
+		for (int i = 0; i < component.getComponentCount(); i++) {
+
+			try {
+				JComponent recursiveComponent =
+					(JComponent) component.getComponent(i);
+				System.out.println(recursiveComponent.getName());
+
+				DefaultMutableTreeNode newNode =
+					new DefaultMutableTreeNode(recursiveComponent.toString());
+				treeNode.add(newNode);
+				objectMap.put(
+					recursiveComponent.toString(),
+					recursiveComponent);
+				System.out.println(recursiveComponent);
+
+				if (recursiveComponent.getComponentCount() > 0)
+					recursiveDescent(recursiveComponent, newNode);
+			} catch (ClassCastException e) {
+				DefaultMutableTreeNode newNode =
+					new DefaultMutableTreeNode("ClassCastException");
+				treeNode.add(newNode);
+			}
+
+		}
+
+		System.out.println("Up one level...");
+
+	}
+
+	private class TreeCellRenderer extends DefaultTreeCellRenderer {
+
+		public TreeCellRenderer() {
+
+		}
+
+		public Component getTreeCellRendererComponent(
+			JTree tree,
+			Object value,
+			boolean sel,
+			boolean expanded,
+			boolean leaf,
+			int row,
+			boolean hasFocus) {
+			super.getTreeCellRendererComponent(
+				tree,
+				value,
+				sel,
+				expanded,
+				leaf,
+				row,
+				hasFocus);
+
+			String objectID = value.toString();
+
+			if (objectMap.containsKey(objectID)) {
+				JComponent component = (JComponent) objectMap.get(objectID);
+				String display = component.toString();
+
+				if (display.indexOf("[") != -1
+					&& display.startsWith("javax.swing."))
+					display = display.substring(12, display.indexOf("["));
+
+				if (component.getName() != null)
+					display += " - " + component.getName();
+
+				setText(display);
+			}
+
+			return this;
+		}
+	}
+
+	public void objectTree_actionPerformed(TreeSelectionEvent e) {
+		DefaultMutableTreeNode node =
+			(DefaultMutableTreeNode) objectTree.getLastSelectedPathComponent();
+		String userObject = (String) node.getUserObject();
+
+		if (objectMap.containsKey(userObject)) {
+			JComponent component = (JComponent) objectMap.get(userObject);
+			if (component.toString().startsWith("javax.swing.JButton"))
+				buttonSettings((JButton) component);
+		}
+	}
+
+	private void buttonSettings(JButton button) {
+		// Clear table
+		tableModel.getDataVector().clear();
+		Vector rowData = new Vector();
+
+		rowData.clear();
+		rowData.add("ToolTipText");
+		rowData.add(button.getToolTipText());
+		tableModel.addRow((Vector)rowData.clone());
+
+		rowData.clear();
+		rowData.add("Text");
+		rowData.add(button.getText());
+		tableModel.addRow((Vector)rowData.clone());
+
+		rowData.clear();
+		rowData.add("Default Icon");
+		rowData.add(button.getIcon().toString());
+		tableModel.addRow((Vector)rowData.clone());
+	}
+
+	//     public static void main (String agrs[]) {
+	// 	SkinManager newSkinManager = new SkinManager();
+	// 	newSkinManager.show();
+
+	//     }
 
 }
