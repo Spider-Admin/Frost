@@ -6,10 +6,10 @@ import frost.gui.model.*;
 
 public class FrostSearchItemObject implements FrostSearchItem, TableMember
 {
-    String board;
+    FrostBoardObject board;
     KeyClass key;
 
-    public FrostSearchItemObject( String board, KeyClass key )
+    public FrostSearchItemObject( FrostBoardObject board, KeyClass key )
     {
         this.board = board;
         this.key = key;
@@ -28,6 +28,7 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
             case 1: return key.getSize();
             case 2: return key.getDate();
             case 3: return key.getKey();
+            case 4: return board.toString();
             default: return "*ERR*";
         }
     }

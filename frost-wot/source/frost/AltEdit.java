@@ -7,6 +7,7 @@ import java.util.*;
 
 import frost.gui.*;
 import frost.threads.*;
+import frost.gui.objects.*;
 
 public class AltEdit extends Thread {
     private Frame parentFrame;
@@ -155,7 +156,7 @@ public class AltEdit extends Thread {
     if(!fileContentNew.equals(fileContentOld)){
         frostSettings.setValue("userName", from);
         frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-            boardNew,
+            new FrostBoardObject(boardNew),
             fromNew,
             subjectNew,
             textNew,

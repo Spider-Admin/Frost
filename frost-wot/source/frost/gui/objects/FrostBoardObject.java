@@ -2,35 +2,60 @@ package frost.gui.objects;
 
 import javax.swing.tree.*;
 
+import frost.*;
+
 public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoard
 {
     private String boardName = null;
+    private String boardFileName = null;
+    private long lastUpdateStartMillis = -1; // never updated
+    private boolean isFolder = false;
 
+    private boolean spammed = false;
+    private int numberBlocked = 0; // number of blocked messages for this board
+
+    /**
+     * Constructs a new FrostBoardObject wich is a Board.
+     */
     public FrostBoardObject(String name)
     {
         super();
         boardName = name;
-        tries = 0;
-        success = 0;
-        lastAccess = 0;
-        spammed=false;
-        numberBlocked=0;
+        boardFileName = mixed.makeFilename( boardName );
     }
+    /**
+     * Constructs a new FrostBoardObject.
+     * If isFold is true, this will be a folder, else a board.
+     */
+    public FrostBoardObject(String name, boolean isFold)
+    {
+        this(name);
+        isFolder = isFold;
+    }
+
 
     public String getBoardName()
     {
         return boardName;
     }
+    public String getBoardFilename()
+    {
+        return boardFileName;
+    }
+
+    public String toString()
+    {
+        return boardName;
+    }
+
+    public boolean isFolder()
+    {
+        return isFolder;
+    }
+
 
 //////////////////////////////////////////////
-    // From BoardStats
-
-    private int tries;
-    private int success;
-    private int lastAccess;
-    private String board;
-    private boolean spammed;
-    private int numberBlocked;
+// From BoardStats
 
     public void incBlocked()
     {
@@ -42,61 +67,29 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         numberBlocked=0;
     }
 
-    public int getNumberBlocked()
+    public int getBlockedCount()
     {
         return numberBlocked;
     }
 
-    public void spam()
+    public void setSpammed(boolean val)
     {
-        spammed=true;
+        spammed=val;
     }
 
-    public void unspam()
-    {
-        spammed=false;
-    }
-
-    public boolean spammed()
+    public boolean isSpammed()
     {
         return spammed;
     }
 
-    public void incTries()
+    public long getLastUpdateStartMillis()
     {
-        tries++;
+        return lastUpdateStartMillis;
     }
-    public void setSuccess(int value)
+
+    public void setLastUpdateStartMillis(long millis)
     {
-        success = value;
-    }
-    public void incSuccess()
-    {
-        success++;
-    }
-    public void incAccess()
-    {
-        lastAccess++;
-    }
-    public void resetAccess()
-    {
-        lastAccess = 0;
-    }
-    public int getLastAccess()
-    {
-        return lastAccess;
-    }
-    public int getSuccess()
-    {
-        return success;
-    }
-    public String getBoard()
-    {
-        return board;
-    }
-    public int getCp()
-    {
-        return success + lastAccess - tries;
+        lastUpdateStartMillis = millis;
     }
 
 }

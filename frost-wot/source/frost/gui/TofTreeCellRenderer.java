@@ -32,6 +32,7 @@ import java.io.*;
 import java.util.*;
 
 import frost.*;
+import frost.gui.objects.*;
 
 public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 {
@@ -69,7 +70,9 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-        String boardname = ((DefaultMutableTreeNode)value).toString();
+        FrostBoardObject board = (FrostBoardObject)value;
+        String boardname = value.toString();
+
         boolean containsNewMessage = false;
         if( frame1.getInstance().getBoardsThatContainNewMsg().get(boardname) != null )
         {
@@ -78,7 +81,7 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 
         if( leaf == true )
         {
-            if( isPublicBoard(boardname) )
+            if( isPublicBoard(board) )
             {
                 if( containsNewMessage )
                 {
@@ -89,11 +92,11 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
                     setIcon(boardIcon);
                 }
             }
-            else if( isSpammed(boardname) )
+            else if( board.isSpammed() )
             {
                 setIcon(boardSpammedIcon);
             }
-            else if( isWriteAccessBoard(boardname) )
+            else if( isWriteAccessBoard(board) )
             {
                 if( containsNewMessage )
                 {
@@ -104,7 +107,7 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
                     setIcon(writeAccessIcon);
                 }
             }
-            else if( isReadAccessBoard(boardname) )
+            else if( isReadAccessBoard(board) )
             {
                 if( containsNewMessage )
                 {
@@ -119,23 +122,9 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         return this;
     }
 
-    protected boolean isSpammed(String boardname)
+    protected boolean isPublicBoard(FrostBoardObject board)
     {
-        //that should be the name
-        String nodeText = mixed.makeFilename(boardname);
-        if( !frame1.boardStats.containsKey(nodeText) )
-        {
-            return false;
-        }
-        else
-        {
-            return((BoardStat)frame1.boardStats.get(nodeText)).spammed();
-        }
-    }
-
-    protected boolean isPublicBoard(String boardname)
-    {
-        String nodeText = mixed.makeFilename(boardname);
+        String nodeText = board.getBoardFilename();
         String boardKeyFileName = new StringBuffer().append(frame1.keypool).append(nodeText).append(".key").toString();
         if( !(new File(boardKeyFileName).exists()) )
             return true;
@@ -145,9 +134,9 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
             return false;
     }
 
-    protected boolean isWriteAccessBoard(String boardname)
+    protected boolean isWriteAccessBoard(FrostBoardObject board)
     {
-        String nodeText = mixed.makeFilename(boardname);
+        String nodeText = board.getBoardFilename();
         String boardKeyFileName = new StringBuffer().append(frame1.keypool).append(nodeText).append(".key").toString();
         if( SettingsFun.getValue(boardKeyFileName, "state").equals("writeAccess") )
             return true;
@@ -155,9 +144,9 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
             return false;
     }
 
-    protected boolean isReadAccessBoard(String boardname)
+    protected boolean isReadAccessBoard(FrostBoardObject board)
     {
-        String nodeText = mixed.makeFilename(boardname);
+        String nodeText = board.getBoardFilename();
         String boardKeyFileName = new StringBuffer().append(frame1.keypool).append(nodeText).append(".key").toString();
         if( SettingsFun.getValue(boardKeyFileName, "state").equals("readAccess") )
             return true;

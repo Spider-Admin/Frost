@@ -293,6 +293,8 @@ public class SettingsClass
             {"allowEvilBert", "false"},
             {"altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f"},
             {"automaticUpdate", "true"},
+            {"automaticUpdate.concurrentBoardUpdates", "5"}, // no. of concurrent updating boards in auto update
+            {"automaticUpdate.boardsMinimumUpdateInterval", "5"}, // time in min to wait between start of updates for 1 board
             {"doBoardBackoff","false"},
             {"spamTreshold","5"},
             {"sampleInterval","5"},

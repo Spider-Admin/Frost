@@ -36,6 +36,7 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 import javax.swing.border.*;
 import frost.gui.model.*;
+import frost.gui.objects.*;
 import frost.*;
 
 public class BoardInfoFrame extends JFrame
@@ -261,7 +262,6 @@ public class BoardInfoFrame extends JFrame
 
     private void updateButton_actionPerformed(ActionEvent e)
     {
-        Object[] row = new Object[5];
         int messageCount = 0;
         int fileCount = 0;
         int boardCount = 0;
@@ -269,28 +269,24 @@ public class BoardInfoFrame extends JFrame
         TableFun.removeAllRows(boardTable);
         for( int i = 0; i < boards.size(); i++ )
         {
-            boardCount ++;
-            String boardName = mixed.makeFilename((String)boards.elementAt(i));
-            row[0] = new PlainOrBoldString(boardName, false);
-            row[1] = getState(boardName);
+            FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
+            String boardName = board.toString();
 
-            fillInBoardCounts(boardName, row);
-            //int mc = allMessageCount(boardName);
+            BoardInfoTableMember newRow = new BoardInfoTableMember(board, getState(board) );
+            fillInBoardCounts(board, newRow);
 
-            messageCount += ((Integer)row[2]).intValue();
-            //row[2] = new Integer( mc );
-            //row[3] = new Integer(newMessageCount(boardName));
-            //int fc = allFileCount(boardName);
-            fileCount += ((Integer)row[4]).intValue();
-            //row[4] = new Integer(fc);
-            if( parent.isUpdating(boardName) == true )
+            // count statistics
+            messageCount += newRow.getAllMessageCount().intValue();
+            fileCount += newRow.getFilesCount().intValue();
+            boardCount++;
+
+            if( parent.isUpdating(board) == true )
             {
                 // this board is updating right now
-                PlainOrBoldString pobStr = (PlainOrBoldString)row[0];
-                pobStr.setBold(true);
-
+                newRow.setUpdating(true);
             }
-            boardTableModel.addRow(row);
+
+            boardTableModel.addRow(newRow);
         }
         summaryLabel.setText(LangRes.getString("Boards: ") +
                              boardCount +
@@ -322,20 +318,20 @@ public class BoardInfoFrame extends JFrame
                 if( rowIx >= boardTableModel.getRowCount() )
                     continue; // paranoia
 
-                PlainOrBoldString selectedBoard = (PlainOrBoldString)boardTableModel.getValueAt(rowIx, 0);
+                BoardInfoTableMember row = (BoardInfoTableMember)((BoardInfoTableModel)boardTableModel).getRow(rowIx);
 
                 // check if board is already in list of updating boards
-                if( parent.isUpdating( selectedBoard.toString() ) == true )
+                if( parent.isUpdating( row.getBoard() ) == true )
                 {
                     // paranoia: update not needed, but ensure that this updated board is drawn in bold
-                    selectedBoard.setBold(true);
+                    row.setUpdating(true);
                     boardTableModel.fireTableCellUpdated(rowIx, 0);
                 }
-                if( selectedBoard.isBold() == false && // is already updating?
-                    parent.doUpdate(selectedBoard.toString()) == true ) // is update allowed for this board?
+                if( row.isUpdating() == false && // is already updating?
+                    parent.doUpdate(row.getBoard()) == true ) // is update allowed for this board?
                 {
-                    parent.updateBoard(selectedBoard.toString());
-                    selectedBoard.setBold(true);
+                    parent.updateBoard(row.getBoard());
+                    row.setUpdating(true);
                     boardTableModel.fireTableCellUpdated(rowIx, 0);
                 }
             }
@@ -389,12 +385,11 @@ public class BoardInfoFrame extends JFrame
         {
             super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
 
-            if( value instanceof PlainOrBoldString )
+            BoardInfoTableMember tblrow = (BoardInfoTableMember)((BoardInfoTableModel)table.getModel()).getRow(row);
+
+            if( tblrow.isUpdating() )
             {
-                if( ((PlainOrBoldString)value).isBold() )
-                {
-                    setFont( boldFont );
-                }
+                setFont( boldFont );
             }
             return this;
         }
@@ -405,15 +400,14 @@ public class BoardInfoFrame extends JFrame
      * @param board name of the board
      * @return Integer value
      */
-    public Object[] fillInBoardCounts(String board, Object[] row)
+    public BoardInfoTableMember fillInBoardCounts(FrostBoardObject board, BoardInfoTableMember row)
     {
-        board = board.toLowerCase();
         int countNewMessages = 0;
         int countAllMessages = 0;
         int countFiles = 0;
 
         String date = DateFun.getDate();
-        File boardDir = new File(frame1.keypool + board);
+        File boardDir = new File(frame1.keypool + board.getBoardFilename());
 
         if( boardDir.isDirectory() )
         {
@@ -447,9 +441,9 @@ public class BoardInfoFrame extends JFrame
             }
         }
         countFiles /= 4;
-        row[2] = new Integer(countAllMessages);
-        row[3] = new Integer(countNewMessages);
-        row[4] = new Integer(countFiles);
+        row.setAllMessageCount(countAllMessages);
+        row.setNewMessageCount(countNewMessages);
+        row.setFilesCount(countFiles);
 
         return row;
     }
@@ -459,10 +453,9 @@ public class BoardInfoFrame extends JFrame
      * @param board name of the board
      * @return String with state value of the board
      */
-    public String getState(String board)
+    public String getState(FrostBoardObject board)
     {
-        board = board.toLowerCase();
-        String val = new StringBuffer().append(frame1.keypool).append(board).append(".key").toString();
+        String val = new StringBuffer().append(frame1.keypool).append(board.getBoardFilename()).append(".key").toString();
         String state = SettingsFun.getValue(val, "state");
         if( state.length()==0 )
             return "publicBoard";
@@ -494,5 +487,76 @@ public class BoardInfoFrame extends JFrame
             System.out.println("getLineCount() - Read Error: " + file);
         }
         return count;
+    }
+
+    class BoardInfoTableMember implements TableMember
+    {
+        FrostBoardObject board;
+        String state;
+        Integer allmsg;
+        Integer newmsg;
+        Integer files;
+        boolean isUpdating = false;
+
+        public BoardInfoTableMember(FrostBoardObject board, String state)
+        {
+            this.board = board;
+            this.state = state;
+            this.allmsg = null;
+            this.newmsg = null;
+            this.files = null;
+        }
+
+        public Object getValueAt(int column)
+        {
+            switch( column )
+            {
+                case 0: return board.toString();
+                case 1: return state;
+                case 2: return allmsg;
+                case 3: return newmsg;
+                case 4: return files;
+            }
+            return "*ERR*";
+        }
+        public int compareTo( TableMember anOther, int tableColumIndex )
+        {
+            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
+            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+            return c1.compareTo( c2 );
+        }
+
+        public FrostBoardObject getBoard()
+        {
+            return board;
+        }
+        public boolean isUpdating()
+        {
+            return isUpdating;
+        }
+        public void setUpdating( boolean val )
+        {
+            isUpdating = val;
+        }
+        public Integer getFilesCount()
+        {
+            return files;
+        }
+        public void setFilesCount(int i)
+        {
+            files = new Integer(i);
+        }
+        public Integer getAllMessageCount()
+        {
+            return allmsg;
+        }
+        public void setAllMessageCount(int i)
+        {
+            allmsg = new Integer(i);
+        }
+        public void setNewMessageCount(int i)
+        {
+            newmsg = new Integer(i);
+        }
     }
 }

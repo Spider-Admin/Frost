@@ -25,6 +25,7 @@ import javax.swing.table.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.gui.objects.*;
 
 public class requestThread extends Thread {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
@@ -36,7 +37,7 @@ public class requestThread extends Thread {
     private String htl;
     private JTable downloadTable;
     private JTable uploadTable;
-    private String board;
+    private FrostBoardObject board;
 
     public void run() {
 
@@ -97,7 +98,7 @@ public class requestThread extends Thread {
             newKey.setSize(newFile.length());
             newKey.setDate(date);
             newKey.setExchange(false);
-            Index.add(newKey, new File(frame1.keypool + board));
+            Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
 
             // Add this file to the upload table (so that it can be requested again)
             File file = new File(System.getProperty("user.dir") +
@@ -117,7 +118,7 @@ public class requestThread extends Thread {
         }
     }
     if (do_request)
-        request(key.trim(), board);
+        request(key.trim(), board.getBoardFilename()); // TODO: pass FrostBoardObject
     synchronized(frame1.threadCountLock) {
     frame1.activeDownloadThreads--;
     }
@@ -277,7 +278,7 @@ public class requestThread extends Thread {
         killMe.renameTo(newMessage);
 
         //frame1.updateTof = true;
-        TOF.addNewMessageToTable( newMessage, board );
+        TOF.addNewMessageToTable( newMessage, this.board );
 
         System.out.println("*********************************************************************");
         System.out.println("Request successfuly uploaded to the '" + board + "' board.");
@@ -299,14 +300,14 @@ public class requestThread extends Thread {
              JTable uploadTable,
              String htl,
              String key,
-             String board) {
+             FrostBoardObject board) {
     this.filename = filename;
     this.size = size;
     this.downloadTable = downloadTable;
     this.uploadTable = uploadTable;
     this.htl = htl;
     this.key = key;
-    this.board = board.toLowerCase();
+    this.board = board;
     }
 }
 

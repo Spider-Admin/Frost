@@ -22,6 +22,7 @@ import java.util.*;
 import java.io.*;
 
 import frost.*;
+import frost.gui.objects.*;
 
 public class UpdateIdThread extends Thread {
     private static boolean DEBUG = true;
@@ -36,7 +37,7 @@ public class UpdateIdThread extends Thread {
     private String requestHtl;
     private String insertHtl;
     private String keypool;
-    private String board;
+    private FrostBoardObject board;
     private String publicKey;
     private String privateKey;
     private String requestKey;
@@ -49,10 +50,10 @@ public class UpdateIdThread extends Thread {
      * @return true if index file was created, else false.
      */
     private boolean makeIndexFile() {
-    if (DEBUG) System.out.println("UpdateIdThread.makeIndexFile for " + board);
+    if (DEBUG) System.out.println("UpdateIdThread.makeIndexFile for " + board.toString());
 
     // Calculate the keys to be uploaded
-    keyCount = Index.getUploadKeys(board);
+    keyCount = Index.getUploadKeys(board.getBoardFilename());
 
     // Adjust maxAge
     adjustMaxAge(keyCount);
@@ -64,7 +65,7 @@ public class UpdateIdThread extends Thread {
     }
 
     private void uploadIndexFile(int i) {
-    File indexFile = new File(keypool + board + "_upload.txt");
+    File indexFile = new File(keypool + board.getBoardFilename() + "_upload.txt");
     boolean success = false;
     int tries = 0;
     String[] result = {"Error", "Error"};
@@ -76,7 +77,7 @@ public class UpdateIdThread extends Thread {
         while (!success && tries <= maxFailures) {
         tries++;
         result = FcpInsert.putFile(insertKey + i + ".idx.zip",
-                       keypool + board + "_upload.txt",
+                       keypool + board.getBoardFilename() + "_upload.txt",
                        insertHtl,
                        true,
                        true);
@@ -124,7 +125,7 @@ public class UpdateIdThread extends Thread {
     int failures = 0;
 
     while (failures < maxFailures) {
-        File target = new File(keypool + date + "-" + board + "-" + index + ".idx");
+        File target = new File(keypool + date + "-" + board.getBoardFilename() + "-" + index + ".idx");
         if (DEBUG) System.out.println("Requesting index " + index);
 
         // First look if this keyfile has already been downloaded
@@ -160,7 +161,7 @@ public class UpdateIdThread extends Thread {
             // Add it to the index //TODO:unzip
             String unzipped = FileAccess.readZipFile(target);
             FileAccess.writeFile(unzipped,target);
-            Index.add(target, new File(keypool + board));
+            Index.add(target, new File(keypool + board.getBoardFilename()));
 
 
             index++;
@@ -185,48 +186,52 @@ public class UpdateIdThread extends Thread {
     if (makeIndexFile()) {
         if(!frame1.generateCHK ||
            keyCount >= minKeyCount) {
-        if (DEBUG) System.out.println("UpdateIdThread (" + board + "): UploadFiles = " + keyCount);
+        if (DEBUG) System.out.println("UpdateIdThread (" + board.toString() + "): UploadFiles = " + keyCount);
         uploadIndexFile(index);
         }
     }
     else {
-        if (DEBUG) System.out.println("No keys to upload, stopping UpdateIdThread for " + board + ".");
+        if (DEBUG) System.out.println("No keys to upload, stopping UpdateIdThread for " + board.toString() + ".");
     }
     }
 
     /**Constructor*/
-    public UpdateIdThread(String board) {
-    this.board = board.toLowerCase();
-    date = DateFun.getExtendedDate();
-    requestHtl = frame1.frostSettings.getValue("keyDownloadHtl");
-    insertHtl = frame1.frostSettings.getValue("keyUploadHtl");
-    keypool = frame1.keypool;
-    maxKeys = frame1.frostSettings.getIntValue("maxKeys");
-    publicKey = SettingsFun.getValue(keypool + board + ".key", "publicKey");
-    privateKey = SettingsFun.getValue(keypool + board + ".key", "privateKey");
-    boardState = SettingsFun.getValue(keypool + board + ".key", "state");
+    public UpdateIdThread(FrostBoardObject board)
+    {
+        this.board = board;
+        date = DateFun.getExtendedDate();
+        requestHtl = frame1.frostSettings.getValue("keyDownloadHtl");
+        insertHtl = frame1.frostSettings.getValue("keyUploadHtl");
+        keypool = frame1.keypool;
+        maxKeys = frame1.frostSettings.getIntValue("maxKeys");
+        publicKey = SettingsFun.getValue(keypool + board.getBoardFilename() + ".key", "publicKey");
+        privateKey = SettingsFun.getValue(keypool + board.getBoardFilename() + ".key", "privateKey");
+        boardState = SettingsFun.getValue(keypool + board.getBoardFilename() + ".key", "state");
 
-    if (publicKey.startsWith("SSK@") && !boardState.equals("publicBoard")) {
-        requestKey = new StringBuffer().append(publicKey).append("/").append(date).append("/").toString();
-        requestKeyWorkaround = null;
-    }
-    else {
-        requestKey = new StringBuffer().append("KSK@frost/index/")
-                                        .append(board)
-                                        .append("/")
-                                        .append(date)
-                                        .append("/").toString();
-        requestKeyWorkaround = new StringBuffer().append("KSK@sextmeage/")
-                                        .append(board)
-                                        .append("/")
-                                        .append(date)
-                                        .append("/").toString();
-     }
+        if( publicKey.startsWith("SSK@") && !boardState.equals("publicBoard") )
+        {
+            requestKey = new StringBuffer().append(publicKey).append("/").append(date).append("/").toString();
+            requestKeyWorkaround = null;
+        }
+        else
+        {
+            requestKey = new StringBuffer().append("KSK@frost/index/")
+                         .append(board.getBoardFilename())
+                         .append("/")
+                         .append(date)
+                         .append("/").toString();
+            requestKeyWorkaround = new StringBuffer().append("KSK@sextmeage/")
+                                   .append(board.getBoardFilename())
+                                   .append("/")
+                                   .append(date)
+                                   .append("/").toString();
+        }
 
-    if (privateKey.startsWith("SSK@") && !boardState.equals("publicBoard"))
-        insertKey = new StringBuffer().append(privateKey).append("/").append(date).append("/").toString();
-    else
-        insertKey = new StringBuffer().append("KSK@frost/index/").append(board).append("/").append(date).append("/").toString();
+        if( privateKey.startsWith("SSK@") && !boardState.equals("publicBoard") )
+            insertKey = new StringBuffer().append(privateKey).append("/").append(date).append("/").toString();
+        else
+            insertKey = new StringBuffer().append("KSK@frost/index/").append(board.getBoardFilename())
+                        .append("/").append(date).append("/").toString();
     }
 }
 

@@ -41,7 +41,6 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
     final public static DataFlavor NODE_FLAVOR = new DataFlavor(TofTree.class, "Tof Tree Node");
     static DataFlavor flavors[] = { NODE_FLAVOR };
 
-    protected DefaultMutableTreeNode selectedNode = null;
     protected DefaultMutableTreeNode dragNode = null;
     private DragSource dragSource = null;
     private DragSourceContext dsContext = null;
@@ -64,16 +63,6 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
         dropTarget = new DropTarget(this, this);
     }
 
-    public DefaultMutableTreeNode getSelectedNode()
-    {
-        return selectedNode;
-    }
-
-    public void setSelectedTof(DefaultMutableTreeNode node)
-    {
-        selectedNode=node;
-    }
-
     // DragGestureListener interface method
     public void dragGestureRecognized(DragGestureEvent e)
     {
@@ -93,7 +82,7 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
                     return;
                 }
             }
-            dragNode = getSelectedNode();
+            dragNode = (FrostBoardObject)getLastSelectedPathComponent();
             if( dragNode != null && !dragNode.isRoot() )
             {
                 Transferable trans = (Transferable) new StringSelection((String)dragNode.getUserObject());
@@ -223,45 +212,6 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
     public void dropActionChanged(DropTargetDragEvent e) {}
 
 
-    /*******************************
-     * Now the methods of TreeFun wich really belong to this TofTree
-     *******************************/
-
-    /**
-     * Save TOF tree's content to a file
-     * @param node Save this nodes content
-     * @param file The destination file
-     */
-    public void saveTree(File file)
-    {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)this.getModel().getRoot();
-        String text = recTreeRead(node, "");
-        FileAccess.writeFile(text, file);
-    }
-
-    /**
-     * Generates a textfile that describes a tree
-     * @param node This node will be described
-     * @param text If not an empty String, recTreeRead will append this tree's description
-     * @return The description of that tree
-     */
-    public String recTreeRead(DefaultMutableTreeNode node, String text)
-    {
-
-        for( int i = 0; i < node.getChildCount(); i ++ )
-        {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode)node.getChildAt(i);
-            if( child.isLeaf() )
-                text += "=" + (String)child.getUserObject() + "\r\n";
-            else
-            {
-                text += ">" + (String)child.getUserObject() + "\r\n";
-                text = recTreeRead(child, text);
-            }
-        }
-        return text + "<\r\n";
-    }
-
     public String cutSelectedNode()
     {
         String result = copySelectedNode();
@@ -304,6 +254,107 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
         }
     }
 
+    public boolean pasteFromClipboard(String clipboard)
+    {
+        FrostBoardObject node = (FrostBoardObject)getLastSelectedPathComponent();
+        if( node != null && !clipboard.equals("") )
+        {
+            FrostBoardObject actualNode = node;
+
+            Vector lines = new Vector();
+            clipboard = clipboard.trim();
+            while( clipboard.indexOf("\r\n") != -1 )
+            {
+                lines.add(clipboard.substring(0, clipboard.indexOf("\r\n")));
+                clipboard = clipboard.substring(clipboard.indexOf("\r\n") + 2, clipboard.length());
+            }
+            for( int i = 0; i < lines.size(); i++ )
+            {
+                String line = ((String)lines.elementAt(i)).trim();
+                String name = line.substring(1, line.length());
+
+                if( line.startsWith("=") )
+                {
+                    actualNode.add(new FrostBoardObject(name));
+                    int insertedIndex[] = { actualNode.getChildCount()-1 }; // last in list is the newly added
+                    ((DefaultTreeModel)getModel()).nodesWereInserted( actualNode, insertedIndex );
+                }
+                else if( line.startsWith(">") )
+                {
+                    FrostBoardObject newNode = new FrostBoardObject(name, true);
+                    actualNode.add(newNode);
+                    int insertedIndex[] = { actualNode.getChildCount()-1 }; // last in list is the newly added
+                    ((DefaultTreeModel)getModel()).nodesWereInserted( actualNode, insertedIndex );
+
+                    actualNode = newNode;
+                }
+                else if( line.startsWith("<") )
+                {
+                    actualNode = (FrostBoardObject)actualNode.getParent();
+                }
+            }
+            return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns Vector containing all leafs of a tree.
+     * @return Vector containing DefaultMutableTreeNodes
+     */
+    public Vector getAllBoards()
+    {
+        FrostBoardObject node = (FrostBoardObject)this.getModel().getRoot();
+        Vector boards = new Vector();
+        Enumeration e = node.depthFirstEnumeration();
+        while( e.hasMoreElements() )
+        {
+            FrostBoardObject child = (FrostBoardObject)e.nextElement();
+            if( child.isFolder() == false )
+            {
+                boards.add( child );
+            }
+        }
+        return boards;
+    }
+
+
+
+    /**
+     * Save TOF tree's content to a file
+     * @param node Save this nodes content
+     * @param file The destination file
+     */
+    public void saveTree(File file)
+    {
+        DefaultMutableTreeNode node = (DefaultMutableTreeNode)this.getModel().getRoot();
+        String text = recTreeRead(node, "");
+        FileAccess.writeFile(text, file);
+    }
+
+    /**
+     * Generates a textfile that describes a tree
+     * @param node This node will be described
+     * @param text If not an empty String, recTreeRead will append this tree's description
+     * @return The description of that tree
+     */
+    public String recTreeRead(DefaultMutableTreeNode node, String text)
+    {
+
+        for( int i = 0; i < node.getChildCount(); i ++ )
+        {
+            DefaultMutableTreeNode child = (DefaultMutableTreeNode)node.getChildAt(i);
+            if( child.isLeaf() )
+                text += "=" + (String)child.toString() + "\r\n";
+            else
+            {
+                text += ">" + (String)child.toString() + "\r\n";
+                text = recTreeRead(child, text);
+            }
+        }
+        return text + "<\r\n";
+    }
+
     /**
      * Loads a tree description file
      * @param node The content of the file will be added to this node
@@ -311,9 +362,9 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
      */
     public void loadTree(File file)
     {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)this.getModel().getRoot();
+        FrostBoardObject node = (FrostBoardObject)this.getModel().getRoot();
         Vector lines = FileAccess.readLines(file);
-        DefaultMutableTreeNode actualNode = node;
+        FrostBoardObject actualNode = node;
 
         for( int i = 0; i < lines.size(); i++ )
         {
@@ -322,47 +373,21 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
                 continue;
             String name = line.substring(1, line.length());
 
-            if( line.startsWith("=") )
-                actualNode.add(new DefaultMutableTreeNode(name));
-            if( line.startsWith(">") )
+            if( line.startsWith("=") ) // this is a leaf
             {
-                DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(name);
+                actualNode.add(new FrostBoardObject(name));
+            }
+            else if( line.startsWith(">") ) // this is a folder
+            {
+                FrostBoardObject newNode = new FrostBoardObject(name, true);
                 actualNode.add(newNode);
                 actualNode = newNode;
             }
-            if( line.startsWith("<") )
+            else if( line.startsWith("<") ) // end of a folder + its childs
             {
-                actualNode = (DefaultMutableTreeNode)actualNode.getParent();
+                actualNode = (FrostBoardObject)actualNode.getParent();
             }
         }
-    }
-
-    /**
-     * Returns Vector containing all leafs of a tree. It additionally adds
-     * @return Vector containing DefaultMutableTreeNodes
-     */
-    public Vector getAllBoards()
-    {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)this.getModel().getRoot();
-        Vector boards = new Vector();
-        Enumeration e = node.depthFirstEnumeration();
-        while( e.hasMoreElements() )
-        {
-            DefaultMutableTreeNode child = (DefaultMutableTreeNode)e.nextElement();
-            if( child.isLeaf() )
-            {
-                boards.add( mixed.makeFilename((String)child.getUserObject()) );
-            }
-        }
-        /*    for (int i = 0; i < node.getChildCount(); i ++) {
-                DefaultMutableTreeNode child = (DefaultMutableTreeNode)node.getChildAt(i);
-                if (child.isLeaf())
-                boards.add(mixed.makeFilename((String)child.getUserObject()));
-                else {
-                getAllLeafs(child, boards);
-                }
-            }*/
-        return boards;
     }
 
     /**

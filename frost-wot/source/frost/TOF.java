@@ -86,7 +86,7 @@ public class TOF
                 if( newMessage == true )
                 {
                     TofTree tree = frame1.getInstance().getTofTree();
-                    String board = tree.getLastSelectedPathComponent().toString();
+                    FrostBoardObject board = (FrostBoardObject)tree.getLastSelectedPathComponent();
                     frame1.getInstance().updateMessageCountLabels(true, board);
                     frame1.getInstance().updateTofTree();
                 }
@@ -98,9 +98,8 @@ public class TOF
     }
 
     // called by non-swing thread
-    public static void addNewMessageToTable(File newMsgFile, String board)
+    public static void addNewMessageToTable(File newMsgFile, final FrostBoardObject board)
     {
-        final String targetBoard = board;
         JTable table = frame1.getInstance().getMessageTable();
         final DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 
@@ -116,16 +115,16 @@ public class TOF
                 messages.put( message.getIndex() + sMessage[4], message);
 
                 Hashtable htable = frame1.getInstance().getBoardsThatContainNewMsg();
-                if( htable.get(targetBoard) == null )
+                if( htable.get(board) == null )
                 {
-                    htable.put( targetBoard, targetBoard );
+                    htable.put( board, board );
                 }
                 SwingUtilities.invokeLater( new Runnable() {
                         public void run()
                         {
                             // check if tof table shows this board
                             frame1.getInstance().updateTofTree();
-                            if( frame1.getInstance().getLastUsedBoard().equals( targetBoard ) )
+                            if( frame1.getInstance().getActualNode().toString().equals( board.toString() ) )
                             {
                                 tableModel.addRow(sMessage);
                                 frame1.getInstance().updateMessageCountLabels();
@@ -146,7 +145,7 @@ public class TOF
      * @param table The tofTable.
      * @return Vector containing all MessageObjects that are displayed in the table.
      */
-    public static void updateTofTable(String board, String keypool, int daysToRead)
+    public static void updateTofTable(FrostBoardObject board, String keypool, int daysToRead)
     {
         // change to not block the swing thread
         JTable table = frame1.getInstance().getMessageTable();
@@ -173,7 +172,7 @@ public class TOF
 
     static class UpdateTofFilesThread extends Thread
     {
-        String targetBoard;
+        FrostBoardObject board;
         String keypool;
         int daysToRead;
         JTable table;
@@ -181,9 +180,9 @@ public class TOF
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
 
-        public UpdateTofFilesThread(String board, String keypool, int daysToRead, JTable table)
+        public UpdateTofFilesThread(FrostBoardObject board, String keypool, int daysToRead, JTable table)
         {
-            this.targetBoard = board;
+            this.board = board;
             this.keypool = keypool;
             this.daysToRead = daysToRead;
             this.table = table;
@@ -201,7 +200,7 @@ public class TOF
 
         public String toString()
         {
-            return targetBoard;
+            return board.toString();
         }
 
         public void run()
@@ -229,12 +228,12 @@ public class TOF
             messages = new Hashtable();
 
             // Clear tofTable
-            final String innerTargetBoard = targetBoard;
+            final FrostBoardObject innerTargetBoard = board;
             SwingUtilities.invokeLater( new Runnable() {
                     public void run()
                     {
                         // check if tof table shows this board
-                        if( frame1.getInstance().getLastUsedBoard().equals( innerTargetBoard ) )
+                        if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
                         {
                             TableFun.removeAllRows(table);
                             frame1.getInstance().updateMessageCountLabels();
@@ -256,7 +255,7 @@ public class TOF
             firstDate.set(Calendar.DATE, 11);
             int msgcount=0;
             int counter = 0;
-            targetBoard = mixed.makeFilename(targetBoard);
+            String targetBoard = board.getBoardFilename();
             while( cal.after(firstDate) && counter < daysToRead )
             {
                 String date = DateFun.getDateOfCalendar(cal);
@@ -301,7 +300,7 @@ public class TOF
                                         public void run()
                                         {
                                             // check if tof table shows this board
-                                            if( frame1.getInstance().getLastUsedBoard().equals( innerTargetBoard ) )
+                                            if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
                                             {
                                                 tableModel.addRow(sMessage);
                                                 if(updateMessagesCountLabels)
@@ -335,7 +334,7 @@ public class TOF
                     public void run()
                     {
                         frame1.getInstance().updateTofTree();
-                        if( frame1.getInstance().getLastUsedBoard().equals( innerTargetBoard ) )
+                        if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
                         {
                             frame1.getInstance().updateMessageCountLabels();
                             frame1.getInstance().updateTofTree();
@@ -347,129 +346,76 @@ public class TOF
     }
 
     /**
-     * Clears the tofTable, reads in the messages to be displayed,
-     * does check validity for each message and adds the messages to
-     * table. Additionaly it returns a Vector with all MessageObjects
-     * @param board The selected board.
-     * @param keypool Frost keypool directory
-     * @param daysToRead Maximum age of the messages to be displayed
-     * @param table The tofTable.
-     * @return Vector containing all MessageObjects that are displayed in the table.
-     */
-/*    public static Vector updateAncasyTable(String selectedBoard, JList list, String keypool, int daysToRead, JTable table) {
-    System.out.println("updateAncasytable");
-    DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
-    DefaultListModel listModel = (DefaultListModel)list.getModel();
-    Vector result = new Vector();
-    String fileSeparator = System.getProperty("file.separator");
-
-    // Clear tofTable
-    TableFun.removeAllRows(table);
-
-    // Get actual date
-    GregorianCalendar cal = new GregorianCalendar();
-    cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-    String date = formatDate(cal);
-
-
-    // Read files
-    for (int i = 0; i < daysToRead; i++) {
-        for (int k = 0; k < listModel.size() + 1; k++) {
-        String board = "ancasy_outbox";
-        if (k < listModel.size())
-            board = "ancasy_" + mixed.makeFilename((String)listModel.elementAt(k));
-
-        System.out.println("Reading ancasy files for: " + board);
-        File loadDir = new File(keypool + board + fileSeparator + date);
-        System.out.println(loadDir);
-        if (loadDir.isDirectory()) {
-            File[] filePointers = loadDir.listFiles();
-            if (filePointers != null) {
-            for (int j = 0; j < filePointers.length; j++) {
-                System.out.println(filePointers[j]);
-                if ((filePointers[j].getName()).endsWith(".txt") &&
-                filePointers[j].length() > 0 &&
-                filePointers[j].length() < 32000 &&
-                filePointers[j].getName().startsWith(date)) {
-                VerifyableMessageObject message = new VerifyableMessageObject(filePointers[j]);
-                if (message.isValid() && !blocked(message) && message.getBoard().equals(selectedBoard)) {
-                    result.add(message);
-                    tableModel.addRow(message.getVRow());
-                }
-                }
-            }
-            }
-        }
-        }
-        cal.add(Calendar.DATE, -1);
-        date = formatDate(cal);
-    }
-
-    // Sort tofTable by date
-    //TableSorter.sortByColumn(table, 3, true);
-
-    return result;
-    }*/
-
-    /**
      * Returns true if the message should not be displayed
      * @param message The message object to check
      * @return true if message is blocked, else false
      */
-    public static boolean blocked(VerifyableMessageObject message) {
-    String header = (message.getFrom() + message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
-    int index = frame1.frostSettings.getValue("blockMessage").indexOf(";");
-    int pos = 0;
+    public static boolean blocked(VerifyableMessageObject message)
+    {
+        String header = (message.getFrom() + message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
+        int index = frame1.frostSettings.getValue("blockMessage").indexOf(";");
+        int pos = 0;
 
-    if (frame1.frostSettings.getBoolValue("signedOnly") && !message.isVerifyable()) return true;
-    if (frame1.frostSettings.getBoolValue("signedOnly") && frame1.frostSettings.getBoolValue("goodOnly") &&
-    (message.getStatus().indexOf("GOOD")==-1)) return true;
+        if( frame1.frostSettings.getBoolValue("signedOnly") &&
+            !message.isVerifyable() )
+            return true;
 
-    if (frame1.frostSettings.getBoolValue("blockMessageChecked")) {
-    while (index != -1) {
-        String block = (frame1.frostSettings.getValue("blockMessage").substring(pos, index)).trim();
-        if (header.indexOf(block) != -1 && block.length() > 0)
-        return true;
-        //      System.out.println("'" + block + "'");
-        pos = index + 1;
-        index = frame1.frostSettings.getValue("blockMessage").indexOf(";", pos);
-    }
-    if (!frame1.frostSettings.getValue("blockMessage").endsWith(";")) {
-        index =  frame1.frostSettings.getValue("blockMessage").lastIndexOf(";");
-        if (index == -1)
-        index = 0;
-        else
-        index++;
-        String block = (frame1.frostSettings.getValue("blockMessage").substring(index, frame1.frostSettings.getValue("blockMessage").length())).trim();
-        if (header.indexOf(block) != -1 && block.length() > 0)
-        return true;
-        //      System.out.println("'" + block + "'");
-    }
-    }
+        if( frame1.frostSettings.getBoolValue("signedOnly") &&
+            frame1.frostSettings.getBoolValue("goodOnly") &&
+            (message.getStatus().indexOf("GOOD")==-1) )
+            return true;
 
-    //same with body
-    if (frame1.frostSettings.getBoolValue("blockMessageBodyChecked")) {
-    while (index != -1) {
-        String block = (frame1.frostSettings.getValue("blockMessageBody").substring(pos, index)).trim();
-        if (message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0)
-        return true;
-        //      System.out.println("'" + block + "'");
-        pos = index + 1;
-        index = frame1.frostSettings.getValue("blockMessageBody").indexOf(";", pos);
-    }
-    if (!frame1.frostSettings.getValue("blockMessageBody").endsWith(";")) {
-        index =  frame1.frostSettings.getValue("blockMessageBody").lastIndexOf(";");
-        if (index == -1)
-        index = 0;
-        else
-        index++;
-        String block = (frame1.frostSettings.getValue("blockMessageBody").substring(index, frame1.frostSettings.getValue("blockMessageBody").length())).trim();
-        if (message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0)
-        return true;
-        //      System.out.println("'" + block + "'");
-    }
-    }
-    return false;
+        if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
+        {
+            while( index != -1 )
+            {
+                String block = (frame1.frostSettings.getValue("blockMessage").substring(pos, index)).trim();
+                if( header.indexOf(block) != -1 && block.length() > 0 )
+                    return true;
+                //      System.out.println("'" + block + "'");
+                pos = index + 1;
+                index = frame1.frostSettings.getValue("blockMessage").indexOf(";", pos);
+            }
+            if( !frame1.frostSettings.getValue("blockMessage").endsWith(";") )
+            {
+                index =  frame1.frostSettings.getValue("blockMessage").lastIndexOf(";");
+                if( index == -1 )
+                    index = 0;
+                else
+                    index++;
+                String block = (frame1.frostSettings.getValue("blockMessage").substring(index, frame1.frostSettings.getValue("blockMessage").length())).trim();
+                if( header.indexOf(block) != -1 && block.length() > 0 )
+                    return true;
+                //      System.out.println("'" + block + "'");
+            }
+        }
+
+        //same with body
+        if( frame1.frostSettings.getBoolValue("blockMessageBodyChecked") )
+        {
+            while( index != -1 )
+            {
+                String block = (frame1.frostSettings.getValue("blockMessageBody").substring(pos, index)).trim();
+                if( message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0 )
+                    return true;
+                //      System.out.println("'" + block + "'");
+                pos = index + 1;
+                index = frame1.frostSettings.getValue("blockMessageBody").indexOf(";", pos);
+            }
+            if( !frame1.frostSettings.getValue("blockMessageBody").endsWith(";") )
+            {
+                index =  frame1.frostSettings.getValue("blockMessageBody").lastIndexOf(";");
+                if( index == -1 )
+                    index = 0;
+                else
+                    index++;
+                String block = (frame1.frostSettings.getValue("blockMessageBody").substring(index, frame1.frostSettings.getValue("blockMessageBody").length())).trim();
+                if( message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0 )
+                    return true;
+                //      System.out.println("'" + block + "'");
+            }
+        }
+        return false;
     }
 
     public static void initialSearchNewMessages(JTree tree, int daysToRead)
