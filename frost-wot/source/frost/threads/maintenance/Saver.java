@@ -89,8 +89,14 @@ public class Saver extends Thread {
 						try {
 							StringBuffer buf = new StringBuffer();
 						Iterator i = Core.getMyBatches().keySet().iterator();
-						while (i.hasNext()) 
-							buf.append((String)i.next()).append("_");
+						while (i.hasNext()) {
+							String current = (String)i.next();
+							if (current.length()>0)
+								buf.append(current).append("_");
+							else
+								i.remove(); //make sure no empty batches are saved
+						}
+							
 						if (buf.length() > 0)
 							buf.deleteCharAt(buf.length()-1); //remove the _ at the end
 						File batches = new File("batches");
