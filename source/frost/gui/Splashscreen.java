@@ -37,6 +37,10 @@ import javax.swing.*;
  * 		 [..]
  * The suggested workaround was to create the nosplash.chk file to completely disable the splash screen, but it would
  * be nice to find out why the JProgressBar is causing that trouble.
+ * 
+ * Update: the suggested workaround didn't work. It threw another strage Swing exception later, when the main frame 
+ * was about to be shown, so I assupe it may be a problem with the gfx card drivers or a bug with the JVM itself 
+ * (probably the first).
  */
 public class Splashscreen extends JDialog {
 
