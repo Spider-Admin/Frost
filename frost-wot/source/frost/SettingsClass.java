@@ -440,6 +440,7 @@ public class SettingsClass
 	defaults.put("uploadBatchSize","100");
 	defaults.put("indexFileRedundancy","1");
         defaults.put("uploadingActivated", "true");
+        defaults.put("automaticIndexing","true");
 	defaults.put("signUploads","true");
 	defaults.put("helpFriends","true");
 	defaults.put("hideBadFiles","true");

@@ -198,6 +198,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
                                                   LangRes.getString("(Off)"));
 
     JCheckBox signUploads = new JCheckBox(LangRes.getString("Sign shared files"));
+    JCheckBox automaticIndexing = new JCheckBox(LangRes.getString("Automatic Indexing"));
     JCheckBox helpFriends = new JCheckBox(LangRes.getString("Help spread files from people marked GOOD"));
     JCheckBox hideBadFiles = new JCheckBox(LangRes.getString("Hide files from people marked BAD"));
     JCheckBox hideAnonFiles = new JCheckBox(LangRes.getString("Hide files from anonymous users"));
@@ -554,6 +555,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
                     setPanelEnabled( getUploadPanel(), (uploadDisableRequests.isSelected()==false) );
                 } });
             uploadPanel.add(uploadDisableRequests,constr);
+            constr.gridy++;
+            constr.gridx=0;
+            uploadPanel.add(automaticIndexing,constr);
             constr.gridy++;
             constr.gridx=0;
 	    uploadPanel.add(signUploads,constr);
@@ -1106,12 +1110,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 	_helpFriends = frostSettings.getBoolValue("helpFriends");
 	_hideBad = frostSettings.getBoolValue("hideBadFiles");
 	_hideAnon = frostSettings.getBoolValue("hideAnonFiles");
+	
 
         // now load
 	signUploads.setSelected(_signUploads);
 	helpFriends.setSelected(_helpFriends);
 	hideBadFiles.setSelected(_hideBad);
 	hideAnonFiles.setSelected(_hideAnon);
+	automaticIndexing.setSelected(frostSettings.getBoolValue("automaticIndexing"));
         downloadRemoveFinishedDownloads.setSelected(frostSettings.getBoolValue("removeFinishedDownloads"));
         allowEvilBertCheckBox.setSelected(frostSettings.getBoolValue("allowEvilBert"));
         miscAltEditCheckBox.setSelected(frostSettings.getBoolValue("useAltEdit"));
@@ -1281,6 +1287,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
         frostSettings.setValue("autoSaveInterval", miscAutoSaveInterval.getText() );
     	frostSettings.setValue("signUploads",signUploads.isSelected());
+    	frostSettings.setValue("automaticIndexing",automaticIndexing.isSelected());
     	frostSettings.setValue("helpFriends",helpFriends.isSelected());
     	frostSettings.setValue("hideBadFiles",hideBadFiles.isSelected());
     	frostSettings.setValue("hideAnonFiles",hideAnonFiles.isSelected());
