@@ -47,10 +47,9 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
-import javax.swing.plaf.basic.*;
-import javax.swing.plaf.*;
 import javax.swing.*;
-import java.awt.*;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.*;
 
 /**
  * @author    $Author$
@@ -80,6 +79,7 @@ public class SkinSplitPaneUI extends BasicSplitPaneUI {
    * Installs the UI defaults.
    */
   protected void installDefaults() {
+	super.installDefaults();
     if (divider == null) {
       divider = createDefaultDivider();
     }
