@@ -19,21 +19,44 @@ import frost.identities.Identity;
  */
 public class PersonAttachment extends Attachment {
 
-	Identity person;
+	private Identity identity;
+
+	/**
+	 * @param e
+	 * @throws SAXException
+	 */
+	public PersonAttachment(Element e) throws SAXException {
+		loadXMLElement(e);
+	}
+
+	/**
+	 * @param newIdentity
+	 */
+	public PersonAttachment(Identity newIdentity) {
+		identity = newIdentity;
+	}
+
+	/* 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(Object o) {
+		String myKey = identity.getKey();
+		String otherKey = ((PersonAttachment) o).getIdentity().getKey();
+		return myKey.compareTo(otherKey);
+	}
+
+	/**
+	 * @return
+	 */
+	public Identity getIdentity() {
+		return identity;
+	}
+	
 	/* (non-Javadoc)
 	 * @see frost.messages.Attachment#getType()
 	 */
 	public int getType() {
-		
 		return Attachment.PERSON;
-	}
-
-	/* (non-Javadoc)
-	 * @see frost.messages.Attachment#getMessage()
-	 */
-	public MessageObject getMessage() {
-		// TODO Auto-generated method stub
-		return null;
 	}
 
 	/* (non-Javadoc)
@@ -41,8 +64,8 @@ public class PersonAttachment extends Attachment {
 	 */
 	public Element getXMLElement(Document container) {
 		Element el = container.createElement("Attachment");
-		el.setAttribute("type","person");
-		el.appendChild(person.getSafeXMLElement(container));
+		el.setAttribute("type", "person");
+		el.appendChild(identity.getSafeXMLElement(container));
 		return el;
 	}
 
@@ -50,17 +73,9 @@ public class PersonAttachment extends Attachment {
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
-		Element _person = (Element)XMLTools.getChildElementsByTagName(e,"Identity").iterator().next();
-		person = new Identity(_person);
-
-	}
-	
-	public PersonAttachment(Identity i) {
-		person =i;
-	}
-	
-	public PersonAttachment(Element e) throws SAXException{
-		loadXMLElement(e);
+		Element _person =
+			(Element) XMLTools.getChildElementsByTagName(e, "Identity").iterator().next();
+		identity = new Identity(_person);
 	}
 
 }
