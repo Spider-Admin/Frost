@@ -97,19 +97,22 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
            config.getValue("keypool.dir"),
            frame1.getInstance().getUploadTable()
          );
-
+	UpdateIdThread uit = new UpdateIdThread(board);
+	uit.addBoardUpdateThreadListener( this );
         // register listener and this class as listener
         grt.addBoardUpdateThreadListener( this );
         if( listener != null )
         {
             grt.addBoardUpdateThreadListener( listener );
+	    uit.addBoardUpdateThreadListener( listener );
         }
 
         // store thread in threads list
         getVectorFromHashtable( runningDownloadThreads, board ).add(grt);
-
+	getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
         // start thread
         grt.start();
+	uit.start();
 
         return true;
     }

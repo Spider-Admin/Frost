@@ -24,7 +24,7 @@ import java.io.*;
 import frost.*;
 import frost.gui.objects.*;
 
-public class UpdateIdThread extends Thread {
+public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread {
     private static boolean DEBUG = true;
     private static int maxFailures = 3;
     private static int keyCount = 0;
@@ -45,6 +45,8 @@ public class UpdateIdThread extends Thread {
     private String insertKey;
     private String boardState;
 
+    
+    public int getThreadType(){return BoardUpdateThread.ID_THREAD;}
     /**
      * Generates a new index file containing keys to upload.
      * @return true if index file was created, else false.
@@ -198,6 +200,7 @@ public class UpdateIdThread extends Thread {
     /**Constructor*/
     public UpdateIdThread(FrostBoardObject board)
     {
+	super(board);    
         this.board = board;
         date = DateFun.getExtendedDate();
         requestHtl = frame1.frostSettings.getValue("keyDownloadHtl");

@@ -74,13 +74,13 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
         System.out.println(tofType + " Thread started for board "+board.toString());
 
-        UpdateIdThread uit=null;
-        if( flagNew )
+        /*UpdateIdThread uit=null;
+        if( flagNew && )
         {
             uit= new UpdateIdThread(board);
             uit.start();
             mixed.wait(5000);
-        }
+        }*/
 
         if( isInterrupted() )
         {
@@ -108,11 +108,11 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             downloadDate(cal);
 
             // maybe wait for update id thread to finish
-            if( uit != null )
+           /* if( uit != null )
             {
                 try { uit.join(); }
                 catch(InterruptedException ex) {}
-            }
+            }*/
         }
         else
         {
