@@ -269,6 +269,24 @@ public class FcpRequest
                     while( getActiveThreads(threads) >= maxThreads )
                     {
                         mixed.wait(5000);
+
+                        // Calculate number of successfull blocks
+                        successfullBlocks = 0;
+                        for( int k = 0; k < totalBlocks; k++ )
+                        {
+                            if( results[k] )
+                            {
+                                successfullBlocks++;
+                            }
+                        }
+
+                        // update gui table
+                        if( dlItem != null )
+                        {
+                            dlItem.setBlockProgress( (totalSuccessfulBlocks + successfullBlocks),
+                                                     totalRequiredBlocks, totalAvailableBlocks);
+                            ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
+                        }
                     }
 
                     // Calculate number of successfull blocks
