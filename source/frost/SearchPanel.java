@@ -36,7 +36,7 @@ public class SearchPanel extends JPanel {
 	 * 
 	 */
 	private class PopupMenuSearch
-		extends JPopupMenu
+		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener {
 	
 		JMenuItem cancelItem = new JMenuItem();

@@ -53,7 +53,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     JButton updateAllBoardsButton = new JButton();
     JButton Bclose = new JButton();
 
-    JPopupMenu popupMenu = new JPopupMenu();
+	JSkinnablePopupMenu popupMenu = new JSkinnablePopupMenu();
     JMenuItem MIupdate = new JMenuItem();
     JMenuItem MIupdateSelectedBoard = new JMenuItem();
     JMenuItem MIupdateAllBoards = new JMenuItem();

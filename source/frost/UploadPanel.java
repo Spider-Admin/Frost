@@ -23,7 +23,7 @@ public class UploadPanel extends JPanel {
 	/**
 	 *  
 	 */
-	private class PopupMenuUpload extends JPopupMenu implements ActionListener, LanguageListener {
+	private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener {
 
 		private JMenuItem cancelItem = new JMenuItem();
 		private JMenuItem copyChkKeyAndFilenameToClipboardItem = new JMenuItem();
