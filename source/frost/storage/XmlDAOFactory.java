@@ -8,6 +8,7 @@ import frost.SettingsClass;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.identities.*;
+import frost.messaging.*;
 
 /**
  * @author $author$
@@ -43,5 +44,12 @@ public class XmlDAOFactory extends DAOFactory {
 	 */
 	public DownloadModelDAO getDownloadModelDAO() {
 		return new DownloadModelXmlDAO(settings);
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.storage.DAOFactory#getMessageHashesDAO()
+	 */
+	public MessageHashesDAO getMessageHashesDAO() {
+		return new MessageHashesXmlDAO();
 	}
 }
