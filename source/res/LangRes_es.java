@@ -400,7 +400,13 @@ static final Object[][] contents = {
 	{"NewBoardDialog.details", "Por favor, introduce los detalles del nuevo foro:"},
 	{"NewBoardDialog.name","Nombre:"},
 	{"NewBoardDialog.description","Descripción (opcional):"},
-	{"NewBoardDialog.add","Añade foro"}
+	{"NewBoardDialog.add","Añade foro"},
+	
+	///
+	/// Misc (appear in several classes)
+	///
+	
+	{"Description","Descripción"}
 	
 	};
 }
