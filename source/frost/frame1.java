@@ -113,7 +113,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		notTrustButton.setToolTipText(LangRes.getString("Do not trust"));
 		checkTrustButton.setToolTipText(LangRes.getString("Set to CHECK"));
 		tofUpdateButton.setToolTipText(LangRes.getString("Update"));
-		uploadAddFilesButton.setToolTipText(LangRes.getString("Browse..."));
+		uploadAddFilesButton.setToolTipText(LangRes.getString("Browse")+"...");
 		downloadShowHealingInfo.setToolTipText(
 			LangRes.getString("Show healing information"));
 		searchButton.setToolTipText(LangRes.getString("Search"));
