@@ -296,7 +296,7 @@ public class requestThread extends Thread
         for (int i = 0; i < files.length; i++)
         {
             String content = (FileAccess.readFileRaw(files[i])).trim();
-            if (content.equals(key))
+            if (content.equals(SHA1))
             {
                 requested = true;
                 Core.getOut().println(
