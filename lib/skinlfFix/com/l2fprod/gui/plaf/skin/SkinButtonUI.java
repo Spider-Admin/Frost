@@ -211,11 +211,6 @@ public class SkinButtonUI extends BasicButtonUI {
       defaults_initialized = true;
     }
 
-    b.setBorderPainted(false);
-    b.setFocusPainted(true);
-    b.setOpaque(false);
-    b.setRolloverEnabled(true);
-
     skin.getButton().installSkin(b);
 
   }
@@ -228,9 +223,6 @@ public class SkinButtonUI extends BasicButtonUI {
   protected void uninstallDefaults(AbstractButton b) {
     super.uninstallDefaults(b);
     defaults_initialized = false;
-    b.setBorderPainted(true);
-    b.setFocusPainted(true);
-    b.setOpaque(true);
   }
 
   /**
