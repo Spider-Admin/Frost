@@ -110,7 +110,7 @@ public class TofTreeXmlIO
 	/**
 	 * Process a nodes childs recursively.
 	 */
-	public void loadProcessFolder(
+	private void loadProcessFolder(
 		Element boardFolder,
 		FrostBoardObject treeFolder,
 		JTree tree,
@@ -133,9 +133,10 @@ public class TofTreeXmlIO
 			if (isFolder == false) {
 				String publicKey = getPublicKeyFromFrostBoardTreeEntry(child);
 				String privateKey = getPrivateKeyFromFrostBoardTreeEntry(child);
+				String description = getDescriptionFromFrostBoardTreeEntry(child);
 
 				// now if the child is a board, add it
-				FrostBoardObject fbobj = new FrostBoardObject(nodename, publicKey, privateKey, "");
+				FrostBoardObject fbobj = new FrostBoardObject(nodename, publicKey, privateKey, description);
 				// look for <config/> element and maybe configure board
 				getBoardConfiguration(child, fbobj);
 				// maybe restore lastUpdateStartedMillis ( = board update progress)                
@@ -286,6 +287,26 @@ public class TofTreeXmlIO
             return null;
         return txtname.getData().trim();
     }
+	
+	/**
+	 * @param treeEntry
+	 * @return
+	 */
+	protected String getDescriptionFromFrostBoardTreeEntry(Element treeEntry) {
+		ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "description");
+		if (list.size() > 1) {
+			logger.severe(
+				"Error - boards.xml invalid: there should be a maximum of 1 <description> tag for each entry");
+			return null;
+		}
+		if (list.size() == 0) {
+			return null;
+		}
+		Text txtname = (Text) ((Node) list.get(0)).getFirstChild();
+		if (txtname == null)
+			return null;
+		return txtname.getData().trim();
+	}
 
     protected String getPrivateKeyFromFrostBoardTreeEntry(Element treeEntry)
     {
@@ -389,16 +410,24 @@ public class TofTreeXmlIO
             element = doc.createElement("publicKey");
             text = doc.createTextNode( board.getPublicKey() );
             element.appendChild( text );
+			rootBoardElement.appendChild( element );
         }
-        rootBoardElement.appendChild( element );
         // privkey
         if( board.getPrivateKey() != null )
         {
             element = doc.createElement("privateKey");
             text = doc.createTextNode( board.getPrivateKey() );
             element.appendChild( text );
+			rootBoardElement.appendChild( element );
         }
-        rootBoardElement.appendChild( element );
+		// description
+		 if( board.getDescription() != null )
+		 {
+			 element = doc.createElement("description");
+			 text = doc.createTextNode( board.getDescription() );
+			 element.appendChild( text );
+			rootBoardElement.appendChild( element );
+		 }
         // <config />
         if( board.isConfigured() )
         {
