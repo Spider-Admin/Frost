@@ -56,6 +56,405 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * 
 	 */
+	private class PopupMenuMessageTable extends JPopupMenu implements ActionListener, LanguageListener {
+		
+		JMenuItem markAllMessagesReadItem = new JMenuItem();
+		JMenuItem markMessageUnreadItem = new JMenuItem();
+		JMenuItem setGoodItem = new JMenuItem();
+		JMenuItem setBadItem = new JMenuItem();
+		JMenuItem setCheckItem = new JMenuItem();
+		JMenuItem cancelItem = new JMenuItem();
+
+		/**
+		 * 
+		 */
+		public PopupMenuMessageTable() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+			
+			markMessageUnreadItem.addActionListener(this);
+			markAllMessagesReadItem.addActionListener(this);	
+			setGoodItem.addActionListener(this);
+			setBadItem.addActionListener(this);
+			setCheckItem.addActionListener(this);			
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			markMessageUnreadItem.setText(languageResource.getString("Mark message unread"));
+			markAllMessagesReadItem.setText(languageResource.getString("Mark ALL messages read"));
+			setGoodItem.setText(languageResource.getString("help user (sets to GOOD)"));
+			setBadItem.setText(languageResource.getString("block user (sets to BAD)"));
+			setCheckItem.setText(languageResource.getString("set to neutral (CHECK)"));
+			cancelItem.setText(languageResource.getString("Cancel"));			
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == markMessageUnreadItem) {
+				markMessageUnread();
+			}
+			if (e.getSource() == markAllMessagesReadItem) {
+				markAllMessagesRead();
+			}
+			if (e.getSource() == setGoodItem) {
+				setGood();
+			}
+			if (e.getSource() == setBadItem) {
+				setBad();
+			}
+			if (e.getSource() == setCheckItem) {
+				setCheck();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void setCheck() {
+			setMessageTrust(null);			
+		}
+
+		/**
+		 * 
+		 */
+		private void setBad() {
+			setMessageTrust(new Boolean(false));		
+		}
+
+		/**
+		 * 
+		 */
+		private void setGood() {
+			setMessageTrust(new Boolean(true));			
+		}
+
+		/**
+		 * 
+		 */
+		private void markAllMessagesRead() {
+			TOF.setAllMessagesRead(getMessageTable(), getSelectedNode());
+		}
+
+		/**
+		 * 
+		 */
+		private void markMessageUnread() {
+			markSelectedMessageUnread();
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();			
+		}
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			if (!getSelectedNode().isFolder()) {
+				removeAll();
+
+				if (messageTable.getSelectedRow() > -1) {
+					add(markMessageUnreadItem);
+				}
+				add(markAllMessagesReadItem);
+				addSeparator();
+				add(setGoodItem);
+				add(setCheckItem);
+				add(setBadItem);
+				setGoodItem.setEnabled(false);
+				setCheckItem.setEnabled(false);
+				setBadItem.setEnabled(false);
+				if (messageTable.getSelectedRow() > -1) { //fscking html on all these..
+					if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.VERIFIED)
+						> -1) {
+						setCheckItem.setEnabled(true);
+						setBadItem.setEnabled(true);
+					} else if (
+						selectedMessage.getStatus().indexOf(VerifyableMessageObject.PENDING)
+							> -1) {
+						setGoodItem.setEnabled(true);
+						setBadItem.setEnabled(true);
+					} else if (
+						selectedMessage.getStatus().indexOf(VerifyableMessageObject.FAILED) > -1) {
+						setGoodItem.setEnabled(true);
+						setCheckItem.setEnabled(true);
+					} else
+						Core.getOut().println(
+							"invalid message state : " + selectedMessage.getStatus());
+				}
+				
+				addSeparator();
+				add(cancelItem);
+				// ATT: misuse of another menuitem displaying 'Cancel' ;)
+				super.show(invoker, x, y);
+			}
+		}
+
+	}
+	
+	private PopupMenuMessageTable popupMenuMessageTable = null;
+	
+	/**
+	 * 
+	 */
+	private class PopupMenuAttachmentBoard extends JPopupMenu implements ActionListener, LanguageListener {
+		/**
+		 * 
+		 */
+		private void saveBoard() {
+			downloadBoards();
+		}
+		/**
+		 * 
+		 */
+		private void saveBoards() {
+			downloadBoards();
+		}
+		JMenuItem cancelItem = new JMenuItem();
+		JMenuItem saveBoardItem = new JMenuItem();
+		JMenuItem saveBoardsItem = new JMenuItem();
+
+		/**
+		 * 
+		 */
+		public PopupMenuAttachmentBoard() {
+			super();
+			initialize();
+		}
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+			
+			saveBoardsItem.addActionListener(this);
+			saveBoardItem.addActionListener(this);
+		}
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			saveBoardsItem.setText(languageResource.getString("Add Board(s)"));
+			saveBoardItem.setText(languageResource.getString("Add selected board"));
+			cancelItem.setText(languageResource.getString("Cancel"));
+		}
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == saveBoardsItem) {
+				saveBoards();
+			}
+			if (e.getSource() == saveBoardItem) {
+				saveBoard();
+			}			
+		}
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();
+		}
+
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			removeAll();
+
+			if (boardTable.getSelectedRow() == -1) {
+				add(saveBoardsItem);
+			} else {
+				add(saveBoardItem);
+			}
+			addSeparator();
+			add(cancelItem);
+
+			super.show(invoker, x, y);
+		}
+
+	}
+	
+	private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
+	
+	/**
+	 * 
+	 */
+	private class PopupMenuAttachmentTable extends JPopupMenu implements ActionListener, LanguageListener {
+		/**
+		 * 
+		 */
+		private void saveAttachment() {
+			downloadAttachments();
+		}
+		/**
+		 * 
+		 */
+		private void saveAttachments() {
+			downloadAttachments();
+		}
+
+		JMenuItem cancelItem = new JMenuItem();
+		JMenuItem saveAttachmentItem = new JMenuItem();
+		JMenuItem saveAttachmentsItem = new JMenuItem();
+
+		/**
+		 * @throws java.awt.HeadlessException
+		 */
+		public PopupMenuAttachmentTable() throws HeadlessException {
+			super();
+			initialize();
+		}
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+			
+			saveAttachmentsItem.addActionListener(this);
+			saveAttachmentItem.addActionListener(this);
+		}
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			saveAttachmentsItem.setText(languageResource.getString("Download attachment(s)"));
+			saveAttachmentItem.setText(languageResource.getString("Download selected attachment"));
+			cancelItem.setText(languageResource.getString("Cancel"));
+		}
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == saveAttachmentsItem) {
+				saveAttachments();
+			}
+			if (e.getSource() == saveAttachmentItem) {
+				saveAttachment();
+			}			
+		}
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();
+		}
+
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			removeAll();
+
+			if (attachmentTable.getSelectedRow() == -1) {
+				add(saveAttachmentsItem);
+			} else {
+				add(saveAttachmentItem);
+			}
+			addSeparator();
+			add(cancelItem);
+
+			super.show(invoker, x, y);
+		}
+
+	}
+	
+	private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
+	
+	/**
+	 * 
+	 */
+	private class PopupMenuTofText extends JPopupMenu implements ActionListener, LanguageListener {
+
+		JMenuItem cancelItem = new JMenuItem();
+		JMenuItem saveMessageItem = new JMenuItem();
+
+		/**
+		 * 
+		 */
+		public PopupMenuTofText() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+			
+			saveMessageItem.addActionListener(this);
+			
+			add(saveMessageItem);
+			addSeparator();
+			add(cancelItem);
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			saveMessageItem.setText(languageResource.getString("Save message to disk"));
+			cancelItem.setText(languageResource.getString("Cancel"));
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == saveMessageItem) {
+				saveMessage();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void saveMessage() {
+			FileAccess.saveDialog(
+				getInstance(),
+				getTofTextAreaText(),
+				frostSettings.getValue("lastUsedDirectory"),
+				languageResource.getString("Save message to disk"));
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();			
+		}
+
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
+				super.show(invoker, x, y);
+			}
+		}
+
+	}
+	
+	private PopupMenuTofText popupMenuTofText = null;
+	
+	/**
+	 * 
+	 */
 	private class PopupMenuSearch extends JPopupMenu implements ActionListener, LanguageListener {
 		
 		JMenuItem cancelItem = new JMenuItem();
@@ -843,7 +1242,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 	private void translateMenuEntries() {
 		buildMenuBar();
-		buildPopupMenus();
 	}
 	private void translateTabbedPane() {
 		tabbedPane.setTitleAt(0, languageResource.getString("News"));
@@ -1018,23 +1416,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private JTextField downloadTextField = null;
 	private JTextField searchTextField = null;
 	
-	//    JCheckBox uploadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/up.gif")), true);
-	//    JCheckBox reducedBlockCheckCheckBox= new JCheckBox();
-
-	JMenuItem tofTextPopupSaveMessage = null;
-	JMenuItem tofTextPopupSaveAttachments = null;
-	JMenuItem tofTextPopupSaveAttachment = null;
-	JMenuItem tofTextPopupSaveBoards = null;
-	JMenuItem tofTextPopupSaveBoard = null;
-	JMenuItem tofTextPopupCancel = null;
-
-	JMenuItem msgTablePopupMarkMessageUnread = null;
-	JMenuItem msgTablePopupMarkAllMessagesRead = null;
-	JMenuItem msgTablePopupSetGood = null;
-	JMenuItem msgTablePopupSetBad = null;
-	JMenuItem msgTablePopupSetCheck = null;
-	JMenuItem msgTablePopupCancel = null;
-
 	public static Hashtable getMyBatches() {
 		return Core.getMyBatches();
 	}
@@ -1934,7 +2315,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH); // Statusbar
 
 		buildMenuBar();
-		buildPopupMenus();
 
 		//**********************************************************************************************
 		//**********************************************************************************************
@@ -2031,143 +2411,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 	} // ************** end-of: jbInit()
-
-	/**
-	 * Build ALL popup menus.
-	 * Should be called only once.
-	 */
-	private void buildPopupMenus() {
-		buildPopupMenuTofText();
-		buildPopupMenuMessageTable();
-	}
-
-	private void buildPopupMenuMessageTable() {
-		msgTablePopupMarkMessageUnread = new JMenuItem(languageResource.getString("Mark message unread"));
-		msgTablePopupMarkMessageUnread.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				markSelectedMessageUnread();
-			}
-		});
-		msgTablePopupMarkAllMessagesRead =
-			new JMenuItem(languageResource.getString("Mark ALL messages read"));
-		msgTablePopupMarkAllMessagesRead
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				TOF.setAllMessagesRead(getMessageTable(), getSelectedNode());
-			}
-		});
-		
-		msgTablePopupSetGood =
-			new JMenuItem(languageResource.getString("help user (sets to GOOD)"));
-		msgTablePopupSetGood.addActionListener( new ActionListener(){
-			public void actionPerformed(ActionEvent e) {
-				setMessageTrust(new Boolean(true));
-			}
-		});
-		
-		msgTablePopupSetBad =
-				new JMenuItem(languageResource.getString("block user (sets to BAD)"));
-			msgTablePopupSetBad.addActionListener( new ActionListener(){
-				public void actionPerformed(ActionEvent e) {
-					setMessageTrust(new Boolean(false));
-				}
-			});
-		
-		msgTablePopupSetCheck =
-			new JMenuItem(languageResource.getString("set to neutral (CHECK)"));
-				msgTablePopupSetCheck.addActionListener( new ActionListener(){
-				public void actionPerformed(ActionEvent e) {
-					setMessageTrust(null);
-				}
-			});
-		
-		msgTablePopupCancel = new JMenuItem(languageResource.getString("Cancel")); 
-	}
-	
-	private void setMessageTrust(Boolean what){
-		int row = messageTable.getSelectedRow();
-		if (row < 0 || selectedMessage==null)
-				return;
-				
-		String status = selectedMessage.getStatus();
-				
-		if(status.indexOf(VerifyableMessageObject.PENDING)>-1) {
-			Identity owner = Core.getNeutral().Get(selectedMessage.getFrom());
-			if (owner ==null) {
-				Core.getOut().println("message was CHECK but not found in Neutral list");
-				return;
-			}
-		}
-				
-		if(status.indexOf(VerifyableMessageObject.FAILED)>-1) {
-		Identity owner = Core.getEnemies().Get(selectedMessage.getFrom());
-		if (owner ==null) {
-				Core.getOut().println("message was BAD but not found in BAD list");
-				return;
-			}
-					
-		}
-				
-		if(status.indexOf(VerifyableMessageObject.VERIFIED)>-1) {
-			Identity owner = Core.getFriends().Get(selectedMessage.getFrom());
-			if (owner ==null) {
-				Core.getOut().println("message was GOOD but not found in GOOD list");
-				return;
-			}
-		}
-			
-		Truster truster = new Truster(Core.getInstance(),what,selectedMessage.getFrom());
-		truster.start();
-		return;
-
-	}
-
-	/**
-	 * Build the tof text popup menu.
-	 * Should be called only once.
-	 */
-	private void buildPopupMenuTofText() {
-		// create objects
-		tofTextPopupSaveMessage =
-			new JMenuItem(languageResource.getString("Save message to disk"));
-		tofTextPopupSaveAttachments =
-			new JMenuItem(languageResource.getString("Download attachment(s)"));
-		tofTextPopupSaveAttachment =
-			new JMenuItem(languageResource.getString("Download selected attachment"));
-		tofTextPopupSaveBoards = new JMenuItem(languageResource.getString("Add Board(s)"));
-		tofTextPopupSaveBoard = new JMenuItem(languageResource.getString("Add selected board"));
-		tofTextPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
-		// add action listener
-		tofTextPopupSaveMessage.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				FileAccess.saveDialog(
-					getInstance(),
-					getTofTextAreaText(),
-					frostSettings.getValue("lastUsedDirectory"),
-					languageResource.getString("Save message to disk"));
-			}
-		});
-		tofTextPopupSaveAttachments.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				downloadAttachments();
-			}
-		});
-		tofTextPopupSaveAttachment.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				downloadAttachments();
-			}
-		});
-		tofTextPopupSaveBoards.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				downloadBoards();
-			}
-		});
-		tofTextPopupSaveBoard.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				downloadBoards();
-			}
-		});
-	}
 
 	private ImageIcon getScaledImage(String imgPath) {
 		ImageIcon icon = new ImageIcon(frame1.class.getResource(imgPath));
@@ -4146,38 +4389,15 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	protected void showAttachmentTablePopupMenu(MouseEvent e) {
-		JPopupMenu pmenu = new JPopupMenu();
-		if (attachmentTable.getSelectedRow() == -1) {
-			pmenu.add(tofTextPopupSaveAttachments);
-		} else {
-			pmenu.add(tofTextPopupSaveAttachment);
-		}
-		pmenu.addSeparator();
-		pmenu.add(tofTextPopupCancel);
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+		getPopupMenuAttachmentTable().show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	protected void showAttachmentBoardPopupMenu(MouseEvent e) {
-		JPopupMenu pmenu = new JPopupMenu();
-		if (boardTable.getSelectedRow() == -1) {
-			pmenu.add(tofTextPopupSaveBoards);
-		} else {
-			pmenu.add(tofTextPopupSaveBoard);
-		}
-		pmenu.addSeparator();
-		pmenu.add(tofTextPopupCancel);
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+		getPopupMenuAttachmentBoard().show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	protected void showTofTextAreaPopupMenu(MouseEvent e) {
-		if (selectedMessage == null || selectedMessage.getContent() == null)
-			return; // no menu
-
-		JPopupMenu pmenu = new JPopupMenu();
-		pmenu.add(tofTextPopupSaveMessage);
-		pmenu.addSeparator();
-		pmenu.add(tofTextPopupCancel);
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+		getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	protected void showDownloadTablePopupMenu(MouseEvent e) {		
@@ -4193,41 +4413,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	protected void showMessageTablePopupMenu(MouseEvent e) {
-		if (getSelectedNode().isFolder())
-			return;
-
-		JPopupMenu pmenu = new JPopupMenu();
-
-		if (messageTable.getSelectedRow() > -1) {
-			pmenu.add(msgTablePopupMarkMessageUnread);
-		}
-		pmenu.add(msgTablePopupMarkAllMessagesRead);
-		pmenu.addSeparator();
-		pmenu.add(msgTablePopupSetGood);
-		pmenu.add(msgTablePopupSetCheck);
-		pmenu.add(msgTablePopupSetBad);
-		msgTablePopupSetGood.setEnabled(false);
-		msgTablePopupSetCheck.setEnabled(false);
-		msgTablePopupSetBad.setEnabled(false);
-		if (messageTable.getSelectedRow()>-1){  //fscking html on all these..
-			if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.VERIFIED)>-1) {
-				msgTablePopupSetCheck.setEnabled(true);
-				msgTablePopupSetBad.setEnabled(true);
-			}
-			else if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.PENDING)>-1) {
-				msgTablePopupSetGood.setEnabled(true);
-				msgTablePopupSetBad.setEnabled(true);
-			}
-			else if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.FAILED)>-1) {
-				msgTablePopupSetGood.setEnabled(true);
-				msgTablePopupSetCheck.setEnabled(true);
-			}
-			else Core.getOut().println("invalid message state : "+selectedMessage.getStatus());
-		}
-		pmenu.addSeparator();
-		pmenu.add(msgTablePopupCancel);
-		// ATT: misuse of another menuitem displaying 'Cancel' ;)
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+		getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	/**
@@ -4339,12 +4525,92 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * @return
 	 */
+	private PopupMenuTofText getPopupMenuTofText() {
+		if (popupMenuTofText == null) {
+			popupMenuTofText = new PopupMenuTofText();
+			languageResource.addLanguageListener(popupMenuTofText);
+		}
+		return popupMenuTofText;
+	}
+	
+	/**
+	 * @return
+	 */
 	private PopupMenuDownload getPopupMenuDownload() {
 		if (popupMenuDownload == null) {
 			popupMenuDownload = new PopupMenuDownload();
 			languageResource.addLanguageListener(popupMenuDownload);	
 		}
 		return popupMenuDownload;
+	}
+
+	/**
+	 * @return
+	 */
+	private PopupMenuAttachmentBoard getPopupMenuAttachmentBoard() {
+		if (popupMenuAttachmentBoard == null) {
+			popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
+			languageResource.addLanguageListener(popupMenuAttachmentBoard);	
+		}
+		return popupMenuAttachmentBoard;
+	}
+	
+	/**
+	 * @return
+	 */
+	private PopupMenuMessageTable getPopupMenuMessageTable() {
+		if (popupMenuMessageTable == null) {
+			popupMenuMessageTable = new PopupMenuMessageTable();
+			languageResource.addLanguageListener(popupMenuMessageTable);	
+		}
+		return popupMenuMessageTable;
+	}
+
+	/**
+	 * @return
+	 */
+	private PopupMenuAttachmentTable getPopupMenuAttachmentTable() {
+		if (popupMenuAttachmentTable == null) {
+			popupMenuAttachmentTable = new PopupMenuAttachmentTable();
+			languageResource.addLanguageListener(popupMenuAttachmentTable);	
+		}
+		return popupMenuAttachmentTable;
+	}
+
+	private void setMessageTrust(Boolean what) {
+		int row = messageTable.getSelectedRow();
+		if (row < 0 || selectedMessage == null)
+			return;
+
+		String status = selectedMessage.getStatus();
+
+		if (status.indexOf(VerifyableMessageObject.PENDING) > -1) {
+			Identity owner = Core.getNeutral().Get(selectedMessage.getFrom());
+			if (owner == null) {
+				Core.getOut().println("message was CHECK but not found in Neutral list");
+				return;
+			}
+		}
+
+		if (status.indexOf(VerifyableMessageObject.FAILED) > -1) {
+			Identity owner = Core.getEnemies().Get(selectedMessage.getFrom());
+			if (owner == null) {
+				Core.getOut().println("message was BAD but not found in BAD list");
+				return;
+			}
+
+		}
+
+		if (status.indexOf(VerifyableMessageObject.VERIFIED) > -1) {
+			Identity owner = Core.getFriends().Get(selectedMessage.getFrom());
+			if (owner == null) {
+				Core.getOut().println("message was GOOD but not found in GOOD list");
+				return;
+			}
+		}
+
+		Truster truster = new Truster(Core.getInstance(), what, selectedMessage.getFrom());
+		truster.start();
 	}
 
 }
