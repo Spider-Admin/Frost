@@ -321,6 +321,7 @@ static final Object[][] contents = {
 	{"Fonts","Tipos de Letra"},
 	{"Message Body","Cuerpo del Mensaje"},
 	{"Message List","Lista de Mensajes"},
+	{"File List","Lista de Ficheros"},
 	{"Choose","Escoge"},
 	{"EnableMessageBodyAA", "Activa antialiasing para el Cuerpo del Mensaje"},
 	

@@ -450,6 +450,7 @@ public class LangRes extends ListResourceBundle {
 	{"Fonts","Fonts"},
 	{"Message Body","Message Body"},
 	{"Message List","Message List"},
+	{"File List","File List"},
 	{"Choose","Choose"},
 	{"EnableMessageBodyAA", "Enable antialiasing for Message Body"},
 
