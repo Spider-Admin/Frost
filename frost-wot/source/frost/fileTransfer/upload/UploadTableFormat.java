@@ -140,8 +140,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		 * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		public int compare(Object o1, Object o2) {
-			String boardName1 = ((FrostUploadItem) o1).getTargetBoard().getBoardName();
-			String boardName2 = ((FrostUploadItem) o2).getTargetBoard().getBoardName();
+			String boardName1 = ((FrostUploadItem) o1).getTargetBoard().getName();
+			String boardName2 = ((FrostUploadItem) o2).getTargetBoard().getName();
 			return boardName1.compareToIgnoreCase(boardName2);
 		}
 	}

@@ -922,7 +922,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			for (int i = 0; i < selectedRows.length; i++) {
 				BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
 				Board fbo = ba.getBoardObj();
-				String name = fbo.getBoardName();
+				String name = fbo.getName();
 
 				// search board in exising boards list
 				Board board = getTofTree().getBoardByName(name);
@@ -2887,7 +2887,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		} while (newname.length() == 0);
 
-		selected.setBoardName(newname);
+		selected.setName(newname);
 		updateTofTree(selected);
 	}
 

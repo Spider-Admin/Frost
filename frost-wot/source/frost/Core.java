@@ -488,7 +488,7 @@ public class Core implements Savable {
         {
             BoardAttachment newba = (BoardAttachment)i.next();
             
-            String bname = newba.getBoardObj().getBoardName();
+            String bname = newba.getBoardObj().getName();
             String bprivkey = newba.getBoardObj().getPrivateKey();
             String bpubkey = newba.getBoardObj().getPublicKey();
             
@@ -499,7 +499,7 @@ public class Core implements Savable {
                 while(j.hasNext())
                 {
                     BoardAttachment board = (BoardAttachment)j.next();
-                    if( board.getBoardObj().getBoardName().equalsIgnoreCase(bname) &&
+                    if( board.getBoardObj().getName().equalsIgnoreCase(bname) &&
                         ( 
                           ( board.getBoardObj().getPrivateKey() == null &&
                             bprivkey == null 
