@@ -188,8 +188,8 @@ public class SearchThread extends Thread {
 		continue;
 	}
 	//check if file from someone bad
-	if ((key.getOwner() != null &&
-		frame1.getEnemies().Get(key.getOwner()) != null ||
+	if (key.getOwner() != null &&
+		(frame1.getEnemies().Get(key.getOwner()) != null ||
 			frame1.getBadIds().contains(key.getOwner())) &&
 			hideBad) {
 		it.remove();
