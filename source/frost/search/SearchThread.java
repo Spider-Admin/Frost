@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import frost.*;
+import frost.fileTransfer.upload.UploadModel;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.FrostIdentities;
@@ -53,6 +54,8 @@ class SearchThread extends Thread {
     int allFileCount;
     int maxSearchResults;
     private SearchPanel searchPanel = null;
+    
+    private UploadModel uploadModel;
 
 	private SettingsClass settings;
 
@@ -288,7 +291,7 @@ class SearchThread extends Thread {
 			} else if (frame1.getInstance().getDownloadTable().containsItemWithKey(SHA1)) {
 				// this file is in download table -> blue
 				searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
-			} else if (frame1.getInstance().getUploadTable().containsItemWithKey(SHA1)) {
+			} else if (uploadModel.containsItemWithKey(SHA1)) {
 				// this file is in upload table -> green
 				searchItemState = FrostSearchItemObject.STATE_UPLOADING;
 			} else if (isOffline(key)) {
@@ -406,4 +409,11 @@ class SearchThread extends Thread {
 	public void setLanguageResource(UpdatingLanguageResource newLanguageResource) {
 		languageResource = newLanguageResource;
 	}
+	/**
+	 * @param model
+	 */
+	public void setUploadModel(UploadModel model) {
+		uploadModel = model;
+	}
+
 }

@@ -9,8 +9,9 @@ package frost.search;
 import java.beans.*;
 
 import frost.*;
-import frost.fileTransfer.download.*;
-import frost.gui.*;
+import frost.fileTransfer.download.DownloadTable;
+import frost.fileTransfer.upload.UploadModel;
+import frost.gui.TofTree;
 import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.FrostIdentities;
 
@@ -24,6 +25,7 @@ public class SearchManager implements PropertyChangeListener {
 
 	private TofTree tofTree;
 	private DownloadTable downloadTable;
+	private UploadModel uploadModel;
 	private String keypool;
 	private FrostIdentities identities;
 	private frame1 mainFrame;
@@ -95,6 +97,7 @@ public class SearchManager implements PropertyChangeListener {
 			panel = new SearchPanel(settings, this); 
 			panel.setTableModel(getTableModel());
 			panel.setDownloadTable(downloadTable);
+			panel.setUploadModel(uploadModel);
 			panel.setTofTree(tofTree);
 			panel.setKeypool(keypool);
 			panel.setLanguageResource(languageResource);
@@ -150,6 +153,13 @@ public class SearchManager implements PropertyChangeListener {
 	 */
 	public SettingsClass getSettings() {
 		return settings;
+	}
+
+	/**
+	 * @param model
+	 */
+	public void setUploadModel(UploadModel model) {
+		uploadModel = model;
 	}
 
 }

@@ -31,9 +31,9 @@ import org.w3c.dom.Document;
 import frost.*;
 import frost.FcpTools.*;
 import frost.crypt.SignMetaData;
-import frost.fileTransfer.upload.*;
+import frost.fileTransfer.upload.FrostUploadItem;
 import frost.gui.MessageUploadFailedDialog;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
 
@@ -96,7 +96,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                sfo.getFile(),
                     						   null,
                                                uploadHtl,
-                                               true,new FrostUploadItemObject(null,null)); // doRedirect
+                                               true,new FrostUploadItem(null,null)); // doRedirect
                 }
                 catch(Exception ex)
                 {

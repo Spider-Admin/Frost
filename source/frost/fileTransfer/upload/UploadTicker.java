@@ -27,7 +27,7 @@ public class UploadTicker extends Thread {
 	private SettingsClass settings;
 
 	private UploadPanel panel;
-	private UploadTable table;
+	private UploadModel model;
 
 	private int counter;
 	private int uploadingThreadCount = 0;
@@ -36,10 +36,10 @@ public class UploadTicker extends Thread {
 	/**
 	 * 
 	 */
-	public UploadTicker(SettingsClass newSettings, UploadTable newTable, UploadPanel newPanel, LocalIdentity newMyID) {
+	public UploadTicker(SettingsClass newSettings, UploadModel newModel, UploadPanel newPanel, LocalIdentity newMyID) {
 		super("Upload");
 		settings = newSettings;
-		table = newTable;
+		model = newModel;
 		panel = newPanel;
 		myID = newMyID;
 	}
@@ -117,16 +117,15 @@ public class UploadTicker extends Thread {
 		/**  and generate CHK if requested ... */
 
 		if (allocateGeneratingThread()) {
-			UploadTableModel ulModel = (UploadTableModel) table.getModel();
 			boolean threadLaunched = false;
 
-			for (int i = 0; i < ulModel.getRowCount() && !threadLaunched; i++) {
-				FrostUploadItemObject ulItem = (FrostUploadItemObject) ulModel.getRow(i);
-				if (ulItem.getState() == FrostUploadItemObject.STATE_ENCODING_REQUESTED
+			for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
+				FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+				if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED
 					|| (ulItem.getKey() == null
-						&& ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED)) {
+						&& ulItem.getState() == FrostUploadItem.STATE_REQUESTED)) {
 					UploadThread newInsert = null;
-					if (ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED) {
+					if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED) {
 						// set next state for item to REQUESTED, default is IDLE
 						// needed to keep the REQUESTED state for real uploading
 						newInsert =
@@ -135,7 +134,7 @@ public class UploadTicker extends Thread {
 								ulItem,
 								settings,
 								UploadThread.MODE_GENERATE_CHK,
-								FrostUploadItemObject.STATE_REQUESTED,
+								FrostUploadItem.STATE_REQUESTED,
 								myID);
 					} else {
 						// next state will be IDLE (=default)
@@ -147,8 +146,7 @@ public class UploadTicker extends Thread {
 								UploadThread.MODE_GENERATE_CHK,
 								myID);
 					}
-					ulItem.setState(FrostUploadItemObject.STATE_ENCODING);
-					ulModel.updateRow(ulItem);
+					ulItem.setState(FrostUploadItem.STATE_ENCODING);
 					newInsert.start();
 					threadLaunched = true; 	// start only 1 thread per loop (=second)
 				}
@@ -166,18 +164,16 @@ public class UploadTicker extends Thread {
 	 */
 	private void startUploadThread() {
 		if (allocateUploadingThread()) {
-			UploadTableModel ulModel = (UploadTableModel) table.getModel();
 			boolean threadLaunched = false;
 			
-			for (int i = 0; i < ulModel.getRowCount() && !threadLaunched; i++) {
-				FrostUploadItemObject ulItem = (FrostUploadItemObject) ulModel.getRow(i);
-				if (ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED
+			for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
+				FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+				if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED
 					&& ulItem.getSHA1() != null
 					&& ulItem.getKey() != null)
 					// file have key after encoding
 					{
-					ulItem.setState(FrostUploadItemObject.STATE_UPLOADING);
-					ulModel.updateRow(ulItem);
+					ulItem.setState(FrostUploadItem.STATE_UPLOADING);
 					UploadThread newInsert =
 						new UploadThread(this, ulItem, settings, UploadThread.MODE_UPLOAD, myID);
 					newInsert.start();
@@ -197,14 +193,12 @@ public class UploadTicker extends Thread {
 	private void prepareUploadHashes() {
 		// do this only if the automatic index handling is set
 		if (settings.getBoolValue("automaticIndexing") && allocateGeneratingThread()) {
-			UploadTableModel ulModel = (UploadTableModel) table.getModel();
 			boolean threadLaunched = false;
 			
-			for (int i = 0; i < ulModel.getRowCount() && !threadLaunched; i++) {
-				FrostUploadItemObject ulItem = (FrostUploadItemObject) ulModel.getRow(i);
+			for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
+				FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
 				if (ulItem.getSHA1() == null) {
 					ulItem.setKey("Working...");
-					ulModel.updateRow(ulItem);
 					UploadThread newInsert =
 						new UploadThread(
 							this,
@@ -228,9 +222,9 @@ public class UploadTicker extends Thread {
 	 * 
 	 */
 	private void removeNotExistingFiles() {
-		if (counter % 180 == 0) // Check uploadTable every 3 minutes
-			{
-			table.removeNotExistingFiles();
+		// Check uploadTable every 3 minutes
+		if (counter % 180 == 0) {
+			model.removeNotExistingFiles();
 		}
 	}
 

@@ -22,12 +22,9 @@ import java.io.File;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JTable;
-
 import frost.*;
 import frost.FcpTools.FcpRequest;
 import frost.fileTransfer.upload.*;
-import frost.fileTransfer.upload.FrostUploadItemObject;
 import frost.identities.FrostIdentities;
 /**
  * Downloads file requests
@@ -35,7 +32,9 @@ import frost.identities.FrostIdentities;
 
 public class GetRequestsThread extends Thread
 {
-    private FrostIdentities identities;
+    private UploadModel model;
+
+	private FrostIdentities identities;
 
 	static java.util.ResourceBundle LangRes =
         java.util.ResourceBundle.getBundle("res.LangRes");
@@ -47,7 +46,6 @@ public class GetRequestsThread extends Thread
     private String keypool;
     private String destination;
     private String fileSeparator = System.getProperty("file.separator");
-    private JTable uploadTable;
     private String date;
 
 	/*public int getThreadType()
@@ -63,7 +61,7 @@ public class GetRequestsThread extends Thread
 				new GetRequestsThread(
 					downloadHtl,
 					keypool,
-					uploadTable,
+					model,
 					DateFun.getDate(),
 					identities);
 			todaysRequests.start();
@@ -186,13 +184,11 @@ public class GetRequestsThread extends Thread
 
 								String content = (FileAccess.readFileRaw(testMe)).trim();
 								logger.fine("Request content is " + content);
-								UploadTableModel tableModel =
-									(UploadTableModel) uploadTable.getModel();
-								int rowCount = tableModel.getRowCount();
+								int rowCount = model.getItemCount();
 
 								for (int i = 0; i < rowCount; i++) {
-									FrostUploadItemObject ulItem =
-										(FrostUploadItemObject) tableModel.getRow(i);
+									FrostUploadItem ulItem =
+										(FrostUploadItem) model.getItemAt(i);
 									String SHA1 = ulItem.getSHA1();
 									if (SHA1 == null)
 										continue;
@@ -208,21 +204,20 @@ public class GetRequestsThread extends Thread
 											// for handling of ENCODING state see ulItem.getNextState() javadoc                            
 											// changing state ENCODING_REQUESTED to REQUESTED is ok!
 											if (ulItem.getState()
-												!= FrostUploadItemObject.STATE_UPLOADING
+												!= FrostUploadItem.STATE_UPLOADING
 												&& ulItem.getState()
-													!= FrostUploadItemObject.STATE_PROGRESS)
+													!= FrostUploadItem.STATE_PROGRESS)
 												//TOTHINK: this is optional
 												{
 												logger.fine("Request matches row " + i);
 												if (ulItem.getState()
-													== FrostUploadItemObject.STATE_ENCODING) {
+													== FrostUploadItem.STATE_ENCODING) {
 													ulItem.setNextState(
-														FrostUploadItemObject.STATE_REQUESTED);
+														FrostUploadItem.STATE_REQUESTED);
 												} else {
 													ulItem.setState(
-														FrostUploadItemObject.STATE_REQUESTED);
+														FrostUploadItem.STATE_REQUESTED);
 												}
-												tableModel.updateRow(ulItem);
 											} else
 												logger.fine("file was in state uploading/progress");
 										} else {
@@ -262,20 +257,27 @@ public class GetRequestsThread extends Thread
 		//notifyThreadFinished(this);
 	}
 
-    /**Constructor*/
-    public GetRequestsThread(int dlHtl, String kpool, JTable uploadTable, FrostIdentities newIdentities)
-    {
-        //super(boa);
-        //this.board = boa;
-        this(dlHtl,kpool,uploadTable, DateFun.getDate(1), newIdentities);
-        
-    }
-    public GetRequestsThread(int htl, String kpool, JTable table, String date, FrostIdentities newIdentities){
-		this.downloadHtl = htl;
-		this.keypool = kpool;
-		this.uploadTable = table;
-    	this.date = date;
-    	identities = newIdentities;
-    }
+	/**Constructor*/
+	public GetRequestsThread(
+		int dlHtl,
+		String kpool,
+		UploadModel newModel,
+		FrostIdentities newIdentities) {
+			
+		this(dlHtl, kpool, newModel, DateFun.getDate(1), newIdentities);
+	}
+	public GetRequestsThread(
+		int htl,
+		String newKeypool,
+		UploadModel newModel,
+		String newDate,
+		FrostIdentities newIdentities) {
+			
+		downloadHtl = htl;
+		keypool = newKeypool;
+		model = newModel;
+		date = newDate;
+		identities = newIdentities;
+	}
     
 }

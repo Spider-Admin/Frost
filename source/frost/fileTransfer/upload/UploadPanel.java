@@ -14,10 +14,12 @@ import javax.swing.*;
 
 import frost.*;
 import frost.ext.Execute;
-import frost.gui.*;
+import frost.gui.TofTree;
 import frost.gui.components.JSkinnablePopupMenu;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
+import frost.util.model.ModelItem;
+import frost.util.model.gui.SortedModelTable;
 
 /**
  * 
@@ -139,110 +141,86 @@ public class UploadPanel extends JPanel {
 		 * Restore default filenames for all files
 		 */
 		private void restoreDefaultFilenamesForAllFiles() {
-			uploadTable.selectAll();
-			uploadTable.restoreOriginalFilenamesForSelectedRows();
+			model.removePrefixFromAllItems();
 		}
 
 		/**
 		 * Restore default filenames for selected files
 		 */
 		private void restoreDefaultFilenamesForSelectedFiles() {
-			uploadTable.restoreOriginalFilenamesForSelectedRows();
+			model.removePrefixFromItems(modelTable.getSelectedItems());
 		}
 
 		/**
 		 * Set Prefix for all files
 		 */
 		private void setPrefixForAllFiles() {
-			uploadTable.selectAll();
-			uploadTable.setPrefixForSelectedFiles();
+			String prefix =
+				JOptionPane.showInputDialog(
+					languageResource.getString(
+						"Please enter the prefix you want to use for your files."));
+			if (prefix != null) {
+				model.setPrefixToAllItems(prefix);
+			}
 		}
-
 		/**
 		 * Set Prefix for selected files
 		 */
 		private void setPrefixForSelectedFiles() {
-			uploadTable.setPrefixForSelectedFiles();
+			String prefix =
+				JOptionPane.showInputDialog(
+					languageResource.getString(
+						"Please enter the prefix you want to use for your files."));
+			if (prefix != null) {
+				model.setPrefixToItems(modelTable.getSelectedItems(), prefix);
+			}
 		}
 
 		/**
 		 * Generate CHK for selected files 
 		 */
 		private void generateChkForSelectedFiles() {
-			UploadTableModel tableModel = (UploadTableModel) uploadTable.getModel();
-			int[] selectedRows = uploadTable.getSelectedRows();
-			for (int i = 0; i < selectedRows.length; i++) {
-				FrostUploadItemObject ulItem =
-					(FrostUploadItemObject) tableModel.getRow(selectedRows[i]);
-				// start gen chk only if IDLE
-				if (ulItem.getState() == FrostUploadItemObject.STATE_IDLE
-					&& ulItem.getKey() == null) {
-					ulItem.setState(FrostUploadItemObject.STATE_ENCODING_REQUESTED);
-					tableModel.updateRow(ulItem);
-				}
-			}
-		} /**
-					 * Reload all files
-					 */
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.generateChkItems(selectedItems);
+		} 
+		
+		/**
+		 * Reload all files
+		 */
 		private void reloadAllFiles() {
-			UploadTableModel tableModel = (UploadTableModel) uploadTable.getModel();
-			for (int i = 0; i < tableModel.getRowCount(); i++) {
-				FrostUploadItemObject ulItem = (FrostUploadItemObject) tableModel.getRow(i);
-				// Since it is difficult to identify the states where we are allowed to
-				// start an upload we decide based on the states in which we are not allowed
-				if (ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING
-					&& ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS
-					&& ulItem.getState() != FrostUploadItemObject.STATE_ENCODING) {
-					ulItem.setState(FrostUploadItemObject.STATE_REQUESTED);
-					tableModel.updateRow(ulItem);
-				}
-			}
+			model.requestAllItems();
 		}
 
 		/**
 		 * Reload selected files
 		 */
 		private void reloadSelectedFiles() {
-			UploadTableModel tableModel = (UploadTableModel) uploadTable.getModel();
-			int[] selectedRows = uploadTable.getSelectedRows();
-			for (int i = 0; i < selectedRows.length; i++) {
-				FrostUploadItemObject ulItem =
-					(FrostUploadItemObject) tableModel.getRow(selectedRows[i]);
-				// Since it is difficult to identify the states where we are allowed to
-				// start an upload we decide based on the states in which we are not allowed
-				if (ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING
-					&& ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS
-					&& ulItem.getState() != FrostUploadItemObject.STATE_ENCODING) {
-					ulItem.setState(FrostUploadItemObject.STATE_REQUESTED);
-					tableModel.updateRow(ulItem);
-				}
-			}
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.requestItems(selectedItems);
 		}
 
 		/**
 		 * Remove all files
 		 */
 		private void removeAllFiles() {
-			UploadTableModel model = (UploadTableModel) uploadTable.getModel();
-			model.clearDataModel();
+			model.clear();
 		}
 
 		/**
 		 * Remove selected files
 		 */
 		private void removeSelectedFiles() {
-			uploadTable.removeSelectedRows();
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.removeItems(selectedItems);
 		}
 
 		/**
 		 * add CHK key + filename to clipboard 
 		 */
 		private void copyChkKeyAndFilenameToClipboard() {
-			UploadTableModel tableModel = (UploadTableModel) uploadTable.getModel();
-			int selectedRow = uploadTable.getSelectedRow();
-			if (selectedRow > -1) {
-				FrostUploadItemObject ulItem =
-					(FrostUploadItemObject) tableModel.getRow(selectedRow);
+			ModelItem selectedItem = modelTable.getSelectedItem();
+			if (selectedItem != null) {
+				FrostUploadItem ulItem = (FrostUploadItem) selectedItem;
 				String chkKey = ulItem.getKey();
 				String filename = ulItem.getFileName();
 				if (chkKey != null && filename != null) {
@@ -255,11 +233,9 @@ public class UploadPanel extends JPanel {
 		 * add CHK key to clipboard
 		 */
 		private void copyChkKeyToClipboard() {
-			UploadTableModel tableModel = (UploadTableModel) uploadTable.getModel();
-			int selectedRow = uploadTable.getSelectedRow();
-			if (selectedRow > -1) {
-				FrostUploadItemObject ulItem =
-					(FrostUploadItemObject) tableModel.getRow(selectedRow);
+			ModelItem selectedItem = modelTable.getSelectedItem();
+			if (selectedItem != null) {
+				FrostUploadItem ulItem = (FrostUploadItem) selectedItem;
 				String chkKey = ulItem.getKey();
 				if (chkKey != null) {
 					mixed.setSystemClipboard(chkKey);
@@ -273,32 +249,35 @@ public class UploadPanel extends JPanel {
 		public void languageChanged(LanguageEvent event) {
 			refreshLanguage();
 		}
+		
 		/* (non-Javadoc)
 		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
 		 */
 		public void show(Component invoker, int x, int y) {
 			removeAll();
 
-			if (uploadTable.getSelectedRowCount() == 1) {
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+
+			if (selectedItems.length == 1) {
 				// if 1 item is selected
-				FrostUploadItemObject ulItem =
-					(FrostUploadItemObject) ((UploadTableModel) uploadTable.getModel()).getRow(
-						uploadTable.getSelectedRow());
-				if (ulItem.getKey() != null) {
+				FrostUploadItem item = (FrostUploadItem) selectedItems[0];
+				if (item.getKey() != null) {
 					add(copyToClipboardMenu);
 					addSeparator();
 				}
 			}
 
 			JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
-			if (uploadTable.getSelectedRow() > -1) {
+			if (selectedItems.length != 0) {
+				//If at least 1 item is selected
 				removeSubMenu.add(removeSelectedFilesItem);
 			}
 			removeSubMenu.add(removeAllFilesItem);
 
 			add(removeSubMenu);
 			addSeparator();
-			if (uploadTable.getSelectedRow() > -1) {
+			if (selectedItems.length != 0) {
+				// If at least 1 item is selected
 				add(generateChkForSelectedFilesItem);
 				add(reloadSelectedFilesItem);
 			}
@@ -310,59 +289,56 @@ public class UploadPanel extends JPanel {
 			//because making them check whether the file has been indexed or not is a pain
 			//feel free to implement ;)
 			if (!settingsClass.getBoolValue("automaticIndexing")) {
-				UploadTableModel ulModel = (UploadTableModel) uploadTable.getModel();
 				boolean shouldEnable = true;
-				int[] selectedRows = uploadTable.getSelectedRows();
-				for (int xy = 0; xy < selectedRows.length;xy++) {
-					FrostUploadItemObject ulItem =
-					(FrostUploadItemObject) ulModel.getRow(selectedRows[xy]);
-					if (ulItem.getSHA1() != null && ulItem.getSHA1().length()>0){
-						shouldEnable=false;
+				for (int i = 0; i < selectedItems.length; i++) {
+					FrostUploadItem item = (FrostUploadItem) selectedItems[i];
+					if (item.getSHA1() != null && item.getSHA1().length() > 0) {
+						shouldEnable = false;
 						break;
-					}	
+					}
 				}
-			if (uploadTable.getSelectedRow() > -1) {
-				add(setPrefixForSelectedFilesItem);
-				setPrefixForSelectedFilesItem.setEnabled(shouldEnable);
-			}
-		//	add(setPrefixForAllFilesItem);
-		//	addSeparator();
-			if (uploadTable.getSelectedRow() > -1) {
-				add(restoreDefaultFilenamesForSelectedFilesItem);
-				restoreDefaultFilenamesForSelectedFilesItem.setEnabled(shouldEnable);
-			}
-		//	add(restoreDefaultFilenamesForAllFilesItem);
-			addSeparator();
-			if (uploadTable.getSelectedRow() > -1) {
-				// Add boards to changeDestinationBoard submenu
-				Vector boards = tofTree.getAllBoards();
-				Collections.sort(boards);
-				changeDestinationBoardMenu.removeAll();
-				for (int i = 0; i < boards.size(); i++) {
-					final FrostBoardObject aBoard = (FrostBoardObject) boards.elementAt(i);
-					JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
-					changeDestinationBoardMenu.add(boardMenuItem);
-					// add all boards to menu + set action listener for each board menu item
-					boardMenuItem.addActionListener(new ActionListener() {
-						public void actionPerformed(ActionEvent e) {
-							// set new board for all selected rows
-							UploadTableModel ulModel = (UploadTableModel) uploadTable.getModel();
-							int[] selectedRows = uploadTable.getSelectedRows();
-							for (int x = 0; x < selectedRows.length; x++) {
-								FrostUploadItemObject ulItem =
-									(FrostUploadItemObject) ulModel.getRow(selectedRows[x]);
-								//also check whether the item has not been hashed, i.e. added to
-								//an index already - big mess to change it if that's the case
-								ulItem.setTargetBoard(aBoard);
-								ulModel.updateRow(ulItem);
+				if (selectedItems.length != 0) {
+					// If at least 1 item is selected
+					add(setPrefixForSelectedFilesItem);
+					setPrefixForSelectedFilesItem.setEnabled(shouldEnable);
+				}
+				//	add(setPrefixForAllFilesItem);
+				//	addSeparator();
+				if (selectedItems.length != 0) {
+					// If at least 1 item is selected
+					add(restoreDefaultFilenamesForSelectedFilesItem);
+					restoreDefaultFilenamesForSelectedFilesItem.setEnabled(shouldEnable);
+				}
+				//	add(restoreDefaultFilenamesForAllFilesItem);
+				addSeparator();
+				if (selectedItems.length != 0) {
+					// If at least 1 item is selected
+					// Add boards to changeDestinationBoard submenu
+					Vector boards = tofTree.getAllBoards();
+					Collections.sort(boards);
+					changeDestinationBoardMenu.removeAll();
+					for (int i = 0; i < boards.size(); i++) {
+						final FrostBoardObject aBoard = (FrostBoardObject) boards.elementAt(i);
+						JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
+						changeDestinationBoardMenu.add(boardMenuItem);
+						// add all boards to menu + set action listener for each board menu item
+						boardMenuItem.addActionListener(new ActionListener() {
+							public void actionPerformed(ActionEvent e) {
+								// set new board for all selected rows
+								ModelItem[] selectedItems = modelTable.getSelectedItems();
+								for (int x = 0; x < selectedItems.length; x++) {
+									FrostUploadItem ulItem = (FrostUploadItem) selectedItems[x];
+									//also check whether the item has not been hashed, i.e. added to
+									//an index already - big mess to change it if that's the case
+									ulItem.setTargetBoard(aBoard);
+								}
 							}
-						}
-					});
+						});
+					}
+					add(changeDestinationBoardMenu);
+					changeDestinationBoardMenu.setEnabled(shouldEnable);
 				}
-				add(changeDestinationBoardMenu);
-				changeDestinationBoardMenu.setEnabled(shouldEnable);
-			}
-			}//end of options which are available if automatic indexing turned off
+			} //end of options which are available if automatic indexing turned off
 			addSeparator();
 			add(cancelItem);
 
@@ -396,7 +372,7 @@ public class UploadPanel extends JPanel {
 		 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
 		 */
 		public void keyPressed(KeyEvent e) {
-			if (e.getSource() == uploadTable) {
+			if (e.getSource() == modelTable.getTable()) {
 				uploadTable_keyPressed(e);
 			}
 		}
@@ -429,12 +405,13 @@ public class UploadPanel extends JPanel {
 		 */
 		public void mousePressed(MouseEvent e) {
 			if (e.getClickCount() == 2) {
-				if (e.getSource() == uploadTable) {
+				if (e.getSource() == modelTable.getTable()) {
 					// Start file from download table. Is this a good idea?
 					uploadTableDoubleClick(e);
 				}
 			} else if (e.isPopupTrigger())
-				if ((e.getSource() == uploadTable) || (e.getSource() == uploadTableScrollPane)) {
+				if ((e.getSource() == modelTable.getTable())
+					|| (e.getSource() == modelTable.getScrollPane())) {
 					showUploadTablePopupMenu(e);
 				}
 		}
@@ -445,7 +422,8 @@ public class UploadPanel extends JPanel {
 		public void mouseReleased(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
 
-				if ((e.getSource() == uploadTable) || (e.getSource() == uploadTableScrollPane)) {
+				if ((e.getSource() == modelTable.getTable())
+					|| (e.getSource() == modelTable.getScrollPane())) {
 					showUploadTablePopupMenu(e);
 				}
 
@@ -475,7 +453,8 @@ public class UploadPanel extends JPanel {
 	
 	private static Logger logger = Logger.getLogger(UploadPanel.class.getName());
 
-	private UploadTable uploadTable = null;
+	private UploadModel model = null;
+
 	private TofTree tofTree = null;
 	private SettingsClass settingsClass = null;
 
@@ -484,7 +463,7 @@ public class UploadPanel extends JPanel {
 	private JPanel uploadTopPanel = new JPanel();
 	private JButton uploadAddFilesButton =
 		new JButton(new ImageIcon(getClass().getResource("/data/browse.gif")));
-	private JScrollPane uploadTableScrollPane = null;
+	private SortedModelTable modelTable;
 
 	private boolean initialized = false;
 
@@ -509,15 +488,19 @@ public class UploadPanel extends JPanel {
 			uploadTopPanel.add(uploadAddFilesButton);
 
 			// create the main upload panel
-			uploadTableScrollPane = new JScrollPane(uploadTable);
+			UploadTableFormat tableFormat = new UploadTableFormat(languageResource);
+			
+			modelTable = new SortedModelTable(model, tableFormat);
 			setLayout(new BorderLayout());
 			add(uploadTopPanel, BorderLayout.NORTH);
-			add(uploadTableScrollPane, BorderLayout.CENTER);
+			add(modelTable.getScrollPane(), BorderLayout.CENTER);
 			fontChanged();
 
 			// listeners
 			uploadAddFilesButton.addActionListener(listener);
-			uploadTableScrollPane.addMouseListener(listener);
+			modelTable.getScrollPane().addMouseListener(listener);
+			modelTable.getTable().addKeyListener(listener);
+			modelTable.getTable().addMouseListener(listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
@@ -535,21 +518,6 @@ public class UploadPanel extends JPanel {
 		}
 		languageResource = newLanguageResource;
 		languageResource.addLanguageListener(listener);
-	}
-
-	/**
-	 * description
-	 * 
-	 * @param downloadTable description
-	 */
-	public void setUploadTable(UploadTable newUploadTable) {
-		if (uploadTable != null) {
-			uploadTable.removeKeyListener(listener);
-			uploadTable.removeMouseListener(listener);
-		}
-		uploadTable = newUploadTable;
-		uploadTable.addKeyListener(listener);
-		uploadTable.addMouseListener(listener);
 	}
 
 	public void setAddFilesButtonEnabled(boolean enabled) {
@@ -578,8 +546,11 @@ public class UploadPanel extends JPanel {
 	 * @param e
 	 */
 	private void uploadTable_keyPressed(KeyEvent e) {
-		if (e.getKeyChar() == KeyEvent.VK_DELETE && !uploadTable.isEditing())
-			uploadTable.removeSelectedRows();
+		if (e.getKeyChar() == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.removeItems(selectedItems);
+			modelTable.getTable().clearSelection();
+		}
 	}
 
 	//------------------------------------------------------------------------
@@ -615,9 +586,9 @@ public class UploadPanel extends JPanel {
 					for (int j = 0; j < allFiles.size(); j++) {
 						File newFile = (File) allFiles.get(j);
 						if (newFile.isFile() && newFile.length() > 0) {
-							FrostUploadItemObject ulItem =
-								new FrostUploadItemObject(newFile, board);
-							boolean isAdded = uploadTable.addUploadItem(ulItem);
+							FrostUploadItem ulItem =
+								new FrostUploadItem(newFile, board);
+							boolean isAdded = model.addUploadItem(ulItem);
 						}
 					}
 				}
@@ -652,13 +623,14 @@ public class UploadPanel extends JPanel {
 	 * @param e
 	 */
 	private void uploadTableDoubleClick(MouseEvent e) {
-		UploadTableModel ulModel = (UploadTableModel) uploadTable.getModel();
-		FrostUploadItemObject ulItem =
-			(FrostUploadItemObject) ulModel.getRow(uploadTable.getSelectedRow());
-		File file = new File(ulItem.getFilePath());
-		logger.info("Executing: " + file.getPath());
-		if (file.exists()) {
-			Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
+		ModelItem[] selectedItems = modelTable.getSelectedItems();
+		if (selectedItems.length != 0) {
+			FrostUploadItem ulItem = (FrostUploadItem) selectedItems[0];
+			File file = new File(ulItem.getFilePath());
+			logger.info("Executing: " + file.getPath());
+			if (file.exists()) {
+				Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
+			}
 		}
 	}
 	
@@ -676,7 +648,14 @@ public class UploadPanel extends JPanel {
 			settingsClass.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
 			font = new Font("SansSerif", fontStyle, fontSize);
 		}
-		uploadTable.setFont(font);
+		modelTable.setFont(font);
+	}
+
+	/**
+	 * @param model
+	 */
+	public void setModel(UploadModel model) {
+		this.model = model;
 	}
 
 }

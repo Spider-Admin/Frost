@@ -1827,7 +1827,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	TofTree tofTree = null;
 	private UploadPanel uploadPanel = null;
-	private UploadTable uploadTable = null;
 
 	/**Construct the frame*/
 	public frame1(SettingsClass newSettings, UpdatingLanguageResource newLanguageResource) {
@@ -2412,10 +2411,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			tofTree = new TofTree(dummyRootNode, languageResource);
 		}
 		return tofTree;
-	}
-
-	public UploadTable getUploadTable() {
-		return uploadTable;
 	}
 
 	/**Help | About action performed*/
@@ -3180,13 +3175,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	 */
 	public void setUploadPanel(UploadPanel panel) {
 		uploadPanel = panel;
-	}
-
-	/**
-	 * @param table
-	 */
-	public void setUploadTable(UploadTable table) {
-		uploadTable = table;
 	}
 
 	/**
