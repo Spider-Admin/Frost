@@ -379,7 +379,7 @@ public class Index
     }
 
 	public static void add(FrostIndex a, FrostBoardObject b, String owner){
-		add(a.getFilesMap(),new File(b.getBoardFilename()),owner);
+		add(a.getFilesMap(),new File(frame1.keypool+b.getBoardFilename()+File.separator+"files.xml"),owner);
 	}
 	public static void add(FrostIndex a, File b, String owner){
 		add(a.getFilesMap(),b,owner);
