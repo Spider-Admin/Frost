@@ -64,7 +64,8 @@ public class SkinChooser extends JPanel {
 	
 	private ResourceBundle languageBundle = null;
 	private boolean noSkinsFound = true;
-	private LookAndFeel initialLookAndFeel = null;
+	private LookAndFeel previousLookAndFeel = null;
+	private Skin previousSkin = null;
 
 	/**
 	 * 	Constructor
@@ -109,8 +110,10 @@ public class SkinChooser extends JPanel {
 	 * Stores the state of the Look And Feel system
 	 */
 	private void storeLookAndFeelState() {
-		initialLookAndFeel = UIManager.getLookAndFeel();
-		//TODO: Incomplete. Must store more information (the skin if the previous l&f was already skinlf)
+		previousLookAndFeel = UIManager.getLookAndFeel();
+		if (previousLookAndFeel instanceof SkinLookAndFeel) {
+			previousSkin = SkinLookAndFeel.getSkin();
+		}
 	}
 	
 
@@ -182,35 +185,6 @@ public class SkinChooser extends JPanel {
 			} catch (Exception exception) {
 				System.out.println("Exception while loading the skin: \n" + exception.getMessage() + "\n");
 			}
-		}
-	}
-
-	/**
-	 * Dummy main method, just to see the progress of the SkinChooser
-	 * To execute it from Eclipse a subdirectory called themes in
-	 * the main project directory is required, hopefully with some 
-	 * skins inside it (in zip format)
-	 * @param args java.lang.String[]
-	 */
-	public static void main(java.lang.String[] args) {
-		try {
-			javax.swing.JFrame frame = new javax.swing.JFrame();
-			SkinChooser aSkinChooser;
-			aSkinChooser = new SkinChooser();
-			frame.setContentPane(aSkinChooser);
-			frame.setSize(600, 200);
-			frame.addWindowListener(new java.awt.event.WindowAdapter() {
-				public void windowClosing(java.awt.event.WindowEvent e) {
-					System.exit(0);
-				};
-			});
-			frame.show();
-			java.awt.Insets insets = frame.getInsets();
-			frame.setSize(frame.getWidth() + insets.left + insets.right, frame.getHeight() + insets.top + insets.bottom);
-			frame.setVisible(true);
-		} catch (Throwable exception) {
-			System.err.println("Exception occurred in main() of javax.swing.JPanel");
-			exception.printStackTrace(System.out);
 		}
 	}
 
@@ -430,8 +404,10 @@ public class SkinChooser extends JPanel {
 	 */
 	public void undoPreview() {
 		try {
-			UIManager.setLookAndFeel(initialLookAndFeel);
-//			TODO: Incomplete. Must restore more information (the skin if the previous l&f was already skinlf)
+			UIManager.setLookAndFeel(previousLookAndFeel);
+			if (previousLookAndFeel instanceof SkinLookAndFeel) {
+				SkinLookAndFeel.setSkin(previousSkin);
+			}
 			Frame[] appFrames = Frame.getFrames();
 			for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
 				SwingUtilities.updateComponentTreeUI(appFrames[i]);
