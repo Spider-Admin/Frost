@@ -874,7 +874,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void jbInit() throws Exception  {
 
     setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
-    this.setSize(new Dimension(790, 580));
     this.setResizable(true);
 
     this.setTitle("Frost");
@@ -1022,6 +1021,23 @@ public class frame1 extends JFrame implements ClipboardOwner
     // Load table settings
     getDownloadTable().load();
     getUploadTable().load();
+
+    // load size and location of window
+    int lastHeight = frostSettings.getIntValue("lastFrameHeight" );
+    int lastWidth = frostSettings.getIntValue("lastFrameWidth" );
+//    int lastX = frostSettings.getIntValue("lastFrameLocX" );
+//    int lastY = frostSettings.getIntValue("lastFrameLocY" );
+
+    if( lastWidth < 100 || lastHeight < 100 )
+    {
+        // set default size
+        this.setSize(new Dimension(790, 580));
+    }
+    else
+    {
+        this.setSize( lastWidth, lastHeight );
+//        this.setLocation( lastX, lastY );
+    }
 
     // a class that reinserts the pubkey each hour
     TimerTask KeyReinserter = new TimerTask() {
@@ -3004,7 +3020,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void saveOnExit()
     {
         System.out.println("Saving settings ...");
-// TODO: save size and location of window, split panes
         saveSettings();
         System.out.println("Bye!");
     }
@@ -3017,6 +3032,15 @@ public class frame1 extends JFrame implements ClipboardOwner
         frostSettings.setValue("searchAllBoards", searchAllBoardsCheckBox.isSelected());
         //      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
         frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
+
+        // save size and location of window
+        Dimension actSize = getSize();
+//        Point actPos = this.getLocationOnScreen();
+        frostSettings.setValue("lastFrameHeight", ""+(int)actSize.getHeight() );
+        frostSettings.setValue("lastFrameWidth", ""+(int)actSize.getWidth() );
+//        frostSettings.setValue("lastFrameLocX", ""+(int)actPos.getX() );
+//        frostSettings.setValue("lastFrameLocY", ""+(int)actPos.getY() );
+
         frostSettings.writeSettingsFile();
         getTofTree().saveTree();
         getDownloadTable().save();
@@ -3657,6 +3681,13 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         getSelectedNode().incNewMessageCount();
         updateTofTree( getSelectedNode() );
+    }
+
+    /**
+     * Marks messages currently in table as read.
+     */
+    private void markAllMessagesRead()
+    {
     }
 }
 
