@@ -1,24 +1,44 @@
 <?xml version="1.0" encoding="UTF-8"?>
- <FrostIdentities>
+<FrostIdentities>
 
-     <localID>
-         <name>anonbback</name>
-         <CHK>... to be removed if switched to xml ... </CHK> <!-- the freenet key of pubkey.txt -->
-         <publicKey>xxx</publicKey>
-         <privateKey>yyy</privateKey>
-     </localID>
+    <LocalID>
+        <name>anonbback</name>
+        <CHK>... to be removed if switched to xml messages ... </CHK> <!-- the freenet key of pubkey.txt -->
+        <publicKey>xxx</publicKey>
+        <privateKey>yyy</privateKey>
+    </LocalID>
 
-     <identity>
-         <name>someone@TUC2__2Fck2V9XP0OBpmQ+01ekk</name>
-         <CHK>... to be removed if switched to xml ... </CHK>
-         <publicKey>aaaa</publicKey>
-         <status>GOOD</status>
-     </identity>
-     <identity>
-         <name>someone2@TUC2__2Fck2V9XP0OBpmQ+01ekk</name>
-         <CHK>... to be removed if switched to xml ... </CHK>
-         <publicKey>aaaa</publicKey>
-         <status>NEUTRAL</status>
-     </identity>
+    <FrostIdentitiesTree>
 
- </FrostIdentities>
+        <FrostIdentityTreeEntry isFolder="true" isExpanded="true">
+            <name>Private Message System</name>
+
+            <FrostIdentityTreeEntry isFolder="true" isExpanded="true">
+                <name>Good persons</name>
+
+                <FrostIdentityTreeEntry>
+                    <name>someone@TUC2__2Fck2V9XP0OBpmQ+01ekk</name>
+                    <CHK>... to be removed if switched to xml messages ... </CHK>
+                    <publicKey>aaaa</publicKey>
+                    <status>GOOD</status>
+                </FrostIdentityTreeEntry>
+
+            </FrostIdentityTreeEntry>
+
+            <FrostIdentityTreeEntry isFolder="true" isExpanded="true">
+                <name>Neutral persons</name>
+
+                <FrostIdentityTreeEntry>
+                    <name>someone2@TUC2__2Fck2V9XP0OBpmQ+01ekk</name>
+                    <CHK>... to be removed if switched to xml messages ... </CHK>
+                    <publicKey>aaaa</publicKey>
+                    <status>NEUTRAL</status>
+                </FrostIdentityTreeEntry>
+
+            </FrostIdentityTreeEntry>
+
+        </FrostIdentityTreeEntry>
+
+    </FrostIdentitiesTree>
+
+</FrostIdentities>

@@ -64,6 +64,22 @@ public class BoardInfoFrame extends JFrame
     BoardInfoTableModel boardTableModel = new BoardInfoTableModel();
     SortedTable boardTable = new SortedTable(boardTableModel);
 
+    /**Constructor*/
+    public BoardInfoFrame(frame1 p)
+    {
+        super();
+        parent = p;
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+        try {
+            Init();
+        }
+        catch( Exception e ) {
+            e.printStackTrace();
+        }
+        pack();
+        setLocationRelativeTo( parent );
+    }
+
     private void Init() throws Exception {
         //------------------------------------------------------------------------
         // Configure objects
@@ -258,12 +274,6 @@ public class BoardInfoFrame extends JFrame
                 fileCount += newRow.getFilesCount().intValue();
                 boardCount++;
 
-                if( board.isUpdating() )
-                {
-                    // this board is updating right now
-                    newRow.setUpdating(true);
-                }
-
                 final BoardInfoTableMember finalRow = newRow;
                 final int finalBoardCount = boardCount;
                 final int finalMessageCount = messageCount;
@@ -286,6 +296,7 @@ public class BoardInfoFrame extends JFrame
     // simple hack, but does the thing
     private void updateAllBoardsButton_actionPerformed(ActionEvent e)
     {
+        // TODO: select all from tofTree
         boardTable.selectAll();
         updateSelectedBoardButton_actionPerformed(e);
     }
@@ -305,19 +316,11 @@ public class BoardInfoFrame extends JFrame
 
                 BoardInfoTableMember row = (BoardInfoTableMember)((BoardInfoTableModel)boardTableModel).getRow(rowIx);
 
-                // check if board is already in list of updating boards
-                if( row.getBoard().isUpdating() )
-                {
-                    // paranoia: update not needed, but ensure that this updated board is drawn in bold
-                    row.setUpdating(true);
-                    boardTableModel.fireTableCellUpdated(rowIx, 0);
-                }
                 if( parent.isUpdateAllowed(row.getBoard()) == true ) // is update allowed for this board?
                 {
                     parent.updateBoard(row.getBoard());
-                    row.setUpdating(true);
-                    boardTableModel.fireTableCellUpdated(rowIx, 0);
                 }
+                boardTableModel.fireTableCellUpdated(rowIx, 0);
             }
             boardTable.clearSelection();
         }
@@ -337,49 +340,6 @@ public class BoardInfoFrame extends JFrame
             closeDialog();
         }
         super.processWindowEvent(e);
-    }
-
-    /**Constructor*/
-    public BoardInfoFrame(frame1 p)
-    {
-        super();
-        parent = p;
-        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try {
-            Init();
-        }
-        catch( Exception e ) {
-            e.printStackTrace();
-        }
-        pack();
-        setLocationRelativeTo( parent );
-    }
-
-    class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
-    {
-        Font boldFont;
-        Font origFont;
-        public BoardInfoTableCellRenderer()
-        {
-            super();
-            origFont = this.getFont();
-            boldFont = origFont.deriveFont( Font.BOLD );
-        }
-
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
-                                                       boolean hasFocus, int row, int column)
-        {
-            super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
-
-            BoardInfoTableMember tblrow = (BoardInfoTableMember)((BoardInfoTableModel)table.getModel()).getRow(row);
-
-            if( tblrow.isUpdating() )
-            {
-                setFont( boldFont );
-            }
-
-            return this;
-        }
     }
 
     /**
@@ -467,7 +427,6 @@ public class BoardInfoFrame extends JFrame
         Integer allmsg;
         Integer newmsg;
         Integer files;
-        boolean isUpdating = false;
 
         public BoardInfoTableMember(FrostBoardObject board)
         {
@@ -499,14 +458,6 @@ public class BoardInfoFrame extends JFrame
         public FrostBoardObject getBoard()
         {
             return board;
-        }
-        public boolean isUpdating()
-        {
-            return isUpdating;
-        }
-        public void setUpdating( boolean val )
-        {
-            isUpdating = val;
         }
         public Integer getFilesCount()
         {
@@ -543,5 +494,36 @@ public class BoardInfoFrame extends JFrame
     {
         setDialogShowing( true );
         show();
+    }
+
+    class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
+    {
+        Font boldFont;
+        Font origFont;
+        public BoardInfoTableCellRenderer()
+        {
+            super();
+            origFont = this.getFont();
+            boldFont = origFont.deriveFont( Font.BOLD );
+        }
+
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
+                                                       boolean hasFocus, int row, int column)
+        {
+            super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
+
+            BoardInfoTableMember tblrow = (BoardInfoTableMember)((BoardInfoTableModel)table.getModel()).getRow(row);
+
+            if( tblrow.getBoard().isUpdating() )
+            {
+                setFont( boldFont );
+            }
+            else
+            {
+                setFont( origFont );
+            }
+
+            return this;
+        }
     }
 }
