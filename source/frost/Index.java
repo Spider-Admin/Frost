@@ -60,24 +60,16 @@ public class Index
         }
 
         FrostIndex idx = FileAccess.readKeyFile(keyFile);
-        Iterator it = idx.getFiles().iterator();
-        while (it.hasNext()) {
-        	SharedFileObject current = (SharedFileObject)it.next();
-        	if (current.getSHA1().equals(SHA1))
-        		return current;
-        }
+		if (idx.getFilesMap().containsKey(SHA1))
+			return (SharedFileObject)idx.getFilesMap().get(SHA1);
         
 //		then try the recently uploaded files
 		keyFile =
 			  new File(
 				  frame1.keypool + board + fileSeparator + "new_files.xml");
 		idx = FileAccess.readKeyFile(keyFile);
-		it = idx.getFiles().iterator();
-		while (it.hasNext()) {
-			SharedFileObject current = (SharedFileObject)it.next();
-			if (current.getSHA1().equals(SHA1))
-				return current;
-		}
+		if (idx.getFilesMap().containsKey(SHA1))
+				return (SharedFileObject)idx.getFilesMap().get(SHA1);
 		
         return null;
        
@@ -366,11 +358,11 @@ public class Index
         {
             e.printStackTrace(Core.getOut());
         }
-        FileIndex idx = FileAccess.readKeyFile(indexFile);
-        if (chk.get(hash) != null)
-            chk.remove(hash);
-        chk.put(hash, key);
-        FileAccess.writeKeyFile(chk, indexFile);
+        FrostIndex idx = FileAccess.readKeyFile(indexFile);
+        if (idx.getFiles().contains(key))
+            idx.getFiles().remove(key);
+        idx.getFiles().add(key);
+        FileAccess.writeKeyFile(idx, indexFile);
     }
 
     /**
@@ -447,9 +439,9 @@ public class Index
     {
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         //        final String fileSeparator = System.getProperty("file.separator");
-        final Map whole = Collections.synchronizedMap(new HashMap());
+        //final Map whole = Collections.synchronizedMap(new HashMap());
 
-        FileAccess.readKeyFile(target, whole);
+        FrostIndex whole = FileAccess.readKeyFile(target);
 
         //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
         //  target.mkdir();
@@ -464,11 +456,11 @@ public class Index
                 updateDownloadTable(current);
 
             SharedFileObject old =
-                (SharedFileObject)whole.get(current.getSHA1());
+                (SharedFileObject)whole.getFilesMap().get(current.getSHA1());
 
             if (old == null)
             {
-                whole.put(current.getSHA1(), current);
+                whole.getFilesMap().put(current.getSHA1(), current);
                 continue;
             }
             old.setDate(current.getDate());
