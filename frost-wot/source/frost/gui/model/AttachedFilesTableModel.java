@@ -21,29 +21,50 @@ package frost.gui.model;
 
 import javax.swing.table.DefaultTableModel;
 
+import frost.util.gui.translation.*;
 
-public class AttachedFilesTableModel extends DefaultTableModel
+
+public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+	private UpdatingLanguageResource languageResource = null;
+	
+	protected final static String columnNames[] = new String[2];
 
-    protected final static String columnNames[] = {
-        LangRes.getString("Filename"),
-        LangRes.getString("Size")
-    };
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
         String.class //LangRes.getString("Size")
     };
 
-    public AttachedFilesTableModel()
-    {
-        super();
-    }
+    /**
+     * @param languageResource
+     */
+    public AttachedFilesTableModel(UpdatingLanguageResource languageResource) {
+		super();
+		this.languageResource = languageResource;
+		refreshLanguage();
+	}
 
     public boolean isCellEditable(int row, int col)
     {
         return false;
     }
+    
+	/* (non-Javadoc)
+	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+	 */
+	public void languageChanged(LanguageEvent event) {
+		refreshLanguage();			
+	}
+	
+	/**
+	 * 
+	 */
+	private void refreshLanguage() {
+		columnNames[0] = languageResource.getString("Filename");
+		columnNames[1] = languageResource.getString("Size");
+
+		fireTableStructureChanged();		
+	}
 
     public String getColumnName(int column)
     {
