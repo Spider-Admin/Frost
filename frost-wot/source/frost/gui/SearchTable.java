@@ -81,25 +81,28 @@ public class SearchTable extends SortedTable
         {
             super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
 
-            SearchTableModel model = (SearchTableModel)getModel();
-            FrostSearchItemObject sItem = (FrostSearchItemObject)model.getRow(row);
+            if( !isSelected )
+            {
+                SearchTableModel model = (SearchTableModel)getModel();
+                FrostSearchItemObject sItem = (FrostSearchItemObject)model.getRow(row);
 
-            if( sItem.getState() == sItem.STATE_DOWNLOADED )
-            {
-                setForeground( Color.LIGHT_GRAY );
-            }
-            else if( sItem.getState() == sItem.STATE_DOWNLOADING )
-            {
-                setForeground( Color.BLUE );
-            }
-            else if(sItem.getState() == sItem.STATE_UPLOADING )
-            {
-                setForeground( Color.GREEN );
-            }
-            else
-            {
-                // normal item, drawn in black
-                setForeground( Color.BLACK );
+                if( sItem.getState() == sItem.STATE_DOWNLOADED )
+                {
+                    setForeground( Color.LIGHT_GRAY );
+                }
+                else if( sItem.getState() == sItem.STATE_DOWNLOADING )
+                {
+                    setForeground( Color.BLUE );
+                }
+                else if(sItem.getState() == sItem.STATE_UPLOADING )
+                {
+                    setForeground( Color.GREEN );
+                }
+                else
+                {
+                    // normal item, drawn in black
+                    setForeground( Color.BLACK );
+                }
             }
             return this;
         }
