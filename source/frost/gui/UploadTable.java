@@ -122,7 +122,10 @@ public class UploadTable extends SortedTable
      * Adds all files in upload table to the Index class.
      * This Index will later be uploaded to freenet.
      */
-    public void addFilesToBoardIndex()
+    public void addFilesToBoardIndex() 
+    //FIXME: according to the call hierarchy plugin, this is only called when the user explictly clicks
+    //"add files to board index".  But what does that do?  And how is this functionality different from
+    //what insertThread does by default?
     {
         /*SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
         Date today = new Date();*/

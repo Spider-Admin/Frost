@@ -1179,7 +1179,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         // Upload / Restore default filenames for all files
         uploadPopupAddFilesToBoard.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                getUploadTable().addFilesToBoardIndex();
+                getUploadTable().addFilesToBoardIndex(); //FIXME: what does this do?
             } });
     }
 
