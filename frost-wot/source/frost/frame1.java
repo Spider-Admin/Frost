@@ -1321,8 +1321,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			public void actionPerformed(ActionEvent e) {
 				// make the font size in the TOF text area one point bigger
 				Font f = tofTextArea.getFont();
-				frostSettings.setValue("tofFontSize", f.getSize() + 1.0f);
-				f = f.deriveFont(frostSettings.getFloatValue("tofFontSize"));
+				frostSettings.setValue("messageBodyFontSize", f.getSize() + 1);
+				f = f.deriveFont(frostSettings.getFloatValue("messageBodyFontSize"));
 				tofTextArea.setFont(f);
 			}
 		});
@@ -1330,8 +1330,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			public void actionPerformed(ActionEvent e) {
 				// make the font size in the TOF text area one point smaller
 				Font f = tofTextArea.getFont();
-				frostSettings.setValue("tofFontSize", f.getSize() - 1.0f);
-				f = f.deriveFont(frostSettings.getFloatValue("tofFontSize"));
+				frostSettings.setValue("messageBodyFontSize", f.getSize() - 1);
+				f = f.deriveFont(frostSettings.getFloatValue("messageBodyFontSize"));
 				tofTextArea.setFont(f);
 			}
 		});
@@ -1450,9 +1450,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		fileMenu.add(fileExitMenuItem);
 		// News Menu
 		tofMenu.add(tofAutomaticUpdateMenuItem);
-		tofMenu.addSeparator();
-		tofMenu.add(tofIncreaseFontSizeMenuItem);
-		tofMenu.add(tofDecreaseFontSizeMenuItem);
+		//tofMenu.addSeparator();
+		//tofMenu.add(tofIncreaseFontSizeMenuItem);
+		//tofMenu.add(tofDecreaseFontSizeMenuItem);
 		tofMenu.addSeparator();
 		tofMenu.add(tofConfigureBoardMenuItem);
 		tofMenu.addSeparator();
@@ -2215,13 +2215,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
 
 		// make sure the font size isn't too small to see
-		if (frostSettings.getFloatValue("tofFontSize") < 6.0f)
-			frostSettings.setValue("tofFontSize", 6.0f);
-
-		// always use monospaced font for tof text
-		Font tofFont =
-			new Font("Monospaced", Font.PLAIN, (int) frostSettings.getFloatValue("tofFontSize"));
-		tofTextArea.setFont(tofFont);
+		if (frostSettings.getIntValue("messageBodyFontSize") < 6)
+			frostSettings.setValue("messageBodyFontSize", 6);
 
 		// Load table settings
 		getDownloadTable().load();
@@ -2261,6 +2256,23 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 	} // ************** end-of: jbInit()
+
+	/**
+	 * 
+	 */
+	private void initializeFont() {
+		String fontName = frostSettings.getValue("messageBodyFontName");
+		int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
+		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
+		Font tofFont = new Font(fontName, fontStyle, fontSize);
+		if (!tofFont.getFamily().equals(fontName)) {
+			System.out.println("The selected font was not bound in your system");
+			System.out.println("That selection will be changed to \"Monospaced\".\n");
+			frostSettings.setValue("messageBodyFontName", "Monospaced");
+			tofFont = new Font("Monospaced", fontStyle, fontSize);
+		}
+		tofTextArea.setFont(tofFont);
+	}
 
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
 		//Core.getOut().println("Clipboard contents replaced");
@@ -3336,6 +3348,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				tabbedPane.indexOfTab(languageResource.getString("Uploads")),
 				false);
 		}
+		initializeFont();	//In case the fonts were changed
 	}
 	/**
 	 * Fires a nodeChanged (redraw) for all boards.
