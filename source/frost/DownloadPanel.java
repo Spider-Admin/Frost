@@ -387,11 +387,12 @@ public class DownloadPanel extends JPanel {
 		 */
 		public void mousePressed(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-				
-				if (e.getSource() == downloadTable) {
+
+				if ((e.getSource() == downloadTable) ||
+					   (e.getSource() == downloadTableScrollPane)) {
 					showDownloadTablePopupMenu(e);
 				}
-				
+
 			}
 		}
 
@@ -401,7 +402,8 @@ public class DownloadPanel extends JPanel {
 		public void mouseReleased(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
 				
-				if (e.getSource() == downloadTable) {
+				if ((e.getSource() == downloadTable) ||
+					   (e.getSource() == downloadTableScrollPane)) {
 					showDownloadTablePopupMenu(e);
 				}
 				
@@ -493,6 +495,7 @@ public class DownloadPanel extends JPanel {
 			downloadTable.addKeyListener(listener);
 			downloadTextField.addActionListener(listener);
 			downloadActivateCheckBox.addItemListener(listener);
+			downloadTableScrollPane.addMouseListener(listener);
 
 			initialized = true;
 		}
