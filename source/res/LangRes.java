@@ -442,6 +442,7 @@ public class LangRes extends ListResourceBundle {
 	{"Message Body","Message Body"},
 	{"Message List","Message List"},
 	{"Choose","Choose"},
+	{"EnableMessageBodyAA", "Enable antialiasing for Message Body"},
 
 	///////////////////////////////////////////////////
 	// Board Information Window
