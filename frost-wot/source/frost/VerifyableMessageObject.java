@@ -252,8 +252,8 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                     }
                     else //failed authentication, don't ask the user
                     {
-                        System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to BAD: "+currentMsg.getFrom() );
-                        currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                        System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to N/A: "+currentMsg.getFrom() );
+                        currentMsg.setStatus(VerifyableMessageObject.NA);
                     }
                 }
             }
