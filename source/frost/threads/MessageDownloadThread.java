@@ -303,6 +303,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     }
                     else
                     { // duplicate message
+                        // FIXME: check for real double! this fails for me and an msg file containing "Empty"
                         Core.getOut().println(Thread.currentThread().getName()+": TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
                         FileAccess.writeFile("Empty", testMe);
                     }
