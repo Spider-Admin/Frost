@@ -29,34 +29,35 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private String fileAge = null;
     private String key = null;
     private FrostBoardObject sourceBoard = null;
-    private Integer htl = null;
+    private Integer retries = null;
 
     private int state = 0;
     private long downloadProgress = 0; // the count of downloaded bytes
 
     private long lastDownloadStartTimeMillis = 0; // used for one by one update mode
+    private long lastDownloadStopTimeMillis = 0; // time when download try finished, used for pause between tries
 
-    public FrostDownloadItemObject( FrostSearchItem searchItem, int initialHtl )
+    public FrostDownloadItemObject( FrostSearchItem searchItem )
     {
         fileName = searchItem.getFilename();
         fileSize = searchItem.getSize();
         fileAge = searchItem.getDate();
         key = searchItem.getKey();
         sourceBoard = searchItem.getBoard();
+        retries = new Integer(0);
 
-        htl = new Integer( initialHtl );
         state = STATE_WAITING;
     }
 
-    public FrostDownloadItemObject( String fileName, String key, FrostBoardObject board, int initialHtl )
+    public FrostDownloadItemObject( String fileName, String key, FrostBoardObject board )
     {
         this.fileName = fileName;
         fileSize = null; // not set yet
         fileAge = null;
         this.key = key;
         sourceBoard = board;
+        retries = new Integer(0);
 
-        htl = new Integer( initialHtl );
         state = STATE_WAITING;
     }
 
@@ -64,19 +65,22 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
                                     String fileSize,
                                     String fileAge,
                                     String key,
-                                    String htl,
+                                    String tries,
                                     int state,
                                     FrostBoardObject board )
     {
         this.fileName = fileName;
         if( fileSize != null )
-        {
             this.fileSize = new Long( fileSize );
-        }
+
+        if(tries != null )
+            retries = new Integer(tries);
+        else
+            retries = new Integer(0);
+
         this.fileAge = fileAge;
         this.key = key;
         this.sourceBoard = board;
-        this.htl = new Integer( htl );
         this.state = state;
     }
 
@@ -96,7 +100,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
             case 1: return aFileSize;               //LangRes.getString("Size"),
             case 2: return aFileAge;                //LangRes.getString("Age"),
             case 3: return getStateString( state ); //LangRes.getString("State"),
-            case 4: return htl;                     //LangRes.getString("HTL"),
+            case 4: return retries;                   //LangRes.getString("Retries"),
             case 5: return sourceBoard.toString();  //LangRes.getString("Source"),
             case 6: return key;                     //LangRes.getString("Key")
             default: return "*ERR*";
@@ -126,14 +130,6 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public String getFileAge()
     {
         return fileAge;
-    }
-    public Integer getHtl()
-    {
-        return htl;
-    }
-    public void setHtl(int v)
-    {
-        htl = new Integer(v);
     }
     public String getKey()
     {
@@ -176,6 +172,16 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         lastDownloadStartTimeMillis = val;
     }
 
+
+    public long getLastDownloadStopTimeMillis()
+    {
+        return lastDownloadStopTimeMillis;
+    }
+    public void setLastDownloadStopTimeMillis( long val )
+    {
+        lastDownloadStopTimeMillis = val;
+    }
+
     public long getDownloadProgress()
     {
         return downloadProgress;
@@ -184,4 +190,14 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         downloadProgress = val;
     }
+
+    public int getRetries()
+    {
+        return retries.intValue();
+    }
+    public void setRetries( int val )
+    {
+        retries = new Integer(val);
+    }
+
 }

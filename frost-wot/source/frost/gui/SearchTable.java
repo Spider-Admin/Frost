@@ -38,7 +38,7 @@ public class SearchTable extends SortedTable
     /**
      * Adds all selected items in searchtable to download table.
      */
-    public void addSelectedSearchItemsToDownloadTable(DownloadTable dlTable, int initialHTL)
+    public void addSelectedSearchItemsToDownloadTable(DownloadTable dlTable)
     {
         SearchTableModel searchTableModel = (SearchTableModel)getModel();
         int[] selectedRows = getSelectedRows();
@@ -46,7 +46,7 @@ public class SearchTable extends SortedTable
         for (int i = 0; i < selectedRows.length; i++)
         {
             FrostSearchItem searchItem = (FrostSearchItem)searchTableModel.getRow( selectedRows[i] );
-            FrostDownloadItemObject dlItem = new FrostDownloadItemObject(searchItem, initialHTL);
+            FrostDownloadItemObject dlItem = new FrostDownloadItemObject(searchItem);
 
             boolean isAdded = dlTable.addDownloadItem( dlItem ); // will not add if item is already in table
         }

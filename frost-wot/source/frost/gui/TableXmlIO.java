@@ -195,11 +195,11 @@ public class TableXmlIO
         String filesize = XMLTools.getChildElementsTextValue(dlItemElement, "filesize");
         String fileage = XMLTools.getChildElementsTextValue(dlItemElement, "fileage");
         String key = XMLTools.getChildElementsCDATAValue(dlItemElement, "key");
-        String htl = XMLTools.getChildElementsTextValue(dlItemElement, "htl");
+        String retries = XMLTools.getChildElementsTextValue(dlItemElement, "retries");
         String state = XMLTools.getChildElementsTextValue(dlItemElement, "state");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
 
-        if( filename == null ||  key == null || htl == null || state == null || sourceboardname == null )
+        if( filename == null ||  key == null || state == null || sourceboardname == null )
         {
             System.out.println("DownloadTable: Error in XML save file, skipping entry.");
             return null;
@@ -243,7 +243,7 @@ public class TableXmlIO
                                                                      filesize,
                                                                      fileage,
                                                                      key,
-                                                                     htl,
+                                                                     retries,
                                                                      iState,
                                                                      board);
         return dlItem;
@@ -386,9 +386,9 @@ public class TableXmlIO
         cdata = doc.createCDATASection( dlItem.getKey() );
         element.appendChild( cdata );
         itemElement.appendChild( element );
-        // filesize
-        element = doc.createElement("htl");
-        text = doc.createTextNode( dlItem.getHtl().toString() );
+        // retries
+        element = doc.createElement("retries");
+        text = doc.createTextNode( String.valueOf(dlItem.getRetries()) );
         element.appendChild( text );
         itemElement.appendChild( element );
         // state
