@@ -18,42 +18,41 @@ public class LocalIdentity extends Identity
 {
     private String privKey;
 
-	protected Element localIdentityPopulateElement(Element el, Document doc){
-		el = baseIdentityPopulateElement(el,doc);
+
+	public Element getXMLElement(Document doc) {
+	
+		//have to copy all children, no Element.rename()unfortunately
+		Element el = super.getXMLElement(doc);
+		Element el2 = doc.createElement("MyIdentity");
+		NodeList list = el.getChildNodes();
+		while(list.getLength()>0)
+			el2.appendChild(list.item(0));
+		
+		
 		Element element = doc.createElement("privKey");
 		CDATASection cdata = doc.createCDATASection(privKey);
 		element.appendChild(cdata);
-		el.appendChild(element);
-		return el;
+		el2.appendChild(element);
+		return el2;
 	}
-
-	public Element getXMLElement(Document doc) {
-		Element el = doc.createElement("MyIdentity");
-		el = localIdentityPopulateElement(el,doc);
-		return el;
-	}
-	
+	/**
+	 * just renames the element to MyIdentity to maintain
+	 * backward compatibility
+	 */
 	public Element getSafeXMLElement(Document doc){
-			Element el = getXMLElement(doc);
-			List sensitive = XMLTools.getChildElementsByTagName(el,"trustedIds");
-			sensitive.addAll(XMLTools.getChildElementsByTagName(el,"files"));
-			sensitive.addAll(XMLTools.getChildElementsByTagName(el,"messages"));
-			sensitive.addAll(XMLTools.getChildElementsByTagName(el,"privKey"));
+		Element el = super.getSafeXMLElement(doc);
+		Element el2 = doc.createElement("MyIdentity");
+		NodeList list = el.getChildNodes();
+		while (list.getLength()>0)
+			el2.appendChild(list.item(0));
+		return el2;	
 		
-			Iterator it = sensitive.iterator();
-			while (it.hasNext()) {
-				el.removeChild((Element)it.next());
-			}
-			return el;
-		}
-	
-	protected void localIdentityPopulateFromElement(Element el ) throws SAXException {
-		baseIdentityPopulateFromElement(el);
-		privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
 	}
 	
+
 	public void loadXMLElement(Element el) throws SAXException {
-		localIdentityPopulateFromElement(el);
+		super.loadXMLElement(el);
+		privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
 	}
 
     /**
