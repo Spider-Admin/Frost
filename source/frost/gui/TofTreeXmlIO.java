@@ -151,6 +151,9 @@ public class TofTreeXmlIO
             return;
         }
 
+        board.setConfigured( true );
+        element = (Element)list.get(0);
+
         String val = element.getAttribute("autoUpdate");
         board.setAutoUpdateEnabled( new Boolean(val).booleanValue() );
 
@@ -347,29 +350,6 @@ public class TofTreeXmlIO
             element.appendChild( text );
         }
         rootBoardElement.appendChild( element );
-
-        parent.appendChild( rootBoardElement );
-    }
-
-    protected Element appendFolderToDomTree(Element parent, FrostBoardObject board, Document doc,
-                                            DefaultTreeModel model, JTree tree)
-    {
-        Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
-        rootBoardElement.setAttribute("isfolder", "true");
-        boolean expanded;
-        String expandedstr;
-        expanded = tree.isExpanded( new TreePath(model.getPathToRoot(board)) );
-        if( expanded )
-            expandedstr = "true";
-        else
-            expandedstr = "false";
-
-        rootBoardElement.setAttribute("isexpanded", expandedstr);
-        // <name>
-        Element element = doc.createElement("name");
-        Text text = doc.createTextNode( board.toString() );
-        element.appendChild( text );
-        rootBoardElement.appendChild( element );
         // <config />
         if( board.isConfigured() )
         {
@@ -394,6 +374,29 @@ public class TofTreeXmlIO
             }
             rootBoardElement.appendChild( element );
         }
+
+        parent.appendChild( rootBoardElement );
+    }
+
+    protected Element appendFolderToDomTree(Element parent, FrostBoardObject board, Document doc,
+                                            DefaultTreeModel model, JTree tree)
+    {
+        Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
+        rootBoardElement.setAttribute("isfolder", "true");
+        boolean expanded;
+        String expandedstr;
+        expanded = tree.isExpanded( new TreePath(model.getPathToRoot(board)) );
+        if( expanded )
+            expandedstr = "true";
+        else
+            expandedstr = "false";
+
+        rootBoardElement.setAttribute("isexpanded", expandedstr);
+        // <name>
+        Element element = doc.createElement("name");
+        Text text = doc.createTextNode( board.toString() );
+        element.appendChild( text );
+        rootBoardElement.appendChild( element );
         parent.appendChild( rootBoardElement );
         return rootBoardElement;
     }
