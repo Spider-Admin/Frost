@@ -64,11 +64,11 @@ public class MessageTable extends SortedTable
         /* (non-Javadoc)
          * @see java.awt.Component#paint(java.awt.Graphics)
          */
-        public void paint (Graphics g){
-        	super.paint(g);
-        	Dimension size = getSize();
-        	
+        public void paintComponent (Graphics g){
+        	super.paintComponent(g);
+
         	if(isDeleted) {
+        		Dimension size = getSize();
         		g.drawLine(0, size.height / 2, size.width, size.height / 2);
         	}
         }
