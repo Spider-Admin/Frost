@@ -26,7 +26,6 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.gui.objects.Board;
 
 public class MessageObject implements XMLizable 
 {
@@ -119,37 +118,6 @@ public class MessageObject implements XMLizable
 	}
 
 	/**
-	 * Creates a Vector of Vectors which contains data for the attached boards
-	 * table.
-	 */
-	public Vector getBoardAttachments() {
-		Vector table = new Vector();
-		AttachmentList boards = attachments.getAllOfType(Attachment.BOARD);
-		Iterator i = boards.iterator();
-		while (i.hasNext()) {
-			BoardAttachment ba = (BoardAttachment) i.next();
-			Board aBoard = ba.getBoardObj();
-
-			Vector rows = new Vector();
-			rows.add(aBoard.getName());
-			if (aBoard.getPublicKey() == null && aBoard.getPrivateKey() == null) {
-				rows.add("public");
-			} else if (aBoard.getPublicKey() != null && aBoard.getPrivateKey() == null) { 
-				rows.add("read - only");
-			} else {
-				rows.add("read / write");
-			}
-			if (aBoard.getDescription() == null) {
-				rows.add("Not present");
-			} else {
-				rows.add(aBoard.getDescription());
-			}
-			table.add(rows);
-		}
-		return table;
-	}
-	
-    /**
      * @return
      */
     public String getContent() {
@@ -171,30 +139,6 @@ public class MessageObject implements XMLizable
 	}
 
   /**
-   * Creates a Vector of Vectors which contains data for the attached files
-   * table.
-   */    
-    public Vector getFileAttachments() {
-        Vector table = new Vector();
-        AttachmentList files = attachments.getAllOfType(Attachment.FILE);
-        Iterator i = files.iterator();
-        while(i.hasNext())
-        {
-            FileAttachment fa = (FileAttachment)i.next();
-            SharedFileObject sfo = fa.getFileObj();
-            
-            if( sfo.getKey() != null && sfo.getKey().length() > 40 &&
-                sfo.getFilename() != null && sfo.getFilename().length() > 0 )
-            {
-                Vector rows = new Vector();
-                rows.add(sfo.getFilename());
-                rows.add(sfo.getSize());  //don't really need key
-                table.add(rows);
-            } 
-        }
-        return table;
-    }
-    /**
      * @return
      */
     public String getFrom() {

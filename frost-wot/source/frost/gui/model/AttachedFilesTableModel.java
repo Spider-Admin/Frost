@@ -19,8 +19,11 @@
 
 package frost.gui.model;
 
+import java.util.*;
+
 import javax.swing.table.DefaultTableModel;
 
+import frost.messages.*;
 import frost.util.gui.translation.*;
 
 
@@ -45,6 +48,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
     public AttachedFilesTableModel() {
 		super();
 		language = Language.getInstance();
+		language.addLanguageListener(this);
 		refreshLanguage();
 	}
 
@@ -71,6 +75,26 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
 		columnNames[1] = language.getString("Size");
 
 		fireTableStructureChanged();		
+	}
+	
+	/**
+	 * This method fills the table model with the FileAttachments
+	 * in the list passed as a parameter  
+	 * @param fileAttachments list of FileAttachments fo fill the model with
+	 */
+	public void setData(List fileAttachments) {
+		setRowCount(0);
+		Iterator files = fileAttachments.iterator();
+		while (files.hasNext()) {
+			FileAttachment attachment = (FileAttachment) files.next();
+			SharedFileObject fileObject = attachment.getFileObj();
+			// There is no point in showing a file without key / name
+			if (fileObject.getKey() != null && fileObject.getKey().length() > 40 &&
+				fileObject.getFilename() != null && fileObject.getFilename().length() > 0 ) {
+				Object[] row = {fileObject.getFilename(), fileObject.getSize()};
+				addRow(row);
+			}
+		}
 	}
 
     /* (non-Javadoc)
