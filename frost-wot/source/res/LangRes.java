@@ -309,6 +309,7 @@ public class LangRes extends ListResourceBundle {
 	{"Remove finished downloads every 5 minutes", "Remove finished downloads every 5 minutes"},
 	{"Try to download all segments, even if one fails", "Try to download all segments, even if one fails"},
 	{"Decode each segment immediately after its download", "Decode each segment immediately after its download"},
+	{"Select download directory", "Select download directory"},
 
 	// Uploads Panel
 	{"Disable uploads", "Disable uploads"},
