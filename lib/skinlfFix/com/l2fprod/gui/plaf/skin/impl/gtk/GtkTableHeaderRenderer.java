@@ -1,8 +1,8 @@
 /* ====================================================================
  *
- * Skin Look And Feel 1.2.5 License.
+ * Skin Look And Feel 1.2.8 License.
  *
- * Copyright (c) 2000-2003 L2FProd.com.  All rights reserved.
+ * Copyright (c) 2000-2004 L2FProd.com.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,12 +47,14 @@
  */
 package com.l2fprod.gui.plaf.skin.impl.gtk;
 
-import java.awt.*;
+import com.l2fprod.gui.plaf.skin.DefaultButton;
+
+import java.awt.Component;
+import java.awt.Graphics;
 
 import javax.swing.JTable;
-import javax.swing.table.*;
-
-import com.l2fprod.gui.plaf.skin.DefaultButton;
+import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.JTableHeader;
 
 /**
  * Description of the Class
@@ -60,65 +62,71 @@ import com.l2fprod.gui.plaf.skin.DefaultButton;
  * @author    fred
  * @created   27 avril 2002
  */
-public class GtkTableHeaderRenderer extends DefaultTableCellRenderer implements javax.swing.plaf.UIResource {
+public class GtkTableHeaderRenderer
+  extends DefaultTableCellRenderer
+  implements javax.swing.plaf.UIResource {
 
-	boolean isSelected;
-	boolean hasFocus;
+  boolean isSelected;
+  boolean hasFocus;
 
-	transient DefaultButton itemSelected, itemUnselected;
+  transient DefaultButton itemSelected, itemUnselected;
 
-	/**
-	 * Constructor for the GtkTableHeaderRenderer object
-	 */
-	public GtkTableHeaderRenderer(DefaultButton itemSelected, DefaultButton itemUnselected) {
-		setOpaque(false);
-		this.itemSelected = itemSelected;
-		this.itemUnselected = itemUnselected;
+  /**
+   * Constructor for the GtkTableHeaderRenderer object
+   */
+  public GtkTableHeaderRenderer(
+    DefaultButton itemSelected,
+    DefaultButton itemUnselected) {
+    setOpaque(false);
+    this.itemSelected = itemSelected;
+    this.itemUnselected = itemUnselected;
+  }
 
-		setHorizontalTextPosition(LEFT);
-		setHorizontalAlignment(CENTER);
-	}
+  /**
+   * Gets the TableCellRendererComponent attribute of the
+   * GtkTableHeaderRenderer object
+   *
+   * @param table       Description of Parameter
+   * @param value       Description of Parameter
+   * @param isSelected  Description of Parameter
+   * @param hasFocus    Description of Parameter
+   * @param row         Description of Parameter
+   * @param column      Description of Parameter
+   * @return            The TableCellRendererComponent value
+   */
+  public Component getTableCellRendererComponent(
+    JTable table,
+    Object value,
+    boolean isSelected,
+    boolean hasFocus,
+    int row,
+    int column) {
+    if (table != null) {
+      JTableHeader header = table.getTableHeader();
+      if (header != null) {
+        setForeground(header.getForeground());
+        setBackground(header.getBackground());
+        setFont(header.getFont());
+      }
+    }
 
-	/**
-	 * Gets the TableCellRendererComponent attribute of the
-	 * GtkTableHeaderRenderer object
-	 *
-	 * @param table       Description of Parameter
-	 * @param value       Description of Parameter
-	 * @param isSelected  Description of Parameter
-	 * @param hasFocus    Description of Parameter
-	 * @param row         Description of Parameter
-	 * @param column      Description of Parameter
-	 * @return            The TableCellRendererComponent value
-	 */
-	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column) {
+    this.isSelected = isSelected;
+    this.hasFocus = hasFocus;
+    setText((value == null) ? "" : value.toString());
+    return this;
+  }
 
-		if (table != null) {
-			JTableHeader header = table.getTableHeader();
-			if (header != null) {
-				setForeground(header.getForeground());
-				setBackground(header.getBackground());
-				setFont(header.getFont());
-			}
-		}
-
-		this.isSelected = isSelected;
-		this.hasFocus = hasFocus;
-		setText((value == null) ? "" : value.toString());
-		return this;
-	}
-
-	/**
-	 * Description of the Method
-	 *
-	 * @param g  Description of Parameter
-	 */
-	protected void paintComponent(Graphics g) {
-		if (isSelected || hasFocus) {
-			itemSelected.paint(g, this);
-		} else {
-			itemUnselected.paint(g, this);
-		}
-		super.paintComponent(g);
-	}
+  /**
+   * Description of the Method
+   *
+   * @param g  Description of Parameter
+   */
+  protected void paintComponent(Graphics g) {
+    if (isSelected || hasFocus) {
+      itemSelected.paint(g, this);
+    } else {
+      itemUnselected.paint(g, this);
+    }
+    super.paintComponent(g);
+  }
 }
