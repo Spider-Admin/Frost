@@ -2416,7 +2416,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**Options | Preferences action performed*/
 	private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
 		saveSettings();
-		OptionsFrame optionsDlg = new OptionsFrame(this, languageResource.getResourceBundle());
+		OptionsFrame optionsDlg = new OptionsFrame(this, languageResource);
 		boolean okPressed = optionsDlg.runDialog();
 		if (okPressed) {
 			// read new settings
