@@ -23,12 +23,13 @@ import java.awt.Frame;
 import java.io.*;
 import java.util.Vector;
 
+import javax.swing.JOptionPane;
+
 import frost.*;
+import frost.FcpTools.FcpInsert;
 import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
-
-import frost.FcpTools.*;
 
 /**
  * Uploads a message to a certain message board
@@ -62,25 +63,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     }
 
     /**
-     * Extracts all attachments from a message and returns
-     * them in a Vector
-     * @return Vector with paths of the attachments
-     */
-    private Vector getAttachments() {
-    int start = text.indexOf("<attach>");
-    int end = text.indexOf("</attach>", start);
-    Vector attachments = new Vector();
-
-    while (start != -1 && end != -1) {
-        attachments.add(text.substring(start + 8, end));
-        start = text.indexOf("<attach>", end);
-        end = text.indexOf("</attach>", start);
-    }
-
-    return attachments;
-    }
-
-    /**
      * sign
      */
     private void sign() {
@@ -101,10 +83,32 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     }
 
     /**
+     * Extracts all attachments from a message and returns
+     * them in a Vector
+     * @return Vector with paths of the attachments
+     */
+    private Vector getAttachments() {
+    final String startTag = "<attach>";
+    final String endTag = "</attach>";
+        
+    int start = text.indexOf(startTag);
+    int end = text.indexOf(endTag, start);
+    Vector attachments = new Vector();
+
+    while (start != -1 && end != -1) {
+        attachments.add( text.substring(start + startTag.length(), end) );
+        start = text.indexOf(startTag, end);
+        end = text.indexOf(endTag, start);
+    }
+
+    return attachments;
+    }
+    
+    /**
      * Uploads attachments.
      * This inserts the attached files into freenet.
      */
-    private void uploadAttachments() {
+    private boolean uploadAttachments() {
     Vector attachments = getAttachments();
 
     for (int i = 0; i < attachments.size(); i++) {
@@ -124,7 +128,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         {
             try {
                 result = FcpInsert.putFile("CHK@",
-                                           new File(attachment),
+                                           new File(attachment.trim()),
                                            frame1.frostSettings.getIntValue("htlUpload"),
                                            true); // doRedirect
             }
@@ -138,21 +142,27 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         if( result[0].equals("KeyCollision") ||
             result[0].equals("Success") )
         {
+            final String startTag = "<attach>";
+            final String endTag = "</attach>";
             System.out.println("TOFUP: Upload of attachment '"+attachment+"' was successful.");
             String chk = result[1];
-            int position = text.indexOf("<attach>" + attachment + "</attach>");
-            int length = attachment.length() + 17;
-            File attachedFile = new File(attachment);
-            String newText = text.substring(0, position) + "<attached>" + attachedFile.getName();
-            newText += " * " + chk + "</attached>";
+
+            int position = text.indexOf(startTag + attachment + endTag);
+            int length = startTag.length() + attachment.length() + endTag.length();
+            File attachedFile = new File(attachment.trim());
+            String newText = text.substring(0, position) + startTag + attachedFile.getName();
+            newText += " * " + chk + endTag;
             newText += text.substring(position + length, text.length());
             text = newText;
+            return true;
         }
         else
         {
             System.out.println("TOFUP: Upload of attachment '"+attachment+"' was NOT successful.");
+            return false;
         }
     }
+    return true; // nothing to upload
     }
 
     public void run()
@@ -176,7 +186,19 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
         System.out.println("TOFUP: Uploading message to board '" + board.toString() + "' with HTL " + messageUploadHtl);
 
-        uploadAttachments();
+        boolean uploadOK = uploadAttachments();
+        if( uploadOK == false )
+        {
+            JOptionPane.showMessageDialog(frameToLock, 
+                    "One or more attachments failed to upload.\n" +
+                    "Will retry to upload attachments and message on next startup.", 
+                    "Attachment upload failed", 
+                    JOptionPane.ERROR_MESSAGE);
+            // don't delete message file for uploading on next startup                    
+            notifyThreadFinished(this);
+            return;
+        }
+        
         sign();
 
         String fileSeparator = System.getProperty("file.separator");

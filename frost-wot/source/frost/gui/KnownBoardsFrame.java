@@ -30,12 +30,6 @@ import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 
-/**
- * @author kgraul
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public class KnownBoardsFrame extends JDialog
 {
     static ImageIcon boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
