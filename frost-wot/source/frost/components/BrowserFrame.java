@@ -21,10 +21,13 @@ package frost.components;
 
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.util.logging.*;
 
 import javax.swing.JFrame;
 
-public class BrowserFrame extends JFrame {    
+public class BrowserFrame extends JFrame {  
+	private static Logger logger = Logger.getLogger(BrowserFrame.class.getName());
+	  
     boolean plugin;
 
     Browser browser = new Browser(this);
@@ -61,7 +64,7 @@ public class BrowserFrame extends JFrame {
 	    Init();
 	}
 	catch(Exception e) {
-	    e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 	}
 	pack();
     }
