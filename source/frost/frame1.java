@@ -25,6 +25,7 @@ import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -463,8 +464,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 						setGoodItem.setEnabled(true);
 						setCheckItem.setEnabled(true);
 					} else
-						Core.getOut().println(
-							"invalid message state : " + selectedMessage.getStatus());
+						logger.warning("invalid message state : " + selectedMessage.getStatus());
 				}
 
 				addSeparator();
@@ -836,6 +836,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	public static String fileSeparator = System.getProperty("file.separator");
 	// saved to frost.ini
 	public static SettingsClass frostSettings = null;
+	
+	private static Logger logger = Logger.getLogger(frame1.class.getName());
 
 	//the identity stuff.  This really shouldn't be here but where else?
 	public static ObjectInputStream id_reader;
@@ -1134,7 +1136,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			};
 			tickerThread.start();
 		} catch (Throwable t) {
-			t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in the constructor", t);
 		}
 
 		//Close the splashscreen
@@ -1877,7 +1879,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * Adds all boards from the attachedBoardsTable to board list.
 	 */
 	private void downloadBoards() {
-		Core.getOut().println("adding boards");
+		logger.info("adding boards");
 		int[] selectedRows = getAttachedBoardsTable().getSelectedRows();
 
 		if (selectedRows.length == 0) {
@@ -2281,8 +2283,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
 		Font font = new Font(fontName, fontStyle, fontSize);
 		if (!font.getFamily().equals(fontName)) {
-			System.out.println("The selected font was not found in your system");
-			System.out.println("That selection will be changed to \"Monospaced\".\n");
+			logger.severe("The selected font was not found in your system\n" +
+						   "That selection will be changed to \"Monospaced\".");
 			frostSettings.setValue("messageBodyFontName", "Monospaced");
 			font = new Font("Monospaced", fontStyle, fontSize);
 		}
@@ -2293,8 +2295,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		fontSize = frostSettings.getIntValue("messageListFontSize");
 		font = new Font(fontName, fontStyle, fontSize);
 		if (!font.getFamily().equals(fontName)) {
-			System.out.println("The selected font was not found in your system");
-			System.out.println("That selection will be changed to \"SansSerif\".\n");
+			logger.severe("The selected font was not found in your system\n" +
+						   "That selection will be changed to \"SansSerif\".");
 			frostSettings.setValue("messageListFontName", "SansSerif");
 			font = new Font("SansSerif", fontStyle, fontSize);
 		}
@@ -2455,12 +2457,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**Options | Preferences action performed*/
 	private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
 		saveSettings();
-		OptionsFrame optionsDlg = new OptionsFrame(this, languageResource);
+		OptionsFrame optionsDlg = new OptionsFrame(this, frostSettings, languageResource);
 		boolean okPressed = optionsDlg.runDialog();
 		if (okPressed) {
-			// read new settings
-			frostSettings.readSettingsFile();
-
 			// check if signed only+hideCheck+hideBad or blocking words settings changed
 			if (optionsDlg.shouldReloadMessages()) {
 				// update the new msg. count for all boards
@@ -2592,7 +2591,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			if (selectedNode.isUpdating() == false) {
 				core.deleteDir(boardRelDir);
 			} else {
-				Core.getOut().println(
+				logger.warning(
 					"WARNING: Although being warned, you tried to delete a board with is updating! Skipped ...");
 			}
 		}
@@ -2691,10 +2690,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			}
 		}
 		if (nextBoard != null) {
-			Core.getOut().println(
+			logger.info(
 				"*** Automatic board update started for: " + nextBoard.toString());
 		} else {
-			Core.getOut().println(
+			logger.info(
 				"*** Automatic board update - min update interval not reached.  waiting...");
 		}
 		return nextBoard;
@@ -2760,7 +2759,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		if (status.indexOf(VerifyableMessageObject.PENDING) > -1) {
 			Identity owner = Core.getNeutral().Get(selectedMessage.getFrom());
 			if (owner == null) {
-				Core.getOut().println("message was CHECK but not found in Neutral list");
+				logger.warning("message was CHECK but not found in Neutral list");
 				return;
 			}
 		}
@@ -2768,7 +2767,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		if (status.indexOf(VerifyableMessageObject.FAILED) > -1) {
 			Identity owner = Core.getEnemies().Get(selectedMessage.getFrom());
 			if (owner == null) {
-				Core.getOut().println("message was BAD but not found in BAD list");
+				logger.warning("message was BAD but not found in BAD list");
 				return;
 			}
 
@@ -2777,7 +2776,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		if (status.indexOf(VerifyableMessageObject.VERIFIED) > -1) {
 			Identity owner = Core.getFriends().Get(selectedMessage.getFrom());
 			if (owner == null) {
-				Core.getOut().println("message was GOOD but not found in GOOD list");
+				logger.warning("message was GOOD but not found in GOOD list");
 				return;
 			}
 		}
@@ -3086,7 +3085,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 				updateButtons(node);
 
-				Core.getOut().println(
+				logger.info(
 					"Board " + node.toString() + " blocked count: " + node.getBlockedCount());
 
 				getUploadPanel().setAddFilesButtonEnabled(true);
@@ -3241,7 +3240,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				board,
 				frostSettings,
 				listener);
-			Core.getOut().println("Starting update (MSG_TODAY) of " + board.toString());
+				logger.info("Starting update (MSG_TODAY) of " + board.toString());
 			threadStarted = true;
 		}
 
@@ -3251,7 +3250,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				board,
 				BoardUpdateThread.BOARD_FILE_UPLOAD)) {
 			getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, listener);
-			Core.getOut().println("Starting update (BOARD_UPLOAD) of " + board.toString());
+			logger.info("Starting update (BOARD_UPLOAD) of " + board.toString());
 			threadStarted = true;
 		}
 
@@ -3260,7 +3259,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				board,
 				BoardUpdateThread.BOARD_FILE_DNLOAD)) {
 			getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, listener);
-			Core.getOut().println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
+			logger.info("Starting update (BOARD_DOWNLOAD) of " + board.toString());
 			threadStarted = true;
 		}
 
@@ -3269,7 +3268,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			.isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK)
 			== false) {
 			getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, listener);
-			Core.getOut().println("Starting update (MSG_BACKLOAD) of " + board.toString());
+			logger.info("Starting update (MSG_BACKLOAD) of " + board.toString());
 			threadStarted = true;
 		}
 
