@@ -78,7 +78,7 @@ public class insertThread extends Thread
 	    
 	    // item uploaded (maybe)
             uploadItem.setLastUploadDate( lastUploadDate ); // if NULL then upload failed -> shows NEVER in table
-	    uploadItem.setKey(result[1]);
+	    //uploadItem.setKey(result[1]);
 	    
 	    uploadItem.setState( FrostUploadItemObject.STATE_IDLE );
 	    
@@ -89,6 +89,7 @@ public class insertThread extends Thread
 	    
 	    //now update the files.xml with the CHK
 	    KeyClass current = Index.getKey(uploadItem.getSHA1(),board);
+	    if (current==null) System.out.println("index inconsistency - couldn't find already uploaded file");
 	    current.setKey(result[1]);
 	    current.setDate(lastUploadDate);
 	    Index.addMine(current,board);
