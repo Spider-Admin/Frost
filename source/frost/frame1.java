@@ -268,7 +268,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     File identities = new File("identities");
 
                     try
-                    { //TODO: complete this
+                    { //TODO: replace this with a call to XML serializer
                         FileWriter fout = new FileWriter(identities);
                         fout.write(mySelf.getName() + "\n");
                         fout.write(mySelf.getKeyAddress() + "\n");
