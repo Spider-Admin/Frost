@@ -1,77 +1,143 @@
 /*
-  Saver.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
-
-  This program is free software; you can redistribute it and/or
-  modify it under the terms of the GNU General Public License as
-  published by the Free Software Foundation; either version 2 of
-  the License, or (at your option) any later version.
-
-  This program is distributed in the hope that it will be useful,
-  but WITHOUT ANY WARRANTY; without even the implied warranty of
-  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
-  General Public License for more details.
-
-  You should have received a copy of the GNU General Public License
-  along with this program; if not, write to the Free Software
-  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/
+ * Created on Apr 16, 2004
+ *
+ * To change the template for this generated file go to
+ * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ */
 package frost.threads.maintenance;
 
+import java.util.*;
+import java.util.Timer;
 import java.util.logging.Logger;
 
 import frost.*;
+import frost.Core;
 
-public class Saver extends Thread
-{
-	private static Logger logger = Logger.getLogger(Saver.class.getName());
+/**
+ * @author Administrator
+ *
+ * To change the template for this generated type comment go to
+ * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ */
+public class Saver extends Timer {
+
+	/**
+	 * @author Administrator
+	 *
+	 * To change the template for this generated type comment go to
+	 * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+	 */
+	private class AutoTask extends TimerTask {
+
+		/**
+		 * 
+		 */
+		public AutoTask() {
+			super();
+		}
+
+		/* (non-Javadoc)
+		 * @see java.util.TimerTask#run()
+		 */
+		public void run() {
+			if (autoSavables != null) {
+				Enumeration enum = autoSavables.elements();
+				while (enum.hasMoreElements()) {
+					((Savable) enum.nextElement()).save();
+				}
+			}			
+		}
+
+	}
+	/**
+	 * @author Administrator
+	 *
+	 * To change the template for this generated type comment go to
+	 * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+	 */
+	private class ShutdownThread extends Thread {
+
+		/**
+		 * 
+		 */
+		public ShutdownThread() {
+		}
+
+		/** 
+		 * Called by shutdown hook.
+		 */
+		public void run() {
+			logger.info("Saving settings ...");
+
+			if (exitSavables != null) {
+				Enumeration enum = exitSavables.elements();
+				while (enum.hasMoreElements()) {
+					((Savable) enum.nextElement()).save();
+				}
+			}
+			FileAccess.cleanKeypool(frame1.keypool);
+
+			logger.info("Bye!");
+		}
+	}
 	
-    private final Core core;
-    
-    public Saver(Core newCore)
-    {
-        core = newCore;
-		Runtime.getRuntime().addShutdownHook(this);
-    }
+	private static Logger logger = Logger.getLogger(Saver.class.getName());
 
-    /**
-     * Called before exit of frost.
-     */    
-    public void exitSave()
-    {
-        // save gui state + config file
-        Core.frostSettings.save();
-    }
+	private ShutdownThread shutdownThread = new ShutdownThread();
+	private AutoTask autoTask = new AutoTask();
+	
+	private Vector autoSavables;
+	private Vector exitSavables;
 
-    /**
-     * Called by Core autosave timer.
-     * Saves all vital data.
-     */
-    public void autoSave()
-    {
-        core.getIdentities().save();
-        core.saveBatches();
-        core.saveKnownBoards();
-        core.saveHashes();
-        
-        frame1.getInstance().getTofTree().saveTree();
-        frame1.getInstance().getDownloadTable().save();
-        frame1.getInstance().getUploadTable().save();
-    }
+	/**
+	 * @param newCore
+	 */
+	public Saver(SettingsClass frostSettings) {
+		super();
+		Runtime.getRuntime().addShutdownHook(shutdownThread);
+		int autoSaveIntervalMinutes = frostSettings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL);
+		schedule(
+			autoTask,
+			autoSaveIntervalMinutes * 60 * 1000,
+			autoSaveIntervalMinutes * 60 * 1000);
+	}
 
-    /** 
-     * Called by shutdown hook.
-     */ 
-    public void run()
-    {
-        logger.info("Saving settings ...");
-        
-        autoSave();
-        exitSave();
-        FileAccess.cleanKeypool(frame1.keypool);
-        
-        logger.info("Bye!");
-    }
+	/**
+	 * Adds a Savable to the autoSavables list. 
+	 * <p>
+	 * If autoSavable is null, no exception is thrown and no action is performed.
+	 *
+	 * @param    autoSavable  the Savable to be added
+	 *
+	 * @see #removeAutoSavable 
+	 */
+	public synchronized void addAutoSavable(Savable autoSavable) {
+		if (autoSavable == null) {
+			return;
+		}
+		if (autoSavables == null) {
+			autoSavables = new Vector();
+		}
+		autoSavables.addElement(autoSavable);
+	}
+
+	/**
+	 * Adds a Savable to the exitSavables list. 
+	 * <p>
+	 * If exitSavable is null, no exception is thrown and no action is performed.
+	 *
+	 * @param    exitSavable  the Savable to be added
+	 *
+	 * @see #removeExitSavable
+	 */
+	public synchronized void addExitSavable(Savable exitSavable) {
+		if (exitSavable == null) {
+			return;
+		}
+		if (exitSavables == null) {
+			exitSavables = new Vector();
+		}
+		exitSavables.addElement(exitSavable);
+	}
+
 }
-
-
