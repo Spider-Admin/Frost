@@ -64,7 +64,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JPanel contentAreaPanel = null;
     JPanel optionsGroupsPanel = null;
 
-    JTextArea tofTextArea = new JTextArea(5,50);
+    JTextArea tofTextArea = new JTextArea(4,50);
 
     JTextField downloadDirectoryTextField = new JTextField(30);
     JTextField downloadMinHtlTextField = new JTextField(8);
@@ -108,6 +108,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField sampleInterval = new JTextField(5);
     JTextField spamTreshold = new JTextField(5);
     JTextField tofBlockMessageBodyTextField = new JTextField(32);
+
+    JCheckBox CBdisableRequests = new JCheckBox();
 
     JCheckBox signedOnly = new JCheckBox("Show only signed messages (off)");
     JCheckBox goodOnly = new JCheckBox("Show only GOOD messages (off)");
@@ -422,6 +424,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             tofPanel.add(tofMessageBaseTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
+            tofPanel.add(new JLabel("Disable update for files in boards (off)"), constr);
+            constr.gridx = 1;
+            tofPanel.add(CBdisableRequests, constr);
+            constr.gridy++;
+            constr.gridx = 0;
             tofPanel.add(new JLabel(LangRes.getString("Signature")), constr);
             constr.gridy++;
             constr.gridx = 0;
@@ -517,12 +524,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0;
             constr.gridy = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Keyfile upload HTL:") + "(8)"), constr);
+            miscPanel.add(new JLabel(LangRes.getString("Keyfile upload HTL:") + "(21)"), constr);
             constr.gridx = 1;
             miscPanel.add(miscKeyUploadHtlTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
-            miscPanel.add(new JLabel(LangRes.getString("Keyfile download HTL:") + "(15)"), constr);
+            miscPanel.add(new JLabel(LangRes.getString("Keyfile download HTL:") + "(24)"), constr);
             constr.gridx = 1;
             miscPanel.add(miscKeyDownloadHtlTextField, constr);
             constr.gridy++;
@@ -798,6 +805,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         searchExecutableExtensionTextField.setText(frostSettings.getValue("executableExtension"));
         searchArchiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
         cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
+        CBdisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
     }
 
     /**
@@ -858,6 +866,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("goodOnly", goodOnly.isSelected());
         frostSettings.setValue("altEdit", miscAltEditTextField.getText());
         frostSettings.setValue("doCleanUp",cleanUP.isSelected());
+        frostSettings.setValue("disableRequests",CBdisableRequests.isSelected());
         frostSettings.writeSettingsFile();
     }
 
