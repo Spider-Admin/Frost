@@ -33,12 +33,14 @@ import javax.swing.tree.*;
 import javax.swing.tree.DefaultTreeCellEditor;
 import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.datatransfer.*;
+
 import frost.FcpTools.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.ext.*;
 import frost.components.*;
 import frost.crypt.*;
+import frost.threads.*;
 
 public class frame1 extends JFrame implements ClipboardOwner {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
