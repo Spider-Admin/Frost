@@ -71,7 +71,7 @@ public class SharedFileObject implements XMLizable
         return cal;
     }
 
-    /**Returns true if key is outdated*/
+    /**Returns false if key is outdated*/
     public boolean checkDate()
     {
     	if (date == null) return true;
@@ -447,7 +447,7 @@ public class SharedFileObject implements XMLizable
 		if (date == null) return false;
 		if (key == null) return false;
 		//also offline if outdated
-		return !checkDate();
+		return checkDate();
 	}
 
 	/**
