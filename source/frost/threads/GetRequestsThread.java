@@ -42,7 +42,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
 
     public int getThreadType()
     {
-        return BoardUpdateThread.BOARD_FILE_DNLOAD;
+        return BoardUpdateThread.BOARD_FILE_UPLOAD;
     }
 
     public void run()

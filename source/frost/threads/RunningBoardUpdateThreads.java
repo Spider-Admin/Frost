@@ -101,7 +101,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
            config.getValue("keypool.dir"),
            frame1.getInstance().getUploadTable()
          );
-        
+
         // register listener and this class as listener
         grt.addBoardUpdateThreadListener( this );
         if( listener != null )
@@ -111,29 +111,28 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 
         // store thread in threads list
         getVectorFromHashtable( runningDownloadThreads, board ).add(grt);
-        
+
         // start thread
         grt.start();
-        
 
         return true;
     }
-    
+
     /**
      * starts udownloads of files to boards.  Same as above
      */
     public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
-    	UpdateIdThread uit = new UpdateIdThread(board);
+        UpdateIdThread uit = new UpdateIdThread(board);
         uit.addBoardUpdateThreadListener( this );
-	if( listener != null )
+    if( listener != null )
         {
             uit.addBoardUpdateThreadListener( listener );
         }
-	getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
-	uit.start();
-	return true;
+    getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
+    uit.start();
+    return true;
     }
     /**
      * if you specify a listener and the method returns true (thread is started), the listener

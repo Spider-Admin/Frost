@@ -1644,7 +1644,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         // maybe get the files list
         if( !frostSettings.getBoolValue("disableRequests") &&
-            !isThreadOfTypeRunning(board, BoardUpdateThread.ID_THREAD)
+            !isThreadOfTypeRunning(board, BoardUpdateThread.BOARD_FILE_UPLOAD)
           )
         {
             getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, null);
