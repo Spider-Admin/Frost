@@ -211,8 +211,10 @@ public class GetRequestsThread extends Thread
                                         continue;
                                     else
                                         SHA1 = SHA1.trim();
+                                    Core.getOut().println("comparing requested "+content + " with "+SHA1);
                                     if (SHA1.equals(content))
                                     {
+                                    	Core.getOut().println("content matched!");
                                         // ? is'nt it possible to use uploadItem.getLastUploadData for this?
                                         // probably, this .lck thing is jantho's style 
                                         File requestLock =
@@ -257,7 +259,7 @@ public class GetRequestsThread extends Thread
                                                     + SHA1
                                                     + " was requested, but already uploaded today");
                                         }
-                                    }
+                                    } else Core.getOut().println("content didn't match");
                                 }
                                 index++;
                                 failures = 0;
