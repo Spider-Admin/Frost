@@ -64,6 +64,7 @@ import javax.swing.JOptionPane;
 import javax.swing.JTextField;
 import javax.swing.UIDefaults;
 import javax.swing.UIManager;
+import javax.swing.border.*;
 import javax.swing.border.Border;
 import javax.swing.border.CompoundBorder;
 import javax.swing.plaf.BorderUIResource;
@@ -72,7 +73,7 @@ import javax.swing.plaf.DimensionUIResource;
 import javax.swing.plaf.FontUIResource;
 import javax.swing.plaf.IconUIResource;
 import javax.swing.plaf.InsetsUIResource;
-import javax.swing.plaf.basic.BasicLookAndFeel;
+import javax.swing.plaf.basic.*;
 import javax.swing.text.DefaultEditorKit;
 import javax.swing.text.JTextComponent;
 
@@ -239,6 +240,8 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
         SkinMenuBarUI.class.getName(),
         "ToolBarUI",
         SkinToolBarUI.class.getName(),
+        "ToolBarSeparatorUI",
+        SkinToolBarSeparatorUI.class.getName(),
       //	    "ListUI", SkinListUI.class.getName(),
       "PopupMenuUI",
         SkinPopupMenuUI.class.getName(),
@@ -312,6 +315,10 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
     Object treeCollapsedIcon = SkinTreeUI.CollapsedIcon.createCollapsedIcon();
 
     Object checkIcon = new SkinCheckBoxIcon();
+    
+	Border buttonBorder = new BorderUIResource.CompoundBorderUIResource(
+				new EmptyBorder(2,3,3,3),
+				new BasicBorders.MarginBorder());
 
     Object[] defaults = {
       //  	    // Buttons
@@ -325,6 +332,8 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
         new Integer(8),
         "Button.textShiftOffset",
         new Integer(1),
+        "Button.border",
+        buttonBorder,
         "Desktop.background",
         table.get("desktop"),
         "ToggleButton.textShiftOffset",
@@ -368,6 +377,7 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
         table.get("controlHighlight"),
         "InternalFrame.resizeIconShadow",
         table.get("controlShadow"),
+		"ToolBar.separatorSize", null
         };
     table.putDefaults(defaults);
 
@@ -982,9 +992,9 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
     UIManager.put("ScrollBar.alternateLayout", Boolean.FALSE);
     UIManager.put("JSplitPane.alternateUI", Boolean.FALSE);
 
-    Enumeration enum = element.enumerateChildren();
-    while (enum.hasMoreElements()) {
-      element = (XMLElement)enum.nextElement();
+    Enumeration enumeration = element.enumerateChildren();
+    while (enumeration.hasMoreElements()) {
+      element = (XMLElement)enumeration.nextElement();
       String tagName = element.getTagName().toLowerCase();
       if ("skin".equals(tagName)) {
         skin = buildSkin(url, element);
