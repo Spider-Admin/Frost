@@ -281,7 +281,7 @@ public class Core implements Savable {
 	public boolean saveKnownBoards() {
 		Document doc = XMLTools.createDomDocument();
 		if (doc == null) {
-			logger.severe("Error - saveBoardTree: factory could'nt create XML Document.");
+			logger.severe("Error - saveBoardTree: factory couldn't create XML Document.");
 			return false;
 		}
 
@@ -555,7 +555,7 @@ public class Core implements Savable {
 				getIdentities());
 		requestsThread.start();
 		
-		initializeTasks();
+		initializeTasks(mainFrame);
 
 		splashscreen.setText(getLanguageResource().getString("Reaching ridiculous speed..."));
 		splashscreen.setProgress(80);
@@ -615,9 +615,11 @@ public class Core implements Savable {
 	}
 
 	/**
-	 * 
+	 * @param parentFrame the frame that will be the parent of any
+	 * 			dialog that has to be shown in case an error happens
+	 * 			in one of those tasks
 	 */
-	private void initializeTasks() {
+	private void initializeTasks(JFrame parentFrame) {
 		//We initialize the task that checks for spam
 		timer.schedule(
 			new CheckForSpam(this),
@@ -643,7 +645,7 @@ public class Core implements Savable {
 
 		//We initialize the task that saves data
 		
-		Saver saver = new Saver(frostSettings);
+		Saver saver = new Saver(frostSettings, languageResource, parentFrame);
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
 		saver.addAutoSavable(MainFrame.getInstance().getTofTree());
