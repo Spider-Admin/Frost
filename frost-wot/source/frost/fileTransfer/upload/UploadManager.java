@@ -11,13 +11,10 @@ import java.beans.*;
 import frost.*;
 import frost.gui.TofTree;
 import frost.identities.LocalIdentity;
-import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 public class UploadManager implements PropertyChangeListener {
 
@@ -25,7 +22,6 @@ public class UploadManager implements PropertyChangeListener {
 	private TofTree tofTree;
 	private MainFrame mainFrame; 
 	private SettingsClass settings;
-	private UpdatingLanguageResource languageResource;
 	
 	private UploadModel model;
 	private UploadPanel panel;
@@ -34,13 +30,13 @@ public class UploadManager implements PropertyChangeListener {
 	private boolean freenetIsOnline;
 
 	/**
-	 * 
+	 * @param settings
 	 */
-	public UploadManager(UpdatingLanguageResource newLanguageResource, SettingsClass newSettings) {
+	public UploadManager(SettingsClass settings) {
 		super();
-		languageResource = newLanguageResource;
-		settings = newSettings;
+		this.settings = settings;
 	}
+	
 	/**
 	 * 
 	 */
@@ -85,7 +81,6 @@ public class UploadManager implements PropertyChangeListener {
 			panel = new UploadPanel(settings);
 			panel.setModel(getModel());
 			panel.setTofTree(tofTree);
-			panel.setLanguageResource(languageResource);
 			panel.initialize();
 		}
 		return panel;

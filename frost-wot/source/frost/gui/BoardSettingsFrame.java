@@ -22,7 +22,6 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
-import java.util.ResourceBundle;
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -31,20 +30,16 @@ import javax.swing.border.*;
 import frost.MainFrame;
 import frost.fcp.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.util.gui.translation.Language;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 public class BoardSettingsFrame extends JDialog {
 
 	/**
-	 * @author Administrator
-	 *
-	 * To change the template for this generated type comment go to
-	 * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+	 * 
 	 */
 	private class Listener implements ActionListener {
 
@@ -71,7 +66,7 @@ public class BoardSettingsFrame extends JDialog {
 	
 	private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
 	
-	private ResourceBundle languageResource = null;
+	private Language language = null;
 	
 	private Listener listener = new Listener();
 
@@ -129,17 +124,15 @@ public class BoardSettingsFrame extends JDialog {
 	/**
 	 * @param parent
 	 * @param board
-	 * @param languageResource
 	 */
 	public BoardSettingsFrame(
 		Frame parent,
-		FrostBoardObject board,
-		ResourceBundle languageResource) {
+		FrostBoardObject board) {
 
 		super(parent);
 
 		this.board = board;
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		setModal(true);
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		initialize();
@@ -147,18 +140,26 @@ public class BoardSettingsFrame extends JDialog {
 		setLocationRelativeTo(parent);
 	}
 
-	/**Close window and do not save settings*/
+	/**
+	 * Close window and do not save settings
+	 */
 	private void cancel() {
 		exitState = false;
 		dispose();
 	}
 
-	/**cancelButton Action Listener (Cancel)*/
+	/**
+	 * cancelButton Action Listener (Cancel)
+	 * @param e
+	 */
 	private void cancelButton_actionPerformed(ActionEvent e) {
 		cancel();
 	}
 
-	/**generateKeyButton Action Listener (OK)*/
+	/**
+	 * generateKeyButton Action Listener (OK)
+	 * @param e
+	 */
 	private void generateKeyButton_actionPerformed(ActionEvent e) {
 		FcpConnection connection = FcpFactory.getFcpConnectionInstance();
 		if (connection == null)
@@ -170,7 +171,7 @@ public class BoardSettingsFrame extends JDialog {
 			publicKeyTextField.setText(keyPair[1]);
 		} catch (IOException ex) {
 			JOptionPane.showMessageDialog(MainFrame.getInstance(), ex.toString(), // message
-			languageResource.getString("Warning"), JOptionPane.WARNING_MESSAGE);
+					language.getString("Warning"), JOptionPane.WARNING_MESSAGE);
 		}
 	}
 	
@@ -183,11 +184,16 @@ public class BoardSettingsFrame extends JDialog {
 
 	//------------------------------------------------------------------------
 
-	/**Return exitState*/
+	/**Return exitState
+	 * @return
+	 */
 	public boolean getExitState() {
 		return exitState;
 	}
 
+	/**
+	 * @return
+	 */
 	private JPanel getSettingsPanel() {
 		settingsPanel.setBorder(new CompoundBorder(new EtchedBorder(), new EmptyBorder(5,5,5,5)));
 		settingsPanel.setLayout(new GridBagLayout());
@@ -480,7 +486,9 @@ public class BoardSettingsFrame extends JDialog {
 			hideNA_false.setSelected(true);
 	}
 
-	/** Loads keypair from file */
+	/** 
+	 * Loads keypair from file 
+	 */
 	private void loadKeypair() {
 		String privateKey = board.getPrivateKey();
 		String publicKey = board.getPublicKey();
@@ -488,12 +496,12 @@ public class BoardSettingsFrame extends JDialog {
 		if (privateKey != null)
 			privateKeyTextField.setText(privateKey);
 		else
-			privateKeyTextField.setText(languageResource.getString("Not available"));
+			privateKeyTextField.setText(language.getString("Not available"));
 
 		if (publicKey != null)
 			publicKeyTextField.setText(publicKey);
 		else
-			publicKeyTextField.setText(languageResource.getString("Not available"));
+			publicKeyTextField.setText(language.getString("Not available"));
 
 		if (board.isWriteAccessBoard() || board.isReadAccessBoard()) {
 			privateKeyTextField.setEnabled(true);
@@ -528,8 +536,8 @@ public class BoardSettingsFrame extends JDialog {
 			int result =
 				JOptionPane.showConfirmDialog(
 					this,
-					languageResource.getString("BoardSettingsFrame.confirmBody"),
-					languageResource.getString("BoardSettingsFrame.confirmTitle"),
+					language.getString("BoardSettingsFrame.confirmBody"),
+					language.getString("BoardSettingsFrame.confirmTitle"),
 					JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
@@ -575,11 +583,17 @@ public class BoardSettingsFrame extends JDialog {
 		exitState = true;
 	}
 
-	/**okButton Action Listener (OK)*/
+	/**
+	 * okButton Action Listener (OK)
+	 * @param e
+	 */
 	private void okButton_actionPerformed(ActionEvent e) {
 		ok();
 	}
 
+	/* (non-Javadoc)
+	 * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
+	 */
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			dispose();
@@ -587,11 +601,10 @@ public class BoardSettingsFrame extends JDialog {
 		super.processWindowEvent(e);
 	}
 
-	//------------------------------------------------------------------------
-	// Methods
-	//------------------------------------------------------------------------
-
-	/**radioButton Action Listener (OK)*/
+	/**
+	 * radioButton Action Listener (OK)
+	 * @param e
+	 */
 	private void radioButton_actionPerformed(ActionEvent e) {
 		if (publicBoardRadioButton.isSelected()) {
 			privateKeyTextField.setEnabled(false);
@@ -608,49 +621,56 @@ public class BoardSettingsFrame extends JDialog {
 	 * 
 	 */
 	private void refreshLanguage() {
-		setTitle(languageResource.getString("Settings for board") + " '" + board + "'");
+		setTitle(language.getString("Settings for board") + " '" + board + "'");
 
-		publicBoardRadioButton.setText(languageResource.getString("Public board"));
-		secureBoardRadioButton.setText(languageResource.getString("Secure board"));
-		okButton.setText(languageResource.getString("OK"));
-		cancelButton.setText(languageResource.getString("Cancel"));
-		generateKeyButton.setText(languageResource.getString("Generate new keypair"));
+		publicBoardRadioButton.setText(language.getString("Public board"));
+		secureBoardRadioButton.setText(language.getString("Secure board"));
+		okButton.setText(language.getString("OK"));
+		cancelButton.setText(language.getString("Cancel"));
+		generateKeyButton.setText(language.getString("Generate new keypair"));
 
-		overrideSettingsCheckBox.setText(languageResource.getString("Override default settings"));
-		maxMsg_default.setText(languageResource.getString("Use default"));
-		maxMsg_set.setText(languageResource.getString("Set to") + ":");
-		signedOnly_default.setText(languageResource.getString("Use default"));
-		signedOnly_true.setText(languageResource.getString("Yes"));
-		signedOnly_false.setText(languageResource.getString("No"));
-		hideBad_default.setText(languageResource.getString("Use default"));
-		hideBad_true.setText(languageResource.getString("Yes"));
-		hideBad_false.setText(languageResource.getString("No"));
-		hideCheck_default.setText(languageResource.getString("Use default"));
-		hideCheck_true.setText(languageResource.getString("Yes"));
-		hideCheck_false.setText(languageResource.getString("No"));
-		hideNA_default.setText(languageResource.getString("Use default"));
-		hideNA_true.setText(languageResource.getString("Yes"));
-		hideNA_false.setText(languageResource.getString("No"));
-		autoUpdateEnabled.setText(languageResource.getString("Enable automatic board update"));
+		overrideSettingsCheckBox.setText(language.getString("Override default settings"));
+		maxMsg_default.setText(language.getString("Use default"));
+		maxMsg_set.setText(language.getString("Set to") + ":");
+		signedOnly_default.setText(language.getString("Use default"));
+		signedOnly_true.setText(language.getString("Yes"));
+		signedOnly_false.setText(language.getString("No"));
+		hideBad_default.setText(language.getString("Use default"));
+		hideBad_true.setText(language.getString("Yes"));
+		hideBad_false.setText(language.getString("No"));
+		hideCheck_default.setText(language.getString("Use default"));
+		hideCheck_true.setText(language.getString("Yes"));
+		hideCheck_false.setText(language.getString("No"));
+		hideNA_default.setText(language.getString("Use default"));
+		hideNA_true.setText(language.getString("Yes"));
+		hideNA_false.setText(language.getString("No"));
+		autoUpdateEnabled.setText(language.getString("Enable automatic board update"));
 
-		publicKeyLabel.setText(languageResource.getString("Public key") + " :");
-		privateKeyLabel.setText(languageResource.getString("Private key") + " :");
+		publicKeyLabel.setText(language.getString("Public key") + " :");
+		privateKeyLabel.setText(language.getString("Private key") + " :");
 		messageDisplayDaysLabel.setText(
-			languageResource.getString("Maximum message display (days)"));
-		hideUnsignedMessagesLabel.setText(languageResource.getString("Hide unsigned messages"));
-		hideBadMessagesLabel.setText(languageResource.getString("Hide messages flagged BAD"));
-		hideCheckMessagesLabel.setText(languageResource.getString("Hide messages flagged CHECK"));
-		hideNaMessagesLabel.setText(languageResource.getString("Hide messages flagged N/A"));
+				language.getString("Maximum message display (days)"));
+		hideUnsignedMessagesLabel.setText(language.getString("Hide unsigned messages"));
+		hideBadMessagesLabel.setText(language.getString("Hide messages flagged BAD"));
+		hideCheckMessagesLabel.setText(language.getString("Hide messages flagged CHECK"));
+		hideNaMessagesLabel.setText(language.getString("Hide messages flagged N/A"));
 		
-		descriptionLabel.setText(languageResource.getString("BoardSettingsFrame.description"));
+		descriptionLabel.setText(language.getString("BoardSettingsFrame.description"));
 	}
 
+	/**
+	 * @return
+	 */
 	public boolean runDialog() {
 		setModal(true); // paranoia
 		setVisible(true);
 		return exitState;
 	}
 
+	/**
+	 * @param panel
+	 * @param enabled
+	 */
 	private void setPanelEnabled(JPanel panel, boolean enabled) {
 		int componentCount = panel.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {

@@ -20,12 +20,18 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.ResourceBundle;
 
 import javax.swing.*;
 
+import frost.util.gui.translation.Language;
+
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class AboutBox extends JDialog implements ActionListener {
-	private ResourceBundle languageResource = null;
+	
+	private Language language = null;
 
 	private final static String product = "Frost";
 
@@ -55,19 +61,24 @@ public class AboutBox extends JDialog implements ActionListener {
 	private static final ImageIcon frostImage =
 		new ImageIcon(AboutBox.class.getResource("/data/jtc.jpg"));
 
-	public AboutBox(Frame parent, ResourceBundle newLanguageResource) {
+	/**
+	 * @param parent
+	 */
+	public AboutBox(Frame parent) {
 		super(parent);
-		languageResource = newLanguageResource;
+		language = Language.getInstance();
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		jbInit();
 		pack();
 		setLocationRelativeTo(parent);
 	}
 
-	/**Component initialization*/
+	/**
+	 * Component initialization
+	 */
 	private void jbInit() {
 		imageLabel.setIcon(frostImage);
-		this.setTitle(languageResource.getString("About"));
+		this.setTitle(language.getString("About"));
 		setResizable(false);
 		panel1.setLayout(borderLayout1);
 		panel2.setLayout(borderLayout2);
@@ -79,11 +90,11 @@ public class AboutBox extends JDialog implements ActionListener {
 		label1.setText(product);
 		label2.setText(getVersion());
 		label3.setText(copyright);
-		label4.setText(languageResource.getString("Open Source Project (GPL license)"));
+		label4.setText(language.getString("Open Source Project (GPL license)"));
 		label5.setText(comments2);
 		insetsPanel3.setLayout(gridLayout1);
 		insetsPanel3.setBorder(BorderFactory.createEmptyBorder(10, 50, 10, 10));
-		button1.setText(languageResource.getString("OK"));
+		button1.setText(language.getString("OK"));
 		button1.addActionListener(this);
 		insetsPanel2.add(imageLabel, null);
 		panel2.add(insetsPanel2, BorderLayout.WEST);
@@ -99,7 +110,9 @@ public class AboutBox extends JDialog implements ActionListener {
 		panel1.add(panel2, BorderLayout.NORTH);
 	}
 
-	/**Overridden so we can exit when window is closed*/
+	/**
+	 * Overridden so we can exit when window is closed
+	 */
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
 			cancel();
@@ -107,23 +120,31 @@ public class AboutBox extends JDialog implements ActionListener {
 		super.processWindowEvent(e);
 	}
 
+	/**
+	 * @return
+	 */
 	private String getVersion() {
 		if (version == null) {
 			version =
-				languageResource.getString("Version")
+				language.getString("Version")
 					+ ": "
 					+ getClass().getPackage().getSpecificationVersion();
 		}
 		return version;
 	}
 
-	/**Close the dialog*/
+	/**
+	 * Close the dialog
+	 */
 	void cancel() {
 		setVisible(false);
 		dispose();
 	}
 
-	/**Close the dialog on a button event*/
+	/**
+	 * Close the dialog on a button event
+	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+	 */
 	public void actionPerformed(ActionEvent e) {
 		if (e.getSource() == button1) {
 			cancel();

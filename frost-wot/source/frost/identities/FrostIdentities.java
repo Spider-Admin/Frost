@@ -8,10 +8,12 @@ import javax.swing.JOptionPane;
 import frost.SettingsClass;
 import frost.storage.*;
 import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
  * A class that maintains identity stuff.
+ * @author $Author$
+ * @version $Revision$
  */
 public class FrostIdentities implements Savable {
 	
@@ -26,12 +28,13 @@ public class FrostIdentities implements Savable {
 	private LocalIdentity mySelf = null;
 	
 	private SettingsClass settings;
-	private UpdatingLanguageResource languageResource = null;
 
-	public FrostIdentities(SettingsClass settings, UpdatingLanguageResource languageResource) {
+	/**
+	 * @param settings
+	 */
+	public FrostIdentities(SettingsClass settings) {
 		super();
 		this.settings = settings;
-		this.languageResource = languageResource;
 	}
 	
 	/**
@@ -39,14 +42,15 @@ public class FrostIdentities implements Savable {
 	 */
 	public void initialize(boolean freenetIsOnline) throws StorageException {
 		IdentitiesDAO identitiesDAO = DAOFactory.getFactory(DAOFactory.XML).getIdentitiesDAO();
+		Language language = Language.getInstance();
 		if (!identitiesDAO.exists()) {
 			//The storage doesn't exist yet. We create it.
 			identitiesDAO.create();
 			if (freenetIsOnline == false) {
 				MiscToolkit.getInstance().showMessage(
-						languageResource.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
+						language.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
 						JOptionPane.ERROR_MESSAGE,
-						languageResource.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
+						language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
 				System.exit(2);
 			}
 			//create new identities
@@ -54,14 +58,14 @@ public class FrostIdentities implements Savable {
 				String nick = null;
 				do {
 					nick = MiscToolkit.getInstance().showInputDialog(
-							languageResource.getString("Core.loadIdentities.ChooseName"));
+							language.getString("Core.loadIdentities.ChooseName"));
 					if (!(nick == null || nick.length() == 0)) {
 						// check for a '@' in nick, this is strongly forbidden
 						if (nick.indexOf("@") > -1) {
 							MiscToolkit.getInstance().showMessage(
-									languageResource.getString("Core.loadIdentities.InvalidNameBody"),
+									language.getString("Core.loadIdentities.InvalidNameBody"),
 									JOptionPane.ERROR_MESSAGE,
-									languageResource.getString("Core.loadIdentities.InvalidNameTitle"));
+									language.getString("Core.loadIdentities.InvalidNameTitle"));
 							nick = "";
 						}
 					}

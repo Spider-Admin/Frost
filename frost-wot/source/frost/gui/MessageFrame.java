@@ -39,11 +39,17 @@ import frost.messages.*;
 import frost.storage.StorageException;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.gui.translation.UpdatingLanguageResource;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class MessageFrame extends JFrame
 {
 
+    /**
+     *
+     */
     private class AttachBoardsChooser extends JDialog
     {
         JButton Bcancel;
@@ -52,16 +58,23 @@ public class MessageFrame extends JFrame
         JList Lboards;
         boolean okPressed = false;
 
+        /**
+         * @param boards
+         */
         public AttachBoardsChooser(Vector boards)
-        {
+        {	
             super();
-            setTitle(languageResource.getString("Choose boards to attach"));
+            setTitle(language.getString("Choose boards to attach"));
             setModal(true);
             this.boards = boards;
             initGui();
         }
+        
+        /**
+         * 
+         */
         private void initGui()
-        {
+        {        	
             Bok = new JButton("OK");
             Bok.addActionListener( new ActionListener() {
                    public void actionPerformed(ActionEvent e) {
@@ -89,6 +102,10 @@ public class MessageFrame extends JFrame
             getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
             setSize(300, 400);
         }
+        
+        /**
+         * @return
+         */
         public Vector runDialog()
         {
             setVisible(true);
@@ -100,9 +117,16 @@ public class MessageFrame extends JFrame
             return chosed;
         }
     }
+    
+    /**
+     * 
+     */
     class BuddyComparator implements Comparator
     {
-        // compare buddies in lowercase
+        /** 
+         * compare buddies in lowercase
+         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+         */
         public int compare(Object o1, Object o2)
         {
             String s1 = (String)o1;
@@ -112,11 +136,13 @@ public class MessageFrame extends JFrame
     }
     
 	/**
-	 * @author $author$
-	 * @version $revision$
+	 * 
 	 */
 	private class Listener implements MouseListener, LanguageListener {
 
+		/**
+		 * @param e
+		 */
 		protected void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				if (e.getSource() == boardsTable) {
@@ -131,19 +157,34 @@ public class MessageFrame extends JFrame
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
 		public void mouseClicked(MouseEvent event) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
 		public void mouseEntered(MouseEvent event) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
 		public void mouseExited(MouseEvent event) {
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent event) {
 			maybeShowPopup(event);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent event) {
 			maybeShowPopup(event);
 		}
@@ -157,8 +198,7 @@ public class MessageFrame extends JFrame
 	}
     
 	/**
-	 * @author $author$
-	 * @version $revision$
+	 * 
 	 */
 	private class MessageBodyPopupMenu 
 		extends JSkinnablePopupMenu 
@@ -276,10 +316,10 @@ public class MessageFrame extends JFrame
 		 *  
 		 */
 		private void refreshLanguage() {
-			cutItem.setText(languageResource.getString("Cut"));
-			copyItem.setText(languageResource.getString("Copy"));
-			pasteItem.setText(languageResource.getString("Paste"));
-			cancelItem.setText(languageResource.getString("Cancel"));
+			cutItem.setText(language.getString("Cut"));
+			copyItem.setText(language.getString("Copy"));
+			pasteItem.setText(language.getString("Paste"));
+			cancelItem.setText(language.getString("Cancel"));
 		}
 		
 		/* (non-Javadoc)
@@ -313,24 +353,42 @@ public class MessageFrame extends JFrame
 		}
 	}
 
+    /**
+     * 
+     */
     private class MFAttachedBoard implements TableMember
     {
         FrostBoardObject aBoard;
+        
+        /**
+         * @param ab
+         */
         public MFAttachedBoard(FrostBoardObject ab)
         {
             aBoard = ab;
         }
+        
+        /* (non-Javadoc)
+         * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
+         */
         public int compareTo( TableMember anOther, int tableColumIndex )
         {
             Comparable c1 = (Comparable)getValueAt(tableColumIndex);
             Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
+        
+        /**
+         * @return
+         */
         public FrostBoardObject getBoardObject()
         {
             return aBoard;
         }
 
+		/* (non-Javadoc)
+		 * @see frost.gui.model.TableMember#getValueAt(int)
+		 */
 		public Object getValueAt(int column) {
 			switch (column) {
 				case 0 :
@@ -346,8 +404,14 @@ public class MessageFrame extends JFrame
 		}
     }
 
+    /**
+     * 
+     */
     private class MFAttachedBoardsTable extends SortedTable
     {
+        /**
+         * @param m
+         */
         public MFAttachedBoardsTable(MFAttachedBoardsTableModel m)
         {
             super(m);
@@ -366,6 +430,9 @@ public class MessageFrame extends JFrame
         }
     }
     
+    /**
+     * 
+     */
     private class MFAttachedBoardsTableModel extends SortedTableModel
     {
         protected final Class columnClasses[] = {
@@ -381,21 +448,33 @@ public class MessageFrame extends JFrame
             "Description"
         };
 
+        /**
+         * 
+         */
         public MFAttachedBoardsTableModel()
         {
             super();
         }
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnClass(int)
+         */
         public Class getColumnClass(int column)
         {
             if( column >= 0 && column < columnClasses.length )
                 return columnClasses[column];
             return null;
         }
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnCount()
+         */
         public int getColumnCount()
         {
             return columnNames.length;
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnName(int)
+         */
         public String getColumnName(int column)
         {
             if( column >= 0 && column < columnNames.length )
@@ -403,30 +482,56 @@ public class MessageFrame extends JFrame
             return null;
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#isCellEditable(int, int)
+         */
         public boolean isCellEditable(int row, int col)
         {
             return false;
         }
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
+         */
         public void setValueAt(Object aValue, int row, int column) {}
     }
     
+    /**
+     * 
+     */
     private class MFAttachedFile implements TableMember
     {
         File aFile;
+        
+        /**
+         * @param af
+         */
         public MFAttachedFile(File af)
         {
             aFile = af;
         }
+        
+        /* (non-Javadoc)
+         * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
+         */
         public int compareTo( TableMember anOther, int tableColumIndex )
         {
             Comparable c1 = (Comparable)getValueAt(tableColumIndex);
             Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
+        
+        /**
+         * @return
+         */
         public File getFile()
         {
             return aFile;
         }
+        
+        /* (non-Javadoc)
+         * @see frost.gui.model.TableMember#getValueAt(int)
+         */
         public Object getValueAt(int column)
         {
             switch(column)
@@ -437,8 +542,15 @@ public class MessageFrame extends JFrame
             return "*ERR*";
         }
     }
+    
+    /**
+     * 
+     */
     private class MFAttachedFilesTable extends SortedTable
     {
+        /**
+         * @param m
+         */
         public MFAttachedFilesTable(MFAttachedFilesTableModel m)
         {
             super(m);
@@ -457,32 +569,50 @@ public class MessageFrame extends JFrame
         }
     }
     
+    /**
+     * 
+     */
     private class MFAttachedFilesTableModel extends SortedTableModel
     {
         protected final Class columnClasses[] = {
             String.class,
             String.class
         };
+        
         protected final String columnNames[] = {
             "Filename",
             "Size"
         };
 
+        /**
+         * 
+         */
         public MFAttachedFilesTableModel()
         {
             super();
         }
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnClass(int)
+         */
         public Class getColumnClass(int column)
         {
             if( column >= 0 && column < columnClasses.length )
                 return columnClasses[column];
             return null;
         }
+        
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnCount()
+         */
         public int getColumnCount()
         {
             return columnNames.length;
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#getColumnName(int)
+         */
         public String getColumnName(int column)
         {
             if( column >= 0 && column < columnNames.length )
@@ -490,10 +620,16 @@ public class MessageFrame extends JFrame
             return null;
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#isCellEditable(int, int)
+         */
         public boolean isCellEditable(int row, int col)
         {
             return false;
         }
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
+         */
         public void setValueAt(Object aValue, int row, int column) {}
     }
 
@@ -501,7 +637,7 @@ public class MessageFrame extends JFrame
 
 	private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 	
-    private UpdatingLanguageResource languageResource;
+    private Language language;
 
     private Listener listener = new Listener();
 
@@ -551,13 +687,11 @@ public class MessageFrame extends JFrame
 	/**
 	 * @param newSettings
 	 * @param parentComponent
-	 * @param languageResource
 	 * @param newMyId
 	 */
-	public MessageFrame(SettingsClass newSettings, Component parentComponent,
-			UpdatingLanguageResource languageResource, LocalIdentity newMyId) {
+	public MessageFrame(SettingsClass newSettings, Component parentComponent, LocalIdentity newMyId) {
 		super();
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		myId = newMyId;
 		state = false;
 		frostSettings = newSettings;
@@ -587,6 +721,9 @@ public class MessageFrame extends JFrame
 		setLocationRelativeTo(parentComponent);
 	}
 
+	/**
+	 * @param e
+	 */
 	private void attachBoards_actionPerformed(ActionEvent e) {
 		Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
 		if (allBoards.size() == 0)
@@ -629,11 +766,14 @@ public class MessageFrame extends JFrame
 		positionDividers();
 	}
 
-    /**jButton3 Action Listener (Add attachment(s))*/
+    /**
+     * jButton3 Action Listener (Add attachment(s))
+     * @param e
+     */
     private void attachFile_actionPerformed(ActionEvent e)
     {
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
-        fc.setDialogTitle(languageResource.getString("Choose file(s) / directory(s) to attach"));
+        fc.setDialogTitle(language.getString("Choose file(s) / directory(s) to attach"));
         fc.setFileHidingEnabled(false);
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fc.setMultiSelectionEnabled(true);
@@ -668,13 +808,23 @@ public class MessageFrame extends JFrame
         positionDividers();
     }
 
-	/**jButton2 Action Listener (Cancel)*/
+	/**
+	 * jButton2 Action Listener (Cancel)
+     * @param e
+     */
     private void cancel_actionPerformed(ActionEvent e)
     {
         state = false;
         dispose();
     }
 	
+	/**
+	 * @param newBoard
+	 * @param newFrom
+	 * @param newSubject
+	 * @param newText
+	 * @param isReply
+	 */
 	private void composeMessage(
 		FrostBoardObject newBoard,
 		String newFrom,
@@ -731,10 +881,22 @@ public class MessageFrame extends JFrame
 		messageTextArea.getCaret().setVisible(true);
 	}
     
+	/**
+	 * @param newBoard
+	 * @param newFrom
+	 * @param newSubject
+	 * @param newText
+	 */
 	public void composeNewMessage(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
 		composeMessage(newBoard, newFrom, newSubject, newText, false);
 	}
     
+	/**
+	 * @param newBoard
+	 * @param newFrom
+	 * @param newSubject
+	 * @param newText
+	 */
 	public void composeReply(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
 			composeMessage(newBoard, newFrom, newSubject, newText, true);
 	}
@@ -744,7 +906,7 @@ public class MessageFrame extends JFrame
 	 */
 	public void dispose() {
 		if (initialized) {
-			languageResource.removeLanguageListener(listener);
+			language.removeLanguageListener(listener);
 			initialized = false;
 		}
 		super.dispose();
@@ -760,10 +922,13 @@ public class MessageFrame extends JFrame
 		return messageBodyPopupMenu;
 	}
 
+	/**
+	 * @throws Exception
+	 */
 	private void initialize() throws Exception {
 		if (!initialized) {
 			refreshLanguage();
-			languageResource.addLanguageListener(listener);
+			language.addLanguageListener(listener);
 
 			ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/newmessage.gif"));
 			setIconImage(frameIcon.getImage());
@@ -780,18 +945,18 @@ public class MessageFrame extends JFrame
 			filesTable.addMouseListener(listener);
 
 			MiscToolkit toolkit = MiscToolkit.getInstance();
-			toolkit.configureButton(Bsend, "Send message", "/data/send_rollover.gif", languageResource);
-			toolkit.configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif", languageResource);
+			toolkit.configureButton(Bsend, "Send message", "/data/send_rollover.gif", language);
+			toolkit.configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif", language);
 			toolkit.configureButton(
 				BattachFile,
 				"Add attachment(s)",
 				"/data/attachment_rollover.gif",
-				languageResource);
+				language);
 			toolkit.configureButton(
 				BattachBoard,
 				"Add Board(s)",
 				"/data/attachmentBoard_rollover.gif",
-				languageResource);
+				language);
 
 			TFboard.setEditable(false);
 			TFboard.setText(board.toString());
@@ -944,13 +1109,16 @@ public class MessageFrame extends JFrame
 		}
 	}
     
+    /**
+     * 
+     */
     protected void initPopupMenu()
     {
         attFilesPopupMenu = new JSkinnablePopupMenu();
         attBoardsPopupMenu = new JSkinnablePopupMenu();
         
-        JMenuItem removeFiles = new JMenuItem(languageResource.getString("Remove"));
-        JMenuItem removeBoards = new JMenuItem(languageResource.getString("Remove"));
+        JMenuItem removeFiles = new JMenuItem(language.getString("Remove"));
+        JMenuItem removeBoards = new JMenuItem(language.getString("Remove"));
         
         removeFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -999,6 +1167,9 @@ public class MessageFrame extends JFrame
         }
     }
 
+    /* (non-Javadoc)
+     * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
+     */
     protected void processWindowEvent(WindowEvent e)
     {
         if( e.getID() == WindowEvent.WINDOW_CLOSING )
@@ -1012,24 +1183,27 @@ public class MessageFrame extends JFrame
 	 * 
 	 */
 	private void refreshLanguage() {
-		setTitle(languageResource.getString("Create message"));
+		setTitle(language.getString("Create message"));
 		
-		Bsend.setToolTipText(languageResource.getString("Send message"));
-		Bcancel.setToolTipText(languageResource.getString("Cancel"));
-		BattachFile.setToolTipText(languageResource.getString("Add attachment(s)"));
-		BattachBoard.setToolTipText(languageResource.getString("Add Board(s)"));
+		Bsend.setToolTipText(language.getString("Send message"));
+		Bcancel.setToolTipText(language.getString("Cancel"));
+		BattachFile.setToolTipText(language.getString("Add attachment(s)"));
+		BattachBoard.setToolTipText(language.getString("Add Board(s)"));
 		
-		sign.setText(languageResource.getString("Sign"));
-		addAttachedFilesToUploadTable.setText(languageResource.getString("Indexed attachments"));
+		sign.setText(language.getString("Sign"));
+		addAttachedFilesToUploadTable.setText(language.getString("Indexed attachments"));
 		
 		addAttachedFilesToUploadTable.setToolTipText(
-				languageResource.getString("Should file attachments be added to upload table?"));
+				language.getString("Should file attachments be added to upload table?"));
 		
-		Lboard.setText(languageResource.getString("Board") + ": ");
-		Lfrom.setText(languageResource.getString("From") + ": ");
-		Lsubject.setText(languageResource.getString("Subject") + ": ");
+		Lboard.setText(language.getString("Board") + ": ");
+		Lfrom.setText(language.getString("From") + ": ");
+		Lsubject.setText(language.getString("Subject") + ": ");
 	}
         
+    /**
+     * @param tbl
+     */
     protected void removeSelectedItemsFromTable( JTable tbl )
     {
         SortedTableModel m = (SortedTableModel)tbl.getModel();
@@ -1041,7 +1215,10 @@ public class MessageFrame extends JFrame
         positionDividers();
     }
     
-    /**jButton1 Action Listener (Send)*/
+    /**
+     * jButton1 Action Listener (Send)
+     * @param e
+     */
     private void send_actionPerformed(ActionEvent e)
     {
         from = fromTextField.getText().trim();
@@ -1055,8 +1232,8 @@ public class MessageFrame extends JFrame
         if( subject.equals("No subject") )
         {
             int n = JOptionPane.showConfirmDialog( this,
-								languageResource.getString("Do you want to enter a subject?"),
-								languageResource.getString("No subject specified!"),
+            					language.getString("Do you want to enter a subject?"),
+								language.getString("No subject specified!"),
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.QUESTION_MESSAGE);
             if( n == JOptionPane.YES_OPTION )
@@ -1068,16 +1245,16 @@ public class MessageFrame extends JFrame
         if( subject.length() == 0)
         {
             JOptionPane.showMessageDialog( this,
-								languageResource.getString("You must enter a subject!"),
-								languageResource.getString("No subject specified!"),
+            					language.getString("You must enter a subject!"),
+								language.getString("No subject specified!"),
             					JOptionPane.ERROR);
             return;                               
         }
         if( from.length() == 0)
         {
             JOptionPane.showMessageDialog( this,
-								languageResource.getString("You must enter a sender name!"),
-								languageResource.getString("No 'From' specified!"),
+            					language.getString("You must enter a sender name!"),
+								language.getString("No 'From' specified!"),
             					JOptionPane.ERROR);
             return;                               
         }

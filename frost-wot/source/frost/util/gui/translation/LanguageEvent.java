@@ -9,6 +9,10 @@ package frost.util.gui.translation;
 import java.util.EventObject;
 
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class LanguageEvent extends EventObject {
 
 	/**

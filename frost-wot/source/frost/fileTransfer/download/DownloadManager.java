@@ -9,19 +9,15 @@ package frost.fileTransfer.download;
 import java.beans.*;
 
 import frost.*;
-import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 public class DownloadManager implements PropertyChangeListener {
 
 	private MainFrame mainFrame; 
 	private SettingsClass settings;
-	private UpdatingLanguageResource languageResource;
 	
 	private DownloadModel model;
 	private DownloadPanel panel;
@@ -32,20 +28,17 @@ public class DownloadManager implements PropertyChangeListener {
 	/**
 	 * 
 	 */
-	public DownloadManager(
-		UpdatingLanguageResource newLanguageResource,
-		SettingsClass newSettings) {
+	public DownloadManager(SettingsClass newSettings) {
 
 		super();
-		languageResource = newLanguageResource;
 		settings = newSettings;
 	}
 	
 	/**
 	 * @param mainFrame
 	 */
-	public void setMainFrame(MainFrame newMainFrame) {
-		mainFrame = newMainFrame;	
+	public void setMainFrame(MainFrame mainFrame) {
+		this.mainFrame = mainFrame;	
 	}
 
 	/**
@@ -76,7 +69,6 @@ public class DownloadManager implements PropertyChangeListener {
 		if (panel == null) {
 			panel = new DownloadPanel(settings);
 			panel.setModel(getModel());
-			panel.setLanguageResource(languageResource);
 			panel.initialize();
 		}
 		return panel;

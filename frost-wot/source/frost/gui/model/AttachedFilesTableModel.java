@@ -24,9 +24,13 @@ import javax.swing.table.DefaultTableModel;
 import frost.util.gui.translation.*;
 
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener
 {
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	
 	protected final static String columnNames[] = new String[2];
 
@@ -36,14 +40,17 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
     };
 
     /**
-     * @param languageResource
+     * 
      */
-    public AttachedFilesTableModel(UpdatingLanguageResource languageResource) {
+    public AttachedFilesTableModel() {
 		super();
-		this.languageResource = languageResource;
+		language = Language.getInstance();
 		refreshLanguage();
 	}
 
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#isCellEditable(int, int)
+     */
     public boolean isCellEditable(int row, int col)
     {
         return false;
@@ -60,22 +67,33 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
 	 * 
 	 */
 	private void refreshLanguage() {
-		columnNames[0] = languageResource.getString("Filename");
-		columnNames[1] = languageResource.getString("Size");
+		columnNames[0] = language.getString("Filename");
+		columnNames[1] = language.getString("Size");
 
 		fireTableStructureChanged();		
 	}
 
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnName(int)
+     */
     public String getColumnName(int column)
     {
         if( column >= 0 && column < columnNames.length )
             return columnNames[column];
         return null;
     }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnCount()
+     */
     public int getColumnCount()
     {
         return columnNames.length;
     }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnClass(int)
+     */
     public Class getColumnClass(int column)
     {
         if( column >= 0 && column < columnClasses.length )

@@ -37,6 +37,10 @@ import frost.threads.*;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.translation.*;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 {
 	/**
@@ -102,55 +106,55 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
 	}
 	
-    MainFrame parent = null;
-	static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
-    private UpdatingLanguageResource languageResource = null;
+    private MainFrame parent = null;
+    private static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
+    private Language language = null;
     private Listener listener = new Listener();
     
 	private static Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
 
-    //------------------------------------------------------------------------
-    // Generate objects
-    //------------------------------------------------------------------------
-    JPanel mainPanel = new JPanel(new BorderLayout());
-    JPanel boardTablePanel = new JPanel(new BorderLayout());
+	private JPanel mainPanel = new JPanel(new BorderLayout());
+	private JPanel boardTablePanel = new JPanel(new BorderLayout());
 
-    JLabel summaryLabel = new JLabel();
+	private JLabel summaryLabel = new JLabel();
 
-    JButton updateButton = new JButton();
-    JButton updateSelectedBoardButton = new JButton();
-    JButton updateAllBoardsButton = new JButton();
-    JButton Bclose = new JButton();
+    private JButton updateButton = new JButton();
+    private JButton updateSelectedBoardButton = new JButton();
+    private JButton updateAllBoardsButton = new JButton();
+    private JButton Bclose = new JButton();
 
-	JSkinnablePopupMenu popupMenu = new JSkinnablePopupMenu();
-    JMenuItem MIupdate = new JMenuItem();
-    JMenuItem MIupdateSelectedBoard = new JMenuItem();
-    JMenuItem MIupdateAllBoards = new JMenuItem();
+    private JSkinnablePopupMenu popupMenu = new JSkinnablePopupMenu();
+    private JMenuItem MIupdate = new JMenuItem();
+    private JMenuItem MIupdateSelectedBoard = new JMenuItem();
+    private JMenuItem MIupdateAllBoards = new JMenuItem();
 
-    BoardInfoTableModel boardTableModel = null;
-    SortedTable boardTable = null;
+    private BoardInfoTableModel boardTableModel = null;
+    private SortedTable boardTable = null;
 
 	/**
 	 * 
 	 */
 	private void refreshLanguage() {
-		setTitle(languageResource.getString("BoardInfoFrame.Board information window"));
+		setTitle(language.getString("BoardInfoFrame.Board information window"));
 		
-		updateButton.setText(languageResource.getString("BoardInfoFrame.Update"));
-		updateSelectedBoardButton.setText(languageResource.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-		updateAllBoardsButton.setText(languageResource.getString("BoardInfoFrame.Update all boards"));
-		Bclose.setText(languageResource.getString("BoardInfoFrame.Close"));	
+		updateButton.setText(language.getString("BoardInfoFrame.Update"));
+		updateSelectedBoardButton.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+		updateAllBoardsButton.setText(language.getString("BoardInfoFrame.Update all boards"));
+		Bclose.setText(language.getString("BoardInfoFrame.Close"));	
 		
-		MIupdate.setText(languageResource.getString("BoardInfoFrame.Update"));
-		MIupdateSelectedBoard.setText(languageResource.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-		MIupdateAllBoards.setText(languageResource.getString("BoardInfoFrame.Update all boards"));		
+		MIupdate.setText(language.getString("BoardInfoFrame.Update"));
+		MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+		MIupdateAllBoards.setText(language.getString("BoardInfoFrame.Update all boards"));		
 	}
 
-    /**Constructor*/
-    public BoardInfoFrame(MainFrame p, UpdatingLanguageResource newLanguageResource)
+    /**
+     * Constructor
+     * @param p
+     */
+    public BoardInfoFrame(MainFrame p)
     {
         super();
-		languageResource = newLanguageResource;
+        language = Language.getInstance();
 		refreshLanguage();
         parent = p;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -164,9 +168,12 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         setLocationRelativeTo( parent );
     }
 
+    /**
+     * @throws Exception
+     */
     private void Init() throws Exception {
     	
-		boardTableModel = new BoardInfoTableModel(languageResource);
+		boardTableModel = new BoardInfoTableModel();
 		boardTable = new SortedTable(boardTableModel);
     	
         //------------------------------------------------------------------------
@@ -273,6 +280,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         updateButton_actionPerformed(null);
     }
 
+    /**
+     * @param e
+     */
     private void boardTableListModel_valueChanged(ListSelectionEvent e)
     {
         if( boardTable.getSelectedRowCount() > 0 )
@@ -289,6 +299,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
     private static UpdateBoardInfoTableThread updateBoardInfoTableThread = null;
 
+    /**
+     * @param e
+     */
     private void updateButton_actionPerformed(ActionEvent e)
     {
         if( updateBoardInfoTableThread != null )
@@ -303,8 +316,14 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         MIupdateSelectedBoard.setEnabled(false);
     }
 
+    /**
+     * 
+     */
     private class UpdateBoardInfoTableThread extends Thread
     {
+        /* (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
         public void run()
         {
             int messageCount = 0;
@@ -331,11 +350,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                 SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             boardTableModel.addRow(finalRow);
-                            summaryLabel.setText(languageResource.getString("BoardInfoFrame.Boards") +"   :"+
+                            summaryLabel.setText(language.getString("BoardInfoFrame.Boards") +"   :"+
                                                  finalBoardCount +"    "+
-												 languageResource.getString("BoardInfoFrame.Messages") +"  : "+
+                                                 language.getString("BoardInfoFrame.Messages") +"  : "+
                                                  finalMessageCount +"    "+
-												 languageResource.getString("BoardInfoFrame.Files") + "   :"+
+                                                 language.getString("BoardInfoFrame.Files") + "   :"+
                                                  finalFileCount);
                         }});
             }
@@ -347,6 +366,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      * Tries to start update for all allowed boards.
      * Gets list of board from tofTree, because the board table could be
      * not yet finished to load.
+     * @param e
      */
     private void updateAllBoardsButton_actionPerformed(ActionEvent e)
     {
@@ -362,6 +382,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         }
     }
 
+    /**
+     * @param e
+     */
     private void updateSelectedBoardButton_actionPerformed(ActionEvent e)
     {
         int[] selectedRows = boardTable.getSelectedRows();
@@ -446,6 +469,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      * was in FileAccess, but only used from here ...
      * TODO: search byte by byte for line separators, the actual
      *       code produces not needed Strings for each line
+     * @param file
+     * @return
      */
     public int getLineCount(File file)
     {
@@ -455,22 +480,31 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         return current.getFilesMap().size();
     }
 
+	/**
+	 * 
+	 */
 	public void startDialog() {
 		MainFrame.getInstance().getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
-		languageResource.addLanguageListener(listener);
-		languageResource.addLanguageListener(boardTableModel);
+		language.addLanguageListener(listener);
+		language.addLanguageListener(boardTableModel);
 		setDialogShowing(true);
 		setVisible(true);
 	}
 
+	/**
+	 * 
+	 */
 	protected void closeDialog() {
 		MainFrame.getInstance().getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
-		languageResource.removeLanguageListener(listener);
-		languageResource.removeLanguageListener(boardTableModel);
+		language.removeLanguageListener(listener);
+		language.removeLanguageListener(boardTableModel);
 		setDialogShowing(false);
 		dispose();
 	}
 
+    /* (non-Javadoc)
+     * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
+     */
     protected void processWindowEvent(WindowEvent e)
     {
         if( e.getID() == WindowEvent.WINDOW_CLOSING )
@@ -491,6 +525,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         Integer newmsg;
         Integer files;
 
+        /**
+         * @param board
+         */
         public BoardInfoTableMember(FrostBoardObject board)
         {
             this.board = board;
@@ -499,6 +536,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             this.files = null;
         }
 
+        /* (non-Javadoc)
+         * @see frost.gui.model.TableMember#getValueAt(int)
+         */
         public Object getValueAt(int column)
         {
             switch( column )
@@ -511,42 +551,77 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             }
             return "*ERR*";
         }
+        
+        /* (non-Javadoc)
+         * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
+         */
         public int compareTo( TableMember anOther, int tableColumIndex )
         {
             Comparable c1 = (Comparable)getValueAt(tableColumIndex);
             Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
+        
+        /**
+         * @return
+         */
         public FrostBoardObject getBoard()
         {
             return board;
         }
+        
+        /**
+         * @return
+         */
         public Integer getFilesCount()
         {
             return files;
         }
+        
+        /**
+         * @param i
+         */
         public void setFilesCount(int i)
         {
             files = new Integer(i);
         }
+        
+        /**
+         * @return
+         */
         public Integer getAllMessageCount()
         {
             return allmsg;
         }
+        
+        /**
+         * @param i
+         */
         public void setAllMessageCount(int i)
         {
             allmsg = new Integer(i);
         }
+        
+        /**
+         * @param i
+         */
         public void setNewMessageCount(int i)
         {
             newmsg = new Integer(i);
         }
     }
 
+    /**
+     * 
+     */
     private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
     {
         Font boldFont;
         Font origFont;
+        
+        /**
+         * 
+         */
         public BoardInfoTableCellRenderer()
         {
             super();
@@ -554,6 +629,9 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             boldFont = origFont.deriveFont( Font.BOLD );
         }
 
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected,
                                                        boolean hasFocus, int row, int column)
         {
@@ -582,18 +660,26 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 	 {
 		 boardTableModel.tableEntriesChanged();
 	 }
-	 /**
-	  * Is called if a Thread is started.
-	  */
-	 public void boardUpdateThreadStarted(BoardUpdateThread thread)
+	 
+	/**
+	 * Is called if a Thread is started.
+	 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
+	 */
+	public void boardUpdateThreadStarted(BoardUpdateThread thread)
 	 {
 		 boardTableModel.tableEntriesChanged();
 	 }
 	 
+	/**
+	 * @return
+	 */
 	public static boolean isDialogShowing() {
 		return isShowing;
 	}
 	   
+	/**
+	 * @param val
+	 */
 	public static void setDialogShowing(boolean val) {
 		isShowing = val;
 	}

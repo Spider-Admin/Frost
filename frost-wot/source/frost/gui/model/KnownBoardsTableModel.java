@@ -18,11 +18,15 @@
 */
 package frost.gui.model;
 
-import java.util.ResourceBundle;
+import frost.util.gui.translation.Language;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class KnownBoardsTableModel extends SortedTableModel
 {
-	private ResourceBundle languageResource = null;
+	private Language language = null;
 
 	protected final static String columnNames[] = new String[4];
 
@@ -33,9 +37,12 @@ public class KnownBoardsTableModel extends SortedTableModel
         String.class
     };
 
-	public KnownBoardsTableModel(ResourceBundle newLanguageResource) {
+	/**
+	 * 
+	 */
+	public KnownBoardsTableModel() {
 		super();
-		languageResource = newLanguageResource;
+		language = Language.getInstance();
 		refreshLanguage();
 	}
 
@@ -43,27 +50,41 @@ public class KnownBoardsTableModel extends SortedTableModel
 	 * 
 	 */
 	private void refreshLanguage() {
-		columnNames[0] = languageResource.getString("KnownBoardsTableModel.Boardname");
-		columnNames[1] = languageResource.getString("Public key");
-		columnNames[2] = languageResource.getString("Private key");		
-		columnNames[3] = languageResource.getString("Description");		
+		columnNames[0] = language.getString("KnownBoardsTableModel.Boardname");
+		columnNames[1] = language.getString("Public key");
+		columnNames[2] = language.getString("Private key");		
+		columnNames[3] = language.getString("Description");		
 	}
 
+	/* (non-Javadoc)
+	 * @see javax.swing.table.TableModel#isCellEditable(int, int)
+	 */
 	public boolean isCellEditable(int row, int col)
     {
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnName(int)
+     */
     public String getColumnName(int column)
     {
         if( column >= 0 && column < columnNames.length )
             return columnNames[column];
         return null;
     }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnCount()
+     */
     public int getColumnCount()
     {
         return columnNames.length;
     }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnClass(int)
+     */
     public Class getColumnClass(int column)
     {
         if( column >= 0 && column < columnClasses.length )

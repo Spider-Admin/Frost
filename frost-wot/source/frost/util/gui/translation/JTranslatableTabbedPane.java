@@ -9,24 +9,25 @@ package frost.util.gui.translation;
 import javax.swing.JTabbedPane;
 
 /**
- * @author Administrator
- *
  * This subclass of JTabbedPane lets the user add tabs and get their index
- * by the key to an UpdatingLanguageResource, instead of by the localized 
+ * by the key to an Language, instead of by the localized 
  * title. If the language of that resource changes, the titles 
  * automatically change too.
+ *
+ * @author $Author$
+ * @version $Revision$
  */
 public class JTranslatableTabbedPane extends JTabbedPane implements LanguageListener {
 
-	private UpdatingLanguageResource languageResource;
+	private Language language;
 
 	/**
-	 * @param newLanguageResource
+	 * @param language
 	 */
-	public JTranslatableTabbedPane(UpdatingLanguageResource newLanguageResource) {
+	public JTranslatableTabbedPane(Language language) {
 		super();
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(this);
+		this.language = language;
+		language.addLanguageListener(this);
 	}
 
 	/**
@@ -37,12 +38,12 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 	 */
 	public String getTitleAt(int index) {
 		String key = super.getTitleAt(index); 
-		return languageResource.getString(key);
+		return language.getString(key);
 	}
 
 	/**
 	 * This method returns the position of the tab whose title
-	 * has the UpdatingLanguageResource key passed as a parameter, 
+	 * has the Language key passed as a parameter, 
 	 * or -1 if no one was found.
 	 * 
 	 * @see javax.swing.JTabbedPane#indexOfTab(java.lang.String)

@@ -28,11 +28,11 @@ import java.util.Timer;
 import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 public class MessageUploadFailedDialog extends JDialog {
 	
@@ -58,8 +58,7 @@ public class MessageUploadFailedDialog extends JDialog {
 	}
 
 	/**
-	 * @author $author$
-	 * @version $revision$
+	 * 
 	 */
 	private class RetryButtonTimer extends Timer {
 
@@ -112,14 +111,16 @@ public class MessageUploadFailedDialog extends JDialog {
 	
 	/**
 	 * @param owner
-	 * @param languageResource
 	 */
 
-	public MessageUploadFailedDialog(Frame owner, UpdatingLanguageResource languageResource) {
+	public MessageUploadFailedDialog(Frame owner) {
 		super(owner, true);
-		retryButtonText = languageResource.getString("Retry") + " - ";
+		
+		Language language = Language.getInstance();
+		
+		retryButtonText = language.getString("Retry") + " - ";
 
-		setTitle(languageResource.getString("Upload of message failed"));
+		setTitle(language.getString("Upload of message failed"));
 
 		JPanel mainPanel = new JPanel();
 		mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -131,10 +132,10 @@ public class MessageUploadFailedDialog extends JDialog {
 		timer = new RetryButtonTimer(SECONDS_TO_WAIT);
 
 		Icon warningIcon = UIManager.getIcon("OptionPane.warningIcon");
-		String warningText = "  " + languageResource.getString("Frost was not able to upload your message.");
+		String warningText = "  " + language.getString("Frost was not able to upload your message.");
 		mainPanel.add(new JLabel(warningText, warningIcon, SwingConstants.LEFT), BorderLayout.NORTH);
 
-		mainPanel.add(getButtonPanel(languageResource), BorderLayout.SOUTH);
+		mainPanel.add(getButtonPanel(language), BorderLayout.SOUTH);
 
 		ButtonListener bl = new ButtonListener();
 		retryButton.addActionListener(bl);
@@ -161,12 +162,12 @@ public class MessageUploadFailedDialog extends JDialog {
 	/**
 	 * @return
 	 */
-	private JPanel getButtonPanel(UpdatingLanguageResource languageResource) {
+	private JPanel getButtonPanel(Language language) {
 		JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
 				
 		retryButton = new JButton(retryButtonText + SECONDS_TO_WAIT);
-		discardButton = new JButton(languageResource.getString("Discard message"));
-		tryOnNextStartupButton = new JButton(languageResource.getString("Retry on next startup"));
+		discardButton = new JButton(language.getString("Discard message"));
+		tryOnNextStartupButton = new JButton(language.getString("Retry on next startup"));
 		
 		buttonsPanel.add(retryButton);
 		buttonsPanel.add(tryOnNextStartupButton);

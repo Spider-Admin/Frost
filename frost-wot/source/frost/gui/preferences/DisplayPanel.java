@@ -14,13 +14,13 @@ import javax.swing.border.EmptyBorder;
 
 import frost.SettingsClass;
 import frost.util.gui.*;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
  * Display Panel. Contains appearace options: skins and more in the future
  * 
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 class DisplayPanel extends JPanel {
 
@@ -34,6 +34,7 @@ class DisplayPanel extends JPanel {
 		public Listener() {
 			super();
 		}
+		
 		/* (non-Javadoc)
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
@@ -52,7 +53,7 @@ class DisplayPanel extends JPanel {
 	
 	private JDialog owner = null;
 	private SettingsClass settings = null;
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	
 	private Listener listener = new Listener();
 	
@@ -81,20 +82,22 @@ class DisplayPanel extends JPanel {
 
 	/**
 	 * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
-	 * @param languageResource the LanguageResource to get localized strings from
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
 	 */
-	protected DisplayPanel(JDialog owner, UpdatingLanguageResource languageResource, SettingsClass settings) {
+	protected DisplayPanel(JDialog owner, SettingsClass settings) {
 		super();
 		
 		this.owner = owner;
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		this.settings = settings;
 		
 		initialize();
 		loadSettings();
 	}
 
+	/**
+	 * 
+	 */
 	public void cancel() {
 		skinChooser.cancelChanges();
 	}
@@ -103,7 +106,7 @@ class DisplayPanel extends JPanel {
 	 * 
 	 */
 	private void fileListButtonPressed() {
-		FontChooser fontChooser = new FontChooser(owner, languageResource);
+		FontChooser fontChooser = new FontChooser(owner, language);
 		fontChooser.setModal(true);
 		fontChooser.setSelectedFont(selectedFileListFont);
 		fontChooser.setVisible(true);
@@ -125,10 +128,10 @@ class DisplayPanel extends JPanel {
 			StringBuffer returnValue = new StringBuffer();
 			returnValue.append(font.getFamily());
 			if (font.isBold()) {
-				returnValue.append(" " + languageResource.getString("Bold"));
+				returnValue.append(" " + language.getString("Bold"));
 			}
 			if (font.isItalic()) {
-				returnValue.append(" " + languageResource.getString("Italic"));
+				returnValue.append(" " + language.getString("Italic"));
 			}
 			returnValue.append(", " + font.getSize());
 			return returnValue.toString();
@@ -217,7 +220,7 @@ class DisplayPanel extends JPanel {
 		constraints.insets = inset1515;
 		constraints.gridx = 0;
 		constraints.gridy = 0;
-		skinChooser = new SkinChooser(languageResource.getResourceBundle());
+		skinChooser = new SkinChooser(language.getResourceBundle());
 		add(skinChooser, constraints);
 
 		constraints.insets = inset1515;
@@ -279,7 +282,7 @@ class DisplayPanel extends JPanel {
 	 * 
 	 */
 	private void messageBodyButtonPressed() {
-		FontChooser fontChooser = new FontChooser(owner, languageResource);
+		FontChooser fontChooser = new FontChooser(owner, language);
 		fontChooser.setModal(true);
 		fontChooser.setSelectedFont(selectedBodyFont);
 		fontChooser.setVisible(true);
@@ -294,7 +297,7 @@ class DisplayPanel extends JPanel {
 	 * 
 	 */
 	private void messageListButtonPressed() {
-		FontChooser fontChooser = new FontChooser(owner, languageResource);
+		FontChooser fontChooser = new FontChooser(owner, language);
 		fontChooser.setModal(true);
 		fontChooser.setSelectedFont(selectedMessageListFont);
 		fontChooser.setVisible(true);
@@ -305,6 +308,9 @@ class DisplayPanel extends JPanel {
 		}
 	}
 
+	/**
+	 * 
+	 */
 	public void ok() {
 		skinChooser.commitChanges();
 		saveSettings();
@@ -314,18 +320,18 @@ class DisplayPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		moreSkinsLabel.setText(languageResource.getString("MoreSkinsAt") + " http://javootoo.l2fprod.com/plaf/skinlf/");
-		fontsLabel.setText(languageResource.getString("Fonts"));
-		messageBodyLabel.setText(languageResource.getString("Message Body"));
-		messageBodyButton.setText(languageResource.getString("Choose"));
+		moreSkinsLabel.setText(language.getString("MoreSkinsAt") + " http://javootoo.l2fprod.com/plaf/skinlf/");
+		fontsLabel.setText(language.getString("Fonts"));
+		messageBodyLabel.setText(language.getString("Message Body"));
+		messageBodyButton.setText(language.getString("Choose"));
 		selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
-		messageListLabel.setText(languageResource.getString("Message List"));
-		messageListButton.setText(languageResource.getString("Choose"));
+		messageListLabel.setText(language.getString("Message List"));
+		messageListButton.setText(language.getString("Choose"));
 		selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
-		fileListLabel.setText(languageResource.getString("File List"));
-		fileListButton.setText(languageResource.getString("Choose"));
+		fileListLabel.setText(language.getString("File List"));
+		fileListButton.setText(language.getString("Choose"));
 		selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
-		messageBodyAACheckBox.setText(languageResource.getString("EnableMessageBodyAA"));
+		messageBodyAACheckBox.setText(language.getString("EnableMessageBodyAA"));
 	}
 
 	/** 

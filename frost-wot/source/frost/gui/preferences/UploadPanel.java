@@ -14,12 +14,11 @@ import javax.swing.*;
 
 import frost.SettingsClass;
 import frost.util.gui.*;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 class UploadPanel extends JPanel {
 
@@ -39,7 +38,7 @@ class UploadPanel extends JPanel {
 	}
 	
 	private SettingsClass settings = null;
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	
 	private JCheckBox automaticIndexingCheckBox = new JCheckBox();
 	private JLabel batchSizeExplanationLabel = new JLabel();
@@ -67,13 +66,12 @@ class UploadPanel extends JPanel {
 	private JClipboardTextField threadsTextField;
 
 	/**
-	 * @param languageResource the LanguageResource to get localized strings from
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
 	 */
-	protected UploadPanel(UpdatingLanguageResource languageResource, SettingsClass settings) {
+	protected UploadPanel(SettingsClass settings) {
 		super();
 		
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		this.settings = settings;
 		
 		initialize();
@@ -97,11 +95,11 @@ class UploadPanel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		batchSizeTextField = new JClipboardTextField(8, languageResource);
-		htlTextField = new JClipboardTextField(8, languageResource);
-		indexFileRedundancyTextField = new JClipboardTextField(8, languageResource);
-		splitfileThreadsTextField = new JClipboardTextField(8, languageResource);
-		threadsTextField = new JClipboardTextField(8, languageResource);
+		batchSizeTextField = new JClipboardTextField(8, language);
+		htlTextField = new JClipboardTextField(8, language);
+		indexFileRedundancyTextField = new JClipboardTextField(8, language);
+		splitfileThreadsTextField = new JClipboardTextField(8, language);
+		threadsTextField = new JClipboardTextField(8, language);
 		
 		//Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -209,6 +207,9 @@ class UploadPanel extends JPanel {
 		setEnabled(!disableRequestsCheckBox.isSelected());
 	}
 		
+	/**
+	 * 
+	 */
 	public void ok() {
 		saveSettings();
 	}
@@ -217,25 +218,25 @@ class UploadPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		disableRequestsCheckBox.setText(languageResource.getString("Disable uploads"));
-		signUploadsCheckBox.setText(languageResource.getString("Sign shared files"));
-		automaticIndexingCheckBox.setText(languageResource.getString("Automatic Indexing"));
-		shareDownloadsCheckBox.setText(languageResource.getString("Share Downloads"));
+		disableRequestsCheckBox.setText(language.getString("Disable uploads"));
+		signUploadsCheckBox.setText(language.getString("Sign shared files"));
+		automaticIndexingCheckBox.setText(language.getString("Automatic Indexing"));
+		shareDownloadsCheckBox.setText(language.getString("Share Downloads"));
 		helpFriendsCheckBox.setText(
-			languageResource.getString("Help spread files from people marked GOOD"));
-		htlLabel.setText(languageResource.getString("Upload HTL") + " (8)");
-		htlExplanationLabel.setText(languageResource.getString("up htl explanation"));
+				language.getString("Help spread files from people marked GOOD"));
+		htlLabel.setText(language.getString("Upload HTL") + " (8)");
+		htlExplanationLabel.setText(language.getString("up htl explanation"));
 		threadsLabel.setText(
-			languageResource.getString("Number of simultaneous uploads") + " (3)");
+				language.getString("Number of simultaneous uploads") + " (3)");
 		splitfileThreadsLabel.setText(
-			languageResource.getString("Number of splitfile threads") + " (15)");
+				language.getString("Number of splitfile threads") + " (15)");
 		splitfileThreadsExplanationLabel.setText(
-			languageResource.getString("splitfile explanation"));
-		batchSizeLabel.setText(languageResource.getString("Upload batch size"));
-		batchSizeExplanationLabel.setText(languageResource.getString("batch explanation"));
-		indexFileRedundancyLabel.setText(languageResource.getString("Index file redundancy"));
+				language.getString("splitfile explanation"));
+		batchSizeLabel.setText(language.getString("Upload batch size"));
+		batchSizeExplanationLabel.setText(language.getString("batch explanation"));
+		indexFileRedundancyLabel.setText(language.getString("Index file redundancy"));
 		indexFileRedundancyExplanationLabel.setText(
-			languageResource.getString("redundancy explanation"));
+				language.getString("redundancy explanation"));
 	}
 		
 	/**

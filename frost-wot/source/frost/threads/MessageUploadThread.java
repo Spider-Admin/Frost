@@ -35,16 +35,16 @@ import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
-import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * Uploads a message to a certain message board
+ * @author $Author$
+ * @version $Revision$
  */
 public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread {
     
 	private static Logger logger = Logger.getLogger(MessageUploadThread.class.getName());
 	
-	private UpdatingLanguageResource languageResource;
     private SettingsClass frostSettings;
 	private JFrame parentFrame;
     private FrostBoardObject board;
@@ -64,7 +64,12 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	private File zipFile;
 
 
-	/**Constructor*/
+	/**Constructor
+	 * @param board
+	 * @param mo
+	 * @param newIdentities
+	 * @param frostSettings
+	 */
 	public MessageUploadThread(
 		FrostBoardObject board,
 		MessageObject mo,
@@ -326,6 +331,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		return true;
 	}
 
+	/* (non-Javadoc)
+	 * @see java.lang.Runnable#run()
+	 */
 	public void run() {
 		notifyThreadStarted(this);
 
@@ -351,13 +359,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		notifyThreadFinished(this);
 	}
 	
-    /**
-     * @param languageResource
-     */
-    public void setLanguageResource(UpdatingLanguageResource languageResource) {
-        this.languageResource = languageResource;
-    }
-
     /**
      * @param parentFrame
      */
@@ -495,8 +496,10 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		return success;
 	}
 	
-	/**
+    /**
      * @return
+     * @throws IOException
+     * @throws MessageAlreadyUploadedException
      */
     private boolean uploadMessage() throws IOException, MessageAlreadyUploadedException {
         boolean success = false;
@@ -596,8 +599,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             if (!retrySilently) {
                 // Uploading of that message failed. Ask the user if Frost
                 // should try to upload the message another time.
-                MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(parentFrame,
-                        languageResource);
+                MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(parentFrame);
                 int answer = faildialog.startDialog();
                 if (answer == MessageUploadFailedDialog.RETRY_VALUE) {
                     logger.info("TOFUP: Will try to upload again.");

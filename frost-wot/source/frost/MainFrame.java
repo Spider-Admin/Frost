@@ -52,14 +52,16 @@ import frost.threads.maintenance.Truster;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-//++++ TODO: rework identities stuff + save to xml
-//             - save identities together (not separated friends,enemies)
-//           - each identity have 3 states: GOOD, BAD, NEUTRAL
-//             - filter out enemies on read of messages
-
-// after removing a board, let actual board selected (currently if you delete another than selected board
-//   the tofTree is updated) 
-
+ /**
+  * TODO: rework identities stuff + save to xml
+  *       - save identities together (not separated friends,enemies)
+  *       - each identity have 3 states: GOOD, BAD, NEUTRAL
+  *       - filter out enemies on read of messages
+  *       - after removing a board, let actual board selected (currently if you 
+  *          delete another than selected board the tofTree is updated) 
+  * @author $Author$
+  * @version $Revision$
+  */
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater {
 	/**
 	 * This listener changes the 'updating' state of a board if a thread starts/finishes.
@@ -68,6 +70,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private class Listener
 		extends WindowAdapter
 		implements MouseListener, BoardUpdateThreadListener, WindowListener {
+		
+		/* (non-Javadoc)
+		 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.threads.BoardUpdateThread)
+		 */
 		public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
 			int running =
 				getRunningBoardUpdateThreads()
@@ -84,6 +90,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				});
 			}
 		}
+		
+		/* (non-Javadoc)
+		 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
+		 */
 		public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
 			thread.getTargetBoard().setUpdating(true);
 			SwingUtilities.invokeLater(new Runnable() {
@@ -93,6 +103,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			});
 		}
 
+		/**
+		 * @param e
+		 */
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger() == false) {
 				return;
@@ -100,32 +113,43 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				showTofTreePopupMenu(e);
 			}
 		}
+		
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
 		public void mouseClicked(MouseEvent e) {
 			//Nothing here			
 		}
+		
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 		 */
 		public void mouseEntered(MouseEvent e) {
 			//Nothing here				
 		}
+		
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
 		public void mouseExited(MouseEvent e) {
 			//Nothing here				
 		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
 		public void mousePressed(MouseEvent e) {
 			if (e.getClickCount() != 2)
 				maybeShowPopup(e);
 		}
 
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
 		public void mouseReleased(MouseEvent e) {
 			maybeShowPopup(e);
 		}
+		
 		/* (non-Javadoc)
 		 * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
 		 */
@@ -149,10 +173,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	} // end of class popuplistener
 
 	/**
-	 * @author Administrator
-	 *
-	 * To change the template for this generated type comment go to
-	 * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+	 * 
 	 */
 	private class MessagePanel extends JPanel {
 
@@ -321,6 +342,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private JMenuItem cancelItem = new JMenuItem();
 			private JMenuItem saveBoardItem = new JMenuItem();
 			private JMenuItem saveBoardsItem = new JMenuItem();
+			
 			/**
 			 * 
 			 */
@@ -328,6 +350,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				super();
 				initialize();
 			}
+			
 			/* (non-Javadoc)
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
@@ -339,6 +362,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					saveBoard();
 				}
 			}
+			
 			/**
 			 * 
 			 */
@@ -348,19 +372,21 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				saveBoardsItem.addActionListener(this);
 				saveBoardItem.addActionListener(this);
 			}
+			
 			/* (non-Javadoc)
 			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
 			 */
 			public void languageChanged(LanguageEvent event) {
 				refreshLanguage();
 			}
+			
 			/**
 			 * 
 			 */
 			private void refreshLanguage() {
-				saveBoardsItem.setText(languageResource.getString("Add Board(s)"));
-				saveBoardItem.setText(languageResource.getString("Add selected board"));
-				cancelItem.setText(languageResource.getString("Cancel"));
+				saveBoardsItem.setText(language.getString("Add Board(s)"));
+				saveBoardItem.setText(language.getString("Add selected board"));
+				cancelItem.setText(language.getString("Cancel"));
 			}
 
 			/**
@@ -369,6 +395,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private void saveBoard() {
 				downloadBoards();
 			}
+			
 			/**
 			 * 
 			 */
@@ -392,8 +419,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				super.show(invoker, x, y);
 			}
-
 		}
+		
 		/**
 		 * 
 		 */
@@ -404,6 +431,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private JMenuItem cancelItem = new JMenuItem();
 			private JMenuItem saveAttachmentItem = new JMenuItem();
 			private JMenuItem saveAttachmentsItem = new JMenuItem();
+			
 			/**
 			 * @throws java.awt.HeadlessException
 			 */
@@ -411,6 +439,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				super();
 				initialize();
 			}
+			
 			/* (non-Javadoc)
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
@@ -422,6 +451,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					saveAttachment();
 				}
 			}
+			
 			/**
 			 * 
 			 */
@@ -431,20 +461,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				saveAttachmentsItem.addActionListener(this);
 				saveAttachmentItem.addActionListener(this);
 			}
+			
 			/* (non-Javadoc)
 			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
 			 */
 			public void languageChanged(LanguageEvent event) {
 				refreshLanguage();
 			}
+			
 			/**
 			 * 
 			 */
 			private void refreshLanguage() {
-				saveAttachmentsItem.setText(languageResource.getString("Download attachment(s)"));
+				saveAttachmentsItem.setText(language.getString("Download attachment(s)"));
 				saveAttachmentItem.setText(
-					languageResource.getString("Download selected attachment"));
-				cancelItem.setText(languageResource.getString("Cancel"));
+						language.getString("Download selected attachment"));
+				cancelItem.setText(language.getString("Cancel"));
 			}
 
 			/**
@@ -453,6 +485,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private void saveAttachment() {
 				downloadAttachments();
 			}
+			
 			/**
 			 * 
 			 */
@@ -476,8 +509,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				super.show(invoker, x, y);
 			}
-
 		}
+		
 		/**
 		 * 
 		 */
@@ -573,14 +606,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * 
 			 */
 			private void refreshLanguage() {
-				markMessageUnreadItem.setText(languageResource.getString("Mark message unread"));
+				markMessageUnreadItem.setText(language.getString("Mark message unread"));
 				markAllMessagesReadItem.setText(
-					languageResource.getString("Mark ALL messages read"));
-				setGoodItem.setText(languageResource.getString("help user (sets to GOOD)"));
-				setBadItem.setText(languageResource.getString("block user (sets to BAD)"));
-				setCheckItem.setText(languageResource.getString("set to neutral (CHECK)"));
-				deleteItem.setText(languageResource.getString("Delete message"));
-				cancelItem.setText(languageResource.getString("Cancel"));
+						language.getString("Mark ALL messages read"));
+				setGoodItem.setText(language.getString("help user (sets to GOOD)"));
+				setBadItem.setText(language.getString("block user (sets to BAD)"));
+				setCheckItem.setText(language.getString("set to neutral (CHECK)"));
+				deleteItem.setText(language.getString("Delete message"));
+				cancelItem.setText(language.getString("Cancel"));
 			}
 
 			/**
@@ -654,8 +687,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 
 		/**
-					 * 
-					 */
+		 * 
+		 */
 		private class PopupMenuTofText
 			extends JSkinnablePopupMenu
 			implements ActionListener, LanguageListener, ClipboardOwner {
@@ -669,7 +702,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private JMenuItem saveMessageItem = new JMenuItem();
 
 			/**
-			 * 
+			 * @param sourceTextComponent
 			 */
 			public PopupMenuTofText(JTextComponent sourceTextComponent) {
 				super();
@@ -727,9 +760,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * 
 			 */
 			private void refreshLanguage() {
-				copyItem.setText(languageResource.getString("Copy"));
-				saveMessageItem.setText(languageResource.getString("Save message to disk"));
-				cancelItem.setText(languageResource.getString("Cancel"));
+				copyItem.setText(language.getString("Copy"));
+				saveMessageItem.setText(language.getString("Save message to disk"));
+				cancelItem.setText(language.getString("Cancel"));
 			}
 
 			/**
@@ -740,7 +773,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					getInstance(),
 					sourceTextComponent.getText(),
 					frostSettings.getValue("lastUsedDirectory"),
-					languageResource.getString("Save message to disk"));
+					language.getString("Save message to disk"));
 			}
 
 			/* (non-Javadoc)
@@ -806,11 +839,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private JScrollPane boardsTableScrollPane;
 
 		/**
-		 * 
+		 * @param settingsClass
 		 */
-		public MessagePanel(SettingsClass newSettingsClass) {
+		public MessagePanel(SettingsClass settingsClass) {
 			super();
-			settingsClass = newSettingsClass;
+			this.settingsClass = settingsClass;
 			settingsClass.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
 			settingsClass.addPropertyChangeListener(
@@ -818,6 +851,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				listener);
 			settingsClass.addPropertyChangeListener("messageBodyAA", listener);
 		}
+		
+		/**
+		 * @param e
+		 */
 		private void checkTrustButton_actionPerformed(ActionEvent e) {
 			trustButton.setEnabled(false);
 			notTrustButton.setEnabled(false);
@@ -866,6 +903,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				}
 			}
 		}
+		
 		/**
 		 * Adds all boards from the attachedBoardsTable to board list.
 		 */
@@ -914,29 +952,30 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				}
 			}
 		}
+		
 		/**
 		 * @return JToolBar 
 		 */
 		private JToolBar getButtonsToolbar() {
 			// configure buttons	
 			MiscToolkit toolkit = MiscToolkit.getInstance();
-			toolkit.configureButton(newMessageButton, "New message", "/data/newmessage_rollover.gif", languageResource);
-			toolkit.configureButton(updateButton, "Update", "/data/update_rollover.gif", languageResource);
-			toolkit.configureButton(replyButton, "Reply", "/data/reply_rollover.gif", languageResource);
+			toolkit.configureButton(newMessageButton, "New message", "/data/newmessage_rollover.gif", language);
+			toolkit.configureButton(updateButton, "Update", "/data/update_rollover.gif", language);
+			toolkit.configureButton(replyButton, "Reply", "/data/reply_rollover.gif", language);
 			toolkit.configureButton(
 				downloadAttachmentsButton,
 				"Download attachment(s)",
 				"/data/attachment_rollover.gif",
-				languageResource);
+				language);
 			toolkit.configureButton(
 				downloadBoardsButton,
 				"Add Board(s)",
 				"/data/attachmentBoard_rollover.gif",
-				languageResource);
-			toolkit.configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif", languageResource);
-			toolkit.configureButton(trustButton, "Trust", "/data/trust_rollover.gif", languageResource);
-			toolkit.configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif", languageResource);
-			toolkit.configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif", languageResource);
+				language);
+			toolkit.configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif", language);
+			toolkit.configureButton(trustButton, "Trust", "/data/trust_rollover.gif", language);
+			toolkit.configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif", language);
+			toolkit.configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif", language);
 
 			replyButton.setEnabled(false);
 			downloadAttachmentsButton.setEnabled(false);
@@ -1003,33 +1042,36 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			return buttonsToolbar;
 
 		}
+		
 		/**
 		 * @return
 		 */
 		private PopupMenuAttachmentBoard getPopupMenuAttachmentBoard() {
 			if (popupMenuAttachmentBoard == null) {
 				popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
-				languageResource.addLanguageListener(popupMenuAttachmentBoard);
+				language.addLanguageListener(popupMenuAttachmentBoard);
 			}
 			return popupMenuAttachmentBoard;
 		}
+		
 		/**
 		 * @return
 		 */
 		private PopupMenuAttachmentTable getPopupMenuAttachmentTable() {
 			if (popupMenuAttachmentTable == null) {
 				popupMenuAttachmentTable = new PopupMenuAttachmentTable();
-				languageResource.addLanguageListener(popupMenuAttachmentTable);
+				language.addLanguageListener(popupMenuAttachmentTable);
 			}
 			return popupMenuAttachmentTable;
 		}
+		
 		/**
 		 * @return
 		 */
 		private PopupMenuMessageTable getPopupMenuMessageTable() {
 			if (popupMenuMessageTable == null) {
 				popupMenuMessageTable = new PopupMenuMessageTable();
-				languageResource.addLanguageListener(popupMenuMessageTable);
+				language.addLanguageListener(popupMenuMessageTable);
 			}
 			return popupMenuMessageTable;
 		}
@@ -1040,19 +1082,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private PopupMenuTofText getPopupMenuTofText() {
 			if (popupMenuTofText == null) {
 				popupMenuTofText = new PopupMenuTofText(messageTextArea);
-				languageResource.addLanguageListener(popupMenuTofText);
+				language.addLanguageListener(popupMenuTofText);
 			}
 			return popupMenuTofText;
 		}
 
+		/**
+		 * 
+		 */
 		public void initialize() {
 			if (!initialized) {
 				refreshLanguage();
-				languageResource.addLanguageListener(listener);
+				language.addLanguageListener(listener);
 
 				// build messages list scroll pane
-				messageTableModel = new MessageTableModel(languageResource);
-				languageResource.addLanguageListener(messageTableModel);
+				messageTableModel = new MessageTableModel();
+				language.addLanguageListener(messageTableModel);
 				messageTable = new MessageTable(messageTableModel);
 				messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
 				messageTable.getSelectionModel().addListSelectionListener(listener);
@@ -1067,14 +1112,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
 
 				// build attached files scroll pane
-				AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel(languageResource);
-				languageResource.addLanguageListener(attachmentTableModel);
+				AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
+				language.addLanguageListener(attachmentTableModel);
 				filesTable = new JTable(attachmentTableModel);
 				filesTableScrollPane = new JScrollPane(filesTable);
 
 				// build attached boards scroll pane
-				AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel(languageResource);
-				languageResource.addLanguageListener(boardTableModel);
+				AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
+				language.addLanguageListener(boardTableModel);
 				boardsTable = new JTable(boardTableModel);
 				boardsTableScrollPane = new JScrollPane(boardsTable);
 
@@ -1126,7 +1171,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				// display welcome message if no boards are available
 				if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
-					messageTextArea.setText(languageResource.getString("Welcome message"));
+					messageTextArea.setText(language.getString("Welcome message"));
 				}
 
 				initialized = true;
@@ -1221,16 +1266,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			} else {
 				// no msg selected
 				messageTextArea.setText(
-					languageResource.getString("Select a message to view its content."));
+						language.getString("Select a message to view its content."));
 				replyButton.setEnabled(false);
 				saveMessageButton.setEnabled(false);
 				downloadAttachmentsButton.setEnabled(false);
 				downloadBoardsButton.setEnabled(false);
 			}
 		}
-		/**
-         * @param i
-         * @param j
+		
+        /**
+         * @param attachedFiles
+         * @param attachedBoards
          */
         private void positionDividers(int attachedFiles, int attachedBoards) {
             if (attachedFiles == 0 && attachedBoards == 0) {
@@ -1265,6 +1311,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private void newMessageButton_actionPerformed(ActionEvent e) {
 			tofNewMessageButton_actionPerformed(e);
 		}
+		/**
+		 * @param e
+		 */
 		private void notTrustButton_actionPerformed(ActionEvent e) {
 			if (selectedMessage != null) {
 				if (core.getIdentities().getFriends().containsKey(selectedMessage.getFrom())) {
@@ -1294,17 +1343,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * 
 		 */
 		private void refreshLanguage() {
-			newMessageButton.setToolTipText(languageResource.getString("New message"));
-			replyButton.setToolTipText(languageResource.getString("Reply"));
+			newMessageButton.setToolTipText(language.getString("New message"));
+			replyButton.setToolTipText(language.getString("Reply"));
 			downloadAttachmentsButton.setToolTipText(
-				languageResource.getString("Download attachment(s)"));
-			downloadBoardsButton.setToolTipText(languageResource.getString("Add Board(s)"));
-			saveMessageButton.setToolTipText(languageResource.getString("Save message"));
-			trustButton.setToolTipText(languageResource.getString("Trust"));
-			notTrustButton.setToolTipText(languageResource.getString("Do not trust"));
-			checkTrustButton.setToolTipText(languageResource.getString("Set to CHECK"));
-			updateButton.setToolTipText(languageResource.getString("Update"));
+					language.getString("Download attachment(s)"));
+			downloadBoardsButton.setToolTipText(language.getString("Add Board(s)"));
+			saveMessageButton.setToolTipText(language.getString("Save message"));
+			trustButton.setToolTipText(language.getString("Trust"));
+			notTrustButton.setToolTipText(language.getString("Do not trust"));
+			checkTrustButton.setToolTipText(language.getString("Set to CHECK"));
+			updateButton.setToolTipText(language.getString("Update"));
 		}
+		
 		/**
 		 * @param e
 		 */
@@ -1319,7 +1369,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * else {
 			 */
 			MessageFrame newMessageFrame = new MessageFrame(frostSettings, MainFrame.this,
-												languageResource, core.getIdentities().getMyId());
+												core.getIdentities().getMyId());
 			newMessageFrame.composeReply(getSelectedNode(), frostSettings.getValue("userName"),
 												subject, messageTextArea.getText());
 		}
@@ -1332,23 +1382,40 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				getInstance(),
 				messageTextArea.getText(),
 				frostSettings.getValue("lastUsedDirectory"),
-				languageResource.getString("Save message to disk"));
+				language.getString("Save message to disk"));
 		}
+		
+		/**
+		 * @param e
+		 */
 		private void showAttachedBoardsPopupMenu(MouseEvent e) {
 			getPopupMenuAttachmentBoard().show(e.getComponent(), e.getX(), e.getY());
 		}
 
+		/**
+		 * @param e
+		 */
 		private void showAttachedFilesPopupMenu(MouseEvent e) {
 			getPopupMenuAttachmentTable().show(e.getComponent(), e.getX(), e.getY());
 		}
 
+		/**
+		 * @param e
+		 */
 		private void showMessageTablePopupMenu(MouseEvent e) {
 			getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
 		}
 
+		/**
+		 * @param e
+		 */
 		private void showTofTextAreaPopupMenu(MouseEvent e) {
 			getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
 		}
+		
+		/**
+		 * @param e
+		 */
 		private void trustButton_actionPerformed(ActionEvent e) {
 			if (selectedMessage != null) {
 				if (core.getIdentities().getEnemies().containsKey(selectedMessage.getFrom())) {
@@ -1373,6 +1440,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			notTrustButton.setEnabled(false);
 			checkTrustButton.setEnabled(false);
 		}
+		
 		/**
 		 * @param e
 		 */
@@ -1393,7 +1461,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 			if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
 				//There are no boards. //TODO: check if there are really no boards (folders count as children)
-				messageTextArea.setText(languageResource.getString("Welcome message"));
+				messageTextArea.setText(language.getString("Welcome message"));
 			} else {
 				//There are boards.
 				FrostBoardObject node =
@@ -1402,7 +1470,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					if (!node.isFolder()) {
 						// node is a board
 						messageTextArea.setText(
-							languageResource.getString("Select a message to view its content."));
+								language.getString("Select a message to view its content."));
 						updateButton.setEnabled(true);
 						saveMessageButton.setEnabled(false);
 						replyButton.setEnabled(false);
@@ -1416,7 +1484,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					} else {
 						// node is a folder
 						messageTextArea.setText(
-							languageResource.getString("Select a board to view its content."));
+								language.getString("Select a board to view its content."));
 						newMessageButton.setEnabled(false);
 						updateButton.setEnabled(false);
 					}
@@ -1446,6 +1514,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private void antialiasing_propertyChanged(PropertyChangeEvent evt) {
 			messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
 		}
+		
 		/**
 		 * 
 		 */
@@ -1468,10 +1537,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					targetMessage.save();
 				};
 			};
-			saver.start();
-			
+			saver.start();	
 		}
-
 	}
 
 	/**
@@ -1605,11 +1672,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * 
 		 */
 		private void refreshLanguage() {
-			addBoardItem.setText(languageResource.getString("Add new board"));
-			addFolderItem.setText(languageResource.getString("Add new folder"));
-			configureBoardItem.setText(languageResource.getString("Configure selected board"));
-			cancelItem.setText(languageResource.getString("Cancel"));
-			sortFolderItem.setText(languageResource.getString("Sort folder"));
+			addBoardItem.setText(language.getString("Add new board"));
+			addFolderItem.setText(language.getString("Add new folder"));
+			configureBoardItem.setText(language.getString("Configure selected board"));
+			cancelItem.setText(language.getString("Cancel"));
+			sortFolderItem.setText(language.getString("Sort folder"));
 		}
 
 		/**
@@ -1640,17 +1707,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				String folderOrBoard1 =
 					((selectedTreeNode.isFolder())
-						? languageResource.getString("Folder")
-						: languageResource.getString("Board"));
+						? language.getString("Folder")
+						: language.getString("Board"));
 				String folderOrBoard2 =
 					((selectedTreeNode.isFolder())
-						? languageResource.getString("folder")
-						: languageResource.getString("board"));
+						? language.getString("folder")
+						: language.getString("board"));
 
 				descriptionItem.setText(folderOrBoard1 + " : " + selectedTreeNode);
-				refreshItem.setText(languageResource.getString("Refresh") + " " + folderOrBoard2);
-				removeNodeItem.setText(languageResource.getString("Remove") + " " + folderOrBoard2);
-				cutNodeItem.setText(languageResource.getString("Cut") + " " + folderOrBoard2);
+				refreshItem.setText(language.getString("Refresh") + " " + folderOrBoard2);
+				removeNodeItem.setText(language.getString("Remove") + " " + folderOrBoard2);
+				cutNodeItem.setText(language.getString("Cut") + " " + folderOrBoard2);
 
 				add(descriptionItem);
 				addSeparator();
@@ -1674,10 +1741,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (clipboard != null && selectedTreeNode.isFolder()) {
 					String folderOrBoard3 =
 						((clipboard.isFolder())
-							? languageResource.getString("folder")
-							: languageResource.getString("board"));
+							? language.getString("folder")
+							: language.getString("board"));
 					pasteNodeItem.setText(
-						languageResource.getString("Paste")
+							language.getString("Paste")
 							+ " "
 							+ folderOrBoard3
 							+ " '"
@@ -1707,6 +1774,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * dummy .req files that are created by requestThread on key collosions.
 	 */
 	private class RemoveDummyRequestFiles extends Thread {
+		
+		/* (non-Javadoc)
+		 * @see java.lang.Runnable#run()
+		 */
 		public void run() {
 			Iterator i = getTofTree().getAllBoards().iterator();
 
@@ -1737,6 +1808,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		}
 	}
+	
 	private DownloadTicker downloadTicker;
 	private UploadTicker uploadTicker;
 	//	public static String newMessageHeader = new String("");
@@ -1757,6 +1829,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
 	 */
 	private static final Comparator lastUpdateStartMillisCmp = new Comparator() {
+		/* (non-Javadoc)
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
 		public int compare(Object o1, Object o2) {
 			FrostBoardObject value1 = (FrostBoardObject) o1;
 			FrostBoardObject value2 = (FrostBoardObject) o2;
@@ -1774,7 +1849,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	private static FrostMessageObject selectedMessage = new FrostMessageObject();
 
-	/**Selects message icon in lower right corner*/
+	/**
+	 * Selects message icon in lower right corner
+	 * @param showNewMessageIcon
+	 */
 	public static void displayNewMessageIcon(boolean showNewMessageIcon) {
 		MainFrame mainFrame = MainFrame.getInstance();
 		if (showNewMessageIcon) {
@@ -1796,11 +1874,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 	}
 
-	//------------------------------------------------------------------------
-
-	/*************************
-	 * GETTER + SETTER       *
-	 *************************/
+	/**
+	 * @return
+	 */
 	public static MainFrame getInstance() {
 		return instance;
 	}
@@ -1839,15 +1915,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	//Language Menu
 	private JMenu languageMenu = new JMenu();
 
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	private JRadioButtonMenuItem languageSpanishMenuItem = new JRadioButtonMenuItem();
 	private String lastSelectedMessage;
 
 	private Listener listener = new Listener();
-
-	//------------------------------------------------------------------------
-	// Generate objects
-	//------------------------------------------------------------------------
 
 	// The main menu
 	private JMenuBar menuBar = new JMenuBar();
@@ -1902,13 +1974,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private TofTree tofTree = null;
 	private UploadPanel uploadPanel = null;
 
-	/**Construct the frame*/
-	public MainFrame(SettingsClass newSettings, UpdatingLanguageResource newLanguageResource) {
+	/**
+	 * Construct the frame
+	 * @param frostSettings
+	 */
+	public MainFrame(SettingsClass settings) {
 
 		instance = this;
 		core = Core.getInstance();
-		frostSettings = newSettings;
-		languageResource = newLanguageResource;
+		frostSettings = settings;
+		language = Language.getInstance();
 
 		keypool = frostSettings.getValue("keypool.dir");
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
@@ -1951,6 +2026,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	public void addPanel(String title, JPanel panel) {
 		tabbedPane.add(title, panel);
 	}
+	
+	/**
+	 * @return
+	 */
 	private JToolBar buildButtonPanel() {
 		timeLabel = new JLabel("");
 		// configure buttons
@@ -1967,28 +2046,28 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
 
 		MiscToolkit toolkit = MiscToolkit.getInstance();
-		toolkit.configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif", languageResource);
-		toolkit.configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif", languageResource);
-		toolkit.configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif", languageResource);
-		toolkit.configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif", languageResource);
-		toolkit.configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif", languageResource);
-		toolkit.configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif", languageResource);
-		toolkit.configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif", languageResource);
+		toolkit.configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif", language);
+		toolkit.configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif", language);
+		toolkit.configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif", language);
+		toolkit.configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif", language);
+		toolkit.configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif", language);
+		toolkit.configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif", language);
+		toolkit.configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif", language);
 		toolkit.configureButton(
 			boardInfoButton,
 			"Board Information Window",
 			"/data/info_rollover.gif",
-			languageResource);
+			language);
 		toolkit.configureButton(
 			systemTrayButton,
 			"Minimize to System Tray",
 			"/data/tray_rollover.gif",
-			languageResource);
+			language);
 		toolkit.configureButton(
 			knownBoardsButton,
 			"Display list of known boards",
 			"/data/knownboards_rollover.gif",
-			languageResource);
+			language);
 
 		// add action listener
 		knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2308,8 +2387,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		this.setJMenuBar(menuBar);
 	}
 
+	/**
+	 * @return
+	 */
 	private JPanel buildStatusPanel() {
-		statusLabel = new JLabel(languageResource.getString("Frost by Jantho"));
+		statusLabel = new JLabel(language.getString("Frost by Jantho"));
 		statusMessageLabel = new JLabel();
 
 		newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
@@ -2323,8 +2405,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		return statusPanel;
 	}
 
+	/**
+	 * @return
+	 */
 	private JPanel buildTofMainPanel() {
-		tabbedPane = new JTranslatableTabbedPane(languageResource);
+		tabbedPane = new JTranslatableTabbedPane(language);
 		//add a tab for buddies perhaps?
 		tabbedPane.add("News", getMessagePanel());
 
@@ -2356,6 +2441,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		return tofMainPanel;
 	}
 
+	/**
+	 * @param cuttedNode
+	 */
 	public void cutNode(FrostBoardObject cuttedNode) {
 		cuttedNode = getTofTree().cutNode(cuttedNode);
 		if (cuttedNode != null) {
@@ -2367,6 +2455,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * Returns true if board is allowed to be updated.
 	 * Also checks if board update is already running.
+	 * @param board
+	 * @return
 	 */
 	public boolean doUpdate(FrostBoardObject board) {
 		if (isUpdateAllowed(board) == false)
@@ -2378,7 +2468,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		return true;
 	}
 
-	/**File | Exit action performed*/
+	/**
+	 * File | Exit action performed
+	 * @param e
+	 */
 	private void fileExitMenuItem_actionPerformed(ActionEvent e) {
 		// Remove the tray icon
 		// - not needed any longer, JSysTray unloads itself via ShutdownHook
@@ -2390,8 +2483,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			int result =
 				JOptionPane.showConfirmDialog(
 					this,
-					languageResource.getString("UploadsUnderway.body"),
-					languageResource.getString("UploadsUnderway.title"),
+					language.getString("UploadsUnderway.body"),
+					language.getString("UploadsUnderway.title"),
 					JOptionPane.YES_NO_OPTION,
 					JOptionPane.QUESTION_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
@@ -2401,11 +2494,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			System.exit(0);
 		}
 	}
+
+	/**
+	 * @return
+	 */
 	public DownloadModel getDownloadModel() {
 		return downloadModel;
 	}
+	
 	/**
-	 * 
+	 * @return
 	 */
 	private MessagePanel getMessagePanel() {
 		if (messagePanel == null) {
@@ -2414,6 +2512,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 		return messagePanel;
 	}
+	
+	/**
+	 * @return
+	 */
 	public MessageTable getMessageTable() {
 		return messageTable;
 	}
@@ -2424,20 +2526,31 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private PopupMenuTofTree getPopupMenuTofTree() {
 		if (popupMenuTofTree == null) {
 			popupMenuTofTree = new PopupMenuTofTree();
-			languageResource.addLanguageListener(popupMenuTofTree);
+			language.addLanguageListener(popupMenuTofTree);
 		}
 		return popupMenuTofTree;
 	}
+	
+	/**
+	 * @return
+	 */
 	public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
 		return runningBoardUpdateThreads;
 	}
 
+	/**
+	 * @param imgPath
+	 * @return
+	 */
 	private ImageIcon getScaledImage(String imgPath) {
 		ImageIcon icon = new ImageIcon(MainFrame.class.getResource(imgPath));
 		icon = new ImageIcon(icon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
 		return icon;
 	}
 
+	/**
+	 * @return
+	 */
 	public FrostBoardObject getSelectedNode() { //TODO: move this method to TofTree
 		FrostBoardObject node = (FrostBoardObject) getTofTree().getLastSelectedPathComponent();
 		if (node == null) {
@@ -2447,20 +2560,27 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 		return node;
 	}
+	
+	/**
+	 * @return
+	 */
 	public TofTree getTofTree() {
 		if (tofTree == null) {
 			// this rootnode is discarded later, but if we create the tree without parameters,
 			// a new Model is created wich contains some sample data by default (swing)
 			// this confuses our renderer wich only expects FrostBoardObjects in the tree
 			FrostBoardObject dummyRootNode = new FrostBoardObject("Frost Message System", true);
-			tofTree = new TofTree(dummyRootNode, languageResource);
+			tofTree = new TofTree(dummyRootNode);
 		}
 		return tofTree;
 	}
 
-	/**Help | About action performed*/
+	/**
+	 * Help | About action performed
+	 * @param e
+	 */
 	private void helpAboutMenuItem_actionPerformed(ActionEvent e) {
-		AboutBox dlg = new AboutBox(this, languageResource.getResourceBundle());
+		AboutBox dlg = new AboutBox(this);
 		dlg.setModal(true);
 		dlg.setVisible(true);
 	}
@@ -2468,6 +2588,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * Returns true if board is allowed to be updated.
 	 * Does NOT check if board update is already running.
+	 * @param board
+	 * @return
 	 */
 	public boolean isUpdateAllowed(FrostBoardObject board) {
 		if (board == null)
@@ -2482,10 +2604,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		return true;
 	}
 
-	//**********************************************************************************************
-    //**********************************************************************************************
-    //**********************************************************************************************
-    /** initialization */
+    /**
+     * 
+     */
     public void initialize() {
 
         // step through all messages on disk up to maxMessageDisplay and check
@@ -2554,8 +2675,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
 
         // enable the machine ;)
-        runningBoardUpdateThreads = new RunningBoardUpdateThreads(this, core.getIdentities(), core
-                .getLanguageResource(), frostSettings);
+        runningBoardUpdateThreads = new RunningBoardUpdateThreads(this, core.getIdentities(), frostSettings);
         //note: changed this from timertask so that I can give it a name --zab
         Thread tickerThread = new Thread("tick tack") {
             public void run() {
@@ -2571,6 +2691,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         validate();
     }
 
+	/* (non-Javadoc)
+	 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
+	 */
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
 		//Core.getOut().println("Clipboard contents replaced");
 	}
@@ -2601,14 +2724,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		updateTofTree(getSelectedNode());
 	}
 
-	/**Options | Preferences action performed*/
+	/**
+	 * Options | Preferences action performed
+	 * @param e
+	 */
 	private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
 		try {
 			frostSettings.save();
 		} catch (StorageException se) {
 			logger.log(Level.SEVERE, "Error while saving the settings.", se);
 		}
-		OptionsFrame optionsDlg = new OptionsFrame(this, frostSettings, languageResource);
+		OptionsFrame optionsDlg = new OptionsFrame(this, frostSettings);
 		boolean okPressed = optionsDlg.runDialog();
 		if (okPressed) {
 			// check if signed only+hideCheck+hideBad or blocking words settings changed
@@ -2629,6 +2755,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 	}
 
+	/**
+	 * @param node
+	 */
 	public void pasteFromClipboard(FrostBoardObject node) {
 		if (clipboard == null) {
 			pasteBoardButton.setEnabled(false);
@@ -2643,6 +2772,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	/**
 	 * starts update for the selected board, or for all childs (and their childs) of a folder
+	 * @param node
 	 */
 	private void refreshNode(FrostBoardObject node) {
 		if (node == null)
@@ -2662,6 +2792,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	/**
 	 * Removes the given tree node, asks before deleting.
+	 * @param selectedNode
 	 */
 	public void removeNode(FrostBoardObject selectedNode) {
 		String txt;
@@ -2730,6 +2861,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * Opens dialog to rename the board / folder.
 	 * For boards it checks for double names.
+	 * @param selected
 	 */
 	public void renameNode(FrostBoardObject selected) {
 		if (selected == null)
@@ -2765,6 +2897,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * that is allowed to update.
 	 * Used only for automatic updating.
 	 * Returns NULL if no board to update is found.
+	 * @param boards
+	 * @return
 	 */
 	public FrostBoardObject selectNextBoard(Vector boards) {
 		Collections.sort(boards, lastUpdateStartMillisCmp);
@@ -2803,13 +2937,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	/**
 	 * Setter for thelanguage resource bundle
+	 * @param newLanguageResource
 	 */
-	public void setLanguageResource(ResourceBundle newLanguageResource) {
-		languageResource.setLanguageResource(newLanguageResource);
+	private void setLanguageResource(ResourceBundle newLanguageResource) {
+		language.setLanguageResource(newLanguageResource);
 		translateMainMenu();
 		translateButtons();
 	}
 
+	/**
+	 * @param what
+	 */
 	private void setMessageTrust(Boolean what) {
 		int row = messageTable.getSelectedRow();
 		if (row < 0 || selectedMessage == null)
@@ -2856,11 +2994,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			tabbedPane.setEnabledAt(position, enabled);
 		}
 	}
+	/**
+	 * @param e
+	 */
 	protected void showTofTreePopupMenu(MouseEvent e) {
 		getPopupMenuTofTree().show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	/**timer Action Listener (automatic download)*/
+	/**
+	 * timer Action Listener (automatic download)
+	 */
 	public void timer_actionPerformed() {
 		// this method is called by a timer each second, so this counter counts seconds
 		counter++;
@@ -2899,33 +3042,36 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		/////////////////////////////////////////////////
 		String newText =
 			new StringBuffer()
-				.append(languageResource.getString("Up") + ": ")
+				.append(language.getString("Up") + ": ")
 				.append(uploadTicker.getUploadingThreadCount())
-				.append("   " + languageResource.getString("Down") + ": ")
+				.append("   " + language.getString("Down") + ": ")
 				.append(downloadTicker.getThreadCount())
-				.append("   " + languageResource.getString("TOFUP") + ": ")
+				.append("   " + language.getString("TOFUP") + ": ")
 				.append(getRunningBoardUpdateThreads().getUploadingBoardCount())
 				.append("B / ")
 				.append(getRunningBoardUpdateThreads().getRunningUploadThreadCount())
 				.append("T")
-				.append("   " + languageResource.getString("TOFDO") + ": ")
+				.append("   " + language.getString("TOFDO") + ": ")
 				.append(getRunningBoardUpdateThreads().getUpdatingBoardCount())
 				.append("B / ")
 				.append(getRunningBoardUpdateThreads().getRunningDownloadThreadCount())
 				.append("T")
-				.append("   " + languageResource.getString("Selected board") + ": ")
+				.append("   " + language.getString("Selected board") + ": ")
 				.append(getSelectedNode().toString())
 				.toString();
 		statusLabel.setText(newText);
 	}
 
-	/**News | Configure Board action performed*/
+	/**
+	 * News | Configure Board action performed
+	 * @param board
+	 */
 	private void tofConfigureBoardMenuItem_actionPerformed(FrostBoardObject board) {
 		if (board == null || board.isFolder())
 			return;
 
 		BoardSettingsFrame newFrame =
-			new BoardSettingsFrame(this, board, languageResource.getResourceBundle());
+			new BoardSettingsFrame(this, board);
 		if (newFrame.runDialog() == true) // OK pressed?
 			{
 			updateTofTree(board);
@@ -2939,20 +3085,29 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 	}
 
+	/**
+	 * @param e
+	 */
 	private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e) {
 		if (BoardInfoFrame.isDialogShowing() == false) {
-			BoardInfoFrame boardInfo = new BoardInfoFrame(this, languageResource);
+			BoardInfoFrame boardInfo = new BoardInfoFrame(this);
 			boardInfo.startDialog();
 		}
 	}
 
+	/**
+	 * @param e
+	 */
 	private void tofDisplayKnownBoardsMenuItem_actionPerformed(ActionEvent e) {
 		KnownBoardsFrame knownBoards =
-			new KnownBoardsFrame(this, languageResource.getResourceBundle());
+			new KnownBoardsFrame(this);
 		knownBoards.startDialog();
 	}
 
-	/** tofNewMessageButton Action Listener (tof/ New Message) */
+	/** 
+	 * tofNewMessageButton Action Listener (tof/ New Message)
+	 * @param e
+	 */
 	private void tofNewMessageButton_actionPerformed(ActionEvent e) {
 		/*
 		 * if (frostSettings.getBoolValue("useAltEdit")) { // TODO: pass
@@ -2960,16 +3115,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * subject "", // new msg frostSettings, this); altEdit.start(); } else {
 		 */
 		MessageFrame newMessageFrame = new MessageFrame(
-												frostSettings, this, languageResource, 
+												frostSettings, this, 
 												core.getIdentities().getMyId());
 		newMessageFrame.composeNewMessage(getSelectedNode(), frostSettings.getValue("userName"), 
 											"No subject", "");
 	}
 
-	/** TOF Board selected */
-	// Core.getOut()
-	// if e == NULL, the method is called by truster or by the reloader after options were changed
-	// in this cases we usually should left select the actual message (if one) while reloading the table
+	/** TOF Board selected
+	 * Core.getOut()
+	 * if e == NULL, the method is called by truster or by the reloader after options were changed
+	 * in this cases we usually should left select the actual message (if one) while reloading the table
+	 * @param e
+	 */
 	public void tofTree_actionPerformed(TreeSelectionEvent e) {
 		int i[] = getTofTree().getSelectionRows();
 		if (i != null && i.length > 0) {
@@ -3015,7 +3172,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 	}
 
-	/**Get keyTyped for tofTree*/
+	/**
+	 * Get keyTyped for tofTree
+	 * @param e
+	 */
 	public void tofTree_keyPressed(KeyEvent e) {
 		char key = e.getKeyChar();
 		if (!getTofTree().isEditing()) {
@@ -3029,56 +3189,64 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				pasteFromClipboard(getSelectedNode());
 		}
 	}
+	
+	/**
+	 * 
+	 */
 	private void translateButtons() {
-		newBoardButton.setToolTipText(languageResource.getString("New board"));
-		systemTrayButton.setToolTipText(languageResource.getString("Minimize to System Tray"));
+		newBoardButton.setToolTipText(language.getString("New board"));
+		systemTrayButton.setToolTipText(language.getString("Minimize to System Tray"));
 		knownBoardsButton.setToolTipText(
-			languageResource.getString("Display list of known boards"));
-		boardInfoButton.setToolTipText(languageResource.getString("Board Information Window"));
-		newFolderButton.setToolTipText(languageResource.getString("New folder"));
-		pasteBoardButton.setToolTipText(languageResource.getString("Paste board"));
-		configBoardButton.setToolTipText(languageResource.getString("Configure board"));
-		removeBoardButton.setToolTipText(languageResource.getString("Remove board"));
-		cutBoardButton.setToolTipText(languageResource.getString("Cut board"));
-		renameBoardButton.setToolTipText(languageResource.getString("Rename folder"));
+				language.getString("Display list of known boards"));
+		boardInfoButton.setToolTipText(language.getString("Board Information Window"));
+		newFolderButton.setToolTipText(language.getString("New folder"));
+		pasteBoardButton.setToolTipText(language.getString("Paste board"));
+		configBoardButton.setToolTipText(language.getString("Configure board"));
+		removeBoardButton.setToolTipText(language.getString("Remove board"));
+		cutBoardButton.setToolTipText(language.getString("Cut board"));
+		renameBoardButton.setToolTipText(language.getString("Rename folder"));
 	}
+	
+	/**
+	 * 
+	 */
 	private void translateMainMenu() {
-		fileMenu.setText(languageResource.getString("File"));
-		fileExitMenuItem.setText(languageResource.getString("Exit"));
-		tofMenu.setText(languageResource.getString("News"));
-		tofConfigureBoardMenuItem.setText(languageResource.getString("Configure selected board"));
+		fileMenu.setText(language.getString("File"));
+		fileExitMenuItem.setText(language.getString("Exit"));
+		tofMenu.setText(language.getString("News"));
+		tofConfigureBoardMenuItem.setText(language.getString("Configure selected board"));
 		tofDisplayBoardInfoMenuItem.setText(
-			languageResource.getString("Display board information window"));
-		tofAutomaticUpdateMenuItem.setText(languageResource.getString("Automatic message update"));
-		tofIncreaseFontSizeMenuItem.setText(languageResource.getString("Increase Font Size"));
-		tofDecreaseFontSizeMenuItem.setText(languageResource.getString("Decrease Font Size"));
-		tofDisplayKnownBoards.setText(languageResource.getString("Display known boards"));
-		optionsMenu.setText(languageResource.getString("Options"));
-		optionsPreferencesMenuItem.setText(languageResource.getString("Preferences"));
-		pluginMenu.setText(languageResource.getString("Plugins"));
-		pluginBrowserMenuItem.setText(languageResource.getString("Experimental Freenet Browser"));
+				language.getString("Display board information window"));
+		tofAutomaticUpdateMenuItem.setText(language.getString("Automatic message update"));
+		tofIncreaseFontSizeMenuItem.setText(language.getString("Increase Font Size"));
+		tofDecreaseFontSizeMenuItem.setText(language.getString("Decrease Font Size"));
+		tofDisplayKnownBoards.setText(language.getString("Display known boards"));
+		optionsMenu.setText(language.getString("Options"));
+		optionsPreferencesMenuItem.setText(language.getString("Preferences"));
+		pluginMenu.setText(language.getString("Plugins"));
+		pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
 		pluginTranslateMenuItem.setText(
-			languageResource.getString("Translate Frost into another language"));
-		languageMenu.setText(languageResource.getString("Language"));
-		languageDefaultMenuItem.setText(languageResource.getString("Default"));
-		languageDutchMenuItem.setText(languageResource.getString("Dutch"));
-		languageEnglishMenuItem.setText(languageResource.getString("English"));
-		languageFrenchMenuItem.setText(languageResource.getString("French"));
-		languageGermanMenuItem.setText(languageResource.getString("German"));
-		languageItalianMenuItem.setText(languageResource.getString("Italian"));
-		languageJapaneseMenuItem.setText(languageResource.getString("Japanese"));
-		languageSpanishMenuItem.setText(languageResource.getString("Spanish"));
-		languageBulgarianMenuItem.setText(languageResource.getString("Bulgarian"));
-		helpMenu.setText(languageResource.getString("Help"));
-		helpHelpMenuItem.setText(languageResource.getString("Help"));
-		helpAboutMenuItem.setText(languageResource.getString("About"));
+				language.getString("Translate Frost into another language"));
+		languageMenu.setText(language.getString("Language"));
+		languageDefaultMenuItem.setText(language.getString("Default"));
+		languageDutchMenuItem.setText(language.getString("Dutch"));
+		languageEnglishMenuItem.setText(language.getString("English"));
+		languageFrenchMenuItem.setText(language.getString("French"));
+		languageGermanMenuItem.setText(language.getString("German"));
+		languageItalianMenuItem.setText(language.getString("Italian"));
+		languageJapaneseMenuItem.setText(language.getString("Japanese"));
+		languageSpanishMenuItem.setText(language.getString("Spanish"));
+		languageBulgarianMenuItem.setText(language.getString("Bulgarian"));
+		helpMenu.setText(language.getString("Help"));
+		helpHelpMenuItem.setText(language.getString("Help"));
+		helpAboutMenuItem.setText(language.getString("About"));
 	}
 
-	/**tof / Update*/
 	/**
 	 * Starts the board update threads, getRequest thread and update id thread.
 	 * Checks for each type of thread if its already running, and starts allowed
 	 * not-running threads for this board.
+	 * @param board
 	 */
 	public void updateBoard(FrostBoardObject board) {
 		if (board == null || board.isFolder())
@@ -3132,6 +3300,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 	}
 
+	/**
+	 * @param board
+	 */
 	private void updateButtons(FrostBoardObject board) {
 		if (board.isReadAccessBoard()) {
 			uploadPanel.setAddFilesButtonEnabled(false);
@@ -3143,6 +3314,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * Method that update the Msg and New counts for tof table
 	 * Expects that the boards messages are shown in table
+	 * @param board
 	 */
 	public void updateMessageCountLabels(FrostBoardObject board) {
 		if (board.isFolder() == true) {
@@ -3165,6 +3337,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	public void updateSettings() {
 		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
 	}
+	
 	/**
 	 * Fires a nodeChanged (redraw) for all boards.
 	 * ONLY used to redraw tree after run of OptionsFrame.

@@ -17,12 +17,11 @@ import frost.util.model.ModelItem;
 import frost.util.model.gui.*;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 class UploadTableFormat extends SortedTableFormat implements LanguageListener {
+	
 	/**
 	 * This inner class implements the renderer for the column "Name"
 	 */
@@ -61,8 +60,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 			}
 			return this;
 		}
-
-}
+	}
 	
 	/**
 	 * This inner class implements the renderer for the column "FileSize"
@@ -167,7 +165,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 			}
 			return key1.compareToIgnoreCase(key2);
 		}
-
 	}
 	
 	/**
@@ -185,7 +182,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		}
 	}
 
-	private UpdatingLanguageResource languageResource;
+	private Language language;
 
 	private final static int COLUMN_COUNT = 6;
 	
@@ -200,11 +197,11 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 	/**
 	 * 
 	 */
-	public UploadTableFormat(UpdatingLanguageResource newLanguageResource) {
+	public UploadTableFormat() {
 		super(COLUMN_COUNT);
 		
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(this);
+		language = Language.getInstance();
+		language.addLanguageListener(this);
 		refreshLanguage();
 		
 		setComparator(new NameComparator(), 0);
@@ -219,19 +216,19 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 	 * 
 	 */
 	private void refreshLanguage() {
-		setColumnName(0, languageResource.getString("Filename"));
-		setColumnName(1, languageResource.getString("Size"));
-		setColumnName(2, languageResource.getString("Last upload"));
-		setColumnName(3, languageResource.getString("Path"));
-		setColumnName(4, languageResource.getString("Destination"));
-		setColumnName(5, languageResource.getString("Key"));
+		setColumnName(0, language.getString("Filename"));
+		setColumnName(1, language.getString("Size"));
+		setColumnName(2, language.getString("Last upload"));
+		setColumnName(3, language.getString("Path"));
+		setColumnName(4, language.getString("Destination"));
+		setColumnName(5, language.getString("Key"));
 		
-		stateUploadedNever = languageResource.getString("Never");
-		stateRequested = languageResource.getString("Requested");
-		stateUploading = languageResource.getString("Uploading");
-		stateEncodingRequested = languageResource.getString("Encode requested");
-		stateEncoding = languageResource.getString("Encoding file") + "...";
-		unknown = languageResource.getString("Unknown");
+		stateUploadedNever = language.getString("Never");
+		stateRequested = language.getString("Requested");
+		stateUploading = language.getString("Uploading");
+		stateEncodingRequested = language.getString("Encode requested");
+		stateEncoding = language.getString("Encoding file") + "...";
+		unknown = language.getString("Unknown");
 		
 		refreshColumnNames();
 	}
@@ -269,7 +266,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 	}
 
 	/**
-	 * @param i
+	 * @param item
+	 * @param state
 	 * @return
 	 */
 	private String getStateAsString(FrostUploadItem item, int state) {
@@ -301,7 +299,8 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 	}
 
 	/**
-	 * @param item
+	 * @param totalBlocks
+	 * @param doneBlocks
 	 * @return
 	 */
 	private String getUploadProgress(int totalBlocks, int doneBlocks) {

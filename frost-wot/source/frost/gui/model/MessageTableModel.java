@@ -22,9 +22,13 @@ package frost.gui.model;
 import frost.util.gui.translation.*;
 
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class MessageTableModel extends SortedTableModel implements LanguageListener
 {
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	
 	protected final static String columnNames[] = new String[5];
 
@@ -36,27 +40,44 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
         String.class //LangRes.getString("Date")
     };
 
-	public MessageTableModel(UpdatingLanguageResource newLanguageResource) {
+	/**
+	 * 
+	 */
+	public MessageTableModel() {
 		super();
-		languageResource = newLanguageResource;
+		language = Language.getInstance();
 		refreshLanguage();
 	}
     
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#isCellEditable(int, int)
+     */
     public boolean isCellEditable(int row, int col)
     {
         return false;
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnName(int)
+     */
     public String getColumnName(int column)
     {
         if( column >= 0 && column < columnNames.length )
             return columnNames[column];
         return null;
     }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnCount()
+     */
     public int getColumnCount()
     {
         return columnNames.length;
     }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnClass(int)
+     */
     public Class getColumnClass(int column)
     {
         if( column >= 0 && column < columnClasses.length )
@@ -75,11 +96,11 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
 	 * 
 	 */
 	private void refreshLanguage() {
-		columnNames[0] = languageResource.getString("Index");
-		columnNames[1] = languageResource.getString("From");
-		columnNames[2] = languageResource.getString("Subject");
-		columnNames[3] = languageResource.getString("Sig");
-		columnNames[4] = languageResource.getString("Date");
+		columnNames[0] = language.getString("Index");
+		columnNames[1] = language.getString("From");
+		columnNames[2] = language.getString("Subject");
+		columnNames[3] = language.getString("Sig");
+		columnNames[4] = language.getString("Date");
 
 		fireTableStructureChanged();		
 	}

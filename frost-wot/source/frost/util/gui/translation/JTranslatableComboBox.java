@@ -6,13 +6,8 @@ package frost.util.gui.translation;
 import javax.swing.JComboBox;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-/**
- * 
+ * @author $Author$
+ * @version $Revision$
  */
 public class JTranslatableComboBox extends JComboBox implements LanguageListener {
 
@@ -25,20 +20,27 @@ public class JTranslatableComboBox extends JComboBox implements LanguageListener
 		private String value = null;
 
 		/**
-		 * 
+		 * @param key
+		 * @param value
 		 */
-		public CheckBoxItem(String newKey, String newValue) {
+		public CheckBoxItem(String key, String value) {
 			super();
-			key = newKey;
-			value = newValue;
+			this.key = key;
+			this.value = value;
 		}
 		
+		/**
+		 * @return
+		 */
 		public String getKey() {
 			return key;
 		}
 		
-		public void setValue(String newValue) {
-			value = newValue;
+		/**
+		 * @param value
+		 */
+		public void setValue(String value) {
+			this.value = value;
 		}
 
 		/* (non-Javadoc)
@@ -49,20 +51,20 @@ public class JTranslatableComboBox extends JComboBox implements LanguageListener
 		}
 
 	}
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	private String[] keys;
 
 	/**
-	 * @param newLanguageResource
-	 * @param newKeys
+	 * @param language
+	 * @param keys
 	 */
-	public JTranslatableComboBox(UpdatingLanguageResource newLanguageResource, String[] newKeys) {
+	public JTranslatableComboBox(Language language, String[] keys) {
 		super();
-		languageResource = newLanguageResource;
-		keys = newKeys;
-		languageResource.addLanguageListener(this);
+		this.language = language;
+		this.keys = keys;
+		language.addLanguageListener(this);
 		for (int i = 0; i < keys.length; i++) {
-			String value = languageResource.getString(keys[i]);
+			String value = language.getString(keys[i]);
 			CheckBoxItem item = new CheckBoxItem(keys[i], value);
 			addItem(item);
 		}
@@ -81,7 +83,7 @@ public class JTranslatableComboBox extends JComboBox implements LanguageListener
 	private void refreshLanguage() {
 		for (int i = 0; i < keys.length; i++) {
 			CheckBoxItem item = (CheckBoxItem) getItemAt(i);
-			String newValue = languageResource.getString(item.getKey());
+			String newValue = language.getString(item.getKey());
 			item.setValue(newValue);
 		}
 		//This is done to refresh the horizontal size
@@ -104,8 +106,7 @@ public class JTranslatableComboBox extends JComboBox implements LanguageListener
 	
 	/**
 	 * If no item contains that key, the selection remains unchanged.
-	 * 
-	 * @param key the key of the item to select
+	 * @param aKey the key of the item to select
 	 */
 	public void setSelectedKey(String aKey) {
 		boolean found = false;

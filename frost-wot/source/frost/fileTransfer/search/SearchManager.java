@@ -13,13 +13,10 @@ import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
 import frost.gui.TofTree;
 import frost.identities.FrostIdentities;
-import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 public class SearchManager implements PropertyChangeListener {
 
@@ -30,19 +27,16 @@ public class SearchManager implements PropertyChangeListener {
 	private FrostIdentities identities;
 	private MainFrame mainFrame;
 	private SettingsClass settings;
-	private UpdatingLanguageResource languageResource;
 
 	private SearchModel model;
 	private SearchPanel panel;
 
 	/**
-	 * @param languageResource
-	 * @param frostSettings
+	 * @param settings
 	 */
-	public SearchManager(UpdatingLanguageResource newLanguageResource, SettingsClass newSettings) {
+	public SearchManager(SettingsClass settings) {
 		super();
-		languageResource = newLanguageResource;
-		settings = newSettings;
+		this.settings = settings;
 	}
 
 	/**
@@ -57,22 +51,22 @@ public class SearchManager implements PropertyChangeListener {
 	/**
 	 * @param mainFrame
 	 */
-	public void setMainFrame(MainFrame newMainFrame) {
-		mainFrame = newMainFrame;	
+	public void setMainFrame(MainFrame mainFrame) {
+		this.mainFrame = mainFrame;	
 	}
 
 	/**
 	 * @param identities
 	 */
-	public void setIdentities(FrostIdentities newIdentities) {
-		identities = newIdentities;		
+	public void setIdentities(FrostIdentities identities) {
+		this.identities = identities;		
 	}
 
 	/**
-	 * @param string
+	 * @param keypool
 	 */
-	public void setKeypool(String newKeypool) {
-		keypool = newKeypool;		
+	public void setKeypool(String keypool) {
+		this.keypool = keypool;		
 	}
 
 	/**
@@ -85,8 +79,8 @@ public class SearchManager implements PropertyChangeListener {
 	/**
 	 * @param tree
 	 */
-	public void setTofTree(TofTree newTofTree) {
-		tofTree = newTofTree;
+	public void setTofTree(TofTree tofTree) {
+		this.tofTree = tofTree;
 	}
 
 	/**
@@ -100,7 +94,6 @@ public class SearchManager implements PropertyChangeListener {
 			panel.setUploadModel(uploadModel);
 			panel.setTofTree(tofTree);
 			panel.setKeypool(keypool);
-			panel.setLanguageResource(languageResource);
 			panel.setIdentities(identities);
 			panel.initialize();
 		}
