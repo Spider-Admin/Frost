@@ -931,7 +931,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	//File Menu
 	JMenu fileMenu = new JMenu();
 
-	java.util.Timer guiUpdateTimer = null;
 	private HealingTable healingTable = null;
 	JMenuItem helpAboutMenuItem = new JMenuItem();
 	JMenuItem helpHelpMenuItem = new JMenuItem();
@@ -1048,7 +1047,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		try {
 			jbInit();
 			runningBoardUpdateThreads = new RunningBoardUpdateThreads();
-			this.guiUpdateTimer = new java.util.Timer();
 			//note: changed this from timertask so that I can give it a name --zab
 			Thread tickerThread = new Thread("tick tack") {
 				public void run() {
