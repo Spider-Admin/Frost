@@ -60,8 +60,6 @@ public class LangRes extends ListResourceBundle {
 	{"Frost by Jantho", "Frost by Jantho"},
 	{"Reload selected files", "Upload selected files"},
 	{"Reload all files", "Reload all files"}, //reload????
-	{"Never", "Never"},
-	{"Uploading", "Uploading"},
 	{"Unknown", "Unkown"},
 	{"Show systray icon","Show SysTray icon"},
 	{"Display","Display"},
@@ -553,7 +551,16 @@ public class LangRes extends ListResourceBundle {
 	{"Failed", "Failed"},
 	{"Requesting","Requesting"},
 	{"Requested","Requested"},
-	{"Decoding segment","Decoding segment"}
+	{"Decoding segment","Decoding segment"},
+		
+	///
+	/// FrostUploadItemObject
+	///
+	
+	{"Never","Never"},
+	{"Uploading","Uploading"},
+	{"Encode requested","Encode requested"},
+	{"Encoding file","Encoding file"}
 		
     };
 }
