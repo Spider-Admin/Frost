@@ -53,7 +53,12 @@ public class MessageDocument extends PlainDocument {
 			while (areas.hasNext() && allowReplace) {
 				ImmutableArea area = (ImmutableArea) areas.next();
 				if (area.isEnabled()) {
-					int clippingValue = clip(area, offset, length, false);
+					int clippingValue;
+					if (length == 0) {
+						clippingValue = clip(area, offset, length, false);
+					} else {
+						clippingValue = clip(area, offset, length, true);
+					}
 					int endOffset = offset + length;
 					Position position = createPosition(offset);
 					Position endPosition = createPosition(endOffset);
