@@ -34,6 +34,8 @@ import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.*;
 
+import frost.FcpTools.*;
+
 /**
  * Uploads a message to a certain message board
  */
@@ -105,8 +107,21 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 String chk = result[1];
                 sfo.setKey(chk);
                 sfo.setFilename( sfo.getFile().getName()); // remove path from filename
-                sfo.setFile(null);
                 
+                
+                if (sfo instanceof FECRedirectFileObject){
+					Core.getOut().println("attaching redirect to file "+sfo.getFile().getName());
+
+						FecSplitfile splitFile = new FecSplitfile(sfo.getFile());
+						if (!splitFile.uploadInit()) 
+							throw new Error("file was just uploaded, but .redirect missing!");
+						
+						((FECRedirectFileObject)sfo).setRedirect(
+								new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
+                } else
+                	Core.getOut().println("not attaching redirect");
+                
+				sfo.setFile(null); //FIXME: why ?
                 // BBACKFLAG: serialize the xml file to disk to save the uploading state
                 File tmpFile = new File(this.messageFile.getPath() + ".tmp");
                 boolean wasOK = false; 
