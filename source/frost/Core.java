@@ -721,7 +721,7 @@ public class Core implements Savable {
  	 */
 	public FrostIdentities getIdentities() {
 		if (identities == null) {
-			identities = new FrostIdentities(getLanguageResource());
+			identities = new FrostIdentities(frostSettings, getLanguageResource());
 		}
 		return identities;
 	}

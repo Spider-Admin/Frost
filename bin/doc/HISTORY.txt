@@ -1,3 +1,9 @@
+Changes since version 2-Dec-2004 dev:
+
+Changed: messages are signed by default.
+
+**************************************************************************************************
+
 Changes since version 22-Nov-2004 dev:
 
 Added:  messages can be deleted now.
