@@ -94,4 +94,8 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     {
         return state;
     }
+    
+    public String getOwner() {
+    	return key.getOwner();
+    }
 }

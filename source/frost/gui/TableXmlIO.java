@@ -201,6 +201,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
         String key = XMLTools.getChildElementsCDATAValue(dlItemElement, "key");
         String retries = XMLTools.getChildElementsTextValue(dlItemElement, "retries");
         String state = XMLTools.getChildElementsTextValue(dlItemElement, "state");
+	String owner = XMLTools.getChildElementsTextValue(dlItemElement, "owner");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
         String enableDownload = dlItemElement.getAttribute("enableDownload");
 
@@ -262,6 +263,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
                                                                      fileage,
                                                                      key,
                                                                      retries,
+								     owner,
                                                                      iState,
                                                                      isDownloadEnabled,
                                                                      board);
