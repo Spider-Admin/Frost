@@ -456,13 +456,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         buttonPanel.addSeparator();
         buttonPanel.add( Box.createRigidArea( blankSpace ) );
         buttonPanel.add(boardInfoButton);
-        buttonPanel.add( Box.createRigidArea( blankSpace ) );
-        buttonPanel.addSeparator();
-        buttonPanel.add( Box.createRigidArea( blankSpace ) );
         // The System Tray Icon does only work on Windows machines.
         // It uses the Visual Basic files (compiled ones) in the data directory.
         if ((System.getProperty("os.name").startsWith("Windows")))
         {
+            buttonPanel.add( Box.createRigidArea( blankSpace ) );
+            buttonPanel.addSeparator();
+            buttonPanel.add( Box.createRigidArea( blankSpace ) );
+
             buttonPanel.add(systemTrayButton);
         }
         buttonPanel.add( Box.createHorizontalGlue() );
@@ -1573,8 +1574,8 @@ public class frame1 extends JFrame implements ClipboardOwner
             System.out.println("Starting update (BOARD_UPLOAD) of " + board.toString());
 
         }
-	
-	if( !frostSettings.getBoolValue("disableDownloads") )
+
+    if( !frostSettings.getBoolValue("disableDownloads") )
         {
             getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, null);
             System.out.println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
