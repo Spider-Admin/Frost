@@ -7,6 +7,7 @@ Added: the messages about downloading and uploading files at the status bar are 
 Added: more details to the About dialog.
 Added: option to see again those messages that have been deleted (they appear crossed)
 Added: messagepopup menu option to undelete deleted messages
+Added: del key deletes selected message
 
 Changed: messages are signed by default.
 Changed: now the sizes of the new message window, the known boards window and the boards info window are

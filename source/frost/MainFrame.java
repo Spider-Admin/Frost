@@ -107,7 +107,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				PropertyChangeListener,
 				TreeSelectionListener,
 				TreeModelListener,
-				LanguageListener {
+				LanguageListener,
+				KeyListener
+				{
 
 			/**
 			 * 
@@ -153,6 +155,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * @param e
 			 */
 			private void maybeShowPopup(MouseEvent e) {
+				
 				if (e.isPopupTrigger()) {
 					if (e.getComponent() == messageTextArea) {
 						showTofTextAreaPopupMenu(e);
@@ -182,7 +185,26 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			public void mouseReleased(MouseEvent e) {
 				maybeShowPopup(e);
 			}
-
+			
+			private void maybeDoSomething(KeyEvent e){
+				if(e.getSource() == messageTable &&
+						e.getKeyChar() == KeyEvent.VK_DELETE)
+					deleteSelectedMessage();
+			}
+			
+			public void keyTyped(KeyEvent e){
+				//Nothing here
+			}
+			
+			public void keyPressed(KeyEvent e){
+				maybeDoSomething(e);
+			}
+			
+			
+			public void keyReleased(KeyEvent e){
+				//Nothing here
+			}
+						
 			/* (non-Javadoc)
 			 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 			 */
@@ -1107,6 +1129,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				filesTable.addMouseListener(listener);
 				boardsTable.addMouseListener(listener);
 				messageTable.addMouseListener(listener);
+				messageTable.addKeyListener(listener);
 
 				//other listeners
 				tofTree.addTreeSelectionListener(listener);
