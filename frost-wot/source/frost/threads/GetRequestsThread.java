@@ -35,7 +35,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
     public FrostBoardObject board;
-    private String downloadHtl;
+    private int downloadHtl;
     private String keypool;
     private String destination;
     private String fileSeparator = System.getProperty("file.separator");
@@ -173,7 +173,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
     }
 
     /**Constructor*/
-    public GetRequestsThread(FrostBoardObject boa, String dlHtl, String kpool, JTable uploadTable)
+    public GetRequestsThread(FrostBoardObject boa, int dlHtl, String kpool, JTable uploadTable)
     {
         super(boa);
         this.board = boa;

@@ -64,7 +64,7 @@ public class Identity implements Serializable
         while( wasOK == false && tries < maxTries )
         {
             try {
-                wasOK = FcpRequest.getFile(keyaddress, "unknown", targetFile, "25", false);
+                wasOK = FcpRequest.getFile(keyaddress, "unknown", new File(targetFile), 25, false);
             }
             catch(Exception e) { ; }
             mixed.wait(3500);

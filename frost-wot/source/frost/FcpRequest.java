@@ -703,16 +703,7 @@ public class FcpRequest
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return True if download was successful, else false.
      */
-    public static boolean getFile(String key, String size, String target, String htl, boolean doRedirect)
-    {
-        int intHtl = 0;
-        try {
-            intHtl = Integer.parseInt(htl);
-        } catch( NumberFormatException e ) {}
-        return getFile(key, size, new File(target), intHtl, doRedirect);
-    }
-
-    public static boolean getFile(String key, String size, File target, String htl, boolean doRedirect)
+/*    public static boolean getFile(String key, String size, File target, String htl, boolean doRedirect)
     {
         int intHtl = 0;
         try {
@@ -720,7 +711,7 @@ public class FcpRequest
         } catch( NumberFormatException e ) {}
         return getFile(key, size, target, intHtl, doRedirect);
     }
-
+*/
     public static boolean getFile(String key, String size, File target, int htl, boolean doRedirect)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress

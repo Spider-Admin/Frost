@@ -35,8 +35,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private int maxKeys;
     private String date;
     private String oldDate;
-    private String requestHtl;
-    private String insertHtl;
+    private int requestHtl;
+    private int insertHtl;
     private String keypool;
     private FrostBoardObject board;
     private String publicKey;
@@ -101,7 +101,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
                 tries++;
                 result = FcpInsert.putFile(insertKey + index + ".idx.zip",
-                                           keypool + board.getBoardFilename() + "_upload.txt",
+                                           new File(keypool + board.getBoardFilename() + "_upload.txt"),
                                            insertHtl,
                                            true,
                                            true,
@@ -251,8 +251,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         super(board);
         this.board = board;
         date = DateFun.getExtendedDate();
-        requestHtl = frame1.frostSettings.getValue("keyDownloadHtl");
-        insertHtl = frame1.frostSettings.getValue("keyUploadHtl");
+        requestHtl = frame1.frostSettings.getIntValue("keyDownloadHtl");
+        insertHtl = frame1.frostSettings.getIntValue("keyUploadHtl");
         keypool = frame1.frostSettings.getValue("keypool.dir");
         maxKeys = frame1.frostSettings.getIntValue("maxKeys");
 

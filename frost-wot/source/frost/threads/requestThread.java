@@ -312,8 +312,8 @@ public class requestThread extends Thread
 
                         if( FcpRequest.getFile(requestMe,
                                                "Unknown",
-                                               compareMe,
-                                               htl.toString(),
+                                               new File(compareMe),
+                                               htl.intValue(),
                                                false) )
                         {
                             File numberOne = new File(compareMe);

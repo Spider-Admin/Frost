@@ -250,9 +250,9 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         panel.add(overrideSettings, constr);
         constr.gridy++;
-        constr.insets = new Insets(5, 25, 5, 5);
+        constr.insets = new Insets(5, 25, 0, 5);
         panel.add(new JLabel("Automatic board update"), constr);
-        constr.insets = new Insets(0, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=1;
@@ -263,9 +263,9 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridwidth=3;
         constr.gridx=0;
-        constr.insets = new Insets(5, 25, 5, 5);
+        constr.insets = new Insets(3, 25, 0, 5);
         panel.add(new JLabel("Maximum message display (days)"), constr);
-        constr.insets = new Insets(0, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -278,9 +278,9 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridwidth=3;
         constr.gridx=0;
-        constr.insets = new Insets(5, 25, 5, 5);
+        constr.insets = new Insets(3, 25, 0, 5);
         panel.add(new JLabel("Show signed messages only"), constr);
-        constr.insets = new Insets(0, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -293,9 +293,9 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridwidth=3;
         constr.gridx=0;
-        constr.insets = new Insets(5, 25, 5, 5);
+        constr.insets = new Insets(3, 25, 0, 5);
         panel.add(new JLabel("Hide messages flagged BAD"), constr);
-        constr.insets = new Insets(0, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -308,9 +308,9 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridwidth=3;
         constr.gridx=0;
-        constr.insets = new Insets(5, 25, 5, 5);
+        constr.insets = new Insets(3, 25, 0, 5);
         panel.add(new JLabel("Hide messages flagged CHECK"), constr);
-        constr.insets = new Insets(0, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -323,9 +323,9 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridwidth=3;
         constr.gridx=0;
-        constr.insets = new Insets(5, 25, 5, 5);
+        constr.insets = new Insets(3, 25, 0, 5);
         panel.add(new JLabel("Hide messages flagged N/A"), constr);
-        constr.insets = new Insets(0, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
