@@ -35,13 +35,16 @@ public class XMLTools
         catch( SAXException e )
         {
             // A parsing error occurred; the xml input is not valid
+	    e.printStackTrace();
             throw new IllegalArgumentException();
         }
         catch( ParserConfigurationException e )
         {
+		e.printStackTrace();
         }
         catch( IOException e )
         {
+		e.printStackTrace();
         }
         return null;
     }
