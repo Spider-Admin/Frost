@@ -366,7 +366,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         if( date.length() == 0 && time.length() == 0 )
         {
             date = DateFun.getDate();
-            time = DateFun.getFullExtendedTime();
+            time = DateFun.getFullExtendedTime()+"GMT";
         }
         this.date = date;
         this.time = time;

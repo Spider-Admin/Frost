@@ -283,7 +283,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         }
 
         frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-            board, // TODO: pass FrostBoardObject
+            board,
             from,
             subject,
             text,
@@ -419,7 +419,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         this.keypool = config.getValue("keypool.dir");
         this.frostSettings = config;
 
-        String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime();
+        String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime()+"GMT";
         String lineSeparator = System.getProperty("line.separator");
         if( this.text.length() > 0 )
         {
