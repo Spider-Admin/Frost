@@ -183,6 +183,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	static java.util.ResourceBundle LangRes =
 		java.util.ResourceBundle.getBundle("res.LangRes");
 
+	private Splashscreen splashscreen;
+
 	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
 	public static Core core;
@@ -406,7 +408,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	/**Construct the frame*/
-	public frame1(String locale) {
+	public frame1(String locale, Splashscreen splashscreen) {
+		this.splashscreen = splashscreen;
+
+		splashscreen.setText("Initializing Mainframe");
+		splashscreen.setProgress(10);
+
 		if (!locale.equals("default"))
 			LangRes =
 				java.util.ResourceBundle.getBundle(
@@ -419,12 +426,19 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		//Initializes the skins
 		initializeSkins(frostSettings, this);
 
+		splashscreen.setText("Hypercube fluctuating!");
+		splashscreen.setProgress(50);
+
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		// enable the machine ;)
 		try {
 			core = new Core();
 			jbInit();
 			core.init();
+
+			splashscreen.setText("Reaching ridiculous speed...");
+			splashscreen.setProgress(80);
+
 			runningBoardUpdateThreads = new RunningBoardUpdateThreads();
 			this.guiUpdateTimer = new java.util.Timer();
 			//note: changed this from timertask so that I can give it a name --zab
@@ -442,6 +456,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		} catch (Throwable t) {
 			t.printStackTrace(Core.getOut());
 		}
+		
+		//Close the splashscreen
+		splashscreen.closeMe();
+		
 	}
 
 	/**

@@ -20,157 +20,167 @@ package frost;
 
 import java.awt.*;
 import java.io.*;
-
+import frost.gui.*;
 import javax.swing.UIManager;
 
 import frost.ext.JSysTrayIcon;
 
-public class frost
-{
+public class frost {
 
-    private static String locale = "default";
+	private static String locale = "default";
 
-    public frost()
-    {
-        final frame1 frame = new frame1(locale);
-	frame.validate();
+	public frost() {
 
-        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-        Dimension frameSize = frame.getSize();
-        if( frameSize.height > screenSize.height )
-	    {
-		frameSize.height = screenSize.height;
-	    }
-        if( frameSize.width > screenSize.width )
-	    {
-		frameSize.width = screenSize.width;
-	    }
-        frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-        
-        frame.show();
-        
-        // Display the tray icon
-        if( frame1.frostSettings.getBoolValue("showSystrayIcon") == true )
-	    {
-		if( JSysTrayIcon.createInstance(0, "Frost", "Frost") == false )
-		    {
-			System.out.println("Could not create systray icon.");
-		    }
-	    }
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-        // this really obscuring stuff is needed to change the divider size
-        // after the frame is shown. The goal is to see the blank message view
-        // without any attachment table after startup
-        frame.resetMessageViewSplitPanes();
-        mixed.wait(500);
-        frame.resetMessageViewSplitPanes();
-    }
-    
-    /**Main method*/
-    public static void main(String[] args)
-    {
-        System.out.println();
-        System.out.println("Frost, Copyright (C) 2003 Jan-Thomas Czornack");
-        System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
-        System.out.println("This is free software, and you are welcome to");
-        System.out.println("redistribute it under the GPL conditions.");
-	System.out.println("Frost uses code from apache.org (Apache license),");
-	System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license)");
-	System.out.println("and L2FProd.com (Apache license).");
-        System.out.println();
-        System.out.println();
-        
-	// check for needed .jar files by loading a class and catching the error
-        try
-	    {
-		// check for xercesImpl.jar
-		Class.forName("org.apache.xerces.dom.DocumentImpl");
-		// check for xml-apis.jar
-		Class.forName("org.w3c.dom.Document");
-		// extra check for OutputFormat
-		Class.forName("org.apache.xml.serialize.OutputFormat");
-		// check for genChkImpl.jar
-		Class.forName("freenet.client.ClientKey");
-		// check for fecImpl.jar
-		Class.forName("fecimpl.FECUtils");
-		// check for skinlf.jar
-		Class.forName("com.l2fprod.gui.SkinApplet");
-	    }
-        catch (ClassNotFoundException e1)
-	    {
-		System.out.println("ERROR: There are missing jar files. Please start Frost using the provided start scripts "+
-				   "(frost.bat for win32, frost.sh for unix).\n");
-		e1.printStackTrace();
-		System.exit(3);
-	    }
-        
-	// check for running frost (lock file)
-        File runLock = new File(".frost_run_lock");
-        boolean fileCreated = false;
-        try {
-            fileCreated = runLock.createNewFile();
-        } catch(IOException ex) {
-            ex.printStackTrace(System.out);
-        }
-
-        if( fileCreated == false )
-	    {
-		System.out.println("ERROR: Found frost lock file '.frost_run_lock'.\n" +
-				   "This indicates that another frost instance is already running in "+
-				   "this directory. Running frost concurrently will cause data "+
-				   "loss.\nIf you are REALLY SURE that frost is not already running, "+
-				   "delete the lockfile '"+runLock.getPath()+"'.");
-		System.out.println("\nTERMINATING...\n");
-		System.exit(1);
-	    }
-        runLock.deleteOnExit();
-        
-	// set l&f
-        String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
-
-        if( args.length == 1 )
-	    {
-		if( args[0].equals("-?") ||
-		    args[0].equals("-help") ||
-		    args[0].equals("--help") ||
-		    args[0].equals("/?") ||
-		    args[0].equals("/help") )
-		    {
-			System.out.println("frost [-lf]");
-			System.out.println();
-			System.out.println("-lf     Allows to set the used 'Look and Feel'.");
-			/*System.out.println("        javax.swing.plaf.metal.MetalLookAndFeel");
-			  System.out.println("        com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
-			  System.out.println("        com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-			  System.out.println("        javax.swing.plaf.mac.MacLookAndFeel");*/
-        		UIManager.LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
-        		for (int i =0;i<feels.length;i++)
-			    {
-				System.out.println("           "+feels[i].getClassName());
-			    }
-        		System.out.println("\n default is " +lookAndFeel);
-			System.exit(0);
-		    }
-	    }
-
-        if( args.length == 2 )
-	    {
-		if( args[0].equals("-lf") )
-		    {
-			lookAndFeel = args[1];
-		    }
-		if ( args[0].equals("-locale")) {
-		    locale = args[1];
+		//Splashscreen
+		Splashscreen splashscreen = new Splashscreen();
+		Dimension splashscreenSize = splashscreen.getSize();
+		if (splashscreenSize.height > screenSize.height) {
+			splashscreenSize.height = screenSize.height;
 		}
-	    }
+		if (splashscreenSize.width > screenSize.width) {
+			splashscreenSize.width = screenSize.width;
+		}
+		splashscreen.setLocation(
+			(screenSize.width - splashscreenSize.width) / 2,
+			(screenSize.height - splashscreenSize.height) / 2);
+		splashscreen.show();
 
-        try {
-            UIManager.setLookAndFeel(lookAndFeel);
-        }
-        catch( Exception e ) {
-	    System.out.println(e.getMessage());
-	    System.out.println("using the default");
-        }
-        new frost();
-    }
+
+		//Main frame		
+		final frame1 frame = new frame1(locale, splashscreen);
+		frame.validate();
+
+		Dimension frameSize = frame.getSize();
+		if (frameSize.height > screenSize.height) {
+			frameSize.height = screenSize.height;
+		}
+		if (frameSize.width > screenSize.width) {
+			frameSize.width = screenSize.width;
+		}
+		frame.setLocation(
+			(screenSize.width - frameSize.width) / 2,
+			(screenSize.height - frameSize.height) / 2);
+
+		frame.show();
+
+		// Display the tray icon
+		if (frame1.frostSettings.getBoolValue("showSystrayIcon") == true) {
+			if (JSysTrayIcon.createInstance(0, "Frost", "Frost") == false) {
+				System.out.println("Could not create systray icon.");
+			}
+		}
+
+		// this really obscuring stuff is needed to change the divider size
+		// after the frame is shown. The goal is to see the blank message view
+		// without any attachment table after startup
+		frame.resetMessageViewSplitPanes();
+		mixed.wait(500);
+		frame.resetMessageViewSplitPanes();
+	}
+
+	/**Main method*/
+	public static void main(String[] args) {
+		System.out.println();
+		System.out.println("Frost, Copyright (C) 2003 Jan-Thomas Czornack");
+		System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
+		System.out.println("This is free software, and you are welcome to");
+		System.out.println("redistribute it under the GPL conditions.");
+		System.out.println("Frost uses code from apache.org (Apache license),");
+		System.out.println(
+			"bouncycastle.org (BSD license), Onion Networks (BSD license)");
+		System.out.println("and L2FProd.com (Apache license).");
+		System.out.println();
+		System.out.println();
+
+		// check for needed .jar files by loading a class and catching the error
+		try {
+			// check for xercesImpl.jar
+			Class.forName("org.apache.xerces.dom.DocumentImpl");
+			// check for xml-apis.jar
+			Class.forName("org.w3c.dom.Document");
+			// extra check for OutputFormat
+			Class.forName("org.apache.xml.serialize.OutputFormat");
+			// check for genChkImpl.jar
+			Class.forName("freenet.client.ClientKey");
+			// check for fecImpl.jar
+			Class.forName("fecimpl.FECUtils");
+			// check for skinlf.jar
+			Class.forName("com.l2fprod.gui.SkinApplet");
+		} catch (ClassNotFoundException e1) {
+			System.out.println(
+				"ERROR: There are missing jar files. Please start Frost using the provided start scripts "
+					+ "(frost.bat for win32, frost.sh for unix).\n");
+			e1.printStackTrace();
+			System.exit(3);
+		}
+
+		// check for running frost (lock file)
+		File runLock = new File(".frost_run_lock");
+		boolean fileCreated = false;
+		try {
+			fileCreated = runLock.createNewFile();
+		} catch (IOException ex) {
+			ex.printStackTrace(System.out);
+		}
+
+		if (fileCreated == false) {
+			System.out.println(
+				"ERROR: Found frost lock file '.frost_run_lock'.\n"
+					+ "This indicates that another frost instance is already running in "
+					+ "this directory. Running frost concurrently will cause data "
+					+ "loss.\nIf you are REALLY SURE that frost is not already running, "
+					+ "delete the lockfile '"
+					+ runLock.getPath()
+					+ "'.");
+			System.out.println("\nTERMINATING...\n");
+			System.exit(1);
+		}
+		runLock.deleteOnExit();
+
+		// set l&f
+		String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+
+		if (args.length == 1) {
+			if (args[0].equals("-?")
+				|| args[0].equals("-help")
+				|| args[0].equals("--help")
+				|| args[0].equals("/?")
+				|| args[0].equals("/help")) {
+				System.out.println("frost [-lf]");
+				System.out.println();
+				System.out.println(
+					"-lf     Allows to set the used 'Look and Feel'.");
+				/*System.out.println("        javax.swing.plaf.metal.MetalLookAndFeel");
+				  System.out.println("        com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
+				  System.out.println("        com.sun.java.swing.plaf.motif.MotifLookAndFeel");
+				  System.out.println("        javax.swing.plaf.mac.MacLookAndFeel");*/
+				UIManager.LookAndFeelInfo[] feels =
+					UIManager.getInstalledLookAndFeels();
+				for (int i = 0; i < feels.length; i++) {
+					System.out.println("           " + feels[i].getClassName());
+				}
+				System.out.println("\n default is " + lookAndFeel);
+				System.exit(0);
+			}
+		}
+
+		if (args.length == 2) {
+			if (args[0].equals("-lf")) {
+				lookAndFeel = args[1];
+			}
+			if (args[0].equals("-locale")) {
+				locale = args[1];
+			}
+		}
+
+		try {
+			UIManager.setLookAndFeel(lookAndFeel);
+		} catch (Exception e) {
+			System.out.println(e.getMessage());
+			System.out.println("using the default");
+		}
+		new frost();
+	}
 }
