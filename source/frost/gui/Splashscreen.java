@@ -18,7 +18,7 @@
 */
 package frost.gui;
 
-import java.awt.BorderLayout;
+import java.awt.*;
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -32,30 +32,49 @@ public class Splashscreen extends JDialog {
 
 	//GUI Objects
 	JPanel mainPanel = new JPanel(new BorderLayout());
-	JProgressBar progressBar = new JProgressBar(0, 100);
 	JLabel pictureLabel = new JLabel();
-	
+	JProgressBar progressBar = new JProgressBar(0, 100);
+
 	/**Constructor*/
-	public Splashscreen()
-	{
+	public Splashscreen() {
 		init();
-		pack();
+	}
+
+	/**Close the splashscreen*/
+	public void closeMe() {
+		hide();
+		dispose();
+		logger.info("Splashscreen: I'm gone now :-(");
 	}
 
 	/**Component initialization*/
 	private void init() {
-		
+
 		setUndecorated(true);
-		this.setResizable(false);
-		
+		setResizable(false);
+
 		pictureLabel.setIcon(frostLogo);
-		
+
 		progressBar.setStringPainted(true);
 		progressBar.setString("Starting...");
-		
-		this.getContentPane().add(mainPanel);
+
+		getContentPane().add(mainPanel);
 		mainPanel.add(pictureLabel, BorderLayout.CENTER);
 		mainPanel.add(progressBar, BorderLayout.SOUTH);
+
+		pack();
+
+		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+		Dimension splashscreenSize = getSize();
+		if (splashscreenSize.height > screenSize.height) {
+			splashscreenSize.height = screenSize.height;
+		}
+		if (splashscreenSize.width > screenSize.width) {
+			splashscreenSize.width = screenSize.width;
+		}
+		setLocation(
+			(screenSize.width - splashscreenSize.width) / 2,
+			(screenSize.height - splashscreenSize.height) / 2);
 	}
 
 	/**
@@ -69,14 +88,6 @@ public class Splashscreen extends JDialog {
 	/**Set the text for the progressBar*/
 	public void setText(String text) {
 		progressBar.setString(text);
-	}
-
-	/**Close the splashscreen*/
-	public void closeMe()
-	{
-		hide();
-		dispose();
-		logger.info("Splashscreen: I'm gone now :-(");
 	}
 
 }

@@ -41,18 +41,7 @@ public class frost {
 		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
 
 		//Splashscreen
-		Splashscreen splashscreen = new Splashscreen();
-		Dimension splashscreenSize = splashscreen.getSize();
-		if (splashscreenSize.height > screenSize.height) {
-			splashscreenSize.height = screenSize.height;
-		}
-		if (splashscreenSize.width > screenSize.width) {
-			splashscreenSize.width = screenSize.width;
-		}
-		splashscreen.setLocation(
-			(screenSize.width - splashscreenSize.width) / 2,
-			(screenSize.height - splashscreenSize.height) / 2);
-		
+		Splashscreen splashscreen = new Splashscreen();		
 		File splashchk = new File("nosplash.chk");
 		if (!splashchk.exists()) {
 			splashscreen.show();
