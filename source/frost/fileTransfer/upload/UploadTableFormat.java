@@ -6,9 +6,11 @@
  */
 package frost.fileTransfer.upload;
 
+import java.awt.Component;
 import java.util.Comparator;
 
-import javax.swing.JTable;
+import javax.swing.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.gui.translation.*;
 import frost.util.model.ModelItem;
@@ -21,6 +23,29 @@ import frost.util.model.gui.SortedTableFormat;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 class UploadTableFormat extends SortedTableFormat implements LanguageListener {
+	
+	/**
+	 * This inner class implements the renderer for the column "FileSize"
+	 */
+	private class FileSizeRenderer extends DefaultTableCellRenderer {
+
+		/* (non-Javadoc)
+		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+		 */
+		public Component getTableCellRendererComponent(
+			JTable table,
+			Object value,
+			boolean isSelected,
+			boolean hasFocus,
+			int row,
+			int column) {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
+			setHorizontalAlignment(SwingConstants.RIGHT);
+			// col is right aligned, give some space to next column
+			setBorder(new javax.swing.border.EmptyBorder(0, 0, 0, 3));
+			return this;
+		}
+	}
 	
 	/**
 	 * This inner class implements the comparator for the column "Name"
@@ -261,6 +286,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		for (int i = 0; i < widths.length; i++) {
 			table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
 		}
+		
+		// Column "Size"
+		table.getColumnModel().getColumn(1).setCellRenderer(new FileSizeRenderer());
 	}
 
 	/* (non-Javadoc)
