@@ -155,26 +155,27 @@ public class GetRequestsThread extends Thread
                     if( SHA1.equals(content) )
                     {
                         // FIXED: 1st: there is never such a file written (using SHA1 in name)
-                        // are you sure?  I've seen it written several times --zab
+                        // are you sure?  I've seen it written several times --zab  ->> tell me where!
                         //        2nd: is'nt it possible to use uploadItem.getLastUploadData for this?
                         // probably, this .lck thing is jantho's style 
                         File requestLock = new File(destination + SHA1 + ".lck");
                         if( !requestLock.exists() )
                         {
-                            // (IMPORTANT, ideas needed!) what to do if state is ENCODING ? In this case actually encoding runs,
-                            // and the next state should be REQUESTED.
-                            // maybe we need to set the REQUESTED as next state in insertThread ...
-                            // FIXED (MAYBE):well, if the user click "encode" then if we switch to state requested Frost will 
-                            //start uploading.  Maybe the easiest thing to do is remove the "Encode only" option
-                            //and make the next state REQUESTED
-                            
+                            // for handling of ENCODING state see ulItem.getNextState() javadoc                            
                             // changing state ENCODING_REQUESTED to REQUESTED is ok!
                             if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
                                 ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
 				                ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
                             {
                                 Core.getOut().println("Request matches row " + i);
-                                ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
+                                if( ulItem.getState() == FrostUploadItemObject.STATE_ENCODING )
+                                {
+                                    ulItem.setNextState( FrostUploadItemObject.STATE_REQUESTED );
+                                }
+                                else
+                                {
+                                    ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
+                                }
                                 tableModel.updateRow( ulItem );
                             }
                         }
