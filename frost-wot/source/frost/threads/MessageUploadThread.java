@@ -598,7 +598,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 				new MessageUploadFailedDialog(
 					frameToLock,
 					10,
-					LangRes.getString("Upload of message failed"),
+					LangRes.getString("Upload of message failed"),		//TODO: fix this. This string is not in the language files
 					LangRes.getString("I was not able to upload your message."),
 					LangRes.getString("Retry"),
 					"Retry on next startup",
