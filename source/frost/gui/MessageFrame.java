@@ -268,11 +268,16 @@ public class MessageFrame extends JFrame
             MFAttachedFile af = (MFAttachedFile)attFilesTableModel.getRow(x);
             File aChosedFile = af.getFile();
             FrostBoardObject boardObj = null;
-            if( addAttachedFilesToUploadTable.isSelected() )
-            {
-                boardObj = this.board;
-            }
+            
             SharedFileObject sfo = new SharedFileObject(aChosedFile, boardObj);
+			if( addAttachedFilesToUploadTable.isSelected() )
+			{
+						sfo.setOwner(sign.isSelected() ?
+											mixed.makeFilename(Core.getMyId().getUniqueName()) :
+											"Anonymous");
+			}
+			
+			
             FileAttachment fa = new FileAttachment(sfo);
             mo.getAttachmentList().add(fa);
         }

@@ -556,7 +556,7 @@ public class MessageDownloadThread
                 while (it.hasNext())
                 {
                     SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
-                    if (current.getBoard() != null) 
+                    if (current.getOwner() != null) 
                         	Index.add(current, board);
                 }
             }

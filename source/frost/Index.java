@@ -274,9 +274,10 @@ public class Index
             e.printStackTrace(Core.getOut());
         }
         FrostIndex idx = FileAccess.readKeyFile(indexFile);
+        if (idx == null) idx = new FrostIndex(new HashMap());
         if (idx.getFiles().contains(key))
             idx.getFiles().remove(key);
-        idx.getFiles().add(key);
+        idx.getFilesMap().put(key.getSHA1(),key);
         FileAccess.writeKeyFile(idx, indexFile);
     }
 
