@@ -36,6 +36,7 @@ import frost.components.translate.TranslateFrame;
 import frost.crypt.crypt;
 import frost.ext.JSysTrayIcon;
 import frost.gui.*;
+import frost.gui.components.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.translation.*;

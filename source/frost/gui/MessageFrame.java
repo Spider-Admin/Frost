@@ -28,6 +28,7 @@ import javax.swing.border.*;
 import javax.swing.table.TableModel;
 
 import frost.*;
+import frost.gui.components.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.*;

@@ -29,6 +29,7 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.*;
+import frost.gui.components.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.FrostIndex;

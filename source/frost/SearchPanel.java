@@ -16,6 +16,7 @@ import javax.swing.table.DefaultTableModel;
 
 import frost.gui.*;
 import frost.gui.SearchTable;
+import frost.gui.components.*;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
