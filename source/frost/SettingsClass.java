@@ -34,12 +34,16 @@ public class SettingsClass
     private File settingsFile;
     private Hashtable settingsHash;
     private Hashtable defaults = null;
+    private final String fs = System.getProperty("file.separator");
 
     //Constructors
     public SettingsClass ()
     {
-        settingsFile = new File ("frost.ini");
-        settingsHash = new Hashtable(); //limited to 100 entries!
+        settingsHash = new Hashtable();
+        // the FIX config.dir
+        settingsHash.put("config.dir", "config"+fs);
+        String configFilename = "config" + fs + "frost.ini";
+        settingsFile = new File(configFilename);
         loadDefaults();
         if( !readSettingsFile() )
         {
@@ -52,19 +56,7 @@ public class SettingsClass
         // normal board file names are not allowed to contain '#'.
         // once all users have the '#unsent#' folder configured, this can be removed
         // and you can change the directory location
-        settingsHash.put("unsent.dir", "localdata"+System.getProperty("file.separator")+
-                     "unsent"+System.getProperty("file.separator"));
-    }
-
-    public SettingsClass (File settingsFile)
-    {
-        this.settingsFile = settingsFile;
-        settingsHash = new Hashtable();
-        loadDefaults();
-        if( !readSettingsFile() )
-        {
-            writeSettingsFile();
-        }
+        settingsHash.put("unsent.dir", "localdata"+fs+"unsent"+fs);
     }
 
     public String getDefaultValue(String key)
@@ -82,8 +74,18 @@ public class SettingsClass
         LineNumberReader settingsReader = null;
         String line;
 
+        if( settingsFile.exists() == false )
+        {
+            // try to get old frost.ini
+            File oldIni = new File("frost.ini");
+            if( oldIni.exists() && oldIni.length() > 0 )
+            {
+                oldIni.renameTo( settingsFile );
+            }
+        }
+
         try {
-            settingsReader = new LineNumberReader(new FileReader (settingsFile));
+            settingsReader = new LineNumberReader(new FileReader(settingsFile));
         }
         catch( Exception e ) {
             System.out.println(settingsFile.getName() + " does not exist, will create it");
@@ -181,6 +183,8 @@ public class SettingsClass
         while( i.hasNext() )
         {
             String key = (String)i.next();
+            if( key.equals("config.dir") )
+                continue; // do not save the config dir, its unchangeable
 
             String val = null;
             if( sortedSettings.get(key) instanceof Color )
@@ -337,12 +341,9 @@ public class SettingsClass
     public void loadDefaults()
     {
         defaults = new Hashtable();
-
-        String fs = System.getProperty("file.separator");
         File fn = File.listRoots()[0];
 
         defaults.put("keypool.dir", frame1.keypool);
-        defaults.put("config.dir", "config"+fs);
         defaults.put("unsent.dir", "localdata"+System.getProperty("file.separator")+
                                    "unsent"+System.getProperty("file.separator"));
         defaults.put("temp.dir", "localdata"+System.getProperty("file.separator")+
