@@ -3068,39 +3068,66 @@ public class frame1 extends JFrame implements ClipboardOwner
      */
     protected void resendFailedMessages()
     {
-        Vector entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
+        // start a thread that waits some seconds for gui to appear, then searches for
+        // unsent messages
+        ResendFailedMessagesThread t = new ResendFailedMessagesThread(this);
+        t.start();
+    }
 
-        for( int i = 0; i < entries.size(); i++ )
+    class ResendFailedMessagesThread extends Thread
+    {
+        Frame frameToLock;
+        public ResendFailedMessagesThread(Frame frameToLock)
         {
-            if( ((File)entries.elementAt(i)).getName().startsWith("unsent") )
+            this.frameToLock = frameToLock;
+        }
+        public void run()
+        {
+            // give gui a chance to appear ... then start searching for unsent messages
+            try { Thread.sleep(10000); } // wait 10 seconds
+            catch(InterruptedException ex) { ; }
+            if( isInterrupted() )
+                return;
+
+            Vector entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
+
+            if( isInterrupted() )
+                return;
+
+            for( int i = 0; i < entries.size(); i++ )
             {
-                // Resend message
-                VerifyableMessageObject mo = new VerifyableMessageObject((File)entries.elementAt(i));
-                if( mo.isValid() )
+                if( ((File)entries.elementAt(i)).getName().startsWith("unsent") )
                 {
-                    FrostBoardObject board = getTofTree().getBoardByName( mo.getBoard() );
-                    if( board == null )
+                    File unsentMsgFile = (File)entries.elementAt(i);
+                    // Resend message
+                    VerifyableMessageObject mo = new VerifyableMessageObject(unsentMsgFile);
+                    if( mo.isValid() )
                     {
-                        System.out.println("Can't resend Message '"+mo.getSubject()+"', the target board '"+mo.getBoard()+
-                                           "' was not found in your boardlist.");
-                        // TODO: maybe delete msg? or it will always be retried to send
-                        return;
+                        FrostBoardObject board = getTofTree().getBoardByName( mo.getBoard() );
+                        if( board == null )
+                        {
+                            System.out.println("Can't resend Message '"+mo.getSubject()+"', the target board '"+mo.getBoard()+
+                                               "' was not found in your boardlist.");
+                            // TODO: maybe delete msg? or it will always be retried to send
+                            continue;
+                        }
+                        getRunningBoardUpdateThreads().startMessageUpload(
+                            board,
+                            mo.getFrom(),
+                            mo.getSubject(),
+                            mo.getContent(),
+                            mo.getDate(),
+                            mo.getTime(),
+                            "",
+                            frostSettings,
+                            frameToLock,
+                            null);
+                        System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
                     }
-                     getRunningBoardUpdateThreads().startMessageUpload(
-                        board,
-                        mo.getFrom(),
-                        mo.getSubject(),
-                        mo.getContent(),
-                        mo.getDate(),
-                        mo.getTime(),
-                        "",
-                        frostSettings,
-                        this,
-                        null);
-                    System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
+                    // check if upload was successful before deleting the file -
+                    // is not needed, the upload thread creates new unsent file
+                    unsentMsgFile.delete();
                 }
-// TODO: check if upload was successful before deleting the file!
-                mo.getFile().delete();
             }
         }
     }
