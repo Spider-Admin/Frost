@@ -317,7 +317,12 @@ public class MessageObject implements XMLizable
         Document doc = null;
         try {
             doc = XMLTools.parseXmlFile(this.file, false);
-        } catch(Exception ex) { ex.printStackTrace(Core.getOut()); } // xml format error
+        } catch(Exception ex) {  // xml format error
+			File badMessage = new File("badmessage.xml");
+			if (file.renameTo(badMessage))
+				Core.getOut().println("Error - send the file badmessage.xml to a dev for analysis, more details below:");
+        	ex.printStackTrace(Core.getOut()); 
+        } 
 
         if( doc == null )
         {
