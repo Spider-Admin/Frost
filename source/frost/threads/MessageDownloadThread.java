@@ -175,6 +175,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 
         while( failures < maxFailures && (flagNew || !checkLockfile.exists()) )
         {
+	    try { //make a wide net so that evil messages don't kill us
             String val = new StringBuffer().append(destination)
                                            .append(System.currentTimeMillis())
                                            .append(".txt.msg").toString();
@@ -316,6 +317,10 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             }
             if( isInterrupted() )
                 return;
+	 }catch(Throwable t) {
+	 	t.printStackTrace();
+		index++;
+	 }
         } // end-of: while
     }
 
