@@ -227,7 +227,8 @@ public class KeyClass
             this.size = null;
         }
     }
-
+    
+   
     /**Set size*/
     public void setSize(long size)
     {
