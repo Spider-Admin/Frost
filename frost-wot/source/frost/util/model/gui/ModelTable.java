@@ -298,4 +298,12 @@ public class ModelTable extends AbstractTableModel {
 		model = newModel;
 	}
 
+	/**
+	 * This method returns the format of this model table
+	 * @return the format of this model table
+	 */
+	public ModelTableFormat getFormat() {
+		return tableFormat;
+	}
+
 }
