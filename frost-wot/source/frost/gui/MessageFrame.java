@@ -508,40 +508,19 @@ public class MessageFrame extends JFrame
 		text = newText;
 
 		String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
-		String lineSeparator = System.getProperty("line.separator");
 
 		if (isReply) {
-			this.text
-				+= new StringBuffer()
-					.append(lineSeparator)
-					.append(lineSeparator)
-					.append("----- ")
-					.append(this.from)
-					.append(" ----- ")
-					.append(date)
-					.append(" -----")
-					.append(lineSeparator)
-					.append(lineSeparator)
-					.toString();
+			text += "\n\n----- " + from + " ----- " + date + " -----\n\n";
 		} else {
-			this.text
-				+= new StringBuffer()
-					.append("----- ")
-					.append(this.from)
-					.append(" ----- ")
-					.append(date)
-					.append(" -----")
-					.append(lineSeparator)
-					.append(lineSeparator)
-					.toString();
+			text += "----- " + from + " ----- " + date + " -----\n\n";
 		}
 
 		int caretPos = text.length();
 
 		File signature = new File("signature.txt");
 		if (signature.isFile()) {
-			this.text += lineSeparator;
-			this.text += FileAccess.readFile("signature.txt");
+			text += "\n-- \n";
+			text += FileAccess.readFile("signature.txt");
 		}
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -567,7 +546,7 @@ public class MessageFrame extends JFrame
 						resetSplitPanes();
 					}
 				});
-			}
+			} 
 		}
 		.start();
 
@@ -631,7 +610,7 @@ public class MessageFrame extends JFrame
 			System.out.println("The selected font was not found in your system");
 			System.out.println("That selection will be changed to \"Monospaced\".\n");
 			frostSettings.setValue("messageBodyFontName", "Monospaced");
-			tofFont = new Font("Monospaced", fontStyle, fontSize);
+			tofFont = new Font("Monospaced", fontStyle, fontSize);	//TODO: problem here!
 		}
 		TAcontent.setFont(tofFont);
 		TAcontent.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
