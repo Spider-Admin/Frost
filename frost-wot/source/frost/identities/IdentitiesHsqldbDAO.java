@@ -9,8 +9,8 @@ package frost.identities;
 import frost.storage.StorageException;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 public class IdentitiesHsqldbDAO implements IdentitiesDAO {
 
