@@ -10,34 +10,36 @@
 
      <thread id="SHA1-hash(privKey)^currentTimeMillis of root msg">
          <message id="same as thread id"> <==root message
-          <from>sender</from>
-          <privateKeyHash>hash(privkey of root sender)</privateKeyHash>
-            ^^^ in messages, include the public Key only of the sender.  This
-                makes it somewhat harder to spoof other people's public keys.
-          <date>1.2.3</date>
-          <time>10.20</time>
-          <subject>this is a new thread</subject>
-          <board>public</board>
-          <attachment type="file">
-            <name>hello.jpg</name>
-            <size>12345665</size>
-            <freenetKey>CHK@...</freenetKey>
-          </attachment>
-          <attachment type="board">
-             <name>my_board</name>
-             <freenetKey>SSK@...</freenetKey>
-          </attachment>
-          <attachment type="identity">
-            <name>hello.jpg</name>
-            <publicKey>12345665</publicKey>
-          </attachment>
-          <encryptedFor>
-             <name>...</name>
-             <publicKey>...</publicKey>
-          </encryptedFor>
-          <body><![CDATA[   some text ...]]></body>
+         <signed>
+              <from>sender</from>
+              <privateKeyHash>hash(privkey of root sender)</privateKeyHash>
+                ^^^ in messages, include the public Key only of the sender.  This
+                    makes it somewhat harder to spoof other people's public keys.
+              <date>1.2.3</date>
+              <time>10.20</time>
+              <subject>this is a new thread</subject>
+              <board>public</board>
+              <attachment type="file">
+                <name>hello.jpg</name>
+                <size>12345665</size>
+                <freenetKey>CHK@...</freenetKey>
+              </attachment>
+              <attachment type="board">
+                 <name>my_board</name>
+                 <freenetKey>SSK@...</freenetKey>
+              </attachment>
+              <attachment type="identity">
+                <name>hello.jpg</name>
+                <publicKey>12345665</publicKey>
+              </attachment>
+              <encryptedFor>
+                 <name>...</name>
+                 <publicKey>...</publicKey>
+              </encryptedFor>
+              <body><![CDATA[   some text ...]]></body>
+          </signed>
 
-          <signature>...</signature>  <!-- the signature for the message -->
+          <signature>...</signature>  <!-- the signature for the message (whole <signed> part) -->
 
           <replies>   <== all replies to root message
             <message id = "id of the second message">

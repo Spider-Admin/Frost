@@ -213,6 +213,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 return;
             }
 
+            // now as the date is correct, go on to verify
             if( (currentMsg.getKeyAddress() == "none") || (currentMsg.getFrom().indexOf("@") == -1) )
             {
                 System.out.println("TOFDN: *** Message is NOT signed at all: "+currentMsg.getFrom());
