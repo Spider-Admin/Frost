@@ -114,7 +114,7 @@ public class requestThread extends Thread
                         key,
                         size,
                         newFile,
-                        25,
+                        25, // BBACKFLAG: implement increasing htls! 
                         true,  // doRedirect
                         false, // fastDownload
                         false, // createTempFile
