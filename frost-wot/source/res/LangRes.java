@@ -47,6 +47,7 @@ public class LangRes extends ListResourceBundle {
 	{"Date", "Date"},
 	{"Filename", "Filename"},
 	{"Key", "Key"},
+	{"Select a board to view its content.", "Select a board to view its content."},
 	{"Select a message to view its content.", "Select a message to view its content."},
 	{"Size", "Size"},
 	{"Age", "Age"},

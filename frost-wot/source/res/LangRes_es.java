@@ -233,6 +233,7 @@ static final Object[][] contents = {
 {"Save message to disk","Graba mensaje a disco"},
 {"Search","Busca"},
 {"Secure board","Foro seguro"},
+{"Select a board to view its content.", "Selecciona un foro para ver su contenido."},
 {"Select a message to view its content.","Selecciona un mensaje para ver su contenido."},
 {"Select download directory","Escoge el directorio para las descargas"},
 {"Select files you want to upload to the","Escoge los ficheros que quieres subir al"},
