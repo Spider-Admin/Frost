@@ -44,8 +44,8 @@ import frost.crypt.*;
 import frost.threads.*;
 import frost.identities.*;
 
-//++++ remove finished downloads - popup
-//++++ count running downloads+waiting
+//++++ TODO: count running downloads+waiting
+//++++ TODO: encapsulate up/download thread state, use listeners in thread
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
@@ -167,8 +167,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem searchPopupCancel = null;
 
     JPopupMenu uploadPopupMenu = null;
-//    JMenuItem uploadPopupMoveSelectedFilesUp = null;
-//    JMenuItem uploadPopupMoveSelectedFilesDown = null;
     JMenuItem uploadPopupRemoveSelectedFiles = null;
     JMenuItem uploadPopupRemoveAllFiles = null;
     JMenuItem uploadPopupReloadSelectedFiles = null;
@@ -185,8 +183,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem downloadPopupRemoveSelectedDownloads = null;
     JMenuItem downloadPopupRemoveAllDownloads = null;
     JMenuItem downloadPopupResetHtlValues = null;
-//    JMenuItem downloadPopupMoveUp = null;
-//    JMenuItem downloadPopupMoveDown = null;
+    JMenuItem downloadPopupRemoveFinished = null;
     JMenuItem downloadPopupCancel = null;
 
     JPopupMenu tofTextPopupMenu = null;
@@ -1114,8 +1111,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
 // create objects
         uploadPopupMenu = new JPopupMenu();
-//        uploadPopupMoveSelectedFilesUp = new JMenuItem(LangRes.getString("Move selected files up"));
-//        uploadPopupMoveSelectedFilesDown = new JMenuItem(LangRes.getString("Move selected files down"));
         uploadPopupRemoveSelectedFiles = new JMenuItem(LangRes.getString("Remove selected files"));
         uploadPopupRemoveAllFiles = new JMenuItem(LangRes.getString("Remove all files"));
         uploadPopupReloadSelectedFiles = new JMenuItem(LangRes.getString("Reload selected files"));
@@ -1128,17 +1123,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupAddFilesToBoard = new JMenuItem(LangRes.getString("Add files to board"));
         uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
 // add action listener
-        // Upload / Move selected files up
-/*        uploadPopupMoveSelectedFilesUp.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesUp(getUploadTable());
-            } });
-        // Upload / Move selected files down
-        uploadPopupMoveSelectedFilesDown.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesDown(getUploadTable());
-            } });
-*/
         // Upload / Remove selected files
         uploadPopupRemoveSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -1214,9 +1198,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupMenu.add(uploadPopupRemoveSelectedFiles);
         uploadPopupMenu.add(uploadPopupRemoveAllFiles);
         uploadPopupMenu.addSeparator();
-//        uploadPopupMenu.add(uploadPopupMoveSelectedFilesUp);
-//        uploadPopupMenu.add(uploadPopupMoveSelectedFilesDown);
-//        uploadPopupMenu.addSeparator();
         uploadPopupMenu.add(uploadPopupReloadSelectedFiles);
         uploadPopupMenu.add(uploadPopupReloadAllFiles);
         uploadPopupMenu.addSeparator();
@@ -1244,8 +1225,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         downloadPopupRemoveSelectedDownloads = new JMenuItem(LangRes.getString("Remove selected downloads"));
         downloadPopupRemoveAllDownloads = new JMenuItem(LangRes.getString("Remove all downloads"));
         downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-//        downloadPopupMoveUp = new JMenuItem(LangRes.getString("Move selected downloads up"));
-//        downloadPopupMoveDown = new JMenuItem(LangRes.getString("Move selected downloads down"));
+        downloadPopupRemoveFinished = new JMenuItem("Remove finished downloads");
 
         // TODO: implement cancel of downloading
         downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
@@ -1262,15 +1242,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                 DownloadTableModel model = (DownloadTableModel)getDownloadTable().getModel();
                 model.clearDataModel();
             } });
-/*        downloadPopupMoveUp.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesUp(getDownloadTable());
-            } });
-        downloadPopupMoveDown.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                TableFun.moveSelectedEntriesDown(getDownloadTable());
-            } });
-*/
         downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 // reset HTL for all selected items in download table
@@ -1284,17 +1255,20 @@ public class frame1 extends JFrame implements ClipboardOwner
                     dlModel.updateRow( dlItem );
                 }
             } });
+        downloadPopupRemoveFinished.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e)
+                {
+                    getDownloadTable().removeFinishedDownloads();
+                } });
 // construct menu
         downloadPopupMenu.add(downloadPopupRemoveSelectedDownloads);
         downloadPopupMenu.add(downloadPopupRemoveAllDownloads);
         downloadPopupMenu.addSeparator();
         downloadPopupMenu.add(downloadPopupResetHtlValues);
         downloadPopupMenu.addSeparator();
-//        downloadPopupMenu.add(downloadPopupMoveUp);
-//        downloadPopupMenu.add(downloadPopupMoveDown);
-//        downloadPopupMenu.addSeparator();
+        downloadPopupMenu.add(downloadPopupRemoveFinished);
+        downloadPopupMenu.addSeparator();
         downloadPopupMenu.add(downloadPopupCancel);
-
     }
 
     /**
@@ -1342,7 +1316,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTextPopupMenu.add(tofTextPopupSaveBoard);
         tofTextPopupMenu.addSeparator();
         tofTextPopupMenu.add(tofTextPopupCancel);
-
     }
 
     /**

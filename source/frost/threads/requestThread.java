@@ -111,7 +111,6 @@ public class requestThread extends Thread
                     catch(Throwable t) {
                         System.out.println("Uploading request failed for "+filename);
                     }
-
                 }
                 else
                 {
@@ -177,21 +176,31 @@ public class requestThread extends Thread
     // Request a certain CHK from a board
     private void request(String key, FrostBoardObject board)
     {
-
         String messageUploadHtl = frame1.frostSettings.getValue("tofUploadHtl");
         boolean requested = false;
 
-        if( DEBUG ) System.out.println("Uploading request of " + key + " from " + board.toString());
+        if( DEBUG ) System.out.println("Uploading request, key=" + key + " ; board=" + board.toString());
 
         String fileSeparator = System.getProperty("file.separator");
-        String destination = frame1.keypool + board.getBoardFilename() + fileSeparator + DateFun.getDate() + fileSeparator;
-
+        String destination = new StringBuffer().append(frame1.keypool)
+                                               .append(board.getBoardFilename())
+                                               .append(fileSeparator)
+                                               .append(DateFun.getDate())
+                                               .append(fileSeparator)
+                                               .toString();
         File checkDestination = new File(destination);
         if( !checkDestination.isDirectory() )
             checkDestination.mkdirs();
 
         // Check if file was already requested
-        File[] files = checkDestination.listFiles();
+        // ++ check only in req files
+        File[] files = checkDestination.listFiles( new FilenameFilter() {
+                    public boolean accept(File dir, String name)
+                    {
+                        if( name.endsWith(".req") )
+                            return true;
+                        return false;
+                    } });
         for( int i = 0; i < files.length; i++ )
         {
             String content = (FileAccess.readFile(files[i])).trim();
@@ -199,6 +208,7 @@ public class requestThread extends Thread
             {
                 requested = true;
                 System.out.println("File was already requested");
+                break;
             }
         }
 
@@ -209,35 +219,76 @@ public class requestThread extends Thread
 
             // Generate file to upload
             String uploadMe = String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
+            File requestFile = new File(destination + uploadMe);
+            FileAccess.writeFile(key, requestFile); // Write requested key to disk
 
-            File messageFile = new File(destination + uploadMe);
-            FileAccess.writeFile(key, messageFile); // Write to disk
-
-            // Search empty slut (hehe)
+            // Search empty slot
             boolean success = false;
             int index = 0;
             String output = new String();
             int tries = 0;
             boolean error = false;
+            File testMe = null;
             while( !success )
             {
                 // Does this index already exist?
-                File testMe = new File(new StringBuffer().append(destination).append(date).append("-")
-                                       .append(board.getBoardFilename()).append("-").append(index).append(".req").toString());
+                testMe = new File(new StringBuffer().append(destination)
+                                       .append(date)
+                                       .append("-")
+                                       .append(board.getBoardFilename())
+                                       .append("-")
+                                       .append(index)
+                                       .append(".req")
+                                       .toString());
                 if( testMe.length() > 0 )
                 { // already downloaded
                     index++;
                     if( DEBUG ) System.out.println("File exists, increasing index to " + index);
+                    continue; // while
                 }
                 else
-                { // probably empty
+                {
+                    // probably empty, check if other threads currently try to insert to this index
+                    File lockRequestIndex = new File( testMe.getPath() + ".lock" );
+                    boolean lockFileCreated = false;
+                    try { lockFileCreated = lockRequestIndex.createNewFile(); }
+                    catch(IOException ex) {
+                        System.out.println("ERROR: requestThread.request(): unexpected IOException, terminating thread ...");
+                        ex.printStackTrace();
+                        return;
+                    }
+
+                    if( lockFileCreated == false )
+                    {
+                        // another thread tries to insert using this index, try next
+                        index++;
+                        if( DEBUG ) System.out.println("Other thread tries this index, increasing index to " + index);
+                        continue; // while
+                    }
+                    else
+                    {
+                        // we try this index
+                        lockRequestIndex.deleteOnExit();
+                    }
+
+                    // try to insert
                     String[] result = new String[2];
                     String upKey = new StringBuffer().append("KSK@frost/request/")
                                    .append(frame1.frostSettings.getValue("messageBase"))
-                                   .append("/").append(date).append("-")
-                                   .append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
+                                   .append("/")
+                                   .append(date)
+                                   .append("-")
+                                   .append(board.getBoardFilename())
+                                   .append("-")
+                                   .append(index)
+                                   .append(".req")
+                                   .toString();
                     if( DEBUG ) System.out.println(upKey);
-                    result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                    result = FcpInsert.putFile(upKey,
+                                               requestFile.getPath(),
+                                               messageUploadHtl,
+                                               false,
+                                               true,
                                                board.getBoardFilename());
                     System.out.println("FcpInsert result[0] = " + result[0] + " result[1] = " + result[1]);
 
@@ -251,75 +302,78 @@ public class requestThread extends Thread
                     {
                         success = true;
                     }
-                    else
+                    else if( result[0].equals("KeyCollision") )
                     {
-                        if( result[0].equals("KeyCollision") )
+
+                        // Check if the collided key is perhapes the requested one
+                        String compareMe = frame1.keypool + String.valueOf(System.currentTimeMillis()) + ".txt";
+                        String requestMe = new StringBuffer()
+                                            .append("KSK@frost/request/")
+                                            .append(frame1.frostSettings.getValue("messageBase"))
+                                            .append("/")
+                                            .append(date)
+                                            .append("-")
+                                            .append(board.getBoardFilename())
+                                            .append("-")
+                                            .append(index)
+                                            .append(".req").toString();
+
+                        if( FcpRequest.getFile(requestMe,
+                                               "Unknown",
+                                               compareMe,
+                                               htl.toString(),
+                                               false) )
                         {
 
-                            // Check if the collided key is perhapes the requested one
-                            String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
-                            String requestMe = new StringBuffer().append("KSK@frost/request/")
-                                               .append(frame1.frostSettings.getValue("messageBase")).append("/")
-                                               .append(date).append("-").append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
+                            File numberOne = new File(compareMe);
+                            File numberTwo = requestFile;
+                            String contentOne = (FileAccess.readFile(numberOne)).trim();
+                            String contentTwo = (FileAccess.readFile(numberTwo)).trim();
 
-                            if( FcpRequest.getFile(requestMe,
-                                                   "Unknown",
-                                                   frame1.keypool + compareMe,
-                                                   htl.toString(),
-                                                   false) )
+                            if( DEBUG ) System.out.println(contentOne);
+                            if( DEBUG ) System.out.println(contentTwo);
+
+                            if( contentOne.equals(contentTwo) )
                             {
-
-                                File numberOne = new File(frame1.keypool + compareMe);
-                                File numberTwo = new File(destination + uploadMe);
-                                String contentOne = (FileAccess.readFile(numberOne)).trim();
-                                String contentTwo = (FileAccess.readFile(numberTwo)).trim();
-
-                                if( DEBUG ) System.out.println(contentOne);
-                                if( DEBUG ) System.out.println(contentTwo);
-
-                                if( contentOne.equals(contentTwo) )
-                                {
-                                    if( DEBUG ) System.out.println("Key Collision and file was already requested");
-                                    success = true;
-                                }
-                                else
-                                {
-                                    index++;
-                                    System.out.println("Request Upload collided, increasing index to " + index);
-                                }
+                                if( DEBUG ) System.out.println("Key Collision and file was already requested");
+                                success = true;
                             }
                             else
                             {
-                                System.out.println("Request upload failed (" + tries + "), retrying index " + index);
-                                if( tries > 5 )
-                                {
-                                    success = true;
-                                    error = true;
-                                }
-                                tries++;
+                                index++;
+                                System.out.println("Request Upload collided, increasing index to " + index);
+                                // write a .req file to inform others to not try this index again
+                                FileAccess.writeFile("ERROR: key collision", testMe);
                             }
                         }
+                        else
+                        {
+                            System.out.println("Request upload failed (" + tries + "), retrying index " + index);
+                            if( tries > 5 )
+                            {
+                                success = true;
+                                error = true;
+                            }
+                            tries++;
+                        }
                     }
+                    // finally delete the index lock file
+                    lockRequestIndex.delete();
                 }
             }
 
             if( !error )
             {
+                requestFile.renameTo(testMe);
 
-                File killMe = new File(destination + uploadMe);
-                File newMessage = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".req");
-                killMe.renameTo(newMessage);
-
-                TOF.addNewMessageToTable( newMessage, board );
-
-                System.out.println("*********************************************************************");
-                System.out.println("Request successfuly uploaded to the '" + board + "' board.");
+                System.out.println("\n*********************************************************************");
+                System.out.println("Request successfuly uploaded to board '" + board + "'.");
                 System.out.println("*********************************************************************");
             }
             else
             {
-                System.out.println("Error while uploading message.");
-                messageFile.delete();
+                System.out.println("\nError while uploading request.");
+                requestFile.delete();
             }
             System.out.println("Request Upload Thread finished");
         }

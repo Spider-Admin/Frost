@@ -38,7 +38,7 @@ public class Startup
     {
         checkDirectories();
         copyFiles();
-        //resendFailedMessages(parentFrame);
+        deleteLockFiles();
     }
 
     // Copy some files from the jar file, if they don't exists
@@ -96,6 +96,18 @@ public class Startup
         {
             System.out.println("Creating exec directory");
             execDirectory.mkdir();
+        }
+    }
+
+    private static void deleteLockFiles()
+    {
+        Vector entries = FileAccess.getAllEntries(new File(frame1.frostSettings.getValue("keypool.dir")),
+                                                  ".lock");
+
+        for( int i = 0; i < entries.size(); i++ )
+        {
+            // delete lock files
+            ((File)entries.get( i )).delete();
         }
     }
 }
