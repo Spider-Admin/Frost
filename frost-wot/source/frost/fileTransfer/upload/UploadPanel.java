@@ -582,20 +582,10 @@ public class UploadPanel extends JPanel {
 			uploadTable.removeSelectedRows();
 	}
 
-	private FrostBoardObject getSelectedNode() { //TODO: move this method to TofTree
-		FrostBoardObject node = (FrostBoardObject) tofTree.getLastSelectedPathComponent();
-		if (node == null) {
-			// nothing selected? unbelievable ! so select the root ...
-			tofTree.setSelectionRow(0);
-			node = (FrostBoardObject) tofTree.getModel().getRoot();
-		}
-		return node;
-	}
-
 	//------------------------------------------------------------------------
 
 	public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
-		FrostBoardObject board = getSelectedNode();
+		FrostBoardObject board = tofTree.getSelectedNode();
 		if (board.isFolder())
 			return;
 

@@ -434,13 +434,13 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			// search in all boards
 			boardsToSearch = tofTree.getAllBoards();
 		} else {
-			if (getSelectedNode().isFolder() == false) {
+			if (tofTree.getSelectedNode().isFolder() == false) {
 				// search in selected board
 				boardsToSearch = new Vector();
-				boardsToSearch.add(getSelectedNode());
+				boardsToSearch.add(tofTree.getSelectedNode());
 			} else {
 				// search in all boards below the selected folder
-				Enumeration enu = getSelectedNode().depthFirstEnumeration();
+				Enumeration enu = tofTree.getSelectedNode().depthFirstEnumeration();
 				boardsToSearch = new Vector();
 				while (enu.hasMoreElements()) {
 					FrostBoardObject b = (FrostBoardObject) enu.nextElement();
@@ -461,17 +461,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		searchThread.start();
 	}
 	
-	private FrostBoardObject getSelectedNode() { //TODO: move this method to TofTree
-		FrostBoardObject node = (FrostBoardObject) tofTree.getLastSelectedPathComponent();
-		if (node == null) {
-			// nothing selected? unbelievable ! so select the root ...
-			tofTree.setSelectionRow(0);
-			node = (FrostBoardObject) tofTree.getModel().getRoot();
-		}
-		return node;
-	}
-
-
 	/**searchTextField Action Listener (search)*/
 	private void searchTextField_actionPerformed(ActionEvent e) {
 		if (searchButton.isEnabled()) {
