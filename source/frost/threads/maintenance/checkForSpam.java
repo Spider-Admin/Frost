@@ -41,7 +41,7 @@ public class checkForSpam extends TimerTask
                     System.out.println("######### board '"+current.toString()+"' is spammed, update stops for 24h ############");
                     current.setSpammed(true);
                     // clear spam status in 24 hours
-                    core.schedule(new ClearSpam(core, current),24*60*60*1000);
+                    Core.schedule(new ClearSpam(core, current),24*60*60*1000);
 
                     //now, kill all threads for board
                     Vector threads = frame1.getInstance().getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
