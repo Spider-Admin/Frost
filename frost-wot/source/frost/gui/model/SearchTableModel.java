@@ -43,7 +43,6 @@ public class SearchTableModel extends SortedTableModel
     public SearchTableModel()
     {
         super();
-        sortModelColumn(0, true); // default for sort: sort by name ascending
     }
 
     public boolean isCellEditable(int row, int col)
