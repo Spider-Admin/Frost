@@ -18,7 +18,7 @@ import javax.swing.JTabbedPane;
  * title. If the language of that resource changes, the titles 
  * automatically change too.
  */
-public class JTranslatableTabbedPane extends JTabbedPane {
+public class JTranslatableTabbedPane extends JTabbedPane implements LanguageListener {
 
 	private UpdatingLanguageResource languageResource;
 
@@ -28,6 +28,7 @@ public class JTranslatableTabbedPane extends JTabbedPane {
 	public JTranslatableTabbedPane(UpdatingLanguageResource newLanguageResource) {
 		super();
 		languageResource = newLanguageResource;
+		languageResource.addLanguageListener(this);
 	}
 
 	/**
@@ -55,6 +56,14 @@ public class JTranslatableTabbedPane extends JTabbedPane {
 			}
 		}
 		return -1;
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+	 */
+	public void languageChanged(LanguageEvent event) {
+		revalidate();
+		repaint();
 	}
 
 }
