@@ -36,3 +36,6 @@ Legend:
 + added most of the infrastructure for multiple nodes support --zab
 + added 'Copy CHK key to clipboard' to popup menu of upload table  --bback
 + added saving of board update progress  --bback
++ helping the requests of people marked GOOD
+- fixed a bug with trusted people's shared files
+- fixed an infinite requests bug
