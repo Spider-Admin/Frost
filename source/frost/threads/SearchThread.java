@@ -49,6 +49,7 @@ public class SearchThread extends Thread {
     private String[] archiveExtension;
     private Vector boards;
     int allFileCount;
+    int maxSearchResults;
 
     /**
      * Splits a String into single parts
@@ -213,6 +214,13 @@ public class SearchThread extends Thread {
         for( int i = 0; i < results.size(); i++ )
         {
             allFileCount++;
+
+            if( allFileCount > this.maxSearchResults )
+            {
+                System.out.println("\nNOTE: maxSearchResults reached ("+maxSearchResults+")!");
+                return;
+            }
+
             KeyClass key = (KeyClass)results.elementAt(i);
 
             String filename = key.getFilename();
@@ -242,44 +250,29 @@ public class SearchThread extends Thread {
 
             final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key, searchItemState);
 
-            if( searchTableModel.getRowCount() < 13000 )
+            boolean updateLabel2 = false;
+            if( allFileCount > 9 && allFileCount%10==0 )
             {
-                boolean updateLabel2 = false;
-                if( allFileCount > 9 && allFileCount%10==0 )
+                updateLabel2 = true;
+            }
+            final boolean updateLabel = updateLabel2;
+            SwingUtilities.invokeLater(
+                new Runnable()
                 {
-                    updateLabel2 = true;
-                }
-                final boolean updateLabel = updateLabel2;
-                SwingUtilities.invokeLater(
-                    new Runnable()
+                    public void run()
                     {
-                        public void run()
+                        searchTableModel.addRow(searchItem);
+                        if( updateLabel )
                         {
-                            searchTableModel.addRow(searchItem);
-                            if( updateLabel )
-                            {
-                                frame1.getInstance().updateSearchResultCountLabel();
-                            }
+                            frame1.getInstance().updateSearchResultCountLabel();
                         }
-                    });
-            }
-            else
-            {
-                System.out.println("\nNOTE: Now there are 13.000 results in searchtable," +
-                                   " will not insert the remaining "+
-                                   (results.size()-searchTableModel.getRowCount()) );
-                break;
-            }
+                    }
+                });
         }
-        SwingUtilities.invokeLater(
-            new Runnable()
-            {
-                public void run()
-                {
+        SwingUtilities.invokeLater( new Runnable() {
+                public void run() {
                     frame1.getInstance().updateSearchResultCountLabel();
-                }
-            });
-
+                } });
     }
 
     public void run()
@@ -330,20 +323,22 @@ public class SearchThread extends Thread {
     public SearchThread(String request,
             Vector boards, // a Vector containing all boards to search in
             String keypool,
-            String searchType,
-            SettingsClass frostSettings)
+            String searchType)
     {
-    this.request = request.toLowerCase();
-    this.searchTableModel = (SearchTableModel)frame1.getInstance().getSearchTable().getModel();
-    this.keypool = keypool;
-    this.searchType = searchType;
-    this.audioExtension = frostSettings.getArrayValue("audioExtension");
-    this.videoExtension = frostSettings.getArrayValue("videoExtension");
-    this.documentExtension = frostSettings.getArrayValue("documentExtension");
-    this.executableExtension = frostSettings.getArrayValue("executableExtension");
-    this.archiveExtension = frostSettings.getArrayValue("archiveExtension");
-    this.imageExtension = frostSettings.getArrayValue("imageExtension");
-    this.boards = boards;
+        this.request = request.toLowerCase();
+        this.searchTableModel = (SearchTableModel)frame1.getInstance().getSearchTable().getModel();
+        this.keypool = keypool;
+        this.searchType = searchType;
+        this.audioExtension = frame1.frostSettings.getArrayValue("audioExtension");
+        this.videoExtension = frame1.frostSettings.getArrayValue("videoExtension");
+        this.documentExtension = frame1.frostSettings.getArrayValue("documentExtension");
+        this.executableExtension = frame1.frostSettings.getArrayValue("executableExtension");
+        this.archiveExtension = frame1.frostSettings.getArrayValue("archiveExtension");
+        this.imageExtension = frame1.frostSettings.getArrayValue("imageExtension");
+        this.boards = boards;
+        this.maxSearchResults = frame1.frostSettings.getIntValue("maxSearchResults");
+        if( this.maxSearchResults <= 0 )
+            maxSearchResults = 10000; // default
     }
 }
 

@@ -424,6 +424,7 @@ public class SettingsClass
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
         defaults.put("searchAllBoards", "true");
+        defaults.put("maxSearchResults", "10000");
         defaults.put("splitfileDownloadThreads", "3");
         defaults.put("splitfileUploadThreads", "3");
 //        defaults.put("startRequestingAfterHtl", "10");

@@ -204,7 +204,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             //the message contains the CHK of a public key, see if we have this name on our list
             else if( frame1.getFriends().containsKey(currentMsg.getFrom()) )
             {
-                //yes, we have that person, see if the addreses are the same
+                //yes, we have that person, see if the addresses are the same
                 currentId = frame1.getFriends().Get(currentMsg.getFrom());
                 //check if the key addreses are the same, verify
                 if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
@@ -221,8 +221,20 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             }
             else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
             {
-                System.out.println("TOFDN: *** Message is from an EMEMY, set state to BAD: "+currentMsg.getFrom());
-                currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                //yes, we have that person, see if the addresses are the same
+                currentId = frame1.getEnemies().Get(currentMsg.getFrom());
+                //check if the key addreses are the same, verify
+                if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
+                    frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
+                {
+                    System.out.println("TOFDN: *** Message is signed by a ENEMY, set state to BAD: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                }
+                else // verification FAILED!
+                {
+                    System.out.println("TOFDN: *** Message seems to be from a ENEMY (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                }
             }
             else
             {

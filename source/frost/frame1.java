@@ -2669,9 +2669,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         SearchThread searchThread = new SearchThread(searchTextField.getText(),
                                                      boardsToSearch,
                                                      keypool,
-                                                     (String)searchComboBox.getSelectedItem(),
-                                                     frostSettings
-                                                    );
+                                                     (String)searchComboBox.getSelectedItem() );
         searchThread.start();
     }
 
