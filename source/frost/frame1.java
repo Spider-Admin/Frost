@@ -56,6 +56,292 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * 
 	 */
+	private class PopupMenuDownload extends JPopupMenu implements ActionListener, LanguageListener {
+		
+		private JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem copyChkKeyAndFilenameToClipboardItem = new JMenuItem();
+		private JMenuItem copyChkKeyToClipboardItem = new JMenuItem();
+		private JMenuItem disableAllDownloadsItem = new JMenuItem();
+		private JMenuItem disableSelectedDownloadsItem = new JMenuItem();
+		private JMenuItem enableAllDownloadsItem = new JMenuItem();
+		private JMenuItem enableSelectedDownloadsItem = new JMenuItem();
+		private JMenuItem invertEnabledAllItem = new JMenuItem();
+		private JMenuItem invertEnabledSelectedItem = new JMenuItem();
+		private JMenuItem removeAllDownloadsItem = new JMenuItem();
+		private JMenuItem removeFinishedItem = new JMenuItem();
+		private JMenuItem removeSelectedDownloadsItem = new JMenuItem();
+		private JMenuItem restartSelectedDownloadsItem = new JMenuItem();
+		
+		private JMenu copyToClipboardMenu = new JMenu();
+
+		/**
+		 * 
+		 */
+		public PopupMenuDownload() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+
+			// TODO: implement cancel of downloading
+
+			copyToClipboardMenu.add(copyChkKeyToClipboardItem);
+			copyToClipboardMenu.add(copyChkKeyAndFilenameToClipboardItem);
+
+			copyChkKeyToClipboardItem.addActionListener(this);
+			copyChkKeyAndFilenameToClipboardItem.addActionListener(this);
+			restartSelectedDownloadsItem.addActionListener(this);
+			removeSelectedDownloadsItem.addActionListener(this);
+			removeAllDownloadsItem.addActionListener(this);
+			removeFinishedItem.addActionListener(this);
+			enableAllDownloadsItem.addActionListener(this);
+			disableAllDownloadsItem.addActionListener(this);
+			enableSelectedDownloadsItem.addActionListener(this);
+			disableSelectedDownloadsItem.addActionListener(this);
+			invertEnabledAllItem.addActionListener(this);
+			invertEnabledSelectedItem.addActionListener(this);
+		}
+		
+		private void refreshLanguage() {
+			restartSelectedDownloadsItem.setText(languageResource.getString("Restart selected downloads"));
+			removeSelectedDownloadsItem.setText(languageResource.getString("Remove selected downloads"));
+			removeAllDownloadsItem.setText(languageResource.getString("Remove all downloads"));
+			//downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
+			removeFinishedItem.setText(languageResource.getString("Remove finished downloads"));
+			enableAllDownloadsItem.setText(languageResource.getString("Enable all downloads"));
+			disableAllDownloadsItem.setText(languageResource.getString("Disable all downloads"));
+			enableSelectedDownloadsItem.setText(languageResource.getString("Enable selected downloads"));
+			disableSelectedDownloadsItem.setText(languageResource.getString("Disable selected downloads"));
+			invertEnabledAllItem.setText(languageResource.getString("Invert enabled state for all downloads"));
+			invertEnabledSelectedItem.setText(languageResource.getString("Invert enabled state for selected downloads"));
+			cancelItem.setText(languageResource.getString("Cancel"));
+			copyChkKeyToClipboardItem.setText(languageResource.getString("CHK key"));
+			copyChkKeyAndFilenameToClipboardItem.setText(languageResource.getString("CHK key + filename"));
+			
+			copyToClipboardMenu.setText(languageResource.getString("Copy to clipboard") + "...");
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == copyChkKeyToClipboardItem) {
+				copyChkKeyToClipboard();
+			}
+			if (e.getSource() == copyChkKeyAndFilenameToClipboardItem) {
+				copyChkKeyAndFilenameToClipboard();
+			}
+			if (e.getSource() == restartSelectedDownloadsItem) {
+				restartSelectedDownloads();
+			}
+			if (e.getSource() == removeSelectedDownloadsItem) {
+				removeSelectedDownloads();
+			}
+			if (e.getSource() == removeAllDownloadsItem) {
+				removeAllDownloads();
+			}
+			if (e.getSource() == removeFinishedItem) {
+				removeFinished();
+			}
+			if (e.getSource() == enableAllDownloadsItem) {
+				enableAllDownloads();
+			}
+			if (e.getSource() == disableAllDownloadsItem) {
+				disableAllDownloads();
+			}
+			if (e.getSource() == enableSelectedDownloadsItem) {
+				enableSelectedDownloads();
+			}
+			if (e.getSource() == disableSelectedDownloadsItem) {
+				disableSelectedDownloads();
+			}
+			if (e.getSource() == invertEnabledAllItem) {
+				invertEnabledAll();
+			}
+			if (e.getSource() == invertEnabledSelectedItem) {
+				invertEnabledSelected();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void invertEnabledSelected() {
+			getDownloadTable().setDownloadEnabled(2, false);
+			// 2=invert , false means SELECTED in table!
+		}
+
+		/**
+		 * 
+		 */
+		private void invertEnabledAll() {
+			getDownloadTable().setDownloadEnabled(2, true);
+			// 2=invert , true means ALL in table!
+		}
+
+		/**
+		 * 
+		 */
+		private void disableSelectedDownloads() {
+			getDownloadTable().setDownloadEnabled(0, false);
+			// 0=disabled , false means SELECTED in table!
+		}
+
+		/**
+		 * 
+		 */
+		private void enableSelectedDownloads() {
+			getDownloadTable().setDownloadEnabled(1, false);
+			// 1=enabled , false means SELECTED in table!
+		}
+
+		/**
+		 * 
+		 */
+		private void disableAllDownloads() {
+			getDownloadTable().setDownloadEnabled(0, true);
+			// 0=disabled , true means ALL in table!
+		}
+
+		/**
+		 * 
+		 */
+		private void enableAllDownloads() {
+			getDownloadTable().setDownloadEnabled(1, true);
+			// 1=enabled , true means ALL in table!	
+		}
+
+		/**
+		 * 
+		 */
+		private void removeFinished() {
+			getDownloadTable().removeFinishedDownloads();
+		}
+
+		/**
+		 * 
+		 */
+		private void removeAllDownloads() {
+			getDownloadTable().removeAllItemsFromTable();	
+		}
+
+		/**
+		 * 
+		 */
+		private void removeSelectedDownloads() {
+			getDownloadTable().removeSelectedItemsFromTable();	
+		}
+
+		/**
+		 * 
+		 */
+		private void restartSelectedDownloads() {
+			getDownloadTable().restartSelectedDownloads();
+		}
+
+		/**
+		 * add CHK key + filename to clipboard 
+		 */
+		private void copyChkKeyAndFilenameToClipboard() {
+			DownloadTableModel tableModel = (DownloadTableModel) getDownloadTable().getModel();
+			int selectedRow = getDownloadTable().getSelectedRow();
+			if (selectedRow > -1) {
+				FrostDownloadItemObject dlItem =
+					(FrostDownloadItemObject) tableModel.getRow(selectedRow);
+				String chkKey = dlItem.getKey();
+				String filename = dlItem.getFileName();
+				if (chkKey != null && filename != null) {
+					mixed.setSystemClipboard(chkKey + "/" + filename);
+				}
+			}
+		}
+
+		/**
+		 * add CHK key to clipboard
+		 */
+		private void copyChkKeyToClipboard() {
+			DownloadTableModel tableModel = (DownloadTableModel) getDownloadTable().getModel();
+			int selectedRow = getDownloadTable().getSelectedRow();
+			if (selectedRow > -1) {
+				FrostDownloadItemObject dlItem =
+					(FrostDownloadItemObject) tableModel.getRow(selectedRow);
+				String chkKey = dlItem.getKey();
+				if (chkKey != null) {
+					mixed.setSystemClipboard(chkKey);
+				}
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();
+		}
+
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			removeAll();
+
+			if (getDownloadTable().getSelectedRowCount() == 1) {
+				// if 1 item is selected
+				FrostDownloadItemObject dlItem =
+					(FrostDownloadItemObject)
+						((DownloadTableModel) getDownloadTable().getModel()).getRow(
+						getDownloadTable().getSelectedRow());
+				if (dlItem.getKey() != null) {
+					add(copyToClipboardMenu);
+					addSeparator();
+				}
+			}
+
+			if (getDownloadTable().getSelectedRow() > -1) {
+				add(restartSelectedDownloadsItem);
+				addSeparator();
+			}
+
+			JMenu enabledSubMenu =
+				new JMenu(languageResource.getString("Enable downloads") + "...");
+			if (getDownloadTable().getSelectedRow() > -1) {
+				enabledSubMenu.add(enableSelectedDownloadsItem);
+				enabledSubMenu.add(disableSelectedDownloadsItem);
+				enabledSubMenu.add(invertEnabledSelectedItem);
+				enabledSubMenu.addSeparator();
+			}
+			enabledSubMenu.add(enableAllDownloadsItem);
+			enabledSubMenu.add(disableAllDownloadsItem);
+			enabledSubMenu.add(invertEnabledAllItem);
+			add(enabledSubMenu);
+
+			JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
+			if (getDownloadTable().getSelectedRow() > -1) {
+				removeSubMenu.add(removeSelectedDownloadsItem);
+			}
+			removeSubMenu.add(removeAllDownloadsItem);
+			add(removeSubMenu);
+
+			addSeparator();
+			add(removeFinishedItem);
+			addSeparator();
+			add(cancelItem);
+
+			super.show(invoker, x, y);
+		}
+
+	}
+	
+	private PopupMenuDownload popupMenuDownload = null;
+	
+	/**
+	 * 
+	 */
 	private class PopupMenuUpload extends JPopupMenu implements ActionListener, LanguageListener {
 		
 		private JMenuItem cancelItem = new JMenuItem();
@@ -590,21 +876,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JMenuItem searchPopupSetGood = null;
 	JMenuItem searchPopupSetBad = null;
 	JMenuItem searchPopupCancel = null;
-
-	JMenuItem downloadPopupRestartSelectedDownloads = null;
-	JMenuItem downloadPopupRemoveSelectedDownloads = null;
-	JMenuItem downloadPopupRemoveAllDownloads = null;
-	JMenuItem downloadPopupRemoveFinished = null;
-	JMenuItem downloadPopupCancel = null;
-	JMenuItem downloadPopupEnableAllDownloads = null;
-	JMenuItem downloadPopupDisableAllDownloads = null;
-	JMenuItem downloadPopupEnableSelectedDownloads = null;
-	JMenuItem downloadPopupDisableSelectedDownloads = null;
-	JMenuItem downloadPopupInvertEnabledAll = null;
-	JMenuItem downloadPopupInvertEnabledSelected = null;
-	JMenu downloadPopupCopyToClipboard = null;
-	JMenuItem downloadPopupCopyChkKeyToClipboard = null;
-	JMenuItem downloadPopupCopyChkKeyAndFilenameToClipboard = null;
 
 	JMenuItem tofTextPopupSaveMessage = null;
 	JMenuItem tofTextPopupSaveAttachments = null;
@@ -1621,7 +1892,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	private void buildPopupMenus() {
 		buildPopupMenuSearch();
-		buildPopupMenuDownload();
 		buildPopupMenuTofText();
 		buildPopupMenuMessageTable();
 	}
@@ -1724,153 +1994,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		searchPopupSetBad.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				//String
-			}
-		});
-	}
-
-	/**
-	 * Build the download table popup menu.
-	 * Should be called only once.
-	 */
-	private void buildPopupMenuDownload() {
-		// construct objects
-		downloadPopupRestartSelectedDownloads =
-			new JMenuItem(languageResource.getString("Restart selected downloads"));
-		downloadPopupRemoveSelectedDownloads =
-			new JMenuItem(languageResource.getString("Remove selected downloads"));
-		downloadPopupRemoveAllDownloads =
-			new JMenuItem(languageResource.getString("Remove all downloads"));
-		//        downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-		downloadPopupRemoveFinished =
-			new JMenuItem(languageResource.getString("Remove finished downloads"));
-
-		downloadPopupEnableAllDownloads = new JMenuItem(languageResource.getString("Enable all downloads"));
-		downloadPopupDisableAllDownloads =
-			new JMenuItem(languageResource.getString("Disable all downloads"));
-		downloadPopupEnableSelectedDownloads =
-			new JMenuItem(languageResource.getString("Enable selected downloads"));
-		downloadPopupDisableSelectedDownloads =
-			new JMenuItem(languageResource.getString("Disable selected downloads"));
-		downloadPopupInvertEnabledAll =
-			new JMenuItem(languageResource.getString("Invert enabled state for all downloads"));
-		downloadPopupInvertEnabledSelected =
-			new JMenuItem(languageResource.getString("Invert enabled state for selected downloads"));
-
-		// TODO: implement cancel of downloading
-		downloadPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
-
-		downloadPopupCopyToClipboard = new JMenu(languageResource.getString("Copy to clipboard") + "...");
-		downloadPopupCopyChkKeyToClipboard = new JMenuItem(languageResource.getString("CHK key"));
-		downloadPopupCopyChkKeyAndFilenameToClipboard =
-			new JMenuItem(languageResource.getString("CHK key + filename"));
-
-		downloadPopupCopyToClipboard.add(downloadPopupCopyChkKeyToClipboard);
-		downloadPopupCopyToClipboard.add(
-			downloadPopupCopyChkKeyAndFilenameToClipboard);
-
-		// add action listener
-		// add CHK key to clipboard
-		downloadPopupCopyChkKeyToClipboard
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DownloadTableModel tableModel =
-					(DownloadTableModel) getDownloadTable().getModel();
-				int selectedRow = getDownloadTable().getSelectedRow();
-				if (selectedRow > -1) {
-					FrostDownloadItemObject dlItem =
-						(FrostDownloadItemObject) tableModel.getRow(
-							selectedRow);
-					String chkKey = dlItem.getKey();
-					if (chkKey != null) {
-						mixed.setSystemClipboard(chkKey);
-					}
-				}
-			}
-		});
-		// add CHK key + filename to clipboard    
-		downloadPopupCopyChkKeyAndFilenameToClipboard
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				DownloadTableModel tableModel =
-					(DownloadTableModel) getDownloadTable().getModel();
-				int selectedRow = getDownloadTable().getSelectedRow();
-				if (selectedRow > -1) {
-					FrostDownloadItemObject dlItem =
-						(FrostDownloadItemObject) tableModel.getRow(
-							selectedRow);
-					String chkKey = dlItem.getKey();
-					String filename = dlItem.getFileName();
-					if (chkKey != null && filename != null) {
-						mixed.setSystemClipboard(chkKey + "/" + filename);
-					}
-				}
-			}
-		});
-
-		// add action listener
-		downloadPopupRestartSelectedDownloads
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().restartSelectedDownloads();
-			}
-		});
-		downloadPopupRemoveSelectedDownloads
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().removeSelectedItemsFromTable();
-			}
-		});
-		downloadPopupRemoveAllDownloads
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().removeAllItemsFromTable();
-			}
-		});
-		downloadPopupRemoveFinished.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().removeFinishedDownloads();
-			}
-		});
-
-		downloadPopupEnableAllDownloads
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().setDownloadEnabled(1, true);
-				// 1=enabled , true means ALL in table!
-			}
-		});
-		downloadPopupDisableAllDownloads
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().setDownloadEnabled(0, true);
-				// 0=disabled , true means ALL in table!
-			}
-		});
-		downloadPopupEnableSelectedDownloads
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().setDownloadEnabled(1, false);
-				// 1=enabled , false means SELECTED in table!
-			}
-		});
-		downloadPopupDisableSelectedDownloads
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().setDownloadEnabled(0, false);
-				// 0=disabled , false means SELECTED in table!
-			}
-		});
-		downloadPopupInvertEnabledAll.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().setDownloadEnabled(2, true);
-				// 2=invert , true means ALL in table!
-			}
-		});
-		downloadPopupInvertEnabledSelected
-			.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getDownloadTable().setDownloadEnabled(2, false);
-				// 2=invert , false means SELECTED in table!
 			}
 		});
 	}
@@ -3933,53 +4056,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		pmenu.show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	protected void showDownloadTablePopupMenu(MouseEvent e) {
-		JPopupMenu pmenu = new JPopupMenu();
-
-		if (getDownloadTable().getSelectedRowCount() == 1) {
-			// if 1 item is selected
-			FrostDownloadItemObject dlItem =
-				(FrostDownloadItemObject)
-					(
-						(DownloadTableModel) getDownloadTable()
-							.getModel())
-							.getRow(
-					getDownloadTable().getSelectedRow());
-			if (dlItem.getKey() != null) {
-				pmenu.add(downloadPopupCopyToClipboard);
-				pmenu.addSeparator();
-			}
-		}
-
-		if (getDownloadTable().getSelectedRow() > -1) {
-			pmenu.add(downloadPopupRestartSelectedDownloads);
-			pmenu.addSeparator();
-		}
-
-		JMenu enabledSubMenu = new JMenu(languageResource.getString("Enable downloads") + "...");
-		if (getDownloadTable().getSelectedRow() > -1) {
-			enabledSubMenu.add(downloadPopupEnableSelectedDownloads);
-			enabledSubMenu.add(downloadPopupDisableSelectedDownloads);
-			enabledSubMenu.add(downloadPopupInvertEnabledSelected);
-			enabledSubMenu.addSeparator();
-		}
-		enabledSubMenu.add(downloadPopupEnableAllDownloads);
-		enabledSubMenu.add(downloadPopupDisableAllDownloads);
-		enabledSubMenu.add(downloadPopupInvertEnabledAll);
-		pmenu.add(enabledSubMenu);
-
-		JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
-		if (getDownloadTable().getSelectedRow() > -1) {
-			removeSubMenu.add(downloadPopupRemoveSelectedDownloads);
-		}
-		removeSubMenu.add(downloadPopupRemoveAllDownloads);
-		pmenu.add(removeSubMenu);
-
-		pmenu.addSeparator();
-		pmenu.add(downloadPopupRemoveFinished);
-		pmenu.addSeparator();
-		pmenu.add(downloadPopupCancel);
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+	protected void showDownloadTablePopupMenu(MouseEvent e) {		
+		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
 
 	protected void showUploadTablePopupMenu(MouseEvent e) {
@@ -4115,6 +4193,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			languageResource.addLanguageListener(popupMenuUpload);	
 		}
 		return popupMenuUpload;
+	}
+	
+	/**
+	 * @return
+	 */
+	private PopupMenuDownload getPopupMenuDownload() {
+		if (popupMenuDownload == null) {
+			popupMenuDownload = new PopupMenuDownload();
+			languageResource.addLanguageListener(popupMenuDownload);	
+		}
+		return popupMenuDownload;
 	}
 
 }
