@@ -94,7 +94,8 @@ public class Index
         File[] tempFiles = tempDir.listFiles();
         int keyCount = 0;
 	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\">\n");
+	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\""+
+			" pubkey = \""+frame1.getMyId()+"\">\n");
         for( int i = 0; i < index.length; i++ )
         {
             if( index[i].getName().endsWith(".exc") )
@@ -114,7 +115,8 @@ public class Index
                         KeyClass current = (KeyClass)j.next();
                         if( current.getExchange() && 
 				(current.getOwner() == null || 
-					frame1.getFriends().Get(current.getOwner()) != null))
+					frame1.getFriends().Get(current.getOwner()) != null ||
+					frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0))
                         {
                             keyCount++;
                             
@@ -130,6 +132,7 @@ public class Index
 			    	keyFile.append("<date>" + current.getDate() + "</date>\n");
 		    
 		    	    keyFile.append("</File>\n");
+			 
                         }
                     }
                 }
