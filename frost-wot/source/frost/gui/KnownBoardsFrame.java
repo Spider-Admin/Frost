@@ -43,6 +43,8 @@ public class KnownBoardsFrame extends JDialog
 	private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
 	
 	private Language language;
+	
+	private TofTree tofTree;
 
     private static ImageIcon boardIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/board.gif"));
     private static ImageIcon writeAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/waboard.jpg"));
@@ -62,10 +64,11 @@ public class KnownBoardsFrame extends JDialog
     /**
      * @param parent
      */
-    public KnownBoardsFrame(JFrame parent)
+    public KnownBoardsFrame(JFrame parent, TofTree tofTree)
     {
         super();
-		this.language = Language.getInstance();
+        this.tofTree = tofTree;
+		language = Language.getInstance();
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             initialize();
@@ -267,7 +270,7 @@ public class KnownBoardsFrame extends JDialog
 
                 // add the board(s) to board tree and remove it from table
                 KnownBoardsTableMember row = (KnownBoardsTableMember)tableModel.getRow(rowIx);
-                MainFrame.getInstance().getTofTree().addNewBoard(row.getBoardObject());
+                tofTree.addNewBoard(row.getBoardObject());
                 tableModel.deleteRow(row);
             }
             boardsTable.clearSelection();
