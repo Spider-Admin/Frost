@@ -45,13 +45,13 @@ public class MessageObject {
         newContent += content.substring(pos, start).trim();
 
         int spaces = content.indexOf(" * ", start);
-        String filename = (content.substring(start + 10, spaces)).trim();
-        String chkKey = (content.substring(spaces + 3, end)).trim();
+        String filename = (content.substring(start + "<attached>".length(), spaces)).trim();
+        String chkKey = (content.substring(spaces + " * ".length(), end)).trim();
         Vector rows = new Vector();
         rows.add(filename);
         rows.add(chkKey);
         table.add(rows);
-        pos = end + 11;
+        pos = end + "</attached>".length();
 
         start = content.indexOf("<attached>", pos);
         end = content.indexOf("</attached>", pos);
@@ -63,42 +63,51 @@ public class MessageObject {
     }
 
 // TODO: should return AttachedBoards (to create)
-    public Vector getBoards () {
+    public Vector getBoards()
+    {
         // TODO: this code does not care if the <board> or </board> appears somewhere in the content
         // if e.g. a <board></board> occurs in message, this throw a NullPointerException
         Vector table = new Vector();
-    int pos = 0;
-    int start = content.indexOf("<board>");
-    int end = content.indexOf("</board>",start);
-    newContent="";
-    while (start != -1 && end != -1) {
-        int boardPartLength = end - start; // must be at least 14, 1 char boardnamwe, 2 times " * " and keys="N/A"
-        if( boardPartLength < 14 )
+        int pos = 0;
+        int start = content.indexOf("<board>");
+        int end = content.indexOf("</board>", start);
+        newContent = "";
+        while (start != -1 && end != -1)
         {
-            continue;
+            try
+            {
+                int boardPartLength = end - ( start + "<board>".length() );
+                // must be at least 14, 1 char boardnamwe, 2 times " * " and keys="N/A"
+                if (boardPartLength < 14)
+                {
+                    continue;
+                }
+                newContent += content.substring(pos, start).trim();
+                
+                int spaces = content.indexOf(" * ", start);
+                int spaces2 = content.indexOf(" * ", spaces + 1);
+                //System.out.println("* at " + spaces + " " + spaces2);
+                String boardName = (content.substring(start + "<board>".length(), spaces)).trim();
+                String pubKey = (content.substring(spaces + " * ".length(), spaces2)).trim();
+                String privKey = (content.substring(spaces2 + " * ".length(), end)).trim();
+                Vector rows = new Vector();
+                rows.add(boardName);
+                rows.add(pubKey);
+                rows.add(privKey);
+                table.add(rows);
+                pos = end + "</board>".length();
+            }
+            catch (RuntimeException e) // on wrong format a NullPointerException is thrown
+            {
+                e.printStackTrace();
+            }
+
+            start = content.indexOf("<board>", pos);
+            end = content.indexOf("</board>", pos);
         }
-        newContent += content.substring(pos, start).trim();
 
-        int spaces = content.indexOf(" * ", start);
-        int spaces2 = content.indexOf(" * ", spaces+1);
-        //System.out.println("* at " + spaces + " " + spaces2);
-        String boardName = (content.substring(start + 7, spaces)).trim();
-        String pubKey = (content.substring(spaces + 3, spaces2)).trim();
-        String privKey = (content.substring(spaces2 + 3, end)).trim();
-        Vector rows = new Vector();
-        rows.add(boardName);
-        rows.add(pubKey);
-        rows.add(privKey);
-        table.add(rows);
-        pos = end + 8;
-
-        start = content.indexOf("<board>", pos);
-        end = content.indexOf("</board>", pos);
-    }
-
-    newContent += content.substring(pos, content.length()).trim();
-    return table;
-
+        newContent += content.substring(pos, content.length()).trim();
+        return table;
     }
 
     public String getPublicKey() {
