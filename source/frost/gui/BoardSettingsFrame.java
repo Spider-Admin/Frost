@@ -535,14 +535,11 @@ public class BoardSettingsFrame extends JDialog
         }
 
         if( !board.isConfigured() )
-        {
-            if( board.getAutoUpdateEnabled() )
-                autoUpdate_true.setSelected(true);
-            else
-                autoUpdate_false.setSelected(true);
-        }
-        else
+            autoUpdate_true.setSelected(true); // default
+        else if( board.getAutoUpdateEnabled() )
             autoUpdate_true.setSelected(true);
+        else
+            autoUpdate_false.setSelected(true);
 
         if( !board.isConfigured() || board.getShowSignedOnlyObj() == null )
             signedOnly_default.setSelected(true);
