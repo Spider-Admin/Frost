@@ -18,7 +18,8 @@
 */
 package frost.threads;
 
-import java.io.File;
+import java.io.*;
+import java.util.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
@@ -31,7 +32,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private static int keyCount = 0;
     private static int minKeyCount = 50;
     private static int maxKeysPerFile = 5000;
+    
+    private static final int MAX_TRIES = 2; //number of times each index will be tried -1
 
+    private Vector indices;
     private int maxKeys;
     private String date;
     private String oldDate;
@@ -44,6 +48,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private String requestKey;
     private String insertKey;
     private String boardState;
+    private final static String fileSeparator = System.getProperty("file.separator");
 
     public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
@@ -51,6 +56,15 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
      * Generates a new index file containing keys to upload.
      * @return true if index file was created, else false.
      */
+     
+    private int findFreeIndex() {
+    	for (int i = 0;i<indices.size();i++){
+		Integer current = (Integer)indices.elementAt(i);
+		if (current.intValue() == 0 || current.intValue() == MAX_TRIES)
+			return i;
+	}
+	return -1;
+    }
     private boolean makeIndexFile()
     {
         if( DEBUG ) System.out.println("FILEDN: UpdateIdThread.makeIndexFile for " + board.toString());
@@ -85,7 +99,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             while( !success && tries <= maxFailures )
             {
                 // Does this index already exist?
-                String testFilename = new StringBuffer().append(keypool)
+		
+		
+                /*String testFilename = new StringBuffer().append(keypool)
                                                         .append(date)
                                                         .append("-")
                                                         .append(board.getBoardFilename())
@@ -98,7 +114,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     index++;
                     //if( DEBUG ) System.out.println("FILEDN: File exists, increasing index to " + index);
                     continue;
-                }
+                }*/
 
                 tries++;
                 result = FcpInsert.putFile(insertKey + index + ".idx.sha.zip",
@@ -335,6 +351,24 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         insertHtl = frame1.frostSettings.getIntValue("keyUploadHtl");
         keypool = frame1.frostSettings.getValue("keypool.dir");
         maxKeys = frame1.frostSettings.getIntValue("maxKeys");
+	
+	//indices = new Vector();
+	
+	try {
+		File indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices");
+		if (indicesFile.exists()) {
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
+			indices = (Vector)in.readObject();
+		}else {
+			indices = new Vector(100);
+			for (int i = 0;i < 100;i++)
+				indices.add(new Integer(0));
+		}
+	}catch(IOException e) {
+		e.printStackTrace();
+	}catch(ClassNotFoundException e) {
+		e.printStackTrace();
+	}
 
         publicKey = board.getPublicKey();
         privateKey = board.getPrivateKey();
