@@ -28,7 +28,11 @@ public class AboutBox extends JDialog implements ActionListener
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
     private final static String product = "Frost";
-    private final static String version = "WOT-050903";
+
+    // because a growing amount of users use CVS version:
+//    private final static String version = "WOT-050903";
+    private final static String version = "DEVELOPMENT/UNSTABLE (last stable = WOT-050903)";
+
     private final static String copyright = LangRes.getString("Copyright (c) 2001 Jan-Thomas Czornack");
     private final static String comments = "Open Source Project";
 
