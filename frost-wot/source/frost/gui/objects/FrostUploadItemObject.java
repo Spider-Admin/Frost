@@ -34,7 +34,8 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
 
     public FrostUploadItemObject(File file, FrostBoardObject board)
     {
-        this.fileName = mixed.makeFilename( file.getName() );
+        //this.fileName = mixed.makeFilename( file.getName() ); //users weren't happy with this
+	this.fileName = file.getName();
         this.filePath = file.getPath();
         this.fileSize = new Long( file.length() );
         this.targetBoard = board;
