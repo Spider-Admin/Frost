@@ -148,6 +148,7 @@ public class TOF
             {
                 if(markNew)
                 {
+                    message.setMessageNew(true);
                     frame1.displayNewMessageIcon(true);
                     board.incNewMessageCount();
                 }
