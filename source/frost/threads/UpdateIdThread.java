@@ -482,7 +482,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             FrostIndex frostIndex = makeIndexFile();
             if (frostIndex!=null)
             {
-                if (frame1.isGeneratingCHK() == false)
+                if (frame1.isGeneratingCHK() == false) //FIXME: why not uploading while genKey runs?
+                                                       // when will it be tried the 2nd time? 
                  //   || keyCount >= minKeyCount) //FIXME: what is this minKeyCount?
                 {
                     if (DEBUG)
@@ -533,10 +534,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         
         if( ! given_digest.equals( calculatedDigest ) )
         {
-            Core.getOut().println("pubkey in index file didn't match digest");
-            Core.getOut().println("given digest " + given_digest);
-            Core.getOut().println("pubkey " + _pubkey.trim());
-            Core.getOut().println("calculated digest "+calculatedDigest);
+            Core.getOut().println("Warning: public key in index file didn't match digest:");
+            Core.getOut().println("given digest :'" + given_digest+"'");
+            Core.getOut().println("pubkey       :'" + _pubkey.trim()+"'");
+            Core.getOut().println("calc. digest :'"+calculatedDigest+"'");
             return null;        
         }
         //create the identity of the sharer
