@@ -1810,10 +1810,14 @@ public class frame1 extends JFrame implements ClipboardOwner
                         tempMsg.setStatus(VerifyableMessageObject.FAILED);
                 }
             }
-            tofTree_actionPerformed(null);
             // finally step through all board files, count new messages and delete new messages from enemies
             TOF.initialSearchNewMessages( getTofTree(), frostSettings.getIntValue("maxMessageDisplay") );
 
+            SwingUtilities.invokeLater(new Runnable() {
+                    public void run()
+                    {
+                        tofTree_actionPerformed(null);
+                    } });
             System.out.println("Truster: finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
                                ((trust==true)?"GOOD":"BAD")+"'");
         }

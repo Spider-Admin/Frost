@@ -81,7 +81,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField tofDisplayDaysTextField = new JTextField(5);
     JTextField tofDownloadDaysTextField = new JTextField(5);
     JTextField tofMessageBaseTextField = new JTextField(8);
-    JTextField tofBlockMessageTextField = new JTextField(32);
+    JTextField tofBlockMessageTextField = new JTextField(42);
+    JTextField tofBlockMessageBodyTextField = new JTextField(42);
     JTextField miscKeyUploadHtlTextField = new JTextField(5);
     JTextField miscKeyDownloadHtlTextField = new JTextField(5);
     JTextField miscNodeAddressTextField = new JTextField(11);
@@ -119,7 +120,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     // TODO: translation
     JTextField sampleInterval = new JTextField(5);
     JTextField spamTreshold = new JTextField(5);
-    JTextField tofBlockMessageBodyTextField = new JTextField(32);
     JTextField startRequestingAfterHtlTextField = new JTextField(5);
 
     JCheckBox uploadDisableRequests = new JCheckBox(LangRes.getString("Disable uploads"));
@@ -128,16 +128,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox signedOnly = new JCheckBox(LangRes.getString("Show only signed messages"));
     JCheckBox hideBadMessages = new JCheckBox(LangRes.getString("Hide messages flagged BAD") + " " + LangRes.getString("(Off)"));
     JCheckBox hideCheckMessages = new JCheckBox(LangRes.getString("Hide messages flagged CHECK") + " " + LangRes.getString("(Off)"));
-    JCheckBox block = new JCheckBox(LangRes.getString("Block message from/subject containing:"));
-    JCheckBox blockBody = new JCheckBox(LangRes.getString("Block message body containing:"));
+    JCheckBox block = new JCheckBox( "Block messages with subject containing (separate by ';' ):" ); // TODO: translate
+    JCheckBox blockBody = new JCheckBox( "Block messages with body containing (separate by ';' ):" );
     JCheckBox doBoardBackoff = new JCheckBox(LangRes.getString("Do spam detection") + " (experimental)");
     JLabel interval = new JLabel(LangRes.getString("Sample interval (hours)"));
     JLabel treshold = new JLabel(LangRes.getString("Threshold of blocked messages"));
     JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
     JCheckBox cleanUP = new JCheckBox(LangRes.getString("Clean the keypool"));
 
-    JButton chooseBoardUpdSelectedBackgroundColor = new JButton("Choose color if board is selected...");
-    JButton chooseBoardUpdNonSelectedBackgroundColor = new JButton("Choose color if board is not selected...");
+    JButton chooseBoardUpdSelectedBackgroundColor = new JButton("   ");
+    JButton chooseBoardUpdNonSelectedBackgroundColor = new JButton("   ");
+
     Color boardUpdSelectedBackgroundColor = null;
     Color boardUpdNonSelectedBackgroundColor = null;
 
@@ -313,7 +314,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
             downloadDisableDownloads.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    downloadDisableDownloads_actionPerformed(e);
+                    // enable panel if checkbox is not selected
+                    setPanelEnabled( getDownloadPanel(), (downloadDisableDownloads.isSelected()==false) );
                 } });
             downloadPanel.add(downloadDisableDownloads, constr);
 
@@ -429,7 +431,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy = 0;
             uploadDisableRequests.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    uploadDisableRequests_actionPerformed(e);
+                    // enable panel if checkbox is not selected
+                    setPanelEnabled( getUploadPanel(), (uploadDisableRequests.isSelected()==false) );
                 } });
             uploadPanel.add(uploadDisableRequests,constr);
             constr.gridy++;
@@ -599,6 +602,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
                         if( newCol != null )
                         {
                             boardUpdSelectedBackgroundColor = newCol;
+                            chooseBoardUpdSelectedBackgroundColor.setBackground( boardUpdSelectedBackgroundColor );
                         }
                     } });
             chooseBoardUpdNonSelectedBackgroundColor.addActionListener(new ActionListener() {
@@ -610,7 +614,22 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
                         if( newCol != null )
                         {
                             boardUpdNonSelectedBackgroundColor = newCol;
+                            chooseBoardUpdNonSelectedBackgroundColor.setBackground( boardUpdNonSelectedBackgroundColor );
                         }
+                    } });
+
+            final JPanel row1Panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0) );
+            final JPanel row2Panel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0) );
+            row1Panel.add(chooseBoardUpdSelectedBackgroundColor);
+            row1Panel.add(new JLabel("Choose background color if updating board is selected."));
+            row2Panel.add(chooseBoardUpdNonSelectedBackgroundColor);
+            row2Panel.add(new JLabel("Choose background color if updating board is not selected."));
+
+            tofBoardUpdateVisualization.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        setPanelEnabled(row1Panel, tofBoardUpdateVisualization.isSelected());
+                        setPanelEnabled(row2Panel, tofBoardUpdateVisualization.isSelected());
                     } });
 
             tof3Panel = new JPanel(new GridBagLayout());
@@ -641,9 +660,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx = 0;
             constr.insets = new Insets(5, 25, 5, 5);
-            tof3Panel.add( chooseBoardUpdSelectedBackgroundColor, constr );
+            tof3Panel.add( row1Panel, constr );
             constr.gridy++;
-            tof3Panel.add( chooseBoardUpdNonSelectedBackgroundColor, constr );
+            tof3Panel.add( row2Panel, constr );
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -861,49 +880,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         cancel();
     }
 
-    private void downloadDisableDownloads_actionPerformed(ActionEvent e)
+    private void setPanelEnabled(JPanel panel, boolean enabled)
     {
-        boolean enableComponents;
-        if( downloadDisableDownloads.isSelected() )
-        {
-            // downloads disabled
-            enableComponents = false;
-        }
-        else
-        {
-            // downloads enabled
-            enableComponents = true;
-        }
-        int componentCount = getDownloadPanel().getComponentCount();
+        int componentCount = panel.getComponentCount();
         for( int x=0; x<componentCount; x++ )
         {
-            Component c = getDownloadPanel().getComponent(x);
-            if( c != downloadDisableDownloads )
+            Component c = panel.getComponent(x);
+            if( c != downloadDisableDownloads &&
+                c != uploadDisableRequests )
             {
-                c.setEnabled( enableComponents );
-            }
-        }
-    }
-    private void uploadDisableRequests_actionPerformed(ActionEvent e)
-    {
-        boolean enableComponents;
-        if( uploadDisableRequests.isSelected() )
-        {
-            // uploads disabled
-            enableComponents = false;
-        }
-        else
-        {
-            // uploads enabled
-            enableComponents = true;
-        }
-        int componentCount = getUploadPanel().getComponentCount();
-        for( int x=0; x<componentCount; x++ )
-        {
-            Component c = getUploadPanel().getComponent(x);
-            if( c != uploadDisableRequests )
-            {
-                c.setEnabled( enableComponents );
+                c.setEnabled( enabled );
             }
         }
     }
@@ -1018,6 +1004,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
         boardUpdSelectedBackgroundColor = (Color)frostSettings.getObjectValue("boardUpdatingSelectedBackgroundColor");
         boardUpdNonSelectedBackgroundColor = (Color)frostSettings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
+        chooseBoardUpdSelectedBackgroundColor.setBackground( boardUpdSelectedBackgroundColor );
+        chooseBoardUpdNonSelectedBackgroundColor.setBackground( boardUpdNonSelectedBackgroundColor );
     }
 
     /**
@@ -1232,11 +1220,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         }
         // set initial selection (also sets panel)
         optionsGroupsList.setSelectedIndex(0);
+
         // enable or disable components
-        uploadDisableRequests_actionPerformed(null);
-        downloadDisableDownloads_actionPerformed(null);
+        // enable panel if checkbox is not selected
+        setPanelEnabled( getDownloadPanel(), (downloadDisableDownloads.isSelected()==false) );
+        setPanelEnabled( getUploadPanel(), (uploadDisableRequests.isSelected()==false) );
+        // ... but not the checkboxes itself :)
+        uploadDisableRequests.setEnabled(true);
+        downloadDisableDownloads.setEnabled(true);
+
         // final layouting
         pack();
+
         // center dialog on parent
         setLocationRelativeTo(parent);
     }

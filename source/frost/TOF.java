@@ -353,7 +353,7 @@ public class TOF
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
         {
-            String header = (message.getFrom() + message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
+            String header = ( message.getSubject() + message.getDate() + message.getTime()).toLowerCase();//message.getFrom()+
             int index = frame1.frostSettings.getValue("blockMessage").indexOf(";");
             int pos = 0;
 
@@ -362,7 +362,6 @@ public class TOF
                 String block = (frame1.frostSettings.getValue("blockMessage").substring(pos, index)).trim();
                 if( header.indexOf(block) != -1 && block.length() > 0 )
                     return true;
-                //      System.out.println("'" + block + "'");
                 pos = index + 1;
                 index = frame1.frostSettings.getValue("blockMessage").indexOf(";", pos);
             }
@@ -447,8 +446,6 @@ public class TOF
                     File[] filePointers = loadDir.listFiles();
                     if( filePointers != null )
                     {
-                        String sdate = new StringBuffer().append(date).append("-").append(boardFilename)
-                                                         .append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ )
                         {
                             if( filePointers[j].getName().endsWith(".txt.lck") )
