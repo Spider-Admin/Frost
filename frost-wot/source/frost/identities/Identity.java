@@ -10,7 +10,7 @@ import frost.FcpTools.*;
 /**
  * Represents a user identity, should be immutable.
  */
-public class Identity implements XMLizable
+public class Identity implements SafeXMLizable
 {
     private String name;
     private String uniqueName;
@@ -91,6 +91,21 @@ public class Identity implements XMLizable
 		el = baseIdentityPopulateElement(el,doc);
 		return el;
 	}
+	
+	//same method used for LocalIdentity
+	public Element getSafeXMLElement(Document doc){
+		Element el = getXMLElement(doc);
+		List sensitive = XMLTools.getChildElementsByTagName(el,"trustedIds");
+		sensitive.addAll(XMLTools.getChildElementsByTagName(el,"files"));
+		sensitive.addAll(XMLTools.getChildElementsByTagName(el,"messages"));
+		
+		Iterator it = sensitive.iterator();
+		while (it.hasNext()) {
+			el.removeChild((Element)it.next());
+		}
+		return el;
+	}
+	
 	
 	protected void baseIdentityPopulateFromElement(Element e) throws SAXException {
 				uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");

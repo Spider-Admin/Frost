@@ -7,7 +7,7 @@
 package frost.crypt;
 
 import java.io.*;
-import java.util.*;
+
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -102,17 +102,8 @@ public class MetaData implements XMLizable {
 		//make sure we don't add sensitive fields in the metadata
         // FIXME: maybe its better to remove all but the only wanted?
         // otherwise new fields could come into the xml file
-		Element _sharer = sharer.getXMLElement(container);
-		List privElements = XMLTools.getChildElementsByTagName(_sharer,"privKey");
-		privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"files"));
-		privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"messages"));
-		privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"CHK"));
-		privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"trustedIds"));
-		
-		Iterator it = privElements.iterator();
-		while (it.hasNext())
-			_sharer.removeChild((Element)it.next());
-		
+		Element _sharer = sharer.getSafeXMLElement(container);
+
 		el.appendChild(_sharer);
 		
 		Element _sig = container.createElement("sig");

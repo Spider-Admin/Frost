@@ -354,11 +354,13 @@ public class SharedFileObject implements XMLizable
              //if board is null means this file is an attachment that does not wish to be
              //indexed
              if (board!=null) {
+             	Core.getOut().println("board not null, setting SHA1 in xml");
 			 	element = doc.createElement("SHA1");
 			 	cdata = doc.createCDATASection(getSHA1());
 			    element.appendChild( cdata );
 			 	fileelement.appendChild( element );
-             }  
+             }  else
+             	Core.getOut().println("my boardObj is null! :(");
               
 			 element = doc.createElement("size");
 			 Text textnode = doc.createTextNode(""+getSize());
@@ -467,6 +469,30 @@ public class SharedFileObject implements XMLizable
 	 */
 	public void setFile(File file) {
 		this.file = file;
+	}
+
+	/**
+	 * @param object
+	 */
+	public void setBoard(FrostBoardObject object) {
+		board = object;
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#equals(java.lang.Object)
+	 */
+	public boolean equals(Object obj) {
+		// TODO Auto-generated method stub
+		SharedFileObject other = (SharedFileObject) obj;
+		return SHA1.equals(other.getSHA1());
+	}
+
+	/* (non-Javadoc)
+	 * @see java.lang.Object#hashCode()
+	 */
+	public int hashCode() {
+		// TODO Auto-generated method stub
+		return SHA1.hashCode();
 	}
 
 }

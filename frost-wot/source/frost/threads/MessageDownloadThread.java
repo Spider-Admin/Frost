@@ -556,9 +556,14 @@ public class MessageDownloadThread
                 while (it.hasNext())
                 {
                     SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
+                    Core.getOut().println("analyizing attachment "+current.getFilename()+
+                    				" with SHA1 "+ current.getSHA1());
                     if (current.getSHA1() != null
-                        && current.getSHA1().length() > 0)
-                        Index.add(current, board);
+                        && current.getSHA1().length() > 0) {
+                        	current.setBoard(board); 
+                        	Index.add(current, board);
+                        }
+                   
                 }
             }
         }

@@ -30,16 +30,8 @@ public class FrostIndex implements XMLizable {
 		
 		//if user signs uploads, remove the sensitive fields and append element
 		if (Core.frostSettings.getBoolValue("signUploads")) {
-			Element _sharer = sharer.getXMLElement(container);
-			List privElements = XMLTools.getChildElementsByTagName(_sharer,"privKey");
-			privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"files"));
-			privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"messages"));
-			privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"CHK"));
-			privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"trustedIds"));
-		
-			Iterator it = privElements.iterator();
-			while (it.hasNext())
-				_sharer.removeChild((Element)it.next());
+			Element _sharer = sharer.getSafeXMLElement(container);
+			
 			el.appendChild(_sharer);
 		}
 		
