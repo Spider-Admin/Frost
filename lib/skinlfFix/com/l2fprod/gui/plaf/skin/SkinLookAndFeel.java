@@ -196,6 +196,7 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
       "MenuUI", skinPackageName + "SkinMenuUI",
       "MenuBarUI", skinPackageName + "SkinMenuBarUI",
       "ToolBarUI", skinPackageName + "SkinToolBarUI",
+	  "ToolBarSeparatorUI", skinPackageName + "SkinToolBarSeparatorUI",
       //	    "ListUI", skinPackageName + "SkinListUI",
       "PopupMenuUI", skinPackageName + "SkinPopupMenuUI",
       "RadioButtonUI", skinPackageName + "SkinRadioButtonUI",
@@ -306,6 +307,7 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
       "InternalFrame.minimizeIconBackground", table.get("control"),
       "InternalFrame.resizeIconHighlight", table.get("controlHighlight"),
       "InternalFrame.resizeIconShadow", table.get("controlShadow"),
+	  "ToolBar.separatorSize", null
     };
     table.putDefaults(defaults);
 
