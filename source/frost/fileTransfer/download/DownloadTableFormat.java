@@ -294,7 +294,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	 * 
 	 */
 	private void refreshLanguage() {
-		setColumnName(0, languageResource.getString("Enabled"));
+		setColumnName(0, languageResource.getString("DownloadTableFormat.Enabled"));
 		setColumnName(1, languageResource.getString("Filename"));
 		setColumnName(2, languageResource.getString("Size"));
 		setColumnName(3, languageResource.getString("Age"));
