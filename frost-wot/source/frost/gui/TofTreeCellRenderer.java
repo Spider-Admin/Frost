@@ -92,15 +92,42 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 
         boolean containsNewMessage = board.containsNewMessage();
 
-        // set the sdpecial text (board name + if new msg. a ' (2)' is appended and bold)
-        setText( board.getVisibleText() );
-        if( board.getNewMessageCount() > 0 )
+        if( board.isFolder() )
         {
-            setFont( boldFont );
+            // if this is a folder, check board for new messages
+            int childs = board.getChildCount();
+            boolean newMessage = false;
+
+            for(int c=0; c<childs; c++)
+            {
+                FrostBoardObject childBoard = (FrostBoardObject)board.getChildAt(c);
+                if( childBoard.containsNewMessage() )
+                {
+                    newMessage = true;
+                    break;
+                }
+            }
+            if( newMessage == true )
+            {
+                setFont( boldFont );
+            }
+            else
+            {
+                setFont( normalFont );
+            }
         }
         else
         {
-            setFont( normalFont );
+            // set the sdpecial text (board name + if new msg. a ' (2)' is appended and bold)
+            setText( board.getVisibleText() );
+            if( containsNewMessage )
+            {
+                setFont( boldFont );
+            }
+            else
+            {
+                setFont( normalFont );
+            }
         }
 
         // maybe update visualization

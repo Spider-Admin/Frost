@@ -1728,6 +1728,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         // fire update for node
         DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
         model.nodeChanged( board );
+        if( board.getParent() != null )
+        {
+            model.nodeChanged( board.getParent() );
+        }
         if( board == getActualNode() ) // is the board actually shown?
         {
             updateButtons(board);
