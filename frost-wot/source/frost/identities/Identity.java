@@ -26,7 +26,7 @@ public class Identity implements XMLizable
 	//if this was C++ LocalIdentity wouldn't work
 	//fortunately we have virtual construction so loadXMLElement will be called
 	//for the inheriting class ;-)
-	Identity(Element el) {
+	public Identity(Element el) {
 		try {
 			loadXMLElement(el);
 		} catch (SAXException e) {
@@ -133,7 +133,9 @@ public class Identity implements XMLizable
     {
         this.keyaddress = keyaddress;
         this.key = key;
-        setName(name);
+     	this.name = name;
+     	if (name.indexOf("@")!=-1)
+     		this.uniqueName = name;
     }
 
     /**

@@ -107,6 +107,8 @@ public class Core {
 		goodIds = new Hashtable();
 		badIds = new Hashtable();
 		myBatches = new Hashtable();
+		friends = new BuddyList();
+		enemies = new BuddyList();
 		File identities = new File("identities");
 		File identitiesxml = new File ("identities.xml");
 		try{
@@ -162,19 +164,19 @@ public class Core {
 						out.println("couldn't create new identitiy");
 						out.println(e.toString());
 					}
-					friends = new BuddyList();
+					//friends = new BuddyList();
 
 					if (friends.Add(frame1.getMyId())) {
 						out.println("added myself to list");
 					}
-					enemies = new BuddyList();
+					//enemies = new BuddyList();
 		} else
 		
 		//first try with the new format
 		
 		if (identitiesxml.exists()){
-			friends = new BuddyList();
-			enemies = new BuddyList();
+			//friends = new BuddyList();
+			//enemies = new BuddyList();
 			try{
 				out.println("trying to create/load ids");	
 			Document d = XMLTools.parseXmlFile("identities.xml",false);
@@ -199,6 +201,7 @@ public class Core {
 			Core.getOut().println("loaded "+friends.size() +" friends and "+ enemies.size() +" enemies.");
 		}else {
 		try {
+				
 					BufferedReader fin =
 						new BufferedReader(new FileReader(identities));
 					String name = fin.readLine();
