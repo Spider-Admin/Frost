@@ -276,7 +276,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * 
 	 */
 	private class PopupMenuMessageTable
-		extends JPopupMenu
+		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener {
 
 		private JMenuItem markAllMessagesReadItem = new JMenuItem();
@@ -443,7 +443,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * 
 	 */
 	private class PopupMenuAttachmentBoard
-		extends JPopupMenu
+		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener {
 
 		private JMenuItem cancelItem = new JMenuItem();
@@ -527,7 +527,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * 
 	 */
 	private class PopupMenuAttachmentTable
-		extends JPopupMenu
+		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener {
 			
 		private JMenuItem cancelItem = new JMenuItem();
@@ -613,7 +613,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * 
 	 */
 	private class PopupMenuTofText
-		extends JPopupMenu
+		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener {
 
 		private JMenuItem cancelItem = new JMenuItem();

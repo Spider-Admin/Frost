@@ -46,7 +46,7 @@ public class KnownBoardsFrame extends JDialog
     KnownBoardsTableModel tableModel;
     NameColumnRenderer nameColRenderer;
     
-    JPopupMenu tablePopupMenu;
+	JSkinnablePopupMenu tablePopupMenu;
     
     boolean savingNeeded = false;
     
@@ -148,7 +148,7 @@ public class KnownBoardsFrame extends JDialog
     
     private void initPopupMenu()
     {
-        tablePopupMenu = new JPopupMenu();
+        tablePopupMenu = new JSkinnablePopupMenu();
         JMenuItem addBoardsMenu = new JMenuItem(LangRes.getString("KnownBoardsFrame.Add board"));
         JMenuItem removeBoardEntry = new JMenuItem(LangRes.getString("KnownBoardsFrame.Remove board"));
         

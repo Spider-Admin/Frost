@@ -59,8 +59,8 @@ public class MessageFrame extends JFrame
     JSplitPane attachmentSplitPane;
     JSplitPane boardSplitPane;
     
-    JPopupMenu attFilesPopupMenu;
-    JPopupMenu attBoardsPopupMenu;
+	JSkinnablePopupMenu attFilesPopupMenu;
+	JSkinnablePopupMenu attBoardsPopupMenu;
     
     //------------------------------------------------------------------------
     // Generate objects
@@ -219,8 +219,8 @@ public class MessageFrame extends JFrame
     
     protected void initPopupMenu()
     {
-        attFilesPopupMenu = new JPopupMenu();
-        attBoardsPopupMenu = new JPopupMenu();
+        attFilesPopupMenu = new JSkinnablePopupMenu();
+        attBoardsPopupMenu = new JSkinnablePopupMenu();
         
         JMenuItem removeFiles = new JMenuItem(LangRes.getString("Remove"));
         JMenuItem removeBoards = new JMenuItem(LangRes.getString("Remove"));

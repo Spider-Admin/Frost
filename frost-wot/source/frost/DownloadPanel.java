@@ -24,7 +24,7 @@ public class DownloadPanel extends JPanel {
 	 *  
 	 */
 	private class PopupMenuDownload
-		extends JPopupMenu
+		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener {
 
 		private JMenuItem cancelItem = new JMenuItem();
