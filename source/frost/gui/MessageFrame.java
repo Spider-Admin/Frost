@@ -474,7 +474,7 @@ public class MessageFrame extends JFrame
 			}
 			// build a new board because maybe privKey should'nt be uploaded
 			FrostBoardObject aNewBoard =
-				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, "");
+				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, null);
 			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
 			attBoardsTableModel.addRow(ab);
 		}
