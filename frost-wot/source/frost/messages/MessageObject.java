@@ -58,21 +58,31 @@ public class MessageObject implements XMLizable
     /**
      * Constructor.
      * Used to construct an instance for an existing messagefile.
+     * @param file
+     * @throws MessageCreationException
      */
-    public MessageObject(File file) throws Exception {
+    public MessageObject(File file) throws MessageCreationException {
         this();
         if (file == null) {
-        	throw new Exception("Invalid input file (null) received for MessageObject");
-        } else if (!file.exists() || file.length() < 20) { // prolog+needed tags are always > 20, but we need to filter 
-        												   // out the messages containing "Empty" (encrypted for someone else)
-        	file.renameTo(new File("badMessage"));
-        	throw new Exception("Invalid input file '" + file.getName() + "' received for MessageObject. " +
-        						"Send the file \"badMessage\" to a dev");
+        	throw new MessageCreationException(
+        					"Invalid input file received for MessageObject. Its value is null.");
+        } else if (!file.exists()) {
+        	throw new MessageCreationException(
+        					"Invalid input file '" + file.getName() + "' received for MessageObject. It doesn't exist.");
+        } else if (file.length() < 20) { // prolog+needed tags are always > 20, but we need to filter 
+        								 // out the messages containing "Empty" (encrypted for someone else)
+        	throw new MessageCreationException(
+        					"Invalid input file '" + file.getName() + "' received for MessageObject.", true);
         }
         this.file = file;
-        loadFile();
-        // ensure basic contents and formats
-        analyzeFile();
+        try {
+        	loadFile();
+        	// ensure basic contents and formats
+        	analyzeFile();
+        } catch (Exception exception) {
+        	throw new MessageCreationException(
+        					"Invalid input file '" + file.getName() + "' received for MessageObject.", exception);
+        }
     }
 
     /**Set all values*/
