@@ -23,6 +23,11 @@ public class SearchTable extends SortedTable
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
+
+        // default for sort: sort by name ascending ?
+        sortedColumnIndex = 0;
+        sortedColumnAscending = true;
+        resortTable();
     }
 }
 
