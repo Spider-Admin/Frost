@@ -1933,7 +1933,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Saves signature.txt to disk
 	 */
 	private void saveSignature() {
-		FileAccess.writeFile(tofTextArea.getText(), "signature.txt");
+		FileAccess.writeFile(tofTextArea.getText(), "signature.txt", "UTF-8");
 	}
 
 	/**
