@@ -1748,7 +1748,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 */
 	public OptionsFrame(Frame parent, java.util.ResourceBundle LangRes) {
 		super(parent);
-		this.LangRes = LangRes;
+		OptionsFrame.LangRes = LangRes;
 		setModal(true);
 		translateCheckBox();
 		translateLabel();

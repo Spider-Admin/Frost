@@ -66,7 +66,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * Setter for thelanguage resource bundle
 	 */
 	public void setLanguageResource(ResourceBundle LangRes) {
-		this.LangRes = LangRes;
+		frame1.LangRes = LangRes;
 		translateMenuEntries();
 		translateTabbedPane();
 		translateButtons();
@@ -433,7 +433,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// enable the machine ;)
 		try {
 			core = new Core();
+			splashscreen.setText("sending credit card information to ...");
+			splashscreen.setProgress(60);
 			jbInit();
+			splashscreen.setText("not doing anything, really");
+			splashscreen.setProgress(70);
 			core.init();
 
 			splashscreen.setText("Reaching ridiculous speed...");

@@ -509,7 +509,7 @@ public class MessageFrame extends JFrame
                         SettingsClass config, Frame parentFrame, ResourceBundle LangRes)
     {
         super();
-	this.LangRes = LangRes;
+	MessageFrame.LangRes = LangRes;
         this.parentFrame = parentFrame;
         this.board = board;
         this.from=from;
