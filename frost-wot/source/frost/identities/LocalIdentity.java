@@ -83,7 +83,7 @@ public class LocalIdentity extends Identity
 		}
 		try {
 			String[] svk = con.getKeyPair();
-			board = new BoardAttachment(new FrostBoardObject(getUniqueName(), svk[1], svk[0], ""));
+			board = new BoardAttachment(new FrostBoardObject(getUniqueName(), svk[1], svk[0], null));
 
 		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
