@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import frost.SettingsClass;
+import frost.util.gui.JClipboardTextField;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
@@ -49,11 +50,11 @@ class News2Panel extends JPanel {
 	private UpdatingLanguageResource languageResource = null;
 	
 	private JCheckBox blockBoardCheckBox = new JCheckBox();
-	private JTextField blockBoardTextField = new JTextField();
+	private JClipboardTextField blockBoardTextField = null;
 	private JCheckBox blockBodyCheckBox = new JCheckBox();
-	private JTextField blockBodyTextField = new JTextField();
+	private JClipboardTextField blockBodyTextField = null;
 	private JCheckBox blockSubjectCheckBox = new JCheckBox();
-	private JTextField blockSubjectTextField = new JTextField();
+	private JClipboardTextField blockSubjectTextField = null;
 	private JCheckBox doBoardBackoffCheckBox = new JCheckBox();
 	private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
 	private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
@@ -62,10 +63,10 @@ class News2Panel extends JPanel {
 		
 	private Listener listener = new Listener();
 		
-	private JTextField sampleIntervalTextField = new JTextField(8);
+	private JClipboardTextField sampleIntervalTextField = null;
 		
 	private JCheckBox signedOnlyCheckBox = new JCheckBox();
-	private JTextField spamTresholdTextField = new JTextField(8);
+	private JClipboardTextField spamTresholdTextField = null;
 		
 	private JLabel tresholdLabel = new JLabel();
 
@@ -148,6 +149,13 @@ class News2Panel extends JPanel {
 		setLayout(new GridBagLayout());
 		refreshLanguage();
 			
+		// We create the components
+		blockBoardTextField = new JClipboardTextField(languageResource);
+		blockBodyTextField = new JClipboardTextField(languageResource);
+		blockSubjectTextField = new JClipboardTextField(languageResource);
+		spamTresholdTextField =new JClipboardTextField(8, languageResource);
+		sampleIntervalTextField = new JClipboardTextField(8, languageResource);
+		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;
