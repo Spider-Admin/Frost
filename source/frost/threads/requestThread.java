@@ -174,6 +174,7 @@ public class requestThread extends Thread
                 KeyClass newKey = new KeyClass(key);
                 newKey.setFilename(filename);
                 newKey.setSize(newFile.length());
+		newKey.setSHA1(SHA1);
                 newKey.setDate(date);
                 newKey.setExchange(false);
                 Index.add(newKey, board);
