@@ -3351,7 +3351,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e) {
 		if (BoardInfoFrame.isDialogShowing() == false) {
-			BoardInfoFrame boardInfo = new BoardInfoFrame(this);
+			BoardInfoFrame boardInfo = new BoardInfoFrame(this, languageResource.getResourceBundle());
 			boardInfo.startDialog();
 		}
 	}

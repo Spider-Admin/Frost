@@ -389,15 +389,30 @@ public class LangRes extends ListResourceBundle {
 	{"NoSkinsFound","No skins found!"},
 	{"AvailableSkins","Available Skins"},
 
-	//other stuff which people forget to include
+	///////////////////////////////////////////////////
+	// Board Information Window
+	///////////////////////////////////////////////////
 	{"BoardInfoFrame.UpdateSelectedBoardButton","Update Selected Board"},
+	{"BoardInfoFrame.Update","Update"},
+	{"BoardInfoFrame.Update all boards","Update all boards"},
+	{"BoardInfoFrame.Close","Close"},
+	{"BoardInfoFrame.Board information window","Board information window"},
+	{"BoardInfoFrame.Boards","Boards"},
+	{"BoardInfoFrame.Messages","Messages"},
+	{"BoardInfoFrame.Files","Files"},
+	
+	// Board information window table
+	{"Messages","Messages"},
+
+	///////////////////////////////////////////////////
+	// other stuff which people forget to include
+	///////////////////////////////////////////////////
 	{"Show systray icon","show SysTray icon"},
 	{"Display","Display"},
 	{"Miscellaneous","Miscellaneous"},
-	{"Messages","Messages"},
 	{"Messages Today","Messages Today"},
-	{"Board information","Board information"},
-	{"Boards","Boards"},
+	//{"Board information","Board information"},
+	//{"Boards","Boards"},
 	{"Public board","Public board"},
 	{"Secure board","Secure board"},
 	{"Generate new keypair","Generate new keypair"},
