@@ -54,7 +54,6 @@ public class Core implements Savable {
 	private static Logger logger = Logger.getLogger(Core.class.getName());
 
 	private static Core instance = new Core();
-	private static boolean initialized = false;
 	private static Locale locale = null;
 	
 	private static Set nodes = new HashSet(); //list of available nodes
@@ -68,7 +67,7 @@ public class Core implements Savable {
 	
 	private Timer timer = new Timer(true);
 
-	public static SettingsClass frostSettings = null;
+	public static SettingsClass frostSettings = new SettingsClass();
 	static Hashtable myBatches = new Hashtable();
 
 	private static Crypt crypto = new FrostCrypt();
@@ -140,39 +139,20 @@ public class Core implements Savable {
 		// We warn the user if there aren't any running nodes
 		if (!freenetIsOnline) {
 			MiscToolkit.getInstance().showMessage(
-				languageResource.getString("Core.init.NodeNotRunningBody"),
+				getLanguageResource().getString("Core.init.NodeNotRunningBody"),
 				JOptionPane.WARNING_MESSAGE,
-				languageResource.getString("Core.init.NodeNotRunningTitle"));
+				getLanguageResource().getString("Core.init.NodeNotRunningTitle"));
 		}
 
 		// We warn the user if the only node that is running is transient
 		if (isFreenetTransient() && nodes.size() == 1) {
 			MiscToolkit.getInstance().showMessage(
-				languageResource.getString("Core.init.TransientNodeBody"),
+				getLanguageResource().getString("Core.init.TransientNodeBody"),
 				JOptionPane.WARNING_MESSAGE,
-				languageResource.getString("Core.init.TransientNodeTitle"));
+				getLanguageResource().getString("Core.init.TransientNodeTitle"));
 		}
 
 		return true;
-	}
-
-	/**
-	 * This method initializes the language. If the locale field has a value, it
-	 * is used to select the LanguageResource. If not, the locale value in frostSettings 
-	 * is used for that.
-	 */
-	private void initializeLanguage() {
-		if (locale != null) {
-			languageResource = new UpdatingLanguageResource("res.LangRes", locale);
-		} else {
-			String language = frostSettings.getValue("locale");
-			if (!language.equals("default")) {
-				languageResource =
-					new UpdatingLanguageResource("res.LangRes", new Locale(language));
-			} else {
-				languageResource = new UpdatingLanguageResource("res.LangRes");
-			}
-		}
 	}
 
 	public boolean isFreenetOnline() {
@@ -501,34 +481,26 @@ public class Core implements Savable {
 	 * @return pointer to the live core
 	 */
 	public static Core getInstance() {
-		if (!initialized) {
-			initialized = true;
-			instance.initialize();	
-		}
 		return instance;
 	}
 
 	/**
 	 * 
 	 */
-	private void initialize() {
+	public void initialize() {
 		Splashscreen splashscreen = new Splashscreen();
 		splashscreen.setVisible(true);
 
-		frostSettings = new SettingsClass();
 		keypool = frostSettings.getValue("keypool.dir");
 
-		// Initializes the language
-		initializeLanguage();
-
-		splashscreen.setText(languageResource.getString("Initializing Mainframe"));
+		splashscreen.setText(getLanguageResource().getString("Initializing Mainframe"));
 		splashscreen.setProgress(20);
 
 		//Initializes the logging and skins
 		new Logging(frostSettings);
 		initializeSkins();
 
-		splashscreen.setText(languageResource.getString("Hypercube fluctuating!"));
+		splashscreen.setText(getLanguageResource().getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(50);
 
 		if (!initializeConnectivity()) {
@@ -539,11 +511,11 @@ public class Core implements Savable {
 		Startup.startupCheck(frostSettings, keypool);
 		FileAccess.cleanKeypool(keypool);
 
-		splashscreen.setText(languageResource.getString("Sending IP address to NSA"));
+		splashscreen.setText(getLanguageResource().getString("Sending IP address to NSA"));
 		splashscreen.setProgress(60);
 
 		//Main frame		
-		mainFrame = new MainFrame(frostSettings, languageResource);
+		mainFrame = new MainFrame(frostSettings, getLanguageResource());
 		getDownloadManager().initialize();
 		getUploadManager().initialize();
 		getSearchManager().initialize();
@@ -555,7 +527,7 @@ public class Core implements Savable {
 		mainFrame.setUploadPanel(getUploadManager().getPanel());
 		mainFrame.initialize();
 
-		splashscreen.setText(languageResource.getString("Wasting more time"));
+		splashscreen.setText(getLanguageResource().getString("Wasting more time"));
 		splashscreen.setProgress(70);
 
 		//load vital data
@@ -581,7 +553,7 @@ public class Core implements Savable {
 		
 		initializeTasks();
 
-		splashscreen.setText(languageResource.getString("Reaching ridiculous speed..."));
+		splashscreen.setText(getLanguageResource().getString("Reaching ridiculous speed..."));
 		splashscreen.setProgress(80);
 
 		mainFrame.setVisible(true);
@@ -601,7 +573,7 @@ public class Core implements Savable {
 	 */
 	private UploadManager getUploadManager() {
 		if (uploadManager == null) {
-			uploadManager = new UploadManager(languageResource, frostSettings);
+			uploadManager = new UploadManager(getLanguageResource(), frostSettings);
 			uploadManager.setMainFrame(mainFrame);
 			uploadManager.setTofTree(mainFrame.getTofTree());
 			uploadManager.setFreenetIsOnline(isFreenetOnline());
@@ -615,7 +587,7 @@ public class Core implements Savable {
 	 */
 	private SearchManager getSearchManager() {
 		if (searchManager == null) {
-			searchManager = new SearchManager(languageResource, frostSettings);
+			searchManager = new SearchManager(getLanguageResource(), frostSettings);
 			searchManager.setMainFrame(mainFrame);
 			searchManager.setDownloadModel(getDownloadManager().getModel());
 			searchManager.setUploadModel(getUploadManager().getModel());
@@ -631,7 +603,7 @@ public class Core implements Savable {
 	 */
 	private DownloadManager getDownloadManager() {
 		if (downloadManager == null) {
-			downloadManager = new DownloadManager(languageResource, frostSettings);
+			downloadManager = new DownloadManager(getLanguageResource(), frostSettings);
 			downloadManager.setMainFrame(mainFrame);
 			downloadManager.setFreenetIsOnline(isFreenetOnline());
 		}
@@ -739,7 +711,7 @@ public class Core implements Savable {
  	 */
 	public FrostIdentities getIdentities() {
 		if (identities == null) {
-			identities = new FrostIdentities(languageResource);
+			identities = new FrostIdentities(getLanguageResource());
 			identities.load(freenetIsOnline);
 		}
 		return identities;
@@ -755,4 +727,27 @@ public class Core implements Savable {
 		saveOK &= saveKnownBoards();
 		return saveOK;		
 	}
+	/**
+	 * This method returns the language resource to get internationalized messages
+	 * from. That language resource is initialized the first time this method is called.
+	 * In that case, if the locale field has a value, it is used to select the 
+	 * LanguageResource. If not, the locale value in frostSettings is used for that.
+	 * @return the language resource to get internationalized messages from.
+	 */
+	public UpdatingLanguageResource getLanguageResource() {
+		if (languageResource == null) {
+			if (locale != null) {
+				languageResource = new UpdatingLanguageResource("res.LangRes", locale);
+			} else {
+				String language = frostSettings.getValue("locale");
+				if (!language.equals("default")) {
+					languageResource = new UpdatingLanguageResource("res.LangRes", new Locale(language));
+				} else {
+					languageResource = new UpdatingLanguageResource("res.LangRes");
+				}
+			}
+		}
+		return languageResource;
+	}
+
 }
