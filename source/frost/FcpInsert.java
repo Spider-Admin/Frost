@@ -518,6 +518,7 @@ public class FcpInsert
         segmentKeyMaps.add(chunkResults);
         }
 
+// TODO: combine split + check files download (always run X theads)
 
         // upload all check blocks
         int checkNo = 0;
@@ -561,6 +562,8 @@ public class FcpInsert
     }
 
     // Generate redirect
+    System.out.println("Generating redirect ...");
+
     String redirect = null;
     {
         synchronized (fecutils.getClass()){
@@ -605,6 +608,7 @@ public class FcpInsert
            !result[0].equals("KeyCollision") &&
            tries < 8) {
         tries++;
+        System.out.println("Uploading redirect, try= "+(tries+1)+" / 8");
         try {
         FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
         output = connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, mode);
@@ -629,6 +633,7 @@ public class FcpInsert
 
 
     if ((result[0].equals("Success") || result[0].equals("KeyCollision")) && mode){
+        System.out.println("Redirect successfully uploaded.");
         try{
         GregorianCalendar cal= new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -651,6 +656,10 @@ public class FcpInsert
         FileAccess.writeFile("Already uploaded today", destination + contentKey + ".lck");
         }
         catch (Exception e) {}
+    }
+    else
+    {
+        System.out.println("Could not upload redirect file!");
     }
 
     return result;

@@ -167,7 +167,15 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         File checkLockfile = new File(destination + "locked.lck");
         int index = 0;
         int failures = 0;
-        int maxFailures = 3; // skip a maximum of 2 empty slots
+        int maxFailures;
+        if( flagNew )
+        {
+            maxFailures = 3; // skip a maximum of 2 empty slots for today
+        }
+        else
+        {
+            maxFailures = 2; // skip a maximum of 1 empty slot for backload
+        }
 
         while( failures < maxFailures && (flagNew || !checkLockfile.exists()) )
         {
