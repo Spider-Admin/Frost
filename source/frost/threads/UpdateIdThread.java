@@ -427,6 +427,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             		!_pubkey.equals(sharerInFile.getKey()) ) {
 
 								Core.getOut().println("the identity in MetaData didn't match the identity in File! :(");
+								Core.getOut().println("file owner : " +sharerInFile.getName());
+								Core.getOut().println("file key : " +sharerInFile.getKey());
+								Core.getOut().println("meta owner: "+ _owner);
+								Core.getOut().println("meta key : "+ _pubkey);
                                 unzippedTarget.delete();
 								target.delete();
 								index = findFreeDownloadIndex();
