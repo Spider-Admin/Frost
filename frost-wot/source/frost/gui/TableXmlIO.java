@@ -452,7 +452,7 @@ System.out.println("ERROR saving download table!");
         itemElement.appendChild( element );
 	//SHA1
 	element = doc.createElement("SHA1");
-        text = doc.createTextNode( String.valueOf(dlItem.getSHA1()) );
+        text = doc.createTextNode( dlItem.getSHA1() );
         element.appendChild( text );
         itemElement.appendChild( element );
 	//owner
