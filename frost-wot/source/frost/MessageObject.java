@@ -35,6 +35,7 @@ public class MessageObject {
     }
 
 //TODO: should return AttachmentObjects (to create)
+    // newContent is created here and contains whole msg without the found board tags
     public Vector getAttachments() {
     Vector table = new Vector();
     int pos = 0;
@@ -63,6 +64,7 @@ public class MessageObject {
     }
 
 // TODO: should return AttachedBoards (to create)
+    // newContent is created here and contains whole msg without the found board tags
     public Vector getBoards()
     {
         // TODO: this code does not care if the <board> or </board> appears somewhere in the content
@@ -95,17 +97,16 @@ public class MessageObject {
                 rows.add(pubKey);
                 rows.add(privKey);
                 table.add(rows);
-                pos = end + "</board>".length();
             }
             catch (RuntimeException e) // on wrong format a NullPointerException is thrown
             {
-                e.printStackTrace();
+                System.out.println("Error in format of attached boards, skipping 1 entry.");
             }
-
+            // maybe try next entry
+            pos = end + "</board>".length();
             start = content.indexOf("<board>", pos);
             end = content.indexOf("</board>", pos);
         }
-
         newContent += content.substring(pos, content.length()).trim();
         return table;
     }
