@@ -5,6 +5,7 @@ Thomas Mueller <thm2001 -AT+ users.sourceforge.net>
 Jim Hunziker <landtuna -AT+ users.sourceforge.net>
 Stefan Majewski <e9926279 -AT+ stud3.tuwien.ac.at>
 José Manuel Arnesto <jarnesto -AT+ computer.org>
+Roman Glebov <bleon -AT+ gmx.net>
 
 Windows Installer
 -----------------
