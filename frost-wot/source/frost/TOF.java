@@ -408,6 +408,10 @@ public class TOF
 			return true;
 		if (board.getHideNA() && (message.getStatus().indexOf("N/A") > -1))
 			return true;
+		//If the message is not signed and contains a @ character in the from field, we block it.
+		if (message.getStatus().indexOf("NONE") != -1 && message.getFrom().indexOf('@') != -1) {
+			return true;
+		}
 
 		// Block by subject (and rest of the header)
 		if (MainFrame.frostSettings.getBoolValue("blockMessageChecked")) {
