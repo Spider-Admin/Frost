@@ -1297,22 +1297,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			if (subject.startsWith("Re:") == false)
 				subject = "Re: " + subject;
 			/*
-					if (frostSettings.getBoolValue("useAltEdit")) {
-							altEdit = new AltEdit(getSelectedNode(), subject, // subject
-				getTofTextAreaText(), frostSettings, this);
-						altEdit.start();
-					} else {*/
-			MessageFrame newMessageFrame =
-				new MessageFrame(
-					frostSettings,
-					MainFrame.this,
-					languageResource.getResourceBundle(),
-					core.getIdentities().getMyId());
-			newMessageFrame.composeReply(
-				getSelectedNode(),
-				frostSettings.getValue("userName"),
-				subject,
-				messageTextArea.getText());
+			 * if (frostSettings.getBoolValue("useAltEdit")) { altEdit = new
+			 * AltEdit(getSelectedNode(), subject, // subject
+			 * getTofTextAreaText(), frostSettings, this); altEdit.start(); }
+			 * else {
+			 */
+			MessageFrame newMessageFrame = new MessageFrame(frostSettings, MainFrame.this,
+												languageResource, core.getIdentities().getMyId());
+			newMessageFrame.composeReply(getSelectedNode(), frostSettings.getValue("userName"),
+												subject, messageTextArea.getText());
 		}
 
 		/**
@@ -2918,30 +2911,21 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		knownBoards.startDialog();
 	}
 
-	/**tofNewMessageButton Action Listener (tof/ New Message)*/
+	/** tofNewMessageButton Action Listener (tof/ New Message) */
 	private void tofNewMessageButton_actionPerformed(ActionEvent e) {
 		/*
-				if (frostSettings.getBoolValue("useAltEdit")) {
-					// TODO: pass FrostBoardObject
-						altEdit = new AltEdit(getSelectedNode(), subject, // subject
-				"", // new msg
-			frostSettings, this);
-					altEdit.start(); 
-				} else {*/
-		MessageFrame newMessageFrame =
-			new MessageFrame(
-				frostSettings,
-				this,
-				languageResource.getResourceBundle(),
-				core.getIdentities().getMyId());
-		newMessageFrame.composeNewMessage(
-			getSelectedNode(),
-			frostSettings.getValue("userName"),
-			"No subject",
-			"");
+		 * if (frostSettings.getBoolValue("useAltEdit")) { // TODO: pass
+		 * FrostBoardObject altEdit = new AltEdit(getSelectedNode(), subject, //
+		 * subject "", // new msg frostSettings, this); altEdit.start(); } else {
+		 */
+		MessageFrame newMessageFrame = new MessageFrame(
+												frostSettings, this, languageResource, 
+												core.getIdentities().getMyId());
+		newMessageFrame.composeNewMessage(getSelectedNode(), frostSettings.getValue("userName"), 
+											"No subject", "");
 	}
 
-	/**TOF Board selected*/
+	/** TOF Board selected */
 	// Core.getOut()
 	// if e == NULL, the method is called by truster or by the reloader after options were changed
 	// in this cases we usually should left select the actual message (if one) while reloading the table
