@@ -20,6 +20,8 @@ package frost.threads;
 
 import java.io.*;
 import java.util.Vector;
+import java.nio.charset.*;
+import java.nio.*;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -345,12 +347,17 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                         crypt.MSG_HEADER_SIZE,
                                         unzipped.lastIndexOf(
                                             "\n=== Frost message signature: ===\n")));
-                            SimpleParser sp = new SimpleParser();
+							
+							SimpleParser sp = new SimpleParser();
                             try
                             {
+                            	byte [] bytes = stripped.getBytes();
+                            	ByteBuffer _stripped = ByteBuffer.wrap(bytes);
+								Charset ch = Charset.forName("utf-16");
+								ch.decode(_stripped); 
                                 ByteArrayInputStream bis = 
                                     new ByteArrayInputStream(
-                                        stripped.getBytes());
+                                        bytes);
 
                                 SAXParserFactory factory =
                                     SAXParserFactory.newInstance();
