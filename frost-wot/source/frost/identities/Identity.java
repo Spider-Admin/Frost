@@ -52,12 +52,12 @@ public class Identity implements Serializable
             throw (new IllegalArgumentException("not a CHK"));
         }
 
-        System.out.println("\n\n starting to request CHK for " + name +"with htl 25 \n\n");
+        System.out.println("\n\n starting to request CHK for '" + name +"' , htl=25 \n\n");
 
-        if( FcpRequest.getFile(keyaddress,"unknown",name + ".key","25",false) )
+        if( FcpRequest.getFile(keyaddress, "unknown", name + ".key", "25", false) )
         {
             key = FileAccess.read(name +".key");
-            System.out.println("\n\n CHK recieved for " +name + "\n\n");
+            System.out.println("\n\n CHK received for " +name + "\n\n");
         }
         else
         {
