@@ -88,9 +88,11 @@ public class insertThread extends Thread
             }
 	    
 	    //now update the files.xml with the CHK
-	    KeyClass current = Index.getKey(uploadItem.getSHA1(),board);
-	    if (current==null) System.out.println("index inconsistency - couldn't find already uploaded file");
-	    current.setKey(result[1]);
+	    KeyClass current = new KeyClass(result[1]);
+	    current.setOwner(frame1.getMyId().getUniqueName());
+	    current.setFilename(uploadItem.getFileName());
+	    current.setSHA1(uploadItem.getSHA1());
+	    current.setSize(uploadItem.getFileSize().longValue());
 	    current.setDate(lastUploadDate);
 	    Index.addMine(current,board);
 	}
