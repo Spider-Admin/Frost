@@ -119,7 +119,7 @@ System.out.println("Board tree loaded successfully.");
                 ArrayList ltmp = XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
                 if( ltmp.size() > 0 )
                 {
-                    Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
+                    Text txtname = (Text) ((Node)ltmp.get(0)).getFirstChild();
                     if( txtname != null )
                     {
                         long millis = -1;
