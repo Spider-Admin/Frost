@@ -2257,7 +2257,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         //////////////////////////////////////////////////
         //   Display time in button bar
         //////////////////////////////////////////////////
-        timeLabel.setText( new StringBuffer().append(DateFun.getExtendedDate())
+        timeLabel.setText( new StringBuffer().append(DateFun.getVisibleExtendedDate())
                            .append(" - ").append(DateFun.getFullExtendedTime()).append(" GMT").toString());
 
         /////////////////////////////////////////////////
