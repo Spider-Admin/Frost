@@ -2651,6 +2651,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( newFrame.runDialog() == true ) // OK pressed?
         {
             updateTofTree(board);
+            // update the new msg. count for board
+            TOF.initialSearchNewMessages(getTofTree(), board);
+
+            if( board == getActualNode() )
+            {
+                // reload all messages if board is shown
+                tofTree_actionPerformed(null);
+            }
         }
     }
 

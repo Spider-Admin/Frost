@@ -415,91 +415,97 @@ public class TOF
         String keypool = frame1.keypool;
         while( e.hasMoreElements() )
         {
-            final FrostBoardObject board = (FrostBoardObject)e.nextElement();
-            int daysToRead = board.getMaxMessageDisplay();
+            FrostBoardObject board = (FrostBoardObject)e.nextElement();
+            initialSearchNewMessages(tree,board);
+        }
+    }
 
-            board.setNewMessageCount( 0 ); // reset count
+    public static void initialSearchNewMessages(JTree tree, final FrostBoardObject board)
+    {
+        String keypool = frame1.keypool;
+        int daysToRead = board.getMaxMessageDisplay();
 
-            if( board.isFolder() == true )
-                continue;
+        board.setNewMessageCount( 0 ); // reset count
 
-            final String boardFilename = board.getBoardFilename();
-            final String fileSeparator = System.getProperty("file.separator");
+        if( board.isFolder() == true )
+            return;
 
-            // Get actual date
-            GregorianCalendar cal = new GregorianCalendar();
-            cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        final String boardFilename = board.getBoardFilename();
+        final String fileSeparator = System.getProperty("file.separator");
 
-            // Read files up to maxMessages days to the past
-            GregorianCalendar firstDate = new GregorianCalendar();
-            firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
-            firstDate.set(Calendar.YEAR, 2001);
-            firstDate.set(Calendar.MONTH, 5);
-            firstDate.set(Calendar.DATE, 11);
-            int msgcount=0;
-            int counter = 0;
+        // Get actual date
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-            while( cal.after(firstDate) && counter < daysToRead )
+        // Read files up to maxMessages days to the past
+        GregorianCalendar firstDate = new GregorianCalendar();
+        firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+        firstDate.set(Calendar.YEAR, 2001);
+        firstDate.set(Calendar.MONTH, 5);
+        firstDate.set(Calendar.DATE, 11);
+        int msgcount=0;
+        int counter = 0;
+
+        while( cal.after(firstDate) && counter < daysToRead )
+        {
+            String date = DateFun.getDateOfCalendar(cal);
+            File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).append(fileSeparator)
+                                                      .append(date).toString());
+            if( loadDir.isDirectory() )
             {
-                String date = DateFun.getDateOfCalendar(cal);
-                File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).append(fileSeparator)
-                                                          .append(date).toString());
-                if( loadDir.isDirectory() )
+                File[] filePointers = loadDir.listFiles();
+                if( filePointers != null )
                 {
-                    File[] filePointers = loadDir.listFiles();
-                    if( filePointers != null )
+                    for( int j = 0; j < filePointers.length; j++ )
                     {
-                        for( int j = 0; j < filePointers.length; j++ )
+                        if( filePointers[j].getName().endsWith(".txt.lck") )
                         {
-                            if( filePointers[j].getName().endsWith(".txt.lck") )
+                            // search for message
+                            String lockFilename = filePointers[j].getName();
+                            String messagename = lockFilename.substring(0, lockFilename.length()-4);
+                            boolean found = false;
+                            int k;
+                            for( k=0; k<filePointers.length; k++ )
                             {
-                                // search for message
-                                String lockFilename = filePointers[j].getName();
-                                String messagename = lockFilename.substring(0, lockFilename.length()-4);
-                                boolean found = false;
-                                int k;
-                                for( k=0; k<filePointers.length; k++ )
+                                if( filePointers[k].getName().equals( messagename ) &&
+                                    filePointers[k].length() > 0 &&
+                                    filePointers[k].length() < 32000
+                                  )
                                 {
-                                    if( filePointers[k].getName().equals( messagename ) &&
-                                        filePointers[k].length() > 0 &&
-                                        filePointers[k].length() < 32000
-                                      )
-                                    {
-                                        // found message file for lock file
-                                        found = true;
-                                        break;
-                                    }
+                                    // found message file for lock file
+                                    found = true;
+                                    break;
                                 }
-                                if( found == false ) // messagefile for lockfile not found (paranoia)
-                                {
-                                    filePointers[j].delete();
-                                    continue;  // next .lck file
-                                }
-                                FrostMessageObject message = new FrostMessageObject(filePointers[k]);
-                                if( message.isValid() && !blocked(message,board) )
-                                {
-                                    // update the node that contains new messages
-                                    board.incNewMessageCount();
-                                }
-                                else
-                                {
-                                    // message is blocked, delete newmessage indicator file
-                                    filePointers[j].delete();
-                                }
+                            }
+                            if( found == false ) // messagefile for lockfile not found (paranoia)
+                            {
+                                filePointers[j].delete();
+                                continue;  // next .lck file
+                            }
+                            FrostMessageObject message = new FrostMessageObject(filePointers[k]);
+                            if( message.isValid() && !blocked(message,board) )
+                            {
+                                // update the node that contains new messages
+                                board.incNewMessageCount();
+                            }
+                            else
+                            {
+                                // message is blocked, delete newmessage indicator file
+                                filePointers[j].delete();
                             }
                         }
                     }
                 }
-                counter++;
-                cal.add(Calendar.DATE, -1); // process previous day
             }
-            // now a board is finished, update the tree
-            SwingUtilities.invokeLater( new Runnable() {
-                   public void run()
-                   {
-                       frame1.getInstance().updateTofTree(board);
-                   }
-               });
+            counter++;
+            cal.add(Calendar.DATE, -1); // process previous day
         }
+        // now a board is finished, update the tree
+        SwingUtilities.invokeLater( new Runnable() {
+               public void run()
+               {
+                   frame1.getInstance().updateTofTree(board);
+               }
+           });
     }
 }
