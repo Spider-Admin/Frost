@@ -510,8 +510,8 @@ public class Core {
 					"CHK@",
 					tempUploadfile,
 					25,
-					false, // doRedirect
-					null);
+					false // doRedirect
+					);
 				out.println(
 					"KeyReinserter: Finished re-uploading public key.");
 

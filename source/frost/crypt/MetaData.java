@@ -149,8 +149,9 @@ public class MetaData implements XMLizable {
      * Creates the metadata xml file and returns the byte[] containing the utf-16 text.
      * @param targetFilename
      * @return
-     */    
-    public byte[] getRawXmlContent()
+     */   
+     
+    /*public byte[] getRawXmlContent()
     {
         // create a XML file
         Document doc = XMLTools.createDomDocument();
@@ -187,5 +188,5 @@ public class MetaData implements XMLizable {
         tempFile.delete();
         return null;
     }
-
+*/
 }
