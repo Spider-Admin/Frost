@@ -490,7 +490,7 @@ public class BoardSettingsFrame extends JDialog
     {
         overrideSettings.setSelected(board.isConfigured());
 
-        if( board.getMaxMessageDisplayObj() == null )
+        if( !board.isConfigured() || board.getMaxMessageDisplayObj() == null )
             maxMsg_default.setSelected(true);
         else
         {
@@ -498,7 +498,7 @@ public class BoardSettingsFrame extends JDialog
             maxMsg_value.setText( ""+board.getMaxMessageDisplay() );
         }
 
-        if( board.isConfigured() )
+        if( !board.isConfigured() )
         {
             if( board.getAutoUpdateEnabled() )
                 autoUpdate_true.setSelected(true);
@@ -508,21 +508,21 @@ public class BoardSettingsFrame extends JDialog
         else
             autoUpdate_true.setSelected(true);
 
-        if( board.getShowSignedOnlyObj() == null )
+        if( !board.isConfigured() || board.getShowSignedOnlyObj() == null )
             signedOnly_default.setSelected(true);
         else if(board.getShowSignedOnly())
             signedOnly_true.setSelected(true);
         else
             signedOnly_false.setSelected(true);
 
-        if( board.getHideBadObj() == null )
+        if( !board.isConfigured() || board.getHideBadObj() == null )
             hideBad_default.setSelected(true);
         else if(board.getHideBad())
             hideBad_true.setSelected(true);
         else
             hideBad_false.setSelected(true);
 
-        if( board.getHideCheckObj() == null )
+        if( !board.isConfigured() || board.getHideCheckObj() == null )
             hideCheck_default.setSelected(true);
         else if(board.getHideCheck())
             hideCheck_true.setSelected(true);
