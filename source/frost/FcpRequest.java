@@ -75,7 +75,6 @@ public class FcpRequest
         HealerThread hl = new HealerThread((WorkQueue)(healingQueue.get()),target.getPath());
         healer.set(hl);
 
-
         Vector segmentHeaders = null;
         FcpFECUtils fecutils = new FcpFECUtils(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getIntValue("nodePort"));
         boolean success = true;
@@ -90,8 +89,6 @@ public class FcpRequest
         }
         catch( NumberFormatException e )
         {}
-
-
 
         {
             synchronized (fecutils.getClass())
@@ -121,16 +118,28 @@ public class FcpRequest
         //System.out.println("BLOCKS_AVAILABLE="+totalAvailableBlocks);
         int totalSuccessfulBlocks = 0;
 
-        if( dlItem.getFileSize() == null )
+        if( dlItem != null )
         {
-            dlItem.setFileSize( splitFileSize );
-        }
-        else // paranoia
-        {
-            if( dlItem.getFileSize().longValue() != splitFileSize )
+
+            if( dlItem.getFileSize() == null )
             {
-                System.out.println("WARNING: size of fec splitfile differs from size given from download table. MUST not happen!");
+                dlItem.setFileSize( splitFileSize );
             }
+            else // paranoia
+            {
+                if( dlItem.getFileSize().longValue() != splitFileSize )
+                {
+                    System.out.println("WARNING: size of fec splitfile differs from size given from download table. MUST not happen!");
+                }
+            }
+
+            // update gui table
+            dlItem.setBlockProgress( 0,
+                                     totalRequiredBlocks,
+                                     totalAvailableBlocks);
+            dlItem.setState( dlItem.STATE_PROGRESS );
+
+            ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
         }
 
         // step through all segments and try to get required count of blocks for each
@@ -172,18 +181,21 @@ public class FcpRequest
             int availableChunks = 0;
             for( int i = 0; i < totalBlocks; i ++ )
             {
-                File chunk;
                 int j = blockNumbers[i];
                 results[j] = false;
                 if( j < blockCount )
                 {
-                    if( getKeyThread.checkKey(
-                                             SettingsFun.getValue(target.getPath(), "SplitFile.Block." + Integer.toHexString(j+chunkBase+1)),
-                                             new File(new StringBuffer().append(frame1.keypool)
-                                                      .append(target.getName()).append("-chunk-").append((j + chunkBase + 1)).toString()
-                                                     ),
-                                             blockSize )
-                      )
+                    File chunkFile = new File( new StringBuffer()
+                                               .append(frame1.keypool)
+                                               .append(target.getName())
+                                               .append("-chunk-")
+                                               .append((j + chunkBase + 1)).toString() );
+                    boolean chunkOK = getKeyThread.checkKey(
+                                             SettingsFun.getValue(target.getPath(),
+                                                "SplitFile.Block." + Integer.toHexString(j+chunkBase+1)),
+                                             chunkFile,
+                                             blockSize );
+                    if( chunkOK )
                     {
                         results[j] = true;
                         availableChunks++;
@@ -192,13 +204,17 @@ public class FcpRequest
                 }
                 else
                 {
-                    if( getKeyThread.checkKey(
-                                             SettingsFun.getValue(target.getPath(), "SplitFile.Block." + Integer.toHexString(j+chunkBase+1)),
-                                             new File(new StringBuffer().append(frame1.keypool).append(target.getName())
-                                                      .append("-check-").append((j + checkBase + 1)).toString()
-                                                     ),
-                                             checkBlockSize )
-                      )
+                    File chunkFile = new File( new StringBuffer()
+                                               .append(frame1.keypool)
+                                               .append(target.getName())
+                                               .append("-chunk-")
+                                               .append((j + checkBase + 1)).toString() );
+                    boolean chunkOK = getKeyThread.checkKey(
+                                             SettingsFun.getValue(target.getPath(),
+                                                "SplitFile.Block." + Integer.toHexString(j+chunkBase+1)),
+                                             chunkFile,
+                                             checkBlockSize );
+                    if( chunkOK )
                     {
                         results[j] = true;
                         successfullBlocks++;
