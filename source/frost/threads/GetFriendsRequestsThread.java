@@ -38,7 +38,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 		File keypool = new File(frame1.keypool);
 		File[] boardDirs = keypool.listFiles();
 		LinkedList indices = new LinkedList();
-		Map allFiles = new HashMap();
+		//Map allFiles = new HashMap();
 
 		//put all index files in a list
 		for (int i = 0; i < boardDirs.length; i++)
@@ -57,7 +57,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 			//Core.getOut().println("helper analyzing index at " + current.getPath());
 			set.addAll(FileAccess.readKeyFile(current).getFiles());
 		}
-		Core.getOut().println("helper will traverse through " + allFiles.size()+" files against "+
+		Core.getOut().println("helper will traverse through " + set.size()+" files against "+
 					Core.getFriends().size() + " friends ");
 		//get the prefixes of the good people
 		it = set.iterator();
@@ -88,7 +88,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 			}
 		}
 		
-		allFiles=null; //this is too big, clean it fast
+		//allFiles=null; //this is too big, clean it fast
 		set = null;
 		System.gc();
 	}
