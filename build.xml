@@ -49,6 +49,8 @@
     <pathelement location="${lib.dir}/xercesImpl.jar"/>
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
+    <pathelement location="${build.classes.feclib}"/>
+    <pathelement location="${build.classes.genchklib}"/>
   </path>
 
   <!--  Specify logfile name -->
@@ -84,14 +86,6 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>
 
-    <javac srcdir="${src.dir}"
-           destdir="${build.classes}"
-           debug="${debug}"
-           deprecation="${deprecation}"
-           optimize="${optimize}" >
-      <classpath refid="classpath" />
-    </javac>
-
     <javac srcdir="${src.dir.feclib}"
            destdir="${build.classes.feclib}"
            debug="${debug}"
@@ -109,6 +103,14 @@ Build log  : ${logfilename}</echo>
             <pathelement location="${build.classes.feclib}"/>
 <!--            <pathelement location="${src.dir.genchklib}"/>-->
         </classpath>
+    </javac>
+
+    <javac srcdir="${src.dir}"
+           destdir="${build.classes}"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}" >
+      <classpath refid="classpath" />
     </javac>
 
   </target>

@@ -232,7 +232,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         //index -= maxFailures;
         if( makeIndexFile() )
         {
-            if( !frame1.generateCHK || keyCount >= minKeyCount )
+            if( frame1.isGeneratingCHK() == false || keyCount >= minKeyCount )
             {
                 if( DEBUG ) System.out.println("FILEDN: Starting upload of index file to board '"+board.toString()+"'; uploadFiles = " + keyCount);
                 uploadIndexFile();

@@ -52,8 +52,6 @@ import frost.identities.*;
 // after removing a board, let actual board selected (currently if you delete another than selected board
 //   the tofTree is updates)
 
-// save tables/boards all ... minutes
-
 public class frame1 extends JFrame implements ClipboardOwner
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
@@ -65,14 +63,12 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private static frame1 instance = null; // set in constructor
     boolean started = false;
-//    public static boolean updateDownloads = true;
 
     private boolean freenetIsOnline = false;
     private boolean freenetIsTransient = false;
 
     public static String fileSeparator = System.getProperty("file.separator");
-    // "keypool.dir" is the corresponding key in frostSettings,
-    // set in defaults of SettingsClass.java
+    // "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
     // this is the new way to access this value :)
     public static String keypool = null;
     public static String newMessageHeader = new String("");
@@ -82,7 +78,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     private String lastSelectedMessage;
 
     public static FrostMessageObject selectedMessage = new FrostMessageObject();
-    public static boolean generateCHK = false;
+    private static boolean isGeneratingCHK = false;
 
     public static volatile Object threadCountLock = new Object();
 
@@ -238,6 +234,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
         return runningBoardUpdateThreads;
     }
+
+    public static boolean isGeneratingCHK() { return isGeneratingCHK; }
+    public static void setGeneratingCHK( boolean val ) { isGeneratingCHK = val; }
 
     public boolean isFreenetOnline() { return freenetIsOnline; }
     public void setFreenetIsOnline( boolean val ) { freenetIsOnline = val; }
@@ -2359,6 +2358,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**timer Action Listener (automatic download)*/
     private void timer_actionPerformed()
     {
+        // this method is called by a timer each second, so this counter counts seconds
         counter++;
 
         // Display welcome message if no boards are available
@@ -2381,13 +2381,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             getDownloadTable().removeFinishedDownloads();
         }
-/*
-        if( updateDownloads || counter%10 == 0 )
-        {
-            getDownloadTable().update( frostSettings );
-            updateDownloads = false;
-        }
-*/
+
         updateDownloadCountLabel();
 
         //////////////////////////////////////////////////
@@ -2442,7 +2436,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         //////////////////////////////////////////////////
         // Generate CHK's for upload table entries
         //////////////////////////////////////////////////
-        if( !generateCHK )
+        if( isGeneratingCHK() == false ) // do not start another generate if there is already 1 running
         {
             UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
             if( ulModel.getRowCount() > 0 )
@@ -2452,6 +2446,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
                     if( ulItem.getKey() == null )
                     {
+                        setGeneratingCHK( true );
                         ulItem.setKey( "Working..." );
                         ulModel.updateRow( ulItem );
                         insertThread newInsert = new insertThread(ulItem, frostSettings, false);
@@ -3652,6 +3647,5 @@ public class frame1 extends JFrame implements ClipboardOwner
         getSelectedNode().incNewMessageCount();
         updateTofTree( getSelectedNode() );
     }
-
 }
 
