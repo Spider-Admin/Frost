@@ -127,6 +127,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     JButton tofUpdateButton = null;
 
     JButton uploadAddFilesButton = null;
+    JButton downloadShowHealingInfo = null;
     JButton searchButton = null;
 
     // labels that are updated later
@@ -313,7 +314,14 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void configureCheckBox(JCheckBox checkBox, String toolTipText, String rolloverIcon,
                                     String selectedIcon, String rolloverSelectedIcon)
     {
-        checkBox.setToolTipText(LangRes.getString(toolTipText));
+        String text = null;
+        try {
+            text = LangRes.getString(toolTipText);
+        } catch(MissingResourceException ex)
+        {
+            text = toolTipText; // better than nothing ;)
+        }
+        checkBox.setToolTipText(text);
         checkBox.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
         checkBox.setSelectedIcon(new ImageIcon(frame1.class.getResource(selectedIcon)));
         checkBox.setRolloverSelectedIcon(new ImageIcon(frame1.class.getResource(rolloverSelectedIcon)));
@@ -327,7 +335,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 // configure buttons
         this.pasteBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/paste.gif")));
         this.configBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/configure.gif")));
-
+        
+        JButton knownBoardsButton = new JButton(new ImageIcon(frame1.class.getResource("/data/knownboards.gif")));
         JButton newBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newboard.gif")));
         JButton newFolderButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newfolder.gif")));
         removeBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
@@ -344,8 +353,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif");
         configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif");
         configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif");
+        // FIXME: add a rollover icon for knownboards.gif !!!
+        configureButton(knownBoardsButton, "Display list of known boards", "/data/knownboards.gif");
 
 // add action listener
+        knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               tofDisplayKnownBoardsMenuItem_actionPerformed(e);
+           } });
         newBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 getTofTree().createNewBoard(frame1.getInstance());
@@ -412,9 +427,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         buttonPanel.addSeparator();
         buttonPanel.add( Box.createRigidArea( blankSpace ) );
         buttonPanel.add(boardInfoButton);
-        // The System Tray Icon does only work on Windows machines.
-        // It uses the Visual Basic files (compiled ones) in the data directory.
-        if ((System.getProperty("os.name").startsWith("Windows")))
+        buttonPanel.add(knownBoardsButton);
+        if( JSysTrayIcon.getInstance() != null )
         {
             buttonPanel.add( Box.createRigidArea( blankSpace ) );
             buttonPanel.addSeparator();
@@ -715,7 +729,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 // create objects for buttons toolbar panel
         this.downloadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/down.gif")), true);
         configureCheckBox(downloadActivateCheckBox,
-                     "Activate downloading",
+                     "Activate downloading (if paused)",
                      "/data/down_rollover.gif",
                      "/data/down_selected.gif",
                      "/data/down_selected_rollover.gif");
@@ -725,6 +739,12 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 downloadTextField_actionPerformed(e);
         } });
+        // FIXME: add a rollover icon for healinginfo.gif !!!
+        this.downloadShowHealingInfo = new JButton(new ImageIcon(frame1.class.getResource("/data/healinginfo.gif")));
+        configureButton(this.downloadShowHealingInfo, "Show healing information", "/data/healinginfo.gif");
+        // disabled until implemented ;)
+        this.downloadShowHealingInfo.setEnabled(false);
+ 
 // create buttons toolbar panel
         JPanel downloadTopPanel = new JPanel();
         BoxLayout dummyLayout = new BoxLayout( downloadTopPanel, BoxLayout.X_AXIS );
@@ -733,6 +753,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         downloadTopPanel.add(downloadTextField);//Download/Quickload
         downloadTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         downloadTopPanel.add(downloadActivateCheckBox);//Download/Start transfer
+        downloadTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        downloadTopPanel.add(this.downloadShowHealingInfo);
         downloadTopPanel.add( Box.createRigidArea(new Dimension(80,0)));
         downloadTopPanel.add( Box.createHorizontalGlue() );
 
