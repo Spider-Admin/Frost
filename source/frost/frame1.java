@@ -34,6 +34,7 @@ import javax.swing.tree.*;
 import com.l2fprod.gui.plaf.skin.*;
 
 import frost.components.BrowserFrame;
+import frost.components.translate.*;
 import frost.crypt.crypt;
 import frost.ext.*;
 import frost.gui.*;
@@ -444,7 +445,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				new ImageIcon(frame1.class.getResource("/data/tray.gif")));
 		configureButton(
 			newBoardButton,
-			"New board",
+			LangRes.getString("New board"),
 			"/data/newboard_rollover.gif");
 		configureButton(
 			newFolderButton,
@@ -1765,6 +1766,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		JMenu pluginMenu = new JMenu("Plugin");
 		JMenuItem pluginBrowserMenuItem =
 			new JMenuItem("EFB (Experimental Freenet Browser)");
+		JMenuItem pluginTranslateMenuItem =
+			new JMenuItem("Translate Frost into another language");
 
 		JMenu helpMenu = new JMenu(LangRes.getString("Help"));
 		JMenuItem helpHelpMenuItem = new JMenuItem(LangRes.getString("Help"));
@@ -1819,6 +1822,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				browser.show();
 			}
 		});
+		pluginTranslateMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				TranslateFrame translate = new TranslateFrame(true);
+				translate.show();
+			}
+		});
 		helpHelpMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				HelpFrame dlg = new HelpFrame(getInstance());
@@ -1848,6 +1857,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		optionsMenu.add(optionsPreferencesMenuItem);
 		// Plugin Menu
 		pluginMenu.add(pluginBrowserMenuItem);
+		pluginMenu.add(pluginTranslateMenuItem);
 		// Help Menu
 		helpMenu.add(helpHelpMenuItem);
 		helpMenu.add(helpAboutMenuItem);
