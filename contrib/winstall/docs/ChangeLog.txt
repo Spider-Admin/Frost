@@ -1,3 +1,7 @@
+2001-11-24  Benoit Laniel <nels@pgroupe.net>
+
+    * Removed a bug in the java.exe path detection
+
 2001-11-18  Benoit Laniel <nels@pgroupe.net>
 
     * Modified default selection icons

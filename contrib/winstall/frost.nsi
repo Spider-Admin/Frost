@@ -111,7 +111,7 @@ NoFreenet:
 
 End:
   # Yes, then get the java path ;)
-  ReadINIStr $3 "$0\FLaunch.ini" "Freenet Launcher" "java"
+  ReadINIStr $3 "$0\FLaunch.ini" "Freenet Launcher" "javaexec"
   ReadINIStr $1 "$0\FLaunch.ini" "Freenet Launcher" "javaw"
 FunctionEnd
 
