@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.threads;
+package frost.search;
 
 import java.io.File;
 import java.util.*;
@@ -25,7 +25,6 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import frost.*;
-import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
 import frost.identities.FrostIdentities;
 import frost.messages.SharedFileObject;

@@ -17,8 +17,9 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost.gui.model;
+package frost.search;
 
+import frost.gui.model.SortedTableModel;
 import frost.gui.translation.*;
 
 

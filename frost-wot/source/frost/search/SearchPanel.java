@@ -1,7 +1,7 @@
 /*
  * Created on Oct 8, 2003
  */
-package frost;
+package frost.search;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -12,13 +12,12 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import frost.SettingsClass;
 import frost.gui.*;
 import frost.gui.components.JSkinnablePopupMenu;
-import frost.gui.model.SearchTableModel;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
 import frost.identities.*;
-import frost.threads.SearchThread;
 import frost.threads.maintenance.Truster;
 
 /**

@@ -42,6 +42,7 @@ import frost.gui.objects.*;
 import frost.gui.translation.*;
 import frost.identities.Identity;
 import frost.messages.*;
+import frost.search.*;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
 
