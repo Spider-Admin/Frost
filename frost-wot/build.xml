@@ -8,9 +8,9 @@
 <project name="frost" default="main" basedir=".">
 
   <!-- Prefix of the name of the distribution files to create -->
-  <property name="distZipNamePrefix" value="frost-wot_"/>
-  <property name="distJarNamePrefix" value="frost_"/>
-  <property name="distSourceZipNamePrefix" value="frost-source_"/>
+  <property name="distZipNamePrefix" value="frost-"/>
+  <property name="distJarNamePrefix" value="frost-"/>
+  <property name="distSourceZipNamePrefix" value="frost-source-"/>
 
   <!-- Give user a chance to override without editing this file
        (and without typing -D each time it compiles it) -->
@@ -92,7 +92,7 @@ Build log  : ${logfilename}</echo>
           depends="startmsg"
           description="--> compiles the source code">
     <mkdir dir="${build.dir}"/>
-    
+
     <delete quiet="true" dir="${build.classes}"/>
  	<delete quiet="true" dir="${build.classes.feclib}"/>
     <delete quiet="true" dir="${build.classes.genchklib}"/>
@@ -126,7 +126,7 @@ Build log  : ${logfilename}</echo>
 <!--            <pathelement location="${src.dir.genchklib}"/>-->
         </classpath>
     </javac>
-    
+
     <javac srcdir="${src.dir}"
            destdir="${build.classes}"
            debug="${debug}"
@@ -136,13 +136,13 @@ Build log  : ${logfilename}</echo>
            encoding="UTF8">
       <classpath refid="classpath" />
     </javac>
-        
+
     <javac srcdir="${src.dir.skinlfFixLib}"
            destdir="${build.classes.skinlfFixLib}"
            debug="${debug}"
            deprecation="${deprecation}"
            optimize="${optimize}">
-          <classpath> 
+          <classpath>
               <pathelement location="${build.classes}"/>
               <pathelement location="${src.dir.skinlfFixLib}"/>
               <pathelement location="${lib.dir}/skinlf.jar"/>
@@ -163,8 +163,8 @@ Build log  : ${logfilename}</echo>
 
 	<!--  Modify the version and copy the manifest -->
 	<filter token="VERSION_FROM_ANT" value="${NOW.DATE} dev"/>
-	<copy 
-		file="${src.dir}/frost.manifest" 
+	<copy
+		file="${src.dir}/frost.manifest"
 		todir="${dist.dir}"
 		filtering="true"/>
 
@@ -195,7 +195,7 @@ Build log  : ${logfilename}</echo>
         <include name="**/*.class"/>
       </fileset>
     </jar>
-    
+
     <delete quiet="true" file="${dist.dir}/lib/skinlfFix.jar"/>
     <mkdir dir="${dist.dir}/lib"/>
     <jar jarfile="${dist.dir}/lib/skinlfFix.jar">
@@ -213,7 +213,7 @@ Build log  : ${logfilename}</echo>
           depends="jar"
           description="--> prepares the distribution.">
 
-    <mkdir dir="${release.dir}"/>
+
 
 	<!-- Prepares the zip -->
 
@@ -230,30 +230,44 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${dist.dir}/downloads"/>
     <mkdir dir="${dist.dir}/exec"/>
 
-	<delete quiet="true" file="${release.dir}/${distZipNamePrefix}${NOW.DATE}.zip"/>
+
+   </target>
+
+   <target name ="release"
+   	depends = "main"
+	description="--> prepares .jar and source.zip for release">
+
+	<echo>Preparing files for release..
+	</echo>
+
+    <mkdir dir="${release.dir}"/>
+    <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${NOW.DATE}.zip"/>
     <zip basedir="${dist.dir}" destfile="${release.dir}/${distZipNamePrefix}${NOW.DATE}.zip"/>
-    
-    <!-- Prepares the jar -->
-    
+
     <copy todir="${release.dir}">
       <fileset dir="${dist.dir}">
       	<filename name="${jarName}"/>
       </fileset>
     </copy>
-    
+
     <delete quiet="true" file="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
     <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
-    
+
     <!-- Prepares the source zip -->
-    
+
     <delete quiet="true" file="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip"/>
     <zip destfile="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip" filesonly="true">
-    	<zipfileset dir="." 
-    				prefix = "frost-wot" 
-    				excludes=".* **/CVS/*" 
-    				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/* 
-    						  ${lib.dir}/**/* ${specs.dir}/**/*"/>
-    </zip>    
+    	<zipfileset dir="."
+    				prefix = "frost-wot"
+    				excludes=".* **/CVS/*"
+    				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/*
+    						  ${lib.dir}/**/* ${specs.dir}/**/*
+						  build.xml  HISTORY.txt TODO"/>
+    </zip>
+
+    <echo>
+
+Source, zip and jar ready for release at ${release.dir}</echo>
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
