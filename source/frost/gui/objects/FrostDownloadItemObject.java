@@ -204,6 +204,9 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         return fileAge;
     }
+    public void setDate(String date) {
+    	fileAge=date;
+    }
     public String getKey()
     {
         return key;

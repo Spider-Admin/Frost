@@ -415,6 +415,7 @@ public class Index
 		if (dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED &&
 			dlItem.getSHA1()!=null && dlItem.getSHA1().compareTo(key.getSHA1()) == 0) {
 				dlItem.setKey(key.getKey());
+				dlItem.setDate(key.getDate());
 				break;
 		}
 		

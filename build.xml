@@ -8,7 +8,7 @@
 <project name="frost" default="main" basedir=".">
 
   <!-- Name of the distribution zip file to create -->
-  <property name="zipName" value="frost-wot-051203.zip"/>
+  <property name="zipName" value="frost-wot-082903.zip"/>
 
   <!-- Give user a chance to override without editing this file
        (and without typing -D each time it compiles it) -->
