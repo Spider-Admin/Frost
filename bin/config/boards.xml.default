@@ -31,23 +31,6 @@
             <publicKey><![CDATA[SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM]]></publicKey>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry isexpanded="false" isfolder="true">
-            <name>content</name>
-            <FrostBoardTreeEntry>
-                <name><![CDATA[mp3]]></name>
-            </FrostBoardTreeEntry>
-            <FrostBoardTreeEntry>
-                <name><![CDATA[ogg]]></name>
-            </FrostBoardTreeEntry>
-            <FrostBoardTreeEntry>
-                <name><![CDATA[movies]]></name>
-            </FrostBoardTreeEntry>
-            <FrostBoardTreeEntry>
-                <name><![CDATA[torrents]]></name>
-                <publicKey><![CDATA[SSK@4iSezwz~x2cUP-4DR5V-hwgT5kwPAgM]]></publicKey>
-                <privateKey><![CDATA[SSK@AKZf7Le0IWEf0NMP~O1PXDEEYl-V]]></privateKey>
-            </FrostBoardTreeEntry>
-        </FrostBoardTreeEntry>
-        <FrostBoardTreeEntry isexpanded="false" isfolder="true">
             <name>discussion</name>
             <FrostBoardTreeEntry>
                 <name><![CDATA[politics]]></name>
