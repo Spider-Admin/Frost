@@ -11,7 +11,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import frost.SettingsClass;
-import frost.util.gui.JClipboardTextField;
+import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
 /**
@@ -25,22 +25,22 @@ class SearchPanel extends JPanel {
 		
 	private JLabel archiveExtensionLabel = new JLabel();
 		
-	private JClipboardTextField archiveExtensionTextField;
+	private JTextField archiveExtensionTextField = new JTextField();
 	private JLabel audioExtensionLabel = new JLabel();
-	private JClipboardTextField audioExtensionTextField;
+	private JTextField audioExtensionTextField = new JTextField();
 	private JLabel documentExtensionLabel = new JLabel();
-	private JClipboardTextField documentExtensionTextField;
+	private JTextField documentExtensionTextField = new JTextField();
 	private JLabel executableExtensionLabel = new JLabel();
-	private JClipboardTextField executableExtensionTextField;
+	private JTextField executableExtensionTextField = new JTextField();
 		
 	private JCheckBox hideAnonFilesCheckBox = new JCheckBox();
 	private JCheckBox hideBadFilesCheckBox = new JCheckBox();
 	private JLabel imageExtensionLabel = new JLabel();
-	private JClipboardTextField imageExtensionTextField;
+	private JTextField imageExtensionTextField = new JTextField();
 	private JLabel maxSearchResultsLabel = new JLabel();
-	private JClipboardTextField maxSearchResultsTextField;
+	private JTextField maxSearchResultsTextField = new JTextField(8);
 	private JLabel videoExtensionLabel = new JLabel();
-	private JClipboardTextField videoExtensionTextField;
+	private JTextField videoExtensionTextField = new JTextField();
 	
 	/**
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
@@ -64,14 +64,14 @@ class SearchPanel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		archiveExtensionTextField = new JClipboardTextField(language);
-		audioExtensionTextField = new JClipboardTextField(language);
-		documentExtensionTextField = new JClipboardTextField(language);
-		executableExtensionTextField = new JClipboardTextField(language);
+		new TextComponentClipboardMenu(archiveExtensionTextField, language);
+		new TextComponentClipboardMenu(audioExtensionTextField, language);
+		new TextComponentClipboardMenu(documentExtensionTextField, language);
+		new TextComponentClipboardMenu(executableExtensionTextField, language);
 			
-		imageExtensionTextField = new JClipboardTextField(language);
-		maxSearchResultsTextField = new JClipboardTextField(8, language);
-		videoExtensionTextField = new JClipboardTextField(language);
+		new TextComponentClipboardMenu(imageExtensionTextField, language);
+		new TextComponentClipboardMenu(maxSearchResultsTextField, language);
+		new TextComponentClipboardMenu(videoExtensionTextField, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();

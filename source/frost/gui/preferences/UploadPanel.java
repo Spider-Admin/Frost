@@ -43,7 +43,7 @@ class UploadPanel extends JPanel {
 	private JCheckBox automaticIndexingCheckBox = new JCheckBox();
 	private JLabel batchSizeExplanationLabel = new JLabel();
 	private JLabel batchSizeLabel = new JLabel();
-	private JClipboardTextField batchSizeTextField;
+	private JTextField batchSizeTextField = new JTextField(8);
 		
 	private JCheckBox disableRequestsCheckBox = new JCheckBox();
 	private JCheckBox helpFriendsCheckBox = new JCheckBox();
@@ -51,19 +51,19 @@ class UploadPanel extends JPanel {
 		
 	private JLabel htlLabel = new JLabel();
 	
-	private JClipboardTextField htlTextField;
+	private JTextField htlTextField = new JTextField(8);
 	private JLabel indexFileRedundancyExplanationLabel = new JLabel();
 	private JLabel indexFileRedundancyLabel = new JLabel();
-	private JClipboardTextField indexFileRedundancyTextField;
+	private JTextField indexFileRedundancyTextField = new JTextField(8);
 		
 	private Listener listener = new Listener();
 	private JCheckBox shareDownloadsCheckBox = new JCheckBox();
 	private JCheckBox signUploadsCheckBox = new JCheckBox();
 	private JLabel splitfileThreadsExplanationLabel = new JLabel();
 	private JLabel splitfileThreadsLabel = new JLabel();
-	private JClipboardTextField splitfileThreadsTextField;
+	private JTextField splitfileThreadsTextField = new JTextField(8);
 	private JLabel threadsLabel = new JLabel();
-	private JClipboardTextField threadsTextField;
+	private JTextField threadsTextField = new JTextField(8);
 
 	/**
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
@@ -95,11 +95,11 @@ class UploadPanel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		batchSizeTextField = new JClipboardTextField(8, language);
-		htlTextField = new JClipboardTextField(8, language);
-		indexFileRedundancyTextField = new JClipboardTextField(8, language);
-		splitfileThreadsTextField = new JClipboardTextField(8, language);
-		threadsTextField = new JClipboardTextField(8, language);
+		new TextComponentClipboardMenu(batchSizeTextField, language);
+		new TextComponentClipboardMenu(htlTextField, language);
+		new TextComponentClipboardMenu(indexFileRedundancyTextField, language);
+		new TextComponentClipboardMenu(splitfileThreadsTextField, language);
+		new TextComponentClipboardMenu(threadsTextField, language);
 		
 		//Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();

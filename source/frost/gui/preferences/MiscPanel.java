@@ -10,15 +10,14 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.logging.*;
-import java.util.logging.Level;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
-import frost.util.gui.JClipboardTextField;
+import frost.Logging;
+import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.*;
-import frost.util.gui.translation.JTranslatableComboBox;
 
 /**
  * @author $Author$
@@ -57,29 +56,29 @@ class MiscPanel extends JPanel {
 
 	private JCheckBox allowEvilBertCheckBox = new JCheckBox();
 	private JCheckBox altEditCheckBox = new JCheckBox();
-	private JClipboardTextField altEditTextField;
+	private JTextField altEditTextField = new JTextField();
 	private JLabel autoSaveIntervalLabel = new JLabel();
-	private JClipboardTextField autoSaveIntervalTextField;
+	private JTextField autoSaveIntervalTextField = new JTextField(8);
 	private JLabel availableNodesLabel1 = new JLabel();
 	private JLabel availableNodesLabel2 = new JLabel();
-	private JClipboardTextField availableNodesTextField;
+	private JTextField availableNodesTextField = new JTextField();
 	private JCheckBox cleanupCheckBox = new JCheckBox();
 	private JCheckBox enableLoggingCheckBox = new JCheckBox();
 	private JLabel keyDownloadHtlLabel = new JLabel();
-	private JClipboardTextField keyDownloadHtlTextField;
+	private JTextField keyDownloadHtlTextField = new JTextField(8);
 
 	private JLabel keyUploadHtlLabel = new JLabel();
 
-	private JClipboardTextField keyUploadHtlTextField;
+	private JTextField keyUploadHtlTextField = new JTextField(8);
 
 	private Listener listener = new Listener();
 	private JLabel logFileSizeLabel = new JLabel();
-	private JClipboardTextField logFileSizeTextField;
+	private JTextField logFileSizeTextField = new JTextField(8);
 		
 	private JTranslatableComboBox logLevelComboBox = null;
 	private JLabel logLevelLabel = new JLabel();
 	private JLabel maxKeysLabel = new JLabel();
-	private JClipboardTextField maxKeysTextField;
+	private JTextField maxKeysTextField = new JTextField(8);
 	private JCheckBox showSystrayIconCheckBox = new JCheckBox();
 	private JCheckBox splashScreenCheckBox = new JCheckBox();
 
@@ -152,13 +151,13 @@ class MiscPanel extends JPanel {
 		refreshLanguage();
 		
 		// We create the components
-		altEditTextField = new JClipboardTextField(language);
-		autoSaveIntervalTextField = new JClipboardTextField(8, language);
-		availableNodesTextField = new JClipboardTextField(language);
-		keyDownloadHtlTextField = new JClipboardTextField(8, language);
-		keyUploadHtlTextField = new JClipboardTextField(8, language);
-		logFileSizeTextField = new JClipboardTextField(8, language);
-		maxKeysTextField = new JClipboardTextField(8, language);
+		new TextComponentClipboardMenu(altEditTextField, language);
+		new TextComponentClipboardMenu(autoSaveIntervalTextField, language);
+		new TextComponentClipboardMenu(availableNodesTextField, language);
+		new TextComponentClipboardMenu(keyDownloadHtlTextField, language);
+		new TextComponentClipboardMenu(keyUploadHtlTextField, language);
+		new TextComponentClipboardMenu(logFileSizeTextField, language);
+		new TextComponentClipboardMenu(maxKeysTextField, language);
 
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
