@@ -256,7 +256,7 @@ public class FileAccess
         catch( IOException e ) {
             System.err.println(e);
         }
-        return null;
+        return new byte[0];
     }
 
     /**
