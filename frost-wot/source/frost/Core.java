@@ -499,13 +499,15 @@ public class Core {
         		//dumb.  will fix later
         
         		for (int i = 0; i < _batches.length; i++)
-        			myBatches.put(_batches[i], _batches[i]);
+                {
+                    myBatches.put(_batches[i], _batches[i]);
+                }
         
-        		out.println(
+        		getOut().println(
         			"loaded " + _batches.length + " batches of shared files");
         	} catch (Throwable e) {
-        		out.println("couldn't load batches");
-        		e.printStackTrace(out);
+        		getOut().println("couldn't load batches");
+        		e.printStackTrace(getOut());
         	}
     }
     

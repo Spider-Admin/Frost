@@ -142,18 +142,15 @@ public class requestThread extends Thread
             if( success == null )
             {
                 downloadItem.setRetries(downloadItem.getRetries() + 1);
+                tableModel.updateRow(downloadItem);
 
-                Core.getOut().println(
-                    "FILEDN: Download of " + filename + " failed.");
+                Core.getOut().println("FILEDN: Download of " + filename + " failed.");
                 if (inTable == true)
                 {
                     // Upload request to request stack
-                    if (frame1
-                        .frostSettings
-                        .getBoolValue("downloadEnableRequesting")
-                        && downloadItem.getRetries()
-                            >= frame1.frostSettings.getIntValue(
-                                "downloadRequestAfterTries")
+                    if (frame1.frostSettings.getBoolValue("downloadEnableRequesting")
+                        && downloadItem.getRetries() >= 
+                            frame1.frostSettings.getIntValue("downloadRequestAfterTries")
                         && board != null
                         && board.isFolder() == false 
                         && this.owner != null ) // upload requests only if they are NOT manually added 
@@ -162,8 +159,7 @@ public class requestThread extends Thread
                             Core.getOut().println(
                                 "FILEDN: Download failed, uploading request for "
                                     + filename);
-                        downloadItem.setState(
-                            FrostDownloadItemObject.STATE_REQUESTING);
+                        downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTING);
                         tableModel.updateRow(downloadItem);
 
                         // We may not do the request here due to the synchronize
