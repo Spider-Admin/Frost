@@ -27,9 +27,11 @@ import javax.swing.SwingUtilities;
 import frost.*;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
+import frost.identities.FrostIdentities;
 import frost.messages.SharedFileObject;
 
 public class SearchThread extends Thread {
+	private FrostIdentities identities;
 	private static Logger logger = Logger.getLogger(SearchThread.class.getName());
     private String request;
     private String board;
@@ -142,100 +144,101 @@ public class SearchThread extends Thread {
     return accepted;
     }
 
-    /**
-     * Removes unwanted keys from results
-     */
-    private void filterSearchResults() {
-    if (request.indexOf("*age") != -1) {
-        int agePos = request.indexOf("*age");
-        int nextSpacePos = request.indexOf(" ", agePos);
-        if (nextSpacePos == -1)
-        nextSpacePos = request.length();
+	/**
+	 * Removes unwanted keys from results
+	 */
+	private void filterSearchResults() {
+		if (request.indexOf("*age") != -1) {
+			int agePos = request.indexOf("*age");
+			int nextSpacePos = request.indexOf(" ", agePos);
+			if (nextSpacePos == -1)
+				nextSpacePos = request.length();
 
-        int age = 1;
-        try { age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos)); }
-        catch (NumberFormatException e) { 
-        	logger.warning("Did not recognice age, using default 1."); 
-        }
+			int age = 1;
+			try {
+				age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos));
+			} catch (NumberFormatException e) {
+				logger.warning("Did not recognice age, using default 1.");
+			}
 
-        logger.fine("AGE = " + age);
+			logger.fine("AGE = " + age);
 
-        GregorianCalendar today = new GregorianCalendar();
-        today.setTimeZone(TimeZone.getTimeZone("GMT"));
-	
-        for (int i = results.size() - 1; i >= 0; i--) {
-        	SharedFileObject key = (SharedFileObject)results.elementAt(i);
-		GregorianCalendar keyCal=null;
-		if (key.getDate() != null){
-        		keyCal = key.getCal();
+			GregorianCalendar today = new GregorianCalendar();
+			today.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-        		keyCal.add(Calendar.DATE, + (age));
+			for (int i = results.size() - 1; i >= 0; i--) {
+				SharedFileObject key = (SharedFileObject) results.elementAt(i);
+				GregorianCalendar keyCal = null;
+				if (key.getDate() != null) {
+					keyCal = key.getCal();
 
-        		if (keyCal.before(today)) {
-         	   		results.removeElementAt(i);
-         	   		logger.fine("removing because of keyCal");
-        		}
+					keyCal.add(Calendar.DATE, + (age));
+
+					if (keyCal.before(today)) {
+						results.removeElementAt(i);
+						logger.fine("removing because of keyCal");
+					}
+				}
+			}
 		}
-        }
-    }
-    
-    boolean hideAnon = frame1.frostSettings.getBoolValue("hideAnonFiles");
-    boolean hideBad = frame1.frostSettings.getBoolValue("hideBadFiles");
-    
-    //check if file anonymous
-     Iterator it = results.iterator();
-     while (it.hasNext()) {
-     	SharedFileObject key = (SharedFileObject)it.next();
-	if ((key.getOwner() == null || 
-		(key.getOwner()!=null && key.getOwner().compareToIgnoreCase("anonymous")==0)) &&
-		hideAnon) {
-		//	Core.getOut().println("removing anon result");
-		it.remove();
-		continue;
+
+		boolean hideAnon = frame1.frostSettings.getBoolValue("hideAnonFiles");
+		boolean hideBad = frame1.frostSettings.getBoolValue("hideBadFiles");
+
+		//check if file anonymous
+		Iterator it = results.iterator();
+		while (it.hasNext()) {
+			SharedFileObject key = (SharedFileObject) it.next();
+			if ((key.getOwner() == null
+				|| (key.getOwner() != null && key.getOwner().compareToIgnoreCase("anonymous") == 0))
+				&& hideAnon) {
+				//	Core.getOut().println("removing anon result");
+				it.remove();
+				continue;
+			}
+			//check if file from someone bad
+			if (key.getOwner() != null
+				&& identities.getEnemies().Get(key.getOwner()) != null
+				&& hideBad) {
+				//Core.getOut().println("removing bad result");
+				it.remove();
+				continue;
+			}
+		}
+
+		if (request.indexOf("*-") != -1) {
+			Vector removeStrings = new Vector();
+			int notPos = request.indexOf("*-");
+			int nextSpacePos = request.indexOf(" ", notPos);
+			if (nextSpacePos == -1)
+				nextSpacePos = request.length();
+
+			String notString = request.substring(notPos + 2, nextSpacePos);
+			if (notString.indexOf(";") == -1) { // only one notString
+				removeStrings.add(notString);
+			} else { //more notStrings
+				while (notString.indexOf(";") != -1) {
+					removeStrings.add(notString.substring(0, notString.indexOf(";")));
+					if (!notString.endsWith(";"))
+						notString =
+							notString.substring(notString.indexOf(";") + 1, notString.length());
+				}
+				if (notString.length() > 0)
+					removeStrings.add(notString);
+			}
+
+			for (int j = 0; j < removeStrings.size(); j++) {
+				notString = (String) removeStrings.elementAt(j);
+				for (int i = results.size() - 1; i >= 0; i--) {
+					SharedFileObject key = (SharedFileObject) results.elementAt(i);
+					if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase())
+						!= -1) {
+						results.removeElementAt(i);
+					}
+				}
+			}
+		}
 	}
-	//check if file from someone bad
-	if (key.getOwner() != null &&
-	Core.getEnemies().Get(key.getOwner()) != null 
-&&
-			hideBad) {
-		//Core.getOut().println("removing bad result");
-		it.remove();
-		continue;
-	}	
-    }
-
-    if (request.indexOf("*-") != -1) {
-        Vector removeStrings = new Vector();
-        int notPos = request.indexOf("*-");
-        int nextSpacePos = request.indexOf(" ", notPos);
-        if (nextSpacePos == -1)
-        nextSpacePos = request.length();
-
-        String notString = request.substring(notPos + 2, nextSpacePos);
-        if (notString.indexOf(";") == -1) { // only one notString
-        removeStrings.add(notString);
-        }
-        else { //more notStrings
-        while (notString.indexOf(";") != -1) {
-            removeStrings.add(notString.substring(0, notString.indexOf(";")));
-            if (! notString.endsWith(";"))
-            notString = notString.substring(notString.indexOf(";") + 1, notString.length());
-        }
-        if (notString.length() > 0)
-            removeStrings.add(notString);
-        }
-
-        for (int j = 0; j < removeStrings.size(); j++) {
-        notString = (String)removeStrings.elementAt(j);
-        for (int i = results.size() - 1; i >= 0; i--) {
-            SharedFileObject key = (SharedFileObject)results.elementAt(i);
-            if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase()) != -1) {
-            results.removeElementAt(i);
-            }
-        }
-        }
-    }
-    }
     
     /**
      * Filters items by setting of Hide offline, Hide downloaded/downloading.
@@ -377,8 +380,10 @@ public class SearchThread extends Thread {
             Vector newBoards, // a Vector containing all boards to search in
             String newKeypool,
             String newSearchType,
-            SearchPanel newSearchPanel)
+            SearchPanel newSearchPanel,
+            FrostIdentities newIdentities)
     {
+    	identities = newIdentities;
         request = newRequest.toLowerCase();
         if( request.length() == 0 )
         {

@@ -26,6 +26,7 @@ import frost.*;
 import frost.FcpTools.*;
 import frost.crypt.SignMetaData;
 import frost.gui.objects.FrostBoardObject;
+import frost.identities.*;
 import frost.identities.Identity;
 import frost.messages.FrostIndex;
 
@@ -215,7 +216,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             if( signUpload )
             {
                 byte[] zipped = FileAccess.readByteArray(indexFile);
-                SignMetaData md = new SignMetaData(zipped);
+                SignMetaData md = new SignMetaData(zipped, identities.getMyId());
                 metadata = XMLTools.getRawXMLDocument(md);
             }
             
@@ -426,18 +427,18 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							}
 
 							//check if we have the owner already on the lists
-							if (Core.getMyId().getUniqueName().trim().equals(_owner)) {
+							if (identities.getMyId().getUniqueName().trim().equals(_owner)) {
 								logger.info("Received index file from myself");
-								sharer = Core.getMyId();
+								sharer = identities.getMyId();
 							} else {
 								String message = "Received index file from " + _owner;
-								if (Core.getFriends().containsKey(_owner)) {
-									sharer = Core.getFriends().Get(_owner);
+								if (identities.getFriends().containsKey(_owner)) {
+									sharer = identities.getFriends().Get(_owner);
 									logger.info(message + ", a friend");
-								} else if (Core.getNeutral().containsKey(_owner)) {
-									sharer = Core.getNeutral().Get(_owner);
+								} else if (identities.getNeutrals().containsKey(_owner)) {
+									sharer = identities.getNeutrals().Get(_owner);
 									logger.info(message + ", a neutral");
-								} else if (Core.getEnemies().containsKey(_owner)) {
+								} else if (identities.getEnemies().containsKey(_owner)) {
 									if (frame1.frostSettings.getBoolValue("hideBadFiles")) {
 										logger.info("Skipped index file from BAD user " + _owner);
 										target.delete();
@@ -446,7 +447,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 										continue;
 									}
 									//we may chose not to block files from bad people
-									sharer = Core.getEnemies().Get(_owner);
+									sharer = identities.getEnemies().Get(_owner);
 									logger.info(message + ", an enemy");
 								} else {
 									// a new sharer, put to neutral list
@@ -475,7 +476,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						//unzippedTarget.renameTo(target);
 
 						//if the user is not on the GOOD list..
-						if (sharer == null || Core.getFriends().containsKey(sharer.getUniqueName()) == false) {
+						if (sharer == null || identities.getFriends().containsKey(sharer.getUniqueName()) == false) {
 							// add only files from that user     
 							String _sharer = sharer == null ? "Anonymous" : sharer.getUniqueName();
 							logger.info("adding only files from " + _sharer);
@@ -561,46 +562,64 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         //create the identity of the sharer
         sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")),_pubkey);
         //add him to the neutral list
-        Core.getNeutral().Add(sharer);
+		identities.getNeutrals().Add(sharer);
         return sharer;
     }
 
-    /**Constructor*/
-    public UpdateIdThread(FrostBoardObject board, String date)
-    {
-        super(board);
-        this.board = board;
-        this.date = date;
-	currentDate = DateFun.getDate();
-        requestHtl = frame1.frostSettings.getIntValue("keyDownloadHtl");
-        insertHtl = frame1.frostSettings.getIntValue("keyUploadHtl");
-        keypool = frame1.frostSettings.getValue("keypool.dir");
-        maxKeys = frame1.frostSettings.getIntValue("maxKeys");
-	
-	//first load the index with the date we wish to download
-	loadIndex(date);
+	/**Constructor*/
+	public UpdateIdThread(FrostBoardObject board, String date, FrostIdentities newIdentities) {
+		super(board, newIdentities);
+		
+		this.board = board;
+		this.date = date;
+		currentDate = DateFun.getDate();
+		requestHtl = frame1.frostSettings.getIntValue("keyDownloadHtl");
+		insertHtl = frame1.frostSettings.getIntValue("keyUploadHtl");
+		keypool = frame1.frostSettings.getValue("keypool.dir");
+		maxKeys = frame1.frostSettings.getIntValue("maxKeys");
 
-        publicKey = board.getPublicKey();
-        privateKey = board.getPrivateKey();
+		//first load the index with the date we wish to download
+		loadIndex(date);
 
-        if( board.isPublicBoard()==false && publicKey != null )
-        {
-            requestKey = new StringBuffer().append(publicKey).append("/").append(date).append("/").toString();
-        }
-        else
-        {
-            requestKey = new StringBuffer().append("KSK@frost/index/")
-                         .append(board.getBoardFilename())
-                         .append("/")
-                         .append(date)
-                         .append("/").toString();
-        }
+		publicKey = board.getPublicKey();
+		privateKey = board.getPrivateKey();
 
-	//make all inserts today
-        if( board.isPublicBoard()==false && privateKey != null )
-            insertKey = new StringBuffer().append(privateKey).append("/").append(currentDate).append("/").toString();
-        else
-            insertKey = new StringBuffer().append("KSK@frost/index/").append(board.getBoardFilename())
-                        .append("/").append(currentDate).append("/").toString();
-    }
+		if (board.isPublicBoard() == false && publicKey != null) {
+			requestKey =
+				new StringBuffer()
+					.append(publicKey)
+					.append("/")
+					.append(date)
+					.append("/")
+					.toString();
+		} else {
+			requestKey =
+				new StringBuffer()
+					.append("KSK@frost/index/")
+					.append(board.getBoardFilename())
+					.append("/")
+					.append(date)
+					.append("/")
+					.toString();
+		}
+
+		//make all inserts today
+		if (board.isPublicBoard() == false && privateKey != null)
+			insertKey =
+				new StringBuffer()
+					.append(privateKey)
+					.append("/")
+					.append(currentDate)
+					.append("/")
+					.toString();
+		else
+			insertKey =
+				new StringBuffer()
+					.append("KSK@frost/index/")
+					.append(board.getBoardFilename())
+					.append("/")
+					.append(currentDate)
+					.append("/")
+					.toString();
+	}
 }

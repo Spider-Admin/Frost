@@ -33,6 +33,7 @@ import frost.FcpTools.*;
 import frost.crypt.SignMetaData;
 import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.*;
+import frost.identities.FrostIdentities;
 import frost.messages.*;
 
 /**
@@ -244,11 +245,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         
         // now maybe sign the msg before start to upload,
         // we have to sign if the From is our complete unique id set by MessageFrame
-        if( message.getFrom().equals(Core.getMyId().getUniqueName()) //nick same as my identity
-         || message.getFrom().equals(mixed.makeFilename(Core.getMyId().getUniqueName())))  //serialization may have changed it
+        if( message.getFrom().equals(identities.getMyId().getUniqueName()) //nick same as my identity
+         || message.getFrom().equals(mixed.makeFilename(identities.getMyId().getUniqueName())))  //serialization may have changed it
         {
             byte[] zipped = FileAccess.readByteArray(uploadZipFile);
-            SignMetaData md = new SignMetaData(zipped);
+            SignMetaData md = new SignMetaData(zipped, identities.getMyId());
             this.metadata = XMLTools.getRawXMLDocument(md);
         }
 
@@ -477,28 +478,32 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     } // end-of: run()
 
 
-    /**Constructor*/
-    public MessageUploadThread(FrostBoardObject board, MessageObject mo) 
-    {
-        super(board);
-        this.board = board;
-        this.message = mo;
+	/**Constructor*/
+	public MessageUploadThread(
+		FrostBoardObject board,
+		MessageObject mo,
+		FrostIdentities newIdentities) {
+		super(board, newIdentities);
+		this.board = board;
+		this.message = mo;
 
-        // we start to upload now, so set actual time
-        mo.setTime(DateFun.getFullExtendedTime()+"GMT");
-        mo.setDate(DateFun.getDate());
-        
-        this.messageUploadHtl = frame1.frostSettings.getIntValue("tofUploadHtl");
-        this.keypool = frame1.frostSettings.getValue("keypool.dir");
-        this.frameToLock = frame1.getInstance();
-        
-        // this class always creates a new msg file on hd and deletes the file 
-        // after upload was successful, or keeps it for next try
-        String uploadMe = new StringBuffer()
-                           .append(frame1.frostSettings.getValue("unsent.dir"))
-                           .append("unsent")
-                           .append(String.valueOf(System.currentTimeMillis()))
-                           .append(".xml").toString();
-        messageFile = new File(uploadMe);
-    }
+		// we start to upload now, so set actual time
+		mo.setTime(DateFun.getFullExtendedTime() + "GMT");
+		mo.setDate(DateFun.getDate());
+
+		this.messageUploadHtl = frame1.frostSettings.getIntValue("tofUploadHtl");
+		this.keypool = frame1.frostSettings.getValue("keypool.dir");
+		this.frameToLock = frame1.getInstance();
+
+		// this class always creates a new msg file on hd and deletes the file 
+		// after upload was successful, or keeps it for next try
+		String uploadMe =
+			new StringBuffer()
+				.append(frame1.frostSettings.getValue("unsent.dir"))
+				.append("unsent")
+				.append(String.valueOf(System.currentTimeMillis()))
+				.append(".xml")
+				.toString();
+		messageFile = new File(uploadMe);
+	}
 }

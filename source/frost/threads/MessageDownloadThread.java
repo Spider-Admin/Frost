@@ -29,6 +29,7 @@ import frost.*;
 import frost.FcpTools.*;
 import frost.crypt.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.identities.*;
 import frost.identities.Identity;
 import frost.messages.*;
 
@@ -383,20 +384,20 @@ public class MessageDownloadThread
 
                             Identity owner;
                             //check friends
-                            owner = Core.getFriends().Get(_owner);
+                            owner = identities.getFriends().Get(_owner);
                             //if not, check neutral
                             if (owner == null)
-                                owner = Core.getNeutral().Get(_owner);
+                                owner = identities.getNeutrals().Get(_owner);
                             //if not, check enemies
                             if (owner == null)
-                                owner = Core.getEnemies().Get(_owner);
+                                owner = identities.getEnemies().Get(_owner);
                             //if still not, use the parsed id
                             if (owner == null)
                             {
                                 owner = metaData.getPerson();
                                 owner.noFiles = 0;
                                 owner.noMessages = 1;
-                                Core.getNeutral().Add(owner);
+								identities.getNeutrals().Add(owner);
                             }
 
                             //verify! :)
@@ -464,10 +465,10 @@ public class MessageDownloadThread
                             }
 
                             //if it is, we have the user either on the good, bad or neutral lists
-                            if (Core.getFriends().containsKey(_owner))
+                            if (identities.getFriends().containsKey(_owner))
                                 currentMsg.setStatus(
                                     VerifyableMessageObject.VERIFIED);
-                            else if (Core.getEnemies().containsKey(_owner))
+                            else if (identities.getEnemies().containsKey(_owner))
                                 currentMsg.setStatus(
                                     VerifyableMessageObject.FAILED);
                             else
@@ -492,7 +493,7 @@ public class MessageDownloadThread
                             else if (_metaData.getType() == MetaData.ENCRYPT){
                             	//1. check if the message is for myself
                             	if (!_metaData.getPerson().getUniqueName().equals(
-                            					Core.getMyId().getUniqueName())) {
+												identities.getMyId().getUniqueName())) {
                             		logger.fine("encrypted message was for "+
                             				_metaData.getPerson().getUniqueName());
                             		
@@ -503,7 +504,7 @@ public class MessageDownloadThread
                             	
                             	//2. if yes, decrypt
                             	byte []cipherText = FileAccess.readByteArray(testMe);
-                            	byte []plainText = Core.getCrypto().decrypt(cipherText,Core.getMyId().getPrivKey());
+                            	byte []plainText = Core.getCrypto().decrypt(cipherText,identities.getMyId().getPrivKey());
                             	//TODO: continue tommorow
                             }//endif encrypted message
                         }
@@ -587,19 +588,21 @@ public class MessageDownloadThread
         }
     }
 
-    /**Constructor*/ //
-    public MessageDownloadThread(
-        boolean fn,
-        FrostBoardObject boa,
-        int dlHtl,
-        String kpool,
-        String maxmsg)
-    {
-        super(boa);
-        this.flagNew = fn;
-        this.board = boa;
-        this.downloadHtl = dlHtl;
-        this.keypool = kpool;
-        this.maxMessageDownload = Integer.parseInt(maxmsg);
-    }
+	/**Constructor*/ //
+	public MessageDownloadThread(
+		boolean fn,
+		FrostBoardObject boa,
+		int dlHtl,
+		String kpool,
+		String maxmsg,
+		FrostIdentities newIdentities) {
+			
+		super(boa, newIdentities);
+		
+		this.flagNew = fn;
+		this.board = boa;
+		this.downloadHtl = dlHtl;
+		this.keypool = kpool;
+		this.maxMessageDownload = Integer.parseInt(maxmsg);
+	}
 }

@@ -13,6 +13,8 @@ import frost.messages.MessageObject;
  */
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
+	private Core core;
+
 	private static Logger logger = Logger.getLogger(RunningBoardUpdateThreads.class.getName());
 	
     // listeners are notified of each finished thread
@@ -24,8 +26,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     // contains key=board, data=vector of BoardUpdateThread's (multiple of kind MSG_UPLOAD)
     Hashtable runningUploadThreads = null;
 
-    public RunningBoardUpdateThreads()
+    public RunningBoardUpdateThreads(Core newCore)
     {
+    	core = newCore;
+    	
         threadListenersForBoard = new Hashtable();
         threadListenersForAllBoards = new Vector();
 
@@ -33,63 +37,69 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         runningUploadThreads = new Hashtable();
     }
 
-    /**
-     * if you specify a listener and the method returns true (thread is started), the listener
-     * will be notified if THIS thread is finished
-     * before starting a thread you should check if it is'nt updating already.
-     */
-    public boolean startMessageDownloadToday(FrostBoardObject board, SettingsClass config,
-                                             BoardUpdateThreadListener listener)
-    {
-        MessageDownloadThread tofd = new MessageDownloadThread(
-            true,
-            board,
-            config.getIntValue("tofDownloadHtl"),
-            config.getValue("keypool.dir"),
-            config.getValue("maxMessageDownload") );
+	/**
+	 * if you specify a listener and the method returns true (thread is started), the listener
+	 * will be notified if THIS thread is finished
+	 * before starting a thread you should check if it is'nt updating already.
+	 */
+	public boolean startMessageDownloadToday(
+		FrostBoardObject board,
+		SettingsClass config,
+		BoardUpdateThreadListener listener) {
+			
+		MessageDownloadThread tofd =
+			new MessageDownloadThread(
+				true,
+				board,
+				config.getIntValue("tofDownloadHtl"),
+				config.getValue("keypool.dir"),
+				config.getValue("maxMessageDownload"),
+				core.getIdentities());
 
-        // register listener and this class as listener
-        tofd.addBoardUpdateThreadListener( this );
-        if( listener != null )
-        {
-            tofd.addBoardUpdateThreadListener( listener );
-        }
-        // store thread in threads list
-        getVectorFromHashtable( runningDownloadThreads, board ).add(tofd);
+		// register listener and this class as listener
+		tofd.addBoardUpdateThreadListener(this);
+		if (listener != null) {
+			tofd.addBoardUpdateThreadListener(listener);
+		}
+		// store thread in threads list
+		getVectorFromHashtable(runningDownloadThreads, board).add(tofd);
 
-        // start thread
-        tofd.start();
-        return true;
-    }
-    /**
-     * if you specify a listener and the method returns true (thread is started), the listener
-     * will be notified if THIS thread is finished
-    * before starting a thread you should check if it is'nt updating already.
-     */
-    public boolean startMessageDownloadBack(FrostBoardObject board, SettingsClass config,
-                                            BoardUpdateThreadListener listener)
-    {
-        MessageDownloadThread backload = new MessageDownloadThread(
-            false,
-            board,
-            config.getIntValue("tofDownloadHtl"),
-            config.getValue("keypool.dir"),
-            config.getValue("maxMessageDownload") );
+		// start thread
+		tofd.start();
+		return true;
+	}
+	/**
+	 * if you specify a listener and the method returns true (thread is started), the listener
+	 * will be notified if THIS thread is finished
+	* before starting a thread you should check if it is'nt updating already.
+	 */
+	public boolean startMessageDownloadBack(
+		FrostBoardObject board,
+		SettingsClass config,
+		BoardUpdateThreadListener listener) {
+			
+		MessageDownloadThread backload =
+			new MessageDownloadThread(
+				false,
+				board,
+				config.getIntValue("tofDownloadHtl"),
+				config.getValue("keypool.dir"),
+				config.getValue("maxMessageDownload"),
+				core.getIdentities());
 
-        // register listener and this class as listener
-        backload.addBoardUpdateThreadListener( this );
-        if( listener != null )
-        {
-            backload.addBoardUpdateThreadListener( listener );
-        }
-        // store thread in threads list
-        getVectorFromHashtable( runningDownloadThreads, board ).add(backload);
+		// register listener and this class as listener
+		backload.addBoardUpdateThreadListener(this);
+		if (listener != null) {
+			backload.addBoardUpdateThreadListener(listener);
+		}
+		// store thread in threads list
+		getVectorFromHashtable(runningDownloadThreads, board).add(backload);
 
-        // start thread
-        backload.start();
+		// start thread
+		backload.start();
 
-        return true;
-    }
+		return true;
+	}
     /**
      * If you specify a listener and the method returns true (thread is started), the listener
      * will be notified if THIS thread is finished
@@ -131,7 +141,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
    
 	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
 	for (int i =0;i<downloadBack;i++) 
-		threads[i] = new UpdateIdThread(board,DateFun.getDate(i));
+		threads[i] = new UpdateIdThread(board,DateFun.getDate(i), core.getIdentities());
         
 	//NOTE: since we now do deep requests, it takes a lot of time for
 	//all these threads to finish.  So I'll notify the gui that the message downlaod thread is done updating
@@ -165,30 +175,31 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	starter.start();
         return true;
     }
-    /**
-     * if you specify a listener and the method returns true (thread is started), the listener
-     * will be notified if THIS thread is finished
-     */
-    public boolean startMessageUpload(FrostBoardObject board,
-                                      MessageObject mo,
-                                      BoardUpdateThreadListener listener)
-    {
-        MessageUploadThread msgUploadThread = new MessageUploadThread(board, mo);
-        // register listener and this class as listener
-        msgUploadThread.addBoardUpdateThreadListener( this );
-        if( listener != null )
-        {
-            msgUploadThread.addBoardUpdateThreadListener( listener );
-        }
+	/**
+	 * if you specify a listener and the method returns true (thread is started), the listener
+	 * will be notified if THIS thread is finished
+	 */
+	public boolean startMessageUpload(
+		FrostBoardObject board,
+		MessageObject mo,
+		BoardUpdateThreadListener listener) {
+			
+		MessageUploadThread msgUploadThread =
+			new MessageUploadThread(board, mo, core.getIdentities());
+		// register listener and this class as listener
+		msgUploadThread.addBoardUpdateThreadListener(this);
+		if (listener != null) {
+			msgUploadThread.addBoardUpdateThreadListener(listener);
+		}
 
-        // store thread in threads list
-        getVectorFromHashtable( runningUploadThreads, board ).add(msgUploadThread);
+		// store thread in threads list
+		getVectorFromHashtable(runningUploadThreads, board).add(msgUploadThread);
 
-        // start thread
-        msgUploadThread.start();
+		// start thread
+		msgUploadThread.start();
 
-        return true;
-    }
+		return true;
+	}
 
     /**
      * Gets an Vector from a Hashtable with given key. If key is not contained

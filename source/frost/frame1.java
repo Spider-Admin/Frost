@@ -1046,7 +1046,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// enable the machine ;)
 		try {
 			jbInit();
-			runningBoardUpdateThreads = new RunningBoardUpdateThreads();
+			runningBoardUpdateThreads = new RunningBoardUpdateThreads(core);
 			//note: changed this from timertask so that I can give it a name --zab
 			Thread tickerThread = new Thread("tick tack") {
 				public void run() {
@@ -1987,6 +1987,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			searchPanel.setTofTree(getTofTree());
 			searchPanel.setKeypool(keypool);
 			searchPanel.setLanguageResource(languageResource);
+			searchPanel.setIdentities(core.getIdentities());
 			searchPanel.initialize();
 		}
 		return searchPanel;
@@ -1994,7 +1995,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	public SearchTable getSearchTable() {
 		if (searchTable == null) {
 			SearchTableModel searchTableModel = new SearchTableModel(languageResource);
-			searchTable = new SearchTable(searchTableModel);
+			searchTable = new SearchTable(searchTableModel, core.getIdentities());
 			languageResource.addLanguageListener(searchTableModel);
 		}
 		return searchTable;
@@ -2348,7 +2349,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	private void notTrustButton_actionPerformed(ActionEvent e) {
 		if (selectedMessage != null) {
-			if (Core.getFriends().containsKey(selectedMessage.getFrom())) {
+			if (core.getIdentities().getFriends().containsKey(selectedMessage.getFrom())) {
 				if (JOptionPane
 					.showConfirmDialog(
 						getInstance(),
@@ -2420,7 +2421,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					ulItem.setKey("Working...");
 					ulModel.updateRow(ulItem);
 					insertThread newInsert =
-						new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_SHA1);
+						new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_SHA1, core.getIdentities().getMyId());
 					newInsert.start();
 					break; //start only one thread/second
 				}
@@ -2674,7 +2675,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		String status = selectedMessage.getStatus();
 
 		if (status.indexOf(VerifyableMessageObject.PENDING) > -1) {
-			Identity owner = Core.getNeutral().Get(selectedMessage.getFrom());
+			Identity owner = core.getIdentities().getNeutrals().Get(selectedMessage.getFrom());
 			if (owner == null) {
 				logger.warning("message was CHECK but not found in Neutral list");
 				return;
@@ -2682,7 +2683,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 		if (status.indexOf(VerifyableMessageObject.FAILED) > -1) {
-			Identity owner = Core.getEnemies().Get(selectedMessage.getFrom());
+			Identity owner = core.getIdentities().getEnemies().Get(selectedMessage.getFrom());
 			if (owner == null) {
 				logger.warning("message was BAD but not found in BAD list");
 				return;
@@ -2691,14 +2692,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 		if (status.indexOf(VerifyableMessageObject.VERIFIED) > -1) {
-			Identity owner = Core.getFriends().Get(selectedMessage.getFrom());
+			Identity owner = core.getIdentities().getFriends().Get(selectedMessage.getFrom());
 			if (owner == null) {
 				logger.warning("message was GOOD but not found in GOOD list");
 				return;
 			}
 		}
 
-		Truster truster = new Truster(Core.getInstance(), what, selectedMessage.getFrom());
+		Truster truster = new Truster(core.getIdentities(), what, selectedMessage.getFrom());
 		truster.start();
 	}
 	public void setTofTextAreaText(String txt) {
@@ -2833,14 +2834,16 @@ public class frame1 extends JFrame implements ClipboardOwner {
 									ulItem,
 									frostSettings,
 									insertThread.MODE_GENERATE_CHK,
-									FrostUploadItemObject.STATE_REQUESTED);
+									FrostUploadItemObject.STATE_REQUESTED, 
+									core.getIdentities().getMyId());
 						} else {
 							// next state will be IDLE (=default)
 							newInsert =
 								new insertThread(
 									ulItem,
 									frostSettings,
-									insertThread.MODE_GENERATE_CHK);
+									insertThread.MODE_GENERATE_CHK,
+									core.getIdentities().getMyId());
 						}
 						ulItem.setState(FrostUploadItemObject.STATE_ENCODING);
 						ulModel.updateRow(ulItem);
@@ -2871,7 +2874,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 						ulItem.setState(FrostUploadItemObject.STATE_UPLOADING);
 						ulModel.updateRow(ulItem);
 						insertThread newInsert =
-							new insertThread(ulItem, frostSettings, insertThread.MODE_UPLOAD);
+							new insertThread(ulItem, frostSettings, insertThread.MODE_UPLOAD, core.getIdentities().getMyId());
 						newInsert.start();
 						break; // start only 1 thread per loop (=second)
 					}
@@ -2948,7 +2951,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					altEdit.start(); 
 				} else {*/
 		MessageFrame newMessageFrame =
-			new MessageFrame(frostSettings, this, languageResource.getResourceBundle());
+			new MessageFrame(
+				frostSettings,
+				this,
+				languageResource.getResourceBundle(),
+				core.getIdentities().getMyId());
 		newMessageFrame.composeNewMessage(
 			getSelectedNode(),
 			frostSettings.getValue("userName"),
@@ -2968,7 +2975,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					altEdit.start();
 				} else {*/
 		MessageFrame newMessageFrame =
-			new MessageFrame(frostSettings, this, languageResource.getResourceBundle());
+			new MessageFrame(
+				frostSettings,
+				this,
+				languageResource.getResourceBundle(),
+				core.getIdentities().getMyId());
 		newMessageFrame.composeReply(
 			getSelectedNode(),
 			frostSettings.getValue("userName"),
@@ -3114,7 +3125,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	private void trustButton_actionPerformed(ActionEvent e) {
 		if (selectedMessage != null) {
-			if (Core.getEnemies().containsKey(selectedMessage.getFrom())) {
+			if (core.getIdentities().getEnemies().containsKey(selectedMessage.getFrom())) {
 				if (JOptionPane
 					.showConfirmDialog(
 						getInstance(),

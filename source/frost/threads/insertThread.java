@@ -27,11 +27,14 @@ import frost.*;
 import frost.FcpTools.*;
 import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
+import frost.identities.LocalIdentity;
 import frost.messages.*;
 
 public class insertThread extends Thread
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    private LocalIdentity myId;
+
+	static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
     
 	private static Logger logger = Logger.getLogger(insertThread.class.getName());
     
@@ -147,7 +150,7 @@ public class insertThread extends Thread
                 	
                 	current.setKey(uploadItem.getKey());
                     if (sign)
-                        current.setOwner(Core.getMyId().getUniqueName());
+                        current.setOwner(myId.getUniqueName());
                     current.setFilename(uploadItem.getFileName());
                     current.setSHA1(uploadItem.getSHA1());
                     current.setBatch(uploadItem.getBatch());
@@ -191,7 +194,7 @@ public class insertThread extends Thread
                 newKey.setSize(file.length());
                 newKey.setBatch(batchId);
                 if (sign)
-                    newKey.setOwner(Core.getMyId().getUniqueName());
+                    newKey.setOwner(myId.getUniqueName());
 
                 //update the gui
                 uploadItem.setSHA1(SHA1);
@@ -275,14 +278,16 @@ public class insertThread extends Thread
     }
 
     /**Constructor*/
-    public insertThread(FrostUploadItemObject ulItem, SettingsClass config, int mode)
+    public insertThread(FrostUploadItemObject ulItem, SettingsClass config, int mode, LocalIdentity newMyId)
     {
-        this(ulItem, config, mode, -1);
+        this(ulItem, config, mode, -1, newMyId);
     }
-    public insertThread(FrostUploadItemObject ulItem, SettingsClass config, int mode, int nextState)
+    public insertThread(FrostUploadItemObject ulItem, SettingsClass config, int mode, int nextState, LocalIdentity newMyId)
     {
         this.destination = ulItem.getFileName();
         this.file = new File(ulItem.getFilePath());
+        
+        myId = newMyId;
 
         this.uploadItem = ulItem;
 

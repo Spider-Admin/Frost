@@ -35,10 +35,13 @@ import frost.FcpTools.FcpInsert;
 import frost.gui.components.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.identities.LocalIdentity;
 import frost.messages.*;
 
 public class MessageFrame extends JFrame
 {
+	private LocalIdentity myId;
+
 	private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 	
     static java.util.ResourceBundle LangRes;
@@ -126,7 +129,7 @@ public class MessageFrame extends JFrame
 			messageTextArea.setWrapStyleWord(true);
 			
 			// check if last msg was signed and set it to remembered state
-			if (from.equals(Core.getMyId().getUniqueName())) {
+			if (from.equals(myId.getUniqueName())) {
 				fromTextField.setEditable(false);
 				sign.setSelected(true);
 			}
@@ -310,7 +313,7 @@ public class MessageFrame extends JFrame
         mo.setContent(text);
         if( sign.isSelected() )
         {
-            mo.setPublicKey(Core.getMyId().getKey());
+            mo.setPublicKey(myId.getKey());
         }
         // MessageUploadThread will set date + time !
         
@@ -329,7 +332,7 @@ public class MessageFrame extends JFrame
 			if( addAttachedFilesToUploadTable.isSelected() )
 			{
 						sfo.setOwner(sign.isSelected() ?
-											mixed.makeFilename(Core.getMyId().getUniqueName()) :
+											mixed.makeFilename(myId.getUniqueName()) :
 											"Anonymous");
 			}
 			
@@ -367,7 +370,7 @@ public class MessageFrame extends JFrame
 	private void sign_ActionPerformed(ActionEvent e) {
 		String sender;
 		if (sign.isSelected()) {
-			sender = Core.getMyId().getUniqueName();
+			sender = myId.getUniqueName();
 			fromTextField.setEditable(false);
 		} else {
 			sender = "Anonymous";
@@ -644,10 +647,12 @@ public class MessageFrame extends JFrame
 	public MessageFrame(
 		SettingsClass newSettings,
 		Frame newParentFrame,
-		ResourceBundle newLangRes) {
+		ResourceBundle newLangRes,
+		LocalIdentity newMyId) {
 		super();
 		LangRes = newLangRes;
 		parentFrame = newParentFrame;
+		myId = newMyId;
 		state = false;
 		frostSettings = newSettings;
 		lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");

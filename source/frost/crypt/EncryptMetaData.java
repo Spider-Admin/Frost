@@ -7,6 +7,7 @@
 package frost.crypt;
 
 import frost.*;
+import frost.identities.*;
 import frost.identities.Identity;
 
 
@@ -85,10 +86,10 @@ public class EncryptMetaData extends MetaData {
 	 * @param recipient the recepient
 	 * @param sign whether to sign the message
 	 */
-	public EncryptMetaData(Identity recipient, boolean sign){
+	public EncryptMetaData(Identity recipient, boolean sign, LocalIdentity myId){
 		person = recipient;
 		if (sign)
-			sender = Core.getMyId();
+			sender = myId;
 	}
 
 }
