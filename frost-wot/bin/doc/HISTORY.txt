@@ -12,8 +12,8 @@ Added: del key deletes selected message
 Changed: messages are signed by default.
 Changed: now the sizes of the new message window, the known boards window and the boards info window are
          relative to the size of the main window.
-Changed: copy to clipboard submenu on the uploads table improved. Now it supports multiple selections and has
-		 an additional option (copy extended info).
+Changed: copy to clipboard submenus on both the uploads and downloads tables improved. Now they support multiple 
+		 selections and have an additional option (copy extended info).
 
 Bugfix: obsolete strings in the language resources were causing an exception when trying to open 
         the translation frame.
