@@ -40,6 +40,7 @@ import frost.ext.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
+import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.*;
 import frost.messages.*;
 import frost.threads.*;
@@ -59,14 +60,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 * Getter for the language resource bundle
 	 */
 	public ResourceBundle getLanguageResource() {
-		return LangRes;
+		return languageResource.getResourceBundle();
 	}
 
 	/**
 	 * Setter for thelanguage resource bundle
 	 */
-	public void setLanguageResource(ResourceBundle LangRes) {
-		frame1.LangRes = LangRes;
+	public void setLanguageResource(ResourceBundle newLanguageResource) {
+		languageResource.setLanguageResource(newLanguageResource);
 		translateMenuEntries();
 		translateTabbedPane();
 		translateButtons();
@@ -82,41 +83,41 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		buildPopupMenus();
 	}
 	private void translateTabbedPane() {
-		tabbedPane.setTitleAt(0, LangRes.getString("News"));
-		tabbedPane.setTitleAt(1, LangRes.getString("Search"));
-		tabbedPane.setTitleAt(2, LangRes.getString("Downloads"));
-		tabbedPane.setTitleAt(3, LangRes.getString("Uploads"));
+		tabbedPane.setTitleAt(0, languageResource.getString("News"));
+		tabbedPane.setTitleAt(1, languageResource.getString("Search"));
+		tabbedPane.setTitleAt(2, languageResource.getString("Downloads"));
+		tabbedPane.setTitleAt(3, languageResource.getString("Uploads"));
 	}
 	private void translateButtons() {
-		newBoardButton.setToolTipText(LangRes.getString("New board"));
+		newBoardButton.setToolTipText(languageResource.getString("New board"));
 		searchDownloadButton.setToolTipText(
-			LangRes.getString("Download selected keys"));
+			languageResource.getString("Download selected keys"));
 		systemTrayButton.setToolTipText(
-			LangRes.getString("Minimize to System Tray"));
+			languageResource.getString("Minimize to System Tray"));
 		knownBoardsButton.setToolTipText(
-			LangRes.getString("Display list of known boards"));
+			languageResource.getString("Display list of known boards"));
 		boardInfoButton.setToolTipText(
-			LangRes.getString("Board Information Window"));
-		newFolderButton.setToolTipText(LangRes.getString("New folder"));
-		pasteBoardButton.setToolTipText(LangRes.getString("Paste board"));
-		configBoardButton.setToolTipText(LangRes.getString("Configure board"));
-		removeBoardButton.setToolTipText(LangRes.getString("Remove board"));
-		cutBoardButton.setToolTipText(LangRes.getString("Cut board"));
-		renameBoardButton.setToolTipText(LangRes.getString("Rename folder"));
-		tofNewMessageButton.setToolTipText(LangRes.getString("New message"));
-		tofReplyButton.setToolTipText(LangRes.getString("Reply"));
+			languageResource.getString("Board Information Window"));
+		newFolderButton.setToolTipText(languageResource.getString("New folder"));
+		pasteBoardButton.setToolTipText(languageResource.getString("Paste board"));
+		configBoardButton.setToolTipText(languageResource.getString("Configure board"));
+		removeBoardButton.setToolTipText(languageResource.getString("Remove board"));
+		cutBoardButton.setToolTipText(languageResource.getString("Cut board"));
+		renameBoardButton.setToolTipText(languageResource.getString("Rename folder"));
+		tofNewMessageButton.setToolTipText(languageResource.getString("New message"));
+		tofReplyButton.setToolTipText(languageResource.getString("Reply"));
 		downloadAttachmentsButton.setToolTipText(
-			LangRes.getString("Download attachment(s)"));
-		downloadBoardsButton.setToolTipText(LangRes.getString("Add Board(s)"));
-		saveMessageButton.setToolTipText(LangRes.getString("Save message"));
-		trustButton.setToolTipText(LangRes.getString("Trust"));
-		notTrustButton.setToolTipText(LangRes.getString("Do not trust"));
-		checkTrustButton.setToolTipText(LangRes.getString("Set to CHECK"));
-		tofUpdateButton.setToolTipText(LangRes.getString("Update"));
-		uploadAddFilesButton.setToolTipText(LangRes.getString("Browse")+"...");
+			languageResource.getString("Download attachment(s)"));
+		downloadBoardsButton.setToolTipText(languageResource.getString("Add Board(s)"));
+		saveMessageButton.setToolTipText(languageResource.getString("Save message"));
+		trustButton.setToolTipText(languageResource.getString("Trust"));
+		notTrustButton.setToolTipText(languageResource.getString("Do not trust"));
+		checkTrustButton.setToolTipText(languageResource.getString("Set to CHECK"));
+		tofUpdateButton.setToolTipText(languageResource.getString("Update"));
+		uploadAddFilesButton.setToolTipText(languageResource.getString("Browse")+"...");
 		downloadShowHealingInfo.setToolTipText(
-			LangRes.getString("Show healing information"));
-		searchButton.setToolTipText(LangRes.getString("Search"));
+			languageResource.getString("Show healing information"));
+		searchButton.setToolTipText(languageResource.getString("Search"));
 	}
 
 	/**
@@ -180,8 +181,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// all other stuff is saved in class Saver
 	}
 
-	static java.util.ResourceBundle LangRes =
-		java.util.ResourceBundle.getBundle("res.LangRes");
+	private UpdatingLanguageResource languageResource =
+		new UpdatingLanguageResource(ResourceBundle.getBundle("res.LangRes"));
 
 	private Splashscreen splashscreen;
 
@@ -415,10 +416,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		splashscreen.setProgress(10);
 
 		if (!locale.equals("default"))
-			LangRes =
-				java.util.ResourceBundle.getBundle(
-					"res.LangRes",
-					new Locale(locale));
+			languageResource.setLanguageResource(
+				ResourceBundle.getBundle("res.LangRes", new Locale(locale)));
 		instance = this;
 		frostSettings = new SettingsClass();
 		keypool = frostSettings.getValue("keypool.dir");
@@ -460,10 +459,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		} catch (Throwable t) {
 			t.printStackTrace(Core.getOut());
 		}
-		
+
 		//Close the splashscreen
 		splashscreen.closeMe();
-		
+
 	}
 
 	/**
@@ -478,7 +477,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		String rolloverIcon) {
 		String text = null;
 		try {
-			text = LangRes.getString(toolTipText);
+			text = languageResource.getString(toolTipText);
 		} catch (MissingResourceException ex) {
 			text = toolTipText; // better than nothing ;)
 		}
@@ -506,7 +505,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		String rolloverSelectedIcon) {
 		String text = null;
 		try {
-			text = LangRes.getString(toolTipText);
+			text = languageResource.getString(toolTipText);
 		} catch (MissingResourceException ex) {
 			text = toolTipText; // better than nothing ;)
 		}
@@ -558,43 +557,43 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				new ImageIcon(frame1.class.getResource("/data/tray.gif")));
 		configureButton(
 			newBoardButton,
-			LangRes.getString("New board"),
+			languageResource.getString("New board"),
 			"/data/newboard_rollover.gif");
 		configureButton(
 			newFolderButton,
-			LangRes.getString("New folder"),
+			languageResource.getString("New folder"),
 			"/data/newfolder_rollover.gif");
 		configureButton(
 			removeBoardButton,
-			LangRes.getString("Remove board"),
+			languageResource.getString("Remove board"),
 			"/data/remove_rollover.gif");
 		configureButton(
 			renameBoardButton,
-			LangRes.getString("Rename folder"),
+			languageResource.getString("Rename folder"),
 			"/data/rename_rollover.gif");
 		configureButton(
 			configBoardButton,
-			LangRes.getString("Configure board"),
+			languageResource.getString("Configure board"),
 			"/data/configure_rollover.gif");
 		configureButton(
 			cutBoardButton,
-			LangRes.getString("Cut board"),
+			languageResource.getString("Cut board"),
 			"/data/cut_rollover.gif");
 		configureButton(
 			pasteBoardButton,
-			LangRes.getString("Paste board"),
+			languageResource.getString("Paste board"),
 			"/data/paste_rollover.gif");
 		configureButton(
 			boardInfoButton,
-			LangRes.getString("Board Information Window"),
+			languageResource.getString("Board Information Window"),
 			"/data/info_rollover.gif");
 		configureButton(
 			systemTrayButton,
-			LangRes.getString("Minimize to System Tray"),
+			languageResource.getString("Minimize to System Tray"),
 			"/data/tray_rollover.gif");
 		configureButton(
 			knownBoardsButton,
-			LangRes.getString("Display list of known boards"),
+			languageResource.getString("Display list of known boards"),
 			"/data/knownboards_rollover.gif");
 
 		// add action listener
@@ -701,7 +700,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	private JPanel buildStatusPanel() {
-		statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
+		statusLabel = new JLabel(languageResource.getString("Frost by Jantho"));
 		statusMessageLabel = new JLabel();
 
 		newMessage[0] =
@@ -720,10 +719,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private JPanel buildTofMainPanel() {
 		this.tabbedPane = new JTabbedPane();
 		//add a tab for buddies perhaps?
-		tabbedPane.add(LangRes.getString("News"), buildMessagePane());
-		tabbedPane.add(LangRes.getString("Search"), buildSearchPane());
-		tabbedPane.add(LangRes.getString("Downloads"), buildDownloadPane());
-		tabbedPane.add(LangRes.getString("Uploads"), buildUploadPane());
+		tabbedPane.add(languageResource.getString("News"), buildMessagePane());
+		tabbedPane.add(languageResource.getString("Search"), buildSearchPane());
+		tabbedPane.add(languageResource.getString("Downloads"), buildDownloadPane());
+		tabbedPane.add(languageResource.getString("Uploads"), buildUploadPane());
 
 		updateOptionsAffectedComponents();
 
@@ -803,36 +802,36 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		configureButton(
 			tofNewMessageButton,
-			LangRes.getString("New message"),
+			languageResource.getString("New message"),
 			"/data/newmessage_rollover.gif");
 		configureButton(
 			tofUpdateButton,
-			LangRes.getString("Update"),
+			languageResource.getString("Update"),
 			"/data/update_rollover.gif");
 		configureButton(
 			tofReplyButton,
-			LangRes.getString("Reply"),
+			languageResource.getString("Reply"),
 			"/data/reply_rollover.gif");
 		configureButton(
 			downloadAttachmentsButton,
-			LangRes.getString("Download attachment(s)"),
+			languageResource.getString("Download attachment(s)"),
 			"/data/attachment_rollover.gif");
 		configureButton(
 			downloadBoardsButton,
-			LangRes.getString("Add Board(s)"),
+			languageResource.getString("Add Board(s)"),
 			"/data/attachmentBoard_rollover.gif");
 		configureButton(
 			saveMessageButton,
-			LangRes.getString("Save message"),
+			languageResource.getString("Save message"),
 			"/data/save_rollover.gif");
 		configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
 		configureButton(
 			notTrustButton,
-			LangRes.getString("Do not trust"),
+			languageResource.getString("Do not trust"),
 			"/data/nottrust_rollover.gif");
 		configureButton(
 			checkTrustButton,
-			LangRes.getString("Set to CHECK"),
+			languageResource.getString("Set to CHECK"),
 			"/data/check_rollover.gif");
 
 		// add action listener to buttons
@@ -874,7 +873,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					getInstance(),
 					getTofTextAreaText(),
 					frostSettings.getValue("lastUsedDirectory"),
-					LangRes.getString("Save message to disk"));
+					languageResource.getString("Save message to disk"));
 			}
 		});
 		trustButton.addActionListener(new java.awt.event.ActionListener() {
@@ -1006,13 +1005,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		boardSplitPane.setDividerSize(0);
 		boardSplitPane.setDividerLocation(1.0);
 		setTofTextAreaText(
-			LangRes.getString("Select a message to view its content."));
+			languageResource.getString("Select a message to view its content."));
 	}
 
 	private JPanel buildSearchPane() {
 		// create objects for button toolbar
 		this.searchAllBoardsCheckBox =
-			new JCheckBox(LangRes.getString("all boards"), true);
+			new JCheckBox(languageResource.getString("all boards"), true);
 		searchDownloadButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/save.gif")));
@@ -1034,11 +1033,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// configure buttons
 		configureButton(
 			searchButton,
-			LangRes.getString("Search"),
+			languageResource.getString("Search"),
 			"/data/search_rollover.gif");
 		configureButton(
 			searchDownloadButton,
-			LangRes.getString("Download selected keys"),
+			languageResource.getString("Download selected keys"),
 			"/data/save_rollover.gif");
 		// build button toolbar panel
 		JPanel searchTopPanel = new JPanel();
@@ -1060,7 +1059,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		searchTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 		searchTopPanel.add(Box.createHorizontalGlue());
 
-		searchResultsCountPrefix = "   " + LangRes.getString("Results") + ": ";
+		searchResultsCountPrefix = "   " + languageResource.getString("Results") + ": ";
 		JLabel dummyLabel = new JLabel(searchResultsCountPrefix + "00000");
 		dummyLabel.doLayout();
 		Dimension labelSize = dummyLabel.getPreferredSize();
@@ -1125,7 +1124,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					frame1.class.getResource("/data/healinginfo.gif")));
 		configureButton(
 			this.downloadShowHealingInfo,
-			LangRes.getString("Show healing information"),
+			languageResource.getString("Show healing information"),
 			"/data/healinginfo_rollover.gif");
 		// disabled until implemented ;)
 		this.downloadShowHealingInfo.setEnabled(false);
@@ -1145,7 +1144,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 		downloadTopPanel.add(Box.createHorizontalGlue());
 
-		String downloadCountPrefix = LangRes.getString("Waiting");
+		String downloadCountPrefix = languageResource.getString("Waiting");
 		JLabel dummyLabel = new JLabel(downloadCountPrefix + " : 00000");
 		dummyLabel.doLayout();
 		Dimension labelSize = dummyLabel.getPreferredSize();
@@ -1379,16 +1378,16 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private void buildPopupMenuSearch() {
 		// create objects
 		searchPopupDownloadSelectedKeys =
-			new JMenuItem(LangRes.getString("Download selected keys"));
+			new JMenuItem(languageResource.getString("Download selected keys"));
 		searchPopupDownloadAllKeys =
-			new JMenuItem(LangRes.getString("Download all keys"));
+			new JMenuItem(languageResource.getString("Download all keys"));
 		//		searchPopupCopyAttachment =
 		//			new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
 		searchPopupSetGood =
-			new JMenuItem(LangRes.getString("help user (sets to GOOD)"));
+			new JMenuItem(languageResource.getString("help user (sets to GOOD)"));
 		searchPopupSetBad =
-			new JMenuItem(LangRes.getString("block user (sets to BAD)"));
-		searchPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+			new JMenuItem(languageResource.getString("block user (sets to BAD)"));
+		searchPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
 		// add action listener
 		searchPopupDownloadSelectedKeys
 			.addActionListener(new ActionListener() {
@@ -1464,31 +1463,31 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private void buildPopupMenuUpload() {
 		// create objects
 		uploadPopupRemoveSelectedFiles =
-			new JMenuItem(LangRes.getString("Remove selected files"));
+			new JMenuItem(languageResource.getString("Remove selected files"));
 		uploadPopupRemoveAllFiles =
-			new JMenuItem(LangRes.getString("Remove all files"));
+			new JMenuItem(languageResource.getString("Remove all files"));
 		uploadPopupReloadSelectedFiles =
-			new JMenuItem(LangRes.getString("Reload selected files"));
+			new JMenuItem(languageResource.getString("Reload selected files"));
 		uploadPopupReloadAllFiles =
-			new JMenuItem(LangRes.getString("Reload all files"));
+			new JMenuItem(languageResource.getString("Reload all files"));
 		uploadPopupSetPrefixForSelectedFiles =
-			new JMenuItem(LangRes.getString("Set prefix for selected files"));
+			new JMenuItem(languageResource.getString("Set prefix for selected files"));
 		uploadPopupSetPrefixForAllFiles =
-			new JMenuItem(LangRes.getString("Set prefix for all files"));
+			new JMenuItem(languageResource.getString("Set prefix for all files"));
 		uploadPopupRestoreDefaultFilenamesForSelectedFiles =
 			new JMenuItem(
-				LangRes.getString(
+				languageResource.getString(
 					"Restore default filenames for selected files"));
 		uploadPopupRestoreDefaultFilenamesForAllFiles =
 			new JMenuItem(
-				LangRes.getString("Restore default filenames for all files"));
+				languageResource.getString("Restore default filenames for all files"));
 		uploadPopupChangeDestinationBoard =
-			new JMenu(LangRes.getString("Change destination board"));
+			new JMenu(languageResource.getString("Change destination board"));
 		//	uploadPopupAddFilesToBoard =
 		//		new JMenuItem(LangRes.getString("Add files to board"));
 		uploadPopupGenerateChkForSelectedFiles =
 			new JMenuItem("Start encoding of selected files");
-		uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+		uploadPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
 
 		uploadPopupCopyToClipboard = new JMenu("Copy to clipboard...");
 		uploadPopupCopyChkKeyToClipboard = new JMenuItem("CHK key");
@@ -1668,9 +1667,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		downloadPopupRestartSelectedDownloads =
 			new JMenuItem("Restart selected downloads");
 		downloadPopupRemoveSelectedDownloads =
-			new JMenuItem(LangRes.getString("Remove selected downloads"));
+			new JMenuItem(languageResource.getString("Remove selected downloads"));
 		downloadPopupRemoveAllDownloads =
-			new JMenuItem(LangRes.getString("Remove all downloads"));
+			new JMenuItem(languageResource.getString("Remove all downloads"));
 		//        downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
 		downloadPopupRemoveFinished =
 			new JMenuItem("Remove finished downloads");
@@ -1688,7 +1687,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			new JMenuItem("Invert enabled state for selected downloads");
 
 		// TODO: implement cancel of downloading
-		downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+		downloadPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
 
 		downloadPopupCopyToClipboard = new JMenu("Copy to clipboard...");
 		downloadPopupCopyChkKeyToClipboard = new JMenuItem("CHK key");
@@ -1813,14 +1812,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private void buildPopupMenuTofText() {
 		// create objects
 		tofTextPopupSaveMessage =
-			new JMenuItem(LangRes.getString("Save message to disk"));
+			new JMenuItem(languageResource.getString("Save message to disk"));
 		tofTextPopupSaveAttachments =
-			new JMenuItem(LangRes.getString("Download attachment(s)"));
+			new JMenuItem(languageResource.getString("Download attachment(s)"));
 		tofTextPopupSaveAttachment =
 			new JMenuItem("Download selected attachment");
 		tofTextPopupSaveBoards = new JMenuItem("Add board(s)");
 		tofTextPopupSaveBoard = new JMenuItem("Add selected board");
-		tofTextPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+		tofTextPopupCancel = new JMenuItem(languageResource.getString("Cancel"));
 		// add action listener
 		tofTextPopupSaveMessage.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1828,7 +1827,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					getInstance(),
 					getTofTextAreaText(),
 					frostSettings.getValue("lastUsedDirectory"),
-					LangRes.getString("Save message to disk"));
+					languageResource.getString("Save message to disk"));
 			}
 		});
 		tofTextPopupSaveAttachments.addActionListener(new ActionListener() {
@@ -1870,59 +1869,59 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		JMenuBar menuBar = new JMenuBar();
 
 		//File Menu
-		JMenu fileMenu = new JMenu(LangRes.getString("File"));
-		JMenuItem fileExitMenuItem = new JMenuItem(LangRes.getString("Exit"));
+		JMenu fileMenu = new JMenu(languageResource.getString("File"));
+		JMenuItem fileExitMenuItem = new JMenuItem(languageResource.getString("Exit"));
 
 		//Messages (tof) Menu
-		JMenu tofMenu = new JMenu(LangRes.getString("News"));
+		JMenu tofMenu = new JMenu(languageResource.getString("News"));
 		JMenuItem tofConfigureBoardMenuItem =
-			new JMenuItem(LangRes.getString("Configure selected board"));
+			new JMenuItem(languageResource.getString("Configure selected board"));
 		tofConfigureBoardMenuItem.setIcon(
 			getScaledImage("/data/configure.gif"));
 
 		JMenuItem tofDisplayBoardInfoMenuItem =
 			new JMenuItem(
-				LangRes.getString("Display board information window"));
+				languageResource.getString("Display board information window"));
 		tofDisplayBoardInfoMenuItem.setIcon(getScaledImage("/data/info.gif"));
 
 		this.tofAutomaticUpdateMenuItem =
 			new JCheckBoxMenuItem(
-				LangRes.getString("Automatic message update"),
+		languageResource.getString("Automatic message update"),
 				true);
 		JMenuItem tofIncreaseFontSizeMenuItem =
-			new JMenuItem(LangRes.getString("Increase Font Size"));
+			new JMenuItem(languageResource.getString("Increase Font Size"));
 		JMenuItem tofDecreaseFontSizeMenuItem =
-			new JMenuItem(LangRes.getString("Decrease Font Size"));
+			new JMenuItem(languageResource.getString("Decrease Font Size"));
 		JMenuItem tofDisplayKnownBoards =
-			new JMenuItem(LangRes.getString("Display known boards"));
+			new JMenuItem(languageResource.getString("Display known boards"));
 		tofDisplayKnownBoards.setIcon(getScaledImage("/data/knownboards.gif"));
 
 		//Options Menu
-		JMenu optionsMenu = new JMenu(LangRes.getString("Options"));
+		JMenu optionsMenu = new JMenu(languageResource.getString("Options"));
 		JMenuItem optionsPreferencesMenuItem =
-			new JMenuItem(LangRes.getString("Preferences"));
+			new JMenuItem(languageResource.getString("Preferences"));
 
 		//Plugin Menu
 		JMenu pluginMenu = new JMenu("Plugins");
 		JMenuItem pluginBrowserMenuItem =
-			new JMenuItem(LangRes.getString("Experimental Freenet Browser"));
+			new JMenuItem(languageResource.getString("Experimental Freenet Browser"));
 		JMenuItem pluginTranslateMenuItem =
-			new JMenuItem(LangRes.getString("Translate Frost into another language"));
+			new JMenuItem(languageResource.getString("Translate Frost into another language"));
 
 		//Language Menu
-		JMenu languageMenu = new JMenu(LangRes.getString("Language"));
-		JMenuItem languageDutchMenuItem = new JMenuItem(LangRes.getString("Dutch"));
-		JMenuItem languageEnglishMenuItem = new JMenuItem(LangRes.getString("English"));
-		JMenuItem languageFrenchMenuItem = new JMenuItem(LangRes.getString("French"));
-		JMenuItem languageGermanMenuItem = new JMenuItem(LangRes.getString("German"));
-		JMenuItem languageItalianMenuItem = new JMenuItem(LangRes.getString("Italian"));
-		JMenuItem languageJapaneseMenuItem = new JMenuItem(LangRes.getString("Japanese"));
-		JMenuItem languageSpanishMenuItem = new JMenuItem(LangRes.getString("Spanish"));
+		JMenu languageMenu = new JMenu(languageResource.getString("Language"));
+		JMenuItem languageDutchMenuItem = new JMenuItem(languageResource.getString("Dutch"));
+		JMenuItem languageEnglishMenuItem = new JMenuItem(languageResource.getString("English"));
+		JMenuItem languageFrenchMenuItem = new JMenuItem(languageResource.getString("French"));
+		JMenuItem languageGermanMenuItem = new JMenuItem(languageResource.getString("German"));
+		JMenuItem languageItalianMenuItem = new JMenuItem(languageResource.getString("Italian"));
+		JMenuItem languageJapaneseMenuItem = new JMenuItem(languageResource.getString("Japanese"));
+		JMenuItem languageSpanishMenuItem = new JMenuItem(languageResource.getString("Spanish"));
 		
 		//Help Menu
-		JMenu helpMenu = new JMenu(LangRes.getString("Help"));
-		JMenuItem helpHelpMenuItem = new JMenuItem(LangRes.getString("Help"));
-		JMenuItem helpAboutMenuItem = new JMenuItem(LangRes.getString("About"));
+		JMenu helpMenu = new JMenu(languageResource.getString("Help"));
+		JMenuItem helpHelpMenuItem = new JMenuItem(languageResource.getString("Help"));
+		JMenuItem helpAboutMenuItem = new JMenuItem(languageResource.getString("About"));
 		
 		// add action listener
 		fileExitMenuItem.addActionListener(new ActionListener() {
@@ -2781,7 +2780,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			== 0) {
 			attachmentSplitPane.setDividerSize(0);
 			attachmentSplitPane.setDividerLocation(1.0);
-			setTofTextAreaText(LangRes.getString("Welcome message"));
+			setTofTextAreaText(languageResource.getString("Welcome message"));
 		}
 
 		//////////////////////////////////////////////////
@@ -2834,25 +2833,25 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		/////////////////////////////////////////////////
 		String newText =
 			new StringBuffer()
-				.append(LangRes.getString("Up") + ": ")
+				.append(languageResource.getString("Up") + ": ")
 				.append(activeUploadThreads)
-				.append("   " + LangRes.getString("Down") + ": ")
+				.append("   " + languageResource.getString("Down") + ": ")
 				.append(activeDownloadThreads)
-				.append("   " + LangRes.getString("TOFUP") + ": ")
+				.append("   " + languageResource.getString("TOFUP") + ": ")
 				.append(getRunningBoardUpdateThreads().getUploadingBoardCount())
 				.append("B / ")
 				.append(
 					getRunningBoardUpdateThreads()
 						.getRunningUploadThreadCount())
 				.append("T")
-				.append("   " + LangRes.getString("TOFDO") + ": ")
+				.append("   " + languageResource.getString("TOFDO") + ": ")
 				.append(getRunningBoardUpdateThreads().getUpdatingBoardCount())
 				.append("B / ")
 				.append(
 					getRunningBoardUpdateThreads()
 						.getRunningDownloadThreadCount())
 				.append("T")
-				.append("   " + LangRes.getString("Selected board") + ": ")
+				.append("   " + languageResource.getString("Selected board") + ": ")
 				.append(getSelectedNode().toString())
 				.toString();
 		statusLabel.setText(newText);
@@ -3179,11 +3178,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				}
 				JOptionPane.showMessageDialog(
 					this,
-					LangRes.getString(
+					languageResource.getString(
 						"Invalid key.  Key must begin with one of")
 						+ ": "
 						+ keylist,
-					LangRes.getString("Invalid key"),
+					languageResource.getString("Invalid key"),
 					JOptionPane.ERROR_MESSAGE);
 			}
 		}
@@ -3242,7 +3241,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					"No subject",
 		// subject
 		"", // content empty for new msg 
-	frostSettings, this, LangRes);
+	frostSettings, this, languageResource.getResourceBundle());
 		//}
 	}
 
@@ -3265,7 +3264,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				getTofTextAreaText(),
 				frostSettings,
 				this,
-				LangRes);
+				languageResource.getResourceBundle());
 		//		}
 	}
 
@@ -3359,7 +3358,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**Options | Preferences action performed*/
 	private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
 		saveSettings();
-		OptionsFrame optionsDlg = new OptionsFrame(this, LangRes);
+		OptionsFrame optionsDlg = new OptionsFrame(this, languageResource.getResourceBundle());
 		boolean okPressed = optionsDlg.runDialog();
 		if (okPressed) {
 			// read new settings
@@ -3590,7 +3589,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 		String s =
 			new StringBuffer()
-				.append(LangRes.getString("Waiting"))
+				.append(languageResource.getString("Waiting"))
 				.append(" : ")
 				.append(waitingItems)
 				.toString();
@@ -3667,30 +3666,30 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		if (frostSettings.getBoolValue("disableDownloads") == false) {
 			// search + downloads enabled
 			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(LangRes.getString("Search")),
+				tabbedPane.indexOfTab(languageResource.getString("Search")),
 				true);
 			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(LangRes.getString("Downloads")),
+				tabbedPane.indexOfTab(languageResource.getString("Downloads")),
 				true);
 		} else {
 			// search + downloads disabled
 			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(LangRes.getString("Search")),
+				tabbedPane.indexOfTab(languageResource.getString("Search")),
 				false);
 			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(LangRes.getString("Downloads")),
+				tabbedPane.indexOfTab(languageResource.getString("Downloads")),
 				false);
 		}
 
 		if (frostSettings.getBoolValue("disableRequests") == false) {
 			// uploads enabled
 			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(LangRes.getString("Uploads")),
+				tabbedPane.indexOfTab(languageResource.getString("Uploads")),
 				true);
 		} else {
 			// uploads disabled
 			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(LangRes.getString("Uploads")),
+				tabbedPane.indexOfTab(languageResource.getString("Uploads")),
 				false);
 		}
 	}
@@ -3742,11 +3741,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 		JMenuItem tofTreePopupConfigureBoard =
-			new JMenuItem(LangRes.getString("Configure selected board"));
+			new JMenuItem(languageResource.getString("Configure selected board"));
 		tofTreePopupConfigureBoard.setIcon(
 			getScaledImage("/data/configure.gif"));
 		JMenuItem tofTreePopupCancel =
-			new JMenuItem(LangRes.getString("Cancel"));
+			new JMenuItem(languageResource.getString("Cancel"));
 		// add action listeners
 		tofTreePopupAddNode.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
