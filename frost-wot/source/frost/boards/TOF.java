@@ -30,9 +30,13 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.messages.VerifyableMessageObject;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class TOF
 {
-//    private static Hashtable messages = null;
+	// private static Hashtable messages = null;
     private static UpdateTofFilesThread updateThread = null;
     private static UpdateTofFilesThread nextUpdateThread = null;
     
@@ -127,7 +131,12 @@ public class TOF
         new Thread( resetter ).start();
     }
     
-    // called by non-swing thread
+    /**
+     * called by non-swing thread
+     * @param newMsgFile
+     * @param board
+     * @param markNew
+     */
     public static void addNewMessageToTable(File newMsgFile, final Board board, boolean markNew)
     {
         JTable table = MainFrame.getInstance().getMessageTable();
@@ -206,6 +215,9 @@ public class TOF
         nextUpdateThread.start();
     }
 
+    /**
+     * 
+     */
     static class UpdateTofFilesThread extends Thread
     {
         Board board;
@@ -216,6 +228,12 @@ public class TOF
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
 
+        /**
+         * @param board
+         * @param keypool
+         * @param daysToRead
+         * @param table
+         */
         public UpdateTofFilesThread(Board board, String keypool, int daysToRead, JTable table)
         {
             this.board = board;
@@ -225,20 +243,33 @@ public class TOF
             this.tableModel = (SortedTableModel)table.getModel();
         }
 
+        /**
+         * 
+         */
         public synchronized void cancel()
         {
             isCancelled = true;
         }
+        
+        /**
+         * @return
+         */
         public synchronized boolean isCancel()
         {
             return isCancelled;
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Object#toString()
+         */
         public String toString()
         {
             return board.getName();
         }
 
+        /* (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
         public void run()
         {
             while( updateThread != null )
@@ -472,46 +503,69 @@ public class TOF
 		return false;
 	}
 
+    /**
+     * 
+     */
     public static void initialSearchNewMessages()
     {
         new SearchAllNewMessages().start();
     }
 
+    /**
+     * 
+     */
     private static class SearchAllNewMessages extends Thread
     {
+        /* (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
         public void run()
         {
-            JTree tree = MainFrame.getInstance().getTofTree();
-            DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
+        	TofTreeModel model = MainFrame.getInstance().getTofTreeModel();
             Enumeration e = ((DefaultMutableTreeNode)model.getRoot()).depthFirstEnumeration();
             String keypool = MainFrame.keypool;
             while( e.hasMoreElements() )
             {
                 Board board = (Board)e.nextElement();
-                searchNewMessages(tree, board);
+                searchNewMessages(board);
             }
         }
     }
 
+    /**
+     * @param board
+     */
     public static void initialSearchNewMessages(Board board)
     {
         new SearchNewMessages( board ).start();
     }
 
+    /**
+     * 
+     */
     private static class SearchNewMessages extends Thread
     {
-        Board board;
+        private Board board;
+        /**
+         * @param b
+         */
         public SearchNewMessages(Board b)
         {
             board = b;
         }
+        /* (non-Javadoc)
+         * @see java.lang.Runnable#run()
+         */
         public void run()
         {
-            searchNewMessages( MainFrame.getInstance().getTofTree(), board );
+            searchNewMessages(board);
         }
     }
 
-    private static void searchNewMessages(JTree tree, final Board board)
+    /**
+     * @param board
+     */
+    private static void searchNewMessages(final Board board)
     {
         String keypool = MainFrame.keypool;
         int daysToRead = board.getMaxMessageDisplay();
