@@ -31,6 +31,7 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.gui.NewBoardDialog;
 import frost.gui.objects.Board;
+import frost.messaging.MessageHashes;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
@@ -557,6 +558,7 @@ public class TofTree extends JDragTree implements Savable {
 	private Board clipboard = null;
 	
 	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
+	private MessageHashes messageHashes;
 
     /**
 	 * @param root
@@ -618,6 +620,7 @@ public class TofTree extends JDragTree implements Savable {
 		
 		// enable the machine ;)
 		runningBoardUpdateThreads = new RunningBoardUpdateThreads(mainFrame, core.getIdentities(), settings);
+		runningBoardUpdateThreads.setMessageHashes(messageHashes);
 	}
 
    	/**
@@ -1096,5 +1099,12 @@ public class TofTree extends JDragTree implements Savable {
 	}
 	protected JButton getPasteBoardButton() {
 		return pasteBoardButton;
+	}
+
+	/**
+	 * @param messageHashes
+	 */
+	public void setMessageHashes(MessageHashes messageHashes) {
+		this.messageHashes = messageHashes;		
 	}
 }

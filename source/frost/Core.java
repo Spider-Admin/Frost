@@ -40,6 +40,7 @@ import frost.gui.Splashscreen;
 import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
+import frost.messaging.MessagingManager;
 import frost.storage.*;
 import frost.threads.*;
 import frost.threads.maintenance.*;
@@ -63,7 +64,6 @@ public class Core implements Savable {
 	private static Locale locale = null;
 	
 	private static Set nodes = new HashSet(); //list of available nodes
-	private static Set messageSet = new HashSet(); // set of message digests
 	private static List knownBoards = new ArrayList(); //list of known boards
 	private static NotifyByEmailThread emailNotifier = null;
 	private Language language = null;
@@ -83,6 +83,7 @@ public class Core implements Savable {
 	private SearchManager searchManager;
 	private DownloadManager downloadManager;
 	private UploadManager uploadManager;
+	private MessagingManager messagingManager;
 	
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	
@@ -181,40 +182,6 @@ public class Core implements Savable {
 	}
 	
 	
-    /**
-     * 
-     */
-    private void loadHashes()
-    {
-        File hashes = new File("hashes");
-        if (hashes.exists())
-        	try{
-        		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(hashes));
-        		messageSet = (HashSet)ois.readObject();
-        		logger.info("loaded "+messageSet.size() +" message hashes");	
-        		ois.close();
-        	} catch(Throwable t){
-				logger.log(Level.SEVERE, "Exception thrown in loadHashes()", t);
-        	}
-    }
-    
-	/**
-	 * @return
-	 */
-	private boolean saveHashes() {
-		try {
-			synchronized (getMessageSet()) {
-				File hashes = new File("hashes");
-				ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(hashes));
-				oos.writeObject(Core.getMessageSet());
-				return true;
-			}
-		} catch (Throwable t) {
-			logger.log(Level.SEVERE, "Exception thrown in saveHashes()", t);
-		}
-		return false;
-	}
-    
     /**
      * 
      */
@@ -562,6 +529,7 @@ public class Core implements Savable {
 
 		//Main frame		
 		mainFrame = new MainFrame(frostSettings);
+		getMessagingManager().initialize();
 		getBoardsManager().initialize();
 		getDownloadManager().initialize();
 		getUploadManager().initialize();
@@ -578,7 +546,6 @@ public class Core implements Savable {
 		//load vital data
 		loadBatches();
 		loadKnownBoards();
-		loadHashes();
 
 		// Start tofTree
 		if (isFreenetOnline()) {
@@ -650,11 +617,22 @@ public class Core implements Savable {
 	/**
 	 * 
 	 */
+	private MessagingManager getMessagingManager() {
+		if (messagingManager == null) {
+			messagingManager = new MessagingManager(frostSettings);
+		}
+		return messagingManager;
+	}
+	
+	/**
+	 * 
+	 */
 	private BoardsManager getBoardsManager() {
 		if (boardsManager == null) {
 			boardsManager = new BoardsManager(frostSettings);
 			boardsManager.setMainFrame(mainFrame);
 			boardsManager.setCore(this);
+			boardsManager.setMessageHashes(getMessagingManager().getMessageHashes());
 		}
 		return boardsManager;
 	}
@@ -705,11 +683,13 @@ public class Core implements Savable {
 		Saver saver = new Saver(frostSettings, parentFrame);
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
+		saver.addAutoSavable(getMessagingManager().getMessageHashes());
 		saver.addAutoSavable(getBoardsManager().getTofTree());
 		saver.addAutoSavable(getDownloadManager().getModel());
 		saver.addAutoSavable(getUploadManager().getModel());
 		saver.addExitSavable(this);
 		saver.addExitSavable(getIdentities());
+		saver.addAutoSavable(getMessagingManager().getMessageHashes());
 		saver.addExitSavable(getBoardsManager().getTofTree());
 		saver.addExitSavable(getDownloadManager().getModel());
 		saver.addExitSavable(getUploadManager().getModel());
@@ -718,13 +698,6 @@ public class Core implements Savable {
 		// We initialize the task that helps requests of friends
 		if (frostSettings.getBoolValue("helpFriends"))
 			timer.schedule(new GetFriendsRequestsThread(identities), 5 * 60 * 1000, 3 * 60 * 60 * 1000);
-	}
-
-	/**
-	 * @return the set of message hashes
-	 */
-	public static Set getMessageSet() {
-		return messageSet;
 	}
 
 	/**
@@ -785,7 +758,6 @@ public class Core implements Savable {
 	public void save() throws StorageException {
 		boolean saveOK;
 		saveOK = saveBatches();
-		saveOK &= saveHashes();
 		saveOK &= saveKnownBoards();
 		if (!saveOK) {
 			throw new StorageException("Error while saving the core items.");
