@@ -414,8 +414,8 @@ public class SettingsClass
         defaults.put("keyDownloadHtl", "24");
         defaults.put("keyUploadHtl", "21");
         defaults.put("lastUsedDirectory", "." + fs);
-        defaults.put("maxAge", "20");
-        defaults.put("maxKeys", "200000");
+        defaults.put("maxAge", "5");
+        defaults.put("maxKeys", "500000");
         defaults.put("maxMessageDisplay", "10");
         defaults.put("maxMessageDownload", "3");
         defaults.put("messageBase", "news");
@@ -434,6 +434,10 @@ public class SettingsClass
         defaults.put("tofUploadHtl", "21");
         defaults.put("uploadThreads", "3");
         defaults.put("uploadingActivated", "true");
+	defaults.put("signUploads","true");
+	defaults.put("helpFriends","true");
+	defaults.put("hideBadFiles","true");
+	defaults.put("hideAnonFiles","true");
         defaults.put("useAltEdit", "false");
         defaults.put("userName", "Anonymous");
         defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod");

@@ -969,8 +969,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         checkHideNAMessages = frostSettings.getBoolValue("hideNAMessages");
         checkBlock = frostSettings.getBoolValue("blockMessageChecked");
         checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
+	_signUploads = frostSettings.getBoolValue("signUploads");
+	_helpFriends = frostSettings.getBoolValue("helpFriends");
+	_hideBad = frostSettings.getBoolValue("hideBadFiles");
+	_hideAnon = frostSettings.getBoolValue("hideAnonFiles");
 
         // now load
+	signUploads.setSelected(_signUploads);
+	helpFriends.setSelected(_helpFriends);
+	hideBadFiles.setSelected(_hideBad);
+	hideAnonFiles.setSelected(_hideAnon);
         removeFinishedDownloadsCheckBox.setSelected(frostSettings.getBoolValue("removeFinishedDownloads"));
         allowEvilBertCheckBox.setSelected(frostSettings.getBoolValue("allowEvilBert"));
         miscAltEditCheckBox.setSelected(frostSettings.getBoolValue("useAltEdit"));
@@ -1129,7 +1137,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setObjectValue("boardUpdatingNonSelectedBackgroundColor", boardUpdNonSelectedBackgroundColor);
 
         frostSettings.setValue("autoSaveInterval", miscAutoSaveInterval.getText() );
-
+	frostSettings.setValue("signUploads",signUploads.isSelected());
+	frostSettings.setValue("helpFriends",helpFriends.isSelected());
+	frostSettings.setValue("hideBadFiles",hideBadFiles.isSelected());
+	frostSettings.setValue("hideAnonFiles",hideAnonFiles.isSelected());
         frostSettings.writeSettingsFile();
 
         // now check if some settings changed
