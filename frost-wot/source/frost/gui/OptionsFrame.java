@@ -95,6 +95,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField searchExecutableExtensionTextField = new JTextField(30);
     JTextField searchImageExtensionTextField = new JTextField(30);
     JTextField searchArchiveExtensionTextField = new JTextField(30);
+    JTextField searchMaxSearchResults = new JTextField(8);
 
     JTextField TFautomaticUpdate_boardsMinimumUpdateInterval = new JTextField(5);
     JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
@@ -788,6 +789,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             searchPanel.add(new JLabel(LangRes.getString("Executable Extension:")), constr);
             constr.gridx = 1;
             searchPanel.add(searchExecutableExtensionTextField, constr);
+            constr.gridy++;
+            constr.gridx = 0;
+            searchPanel.add(new JLabel("Maximum search results: "), constr);
+            constr.gridx = 1;
+            searchPanel.add(searchMaxSearchResults, constr);
+
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -983,6 +990,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         tofBlockMessageTextField.setEnabled(frostSettings.getBoolValue("blockMessageChecked"));
         tofBlockMessageBodyTextField.setText(frostSettings.getValue("blockMessageBody"));
         tofBlockMessageBodyTextField.setEnabled(frostSettings.getBoolValue("blockMessageBodyChecked"));
+        searchMaxSearchResults.setText(""+frostSettings.getIntValue("maxSearchResults"));
         searchAudioExtensionTextField.setText(frostSettings.getValue("audioExtension"));
         searchImageExtensionTextField.setText(frostSettings.getValue("imageExtension"));
         searchVideoExtensionTextField.setText(frostSettings.getValue("videoExtension"));
@@ -1065,6 +1073,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("sampleInterval", sampleInterval.getText());
 
         frostSettings.setValue("allowEvilBert", allowEvilBertCheckBox.isSelected());
+        frostSettings.setValue("maxSearchResults", searchMaxSearchResults.getText());
         frostSettings.setValue("audioExtension", searchAudioExtensionTextField.getText().toLowerCase());
         frostSettings.setValue("imageExtension", searchImageExtensionTextField.getText().toLowerCase());
         frostSettings.setValue("videoExtension", searchVideoExtensionTextField.getText().toLowerCase());
