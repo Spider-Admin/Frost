@@ -303,6 +303,7 @@ public class SettingsClass
         defaults.put("searchAllBoards", "true");
         defaults.put("splitfileDownloadThreads", "15");
         defaults.put("splitfileUploadThreads", "6");
+	defaults.put("startRequestingAfterHtl", "10");
         defaults.put("tofDownloadHtl", "23");
         defaults.put("tofFontSize", "12.0");
         defaults.put("tofTreeSelectedRow", "0");
@@ -312,7 +313,7 @@ public class SettingsClass
         defaults.put("useAltEdit", "false");
         defaults.put("userName", "Anonymous");
         defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod");
-        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm");
+        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm");
         defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi");
         defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin");
         defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
