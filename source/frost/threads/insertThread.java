@@ -61,6 +61,7 @@ public class insertThread extends Thread
         {
             String oldLastUploadDate = uploadItem.getLastUploadDate();
 
+	    if (mode) {
             result = FcpInsert.putFile("CHK@",
                                        file,
                                        htl,
@@ -72,22 +73,42 @@ public class insertThread extends Thread
             {
                 success = true;
                 System.out.println("Upload of " + file + " successfull.");
+		uploadItem.setKey(result[1]);
             }
             else if( result[0].equals("KeyCollision") )
             {
                 // collided means file is already in freenet
                 success = true;
                 System.out.println("Upload of " + file + " collided.");
+		uploadItem.setKey(result[1]);
             }
-
+	    } else { //generate SHA1
+	    	success=true;
+		result[1] = frame1.getCrypto().digest(FileAccess.read(file.getPath()));
+		System.out.println("digest generated " + result[1]);
+	    }
+	    
+	    
             if( success )
             {
                 String date = DateFun.getExtendedDate();
                 lastUploadDate = date;
-                KeyClass newKey = new KeyClass(result[1]);
+		KeyClass newKey;
+		if (mode) {
+                	newKey = new KeyClass(result[1]);
+			newKey.setDate(date);
+			newKey.setKey(result[1]);
+		}
+		else  {
+			newKey = new KeyClass();
+			newKey.setSHA1(result[1]);  //date stays null, so does CHK
+			newKey.setKey(null);
+			String nil = null; //stupid java
+			newKey.setDate(nil);
+		}
                 newKey.setFilename(destination);
                 newKey.setSize(file.length());
-                newKey.setDate(date);
+		newKey.setOwner(frame1.getMyId().getUniqueName());
                 Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
             }
             else
@@ -100,12 +121,16 @@ public class insertThread extends Thread
             {
                 // item uploaded (maybe)
                 uploadItem.setLastUploadDate( lastUploadDate ); // if NULL then upload failed -> shows NEVER in table
+		uploadItem.setKey(result[1]);
             }
             else if( success )
             {
                 // key was computed?
                 String newKey = result[1];
-                uploadItem.setKey( newKey );
+                uploadItem.setSHA1( newKey );
+		uploadItem.setKey(null);
+		String nil = null;
+		uploadItem.setLastUploadDate(nil);
             }
             uploadItem.setState( FrostUploadItemObject.STATE_IDLE );
 

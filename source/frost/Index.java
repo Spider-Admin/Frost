@@ -93,6 +93,8 @@ public class Index
         StringBuffer keyFile = new StringBuffer();
         File[] tempFiles = tempDir.listFiles();
         int keyCount = 0;
+	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\">\n");
         for( int i = 0; i < index.length; i++ )
         {
             if( index[i].getName().endsWith(".exc") )
@@ -103,26 +105,40 @@ public class Index
 
                 // Add keys that are still getExchange() == true to the
                 // keys Vector
+		
                 synchronized(chk)
                 {
-                    Iterator j = chk.keySet().iterator();
+                    Iterator j = chk.values().iterator();
                     while( j.hasNext() )
                     {
-                        KeyClass key = (KeyClass)chk.get((String)j.next());
-                        if( key.getExchange() )
+                        KeyClass current = (KeyClass)j.next();
+                        if( current.getExchange() && 
+				(current.getOwner() == null || 
+					frame1.getFriends().Get(current.getOwner()) != null))
                         {
                             keyCount++;
-                            keyFile.append(key.getFilename() + "\r\n");
-                            keyFile.append(key.getSize() + "\r\n");
-                            keyFile.append(key.getDate() + "\r\n");
-                            keyFile.append(key.getKey() + "\r\n");
+                            
+		    	    keyFile.append("<name>" + current.getFilename()+"</name>\n");
+		    	    keyFile.append("<SHA1>" + current.getSHA1()+"</SHA1>\n");
+			    keyFile.append("<size>" + current.getSize()+"</size>\n");
+		    
+			    if (current.getOwner() != null)
+			    	keyFile.append("<owner>" + current.getOwner() + "</owner>\n");
+		    	    if (current.getKey() != null)
+			    	keyFile.append("<key>" + current.getKey() + "</key>\n");
+			    if (current.getDate() != null)
+			    	keyFile.append("<date>" + current.getDate() + "</date>\n");
+		    
+		    	    keyFile.append("</File>\n");
                         }
                     }
                 }
             }
         }
         chk.clear();
-
+	keyFile.append("</Filelist>");
+	
+	//String signed = frame1.getCrypto().sign(keyFile.toString(),frame1.getMyId().getPrivKey());
         // Make keyfile
         if( keyCount > 0 )
         {
@@ -143,7 +159,7 @@ public class Index
     {
         final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         final String fileSeparator = System.getProperty("file.separator");
-        final String hash = key.getKey();
+        final String hash = key.getSHA1();
         String firstLetter = (hash.substring(4, 5)).toLowerCase();
         final Map chk = Collections.synchronizedMap(new TreeMap());
 
@@ -182,7 +198,7 @@ public class Index
             while( i.hasNext() )
             {
                 KeyClass key = (KeyClass)chk.get((String)i.next());
-                String hash = key.getKey();
+                String hash = key.getSHA1();
                 String firstLetter = (hash.substring(4, 5)).toLowerCase();
                 if( !firstLetter.equals(oldFirstLetter) )
                 {

@@ -25,8 +25,10 @@ public class KeyClass
     private boolean DEBUG = false;
     private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
 
-    String key = new String(); // Name of this key
-    String date = new String(); // Last access
+    String key = null; // Name of this key
+    String date = null; // Last access
+    String SHA1 = new String();  //SHA1 of the file
+    String owner = null;  //person that uploaded the file
     Long size = new Long(0); // Filesize
     String filename = new String();
     boolean exchange;
@@ -52,8 +54,10 @@ public class KeyClass
     /**Returns true if key is outdated*/
     public boolean checkDate()
     {
+    	if (date == null) return true;
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+	
         int firstPoint = date.indexOf(".");
         int secondPoint = date.lastIndexOf(".");
         int maxAge = frame1.frostSettings.getIntValue("maxAge");
@@ -138,6 +142,7 @@ public class KeyClass
     /**Tests if key is valid*/
     public boolean checkKey()
     {
+    	if (key == null) return true;
         if( key.startsWith("CHK@") && key.length() == 58 ) return true;
         //  if (DEBUG) System.out.println("Invalid key in " + filename);
         return false;
@@ -164,6 +169,26 @@ public class KeyClass
     {
         return filename.trim();
     }
+    
+    /** Get SHA1*/
+    public String getSHA1() {
+    	return SHA1;
+    }
+    
+    /** Set SHA1*/
+    public void setSHA1(String s) {
+    	SHA1=s;
+    }
+    
+    /** Set owner*/
+    public void setOwner(String owner_id) {
+    	owner=owner_id;
+    }
+    
+    /** Get owner*/
+    public String getOwner() {
+    	return owner;
+    }
 
     /**Set key*/
     public void setKey(String key)
@@ -174,6 +199,8 @@ public class KeyClass
     /**Get key*/
     public String getKey()
     {
+    	if (key == null)
+		return key;
         return key.trim();
     }
 
@@ -186,6 +213,7 @@ public class KeyClass
     /**Get date*/
     public String getDate()
     {
+    	if (date == null) return date;
         return date.trim();
     }
 
@@ -226,5 +254,10 @@ public class KeyClass
     {
         this.key = key;
         this.exchange = true;
+    }
+    
+    /** also an empty constructor, just in case*/
+    public KeyClass() {
+    	exchange=true;
     }
 }

@@ -75,7 +75,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
         if( indexFile.length() > 0 && indexFile.isFile() )
         {
-            String tozip = FileAccess.readFile(indexFile);
+            String tozip = frame1.getCrypto().sign(FileAccess.readFile(indexFile),
+	    			frame1.getMyId().getPrivKey());
             FileAccess.writeZipFile(tozip, "entry", indexFile);
 
             // search empty slot
@@ -195,6 +196,15 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     try {
                         // maybe the file is corrupted ... so try
                         String unzipped = FileAccess.readZipFile(target);
+			
+			//verify the file 
+			if (unzipped.startsWith("===")) {
+				int name_index = unzipped.indexOf("sharer = \"");
+				name_index = unzipped.indexOf("\"",name_index)+1;
+				String sharer = unzipped.substring(name_index,
+							unzipped.indexOf("\"",name_index));
+			}
+			
                         FileAccess.writeFile(unzipped,target);
                         Index.add(target, new File(keypool + board.getBoardFilename()));
                     }

@@ -78,6 +78,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
         String state = XMLTools.getChildElementsTextValue(ulItemElement, "state");
         String lastUploadDate = XMLTools.getChildElementsTextValue(ulItemElement, "lastuploaddate");
         String key = XMLTools.getChildElementsCDATAValue(ulItemElement, "key");
+	String SHA1 = XMLTools.getChildElementsCDATAValue(ulItemElement, "SHA1");
 
         if( filename == null || filepath == null || targetboardname == null || state == null )
         {
@@ -139,7 +140,8 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
                                                                   board,
                                                                   iState,
                                                                   lastUploadDate,
-                                                                  key);
+                                                                  key,
+								  SHA1);
         return ulItem;
     }
 
