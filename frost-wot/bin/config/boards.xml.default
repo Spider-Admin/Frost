@@ -3,6 +3,11 @@
     <FrostBoardTreeEntry isfolder="true" isexpanded="true">
         <name>Frost Message System</name>
         <FrostBoardTreeEntry>
+            <name>boards</name>
+            <publicKey>SSK@ZFLUB7BdfxuDD0c2vdZJcSW~U00PAgM</publicKey>
+            <privateKey>SSK@ALKDoothgB94a0V2X44RsffkavRX</privateKey>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
             <name>frost-announce</name>
             <publicKey>SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM</publicKey>
         </FrostBoardTreeEntry>
@@ -20,11 +25,11 @@
             <privateKey>SSK@P6lGZQDMKSGZH0naN-PKAOT0LqY</privateKey>
             <publicKey>SSK@TCHFI5EBJWFOCXJNKmQeftTFJo0PAgM</publicKey>
         </FrostBoardTreeEntry>
-	<FrostBoardTreeEntry>
-		<name>newbie-help</name>
-		<privateKey>SSK@GsAgirI3Chot6TCQgVaIlirHmxM</privateKey>
-		<publicKey>SSK@xGOiCbF00RdkEA3WQBqIEnn144sPAgM</publicKey>
-	</FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
+            <name>newbie-help</name>
+            <privateKey>SSK@GsAgirI3Chot6TCQgVaIlirHmxM</privateKey>
+            <publicKey>SSK@xGOiCbF00RdkEA3WQBqIEnn144sPAgM</publicKey>
+        </FrostBoardTreeEntry>
         <FrostBoardTreeEntry isfolder="true" isexpanded="false">
             <name>freenet</name>
             <FrostBoardTreeEntry>

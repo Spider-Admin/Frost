@@ -205,13 +205,16 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
         String key = XMLTools.getChildElementsCDATAValue(dlItemElement, "key");
         String retries = XMLTools.getChildElementsTextValue(dlItemElement, "retries");
         String state = XMLTools.getChildElementsTextValue(dlItemElement, "state");
-	String owner = XMLTools.getChildElementsTextValue(dlItemElement, "owner");
+	    String owner = XMLTools.getChildElementsTextValue(dlItemElement, "owner");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
         String enableDownload = dlItemElement.getAttribute("enableDownload");
-	String SHA1 = XMLTools.getChildElementsTextValue(dlItemElement, "SHA1");
-	String batch = XMLTools.getChildElementsTextValue(dlItemElement, "batch");
+	    String SHA1 = XMLTools.getChildElementsTextValue(dlItemElement, "SHA1");
+    	String batch = XMLTools.getChildElementsTextValue(dlItemElement, "batch");
 
-        if( filename == null || SHA1 == null || state == null )
+        //  SHA1 val is not available when adding downloads using textbox
+        // one of key or SHA1 must be available
+        if( filename == null || state == null ||
+            ( key == null && SHA1 == null ) ) 
         {
             System.out.println("DownloadTable: Error in XML save file, skipping entry.");
             return null;
