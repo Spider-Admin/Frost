@@ -43,6 +43,8 @@ public class TOF
 	private UpdateTofFilesThread updateThread = null;
 	private UpdateTofFilesThread nextUpdateThread = null;
 	
+	private TofTreeModel tofTreeModel;
+	
 	private static boolean initialized = false;
 	
 	/**
@@ -60,20 +62,23 @@ public class TOF
 	}
 	
 	/**
-	 * Prevent instances of this class from being created.
+	 * Prevent instances of this class from being created from the outside.
+	 * @param tofTreeModel this is the TofTreeModel this TOF will operate on
 	 */
-	private TOF() {
+	private TOF(TofTreeModel tofTreeModel) {
 		super();
+		this.tofTreeModel = tofTreeModel;
 	}
 	
 	/**
 	 * This method initializes the TOF.
 	 * If it has already been initialized, this method does nothing.
+	 * @param tofTreeModel this is the TofTreeModel this TOF will operate on
 	 */
-	public static void initialize() {
+	public static void initialize(TofTreeModel tofTreeModel) {
 		if (!initialized) {
 			initialized = true;
-			instance = new TOF();
+			instance = new TOF(tofTreeModel);
 		}
 	}
 
@@ -205,7 +210,7 @@ public class TOF
                         public void run() {
                             // check if tof table shows this board
                             MainFrame.getInstance().updateTofTree(board);
-                            if( MainFrame.getInstance().getSelectedNode().getName().equals( board.getName() ) )
+                            if(tofTreeModel.getSelectedNode().getName().equals( board.getName() ) )
                             {
                                 tableModel.addRow(message);
                                 MainFrame.getInstance().updateMessageCountLabels(board);
@@ -335,7 +340,7 @@ public class TOF
                     public void run()
                     {
                         // check if tof table shows this board
-                        if( MainFrame.getInstance().getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
+                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                         {
                             MessageTableModel model = (MessageTableModel)table.getModel();
                             model.clearDataModel();
@@ -411,7 +416,7 @@ public class TOF
                                         public void run()
                                         {
                                             // check if tof table shows this board
-                                            if( MainFrame.getInstance().getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
+                                            if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                                             {
                                                 tableModel.addRow(finalMessage);
                                                 if(updateMessagesCountLabels)
@@ -445,7 +450,7 @@ public class TOF
                     public void run()
                     {
                         MainFrame.getInstance().updateTofTree(innerTargetBoard);
-                        if( MainFrame.getInstance().getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
+                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                         {
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
