@@ -18,8 +18,8 @@ import frost.fcp.FecTools;
 import frost.storage.StorageException;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 public class IdentitiesXmlDAO implements IdentitiesDAO {
 	
