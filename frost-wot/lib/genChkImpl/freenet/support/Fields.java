@@ -1,6 +1,7 @@
 package freenet.support;
 import java.text.*;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * This class contains static methods used for parsing 
@@ -12,6 +13,8 @@ import java.util.*;
  */
 
 public abstract class Fields {
+	
+	private static Logger logger = Logger.getLogger(Fields.class.getName());
 
     public static void main(String[] args) {
         System.out.println(Long.toHexString(stringToLong(args[0])));
@@ -336,7 +339,7 @@ public abstract class Fields {
             return (new GregorianCalendar(year, month - 1, day, hour, 
                                           minute, second)).getTime().getTime();
         } catch (Exception e) {
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in dateTime(String date)", e);
             // The API docs don't say which exception is thrown on bad numbers!
             throw new NumberFormatException("Invalid date " + date + ": " +
                                             e);

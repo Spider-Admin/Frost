@@ -3,6 +3,7 @@ package com.onionnetworks.fec;
 import java.io.IOException;
 import java.lang.reflect.Constructor;
 import java.util.*;
+import java.util.logging.*;
 
 import com.onionnetworks.util.Tuple;
 
@@ -26,6 +27,8 @@ import com.onionnetworks.util.Tuple;
  * @author Justin F. Chapweske (justin@chapweske.com)
  */
 public class DefaultFECCodeFactory extends FECCodeFactory {
+
+	private static Logger logger = Logger.getLogger(DefaultFECCodeFactory.class.getName());
 
     public static final int DEFAULT_CACHE_TIME = 2*60*1000;
 
@@ -53,7 +56,7 @@ public class DefaultFECCodeFactory extends FECCodeFactory {
 //                     "lib/fec.properties")));
 
         } catch (IOException e) {
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Unable to load /lib/fec.properties", e);
             throw new IllegalStateException
                 ("Unable to load /lib/fec.properties");
         }
@@ -79,7 +82,7 @@ public class DefaultFECCodeFactory extends FECCodeFactory {
                         ("Only 8 and 16 bit codes are currently supported");
                 }
             } catch (Throwable t) {
-                System.out.println(t.getMessage());
+				logger.log(Level.SEVERE, "Exception thrown in constructor", t);
             }
         }
     }

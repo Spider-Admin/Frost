@@ -3,6 +3,7 @@ package freenet.crypt;
 import java.io.*;
 import java.math.BigInteger;
 import java.util.Random;
+import java.util.logging.*;
 
 import freenet.crypt.ciphers.*;
 import freenet.support.*;
@@ -13,6 +14,8 @@ import freenet.support.*;
   http://www.gnu.org/ for further details of the GPL.
 */
 public class Util {
+	
+	private static Logger logger = Logger.getLogger(Util.class.getName());
 
     // bah, i'm tired of chasing down dynamically loaded classes..
     // this is for getCipherByName() and getDigestByName()
@@ -243,7 +246,7 @@ public class Util {
             d.update(sbytes, 0, sbytes.length);
             return d.digest();
         } catch (Exception e) {
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in hashString(Digest d, String s)", e);
         }
         return null;
     }
@@ -359,7 +362,7 @@ public class Util {
             return (BlockCipher) Loader.getInstance("freenet.crypt.ciphers."+name);
         } catch (Exception e) {
             //throw new UnsupportedCipherException(""+e);
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in getCipherByName(String name)", e);
             return null;
         }
     }
@@ -372,7 +375,7 @@ public class Util {
                                                     new Object[] { new Integer(keySize) });
         } catch (Exception e) {
             //throw new UnsupportedCipherException(""+e);
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in getCipherByName(String name, int keySize)", e);
             return null;
         }
     }
@@ -383,7 +386,7 @@ public class Util {
             return (Digest) Loader.getInstance("freenet.crypt."+name);
         } catch (Exception e) {
             //throw new UnsupportedDigestException(""+e);
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in getDigestByName(String name)", e);
             return null;
         }
     }

@@ -1,6 +1,7 @@
 package freenet.crypt.ciphers;
 
 import java.security.InvalidKeyException;
+import java.util.logging.*;
 
 import freenet.crypt.*;
 
@@ -15,6 +16,9 @@ import freenet.crypt.*;
  * algorithm
  */
 public final class Twofish implements BlockCipher {
+	
+	private static Logger logger = Logger.getLogger(Twofish.class.getName());
+	
     private Object sessionKey;
     private int keysize;
 
@@ -50,7 +54,7 @@ public final class Twofish implements BlockCipher {
 	    System.arraycopy(key, 0, nkey, 0, nkey.length);
 	    sessionKey=Twofish_Algorithm.makeKey(nkey);
 	} catch (InvalidKeyException e) {
-	    e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in initialize(byte[] key)", e);
 	}
     }
 

@@ -1,6 +1,7 @@
 package freenet.crypt.ciphers;
 
 import java.security.InvalidKeyException;
+import java.util.logging.*;
 
 import freenet.crypt.*;
 
@@ -15,6 +16,9 @@ import freenet.crypt.*;
  * algorithm
  */
 public class Rijndael implements BlockCipher {
+	
+	private static Logger logger = Logger.getLogger(Rijndael.class.getName());
+	
     private Object sessionKey;
     private int keysize, blocksize;
 
@@ -59,7 +63,7 @@ public class Rijndael implements BlockCipher {
 	    System.arraycopy(key, 0, nkey, 0, nkey.length);
 	    sessionKey=Rijndael_Algorithm.makeKey(nkey);
 	} catch (InvalidKeyException e) {
-	    e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in initialize(byte[] key)", e);
 	}
     }
 

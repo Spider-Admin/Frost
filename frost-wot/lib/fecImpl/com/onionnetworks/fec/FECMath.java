@@ -1,5 +1,7 @@
 package com.onionnetworks.fec;
 
+import java.util.logging.Logger;
+
 import com.onionnetworks.util.Util;
 
 /**
@@ -14,6 +16,8 @@ import com.onionnetworks.util.Util;
  * @author Justin F. Chapweske (justin@chapweske.com)
  */
 public class FECMath {
+	
+	private static Logger logger = Logger.getLogger(FECMath.class.getName());
 
     /**
      * The following parameter defines how many bits are used for
@@ -578,9 +582,9 @@ public class FECMath {
 
         for (int col = k-1 ; col >= 0 ; col--) {
             if (indxr[col] <0 || indxr[col] >= k) {
-                System.err.println("AARGH, indxr[col] "+indxr[col]);
+                logger.finer("AARGH, indxr[col] " + indxr[col]);
             } else if (indxc[col] <0 || indxc[col] >= k) {
-                System.err.println("AARGH, indxc[col] "+indxc[col]);
+                logger.finer("AARGH, indxc[col] " + indxc[col]);
             } else {
                 if (indxr[col] != indxc[col] ) {
                     for (int row = 0 ; row < k ; row++ ) {

@@ -3,10 +3,13 @@ package freenet.crypt;
 import java.io.*;
 import java.lang.reflect.Method;
 import java.math.BigInteger;
+import java.util.logging.*;
 
 public abstract class CryptoKey implements CryptoElement, Serializable {
 
     protected static final Digest shactx=SHA1.getInstance();
+    
+	private static Logger logger = Logger.getLogger(CryptoKey.class.getName());
     
     //    protected final CryptoKey dependent;
 
@@ -48,7 +51,7 @@ public abstract class CryptoKey implements CryptoElement, Serializable {
 
 	    return k;
 	} catch (Exception e) {
-	    e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in read(InputStream i)", e);
 	    if (e instanceof IOException)
 		throw (IOException)e;
 	    return null;

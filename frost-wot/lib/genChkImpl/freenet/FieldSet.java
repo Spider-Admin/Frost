@@ -2,6 +2,7 @@ package freenet;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import freenet.crypt.Digest;
 import freenet.support.Fields;
@@ -17,6 +18,8 @@ import freenet.support.sort.*;
  * @author oskar
  */
 public class FieldSet {
+
+	private static Logger logger = Logger.getLogger(FieldSet.class.getName());
 
     /**
      * These are non-UTF8-legal bytes used in hashing the FieldSet.
@@ -443,7 +446,7 @@ public class FieldSet {
             return c.getBytes("UTF8");
         } catch (UnsupportedEncodingException e) {
             //Should never happen
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in getStringBytes(String c)", e);
             return null;
         }
     }

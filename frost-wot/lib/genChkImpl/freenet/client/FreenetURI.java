@@ -2,6 +2,7 @@ package freenet.client;
 
 import java.net.MalformedURLException;
 import java.util.*;
+import java.util.logging.Logger;
 
 import freenet.FieldSet;
 
@@ -32,6 +33,8 @@ import freenet.FieldSet;
  * that act on the retrieved document.
  */
 public class FreenetURI {
+	
+	private static Logger logger = Logger.getLogger(FreenetURI.class.getName());
     
     private String keyType, docName;
     private String[] metaStr;
@@ -148,24 +151,25 @@ public class FreenetURI {
         String k = cryptoKey == null
             ? "none"
             : freenet.support.Fields.bytesToHex(cryptoKey, 0, cryptoKey.length);
-        System.out.println(""+this);
-        System.out.println("Key type   : " + keyType);
-        System.out.println("Routing key: " + r);
-        System.out.println("Crypto key : " + k);
-        System.out.println("Doc name   : " + (docName  == null ? "none" : docName));
-        System.out.print("Meta strings: ");
+        StringBuffer message = 
+        	new StringBuffer(this + "\n" +
+							 "Key type   : " + keyType + "\n" +
+							 "Routing key: " + r + "\n" +
+							 "Crypto key : " + k + "\n" +
+							 "Doc name   : " + (docName  == null ? "none" : docName) + "\n" +
+							 "Meta strings:");
         if (metaStr == null) {
-            System.err.println("none");
+        	message.append("none\n");
         } else for (int i = 0 ; i < metaStr.length ; i++) {
-            System.err.print(metaStr[i]);
+			message.append(metaStr[i]);
             if (i == metaStr.length - 1) {
-                System.err.println();
+				message.append("\n");
             } else {
-                System.err.print(", ");
+				message.append(", ");
             }
         }
-        System.out.println("Meta info  : " 
-                           + (metaInfo == null ? "none" : ""+metaInfo));
+        message.append("Meta info  : " + (metaInfo == null ? "none" : ""+metaInfo));
+        logger.fine(message.toString());
     }
 
     public String getGuessableKey() {
