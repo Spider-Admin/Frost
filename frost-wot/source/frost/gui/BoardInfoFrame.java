@@ -258,7 +258,7 @@ public class BoardInfoFrame extends JFrame
                 fileCount += newRow.getFilesCount().intValue();
                 boardCount++;
 
-                if( parent.isUpdating(board) == true )
+                if( board.isUpdating() )
                 {
                     // this board is updating right now
                     newRow.setUpdating(true);
@@ -306,7 +306,7 @@ public class BoardInfoFrame extends JFrame
                 BoardInfoTableMember row = (BoardInfoTableMember)((BoardInfoTableModel)boardTableModel).getRow(rowIx);
 
                 // check if board is already in list of updating boards
-                if( parent.isUpdating( row.getBoard() ) == true )
+                if( row.getBoard().isUpdating() )
                 {
                     // paranoia: update not needed, but ensure that this updated board is drawn in bold
                     row.setUpdating(true);

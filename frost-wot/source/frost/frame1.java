@@ -1605,7 +1605,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( isUpdateAllowed(board) == false )
             return false;
 
-        if( isUpdating(board) )
+        if( board.isUpdating() )
             return false;
 
         return true;
@@ -1629,26 +1629,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         return true;
     }
 
-    private boolean isThreadOfTypeRunning(FrostBoardObject board, int type)
-    {
-        Vector threads = getRunningBoardUpdateThreads().getDownloadThreadsForBoard(board);
-        for( int x=0; x<threads.size(); x++ )
-        {
-            BoardUpdateThread thread = (BoardUpdateThread)threads.get(x);
-            if( thread.getThreadType() == type )
-                return true;
-        }
-        return false;
-    }
-
-    /**
-     * Returns true if this board is currently running update threads.
-     */
-    public boolean isUpdating(FrostBoardObject board)
-    {
-        return getRunningBoardUpdateThreads().isUpdating(board);
-    }
-
     /**tof / Update*/
     /**
      * Starts the board update threads, getRequest thread and update id thread.
@@ -1661,38 +1641,39 @@ public class frame1 extends JFrame implements ClipboardOwner
             return;
 
         boolean threadStarted = false;
+        ChangeUpdateStateListener listener = new ChangeUpdateStateListener();
 
         // first download the messages of today
-        if( isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY) == false )
+        if( getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY) == false )
         {
-            getRunningBoardUpdateThreads().startMessageDownloadToday(board, frostSettings, null);
+            getRunningBoardUpdateThreads().startMessageDownloadToday(board, frostSettings, listener);
             System.out.println("Starting update (MSG_TODAY) of " + board.toString());
             threadStarted = true;
         }
 
         // maybe get the files list
         if( !frostSettings.getBoolValue("disableRequests") &&
-            !isThreadOfTypeRunning(board, BoardUpdateThread.BOARD_FILE_UPLOAD)
+            !getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.BOARD_FILE_UPLOAD)
           )
         {
-            getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, null);
+            getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, listener);
             System.out.println("Starting update (BOARD_UPLOAD) of " + board.toString());
             threadStarted = true;
         }
 
         if( !frostSettings.getBoolValue("disableDownloads") &&
-            !isThreadOfTypeRunning(board, BoardUpdateThread.BOARD_FILE_DNLOAD)
+            !getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.BOARD_FILE_DNLOAD)
           )
         {
-            getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, null);
+            getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, listener);
             System.out.println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
             threadStarted = true;
         }
 
         // finally get the older messages
-        if( isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false )
+        if( getRunningBoardUpdateThreads().isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false )
         {
-            getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, null);
+            getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, listener);
             System.out.println("Starting update (MSG_BACKLOAD) of " + board.toString());
             threadStarted = true;
         }
@@ -1703,6 +1684,38 @@ public class frame1 extends JFrame implements ClipboardOwner
             board.setLastUpdateStartMillis( System.currentTimeMillis() );
         }
     }
+
+    /**
+     * The listeners changes the 'updating' state of a board if a thread starts/finished.
+     */
+    private class ChangeUpdateStateListener implements BoardUpdateThreadListener
+    {
+        public void boardUpdateThreadFinished(final BoardUpdateThread thread)
+        {
+            int running = getRunningBoardUpdateThreads().getDownloadThreadsForBoard(thread.getTargetBoard()).size()  +
+                getRunningBoardUpdateThreads().getUploadThreadsForBoard(thread.getTargetBoard()).size();
+            if( running == 0 )
+            {
+                // remove update state from board
+                thread.getTargetBoard().setUpdating( false );
+                SwingUtilities.invokeLater( new Runnable() {
+                        public void run()
+                        {
+                            updateTofTree( thread.getTargetBoard() );
+                        } });
+            }
+        }
+        public void boardUpdateThreadStarted(final BoardUpdateThread thread)
+        {
+            thread.getTargetBoard().setUpdating( true );
+            SwingUtilities.invokeLater( new Runnable() {
+                    public void run()
+                    {
+                        updateTofTree( thread.getTargetBoard() );
+                    } });
+        }
+    }
+
 
     public void updateTofTree(FrostBoardObject board)
     {

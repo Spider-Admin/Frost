@@ -257,7 +257,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      */
     public void boardUpdateThreadFinished(BoardUpdateThread thread)
     {
-        //remove from thread list
+        // remove from thread list
         Vector threads;
         if( thread.getThreadType() == BoardUpdateThread.MSG_UPLOAD )
         {
@@ -423,6 +423,19 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
             return false;
         }
     }
+
+    public boolean isThreadOfTypeRunning(FrostBoardObject board, int type)
+    {
+        Vector threads = getDownloadThreadsForBoard(board);
+        for( int x=0; x<threads.size(); x++ )
+        {
+            BoardUpdateThread thread = (BoardUpdateThread)threads.get(x);
+            if( thread.getThreadType() == type )
+                return true;
+        }
+        return false;
+    }
+
 /*
 maybe useable if the counters are set on thread start/end
     int updatingBoards = 0;
