@@ -5,7 +5,7 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package frost.messages;
-
+import frost.*;
 
 import frost.identities.*;
 import org.w3c.dom.*;
@@ -40,14 +40,18 @@ public class PersonAttachment implements Attachment {
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
 	public Element getXMLElement(Document container) {
-		return person.getXMLElement(container);
+		Element el = container.createElement("Attachment");
+		el.setAttribute("type","person");
+		el.appendChild(person.getXMLElement(container));
+		return el;
 	}
 
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
-		person = new Identity(e);
+		Element _person = (Element)XMLTools.getChildElementsByTagName(e,"Identity").iterator().next();
+		person = new Identity(_person);
 
 	}
 	

@@ -52,8 +52,10 @@ public class AttachmentList extends LinkedList implements XMLizable {
 			Element current = (Element)i.next();
 			if (current.getAttribute("type").equals("file"))
 				attachment = new FileAttachment(current);
-			else
+			else if (current.getAttribute("type").equals("board"))
 				attachment = new BoardAttachment(current);
+			else 
+				attachment = new PersonAttachment(current);
 			add(attachment);
 		}
 	}
