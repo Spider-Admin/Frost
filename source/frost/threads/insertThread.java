@@ -37,9 +37,12 @@ public class insertThread extends Thread
     private boolean mode;
     private static int fileIndex=1;
     private static Random r = new Random();
-    private static String batchId = (new Long(r.nextLong())).toString();
+    //this is gonna be ugly
+    private static String batchId = frame1.getMyBatches().values().size() == 0 ?
+    				(new Long(r.nextLong())).toString() :
+				(String) frame1.getMyBatches().values().iterator().next();
     private static final int batchSize = 100; //TODO: get this from options
-    private static final Object putIt = frame1.getMyBatches().put(batchId,batchId);
+    //private static final Object putIt = frame1.getMyBatches().put(batchId,batchId);
     //^^ ugly trick to put the initial batch number
 
     FrostUploadItemObject uploadItem;
@@ -103,6 +106,13 @@ public class insertThread extends Thread
         else
         {
             frame1.setGeneratingCHK( true );
+	    
+	    //if this is the first startup, put at least one batch in
+	 /*   if (frame1.getMyBatches().values().size() == 0) //
+	    	frame1.getMyBatches().put(batchId,batchId);
+	    else {
+	    	//take the first patch we come upon
+	    }*/
 	    
 	    if (fileIndex % batchSize == 0) {
 	    	frame1.getMyBatches().put(batchId,batchId);
