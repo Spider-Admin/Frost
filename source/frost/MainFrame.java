@@ -635,17 +635,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 							logger.warning(
 								"invalid message state : " + selectedMessage.getStatus());
 					}
-
-					addSeparator();
-					add(deleteItem);
-					add(undeleteItem);
-					deleteItem.setEnabled(false);
-					undeleteItem.setEnabled(false);
-										
-					if(selectedMessage.isDeleted()){
-						undeleteItem.setEnabled(true);
-					}else{
-						deleteItem.setEnabled(true);
+	
+					if (selectedMessage != null) {
+						addSeparator();
+						add(deleteItem);
+						add(undeleteItem);
+						deleteItem.setEnabled(false);
+						undeleteItem.setEnabled(false);
+						if(selectedMessage.isDeleted()){
+							undeleteItem.setEnabled(true);
+						}else{
+							deleteItem.setEnabled(true);
+						}
 					}
 					
 					addSeparator();
