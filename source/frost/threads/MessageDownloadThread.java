@@ -303,7 +303,9 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     }
                     else
                     { // duplicate message
-                        // FIXME: check for real double! this fails for me and an msg file containing "Empty"
+                        // check for real double! this fails for me and an msg file containing "Empty"
+                        // FIXED: ideally we'll keep a map of the hashes of the received messages - it will not
+                        // be too big to keep in memory at all times and is the fastest way to check for dublicates
                         Core.getOut().println(Thread.currentThread().getName()+": TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
                         FileAccess.writeFile("Empty", testMe);
                     }

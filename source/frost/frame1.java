@@ -2372,8 +2372,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                 {
                     fileName = key.substring(4);
                 }
-// FIXME: zab, why did you comment this out, its needed, because otherwise you
+//  zab, why did you comment this out, its needed, because otherwise you
 //  use a wrong CHK key for download! i pasted a CHK@afcdf432dk/mytargetfilename.data
+//FIXED: it happened when sha1 was still kept in this variable - and sha1 can contain "/"
+
                 // remove filename from key for CHK
                 if( keyType == 1 ) // CHK?
                     key = key.substring(0, key.indexOf("/") );
