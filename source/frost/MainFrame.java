@@ -40,12 +40,12 @@ import frost.components.translate.TranslateFrame;
 import frost.ext.JSysTrayIcon;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.FrostSearchItem;
-import frost.fileTransfer.upload.*;
+import frost.fileTransfer.upload.UploadPanel;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.preferences.OptionsFrame;
-import frost.identities.Identity;
+import frost.identities.*;
 import frost.messages.*;
 import frost.storage.StorageException;
 import frost.threads.maintenance.Truster;
@@ -740,7 +740,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 */
 			private void saveMessage() {
 				FileAccess.saveDialog(
-					getInstance(),
+					parentFrame,
 					sourceTextComponent.getText(),
 					settings.getValue("lastUsedDirectory"),
 					language.getString("Save message to disk"));
@@ -773,6 +773,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		
 		private SettingsClass settings;
 		private Language language;
+		private FrostIdentities identities;
+		private JFrame parentFrame;
 
 		private boolean initialized = false;
 
@@ -835,7 +837,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			notTrustButton.setEnabled(false);
 			checkTrustButton.setEnabled(false);
 			if (selectedMessage != null) {
-				core.startTruster(selectedMessage);
+				startTruster(selectedMessage);
 			}
 		}
 
@@ -1292,10 +1294,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void notTrustButton_actionPerformed(ActionEvent e) {
 			if (selectedMessage != null) {
-				if (core.getIdentities().getFriends().containsKey(selectedMessage.getFrom())) {
+				if (identities.getFriends().containsKey(selectedMessage.getFrom())) {
 					if (JOptionPane
 						.showConfirmDialog(
-							getInstance(),
+							parentFrame,
 							"Are you sure you want to revoke trust to user "
 								+ selectedMessage.getFrom().substring(
 									0,
@@ -1307,7 +1309,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						return;
 					}
 				} else {
-					core.startTruster(false, selectedMessage);
+					startTruster(false, selectedMessage);
 				}
 			}
 			trustButton.setEnabled(false);
@@ -1345,7 +1347,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * else {
 			 */
 			MessageFrame newMessageFrame = new MessageFrame(settings, MainFrame.this,
-												core.getIdentities().getMyId());
+												identities.getMyId());
 			newMessageFrame.setTofTree(tofTree);
 			newMessageFrame.composeReply(getSelectedNode(), settings.getValue("userName"),
 												subject, messageTextArea.getText());
@@ -1356,7 +1358,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void saveMessageButton_actionPerformed(ActionEvent e) {
 			FileAccess.saveDialog(
-				getInstance(),
+				parentFrame,
 				messageTextArea.getText(),
 				settings.getValue("lastUsedDirectory"),
 				language.getString("Save message to disk"));
@@ -1410,10 +1412,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void trustButton_actionPerformed(ActionEvent e) {
 			if (selectedMessage != null) {
-				if (core.getIdentities().getEnemies().containsKey(selectedMessage.getFrom())) {
+				if (identities.getEnemies().containsKey(selectedMessage.getFrom())) {
 					if (JOptionPane
 						.showConfirmDialog(
-							getInstance(),
+							parentFrame,
 							"are you sure you want to grant trust to user "
 								+ selectedMessage.getFrom().substring(
 									0,
@@ -1425,7 +1427,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						return;
 					}
 				} else {
-					core.startTruster(true, selectedMessage);
+					startTruster(true, selectedMessage);
 				}
 			}
 			trustButton.setEnabled(false);
@@ -1565,6 +1567,35 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				};
 			};
 			saver.start();	
+		}
+		
+		/**
+		 * @param identities
+		 */
+		public void setIdentities(FrostIdentities identities) {
+			this.identities = identities;
+		}
+		
+		/**
+		 * @param parentFrame
+		 */
+		public void setParentFrame(JFrame parentFrame) {
+			this.parentFrame = parentFrame;
+		}
+
+		/**
+		 * @param what
+		 * @param which
+		 */
+		public void startTruster(boolean what, FrostMessageObject which) {
+			new Truster(identities, Boolean.valueOf(what), which.getFrom()).start();
+		}
+
+		/**
+		 * @param which
+		 */
+		public void startTruster(FrostMessageObject which) {
+			new Truster(identities, null, which.getFrom()).start();
 		}
 	}
 
@@ -2375,6 +2406,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private MessagePanel getMessagePanel() {
 		if (messagePanel == null) {
 			messagePanel = new MessagePanel(frostSettings);
+			messagePanel.setParentFrame(this);
+			messagePanel.setIdentities(core.getIdentities());
 			messagePanel.initialize();
 		}
 		return messagePanel;
