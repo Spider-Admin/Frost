@@ -11,82 +11,92 @@ import frost.*;
  * contains the people the local user trusts
  */
 
-public class BuddyList extends HashMap implements XMLizable
-{
-	
+public class BuddyList implements XMLizable {
+
+	private HashMap hashMap = null;
+
+	/**constructor*/
+	public BuddyList() {
+		hashMap = new HashMap(100); //that sounds like a reasonable number
+	}
+
+	/**
+	 * adds a user to the list
+	 * returns false if the user exists
+	 */
+	public synchronized boolean add(Identity user) {
+		if (containsKey(mixed.makeFilename(user.getUniqueName()))) {
+			return false;
+		} else {
+			hashMap.put(mixed.makeFilename(user.getUniqueName()), user);
+			return true;
+		}
+	}
+
+	/**
+	 * @param key
+	 * @return
+	 */
+	public boolean containsKey(String key) {
+		return hashMap.containsKey(mixed.makeFilename((String) key));
+	}
+
+	/**
+	 * returns the user in the list, null if not in
+	 */
+	public synchronized Identity get(String name) {
+		if (containsKey(mixed.makeFilename(name))) {
+			return (Identity) hashMap.get(mixed.makeFilename(name));
+		} else {
+			return null;
+		}
+	}
+
 	// note - I decided to keep the same structure.  Its probably better from
 	//XML point of view to have each identity's trust status marked as attribute,
 	//but this way is easier..
-	public synchronized Element getXMLElement(Document doc){
+	public synchronized Element getXMLElement(Document doc) {
 		Element main = doc.createElement("BuddyList");
-		Iterator it = values().iterator();	//We iterate: therefore synchronized.
+		Iterator it = hashMap.values().iterator(); //We iterate: therefore synchronized.
 		while (it.hasNext()) {
-			Identity id = (Identity)it.next();
+			Identity id = (Identity) it.next();
 			Element el = id.getXMLElement(doc);
 			main.appendChild(el);
 		}
 		return main;
 	}
-	
+
 	public void loadXMLElement(Element el) throws SAXException {
-		if (el == null) return;
-		List l = XMLTools.getChildElementsByTagName(el,"Identity");
+		if (el == null)
+			return;
+		List l = XMLTools.getChildElementsByTagName(el, "Identity");
 		Iterator it = l.iterator();
-		while (it.hasNext()) 
-			Add( new Identity((Element)it.next()));
-		
+		while (it.hasNext())
+			add(new Identity((Element) it.next()));
+
 	}
-    /**constructor*/
-    public BuddyList()
-    {
-        super(100);  //that sounds like a reasonable number
-    }
 
-    /**
-     * adds a user to the list
-     * returns false if the user exists
-     */
-    public synchronized boolean Add(Identity user)
-    {
-        if (containsKey(mixed.makeFilename(user.getUniqueName())))
-        {
-            return false;
-        }
-        else
-        {
-            put(mixed.makeFilename(user.getUniqueName()), user);
-            return true;
-        }
-    }
-
-    /**
-     * returns the user in the list, null if not in
-     */
-    public synchronized Identity Get(String name)
-    {
-        if (containsKey(mixed.makeFilename(name)))
-        {
-            return (Identity)get(mixed.makeFilename(name));
-        }
-        else
-        {
-            return null;
-        }
-    }
-	/* (non-Javadoc)
-	 * @see java.util.Map#remove(java.lang.Object)
+	/**
+	 * @param key
+	 * @return
 	 */
-	public Object remove(Object key) {
-		if (key instanceof String)
-		return super.remove(mixed.makeFilename((String)key));
-		
-		return super.remove(key);
+	public Object remove(String key) {
+		return hashMap.remove(mixed.makeFilename(key));
 	}
 	
-	public boolean containsKey(Object key){
-		if (key instanceof String)
-			return super.containsKey(mixed.makeFilename((String)key));
-		else return false;
+	/**
+	 * @param key
+	 * @return
+	 */
+	public Object remove(Identity key) {
+		return hashMap.remove(key);
+	}
+
+	/**
+	 * @return
+	 */
+	public int size() {
+		return hashMap.size();
 	}
 
 }
