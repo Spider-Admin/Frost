@@ -30,6 +30,8 @@ public class SortedTable extends JTable
 {
     protected int sortedColumnIndex = 0;
     protected boolean sortedColumnAscending = true;
+    
+    private SortHeaderRenderer columnHeadersRenderer = new SortHeaderRenderer();
 
     public SortedTable(SortedTableModel model)
     {
@@ -111,12 +113,24 @@ public class SortedTable extends JTable
         sortColumn(sortedColumnIndex, sortedColumnAscending);
     }
 
-    protected void initSortHeader()
-    {
-        JTableHeader header = getTableHeader();
-        header.setDefaultRenderer(new SortHeaderRenderer());
-        header.addMouseListener(new HeaderMouseListener());
-    }
+	/**
+	 * This method sets a SortHeaderRenderer as the renderer of the headers
+	 * of all columns. 
+	 * 
+	 * The default renderer of the JTableHeader is not touched, because when 
+	 * skinks are enabled, they change that renderer. In that case, the renderers 
+	 * of the headers of the columns (SortHeaderRenderers) paint the
+	 * arrows (if necessary) and then call the JTableHeader default renderer (the
+	 * one put by the skin) for it to finish the job.
+	 */
+	protected void initSortHeader() {
+		Enumeration enumeration = getColumnModel().getColumns();
+		while (enumeration.hasMoreElements()) {
+			TableColumn column = (TableColumn) enumeration.nextElement();
+			column.setHeaderRenderer(columnHeadersRenderer);
+		}
+		getTableHeader().addMouseListener(new HeaderMouseListener());
+	}
 
     public int getSortedColumnIndex()
     {
