@@ -187,7 +187,7 @@ public class ModelTable extends AbstractTableModel {
 	/**
 	 * This ArrayList contains the model indexes of the columns that are being shown
 	 */
-	protected ArrayList visibleColumns = new ArrayList();
+	private ArrayList visibleColumns = new ArrayList();
 	
 	/**
 	 * This ArrayList contains all of the TableColumns that this ModelTable may show.
