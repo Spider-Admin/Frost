@@ -1,4 +1,5 @@
 package frost.crypt;
+import java.io.*;
 /**
  * facade for verifying/signing messages in frost
  */
@@ -40,6 +41,7 @@ package frost.crypt;
 	 * checksum of a string
 	 */
 	public String digest(String what);
+	public String digest(File which);
 	
 	/**
 	 * encrypt and sign
