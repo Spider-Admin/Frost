@@ -7,6 +7,8 @@ Added:  now the user can choose which columns the search, download and upload ta
 		selection is made via a contextual menu that pops up when right clicking on the table header.
 Added:  French translation vastly updated (thanks to RapHHfr).
 Added:  Message upload failed dialog internationalized.
+Added:  Option added to the preferences to disable the message upload failed dialog. If disabled, Frost will
+		retry to send it without asking the user.
 
 Changed: splash screen logo replaced by a new one (thanks to Frédéric Scheer).
 
