@@ -42,8 +42,9 @@ public class MessageTableModel extends SortedTableModel
     public MessageTableModel()
     {
         super();
+        
     }
-
+    
     public boolean isCellEditable(int row, int col)
     {
         return false;
