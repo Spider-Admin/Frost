@@ -377,20 +377,18 @@ class SearchThread extends Thread {
     /**Constructor*/
     public SearchThread(String newRequest,
             Vector newBoards, // a Vector containing all boards to search in
-            String newKeypool,
             String newSearchType,
-            SearchPanel newSearchPanel,
-            FrostIdentities newIdentities)
+            SearchManager searchManager)
     {
-    	identities = newIdentities;
+    	identities = searchManager.getIdentities();
         request = newRequest.toLowerCase();
         if( request.length() == 0 )
         {
             // default: search all
             request = "*";
         }
-        searchTableModel = frame1.getInstance().getSearchTableModel();
-        keypool = newKeypool;
+        searchTableModel = searchManager.getTableModel();
+        keypool = searchManager.getKeypool();
         searchType = newSearchType;
         audioExtension = frame1.frostSettings.getArrayValue("audioExtension");
         videoExtension = frame1.frostSettings.getArrayValue("videoExtension");
@@ -403,6 +401,6 @@ class SearchThread extends Thread {
         if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
         }
-        searchPanel = newSearchPanel;
+        searchPanel = searchManager.getPanel();
     }
 }
