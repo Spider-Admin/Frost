@@ -13,7 +13,7 @@ package frost.stats;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 interface Stat {
-	public Object getTarget();
+	public Accounted getTarget();
 	public String getName();
 
 }
