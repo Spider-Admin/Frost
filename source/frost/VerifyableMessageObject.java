@@ -223,6 +223,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 }
             }
             //the message contains the CHK of a public key, see if we have this name on our list
+            //also check the list of everybody...
             else if( frame1.getFriends().containsKey(currentMsg.getFrom()) )
             {
                 //yes, we have that person, see if the addresses are the same
@@ -258,6 +259,24 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                     currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
                 }
             }
+            //check the neutral list
+            else if (Core.getNeutral().containsKey(currentMsg.getFrom())) {
+					//same as in good case
+							  currentId = Core.getNeutral().Get(currentMsg.getFrom());
+							  //check if the key addreses are the same, verify
+							  if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
+								  Core.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
+							  {
+								  System.out.println("TOFDN: *** Message is signed by a NEUTRAL, set state to CHECK: "+currentMsg.getFrom());
+								  currentId.noMessages++;
+								  currentMsg.setStatus(VerifyableMessageObject.PENDING);
+							  }
+							  else // verification FAILED!
+							  {
+								  System.out.println("TOFDN: *** Message seems to be from a NEUTRAL (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
+								  currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
+							  }
+            }
             else
             {
                 //we don't have that person
@@ -280,6 +299,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 else if( frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
                 {
                     System.out.println("TOFDN: *** Message of unknown sender is signed correctly, set state to CHECK: "+currentMsg.getFrom() );
+                    Core.getNeutral().Add(currentId); //add the new contact
                     currentMsg.setStatus(VerifyableMessageObject.PENDING);
                 }
                 else //failed authentication, don't ask the user
