@@ -294,7 +294,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	 * 
 	 */
 	private void refreshLanguage() {
-		setColumnName(0, " ");
+		setColumnName(0, languageResource.getString("Enabled"));
 		setColumnName(1, languageResource.getString("Filename"));
 		setColumnName(2, languageResource.getString("Size"));
 		setColumnName(3, languageResource.getString("Age"));
@@ -506,13 +506,12 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		
 		// Sets the relative widths of the columns
 		TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-		int[] widths = { 0, 170, 80, 70, 80, 85, 25, 60, 60, 30 };
+		int[] widths = { 30, 170, 80, 70, 80, 85, 25, 60, 60, 30 };
 		for (int i = 0; i < widths.length; i++) { // col 0 default width
 			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}
 		
 		// Column "Enabled"
-		columnModel.getColumn(0).setResizable(false);
 		columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
 		columnModel.getColumn(0).setCellEditor(BooleanCell.EDITOR);
 		setColumnEditable(0, true);
