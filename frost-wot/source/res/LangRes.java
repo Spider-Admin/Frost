@@ -344,6 +344,8 @@ public class LangRes extends ListResourceBundle {
 	{"Show board update visualization", "Show board update visualization"},
 	{"Choose background color if updating board is selected", "Choose background color if updating board is selected"},
 	{"Choose background color if updating board is not selected", "Choose background color if updating board is not selected"},
+	{"Choose updating color of SELECTED boards", "Choose updating color of SELECTED boards"},
+	{"Choose updating color of NON-SELECTED boards", "Choose updating color of NON-SELECTED boards"},
 	
     // Search Panel
 	{"Image Extension", "Image Extension"},
