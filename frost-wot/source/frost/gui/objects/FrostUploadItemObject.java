@@ -13,14 +13,14 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public final static int STATE_REQUESTED  = 2; // a start of uploading is requested
     public final static int STATE_UPLOADING  = 3;
     public final static int STATE_PROGRESS   = 4; // upload runs, shows "... kb"
-    public final static int STATE_REQUESTED_GENCHK  = 5; // a start of genchk is requested
-    public final static int STATE_WORKING_GENCHK  = 6; // a start of genchk is requested
+    public final static int STATE_ENCODING_REQUESTED  = 5; // an encoding of file is requested
+    public final static int STATE_ENCODING   = 6; // the encode is running
     // the strings that are shown in table for the states
-    private final static String STATE_UPLOADED_NEVER_STR = LangRes.getString("Never");
-    private final static String STATE_REQUESTED_STR      = LangRes.getString("Requested");
-    private final static String STATE_UPLOADING_STR      = LangRes.getString("Uploading");
-    private final static String STATE_REQUESTED_GENCHK_STR      = "Encode requested";
-    private final static String STATE_WORKING_GENCHK_STR      = "Encoding file...";
+    private final static String STATE_UPLOADED_NEVER_STR     = LangRes.getString("Never");
+    private final static String STATE_REQUESTED_STR          = LangRes.getString("Requested");
+    private final static String STATE_UPLOADING_STR          = LangRes.getString("Uploading");
+    private final static String STATE_ENCODING_REQUESTED_STR = "Encode requested";
+    private final static String STATE_ENCODING_STR           = "Encoding file...";
 
     private String fileName = null;
     private String filePath = null;
@@ -168,8 +168,8 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         case STATE_REQUESTED:   statestr = STATE_REQUESTED_STR; break;
         case STATE_UPLOADING:   statestr = STATE_UPLOADING_STR; break;
         case STATE_PROGRESS:    statestr = getUploadProgress(); break;
-        case STATE_REQUESTED_GENCHK:    statestr = STATE_REQUESTED_GENCHK_STR; break;
-        case STATE_WORKING_GENCHK:    statestr = STATE_WORKING_GENCHK_STR; break;
+        case STATE_ENCODING_REQUESTED:    statestr = STATE_ENCODING_REQUESTED_STR; break;
+        case STATE_ENCODING:    statestr = STATE_ENCODING_STR; break;
         case STATE_IDLE:        statestr = ( (lastUploadDate==null) ? STATE_UPLOADED_NEVER_STR : lastUploadDate );
         }
         return statestr;

@@ -14,14 +14,16 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public final static int STATE_REQUESTING = 5;
     public final static int STATE_PROGRESS   = 6; // download runs
     public final static int STATE_REQUESTED  = 7;
+    public final static int STATE_DECODING   = 8; // decoding runs
+    
     // the strings that are shown in table for the states
     private final static String STATE_WAITING_STR    = LangRes.getString("Waiting");
     private final static String STATE_TRYING_STR     = LangRes.getString("Trying");
     private final static String STATE_DONE_STR       = LangRes.getString("Done");
     private final static String STATE_FAILED_STR     = LangRes.getString("Failed");
     private final static String STATE_REQUESTING_STR = "Requesting";
-    private final static String STATE_PROGRESS_STR   = " kb";
     private final static String STATE_REQUESTED_STR  = "Requested";
+    private final static String STATE_DECODING_STR   = "Decoding segment...";
 
     private String fileName = null;
     private Long fileSize = null;
@@ -160,7 +162,8 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         case STATE_FAILED:      statestr = STATE_FAILED_STR; break;
         case STATE_DONE:        statestr = STATE_DONE_STR; break;
         case STATE_REQUESTING:  statestr = STATE_REQUESTING_STR; break;
-	case STATE_REQUESTED:   statestr = STATE_REQUESTED_STR; break;
+	    case STATE_REQUESTED:   statestr = STATE_REQUESTED_STR; break;
+        case STATE_DECODING:    statestr = STATE_DECODING_STR; break;
         case STATE_PROGRESS:    if( totalBlocks > 0 )
                                     statestr = (int)((doneBlocks*100)/requiredBlocks) + "%";
                                 else
