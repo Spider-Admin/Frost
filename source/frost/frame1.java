@@ -2736,7 +2736,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     key = key.substring(0, key.indexOf("/") );*/
 
                 // add valid key to download table
-                FrostDownloadItemObject dlItem = new FrostDownloadItemObject( mixed.makeFilename(fileName),
+                FrostDownloadItemObject dlItem = new FrostDownloadItemObject( fileName, //users weren't happy with '_'
                                                                               key,
                                                                               null );
                 boolean isAdded = getDownloadTable().addDownloadItem( dlItem );
