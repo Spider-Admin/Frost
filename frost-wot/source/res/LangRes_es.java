@@ -403,6 +403,12 @@ static final Object[][] contents = {
 	{"NewBoardDialog.add","Añade foro"},
 	
 	///
+	/// BoardSettingsFrame
+	///
+	
+	  {"BoardSettingsFrame.description","Descripción:"},
+	
+	///
 	/// Misc (appear in several classes)
 	///
 	
