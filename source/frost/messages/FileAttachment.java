@@ -21,7 +21,8 @@ import frost.XMLTools;
  */
 public class FileAttachment extends Attachment {
 
-	SharedFileObject fileObj;
+	private SharedFileObject fileObj;
+
 	/* (non-Javadoc)
 	 * @see frost.messages.Attachment#getType()
 	 */
@@ -30,25 +31,17 @@ public class FileAttachment extends Attachment {
 	}
 
 	/* (non-Javadoc)
-	 * @see frost.messages.Attachment#getMessage()
-	 */
-	public MessageObject getMessage() {
-		// TODO Auto-generated method stub
-		return null;
-	}
-
-	/* (non-Javadoc)
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
 	public Element getXMLElement(Document container) {
 		Element el = container.createElement("Attachment");
-		el.setAttribute("type","file");
+		el.setAttribute("type", "file");
 		el.appendChild(fileObj.getXMLElement(container));
-		
+
 		//if file is ofline and it has a File obj associated with it 
 		//(i.e. if it is a file we're sharing),
 		//add a <path> element to this element
-		
+
 		if (!fileObj.isOnline() && fileObj.getFile() != null) {
 			CDATASection cdata = container.createCDATASection(fileObj.getFile().getPath());
 			Element path = container.createElement("path");
@@ -62,29 +55,44 @@ public class FileAttachment extends Attachment {
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
-		Element _file = (Element)XMLTools.getChildElementsByTagName(e,"File").iterator().next();
+		Element _file = (Element) XMLTools.getChildElementsByTagName(e, "File").iterator().next();
 		fileObj = SharedFileObject.getInstance(_file);
-		
-		assert fileObj!=null;
-		
-		if (XMLTools.getChildElementsByTagName(e,"path").size() > 0) 
-			fileObj.setFile(new File(XMLTools.getChildElementsCDATAValue(e,"path")));
-		
+
+		assert fileObj != null;
+
+		if (XMLTools.getChildElementsByTagName(e, "path").size() > 0)
+			fileObj.setFile(new File(XMLTools.getChildElementsCDATAValue(e, "path")));
 
 	}
-	
-	public FileAttachment(Element e) throws SAXException{
+
+	/**
+	 * @param e
+	 * @throws SAXException
+	 */
+	public FileAttachment(Element e) throws SAXException {
 		loadXMLElement(e);
 	}
-	
+
+	/**
+	 * @param o
+	 */
 	public FileAttachment(SharedFileObject o) {
-		fileObj =o;
+		fileObj = o;
 	}
 	/**
 	 * @return the SharedFileObject this class wraps
 	 */
 	public SharedFileObject getFileObj() {
 		return fileObj;
+	}
+
+	/* 
+	 * @see java.lang.Comparable#compareTo(java.lang.Object)
+	 */
+	public int compareTo(Object o) {
+		String myName = fileObj.getFilename();
+		String otherName = ((FileAttachment) o).getFileObj().getFilename();
+		return myName.compareTo(otherName);
 	}
 
 }
