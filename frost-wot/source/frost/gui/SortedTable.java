@@ -31,15 +31,16 @@ public class SortedTable extends JTable
     protected int sortedColumnIndex = 0;
     protected boolean sortedColumnAscending = true;
 
+	/**
+	 * 
+	 */
+	public SortedTable() {
+		this(null);
+	}
+
     public SortedTable(TableModel model)
     {
         super(model);
-
-        // model needs to know parent table to invoke sorting after updateRow
-        if( model instanceof SortedTableModel )
-        {
-            ((SortedTableModel)model).setParentTable( this );
-        }
         initSortHeader();
     }
 
@@ -171,5 +172,17 @@ public class SortedTable extends JTable
         public void mouseEntered(MouseEvent event) {}
         public void mouseExited(MouseEvent event) {}
     }
+	/* (non-Javadoc)
+	 * @see javax.swing.JTable#setModel(javax.swing.table.TableModel)
+	 */
+	public void setModel(TableModel dataModel) {
+		super.setModel(dataModel);
+
+		// model needs to know parent table to invoke sorting after updateRow
+		if (dataModel instanceof SortedTableModel) {
+			((SortedTableModel) dataModel).setParentTable(this);
+		}
+	}
+
 }
 
