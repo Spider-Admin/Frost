@@ -32,3 +32,4 @@ Legend:
 + added 'pause' statement to frost.bat, should make life for many windows users easier if errors occur  --bback
 + added 'Mark ALL messages read' to popup menu of message table  --bback
 + added support for detached signatures  in the crypto --zab
+* started moving towards more unified logging, will finish later --zab
