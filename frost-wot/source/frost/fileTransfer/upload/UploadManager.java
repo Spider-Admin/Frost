@@ -27,6 +27,7 @@ public class UploadManager implements PropertyChangeListener {
 	private UploadModel model;
 	private UploadPanel panel;
 	private UploadTicker ticker;
+	private UploadStatusPanel statusPanel;
 
 	private boolean freenetIsOnline;
 
@@ -43,6 +44,7 @@ public class UploadManager implements PropertyChangeListener {
 	 */
 	public void initialize() throws StorageException {
 		mainFrame.addPanel("Uploads", getPanel());
+		mainFrame.addStatusPanel(getStatusPanel(), 0);
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_REQUESTS, this);
 		updateUploadStatus();
 		getModel().initialize();
@@ -86,6 +88,17 @@ public class UploadManager implements PropertyChangeListener {
 		}
 		return panel;
 	}
+	
+	/**
+	 * @return
+	 */
+	private UploadStatusPanel getStatusPanel() {
+		if (statusPanel == null) {
+			statusPanel = new UploadStatusPanel(getTicker());
+		}
+		return statusPanel;
+	}
+	
 	/* (non-Javadoc)
 	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 	 */
@@ -106,7 +119,7 @@ public class UploadManager implements PropertyChangeListener {
 	/**
 	 * @return
 	 */
-	public UploadTicker getTicker() {
+	private UploadTicker getTicker() {
 		if (ticker == null) {
 			ticker = new UploadTicker(settings, getModel(), getPanel(), myID);
 		}

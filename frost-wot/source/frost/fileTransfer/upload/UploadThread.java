@@ -62,6 +62,17 @@ class UploadThread extends Thread
     FrostUploadItem uploadItem;
 
 	public void run() {
+		switch (mode) {
+			case MODE_UPLOAD:
+				ticker.uploadingThreadStarted();
+				break;
+			case MODE_GENERATE_SHA1:
+				ticker.generatingThreadStarted();
+				break;
+			case MODE_GENERATE_CHK:
+				ticker.generatingThreadStarted();
+				break;
+		}
 		if (batchId == null) {
 			Exception er = new Exception();
 			er.fillInStackTrace();
@@ -75,28 +86,28 @@ class UploadThread extends Thread
 			switch (mode) {
 				case MODE_UPLOAD :
 					upload(sign);
-					ticker.releaseUploadingThread();
+					ticker.uploadingThreadFinished();
 					break;
 				case MODE_GENERATE_SHA1 :
 					generateSHA1(sign);
-					ticker.releaseGeneratingThread();
+					ticker.generatingThreadFinished();
 					break;
 				case MODE_GENERATE_CHK :
 					generateCHK();
-					ticker.releaseGeneratingThread();
+					ticker.generatingThreadFinished();
 					break;
 			}
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Exception thrown in run()", e);
 			switch (mode) {
 				case MODE_UPLOAD :
-					ticker.releaseUploadingThread();
+					ticker.uploadingThreadFinished();
 					break;
 				case MODE_GENERATE_SHA1 :
-					ticker.releaseGeneratingThread();
+					ticker.generatingThreadFinished();
 					break;
 				case MODE_GENERATE_CHK :
-					ticker.releaseGeneratingThread();
+					ticker.generatingThreadFinished();
 					break;
 			}
 		}
