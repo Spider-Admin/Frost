@@ -4,7 +4,7 @@ import java.io.*;
 import java.net.*;
 import java.util.*;
 
-import fillament.util.WorkQueue;
+
 import frost.FcpTools.*;
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.FrostDownloadItemObject;
@@ -28,9 +28,9 @@ public class FcpRequest
 
     private static class HealerThread extends Thread
     {
-        private WorkQueue wq;
+        private LinkedList wq;
         private String Name;
-        public HealerThread(WorkQueue wq, String Name)
+        public HealerThread(LinkedList wq, String Name)
         {
             this.Name = Name;
             this.wq = wq;
@@ -39,10 +39,10 @@ public class FcpRequest
         {
             System.out.println("Healer starting for " + Name);
             String [][]results = new String[1][2];
-
-            while( wq.hasMore() )
+			Iterator it = wq.iterator();
+            while( it.hasNext() )
             {
-                File block = (File)wq.next();
+                File block = (File)it.next();
                 System.out.println("\nTrying to heal " + Name + " with " + block.getPath());
                 Thread inserter = new putKeyThread("CHK@",block,5,results,0,true);
                 inserter.run();
@@ -72,8 +72,8 @@ public class FcpRequest
         Vector toHeal = new Vector();
         //toheal.set(toHeal);
         //make the healing queue and thread
-        healingQueue.set(new WorkQueue());
-        HealerThread hl = new HealerThread((WorkQueue)(healingQueue.get()),target.getPath());
+        healingQueue.set(Collections.synchronizedList(new LinkedList()));
+        HealerThread hl = new HealerThread((LinkedList)(healingQueue.get()),target.getPath());
         healer.set(hl);
 
         Vector segmentHeaders = null;
@@ -553,7 +553,7 @@ public class FcpRequest
 
                                             System.out.println("added to heal queue " + uploadMe.getPath());
                                             toHeal.add(uploadMe.getPath());
-                                            ((WorkQueue)healingQueue.get()).add(uploadMe);
+                                            ((LinkedList)healingQueue.get()).add(uploadMe);
                                             //}
                                             uploadMe = null;
                                             chunkNo++;
