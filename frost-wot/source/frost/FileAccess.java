@@ -200,8 +200,7 @@ public class FileAccess
 		    //we do not add keys who are not signed by people we marked as GOOD!
 		    //but we add unsigned keys for now; this will probably change soon
 		    if (current.getOwner() != null && 
-		    		frame1.getFriends().Get(current.getOwner()) == null &&
-				current.getOwner().compareTo(frame1.getMyId().getUniqueName()) != 0) {
+		    		frame1.getEnemies().Get(current.getOwner()) != null ) {
 			System.out.println("skipping file from BAD user");
 			continue;
 		    }
