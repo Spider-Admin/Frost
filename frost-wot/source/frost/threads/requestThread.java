@@ -38,6 +38,8 @@ public class requestThread extends Thread
     private Long size;
     private String key;
     private String SHA1;
+    private String batch;
+    private String owner;
     private DownloadTable downloadTable;
     private FrostBoardObject board;
 
@@ -69,7 +71,7 @@ public class requestThread extends Thread
 		    
 		//request the file itself
 		try {
-                        request(SHA1.trim(), board);
+                        request();
                         if( DEBUG ) System.out.println("FILEDN: Uploaded request for " + filename);
                     }
                catch(Throwable t) {
@@ -132,7 +134,7 @@ public class requestThread extends Thread
                     // doing it after this , the table states Waiting and there are threads running,
                     // so download seems to stall
                     try {
-                        request(SHA1.trim(), board);
+                        request();
                         if( DEBUG ) System.out.println("FILEDN: Uploaded request for " + filename);
                     }
                     catch(Throwable t) {
@@ -200,8 +202,8 @@ public class requestThread extends Thread
         downloadItem.setLastDownloadStopTimeMillis( System.currentTimeMillis() );
     }
 
-    // Request a certain CHK from a board
-    private void request(String SHA1, FrostBoardObject board)
+    // Request a certain file by SHA1
+    private void request()
     {
         String messageUploadHtl = frame1.frostSettings.getValue("tofUploadHtl");
         boolean requested = false;
@@ -209,11 +211,13 @@ public class requestThread extends Thread
         if( DEBUG ) System.out.println("FILEDN: Uploading request for '"+filename+"' to board '" + board.toString()+"'");
 
         String fileSeparator = System.getProperty("file.separator");
-        String destination = new StringBuffer().append(frame1.keypool)
-                                               .append(board.getBoardFilename())
-                                               .append(fileSeparator)
-                                               .append(DateFun.getDate())
-                                               .append(fileSeparator)
+        String destination = new StringBuffer().append("requests")
+						.append(fileSeparator)
+                                               .append(owner)
+					       .append("-")
+					       .append(batch)
+					       .append("-")
+					       .append(DateFun.getDate())
                                                .toString();
         File checkDestination = new File(destination);
         if( !checkDestination.isDirectory() )
@@ -267,10 +271,6 @@ public class requestThread extends Thread
             {
                 // Does this index already exist?
                 testMe = new File(new StringBuffer().append(destination)
-                                       .append(date)
-                                       .append("-")
-                                       .append(board.getBoardFilename())
-                                       .append("-")
                                        .append(index)
                                        .append(".req.sha")
                                        .toString());
@@ -312,10 +312,12 @@ public class requestThread extends Thread
                     String upKey = new StringBuffer().append("KSK@frost/request/")
                                    .append(frame1.frostSettings.getValue("messageBase"))
                                    .append("/")
-                                   .append(date)
+                                   .append(owner)
                                    .append("-")
-                                   .append(board.getBoardFilename())
+                                   .append(batch)
                                    .append("-")
+				   .append(date)
+				   .append("-")
                                    .append(index)
                                    .append(".req.sha")
                                    .toString();
@@ -431,6 +433,8 @@ public class requestThread extends Thread
         this.key = dlItem.getKey();
         this.board = dlItem.getSourceBoard();
 	this.SHA1 = dlItem.getSHA1();
+	this.batch = dlItem.getBatch();
+	this.owner = dlItem.getOwner();
 	
 
         this.downloadItem = dlItem;
