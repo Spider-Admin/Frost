@@ -1296,13 +1296,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					Identity owner_id = null;
 					String owner_s = null;
 					try {
-						owner_s = (String) i.next();
-					} catch (ClassCastException cce) {
 						owner_id = (Identity) i.next();
+					} catch (ClassCastException cce) {
+						owner_s = (String) i.next();
 					}
 
 					if (owner_id != null) {
 						getEnemies().remove(owner_id.getUniqueName());
+						Core.getNeutral().remove(owner_id.getUniqueName());
 						getFriends().Add(owner_id);
 						continue;
 					}
@@ -1324,13 +1325,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					Identity owner_id = null;
 					String owner_s = null;
 					try {
-						owner_s = (String) i.next();
-					} catch (ClassCastException cce) {
 						owner_id = (Identity) i.next();
+					} catch (ClassCastException cce) {
+						owner_s = (String) i.next();
 					}
 
-					if (owner_id != null) {
+					if (owner_id != null) {  
 						getFriends().remove(owner_id.getUniqueName());
+						Core.getNeutral().remove(owner_id.getUniqueName());
 						getEnemies().Add(owner_id);
 						continue;
 					}
