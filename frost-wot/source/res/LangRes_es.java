@@ -443,8 +443,12 @@ static final Object[][] contents = {
 	
 	// Popup over message
 	{"Copy","Copia"},
-	{"Save message to disk","Graba mensaje a disco"}
+	{"Save message to disk","Graba mensaje a disco"},
 	//{"Cancel", "Cancel"}, // Defined above
+	
+	// Saver AutoTask popup
+	{"Saver.AutoTask.title", "Se ha encontrado un problema."},
+	{"Saver.AutoTask.message", "Frost se ha encontrado con un error mientras grababa un recurso y se cerrará."}
 	
 	};
 }
