@@ -935,9 +935,13 @@ public class frame1 extends JFrame implements ClipboardOwner
         public void run() {
             if( isFreenetOnline() == false )
                 return;
-            System.out.println("KeyReinserter: Re-uploading public key...");
-            FcpInsert.putFile("CHK@",new File("pubkey.txt"),25,false,true,null);
-            System.out.println("KeyReinserter: Finished re-uploading public key.");
+            File pkey = new File("pubkey.txt");
+            if( pkey.exists() )
+            {
+                System.out.println("KeyReinserter: Re-uploading public key...");
+                FcpInsert.putFile("CHK@",pkey,25,false,true,null);
+                System.out.println("KeyReinserter: Finished re-uploading public key.");
+            }
         }
     };
     timer2.schedule(KeyReinserter,0,60*60*1000);

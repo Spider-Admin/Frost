@@ -185,5 +185,24 @@ public class UploadTable extends SortedTable
         }
         return TableXmlIO.saveUploadTableItems( (UploadTableModel)getModel(), filename );
     }
+
+    /**
+     * Returns true if the table contains an item with the given key.
+     */
+    public boolean containsItemWithKey(String key)
+    {
+        UploadTableModel model = (UploadTableModel)getModel();
+        for( int x=0; x<model.getRowCount(); x++ )
+        {
+            FrostUploadItemObject ulItem = (FrostUploadItemObject)model.getRow(x);
+            if( ulItem.getKey() != null &&
+                ulItem.getKey().equals( key ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
+
 }
 

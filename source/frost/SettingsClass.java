@@ -344,10 +344,8 @@ public class SettingsClass
         File fn = File.listRoots()[0];
 
         defaults.put("keypool.dir", frame1.keypool);
-        defaults.put("unsent.dir", "localdata"+System.getProperty("file.separator")+
-                                   "unsent"+System.getProperty("file.separator"));
-        defaults.put("temp.dir", "localdata"+System.getProperty("file.separator")+
-                                   "temp"+System.getProperty("file.separator"));
+        defaults.put("unsent.dir", "localdata"+fs+"unsent"+fs);
+        defaults.put("temp.dir", "localdata"+fs+"temp"+fs);
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put("automaticUpdate", "true");

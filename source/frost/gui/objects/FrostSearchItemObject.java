@@ -13,8 +13,7 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     public static final int STATE_NONE        = 1; // set if a search table item is only in search table
     public static final int STATE_DOWNLOADED  = 2; // set if the item is already downloaded and is found in download folder
     public static final int STATE_DOWNLOADING = 3; // set if file is not already downloaded, but in download table
-
-// TODO: add color for items in upload table!
+    public static final int STATE_UPLOADING   = 4; // set if file is in upload table
 
     public FrostSearchItemObject( FrostBoardObject board, KeyClass key, int state )
     {

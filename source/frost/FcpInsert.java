@@ -79,7 +79,8 @@ public class FcpInsert
             {
                 try
                 {
-                    FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+                    FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
+                                                                 frame1.frostSettings.getValue("nodePort"));
                     String output = connection.putKeyFromFile(uri, file.getPath(), htl, mode);
                     return result(output);
                 }

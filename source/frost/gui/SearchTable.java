@@ -92,6 +92,10 @@ public class SearchTable extends SortedTable
             {
                 setForeground( Color.BLUE );
             }
+            else if(sItem.getState() == sItem.STATE_UPLOADING )
+            {
+                setForeground( Color.GREEN );
+            }
             else
             {
                 // normal item, drawn in black
