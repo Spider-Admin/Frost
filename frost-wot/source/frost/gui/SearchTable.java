@@ -36,10 +36,21 @@ public class SearchTable extends SortedTable
 
 	private CellRenderer cellRenderer = new CellRenderer();
 	
+	/**
+	 * 
+	 */
+	public SearchTable(FrostIdentities newIdentities) {
+		this(null, newIdentities);
+	}
+
+	/**
+	 * @param m
+	 * @param newIdentities
+	 */
 	public SearchTable(TableModel m, FrostIdentities newIdentities) {
 		super(m);
 
-		identities = newIdentities;
+		identities = newIdentities; 
 
 		setDefaultRenderer( Object.class, cellRenderer );
 		setDefaultRenderer( Number.class, cellRenderer );
@@ -47,7 +58,9 @@ public class SearchTable extends SortedTable
 		// default for sort: sort by name ascending ?
 		sortedColumnIndex = 0;
 		sortedColumnAscending = true;
-		resortTable();
+		if (m != null) {
+			resortTable();
+		}
 	}
 
     /**
@@ -178,6 +191,14 @@ public class SearchTable extends SortedTable
 		{
 			getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see javax.swing.JTable#setModel(javax.swing.table.TableModel)
+	 */
+	public void setModel(TableModel dataModel) {
+		super.setModel(dataModel);
+		resortTable();
 	}
 
 }
