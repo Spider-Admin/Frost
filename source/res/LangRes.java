@@ -228,10 +228,6 @@ public class LangRes extends ListResourceBundle {
 	{"Remove all downloads", "Remove all downloads"},
 	{"Remove finished downloads", "Remove finished downloads"},
 	//{"Cancel", "Cancel"}, // Defined above
-	
-	//Download table
-	{"Blocks", "Blocks"},
-	{"Tries", "Tries"},
         
 	///////////////////////////////////////////////////
     // Main Window Uploads Tab
@@ -545,6 +541,9 @@ public class LangRes extends ListResourceBundle {
 	/// DownloadTableFormat
 	///
 	
+	{"Enabled", "Enabled"},
+	{"Blocks", "Blocks"},
+	{"Tries", "Tries"},
 	{"Waiting", "Waiting"},
 	{"Trying", "Trying"},
 	{"Done", "Done"},

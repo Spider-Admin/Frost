@@ -42,7 +42,6 @@ static final Object[][] contents = {
 {"Block messages with these attached boards (separate by ';' )", "Bloquea mensajes con estos foros adjuntos (separados por ';' )"},
 {"Block messages with body containing (separate by ';' )","Bloquea mensajes cuyo cuerpo contiene (separados por ';' )"},
 {"Block messages with subject containing (separate by ';' )","Bloquea mensajes cuyo asunto contiene (separados por ';' )"},
-{"Blocks", "Bloques"},
 {"block user (sets to BAD)","bloquea usuario (marca como MALO)"},
 {"board","foro"},
 {"Board","Foro"},
@@ -261,7 +260,6 @@ static final Object[][] contents = {
 {"TOFDO","TOFDE"},
 {"TOFUP","TOFSU"},
 {"Translate Frost into another language","Traduce Frost a otro idioma"},
-{"Tries", "Intentos"},
 {"Trust","Confía"},
 {"Try to download all segments, even if one fails","Intenta descargar todos los segmentos, aunque alguno falle"},
 {"Up","Arriba"},
@@ -372,7 +370,9 @@ static final Object[][] contents = {
 	///
 	/// DownloadTableFormat
 	///
-
+	{"Enabled", "Activo"},
+	{"Blocks", "Bloques"},
+	{"Tries", "Intentos"},
 	{"Waiting","Esperando"},
 	{"Trying","Intentando"},
 	{"Done","Hecho"},
