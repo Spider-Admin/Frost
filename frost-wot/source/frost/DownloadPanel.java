@@ -19,7 +19,7 @@ import frost.gui.translation.*;
  */
 public class DownloadPanel extends JPanel {
 	/**
-	 * 
+	 *  
 	 */
 	private class PopupMenuDownload
 		extends JPopupMenu
@@ -314,19 +314,20 @@ public class DownloadPanel extends JPanel {
 	/**
 	 * 
 	 */
-	private class Listener implements LanguageListener, ActionListener, KeyListener, MouseListener, ItemListener {
+	private class Listener
+		implements LanguageListener, ActionListener, KeyListener, MouseListener, ItemListener {
+		/**
+			 * 
+			 */
+		public Listener() {
+			super();
+		}
+
 		/* (non-Javadoc)
 		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
 		 */
 		public void languageChanged(LanguageEvent event) {
 			refreshLanguage();
-		}
-
-		/**
-		 * 
-		 */
-		public Listener() {
-			super();
 		}
 
 		/* (non-Javadoc)
@@ -388,8 +389,8 @@ public class DownloadPanel extends JPanel {
 		public void mousePressed(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
 
-				if ((e.getSource() == downloadTable) ||
-					   (e.getSource() == downloadTableScrollPane)) {
+				if ((e.getSource() == downloadTable)
+					|| (e.getSource() == downloadTableScrollPane)) {
 					showDownloadTablePopupMenu(e);
 				}
 
@@ -401,12 +402,12 @@ public class DownloadPanel extends JPanel {
 		 */
 		public void mouseReleased(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
-				
-				if ((e.getSource() == downloadTable) ||
-					   (e.getSource() == downloadTableScrollPane)) {
+
+				if ((e.getSource() == downloadTable)
+					|| (e.getSource() == downloadTableScrollPane)) {
 					showDownloadTablePopupMenu(e);
 				}
-				
+
 			}
 		}
 
@@ -420,7 +421,7 @@ public class DownloadPanel extends JPanel {
 		}
 
 	}
-	
+
 	private PopupMenuDownload popupMenuDownload = null;
 
 	private Listener listener = new Listener();
@@ -499,7 +500,7 @@ public class DownloadPanel extends JPanel {
 			initialized = true;
 		}
 	}
-	
+
 	private Dimension calculateLabelSize(String text) {
 		JLabel dummyLabel = new JLabel(text);
 		dummyLabel.doLayout();
@@ -513,17 +514,13 @@ public class DownloadPanel extends JPanel {
 		downloadActivateCheckBox.setToolTipText(languageResource.getString("Activate downloading"));
 		downloadShowHealingInfo.setToolTipText(
 			languageResource.getString("Show healing information"));
-			
+
 		String waiting = languageResource.getString("Waiting");
 		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
 		downloadItemCountLabel.setPreferredSize(labelSize);
 		downloadItemCountLabel.setMinimumSize(labelSize);
 		String s =
-			new StringBuffer()
-				.append(waiting)
-				.append(" : ")
-				.append(downloadItemCount)
-				.toString();
+			new StringBuffer().append(waiting).append(" : ").append(downloadItemCount).toString();
 		downloadItemCountLabel.setText(s);
 	}
 
@@ -566,10 +563,10 @@ public class DownloadPanel extends JPanel {
 		String selectedIcon,
 		String rolloverSelectedIcon) {
 
-		checkBox.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
-		checkBox.setSelectedIcon(new ImageIcon(frame1.class.getResource(selectedIcon)));
+		checkBox.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
+		checkBox.setSelectedIcon(new ImageIcon(getClass().getResource(selectedIcon)));
 		checkBox.setRolloverSelectedIcon(
-			new ImageIcon(frame1.class.getResource(rolloverSelectedIcon)));
+			new ImageIcon(getClass().getResource(rolloverSelectedIcon)));
 		checkBox.setMargin(new Insets(0, 0, 0, 0));
 		checkBox.setFocusPainted(false);
 	}
@@ -580,7 +577,7 @@ public class DownloadPanel extends JPanel {
 	 * @param rolloverIcon Displayed when mouse is over button
 	 */
 	private void configureButton(JButton button, String rolloverIcon) {
-		button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
+		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
 		button.setMargin(new Insets(0, 0, 0, 0));
 		button.setBorderPainted(false);
 		button.setFocusPainted(false);
@@ -720,11 +717,11 @@ public class DownloadPanel extends JPanel {
 		}
 		return popupMenuDownload;
 	}
-	
-	private void showDownloadTablePopupMenu(MouseEvent e) {		
+
+	private void showDownloadTablePopupMenu(MouseEvent e) {
 		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
-	
+
 	/**
 	 * @param e
 	 */
@@ -734,7 +731,7 @@ public class DownloadPanel extends JPanel {
 		} else {
 			downloadingActivated = false;
 		}
-			
+
 	}
 
 }
