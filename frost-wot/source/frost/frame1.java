@@ -31,10 +31,11 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.*;
 
+import com.l2fprod.gui.plaf.skin.*;
+
 import frost.components.BrowserFrame;
-import frost.crypt.*;
+import frost.crypt.crypt;
 import frost.ext.*;
-import frost.ext.Execute;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
@@ -50,6 +51,33 @@ import frost.threads.*;
 //   the tofTree is updated)
 
 public class frame1 extends JFrame implements ClipboardOwner {
+	/**
+	 * Initializes the skins system
+	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
+	 * @param frame the root JFrame to update its UI when skins are activated
+	 */
+	private void initializeSkins(SettingsClass frostSettings, JFrame frame) {
+		String skinsEnabled = frostSettings.getValue("skinsEnabled");
+		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
+			String selectedSkinPath = frostSettings.getValue("selectedSkin");
+			if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
+				try {
+					Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
+					SkinLookAndFeel.setSkin(selectedSkin);
+					SkinLookAndFeel.enable();
+					SwingUtilities.updateComponentTreeUI(frame);
+				} catch (UnsupportedLookAndFeelException exception) {
+					System.out.println("The selected skin is not supported by your system");
+					System.out.println("Skins will be disabled until you choose another one\n");
+					frostSettings.setValue("skinsEnabled", false);
+				} catch (Exception exception) {
+					System.out.println("There was an error while loading the selected skin");
+					System.out.println("Skins will be disabled until you choose another one\n");
+					frostSettings.setValue("skinsEnabled", false);
+				}
+			}
+		}
+	}
 	/**Save settings*/
 	public void saveSettings() {
 		frostSettings.setValue(
@@ -301,6 +329,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		instance = this;
 		frostSettings = new SettingsClass();
 		keypool = frostSettings.getValue("keypool.dir");
+
+		//Initializes the skins
+		initializeSkins(frostSettings, this);
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		// enable the machine ;)
