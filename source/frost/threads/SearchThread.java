@@ -235,7 +235,7 @@ public class SearchThread extends Thread {
             int searchItemState = FrostSearchItemObject.STATE_NONE;
 
             // Already downloaded files get a nice color outfit (see renderer in SearchTable)
-            File file = new File(frame1.frostSettings.getValue("downloadDirectory") + mixed.makeFilename(filename));
+            File file = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
             if( file.exists() )
             {
                 // file is already downloaded -> light_gray

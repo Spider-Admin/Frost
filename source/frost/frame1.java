@@ -2613,10 +2613,16 @@ public class frame1 extends JFrame implements ClipboardOwner
         for( int i = 0; i < dlModel.getRowCount(); i++ )
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-            if( dlItem.getState() == FrostDownloadItemObject.STATE_WAITING &&
+            if(
+	    ( dlItem.getState() == FrostDownloadItemObject.STATE_WAITING &&
                 ( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true )
 //                && dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
               )
+	      ||
+	      (dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED &&
+	      	dlItem.getKey()!=null && ( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true )
+	      )
+	    )
             {
                 // check if waittime is expired
                 long waittimeMillis = frostSettings.getIntValue("downloadWaittime") * 60 * 1000; // min->millisec
