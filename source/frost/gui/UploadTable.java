@@ -18,12 +18,7 @@ public class UploadTable extends SortedTable
     public UploadTable(TableModel m)
     {
         super(m);
-        // set column sizes
-        int[] widths = {250, 80, 80, 80, 80};
-        for (int i = 0; i < widths.length; i++)
-        {
-            getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-        }
+       
         // default for sort: sort by ... ?
         sortedColumnIndex = 0;
         sortedColumnAscending = true;
@@ -219,6 +214,19 @@ public class UploadTable extends SortedTable
         }
         return false;
     }
+
+	/* (non-Javadoc)
+	 * @see javax.swing.JTable#createDefaultColumnsFromModel()
+	 */
+	public void createDefaultColumnsFromModel() {
+		super.createDefaultColumnsFromModel();
+
+		// set column sizes
+		int[] widths = { 250, 80, 80, 80, 80 };
+		for (int i = 0; i < widths.length; i++) {
+			getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+		}
+	}
 
 }
 

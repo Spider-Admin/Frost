@@ -19,19 +19,15 @@
 
 package frost.gui.model;
 
+import frost.gui.translation.*;
 
-public class UploadTableModel extends SortedTableModel
+
+public class UploadTableModel extends SortedTableModel implements LanguageListener
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+	private UpdatingLanguageResource languageResource = null;
+	
+	protected final static String columnNames[] = new String[6];
 
-    protected final static String columnNames[] = {
-        LangRes.getString("Filename"),
-        LangRes.getString("Size"),
-        LangRes.getString("Last upload"),
-        LangRes.getString("Path"),
-        LangRes.getString("Destination"),
-        LangRes.getString("Key")
-    };
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
         String.class, //LangRes.getString("Size"),
@@ -41,12 +37,27 @@ public class UploadTableModel extends SortedTableModel
         String.class  //LangRes.getString("Key")
     };
 
-    public UploadTableModel()
-    {
-        super();
-    }
+	public UploadTableModel(UpdatingLanguageResource newLanguageResource) {
+		super();
+		languageResource = newLanguageResource;
+		refreshLanguage();
+	}
 
-    public boolean isCellEditable(int row, int col)
+    /**
+	 * 
+	 */
+	private void refreshLanguage() {
+		columnNames[0] = languageResource.getString("Filename");
+		columnNames[1] = languageResource.getString("Size");
+		columnNames[2] = languageResource.getString("Last upload");
+		columnNames[3] = languageResource.getString("Path");
+		columnNames[4] = languageResource.getString("Destination");
+		columnNames[5] = languageResource.getString("Key");
+
+		fireTableStructureChanged();
+	}
+
+	public boolean isCellEditable(int row, int col)
     {
         return false;
     }
@@ -67,4 +78,11 @@ public class UploadTableModel extends SortedTableModel
             return columnClasses[column];
         return null;
     }
+
+	/* (non-Javadoc)
+	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+	 */
+	public void languageChanged(LanguageEvent event) {
+		refreshLanguage();			
+	}
 }
