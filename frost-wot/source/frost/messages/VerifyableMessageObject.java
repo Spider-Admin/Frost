@@ -28,8 +28,12 @@ import frost.FileAccess;
 
 
 
-public class VerifyableMessageObject extends MessageObject implements Cloneable
-{
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
+public class VerifyableMessageObject extends MessageObject implements Cloneable {
+
 	private static Logger logger = Logger.getLogger(VerifyableMessageObject.class.getName());
 	
     public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
@@ -44,211 +48,69 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
      *  N/A = couldn't retrieve key (will be obsoleted by xml messages)
      */
 
-    private String currentStatus;
-
-    public VerifyableMessageObject copy() throws CloneNotSupportedException
-    {
-        return (VerifyableMessageObject)this.clone();
-    }
-
-    /** get the verification key*/
-    /**public String getKeyAddress()
-    {
-        int start = content.lastIndexOf("<key>");
-        int end = content.indexOf("</key>",start);
-        if( (start == -1) || (end == -1) || (end-start < 55) ) return new String("none");
-        return content.substring(start+5,end);
-    }*/  //deprecate
-
-    /**gets the status of the message*/
-    public String getStatus()
-    {
-        return currentStatus;
-    }
-
-    /** set the status */
-    public void setStatus(String newStatus)
-    {
-        //System.out.println("setting message status to "+newStatus);
-        currentStatus = newStatus;
-        FileAccess.writeFile(currentStatus,file.getPath() + ".sig");
-    }
-
-    public VerifyableMessageObject(File file) throws Exception
-    {
-        super(file); // throws exception if loading failed
-        //isVerifyable = true;
-        
-
-        /*if( metadata == null)
-        {
-            isVerifyable=false;
-        }
-        else
-        {
-            isVerifyable = true;
-        }*/
-
-        File sigFile = new File(file.getPath() + ".sig");
-        if( !sigFile.exists() )
-        {
-            currentStatus = NA;
-        }
-        else
-        {
-            currentStatus = FileAccess.readFileRaw(sigFile);
-        }
-    }
+    private String status;
 
     /**
-     * First time verify.
+     * @return
+     * @throws CloneNotSupportedException
      */
-    public boolean isValidFormat(GregorianCalendar dirDate)
-    {
-        //System.out.println("TOFDN: ****** Verifying incoming message ******");
-        try { // if something fails here, set msg. to N/A (maybe harmful message)
+    public VerifyableMessageObject copy() throws CloneNotSupportedException {
+		return (VerifyableMessageObject) this.clone();
+	}
 
-            if( verifyDate(dirDate) == false || verifyTime() == false )
-            {
-                return false;
-            }
-        }
-        catch(Throwable t)
-        {
+    /** 
+     * gets the status of the message
+     * @return
+     */
+    public String getStatus() {
+		return status;
+	}
+
+    /**
+	 * set the status
+	 * @param status
+	 */
+	public void setStatus(String status) {
+		this.status = status;
+		FileAccess.writeFile(status, file.getPath() + ".sig");
+	}
+
+    /**
+     * @param file
+     * @throws Exception
+     */
+    public VerifyableMessageObject(File file) throws Exception {
+		super(file); // throws exception if loading failed
+		File sigFile = new File(file.getPath() + ".sig");
+		if (!sigFile.exists()) {
+			status = NA;
+		} else {
+			status = FileAccess.readFileRaw(sigFile);
+		}
+	}
+
+    /**
+	 * First time verify.
+     * @param dirDate
+     * @return
+     */
+    public boolean isValidFormat(GregorianCalendar dirDate) {
+		try { // if something fails here, set msg. to N/A (maybe harmful message)
+			if (verifyDate(dirDate) == false || verifyTime() == false) {
+				return false;
+			}
+		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Oo. Exception in isValidFormat() - skipping Message.", t);
-            return false;
-        }
-        return true;
-    	/*
-        VerifyableMessageObject currentMsg = this;
-        System.out.println("TOFDN: ****** Verifying incoming message ******");
-        try { // if something fails here, set msg. to N/A (maybe harmful message)
+			return false;
+		}
+		return true;
+	}
 
-            if( currentMsg.verifyDate(dirDate) == false || currentMsg.verifyTime() == false )
-            {
-                currentMsg.setDate(""); // -> leads to isValid()==false + msg. file is written with content = "Empty"
-                return;
-            }
-
-            Identity currentId;
-
-            // now as the date is correct, go on to verify
-            if(  (currentMsg.getFrom().indexOf("@") == -1) )
-            {
-                System.out.println("TOFDN: *** Message is NOT signed at all: "+currentMsg.getFrom());
-                currentMsg.setStatus(VerifyableMessageObject.OLD);
-            }
-            // check if this msg is sent by me
-            else if( frame1.getMyId().getUniqueName().equals(currentMsg.getFrom()) )
-            {
-                if( frame1.getCrypto().verify(currentMsg.getContent(), frame1.getMyId().getKey()) )
-                {
-                    System.out.println("TOFDN: *** Message is signed by a ME, set state to GOOD: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
-                }
-                else // verification FAILED!
-                {
-                    System.out.println("TOFDN: *** Message seems to be from ME (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-                }
-            }
-            //the message contains the CHK of a public key, see if we have this name on our list
-            //also check the list of everybody...
-            else if( frame1.getFriends().containsKey(currentMsg.getFrom()) )
-            {
-                //yes, we have that person, see if the addresses are the same
-                currentId = frame1.getFriends().Get(currentMsg.getFrom());
-                //check if the key addreses are the same, verify
-                if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
-                    frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
-                {
-                    System.out.println("TOFDN: *** Message is signed by a FRIEND, set state to GOOD: "+currentMsg.getFrom());
-                    currentId.noMessages++;
-                    currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
-                }
-                else // verification FAILED!
-                {
-                    System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-                }
-            }
-            else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
-            {
-                //yes, we have that person, see if the addresses are the same
-                currentId = frame1.getEnemies().Get(currentMsg.getFrom());
-                //check if the key addreses are the same, verify
-                if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
-                    frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
-                {
-                    System.out.println("TOFDN: *** Message is signed by a ENEMY, set state to BAD: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
-                }
-                else // verification FAILED!
-                {
-                    System.out.println("TOFDN: *** Message seems to be from a ENEMY (from is equal), but signature is wrong; set state to BAD anyways: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-                }
-            }
-            //check the neutral list
-            else if (Core.getNeutral().containsKey(currentMsg.getFrom())) {
-					//same as in good case
-							  currentId = Core.getNeutral().Get(currentMsg.getFrom());
-							  //check if the key addreses are the same, verify
-							  if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
-								  Core.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
-							  {
-								  System.out.println("TOFDN: *** Message is signed by a NEUTRAL, set state to CHECK: "+currentMsg.getFrom());
-								  currentId.noMessages++;
-								  currentMsg.setStatus(VerifyableMessageObject.PENDING);
-							  }
-							  else // verification FAILED!
-							  {
-								  System.out.println("TOFDN: *** Message seems to be from a NEUTRAL (from is equal), but signature is wrong; set state to BAD: "+currentMsg.getFrom());
-								  currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-							  }
-            }
-            else
-            {
-                //we don't have that person
-                //check if the message is authentic anyways
-                System.out.println("TOFDN: *** Don't found sender of message in our lists, checking message: "+currentMsg.getFrom() );
-                try {
-                    currentId =new Identity(currentMsg.getFrom(),currentMsg.getKeyAddress());
-                }
-                catch( IllegalArgumentException e ) {
-                    System.out.println("TODDN: *** IllegalArgumentException, set message state to N/A.");
-                    currentMsg.setStatus(VerifyableMessageObject.NA);
-                    return;
-                }
-
-                if( currentId.getKey() == Identity.NA )
-                {
-                    System.out.println("TOFDN: *** Don't found public key of unknown sender, set state to N/A: "+currentMsg.getFrom() );
-                    currentMsg.setStatus(VerifyableMessageObject.NA);
-                }
-                else if( frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
-                {
-                    System.out.println("TOFDN: *** Message of unknown sender is signed correctly, set state to CHECK: "+currentMsg.getFrom() );
-                    Core.getNeutral().Add(currentId); //add the new contact
-                    currentMsg.setStatus(VerifyableMessageObject.PENDING);
-                }
-                else //failed authentication, don't ask the user
-                {
-                    System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to BAD: "+currentMsg.getFrom() );
-                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-                }
-            }
-        }
-        catch(Throwable t)
-        {
-            System.out.println("Oo. Exception in verify() - setting message state to N/A.");
-            t.printStackTrace(System.out);
-            currentMsg.setStatus(VerifyableMessageObject.NA);
-        }*/
-    }
-
-    public boolean verifyDate(GregorianCalendar dirDate)
-    {
+    /**
+     * @param dirDate
+     * @return
+     */
+    public boolean verifyDate(GregorianCalendar dirDate) {
         VerifyableMessageObject currentMsg = this;
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
         // first check for valid date:
@@ -258,12 +120,12 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         // - if date in msg. is greater than in url (in days), set msg. date the url date+put txt that it was changed into msg.
         // - if date in msg. is smaller than url date, replace with url date (allow 2 days difference)
         String msgDateStr = currentMsg.getDate();
-        Date msgDateTmp = null;
-        try {
-            msgDateTmp = dateFormat.parse( msgDateStr );
-        } catch(Exception ex) { }
-        if( msgDateTmp == null )
-        {
+		Date msgDateTmp = null;
+		try {
+			msgDateTmp = dateFormat.parse(msgDateStr);
+		} catch (Exception ex) {
+		}
+		if (msgDateTmp == null) {
             logger.warning("* verifyDate(): Invalid date string found, will block message: " + msgDateStr);
             return false;
         }
@@ -284,20 +146,14 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         long ONE_DAY = (1000 * 60 * 60 * 24);
         int diffDays = (int)((dirMillis - msgMillis) / ONE_DAY);
         // now compare dirDate and msgDate using above rules
-        if( Math.abs(diffDays) <= 1 )
-        {
+        if( Math.abs(diffDays) <= 1 ) {
             // message is of this day (less than 1 day difference)
             // msg is OK, do nothing here
-            //System.out.println("* verifyDate(): Checked message date, seems to be OK ("+msgDateStr+").");
-        }
-        else if( diffDays < 0 )
-        {
+        } else if( diffDays < 0 ) {
             // msgDate is later than dirDate
             logger.warning("* verifyDate(): Date in message is later than date in URL, will block message: " + msgDateStr);
             return false;
-        }
-        else if( diffDays > 1 ) // more than 1 day older
-        {
+        } else if( diffDays > 1 ) { // more than 1 day older
             // dirDate is later than msgDate
             logger.warning("* verifyDate(): Date in message is earlier than date in URL, will block message: " + msgDateStr);
             return false;
@@ -305,20 +161,20 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         return true;
     }
 
-    public boolean verifyTime()
-    {
+    /**
+     * @return
+     */
+    public boolean verifyTime() {
         VerifyableMessageObject currentMsg = this;
         // time=06:52:48GMT  <<-- expected format
         String timeStr = currentMsg.getTime();
-        if( timeStr == null )
-        {
-            logger.warning("* verifyTime(): Time is NULL, blocking message.");
-            return false;
-        }
-        timeStr = timeStr.trim();
+        if (timeStr == null) {
+			logger.warning("* verifyTime(): Time is NULL, blocking message.");
+			return false;
+		}
+		timeStr = timeStr.trim();
 
-        if( timeStr.length() != 11 )
-        {
+		if (timeStr.length() != 11) {
 			logger.warning("* verifyTime(): Time string have invalid length (!=11), blocking message: " + timeStr);
             return false;
         }
@@ -349,8 +205,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
             ihours = Integer.parseInt( hours );
             iminutes = Integer.parseInt( minutes );
             iseconds = Integer.parseInt( seconds );
-        } catch(Exception ex)
-        {
+        } catch(Exception ex) {
 			logger.warning("* verifyTime(): Could not parse the numbers, blocking message: " + timeStr);
             return false;
         }
@@ -361,8 +216,6 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
 			logger.warning("* verifyTime(): Time is invalid, blocking message: " + timeStr);
             return false;
         }
-//        System.out.println("* verifyTime(): Checked time of message, seems to be OK ("+timeStr+").");
-
         return true;
     }
 }
