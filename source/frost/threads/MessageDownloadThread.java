@@ -191,7 +191,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 }
                 catch( IllegalArgumentException e ) {
                     System.out.println("TODDN: IllegalArgumentException, setting sender to state N/A.");
-                    currentMsg.setStatus(VerifyableMessageObject.NA);return;
+                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                    return;
                 }
 
                 if( currentId.getKey() == Identity.NA )

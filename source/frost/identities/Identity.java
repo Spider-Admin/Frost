@@ -40,7 +40,8 @@ public class Identity implements Serializable
                                     frame1.frostSettings.getValue("nodePort"));
         }
         catch( FcpToolsException e ) {
-            System.out.println("fcptools exception");this.key=NA;
+            System.out.println("fcptools exception");
+            this.key = NA;
         }
         catch( IOException e ) {
             this.key=NA;
@@ -53,10 +54,17 @@ public class Identity implements Serializable
         }
 
         System.out.println("Identity: Starting to request CHK for '" + name +"'");
+        String targetFile = frame1.frostSettings.getValue("temp.dir") + name + ".key.tmp";
 
-        if( FcpRequest.getFile(keyaddress, "unknown", name + ".key", "25", false) )
+        boolean wasOK = false;
+        try {
+            wasOK = FcpRequest.getFile(keyaddress, "unknown", targetFile, "25", false);
+        }
+        catch(Exception e) { ; }
+
+        if( wasOK )
         {
-            key = FileAccess.read(name +".key");
+            key = FileAccess.read(targetFile);
             System.out.println("Identity: CHK received for " +name);
         }
         else
@@ -64,6 +72,8 @@ public class Identity implements Serializable
             key=NA;
             System.out.println("Identity: Failed to get CHK for " +name);
         }
+        File tfile = new File(targetFile);
+        tfile.delete();
     }
 
     //obvious stuff
