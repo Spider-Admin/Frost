@@ -1,6 +1,6 @@
 package org.bouncycastle.util.encoders;
 
-public class Base64
+public final class Base64
 {
 	private static final byte[] encodingTable =
 		{

@@ -2,7 +2,7 @@ package org.bouncycastle.crypto.params;
 
 import org.bouncycastle.crypto.CipherParameters;
 
-public class KeyParameter
+public final class KeyParameter
 	implements CipherParameters
 {
     private byte[]  key;

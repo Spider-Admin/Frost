@@ -37,7 +37,7 @@ public abstract class GeneralDigest
 		byteCount = t.byteCount;
 	}
 
-    public void update(
+    public final void update(
         byte in)
     {
         xBuf[xBufOff++] = in;
@@ -51,7 +51,7 @@ public abstract class GeneralDigest
         byteCount++;
     }
 
-    public void update(
+    public final void update(
         byte[]  in,
         int     inOff,
         int     len)
@@ -91,7 +91,7 @@ public abstract class GeneralDigest
         }
     }
 
-    public void finish()
+    public final void finish()
     {
         long    bitLength = (byteCount << 3);
 

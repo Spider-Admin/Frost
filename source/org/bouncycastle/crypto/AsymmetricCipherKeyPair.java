@@ -27,7 +27,7 @@ public class AsymmetricCipherKeyPair
      *
      * @return the public key parameters.
      */
-    public CipherParameters getPublic()
+    public final CipherParameters getPublic()
     {
         return publicParam;
     }
@@ -37,7 +37,7 @@ public class AsymmetricCipherKeyPair
      *
      * @return the private key parameters.
      */
-    public CipherParameters getPrivate()
+    public final CipherParameters getPrivate()
     {
         return privateParam;
     }

@@ -8,7 +8,7 @@ import org.bouncycastle.crypto.params.*;
 /**
  * an RSA key pair generator.
  */
-public class RSAKeyPairGenerator
+public final class RSAKeyPairGenerator
     implements AsymmetricCipherKeyPairGenerator
 {
     private static BigInteger ONE = BigInteger.valueOf(1);

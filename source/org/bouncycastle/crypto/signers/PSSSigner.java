@@ -8,7 +8,7 @@ import org.bouncycastle.crypto.params.*;
 /**
  * RSA-PSS as described in PKCS# 1 v 2.1
  */
-public class PSSSigner
+public final class PSSSigner
 {
     static final public byte   TRAILER_IMPLICIT    = (byte)0xBC;
 

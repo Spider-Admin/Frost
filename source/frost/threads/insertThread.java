@@ -86,13 +86,13 @@ public class insertThread extends Thread
 	    	success =true; //so that we generate SHA1
 	     
 	    
-	    
+	    String SHA1=null;
             if( success )
             {
 	    	//generate SHA1 - its fast
 	
 		long now = System.currentTimeMillis();
-		String SHA1 = frame1.getCrypto().digest(file);
+		SHA1 = frame1.getCrypto().digest(file);
 		System.out.println("digest generated in "+(System.currentTimeMillis()-now) +
 				 "  " + SHA1);
 		
@@ -100,15 +100,14 @@ public class insertThread extends Thread
                 lastUploadDate = date;
 		KeyClass newKey;
 		if (mode) {
-                	newKey = new KeyClass(result[1]);
+                	newKey = new KeyClass();
 			newKey.setDate(date);
 			newKey.setKey(result[1]);
 		}
 		else  {
 			newKey = new KeyClass();
 			newKey.setKey(null);
-			String nil = null; //stupid java
-			newKey.setDate(nil);
+			newKey.setDate(null);
 		}
 		newKey.setSHA1(SHA1);  
                 newKey.setFilename(destination);
@@ -131,11 +130,9 @@ public class insertThread extends Thread
             else if( success )
             {
                 // key was computed?
-                String newKey = result[1];
-                uploadItem.setSHA1( newKey );
+                uploadItem.setSHA1( SHA1 );
 		uploadItem.setKey(null);
-		String nil = null;
-		uploadItem.setLastUploadDate(nil);
+		uploadItem.setLastUploadDate(null);
             }
             uploadItem.setState( FrostUploadItemObject.STATE_IDLE );
 

@@ -4,7 +4,7 @@ import java.security.SecureRandom;
 
 import org.bouncycastle.crypto.CipherParameters;
 
-public class ParametersWithRandom
+public final class ParametersWithRandom
     implements CipherParameters
 {
     private SecureRandom        random;

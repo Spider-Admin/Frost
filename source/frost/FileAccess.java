@@ -138,11 +138,21 @@ public class FileAccess
 				oldKey.getOwner().compareTo(newKey.getOwner())==0) {
 				//check if the old key was not or is the same owner
 				// and update the fields
+				GregorianCalendar cal,keyCal;
 				
-				GregorianCalendar cal = newKey.getCal();
-                                GregorianCalendar keyCal = oldKey.getCal();
+				if (newKey.getDate() != null) 
+					cal = newKey.getCal();
+				else
+					cal = null;
+					
+                                if (oldKey.getDate() != null)
+					keyCal = oldKey.getCal();
+				else
+					keyCal = null;
 				
-				if (keyCal.before(cal))
+				if (cal != null && keyCal==null)
+					oldKey.setDate(newKey.getDate());
+				else if (cal != null && keyCal != null && keyCal.before(cal))
 					oldKey.setDate(newKey.getDate());
 				oldKey.setKey(newKey.getKey());
 				oldKey.setOwner(newKey.getOwner()); 

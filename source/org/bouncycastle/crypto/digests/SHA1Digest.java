@@ -7,7 +7,7 @@ package org.bouncycastle.crypto.digests;
  * It is interesting to ponder why the, apart from the extra IV, the other difference here from MD5
  * is the "endienness" of the word processing!
  */
-public class SHA1Digest
+public final class SHA1Digest
     extends GeneralDigest
 {
     private static final int    DIGEST_LENGTH = 20;

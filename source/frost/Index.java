@@ -89,7 +89,7 @@ public class Index
         // Now we compare each file of the original index
         // with it's tempIndex counterpart
         // Maps are funny and fast, we better use one here.
-        final Map chk = Collections.synchronizedMap(new TreeMap());
+        final Map chk = Collections.synchronizedMap(new HashMap());
         StringBuffer keyFile = new StringBuffer();
         File[] tempFiles = tempDir.listFiles();
         int keyCount = 0;
@@ -119,7 +119,7 @@ public class Index
 					frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0))
                         {
                             keyCount++;
-                            
+                            keyFile.append("<File>\n");
 		    	    keyFile.append("<name>" + current.getFilename()+"</name>\n");
 		    	    keyFile.append("<SHA1>" + current.getSHA1()+"</SHA1>\n");
 			    keyFile.append("<size>" + current.getSize()+"</size>\n");
@@ -166,7 +166,7 @@ public class Index
 	String firstLetter = ")";
 	if (key.getKey() != null)
         	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
-        final Map chk = Collections.synchronizedMap(new TreeMap());
+        final Map chk = Collections.synchronizedMap(new HashMap());
 
         if( !target.isDirectory() )
             target.mkdir();
@@ -189,8 +189,8 @@ public class Index
     public static void add(File keyfile, File target)
     {
         String oldFirstLetter = "";
-        final Map chk = Collections.synchronizedMap(new TreeMap());
-        final Map chunk = Collections.synchronizedMap(new TreeMap());
+        final Map chk = Collections.synchronizedMap(new HashMap());
+        final Map chunk = Collections.synchronizedMap(new HashMap());
 
         if( !target.isDirectory() )
             target.mkdir();
@@ -199,12 +199,17 @@ public class Index
 
         synchronized(chk)
         {
-            Iterator i = chk.keySet().iterator();
+            Iterator i = chk.values().iterator();
             while( i.hasNext() )
             {
-                KeyClass key = (KeyClass)chk.get((String)i.next());
+                KeyClass key = (KeyClass)i.next();
                 String hash = key.getSHA1();
-                String firstLetter = (hash.substring(4, 5)).toLowerCase();
+		
+		String firstLetter;
+		if (key.getKey() != null)
+                	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
+		else
+			firstLetter ="(";
                 if( !firstLetter.equals(oldFirstLetter) )
                 {
                     // System.out.print(".");

@@ -13,7 +13,7 @@ public class AsymmetricKeyParameter
         this.privateKey = privateKey;
     }
 
-    public boolean isPrivate()
+    public final boolean isPrivate()
     {
         return privateKey;
     }
