@@ -457,20 +457,20 @@ public class FileAccess
     /**
      * Writes a file "file" to "path"
      */
-    public static void writeFile(String content, File file)
-    {
-        writeFile(content, file.getPath());
-    }
     public static void writeFile(String content, String filename)
+    {
+        writeFile(content, new File(filename));
+    }
+    public static void writeFile(String content, File file)
     {
         FileWriter f1;
         try {
-            f1 = new FileWriter(filename);
+            f1 = new FileWriter(file);
             f1.write(content);
             f1.close();
         }
         catch( IOException e ) {
-            System.out.println("Write Error: " + filename);
+            System.out.println("Write Error: " + file.getPath());
         }
     }
 

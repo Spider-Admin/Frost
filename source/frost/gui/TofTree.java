@@ -606,7 +606,10 @@ implements DragGestureListener, DragSourceListener
             }
         } while( nodeName.length()==0 );
 
-        addNodeToTree( new FrostBoardObject(nodeName) );
+        FrostBoardObject newBoard = new FrostBoardObject(nodeName);
+        addNodeToTree( newBoard );
+        // maybe this boardfolder already exists, scan for new messages
+        TOF.initialSearchNewMessages( newBoard );
     }
 
     /**

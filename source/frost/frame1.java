@@ -941,29 +941,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     //load the identities
     loadIdentities();
 
-    TimerTask KeyReinserter = new TimerTask() {
-        public void run() {
-            if( isFreenetOnline() == false )
-                return;
-            File tempUploadfile = null;
-            try {
-                tempUploadfile = File.createTempFile("pubkey_", null, new File(frame1.frostSettings.getValue("temp.dir")) );
-            }
-            catch(Exception ex)
-            {
-                tempUploadfile = new File(frame1.frostSettings.getValue("temp.dir") + "pubkey_"+System.currentTimeMillis()+".tmp");
-            }
-            tempUploadfile.deleteOnExit();
-            FileAccess.writeFile(mySelf.getKey(), tempUploadfile);
-
-            System.out.println("KeyReinserter: Re-uploading public key...");
-            FcpInsert.putFile("CHK@",tempUploadfile,25,false,true,null);
-            System.out.println("KeyReinserter: Finished re-uploading public key.");
-            tempUploadfile.delete();
-        }
-    };
-    timer2.schedule(KeyReinserter,0,60*60*1000); // run each hour
-
     //on with other stuff
 
     getTofTree().initialize();
@@ -986,6 +963,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
     //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
 
+    // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
     Startup.startupCheck();
 
     FileAccess.cleanKeypool(keypool);
@@ -1009,6 +987,31 @@ public class frame1 extends JFrame implements ClipboardOwner
     // Load table settings
     getDownloadTable().load();
     getUploadTable().load();
+
+    // a class that reinserts the pubkey each hour
+    TimerTask KeyReinserter = new TimerTask() {
+        public void run() {
+            if( isFreenetOnline() == false )
+                return;
+            File tempUploadfile = null;
+            try {
+                tempUploadfile = File.createTempFile("pubkey_", null, new File(frame1.frostSettings.getValue("temp.dir")) );
+            }
+            catch(Exception ex)
+            {
+                tempUploadfile = new File(frame1.frostSettings.getValue("temp.dir") + "pubkey_"+System.currentTimeMillis()+".tmp");
+            }
+            FileAccess.writeFile(mySelf.getKey(), tempUploadfile);
+
+            System.out.println("KeyReinserter: Re-uploading public key...");
+            FcpInsert.putFile("CHK@",tempUploadfile,25,false,true,null);
+            System.out.println("KeyReinserter: Finished re-uploading public key.");
+
+            tempUploadfile.deleteOnExit();
+            tempUploadfile.delete();
+        }
+    };
+    timer2.schedule(KeyReinserter,0,60*60*1000); // run each hour
 
     // Start tofTree
     if( isFreenetOnline() )

@@ -61,7 +61,7 @@ public class MessageFrame extends JFrame
 
     JButton jButton1 = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
     JButton jButton2 = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
-    JButton jButton3 = new JButton(new ImageIcon(this.getClass().getResource("/data/save.gif")));
+    JButton jButton3 = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
     JButton uploadBoardsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
 
     JCheckBox sign = new JCheckBox("Sign");
@@ -118,7 +118,7 @@ public class MessageFrame extends JFrame
 
         configureButton(jButton1, "Send message", "/data/send_rollover.gif");
         configureButton(jButton2, "Cancel", "/data/remove_rollover.gif");
-        configureButton(jButton3, "Add attachment(s)", "/data/save_rollover.gif");
+        configureButton(jButton3, "Add attachment(s)", "/data/attachment_rollover.gif");
         configureButton(uploadBoardsButton, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
 
         jTextField1.setEnabled(false);
