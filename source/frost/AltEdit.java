@@ -5,6 +5,7 @@ import java.io.*;
 import java.awt.*;
 import java.util.*;
 
+import frost.gui.*;
 
 public class AltEdit extends Thread {
     private Frame parentFrame;

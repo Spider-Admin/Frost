@@ -1814,7 +1814,7 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
                 while (iter.hasNext())
                 {
                     current = (BoardStat)iter.next();
-                    if (current.numberBlocked > frostSettings.getIntValue("spamTreshold"))
+                    if (current.getNumberBlocked() > frostSettings.getIntValue("spamTreshold"))
                     {
                         //board is spammed
                         System.out.println("#########setting spam status############");
@@ -1879,7 +1879,7 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
 
             updateButtons();
             if ((boardStats != null) && boardStats.containsKey(lastUsedBoard))
-            System.out.println(lastUsedBoard + " blocked count: " + ((BoardStat)boardStats.get(lastUsedBoard)).numberBlocked);
+            System.out.println(lastUsedBoard + " blocked count: " + ((BoardStat)boardStats.get(lastUsedBoard)).getNumberBlocked());
             tofReplyButton.setEnabled(false);
             downloadAttachmentsButton.setEnabled(false);
             downloadBoardsButton.setEnabled(false);
