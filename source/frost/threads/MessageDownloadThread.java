@@ -256,6 +256,13 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     // Does a duplicate message exist?
                     if( !exists(testMe) )
                     {
+                    	//check if it is a duplicate
+                    	String messageId = Core.getCrypto().digest(testMe);
+                    	if (Core.getMessageSet().contains(messageId)) {
+                    		//the message is a duplicate
+//							TODO: proper continue methods
+                    	} else
+                    		Core.getMessageSet().add(messageId);
                         //verify the zipped message
                         
                         byte [] plaintext = FileAccess.readByteArray(testMe);
@@ -267,6 +274,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         String _owner = metaData.getSharer().getUniqueName();
                         if (Core.getEnemies().containsKey(_owner)) {
                         	//the person is blacklisted... do something
+                        	//TODO: proper continue methods
                         }
                         Identity owner;
                         //check friends
@@ -287,6 +295,41 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         					plaintext,
                         					owner.getKey(),
                         					metaData.getSig());
+                        					
+                        //unzip
+                        //REDFLAG: encoding
+                        String unzipped = FileAccess.readZipFile(testMe);
+                        FileAccess.writeFile(unzipped,testMe);
+                        
+                        //create object
+                        VerifyableMessageObject vmo = new VerifyableMessageObject(testMe);
+                        
+                        //make sure the pubkey and from fields in the xml file are the same
+                        //as those in the metadata
+                        String metaDataHash = mixed.makeFilename(Core.getCrypto().digest(
+                        				metaData.getSharer().getKey()));
+                        String messageHash = mixed.makeFilename(vmo.getFrom().substring(
+                        						vmo.getFrom().indexOf("@"),
+                        						vmo.getFrom().length()));
+                        
+                        if (!metaDataHash.equals(messageHash)) {
+                        	Core.getOut().println("hash in metadata doesn't match hash in message!");
+                        	Core.getOut().println("metadata : "+ metaDataHash+" , message: "+ messageHash);
+                        	vmo.setStatus(VerifyableMessageObject.TAMPERED);
+//							TODO: proper continue methods
+                        }
+                        
+                        //then check if the signature was ok
+                        if (!valid) {
+                        	vmo.setStatus(VerifyableMessageObject.TAMPERED);
+//							TODO: proper continue methods
+                        }
+                        
+                        //if it is, we have the user either on the good or neutral lists
+                        if (Core.getFriends().containsKey(_owner))
+                        	vmo.setStatus(VerifyableMessageObject.VERIFIED);
+                        else
+							vmo.setStatus(VerifyableMessageObject.PENDING);
                         					
                         //that's it for today, I"m too tired
                         //----------------------LEGACY CODE BELOW------------------

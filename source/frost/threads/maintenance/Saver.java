@@ -6,7 +6,7 @@
  */
 package frost.threads.maintenance;
 
-import java.io.File;
+import java.io.*;
 import java.util.Iterator;
 import org.w3c.dom.*;
 
@@ -152,6 +152,15 @@ public class Saver extends Thread {
 							File boards = new File("boards");
 							FileAccess.writeFile(buf.toString(),boards);
 						}catch (Throwable t){
+							t.printStackTrace(Core.getOut());
+						}
+						
+						//save the hashes
+						try{
+							File hashes = new File("hashes");
+							ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(hashes));
+							oos.writeObject(Core.getMessageSet());
+						} catch (Throwable t){
 							t.printStackTrace(Core.getOut());
 						}
 								core.saveOnExit();

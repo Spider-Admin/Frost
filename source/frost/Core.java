@@ -39,6 +39,7 @@ public class Core {
 	
 	private static PrintStream out = System.out; //default is System.out
 	private static final Set nodes = new HashSet(); //list of available nodes
+	private static Set messageSet = new HashSet(); // set of message digests
 	private static final SortedSet knownBoards = new TreeSet(); //list of known boards
 	private static Core self = null;
 	public Core() {
@@ -340,7 +341,17 @@ public class Core {
 				out.println("couldn't load known boards");
 				t.printStackTrace(out);
 			}
-
+		
+		File hashes = new File("hashes");
+		if (hashes.exists())
+			try{
+				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(hashes));
+				messageSet = (HashSet)ois.readObject();
+				getOut().println("loaded "+messageSet.size() +" message hashes");	
+				ois.close();
+			} catch(Throwable t){
+				t.printStackTrace(getOut());
+			}
 	}
 	//------------------------------------------------------------------------
 	//------------------------------------------------------------------------
@@ -626,6 +637,13 @@ public class Core {
 	 */
 	public static BuddyList getNeutral() {
 		return neutral;
+	}
+
+	/**
+	 * @return the set of message hashes
+	 */
+	public static Set getMessageSet() {
+		return messageSet;
 	}
 
 }
