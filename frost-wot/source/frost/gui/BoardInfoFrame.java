@@ -30,8 +30,9 @@ import javax.swing.border.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.*;
+import frost.threads.*;
 
-public class BoardInfoFrame extends JFrame
+public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 {
     frame1 parent = null;
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
@@ -84,9 +85,12 @@ public class BoardInfoFrame extends JFrame
         this.setSize(new Dimension(300, 200));
         this.setResizable(true);
 
-        boardTable.setDefaultRenderer(Object.class, new BoardInfoTableCellRenderer());
         boardTable.setRowSelectionAllowed(true);
-        boardTable.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        boardTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
+
+        BoardInfoTableCellRenderer cellRenderer = new BoardInfoTableCellRenderer();
+        boardTable.setDefaultRenderer( Object.class, cellRenderer );
+        boardTable.setDefaultRenderer( Number.class, cellRenderer );
 
         updateSelectedBoardButton.setEnabled(false);
 
@@ -94,28 +98,23 @@ public class BoardInfoFrame extends JFrame
         // Actionlistener
         //------------------------------------------------------------------------
         boardTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-                         public void valueChanged(ListSelectionEvent e) {
-                             boardTableListModel_valueChanged(e);
-                         }
-                     });
+                     public void valueChanged(ListSelectionEvent e) {
+                         boardTableListModel_valueChanged(e);
+                     } });
 
         // updateButton
         ActionListener al = new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                updateButton_actionPerformed(e);
-            }
-        };
+                    public void actionPerformed(ActionEvent e) {
+                        updateButton_actionPerformed(e);
+                    } };
         updateButton.addActionListener(al);
         MIupdate.addActionListener(al);
 
         // updateSelectedBoardButton
-        al = new java.awt.event.ActionListener()
-        {
-            public void actionPerformed(ActionEvent e)
-            {
+        al = new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
                 updateSelectedBoardButton_actionPerformed(e);
-            }
-        };
+            } };
         updateSelectedBoardButton.addActionListener(al);
         MIupdateSelectedBoard.addActionListener(al);
 
@@ -123,8 +122,7 @@ public class BoardInfoFrame extends JFrame
         al = new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 updateAllBoardsButton_actionPerformed(e);
-            }
-        };
+            } };
         updateAllBoardsButton.addActionListener(al);
         MIupdateAllBoards.addActionListener(al);
 
@@ -132,8 +130,7 @@ public class BoardInfoFrame extends JFrame
         al = new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 closeDialog();
-            }
-        };
+            } };
         Bclose.addActionListener(al);
 
         //------------------------------------------------------------------------
@@ -189,8 +186,7 @@ public class BoardInfoFrame extends JFrame
         public void mouseReleased(MouseEvent event) {}
         public void mousePressed(MouseEvent event) {}
         public void mouseClicked(MouseEvent event) {
-            if( event.getClickCount() == 2 )
-            {
+            if( event.getClickCount() == 2 ) {
                 updateSelectedBoardButton_actionPerformed(null);
             }
         }
@@ -210,8 +206,7 @@ public class BoardInfoFrame extends JFrame
         public void mouseEntered(MouseEvent event) {}
         public void mouseExited(MouseEvent event) {}
         protected void maybeShowPopup(MouseEvent e) {
-            if( e.isPopupTrigger() )
-            {
+            if( e.isPopupTrigger() ) {
                 popupMenu.show(boardTable, e.getX(), e.getY());
             }
         }
@@ -331,22 +326,6 @@ public class BoardInfoFrame extends JFrame
         }
     }
 
-    protected void closeDialog()
-    {
-        setDialogShowing( false );
-        dispose();
-    }
-
-    protected void processWindowEvent(WindowEvent e)
-    {
-        if( e.getID() == WindowEvent.WINDOW_CLOSING )
-        {
-            // setDialogShowing( false ); // also done in closeDialog()
-            closeDialog();
-        }
-        super.processWindowEvent(e);
-    }
-
     /**
      * Gets number of new+all messages and files of a board
      * @param board name of the board
@@ -426,6 +405,42 @@ public class BoardInfoFrame extends JFrame
         return count;
     }
 
+    public static boolean isDialogShowing()
+    {
+        return isShowing;
+    }
+    public static void setDialogShowing( boolean val )
+    {
+        isShowing = val;
+    }
+
+    public void startDialog()
+    {
+        frame1.getInstance().getRunningBoardUpdateThreads().addBoardUpdateThreadListener( this );
+        setDialogShowing( true );
+        show();
+    }
+
+    protected void closeDialog()
+    {
+        frame1.getInstance().getRunningBoardUpdateThreads().removeBoardUpdateThreadListener( this );
+        setDialogShowing( false );
+        dispose();
+    }
+
+    protected void processWindowEvent(WindowEvent e)
+    {
+        if( e.getID() == WindowEvent.WINDOW_CLOSING )
+        {
+            // setDialogShowing( false ); // also done in closeDialog()
+            closeDialog();
+        }
+        super.processWindowEvent(e);
+    }
+
+    /**
+     * The class is a table row, holding the board and its file/message counts.
+     */
     class BoardInfoTableMember implements TableMember
     {
         FrostBoardObject board;
@@ -459,7 +474,6 @@ public class BoardInfoFrame extends JFrame
             Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
-
         public FrostBoardObject getBoard()
         {
             return board;
@@ -486,29 +500,14 @@ public class BoardInfoFrame extends JFrame
         }
     }
 
-    public static boolean isDialogShowing()
-    {
-        return isShowing;
-    }
-    public static void setDialogShowing( boolean val )
-    {
-        isShowing = val;
-    }
-
-    public void startDialog()
-    {
-        setDialogShowing( true );
-        show();
-    }
-
-    class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
+    private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
     {
         Font boldFont;
         Font origFont;
         public BoardInfoTableCellRenderer()
         {
             super();
-            origFont = this.getFont();
+            origFont = boardTable.getFont();
             boldFont = origFont.deriveFont( Font.BOLD );
         }
 
@@ -517,7 +516,7 @@ public class BoardInfoFrame extends JFrame
         {
             super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
 
-            BoardInfoTableMember tblrow = (BoardInfoTableMember)((BoardInfoTableModel)table.getModel()).getRow(row);
+            BoardInfoTableMember tblrow = (BoardInfoTableMember)boardTableModel.getRow(row);
 
             if( tblrow.getBoard().isUpdating() )
             {
@@ -527,8 +526,25 @@ public class BoardInfoFrame extends JFrame
             {
                 setFont( origFont );
             }
-
             return this;
         }
     }
+
+    // Implementing the BoardUpdateThreadListener ...
+
+    /**
+     * Is called if a Thread is finished.
+     */
+    public void boardUpdateThreadFinished(BoardUpdateThread thread)
+    {
+        boardTableModel.tableEntriesChanged();
+    }
+    /**
+     * Is called if a Thread is started.
+     */
+    public void boardUpdateThreadStarted(BoardUpdateThread thread)
+    {
+        boardTableModel.tableEntriesChanged();
+    }
+
 }

@@ -18,7 +18,9 @@ public class SearchTable extends SortedTable
     public SearchTable(TableModel m)
     {
         super(m);
-        setDefaultRenderer( Object.class, new cellRenderer() );
+        CellRenderer cellRenderer = new CellRenderer();
+        setDefaultRenderer( Object.class, cellRenderer );
+        setDefaultRenderer( Number.class, cellRenderer );
 
         // set column sizes
         int[] widths = {250, 80, 80, 80, 80};
@@ -73,7 +75,7 @@ public class SearchTable extends SortedTable
      * This renderer renders rows in different colors, depending on state of search item.
      * States are: NONE, DOWNLOADED, DOWNLOADING
      */
-    private class cellRenderer extends DefaultTableCellRenderer
+    private class CellRenderer extends DefaultTableCellRenderer
     {
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
         {
