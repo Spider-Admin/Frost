@@ -2008,7 +2008,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         //////////////////////////////////////////////////
         //   Automatic TOF update
         //////////////////////////////////////////////////
-        if( counter % 3 == 0 && // check all 3 seconds if a board update could be started
+        if( counter % 5 == 0 && // check all 5 seconds if a board update could be started
             tofAutomaticUpdateMenuItem.isSelected() &&
             getRunningBoardUpdateThreads().getUpdatingBoardCount() <
                     frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")
