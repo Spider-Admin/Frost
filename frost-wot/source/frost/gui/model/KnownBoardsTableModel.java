@@ -24,9 +24,10 @@ public class KnownBoardsTableModel extends SortedTableModel
 {
 	private ResourceBundle languageResource = null;
 
-	protected final static String columnNames[] = new String[3];
+	protected final static String columnNames[] = new String[4];
 
     protected final static Class columnClasses[] =  {
+        String.class,
         String.class,
         String.class,
         String.class
@@ -45,6 +46,7 @@ public class KnownBoardsTableModel extends SortedTableModel
 		columnNames[0] = languageResource.getString("KnownBoardsTableModel.Boardname");
 		columnNames[1] = languageResource.getString("Public key");
 		columnNames[2] = languageResource.getString("Private key");		
+		columnNames[3] = languageResource.getString("Description");		
 	}
 
 	public boolean isCellEditable(int row, int col)
