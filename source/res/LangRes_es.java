@@ -56,8 +56,6 @@ static final Object[][] contents = {
 {"Browse","Examina"},
 {"Bulgarian","Búlgaro"},
 {"Change destination board","Cambia foro de destino"},
-{"CHK key","clave CHK"},
-{"CHK key + filename","clave CHK + nombre de fichero"},
 {"Choose boards to attach","Escoge el foro(s) a adjuntar"},
 {"Choose file(s) / directory(s) to attach","Escoge el fichero(s) / directorio(s) a adjuntar"},
 {"Choose updating color of NON-SELECTED boards","Escoge el color de refresco de los foros NO SELECCIONADOS"},
@@ -65,7 +63,6 @@ static final Object[][] contents = {
 {"Clean the keypool","Limpia el pool de claves"},
 {"Configure board","Configura foro"},
 {"Configure selected board","Configura foro seleccionado"},
-{"Copy to clipboard","Copia al portapapeles"},
 {"Create message","Crea mensaje"},
 {"Cut","Corta"},
 {"Cut board","Corta foro"},
@@ -481,7 +478,17 @@ static final Object[][] contents = {
 	{"System Tray Executables:", "Ejecutables para Bandeja del Sistema:"},
 	{"Translation Support:", "Soporte a la Traducción:"},
 	{"Splash Screen Logo:", "Logo para Pantalla de Splash:"},
-	{"Misc code contributions:", "Contribuciones Variadas de Código:"}
+	{"Misc code contributions:", "Contribuciones Variadas de Código:"},
+	
+	// Copy to clipboard submenu
+	{"Copy to clipboard", "Copia al portapapeles"},
+	{"Copy keys only", "Copia claves solamente"},
+	{"Copy keys with filenames", "Copia claves con nombres de fichero"},
+	{"Copy extended info", "Copia información extendida"},
+	{"Key not available yet", "Clave todavía no disponible"},
+	{"clipboard.File:",  "Fichero: "},	//These three strings are a special case.
+	{"clipboard.Key:",   "Clave:   "},	//They must have the same length so that the
+	{"clipboard.Bytes:", "Bytes:   "}		//format of the output is preserved.
 	
 	};
 }

@@ -233,11 +233,12 @@ public class LangRes_en extends ListResourceBundle {
 
 	// Popup over uploads table
 	{"Copy to clipboard", "Copy to clipboard"},
-		{"CHK key", "CHK key"},
-		{"CHK key + filename", "CHK key + filename"},
+	{"Copy keys only", "Copy keys only"},
+	{"Copy keys with filenames", "Copy keys with filenames"},
+	{"Copy extended info", "Copy extended info"},
 	//{"Remove", "Remove"}, // Defined above
-		{"Remove selected files", "Remove selected files"},
-		{"Remove all files", "Remove all files"},
+	{"Remove selected files", "Remove selected files"},
+	{"Remove all files", "Remove all files"},
 	{"Start encoding of selected files", "Start encoding of selected files"},
 	{"Upload selected files", "Upload selected files"},
 	{"Upload all files", "Upload all files"},

@@ -65,8 +65,8 @@ static final Object[][] contents = {
 {"Bulgarian","Bulgarisch"}, //Menü: Sprache
 {"Cancel","Abbruch"},
 {"Change destination board","Zielforum ändern"},
-{"CHK key","CHK-Schlüssel"},
-{"CHK key + filename","CHK-Schlüssel und Dateiname"},
+{"Copy keys only","CHK-Schlüssel"},
+{"Copy keys with filenames","CHK-Schlüssel und Dateiname"},
 {"Choose","Auswählen"},
 {"Choose a Font","Schriftart auswählen"},
 {"Choose boards to attach","Forum für Anhang auswählen"},
