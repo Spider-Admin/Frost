@@ -34,12 +34,14 @@
   <property name="lib.dir" value="lib"/>
   <property name="src.dir.feclib" value="${lib.dir}/fecImpl"/>
   <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
+  <property name="src.dir.skinlfFixLib" value="${lib.dir}/skinlfFix"/>
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
   <property name="build.classes" value="${build.dir}/classes"/>
   <property name="build.classes.feclib" value="${build.dir}/classes_feclib"/>
   <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
+  <property name="build.classes.skinlfFixLib" value="${build.dir}/classes_skinlfFixLib"/>
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
@@ -50,10 +52,10 @@
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
-    <pathelement location="${lib.dir}/skinlf.jar"/>
-    <pathelement location="${lib.dir}/skinlfFix.jar"/>
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
+    <pathelement location="${build.classes.skinlfFixLib}"/>
+    <pathelement location="${lib.dir}/skinlf.jar"/>
   </path>
 
   <!--  Specify logfile name -->
@@ -88,6 +90,7 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>
+    <mkdir dir="${build.classes.skinlfFixLib}"/>
 
     <javac srcdir="${src.dir.feclib}"
            destdir="${build.classes.feclib}"
@@ -112,6 +115,17 @@ Build log  : ${logfilename}</echo>
             <pathelement location="${build.classes.feclib}"/>
 <!--            <pathelement location="${src.dir.genchklib}"/>-->
         </classpath>
+    </javac>
+    
+    <javac srcdir="${src.dir.skinlfFixLib}"
+           destdir="${build.classes.skinlfFixLib}"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}">
+          <classpath> 
+              <pathelement location="${src.dir.skinlfFixLib}"/>
+              <pathelement location="${lib.dir}/skinlf.jar"/>
+          </classpath>
     </javac>
 
     <javac srcdir="${src.dir}"
@@ -158,6 +172,14 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${dist.dir}/lib"/>
     <jar jarfile="${dist.dir}/lib/genChkImpl.jar">
       <fileset dir="${build.classes.genchklib}">
+        <include name="**/*.class"/>
+      </fileset>
+    </jar>
+    
+    <delete quiet="true" file="${dist.dir}/lib/skinlfFix.jar"/>
+    <mkdir dir="${dist.dir}/lib"/>
+    <jar jarfile="${dist.dir}/lib/skinlfFix.jar">
+      <fileset dir="${build.classes.skinlfFixLib}">
         <include name="**/*.class"/>
       </fileset>
     </jar>
