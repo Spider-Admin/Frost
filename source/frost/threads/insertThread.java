@@ -78,7 +78,8 @@ public class insertThread extends Thread
                         htl,
                         true,
                         true, // real upload
-                        board.getBoardFilename());
+                        board.getBoardFilename(),
+                        uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
                 if( result[0].equals("Success") ||
                     result[0].equals("KeyCollision") )
