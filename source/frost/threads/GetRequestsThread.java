@@ -95,9 +95,9 @@ public class GetRequestsThread extends Thread
         while( failures < maxFailures )
         {
             String val = new StringBuffer().append(destination)
-                                           .append(dirdate)
+					   .append(currentBatch)
                                            .append("-")
-                                           .append(currentBatch)
+                                           .append(dirdate)
                                            .append("-")
                                            .append(index)
                                            .append(".req.sha").toString();
@@ -120,7 +120,9 @@ public class GetRequestsThread extends Thread
                 System.out.println( tmp );
 
                 FcpRequest.getFile("KSK@frost/request/" +
-                                   frame1.frostSettings.getValue("messageBase") + "/" + testMe.getName(),
+                                   frame1.frostSettings.getValue("messageBase") + "/" +
+				   frame1.getMyId().getUniqueName() + "-"+
+				   testMe.getName(),
                                    null,
                                    testMe,
                                    downloadHtl,

@@ -90,6 +90,7 @@ public class FileAccess
             String key = null;
 	    String SHA1 = null;
 	    String owner = new String();
+	    String batch = null;
             int counter = 0;
 	    
 	    
@@ -132,6 +133,7 @@ public class FileAccess
 		newKey.setDate(XMLTools.getChildElementsTextValue(current, "date"));
 		newKey.setLastSharedDate(XMLTools.getChildElementsTextValue(current, "dateShared"));
 		newKey.setSize(XMLTools.getChildElementsTextValue(current, "size"));
+		newKey.setBatch(XMLTools.getChildElementsTextValue(current, "batch"));
 		
 		//validate the key
 		if (!newKey.isValid()) {
@@ -229,6 +231,7 @@ public class FileAccess
 		    text.append("<name><![CDATA[" + current.getFilename()+"]]></name>");
 		    text.append("<SHA1><![CDATA[" + current.getSHA1()+"]]></SHA1>");
 		    text.append("<size>" + current.getSize()+"</size>");
+		    text.append("<batch>" + current.getBatch() +"</batch>");
 		    
 		    if (current.getOwner() != null)
 		    	text.append("<owner>" + current.getOwner() + "</owner>");

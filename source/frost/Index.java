@@ -203,6 +203,7 @@ public class Index
 		  keyFile.append("<name><![CDATA[" + current.getFilename()+"]]></name>\n");
 		  keyFile.append("<SHA1><![CDATA[" + current.getSHA1()+"]]></SHA1>\n");
 		  keyFile.append("<size>" + current.getSize()+"</size>\n");
+		  keyFile.append("<batch>"+ current.getBatch()+"</batch>\n");
 		    
 		  if (current.getOwner() != null  &&
 		  	!(my && !signUploads))
