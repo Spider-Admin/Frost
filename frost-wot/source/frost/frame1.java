@@ -104,9 +104,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		//        frostSettings.setValue("lastFrameLocY", ""+(int)actPos.getY() );
 
 		frostSettings.writeSettingsFile();
-		getTofTree().saveTree();
-		getDownloadTable().save();
-		getUploadTable().save();
+        // all other stuff is saved in class Saver
 	}
 	static java.util.ResourceBundle LangRes =
 		java.util.ResourceBundle.getBundle("res.LangRes");

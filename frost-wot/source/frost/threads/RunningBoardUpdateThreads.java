@@ -193,12 +193,15 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      */
     protected Vector getVectorFromHashtable(Hashtable t, Object key)
     {
-        Vector retval;
-        retval = (Vector)t.get(key.toString());
-        if( retval == null )
+        Vector retval = null;
+        synchronized( t )
         {
-            retval = new Vector();
-            t.put(key.toString(), retval);
+            retval = (Vector)t.get(key.toString());
+            if( retval == null )
+            {
+                retval = new Vector();
+                t.put(key.toString(), retval);
+            }
         }
         return retval;
     }
@@ -283,16 +286,19 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
             threads.remove(thread);
         }
 
-        // notify listeners
-        Iterator i = threadListenersForAllBoards.iterator();
-        while( i.hasNext() )
+        synchronized( threadListenersForAllBoards )
         {
-            ((BoardUpdateThreadListener)i.next()).boardUpdateThreadFinished(thread);
-        }
-        i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
-        while( i.hasNext() )
-        {
-            ((BoardUpdateThreadListener)i.next()).boardUpdateThreadFinished(thread);
+            // notify listeners
+            Iterator i = threadListenersForAllBoards.iterator();
+            while( i.hasNext() )
+            {
+                ((BoardUpdateThreadListener)i.next()).boardUpdateThreadFinished(thread);
+            }
+            i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
+            while( i.hasNext() )
+            {
+                ((BoardUpdateThreadListener)i.next()).boardUpdateThreadFinished(thread);
+            }
         }
     }
 
@@ -302,15 +308,18 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      */
     public void boardUpdateThreadStarted(BoardUpdateThread thread)
     {
-        Iterator i = threadListenersForAllBoards.iterator();
-        while( i.hasNext() )
+        synchronized( threadListenersForAllBoards )
         {
-            ((BoardUpdateThreadListener)i.next()).boardUpdateThreadStarted(thread);
-        }
-        i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
-        while( i.hasNext() )
-        {
-            ((BoardUpdateThreadListener)i.next()).boardUpdateThreadStarted(thread);
+            Iterator i = threadListenersForAllBoards.iterator();
+            while( i.hasNext() )
+            {
+                ((BoardUpdateThreadListener)i.next()).boardUpdateThreadStarted(thread);
+            }
+            i = getVectorFromHashtable(threadListenersForBoard, thread.getTargetBoard()).iterator();
+            while( i.hasNext() )
+            {
+                ((BoardUpdateThreadListener)i.next()).boardUpdateThreadStarted(thread);
+            }
         }
     }
 
@@ -322,16 +331,19 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     {
         int downloadingThreads = 0;
 
-        Iterator i = runningDownloadThreads.values().iterator();
-        while( i.hasNext() )
+        synchronized(runningDownloadThreads)
         {
-            Object o = i.next();
-            if( o instanceof Vector )
+            Iterator i = runningDownloadThreads.values().iterator();
+            while( i.hasNext() )
             {
-                Vector v = (Vector)o;
-                if( v.size() > 0 )
+                Object o = i.next();
+                if( o instanceof Vector )
                 {
-                    downloadingThreads+=v.size();
+                    Vector v = (Vector)o;
+                    if( v.size() > 0 )
+                    {
+                        downloadingThreads+=v.size();
+                    }
                 }
             }
         }
@@ -344,16 +356,19 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     {
         int uploadingThreads = 0;
 
-        Iterator i = runningUploadThreads.values().iterator();
-        while( i.hasNext() )
+        synchronized(runningDownloadThreads)
         {
-            Object o = i.next();
-            if( o instanceof Vector )
+            Iterator i = runningUploadThreads.values().iterator();
+            while( i.hasNext() )
             {
-                Vector v = (Vector)o;
-                if( v.size() > 0 )
+                Object o = i.next();
+                if( o instanceof Vector )
                 {
-                    uploadingThreads+=v.size();
+                    Vector v = (Vector)o;
+                    if( v.size() > 0 )
+                    {
+                        uploadingThreads+=v.size();
+                    }
                 }
             }
         }
@@ -367,16 +382,19 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     {
         int updatingBoards = 0;
 
-        Iterator i = runningDownloadThreads.values().iterator();
-        while( i.hasNext() )
+        synchronized(runningDownloadThreads)
         {
-            Object o = i.next();
-            if( o instanceof Vector )
+            Iterator i = runningDownloadThreads.values().iterator();
+            while( i.hasNext() )
             {
-                Vector v = (Vector)o;
-                if( v.size() > 0 )
+                Object o = i.next();
+                if( o instanceof Vector )
                 {
-                    updatingBoards++;
+                    Vector v = (Vector)o;
+                    if( v.size() > 0 )
+                    {
+                        updatingBoards++;
+                    }
                 }
             }
         }
@@ -389,16 +407,19 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     {
         int uploadingBoards = 0;
 
-        Iterator i = runningUploadThreads.values().iterator();
-        while( i.hasNext() )
+        synchronized(runningDownloadThreads)
         {
-            Object o = i.next();
-            if( o instanceof Vector )
+            Iterator i = runningUploadThreads.values().iterator();
+            while( i.hasNext() )
             {
-                Vector v = (Vector)o;
-                if( v.size() > 0 )
+                Object o = i.next();
+                if( o instanceof Vector )
                 {
-                    uploadingBoards++;
+                    Vector v = (Vector)o;
+                    if( v.size() > 0 )
+                    {
+                        uploadingBoards++;
+                    }
                 }
             }
         }

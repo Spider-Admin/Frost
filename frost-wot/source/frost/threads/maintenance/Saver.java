@@ -1,169 +1,72 @@
 /*
- * Created on Sep 13, 2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
-package frost.threads.maintenance;
+  Saver.java / Frost
+  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
 
-import java.io.*;
-import java.util.Iterator;
-import org.w3c.dom.*;
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+package frost.threads.maintenance;
 
 import frost.*;
 
+public class Saver extends Thread
+{
+    private final Core core;
+    
+    public Saver(Core core)
+    {
+        this.core = core;
+    }
 
-public class Saver extends Thread {
-	private final Core core;
-	/**
-	 * @param Core
-	 */
-	public Saver(Core core) {
-		this.core = core;
-		// TODO Auto-generated constructor stub
-	}
-	public void run() {
-		
-		Core.getOut().println("saving identities.xml");
-		File identities = new File("identities.xml");
-		if (identities.exists()) {
-			String bakFilename = "identities.xml.bak";
-			File bakFile = new File(bakFilename);
-			bakFile.delete();
-			identities.renameTo(bakFile);
-			identities = new File("identities.xml");
-		}
-			try{
-				Document d =XMLTools.createDomDocument();
-				Element rootElement = d.createElement("FrostIdentities");
-				//first save myself
-				rootElement.appendChild(Core.getMyId().getXMLElement(d));
-				//then friends
-				Element friends = Core.getFriends().getXMLElement(d);
-				friends.setAttribute("type","friends");
-				rootElement.appendChild(friends);
-				//then enemies 
-				Element enemies = Core.getEnemies().getXMLElement(d);
-				enemies.setAttribute("type","enemies");
-				rootElement.appendChild(enemies);
-				//then everybody else
-				Element neutral = Core.getNeutral().getXMLElement(d);
-				neutral.setAttribute("type","neutral");
-				rootElement.appendChild(neutral);
-				
-				d.appendChild(rootElement);
-				
-				//save to file
-				XMLTools.writeXmlFile(d,"identities.xml");
-			}catch(Throwable e) {
-				e.printStackTrace(Core.getOut());
-		}
-		
-		/*
-								Core.getOut().println("saving identities");
-								File identities = new File("identities");
-								if( identities.exists() )
-								{
-									String bakFilename = "identities.bak";
-									File bakFile = new File(bakFilename);
-									bakFile.delete();
-									identities.renameTo(bakFile);
-									identities = new File("identities");
-								}
+    /**
+     * Called before exit of frost.
+     */    
+    public void exitSave()
+    {
+        // save gui state + config file
+        frame1.getInstance().saveSettings();
+    }
 
-								try
-								{ //TODO: replace this with a call to XML serializer
-									FileWriter fout = new FileWriter(identities);
-									fout.write(Core.mySelf.getName() + "\n");
-									fout.write(Core.mySelf.getKeyAddress() + "\n");
-									fout.write(Core.mySelf.getKey() + "\n");
-									fout.write(Core.mySelf.getPrivKey() + "\n");
+    /**
+     * Called by Core autosave timer.
+     * Saves all vital data.
+     */
+    public void autoSave()
+    {
+        core.saveIdentities();
+        core.saveBatches();
+        core.saveKnownBoards();
+        core.saveHashes();
+        
+        frame1.getInstance().getTofTree().saveTree();
+        frame1.getInstance().getDownloadTable().save();
+        frame1.getInstance().getUploadTable().save();
+    }
 
-									//now do the friends
-									fout.write("*****************\n");
-									Iterator i = Core.friends.values().iterator();
-									while( i.hasNext() )
-									{
-										Identity cur = (Identity)i.next();
-										fout.write(cur.getName() + "\n");
-										fout.write(cur.getKeyAddress() + "\n");
-										fout.write(cur.getKey() + "\n");
-									}
-									fout.write("*****************\n");
-						i = Core.getGoodIds().values().iterator();
-						while (i.hasNext()) {
-							fout.write((String)i.next() + "\n");
-						}
-						fout.write("*****************\n");
-									i = Core.getEnemies().values().iterator();
-									while( i.hasNext() )
-									{
-										Identity cur = (Identity)i.next();
-										fout.write(cur.getName() + "\n");
-										fout.write(cur.getKeyAddress() + "\n");
-										fout.write(cur.getKey() + "\n");
-									}
-									fout.write("*****************\n");
-						i = Core.getBadIds().values().iterator();
-						while (i.hasNext()) {
-							fout.write((String)i.next() + "\n");
-						}
-						fout.write("*****************\n");
-									fout.close();
-									Core.getOut().println("identities saved successfully.");
+    /** 
+     * Called by shutdown hook.
+     */ 
+    public void run()
+    {
+        Core.getOut().println("Saving settings ...");
+        
+        autoSave();
+        exitSave();
+        FileAccess.cleanKeypool(frame1.keypool);
+        
+        Core.getOut().println("Bye!");
+    }
+}
 
-								}
-								catch( IOException e )
-								{
-									Core.getOut().println("ERROR: couldn't save identities:");
-									e.printStackTrace(Core.getOut());
-								}*/
-								//save the batches
-						try {
-							StringBuffer buf = new StringBuffer();
-						Iterator i = Core.getMyBatches().keySet().iterator();
-						while (i.hasNext()) {
-							String current = (String)i.next();
-							if (current.length()>0)
-								buf.append(current).append("_");
-							else
-								i.remove(); //make sure no empty batches are saved
-						}
-							
-						if (buf.length() > 0)
-							buf.deleteCharAt(buf.length()-1); //remove the _ at the end
-						File batches = new File("batches");
-						FileAccess.writeFile(buf.toString(),batches);
-		
-						} catch (Throwable t) {
-							t.printStackTrace(Core.getOut());
-						}
-						
-						//save the known boards
-						try {
-							StringBuffer buf = new StringBuffer();
-							Iterator i = Core.getKnownBoards().iterator();
-							while (i.hasNext()) {
-								String current = (String)i.next();
-								buf.append(current).append(":");
-							}
-							if (buf.length() >0)
-								buf.deleteCharAt(buf.length()-1);
-							File boards = new File("boards");
-							FileAccess.writeFile(buf.toString(),boards);
-						}catch (Throwable t){
-							t.printStackTrace(Core.getOut());
-						}
-						
-						//save the hashes
-						try{
-							File hashes = new File("hashes");
-							ObjectOutputStream oos = new ObjectOutputStream(new FileOutputStream(hashes));
-							oos.writeObject(Core.getMessageSet());
-						} catch (Throwable t){
-							t.printStackTrace(Core.getOut());
-						}
-								core.saveOnExit();
-								FileAccess.cleanKeypool(frame1.keypool);
-			}
-	};
+
