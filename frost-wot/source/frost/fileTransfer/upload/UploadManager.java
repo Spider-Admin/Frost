@@ -27,7 +27,7 @@ public class UploadManager implements PropertyChangeListener {
 	private SettingsClass settings;
 	private UpdatingLanguageResource languageResource;
 	
-	private UploadTable table;
+	private UploadModel model;
 	private UploadPanel panel;
 	private UploadTicker ticker;
 
@@ -48,7 +48,7 @@ public class UploadManager implements PropertyChangeListener {
 		mainFrame.addPanel("Uploads", getPanel());
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_REQUESTS, this);
 		updateUploadStatus();
-		getTable().load();
+		getModel().load();
 		if (freenetIsOnline) {
 			getTicker().start();
 		}
@@ -80,21 +80,10 @@ public class UploadManager implements PropertyChangeListener {
 	/**
 	 * @return
 	 */
-	public UploadTable getTable() {
-		if (table == null) { 
-			UploadTableModel uploadTableModel = new UploadTableModel(languageResource);
-			table = new UploadTable(uploadTableModel, settings);
-		}
-		return table;
-	}
-	
-	/**
-	 * @return
-	 */
 	public UploadPanel getPanel() {
 		if (panel == null) {
 			panel = new UploadPanel(settings);
-			panel.setUploadTable(getTable());
+			panel.setModel(getModel());
 			panel.setTofTree(tofTree);
 			panel.setLanguageResource(languageResource);
 			panel.initialize();
@@ -123,7 +112,7 @@ public class UploadManager implements PropertyChangeListener {
 	 */
 	public UploadTicker getTicker() {
 		if (ticker == null) {
-			ticker = new UploadTicker(settings, getTable(), getPanel(), myID);
+			ticker = new UploadTicker(settings, getModel(), getPanel(), myID);
 		}
 		return ticker;
 	}
@@ -133,6 +122,16 @@ public class UploadManager implements PropertyChangeListener {
 	 */
 	public void setMyID(LocalIdentity identity) {
 		myID = identity;
+	}
+
+	/**
+	 * @return
+	 */
+	public UploadModel getModel() {
+		if (model == null) {
+			model = new UploadModel(settings);	
+		}
+		return model;
 	}
 
 }

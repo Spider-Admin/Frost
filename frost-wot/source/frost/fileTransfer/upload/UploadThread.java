@@ -25,11 +25,11 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.FcpTools.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 import frost.identities.LocalIdentity;
 import frost.messages.*;
 
-public class UploadThread extends Thread
+class UploadThread extends Thread
 {
     private UploadTicker ticker;
 
@@ -59,7 +59,7 @@ public class UploadThread extends Thread
     //private static final Object putIt = frame1.getMyBatches().put(batchId,batchId);
     //^^ ugly trick to put the initial batch number
 
-    FrostUploadItemObject uploadItem;
+    FrostUploadItem uploadItem;
 
 	public void run() {
 		if (batchId == null) {
@@ -100,7 +100,6 @@ public class UploadThread extends Thread
 					break;
 			}
 		}
-		((UploadTableModel) frame1.getInstance().getUploadTable().getModel()).updateRow(uploadItem);
 	}
     
     
@@ -236,14 +235,7 @@ public class UploadThread extends Thread
 					splitfile.encode();
 				} catch (Throwable t) {
 					logger.log(Level.SEVERE, "Encoding failed", t);
-					uploadItem.setState(FrostUploadItemObject.STATE_IDLE);
-					(
-						(UploadTableModel) frame1
-							.getInstance()
-							.getUploadTable()
-							.getModel())
-							.updateRow(
-						uploadItem);
+					uploadItem.setState(FrostUploadItem.STATE_IDLE);
 					return;
 				}
 			}
@@ -277,13 +269,13 @@ public class UploadThread extends Thread
 	}
 
     /**Constructor*/
-    public UploadThread(UploadTicker newTicker, FrostUploadItemObject ulItem, SettingsClass config, int mode, LocalIdentity newMyId)
+    public UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, SettingsClass config, int mode, LocalIdentity newMyId)
     {
         this(newTicker, ulItem, config, mode, -1, newMyId);
     }
 	public UploadThread(
 		UploadTicker newTicker,
-		FrostUploadItemObject ulItem,
+		FrostUploadItem ulItem,
 		SettingsClass config,
 		int newMode,
 		int newNextState,
@@ -301,7 +293,7 @@ public class UploadThread extends Thread
 		mode = newMode; // true=upload file false=generate chk (do not upload)
 		nextState = newNextState;
 		if (nextState < 0) {
-			nextState = FrostUploadItemObject.STATE_IDLE;
+			nextState = FrostUploadItem.STATE_IDLE;
 		}
 	}
 }

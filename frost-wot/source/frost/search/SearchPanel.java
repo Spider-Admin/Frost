@@ -14,8 +14,9 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 
 import frost.*;
-import frost.fileTransfer.download.*;
-import frost.gui.*;
+import frost.fileTransfer.download.DownloadTable;
+import frost.fileTransfer.upload.UploadModel;
+import frost.gui.TofTree;
 import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
@@ -299,6 +300,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	private SearchTable searchTable = null;
 	private SearchTableModel searchTableModel = null;
 	private DownloadTable downloadTable = null;
+	private UploadModel uploadModel = null;
 	private TofTree tofTree = null;
 	private SettingsClass settingsClass = null;
 	private String keypool = null;
@@ -458,6 +460,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 				searchComboBox.getSelectedKey(),
 				searchManager);
 		searchThread.setLanguageResource(languageResource);
+		searchThread.setUploadModel(uploadModel);
 		searchThread.start();
 	}
 	
@@ -611,6 +614,13 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			boolean disabled = searchTable.getSelectionModel().isSelectionEmpty();
 			downloadButton.setEnabled(!disabled);
 		}
+	}
+
+	/**
+	 * @param model
+	 */
+	public void setUploadModel(UploadModel model) {
+		uploadModel = model;
 	}
 
 }

@@ -27,8 +27,7 @@ import org.w3c.dom.*;
 import frost.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
-import frost.gui.model.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 public class TableXmlIO
 {
@@ -36,64 +35,62 @@ public class TableXmlIO
 	
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
-    /**************************************************
-     * TABLE LOAD METHODS *****************************
-     **************************************************/
+	/**************************************************
+	 * TABLE LOAD METHODS *****************************
+	 **************************************************/
 
-////////  UPLOAD TABLE  /////////
+	////////  UPLOAD MODEL  /////////
 
-    public static boolean loadUploadTableItems( UploadTableModel model, String filename )
-    {
-        Document doc = null;
-        try {
-            doc = XMLTools.parseXmlFile(filename, false);
-        } catch(Exception ex) { ; } // xml format error
+	public static boolean loadUploadModel(UploadModel model, String filename) {
+		Document doc = null;
+		try {
+			doc = XMLTools.parseXmlFile(filename, false);
+		} catch (Exception ex) {
+			;
+		} // xml format error
 
-        if( doc == null )
-        {
-            logger.severe("Error - loadUploadTableItems: factory could'nt create XML Document.");
-            return false;
-        }
+		if (doc == null) {
+			logger.severe("Error - loadUploadModel: factory could'nt create XML Document.");
+			return false;
+		}
 
-        Element rootNode = doc.getDocumentElement();
+		Element rootNode = doc.getDocumentElement();
 
-        if( rootNode.getTagName().equals("FrostUploadTable") == false )
-        {
-			logger.severe("Error - uploads.xml invalid: does not contain the root tag 'FrostUploadTable'");
-            return false;
-        }
-        // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
-        ArrayList nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostUploadTableItemList");
-        if( nodelist.size() != 1 )
-        {
-            return false;
-        }
+		if (rootNode.getTagName().equals("FrostUploadTable") == false) {
+			logger.severe(
+				"Error - uploads.xml invalid: does not contain the root tag 'FrostUploadTable'");
+			return false;
+		}
+		// check if rootnode contains only a single boardEntry wich must be a folder (root folder)
+		ArrayList nodelist =
+			XMLTools.getChildElementsByTagName(rootNode, "FrostUploadTableItemList");
+		if (nodelist.size() != 1) {
+			return false;
+		}
 
-        Element itemListRootNode = (Element)nodelist.get(0);
+		Element itemListRootNode = (Element) nodelist.get(0);
 
-        nodelist = XMLTools.getChildElementsByTagName( itemListRootNode, "FrostUploadTableItem" );
+		nodelist = XMLTools.getChildElementsByTagName(itemListRootNode, "FrostUploadTableItem");
 
-        if( nodelist.size() == 0 )
-            return true; // empty save file
+		if (nodelist.size() == 0)
+			return true; // empty save file
 
-        for( int x=0; x<nodelist.size(); x++ )
-        {
-            Element uploadItemElement = (Element)nodelist.get(x);
-            appendUploadTableItemToModel( uploadItemElement, model );
-        }
+		for (int x = 0; x < nodelist.size(); x++) {
+			Element uploadItemElement = (Element) nodelist.get(x);
+			appendUploadModelItemToModel(uploadItemElement, model);
+		}
 		logger.info("Loaded " + nodelist.size() + " items into upload table.");
-        return true;
-    }
+		return true;
+	}
 
-    protected static void appendUploadTableItemToModel(Element ulItemElement, UploadTableModel model)
-    {
-        FrostUploadItemObject ulObj = getUploadItemFromElement( ulItemElement );
-        if( ulObj == null )
-            return;
-        model.addRow( ulObj );
-    }
+	protected static void appendUploadModelItemToModel(Element ulItemElement, UploadModel model) {
+		FrostUploadItem ulObj = getUploadItemFromElement(ulItemElement);
+		if (ulObj == null)
+			return;
+		model.addUploadItem(ulObj);
+	}
 
-    protected static FrostUploadItemObject getUploadItemFromElement(Element ulItemElement)
+    protected static FrostUploadItem getUploadItemFromElement(Element ulItemElement)
     {
         String filename = XMLTools.getChildElementsCDATAValue(ulItemElement, "filename");
         String filepath = XMLTools.getChildElementsCDATAValue(ulItemElement, "filepath");
@@ -125,21 +122,21 @@ public class TableXmlIO
             // old format: states are saved in XML as LangRes Strings
             if( state.indexOf("Kb") != -1 || state.equals(LangRes.getString("Uploading")) )
             {
-                iState = FrostUploadItemObject.STATE_REQUESTED;
+                iState = FrostUploadItem.STATE_REQUESTED;
             }
         }
         else
         {
             // new format: states are saved in XML as numbers
-            if( iState == FrostUploadItemObject.STATE_PROGRESS ||
-                iState == FrostUploadItemObject.STATE_UPLOADING )
+            if( iState == FrostUploadItem.STATE_PROGRESS ||
+                iState == FrostUploadItem.STATE_UPLOADING )
             {
-                iState = FrostUploadItemObject.STATE_REQUESTED;
+                iState = FrostUploadItem.STATE_REQUESTED;
             }
-            else if( iState == FrostUploadItemObject.STATE_ENCODING ||
-                     iState == FrostUploadItemObject.STATE_ENCODING_REQUESTED )
+            else if( iState == FrostUploadItem.STATE_ENCODING ||
+                     iState == FrostUploadItem.STATE_ENCODING_REQUESTED )
             {
-                iState = FrostUploadItemObject.STATE_IDLE;
+                iState = FrostUploadItem.STATE_IDLE;
             }
         }
 
@@ -165,7 +162,7 @@ public class TableXmlIO
         }
 
         // create FrostUploadItemObject
-        FrostUploadItemObject ulItem = new FrostUploadItemObject( filename,
+        FrostUploadItem ulItem = new FrostUploadItem( filename,
                                                                   filepath,
                                                                   uploadFile.length(),
                                                                   board,
@@ -311,47 +308,45 @@ public class TableXmlIO
         return dlItem;
     }
 
-    /**************************************************
-     * TABLE SAVE METHODS *****************************
-     **************************************************/
+	/**************************************************
+	 * TABLE SAVE METHODS *****************************
+	 **************************************************/
 
-////////  UPLOAD TABLE  /////////
+	////////  UPLOAD MODEL  /////////
 
-    public static boolean saveUploadTableItems( UploadTableModel model, String filename )
-    {
-        Document doc = XMLTools.createDomDocument();
-        if( doc == null )
-        {
-            logger.severe("Error - saveUploadTableItems: factory could'nt create XML Document.");
-            return false;
-        }
+	public static boolean saveUploadModel(UploadModel model, String filename) {
+		Document doc = XMLTools.createDomDocument();
+		if (doc == null) {
+			logger.severe("Error - saveUploadTableItems: factory could'nt create XML Document.");
+			return false;
+		}
 
-        Element rootElement = doc.createElement("FrostUploadTable");
-        doc.appendChild(rootElement);
+		Element rootElement = doc.createElement("FrostUploadTable");
+		doc.appendChild(rootElement);
 
-        Element itemsRoot = doc.createElement("FrostUploadTableItemList");
-        rootElement.appendChild( itemsRoot );
+		Element itemsRoot = doc.createElement("FrostUploadTableItemList");
+		rootElement.appendChild(itemsRoot);
 
-        // now add all items to itemsRoot
-        for( int x=0; x<model.getRowCount(); x++ )
-        {
-            FrostUploadItemObject ulItem = (FrostUploadItemObject)model.getRow( x );
-            appendUploadItemToDomTree( itemsRoot, ulItem, doc );
-        }
+		// now add all items to itemsRoot
+		for (int x = 0; x < model.getItemCount(); x++) {
+			FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(x);
+			appendUploadItemToDomTree(itemsRoot, ulItem, doc);
+		}
 
-        boolean writeOK = false;
-        try {
-            writeOK = XMLTools.writeXmlFile(doc, filename);
-			logger.info("Saved " + model.getRowCount() + " items from upload table.");
-        } catch(Throwable t)
-        {
-			logger.log(Level.SEVERE, "Exception - saveUploadTableItems\n" +
-									 "ERROR saving upload table!", t);
-        }
-        return writeOK;
-    }
+		boolean writeOK = false;
+		try {
+			writeOK = XMLTools.writeXmlFile(doc, filename);
+			logger.info("Saved " + model.getItemCount() + " items from upload table.");
+		} catch (Throwable t) {
+			logger.log(
+				Level.SEVERE,
+				"Exception - saveUploadModel\n" + "ERROR saving upload table!",
+				t);
+		}
+		return writeOK;
+	}
 
-    protected static void appendUploadItemToDomTree( Element parent, FrostUploadItemObject ulItem, Document doc )
+    protected static void appendUploadItemToDomTree( Element parent, FrostUploadItem ulItem, Document doc )
     {
         Element itemElement = doc.createElement("FrostUploadTableItem");
         Element element;
