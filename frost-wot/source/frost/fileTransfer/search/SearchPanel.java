@@ -21,6 +21,7 @@ import frost.gui.translation.*;
 import frost.identities.*;
 import frost.threads.maintenance.Truster;
 import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.SortedModelTable;
 

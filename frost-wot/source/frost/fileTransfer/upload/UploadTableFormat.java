@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.gui.translation.*;
+import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
 import frost.util.model.gui.*;
 

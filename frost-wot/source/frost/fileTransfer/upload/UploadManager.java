@@ -10,8 +10,8 @@ import java.beans.*;
 
 import frost.*;
 import frost.gui.TofTree;
-import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.LocalIdentity;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * @author Administrator

@@ -36,6 +36,7 @@ import frost.gui.translation.*;
 import frost.messages.FrostIndex;
 import frost.threads.*;
 import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.translation.*;
 
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 {
