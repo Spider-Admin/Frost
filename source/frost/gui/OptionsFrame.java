@@ -135,7 +135,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JLabel interval = new JLabel(LangRes.getString("Sample interval (hours)"));
     JLabel treshold = new JLabel(LangRes.getString("Threshold of blocked messages"));
     JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
-    JCheckBox cleanUP = new JCheckBox(LangRes.getString("Clean the keypool"));
+    JCheckBox cleanUP = new JCheckBox(LangRes.getString("Clean the keypool")+" (experimental - remove all files older than maxMessageDays)");
 
     JButton chooseBoardUpdSelectedBackgroundColor = new JButton("   ");
     JButton chooseBoardUpdNonSelectedBackgroundColor = new JButton("   ");

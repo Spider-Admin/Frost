@@ -33,6 +33,8 @@ public class requestThread extends Thread
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
+    public static final String KEYCOLL_INDICATOR = "ERROR: key collision";
+
     final boolean DEBUG = true;
     private String filename;
     private Long size;
@@ -334,7 +336,7 @@ public class requestThread extends Thread
                                     // this write a .req file to inform others to not try this index again
                                     // if user switches to uploading enabled, this dummy .req files should
                                     // be silently deleted to enable receiving of new requests
-                                    FileAccess.writeFile("ERROR: key collision", testMe);
+                                    FileAccess.writeFile(KEYCOLL_INDICATOR, testMe);
                                 }
                             }
                         }

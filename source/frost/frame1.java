@@ -98,7 +98,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     //a shutdown hook
     public Thread saver;
     private TimerTask cleaner;
-    private static CleanUp fileCleaner = new CleanUp("keypool",frostSettings.getIntValue("maxMessageDisplay")+1,false);
+    private static CleanUp fileCleaner = new CleanUp("keypool",false);
 
     //------------------------------------------------------------------------
     // Generate objects
@@ -945,7 +945,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     // step through all messages on disk up to maxMessageDisplay and check if there are new messages
     // if a new message is in a folder, this folder is show yellow in tree
-    TOF.initialSearchNewMessages(getTofTree());
+    TOF.initialSearchNewMessages();
 
     if( isFreenetOnline() )
     {
@@ -977,7 +977,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     if (frostSettings.getFloatValue("tofFontSize") < 6.0f)
         frostSettings.setValue("tofFontSize",  6.0f);
 
-    tofTextArea.setFont( tofTextArea.getFont().deriveFont(frostSettings.getFloatValue("tofFontSize")) );
+    // always use monospaced font for tof text
+    Font tofFont = new Font("Monospaced", Font.PLAIN, (int)frostSettings.getFloatValue("tofFontSize") );
+    tofTextArea.setFont( tofFont );
 
     // Load table settings
     getDownloadTable().load();
@@ -1796,7 +1798,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 }
             }
             // finally step through all board files, count new messages and delete new messages from enemies
-            TOF.initialSearchNewMessages( getTofTree() );
+            TOF.initialSearchNewMessages();
 
             SwingUtilities.invokeLater(new Runnable() {
                     public void run() {
@@ -2759,7 +2761,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             updateTofTree(board);
             // update the new msg. count for board
-            TOF.initialSearchNewMessages(getTofTree(), board);
+            TOF.initialSearchNewMessages(board);
 
             if( board == getActualNode() )
             {
@@ -2784,7 +2786,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             if( optionsDlg.shouldReloadMessages() )
             {
                 // update the new msg. count for all boards
-                TOF.initialSearchNewMessages(getTofTree());
+                TOF.initialSearchNewMessages();
                 // reload all messages
                 tofTree_actionPerformed(null);
             }
@@ -2794,15 +2796,52 @@ public class frame1 extends JFrame implements ClipboardOwner
             // check if we switched from disableRequests=true to =false (requests now enabled)
             if( optionsDlg.shouldRemoveDummyReqFiles() )
             {
-// TODO:
-            //    search through .req files of this day in all boards and remove the
-            //     dummy .req files that are created on key collosions
+                new RemoveDummyRequestFiles().start();
             }
 
             // update gui parts
             updateOptionsAffectedComponents();
         }
         oldMessageHeader = "";
+    }
+
+    /**
+     * Search through .req files of this day in all boards and remove the
+     * dummy .req files that are created by requestThread on key collosions.
+     */
+    private class RemoveDummyRequestFiles extends Thread
+    {
+        public void run()
+        {
+            Iterator i = getTofTree().getAllBoards().iterator();
+
+            while( i.hasNext() )
+            {
+                FrostBoardObject board = (FrostBoardObject)i.next();
+
+                String destination = new StringBuffer().append(frame1.keypool)
+                                                       .append(board.getBoardFilename())
+                                                       .append(fileSeparator)
+                                                       .append(DateFun.getDate())
+                                                       .append(fileSeparator)
+                                                       .toString();
+                File boarddir = new File( destination );
+                if( boarddir.isDirectory() )
+                {
+                    File[] entries = boarddir.listFiles();
+                    for( int x=0; x<entries.length; x++ )
+                    {
+                        File entry = entries[x];
+
+                        if( entry.getName().endsWith(".req") &&
+                            FileAccess.readFile( entry ).indexOf( requestThread.KEYCOLL_INDICATOR ) > -1 )
+                        {
+                            entry.delete();
+                        }
+                    }
+                }
+            }
+        }
     }
 
     /**Help | About action performed*/
