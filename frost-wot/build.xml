@@ -117,6 +117,14 @@ Build log  : ${logfilename}</echo>
         </classpath>
     </javac>
     
+    <javac srcdir="${src.dir}"
+           destdir="${build.classes}"
+           debug="${debug}"
+           deprecation="${deprecation}"
+           optimize="${optimize}" >
+      <classpath refid="classpath" />
+    </javac>
+    
     <javac srcdir="${src.dir.skinlfFixLib}"
            destdir="${build.classes.skinlfFixLib}"
            debug="${debug}"
@@ -127,14 +135,6 @@ Build log  : ${logfilename}</echo>
               <pathelement location="${src.dir.skinlfFixLib}"/>
               <pathelement location="${lib.dir}/skinlf.jar"/>
           </classpath>
-    </javac>
-
-    <javac srcdir="${src.dir}"
-           destdir="${build.classes}"
-           debug="${debug}"
-           deprecation="${deprecation}"
-           optimize="${optimize}" >
-      <classpath refid="classpath" />
     </javac>
 
   </target>
