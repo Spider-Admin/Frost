@@ -28,7 +28,7 @@ import frost.identities.*;
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
     private static boolean DEBUG = true;
-    private static int maxFailures = 3;
+    private static int maxFailures = 4;
     private static int keyCount = 0;
     private static int minKeyCount = 50;
     private static int maxKeysPerFile = 5000;
@@ -212,7 +212,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
                     if( result[0].equals("KeyCollision") )
                     {
-                        findFreeUploadIndex(index);
+                        index = findFreeUploadIndex(index);
                         tries=0; // reset tries
                         if( DEBUG ) System.out.println("FILEDN:***** Index file collided, increasing index. *****");
                     }
@@ -389,10 +389,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
                     // download failed. Sometimes there are some 0 byte
                     // files left, we better remove them now.
+		    //System.out.println("FILEDN:failed getting index "+index
                     target.delete();
 		    setIndexFailed(index);
                     failures++;
-                    findFreeDownloadIndex(index);
+                    index = findFreeDownloadIndex(index);
                 }
             }
             if( isInterrupted() ) // check if thread should stop
