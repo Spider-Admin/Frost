@@ -120,18 +120,8 @@ public class FcpRequest
 
         if( dlItem != null )
         {
-
-            if( dlItem.getFileSize() == null )
-            {
-                dlItem.setFileSize( splitFileSize );
-            }
-            else // paranoia
-            {
-                if( dlItem.getFileSize().longValue() != splitFileSize )
-                {
-                    System.out.println("WARNING: size of FEC splitfile differs from size given from download table. MUST not happen!");
-                }
-            }
+            // set filesize as given in root split file
+            dlItem.setFileSize( splitFileSize );
 
             // update gui table
             dlItem.setBlockProgress( 0,
