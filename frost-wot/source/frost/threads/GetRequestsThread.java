@@ -122,7 +122,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             {
                 System.out.println("Received request " + testMe.getName());
 
-                String content = (FileAccess.readFile(testMe)).trim();
+                String content = (FileAccess.readFileRaw(testMe)).trim();
                 System.out.println("Request content is " + content);
                 UploadTableModel tableModel = (UploadTableModel)uploadTable.getModel();
                 int rowCount = tableModel.getRowCount();

@@ -129,7 +129,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         }
         else
         {
-            currentStatus = FileAccess.readFile(sigFile);
+            currentStatus = FileAccess.readFileRaw(sigFile);
         }
     }
 

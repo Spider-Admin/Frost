@@ -229,7 +229,7 @@ public class requestThread extends Thread
                     } });
         for( int i = 0; i < files.length; i++ )
         {
-            String content = (FileAccess.readFile(files[i])).trim();
+            String content = (FileAccess.readFileRaw(files[i])).trim();
             if( content.equals(key) )
             {
                 requested = true;
@@ -360,8 +360,8 @@ public class requestThread extends Thread
                         {
                             File numberOne = compareMe;
                             File numberTwo = requestFile;
-                            String contentOne = (FileAccess.readFile(numberOne)).trim();
-                            String contentTwo = (FileAccess.readFile(numberTwo)).trim();
+                            String contentOne = (FileAccess.readFileRaw(numberOne)).trim();
+                            String contentTwo = (FileAccess.readFileRaw(numberTwo)).trim();
 
                             //if( DEBUG ) System.out.println(contentOne);
                             //if( DEBUG ) System.out.println(contentTwo);

@@ -139,7 +139,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
         if( indexFile.length() > 0 && indexFile.isFile() )
         {
-            String tozip = frame1.getCrypto().sign(FileAccess.readFile(indexFile),
+            String tozip = frame1.getCrypto().sign(FileAccess.readFileRaw(indexFile),
 	    			frame1.getMyId().getPrivKey());
             FileAccess.writeZipFile(tozip, "entry", indexFile);
 

@@ -19,6 +19,9 @@
 
 package frost;
 import java.io.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.nio.charset.*;
 import java.util.zip.*;
 import java.util.*;
 import java.awt.*;
@@ -38,6 +41,9 @@ public class FileAccess
      * @param lastUsedDirectory The saveDialog starts at this directory
      * @param title The saveDialog gets this title
      */
+     
+     //TODO: perhaps move to utf-16?
+     private static final Charset charset = Charset.forName("UTF-8");
     public static void saveDialog(Component parent, String content, String lastUsedDirectory, String title)
     {
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
@@ -518,6 +524,34 @@ public class FileAccess
         }
         return stringBuffer.toString();
     }
+    
+    /**
+     * Reads a file and returns contents without formatting
+     */
+     public static String readFileRaw(String path) {
+	return readFileRaw(new File(path));
+     }
+     
+     public static String readFileRaw(File file) {
+     	if (!file.exists()) return null;
+	String result;
+	try {
+		FileChannel fc = (new FileInputStream(file)).getChannel();
+		ByteBuffer buf = ByteBuffer.allocate((int)file.length()); 
+		
+		while (buf.remaining() > 0) {
+			fc.read(buf);
+		}
+		
+		fc.close();
+		buf.flip();
+		result = charset.decode(buf).toString();
+	} catch (IOException e) {
+		e.printStackTrace();
+		return new String();
+	}
+	return result;
+     }
 
     /**
      * Writes a file "file" to "path"

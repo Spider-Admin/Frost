@@ -3011,8 +3011,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                     {
                         File entry = entries[x];
 
-                        if( entry.getName().endsWith(".req") &&
-                            FileAccess.readFile( entry ).indexOf( requestThread.KEYCOLL_INDICATOR ) > -1 )
+                        if( entry.getName().endsWith(".req.sha") &&
+                            FileAccess.readFileRaw( entry ).indexOf( requestThread.KEYCOLL_INDICATOR ) > -1 )
                         {
                             entry.delete();
                         }
