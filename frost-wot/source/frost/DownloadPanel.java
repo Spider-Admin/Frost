@@ -314,7 +314,7 @@ public class DownloadPanel extends JPanel {
 	/**
 	 * 
 	 */
-	public class Listener implements LanguageListener, ActionListener, KeyListener, MouseListener, ItemListener {
+	private class Listener implements LanguageListener, ActionListener, KeyListener, MouseListener, ItemListener {
 		/* (non-Javadoc)
 		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
 		 */
@@ -665,7 +665,7 @@ public class DownloadPanel extends JPanel {
 	}
 
 	/**Get keyTyped for downloadTable*/
-	public void downloadTable_keyPressed(KeyEvent e) {
+	private void downloadTable_keyPressed(KeyEvent e) {
 		char key = e.getKeyChar();
 		if (key == KeyEvent.VK_DELETE && !downloadTable.isEditing()) {
 			downloadTable.removeSelectedChunks();
