@@ -40,6 +40,11 @@ public class LangRes extends ListResourceBundle {
 	// Unknown translations
 	// Have to look where in the GUI these translations are needed
 	///////////////////////////////////////////////////
+	{"Upload of message failed", "Upload of message failed"},
+	{"Frost was not able to upload your message.", "Frost was not able to upload your message."},
+	{"Retry", "Retry"},
+	{"Retry on next startup", "Retry on next startup"},
+	{"Discard message", "Discard message"},
 	{"Minimize to System Tray", "Minimize to System Tray"},
 	{"Index", "Index"},
 	{"From", "From"},
