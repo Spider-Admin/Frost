@@ -29,6 +29,8 @@ import frost.gui.objects.FrostBoardObject;
 import frost.messages.SharedFileObject;
 
 public class DownloadThread extends Thread {
+	private SettingsClass settings;
+
 	private DownloadTicker ticker;
 
 	static java.util.ResourceBundle LangRes =
@@ -59,7 +61,7 @@ public class DownloadThread extends Thread {
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
 			Date today = new Date();
 			String date = formatter.format(today);
-			File newFile = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
+			File newFile = new File(settings.getValue("downloadDirectory") + filename);
 			boolean do_request = false;
 
 			// if we don't have the CHK, means the key was not inserted
@@ -122,9 +124,9 @@ public class DownloadThread extends Thread {
 				logger.warning("FILEDN: Download of " + filename + " failed.");
 				if (inTable == true) {
 					// Upload request to request stack
-					if (frame1.frostSettings.getBoolValue("downloadEnableRequesting")
+					if (settings.getBoolValue("downloadEnableRequesting")
 						&& downloadItem.getRetries()
-							>= frame1.frostSettings.getIntValue("downloadRequestAfterTries")
+							>= settings.getIntValue("downloadRequestAfterTries")
 						&& board != null
 						&& board.isFolder() == false
 						&& this.owner != null) // upload requests only if they are NOT manually added
@@ -152,8 +154,8 @@ public class DownloadThread extends Thread {
 
 					// set new state -> failed or waiting for another try
 					if (downloadItem.getRetries()
-						> frame1.frostSettings.getIntValue("downloadMaxRetries")) {
-						if (frame1.frostSettings.getBoolValue("downloadRestartFailedDownloads")) {
+						> settings.getIntValue("downloadMaxRetries")) {
+						if (settings.getBoolValue("downloadRestartFailedDownloads")) {
 							downloadItem.setState(FrostDownloadItemObject.STATE_WAITING);
 							downloadItem.setRetries(0);
 						} else {
@@ -200,7 +202,7 @@ public class DownloadThread extends Thread {
 
 	// Request a certain file by SHA1
 	private void request() {
-		int messageUploadHtl = frame1.frostSettings.getIntValue("tofUploadHtl");
+		int messageUploadHtl = settings.getIntValue("tofUploadHtl");
 		boolean requested = false;
 
 		logger.info(
@@ -250,11 +252,11 @@ public class DownloadThread extends Thread {
 					File.createTempFile(
 						"reqUpload_",
 						null,
-						new File(frame1.frostSettings.getValue("temp.dir")));
+						new File(settings.getValue("temp.dir")));
 			} catch (Exception ex) {
 				requestFile =
 					new File(
-						frame1.frostSettings.getValue("temp.dir")
+							settings.getValue("temp.dir")
 							+ System.currentTimeMillis()
 							+ ".tmp");
 			}
@@ -314,7 +316,7 @@ public class DownloadThread extends Thread {
 					String upKey =
 						new StringBuffer()
 							.append("KSK@frost/request/")
-							.append(frame1.frostSettings.getValue("messageBase"))
+							.append(settings.getValue("messageBase"))
 							.append("/")
 							.append(owner)
 							.append("-")
@@ -345,11 +347,11 @@ public class DownloadThread extends Thread {
 								File.createTempFile(
 									"reqUploadCmpDnload_",
 									null,
-									new File(frame1.frostSettings.getValue("temp.dir")));
+									new File(settings.getValue("temp.dir")));
 						} catch (Exception ex) {
 							compareMe =
 								new File(
-									frame1.frostSettings.getValue("temp.dir")
+										settings.getValue("temp.dir")
 										+ System.currentTimeMillis()
 										+ ".tmp");
 						}
@@ -375,7 +377,7 @@ public class DownloadThread extends Thread {
 									"FILEDN: Request Upload collided, increasing index to "
 										+ index);
 
-								if (frame1.frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == true) {
+								if (settings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == true) {
 									// uploading is disabled, therefore already existing requests are not
 									// written to disk, causing key collosions on every request insert.
 
@@ -431,8 +433,10 @@ public class DownloadThread extends Thread {
 	public DownloadThread(
 		DownloadTicker newTicker,
 		FrostDownloadItemObject item,
-		DownloadTable table) {
+		DownloadTable table,
+		SettingsClass frostSettings) {
 
+		settings = frostSettings;
 		filename = item.getFileName();
 		size = item.getFileSize();
 		key = item.getKey();

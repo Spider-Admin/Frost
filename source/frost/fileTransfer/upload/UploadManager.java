@@ -83,7 +83,7 @@ public class UploadManager implements PropertyChangeListener {
 	public UploadTable getTable() {
 		if (table == null) { 
 			UploadTableModel uploadTableModel = new UploadTableModel(languageResource);
-			table = new UploadTable(uploadTableModel);
+			table = new UploadTable(uploadTableModel, settings);
 		}
 		return table;
 	}

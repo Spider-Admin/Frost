@@ -26,21 +26,23 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import frost.frame1;
+import frost.SettingsClass;
 import frost.gui.*;
 import frost.threads.maintenance.Savable;
 
 public class DownloadTable extends SortedTable implements Savable
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    private SettingsClass settings;
     
 	private static Logger logger = Logger.getLogger(DownloadTable.class.getName());
 	
 	private CellRenderer cellRenderer = new CellRenderer();
 
-	public DownloadTable(DownloadTableModel m) {
+	public DownloadTable(DownloadTableModel m, SettingsClass frostSettings) {
 		super(m);
 		
+		settings = frostSettings;
+			
 		// default for sort: sort by state ascending
 		sortedColumnIndex = 4;
 		sortedColumnAscending = true;
@@ -123,7 +125,7 @@ public class DownloadTable extends SortedTable implements Savable
      */
     public boolean load()
     {
-        String filename = frame1.frostSettings.getValue("config.dir") + "downloads.xml";
+        String filename = settings.getValue("config.dir") + "downloads.xml";
         // the call changes the tablemodel and loads nodes into it
         File iniFile = new File(filename);
         if( iniFile.exists() == false )
@@ -138,12 +140,12 @@ public class DownloadTable extends SortedTable implements Savable
      */
     public boolean save()
     {
-        String filename = frame1.frostSettings.getValue("config.dir") + "downloads.xml";
+        String filename = settings.getValue("config.dir") + "downloads.xml";
         File check = new File( filename );
         if( check.exists() )
         {
             // rename old file to .bak, overwrite older .bak
-            String bakFilename = frame1.frostSettings.getValue("config.dir") + "downloads.xml.bak";
+            String bakFilename = settings.getValue("config.dir") + "downloads.xml.bak";
             File bakFile = new File(bakFilename);
             if( bakFile.exists() )
             {
@@ -217,7 +219,7 @@ public class DownloadTable extends SortedTable implements Savable
             oldChunkFilesList.add( dlItem.getFileName() );
         }
 
-        String dlDir = frame1.frostSettings.getValue("downloadDirectory");
+        String dlDir = settings.getValue("downloadDirectory");
 
         RemoveSelectedFilesChunksThread t = new RemoveSelectedFilesChunksThread( oldChunkFilesList, dlDir );
         t.start();
