@@ -129,6 +129,9 @@ public class insertThread extends Thread
 						if (!splitFile.uploadInit()) 
 							throw new Error("file was just uploaded, but .redirect missing!");
 						
+						//create a splitfile redirect without progress information
+						splitFile.createRedirectFile(false);
+											
 						((FECRedirectFileObject)current).setRedirect(
 								new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
 					}
