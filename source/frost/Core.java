@@ -24,7 +24,28 @@ import java.awt.*;
 public class Core {
 	
 	public Core(){
+//		check whether the user is running a transient node
+			  setFreenetIsTransient(false);
+			  setFreenetIsOnline(false);
+		try{
 		frostSettings = frame1.frostSettings;
+		FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
+				if( con1 != null )
+				{
+					String[] nodeInfo = con1.getInfo();
+					// freenet is online
+					setFreenetIsOnline(true);
+					for (int ij=0;ij<nodeInfo.length;ij++)
+					{
+						if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
+						{
+							setFreenetIsTransient(true);
+						}
+					}
+				}
+		}catch(Exception e) {
+			e.printStackTrace(System.out);
+		}
 	}
 	class ResendFailedMessagesThread extends Thread
 	{
@@ -635,28 +656,14 @@ public class Core {
 			Process process = Runtime.getRuntime().exec("exec" + frame1.fileSeparator + "SystemTray.exe");
 		}catch(IOException _IoExc) { }
 
-		//check whether the user is running a transient node
-		setFreenetIsTransient(false);
-		setFreenetIsOnline(false);
-
-		try{
 		
-		FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
-		if( con1 != null )
-		{
-			String[] nodeInfo = con1.getInfo();
-			// freenet is online
-			setFreenetIsOnline(true);
-			for (int ij=0;ij<nodeInfo.length;ij++)
-			{
-				if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
-				{
-					setFreenetIsTransient(true);
-				}
-			}
-		}
-		else
-		{
+
+		
+		
+		
+		
+		
+		if (!isFreenetIsOnline()){
 			JOptionPane.showMessageDialog(frame1.getInstance(),
 			"Make sure your node is running and that you have configured frost correctly.\n"+
 			"Nevertheless, to allow you to read messages, Frost will startup now.\n"+
@@ -665,9 +672,7 @@ public class Core {
 		JOptionPane.WARNING_MESSAGE);
 			setFreenetIsOnline(false);
 		}
-		}catch(Exception e) {
-			e.printStackTrace(System.out);
-		}
+		
 		if( isFreenetTransient() )
 		{
 			JOptionPane.showMessageDialog(frame1.getInstance(),
