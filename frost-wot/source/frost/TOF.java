@@ -337,7 +337,7 @@ public class TOF
                 {
                     File[] filePointers = loadDir.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
-                                if( name.endsWith(".txt") )
+                                if( name.endsWith(".xml") )
                                     return true;
                                 return false;
                             } });
@@ -582,7 +582,7 @@ public class TOF
                 {
                     for( int j = 0; j < filePointers.length; j++ )
                     {
-                        if( filePointers[j].getName().endsWith(".txt.lck") )
+                        if( filePointers[j].getName().endsWith(".xml.lck") )
                         {
                             // search for message
                             String lockFilename = filePointers[j].getName();
