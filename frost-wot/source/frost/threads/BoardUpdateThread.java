@@ -9,6 +9,7 @@ public interface BoardUpdateThread
     public final static int MSG_DNLOAD_BACK   = 2;
     public final static int BOARD_FILE_DNLOAD = 3;
     public final static int MSG_UPLOAD        = 4;
+    public final static int ID_THREAD	      = 5;
 
     int getThreadType();
 
