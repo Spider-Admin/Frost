@@ -1,8 +1,8 @@
 /* ====================================================================
  *
- * Skin Look And Feel 1.2.5 License.
+ * Skin Look And Feel 1.2.8 License.
  *
- * Copyright (c) 2000-2003 L2FProd.com.  All rights reserved.
+ * Copyright (c) 2000-2004 L2FProd.com.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,69 +47,63 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
+import java.util.Enumeration;
+
 import javax.swing.JComponent;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTableHeaderUI;
 import javax.swing.table.TableCellRenderer;
+import javax.swing.table.TableColumn;
 
 /**
  * @author    $Author$
  * @created   27 avril 2002
  * @version   $Revision$, $Date$
  */
-public class SkinTableHeaderUI extends BasicTableHeaderUI {
+public final class SkinTableHeaderUI extends BasicTableHeaderUI {
 
+  TableCellRenderer renderer;
+  Skin skin = SkinLookAndFeel.getSkin();
 
-	private TableCellRenderer previousRenderer;
+  /**
+   * Constructor for the SkinTableHeaderUI object
+   */
+  public SkinTableHeaderUI() {
+    super();
+    renderer = skin.getPersonality().getTableHeaderRenderer();
+  }
 
-	TableCellRenderer renderer;
-	Skin skin = SkinLookAndFeel.getSkin();
-	
-	/**
-	 * Constructor for the SkinTableHeaderUI object
-	 */
-	public SkinTableHeaderUI() {
-		super();
-		renderer = skin.getPersonality().getTableHeaderRenderer();
-	}
+  /**
+   * Description of the Method
+   *
+   * @param c  Description of Parameter
+   */
+  public void installUI(JComponent c) {
+    super.installUI(c);
 
-	/**
-	 * This method installs the UI. It stores the previous default
-	 * renderer of the JTableHeader and installs the new one.
-	 * 
-	 * Note: this method should never touch the renderers of the headers
-	 * of the columns of the table, as the ArrowRenderers of the sorted
-	 * tables depend on them.
-	 *
-	 * @param c  Description of Parameter
-	 */
-	public void installUI(JComponent c) {
-		super.installUI(c);
+    try {
+      // if JDK1.3 or later
+      header.getClass().getMethod("setDefaultRenderer", new Class[]{TableCellRenderer.class}).invoke(header, new Object[]{renderer});
+    } catch (Exception e) {
+      // else do it the old way
+      Enumeration enumeration = header.getColumnModel().getColumns();
+      while (enumeration.hasMoreElements()) {
+        TableColumn aColumn = (TableColumn) enumeration.nextElement();
+        aColumn.setHeaderRenderer(renderer);
+      }
+    }
+    // end of else
+  }
 
-		//We install the default renderer of the header
-		previousRenderer = header.getDefaultRenderer();
-		header.setDefaultRenderer(renderer);
-	}
+  /**
+   * Description of the Method
+   *
+   * @param h  Description of Parameter
+   * @return   Description of the Returned Value
+   */
+  public static ComponentUI createUI(JComponent h) {
+    return new SkinTableHeaderUI();
+  }
 
-	/**
-	 * Description of the Method
-	 *
-	 * @param h  Description of Parameter
-	 * @return   Description of the Returned Value
-	 */
-	public static ComponentUI createUI(JComponent h) {
-		return new SkinTableHeaderUI();
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.plaf.ComponentUI#uninstallUI(javax.swing.JComponent)
-	 */
-	public void uninstallUI(JComponent c) {
-
-		// We uninstall the default renderer of the header
-		header.setDefaultRenderer(previousRenderer);
-
-		super.uninstallUI(c);
-	}
 }
 
