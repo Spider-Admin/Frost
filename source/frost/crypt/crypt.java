@@ -29,10 +29,13 @@ import java.io.File;
 	 */
 	public byte[] detachedSign(String message,String key);
 	
+	public byte[] detachedSign(byte [] message,String key);
+	
 	/**
 	 * the key is the verification key
 	 */
 	public boolean verify(String message, String key);
+	
 	
 	/**
 	 *  Verifies a String with a detached signature
@@ -42,6 +45,7 @@ import java.io.File;
 	 * @return whether the verification was successful
 	 */
     public boolean detachedVerify(String message, String key, byte[] sig);
+    public boolean detachedVerify(byte [] plaintext, String key, byte[] sig);
 	/**
 	 * symmetric encryption of a string.
 	 */

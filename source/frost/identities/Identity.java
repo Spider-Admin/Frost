@@ -95,9 +95,9 @@ public class Identity implements XMLizable
 	protected void baseIdentityPopulateFromElement(Element e) throws SAXException {
 				uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
 				name = uniqueName.substring(0,uniqueName.indexOf("@"));
-				keyaddress =  XMLTools.getChildElementsCDATAValue(e, "CHK");
 				key =  XMLTools.getChildElementsCDATAValue(e, "key");
 				try {
+					keyaddress =  XMLTools.getChildElementsCDATAValue(e, "CHK");
 					noMessages = (new Integer(XMLTools.getChildElementsTextValue(e,"messages"))).intValue();
 					noFiles = (new Integer(XMLTools.getChildElementsTextValue(e,"files"))).intValue();
 				}catch (NullPointerException npe) {
