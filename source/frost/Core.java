@@ -20,6 +20,7 @@ package frost;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 
@@ -39,17 +40,17 @@ import frost.threads.maintenance.*;
 
 public class Core {
 	
-	private static PrintStream out = System.out; //default is System.out
 	private static final Set nodes = new HashSet(); //list of available nodes
 	private static Set messageSet = new HashSet(); // set of message digests
 	private static final SortedSet knownBoards = new TreeSet(); //list of known boards
 	private static NotifyByEmailThread emailNotifier = null;
 	private static Core self = null;
 	private ResourceBundle languageResource = null;
+	
+	private static Logger logger = Logger.getLogger(Core.class.getName());
 
 	public Core(ResourceBundle newLanguageResource) {
 		languageResource = newLanguageResource;
-		out = System.out; //when we want to redirect to file just change this.
 
 		frostSettings = frame1.frostSettings;
 		//parse the list of available nodes
@@ -67,11 +68,11 @@ public class Core {
 		}
 
 		if (nodes.size() == 0) {
-			getOut().println("not a single Freenet node configured!  You need at least one");
+			logger.severe("not a single Freenet node configured!  You need at least one");
 			System.exit(1);
 		}
 
-		getOut().println("Frost will use "+nodes.size() +" Freenet nodes");
+		logger.info("Frost will use " + nodes.size() +" Freenet nodes");
 
 
 		//		check whether the user is running a transient node
@@ -92,7 +93,7 @@ public class Core {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace(out);
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 		}
 	}
     
@@ -158,7 +159,7 @@ public class Core {
 
 					} while (nick != null && nick.length() == 0);
 					if (nick == null) {
-						out.println("Frost can't run without an identity.");
+						logger.severe("Frost can't run without an identity.");
 						System.exit(1);
 					}
 
@@ -168,13 +169,12 @@ public class Core {
 
 					//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
 				} catch (Exception e) {
-					out.println("couldn't create new identitiy");
-					out.println(e.toString());
+					logger.severe("couldn't create new identitiy" + e.toString());
 				}
 				//friends = new BuddyList();
 
 				if (friends.Add(frame1.getMyId())) {
-					out.println("added myself to list");
+					logger.info("added myself to list");
 				}
 				//enemies = new BuddyList();
 			} else
@@ -183,7 +183,7 @@ public class Core {
 					//friends = new BuddyList();
 					//enemies = new BuddyList();
 					try {
-						out.println("trying to create/load ids");
+						logger.info("trying to create/load ids");
 						Document d = XMLTools.parseXmlFile("identities.xml", false);
 						Element rootEl = d.getDocumentElement();
 						//first myself
@@ -205,18 +205,13 @@ public class Core {
 								neutral.loadXMLElement(current);
 						}
 					} catch (Exception e) {
-						e.printStackTrace(getOut());
+						logger.log(Level.SEVERE, "Exception thrown in loadIdentities()", e);
 					}
-					Core.getOut().println(
-						"loaded "
-							+ friends.size()
-							+ " friends and "
-							+ enemies.size()
-							+ " enemies and "
-							+ neutral.size()
-							+ " neutrals.");
+					logger.info("loaded " + friends.size() + " friends and " 
+										  + enemies.size() + " enemies and "
+										  + neutral.size() + " neutrals.");
 					if (friends.Add(frame1.getMyId()))
-						out.println("added myself to list");
+						logger.info("added myself to list");
 
 				} else {
 					try {
@@ -238,18 +233,18 @@ public class Core {
 
 							String tmp = FecTools.generateCHK(pubkeydata);
 							address = tmp.substring(tmp.indexOf("CHK@"), tmp.indexOf("CHK@") + 58);
-							out.println("Re-calculated my public key CHK: " + address + "\n");
+							logger.info("Re-calculated my public key CHK: " + address + "\n");
 
 						}
 						mySelf = new LocalIdentity(name, keys);
-						out.println("loaded myself with name " + mySelf.getName());
+						logger.info("loaded myself with name " + mySelf.getName());
 						//out.println("and public key" + mySelf.getKey());
 
 						//take out the ****
 						fin.readLine();
 
 						//process the friends
-						out.println("loading friends");
+						logger.info("loading friends");
 						friends = new BuddyList();
 						boolean stop = false;
 						String key;
@@ -261,7 +256,7 @@ public class Core {
 							key = fin.readLine();
 							friends.Add(new Identity(name, key));
 						}
-						out.println("loaded " + friends.size() + " friends");
+						logger.info("loaded " + friends.size() + " friends");
 
 						//just the good ids
 						while (!stop) {
@@ -270,11 +265,11 @@ public class Core {
 								break;
 							goodIds.put(id, id);
 						}
-						out.println("loaded " + goodIds.size() + " good ids");
+						logger.info("loaded " + goodIds.size() + " good ids");
 
 						//and the enemies
 						enemies = new BuddyList();
-						out.println("loading enemies");
+						logger.info("loading enemies");
 						while (!stop) {
 							name = fin.readLine();
 							if (name == null || name.startsWith("***"))
@@ -283,7 +278,7 @@ public class Core {
 							key = fin.readLine();
 							enemies.Add(new Identity(name, key));
 						}
-						out.println("loaded " + enemies.size() + " enemies");
+						logger.info("loaded " + enemies.size() + " enemies");
 
 						//and the bad ids
 						while (!stop) {
@@ -292,27 +287,27 @@ public class Core {
 								break;
 							badIds.put(id, id);
 						}
-						out.println("loaded " + badIds.size() + " bad ids");
+						logger.info("loaded " + badIds.size() + " bad ids");
 
 					} catch (IOException e) {
-						out.println("IOException :" + e.toString());
+						logger.severe("IOException :" + e.toString());
 						friends = new BuddyList();
 						enemies = new BuddyList();
 						friends.Add(mySelf);
 					} catch (Exception e) {
-						e.printStackTrace(out);
+						logger.log(Level.SEVERE, "Exception thrown in loadIdentities()", e);
 					}
 				}
 
 		} catch (IOException e) {
-			e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in loadIdentities()", e);
 		}
-		out.println("ME = '" + getMyId().getUniqueName() + "'");
+		logger.info("ME = '" + getMyId().getUniqueName() + "'");
 	}
     
     public void saveIdentities()
     {
-        Core.getOut().println("saving identities.xml");
+		logger.info("saving identities.xml");
         File identities = new File("identities.xml");
         if (identities.exists())
         {
@@ -348,7 +343,7 @@ public class Core {
         }
         catch (Throwable e)
         {
-            e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in saveIdentities()", e);
         }
         
         /*
@@ -420,10 +415,10 @@ public class Core {
         	try{
         		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(hashes));
         		messageSet = (HashSet)ois.readObject();
-        		getOut().println("loaded "+messageSet.size() +" message hashes");	
+        		logger.info("loaded "+messageSet.size() +" message hashes");	
         		ois.close();
         	} catch(Throwable t){
-        		t.printStackTrace(getOut());
+				logger.log(Level.SEVERE, "Exception thrown in loadHashes()", t);
         	}
     }
     
@@ -440,7 +435,7 @@ public class Core {
         }
         catch (Throwable t)
         {
-            t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in saveHashes()", t);
         }
     }
     
@@ -465,14 +460,13 @@ public class Core {
             }
             catch(Exception ex)
             {
-                getOut().println("Error reading knownboards.xml:");
-                getOut().println( ex.getMessage() );
+				logger.log(Level.SEVERE, "Error reading knownboards.xml", ex);
                 return;
             }
             Element rootNode = doc.getDocumentElement();
             if( rootNode.getTagName().equals("FrostKnownBoards") == false )
             {
-                getOut().println("Error - invalid knownboards.xml: does not contain the root tag 'FrostKnownBoards'");
+                logger.severe("Error - invalid knownboards.xml: does not contain the root tag 'FrostKnownBoards'");
                 return;
             }
             // pass this as an 'AttachmentList' to xml read method and get
@@ -481,12 +475,12 @@ public class Core {
             try { al.loadXMLElement(rootNode); }
             catch(Exception ex)
             {
-                getOut().println("Error - knownboards.xml: contains unexpected content.");
+				logger.log(Level.SEVERE, "Error - knownboards.xml: contains unexpected content.", ex);
                 return;
             }
             List lst = al.getAllOfType(Attachment.BOARD);
             knownBoards.addAll(lst);
-            getOut().println("Loaded "+knownBoards.size()+" known boards.");
+            logger.info("Loaded "+knownBoards.size()+" known boards.");
         }
     }
     
@@ -519,11 +513,10 @@ public class Core {
                 BoardAttachment ba = new BoardAttachment(bo);
                 tmpList.add( ba );
             }
-            out.println("Loaded "+ _boards.length +" OLD known boards (converting).");
+            logger.info("Loaded "+ _boards.length +" OLD known boards (converting).");
             addNewKnownBoards(tmpList);
         }catch (Throwable t){
-            out.println("couldn't load/convert OLD known boards");
-            t.printStackTrace(out);
+			logger.log(Level.SEVERE, "couldn't load/convert OLD known boards", t);
         }
         
         if( boards.renameTo(new File( "boards.old")) == false )
@@ -537,7 +530,7 @@ public class Core {
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
         {
-            Core.getOut().println("Error - saveBoardTree: factory could'nt create XML Document.");
+            logger.severe("Error - saveBoardTree: factory could'nt create XML Document.");
             return;
         }
         
@@ -560,15 +553,15 @@ public class Core {
             writeOK = XMLTools.writeXmlFile(doc, "knownboards.xml");
         }
         catch(Throwable ex) {
-            Core.getOut().println("Exception while writing knownboards.xml: "+ex.getMessage());
+			logger.log(Level.SEVERE, "Exception while writing knownboards.xml:", ex);
         }
         if( !writeOK )
         {
-            Core.getOut().println("Error while writing knownboards.xml, file was not saved");
+            logger.severe("Error while writing knownboards.xml, file was not saved");
         }
         else
         {
-            Core.getOut().println("Saved "+getKnownBoards().size()+" known boards.");
+            logger.info("Saved "+getKnownBoards().size()+" known boards.");
         }            
         
 /*        try {
@@ -610,11 +603,9 @@ public class Core {
                     myBatches.put(_batches[i], _batches[i]);
                 }
         
-        		getOut().println(
-        			"loaded " + _batches.length + " batches of shared files");
+        		logger.info("loaded " + _batches.length + " batches of shared files");
         	} catch (Throwable e) {
-        		getOut().println("couldn't load batches");
-        		e.printStackTrace(getOut());
+				logger.log(Level.SEVERE, "couldn't load batches:", e);
         	}
     }
     
@@ -646,7 +637,7 @@ public class Core {
             FileAccess.writeFile(buf.toString(), batches);
         }
         catch (Throwable t) {
-            t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in saveBatches():", t);
         }
     }
     
@@ -716,10 +707,10 @@ public class Core {
 				// maybe each 6 hours cleanup files (12 * 30 minutes)
 				if (i == 12 && frostSettings.getBoolValue("doCleanUp")) {
 					i = 0;
-					out.println("discarding old files");
+					logger.info("discarding old files");
 					fileCleaner.doCleanup();
 				}
-				out.println("freeing memory");
+				logger.info("freeing memory");
 				System.gc();
 				i++;
 			}
@@ -869,13 +860,6 @@ public class Core {
 	public static void schedule(TimerTask task, long delay, long period) {
 		getInstance().timer2.schedule(task, delay, period);
 	}
-	/**
-	 * @return the PrintStream where messages are logged
-	 */
-	public static PrintStream getOut() {
-		return out;
-	}
-
 	/**
 	 * @return list of nodes Frost is using
 	 */
