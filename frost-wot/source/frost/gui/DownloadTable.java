@@ -63,9 +63,30 @@ public class DownloadTable extends SortedTable
                 tableItem.getSourceBoard().toString().equals( dlItem.getSourceBoard().toString() )
               )
             {
-                // already in model (compared by key+board)
+                // already in model (compared by ?)
                 return false;
             }
+            if( tableItem.getKey().equals(dlItem.getKey()) )
+            {
+                // already in model (compared by key)
+                return false;
+            }
+            if( tableItem.getFileName().equals(dlItem.getFileName()) )
+            {
+                // same name, but different key. - rename quitely
+                int cnt = 2; 
+                while(true) {
+                    String nextNewName = dlItem.getFileName() + "_" + cnt;
+                    dlItem.setFileName(nextNewName);
+                    if( addDownloadItem(dlItem) == true )
+                    {
+                        // added to model
+                        return true;
+                    }
+                    cnt++;
+                }
+                // we should never come here
+           }
         }
         // not in model, add
         model.addRow( dlItem );

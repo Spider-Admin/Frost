@@ -288,4 +288,12 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     	SHA1 = sha1;
     }
 
+    /**
+     * @param string
+     */
+    public void setFileName(String string)
+    {
+        fileName = string;
+    }
+
 }

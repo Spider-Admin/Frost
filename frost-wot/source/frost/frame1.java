@@ -165,6 +165,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     private DownloadTable downloadTable = null;
     private JTable attachmentTable = null;
     private JTable boardTable = null;
+    private HealingTable healingTable = null;
 
     private JTextArea tofTextArea = null;
     private JTextField downloadTextField = null;
