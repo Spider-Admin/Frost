@@ -33,28 +33,14 @@ public class DownloadTable extends SortedTable
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
-    public DownloadTable(TableModel m)
-    {
-        super(m);
-
-        // size column
-        CellRenderer cellRenderer = new CellRenderer();
-        getColumnModel().getColumn(2).setCellRenderer(cellRenderer);
-
-        // set column sizes
-        int[] widths = {0, 170, 80, 70, 80, 85, 25, 60, 60, 30};
-        for (int i = 0; i < widths.length; i++) // col 0 default
-        {
-            getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-        }
-        // enableDownload column
-        getColumnModel().getColumn(0).setResizable(false);
-
-        // default for sort: sort by state ascending
-        sortedColumnIndex = 4;
-        sortedColumnAscending = true;
-        resortTable();
-    }
+	public DownloadTable(TableModel m) {
+		super(m);
+		
+		// default for sort: sort by state ascending
+		sortedColumnIndex = 4;
+		sortedColumnAscending = true;
+		resortTable();
+	}
 
     public void removeSelectedRows()
     {
@@ -396,6 +382,27 @@ public class DownloadTable extends SortedTable
             return this;
         }
     }
+
+	/* (non-Javadoc)
+	 * @see javax.swing.JTable#createDefaultColumnsFromModel()
+	 */
+	public void createDefaultColumnsFromModel() {
+		super.createDefaultColumnsFromModel();
+
+		// size column
+		CellRenderer cellRenderer = new CellRenderer();
+		getColumnModel().getColumn(2).setCellRenderer(cellRenderer);
+
+		// set column sizes
+		int[] widths = { 0, 170, 80, 70, 80, 85, 25, 60, 60, 30 };
+		for (int i = 0; i < widths.length; i++) // col 0 default
+			{
+			getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+		}
+		// enableDownload column
+		getColumnModel().getColumn(0).setResizable(false);
+
+	}
 
 }
 

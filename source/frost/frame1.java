@@ -1147,8 +1147,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 	public DownloadTable getDownloadTable() {
 		if (downloadTable == null) {
-			DownloadTableModel downloadTableModel = new DownloadTableModel();
+			DownloadTableModel downloadTableModel = new DownloadTableModel(languageResource);
 			downloadTable = new DownloadTable(downloadTableModel);	
+			languageResource.addLanguageListener(downloadTableModel);
+			downloadTableModel.addTableModelListener(downloadTable);
 		}
 		return downloadTable;
 	}
