@@ -265,6 +265,8 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
 
     public boolean getAutoUpdateEnabled()
     {
+        if( !isConfigured() )
+            return true;
         return autoUpdateEnabled;
     }
     public void setAutoUpdateEnabled( boolean val )
@@ -274,7 +276,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
 
     public int getMaxMessageDisplay()
     {
-        if( maxMessageDisplay == null )
+        if( !isConfigured() || maxMessageDisplay == null )
         {
             // return default
             return frame1.frostSettings.getIntValue("maxMessageDisplay");
@@ -292,7 +294,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
 
     public boolean getShowSignedOnly()
     {
-        if( showSignedOnly == null )
+        if( !isConfigured() || showSignedOnly == null )
         {
             // return default
             return frame1.frostSettings.getBoolValue("signedOnly");
@@ -310,7 +312,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
 
     public boolean getHideBad()
     {
-        if( hideBad == null )
+        if( !isConfigured() || hideBad == null )
         {
             // return default
             return frame1.frostSettings.getBoolValue("hideBadMessages");
@@ -328,7 +330,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
 
     public boolean getHideCheck()
     {
-        if( hideCheck == null )
+        if( !isConfigured() || hideCheck == null )
         {
             // return default
             return frame1.frostSettings.getBoolValue("hideCheckMessages");
