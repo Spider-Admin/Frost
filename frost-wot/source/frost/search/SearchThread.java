@@ -29,7 +29,7 @@ import frost.gui.objects.*;
 import frost.identities.FrostIdentities;
 import frost.messages.SharedFileObject;
 
-public class SearchThread extends Thread {
+class SearchThread extends Thread {
 	private FrostIdentities identities;
 	private static Logger logger = Logger.getLogger(SearchThread.class.getName());
     private String request;

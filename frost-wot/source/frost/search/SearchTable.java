@@ -29,7 +29,7 @@ import frost.gui.objects.*;
 import frost.identities.*;
 import frost.search.*;
 
-public class SearchTable extends SortedTable
+class SearchTable extends SortedTable
 {
 	private FrostIdentities identities;
 
