@@ -303,10 +303,8 @@ public class MessageObject implements XMLizable
         return false;
     if (date.length() > 22)
         return false;
-    // FIXED: no, this is freenet limit (actually its 32k, not 32000)
-        /*
-    if (content.length() > 32000)
-        return false;*/
+    if (content.length() > 32*1024)
+        return false;
 
     return true;
     }

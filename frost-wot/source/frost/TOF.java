@@ -164,12 +164,12 @@ public class TOF
     }
     
     // called by non-swing thread
-    public static void addNewMessageToTable(File newMsgFile, final FrostBoardObject board)
+    public static void addNewMessageToTable(File newMsgFile, final FrostBoardObject board, boolean markNew)
     {
         JTable table = frame1.getInstance().getMessageTable();
         final DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 
-        if( (newMsgFile.getName()).endsWith(".txt") &&
+        if( (newMsgFile.getName()).endsWith(".xml") &&
              newMsgFile.length() > 0 
              //&& newMsgFile.length() < 32000
           )
@@ -188,7 +188,8 @@ public class TOF
             {
                 final String[] sMessage = message.getVRow();
 
-                board.incNewMessageCount();
+                if(markNew) 
+                    board.incNewMessageCount();
 
                 SwingUtilities.invokeLater( new Runnable() {
                         public void run() {
