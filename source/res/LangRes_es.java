@@ -177,7 +177,6 @@ static final Object[][] contents = {
 {"New board","Nuevo foro"},
 {"New folder","Nueva carpeta"},
 {"New message","Nuevo mensaje"},
-{"New Node Name","Nombre del Nuevo Foro"},
 {"News","Noticias"},
 {"No 'From' specified!","!No se ha especificado 'Origen'!"},
 {"No subject specified!","!No se ha especificado un asunto!"},
@@ -352,6 +351,22 @@ static final Object[][] contents = {
 	{"High", "Alto"},
 	{"Medium", "Medio"},
 	{"Low", "Bajo"},
-	{"Very low", "Muy bajo"}
+	{"Very low", "Muy bajo"},
+	
+	///
+	///	TofTree
+	///
+	
+	{"New Folder Name","Nombre de la Nueva Carpeta"},
+	{"New Node Name","Nombre del Nuevo Foro"},
+	{"newboard","nuevoForo"},
+	{"newfolder","nuevaCarpeta"},
+	{"Please enter a name for the new board","Por favor, introduce el nombre para el nuevo foro"},
+	{"Please enter a name for the new folder","Por favor, introduce el nombre para la nueva carpeta"},
+	{"You already have a board with name","Ya tienes un foro llamado"},
+	{"Please choose a new name","Por favor, escoge un nuevo nombre"},
+	{"Do you really want to overwrite it?","¿De verdad quieres sobreescribirlo?"},
+	{"This will not delete messages","Esto no borrará los mensajes"}
+	
 };
 }
