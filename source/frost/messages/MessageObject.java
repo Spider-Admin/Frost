@@ -59,15 +59,15 @@ public class MessageObject implements XMLizable
      * Constructor.
      * Used to construct an instance for an existing messagefile.
      */
-    public MessageObject(File file) throws Exception
-    {
+    public MessageObject(File file) throws Exception {
         this();
-        if( file == null || 
-            file.exists() == false ||
-            file.length() < 20 ) // prolog+needed tags are always > 20, but we need to filter 
-        {                        // out the messages containing "Empty" (encrypted for someone else)
-        	file.renameTo(new File("badMessage"));   
-            throw new Exception("Invalid input file for MessageObject, send the file \"badMessage\" to a dev");
+        if (file == null) {
+        	throw new Exception("Invalid input file (null) received for MessageObject");
+        } else if (!file.exists() || file.length() < 20) { // prolog+needed tags are always > 20, but we need to filter 
+        												   // out the messages containing "Empty" (encrypted for someone else)
+        	file.renameTo(new File("badMessage"));
+        	throw new Exception("Invalid input file '" + file.getName() + "' received for MessageObject. " +
+        						"Send the file \"badMessage\" to a dev");
         }
         this.file = file;
         loadFile();
