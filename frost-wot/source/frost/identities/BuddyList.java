@@ -80,5 +80,11 @@ public class BuddyList extends HashMap implements XMLizable
 		
 		return super.remove(key);
 	}
+	
+	public boolean containsKey(Object key){
+		if (key instanceof String)
+			return super.containsKey(mixed.makeFilename((String)key));
+		else return false;
+	}
 
 }
