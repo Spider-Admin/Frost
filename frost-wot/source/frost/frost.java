@@ -216,7 +216,7 @@ public class frost {
 				lookAndFeel = args[1];
 			}
 			if (args[0].equals("-locale")) {
-				locale = args[1];
+				locale = args[1];	//This settings overrides the one in the ini file
 			}
 		}
 
