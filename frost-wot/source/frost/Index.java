@@ -243,6 +243,9 @@ public class Index
     public static void add(File keyFile, FrostBoardObject board) {
     	add(keyFile, new File(frame1.keypool + board.getBoardFilename() + fileSeparator+ "files.xml"));
     }
+    public static void add(File keyFile, FrostBoardObject board, String owner) {
+    	add(keyFile, new File(frame1.keypool + board.getBoardFilename() + fileSeparator+ "files.xml"), owner);
+    }
     /**
      * Adds a key object to an index located at target dir.
      * Target dir will be created if it does not exist
@@ -305,6 +308,20 @@ public class Index
         add(chunk, target);
     }
 
+    public static void add(File keyfile, File target, String owner) {
+    	   final Map chunk = Collections.synchronizedMap(new HashMap());
+
+	try {
+        if( !target.exists() )
+            target.createNewFile();
+	}catch(IOException e) {
+		e.printStackTrace();
+	}
+        FileAccess.readKeyFile(keyfile, chunk);
+
+        
+        add(chunk, target,owner);
+    }
     /**
      * Adds a Map to an index located at target dir.
      * Target dir will be created if it does not exist
@@ -327,6 +344,37 @@ public class Index
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass)i.next();
 		
+		//update the download table
+		if (current.getKey() !=null)
+			updateDownloadTable(current);
+		
+		KeyClass old = (KeyClass)whole.get(current.getSHA1());
+		
+		if (old == null) {
+			whole.put(current.getSHA1(),current);
+			continue;
+		}
+		old.setDate(current.getDate());
+		old.setKey(current.getKey());
+		//TODO: allow unsigned files to be appropriated
+	}
+	
+	FileAccess.writeKeyFile(whole,target);
+    }
+    
+    protected static void add(Map chunk, File target, String owner){
+    	final Map whole = Collections.synchronizedMap(new HashMap());
+	if (owner==null)
+		owner= "Anonymous";
+	FileAccess.readKeyFile(target,whole);
+	
+        //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
+          //  target.mkdir();
+
+        Iterator i = chunk.values().iterator();
+	while (i.hasNext()) {
+		KeyClass current = (KeyClass)i.next();
+		if (!current.getOwner().equals(owner)) continue;
 		//update the download table
 		if (current.getKey() !=null)
 			updateDownloadTable(current);
