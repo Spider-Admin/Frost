@@ -21,7 +21,7 @@ package frost.gui.model;
 
 import javax.swing.table.DefaultTableModel;
 
-public class AttachmentTableModel extends DefaultTableModel
+public class AttachedFilesTableModel extends DefaultTableModel
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
@@ -34,7 +34,7 @@ public class AttachmentTableModel extends DefaultTableModel
         String.class //LangRes.getString("Key")
     };
 
-    public AttachmentTableModel()
+    public AttachedFilesTableModel()
     {
         super();
     }

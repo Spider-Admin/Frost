@@ -27,10 +27,9 @@ import org.xml.sax.SAXException;
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
 
-public class MessageObject implements XMLizable {
-
-
-	AttachmentList attachments;
+public class MessageObject implements XMLizable 
+{
+	AttachmentList attachments; // this is never null!
 	
 	public Element getXMLElement(Document d){
 		return messageObjectPopulateElement(d);
@@ -114,7 +113,6 @@ public class MessageObject implements XMLizable {
 			attachments = new AttachmentList();
 			attachments.loadXMLElement(_attachments);
 	}
-		
 
     static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 			//FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
@@ -401,8 +399,11 @@ public class MessageObject implements XMLizable {
     		if (!sfo.isOnline())
     			result.add(sfo);
     	}
-    		
     	return result;
-    	
+    }
+    
+    public AttachmentList getAttachmentList()
+    {
+        return attachments;
     }
 }
