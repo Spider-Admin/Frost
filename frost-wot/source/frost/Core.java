@@ -272,10 +272,15 @@ public class Core {
 		File boards = new File("boards");
 		if (boards.exists())
 			try {
+// FIXME: !!! we should explicitely load/save this file in UTF-16, because it contains
+//            user visible strings                
 				String allBoards = FileAccess.readFile(boards);
 				String []_boards = allBoards.split(":");
 				for (int i=0;i<_boards.length;i++)
-					knownBoards.add(_boards[i].trim());
+                {
+System.out.println("DBG-loadedBoard: '"+_boards[i].trim()+"'");
+                    knownBoards.add(_boards[i].trim());
+                }
 				out.println("loaded "+ _boards.length +" known boards");
 			}catch (Throwable t){
 				out.println("couldn't load known boards");
