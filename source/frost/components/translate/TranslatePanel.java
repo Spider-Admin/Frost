@@ -95,7 +95,7 @@ public class TranslatePanel extends JPanel {
 		// Display some short instructions in a message box
 		JOptionPane.showMessageDialog(
 			parent,
-			"1. Select the language you want to translate.\n2. Translate each row of the table.\n3. Save your translation\n4. Send us the saved 'LangRes'  file in your Frost directory\n   or upload it with frost.\n\nThank you!",
+			"1. Select the language you want to translate.\n2. Translate each row of the table.\n3. Save your translation\n4. Send us the saved 'LangRes_xx.java'  file in your Frost directory\n   or upload it with frost.\n\nThank you!",
 			"Instructions",
 			JOptionPane.PLAIN_MESSAGE);
 	}
