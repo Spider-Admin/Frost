@@ -684,6 +684,8 @@ public class FcpRequest
                     String redirect = SettingsFun.getValue(tempFile.getPath(), "Redirect.Target");
                     if( DEBUG ) System.out.println("Redirecting to " + redirect);
 
+// TODO: what if the redirect target is a split file?
+
                     boolean success = getKey(redirect, null, tempFile, htl);
                     if( success )
                     {
@@ -768,6 +770,7 @@ public class FcpRequest
             catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException
             {
                 // do nothing, data not found is usual ...
+                if( DEBUG ) System.out.println("FcpRequest.getKey: DataNotFoundException (usual if not found)");
             }
             catch( FcpToolsException e )
             {
