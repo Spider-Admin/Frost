@@ -129,7 +129,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox downloadDisableDownloads = new JCheckBox(LangRes.getString("Disable downloads"));
 
     JCheckBox signedOnly = new JCheckBox(LangRes.getString("Show only signed messages"));
-    JCheckBox goodOnly = new JCheckBox(LangRes.getString("Show only GOOD messages") + " " + LangRes.getString("(Off)"));
+    JCheckBox hideBadMessages = new JCheckBox(LangRes.getString("Hide messages flagged BAD") + " " + LangRes.getString("(Off)"));
+    JCheckBox hideCheckMessages = new JCheckBox(LangRes.getString("Hide messages flagged CHECK") + " " + LangRes.getString("(Off)")); 
+    //JCheckBox goodOnly = new JCheckBox(LangRes.getString("Show only GOOD messages") + " " + LangRes.getString("(Off)"));
     JCheckBox block = new JCheckBox(LangRes.getString("Block message from/subject containing:"));
     JCheckBox blockBody = new JCheckBox(LangRes.getString("Block message body containing:"));
     JCheckBox doBoardBackoff = new JCheckBox(LangRes.getString("Do spam detection") + " (experimental)");
@@ -161,12 +163,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             }
         );
         signedOnly.addChangeListener(new ChangeListener(){
-            public void stateChanged(ChangeEvent e){
-                if (e.getSource().equals(signedOnly))
-                    goodOnly.setEnabled(signedOnly.isSelected());
-                }
+		public void stateChanged(ChangeEvent e){
+		    if (e.getSource().equals(signedOnly)){
+			//goodOnly.setEnabled(signedOnly.isSelected());
+			hideBadMessages.setEnabled(signedOnly.isSelected());
+			hideCheckMessages.setEnabled(signedOnly.isSelected());
+		    }
+		}
             }
-        );
+	);
         block.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent e){
                 if (e.getSource().equals(block))
@@ -550,7 +555,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 0;
             tof2Panel.add(signedOnly,constr);
             constr.gridx = 1;
-            tof2Panel.add(goodOnly,constr);
+            //tof2Panel.add(goodOnly,constr);
+	    tof2Panel.add(hideBadMessages,constr);
+	    constr.gridy++;
+	    tof2Panel.add(hideCheckMessages,constr);
             constr.gridy++;
             constr.gridx = 0;
             tof2Panel.add(doBoardBackoff,constr);
@@ -927,8 +935,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         spamTreshold.setEnabled(frostSettings.getBoolValue("doBoardBackoff"));
         sampleInterval.setText(frostSettings.getValue("sampleInterval"));
         spamTreshold.setText(frostSettings.getValue("spamTreshold"));
-        goodOnly.setEnabled(frostSettings.getBoolValue("signedOnly"));
-        goodOnly.setSelected(frostSettings.getBoolValue("goodOnly"));
+        //goodOnly.setEnabled(frostSettings.getBoolValue("signedOnly"));
+        //goodOnly.setSelected(frostSettings.getBoolValue("goodOnly"));
+	hideBadMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
+	hideBadMessages.setSelected(frostSettings.getBoolValue("hideBadMessages"));
+	hideCheckMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
+	hideCheckMessages.setSelected(frostSettings.getBoolValue("hideCheckMessages"));
         block.setSelected(frostSettings.getBoolValue("blockMessageChecked"));
         blockBody.setSelected(frostSettings.getBoolValue("blockMessageBodyChecked"));
         miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
@@ -1039,7 +1051,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("archiveExtension", searchArchiveExtensionTextField.getText().toLowerCase());
         frostSettings.setValue("useAltEdit", miscAltEditCheckBox.isSelected());
         frostSettings.setValue("signedOnly", signedOnly.isSelected());
-        frostSettings.setValue("goodOnly", goodOnly.isSelected());
+        //frostSettings.setValue("goodOnly", goodOnly.isSelected());
+	frostSettings.setValue("hideBadMessages", hideBadMessages.isSelected());
+	frostSettings.setValue("hideCheckMessages", hideCheckMessages.isSelected());
         frostSettings.setValue("altEdit", miscAltEditTextField.getText());
         frostSettings.setValue("doCleanUp",cleanUP.isSelected());
         frostSettings.setValue("disableRequests",uploadDisableRequests.isSelected());
