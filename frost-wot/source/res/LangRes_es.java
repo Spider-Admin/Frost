@@ -163,7 +163,6 @@ static final Object[][] contents = {
 {"Message base","Base de mensajes"},
 {"Message download HTL","HTL para bajada de mensajes"},
 {"Message upload HTL","HTL para subida de mensajes"},
-{"MessageBodyFont","Fuente del cuerpo de los mensajes"},
 {"Messages","Mensajes"},
 {"Messages Today","Mensajes de Hoy"},
 {"Minimize to System Tray","Minimiza a la Bandeja del Sistema"},
@@ -319,6 +318,7 @@ static final Object[][] contents = {
 	{"Choose a Font","Escoge un Tipo de Letra"},
 	{"Fonts","Tipos de Letra"},
 	{"Message Body","Cuerpo del Mensaje"},
+	{"Message List","Lista de Mensajes"},
 	{"Choose","Escoge"}
 
 };
