@@ -135,7 +135,7 @@ Build log  : ${logfilename}</echo>
   <target name="clean"
           description="--> clean the build files.">
 
-    <delete quiet="true" file="${build.dir}"/>
+    <delete quiet="true" dir="${build.dir}"/>
 
   </target>
 
