@@ -52,7 +52,7 @@ public class ModelTable extends AbstractTableModel {
 		public void itemChanged(int position, ModelItem item, int fieldID, Object oldValue, Object newValue) {
 			int[] columns = tableFormat.getColumnNumbers(fieldID);
 			for (int i = 0; i < columns.length; i++) {
-				int columnIndex = visibleColumns.indexOf(new Integer(columns[i]));
+				int columnIndex = convertColumnIndexToModel(columns[i]);
 				fireTableCellUpdated(position, columnIndex);
 			}
 		}
@@ -265,8 +265,8 @@ public class ModelTable extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		Integer index = (Integer) visibleColumns.get(columnIndex);
-		return tableFormat.getCellValue(model.getItemAt(rowIndex), index.intValue());
+		int index = convertColumnIndexToFormat(columnIndex);
+		return tableFormat.getCellValue(model.getItemAt(rowIndex), index);
 	}
 	
 	
@@ -321,8 +321,8 @@ public class ModelTable extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-		Integer index = (Integer) visibleColumns.get(column);
-		return tableFormat.getColumnName(index.intValue());
+		int index = convertColumnIndexToFormat(column);
+		return tableFormat.getColumnName(index);
 	}
 
 	/**
@@ -348,8 +348,8 @@ public class ModelTable extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#isCellEditable(int, int)
 	 */
 	public boolean isCellEditable(int rowIndex, int columnIndex) {
-		Integer index = (Integer) visibleColumns.get(columnIndex);
-		return tableFormat.isColumnEditable(index.intValue());
+		int index = convertColumnIndexToFormat(columnIndex);
+		return tableFormat.isColumnEditable(index);
 	}
 	
 	/**
@@ -360,7 +360,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @return true if the column is being shown. false otherwise.
 	 */
 	public boolean isColumnVisible(int columnIndex) {
-		int position = visibleColumns.indexOf(new Integer(columnIndex));
+		int position = convertColumnIndexToModel(columnIndex);
 		if (position != -1) {
 			return true;
 		} else {
@@ -378,7 +378,7 @@ public class ModelTable extends AbstractTableModel {
 	 */
 	public void setColumnVisible(int index, boolean visible) {
 		TableColumnModel columnModel = getTable().getColumnModel();
-		int position = visibleColumns.indexOf(new Integer(index));
+		int position = convertColumnIndexToModel(index);
 
 		if (visible) {
 			if (position == -1) {
@@ -408,8 +408,8 @@ public class ModelTable extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#setValueAt(java.lang.Object, int, int)
 	 */
 	public void setValueAt(Object aValue, int rowIndex, int columnIndex) {
-		Integer index = (Integer) visibleColumns.get(columnIndex);
-		tableFormat.setCellValue(aValue, model.getItemAt(rowIndex), index.intValue());
+		int index = convertColumnIndexToFormat(columnIndex);
+		tableFormat.setCellValue(aValue, model.getItemAt(rowIndex), index);
 	}
 
 	/**
@@ -429,6 +429,29 @@ public class ModelTable extends AbstractTableModel {
 	 */
 	public Iterator getColumns() {
 		return columns.iterator();
+	}
+	
+	/**
+	 * This method maps the index that a column has in the associated TableFormat to
+	 * the index that column has in this ModelTable.
+	 * 
+	 * @param formatColumnIndex the index a column has in the associated TableFormat
+	 * @return the index that column has in this ModelTable 
+	 */
+	protected int convertColumnIndexToModel(int formatColumnIndex) {
+		return visibleColumns.indexOf(new Integer(formatColumnIndex));
+	}
+	
+	/**
+	 * This method maps the index that a column has in this ModelTable to
+	 * the index that column has in the associated TableFormat.
+	 * 
+	 * @param formatColumnIndex the index a column has in this ModelTable
+	 * @return the index that column has in the associated TableFormat 
+	 */
+	protected int convertColumnIndexToFormat(int modelColumnIndex) {
+		Integer index = (Integer) visibleColumns.get(modelColumnIndex);
+		return index.intValue();
 	}
 
 }
