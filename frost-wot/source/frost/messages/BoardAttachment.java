@@ -43,6 +43,18 @@ public class BoardAttachment extends Attachment implements Comparable, SafeXMLiz
 	 */
 	public Element getXMLElement(Document container) {
 		
+		Element el = getSafeXMLElement(container);
+		
+		Element privkey = container.createElement("privKey");
+		CDATASection cdata = container.createCDATASection(boardObj.getPrivateKey()); //null is ok
+		privkey.appendChild(cdata);
+		el.appendChild(privkey);
+		
+		return el;
+	}
+	
+	public Element getSafeXMLElement(Document container){
+	
 		Element el = container.createElement("Attachment");
 		el.setAttribute("type","board");
 		
@@ -57,23 +69,7 @@ public class BoardAttachment extends Attachment implements Comparable, SafeXMLiz
 			mixed.makeSafeXML(boardObj.getPublicKey()));
 		pubkey.appendChild(cdata);
 		el.appendChild(pubkey);
-		
-		Element privkey = container.createElement("privKey");
-		cdata = container.createCDATASection(boardObj.getPrivateKey()); //null is ok
-		privkey.appendChild(cdata);
-		el.appendChild(privkey);
-		
-		return el;
-	}
-	
-	public Element getSafeXMLElement(Document container){
-		Element el = getXMLElement(container);
-		List _privkey = XMLTools.getChildElementsByTagName(el,"privKey");
-		
-		if (_privkey.size()==0)
-			return el;
-		
-		el.removeChild((Element)_privkey.get(0));
+
 		return el;
 	}
 

@@ -104,6 +104,7 @@ public class XMLTools
         catch( SAXException e )
         {
             // A parsing error occurred; the xml input is not valid
+	    Core.getOut().println("parsing of xml file failed.  Send badfile.xml to a dev for analysis");
 	    e.printStackTrace(Core.getOut());
 	    	file.renameTo(new File("badfile.xml"));
             throw new IllegalArgumentException();
