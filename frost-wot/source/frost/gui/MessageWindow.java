@@ -32,15 +32,27 @@ public class MessageWindow extends JFrame{
 	private Window parentWindow;
 	
 	
-	private class Listener extends KeyAdapter implements KeyListener, PropertyChangeListener{
+	private class Listener extends WindowAdapter implements KeyListener, PropertyChangeListener, WindowListener{
 		
 		public void keyPressed(KeyEvent e){
 			maybeDoSomething(e);
 		}
 		
+		public void keyReleased(KeyEvent e){
+			//Nothing
+		}
+		
+		public void keyTyped(KeyEvent e){
+			//Nothing
+		}
+		
+		public void windowClosing(WindowEvent e){
+			close();
+		}
+		
 		public void maybeDoSomething(KeyEvent e){
 			if( e.getKeyChar() == KeyEvent.VK_ESCAPE ){
-					messageWindow.dispose();
+					close();
 			}
 		}
 		
@@ -81,6 +93,7 @@ public class MessageWindow extends JFrame{
 		messageTextArea.setText(message.getContent());
 		messageTextArea.addKeyListener(listener);
 		this.addKeyListener(listener);
+		this.addWindowListener(listener);
 		
 		settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
 		settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
@@ -131,6 +144,16 @@ public class MessageWindow extends JFrame{
 			settings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
 			font = new Font("SansSerif", fontStyle, fontSize);
 		}
+	}
+	
+	private void close(){
+		settings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
+		settings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
+		settings.removePropertyChangeListener(
+			SettingsClass.MESSAGE_BODY_FONT_STYLE,
+			listener);
+		settings.removePropertyChangeListener("messageBodyAA", listener);		
+		dispose();
 	}
 
 }
