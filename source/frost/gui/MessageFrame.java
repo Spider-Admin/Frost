@@ -43,7 +43,7 @@ public class MessageFrame extends JFrame
 
 	private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 	
-    static java.util.ResourceBundle LangRes;
+    private ResourceBundle languageResource;
 
     //------------------------------------------------------------------------
     // Class Vars
@@ -94,11 +94,9 @@ public class MessageFrame extends JFrame
 			// Configure objects
 			//------------------------------------------------------------------------
 
-			this.setIconImage(
-				Toolkit.getDefaultToolkit().createImage(
-					this.getClass().getResource("/data/newmessage.gif")));
-			this.setTitle(LangRes.getString("Create message"));
-			this.setResizable(true);
+			setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/data/newmessage.gif")));
+			setTitle(languageResource.getString("Create message"));
+			setResizable(true);
 
 			attBoardsTableModel = new MFAttachedBoardsTableModel();
 			attBoardsTable = new MFAttachedBoardsTable(attBoardsTableModel);
@@ -110,13 +108,22 @@ public class MessageFrame extends JFrame
 			JScrollPane attFilesScroller = new JScrollPane(attFilesTable);
 			attFilesTable.addMouseListener(new AttFilesTablePopupMenuMouseListener());
 
-			configureButton(Bsend, "Send message", "/data/send_rollover.gif");
-			configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
-			configureButton(BattachFile, "Add attachment(s)", "/data/attachment_rollover.gif");
-			configureButton(BattachBoard, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
+			MiscToolkit toolkit = MiscToolkit.getInstance();
+			toolkit.configureButton(Bsend, "Send message", "/data/send_rollover.gif", languageResource);
+			toolkit.configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif", languageResource);
+			toolkit.configureButton(
+				BattachFile,
+				"Add attachment(s)",
+				"/data/attachment_rollover.gif",
+				languageResource);
+			toolkit.configureButton(
+				BattachBoard,
+				"Add Board(s)",
+				"/data/attachmentBoard_rollover.gif",
+				languageResource);
 
-			sign.setText(LangRes.getString("Sign"));
-			addAttachedFilesToUploadTable.setText(LangRes.getString("Indexed attachments"));
+			sign.setText(languageResource.getString("Sign"));
+			addAttachedFilesToUploadTable.setText(languageResource.getString("Indexed attachments"));
 
 			TFboard.setEditable(false);
 			TFboard.setText(board.toString());
@@ -125,7 +132,7 @@ public class MessageFrame extends JFrame
 			TFsubject.setText(subject);
 			messageTextArea.setLineWrap(true);
 			messageTextArea.setWrapStyleWord(true);
-			
+
 			// check if last msg was signed and set it to remembered state
 			if (from.equals(myId.getUniqueName())) {
 				fromTextField.setEditable(false);
@@ -134,7 +141,7 @@ public class MessageFrame extends JFrame
 
 			addAttachedFilesToUploadTable.setSelected(false);
 			addAttachedFilesToUploadTable.setToolTipText(
-				LangRes.getString("Should file attachments be added to upload table?"));
+				languageResource.getString("Should file attachments be added to upload table?"));
 
 			//------------------------------------------------------------------------
 			// Actionlistener
@@ -184,9 +191,9 @@ public class MessageFrame extends JFrame
 			JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
 			JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 
-			JLabel Lboard = new JLabel(LangRes.getString("Board") + ": ");
-			JLabel Lfrom = new JLabel(LangRes.getString("From") + ": ");
-			JLabel Lsubject = new JLabel(LangRes.getString("Subject") + ": ");
+			JLabel Lboard = new JLabel(languageResource.getString("Board") + ": ");
+			JLabel Lfrom = new JLabel(languageResource.getString("From") + ": ");
+			JLabel Lsubject = new JLabel(languageResource.getString("Subject") + ": ");
 
 			JScrollPane textScroller = new JScrollPane(messageTextArea); // Textscrollpane
 			textScroller.setMinimumSize(new Dimension(100, 50));
@@ -204,7 +211,7 @@ public class MessageFrame extends JFrame
 			panelButtons.add(BattachFile);
 			panelButtons.add(BattachBoard);
 			panelButtons.add(sign);
-			panelButtons.add(this.addAttachedFilesToUploadTable);
+			panelButtons.add(addAttachedFilesToUploadTable);
 
 			JPanel dummyPanel = new JPanel(new BorderLayout());
 			dummyPanel.add(panelLabels, BorderLayout.WEST);
@@ -213,25 +220,21 @@ public class MessageFrame extends JFrame
 			panelToolbar.add(panelButtons, BorderLayout.NORTH);
 			panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
 
-			this.attachmentSplitPane =
-				new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScroller, attFilesScroller);
-			this.boardSplitPane =
-				new JSplitPane(
-					JSplitPane.VERTICAL_SPLIT,
-					this.attachmentSplitPane,
-					attBoardsScroller);
+			attachmentSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, textScroller, attFilesScroller);
+			boardSplitPane =
+				new JSplitPane(JSplitPane.VERTICAL_SPLIT, attachmentSplitPane, attBoardsScroller);
 
-			this.boardSplitPane.setResizeWeight(1);
-			this.attachmentSplitPane.setResizeWeight(1);
+			boardSplitPane.setResizeWeight(1);
+			attachmentSplitPane.setResizeWeight(1);
 
 			panelMain.add(panelToolbar, BorderLayout.NORTH);
 			panelMain.add(boardSplitPane, BorderLayout.CENTER);
 
-			this.getContentPane().setLayout(new BorderLayout());
-			this.getContentPane().add(panelMain, BorderLayout.CENTER);
+			getContentPane().setLayout(new BorderLayout());
+			getContentPane().add(panelMain, BorderLayout.CENTER);
 
 			initPopupMenu();
-			
+
 			initialized = true;
 		}
 	}
@@ -241,8 +244,8 @@ public class MessageFrame extends JFrame
         attFilesPopupMenu = new JSkinnablePopupMenu();
         attBoardsPopupMenu = new JSkinnablePopupMenu();
         
-        JMenuItem removeFiles = new JMenuItem(LangRes.getString("Remove"));
-        JMenuItem removeBoards = new JMenuItem(LangRes.getString("Remove"));
+        JMenuItem removeFiles = new JMenuItem(languageResource.getString("Remove"));
+        JMenuItem removeBoards = new JMenuItem(languageResource.getString("Remove"));
         
         removeFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -273,10 +276,10 @@ public class MessageFrame extends JFrame
         if( subject.equals("No subject") )
         {
             int n = JOptionPane.showConfirmDialog( this,
-                                                   LangRes.getString("Do you want to enter a subject?"),
-                                                   LangRes.getString("No subject specified!"),
-                                                   JOptionPane.YES_NO_OPTION,
-                                                   JOptionPane.QUESTION_MESSAGE);
+								languageResource.getString("Do you want to enter a subject?"),
+								languageResource.getString("No subject specified!"),
+                                JOptionPane.YES_NO_OPTION,
+                                JOptionPane.QUESTION_MESSAGE);
             if( n == JOptionPane.YES_OPTION )
             {
                 return;
@@ -286,17 +289,17 @@ public class MessageFrame extends JFrame
         if( subject.length() == 0)
         {
             JOptionPane.showMessageDialog( this,
-                                           LangRes.getString("You must enter a subject!"),
-                                           LangRes.getString("No subject specified!"),
-                                           JOptionPane.ERROR);
+								languageResource.getString("You must enter a subject!"),
+								languageResource.getString("No subject specified!"),
+            					JOptionPane.ERROR);
             return;                               
         }
         if( from.length() == 0)
         {
             JOptionPane.showMessageDialog( this,
-                                           LangRes.getString("You must enter a sender name!"),
-                                           LangRes.getString("No 'From' specified!"),
-                                           JOptionPane.ERROR);
+								languageResource.getString("You must enter a sender name!"),
+								languageResource.getString("No 'From' specified!"),
+            					JOptionPane.ERROR);
             return;                               
         }
 
@@ -403,7 +406,7 @@ public class MessageFrame extends JFrame
     private void attachFile_actionPerformed(ActionEvent e)
     {
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
-        fc.setDialogTitle(LangRes.getString("Choose file(s) / directory(s) to attach"));
+        fc.setDialogTitle(languageResource.getString("Choose file(s) / directory(s) to attach"));
         fc.setFileHidingEnabled(false);
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fc.setMultiSelectionEnabled(true);
@@ -479,21 +482,6 @@ public class MessageFrame extends JFrame
 		}
 		updateAttachmentSplitPanes();
 	}
-
-    /**
-     * Configures a button to be a default icon button
-     * @param button The new icon button
-     * @param toolTipText Is displayed when the mousepointer is some seconds over a button
-     * @param rolloverIcon Displayed when mouse is over button
-     */
-    protected void configureButton(JButton button, String toolTipText, String rolloverIcon)
-    {
-        button.setToolTipText(LangRes.getString(toolTipText));
-        button.setRolloverIcon(new ImageIcon(MainFrame.class.getResource(rolloverIcon)));
-        button.setMargin(new Insets(0, 0, 0, 0));
-        button.setBorderPainted(false);
-        button.setFocusPainted(false);
-    }
 
     protected void updateAttachmentSplitPanes()
     {
@@ -641,10 +629,10 @@ public class MessageFrame extends JFrame
 	public MessageFrame(
 		SettingsClass newSettings,
 		Component parentComponent,
-		ResourceBundle newLangRes,
+		ResourceBundle languageResource,
 		LocalIdentity newMyId) {
 		super();
-		LangRes = newLangRes;
+		this.languageResource = languageResource;
 		myId = newMyId;
 		state = false;
 		frostSettings = newSettings;
@@ -873,7 +861,7 @@ public class MessageFrame extends JFrame
         public AttachBoardsChooser(Vector boards)
         {
             super();
-            setTitle(LangRes.getString("Choose boards to attach"));
+            setTitle(languageResource.getString("Choose boards to attach"));
             setModal(true);
             this.boards = boards;
             initGui();
