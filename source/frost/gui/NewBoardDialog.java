@@ -216,7 +216,7 @@ public class NewBoardDialog extends JDialog {
 	 * @return
 	 */
 	public String getBoardDescription() {
-		return boardDescription;
+		return null;	//TODO Replace by "boardDescription" when descriptions are fully implemented
 	}
 
 	/**
