@@ -53,12 +53,11 @@ class DownloadPanel extends JPanel {
 		 */
 		public void stateChanged(ChangeEvent e) {
 			if (e.getSource() == enableRequestingCheckBox) {
-				enableRequestingChanged();
+				refreshComponentsState();
 			}
 			if (e.getSource() == restartFailedDownloadsCheckBox) {
-				restartFailedDownloadsChanged();
+				refreshComponentsState();
 			}
-
 		}
 
 	}
@@ -124,14 +123,6 @@ class DownloadPanel extends JPanel {
 			settings.setValue("lastUsedDirectory", file.getParent());
 			directoryTextField.setText(file.getPath() + fileSeparator);
 		}
-	}
-
-	/**
-	 * 
-	 */
-	private void enableRequestingChanged() {
-		requestAfterTriesTextField.setEnabled(enableRequestingCheckBox.isSelected());
-		requestAfterTriesLabel.setEnabled(enableRequestingCheckBox.isSelected());
 	}
 
 	/**
@@ -370,16 +361,6 @@ class DownloadPanel extends JPanel {
 		browseDirectoryButton.setText(language.getString("Browse") + "...");
 		threadsTextLabel.setText(language.getString("Number of simultaneous downloads") + " (3)");
 		splitfileThreadsLabel.setText(language.getString("Number of splitfile threads") + " (30)");
-	}
-
-	/**
-	 * 
-	 */
-	private void restartFailedDownloadsChanged() {
-		maxRetriesTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-		maxRetriesLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-		waitTimeTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-		waitTimeLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
 	}
 
 	/**
