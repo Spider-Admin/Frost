@@ -57,42 +57,42 @@ public class MessageTable extends SortedTable
             boldFont = baseFont.deriveFont(Font.BOLD);
         }
         
-        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
-        {
-            super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
+		public Component getTableCellRendererComponent(
+			JTable table,
+			Object value,
+			boolean isSelected,
+			boolean hasFocus,
+			int row,
+			int column) {
+			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
-            MessageTableModel model = (MessageTableModel)getModel();
-            FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
-            
-            // do nice things for FROM column only
-            if( column != 1 )
-            {
-                setFont(normalFont);
-                setForeground(Color.BLACK);
-                return this;
-            }
+			MessageTableModel model = (MessageTableModel) getModel();
+			FrostMessageObject msg = (FrostMessageObject) model.getRow(row);
 
-            // first set font, bold for new msg or normal
-            if( msg.isMessageNew() )
-            {
-                setFont(boldFont);
-            }
-            else
-            {
-                setFont(normalFont);
-            }
-            
-            // now set color
-            if( msg.containsAttachments() )
-            {
-                setForeground(Color.BLUE);
-            }
-            else
-            {
-                setForeground(Color.BLACK);
-            }
-            return this;
-        }
+			// do nice things for FROM column only
+			if (column != 1) {
+				setFont(normalFont);
+				if (!isSelected) {
+					setForeground(Color.BLACK);
+				}
+			} else {
+				// first set font, bold for new msg or normal
+				if (msg.isMessageNew()) {
+					setFont(boldFont);
+				} else {
+					setFont(normalFont);
+				}
+				// now set color
+				if (!isSelected) {
+					if (msg.containsAttachments()) {
+						setForeground(Color.BLUE);
+					} else {
+						setForeground(Color.BLACK);
+					}
+				}
+			}
+			return this;
+		}
 		/* (non-Javadoc)
 		 * @see java.awt.Component#setFont(java.awt.Font)
 		 */
