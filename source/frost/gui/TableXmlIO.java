@@ -199,7 +199,7 @@ public class TableXmlIO
         String state = XMLTools.getChildElementsTextValue(dlItemElement, "state");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
 
-        if( filename == null || filesize == null || fileage == null || key == null || htl == null ||
+        if( filename == null || filesize == null || key == null || htl == null ||
             state == null || sourceboardname == null )
         {
             System.out.println("DownloadTable: Error in XML save file, skipping entry.");
