@@ -127,7 +127,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                            new File(attachment),
                                            frame1.frostSettings.getIntValue("htlUpload"),
                                            true,
-                                           true,
                                            board.getBoardFilename());
             }
             catch(Exception ex)
@@ -308,7 +307,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                    messageFile,
                                                    messageUploadHtl,
                                                    false,
-                                                   true,
                                                    board.getBoardFilename());
                     } catch(Throwable t)
                     {

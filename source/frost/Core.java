@@ -404,7 +404,6 @@ public class Core {
 					tempUploadfile,
 					25,
 					false,
-					true,
 					null);
 				System.out.println(
 					"KeyReinserter: Finished re-uploading public key.");

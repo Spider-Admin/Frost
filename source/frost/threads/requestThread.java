@@ -414,7 +414,6 @@ public class requestThread extends Thread
                             requestFile,
                             messageUploadHtl,
                             false,
-                            true,
                             board.getBoardFilename());
                     System.out.println(
                         "FcpInsert result[0] = "
