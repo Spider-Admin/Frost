@@ -1,9 +1,9 @@
 package frost.threads;
 
 import java.io.*;
-import java.net.*;
+// import java.net.*;
 
-import frost.*;
+// import frost.*;
 import frost.FcpTools.*;
 
 /**
@@ -53,8 +53,7 @@ public class getKeyThread extends Thread
         }
         return result;
     }
-
-//    public static boolean checkKey(String key, File file, int checkSize)
+/*
     private boolean checkKey(String key, File file, int checkSize)
     {
         boolean isOk = false;
@@ -126,18 +125,21 @@ public class getKeyThread extends Thread
         }
         return isOk;
     }
-
+*/
     public void run()
     {
         boolean success = false;
 
+// REMOVED because CHK generation is'nt longer supported in FcpConnection
+// if REALLY needed convert to FcpTools.generateCHK ...
+
         // just for the case ...
-        if( results[index] = checkKey(key, file, checkSize) )
+/*        if( results[index] = checkKey(key, file, checkSize) )
         {
             if( DEBUG ) System.out.println("Chunk exists (skip request): " + file);
             return;
         }
-
+*/
         if( DEBUG ) System.out.println("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");
 
         boolean exception = false;
@@ -160,10 +162,13 @@ public class getKeyThread extends Thread
 
         if( !exception && file.length() > 0 )
         {
-            if( results[index] = success = checkKey(key, file, checkSize) )
+//          REMOVED because CHK generation is'nt longer supported in FcpConnection
+//          if REALLY needed convert to FcpTools.generateCHK ...
+/*            if( results[index] = success = checkKey(key, file, checkSize) )
             {
                 return;
-            }
+            }*/
+            return; // we hope chunk download was OK ;)
         }
 
         // if we come here, something failed, delete file

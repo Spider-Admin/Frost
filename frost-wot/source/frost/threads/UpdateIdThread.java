@@ -214,7 +214,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                            new File(keypool + board.getBoardFilename() + "_upload.txt"),
                                            insertHtl,
                                            true,
-                                           true,
                                            board.getBoardFilename());
 
                 if( result[0].equals("Success") )
