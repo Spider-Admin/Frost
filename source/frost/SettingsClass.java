@@ -37,6 +37,7 @@ public class SettingsClass {
 	private Hashtable defaults = null;
 	private final String fs = System.getProperty("file.separator");
 	private PropertyChangeSupport changeSupport = null;
+	private Vector updaters = null;
 	
 	private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
 	
@@ -185,8 +186,11 @@ public class SettingsClass {
 		return true;
 	}
 
-	public boolean writeSettingsFile() {
-		PrintWriter settingsWriter = null;
+	/**
+	 * @return
+	 */
+	private boolean writeSettingsFile() {
+		PrintWriter settingsWriter = null; 
 		try {
 			settingsWriter = new PrintWriter(new FileWriter(settingsFile));
 		} catch (IOException exception) {
@@ -289,6 +293,25 @@ public class SettingsClass {
 	}
 	
 	/**
+	 * Adds a SettingsUpdater to the updaters list. 
+	 * <p>
+	 * If updater is null, no exception is thrown and no action is performed.
+	 *
+	 * @param    updater  the SettingsUpdater to be added
+	 *
+	 * @see #removeUpdater 
+	 */
+	public synchronized void addUpdater(SettingsUpdater updater) {
+		if (updater == null) {
+			return;
+		}
+		if (updaters == null) {
+			updaters = new Vector();
+		}
+		updaters.addElement(updater);
+	}
+	
+	/**
 	 * Removes a PropertyChangeListener from the listener list. 
 	 * <p>
 	 * If listener is null, no exception is thrown and no action is performed.
@@ -327,6 +350,22 @@ public class SettingsClass {
 			return;
 		}
 		changeSupport.removePropertyChangeListener(propertyName, listener);
+	}
+	
+	/**
+	 * Removes a SettingsUpdater from the updaters list. 
+	 * <p>
+	 * If updaters is null, no exception is thrown and no action is performed.
+	 *
+	 * @param updater the SettingsUpdater to be removed
+	 *
+	 * @see #addUpdater
+	 */
+	public synchronized void removeUpdater(SettingsUpdater updater) {
+		if (updater == null || updaters == null) {
+			return;
+		}
+		updaters.removeElement(updater);
 	}
 	
 	/**
@@ -620,4 +659,20 @@ public class SettingsClass {
 
 		settingsHash.putAll(defaults);
 	}
+	/**
+	 * This method asks all of the updaters to update the settings values
+	 * they have knowledge about and saves all of the settings values to disk. 
+	 * 
+	 * (Not thread-safe with addUpdater/removeUpdater)
+	 */
+	public void save() {
+		if (updaters != null) {
+			Enumeration enum = updaters.elements();
+			while (enum.hasMoreElements()) {
+				((SettingsUpdater) enum.nextElement()).updateSettings();
+			}
+		}
+		writeSettingsFile(); 
+	}
+
 }
