@@ -407,7 +407,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             String _owner = null;
                             String _pubkey =null;
                             if (md.getSharer() != null ){
-                            	_owner = md.getSharer().getUniqueName();
+                            	_owner = mixed.makeFilename(md.getSharer().getUniqueName());
                             	_pubkey = md.getSharer().getKey();
                             }
                             
