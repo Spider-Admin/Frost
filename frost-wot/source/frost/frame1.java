@@ -102,7 +102,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     //a shutdown hook
     public Thread saver;
-    private TimerTask cleaner;
     private static CleanUp fileCleaner = new CleanUp("keypool",false);
 
     //------------------------------------------------------------------------
@@ -316,7 +315,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 };
             Runtime.getRuntime().addShutdownHook(saver);
 
-            cleaner = new TimerTask() {
+            TimerTask cleaner = new TimerTask() {
                 int i = 0;
                 public void run() {
                     // maybe each 6 hours cleanup files (12 * 30 minutes)
@@ -330,8 +329,21 @@ public class frame1 extends JFrame implements ClipboardOwner
                     System.gc();
                     i++;
                 }
-                };
+            };
             timer2.schedule(cleaner,30*60*1000,30*60*1000); // all 30 minutes
+
+            TimerTask autoSaver = new TimerTask() {
+                public void run()
+                {
+                    getTofTree().saveTree();
+                    getDownloadTable().save();
+                    getUploadTable().save();
+                }
+            };
+            int autoSaveIntervalMinutes = frostSettings.getIntValue("autoSaveInterval");
+            timer2.schedule(autoSaver,
+                            autoSaveIntervalMinutes*60*1000,
+                            autoSaveIntervalMinutes*60*1000);
         }
         catch( Exception e ) { e.printStackTrace(); }
     }
@@ -2984,8 +2996,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         System.out.println("Saving settings ...");
 // TODO: save size and location of window, split panes
         saveSettings();
-        getDownloadTable().save();
-        getUploadTable().save();
         System.out.println("Bye!");
     }
 
@@ -2999,6 +3009,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
         frostSettings.writeSettingsFile();
         getTofTree().saveTree();
+        getDownloadTable().save();
+        getUploadTable().save();
     }
 
     class PopupListener extends MouseAdapter {
