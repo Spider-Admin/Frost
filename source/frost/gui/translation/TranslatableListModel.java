@@ -32,8 +32,8 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 		fireContentsChanged(this, 0, getSize() - 1);
 	}
 
-	/* (non-Javadoc)
-	 * @see javax.swing.ListModel#getElementAt(int)
+	/** 
+	 * This method returns the internationalized value at a given position
 	 */
 	public Object getElementAt(int index) {
 		String key = super.getElementAt(index).toString();
@@ -41,8 +41,9 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 	}
 
 	/**
+	 * This method returns the key at a given position
 	 * @param selectedIndex
-	 * @return
+	 * @return the key 
 	 */
 	public String getKeyAt(int selectedIndex) {
 		return super.getElementAt(selectedIndex).toString();
