@@ -306,107 +306,73 @@ public class Core {
 		logger.info("ME = '" + getMyId().getUniqueName() + "'");
 	}
     
-    public void saveIdentities()
-    {
+	public void saveIdentities() {
 		logger.info("saving identities.xml");
-        File identities = new File("identities.xml");
-        if (identities.exists())
-        {
-            String bakFilename = "identities.xml.bak";
-            File bakFile = new File(bakFilename);
-            bakFile.delete();
-            identities.renameTo(bakFile);
-            identities = new File("identities.xml");
-        }
-        try
-        {
-            Document d = XMLTools.createDomDocument();
-            Element rootElement = d.createElement("FrostIdentities");
-            //first save myself
-            rootElement.appendChild(Core.getMyId().getXMLElement(d));
-            //then friends
-            Element friends = Core.getFriends().getXMLElement(d);
-            friends.setAttribute("type", "friends");
-            rootElement.appendChild(friends);
-            //then enemies 
-            Element enemies = Core.getEnemies().getXMLElement(d);
-            enemies.setAttribute("type", "enemies");
-            rootElement.appendChild(enemies);
-            //then everybody else
-            Element neutral = Core.getNeutral().getXMLElement(d);
-            neutral.setAttribute("type", "neutral");
-            rootElement.appendChild(neutral);
-        
-            d.appendChild(rootElement);
-        
-            //save to file
-            XMLTools.writeXmlFile(d, "identities.xml");
-        }
-        catch (Throwable e)
-        {
-			logger.log(Level.SEVERE, "Exception thrown in saveIdentities()", e);
-        }
-        
-        /*
-                Core.getOut().println("saving identities");
-                File identities = new File("identities");
-                if( identities.exists() )
-                {
-                    String bakFilename = "identities.bak";
-                    File bakFile = new File(bakFilename);
-                    bakFile.delete();
-                    identities.renameTo(bakFile);
-                    identities = new File("identities");
-                }
 
-                try
-                { //TODO: replace this with a call to XML serializer
-                    FileWriter fout = new FileWriter(identities);
-                    fout.write(Core.mySelf.getName() + "\n");
-                    fout.write(Core.mySelf.getKeyAddress() + "\n");
-                    fout.write(Core.mySelf.getKey() + "\n");
-                    fout.write(Core.mySelf.getPrivKey() + "\n");
+		String identitiesName = "identities.xml";
+		String identitiesTmpName = "identities.xml.tmp";
+		String identitiesBakName = "identities.xml.bak";
 
-                    //now do the friends
-                    fout.write("*****************\n");
-                    Iterator i = Core.friends.values().iterator();
-                    while( i.hasNext() )
-                    {
-                        Identity cur = (Identity)i.next();
-                        fout.write(cur.getName() + "\n");
-                        fout.write(cur.getKeyAddress() + "\n");
-                        fout.write(cur.getKey() + "\n");
-                    }
-                    fout.write("*****************\n");
-        i = Core.getGoodIds().values().iterator();
-        while (i.hasNext()) {
-            fout.write((String)i.next() + "\n");
-        }
-        fout.write("*****************\n");
-                    i = Core.getEnemies().values().iterator();
-                    while( i.hasNext() )
-                    {
-                        Identity cur = (Identity)i.next();
-                        fout.write(cur.getName() + "\n");
-                        fout.write(cur.getKeyAddress() + "\n");
-                        fout.write(cur.getKey() + "\n");
-                    }
-                    fout.write("*****************\n");
-        i = Core.getBadIds().values().iterator();
-        while (i.hasNext()) {
-            fout.write((String)i.next() + "\n");
-        }
-        fout.write("*****************\n");
-                    fout.close();
-                    Core.getOut().println("identities saved successfully.");
+		//First we copy "identities.xml" to "identities.xml.bak"
+		File identitiesFile = new File(identitiesName);
+		if (identitiesFile.exists()) {
+			File bakFile = new File(identitiesBakName);
+			bakFile.delete();
+			try {
+				FileAccess.copyFile(identitiesName, identitiesBakName);
+			} catch (IOException exception) {
+				logger.log(Level.SEVERE, "Error while saving identities.xml", exception);
+			}
+		}
 
-                }
-                catch( IOException e )
-                {
-                    Core.getOut().println("ERROR: couldn't save identities:");
-                    e.printStackTrace(Core.getOut());
-                }*/
-    }
+		//We delete "identities.xml.tmp"
+		File identitiesTmpFile = new File(identitiesTmpName);
+		if (identitiesTmpFile.exists()) {
+			identitiesTmpFile.delete();
+		}
+
+		Document d = XMLTools.createDomDocument();
+		Element rootElement = d.createElement("FrostIdentities");
+		//first save myself
+		rootElement.appendChild(Core.getMyId().getXMLElement(d));
+		//then friends
+		Element friends = Core.getFriends().getXMLElement(d);
+		friends.setAttribute("type", "friends");
+		rootElement.appendChild(friends);
+		//then enemies 
+		Element enemies = Core.getEnemies().getXMLElement(d);
+		enemies.setAttribute("type", "enemies");
+		rootElement.appendChild(enemies);
+		//then everybody else
+		Element neutral = Core.getNeutral().getXMLElement(d);
+		neutral.setAttribute("type", "neutral");
+		rootElement.appendChild(neutral);
+		d.appendChild(rootElement);
+
+		//We save identities to "identities.xml.tmp"
+		if (XMLTools.writeXmlFile(d, identitiesTmpName)) {
+			//Success	
+			if (identitiesTmpFile.exists()) {
+				//We replace "identities.xml" by "identities.xml.tmp"
+				identitiesFile.delete();
+				if (!identitiesTmpFile.renameTo(identitiesFile)) {
+					//Replacement failed. We try to restore "identities.xml" from "identities.xml.bak"
+					try {
+						FileAccess.copyFile(identitiesBakName, identitiesName);
+					} catch (IOException exception) {
+						//Uh, oh, we are having a bad, bad day.
+						logger.log(Level.SEVERE, "Error while restoring identities.xml", exception);
+					}
+				}
+			} else {
+				//This shouldn't happen, but...
+				logger.severe("Could not save identities.xml");
+			}
+		} else {
+			//Failure
+			logger.severe("Could not save identities.xml");
+		}
+	}
     
     
     private void loadHashes()
