@@ -233,9 +233,6 @@ public class MessageObject implements XMLizable
     public void setTime(String time) {
     this.time = time;
     }
-    public void setFile(File file) {
-    this.file = file;
-    }
     public void setIndex(String index) {
     this.index = index;
     }
