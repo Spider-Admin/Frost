@@ -40,7 +40,7 @@ public static void main(String[] arg) {
 
 	System.out.println("type another plaintext");
 	try{
-	signed = crp.encryptSign(in.readLine(),keys[0], keys2[1]);
+	signed = new String( crp.encryptSign(in.readLine().getBytes(),keys[0], keys2[1]));
 	}catch(IOException e){signed = new String("exception happened");}
 	System.out.println(signed);
 
@@ -49,7 +49,7 @@ public static void main(String[] arg) {
 	System.out.println(signed);
 
 	System.out.println("trying to decrypt");
-	signed = crp.decrypt(signed,keys2[0]);
+	signed = new String(crp.decrypt(signed.getBytes(),keys2[0]));
 	if (signed != null) System.out.println(signed);
 
 

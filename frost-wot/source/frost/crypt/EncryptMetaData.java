@@ -75,7 +75,7 @@ public class EncryptMetaData extends MetaData {
 		Element el = super.getXMLElement(container);
 		if (sender!=null) {
 			Element _sender = sender.getSafeXMLElement(container);
-			el.appendChild(_sender)
+			el.appendChild(_sender);
 		}
 		return el;
 	}
