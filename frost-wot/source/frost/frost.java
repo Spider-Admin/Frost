@@ -43,7 +43,7 @@ public class frost
             frameSize.width = screenSize.width;
         }
         frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-                
+        
         frame.show();
         
         // Display the tray icon

@@ -837,8 +837,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
 		this.attachmentTable = new JTable(attachmentTableModel);
-		JScrollPane attachmentTableScrollPane =
-			new JScrollPane(attachmentTable);
+		JScrollPane attachmentTableScrollPane = new JScrollPane(attachmentTable);
 
 		AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
 		this.boardTable = new JTable(boardTableModel);
@@ -3034,7 +3033,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
                     "No subject", // subject
 	                "", // content empty for new msg 
                     frostSettings, this);
-			newMessage.show();
 		//}
 	}
 
@@ -3056,7 +3054,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					subject,
 	                getTofTextAreaText(), 
                     frostSettings, this);
-			newMessage.show();
 //		}
 	}
 

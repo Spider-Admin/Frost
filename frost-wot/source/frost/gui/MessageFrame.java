@@ -54,12 +54,9 @@ public class MessageFrame extends JFrame
     MFAttachedFilesTable attFilesTable;
     MFAttachedBoardsTableModel attBoardsTableModel;
     MFAttachedFilesTableModel attFilesTableModel;
-
-    // scrollers needed globally because we need to add them dynamically to panel    
-    JScrollPane attFilesScroller;
-    JScrollPane attBoardsScroller;
     
-    JPanel attachmentsPanel;
+    JSplitPane attachmentSplitPane;
+    JSplitPane boardSplitPane;
     
     //------------------------------------------------------------------------
     // Generate objects
@@ -89,12 +86,12 @@ public class MessageFrame extends JFrame
         
         attBoardsTableModel = new MFAttachedBoardsTableModel();
         attBoardsTable = new MFAttachedBoardsTable(attBoardsTableModel);
-        attBoardsScroller = new JScrollPane( attBoardsTable );
+        JScrollPane attBoardsScroller = new JScrollPane( attBoardsTable );
         
         attFilesTableModel = new MFAttachedFilesTableModel();
         attFilesTable = new MFAttachedFilesTable(attFilesTableModel);
-        attFilesScroller = new JScrollPane( attFilesTable );
-
+        JScrollPane attFilesScroller = new JScrollPane( attFilesTable );
+        
         configureButton(Bsend, "Send message", "/data/send_rollover.gif");
         configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
         configureButton(BattachFile, "Add attachment(s)", "/data/attachment_rollover.gif");
@@ -159,14 +156,12 @@ public class MessageFrame extends JFrame
         JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
         JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         
-        this.attachmentsPanel = new JPanel(new BorderLayout());
-
         JLabel Lboard = new JLabel(LangRes.getString("Board: "));
         JLabel Lfrom = new JLabel(LangRes.getString("From: "));
         JLabel Lsubject = new JLabel(LangRes.getString("Subject: "));
 
         JScrollPane textScroller = new JScrollPane(TAcontent); // Textscrollpane
-        textScroller.setPreferredSize(new Dimension(600, 400));
+        textScroller.setMinimumSize(new Dimension(100, 50));
 
         panelLabels.add(Lboard, BorderLayout.NORTH);
         panelLabels.add(Lfrom, BorderLayout.CENTER);
@@ -190,19 +185,27 @@ public class MessageFrame extends JFrame
         panelToolbar.add(panelButtons, BorderLayout.NORTH);
         panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
         
-        this.attachmentsPanel.add( this.attBoardsScroller, BorderLayout.NORTH);
-        this.attachmentsPanel.add( this.attFilesScroller, BorderLayout.SOUTH);
-        this.attFilesScroller.setVisible(false);
-        this.attBoardsScroller.setVisible(false);
-
+        this.attachmentSplitPane =
+            new JSplitPane(
+                JSplitPane.VERTICAL_SPLIT,
+                textScroller,
+                attFilesScroller);
+        this.boardSplitPane =
+            new JSplitPane(
+                JSplitPane.VERTICAL_SPLIT,
+                this.attachmentSplitPane,
+                attBoardsScroller);
+                
+        this.boardSplitPane.setResizeWeight(1);
+        this.attachmentSplitPane.setResizeWeight(1);
+        
         panelMain.add(panelToolbar, BorderLayout.NORTH);
-        panelMain.add(textScroller, BorderLayout.CENTER);
-        panelMain.add(this.attachmentsPanel, BorderLayout.SOUTH);
+        panelMain.add(boardSplitPane, BorderLayout.CENTER);
 
         this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(panelMain, BorderLayout.CENTER);
     }
-
+    
     /**jButton1 Action Listener (Send)*/
     private void send_actionPerformed(ActionEvent e)
     {
@@ -243,7 +246,6 @@ public class MessageFrame extends JFrame
                                            JOptionPane.ERROR);
             return;                               
         }
-
 
         // for convinience set last used user (maybe obsolete now)
         frostSettings.setValue("userName", from);
@@ -338,11 +340,7 @@ public class MessageFrame extends JFrame
             System.out.println("Open command cancelled by user.");
         }
         
-        if( attFilesTableModel.getRowCount() > 0 )
-        {
-            // show the table if not already shown
-            showAttachedFilesTable(true);
-        }
+        updateAttachmentSplitPanes();
     }
 
     private void attachBoards_actionPerformed(ActionEvent e)
@@ -387,12 +385,7 @@ public class MessageFrame extends JFrame
             MFAttachedBoard ab = new MFAttachedBoard( aNewBoard );
             attBoardsTableModel.addRow( ab );
         }
-        
-        if( attBoardsTableModel.getRowCount() > 0 )
-        {
-            // show the table if not already shown
-            showAttachedBoardsTable(true);
-        }
+        updateAttachmentSplitPanes();
     }
 
     /**
@@ -409,60 +402,41 @@ public class MessageFrame extends JFrame
         button.setBorderPainted(false);
         button.setFocusPainted(false);
     }
-    
-    protected void updateAttachmentsPanel()
+
+    protected void updateAttachmentSplitPanes()
     {
-        this.getContentPane().invalidate();
-        this.attachmentsPanel.invalidate();
-        this.attachmentsPanel.validate();
-        this.getContentPane().validate();
+        // Attachment available
+        if( attFilesTableModel.getRowCount() > 0 ) 
+        {
+            if( attBoardsTableModel.getRowCount() == 0 )
+            {
+                boardSplitPane.setDividerSize(0);
+                boardSplitPane.setDividerLocation(1.0);
+            }
+            attachmentSplitPane.setDividerLocation(0.8);
+            attachmentSplitPane.setDividerSize(3);
+        }
+        // Board Available
+        if( attBoardsTableModel.getRowCount() > 0 ) 
+        {
+            //only a board, no attachments.
+            if(attFilesTableModel.getRowCount() == 0 ) 
+            {
+                attachmentSplitPane.setDividerSize(0);
+                attachmentSplitPane.setDividerLocation(1.0);
+            }
+            boardSplitPane.setDividerLocation(0.8);
+            boardSplitPane.setDividerSize(3);
+        }
     }
     
-    protected void showAttachedBoardsTable(boolean show)
+    protected void resetSplitPanes() 
     {
-        if( show )
-        {
-            // check if not already contained in panel
-            int comps = attachmentsPanel.getComponentCount();
-            for( int x=0; x<comps; x++ )
-            {
-                Component c = attachmentsPanel.getComponent(x);
-                if( c == this.attBoardsScroller )
-                {
-                    return;
-                }
-            }
-            this.attachmentsPanel.add( this.attBoardsScroller, BorderLayout.NORTH);
-        }
-        else
-        {
-            this.attachmentsPanel.remove( this.attBoardsScroller );
-        }
-        updateAttachmentsPanel();
-    }
-    
-    protected void showAttachedFilesTable(boolean show)
-    {
-        this.attFilesScroller.setVisible(show);
-/*        if( show )
-        {
-            // check if not already contained in panel
-            int comps = attachmentsPanel.getComponentCount();
-            for( int x=0; x<comps; x++ )
-            {
-                Component c = attachmentsPanel.getComponent(x);
-                if( c == this.attFilesScroller )
-                {
-                    return;
-                }
-            }
-            this.attachmentsPanel.add( this.attFilesScroller, BorderLayout.SOUTH);
-        }
-        else
-        {
-            this.attachmentsPanel.remove( this.attFilesScroller );
-        }*/
-//        updateAttachmentsPanel();
+        // initially hide the attachment tables
+        attachmentSplitPane.setDividerSize(0);
+        attachmentSplitPane.setDividerLocation(1.0);
+        boardSplitPane.setDividerSize(0);
+        boardSplitPane.setDividerLocation(1.0);
     }
 
     protected void processWindowEvent(WindowEvent e)
@@ -473,7 +447,7 @@ public class MessageFrame extends JFrame
         }
         super.processWindowEvent(e);
     }
-
+    
     /**Constructor*/
     public MessageFrame(FrostBoardObject board, String from, String subject, String text,
                         SettingsClass config, Frame parentFrame)
@@ -521,8 +495,26 @@ public class MessageFrame extends JFrame
         Font tofFont = new Font("Monospaced", Font.PLAIN, (int)frame1.frostSettings.getFloatValue("tofFontSize") );
         TAcontent.setFont( tofFont );
 
-        pack();
+        setSize(600, 460);
         setLocationRelativeTo(parentFrame);
+        
+        show();
+
+        // reset the splitpanes (java bug)        
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                resetSplitPanes();
+            }});
+        new Thread() {
+            public void run()
+            {
+                mixed.wait(10);
+                SwingUtilities.invokeLater(new Runnable() {
+                    public void run() {
+                        resetSplitPanes();
+                    }});
+            }
+        }.start();
     }
 
 /*************************************************
@@ -757,7 +749,7 @@ public class MessageFrame extends JFrame
         }
         public Vector runDialog()
         {
-            show();
+            this.show();
             if( okPressed == false )
                 return null;
 
