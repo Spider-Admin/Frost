@@ -318,6 +318,14 @@ public class LangRes extends ListResourceBundle {
 	{"Version", "Version"},
 	{"Open Source Project (GPL license)", "Open Source Project (GPL license)"},
 	{"OK", "OK"},
+	{"More", "More"},
+	{"Less", "Less"},
+	{"Development:", "Development:"},
+	{"Windows Installer:", "Windows Installer:"},
+	{"System Tray Executables:", "System Tray Executables:"},
+	{"Translation Support:", "Translation Support:"},
+	{"Splash Screen Logo:", "Splash Screen Logo:"},
+	{"Misc code contributions:", "Misc code contributions:"},
 
 	///////////////////////////////////////////////////
 	// Preferences
