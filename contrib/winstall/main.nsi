@@ -1,3 +1,4 @@
+# Frost Windows Installer
 # Copyright (C) 2001 Benoit Laniel <nels@pgroupe.net>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -16,8 +17,8 @@
 
 !include config.nsh
 
-Name "Frost ${VERSION}"
-OutFile "frost_${VERSION}_windows_installer.exe"
+Name "Frost ${CONF_VERSION}"
+OutFile "frost_${CONF_VERSION}_windows_installer.exe"
 Icon jtc_inst.ico
 SilentInstall silent
 
@@ -43,6 +44,9 @@ Section
   StrCmp $1 "00001007" De
   StrCmp $1 "00001407" De
 
+  StrCmp $1 "00000413" Nl
+  StrCmp $1 "00000813" Nl
+
   Goto End
 
 Fr:
@@ -59,6 +63,14 @@ De:
 
 DeExists:
   StrCpy $2 "de.exe"
+  Goto End
+
+Nl:
+  IfFileExists "$TEMP\frost_inst\nl.exe" NlExists
+  Goto End
+
+NlExists:
+  StrCpy $2 "nl.exe"
   Goto End
 
 End:

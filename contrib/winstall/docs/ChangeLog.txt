@@ -1,3 +1,15 @@
+2001-12-07  Benoit Laniel <nels@pgroupe.net>
+
+    * Changed the classpath in shortcuts since Frost is now in a JAR file
+    * 'keypool' and 'downloads' directories are not created anymore since Frost
+      does it
+    * Changed 'VERSION' to 'CONF_VERSION'
+    * Added 'CONF_SIZE'
+    * Updated Readme.txt
+    * Changed Frost detection code
+    * Added 'Last check : ' in the language files so translators just have to
+      look at 'TranslationsTodo.txt'
+
 2001-12-04  Benoit Laniel <nels@pgroupe.net>
 
     * Now finds java.exe/javaw.exe paths

@@ -1,3 +1,4 @@
+# Frost Windows Installer
 # Copyright (C) 2001 Benoit Laniel <nels@pgroupe.net>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -15,8 +16,9 @@
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
 # Translator : first_name last_name <email_address>
+# Last check : 011207
 
-!include versions.nsh
+!include config.nsh
 
 # Define your language code here
 !define LANG "xx"
@@ -43,7 +45,7 @@ InstType Complete
 
 # Dialogs
 LicenseText "Frost is published under the GNU general public license:" "I agree"
-ComponentText "This will install Frost ${VERSION} on your system." "Select the type of install:" "or, select the optional components you wish to install:"
+ComponentText "This will install Frost ${CONF_VERSION} on your system." "Select the type of install:" "or, select the optional components you wish to install:"
 DirText "No files will be placed outside this directory (e.g. Windows\system)"  "Select the directory to install Frost in:" "Browse..."
 UninstallText "This uninstalls Frost from your system" "Uninstalling from: "
 

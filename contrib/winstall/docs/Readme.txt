@@ -15,7 +15,7 @@ How to compile the installer?
 -----------------------------
 
 1) Copy all of your frost files in 'data\frost'
-2) Edit versions.nsh and change it to match the current version of Frost
+2) Edit config.nsh and change it to match the current version of Frost
 3) Edit make.bat and define the path to makensis.exe
 4) Execute make.bat
 5) Have fun with Frost ;)

@@ -1,3 +1,4 @@
+# Frost Windows Installer
 # Copyright (C) 2001 Benoit Laniel <nels@pgroupe.net>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -19,7 +20,7 @@
 # $2 : Installed flag ('Yes' if Frost was already installed, otherwise 'No')
 # $3 : java.exe path
 
-Name "Frost ${VERSION}"
+Name "Frost ${CONF_VERSION}"
 OutFile "${LANG}.exe"
 Icon jtc_inst.ico
 EnabledBitmap yes.bmp
@@ -27,7 +28,7 @@ DisabledBitmap no.bmp
 
 InstProgressFlags smooth
 
-LicenseData "data\frost\gpl.txt"
+LicenseData "data\frost\docs\gpl.txt"
 
 UninstallExeName Uninstall-Frost.exe
 
@@ -43,35 +44,25 @@ Section
   # Required section which copies all the files
 
   # Have to say to the installer that Frost is 685 Kb since we only copy files
-  AddSize 685
+  AddSize ${CONF_SIZE}
 
   # -- Assume Frost is already installed
   StrCpy $2 "Yes"
-  # -- Check if frost.class exists
-  IfFileExists "$INSTDIR\classes\frost.class" DoUpdate
+  # -- Check if frost.jar exists
+  IfFileExists "$INSTDIR\frost.jar" DoUpdate
   StrCpy $2 "No"
 
 DoUpdate:
   DetailPrint "${DET_COPYING}"
   SetOutPath "$INSTDIR"
-  CreateDirectory "$INSTDIR\downloads"
-  CreateDirectory "$INSTDIR\keypool"
   CopyFiles "$EXEDIR\frost\*.*" "$INSTDIR"
 
   # Register installpath
   WriteRegStr HKEY_LOCAL_MACHINE "Software\Frost" "InstPath" '$INSTDIR'
 
   # Create uninstall keys
-  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Frost" "DisplayName" "Frost ${VERSION}"
+  WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Frost" "DisplayName" "Frost ${CONF_VERSION}"
   WriteRegStr HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Frost" "UninstallString" '"$INSTDIR\Uninstall-Frost.exe"'
-SectionEnd
-
-;-----------------------------------------------------------------------------------
-Section "${SEC_DESKTOPICON}"
-  # This section creates a desktop icon
-  SectionIn 1,2
-
-  CreateShortCut "$DESKTOP\Frost.lnk" "$1" "-cp .;classes;data frost" "$INSTDIR\jtc.ico" 0
 SectionEnd
 
 ;-----------------------------------------------------------------------------------
@@ -80,10 +71,18 @@ Section "${SEC_ICONS}"
   SectionIn 1,2
 
   CreateDirectory "$SMPROGRAMS\Frost"
-  CreateShortCut "$SMPROGRAMS\Frost\Frost.lnk" "$1" "-cp .;classes;data frost" "$INSTDIR\jtc.ico" 0
-  CreateShortCut "$SMPROGRAMS\Frost\${LNK_FROSTCONSOLE}.lnk" "$3" "-cp .;classes;data frost" "$INSTDIR\jtc.ico" 0
+  CreateShortCut "$SMPROGRAMS\Frost\Frost.lnk" "$1" "-cp frost.jar frost" "$INSTDIR\jtc.ico" 0
+  CreateShortCut "$SMPROGRAMS\Frost\${LNK_FROSTCONSOLE}.lnk" "$3" "-cp frost.jar frost" "$INSTDIR\jtc.ico" 0
   CreateShortCut "$SMPROGRAMS\Frost\${LNK_UNINSTALL}.lnk" "$INSTDIR\Uninstall-Frost.exe" "" "$INSTDIR\Uninstall-Frost.exe" 0
   WriteINIStr "$SMPROGRAMS\Frost\${LNK_HOMEPAGE}.url" "InternetShortcut" "URL" "http://jtcfrost.sourceforge.net"
+SectionEnd
+
+;-----------------------------------------------------------------------------------
+Section "${SEC_DESKTOPICON}"
+  # This section creates a desktop icon
+  SectionIn 1,2
+
+  CreateShortCut "$DESKTOP\Frost.lnk" "$1" "-cp .;classes;data frost" "$INSTDIR\jtc.ico" 0
 SectionEnd
 
 ;-----------------------------------------------------------------------------------

@@ -1,3 +1,4 @@
+# Frost Windows Installer
 # Copyright (C) 2001 Benoit Laniel <nels@pgroupe.net>
 #
 # This program is free software; you can redistribute it and/or modify
@@ -14,6 +15,9 @@
 # along with this program; if not, write to the Free Software
 # Foundation, Inc., 59 Temple Place, Suite 330, Boston, MA  02111-1307  USA
 
-!ifndef VERSION
-  !define VERSION "011202"
+!ifndef CONF_VERSION
+  # -- Current Frost version
+  !define CONF_VERSION "011207"
+  # -- Size of the 'data\frost' directory (right click and 'Properties' will give it)
+  !define CONF_SIZE 581
 !endif
