@@ -37,28 +37,320 @@ import frost.identities.LocalIdentity;
 import frost.messages.*;
 import frost.storage.StorageException;
 import frost.util.gui.*;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 public class MessageFrame extends JFrame
 {
+
+    private class AttachBoardsChooser extends JDialog
+    {
+        JButton Bcancel;
+        Vector boards;
+        JButton Bok;
+        JList Lboards;
+        boolean okPressed = false;
+
+        public AttachBoardsChooser(Vector boards)
+        {
+            super();
+            setTitle(languageResource.getString("Choose boards to attach"));
+            setModal(true);
+            this.boards = boards;
+            initGui();
+        }
+        private void initGui()
+        {
+            Bok = new JButton("OK");
+            Bok.addActionListener( new ActionListener() {
+                   public void actionPerformed(ActionEvent e) {
+                       	okPressed = true;
+                       	setVisible(false);
+                   } });
+            Bcancel = new JButton("Cancel");
+            Bcancel.addActionListener( new ActionListener() {
+                   public void actionPerformed(ActionEvent e) {
+                       	okPressed = false;
+						setVisible(false);
+                   } });
+            JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
+            buttonsPanel.add( Bok );
+            buttonsPanel.add( Bcancel );
+
+            Lboards = new JList( boards );
+            Lboards.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            JScrollPane listScroller = new JScrollPane( Lboards );
+            listScroller.setBorder( new CompoundBorder( new EmptyBorder(5,5,5,5),
+                                                        new CompoundBorder( new EtchedBorder(),
+                                                                            new EmptyBorder(5,5,5,5) )
+                                                      ) );
+            getContentPane().add(listScroller, BorderLayout.CENTER);
+            getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+            setSize(300, 400);
+        }
+        public Vector runDialog()
+        {
+            setVisible(true);
+            if( okPressed == false )
+                return null;
+
+            Object[] sels = Lboards.getSelectedValues();
+            Vector chosed = new Vector( Arrays.asList( sels ) );
+            return chosed;
+        }
+    }
+    class BuddyComparator implements Comparator
+    {
+        // compare buddies in lowercase
+        public int compare(Object o1, Object o2)
+        {
+            String s1 = (String)o1;
+            String s2 = (String)o2;
+            return s1.toLowerCase().compareTo( s2.toLowerCase() );
+        }
+    }
+    
+	/**
+	 * @author $author$
+	 * @version $revision$
+	 */
+	private class Listener implements MouseListener {
+
+		protected void maybeShowPopup(MouseEvent e) {
+			if (e.isPopupTrigger()) {
+				if (e.getSource() == boardsTable) {
+					attBoardsPopupMenu.show(boardsTable, e.getX(), e.getY());
+				}
+				if (e.getSource() == filesTable) {
+					attFilesPopupMenu.show(filesTable, e.getX(), e.getY());
+				}
+			}
+		}
+
+		public void mouseClicked(MouseEvent event) {
+		}
+
+		public void mouseEntered(MouseEvent event) {
+		}
+
+		public void mouseExited(MouseEvent event) {
+		}
+
+		public void mousePressed(MouseEvent event) {
+			maybeShowPopup(event);
+		}
+
+		public void mouseReleased(MouseEvent event) {
+			maybeShowPopup(event);
+		}
+	}
+    
+/*******************************************************************************
+ * ************************************************ * INTERNAL CLASSES
+ * *************************** ************************************************
+ ******************************************************************************/
+
+    private class MFAttachedBoard implements TableMember
+    {
+        FrostBoardObject aBoard;
+        public MFAttachedBoard(FrostBoardObject ab)
+        {
+            aBoard = ab;
+        }
+        public int compareTo( TableMember anOther, int tableColumIndex )
+        {
+            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
+            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+            return c1.compareTo( c2 );
+        }
+        public FrostBoardObject getBoardObject()
+        {
+            return aBoard;
+        }
+
+		public Object getValueAt(int column) {
+			switch (column) {
+				case 0 :
+					return aBoard.getBoardName();
+				case 1 :
+					return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();
+				case 2 :
+					return (aBoard.getPrivateKey() == null) ? "N/A" : aBoard.getPrivateKey();
+				case 3 :
+					return (aBoard.getDescription() == null) ? "N/A" : aBoard.getDescription();
+			}
+			return "*ERR*";
+		}
+    }
+
+    private class MFAttachedBoardsTable extends SortedTable
+    {
+        public MFAttachedBoardsTable(MFAttachedBoardsTableModel m)
+        {
+            super(m);
+
+            // set column sizes
+            int[] widths = {250, 80, 80};
+            for (int i = 0; i < widths.length; i++)
+            {
+                getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+            }
+
+            // default for sort: sort by name ascending ?
+            sortedColumnIndex = 0;
+            sortedColumnAscending = true;
+            resortTable();
+        }
+    }
+    
+    private class MFAttachedBoardsTableModel extends SortedTableModel
+    {
+        protected final Class columnClasses[] = {
+            String.class, 
+            String.class,
+            String.class,
+			String.class
+        };
+        protected final String columnNames[] = {
+            "Boardname",
+            "public key",
+            "Private key", 
+            "Description"
+        };
+
+        public MFAttachedBoardsTableModel()
+        {
+            super();
+        }
+        public Class getColumnClass(int column)
+        {
+            if( column >= 0 && column < columnClasses.length )
+                return columnClasses[column];
+            return null;
+        }
+        public int getColumnCount()
+        {
+            return columnNames.length;
+        }
+
+        public String getColumnName(int column)
+        {
+            if( column >= 0 && column < columnNames.length )
+                return columnNames[column];
+            return null;
+        }
+
+        public boolean isCellEditable(int row, int col)
+        {
+            return false;
+        }
+        public void setValueAt(Object aValue, int row, int column) {}
+    }
+    
+    private class MFAttachedFile implements TableMember
+    {
+        File aFile;
+        public MFAttachedFile(File af)
+        {
+            aFile = af;
+        }
+        public int compareTo( TableMember anOther, int tableColumIndex )
+        {
+            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
+            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+            return c1.compareTo( c2 );
+        }
+        public File getFile()
+        {
+            return aFile;
+        }
+        public Object getValueAt(int column)
+        {
+            switch(column)
+            {
+                case 0: return aFile.getName();
+                case 1: return ""+aFile.length();
+            }
+            return "*ERR*";
+        }
+    }
+    private class MFAttachedFilesTable extends SortedTable
+    {
+        public MFAttachedFilesTable(MFAttachedFilesTableModel m)
+        {
+            super(m);
+
+            // set column sizes
+            int[] widths = {250, 80};
+            for (int i = 0; i < widths.length; i++)
+            {
+                getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+            }
+
+            // default for sort: sort by name ascending ?
+            sortedColumnIndex = 0;
+            sortedColumnAscending = true;
+            resortTable();
+        }
+    }
+    
+    private class MFAttachedFilesTableModel extends SortedTableModel
+    {
+        protected final Class columnClasses[] = {
+            String.class,
+            String.class
+        };
+        protected final String columnNames[] = {
+            "Filename",
+            "Size"
+        };
+
+        public MFAttachedFilesTableModel()
+        {
+            super();
+        }
+        public Class getColumnClass(int column)
+        {
+            if( column >= 0 && column < columnClasses.length )
+                return columnClasses[column];
+            return null;
+        }
+        public int getColumnCount()
+        {
+            return columnNames.length;
+        }
+
+        public String getColumnName(int column)
+        {
+            if( column >= 0 && column < columnNames.length )
+                return columnNames[column];
+            return null;
+        }
+
+        public boolean isCellEditable(int row, int col)
+        {
+            return false;
+        }
+        public void setValueAt(Object aValue, int row, int column) {}
+    }
+
 	private LocalIdentity myId;
 
 	private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
 	
-    private ResourceBundle languageResource;
+    private UpdatingLanguageResource languageResource;
 
-    //------------------------------------------------------------------------
-    // Class Vars
-    //------------------------------------------------------------------------
-    FrostBoardObject board;
-    String from;
-    String subject;
-    String lastUsedDirectory;
-    String keypool;
-    boolean state;
-    SettingsClass frostSettings;
-    
+    private Listener listener = new Listener();
+
     private boolean initialized = false;
     
+    private FrostBoardObject board;
+    private String from;
+    private String subject;
+    private String lastUsedDirectory;
+    private String keypool;
+    private boolean state;
+    private SettingsClass frostSettings;
+        
     private MFAttachedBoardsTable boardsTable;
     private MFAttachedFilesTable filesTable;
     private MFAttachedBoardsTableModel boardsTableModel;
@@ -69,27 +361,223 @@ public class MessageFrame extends JFrame
 	private JScrollPane filesTableScrollPane;
 	private JScrollPane boardsTableScrollPane;
     
-	JSkinnablePopupMenu attFilesPopupMenu;
-	JSkinnablePopupMenu attBoardsPopupMenu;
+	private JSkinnablePopupMenu attFilesPopupMenu;
+	private JSkinnablePopupMenu attBoardsPopupMenu;
     
-    //------------------------------------------------------------------------
-    // Generate objects
-    //------------------------------------------------------------------------
-    JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
-    JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
-    JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
-    JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
+	private JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
+	private JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
+	private JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
+	private JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
 
-    JCheckBox sign = new JCheckBox();
-    JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
+	private JCheckBox sign = new JCheckBox();
+    private JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
 
-    JTextField TFboard = new JTextField(); // Board (To)
+    private JTextField TFboard = new JTextField(); // Board (To)
     private JTextField fromTextField = new JTextField(); // From
     private JTextField subjectTextField = new JTextField(); // Subject
 
     private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
     private String oldSender = null;
+    
+	/**
+	 * @param newSettings
+	 * @param parentComponent
+	 * @param languageResource
+	 * @param newMyId
+	 */
+	public MessageFrame(SettingsClass newSettings, Component parentComponent,
+			UpdatingLanguageResource languageResource, LocalIdentity newMyId) {
+		super();
+		this.languageResource = languageResource;
+		myId = newMyId;
+		state = false;
+		frostSettings = newSettings;
+		lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
+		keypool = frostSettings.getValue("keypool.dir");
+
+		String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+		int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+		int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+		Font tofFont = new Font(fontName, fontStyle, fontSize);
+		if (!tofFont.getFamily().equals(fontName)) {
+			logger.severe("The selected font was not found in your system\n"
+					+ "That selection will be changed to \"Monospaced\".");
+			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
+			tofFont = new Font("Monospaced", fontStyle, fontSize);
+		}
+		messageTextArea.setFont(tofFont);
+		messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+		ImmutableAreasDocument messageDocument = new ImmutableAreasDocument();
+		headerArea = new ImmutableArea(messageDocument);
+		messageDocument.addImmutableArea(headerArea); //So that the user can't
+													  // modify the header of
+													  // the message
+		messageTextArea.setDocument(messageDocument);
+
+		setSize(600, 460);
+		setLocationRelativeTo(parentComponent);
+	}
+
+	private void attachBoards_actionPerformed(ActionEvent e) {
+		Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
+		if (allBoards.size() == 0)
+			return;
+		Collections.sort(allBoards);
+
+		AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
+		chooser.setLocationRelativeTo(this);
+		Vector chosedBoards = chooser.runDialog();
+		if (chosedBoards == null || chosedBoards.size() == 0) // nothing chosed or cancelled
+			{
+			return;
+		}
+
+		for (int i = 0; i < chosedBoards.size(); i++) {
+			FrostBoardObject board = (FrostBoardObject) chosedBoards.get(i);
+
+			String privKey = board.getPrivateKey();
+
+			if (privKey != null) {
+				int answer =
+					JOptionPane.showConfirmDialog(
+						this,
+						"You have the private key to "
+							+ board.toString()
+							+ ".  Are you sure you want it attached?\n "
+							+ "If you choose NO, only the public key will be attached.",
+						"Include private board key?",
+						JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.NO_OPTION) {
+					privKey = null; // dont provide privkey
+				}
+			}
+			// build a new board because maybe privKey should'nt be uploaded
+			FrostBoardObject aNewBoard =
+				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, board.getDescription());
+			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
+			boardsTableModel.addRow(ab);
+		}
+		positionDividers();
+	}
+
+    /**jButton3 Action Listener (Add attachment(s))*/
+    private void attachFile_actionPerformed(ActionEvent e)
+    {
+        final JFileChooser fc = new JFileChooser(lastUsedDirectory);
+        fc.setDialogTitle(languageResource.getString("Choose file(s) / directory(s) to attach"));
+        fc.setFileHidingEnabled(false);
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fc.setMultiSelectionEnabled(true);
+
+        int returnVal = fc.showOpenDialog(MessageFrame.this);
+        if( returnVal == JFileChooser.APPROVE_OPTION )
+        {
+            File[] selectedFiles = fc.getSelectedFiles();
+            for( int i = 0; i < selectedFiles.length; i++ )
+            {
+                // for convinience remember last used directory
+                lastUsedDirectory = selectedFiles[i].getPath();
+                
+                // collect all choosed files + files in all choosed directories
+                ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+                for (int j = 0; j < allFiles.size(); j++) 
+                {
+                    File aFile = (File)allFiles.get(j);
+                    if (aFile.isFile() && aFile.length() > 0) 
+                    {
+                        MFAttachedFile af = new MFAttachedFile( aFile );
+                        filesTableModel.addRow( af );
+                    }
+                }
+            }
+        }
+        else
+        {
+            logger.fine("Open command cancelled by user.");
+        }
+        
+        positionDividers();
+    }
+
+	/**jButton2 Action Listener (Cancel)*/
+    private void cancel_actionPerformed(ActionEvent e)
+    {
+        state = false;
+        dispose();
+    }
+	
+	private void composeMessage(
+		FrostBoardObject newBoard,
+		String newFrom,
+		String newSubject,
+		String newText,
+		boolean isReply) {
+			
+		headerArea.setEnabled(false);	
+		board = newBoard;
+		from = newFrom;
+		subject = newSubject;
+		String text = newText;
+
+		String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
+
+		if (isReply) {
+			text += "\n\n";
+		}
+		int headerAreaStart = text.length();//Beginning of non-modifiable area
+		text += "----- " + from + " ----- " + date + " -----\n\n";
+		int headerAreaEnd = text.length() - 2; //End of non-modifiable area
+		oldSender = from;
+		
+		int caretPos = text.length();
+
+		File signatureFile = new File("signature.txt");
+		if (signatureFile.isFile()) {
+			String signature = FileAccess.readFile("signature.txt", "UTF-8").trim();
+			if (signature.length() > 0) {
+				text += "\n-- \n";
+				text += signature;
+			}
+		}
+
+		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+		try {
+			initialize();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Exception thrown in composeMessage(...)", e);
+		}
+
+		messageTextArea.setText(text);
+		headerArea.setStartPos(headerAreaStart);
+		headerArea.setEndPos(headerAreaEnd);
+		headerArea.setEnabled(true);
+		setVisible(true);
+
+		// reset the splitpanes       
+		positionDividers();
+
+		// Properly positions the caret (AKA cursor)
+		messageTextArea.requestFocusInWindow();
+		messageTextArea.getCaret().setDot(caretPos);
+		messageTextArea.getCaret().setVisible(true);
+	}
+    
+	public void composeNewMessage(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
+		composeMessage(newBoard, newFrom, newSubject, newText, false);
+	}
+    
+	public void composeReply(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
+			composeMessage(newBoard, newFrom, newSubject, newText, true);
+	}
+    
+	/* (non-Javadoc)
+	 * @see java.awt.Window#dispose()
+	 */
+	public void dispose() {
+		// TODO Auto-generated method stub
+		super.dispose();
+	}
 
 	private void initialize() throws Exception {
 		if (!initialized) {
@@ -104,12 +592,12 @@ public class MessageFrame extends JFrame
 			boardsTableModel = new MFAttachedBoardsTableModel();
 			boardsTable = new MFAttachedBoardsTable(boardsTableModel);
 			boardsTableScrollPane = new JScrollPane(boardsTable);
-			boardsTable.addMouseListener(new AttBoardsTablePopupMenuMouseListener());
+			boardsTable.addMouseListener(listener);
 
 			filesTableModel = new MFAttachedFilesTableModel();
 			filesTable = new MFAttachedFilesTable(filesTableModel);
 			filesTableScrollPane = new JScrollPane(filesTable);
-			filesTable.addMouseListener(new AttFilesTablePopupMenuMouseListener());
+			filesTable.addMouseListener(listener);
 
 			MiscToolkit toolkit = MiscToolkit.getInstance();
 			toolkit.configureButton(Bsend, "Send message", "/data/send_rollover.gif", languageResource);
@@ -135,6 +623,7 @@ public class MessageFrame extends JFrame
 			subjectTextField.setText(subject);
 			messageTextArea.setLineWrap(true);
 			messageTextArea.setWrapStyleWord(true);
+			messageTextArea.addMouseListener(listener);
 
 			// check if last msg was signed and set it to remembered state
 			if (from.equals(myId.getUniqueName())) {
@@ -306,6 +795,58 @@ public class MessageFrame extends JFrame
         attFilesPopupMenu.add( removeFiles );
         attBoardsPopupMenu.add( removeBoards );
     }
+
+	/**
+	 * 
+     */
+    private void positionDividers() {
+        int attachedFiles = filesTableModel.getRowCount();
+        int attachedBoards = boardsTableModel.getRowCount();
+        if (attachedFiles == 0 && attachedBoards == 0) {
+            // Neither files nor boards
+            messageSplitPane.setBottomComponent(null);
+            messageSplitPane.setDividerSize(0);
+            return;
+        }
+        messageSplitPane.setDividerSize(3);
+        messageSplitPane.setDividerLocation(0.75);
+        if (attachedFiles != 0 && attachedBoards == 0) {
+            //Only files
+            messageSplitPane.setBottomComponent(filesTableScrollPane);
+            return;
+        }
+        if (attachedFiles == 0 && attachedBoards != 0) {
+            //Only boards
+            messageSplitPane.setBottomComponent(boardsTableScrollPane);
+            return;
+        }
+        if (attachedFiles != 0 && attachedBoards != 0) {
+            //Both files and boards
+            messageSplitPane.setBottomComponent(attachmentsSplitPane);
+            attachmentsSplitPane.setTopComponent(filesTableScrollPane);
+            attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
+        }
+    }
+
+    protected void processWindowEvent(WindowEvent e)
+    {
+        if( e.getID() == WindowEvent.WINDOW_CLOSING )
+        {
+            dispose();
+        }
+        super.processWindowEvent(e);
+    }
+        
+    protected void removeSelectedItemsFromTable( JTable tbl )
+    {
+        SortedTableModel m = (SortedTableModel)tbl.getModel();
+        int[] sel = tbl.getSelectedRows();
+        for(int x=sel.length-1; x>=0; x--)
+        {
+            m.removeRow(sel[x]);
+        }
+        positionDividers();
+    }
     
     /**jButton1 Action Listener (Send)*/
     private void send_actionPerformed(ActionEvent e)
@@ -443,537 +984,4 @@ public class MessageFrame extends JFrame
 			logger.log(Level.SEVERE, "Error while updating the message header", exception);
 		}
 	}
-
-	/**jButton2 Action Listener (Cancel)*/
-    private void cancel_actionPerformed(ActionEvent e)
-    {
-        state = false;
-        dispose();
-    }
-
-    /**jButton3 Action Listener (Add attachment(s))*/
-    private void attachFile_actionPerformed(ActionEvent e)
-    {
-        final JFileChooser fc = new JFileChooser(lastUsedDirectory);
-        fc.setDialogTitle(languageResource.getString("Choose file(s) / directory(s) to attach"));
-        fc.setFileHidingEnabled(false);
-        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-        fc.setMultiSelectionEnabled(true);
-
-        int returnVal = fc.showOpenDialog(MessageFrame.this);
-        if( returnVal == JFileChooser.APPROVE_OPTION )
-        {
-            File[] selectedFiles = fc.getSelectedFiles();
-            for( int i = 0; i < selectedFiles.length; i++ )
-            {
-                // for convinience remember last used directory
-                lastUsedDirectory = selectedFiles[i].getPath();
-                
-                // collect all choosed files + files in all choosed directories
-                ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
-                for (int j = 0; j < allFiles.size(); j++) 
-                {
-                    File aFile = (File)allFiles.get(j);
-                    if (aFile.isFile() && aFile.length() > 0) 
-                    {
-                        MFAttachedFile af = new MFAttachedFile( aFile );
-                        filesTableModel.addRow( af );
-                    }
-                }
-            }
-        }
-        else
-        {
-            logger.fine("Open command cancelled by user.");
-        }
-        
-        positionDividers();
-    }
-
-	private void attachBoards_actionPerformed(ActionEvent e) {
-		Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
-		if (allBoards.size() == 0)
-			return;
-		Collections.sort(allBoards);
-
-		AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
-		chooser.setLocationRelativeTo(this);
-		Vector chosedBoards = chooser.runDialog();
-		if (chosedBoards == null || chosedBoards.size() == 0) // nothing chosed or cancelled
-			{
-			return;
-		}
-
-		for (int i = 0; i < chosedBoards.size(); i++) {
-			FrostBoardObject board = (FrostBoardObject) chosedBoards.get(i);
-
-			String privKey = board.getPrivateKey();
-
-			if (privKey != null) {
-				int answer =
-					JOptionPane.showConfirmDialog(
-						this,
-						"You have the private key to "
-							+ board.toString()
-							+ ".  Are you sure you want it attached?\n "
-							+ "If you choose NO, only the public key will be attached.",
-						"Include private board key?",
-						JOptionPane.YES_NO_OPTION);
-				if (answer == JOptionPane.NO_OPTION) {
-					privKey = null; // dont provide privkey
-				}
-			}
-			// build a new board because maybe privKey should'nt be uploaded
-			FrostBoardObject aNewBoard =
-				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, board.getDescription());
-			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
-			boardsTableModel.addRow(ab);
-		}
-		positionDividers();
-	}
-
-	/**
-	 * 
-     */
-    private void positionDividers() {
-        int attachedFiles = filesTableModel.getRowCount();
-        int attachedBoards = boardsTableModel.getRowCount();
-        if (attachedFiles == 0 && attachedBoards == 0) {
-            // Neither files nor boards
-            messageSplitPane.setBottomComponent(null);
-            messageSplitPane.setDividerSize(0);
-            return;
-        }
-        messageSplitPane.setDividerSize(3);
-        messageSplitPane.setDividerLocation(0.75);
-        if (attachedFiles != 0 && attachedBoards == 0) {
-            //Only files
-            messageSplitPane.setBottomComponent(filesTableScrollPane);
-            return;
-        }
-        if (attachedFiles == 0 && attachedBoards != 0) {
-            //Only boards
-            messageSplitPane.setBottomComponent(boardsTableScrollPane);
-            return;
-        }
-        if (attachedFiles != 0 && attachedBoards != 0) {
-            //Both files and boards
-            messageSplitPane.setBottomComponent(attachmentsSplitPane);
-            attachmentsSplitPane.setTopComponent(filesTableScrollPane);
-            attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
-        }
-    }
-    
-	public void composeNewMessage(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
-		composeMessage(newBoard, newFrom, newSubject, newText, false);
-	}
-	
-	private void composeMessage(
-		FrostBoardObject newBoard,
-		String newFrom,
-		String newSubject,
-		String newText,
-		boolean isReply) {
-			
-		headerArea.setEnabled(false);	
-		board = newBoard;
-		from = newFrom;
-		subject = newSubject;
-		String text = newText;
-
-		String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
-
-		if (isReply) {
-			text += "\n\n";
-		}
-		int headerAreaStart = text.length();//Beginning of non-modifiable area
-		text += "----- " + from + " ----- " + date + " -----\n\n";
-		int headerAreaEnd = text.length() - 2; //End of non-modifiable area
-		oldSender = from;
-		
-		int caretPos = text.length();
-
-		File signatureFile = new File("signature.txt");
-		if (signatureFile.isFile()) {
-			String signature = FileAccess.readFile("signature.txt", "UTF-8").trim();
-			if (signature.length() > 0) {
-				text += "\n-- \n";
-				text += signature;
-			}
-		}
-
-		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-		try {
-			initialize();
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Exception thrown in composeMessage(...)", e);
-		}
-
-		messageTextArea.setText(text);
-		headerArea.setStartPos(headerAreaStart);
-		headerArea.setEndPos(headerAreaEnd);
-		headerArea.setEnabled(true);
-		setVisible(true);
-
-		// reset the splitpanes       
-		positionDividers();
-
-		// Properly positions the caret (AKA cursor)
-		messageTextArea.requestFocusInWindow();
-		messageTextArea.getCaret().setDot(caretPos);
-		messageTextArea.getCaret().setVisible(true);
-	}
-    
-	public void composeReply(FrostBoardObject newBoard, String newFrom, String newSubject, String newText) {
-			composeMessage(newBoard, newFrom, newSubject, newText, true);
-	}
-        
-    protected void removeSelectedItemsFromTable( JTable tbl )
-    {
-        SortedTableModel m = (SortedTableModel)tbl.getModel();
-        int[] sel = tbl.getSelectedRows();
-        for(int x=sel.length-1; x>=0; x--)
-        {
-            m.removeRow(sel[x]);
-        }
-        positionDividers();
-    }
-
-    protected void processWindowEvent(WindowEvent e)
-    {
-        if( e.getID() == WindowEvent.WINDOW_CLOSING )
-        {
-            dispose();
-        }
-        super.processWindowEvent(e);
-    }
-    
-	/**Constructor*/
-	public MessageFrame(
-		SettingsClass newSettings,
-		Component parentComponent,
-		ResourceBundle languageResource,
-		LocalIdentity newMyId) {
-		super();
-		this.languageResource = languageResource;
-		myId = newMyId;
-		state = false;
-		frostSettings = newSettings;
-		lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
-		keypool = frostSettings.getValue("keypool.dir");
-
-		String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-		int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-		int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-		Font tofFont = new Font(fontName, fontStyle, fontSize);
-		if (!tofFont.getFamily().equals(fontName)) {
-			logger.severe("The selected font was not found in your system\n" + 
-						  "That selection will be changed to \"Monospaced\".");
-			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
-			tofFont = new Font("Monospaced", fontStyle, fontSize);
-		}
-		messageTextArea.setFont(tofFont);
-		messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
-		ImmutableAreasDocument messageDocument = new ImmutableAreasDocument();
-		headerArea = new ImmutableArea(messageDocument);
-		messageDocument.addImmutableArea(headerArea);	//So that the user can't modify the header of the message
-		messageTextArea.setDocument(messageDocument);
-
-		setSize(600, 460);
-		setLocationRelativeTo(parentComponent);
-	}
-
-/*************************************************
- ************************************************* 
- **  INTERNAL CLASSES  ***************************
- ************************************************* 
- *************************************************/
-
-    private class MFAttachedBoard implements TableMember
-    {
-        FrostBoardObject aBoard;
-        public MFAttachedBoard(FrostBoardObject ab)
-        {
-            aBoard = ab;
-        }
-        public FrostBoardObject getBoardObject()
-        {
-            return aBoard;
-        }
-        public int compareTo( TableMember anOther, int tableColumIndex )
-        {
-            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
-            return c1.compareTo( c2 );
-        }
-
-		public Object getValueAt(int column) {
-			switch (column) {
-				case 0 :
-					return aBoard.getBoardName();
-				case 1 :
-					return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();
-				case 2 :
-					return (aBoard.getPrivateKey() == null) ? "N/A" : aBoard.getPrivateKey();
-				case 3 :
-					return (aBoard.getDescription() == null) ? "N/A" : aBoard.getDescription();
-			}
-			return "*ERR*";
-		}
-    }
-    
-    private class MFAttachedFile implements TableMember
-    {
-        File aFile;
-        public MFAttachedFile(File af)
-        {
-            aFile = af;
-        }
-        public File getFile()
-        {
-            return aFile;
-        }
-        public int compareTo( TableMember anOther, int tableColumIndex )
-        {
-            Comparable c1 = (Comparable)getValueAt(tableColumIndex);
-            Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
-            return c1.compareTo( c2 );
-        }
-        public Object getValueAt(int column)
-        {
-            switch(column)
-            {
-                case 0: return aFile.getName();
-                case 1: return ""+aFile.length();
-            }
-            return "*ERR*";
-        }
-    }
-
-    private class MFAttachedBoardsTable extends SortedTable
-    {
-        public MFAttachedBoardsTable(MFAttachedBoardsTableModel m)
-        {
-            super(m);
-
-            // set column sizes
-            int[] widths = {250, 80, 80};
-            for (int i = 0; i < widths.length; i++)
-            {
-                getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-            }
-
-            // default for sort: sort by name ascending ?
-            sortedColumnIndex = 0;
-            sortedColumnAscending = true;
-            resortTable();
-        }
-    }
-    private class MFAttachedFilesTable extends SortedTable
-    {
-        public MFAttachedFilesTable(MFAttachedFilesTableModel m)
-        {
-            super(m);
-
-            // set column sizes
-            int[] widths = {250, 80};
-            for (int i = 0; i < widths.length; i++)
-            {
-                getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-            }
-
-            // default for sort: sort by name ascending ?
-            sortedColumnIndex = 0;
-            sortedColumnAscending = true;
-            resortTable();
-        }
-    }
-    
-    private class MFAttachedBoardsTableModel extends SortedTableModel
-    {
-        protected final String columnNames[] = {
-            "Boardname",
-            "public key",
-            "Private key", 
-            "Description"
-        };
-        protected final Class columnClasses[] = {
-            String.class, 
-            String.class,
-            String.class,
-			String.class
-        };
-
-        public MFAttachedBoardsTableModel()
-        {
-            super();
-        }
-
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
-        }
-
-        public String getColumnName(int column)
-        {
-            if( column >= 0 && column < columnNames.length )
-                return columnNames[column];
-            return null;
-        }
-        public int getColumnCount()
-        {
-            return columnNames.length;
-        }
-        public Class getColumnClass(int column)
-        {
-            if( column >= 0 && column < columnClasses.length )
-                return columnClasses[column];
-            return null;
-        }
-        public void setValueAt(Object aValue, int row, int column) {}
-    }
-    
-    private class MFAttachedFilesTableModel extends SortedTableModel
-    {
-        protected final String columnNames[] = {
-            "Filename",
-            "Size"
-        };
-        protected final Class columnClasses[] = {
-            String.class,
-            String.class
-        };
-
-        public MFAttachedFilesTableModel()
-        {
-            super();
-        }
-
-        public boolean isCellEditable(int row, int col)
-        {
-            return false;
-        }
-
-        public String getColumnName(int column)
-        {
-            if( column >= 0 && column < columnNames.length )
-                return columnNames[column];
-            return null;
-        }
-        public int getColumnCount()
-        {
-            return columnNames.length;
-        }
-        public Class getColumnClass(int column)
-        {
-            if( column >= 0 && column < columnClasses.length )
-                return columnClasses[column];
-            return null;
-        }
-        public void setValueAt(Object aValue, int row, int column) {}
-    }
-
-    private class AttachBoardsChooser extends JDialog
-    {
-        Vector boards;
-        JButton Bok;
-        JButton Bcancel;
-        JList Lboards;
-        boolean okPressed = false;
-
-        public AttachBoardsChooser(Vector boards)
-        {
-            super();
-            setTitle(languageResource.getString("Choose boards to attach"));
-            setModal(true);
-            this.boards = boards;
-            initGui();
-        }
-        private void initGui()
-        {
-            Bok = new JButton("OK");
-            Bok.addActionListener( new ActionListener() {
-                   public void actionPerformed(ActionEvent e) {
-                       	okPressed = true;
-                       	setVisible(false);
-                   } });
-            Bcancel = new JButton("Cancel");
-            Bcancel.addActionListener( new ActionListener() {
-                   public void actionPerformed(ActionEvent e) {
-                       	okPressed = false;
-						setVisible(false);
-                   } });
-            JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
-            buttonsPanel.add( Bok );
-            buttonsPanel.add( Bcancel );
-
-            Lboards = new JList( boards );
-            Lboards.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            JScrollPane listScroller = new JScrollPane( Lboards );
-            listScroller.setBorder( new CompoundBorder( new EmptyBorder(5,5,5,5),
-                                                        new CompoundBorder( new EtchedBorder(),
-                                                                            new EmptyBorder(5,5,5,5) )
-                                                      ) );
-            getContentPane().add(listScroller, BorderLayout.CENTER);
-            getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
-            setSize(300, 400);
-        }
-        public Vector runDialog()
-        {
-            setVisible(true);
-            if( okPressed == false )
-                return null;
-
-            Object[] sels = Lboards.getSelectedValues();
-            Vector chosed = new Vector( Arrays.asList( sels ) );
-            return chosed;
-        }
-    }
-    
-    class BuddyComparator implements Comparator
-    {
-        // compare buddies in lowercase
-        public int compare(Object o1, Object o2)
-        {
-            String s1 = (String)o1;
-            String s2 = (String)o2;
-            return s1.toLowerCase().compareTo( s2.toLowerCase() );
-        }
-    }
-    
-    class AttFilesTablePopupMenuMouseListener implements MouseListener
-    {
-        public void mouseReleased(MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mousePressed(MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mouseClicked(MouseEvent event) {}
-        public void mouseEntered(MouseEvent event) {}
-        public void mouseExited(MouseEvent event) {}
-        protected void maybeShowPopup(MouseEvent e) {
-            if( e.isPopupTrigger() ) {
-                attFilesPopupMenu.show(filesTable, e.getX(), e.getY());
-            }
-        }
-    }
-    class AttBoardsTablePopupMenuMouseListener implements MouseListener
-    {
-        public void mouseReleased(MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mousePressed(MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mouseClicked(MouseEvent event) {}
-        public void mouseEntered(MouseEvent event) {}
-        public void mouseExited(MouseEvent event) {}
-        protected void maybeShowPopup(MouseEvent e) {
-            if( e.isPopupTrigger() ) {
-                attBoardsPopupMenu.show(boardsTable, e.getX(), e.getY());
-            }
-        }
-    }
-    
 }
