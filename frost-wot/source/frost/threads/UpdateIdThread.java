@@ -337,12 +337,12 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				if (sharer==null) { //we don't have it, use the provided key
 					int key_index = unzipped.indexOf("pubkey =");
 					
-					if (key_index == -1) {
-						Core.getOut().println("file didn't contain public key!");
-						target.delete();
-						index = findFreeDownloadIndex();
-						continue;
-					}
+				if (key_index == -1) {
+					Core.getOut().println("file didn't contain public key!");
+					target.delete();
+					index = findFreeDownloadIndex();
+					continue;
+				}
 					
 					key_index = unzipped.indexOf("\"",key_index)+1;
 					
