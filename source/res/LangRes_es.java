@@ -93,7 +93,6 @@ static final Object[][] contents = {
 {"Do spam detection","Realiza detección de spam"},
 {"Do you want to enter a subject?","¿Quieres introducir un asunto?"},
 {"Document Extension","Extensiones de Documento"},
-{"Done","Hecho"},
 {"Down","Abajo"},
 {"Download all keys","Descarga todas las claves"},
 {"Download attachment(s)","Descarga adjunto(s)"},
@@ -112,7 +111,6 @@ static final Object[][] contents = {
 {"Executable Extension","Extensiones Ejecutables"},
 {"Exit","Salir"},
 {"Experimental Freenet Browser","Navegador Experimental para Freenet"},
-{"Failed","Falló"},
 {"File","Fichero"},
 {"Filename","Nombre del fichero"},
 {"Files","Ficheros"},
@@ -221,7 +219,6 @@ static final Object[][] contents = {
 {"Rename folder","Renombra carpeta"},
 {"Reply","Contesta"},
 {"Request file after this count of retries","Solicita el fichero tras este número de reintentos"},
-{"Requested","Pedido"},
 {"Restart failed downloads","Reintenta descargas fallidas"},
 {"Restart selected downloads","Reanuda descargas seleccionadas"},
 {"Restore default filenames for all files","Restaura nombres por defecto para todos los ficheros"},
@@ -268,7 +265,6 @@ static final Object[][] contents = {
 {"Tries", "Intentos"},
 {"Trust","Confía"},
 {"Try to download all segments, even if one fails","Intenta descargar todos los segmentos, aunque alguno falle"},
-{"Trying","Intentando"},
 {"Unknown","Desconocido"},
 {"Up","Arriba"},
 {"up htl explanation","(cuanto mayor más lento pero más fiable)"},
@@ -283,7 +279,6 @@ static final Object[][] contents = {
 {"Version", "Versión"},
 {"Video","Vídeo"},
 {"Video Extension","Extensiones de Vídeo"},
-{"Waiting","Esperando"},
 {"Waittime after each try","Tiempo de espera tras cada intento"},
 {"Wasting more time","Desperdiciando más tiempo"},
 {"Welcome message","!Por favor, lee esto!\n\nPara usar Frost, primero debes seleccionar un tema en la ventana de información de foros. Puedes abrir esta ventana con el botón i de arriba. Puedes enviar mensajes y ficheros a gente usando el mismo foro. Probablemente pase un rato hasta que aparezcan los primeros foros (pulsa el botón de refresco)."},
@@ -374,8 +369,19 @@ static final Object[][] contents = {
 	
 	{"FrostSearchItemObject.Offline","Offline"},
 	{"FrostSearchItemObject.Anonymous","Anónimo"},
-	{"FrostSearchItemObject.*ERROR*","*ERROR*"}
+	{"FrostSearchItemObject.*ERROR*","*ERROR*"},
 	
+	///
+	/// FrostDownloadItemObject
+	///
+
+	{"Waiting","Esperando"},
+	{"Trying","Intentando"},
+	{"Done","Hecho"},
+	{"Failed","Falló"},
+	{"Requesting","Pidiendo"},
+	{"Requested","Pedido"},
+	{"Decoding segment","Decodificando segmento"}
 	
 };
 }

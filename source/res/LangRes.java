@@ -52,7 +52,6 @@ public class LangRes extends ListResourceBundle {
 	{"Size", "Size"},
 	{"Age", "Age"},
 	{"Board", "Board"},
-	{"Waiting", "Waiting"},
 	{"State", "State"},
 	{"Source", "Source"},
 	{"Last upload", "Last upload"},
@@ -61,11 +60,7 @@ public class LangRes extends ListResourceBundle {
 	{"Frost by Jantho", "Frost by Jantho"},
 	{"Reload selected files", "Upload selected files"},
 	{"Reload all files", "Reload all files"}, //reload????
-	{"Trying", "Trying"},
-	{"Done", "Done"},
-	{"Failed", "Failed"},
 	{"Never", "Never"},
-	{"Requested", "Requested"},
 	{"Uploading", "Uploading"},
 	{"Unknown", "Unkown"},
 	{"Show systray icon","Show SysTray icon"},
@@ -546,7 +541,19 @@ public class LangRes extends ListResourceBundle {
 	
 	{"FrostSearchItemObject.Offline","Offline"},
 	{"FrostSearchItemObject.Anonymous","Anonymous"},
-	{"FrostSearchItemObject.*ERROR*","*ERROR*"}
+	{"FrostSearchItemObject.*ERROR*","*ERROR*"},
+		
+	///
+	/// FrostDownloadItemObject
+	///
+	
+	{"Waiting", "Waiting"},
+	{"Trying", "Trying"},
+	{"Done", "Done"},
+	{"Failed", "Failed"},
+	{"Requesting","Requesting"},
+	{"Requested","Requested"},
+	{"Decoding segment","Decoding segment"}
 		
     };
 }
