@@ -313,7 +313,8 @@ public class MessageObject implements XMLizable {
         this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".txt"))).trim();
         // ensure all needed fields are properly filled
         if( from == null || date == null || subject == null || time == null ||
-            board == null || content == null )
+            board == null || content == null ||
+            !isValid() )
         {
             throw new Exception("Message have invalid or missing fields.");
         }

@@ -21,15 +21,11 @@ package frost.threads;
 import java.io.*;
 import java.util.Vector;
 
-import org.xml.sax.*;
-import org.xml.sax.helpers.*;
-import javax.xml.parsers.*;
-
 import frost.*;
-import frost.crypt.crypt;
+import frost.FcpTools.*;
+import frost.crypt.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
-import frost.FcpTools.*;
 
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
@@ -60,9 +56,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private final static String fileSeparator = System.getProperty("file.separator");
     
     //these pertain to the currently received index
-	Identity sharer = null;
-	String _sharer = null;
-	String pubkey = null;
+//	Identity sharer = null;
+//	String _sharer = null;
+//	String pubkey = null;
 
     public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
@@ -196,6 +192,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             return false;
     }
 
+// FIXME: rewrite this method
+
     private void uploadIndexFile()//int i)
     {
     	//load the indices for the current date
@@ -289,10 +287,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
             while (failures < maxFailures)
             {
-                sharer = null;
-                _sharer = null;
-                pubkey = null;
-
                 if (index == -1)
                 { //something happened
                     notifyThreadFinished(this);
@@ -313,8 +307,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             + date);
                 // Download the keyfile
                 
-                FcpResults fcpresults = FcpRequest
-                    .getFile(
+                FcpResults fcpresults = FcpRequest.getFile(
                         requestKey + index + ".idx.sha2.zip",
                         null,
                         target,
@@ -334,161 +327,112 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         // maybe the file is corrupted ... so try
                         byte[] unzippedXml = FileAccess.readZipFileBinary(target);
                         
-                        //verify the file 
-                        if( fcpresults.getMetadata() != null ) 
+                        Identity sharer = null;
+                        
+                        // verify the file if it is signed
+                        if( fcpresults.getRawMetadata() != null ) 
                         {
-// FIXME: work in progress here                            
-							SimpleParser sp = new SimpleParser();
-                            try
-                            {
-                                ByteArrayInputStream bis = 
-                                    new ByteArrayInputStream(unzippedXml);
-
-                                SAXParserFactory factory =
-                                    SAXParserFactory.newInstance();
-                                factory.setValidating(false);
-
-                                // Create the builder and parse the file
-                                SAXParser sparser = factory.newSAXParser();
-                                XMLReader xmlreader = sparser.getXMLReader();
-                                xmlreader.setFeature("http://apache.org/xml/features/allow-java-encodings", 
-                                                      true);
-                                sparser.parse(bis, sp);
-                                _sharer = sp.sharer;
-                                pubkey = sp.pubkey;
+                            MetaData md; 
+                            try {
+                                md = new MetaData(unzippedXml, fcpresults.getRawMetadata());
                             }
-                            catch (SAXException e)
+                            catch(Throwable t)
                             {
-                                // A parsing error occurred; the xml input is not valid
-                                e.printStackTrace(Core.getOut());
+                                // reading of xml metadata failed, handle
+                                Core.getOut().println("Could not read the XML metadata, skipping file index.");
+                                target.delete();
+                                index = findFreeDownloadIndex();
+                                continue;
                             }
-                            catch (ParserConfigurationException e)
-                            {}
-                            catch (IOException e)
+                            
+                            //check if we have the owner already on the lists
+                            String _owner = md.getSharer().getUniqueName();
+                            String _pubkey = md.getSharer().getKey();
+                            
+                            if( _owner == null || _owner.length() == 0 ||
+                                _pubkey == null || _pubkey.length() == 0 )
                             {
-                                e.printStackTrace(Core.getOut());
+                                Core.getOut().println("XML metadata have missing fields, skipping file index.");
+                                target.delete();
+                                index = findFreeDownloadIndex();
+                                continue;
+                            }
+                        
+                            //verify! :)
+                            boolean valid = Core.getCrypto().detachedVerify(
+                                                unzippedXml,
+                                                _pubkey,
+                                                md.getSig());
+                                                
+                            if( valid == false )
+                            {
+                                Core.getOut().println("Invalid sign for index file from "+_owner);
+                                target.delete();
+                                index = findFreeDownloadIndex();
+                                continue;
                             }
 
-                            if (frame1
-                                .getMyId()
-                                .getUniqueName()
-                                .trim()
-                                .compareTo(_sharer)
-                                == 0)
+                            if( Core.getMyId().getUniqueName().trim().equals(_owner) )
                             {
-
-                                Core.getOut().println(
-                                    "received index from myself");
-
-                                sharer = frame1.getMyId();
-
+                                Core.getOut().println("Received index file from myself");
+                                sharer = Core.getMyId();
                             }
                             else
                             {
-
-                                Core.getOut().println(
-                                    "received index from " + _sharer);
-
-                                sharer = frame1.getFriends().Get(_sharer);
-                                //also check the neutral list
-                                sharer =
-                                    sharer == null
-                                        ? Core.getNeutral().Get(_sharer)
-                                        : sharer;
-                            }
-
-                            //check if person is blocked
-                            if (frame1
-                                .frostSettings
-                                .getBoolValue("hideBadFiles")
-                                && frame1.getEnemies().Get(_sharer) != null)
-                            {
-                                target.delete();
-                                index = findFreeDownloadIndex();
-                                //don't bother to check the message
-                                continue;
-                            }
-
-                            //we have the person at this point
-                            if (sharer == null)
-                            { //its a new contact, use the provided key
-
-                                //check if the digest matches
-                                String given_digest =
-                                    _sharer.substring(
-                                        _sharer.indexOf("@") + 1,
-                                        _sharer.length());
-                                if (given_digest
-                                    .trim()
-                                    .compareTo(
-                                        frame1
-                                            .getCrypto()
-                                            .digest(pubkey.trim())
-                                            .trim())
-                                    != 0)
+                                Core.getOut().println("Received index file from " + _owner);
+                                if( Core.getFriends().containsKey(_owner) )
                                 {
-                                    Core.getOut().println(
-                                        "pubkey in index file didn't match digest");
-                                    Core.getOut().println(
-                                        "given digest " + given_digest.trim());
-                                    Core.getOut().println(
-                                        "pubkey " + pubkey.trim());
-                                    Core.getOut().println(
-                                        "calculated digest "
-                                            + frame1
-                                                .getCrypto()
-                                                .digest(pubkey)
-                                                .trim());
-                                    target.delete();
-                                    index = findFreeDownloadIndex();
-                                    continue;
+                                    sharer = Core.getFriends().Get(_owner);
                                 }
-
-                                //create the identity of the sharer
-                                sharer =
-                                    new Identity(
-                                        _sharer.substring(
-                                            0,
-                                            _sharer.indexOf("@")),
-                                        null,
-                                        pubkey);
-                                //add him to the neutral list
-                                Core.getNeutral().Add(sharer);
+                                else if( Core.getNeutral().containsKey(_owner) )
+                                {
+                                    sharer = Core.getNeutral().Get(_owner);
+                                }
+                                //check if person is blocked
+                                else if( Core.getEnemies().containsKey(_owner) )
+                                {
+                                    if( frame1.frostSettings.getBoolValue("hideBadFiles") )
+                                    {
+                                        Core.getOut().println("Skipped index file from BAD user "+_owner);
+                                        target.delete();
+                                        index = findFreeDownloadIndex();
+                                        continue;
+                                    }
+                                }
+                                else
+                                {
+                                    // a new sharer, put to neutral list
+                                    sharer = addNewSharer(_owner, _pubkey);
+                                    if( sharer == null ) // digest did not match, block file
+                                    {
+                                        target.delete();
+                                        index = findFreeDownloadIndex();
+                                        continue;
+                                    }
+                                }
                             }
-
-                            //verify the archive
-                            if (!frame1
-                                .getCrypto()
-                                .verify(unzipped, sharer.getKey()))
-                            {
-                                Core.getOut().println(
-                                    "index file failed verification!");
-                                target.delete();
-                                index = findFreeDownloadIndex();
-                                continue;
-                            }
-
-                            //strip the sig
-                            unzipped =
-                                unzipped.substring(
-                                    crypt.MSG_HEADER_SIZE,
-                                    unzipped.lastIndexOf(
-                                        "\n=== Frost message signature: ===\n"));
-                        }
-                        else if (
-                            frame1.frostSettings.getBoolValue("hideAnonFiles"))
+                        } // end-of: if metadata != null
+                        else if(frame1.frostSettings.getBoolValue("hideAnonFiles"))
                         {
                             target.delete();
                             index = findFreeDownloadIndex();
                             continue; //do not show index.
                         }
-                        FileAccess.writeFile(unzipped, target);
-                        if (_sharer == null
-                            || frame1.getFriends().Get(_sharer) == null)
-                            Index.add(target, board, _sharer);
-                        //add only files from that user
+                        
+                        // write unzipped xml to file
+                        FileAccess.writeByteArray(unzippedXml, target);
+
+                        if( sharer == null ||
+                            Core.getFriends().containsKey(sharer.getUniqueName()) == false )
+                        {
+                            // add only files from that user                            
+                            Index.add( target, board, sharer.getUniqueName() );
+                        }
                         else
-                            Index.add(target, board, sharer); //add all files
+                        {
+                            // add all files
+                            Index.add(target, board, sharer);
+                        }
                         target.delete();
                     }
                     catch (Throwable t)
@@ -558,6 +502,31 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         resetIndices();
         commit();
     }
+    
+    private Identity addNewSharer(String _sharer, String _pubkey)
+    {
+        Identity sharer = null;
+        
+        //check if the digest matches
+        String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
+                                                _sharer.length());
+        if( ! given_digest.trim().equals(frame1.getCrypto().digest(_pubkey.trim()).trim()) )
+        {
+            Core.getOut().println("pubkey in index file didn't match digest");
+            Core.getOut().println("given digest " + given_digest.trim());
+            Core.getOut().println("pubkey " + _pubkey.trim());
+            Core.getOut().println("calculated digest "
+                    + frame1.getCrypto().digest(_pubkey).trim());
+            return null;        
+        }
+        //create the identity of the sharer
+        sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")),
+                               null,
+                               _pubkey);
+        //add him to the neutral list
+        Core.getNeutral().Add(sharer);
+        return sharer;
+    }
 
     /**Constructor*/
     public UpdateIdThread(FrostBoardObject board, String date)
@@ -597,23 +566,4 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             insertKey = new StringBuffer().append("KSK@frost/index/").append(board.getBoardFilename())
                         .append("/").append(currentDate).append("/").toString();
     }
-    
-    private class SimpleParser extends DefaultHandler {
-    	public String pubkey,sharer;
-    	public SimpleParser() {
-    		pubkey = null;
-    		sharer=null;
-    	}
-		public void startElement(String namespaceURI, String localName,
-										 String qName, Attributes atts)  {
-				//what's the difference between qName and localName?
-				if (localName.equals("Filelist") || qName.equals("Filelist")) {
-					pubkey = atts.getValue("pubkey");
-					sharer = atts.getValue("sharer");			
-	
-				}
-		}
-    }
-    
 }
-

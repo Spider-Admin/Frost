@@ -53,7 +53,8 @@ public class MetaData implements XMLizable {
 		sig = Core.getCrypto().detachedSign(plaintext, Core.getMyId().getPrivKey());
 	}
 	
-	public MetaData(byte [] plaintext, byte [] metadata){
+	public MetaData(byte [] plaintext, byte [] metadata) throws Throwable
+    {
 		File tmp = new File("metadataTemp"+ System.currentTimeMillis());
 		FileAccess.writeByteArray(metadata,tmp);
 		Document d = XMLTools.parseXmlFile(tmp,false);
@@ -64,6 +65,7 @@ public class MetaData implements XMLizable {
 		}catch (SAXException e){
 			e.printStackTrace(Core.getOut());
 			plaintext = null;
+            throw e;
 		}
 		tmp.delete();
 	}
@@ -73,13 +75,15 @@ public class MetaData implements XMLizable {
 	 * @param plaintext the plaintext to be verified
 	 * @param el the xml element to populate from
 	 */
-	public MetaData(byte [] plaintext, Element el){
+	public MetaData(byte [] plaintext, Element el) throws Throwable
+    {
 		this.plaintext = plaintext;
 		try {
 			loadXMLElement(el);
 		}catch (SAXException e){
 			e.printStackTrace(Core.getOut());
 			plaintext = null;
+            throw e;
 		}
 	}
 

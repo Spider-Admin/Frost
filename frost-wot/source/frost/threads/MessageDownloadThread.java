@@ -233,13 +233,11 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 }
 
                 try { 
-                	
                     boolean fastDownload = !flagNew; // for backload use fast download, deep for today
-                    
                     
                     FcpResults res = FcpRequest.getFile(downKey, null, testMe, downloadHtl, false, fastDownload);
                     metadata = res.getRawMetadata();
-                    //TODO: if metadata==null, not signed message
+// TODO: if metadata==null, not signed message
                     mixed.wait(111); // wait some time to not to hurt the node on next retry 
                 }
                 catch(Throwable t)
@@ -266,7 +264,14 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         //verify the zipped message
                         
                         byte [] plaintext = FileAccess.readByteArray(testMe);
-                        MetaData metaData = new MetaData(plaintext,metadata);
+                        MetaData metaData; 
+                        try {
+                            metaData = new MetaData(plaintext,metadata);
+                        }
+                        catch(Throwable t)
+                        {
+                            // TODO: xml metadata reading failed, skip
+                        }
                         
                         //TODO: check if encrypted somehow
                         
@@ -302,7 +307,15 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         FileAccess.writeFile(unzipped,testMe);
                         
                         //create object
-                        VerifyableMessageObject vmo = new VerifyableMessageObject(testMe);
+                        VerifyableMessageObject vmo;
+                        try { 
+                            vmo = new VerifyableMessageObject(testMe);
+                        }
+                        catch(Exception ex)
+                        {
+                            ex.printStackTrace();
+                            // TODO: file could not be read, try next file
+                        }
                         
                         //make sure the pubkey and from fields in the xml file are the same
                         //as those in the metadata
@@ -330,13 +343,13 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         	vmo.setStatus(VerifyableMessageObject.VERIFIED);
                         else
 							vmo.setStatus(VerifyableMessageObject.PENDING);
-                        					
+                            
                         //that's it for today, I"m too tired
                         //----------------------LEGACY CODE BELOW------------------
                         
-                        
                         //Core.getOut().println(contents);
                         
+                        ///  if i would know how to check for encrypted msg *g*
                         
 
                         if( encstart != -1 )
@@ -359,15 +372,22 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             index++;
                             continue;
                         }
-                        // verify the message
-                        currentMsg.verifyIncoming( calDL );
+                        
+                        //------------------REWORKED BELOW,BUT NOT ABOVE-----------//
+                        
+                        // verify the message date and time
+                        if( currentMsg.isValidFormat( calDL ) == false )
+                        {
+                            // TODO: file contains invalid data or time, skip and
+                            //        mark it to not try it again(?) 
+                        }
 
                         File sig = new File(testMe.getPath() + ".sig");
 
                         // Is this a valid message?
                         if( currentMsg.isValid() )
                         {
-                            if( TOF.blocked(currentMsg,board) && testMe.length() > 0 )
+                            if( TOF.blocked(currentMsg, board) && testMe.length() > 0 )
                             {
                                 board.incBlocked();
                                 Core.getOut().println("\nTOFDN: ########### blocked message for board '"+board.toString()+"' #########\n");
