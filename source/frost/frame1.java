@@ -48,6 +48,8 @@ import frost.identities.*;
 //             - save identities together (not separated friends,enemies)
 //             - each identity have 3 states: GOOD, BAD, NEUTRAL
 //             - filter out enemies on read
+//++++ TODO: save unsent in folder unsent
+
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
@@ -985,6 +987,19 @@ public class frame1 extends JFrame implements ClipboardOwner
                     do
                     {
                         nick = JOptionPane.showInputDialog("Choose an identity name, it doesn't have to be unique\n");
+                        if( nick == null || nick.length() == 0 )
+                        {
+                            // check for a '@' in nick, this is strongly forbidden
+                            if( nick.indexOf("@") > -1 )
+                            {
+                                JOptionPane.showMessageDialog(this,
+                                                              "Your name must not contain a '@'!",
+                                                              "Invalid identity name",
+                                                              JOptionPane.ERROR_MESSAGE );
+                                nick=null;
+                            }
+                        }
+
                     } while( nick == null || nick.length() == 0 );
                     mySelf = new LocalIdentity(nick);
                     //JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));

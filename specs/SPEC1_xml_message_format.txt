@@ -6,7 +6,7 @@ Note: If you change something, give your change a number (1), add number to
 CHANGED:
 ---------
 
--
+- bback on 2003/06/05: added stuff for private message boards <(1)>
 - bback on 2003/06/04: inital version
 -------------------------------------------------------------------------------
 
@@ -36,7 +36,7 @@ So the behaviour of receiving messages is the same for archives and
 messages: just complete - or build the local xml thread file.
 
 And yes, we need a way to track the already received messages: best way is
-to keep saving files to hd, thats the most transaction save way.
+to keep saving files to disc, thats the most transaction save way.
 We should save 1 file per received file, a file conaining only 1 byte, no
 real content is needed. This file is saved to local disk if the received
 message is successfully inserted in local thread and the local thread is
@@ -86,3 +86,26 @@ This is a first draft, we need to specify things clearer. Please comment.
 
 @see: messages.xml
 @see: identities.xml
+
+<(1)>
+If an encrypted for ME message arrives on private message system (internal board),
+add message (maybe after checking the sign) to
+the identity  of sender in identitiesTree. If person is not yet in tree, do something configurable:
+1. ignore, 2. ask, 3. auto-add
+
+Here a part of the mail that explained private message board (changed):
+
+..., but i thought what the user in the long mail meant
+was to have 1 single frost board (internally) for the personal messages. All
+messages in this board are encrypted for someone and I see only the messages
+that are intended for me, and i see this messages as new in a 'board' which
+is the user that sends me the message.
+So because of the single board all frosts would receive the messages in this
+board and therefore spread them. Of course, you could disable the private
+message board to avoid the masses of messages that are not for you, but you
+would download. If disabled, you can't use the private messages and others messages
+are ignored by your frost, and frost will stop receiving private messages from the internal board.
+
+We should add a spam detection (x new msg. from 1 user, or x msg. from x new users are blocked, ...)
+and disable private board update for some time of spamming is detected.
+</(1)>
