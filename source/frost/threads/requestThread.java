@@ -62,7 +62,12 @@ public class requestThread extends Thread
         System.out.println("Download of " + filename + " with HTL " + htl.toString() + " started.");
 
         // Download file
-        boolean success = FcpRequest.getFile(key, size.toString(), newFile, htl.toString(), true);
+        boolean success = false;
+        try {
+            FcpRequest.getFile(key, size.toString(), newFile, htl.toString(), true);
+            success = true;
+        }
+        catch(Throwable t) { ; }
 
         // file might be erased from table during download...
         boolean inTable = false;
@@ -100,9 +105,14 @@ public class requestThread extends Thread
                     // -> no lock needed, using models
                     // doing it after this , the table states Waiting and there are threads running,
                     // so download seems to stall
-                    request(key.trim(), board);
+                    try {
+                        request(key.trim(), board);
+                        if( DEBUG ) System.out.println("Uploaded request for " + filename);
+                    }
+                    catch(Throwable t) {
+                        System.out.println("Uploading request failed for "+filename);
+                    }
 
-                    if( DEBUG ) System.out.println("Uploaded request for " + filename);
                 }
                 else
                 {
@@ -158,6 +168,7 @@ public class requestThread extends Thread
             System.out.println("Oo. EXCEPTION in requestThread.run:");
             t.printStackTrace();
         }
+
         synchronized(frame1.threadCountLock)
         {
             frame1.activeDownloadThreads--;

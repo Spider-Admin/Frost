@@ -44,6 +44,9 @@ import frost.crypt.*;
 import frost.threads.*;
 import frost.identities.*;
 
+//++++ remove finished downloads - popup
+//++++ count running downloads+waiting
+
 public class frame1 extends JFrame implements ClipboardOwner
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
