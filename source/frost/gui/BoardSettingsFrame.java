@@ -367,24 +367,15 @@ public class BoardSettingsFrame extends JDialog
     /**generateKeyButton Action Listener (OK)*/
     private void generateKeyButton_actionPerformed(ActionEvent e)
     {
+        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        if( connection == null )
+            return;
+
         try
         {
-            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
-                                                         frame1.frostSettings.getValue("nodePort"));
-            try
-            {
-                String[] keyPair = connection.getKeyPair();
-                privateKeyTextField.setText(keyPair[0]);
-                publicKeyTextField.setText(keyPair[1]);
-            }
-            catch( IOException ex )
-            {
-                frame1.displayWarning(ex.toString());
-            }
-        }
-        catch( FcpToolsException ex )
-        {
-            System.out.println("BoardSettingsFrame.generateKey: FcpToolsException " + ex);
+            String[] keyPair = connection.getKeyPair();
+            privateKeyTextField.setText(keyPair[0]);
+            publicKeyTextField.setText(keyPair[1]);
         }
         catch( IOException ex )
         {

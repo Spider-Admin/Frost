@@ -35,16 +35,12 @@ public class Identity implements Serializable
     {
         this.name=name;
         this.keyaddress = keyaddress;
-        try {
-            con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
-                                    frame1.frostSettings.getValue("nodePort"));
-        }
-        catch( FcpToolsException e ) {
-            System.out.println("fcptools exception");
+
+        con = FcpFactory.getFcpConnectionInstance();
+        if( con == null )
+        {
             this.key = NA;
-        }
-        catch( IOException e ) {
-            this.key=NA;
+            return;
         }
 
         if( !keyaddress.startsWith("CHK@") )

@@ -201,6 +201,20 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 System.out.println("TOFDN: *** Message is NOT signed at all: "+currentMsg.getFrom());
                 currentMsg.setStatus(VerifyableMessageObject.OLD);
             }
+            // check if this msg is sent by me
+            else if( frame1.getMyId().getKey().equals(currentMsg.getFrom()) )
+            {
+                if( frame1.getCrypto().verify(currentMsg.getContent(), frame1.getMyId().getKey()) )
+                {
+                    System.out.println("TOFDN: *** Message is signed by a ME, set state to GOOD: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
+                }
+                else // verification FAILED!
+                {
+                    System.out.println("TOFDN: *** Message seems to be from ME (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                }
+            }
             //the message contains the CHK of a public key, see if we have this name on our list
             else if( frame1.getFriends().containsKey(currentMsg.getFrom()) )
             {
