@@ -57,12 +57,32 @@ public class getKeyThread extends Thread {
         // Check content of file
         if (!frame1.frostSettings.getBoolValue("reducedBlockCheck")){
         try{    // Check content
-            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
+                                                         frame1.frostSettings.getValue("nodePort"));
             // That's not yet clean. Original frost code requires to start the insert funktion
             // to generate the key, and here we process the results. Direct key generation
             // should replace that, then we can also remove the result method
-            String contentKey = result(connection.putKeyFromFile(key, file.getPath(), 0, false))[1];
-            String prefix = new String("freenet:");
+            String contentKey = null;
+            int tries = 0;
+            int maxTries = 3; // try 3 times of connect errors occurs (node overloaded)
+            while( contentKey == null && tries < maxTries )
+            {
+                try {
+                    contentKey = result(connection.putKeyFromFile(key, file.getPath(), 0, false))[1];
+                }
+                catch(ConnectException e) {
+                    System.out.println("Exception in checkKey(): "+e.getMessage());
+                    tries++;
+                    mixed.wait(1750);
+                }
+            }
+            if( contentKey == null )
+            {
+                System.out.println("Error in checkKey(): FAILED to check key because of connection errors to node!");
+                return false;
+            }
+
+            String prefix = "freenet:";
             if (contentKey.startsWith(prefix)) contentKey = contentKey.substring(prefix.length());
             if (key.startsWith(prefix)) key = key.substring(prefix.length());
             if (contentKey.compareTo(key) == 0){
