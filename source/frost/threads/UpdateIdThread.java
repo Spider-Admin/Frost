@@ -193,9 +193,17 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 if( target.length() > 0 )
                 {
                     // Add it to the index
-                    String unzipped = FileAccess.readZipFile(target);
-                    FileAccess.writeFile(unzipped,target);
-                    Index.add(target, new File(keypool + board.getBoardFilename()));
+                    try {
+                        // maybe the file is corrupted ... so try
+                        String unzipped = FileAccess.readZipFile(target);
+                        FileAccess.writeFile(unzipped,target);
+                        Index.add(target, new File(keypool + board.getBoardFilename()));
+                    }
+                    catch(Throwable t)
+                    {
+                        System.out.println("Error in UpdateIdThread: "+t.getMessage());
+                        // delete the file and try a re download???
+                    }
 
                     index++;
                     failures = 0;
