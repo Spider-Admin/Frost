@@ -142,32 +142,32 @@ public class XMLTools
 		return null;
 	}
 
-    /**
-     * This method writes a DOM document to a file.
-     */
-    public static boolean writeXmlFile(Document doc, String filename)
-    throws Throwable
-    {
-        try {
-            //OutputFormat format = new OutputFormat(doc);
-            OutputFormat format = new OutputFormat(doc, "UTF-16", false);
-            format.setLineSeparator(LineSeparator.Windows);
-            //format.setIndenting(true);
-            format.setLineWidth(0);
-            format.setPreserveSpace(true);
-            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-16");
-            XMLSerializer serializer = new XMLSerializer (writer, format);
-            serializer.asDOMSerializer();
-            serializer.serialize(doc);
-            writer.close();  //this also flushes
-            return true;
-        }
-        catch(Exception ex)
-        {
-			logger.log(Level.SEVERE, "Exception thrown in writeXmlFile(Document doc, String filename)", ex);
-        }
-        return false;
-    }
+	/**
+	 * This method writes a DOM document to a file.
+	 */
+	public static boolean writeXmlFile(Document doc, String filename) {
+		try {
+			//OutputFormat format = new OutputFormat(doc);
+			OutputFormat format = new OutputFormat(doc, "UTF-16", false);
+			format.setLineSeparator(LineSeparator.Windows);
+			//format.setIndenting(true);
+			format.setLineWidth(0);
+			format.setPreserveSpace(true);
+			OutputStreamWriter writer =
+				new OutputStreamWriter(new FileOutputStream(filename), "UTF-16");
+			XMLSerializer serializer = new XMLSerializer(writer, format);
+			serializer.asDOMSerializer();
+			serializer.serialize(doc);
+			writer.close(); //this also flushes
+			return true;
+		} catch (Exception ex) {
+			logger.log(
+				Level.SEVERE,
+				"Exception thrown in writeXmlFile(Document doc, String filename)",
+				ex);
+		}
+		return false;
+	}
 
     /**
      * This method creates a new DOM document.
