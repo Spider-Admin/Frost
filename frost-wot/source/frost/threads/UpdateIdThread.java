@@ -359,6 +359,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		if (indicesFile.exists()) {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
 			indices = (Vector)in.readObject();
+			in.close();
 		}else {
 			indices = new Vector(100);
 			for (int i = 0;i < 100;i++)
