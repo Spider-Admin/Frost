@@ -19,6 +19,7 @@
 package frost.gui.model;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import javax.swing.table.DefaultTableModel;
 
@@ -26,6 +27,8 @@ import frost.gui.SortedTable;
 
 public class SortedTableModel extends DefaultTableModel
 {
+	private static Logger logger = Logger.getLogger(SortedTableModel.class.getName());
+	
     private boolean bWasResized = false;
     private ArrayList rows = null;
     private SortedTable parentTable = null;
@@ -276,7 +279,7 @@ public class SortedTableModel extends DefaultTableModel
      */
     public void setValueAt(Object aValue, int row, int column)
     {
-        System.out.println("setValueAt() - ERROR: NOT IMPLEMENTED");
+        logger.severe("setValueAt() - ERROR: NOT IMPLEMENTED");
     }
 
     /**
