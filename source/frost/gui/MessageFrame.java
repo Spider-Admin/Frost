@@ -439,50 +439,47 @@ public class MessageFrame extends JFrame
         updateAttachmentSplitPanes();
     }
 
-    private void attachBoards_actionPerformed(ActionEvent e)
-    {
-        Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
-        if( allBoards.size() == 0 )
-            return;
-        Collections.sort(allBoards);
+	private void attachBoards_actionPerformed(ActionEvent e) {
+		Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
+		if (allBoards.size() == 0)
+			return;
+		Collections.sort(allBoards);
 
-        AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
-        chooser.setLocationRelativeTo( this );
-        Vector chosedBoards = chooser.runDialog();
-        if( chosedBoards == null || chosedBoards.size() == 0 ) // nothing chosed or cancelled
-        {
-            return;
-        }
+		AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
+		chooser.setLocationRelativeTo(this);
+		Vector chosedBoards = chooser.runDialog();
+		if (chosedBoards == null || chosedBoards.size() == 0) // nothing chosed or cancelled
+			{
+			return;
+		}
 
-        for( int i = 0; i < chosedBoards.size(); i++ )
-        {
-            FrostBoardObject board = (FrostBoardObject)chosedBoards.get(i);
+		for (int i = 0; i < chosedBoards.size(); i++) {
+			FrostBoardObject board = (FrostBoardObject) chosedBoards.get(i);
 
-            String privKey = board.getPrivateKey();
+			String privKey = board.getPrivateKey();
 
-            if( privKey != null )
-            {
-                int answer = JOptionPane.showConfirmDialog(this,
-                           "You have the private key to " +
-                               board.toString() +
-                               ".  Are you sure you want it attached?\n "+
-                               "If you choose NO, only the public key will be attached.",
-                           "Include private board key?",
-                           JOptionPane.YES_NO_OPTION);
-                if( answer == JOptionPane.NO_OPTION )
-                {
-                    privKey = null; // dont provide privkey
-                }
-            }
-            // build a new board because maybe privKey should'nt be uploaded
-            FrostBoardObject aNewBoard = new FrostBoardObject(board.getBoardName(),
-                board.getPublicKey(), 
-                privKey);            
-            MFAttachedBoard ab = new MFAttachedBoard( aNewBoard );
-            attBoardsTableModel.addRow( ab );
-        }
-        updateAttachmentSplitPanes();
-    }
+			if (privKey != null) {
+				int answer =
+					JOptionPane.showConfirmDialog(
+						this,
+						"You have the private key to "
+							+ board.toString()
+							+ ".  Are you sure you want it attached?\n "
+							+ "If you choose NO, only the public key will be attached.",
+						"Include private board key?",
+						JOptionPane.YES_NO_OPTION);
+				if (answer == JOptionPane.NO_OPTION) {
+					privKey = null; // dont provide privkey
+				}
+			}
+			// build a new board because maybe privKey should'nt be uploaded
+			FrostBoardObject aNewBoard =
+				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, "");
+			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
+			attBoardsTableModel.addRow(ab);
+		}
+		updateAttachmentSplitPanes();
+	}
 
     /**
      * Configures a button to be a default icon button

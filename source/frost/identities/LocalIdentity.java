@@ -70,31 +70,27 @@ public class LocalIdentity extends Identity
 	public LocalIdentity(Element el){
 		super(el);
 	}
-    /**
-     * constructor that creates an RSA Keypair
-     */
-    public LocalIdentity(String name)
-    {
-        this(name, Core.getCrypto().generateKeys());
+	/**
+	 * constructor that creates an RSA Keypair
+	 */
+	public LocalIdentity(String name) {
+		this(name, Core.getCrypto().generateKeys());
 
-        con = FcpFactory.getFcpConnectionInstance();
-        if( con == null )
-        {
-            this.key=NA;
-            return;
-        }
-        try{
-        	String []svk=con.getKeyPair();
-			board = new BoardAttachment(new FrostBoardObject(
-									getUniqueName(),svk[1],svk[0]));
-			
-        }catch(IOException ex){
+		con = FcpFactory.getFcpConnectionInstance();
+		if (con == null) {
+			this.key = NA;
+			return;
+		}
+		try {
+			String[] svk = con.getKeyPair();
+			board = new BoardAttachment(new FrostBoardObject(getUniqueName(), svk[1], svk[0], ""));
+
+		} catch (IOException ex) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
-        	board = null;
-        }
-        
+			board = null;
+		}
 
-    }
+	}
 
     public String getPrivKey()
     {

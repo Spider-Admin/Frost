@@ -256,46 +256,45 @@ public class Core implements Savable {
         }
     }
     
-    private void loadOLDKnownBoards(File boards)
-    {
-        try {
-            ArrayList tmpList = new ArrayList();
-            String allBoards = FileAccess.readFile(boards);
-            String []_boards = allBoards.split(":");
-            for (int i=0;i<_boards.length;i++)
-            {
-                String aboardstr = _boards[i].trim();
-                if( aboardstr.length() < 13 || aboardstr.indexOf("*") < 3 ||
-                    ! ( aboardstr.indexOf("*") < aboardstr.lastIndexOf("*") ) )
-                {
-                    continue;
-                }
-                String bname, bpubkey, bprivkey;
-                int pos = aboardstr.indexOf("*");
-                bname = aboardstr.substring(0, pos).trim();
-                int pos2 = aboardstr.indexOf("*", pos+1);
-                bpubkey = aboardstr.substring(pos+1, pos2).trim();
-                bprivkey = aboardstr.substring(pos2+1).trim();
-                if( bpubkey.length() < 10 )  bpubkey = null;
-                if( bprivkey.length() < 10 )  bprivkey = null;
-                
-                // create BoardAttachment objects and pass them to add method
-                // which checks for doubles
-                FrostBoardObject bo = new FrostBoardObject(bname, bpubkey, bprivkey);
-                BoardAttachment ba = new BoardAttachment(bo);
-                tmpList.add( ba );
-            }
-            logger.info("Loaded "+ _boards.length +" OLD known boards (converting).");
-            addNewKnownBoards(tmpList);
-        }catch (Throwable t){
+	private void loadOLDKnownBoards(File boards) {
+		try {
+			ArrayList tmpList = new ArrayList();
+			String allBoards = FileAccess.readFile(boards);
+			String[] _boards = allBoards.split(":");
+			for (int i = 0; i < _boards.length; i++) {
+				String aboardstr = _boards[i].trim();
+				if (aboardstr.length() < 13
+					|| aboardstr.indexOf("*") < 3
+					|| !(aboardstr.indexOf("*") < aboardstr.lastIndexOf("*"))) {
+					continue;
+				}
+				String bname, bpubkey, bprivkey;
+				int pos = aboardstr.indexOf("*");
+				bname = aboardstr.substring(0, pos).trim();
+				int pos2 = aboardstr.indexOf("*", pos + 1);
+				bpubkey = aboardstr.substring(pos + 1, pos2).trim();
+				bprivkey = aboardstr.substring(pos2 + 1).trim();
+				if (bpubkey.length() < 10)
+					bpubkey = null;
+				if (bprivkey.length() < 10)
+					bprivkey = null;
+
+				// create BoardAttachment objects and pass them to add method
+				// which checks for doubles
+				FrostBoardObject bo = new FrostBoardObject(bname, bpubkey, bprivkey, "");
+				BoardAttachment ba = new BoardAttachment(bo);
+				tmpList.add(ba);
+			}
+			logger.info("Loaded " + _boards.length + " OLD known boards (converting).");
+			addNewKnownBoards(tmpList);
+		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "couldn't load/convert OLD known boards", t);
-        }
-        
-        if( boards.renameTo(new File( "boards.old")) == false )
-        {
-            boards.delete(); // paranoia
-        }
-    }
+		}
+
+		if (boards.renameTo(new File("boards.old")) == false) {
+			boards.delete(); // paranoia
+		}
+	}
     
 	public boolean saveKnownBoards() {
 		Document doc = XMLTools.createDomDocument();
