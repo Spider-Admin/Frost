@@ -136,6 +136,19 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
     JCheckBox cleanUP = new JCheckBox(LangRes.getString("Clean the keypool"));
 
+    // this vars hold some settings from start of dialog to the end.
+    // then its checked if the settings are changed by user
+    boolean checkDisableRequests;
+    String  checkMaxMessageDisplay;
+    boolean checkSignedOnly;
+    boolean checkHideBadMessages;
+    boolean checkHideCheckMessages;
+    boolean checkBlock;
+    boolean checkBlockBody;
+    // the result of this
+    boolean shouldRemoveDummyReqFiles = false;
+    boolean shouldReloadMessages = false;
+
     /**
      * Build up the whole GUI.
      */
@@ -889,6 +902,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
      */
     private void setDataElements()
     {
+        // first set some settings to check later if they are changed by user
+        checkDisableRequests = frostSettings.getBoolValue("disableRequests");
+
+        checkMaxMessageDisplay = frostSettings.getValue("maxMessageDisplay");
+        checkSignedOnly = frostSettings.getBoolValue("signedOnly");
+        checkHideBadMessages = frostSettings.getBoolValue("hideBadMessages");
+        checkHideCheckMessages = frostSettings.getBoolValue("hideCheckMessages");
+        checkBlock = frostSettings.getBoolValue("blockMessageChecked");
+        checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
+
+        // now load
         removeFinishedDownloadsCheckBox.setSelected(frostSettings.getBoolValue("removeFinishedDownloads"));
         allowEvilBertCheckBox.setSelected(frostSettings.getBoolValue("allowEvilBert"));
         miscAltEditCheckBox.setSelected(frostSettings.getBoolValue("useAltEdit"));
@@ -1041,6 +1065,23 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             frostSettings.setValue("downloadMethodLeastHtl", false);
         }
         frostSettings.writeSettingsFile();
+
+        // now check if some settings changed
+        if( checkDisableRequests == true &&  // BEFORE: uploads disabled?
+            frostSettings.getBoolValue("disableRequests") == false ) // AFTER: uploads enabled?
+        {
+            shouldRemoveDummyReqFiles = true;
+        }
+        if( checkMaxMessageDisplay.equals(frostSettings.getValue("maxMessageDisplay")) == false ||
+            checkSignedOnly != frostSettings.getBoolValue("signedOnly") ||
+            checkHideBadMessages != frostSettings.getBoolValue("hideBadMessages") ||
+            checkHideCheckMessages != frostSettings.getBoolValue("hideCheckMessages") ||
+            checkBlock != frostSettings.getBoolValue("blockMessageChecked") ||
+            checkBlockBody != frostSettings.getBoolValue("blockMessageBodyChecked") )
+        {
+            // at least one setting changed, reload messages
+            shouldReloadMessages = true;
+        }
     }
 
     /**
@@ -1081,6 +1122,30 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     private void saveSignature()
     {
         FileAccess.writeFile(tofTextArea.getText(), "signature.txt");
+    }
+
+    /**
+     * Is called after the dialog is hidden.
+     * This method should return true if:
+     *  - signedOnly, hideCheck or hideBad where changed by user
+     *  - a block settings was changed by user
+     * If it returns true, the messages table should be reloaded.
+     */
+    public boolean shouldReloadMessages()
+    {
+        return shouldReloadMessages;
+    }
+
+    /**
+     * Is called after the dialog is hidden.
+     * This method should return true if:
+     *  - setting 'disableRequests' is switched from TRUE to FALSE (means uploading is enabled now)
+     * If it returns true, the dummy request files (created after a key collision)
+     * of all boards should be removed.
+     */
+    public boolean shouldRemoveDummyReqFiles()
+    {
+        return shouldRemoveDummyReqFiles;
     }
 
     /**

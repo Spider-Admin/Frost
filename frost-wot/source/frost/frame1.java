@@ -499,7 +499,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTree = new TofTree(dummyRootNode);
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
         tofTree.setRootVisible(true);
-        //tofTree.setEditable(true);
         tofTree.setCellRenderer(new TofTreeCellRenderer());
         tofTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
         // tofTree selection listener
@@ -1865,6 +1864,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**TOF Board selected*/
+    // TODO:
+    // if e == NULL, the method is called by truster or by the reloader after options were changed
+    // in this cases we usually should left select the actual message (if one) while reloading the table
     public void tofTree_actionPerformed(TreeSelectionEvent e)
     {
         int i[] = getTofTree().getSelectionRows();
@@ -2748,25 +2750,28 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e)
     {
         saveSettings();
-        // get some settings to check if they changed
-        // ...
-
         OptionsFrame optionsDlg = new OptionsFrame(this);
         boolean okPressed = optionsDlg.runDialog();
         if( okPressed )
         {
             // read new settings
             frostSettings.readSettingsFile();
-            updateTofTree(); // redraw whole tree, in case the update visualization was enabled or disabled
 
-            // now check if settings changed and maybe update something
+            // check if signed only+hideCheck+hideBad or block settings changed
+            if( optionsDlg.shouldReloadMessages() )
+            {
+                tofTree_actionPerformed(null); // reload all messages
+            }
 
+            updateTofTree(); // redraw whole tree, in case the update visualization was enabled or disabled (or others)
+
+            // check if we switched from disableRequests=true to =false (requests now enabled)
+            if( optionsDlg.shouldRemoveDummyReqFiles() )
+            {
 // TODO:
-            // 1. if we switched from disableRequests=true to =false (requests now enabled),
             //    search through .req files of this day in all boards and remove the
             //     dummy .req files that are created on key collosions
-
-            // 2. check if singned only+hideCheck+hideBad settings changed, if yes update tof tree
+            }
 
             // update gui parts
             updateOptionsAffectedComponents();
@@ -2914,17 +2919,13 @@ public class frame1 extends JFrame implements ClipboardOwner
             if (getUploadTable().getSelectedRow() == -1) {
                 uploadPopupRemoveSelectedFiles.setEnabled(false);
                 uploadPopupReloadSelectedFiles.setEnabled(false);
-//                uploadPopupMoveSelectedFilesUp.setEnabled(false);
-//                uploadPopupMoveSelectedFilesDown.setEnabled(false);
                 uploadPopupSetPrefixForSelectedFiles.setEnabled(false);
                 uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(false);
                 uploadPopupChangeDestinationBoard.setEnabled(false);
             }
             else {
                 uploadPopupRemoveSelectedFiles.setEnabled(true);
-//                uploadPopupMoveSelectedFilesUp.setEnabled(true);
                 uploadPopupReloadSelectedFiles.setEnabled(true);
-//                uploadPopupMoveSelectedFilesDown.setEnabled(true);
                 uploadPopupSetPrefixForSelectedFiles.setEnabled(true);
                 uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(true);
                 uploadPopupChangeDestinationBoard.setEnabled(true);
@@ -2947,14 +2948,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         if (e.getComponent().equals(getDownloadTable())) { // Downloads Popup
             if (getDownloadTable().getSelectedRow() == -1) {
             downloadPopupRemoveSelectedDownloads.setEnabled(false);
-//            downloadPopupMoveUp.setEnabled(false);
-//            downloadPopupMoveDown.setEnabled(false);
             downloadPopupResetHtlValues.setEnabled(false);
             }
             else {
             downloadPopupRemoveSelectedDownloads.setEnabled(true);
-//            downloadPopupMoveUp.setEnabled(true);
-//            downloadPopupMoveDown.setEnabled(true);
             downloadPopupResetHtlValues.setEnabled(true);
             }
             downloadPopupMenu.show(e.getComponent(), e.getX(), e.getY());

@@ -52,17 +52,17 @@ public class Identity implements Serializable
             throw (new IllegalArgumentException("not a CHK"));
         }
 
-        System.out.println("\nIdentity: Starting to request CHK for '" + name +"'");
+        System.out.println("Identity: Starting to request CHK for '" + name +"'");
 
         if( FcpRequest.getFile(keyaddress, "unknown", name + ".key", "25", false) )
         {
             key = FileAccess.read(name +".key");
-            System.out.println("\nIdentity: CHK received for " +name);
+            System.out.println("Identity: CHK received for " +name);
         }
         else
         {
             key=NA;
-            System.out.println("\nIdentity: Failed to get CHK for " +name);
+            System.out.println("Identity: Failed to get CHK for " +name);
         }
     }
 
