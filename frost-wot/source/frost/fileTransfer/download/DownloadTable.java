@@ -28,8 +28,9 @@ import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.frame1;
 import frost.gui.*;
+import frost.threads.maintenance.Savable;
 
-public class DownloadTable extends SortedTable
+public class DownloadTable extends SortedTable implements Savable
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
     
