@@ -213,8 +213,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 result = FcpInsert.putFile(insertKey + index + ".idx.sha2.zip",
                                            new File(keypool + board.getBoardFilename() + "_upload.txt"),
                                            insertHtl,
-                                           true,
-                                           board.getBoardFilename());
+                                           true); // doRedirect
 
                 if( result[0].equals("Success") )
                 {

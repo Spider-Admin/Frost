@@ -140,31 +140,15 @@ public class Core {
 							pubkeydata = keys[1].getBytes();
 						}
 
-						try {
-							FcpConnection con =
-								FcpFactory.getFcpConnectionInstance();
-							if (con != null) {
-								String tmp =
-									con.putKeyFromArray(
-										"CHK@",
-										pubkeydata,
-										null,
-										0,
-										false);
-								address =
-									tmp.substring(
-										tmp.indexOf("CHK@"),
-										tmp.indexOf("CHK@") + 58);
-								out.println(
-									"Re-calculated my public key CHK: "
-										+ address
-										+ "\n");
-							}
-						} catch (IOException e) {
-							out.println(
-								"Couldn't re-calculate my public key CHK: "
-									+ e.toString());
-						}
+                        String tmp = FecTools.generateCHK(pubkeydata);
+						address =
+							tmp.substring(
+								tmp.indexOf("CHK@"),
+								tmp.indexOf("CHK@") + 58);
+						out.println(
+							"Re-calculated my public key CHK: "
+								+ address
+								+ "\n");
 					}
 					mySelf = new LocalIdentity(name, keys, address);
 					out.println(
@@ -408,7 +392,7 @@ public class Core {
 					"CHK@",
 					tempUploadfile,
 					25,
-					false,
+					false, // doRedirect
 					null);
 				out.println(
 					"KeyReinserter: Finished re-uploading public key.");

@@ -3,7 +3,7 @@ package frost.identities;
 import java.io.*;
 
 import frost.frame1;
-import frost.FcpTools.FcpFactory;
+import frost.FcpTools.*;
 
 /**
  * Represents the main user's identity
@@ -44,12 +44,12 @@ public class LocalIdentity extends Identity implements Serializable
         final byte[] pubkeydata = pubkeydata1;
 
         try {
-            String tmp = con.putKeyFromArray("CHK@", pubkeydata, null, 0, false);
+            String tmp = FecTools.generateCHK( pubkeydata ); 
             keyaddress = tmp.substring(tmp.indexOf("CHK@"),tmp.indexOf("CHK@") + 58);
             System.out.println("Calculated my public key CHK: " + keyaddress + "\n");
         }
-        catch( IOException e ) {
-            System.out.println("Couldn't get key CHK.");
+        catch( Exception e ) {
+            System.out.println("Couldn't compute key CHK: "+e.getMessage());
         }
 
         Thread keyUploader = new Thread()
@@ -59,7 +59,7 @@ public class LocalIdentity extends Identity implements Serializable
                 String ret=null;
                 System.out.println("Trying to upload my public key ...");
                 try {
-                    ret = con.putKeyFromArray("CHK@", pubkeydata, null, 25, true);
+                    ret = con.putKeyFromArray("CHK@", pubkeydata, null, 25);
                 }
                 catch( IOException e ) {
                     System.out.println("... couldn't upload public key.");

@@ -113,8 +113,9 @@ public class requestThread extends Thread
                         size,
                         newFile,
                         25,
-                        true,
-                        false,
+                        true,  // doRedirect
+                        false, // fastDownload
+                        false, // createTempFile
                         downloadItem);
             }
             catch (Throwable t)
@@ -233,6 +234,8 @@ public class requestThread extends Thread
                 downloadItem.setFileSize(newFile.length());
                 downloadItem.setState(FrostDownloadItemObject.STATE_DONE);
                 downloadItem.setEnableDownload(Boolean.valueOf(false));
+                
+                Core.getOut().println("FILEDN: Download of " + filename + " was successful.");
 
                 tableModel.updateRow(downloadItem);
             }
@@ -413,8 +416,7 @@ public class requestThread extends Thread
                             upKey,
                             requestFile,
                             messageUploadHtl,
-                            false,
-                            board.getBoardFilename());
+                            false); // doRedirect
                     Core.getOut().println(
                         "FcpInsert result[0] = "
                             + result[0]

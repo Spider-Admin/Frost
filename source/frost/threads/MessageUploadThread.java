@@ -126,8 +126,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 result = FcpInsert.putFile("CHK@",
                                            new File(attachment),
                                            frame1.frostSettings.getIntValue("htlUpload"),
-                                           true,
-                                           board.getBoardFilename());
+                                           true); // doRedirect
             }
             catch(Exception ex)
             {
@@ -306,8 +305,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         result = FcpInsert.putFile(upKey,
                                                    messageFile,
                                                    messageUploadHtl,
-                                                   false,
-                                                   board.getBoardFilename());
+                                                   false); // doRedirect
                     } catch(Throwable t)
                     {
                         System.out.println("TOFUP - Error in run()/FcpInsert.putFile:");
