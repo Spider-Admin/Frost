@@ -556,8 +556,17 @@ public class MessageFrame extends JFrame
             e.printStackTrace();
         }
 
-        Font tofFont = new Font("Monospaced", Font.PLAIN, (int)frame1.frostSettings.getFloatValue("tofFontSize") );
-        TAcontent.setFont( tofFont );
+		String fontName = frostSettings.getValue("messageBodyFontName");
+		int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
+		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
+		Font tofFont = new Font(fontName, fontStyle, fontSize);
+		if (tofFont.getFamily() != fontName) {
+			System.out.println("The selected font was not bound in your system");
+			System.out.println("That selection will be changed to \"Monospaced\".\n");
+			frostSettings.setValue("messageBodyFontName", "Monospaced");
+			tofFont = new Font("Monospaced", fontStyle, fontSize);
+		}
+		TAcontent.setFont(tofFont);
 
         setSize(600, 460);
         setLocationRelativeTo(parentFrame);
