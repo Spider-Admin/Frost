@@ -47,9 +47,9 @@ class News3Panel extends JPanel {
 
 	private JLabel autoUpdateLabel = new JLabel();
 	private JLabel minimumIntervalLabel = new JLabel();
-	private JClipboardTextField minimumIntervalTextField;
+	private JTextField minimumIntervalTextField = new JTextField(8);
 	private JLabel concurrentUpdatesLabel = new JLabel();
-	private JClipboardTextField concurrentUpdatesTextField;
+	private JTextField concurrentUpdatesTextField = new JTextField(8);
 
 	private JCheckBox showUpdateCheckBox = new JCheckBox();
 	private JButton selectedColorButton = new JButton();
@@ -179,8 +179,8 @@ class News3Panel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		minimumIntervalTextField = new JClipboardTextField(8, language);
-		concurrentUpdatesTextField = new JClipboardTextField(8, language);
+		new TextComponentClipboardMenu(minimumIntervalTextField, language);
+		new TextComponentClipboardMenu(concurrentUpdatesTextField, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();

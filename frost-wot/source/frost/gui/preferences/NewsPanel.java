@@ -34,11 +34,11 @@ class NewsPanel extends JPanel {
 	private JLabel messageBaseLabel = new JLabel();
 	private JLabel signatureLabel = new JLabel();
 		
-	private JClipboardTextField uploadHtlTextField;
-	private JClipboardTextField downloadHtlTextField;
-	private JClipboardTextField displayDaysTextField;
-	private JClipboardTextField downloadDaysTextField;
-	private JClipboardTextField messageBaseTextField;
+	private JTextField uploadHtlTextField = new JTextField(8);
+	private JTextField downloadHtlTextField = new JTextField(8);
+	private JTextField displayDaysTextField = new JTextField(8);
+	private JTextField downloadDaysTextField = new JTextField(8);
+	private JTextField messageBaseTextField = new JTextField(16);
 		
 	private AntialiasedTextArea signatureTextArea;
 
@@ -64,11 +64,11 @@ class NewsPanel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		uploadHtlTextField = new JClipboardTextField(8, language);
-		downloadHtlTextField = new JClipboardTextField(8, language);
-		displayDaysTextField = new JClipboardTextField(8, language);
-		downloadDaysTextField = new JClipboardTextField(8, language);
-		messageBaseTextField = new JClipboardTextField(16, language);
+		new TextComponentClipboardMenu(uploadHtlTextField, language);
+		new TextComponentClipboardMenu(downloadHtlTextField, language);
+		new TextComponentClipboardMenu(displayDaysTextField, language);
+		new TextComponentClipboardMenu(downloadDaysTextField, language);
+		new TextComponentClipboardMenu(messageBaseTextField, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();

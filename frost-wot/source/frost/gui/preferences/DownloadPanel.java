@@ -71,26 +71,26 @@ class DownloadPanel extends JPanel {
 	private JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
 	private JLabel directoryLabel = new JLabel();
 
-	private JClipboardTextField directoryTextField;
+	private JTextField directoryTextField = new JTextField();
 
 	private JCheckBox disableDownloadsCheckBox = new JCheckBox();
 	private JCheckBox enableRequestingCheckBox = new JCheckBox();
 
 	private Listener listener = new Listener();
 	private JLabel maxRetriesLabel = new JLabel();
-	private JClipboardTextField maxRetriesTextField;
+	private JTextField maxRetriesTextField = new JTextField(8);
 	private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
 	private JLabel requestAfterTriesLabel = new JLabel();
-	private JClipboardTextField requestAfterTriesTextField;
+	private JTextField requestAfterTriesTextField = new JTextField(8);
 	private JCheckBox restartFailedDownloadsCheckBox = new JCheckBox();
 	private JLabel splitfileThreadsLabel = new JLabel();
-	private JClipboardTextField splitfileThreadsTextField;
-	private JClipboardTextField threadsTextField;
+	private JTextField splitfileThreadsTextField = new JTextField(8);
+	private JTextField threadsTextField = new JTextField(8);
 	private JLabel threadsTextLabel = new JLabel();
 	private JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
 
 	private JLabel waitTimeLabel = new JLabel();
-	private JClipboardTextField waitTimeTextField;
+	private JTextField waitTimeTextField = new JTextField(8);
 
 	/**
 	 * @param owner the JDialog that will be used as owner of any dialog that is popped up from this panel
@@ -195,12 +195,12 @@ class DownloadPanel extends JPanel {
 		refreshLanguage();
 
 		//We create the components
-		directoryTextField = new JClipboardTextField(language);
-		maxRetriesTextField = new JClipboardTextField(8, language);
-		requestAfterTriesTextField = new JClipboardTextField(8, language);
-		splitfileThreadsTextField = new JClipboardTextField(8, language);
-		threadsTextField = new JClipboardTextField(8, language);
-		waitTimeTextField = new JClipboardTextField(8, language);		
+		new TextComponentClipboardMenu(directoryTextField, language);
+		new TextComponentClipboardMenu(maxRetriesTextField, language);
+		new TextComponentClipboardMenu(requestAfterTriesTextField, language);
+		new TextComponentClipboardMenu(splitfileThreadsTextField, language);
+		new TextComponentClipboardMenu(threadsTextField, language);
+		new TextComponentClipboardMenu(waitTimeTextField, language);	
 		
 		//Adds all of the components			
 		GridBagConstraints constraints = new GridBagConstraints();

@@ -13,7 +13,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 
 import frost.SettingsClass;
-import frost.util.gui.JClipboardTextField;
+import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
 /**
@@ -50,11 +50,11 @@ class News2Panel extends JPanel {
 	private Language language = null;
 	
 	private JCheckBox blockBoardCheckBox = new JCheckBox();
-	private JClipboardTextField blockBoardTextField = null;
+	private JTextField blockBoardTextField = new JTextField();
 	private JCheckBox blockBodyCheckBox = new JCheckBox();
-	private JClipboardTextField blockBodyTextField = null;
+	private JTextField blockBodyTextField = new JTextField();
 	private JCheckBox blockSubjectCheckBox = new JCheckBox();
-	private JClipboardTextField blockSubjectTextField = null;
+	private JTextField blockSubjectTextField = new JTextField();
 	private JCheckBox doBoardBackoffCheckBox = new JCheckBox();
 	private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
 	private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
@@ -63,10 +63,10 @@ class News2Panel extends JPanel {
 		
 	private Listener listener = new Listener();
 		
-	private JClipboardTextField sampleIntervalTextField = null;
+	private JTextField sampleIntervalTextField = new JTextField(8);
 		
 	private JCheckBox signedOnlyCheckBox = new JCheckBox();
-	private JClipboardTextField spamTresholdTextField = null;
+	private JTextField spamTresholdTextField = new JTextField(8);
 		
 	private JLabel tresholdLabel = new JLabel();
 
@@ -149,11 +149,11 @@ class News2Panel extends JPanel {
 		refreshLanguage();
 			
 		// We create the components
-		blockBoardTextField = new JClipboardTextField(language);
-		blockBodyTextField = new JClipboardTextField(language);
-		blockSubjectTextField = new JClipboardTextField(language);
-		spamTresholdTextField =new JClipboardTextField(8, language);
-		sampleIntervalTextField = new JClipboardTextField(8, language);
+		new TextComponentClipboardMenu(blockBoardTextField, language);
+		new TextComponentClipboardMenu(blockBodyTextField, language);
+		new TextComponentClipboardMenu(blockSubjectTextField, language);
+		new TextComponentClipboardMenu(spamTresholdTextField, language);
+		new TextComponentClipboardMenu(sampleIntervalTextField, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
