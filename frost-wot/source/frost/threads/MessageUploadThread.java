@@ -226,7 +226,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         
         // now maybe sign the msg before start to upload,
         // we have to sign if the From is our complete unique id set by MessageFrame
-        if( message.getFrom().equals(frame1.getMyId().getUniqueName()) )  //nick same as my identity
+        if( message.getFrom().equals(frame1.getMyId().getUniqueName()) //nick same as my identity
+         || message.getFrom().equals(mixed.makeFilename(Core.getMyId().getUniqueName())))  //serialization may have changed it
         {
             byte[] zipped = FileAccess.readByteArray(uploadZipFile);
             MetaData md = new MetaData(zipped);
