@@ -25,11 +25,9 @@ import frost.threads.SearchThread;
 import frost.threads.maintenance.Truster;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * 
  */
+
 /**
  * 
  */
@@ -345,15 +343,16 @@ public class SearchPanel extends JPanel {
 			searchTextField.setMaximumSize(searchTextField.getPreferredSize());
 
 			BoxLayout dummyLayout = new BoxLayout(searchTopPanel, BoxLayout.X_AXIS);
+			Dimension blankSpace = new Dimension(8, 0);
 			searchTopPanel.setLayout(dummyLayout);
 			searchTopPanel.add(searchTextField);
-			searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
+			searchTopPanel.add(Box.createRigidArea(blankSpace));
 			searchTopPanel.add(searchComboBox);
-			searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
+			searchTopPanel.add(Box.createRigidArea(blankSpace));
 			searchTopPanel.add(searchButton);
-			searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
+			searchTopPanel.add(Box.createRigidArea(blankSpace));
 			searchTopPanel.add(searchDownloadButton);
-			searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
+			searchTopPanel.add(Box.createRigidArea(blankSpace));
 			searchTopPanel.add(searchAllBoardsCheckBox);
 			searchTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			searchTopPanel.add(Box.createHorizontalGlue());
