@@ -70,13 +70,23 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
 
-        if( value == null )
+        // we reall
+        FrostBoardObject board = null;
+        if( value instanceof FrostBoardObject )
+        {
+            board = (FrostBoardObject)value;
+        }
+        else
+        {
+            System.out.println("Error - TofTreeCellRenderer: got a tree value wich is no FrostBoardObject:");
+            System.out.println("   node value='"+value+"'  ;  node class='"+value.getClass()+"'");
+            System.out.println("This should never happen, please report the error.");
+            Exception e = new Exception();
+            e.fillInStackTrace();
+            e.printStackTrace();
             return this;
-	
-	FrostBoardObject board = null;
-	try{
-        board = (FrostBoardObject)value;
-	}catch (ClassCastException e) {e.printStackTrace();return this;}
+        }
+
         boolean containsNewMessage = board.containsNewMessage();
 
         if( leaf == true )

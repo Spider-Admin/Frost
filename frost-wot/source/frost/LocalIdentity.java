@@ -45,7 +45,10 @@ public class LocalIdentity extends Identity implements Serializable
             this.key=NA;
         }
         if( con == null )
+        {
+            System.out.println("Error - could not establish a connection to freenet node.");
             return;
+        }
 
         //this is not so brutal anymore.
         FileAccess.writeFile(key,"pubkey.txt");

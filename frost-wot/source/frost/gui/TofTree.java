@@ -49,9 +49,9 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
     private DragGestureRecognizer dgRecognizer = null;
     private DropTarget dropTarget = null;
 
-    public TofTree()
+    public TofTree(TreeNode root)
     {
-        super();
+        super(root);
         // install drag n drop support
         this.dragSource=DragSource.getDefaultDragSource();
         dgRecognizer = this.dragSource.createDefaultDragGestureRecognizer( this,

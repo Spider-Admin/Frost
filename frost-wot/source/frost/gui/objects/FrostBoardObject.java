@@ -48,6 +48,12 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         isFolder = isFold;
     }
 
+    public void setBoardName(String newname)
+    {
+        boardName = newname;
+        boardFileName = mixed.makeFilename( boardName );
+    }
+
     public boolean isWriteAccessBoard()
     {
         if( publicKey != null && privateKey != null )
