@@ -351,7 +351,8 @@ public class MessageObject implements XMLizable
 
         if( doc == null )
         {
-            throw new Exception("Error - MessageObject.loadFile: could'nt parse XML Document.");
+            throw new Exception("Error - MessageObject.loadFile: couldn't parse XML Document - " +
+            					"File name: '" + file.getName() + "'");
         }
 
         Element rootNode = doc.getDocumentElement();
