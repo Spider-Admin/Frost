@@ -35,14 +35,27 @@ public class ModelTableHeader extends JTableHeader {
 			removeAll();
 			Iterator columns = modelTable.getColumns();
 			int i = 0;
+			int shownColumns = 0;
+			JCheckBoxMenuItem lastShownItem = null;
 			while (columns.hasNext()) {
 				TableColumn column = (TableColumn) columns.next();
 				JCheckBoxMenuItem menuItem =
 					new JCheckBoxMenuItem(column.getIdentifier().toString());
-				menuItem.setSelected(modelTable.isColumnVisible(i));
+				if (modelTable.isColumnVisible(i)) {
+					menuItem.setSelected(true);
+					shownColumns++;
+					lastShownItem = menuItem;
+				} else {
+					menuItem.setSelected(false);
+				}
 				menuItem.addActionListener(listener);
 				add(menuItem);
 				i++;
+			}
+			//If there is only one column showing, we disable its
+			//checkbox to prevent the user from hiding that one too.
+			if (shownColumns == 1) {
+				lastShownItem.setEnabled(false);
 			}
 			super.show(invoker, x, y);
 		}
