@@ -11,11 +11,12 @@ import org.w3c.dom.*;
 import frost.*;
 import frost.FcpTools.FecTools;
 import frost.gui.translation.UpdatingLanguageResource;
+import frost.threads.maintenance.Savable;
 
 /**
  * A class that maintains identity stuff.
  */
-public class FrostIdentities {
+public class FrostIdentities implements Savable {
 	
 	private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 	
@@ -227,7 +228,7 @@ public class FrostIdentities {
 		}
 		logger.info("ME = '" + mySelf.getUniqueName() + "'");
 	}
-	public void save() {
+	public boolean save() {
 		logger.info("saving identities.xml");
 
 		String identitiesName = "identities.xml";
@@ -280,6 +281,7 @@ public class FrostIdentities {
 					//Replacement failed. We try to restore "identities.xml" from "identities.xml.bak"
 					try {
 						FileAccess.copyFile(identitiesBakName, identitiesName);
+						return true;
 					} catch (IOException exception) {
 						//Uh, oh, we are having a bad, bad day.
 						logger.log(Level.SEVERE, "Error while restoring identities.xml", exception);
@@ -293,6 +295,7 @@ public class FrostIdentities {
 			//Failure
 			logger.severe("Could not save identities.xml");
 		}
+		return false;
 	}
 
 	/**
