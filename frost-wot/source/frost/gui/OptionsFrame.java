@@ -111,7 +111,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
                                                   LangRes.getString("(Off)"));
 
     JRadioButton downloadUpdateMethodLeastHtlFirst = new JRadioButton( "Files with smallest HTL first" );
-    JRadioButton downloadUpdateMethodOneByOne = new JRadioButton( "Files one by one, no matter which HTL" );
+    JRadioButton downloadUpdateMethodOneByOne = new JRadioButton( "Files one by one, no matter which HTL (on)" );
     ButtonGroup downloadUpdateMethod = new ButtonGroup();
 
     JCheckBox downloadRestartFailedDownloads = new JCheckBox("Restart failed downloads with minimum HTL");
@@ -389,13 +389,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 0;
             constr.gridwidth = 3;
             constr.insets = new Insets(0,25,5,5);
-            downloadPanel.add(downloadUpdateMethodLeastHtlFirst, constr);
+            downloadPanel.add(downloadUpdateMethodOneByOne, constr);
 
             constr.gridy++;
             constr.gridx = 0;
             constr.gridwidth = 3;
             constr.insets = new Insets(0,25,5,5);
-            downloadPanel.add(downloadUpdateMethodOneByOne, constr);
+            downloadPanel.add(downloadUpdateMethodLeastHtlFirst, constr);
 
             // filler (glue)
             constr.gridy++;

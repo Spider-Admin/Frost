@@ -2395,9 +2395,21 @@ public class frame1 extends JFrame implements ClipboardOwner
                 if( frostSettings.getBoolValue( "downloadMethodLeastHtl" ) )
                 {
                     Collections.sort( waitingItems, downloadHtlCmp );
+                    int minHtl = ((FrostDownloadItemObject)waitingItems.get(0)).getHtl().intValue();
+                    int x = 0;
+                    ArrayList minHtlItems = new ArrayList();
+                    while( ((FrostDownloadItemObject)waitingItems.get(x)).getHtl().intValue() == minHtl)
+                    {
+                        minHtlItems.add( waitingItems.get(x) );
+                        x++;
+                    }
+                    // sort minHtl items by lastDownloadSTartedMillis
+                    Collections.sort( minHtlItems, downloadDlStartMillisCmp );
+                    waitingItems = minHtlItems;
                 }
                 else
                 {
+                    // one by one
                     Collections.sort( waitingItems, downloadDlStartMillisCmp );
                 }
                 // choose first item

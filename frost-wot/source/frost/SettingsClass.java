@@ -287,8 +287,8 @@ public class SettingsClass
         defaults.put("downloadDirectory", "downloads" + fs);
         defaults.put("downloadThreads", "3");
         defaults.put("downloadingActivated", "true");
-        defaults.put("downloadMethodLeastHtl", "true");
-        defaults.put("downloadMethodOneByOne", "false");
+        defaults.put("downloadMethodLeastHtl", "false");
+        defaults.put("downloadMethodOneByOne", "true");
         defaults.put("downloadRestartFailedDownloads", "true");
         defaults.put("disableRequests", "false");
         defaults.put("disableDownloads","false");
