@@ -74,7 +74,7 @@ public class ModelTable extends AbstractTableModel {
 	/**
 	 * Helper class to be able to safely get the selection fron any thread
 	 */
-	private class SelectionGetter implements Runnable {
+	protected class SelectionGetter implements Runnable {
 
 		private final int MODE_SINGLE = 0;
 		private final int MODE_MULTIPLE = 1;
