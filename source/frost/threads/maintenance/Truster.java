@@ -13,6 +13,7 @@ import java.util.logging.*;
 import javax.swing.SwingUtilities;
 
 import frost.*;
+import frost.boards.TOF;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.identities.Identity;

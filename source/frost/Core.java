@@ -29,6 +29,7 @@ import org.w3c.dom.*;
 
 import com.l2fprod.gui.plaf.skin.*;
 
+import frost.boards.BoardsManager;
 import frost.crypt.*;
 import frost.ext.JSysTrayIcon;
 import frost.fcp.*;
@@ -79,6 +80,7 @@ public class Core implements Savable {
 	private static Crypt crypto = new FrostCrypt();
 	
 	private MainFrame mainFrame;
+	private BoardsManager boardsManager;
 	private SearchManager searchManager;
 	private DownloadManager downloadManager;
 	private UploadManager uploadManager;
@@ -576,6 +578,7 @@ public class Core implements Savable {
 
 		//Main frame		
 		mainFrame = new MainFrame(frostSettings);
+		getBoardsManager().initialize();
 		getDownloadManager().initialize();
 		getUploadManager().initialize();
 		getSearchManager().initialize();
@@ -660,6 +663,16 @@ public class Core implements Savable {
 			searchManager.setIdentities(getIdentities());
 		}
 		return searchManager;
+	}
+	
+	/**
+	 * 
+	 */
+	private BoardsManager getBoardsManager() {
+		if (boardsManager == null) {
+			boardsManager = new BoardsManager();
+		}
+		return boardsManager;
 	}
 	
 	/**

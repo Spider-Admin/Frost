@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.boards;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
@@ -25,6 +25,7 @@ import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.*;
 
+import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.messages.VerifyableMessageObject;
