@@ -26,8 +26,10 @@ public abstract class RedirectFileObject extends SharedFileObject {
 	 */
 	public void loadXMLElement(Element current) throws SAXException {
 		if (current.getAttribute("redirect").length()>0)
+			super.loadXMLElement(current);
+		else
 			throw new SAXException("redirect attribute not found");
-		super.loadXMLElement(current);
+		
 	}
 
 }
