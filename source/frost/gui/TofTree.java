@@ -330,7 +330,19 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
         String boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml";
-        // the call changes the toftree and loads nodes into it
+        File check = new File( boardIniFilename );
+        if( check.exists() )
+        {
+            // rename old file to .bak, overwrite older .bak
+            String bakBoardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml.bak";
+            File bakFile = new File(bakBoardIniFilename);
+            if( bakFile.exists() )
+            {
+                bakFile.delete();
+            }
+            check.renameTo(bakFile);
+        }
+        // the method scans the toftree
         if( xmlio.saveBoardTree( this, boardIniFilename ) == false ) // save OK?
         {
             // TODO: write new config file, rename old

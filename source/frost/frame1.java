@@ -70,7 +70,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     public static int activeDownloadThreads = 0;
     private String lastSelectedMessage;
 
-//    public static Map boardStats = Collections.synchronizedMap(new TreeMap());
     public static FrostMessageObject selectedMessage = new FrostMessageObject();
     public static boolean generateCHK = false;
 
@@ -110,9 +109,11 @@ public class frame1 extends JFrame implements ClipboardOwner
     JButton saveMessageButton= null;
     JButton trustButton= null;
     JButton notTrustButton= null;
+    JButton tofUpdateButton = null;
 
     JButton uploadAddFilesButton = null;
     JButton searchButton = null;
+
     // labels that are updated later
     JLabel statusLabel = null;
     JLabel statusMessageLabel = null;
@@ -475,7 +476,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         return statusPanel;
     }
 
-    private JPanel buildTofMainPanel() //OK
+    private JPanel buildTofMainPanel()
     {
         JTabbedPane tabbedPane = new JTabbedPane();
         //add a tab for buddies perhaps?
@@ -485,7 +486,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tabbedPane.add(LangRes.getString("Uploads"), buildUploadPane());
 
         // this rootnode is discarded later, but if we create the tree without parameters,
-        // a new Model is created wich cobntains some sample data by default (swing)
+        // a new Model is created wich contains some sample data by default (swing)
         // this confuses our renderer wich only expects FrostBoardObjects in the tree
         FrostBoardObject dummyRootNode = new FrostBoardObject("Frost Message System", true);
         tofTree = new TofTree(dummyRootNode);
@@ -518,7 +519,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
 // configure buttons
         this.tofNewMessageButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newmessage.gif")));
-        JButton tofUpdateButton = new JButton(new ImageIcon(frame1.class.getResource("/data/update.gif")));
+        this.tofUpdateButton = new JButton(new ImageIcon(frame1.class.getResource("/data/update.gif")));
         this.tofReplyButton = new JButton(new ImageIcon(frame1.class.getResource("/data/reply.gif")));
         this.downloadAttachmentsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachment.gif")));
         this.downloadBoardsButton= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
@@ -1714,15 +1715,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void tofTree_actionPerformed(TreeSelectionEvent e)
     {
         int i[] = getTofTree().getSelectionRows();
-        if (i != null)
+        if( i != null && i.length > 0 )
         {
-            if (i.length > 0)
-                frostSettings.setValue("tofTreeSelectedRow", i[0]);
-        }
-        TreePath selectedTreePath = null;
-        if( e != null )
-        {
-            selectedTreePath = e.getNewLeadSelectionPath();
+            frostSettings.setValue("tofTreeSelectedRow", i[0]);
         }
 
         FrostBoardObject node = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
@@ -1731,11 +1726,14 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         if(node != null)
         {
-            if(node.isFolder()==false)
+            if(node.isFolder() == false)
             {
                 // node is a board
-                saveMessageButton.setEnabled(false);
                 configBoardButton.setEnabled(true);
+                tofNewMessageButton.setEnabled(true);
+                tofUpdateButton.setEnabled(true);
+
+                saveMessageButton.setEnabled(false);
 
                 updateButtons(node);
 
@@ -1751,7 +1749,12 @@ public class frame1 extends JFrame implements ClipboardOwner
             else
             {
                 // node is a folder
+                TableFun.removeAllRows( getMessageTable() );
+                updateMessageCountLabels( node );
+
                 configBoardButton.setEnabled(false);
+                tofNewMessageButton.setEnabled(false);
+                tofUpdateButton.setEnabled(false);
             }
         }
     }
@@ -1783,7 +1786,16 @@ public class frame1 extends JFrame implements ClipboardOwner
         FrostBoardObject selectedNode = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
         if( selectedNode != null )
         {
-            selectedNode.add(new FrostBoardObject(nodeName));
+            if( selectedNode.isFolder()==true )
+            {
+                selectedNode.add(new FrostBoardObject(nodeName));
+            }
+            else
+            {
+                // add to parent of selected node
+                selectedNode = (FrostBoardObject)selectedNode.getParent();
+                selectedNode.add(new FrostBoardObject(nodeName));
+            }
         }
         else
         {
@@ -1813,11 +1825,19 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         } while( nodeName.length()==0 );
 
-
         FrostBoardObject selectedNode = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
-        if( selectedNode != null )
+        if( selectedNode != null)
         {
-            selectedNode.add(new FrostBoardObject(nodeName, true));
+            if( selectedNode.isFolder()==true )
+            {
+                selectedNode.add(new FrostBoardObject(nodeName, true));
+            }
+            else
+            {
+                // add to parent of selected node
+                selectedNode = (FrostBoardObject)selectedNode.getParent();
+                selectedNode.add(new FrostBoardObject(nodeName, true));
+            }
         }
         else
         {
@@ -2846,13 +2866,21 @@ public class frame1 extends JFrame implements ClipboardOwner
     // expects that the boards messages are shown in table
     public void updateMessageCountLabels(FrostBoardObject board)
     {
-        DefaultTableModel model = (DefaultTableModel)messageTable.getModel();
+        if( board.isFolder() == true )
+        {
+            allMessagesCountLabel.setText("");
+            newMessagesCountLabel.setText("");
+        }
+        else
+        {
+            DefaultTableModel model = (DefaultTableModel)messageTable.getModel();
 
-        int allMessages = model.getRowCount();
-        allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
+            int allMessages = model.getRowCount();
+            allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
 
-        int newMessages=board.getNewMessageCount();
-        newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
+            int newMessages=board.getNewMessageCount();
+            newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
+        }
     }
 
     public void updateSearchResultCountLabel()
