@@ -2712,6 +2712,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void saveOnExit()
     {
         System.out.println("Saving settings ...");
+// TODO: save size and location of window, split panes
         saveSettings();
         getDownloadTable().save();
         getUploadTable().save();
