@@ -18,6 +18,17 @@ public class Identity implements XMLizable
     public static final String NA = "NA";
     private static ThreadLocal tmpfile;
 
+	//if this was C++ LocalIdentity wouldn't work
+	//fortunately we have virtual construction so loadXMLElement will be called
+	//for the inheriting class ;-)
+	Identity(Element el) {
+		try {
+			loadXMLElement(el);
+		} catch (SAXException e) {
+			e.printStackTrace(Core.getOut());
+		}
+	}
+
 	/**
 	 * creates an Element with specific fields for this classes
 	 * inheriting classes should call this method to fill in their elements
