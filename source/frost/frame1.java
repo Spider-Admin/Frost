@@ -2356,21 +2356,46 @@ public class frame1 extends JFrame implements ClipboardOwner
             downloadActivateCheckBox.isSelected() )
         {
             DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
+
+            // get the item with state "Waiting", minimum htl and not over maximum htl
+            ArrayList waitingItems = new ArrayList();
             for( int i = 0; i < dlModel.getRowCount(); i++ )
             {
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-                if( dlItem.getState().equals(LangRes.getString("Waiting")) )
+                if( dlItem.getHtl().intValue() <= frostSettings.getIntValue("htlMax") &&
+                    dlItem.getState().equals(LangRes.getString("Waiting")) )
                 {
-                    dlItem.setState( LangRes.getString("Trying") );
-                    dlModel.updateRow( dlItem );
-
-                    requestThread newRequest = new requestThread( dlItem, getDownloadTable() );
-                    newRequest.start();
-                    break; // start only 1 thread per loop (=second)
+                    waitingItems.add( dlItem );
                 }
+            }
+            if( waitingItems.size() > 0 )
+            {
+                // sort waiting items by htl ascending
+                Collections.sort( waitingItems, downloadHtlCmp );
+                // choose first item
+                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)waitingItems.get(0);
+                dlItem.setState( LangRes.getString("Trying") );
+                dlModel.updateRow( dlItem );
+
+                requestThread newRequest = new requestThread( dlItem, getDownloadTable() );
+                newRequest.start();
             }
         }
     }
+
+    /**
+     * Used to sort FrostDownloadItemObjects by htl ascending.
+     */
+    static final Comparator downloadHtlCmp = new Comparator() {
+        public int compare(Object o1, Object o2) {
+        FrostDownloadItemObject value1 = (FrostDownloadItemObject)o1;
+        FrostDownloadItemObject value2 = (FrostDownloadItemObject)o2;
+        if( value1.getHtl().intValue() > value2.getHtl().intValue() )
+            return 1;
+        else
+            return -1;
+        }
+    };
 
     /**searchTextField Action Listener (search)*/
     private void searchTextField_actionPerformed(ActionEvent e)
