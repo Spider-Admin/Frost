@@ -1071,7 +1071,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     // start an upload we decide based on the states in which we are not allowed
                     if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
                         ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
-                        ulItem.getState() != FrostUploadItemObject.STATE_WORKING_GENCHK )
+                        ulItem.getState() != FrostUploadItemObject.STATE_ENCODING )
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                         tableModel.updateRow(ulItem);
@@ -1088,7 +1088,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     // start an upload we decide based on the states in which we are not allowed
                     if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
                         ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
-                        ulItem.getState() != FrostUploadItemObject.STATE_WORKING_GENCHK )
+                        ulItem.getState() != FrostUploadItemObject.STATE_ENCODING )
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
                         tableModel.updateRow(ulItem);
@@ -1106,7 +1106,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     if( ulItem.getState() == FrostUploadItemObject.STATE_IDLE &&
                         ulItem.getKey() == null )
                     {
-                        ulItem.setState( FrostUploadItemObject.STATE_REQUESTED_GENCHK );
+                        ulItem.setState( FrostUploadItemObject.STATE_ENCODING_REQUESTED );
                         tableModel.updateRow(ulItem);
                     }
                 }
@@ -2104,7 +2104,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         newInsert.start();
                         break; // start only 1 thread per loop (=second)
                     }
-                    else if( ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED_GENCHK ||
+                    else if( ulItem.getState() == FrostUploadItemObject.STATE_ENCODING_REQUESTED ||
                              ( ulItem.getKey() == null &&                   
                                ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED )
                            )   
@@ -2124,7 +2124,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                             // next state will be IDLE (=default)
                             newInsert = new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_CHK);
                         }
-                        ulItem.setState( FrostUploadItemObject.STATE_WORKING_GENCHK );
+                        ulItem.setState( FrostUploadItemObject.STATE_ENCODING );
                         ulModel.updateRow( ulItem );
                         newInsert.start();
                         break; // start only 1 thread per loop (=second)
