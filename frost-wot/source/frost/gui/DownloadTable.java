@@ -274,6 +274,7 @@ public class DownloadTable extends SortedTable
                 dlItem.setRetries(0);
                 dlItem.setLastDownloadStartTimeMillis(0);
                 dlItem.setLastDownloadStopTimeMillis(0);
+                dlItem.setEnableDownload( Boolean.valueOf(true) );  // enable download on restart
                 dlModel.updateRow( dlItem );
             }
         }
@@ -307,8 +308,11 @@ public class DownloadTable extends SortedTable
             for( int x=0; x<model.getRowCount(); x++ )
             {
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
-                setDownloadEnabled( mode, dlItem );
-                model.updateRow( dlItem );
+                if( dlItem.getState() != dlItem.STATE_DONE ) // do not enable finished if changing ALL
+                {
+                    setDownloadEnabled( mode, dlItem );
+                    model.updateRow( dlItem );
+                }
             }
         }
         else // selected items
@@ -324,6 +328,11 @@ public class DownloadTable extends SortedTable
         }
     }
 
+    /**
+     * mode 0 = set false
+     * mode 1 = set true
+     * mode 2 = invert
+     */
     private void setDownloadEnabled(int mode, FrostDownloadItemObject dlItem)
     {
         if( mode == 0 )

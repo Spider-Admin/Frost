@@ -2605,22 +2605,32 @@ public class frame1 extends JFrame implements ClipboardOwner
         String key = (downloadTextField.getText()).trim();
         if( key.length() > 0 )
         {
-            // strip the 'freenet:' prefix
-            if( key.indexOf("freenet:") == 0 )
+            // strip the 'browser' prefix
+            String stripMe = "http://127.0.0.1:8888/";
+            if( key.startsWith(stripMe) )
             {
-                key = key.substring(8);
+                key = key.substring(stripMe.length());
+            }
+            // strip the 'freenet:' prefix
+            stripMe = "freenet:";
+            if( key.startsWith(stripMe) )
+            {
+                key = key.substring(stripMe.length());
             }
 
             String validkeys[]={"SSK@", "CHK@", "KSK@"};
-            boolean valid=false;
+            int keyType = -1; // invalid
 
             for( int i = 0; i < validkeys.length; i++ )
             {
                 if( key.substring(0, validkeys[i].length()).equals(validkeys[i]) )
-                    valid=true;
+                {
+                    keyType = i;
+                    break;
+                }
             }
 
-            if( valid )
+            if( keyType > -1 )
             {
                 // added a way to specify a file name. The filename is preceeded by a colon.
                 String fileName;
@@ -2636,20 +2646,24 @@ public class frame1 extends JFrame implements ClipboardOwner
                 else if( -1 != (sepIndex = key.lastIndexOf("/")) )
                 {
                     fileName = key.substring(sepIndex + 1);
-                    // remove filename from key
-                    key = key.substring(0, key.indexOf("/") );
                 }
                 else
                 {
                     fileName = key.substring(4);
                 }
+
+                // remove filename from key for CHK
+/*                if( keyType == 1 ) // CHK?
+                    key = key.substring(0, key.indexOf("/") );*/
+
                 // add valid key to download table
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( mixed.makeFilename(fileName),
                                                                               key,
                                                                               null );
                 boolean isAdded = getDownloadTable().addDownloadItem( dlItem );
 
-                downloadTextField.setText("");
+                if( isAdded == true )
+                    downloadTextField.setText("");
             }
             else
             {
