@@ -25,10 +25,13 @@
   <property name="jarName" value="frost.jar"/>
 
   <!--  javac compiler options -->
-  <property name="debug" value="true" /> <!-- Enabled to see the line number of an exception in stack trace -->
+  <property name="debug" value="false" />
+  <property name="debuglevel" value="" /> 
   <property name="deprecation" value="true" />
-  <property name="optimize" value="false" /> <!-- Enabled to see the line number of an exception in stack trace -->
-  <property name="source" value = "1.4" /> <!-- yay, assertions! -->
+  <property name="verbose" value="false" />
+  <property name="optimize" value="true" />
+  <property name="source" value = "1.5" />
+  <property name="target" value = "1.5" />
 
   <!--  Set the properties related to the source tree -->
   <property name="src.dir" value="source"/>
@@ -113,10 +116,10 @@ Build log  : ${logfilename}</echo>
 
     <javac srcdir="${src.dir.feclib}"
            destdir="${build.classes.feclib}"
-           debug="${debug}"
-           deprecation="${deprecation}"
-           optimize="${optimize}"
-           classpath="${src.dir.feclib}">
+    	   classpath="${src.dir.feclib}"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+    	   verbose="${verbose}"    optimize="${optimize}"
+    	   source="${source}"	   target="${target}">
     </javac>
     <copy todir="${build.classes.feclib}">
         <fileset dir="${lib.dir}/fecImpl">
@@ -127,21 +130,20 @@ Build log  : ${logfilename}</echo>
 
     <javac srcdir="${src.dir.genchklib}"
            destdir="${build.classes.genchklib}"
-           debug="${debug}"
-           deprecation="${deprecation}"
-           optimize="${optimize}">
+ 	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+ 	  	   verbose="${verbose}"    optimize="${optimize}"
+ 	  	   source="${source}"	   target="${target}">
         <classpath>
             <pathelement location="${build.classes.feclib}"/>
-<!--            <pathelement location="${src.dir.genchklib}"/>-->
         </classpath>
     </javac>
 
  	<javac srcdir="${src.dir.jocacheLib}"
            destdir="${build.classes.jocacheLib}"
-           debug="${debug}"
-           deprecation="${deprecation}"
-           optimize="${optimize}"
-           classpath="${src.dir.jocacheLib}">
+  	 	   classpath="${src.dir.jocacheLib}"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+	  	   verbose="${verbose}"    optimize="${optimize}"
+	  	   source="${source}"	   target="${target}">
     </javac>
     <copy todir="${build.classes.jocacheLib}">
         <fileset dir="${lib.dir}/jocache">
@@ -151,19 +153,18 @@ Build log  : ${logfilename}</echo>
 
     <javac srcdir="${src.dir}"
            destdir="${build.classes}"
-           debug="${debug}"
-           deprecation="${deprecation}"
-           optimize="${optimize}"
-	   source = "${source}"
-           encoding="UTF8">
+    	   encoding="UTF8"
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+	  	   verbose="${verbose}"    optimize="${optimize}"
+	  	   source="${source}"	   target="${target}">
       <classpath refid="classpath" />
     </javac>
 
     <javac srcdir="${src.dir.skinlfFixLib}"
            destdir="${build.classes.skinlfFixLib}"
-           debug="${debug}"
-           deprecation="${deprecation}"
-           optimize="${optimize}">
+	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
+    	   verbose="${verbose}"    optimize="${optimize}"
+    	   source="${source}"	   target="${target}">
           <classpath>
               <pathelement location="${build.classes}"/>
               <pathelement location="${src.dir.skinlfFixLib}"/>
