@@ -153,7 +153,7 @@ public class Startup
      */
     private static void deleteObsoleteFiles()
     {
-        File[] entries = new File(".").listFiles();
+ /*       File[] entries = new File(".").listFiles();
         for( int i = 0; i < entries.length; i++ )
         {
             File entry = entries[i];
@@ -162,6 +162,6 @@ public class Startup
                 entry.delete();
             }
         }
-
+   */
     }
 }
