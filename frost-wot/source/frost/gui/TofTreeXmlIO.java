@@ -48,7 +48,7 @@ public class TofTreeXmlIO
 
         if( doc == null )
         {
-            System.out.println("Error - loadBoardTree: factory could'nt create XML Document.");
+            System.out.println("Error - loadBoardTree: could'nt parse XML Document.");
             return false;
         }
 

@@ -170,11 +170,20 @@ public class TOF
         final DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
 
         if( (newMsgFile.getName()).endsWith(".txt") &&
-             newMsgFile.length() > 0 &&
-             newMsgFile.length() < 32000
+             newMsgFile.length() > 0 
+             //&& newMsgFile.length() < 32000
           )
         {
-            final FrostMessageObject message = new FrostMessageObject(newMsgFile);
+            final FrostMessageObject message;
+            try {
+                message = new FrostMessageObject(newMsgFile);
+            }
+            catch(Exception ex)
+            {
+                Core.getOut().println("Error: skipping to load file '"+newMsgFile.getPath()+
+                                      "', reason:\n"+ex.getMessage());
+                return;                      
+            }
             if( message.isValid() && !blocked(message, board) )
             {
                 final String[] sMessage = message.getVRow();
@@ -338,12 +347,22 @@ public class TOF
                         for( int j = 0; j < filePointers.length; j++ )
                         {
                             if( filePointers[j].length() > 0 &&
-                                filePointers[j].length() < 32000 &&
+                                //filePointers[j].length() < 32000 &&
                                 filePointers[j].getName().startsWith(sdate)
                               )
                             {
-                                FrostMessageObject message = new FrostMessageObject(filePointers[j]);
-                                if( message.isValid() && !blocked(message,board) )
+                                FrostMessageObject message;
+                                try {
+                                    message = new FrostMessageObject(filePointers[j]);
+                                }
+                                catch(Exception ex)
+                                {
+                                    // skip the file quitely
+                                    message = null;
+                                }
+                                if( message != null &&
+                                    message.isValid() && 
+                                    !blocked(message,board) )
                                 {
                                     msgcount++;
                                     final String[] sMessage = message.getVRow();
@@ -587,8 +606,18 @@ public class TOF
                                 filePointers[j].delete();
                                 continue;  // next .lck file
                             }
-                            FrostMessageObject message = new FrostMessageObject(filePointers[k]);
-                            if( message.isValid() && !blocked(message,board) )
+                            FrostMessageObject message;
+                            try {
+                                message = new FrostMessageObject(filePointers[k]);
+                            }
+                            catch(Exception ex)
+                            {
+                                // skip the file quitely
+                                message = null;
+                            }
+                            if( message != null &&
+                                message.isValid() && 
+                                !blocked(message,board) )
                             {
                                 // update the node that contains new messages
                                 newMessages++;

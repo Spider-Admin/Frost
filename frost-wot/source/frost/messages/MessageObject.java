@@ -306,60 +306,77 @@ public class MessageObject implements XMLizable {
     }
 
     /**Set all values*/
-    public void analyzeFile()
+    public void analyzeFile() throws Exception
     {
-        try {
-            String message = new String(FileAccess.readByteArray(file));
-            if( !message.startsWith("Empty") )
-            {
-                Vector lines = FileAccess.readLines(file);
-                this.board = SettingsFun.getValue(lines, "board");
-                this.from = SettingsFun.getValue(lines, "from");
-                this.subject = SettingsFun.getValue(lines, "subject");
-                this.board = SettingsFun.getValue(lines, "board");
-                this.date = SettingsFun.getValue(lines, "date");
-                this.time = SettingsFun.getValue(lines, "time");
-                this.publicKey = SettingsFun.getValue(lines, "publicKey");
-
-                int offset = 17;
-                int contentStart = message.indexOf("--- message ---\r\n");
-                if( contentStart == -1 )
-                {
-                    contentStart = message.indexOf("--- message ---");
-                    offset = 15;
-                }
-
-                if( contentStart != -1 )
-                    this.content = message.substring(contentStart + offset, message.length());
-                else
-                    this.content = "";
-
-                String filename = file.getName();
-                this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".txt"))).trim();
-
-                for( int i = 0; i < evilChars.length; i++ )
-                {
-                    this.from = this.from.replace(evilChars[i], '_');
-                    this.subject = this.subject.replace(evilChars[i], '_');
-                    this.date = this.date.replace(evilChars[i], '_');
-                    this.time = this.time.replace(evilChars[i], '_');
-                }
-            }
-        } catch(Exception ex) {
-            System.out.println("ERROR in MessageObject: could not read file '"+file.getPath()+"'");
-            ex.printStackTrace();
+        // set index for this msg from filename
+        String filename = file.getName();
+        this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".txt"))).trim();
+        // ensure all needed fields are properly filled
+        if( from == null || date == null || subject == null || time == null ||
+            board == null || content == null )
+        {
+            throw new Exception("Message have invalid or missing fields.");
+        }
+        // replace evil chars
+        for( int i = 0; i < evilChars.length; i++ )
+        {
+            this.from = this.from.replace(evilChars[i], '_');
+            this.subject = this.subject.replace(evilChars[i], '_');
+            this.date = this.date.replace(evilChars[i], '_');
+            this.time = this.time.replace(evilChars[i], '_');
         }
     }
 
-    /**Constructor*/
-    public MessageObject(File file)
+    /**
+     * Parses the XML file and passes the FrostMessage element to
+     * XMLize load method.
+     */    
+    protected void loadFile() throws Exception
+    {
+        Document doc = null;
+        try {
+            doc = XMLTools.parseXmlFile(this.file, false);
+        } catch(Exception ex) { ; } // xml format error
+
+        if( doc == null )
+        {
+            throw new Exception("Error - MessageObject.loadFile: could'nt parse XML Document.");
+        }
+
+        Element rootNode = doc.getDocumentElement();
+
+        if( rootNode.getTagName().equals("FrostMessage") == false )
+        {
+            throw new Exception("Error - invalid message: does not contain the root tag 'FrostMessage'");
+        }
+        
+        // load the message load itself
+        loadXMLElement(rootNode);
+    }
+
+    /**
+     * Constructor.
+     * Used to construct an instance for an existing messagefile.
+     */
+    public MessageObject(File file) throws Exception
     {
         this();
+        if( file == null || 
+            file.exists() == false ||
+            file.length() < 20 ) // prolog+needed tags are always > 20, but we need to filter 
+        {                        // out the messages containing "Empty" (encrypted for someone else)   
+            throw new Exception("Invalid input file for MessageObject");
+        }
         this.file = file;
+        loadFile();
+        // ensure basic contents and formats
         analyzeFile();
     }
 
-    /**Constructor*/
+    /**
+     * Constructor.
+     * Used to contruct an instance for a new message.
+     */
     public MessageObject() {
     this.board = "";
     this.from = "";
@@ -370,5 +387,4 @@ public class MessageObject implements XMLizable {
     this.content = "";
     this.publicKey = "";
     }
-
 }
