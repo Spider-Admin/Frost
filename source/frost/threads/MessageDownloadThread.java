@@ -251,18 +251,17 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 {
                     testMe.renameTo(testMe2);
                     testMe=testMe2;
+		    
+		    //check if it is a duplicate
+                    String messageId = Core.getCrypto().digest(testMe);                   
+                    		
                     // Does a duplicate message exist?
-                    if( !exists(testMe) )
+                    if( !exists(testMe) && Core.getMessageSet().contains(messageId))
                     {
-                    	//check if it is a duplicate
-                    	String messageId = Core.getCrypto().digest(testMe);
-                    	if (Core.getMessageSet().contains(messageId)) {
-                    		//the message is a duplicate
-//							TODO: proper continue methods
-                    	} else
-                    		Core.getMessageSet().add(messageId);
+		    
+                    	Core.getMessageSet().add(messageId);
+			
                         //verify the zipped message
-                        
                         byte [] plaintext = FileAccess.readByteArray(testMe);
                         MetaData metaData = null; 
                         try {
@@ -275,20 +274,24 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             //please, please, PLEASE don't just catch them and do nothing!
                             // i know, i just added a TODO as in rest of file because i don't
                             // know what to do if failed...
+			    index++; 
+			    failures = 0;
+			    continue;
                         }
                         
                         //check if we have the owner already on the lists
                         String _owner = metaData.getSharer().getUniqueName();
-                        if (Core.getEnemies().containsKey(_owner)) {
-                        	//the person is blacklisted... do something
-                        	//TODO: proper continue methods
-                        }
+                        
+			
                         Identity owner;
                         //check friends
                         owner = Core.getFriends().Get(_owner);
                         //if not, check neutral
                         if (owner == null)
                         	owner = Core.getNeutral().Get(_owner);
+			//if not, check enemies
+			if (owner == null)
+				owner = Core.getEnemies().Get(_owner);
                         //if still not, use the parsed id
                         if (owner == null) {
                         	owner = metaData.getSharer();
@@ -302,6 +305,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         					plaintext,
                         					owner.getKey(),
                         					metaData.getSig());
+			
+			
                         					
                         //unzip
                         //REDFLAG: encoding
@@ -316,7 +321,17 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         catch(Exception ex)
                         {
                             ex.printStackTrace();
-                            // TODO: file could not be read, try next file
+                            // TODO: file could not be read, mark it invalid not to confuse gui
+			    index++;
+			    continue;
+                        }
+			
+			//then check if the signature was ok
+                        if (!valid) {
+                        	vmo.setStatus(VerifyableMessageObject.TAMPERED);
+				Core.getOut().println("TOFDN: message failed verification");
+				index++;
+				continue;
                         }
                         
                         //make sure the pubkey and from fields in the xml file are the same
@@ -331,47 +346,26 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         	Core.getOut().println("hash in metadata doesn't match hash in message!");
                         	Core.getOut().println("metadata : "+ metaDataHash+" , message: "+ messageHash);
                         	vmo.setStatus(VerifyableMessageObject.TAMPERED);
-//							TODO: proper continue methods
+				
+				index++;
+				continue;
                         }
                         
-                        //then check if the signature was ok
-                        if (!valid) {
-                        	vmo.setStatus(VerifyableMessageObject.TAMPERED);
-//							TODO: proper continue methods
-                        }
                         
-                        //if it is, we have the user either on the good or neutral lists
+                        
+                        //if it is, we have the user either on the good, bad or neutral lists
                         if (Core.getFriends().containsKey(_owner))
                         	vmo.setStatus(VerifyableMessageObject.VERIFIED);
-                        else
-							vmo.setStatus(VerifyableMessageObject.PENDING);
+                        else if (Core.getEnemies().containsKey(_owner))
+				vmo.setStatus(VerifyableMessageObject.FAILED);
+			else
+				vmo.setStatus(VerifyableMessageObject.PENDING);
                             
-                        //that's it for today, I"m too tired
-                        //----------------------LEGACY CODE BELOW------------------
                         
-                        //Core.getOut().println(contents);
+                        
                         
 /*        Encryption will be done+handled using private boards
-                        if( encstart != -1 )
-                        {
-                            Core.getOut().println("TOFDN: Decrypting message ...");
-                            plaintext = frame1.getCrypto().decrypt(contents.substring(encstart,contents.length()),
-                                                                   frame1.getMyId().getPrivKey());
-                            contents = contents.substring(0,encstart) + plaintext;
-                            //  Core.getOut().println(contents);
-                            FileAccess.writeFile(contents,testMe);
-                        }
 
-                        currentMsg = new FrostMessageObject(testMe);
-                        if( currentMsg.getSubject().trim().indexOf("ENCRYPTED MSG FOR") != -1 &&
-                            currentMsg.getSubject().indexOf(frame1.getMyId().getName()) == -1 )
-                        {
-                            Core.getOut().println("TOFDN: Message is encrypted for someone else.");
-                            //testMe.delete();
-                            FileAccess.writeFile("Empty", testMe); // no more checking if for me, no more downloading
-                            index++;
-                            continue;
-                        }
 */                        
                         // verify the message date and time
                         if( currentMsg.isValidFormat( calDL ) == false )
@@ -405,10 +399,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         }
                     }
                     else
-                    { // duplicate message
-                        // check for real double! this fails for me and an msg file containing "Empty"
-                        // FIXED: ideally we'll keep a map of the hashes of the received messages - it will not
-                        // be too big to keep in memory at all times and is the fastest way to check for dublicates
+                    { 
                         Core.getOut().println(Thread.currentThread().getName()+": TOFDN: ****** Duplicate Message : " + testMe.getName() + " *****");
                         FileAccess.writeFile("Empty", testMe);
                     }
