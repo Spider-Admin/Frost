@@ -446,6 +446,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private JMenuItem setGoodItem = new JMenuItem();
 			
 			private JMenuItem deleteItem = new JMenuItem();
+			private JMenuItem undeleteItem = new JMenuItem();
 
 			/**
 			 * 
@@ -477,6 +478,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (e.getSource() == deleteItem) {
 					deleteMessage();
 				}
+				if (e.getSource() == undeleteItem) {
+					undeleteMessage();
+				}
 			}
 
 			/**
@@ -485,7 +489,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private void deleteMessage() {
 				deleteSelectedMessage();				
 			}
-
+			
+			/**
+			 * 
+			 *
+			 */
+			private void undeleteMessage(){
+				undeleteSelectedMessage();
+			}
+			
 			/**
 			 * 
 			 */
@@ -498,6 +510,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setBadItem.addActionListener(this);
 				setCheckItem.addActionListener(this);
 				deleteItem.addActionListener(this);
+				undeleteItem.addActionListener(this);
 			}
 
 			/* (non-Javadoc)
@@ -532,6 +545,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setBadItem.setText(language.getString("block user (sets to BAD)"));
 				setCheckItem.setText(language.getString("set to neutral (CHECK)"));
 				deleteItem.setText(language.getString("Delete message"));
+				undeleteItem.setText(language.getString("Undelete message"));
 				cancelItem.setText(language.getString("Cancel"));
 			}
 
@@ -596,6 +610,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 					addSeparator();
 					add(deleteItem);
+					add(undeleteItem);
+					deleteItem.setEnabled(false);
+					undeleteItem.setEnabled(false);
+					
+					if(selectedMessage.isDeleted()){
+						undeleteItem.setEnabled(true);
+					}else{
+						deleteItem.setEnabled(true);
+					}
+					
 					addSeparator();
 					add(cancelItem);
 					// ATT: misuse of another menuitem displaying 'Cancel' ;)
@@ -1459,6 +1483,26 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			//FIXME: is it needed? needs repaint or the line which crosses the message isn't completely seen
 			this.repaint();
 			
+			Thread saver = new Thread() {
+				public void run() {
+					targetMessage.save();
+				};
+			};
+			saver.start();	
+		}
+		
+		private void undeleteSelectedMessage(){
+			int row = messageTable.getSelectedRow();
+			if (row < 0
+					|| selectedMessage == null
+					|| getSelectedNode() == null
+					|| getSelectedNode().isFolder() == true)
+					return;
+			final FrostMessageObject targetMessage = selectedMessage;
+			targetMessage.setDeleted(false);
+			this.repaint();
+			
+			//FIXME: is this needed???not shure what it is doing
 			Thread saver = new Thread() {
 				public void run() {
 					targetMessage.save();
