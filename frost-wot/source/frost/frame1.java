@@ -2006,10 +2006,58 @@ public class frame1 extends JFrame implements ClipboardOwner
                                       txt,
                                       "Delete '"+selectedNode.toString()+"'?",
                                       JOptionPane.YES_NO_OPTION);
-        if( answer == JOptionPane.YES_OPTION )
+        if( answer == JOptionPane.NO_OPTION )
         {
-            getTofTree().removeNode(selectedNode);
-            // TODO: ask user if to delete board directory also
+            return;
+        }
+
+        // ask user if to delete board directory also
+        boolean deleteDirectory = false;
+        String boardRelDir = frostSettings.getValue("keypool.dir")+selectedNode.getBoardFilename();
+        if( selectedNode.isFolder() == false )
+        {
+            txt = "Do you want to delete also the board directory '"+ boardRelDir + "' ?\n"+
+                    "This directory contains all received messages and file lists for this board.\n"+
+                    "(NOTE: The board MUST not updating to delete it! "+
+                    "Currently there is no way to stop the updating of a board, so please ensure this board is'nt updating"+
+                    "right now, or you have to live with the consequences ;)";
+            answer = JOptionPane.showConfirmDialog(this,
+                                          txt,
+                                          "Delete directory of '"+selectedNode.toString()+"'?",
+                                          JOptionPane.YES_NO_OPTION);
+            if( answer == JOptionPane.YES_OPTION )
+            {
+                deleteDirectory = true;
+            }
+        }
+
+        // delete node from tree
+        getTofTree().removeNode(selectedNode);
+
+        // maybe delete board dir (in a thread, do not block gui)
+        if( deleteDirectory )
+        {
+            if( selectedNode.isUpdating() == false )
+            {
+                new DeleteWholeDirThread( boardRelDir ).start();
+            }
+            else
+            {
+                System.out.println("WARNING: Although if warned, you tried to delete a board with is updating! Skipped ...");
+            }
+        }
+    }
+
+    private class DeleteWholeDirThread extends Thread
+    {
+        String delDir;
+        public DeleteWholeDirThread(String dirToDelete)
+        {
+            delDir = dirToDelete;
+        }
+        public void run()
+        {
+            FileAccess.deleteDir( new File(delDir) );
         }
     }
 
