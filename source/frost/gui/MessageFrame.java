@@ -653,14 +653,14 @@ public class MessageFrame extends JFrame
 		lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
 		keypool = frostSettings.getValue("keypool.dir");
 
-		String fontName = frostSettings.getValue("messageBodyFontName");
-		int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
-		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
+		String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+		int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+		int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
 		Font tofFont = new Font(fontName, fontStyle, fontSize);
 		if (!tofFont.getFamily().equals(fontName)) {
 			logger.severe("The selected font was not found in your system\n" + 
 						  "That selection will be changed to \"Monospaced\".");
-			frostSettings.setValue("messageBodyFontName", "Monospaced");
+			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
 			tofFont = new Font("Monospaced", fontStyle, fontSize);
 		}
 		messageTextArea.setFont(tofFont);
