@@ -165,7 +165,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         Comparable c1 = (Comparable)getValueAt(tableColumIndex);
         Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
-        if( tableColumIndex != 1 )
+        if( tableColumIndex != 2 )
             return c1.compareTo( c2 );
         // handle the size column. The values are either Integer or String ("Unknown")
         // sort strings below numbers
