@@ -113,8 +113,10 @@ public class Identity implements SafeXMLizable
 				key =  XMLTools.getChildElementsCDATAValue(e, "key");
 				try {
 					keyaddress =  XMLTools.getChildElementsCDATAValue(e, "CHK");
-					noMessages = (new Integer(XMLTools.getChildElementsTextValue(e,"messages"))).intValue();
-					noFiles = (new Integer(XMLTools.getChildElementsTextValue(e,"files"))).intValue();
+					String _msg = XMLTools.getChildElementsTextValue(e,"messages");
+					noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
+					String _files = XMLTools.getChildElementsTextValue(e,"files");
+					noFiles = _files == null ? 0 : Integer.parseInt(_files);
 				}catch (Exception npe) {
 					Core.getOut().println("no data about # of messages found for identity " + uniqueName);
 				}
