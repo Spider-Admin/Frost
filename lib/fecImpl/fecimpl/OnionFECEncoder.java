@@ -1,6 +1,7 @@
 package fecimpl;
 
 import java.io.IOException;
+import java.util.logging.Logger;
 
 import freenet.client.FECEncoder;
 import freenet.support.*;
@@ -17,6 +18,8 @@ import freenet.support.*;
  * @author giannij
  **/
 public class OnionFECEncoder extends OnionFECBase implements FECEncoder {
+
+	private static Logger logger = Logger.getLogger(OnionFECEncoder.class.getName());
 
     // Here's my naming convention
     // Encoder/Decoder pairs must return the same name.
@@ -104,7 +107,7 @@ public class OnionFECEncoder extends OnionFECBase implements FECEncoder {
                     Bucket[] dataStripe = dataArray.allocate(blocks);
                     Bucket[] checkStripe = checkArray.allocate(checkBlocks);
                     for (i = 0; i < stripeCount; i++) {
-                        System.out.println("Encoding stripe: " + i +
+                        logger.fine("Encoding stripe: " + i +
                                            " [" + stripeWidth + "]");
                         dataArray.setRange(i * stripeWidth, stripeWidth);
                         checkArray.setRange(i * stripeWidth, stripeWidth);
