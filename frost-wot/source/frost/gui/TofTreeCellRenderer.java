@@ -124,8 +124,6 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
             c = (Color)frame1.frostSettings.getObjectValue("boardUpdatingSelectedBackgroundColor");
             setBackgroundSelectionColor( c );
             
-			setTextSelectionColor(Color.white);
-			setTextNonSelectionColor(Color.white);
         }
         else
         {
