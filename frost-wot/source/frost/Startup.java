@@ -102,12 +102,12 @@ public class Startup
     private static void deleteLockFiles()
     {
         System.out.println("StartUp: Deleting old '.lock' files from keypool");
-        Vector entries = FileAccess.getAllEntries(new File(frame1.frostSettings.getValue("keypool.dir")),
+        File[] entries = FileAccess.getAllEntries(new File(frame1.frostSettings.getValue("keypool.dir")),
                                                   ".lock");
-        for( int i = 0; i < entries.size(); i++ )
+        for( int i = 0; i < entries.length; i++ )
         {
             // delete lock files
-            ((File)entries.get( i )).delete();
+            entries[i].delete();
         }
         System.out.println("StartUp: Finished deleting old '.lock' files from keypool");
     }

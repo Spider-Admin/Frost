@@ -30,7 +30,8 @@ import frost.FcpTools.*;
 import frost.threads.*;
 import frost.gui.objects.*;
 
-public class MessageFrame extends JFrame {
+public class MessageFrame extends JFrame
+{
 
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
@@ -92,256 +93,262 @@ public class MessageFrame extends JFrame {
     }
 
     private void Init() throws Exception {
-    //------------------------------------------------------------------------
-    // Configure objects
-    //------------------------------------------------------------------------
+        //------------------------------------------------------------------------
+        // Configure objects
+        //------------------------------------------------------------------------
 
-this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getResource("/data/newmessage.gif")));
-    this.setTitle(LangRes.getString("Create message"));
-    this.setResizable(true);
+        this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getResource("/data/newmessage.gif")));
+        this.setTitle(LangRes.getString("Create message"));
+        this.setResizable(true);
 
-    encrypt=false;
+        encrypt=false;
 
-    if( frame1.getFriends() != null )
-    {
-        String[] buddyNames = new String[frame1.getFriends().size()];
-        Vector budList = new Vector( frame1.getFriends().keySet() );
-        Collections.sort( budList, new BuddyComparator() );
-        buddies = new JComboBox(budList);
-        recipient = (String)budList.get(0);
-        buddies.setSelectedItem(recipient);
-    }
-    else
-    {
-        buddies = new JComboBox();
-    }
-
-    configureButton(jButton1, "Send message", "/data/send_rollover.gif");
-    configureButton(jButton2, "Cancel", "/data/remove_rollover.gif");
-    configureButton(jButton3, "Add attachment(s)", "/data/save_rollover.gif");
-    configureButton(uploadBoardsButton, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
-
-    jTextField1.setEnabled(false);
-    jTextField1.setText(board.toString());
-    jTextField2.setText(from);
-
-    encryptBox.setSelected(false);
-    encryptBox.setEnabled(false);
-    buddies.setEnabled(false);
-    jTextField3.setText(subject);
-    jTextArea1.setLineWrap(true);
-    jTextArea1.setWrapStyleWord(true);
-    jTextArea1.setText(text);
-    if (from.compareTo(frame1.getMyId().getName()) == 0) {
-        jTextField2.setEnabled(false);
-        sign.setSelected(true);
-        encryptBox.setEnabled(true);
-    }
-
-    jScrollPane1.setPreferredSize(new Dimension(600, 400));
-    //------------------------------------------------------------------------
-    // Actionlistener
-    //------------------------------------------------------------------------
-
-    // Button 1 (Send)
-    jButton1.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            jButton1_actionPerformed(e);
+        if( frame1.getFriends() != null )
+        {
+            String[] buddyNames = new String[frame1.getFriends().size()];
+            Vector budList = new Vector( frame1.getFriends().keySet() );
+            Collections.sort( budList, new BuddyComparator() );
+            buddies = new JComboBox(budList);
+            recipient = (String)budList.get(0);
+            buddies.setSelectedItem(recipient);
         }
-        });
-
-    // Button 2 (Cancel)
-    jButton2.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            jButton2_actionPerformed(e);
+        else
+        {
+            buddies = new JComboBox();
         }
-        });
 
-    // Button 3 (Add attachment(s))
-    jButton3.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            jButton3_actionPerformed(e);
-        }
-        });
+        configureButton(jButton1, "Send message", "/data/send_rollover.gif");
+        configureButton(jButton2, "Cancel", "/data/remove_rollover.gif");
+        configureButton(jButton3, "Add attachment(s)", "/data/save_rollover.gif");
+        configureButton(uploadBoardsButton, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
 
-     // Button 4 (Add attachment(s))
-    uploadBoardsButton.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            uploadBoards_actionPerformed(e);
-        }
-        });
+        jTextField1.setEnabled(false);
+        jTextField1.setText(board.toString());
+        jTextField2.setText(from);
 
-    //sign checkbox
-     sign.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (sign.isSelected()) {
-            jTextField2.setText(frame1.getMyId().getName());
+        encryptBox.setSelected(false);
+        encryptBox.setEnabled(false);
+        buddies.setEnabled(false);
+        jTextField3.setText(subject);
+        jTextArea1.setLineWrap(true);
+        jTextArea1.setWrapStyleWord(true);
+        jTextArea1.setText(text);
+        if( from.compareTo(frame1.getMyId().getName()) == 0 )
+        {
             jTextField2.setEnabled(false);
+            sign.setSelected(true);
             encryptBox.setEnabled(true);
-            }
-            else {
-            jTextField2.setText("Anonymous");
-            jTextField2.setEnabled(true);
-            jTextField3.setEnabled(true);
-            encryptBox.setSelected(false);
-            encryptBox.setEnabled(false);
-            buddies.setEnabled(false);
-            }
         }
-        });
 
-     //encrypt checkbox
-     encryptBox.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            if (encryptBox.isSelected()) {
-                buddies.setEnabled(true);
-            jTextField3.setEnabled(false);
-            encrypt=true;
-            }
-            else {
-            buddies.setEnabled(false);
-            jTextField3.setEnabled(true);
-            encrypt=false;
-            }
-        }
-        });
+        jScrollPane1.setPreferredSize(new Dimension(600, 400));
+        //------------------------------------------------------------------------
+        // Actionlistener
+        //------------------------------------------------------------------------
 
-     //combo box
-     buddies.addActionListener(new java.awt.event.ActionListener() {
-        public void actionPerformed(ActionEvent e) {
-            JComboBox cb = (JComboBox)e.getSource();
-                recipient = (String)cb.getSelectedItem();
-        }
-      });
+        // Button 1 (Send)
+        jButton1.addActionListener(new java.awt.event.ActionListener() {
+                                       public void actionPerformed(ActionEvent e) {
+                                           jButton1_actionPerformed(e);
+                                       } });
+        // Button 2 (Cancel)
+        jButton2.addActionListener(new java.awt.event.ActionListener() {
+                                       public void actionPerformed(ActionEvent e) {
+                                           jButton2_actionPerformed(e);
+                                       } });
+        // Button 3 (Add attachment(s))
+        jButton3.addActionListener(new java.awt.event.ActionListener() {
+                                       public void actionPerformed(ActionEvent e) {
+                                           jButton3_actionPerformed(e);
+                                       } });
+        // Button 4 (Add attachment(s))
+        uploadBoardsButton.addActionListener(new java.awt.event.ActionListener() {
+                                         public void actionPerformed(ActionEvent e) {
+                                             uploadBoards_actionPerformed(e);
+                                         } });
+        //sign checkbox
+        sign.addActionListener(new java.awt.event.ActionListener() {
+                                   public void actionPerformed(ActionEvent e) {
+                                       if( sign.isSelected() )
+                                       {
+                                           jTextField2.setText(frame1.getMyId().getName());
+                                           jTextField2.setEnabled(false);
+                                           encryptBox.setEnabled(true);
+                                       }
+                                       else
+                                       {
+                                           jTextField2.setText("Anonymous");
+                                           jTextField2.setEnabled(true);
+                                           jTextField3.setEnabled(true);
+                                           encryptBox.setSelected(false);
+                                           encryptBox.setEnabled(false);
+                                           buddies.setEnabled(false);
+                                       }
+                                   } });
+        //encrypt checkbox
+        encryptBox.addActionListener(new java.awt.event.ActionListener() {
+                                         public void actionPerformed(ActionEvent e) {
+                                             if( encryptBox.isSelected() )
+                                             {
+                                                 buddies.setEnabled(true);
+                                                 jTextField3.setEnabled(false);
+                                                 encrypt=true;
+                                             }
+                                             else
+                                             {
+                                                 buddies.setEnabled(false);
+                                                 jTextField3.setEnabled(true);
+                                                 encrypt=false;
+                                             }
+                                         } });
+        //combo box
+        buddies.addActionListener(new java.awt.event.ActionListener() {
+                                      public void actionPerformed(ActionEvent e) {
+                                          JComboBox cb = (JComboBox)e.getSource();
+                                          recipient = (String)cb.getSelectedItem();
+                                      } });
+        //------------------------------------------------------------------------
+        // Append objects
+        //------------------------------------------------------------------------
+        this.getContentPane().add(jPanel1, null); // add Main panel
 
-    //------------------------------------------------------------------------
-    // Append objects
-    //------------------------------------------------------------------------
-    this.getContentPane().add(jPanel1, null); // add Main panel
+        jPanel1.add(jPanel3, BorderLayout.NORTH); // Buttons
+        jPanel1.add(jScrollPane1, BorderLayout.CENTER); // Textfields
 
-    jPanel1.add(jPanel3, BorderLayout.NORTH); // Buttons
-    jPanel1.add(jScrollPane1, BorderLayout.CENTER); // Textfields
+        jPanel2.add(jTextField1, BorderLayout.NORTH); // Board (to)
+        jPanel2.add(jTextField2, BorderLayout.CENTER); // From
+        jPanel2.add(jTextField3, BorderLayout.SOUTH); // Subject
 
-    jPanel2.add(jTextField1, BorderLayout.NORTH); // Board (to)
-    jPanel2.add(jTextField2, BorderLayout.CENTER); // From
-    jPanel2.add(jTextField3, BorderLayout.SOUTH); // Subject
+        jPanel3.add(buttonPanel, BorderLayout.NORTH);
+        jPanel3.add(jPanel5, BorderLayout.SOUTH);
 
-    jPanel3.add(buttonPanel, BorderLayout.NORTH);
-    jPanel3.add(jPanel5, BorderLayout.SOUTH);
+        jPanel4.add(jLabel1, BorderLayout.NORTH); // Board
+        jPanel4.add(jLabel2, BorderLayout.CENTER); // From
+        jPanel4.add(jLabel3, BorderLayout.SOUTH); // Subject
 
-    jPanel4.add(jLabel1, BorderLayout.NORTH); // Board
-    jPanel4.add(jLabel2, BorderLayout.CENTER); // From
-    jPanel4.add(jLabel3, BorderLayout.SOUTH); // Subject
+        jPanel5.add(jPanel4, BorderLayout.WEST);
+        jPanel5.add(jPanel2, BorderLayout.CENTER);
 
-    jPanel5.add(jPanel4, BorderLayout.WEST);
-    jPanel5.add(jPanel2, BorderLayout.CENTER);
+        jScrollPane1.getViewport().add(jTextArea1, null); // Text
 
-    jScrollPane1.getViewport().add(jTextArea1, null); // Text
-
-    buttonPanel.add(jButton1); // Send
-    buttonPanel.add(jButton2); // Cancel
-    buttonPanel.add(jButton3); // Add attachment(s)
-    buttonPanel.add(uploadBoardsButton); //Add boards(s)
-    buttonPanel.add(sign);
-    buttonPanel.add(encryptBox);
-    buttonPanel.add(buddies);
+        buttonPanel.add(jButton1); // Send
+        buttonPanel.add(jButton2); // Cancel
+        buttonPanel.add(jButton3); // Add attachment(s)
+        buttonPanel.add(uploadBoardsButton); //Add boards(s)
+        buttonPanel.add(sign);
+        buttonPanel.add(encryptBox);
+        buttonPanel.add(buddies);
     }
 
     /**jButton1 Action Listener (Send)*/
-    private void jButton1_actionPerformed(ActionEvent e) {
-    state = true;
-    from = jTextField2.getText();
-    subject = jTextField3.getText();
-    text = jTextArea1.getText();
+    private void jButton1_actionPerformed(ActionEvent e)
+    {
+        state = true;
+        from = jTextField2.getText();
+        subject = jTextField3.getText();
+        text = jTextArea1.getText();
 
-    boolean quit = true;
+        boolean quit = true;
 
-    if (subject.equals("No subject") && !encrypt) {
-        Object[] options = {LangRes.getString("Yes"), LangRes.getString("No")};
-        int n = JOptionPane.showOptionDialog(this,
-                         LangRes.getString("Do you want to enter a subject?"),
-                         LangRes.getString("No subject specified!"),
-                         JOptionPane.YES_NO_OPTION,
-                         JOptionPane.QUESTION_MESSAGE,
-                         null,
-                         options,
-                         options[1]);
-        if (n == 1)
-        quit = true;
-        else
-        quit = false;
-    }
-
-    if (quit) {
-        if (state) {
-        frostSettings.setValue("userName", from);
-
-        String recpnt = "";
-        if (encrypt && recipient.compareTo(frame1.getMyId().getName()) != 0)
+        if( subject.equals("No subject") && !encrypt )
         {
-            recpnt = recipient;
+            Object[] options = {LangRes.getString("Yes"), LangRes.getString("No")};
+            int n = JOptionPane.showOptionDialog(this,
+                                                 LangRes.getString("Do you want to enter a subject?"),
+                                                 LangRes.getString("No subject specified!"),
+                                                 JOptionPane.YES_NO_OPTION,
+                                                 JOptionPane.QUESTION_MESSAGE,
+                                                 null,
+                                                 options,
+                                                 options[1]);
+            if( n == 1 )
+                quit = true;
+            else
+                quit = false;
         }
 
-        frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-            board,
-            from,
-            subject,
-            text,
-            "",
-            "",
-            recpnt,
-            frostSettings,
-            parentFrame,
-            null);
+        if( quit )
+        {
+            if( state )
+            {
+                frostSettings.setValue("userName", from);
+
+                String recpnt = "";
+                if( encrypt && recipient.compareTo(frame1.getMyId().getName()) != 0 )
+                {
+                    recpnt = recipient;
+                }
+
+                frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
+                                                      board,
+                                                      from,
+                                                      subject,
+                                                      text,
+                                                      "",
+                                                      "",
+                                                      recpnt,
+                                                      frostSettings,
+                                                      parentFrame,
+                                                      null);
+            }
+            frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
+            frostSettings.writeSettingsFile();
+            dispose();
         }
-        frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
-        frostSettings.writeSettingsFile();
-        dispose();
-    }
     }
 
     /**jButton2 Action Listener (Cancel)*/
-    private void jButton2_actionPerformed(ActionEvent e) {
-    state = false;
-    dispose();
+    private void jButton2_actionPerformed(ActionEvent e)
+    {
+        state = false;
+        dispose();
     }
 
     /**jButton3 Action Listener (Add attachment(s))*/
-    private void jButton3_actionPerformed(ActionEvent e) {
-    String lineSeparator = System.getProperty("line.separator");
-    final JFileChooser fc = new JFileChooser(lastUsedDirectory);
-    fc.setDialogTitle(LangRes.getString("Choose file(s) / directory(s) to attach"));
-    fc.setFileHidingEnabled(false);
-    fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-    fc.setMultiSelectionEnabled(true);
+    private void jButton3_actionPerformed(ActionEvent e)
+    {
+        String lineSeparator = System.getProperty("line.separator");
+        final JFileChooser fc = new JFileChooser(lastUsedDirectory);
+        fc.setDialogTitle(LangRes.getString("Choose file(s) / directory(s) to attach"));
+        fc.setFileHidingEnabled(false);
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fc.setMultiSelectionEnabled(true);
 
-    int returnVal = fc.showOpenDialog(MessageFrame.this);
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-        File[] file = fc.getSelectedFiles();
-        for (int i = 0; i < file.length; i++) {
-            lastUsedDirectory = file[i].getPath();
-        if (file[i].isFile()) {
-            jTextArea1.append("<attach>" +
-                      file[i].getPath() +
-                      "</attach>" +
-                      lineSeparator);
-        }
-        if (file[i].isDirectory()) {
-            Vector entries = FileAccess.getAllEntries(file[i], "");
-            for (int j = 0; j < entries.size(); j++) {
-            if (((File)entries.elementAt(j)).isFile())
-                jTextArea1.append("<attach>" +
-                          ((File)entries.elementAt(j)).getPath()  +
-                          "</attach>" +
-                          lineSeparator);
+        int returnVal = fc.showOpenDialog(MessageFrame.this);
+        if( returnVal == JFileChooser.APPROVE_OPTION )
+        {
+            File[] file = fc.getSelectedFiles();
+            for( int i = 0; i < file.length; i++ )
+            {
+                lastUsedDirectory = file[i].getPath();
+                if( file[i].isFile() )
+                {
+                    jTextArea1.append("<attach>" +
+                                      file[i].getPath() +
+                                      "</attach>" +
+                                      lineSeparator);
+                }
+                if( file[i].isDirectory() )
+                {
+                    File[] entries = file[i].listFiles();
+                    for( int j = 0; j < entries.length; j++ )
+                    {
+                        if( entries[j].isFile() )
+                        {
+                            jTextArea1.append("<attach>" +
+                                              entries[j].getPath() +
+                                              "</attach>" +
+                                              lineSeparator);
+
+                        }
+                    }
+                }
             }
         }
+        else
+        {
+            System.out.println("Open command cancelled by user.");
         }
     }
-    else {
-        System.out.println("Open command cancelled by user.");
-    }
-   }
 
     private void uploadBoards_actionPerformed(ActionEvent e)
     {
@@ -382,26 +389,28 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         }
     }
 
-   /**
-    * Configures a button to be a default icon button
-    * @param button The new icon button
-    * @param toolTipText Is displayed when the mousepointer is some seconds over a button
-    * @param rolloverIcon Displayed when mouse is over button
-    */
-   protected void configureButton(JButton button, String toolTipText, String rolloverIcon)
-   {
-       button.setToolTipText(LangRes.getString(toolTipText));
-       button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
-       button.setMargin(new Insets(0, 0, 0, 0));
-       button.setBorderPainted(false);
-       button.setFocusPainted(false);
-   }
-
-    protected void processWindowEvent(WindowEvent e) {
-    if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-        dispose();
+    /**
+     * Configures a button to be a default icon button
+     * @param button The new icon button
+     * @param toolTipText Is displayed when the mousepointer is some seconds over a button
+     * @param rolloverIcon Displayed when mouse is over button
+     */
+    protected void configureButton(JButton button, String toolTipText, String rolloverIcon)
+    {
+        button.setToolTipText(LangRes.getString(toolTipText));
+        button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
+        button.setMargin(new Insets(0, 0, 0, 0));
+        button.setBorderPainted(false);
+        button.setFocusPainted(false);
     }
-    super.processWindowEvent(e);
+
+    protected void processWindowEvent(WindowEvent e)
+    {
+        if( e.getID() == WindowEvent.WINDOW_CLOSING )
+        {
+            dispose();
+        }
+        super.processWindowEvent(e);
     }
 
     /**Constructor*/
@@ -424,22 +433,27 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         if( this.text.length() > 0 )
         {
             // on new message
-            this.text += lineSeparator + "----- " +
-                            this.from + " ----- " + date + " -----" +
-                            lineSeparator + lineSeparator;
+            this.text += new StringBuffer().append(lineSeparator)
+                                           .append("----- ")
+                                           .append(this.from)
+                                           .append(" ----- ")
+                                           .append(date)
+                                           .append(" -----")
+                                           .append(lineSeparator)
+                                           .append(lineSeparator).toString();
         }
 
         File signature = new File("signature.txt");
         if( signature.isFile() )
+        {
             this.text += FileAccess.readFile("signature.txt");
+        }
 
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-        try
-        {
+        try {
             Init();
         }
-        catch( Exception e )
-        {
+        catch( Exception e ) {
             e.printStackTrace();
         }
         pack();
@@ -466,18 +480,16 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         {
             Bok = new JButton("OK");
             Bok.addActionListener( new ActionListener() {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        okPressed = true;
-                        hide();
-                    } } );
+                   public void actionPerformed(ActionEvent e) {
+                       okPressed = true;
+                       hide();
+                   } });
             Bcancel = new JButton("Cancel");
             Bcancel.addActionListener( new ActionListener() {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        okPressed = false;
-                        hide();
-                    } } );
+                   public void actionPerformed(ActionEvent e) {
+                       okPressed = false;
+                       hide();
+                   } });
             JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
             buttonsPanel.add( Bok );
             buttonsPanel.add( Bcancel );
@@ -485,14 +497,10 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
             Lboards = new JList( boards );
             Lboards.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             JScrollPane listScroller = new JScrollPane( Lboards );
-            listScroller.setBorder(
-                    new CompoundBorder(    new EmptyBorder(5,5,5,5),
-                                           new CompoundBorder(  new EtchedBorder(),
-                                                                new EmptyBorder(5,5,5,5) )
-                                      )
-                                  );
-
-
+            listScroller.setBorder( new CompoundBorder( new EmptyBorder(5,5,5,5),
+                                                        new CompoundBorder( new EtchedBorder(),
+                                                                            new EmptyBorder(5,5,5,5) )
+                                                      ) );
             getContentPane().add(listScroller, BorderLayout.CENTER);
             getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
             setSize(200, 300);

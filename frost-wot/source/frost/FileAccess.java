@@ -248,29 +248,16 @@ public class FileAccess {
     return content.toString();
     }
 
-    /**Returns a Vector of File objects with all Directories and files*/
-    public static Vector getAllEntries(File file, String extension) {
-    Vector newVector = new Vector();
-    newVector.clear();
-    if (file != null) {
-        getAllEntries(newVector, file, extension);
-    }
-    return newVector;
-    }
-
-    public static void getAllEntries(Vector entries, File file, String extension) {
-    if (file != null) {
-        if (file.isDirectory()) {
-        File[] files = file.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-            getAllEntries(entries, files[i], extension);
-            }
-        }
-        }
-        if (file.getName().endsWith(extension))
-        entries.add(file);
-    }
+    /**Returns an ArrayList of File objects with all Directories and files*/
+    public static File[] getAllEntries(File file, final String extension)
+    {
+        return file.listFiles( new FilenameFilter() {
+                public boolean accept(File dir, String name)
+                {
+                    if( name.endsWith( extension ) )
+                        return true;
+                    return false;
+                } });
     }
 
     /**
