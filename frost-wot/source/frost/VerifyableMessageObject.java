@@ -1,6 +1,3 @@
-package frost;
-import java.io.File;
-import frost.crypt.crypt;
 /*
   VerifyableMessageObject.java / Frost
   Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
@@ -20,80 +17,116 @@ import frost.crypt.crypt;
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-public class VerifyableMessageObject extends MessageObject implements Cloneable {
+package frost;
 
-    public static final String VERIFIED ="<html><b><font color=\"green\">GOOD</font></b></html>";
-    public static final String FAILED ="<html><b><font color=\"red\">BAD</font></b></html>";
-    public static final String NA ="N/A";
-    public static final String OLD = "NONE";
-    public static final String PENDING = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
+import java.io.File;
+import frost.crypt.crypt;
+
+public class VerifyableMessageObject extends MessageObject implements Cloneable
+{
+    public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
+    public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
+    public static final String NA       = "N/A";
+    public static final String OLD      = "NONE";
+    public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
 
     private String currentStatus;
-    public final boolean isVerifyable;
+    private final boolean isVerifyable;
 
-    public VerifyableMessageObject copy() throws CloneNotSupportedException {return (VerifyableMessageObject)(this.clone());}
+    public boolean isVerifyable()
+    {
+        return isVerifyable;
+    }
+
+    public VerifyableMessageObject copy() throws CloneNotSupportedException
+    {
+        return (VerifyableMessageObject)this.clone();
+    }
 
     /** get the verification key*/
-    public String getKeyAddress()  {
-    int start = content.lastIndexOf("<key>");
-    int end = content.indexOf("</key>",start);
-    if ( (start == -1) || (end == -1) || (end-start < 55)) return new String("none");
-    return content.substring(start+5,end);
+    public String getKeyAddress()
+    {
+        int start = content.lastIndexOf("<key>");
+        int end = content.indexOf("</key>",start);
+        if( (start == -1) || (end == -1) || (end-start < 55) ) return new String("none");
+        return content.substring(start+5,end);
     }
 
     /**gets the plaintext only */
-    public String getPlaintext() {
-    int offset =0;
-    if (isVerifyable) offset = crypt.MSG_HEADER_SIZE;
-    //if (!isVerifyable) return content;
+    public String getPlaintext()
+    {
+        int offset =0;
+        if( isVerifyable() ) offset = crypt.MSG_HEADER_SIZE;
+        //if (!isVerifyable()) return content;
 
-        if (content.indexOf("<attached>") == -1  && content.indexOf("<board>") ==-1)
-            if (isVerifyable) return content.substring(offset, content.lastIndexOf("<key>"));
+        if( content.indexOf("<attached>") == -1  && content.indexOf("<board>") ==-1 )
+            if( isVerifyable() ) return content.substring(offset, content.lastIndexOf("<key>"));
             else return content;
-        else {
-        if (content.indexOf("<board>") == -1)
-            return content.substring(offset, content.indexOf("<attached>"));
-        if (content.indexOf("<attached>") == -1)
-            return content.substring(offset, content.indexOf("<board>"));
-        if (content.indexOf("<board>") < content.indexOf("<attached>"))
-            return content.substring(offset, content.indexOf("<board>"));
         else
-            return content.substring(offset, content.indexOf("<attached>"));
+        {
+            if( content.indexOf("<board>") == -1 )
+                return content.substring(offset, content.indexOf("<attached>"));
+            if( content.indexOf("<attached>") == -1 )
+                return content.substring(offset, content.indexOf("<board>"));
+            if( content.indexOf("<board>") < content.indexOf("<attached>") )
+                return content.substring(offset, content.indexOf("<board>"));
+            else
+                return content.substring(offset, content.indexOf("<attached>"));
         }
-
     }
+
     /**gets the status of the message*/
-    public String getStatus() {return currentStatus;}
+    public String getStatus()
+    {
+        return currentStatus;
+    }
 
     /** is the message verified?*/
-    public boolean isVerified() {return (currentStatus.compareTo(VERIFIED) == 0);}
-
-    /** set the status */
-    public void setStatus(String newStatus) {
-    System.out.println("setting message status to "+newStatus);
-    currentStatus = newStatus;
-    FileAccess.writeFile(currentStatus,file.getPath() + ".sig");
+    public boolean isVerified()
+    {
+        return(currentStatus.compareTo(VERIFIED) == 0);
     }
 
+    /** set the status */
+    public void setStatus(String newStatus)
+    {
+        System.out.println("setting message status to "+newStatus);
+        currentStatus = newStatus;
+        FileAccess.writeFile(currentStatus,file.getPath() + ".sig");
+    }
 
     /**Constructors*/
-    public VerifyableMessageObject() {
+    public VerifyableMessageObject()
+    {
         super();
         currentStatus = NA;
         isVerifyable=false;
     }
 
-    public VerifyableMessageObject(File file) {
+    public VerifyableMessageObject(File file)
+    {
         super(file);
-        if (from.indexOf("@") == -1 ||
+
+        if( from.indexOf("@") == -1 ||
             content.indexOf("===Frost signed message===\n") == -1 ||
-            content.indexOf("\n=== Frost message signature: ===\n") == -1 ) isVerifyable=false;
-        else isVerifyable = true;
-        File sigFile = new File(file.getPath() + ".sig");
-        if (!sigFile.exists())
-            currentStatus = NA;
+            content.indexOf("\n=== Frost message signature: ===\n") == -1 )
+        {
+            isVerifyable=false;
+        }
         else
+        {
+            isVerifyable = true;
+        }
+
+        File sigFile = new File(file.getPath() + ".sig");
+        if( !sigFile.exists() )
+        {
+            currentStatus = NA;
+        }
+        else
+        {
             currentStatus = FileAccess.readFile(sigFile);
+        }
     }
 
     private String[] cachedRow = null;

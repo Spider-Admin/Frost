@@ -1,9 +1,11 @@
 package frost;
+
 import java.util.*;
-import frost.FcpTools.*;
-import frost.crypt.*;
 import java.io.*;
 import javax.swing.*;
+
+import frost.FcpTools.*;
+import frost.crypt.*;
 
 /**
  * represents the main user's identity
@@ -30,17 +32,24 @@ public class LocalIdentity extends Identity implements Serializable
     /**
      * constructor that creates an RSA Keypair,
      * and inserts it in freenet
-     *
      */
     public LocalIdentity(String name)
     {
         this(name, frame1.getCrypto().generateKeys(), null);
 
-	try{
-	con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
-	}catch (FcpToolsException e) {System.out.println("fcptools exception");this.key=NA;}
-	catch (IOException e){this.key=NA;}
-	
+        try
+        {
+            con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+        }
+        catch( FcpToolsException e )
+        {
+            System.out.println("fcptools exception");this.key=NA;
+        }
+        catch( IOException e )
+        {
+            this.key=NA;
+        }
+
         //this is not so brutal anymore.
         FileAccess.writeFile(key,"pubkey.txt");
         try
@@ -78,3 +87,4 @@ public class LocalIdentity extends Identity implements Serializable
         //       System.out.println("set is " +set);
     }
 }
+

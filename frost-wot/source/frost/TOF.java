@@ -420,7 +420,7 @@ public class TOF {
     int index = frame1.frostSettings.getValue("blockMessage").indexOf(";");
     int pos = 0;
 
-    if (frame1.frostSettings.getBoolValue("signedOnly") && !message.isVerifyable) return true;
+    if (frame1.frostSettings.getBoolValue("signedOnly") && !message.isVerifyable()) return true;
     if (frame1.frostSettings.getBoolValue("signedOnly") && frame1.frostSettings.getBoolValue("goodOnly") &&
     (message.getStatus().indexOf("GOOD")==-1)) return true;
 
