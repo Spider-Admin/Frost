@@ -38,10 +38,10 @@ public interface OrderedModelListener extends EventListener {
 	void itemAdded(int position, ModelItem item);
 
 	/**
-	 * @param position
-	 * @param item
+	 * @param positions
+	 * @param items
 	 */
-	void itemRemoved(int position, ModelItem item);
+	void itemsRemoved(int[] positions, ModelItem[] items);
 	
 	/**
 	 * @param item

@@ -7,7 +7,6 @@
 package frost.util.model;
 
 import java.util.*;
-import java.util.Vector;
 
 /**
  * @author Administrator
@@ -108,9 +107,9 @@ class ModelChangeSupport {
 	}
 	
 	/**
-	 * @param item
+	 * @param items
 	 */
-	public void fireItemRemoved(ModelItem item) {
+	public void fireItemsRemoved(ModelItem[] items) {
 		Vector targets = null;
 		synchronized (this) {
 			if (listeners != null) {
@@ -120,7 +119,7 @@ class ModelChangeSupport {
 		if (targets != null) {
 			for (int i = 0; i < targets.size(); i++) {
 				ModelListener target = (ModelListener) targets.elementAt(i);
-				target.itemRemoved(item);
+				target.itemsRemoved(items);
 			}
 		}
 	}
