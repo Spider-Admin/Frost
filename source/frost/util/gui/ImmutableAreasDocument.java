@@ -106,7 +106,7 @@ public class ImmutableAreasDocument extends PlainDocument {
 				ImmutableArea area = (ImmutableArea) areas.next();
 				if (area.isEnabled()) {
 					int clippingValue = clip(area, offset, string.length(), false);
-					if (clippingValue == CLIPPING_INSIDE) {
+					if (clippingValue != CLIPPING_OUTSIDE) {
 						noAreasEnabled = false;
 						allowInsert = false;
 					}
