@@ -21,7 +21,7 @@ package frost.gui.model;
 
 import javax.swing.table.*;
 
-public class SearchTableModel extends SortedTableModel
+public class SearchTableModel extends SortedTableModel2
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
@@ -32,11 +32,18 @@ public class SearchTableModel extends SortedTableModel
         LangRes.getString("Key"),
         LangRes.getString("Board")
     };
+    protected final static Class columnClasses[] = {
+        String.class, //LangRes.getString("Filename"),
+        Long.class, //LangRes.getString("Size"),
+        String.class, //LangRes.getString("Age"),
+        String.class, //LangRes.getString("Key"),
+        String.class //LangRes.getString("Board")
+    };
 
     public SearchTableModel()
     {
         super();
-        sortColumn(0, true); // default for sort: sort by name ascending
+        sortModelColumn(0, true); // default for sort: sort by name ascending
     }
 
     public boolean isCellEditable(int row, int col)
@@ -54,8 +61,10 @@ public class SearchTableModel extends SortedTableModel
     {
         return columnNames.length;
     }
-    public Class getColumnClass(int columnIndex)
+    public Class getColumnClass(int column)
     {
-        return String.class;
+        if( column >= 0 && column < columnClasses.length )
+            return columnClasses[column];
+        return null;
     }
 }

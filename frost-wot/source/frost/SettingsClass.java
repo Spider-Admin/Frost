@@ -271,6 +271,7 @@ public class SettingsClass
         {
             writeSettingsFile();
         }
+        setValue("keypool.dir", frame1.keypool);
     }
 
     public SettingsClass (File settingsFile)

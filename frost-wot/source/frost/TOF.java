@@ -25,6 +25,7 @@ import javax.swing.table.*; // DefaultTableModel
 import javax.swing.tree.*;
 
 import frost.gui.*;
+import frost.gui.objects.*;
 
 public class TOF
 {
@@ -39,7 +40,7 @@ public class TOF
      * @param messages A Vector containing all MessageObjects that are just displayed by the table
      * @return The content of the message
      */
-    public static VerifyableMessageObject evalSelection(ListSelectionEvent e, JTable table) {
+    public static FrostMessageObject evalSelection(ListSelectionEvent e, JTable table) {
     DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
     if(!e.getValueIsAdjusting() && !table.isEditing())
     {
@@ -50,7 +51,7 @@ public class TOF
             String date = (String)tableModel.getValueAt(row, 4);
             String from = (String)tableModel.getValueAt(row, 1);
 
-            VerifyableMessageObject message = (VerifyableMessageObject)messages.get(index+date);
+            FrostMessageObject message = (FrostMessageObject)messages.get(index+date);
 
             if( message != null )
             {
@@ -108,7 +109,7 @@ public class TOF
              newMsgFile.length() < 32000
           )
         {
-            VerifyableMessageObject message = new VerifyableMessageObject(newMsgFile);
+            FrostMessageObject message = new FrostMessageObject(newMsgFile);
             if( message.isValid() && !blocked(message) )
             {
                 final String[] sMessage = message.getVRow();
@@ -283,7 +284,7 @@ public class TOF
                                  filePointers[j].getName().startsWith(sdate)
                               )
                             {
-                                VerifyableMessageObject message = new VerifyableMessageObject(filePointers[j]);
+                                FrostMessageObject message = new FrostMessageObject(filePointers[j]);
                                 if( message.isValid() && !blocked(message) )
                                 {
                                     msgcount++;

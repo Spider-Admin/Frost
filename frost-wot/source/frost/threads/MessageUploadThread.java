@@ -34,7 +34,8 @@ import frost.gui.*;
 /**
  * Uploads a message to a certain message board
  */
-public class MessageUploadThread extends Thread {
+public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread
+{
     private static boolean debug=true;
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
     final static boolean DEBUG = false;
@@ -57,6 +58,12 @@ public class MessageUploadThread extends Thread {
     private boolean signed;
     private boolean encryptSign;
     private Identity recipient;
+
+
+    public int getThreadType()
+    {
+        return BoardUpdateThread.MSG_UPLOAD;
+    }
 
     /**
      * Extracts all attachments from a message and returns
@@ -123,10 +130,11 @@ public class MessageUploadThread extends Thread {
     }
     }
 
-    public void run() {
+    public void run()
+    {
+    notifyThreadStarted(this);
 
     boolean retry = true;
-    frame1.tofUploadThreads++;
 
     // switch public / secure board
     String state = SettingsFun.getValue(frame1.keypool + board + ".key", "state");
@@ -309,34 +317,6 @@ public class MessageUploadThread extends Thread {
         System.out.println("*********************************************************************");
         retry = false;
 
-        // Ask user if he wants to add the board to the boardlist
-        // This is only done if the message was uploaded to index 0
-        // and this is NOT a secure board. Only public boards are allowed
-        // in the boardlist.
-        /*if (index == 0 && !secure && !silent) {
-            if (JOptionPane.showConfirmDialog(frameToLock,
-                              LangRes.getString("Do you want to add this board to the public boardlist?\n\n") +
-                              LangRes.getString("ATTENTION: If you choose yes EVERY Frost user will\n") +
-                              LangRes.getString("know about this board AND he will be able to read and\n") +
-                              LangRes.getString("write messages on this board."),
-                              board + LangRes.getString(" announcement."),
-                              JOptionPane.YES_NO_OPTION) == 0) {
-
-            // Just change the settings for this thread and use it to upload
-            // a message to the boardlist
-            retry = true;
-            success = false;
-            content = board;
-            silent = true;
-            board = "_boardlist";
-            destination = keypool + board + fileSeparator + mixed.getDate() + fileSeparator;
-            checkDestination = new File(destination);
-            if (!checkDestination.isDirectory())
-                checkDestination.mkdirs();
-            FileAccess.writeFile(content, destination + uploadMe);
-            }
-        }*/
-
         }
         else {
         System.out.println("Error while uploading message.");
@@ -356,38 +336,41 @@ public class MessageUploadThread extends Thread {
 
         System.out.println("TOF Upload Thread finished");
     }
+    notifyThreadFinished(this);
 
-    frame1.tofUploadThreads--;
     }
 
     /**Constructor*/
-    public MessageUploadThread(String[] args,
-                   Frame frameToLock) {
-    this.board = args[0];
-    this.from = args[1];
-    this.subject = args[2];
-    this.text = args[3];
-    this.messageUploadHtl = args[4];
-    this.keypool = args[5];
-    this.messageDownloadHtl = args[6];
-    // System.out.println( "Do we have extended date and time info ?");
-    if ( args.length > 7 ){
-        // System.out.println( "Yes! Date is " + args[7] + " and Time " + args[8] +"." );
-        this.date = args[7];
-        this.time = args[8];
-    }
-    else{
-        // System.out.println( "Hm ... no" );
-        this.date = "";
-        this.time = "";
-    }
-    if (args.length >9 && args[9]!=null){
-        encryptSign=true;
-        recipient = frame1.getFriends().Get(args[9]);
-    }
+    public MessageUploadThread(String board,
+                               String from,
+                               String subject,
+                               String text ,
+                               String msgUplHtl,
+                               String keypool,
+                               String msgDlHtl,
+                               String date,
+                               String time,
+                               String recipient,
+                               Frame frameToLock)
+    {
+        super(board);
+        this.board = board;
+        this.from = from;
+        this.subject = subject;
+        this.text = text;
+        this.messageUploadHtl = msgUplHtl;
+        this.keypool = keypool;
+        this.messageDownloadHtl = msgDlHtl;
+        this.date = date;
+        this.time = time;
+        if( recipient != null && recipient.length() > 0 )
+        {
+            encryptSign=true;
+            this.recipient = frame1.getFriends().Get(recipient);
+        }
+        this.frameToLock = frameToLock;
 
-    this.silent = false;
-    this.signed = false;
-    this.frameToLock = frameToLock;
+        this.silent = false;
+        this.signed = false;
     }
 }

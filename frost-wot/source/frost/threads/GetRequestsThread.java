@@ -28,7 +28,7 @@ import frost.*;
 /**
  * Downloads file requests
  */
-public class GetRequestsThread extends Thread
+public class GetRequestsThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
@@ -40,8 +40,15 @@ public class GetRequestsThread extends Thread
     private String fileSeparator = System.getProperty("file.separator");
     private JTable uploadTable;
 
+    public int getThreadType()
+    {
+        return BoardUpdateThread.BOARD_FILE_DNLOAD;
+    }
+
     public void run()
     {
+        notifyThreadStarted(this);
+
         GregorianCalendar cal= new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 
@@ -64,7 +71,10 @@ public class GetRequestsThread extends Thread
         int maxFailures = 2;
 
         if( isInterrupted() )
+        {
+            notifyThreadFinished(this);
             return;
+        }
 
         while( failures < maxFailures )
         {
@@ -150,17 +160,17 @@ public class GetRequestsThread extends Thread
                 failures++;
             }
             if( isInterrupted() )
+            {
                 break;
+            }
         }
-        synchronized(frame1.GRTThreads)
-        {
-            frame1.GRTThreads.removeElement(this);
-        }
+        notifyThreadFinished(this);
     }
 
     /**Constructor*/
     public GetRequestsThread(String boa, String dlHtl, String kpool, JTable uploadTable)
     {
+        super(boa);
         this.board = boa;
         this.downloadHtl = dlHtl;
         this.keypool = kpool;

@@ -27,7 +27,7 @@ public class KeyClass
 
     String key = new String(); // Name of this key
     String date = new String(); // Last access
-    String size = new String(); // Filesize
+    Long size = new Long(0); // Filesize
     String filename = new String();
     boolean exchange;
 
@@ -119,14 +119,20 @@ public class KeyClass
     /** Tests, if size is a valid integer value*/
     public boolean checkSize()
     {
+        if( size == null )
+            return false;
+        return true;
+
+/*
         try {
-            int tmp = Integer.parseInt(size);
+            long tmp = Integer.parseInt(size);
         }
         catch( NumberFormatException e ) {
             if( DEBUG ) System.out.println("Invalid size in key " + filename);
             return false;
         }
         return true;
+*/
     }
 
     /**Tests if key is valid*/
@@ -186,19 +192,24 @@ public class KeyClass
     /**Set size*/
     public void setSize(String size)
     {
-        this.size = size;
+        try {
+            this.size = new Long(size);
+        }
+        catch(NumberFormatException ex) {
+            this.size = null;
+        }
     }
 
     /**Set size*/
     public void setSize(long size)
     {
-        this.size = String.valueOf(size);
+        this.size = new Long(size);
     }
 
     /**Get size*/
-    public String getSize()
+    public Long getSize()
     {
-        return size.trim();
+        return size;
     }
 
     public boolean getExchange()

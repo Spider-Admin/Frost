@@ -32,6 +32,13 @@ public class BoardInfoTableModel extends SortedTableModel
         LangRes.getString("New messages"),
         LangRes.getString("Files")
     };
+    protected final static Class columnClasses[] =  {
+        String.class, //LangRes.getString("Board"),
+        String.class, //LangRes.getString("State"),
+        Integer.class, //LangRes.getString("Messages"),
+        Integer.class, //LangRes.getString("New messages"),
+        Integer.class //LangRes.getString("Files")
+    };
 
     public BoardInfoTableModel()
     {
@@ -53,8 +60,10 @@ public class BoardInfoTableModel extends SortedTableModel
     {
         return columnNames.length;
     }
-    public Class getColumnClass(int columnIndex)
+    public Class getColumnClass(int column)
     {
-        return String.class;
+        if( column >= 0 && column < columnClasses.length )
+            return columnClasses[column];
+        return null;
     }
 }

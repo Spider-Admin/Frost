@@ -29,6 +29,10 @@ public class AttachmentTableModel extends DefaultTableModel
         LangRes.getString("Filename"),
         LangRes.getString("Key")
     };
+    protected final static Class columnClasses[] = {
+        String.class, //LangRes.getString("Filename"),
+        String.class //LangRes.getString("Key")
+    };
 
     public AttachmentTableModel()
     {
@@ -50,8 +54,10 @@ public class AttachmentTableModel extends DefaultTableModel
     {
         return columnNames.length;
     }
-    public Class getColumnClass(int columnIndex)
+    public Class getColumnClass(int column)
     {
-        return String.class;
+        if( column >= 0 && column < columnClasses.length )
+            return columnClasses[column];
+        return null;
     }
 }

@@ -11,6 +11,11 @@ public class AttachedBoardTableModel extends DefaultTableModel
         "Public Key",
         "Private Key"
     };
+    protected final static Class columnClasses[] = {
+        String.class, //"Board Name",
+        String.class, //"Public Key",
+        String.class //"Private Key"
+    };
 
     public AttachedBoardTableModel()
     {
@@ -32,8 +37,10 @@ public class AttachedBoardTableModel extends DefaultTableModel
     {
         return columnNames.length;
     }
-    public Class getColumnClass(int columnIndex)
+    public Class getColumnClass(int column)
     {
-        return String.class;
+        if( column >= 0 && column < columnClasses.length )
+            return columnClasses[column];
+        return null;
     }
 }

@@ -282,22 +282,25 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
 
     if (quit) {
         if (state) {
-        String[] par = new String[10];
-        par[0] = mixed.makeFilename(board);
-        par[1] = from;
-        par[2] = subject;
-        par[3] = text;
-        par[4] = frostSettings.getValue("tofUploadHtl");
-        par[5] = keypool;
-        par[6] = frostSettings.getValue("tofDownloadHtl");
-        par[7] = "";
-        par[8] = "";
+        frostSettings.setValue("userName", from);
+
+        String recpnt = "";
         if (encrypt && recipient.compareTo(frame1.getMyId().getName()) != 0)
-            par[9] = recipient;
-        else par[9] = "";
-        frostSettings.setValue("userName", par[1]);
-        MessageUploadThread messageUploadThread = new MessageUploadThread(par, parentFrame);
-        messageUploadThread.start();
+        {
+            recpnt = recipient;
+        }
+
+        frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
+            mixed.makeFilename(board),
+            from,
+            subject,
+            text,
+            "",
+            "",
+            recpnt,
+            frostSettings,
+            parentFrame,
+            null);
         }
         frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
         frostSettings.writeSettingsFile();
