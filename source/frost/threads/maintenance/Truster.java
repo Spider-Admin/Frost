@@ -17,6 +17,7 @@ import frost.boards.TOF;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.identities.Identity;
+import frost.messages.*;
 import frost.messages.VerifyableMessageObject;
 
 
@@ -105,8 +106,12 @@ public class Truster extends Thread
             FrostMessageObject tempMsg = null;
             try {
             	tempMsg = FrostMessageFactory.createFrostMessageObject(msgFile);
-            }catch (Exception e){
-				logger.log(Level.WARNING, "Exception thrown in run()", e);	//Probably the message is empty
+            }catch (MessageCreationException mce){
+            	if (mce.isEmpty()) {
+            		logger.log(Level.INFO, "A message could not be created. It is empty.", mce);
+            	} else {
+            		logger.log(Level.WARNING, "A message could not be created.", mce);
+            	}
             }
             if( tempMsg != null && tempMsg.getFrom().equals(from) &&
                 (
