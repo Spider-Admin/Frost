@@ -27,7 +27,7 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
-import javax.swing.text.BadLocationException;
+import javax.swing.text.*;
 
 import frost.*;
 import frost.fcp.FcpInsert;
@@ -82,13 +82,13 @@ public class MessageFrame extends JFrame
 
     JTextField TFboard = new JTextField(); // Board (To)
     private JTextField fromTextField = new JTextField(); // From
-    JTextField TFsubject = new JTextField(); // Subject
+    private JTextField subjectTextField = new JTextField(); // Subject
 
     private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
     private String oldSender = null;
 
-	private void Init() throws Exception {
+	private void initialize() throws Exception {
 		if (!initialized) {
 			//------------------------------------------------------------------------
 			// Configure objects
@@ -129,7 +129,7 @@ public class MessageFrame extends JFrame
 			TFboard.setText(board.toString());
 			fromTextField.setText(from);
 
-			TFsubject.setText(subject);
+			subjectTextField.setText(subject);
 			messageTextArea.setLineWrap(true);
 			messageTextArea.setWrapStyleWord(true);
 
@@ -181,7 +181,43 @@ public class MessageFrame extends JFrame
 				public void removeUpdate(DocumentEvent e) {
 					updateHeaderArea();
 				}
-			});
+			});		
+			AbstractDocument doc = (AbstractDocument) fromTextField.getDocument();
+			doc.setDocumentFilter(new DocumentFilter() {
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see javax.swing.text.DocumentFilter#insertString(javax.swing.text.DocumentFilter.FilterBypass,
+                 *      int, java.lang.String, javax.swing.text.AttributeSet)
+                 */
+                public void insertString(DocumentFilter.FilterBypass fb, int offset, String string,
+                        AttributeSet attr) throws BadLocationException {
+                    
+                    if (fromTextField.isEditable()) {
+                        string = string.replaceAll("@","");
+                    }
+                    super.insertString(fb, offset, string, attr);
+
+                }
+
+                /*
+                 * (non-Javadoc)
+                 * 
+                 * @see javax.swing.text.DocumentFilter#replace(javax.swing.text.DocumentFilter.FilterBypass,
+                 *      int, int, java.lang.String,
+                 *      javax.swing.text.AttributeSet)
+                 */
+                public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text,
+                        AttributeSet attrs) throws BadLocationException {
+                    
+                    if (fromTextField.isEditable()) {
+                        text = text.replaceAll("@","");
+                    }
+                    super.replace(fb, offset, length, text, attrs);
+                    
+                }
+            });
+			
 			//------------------------------------------------------------------------
 			// Append objects
 			//------------------------------------------------------------------------
@@ -204,7 +240,7 @@ public class MessageFrame extends JFrame
 
 			panelTextfields.add(TFboard, BorderLayout.NORTH);
 			panelTextfields.add(fromTextField, BorderLayout.CENTER);
-			panelTextfields.add(TFsubject, BorderLayout.SOUTH);
+			panelTextfields.add(subjectTextField, BorderLayout.SOUTH);
 
 			panelButtons.add(Bsend);
 			panelButtons.add(Bcancel);
@@ -267,8 +303,8 @@ public class MessageFrame extends JFrame
     {
         from = fromTextField.getText().trim();
 		fromTextField.setText(from);
-        subject = TFsubject.getText().trim();
-        TFsubject.setText(subject); // if a pbl occurs show the subject we checked
+        subject = subjectTextField.getText().trim();
+        subjectTextField.setText(subject); // if a pbl occurs show the subject we checked
         String text = messageTextArea.getText().trim();
 
         boolean quit = true;
@@ -557,7 +593,7 @@ public class MessageFrame extends JFrame
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		try {
-			Init();
+			initialize();
 		} catch (Exception e) {
 			logger.log(Level.SEVERE, "Exception thrown in composeMessage(...)", e);
 		}
