@@ -21,6 +21,7 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
+import javax.swing.border.*;
 import java.util.*;
 import java.io.*;
 
@@ -342,42 +343,44 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
     }
    }
 
-   private void uploadBoards_actionPerformed(ActionEvent e) {
-    String lineSeparator = System.getProperty("line.separator");
-    final JFileChooser fc = new JFileChooser("keypool");
-    fc.setDialogTitle("choose board(s) to attach");
-    fc.setFileHidingEnabled(true);
-    fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
-    fc.setMultiSelectionEnabled(true);
-    //fc.setControlButtonsAreShown(false);
-    fc.removeChoosableFileFilter(fc.getAcceptAllFileFilter());
-    fc.setFileFilter(new javax.swing.filechooser.FileFilter() {
-            public String getDescription() {return ".key";}
-            public boolean accept(File f) {
-                return f.getPath().endsWith(".key");
-            }
-        });
-    int returnVal = fc.showOpenDialog(MessageFrame.this);
+    private void uploadBoards_actionPerformed(ActionEvent e)
+    {
+        String lineSeparator = System.getProperty("line.separator");
+        Vector allBoards = frame1.getInstance().getTofTree().getAllBoards();
+        if( allBoards.size() == 0 )
+            return;
+        Collections.sort(allBoards);
 
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-        File[] file = fc.getSelectedFiles();
-        for (int i = 0; i < file.length; i++)
-        if (file[i].isFile() && file[i].getPath().endsWith(".key")) {
-            String content =FileAccess.read(file[i].getPath());
-            String pubKey = content.substring(content.indexOf("publicKey=")+10,content.indexOf("state")).trim();
-            String privKey = content.substring(content.indexOf("privateKey=")+11,content.indexOf("publicKey=")).trim();
-            String bname = file[i].getName().substring(0,file[i].getName().indexOf(".key")).trim();
-            if (!privKey.startsWith("SSK@")) privKey="N/A";
-            else if (JOptionPane.showConfirmDialog(this,"You have the private key to " + bname +
-                                ".  Are you sure you want it attached?\n If you choose NO, only the public key will be attached.",
-                              "include private key?",
-                              JOptionPane.YES_NO_OPTION) != 0) privKey="N/A";
-            String name = file[i].getName().substring(0,file[i].getName().indexOf(".key")).trim();
+        AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
+        chooser.setLocationRelativeTo( this );
+        Vector chosedBoards = chooser.runDialog();
+        if( chosedBoards == null || chosedBoards.size() == 0 ) // nothing chosed or cancelled
+        {
+            return;
+        }
 
-            jTextArea1.append("<board>" + name + " * " + pubKey + " * " + privKey + "</board>" + lineSeparator);
+        for( int i = 0; i < chosedBoards.size(); i++ )
+        {
+            FrostBoardObject board = (FrostBoardObject)chosedBoards.get(i);
+
+            String pubKey = board.getPublicKey();
+            String privKey = board.getPrivateKey();
+            if( pubKey == null )
+                pubKey="N/A";
+            if( privKey == null )
+                privKey="N/A";
+            else if( JOptionPane.showConfirmDialog(this,"You have the private key to " + board.toString() +
+                                                   ".  Are you sure you want it attached?\n If you choose NO, only the public key will be attached.",
+                                                   "include private key?",
+                                                   JOptionPane.YES_NO_OPTION) != 0 )
+                privKey="N/A";
+
+            jTextArea1.append("<board>" + board.toString() +
+                              " * " + pubKey +
+                              " * " + privKey +
+                              "</board>" + lineSeparator);
         }
     }
-   }
 
    /**
     * Configures a button to be a default icon button
@@ -393,7 +396,6 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
        button.setBorderPainted(false);
        button.setFocusPainted(false);
    }
-
 
     protected void processWindowEvent(WindowEvent e) {
     if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -442,6 +444,69 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         }
         pack();
         setLocationRelativeTo(parentFrame);
+    }
+
+    private class AttachBoardsChooser extends JDialog
+    {
+        Vector boards;
+        JButton Bok;
+        JButton Bcancel;
+        JList Lboards;
+        boolean okPressed = false;
+
+        public AttachBoardsChooser(Vector boards)
+        {
+            super();
+            setTitle("Choose boards to attach");
+            setModal(true);
+            this.boards = boards;
+            initGui();
+        }
+        private void initGui()
+        {
+            Bok = new JButton("OK");
+            Bok.addActionListener( new ActionListener() {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        okPressed = true;
+                        hide();
+                    } } );
+            Bcancel = new JButton("Cancel");
+            Bcancel.addActionListener( new ActionListener() {
+                    public void actionPerformed(ActionEvent e)
+                    {
+                        okPressed = false;
+                        hide();
+                    } } );
+            JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
+            buttonsPanel.add( Bok );
+            buttonsPanel.add( Bcancel );
+
+            Lboards = new JList( boards );
+            Lboards.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            JScrollPane listScroller = new JScrollPane( Lboards );
+            listScroller.setBorder(
+                    new CompoundBorder(    new EmptyBorder(5,5,5,5),
+                                           new CompoundBorder(  new EtchedBorder(),
+                                                                new EmptyBorder(5,5,5,5) )
+                                      )
+                                  );
+
+
+            getContentPane().add(listScroller, BorderLayout.CENTER);
+            getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
+            setSize(200, 300);
+        }
+        public Vector runDialog()
+        {
+            show();
+            if( okPressed == false )
+                return null;
+
+            Object[] sels = Lboards.getSelectedValues();
+            Vector chosed = new Vector( Arrays.asList( sels ) );
+            return chosed;
+        }
     }
 }
 
