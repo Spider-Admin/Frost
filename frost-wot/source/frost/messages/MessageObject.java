@@ -80,7 +80,7 @@ public class MessageObject implements XMLizable
 		//public Key
 		if (publicKey!=null) {
 			current = d.createElement("pubKey");
-			cdata = d.createCDATASection(getDate());
+			cdata = d.createCDATASection(getPublicKey());
 			current.appendChild(cdata);
 			el.appendChild(current);
 		}
@@ -109,9 +109,13 @@ public class MessageObject implements XMLizable
 			board = XMLTools.getChildElementsCDATAValue(e,"Board");
 			content = XMLTools.getChildElementsCDATAValue(e,"Body");
 			
-			Element _attachments = (Element)XMLTools.getChildElementsByTagName(e,"AttachmentList").iterator().next();
-			attachments = new AttachmentList();
-			attachments.loadXMLElement(_attachments);
+            List l = XMLTools.getChildElementsByTagName(e,"AttachmentList");
+            if( l.size() > 0 )
+            {
+                Element _attachments = (Element)l.get(0); 
+                attachments = new AttachmentList();
+                attachments.loadXMLElement(_attachments);
+            }
 	}
 
     static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
@@ -200,6 +204,9 @@ public class MessageObject implements XMLizable
 
     public String getPublicKey() {
     return publicKey;
+    }
+    public void setPublicKey(String pk) {
+    publicKey=pk;
     }
     public String getBoard() {
     return board;

@@ -161,6 +161,27 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
 
         System.out.println("TOFUP: Uploading message to board '" + board.toString() + "' with HTL " + messageUploadHtl);
+        
+        // first save msg to be able to resend on crash        
+        boolean wasOK = false; 
+        try {
+            Document doc = XMLTools.createDomDocument();
+            doc.appendChild( message.getXMLElement(doc) );
+            wasOK = XMLTools.writeXmlFile(doc, this.messageFile.getPath());
+        }
+        catch(Throwable ex)
+        {
+            ex.printStackTrace(Core.getOut());
+        }
+        if( !wasOK )
+        {
+            // now we really have a problem:
+            //  writing of file was not successful, so this msg will be lost!
+            Core.getOut().println("This was a HARD error and the file to upload is lost, please report to a dev!");
+            notifyThreadFinished(this);
+            return;
+        }
+        
 
 // BBACKFLAG: ask user if uploading of X files is allowed!
         boolean uploadOK = uploadAttachments();
@@ -177,7 +198,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
         
         // Generate file to upload
-        boolean wasOK = false; 
+        wasOK = false; 
         try {
             Document doc = XMLTools.createDomDocument();
             doc.appendChild( message.getXMLElement(doc) );
