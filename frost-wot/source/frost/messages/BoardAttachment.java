@@ -6,7 +6,6 @@
  */
 package frost.messages;
 
-import java.util.List;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;

@@ -233,6 +233,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
         String enableDownload = dlItemElement.getAttribute("enableDownload");
 	    String SHA1 = XMLTools.getChildElementsTextValue(dlItemElement, "SHA1");
     	String batch = XMLTools.getChildElementsTextValue(dlItemElement, "batch");
+    	String redirect = XMLTools.getChildElementsCDATAValue(dlItemElement,"redirect");
 
         //  SHA1 val is not available when adding downloads using textbox
         // one of key or SHA1 must be available
@@ -301,6 +302,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
                                                                      isDownloadEnabled,
                                                                      board);
 	dlItem.setBatch(batch);
+	dlItem.setRedirect(redirect);
         return dlItem;
     }
 
@@ -498,6 +500,14 @@ System.out.println("ERROR saving download table!");
 		element = doc.createElement("batch");
 		text = doc.createTextNode (dlItem.getBatch());
 		element.appendChild(text);
+		itemElement.appendChild(element);
+	}
+	
+	//redirect - for redirect files
+	if (dlItem.getRedirect()!=null){
+		element = doc.createElement("redirect");
+		cdata= doc.createCDATASection (dlItem.getRedirect());
+		element.appendChild(cdata);
 		itemElement.appendChild(element);
 	}
 	//owner
