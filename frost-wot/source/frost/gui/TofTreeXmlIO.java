@@ -19,6 +19,7 @@
 package frost.gui;
 
 import java.util.ArrayList;
+import java.util.logging.*;
 
 import javax.swing.JTree;
 import javax.swing.tree.*;
@@ -30,6 +31,8 @@ import frost.gui.objects.FrostBoardObject;
 
 public class TofTreeXmlIO
 {
+	private static Logger logger = Logger.getLogger(TofTreeXmlIO.class.getName());
+	
     /**************************************************
      * TREE LOAD METHODS ******************************
      **************************************************/
@@ -48,7 +51,7 @@ public class TofTreeXmlIO
 
         if( doc == null )
         {
-            System.out.println("Error - loadBoardTree: could'nt parse XML Document.");
+            logger.severe("Error - loadBoardTree: could'nt parse XML Document.");
             return false;
         }
 
@@ -56,7 +59,7 @@ public class TofTreeXmlIO
 
         if( rootNode.getTagName().equals("FrostBoardTree") == false )
         {
-            System.out.println("Error - boards.xml invalid: does not contain the root tag 'FrostBoardTree'");
+            logger.severe("Error - boards.xml invalid: does not contain the root tag 'FrostBoardTree'");
             return false;
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
@@ -64,7 +67,7 @@ public class TofTreeXmlIO
 
         if( nodelist.size() != 1 )
         {
-            System.out.println("Error - boards.xml invalid: first element must be the one and only root folder ("+
+			logger.severe("Error - boards.xml invalid: first element must be the one and only root folder ("+
                                 nodelist.size()+")");
             return false;
         }
@@ -72,7 +75,7 @@ public class TofTreeXmlIO
         String tagName = boardRootNode.getTagName();
         if( tagName == null || tagName.equals("FrostBoardTreeEntry") == false )
         {
-            System.out.println("Error - boards.xml invalid: first element must the root folder");
+			logger.severe("Error - boards.xml invalid: first element must the root folder");
             return false;
         }
 
@@ -82,7 +85,7 @@ public class TofTreeXmlIO
         boolean isFolder = getIsFolderFromFrostBoardTreeEntry( boardRootNode );
         if( isFolder == false )
         {
-            System.out.println("Error - boards.xml invalid: first element must be a folder (the root folder)");
+			logger.severe("Error - boards.xml invalid: first element must be a folder (the root folder)");
             return false;
         }
         boolean isExpanded = getIsExpandedFromFrostBoardTreeEntry( boardRootNode );
@@ -99,7 +102,7 @@ public class TofTreeXmlIO
 
         tree.updateUI();
 
-System.out.println("Board tree loaded successfully.");
+		logger.info("Board tree loaded successfully.");
 
         return true;
     }
@@ -257,7 +260,7 @@ System.out.println("Board tree loaded successfully.");
         ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "name");
         if( list.size() != 1 )
         {
-            System.out.println("Error - boards.xml invalid: there must be 1 <name> tag for each entry");
+            logger.severe("Error - boards.xml invalid: there must be 1 <name> tag for each entry");
             return null;
         }
         Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
@@ -271,7 +274,7 @@ System.out.println("Board tree loaded successfully.");
         ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "publicKey");
         if( list.size() > 1 )
         {
-            System.out.println("Error - boards.xml invalid: there should be a maximum of 1 <publicKey> tag for each entry");
+            logger.severe("Error - boards.xml invalid: there should be a maximum of 1 <publicKey> tag for each entry");
             return null;
         }
         if( list.size() == 0 )
@@ -289,7 +292,7 @@ System.out.println("Board tree loaded successfully.");
         ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "privateKey");
         if( list.size() > 1 )
         {
-            System.out.println("Error - boards.xml invalid: there should be a maximum of 1 <privateKey> tag for each entry");
+            logger.severe("Error - boards.xml invalid: there should be a maximum of 1 <privateKey> tag for each entry");
             return null;
         }
         if( list.size() == 0 )
@@ -311,7 +314,7 @@ System.out.println("Board tree loaded successfully.");
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
         {
-            System.out.println("Error - saveBoardTree: factory could'nt create XML Document.");
+            logger.severe("Error - saveBoardTree: factory could'nt create XML Document.");
             return false;
         }
 
@@ -338,12 +341,11 @@ System.out.println("Board tree loaded successfully.");
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, filename);
-            System.out.println("Board tree saved successfully.");
+            logger.info("Board tree saved successfully.");
         } catch(Throwable t)
         {
-            System.out.println("Exception - saveBoardTree:");
-            t.printStackTrace();
-            System.out.println("ERROR saving board tree.");
+			logger.log(Level.SEVERE, "Exception - saveBoardTree:\n" + 
+									 "ERROR saving board tree.", t);
         }
 
         return writeOK;

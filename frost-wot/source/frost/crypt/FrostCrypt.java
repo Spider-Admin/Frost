@@ -6,6 +6,7 @@ import java.nio.ByteBuffer;
 import java.nio.channels.FileChannel;
 import java.security.SecureRandom;
 import java.util.StringTokenizer;
+import java.util.logging.*;
 
 import org.bouncycastle.crypto.*;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -21,6 +22,8 @@ import org.bouncycastle.util.encoders.Base64;
  */
 
 public final class FrostCrypt implements crypt {
+
+	private static Logger logger = Logger.getLogger(FrostCrypt.class.getName());
 
 	public static Base64 texter; //so people can use it outside the class
 
@@ -127,8 +130,7 @@ public final class FrostCrypt implements crypt {
 			signedMessage.append(new String(Base64.encode(signature)));
 			signedMessage.append("\n=== End of Signature. ===");
 		} catch (CryptoException e) {
-			System.err.println(
-				"CryptoException in Verifier.sign: " + e.getMessage());
+			logger.log(Level.SEVERE, "Exception thrown in sign(byte [] message, String key)", e);
 		}
 
 		//reset the signer
@@ -195,7 +197,7 @@ public final class FrostCrypt implements crypt {
 		try {
 			chan = (new FileInputStream(file)).getChannel();
 		} catch (IOException e) {
-			e.printStackTrace(frost.Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in digest(File file)", e);
 		}
 		byte[] temp = new byte[1024 * 1024];
 		ByteBuffer _temp = ByteBuffer.wrap(temp);
@@ -215,7 +217,7 @@ public final class FrostCrypt implements crypt {
 			}
 			chan.close();
 		} catch (IOException e) {
-			e.printStackTrace(frost.Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in digest(File file)", e);
 		}
 		stomach.doFinal(poop, 0);
 		return (new String(Base64.encode(poop))).substring(0, 27);
@@ -427,8 +429,7 @@ public final class FrostCrypt implements crypt {
 		try {
 			signature = signer.generateSignature();
 		} catch (CryptoException e) {
-			System.err.println(
-				"CryptoException in Verifier.detachedSign: " + e.getMessage());
+			logger.log(Level.SEVERE, "Exception thrown in detachedSign(String message, String key)", e);
 		}
 		signer.reset();
 		String result=new String(Base64.encode(signature));

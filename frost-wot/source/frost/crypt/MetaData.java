@@ -6,11 +6,13 @@
  */
 package frost.crypt;
 
-import frost.identities.Identity;
-import frost.*;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.*;
+import frost.identities.Identity;
 
 /**
  * @author root
@@ -19,6 +21,8 @@ import org.xml.sax.SAXException;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public abstract class MetaData implements XMLizable {
+	
+	private static Logger logger = Logger.getLogger(MetaData.class.getName());
 	
 	public static final int SIGN=0;
 	public static final int ENCRYPT=1;
@@ -54,7 +58,7 @@ public abstract class MetaData implements XMLizable {
 			else
 				return new EncryptMetaData(e);
 		}catch(SAXException ex) {
-			ex.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in getInstance(byte [] body, Element e)", ex);
 		}
 		return null;
 	}

@@ -23,6 +23,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -30,6 +31,9 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.*;
 
 public class SkinManager extends JFrame {
+	
+	private static Logger logger = Logger.getLogger(SkinManager.class.getName());
+	
 	//     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
 	//------------------------------------------------------------------------
@@ -122,7 +126,7 @@ public class SkinManager extends JFrame {
 	}
 
 	private void applyChangesButton_actionPerformed(ActionEvent e) {
-		System.out.println("Applying changes...");
+		logger.info("Applying changes...");
 		applySettings();
 	}
 
@@ -136,11 +140,11 @@ public class SkinManager extends JFrame {
 			// ***** JButton *****
 			// *******************
 			if (component.toString().startsWith("javax.swing.JButton")) {
-				System.out.println("Button");
+				logger.fine("Button");
 				JButton thisButton = (JButton) component;
 				for (int i = 0; i < rowCount; i++) {
 					String first = (String) tableModel.getValueAt(i, 0);
-					System.out.println("Setting value for " + first);
+					logger.fine("Setting value for " + first);
 
 					if (first.equals("ToolTipText"))
 						thisButton.setToolTipText(
@@ -344,7 +348,7 @@ public class SkinManager extends JFrame {
 
 					// Colors
 					if (first.equals("Background")) {
-						System.out.println("Setting Background values");
+						logger.fine("Setting Background values");
 						Vector backgroundValues =
 							getIntegerTuple(
 								(String) tableModel.getValueAt(i, 2));
@@ -447,7 +451,7 @@ public class SkinManager extends JFrame {
 		try {
 			Init();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 		}
 
 		pack();
@@ -456,13 +460,11 @@ public class SkinManager extends JFrame {
 
 	public static void configFrame(JFrame frame) {
 
-		System.out.println("Config Frame:");
-		System.out.println("=============");
-
 		Container contentPane = frame.getContentPane();
-
-		System.out.println(
-			"#Objects in contentPane: " + contentPane.getComponentCount());
+		
+		logger.fine("Config Frame:\n" +
+					"=============\n" +
+	  				"#Objects in contentPane: " + contentPane.getComponentCount());
 
 		rootNode.setUserObject(contentPane.toString());
 		objectMap.put(contentPane.toString(), contentPane);
@@ -513,7 +515,7 @@ public class SkinManager extends JFrame {
 
 		}
 
-		System.out.println("Up one level...");
+		logger.fine("Up one level...");
 
 	}
 

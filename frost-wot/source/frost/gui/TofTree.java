@@ -26,6 +26,7 @@ import java.awt.geom.*;
 import java.awt.image.BufferedImage;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.tree.*;
@@ -37,6 +38,8 @@ public class TofTree extends JTree
 implements DragGestureListener, DragSourceListener
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    
+	private static Logger logger = Logger.getLogger(TofTree.class.getName());
 
     private TreePath        _pathSource;                // The path being dragged
     private BufferedImage   _imgGhost;                  // The 'drag image'
@@ -337,7 +340,7 @@ implements DragGestureListener, DragSourceListener
                             int idx = newParent.getIndex(targetNode);
                             if( idx < 0 )
                             {
-                                Core.getOut().println("child not found in parent!!!");
+                                logger.warning("child not found in parent!!!");
                                 e.dropComplete(false);
                                 return;
                             }
@@ -386,13 +389,13 @@ implements DragGestureListener, DragSourceListener
                     }
                     catch (UnsupportedFlavorException ufe)
                     {
-                        Core.getOut().println(ufe);
+						logger.log(Level.SEVERE, "Exception thrown in drop(DropTargetDropEvent e)", ufe);
                         e.dropComplete(false);
                         return;
                     }
                     catch (IOException ioe)
                     {
-                        Core.getOut().println(ioe);
+						logger.log(Level.SEVERE, "Exception thrown in drop(DropTargetDropEvent e)", ioe);
                         e.dropComplete(false);
                         return;
                     }
@@ -544,7 +547,7 @@ implements DragGestureListener, DragSourceListener
         File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false )
         {
-            Core.getOut().println("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
+            logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
             boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml.default";
         }
         return xmlio.loadBoardTree( this, boardIniFilename );

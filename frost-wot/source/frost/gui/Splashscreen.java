@@ -19,10 +19,13 @@
 package frost.gui;
 
 import java.awt.BorderLayout;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
 public class Splashscreen extends JDialog {
+
+	private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
 
 	//Splashscreen size depends on this image. 
 	private static final ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource("/data/logo.png"));
@@ -73,7 +76,7 @@ public class Splashscreen extends JDialog {
 	{
 		hide();
 		dispose();
-		System.out.println("Splashscreen: I'm gone now :-(");
+		logger.info("Splashscreen: I'm gone now :-(");
 	}
 
 }

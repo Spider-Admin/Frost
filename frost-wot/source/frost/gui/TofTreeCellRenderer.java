@@ -20,6 +20,7 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 package frost.gui;
 
 import java.awt.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.tree.DefaultTreeCellRenderer;
@@ -29,6 +30,8 @@ import frost.gui.objects.FrostBoardObject;
 
 public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 {
+	private static Logger logger = Logger.getLogger(TofTreeCellRenderer.class.getName());
+	
     ImageIcon writeAccessIcon;
     ImageIcon writeAccessNewIcon;
     ImageIcon readAccessIcon;
@@ -78,9 +81,9 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         }
         else
         {
-            System.out.println("Error - TofTreeCellRenderer: got a tree value wich is no FrostBoardObject:");
-            System.out.println("   node value='"+value+"'  ;  node class='"+value.getClass()+"'");
-            System.out.println("This should never happen, please report the error.");
+            logger.severe("Error - TofTreeCellRenderer: got a tree value wich is no FrostBoardObject:\n" +
+            			  "   node value='" + value + "'  ;  node class='" + value.getClass() + "'\n" +
+            			  "This should never happen, please report the error.");
             return this;
         }
 
