@@ -760,7 +760,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx = 0;
             miscPanel.add(miscAvailableNodesTextField, constr);
-            miscAvailableNodesTextField.setEnabled(false); //TODO: remove this once implemented
+            //miscAvailableNodesTextField.setEnabled(false); 
             constr.gridy++;
             constr.gridx = 0;
             //miscPanel.add(new JLabel(LangRes.getString("Node port:") + " (8481)"), constr);
