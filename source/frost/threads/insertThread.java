@@ -55,6 +55,14 @@ public class insertThread extends Thread
 
     public void run()
     {
+    	if (batchId==null) {
+    		Error er = new Error();
+    		er.fillInStackTrace();
+    		er.printStackTrace(Core.getOut());
+    	}
+    	if (Core.getMyBatches().values().size()==0)
+    		Core.getMyBatches().put(batchId,batchId);
+    		
         try
         {
             String lastUploadDate = null; // NEVER uploaded
