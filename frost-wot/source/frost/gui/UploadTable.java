@@ -155,7 +155,7 @@ public class UploadTable extends SortedTable
 	    			batchId=(new Long(r.nextLong())).toString(); //spam this, asshole!
 			frame1.getMyBatches().put(batchId,batchId);
 		}
-		
+		System.out.println(batchId);
 		newKey.setBatch(batchId);
 		ulItem.setBatch(batchId);
                 Index.addMine( newKey, ulItem.getTargetBoard() );

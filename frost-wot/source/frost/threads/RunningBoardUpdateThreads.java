@@ -95,7 +95,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     public boolean startBoardFilesUpload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
-        GetRequestsThread grt = new GetRequestsThread(
+        /*GetRequestsThread grt = new GetRequestsThread(
            board,
            config.getIntValue("tofDownloadHtl"),
            config.getValue("keypool.dir"),
@@ -113,7 +113,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         getVectorFromHashtable( runningDownloadThreads, board ).add(grt);
 
         // start thread
-        grt.start();
+        grt.start();*/
 
         return true;
     }

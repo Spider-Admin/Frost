@@ -20,6 +20,7 @@
 package frost.threads;
 
 import java.io.File;
+import java.util.Random;
 
 import frost.*;
 import frost.gui.model.UploadTableModel;
@@ -34,6 +35,12 @@ public class insertThread extends Thread
     private String htl;
     private FrostBoardObject board;
     private boolean mode;
+    private static int fileIndex=1;
+    private static Random r = new Random();
+    private static String batchId = (new Long(r.nextLong())).toString();
+    private static final int batchSize = 100; //TODO: get this from options
+    private static final Object putIt = frame1.getMyBatches().put(batchId,batchId);
+    //^^ ugly trick to put the initial batch number
 
     FrostUploadItemObject uploadItem;
 
@@ -87,6 +94,7 @@ public class insertThread extends Thread
 	    current.setOwner(frame1.getMyId().getUniqueName());
 	    current.setFilename(uploadItem.getFileName());
 	    current.setSHA1(uploadItem.getSHA1());
+	    current.setBatch(uploadItem.getBatch());
 	    current.setSize(uploadItem.getFileSize().longValue());
 	    current.setDate(lastUploadDate);
 	    Index.addMine(current,board);
@@ -95,6 +103,14 @@ public class insertThread extends Thread
         else
         {
             frame1.setGeneratingCHK( true );
+	    
+	    if (fileIndex % batchSize == 0) {
+	    	frame1.getMyBatches().put(batchId,batchId);
+	    	while (frame1.getMyBatches().contains(batchId))
+			batchId = (new Long(r.nextLong())).toString();
+		frame1.getMyBatches().put(batchId,batchId);
+	    }
+	    
 	    long now = System.currentTimeMillis();
 	    String  SHA1 = frame1.getCrypto().digest(file);
 	    System.out.println("digest generated in "+(System.currentTimeMillis()-now) +
@@ -108,6 +124,7 @@ public class insertThread extends Thread
 	    newKey.setSHA1(SHA1);  
             newKey.setFilename(destination);
             newKey.setSize(file.length());
+	    newKey.setBatch(batchId);
 	    if (sign)
 	    newKey.setOwner(frame1.getMyId().getUniqueName());
 	    
@@ -115,7 +132,8 @@ public class insertThread extends Thread
 	    uploadItem.setSHA1( SHA1 );
 	    uploadItem.setKey(null);
 	    uploadItem.setLastUploadDate(null);
-	    
+	    uploadItem.setBatch(batchId);
+	    fileIndex++;
 	    //add to index
             Index.addMine(newKey, board);
 	    Index.add(newKey,board);

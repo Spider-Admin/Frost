@@ -336,7 +336,9 @@ public class frame1 extends JFrame implements ClipboardOwner
 		    	StringBuffer buf = new StringBuffer();
 			Iterator i = myBatches.keySet().iterator();
 			while (i.hasNext()) 
-				buf.append((String)i.next()).append("*");
+				buf.append((String)i.next()).append("_");
+			if (buf.length() > 0)
+				buf.deleteCharAt(buf.length()-1); //remove the _ at the end
 			File batches = new File("batches");
 			FileAccess.writeFile(buf.toString(),batches);
 			
@@ -1267,7 +1269,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 	if (batches.exists())
 	try{
 		String allBatches = FileAccess.readFileRaw(batches);
-		String[] _batches = allBatches.split("*"); //dumb.  will fix later
+		String[] _batches = allBatches.split("_"); //dumb.  will fix later
 		
 		for (int i = 0;i<_batches.length;i++)
 			myBatches.put(_batches[i],_batches[i]);
