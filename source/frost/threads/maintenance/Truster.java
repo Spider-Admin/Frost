@@ -106,7 +106,7 @@ public class Truster extends Thread
             try {
             	tempMsg = FrostMessageFactory.createFrostMessageObject(msgFile);
             }catch (Exception e){
-				logger.log(Level.SEVERE, "Exception thrown in run()", e);
+				logger.log(Level.WARNING, "Exception thrown in run()", e);	//Probably the message is empty
             }
             if( tempMsg != null && tempMsg.getFrom().equals(from) &&
                 (
