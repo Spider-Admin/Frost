@@ -22,13 +22,11 @@ import java.awt.*;
 import java.util.LinkedList;
 
 import javax.swing.JTable;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
-import frost.Core;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
 import frost.identities.*;
-import frost.identities.Identity;
 
 public class SearchTable extends SortedTable
 {
@@ -37,17 +35,10 @@ public class SearchTable extends SortedTable
 	private CellRenderer cellRenderer = new CellRenderer();
 	
 	/**
-	 * 
-	 */
-	public SearchTable(FrostIdentities newIdentities) {
-		this(null, newIdentities);
-	}
-
-	/**
 	 * @param m
 	 * @param newIdentities
 	 */
-	public SearchTable(TableModel m, FrostIdentities newIdentities) {
+	public SearchTable(SearchTableModel m, FrostIdentities newIdentities) {
 		super(m);
 
 		identities = newIdentities; 
@@ -58,9 +49,8 @@ public class SearchTable extends SortedTable
 		// default for sort: sort by name ascending ?
 		sortedColumnIndex = 0;
 		sortedColumnAscending = true;
-		if (m != null) {
-			resortTable();
-		}
+
+		resortTable();
 	}
 
     /**
@@ -191,14 +181,6 @@ public class SearchTable extends SortedTable
 		{
 			getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
 		}
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.JTable#setModel(javax.swing.table.TableModel)
-	 */
-	public void setModel(TableModel dataModel) {
-		super.setModel(dataModel);
-		resortTable();
 	}
 
 }
