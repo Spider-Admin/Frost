@@ -75,12 +75,7 @@ public class FrostIndex implements XMLizable {
 		Iterator it = _files.iterator();
 		while (it.hasNext()) {
 			Element el = (Element)it.next();
-			SharedFileObject file;
-			if (el.getAttribute("redirect").equals("FEC"))
-				file = new FECRedirectFileObject();
-			else
-				file= new SharedFileObject();
-			file.loadXMLElement(el);
+			SharedFileObject file = SharedFileObject.getInstance(el);
 			//files.add(file);
 			if (file.getSHA1()!=null)
 				filesMap.put(file.getSHA1(),file);

@@ -19,7 +19,7 @@ import frost.XMLTools;
  * To change the template for this generated type comment go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-public class FileAttachment implements Attachment {
+public class FileAttachment extends Attachment {
 
 	SharedFileObject fileObj;
 	/* (non-Javadoc)
@@ -63,16 +63,9 @@ public class FileAttachment implements Attachment {
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
 		Element _file = (Element)XMLTools.getChildElementsByTagName(e,"File").iterator().next();
-		if (_file.getAttribute("redirect").length()>0){
-			String type = _file.getAttribute("redirect");
-			//add more redirect types here
-			 if(type.equals("FEC"))
-			 	fileObj = new FECRedirectFileObject();
-		} else
-			fileObj = new SharedFileObject();
-		fileObj.loadXMLElement(_file);
+		fileObj = SharedFileObject.getInstance(_file);
 		
-		
+		assert fileObj!=null;
 		
 		if (XMLTools.getChildElementsByTagName(e,"path").size() > 0) 
 			fileObj.setFile(new File(XMLTools.getChildElementsCDATAValue(e,"path")));

@@ -130,8 +130,8 @@ public class MessageObject implements XMLizable
    */    
     public Vector getFileAttachments() {
         Vector table = new Vector();
-        AttachmentList boards = attachments.getAllOfType(Attachment.FILE);
-        Iterator i = boards.iterator();
+        AttachmentList files = attachments.getAllOfType(Attachment.FILE);
+        Iterator i = files.iterator();
         while(i.hasNext())
         {
             FileAttachment fa = (FileAttachment)i.next();
@@ -144,7 +144,7 @@ public class MessageObject implements XMLizable
                 rows.add(sfo.getFilename());
                 rows.add(sfo.getKey());
                 table.add(rows);
-            }
+            } 
         }
         return table;
     }

@@ -404,31 +404,17 @@ public class SharedFileObject implements XMLizable
     
     public void loadXMLElement(Element current) throws SAXException{
 //		extract the values
-					  try
-					  {
+					  
 						  setFilename(
-							  XMLTools.getChildElementsCDATAValue(current, "name"));
+							  XMLTools.getChildElementsCDATAValue(current, "name"));						  
 						  setSHA1(
 							  XMLTools.getChildElementsCDATAValue(current, "SHA1"));
-					  }
-					  catch (ClassCastException e)
-					  {
-						  Core.getOut().println(
-							  "received an index from early beta. grr");
-						  setSHA1(
-							  XMLTools.getChildElementsTextValue(current, "SHA1"));
-						  setFilename(
-							  XMLTools.getChildElementsTextValue(current, "name"));
-					  }
-					  try{
+
 					  
 					  setOwner(
 						  XMLTools.getChildElementsCDATAValue(current, "owner"));
 						  
-					  }catch (ClassCastException e){
-					  	setOwner(
-					  		XMLTools.getChildElementsTextValue(current,"owner"));
-					  }
+					  
 
 					  setKey(
 						  XMLTools.getChildElementsTextValue(current, "key"));
@@ -441,7 +427,8 @@ public class SharedFileObject implements XMLizable
 					  setBatch(
 						  XMLTools.getChildElementsTextValue(current, "batch"));
 						  
-					 
+					 assert filename!=null;
+					 assert size !=null;
     }
     
     
@@ -500,4 +487,25 @@ public class SharedFileObject implements XMLizable
 		return SHA1.hashCode();
 	}
 
+	/**
+	 * factory method
+	 * @param e the element
+	 * @return the sharedFileObject created according to the element.
+	 */
+	public static SharedFileObject getInstance(Element e){
+		try{
+	
+			if (e.getAttribute("redirect").length() > 0) 
+				return RedirectFileObject.getRedirectInstance(e);
+			else{
+				SharedFileObject result = new SharedFileObject();
+				result.loadXMLElement(e);
+				return result;
+			}
+		}catch(SAXException ex){
+				Core.getOut().println("parsing file failed.");
+				ex.printStackTrace(Core.getOut());
+				return null;
+		}
+	}
 }
