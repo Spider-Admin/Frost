@@ -39,7 +39,20 @@ public class SettingsClass {
 	private PropertyChangeSupport changeSupport = null;
 	
 	private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
-
+	
+	public static final String MESSAGE_BODY_FONT_NAME = "messageBodyFontName";
+	public static final String MESSAGE_BODY_FONT_STYLE = "messageBodyFontStyle";
+	public static final String MESSAGE_BODY_FONT_SIZE = "messageBodyFontSize";
+	public static final String MESSAGE_LIST_FONT_NAME = "messageListFontName";
+	public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
+	public static final String MESSAGE_LIST_FONT_SIZE = "messageListFontSize";
+	public static final String FILE_LIST_FONT_NAME = "fileListFontName";
+	public static final String FILE_LIST_FONT_STYLE = "fileListFontStyle";
+	public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
+	public static final String LOG_TO_FILE = "logToFile";
+	public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
+	public static final String LOG_LEVEL = "logLevel";
+	
 	//Constructors
 	public SettingsClass() {
 		settingsHash = new Hashtable();
@@ -587,18 +600,21 @@ public class SettingsClass {
 		defaults.put("lastFramePosY", "50");
 		defaults.put("lastFrameMaximized", "false");
 		
-		defaults.put("messageBodyFontName", "Monospaced");
-		defaults.put("messageBodyFontStyle", new Integer(Font.PLAIN).toString());
-		defaults.put("messageBodyFontSize", "12");
-		defaults.put("messageListFontName", "SansSerif");
-		defaults.put("messageListFontStyle", new Integer(Font.PLAIN).toString());
-		defaults.put("messageListFontSize", "11");
+		defaults.put(MESSAGE_BODY_FONT_NAME, "Monospaced");
+		defaults.put(MESSAGE_BODY_FONT_STYLE, new Integer(Font.PLAIN).toString());
+		defaults.put(MESSAGE_BODY_FONT_SIZE, "12");
+		defaults.put(MESSAGE_LIST_FONT_NAME, "SansSerif");
+		defaults.put(MESSAGE_LIST_FONT_STYLE, new Integer(Font.PLAIN).toString());
+		defaults.put(MESSAGE_LIST_FONT_SIZE, "11");
+		defaults.put(FILE_LIST_FONT_NAME, "SansSerif");
+		defaults.put(FILE_LIST_FONT_STYLE, new Integer(Font.PLAIN).toString());
+		defaults.put(FILE_LIST_FONT_SIZE, "11");
 		
 		defaults.put("messageBodyAA", "false");
 		
-		defaults.put(Logging.LOG_TO_FILE, "true");
-		defaults.put(Logging.LOG_LEVEL, Logging.DEFAULT);
-		defaults.put(Logging.LOG_FILE_SIZE_LIMIT, "1000");
+		defaults.put(LOG_TO_FILE, "true");
+		defaults.put(LOG_LEVEL, Logging.DEFAULT);
+		defaults.put(LOG_FILE_SIZE_LIMIT, "1000");
 
 		settingsHash.putAll(defaults);
 	}
