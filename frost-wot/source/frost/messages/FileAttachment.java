@@ -38,15 +38,19 @@ public class FileAttachment implements Attachment {
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
 	public Element getXMLElement(Document container) {
-		return fileObj.getXMLElement(container);
+		Element el = container.createElement("Attachment");
+		el.setAttribute("type","file");
+		el.appendChild(fileObj.getXMLElement(container));
+		return el;
 	}
 
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
+		Element _file = (Element)XMLTools.getChildElementsByTagName(e,"File").iterator().next();
 		fileObj = new SharedFileObject();
-		fileObj.loadXMLElement(e);
+		fileObj.loadXMLElement(_file);
 
 	}
 	
