@@ -5,11 +5,11 @@
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package frost.messages;
-import frost.*;
-
-import frost.identities.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.XMLTools;
+import frost.identities.Identity;
 
 /**
  * @author zlatinb

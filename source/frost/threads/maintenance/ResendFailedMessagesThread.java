@@ -10,9 +10,7 @@ import java.awt.Frame;
 import java.io.File;
 import java.util.ArrayList;
 
-import frost.Core;
-import frost.FileAccess;
-import frost.frame1;
+import frost.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.VerifyableMessageObject;
 

@@ -23,10 +23,10 @@ import java.io.File;
 import java.util.Random;
 
 import frost.*;
+import frost.FcpTools.*;
 import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
-import frost.messages.*;
-import frost.FcpTools.*;
+import frost.messages.SharedFileObject;
 
 public class insertThread extends Thread
 {

@@ -18,13 +18,23 @@
 */
 package frost.gui;
 
-import javax.swing.table.TableModel;
+import java.awt.*;
+
+import javax.swing.JTable;
+import javax.swing.table.*;
+
+import frost.gui.model.MessageTableModel;
+import frost.gui.objects.FrostMessageObject;
 
 public class MessageTable extends SortedTable
 {
     public MessageTable(TableModel m)
     {
         super(m);
+        
+        CellRenderer cellRenderer = new CellRenderer();
+        setDefaultRenderer( Object.class, cellRenderer );
+        
         // set column sizes
         int[] widths = {30, 150, 250, 50, 150};
         for (int i = 0; i < widths.length; i++)
@@ -35,6 +45,59 @@ public class MessageTable extends SortedTable
         sortedColumnIndex = 4;
         sortedColumnAscending = false;
         resortTable();
+    }
+    
+    /**
+     * This renderer renders rows in different colors.
+     * New messages gets a bold look, messages with attachments a blue color.
+     */
+    private class CellRenderer extends DefaultTableCellRenderer
+    {
+        Font boldFont = null;
+        Font normalFont = null;
+        
+        public CellRenderer()
+        {
+            normalFont = new JTable().getFont();
+            boldFont = normalFont.deriveFont(Font.BOLD);
+        }
+        
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+        {
+            super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
+
+            MessageTableModel model = (MessageTableModel)getModel();
+            FrostMessageObject msg = (FrostMessageObject)model.getRow(row);
+            
+            // do nice things for FROM column only
+            if( column != 1 )
+            {
+                setFont(normalFont);
+                setForeground(Color.BLACK);
+                return this;
+            }
+
+            // first set font, bold for new msg or normal
+            if( msg.isMessageNew() )
+            {
+                setFont(boldFont);
+            }
+            else
+            {
+                setFont(normalFont);
+            }
+            
+            // now set color
+            if( msg.containsAttachments() )
+            {
+                setForeground(Color.BLUE);
+            }
+            else
+            {
+                setForeground(Color.BLACK);
+            }
+            return this;
+        }
     }
 }
 

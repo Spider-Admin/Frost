@@ -17,10 +17,10 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
+import java.io.Serializable;
+
 import org.w3c.dom.*;
-//FIXME: decide which exception is most appropriate and use that
 import org.xml.sax.SAXException;
-import java.io.*;
 
 /**
  * @author zlatinb

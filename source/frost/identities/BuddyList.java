@@ -1,8 +1,10 @@
 package frost.identities;
 
+import java.util.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
-import java.util.*;
+
 import frost.*;
 
 /**

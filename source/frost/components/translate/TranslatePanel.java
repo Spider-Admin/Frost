@@ -19,9 +19,9 @@
 
 package frost.components.translate;
 
-import java.awt.*;
+import java.awt.BorderLayout;
 import java.awt.event.ActionEvent;
-import java.io.*;
+import java.io.File;
 import java.util.*;
 
 import javax.swing.*;

@@ -6,13 +6,9 @@
  */
 package frost.threads.maintenance;
 
-import java.util.Iterator;
-import java.util.TimerTask;
-import java.util.Vector;
+import java.util.*;
 
-
-import frost.Core;
-import frost.frame1;
+import frost.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.threads.BoardUpdateThread;
 

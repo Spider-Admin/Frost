@@ -156,6 +156,9 @@ public static String makeSafeXML(String text) {
      */
     public static boolean containsForeign(String text){
     	//REDFLAG: implement?
+        char[] chars = text.toCharArray();
+        Character c = new Character(chars[0]);
+
     	return false;
     }
     /**

@@ -20,7 +20,7 @@
 package frost.gui.model;
 
 
-public class MessageTableModel extends SortedTableModel2
+public class MessageTableModel extends SortedTableModel
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 

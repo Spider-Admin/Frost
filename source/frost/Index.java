@@ -21,13 +21,10 @@ package frost;
 import java.io.*;
 import java.util.*;
 
-import frost.identities.*;
-import frost.messages.*;
-
-//import org.w3c.dom.*;
-
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
+import frost.identities.Identity;
+import frost.messages.*;
 
 public class Index
 {

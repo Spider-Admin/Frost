@@ -53,7 +53,7 @@ public class KnownBoardsFrame extends JDialog
     public KnownBoardsFrame(JFrame parent, ResourceBundle LangRes)
     {
         super();
-		this.LangRes = LangRes;
+		KnownBoardsFrame.LangRes = LangRes;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             init();

@@ -9,7 +9,7 @@ import javax.swing.table.TableModel;
 import frost.*;
 import frost.gui.model.UploadTableModel;
 import frost.gui.objects.FrostUploadItemObject;
-import frost.messages.*;
+import frost.messages.SharedFileObject;
 
 public class UploadTable extends SortedTable
 {

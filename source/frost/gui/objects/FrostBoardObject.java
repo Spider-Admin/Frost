@@ -18,11 +18,11 @@
 */
 package frost.gui.objects;
 
+import java.io.File;
+
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
-
-import java.io.File;
 
 public class FrostBoardObject extends DefaultMutableTreeNode implements Comparable
 {
