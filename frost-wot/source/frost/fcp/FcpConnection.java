@@ -189,7 +189,6 @@ public class FcpConnection
             if( expectingData == false )
             {
                 kw = FcpKeyword.getFcpKeyword(fcpIn);
-                // frost.Core.getOut().println("getKeyToBucket-FcpKeyword: " + kw + " for key " + keyString);
 
                 switch( kw.getId() )
                 {
@@ -235,7 +234,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     flagRestarted = true;
                     break;
                 case FcpKeyword.DataNotFound:
-                    //frost.Core.getOut().println("Data not found - closing streams for " + filename + " ...");
                     fcpIn.close();
                     fcpOut.close();
                     fcpSock.close();
@@ -287,11 +285,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                         bytesRead += count;
                     }
                 }
-                //        if (DEBUG)
-                //        {
-                //            String s = new String(b);
-                //          frost.Core.getOut().print(s);
-                //        }
                 fileOut.write(b);
                 expectingData = false;
                 totalDataLength -= bytesRead;
