@@ -222,6 +222,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 	private String stateUploading;
 	private String stateEncodingRequested;
 	private String stateEncoding;
+	private String stateWaiting;
 	
 	private String unknown;
 
@@ -263,6 +264,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		stateUploading = language.getString("Uploading");
 		stateEncodingRequested = language.getString("Encode requested");
 		stateEncoding = language.getString("Encoding file") + "...";
+		stateWaiting = language.getString("Waiting");
 		unknown = language.getString("Unknown");
 		
 		refreshColumnNames();
@@ -352,6 +354,10 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 				} else {
 					return item.getLastUploadDate();
 				}
+			
+			case FrostUploadItem.STATE_WAITING :
+				return stateWaiting;
+			
 			default :
 				return "**ERROR**";
 		}

@@ -23,12 +23,13 @@ public class FrostUploadItem extends ModelItem
 	public final static int FIELD_ID_RETRIES = 111;
 
     // the constants representing upload states
-    public final static int STATE_IDLE       = 1; // shows either last date uploaded or Never
-    public final static int STATE_REQUESTED  = 2; // a start of uploading is requested
+    public final static int STATE_IDLE       = 1; 	// shows either last date uploaded or Never
+    public final static int STATE_REQUESTED  = 2; 	// a start of uploading is requested
     public final static int STATE_UPLOADING  = 3;
-    public final static int STATE_PROGRESS   = 4; // upload runs, shows "... kb"
+    public final static int STATE_PROGRESS   = 4; 	// upload runs, shows "... kb"
     public final static int STATE_ENCODING_REQUESTED  = 5; // an encoding of file is requested
-    public final static int STATE_ENCODING   = 6; // the encode is running
+    public final static int STATE_ENCODING   = 6;	// the encode is running
+    public final static int STATE_WAITING 	 = 7;  	// waiting until the next retry
     
 	//the fields
 	private int state;					//FIELD_ID_STATE
@@ -40,13 +41,15 @@ public class FrostUploadItem extends ModelItem
 	private Board targetBoard;			//FIELD_ID_TARGET_BOARD
 	private int totalBlocks = -1;		//FIELD_ID_TOTAL_BLOCKS
 	private int doneBlocks = -1;		//FIELD_ID_DONE_BLOCKS
-	private String lastUploadDate;		//FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
+	private String lastUploadDate;					//FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
 	private Boolean enabled = new Boolean(true);	//FIELD_ID_ENABLED
-	private int retries;					//FIELD_ID_RETRIES
+	private int retries;							//FIELD_ID_RETRIES
     
     private int nextState = 0;
 
     private String batch = null;
+    
+    private long lastUploadStopTimeMillis = 0;
 
 	/**
 	 * @param file
@@ -314,5 +317,17 @@ public class FrostUploadItem extends ModelItem
 		return totalBlocks;
 	}
 
+	/**
+	 * @return
+	 */
+	public long getLastUploadStopTimeMillis() {
+		return lastUploadStopTimeMillis;
+	}
+	/**
+	 * @param lastUploadStopTimeMillis
+	 */
+	public void setLastUploadStopTimeMillis(long lastUploadStopTimeMillis) {
+		this.lastUploadStopTimeMillis = lastUploadStopTimeMillis;
+	}
 }
 
