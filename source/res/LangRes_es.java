@@ -60,8 +60,6 @@ static final Object[][] contents = {
 {"Change destination board","Cambia foro de destino"},
 {"CHK key","clave CHK"},
 {"CHK key + filename","clave CHK + nombre de fichero"},
-{"Choose background color if updating board is not selected","Escoge el color de fondo para los foros no seleccionados que se están refrescando"},
-{"Choose background color if updating board is selected","Escoge el color de fondo para los foros seleccionados que se están refrescando"},
 {"Choose boards to attach","Escoge el foro(s) a adjuntar"},
 {"Choose file(s) / directory(s) to attach","Escoge el fichero(s) / directorio(s) a adjuntar"},
 {"Choose updating color of NON-SELECTED boards","Escoge el color de refresco de los foros NO SELECCIONADOS"},
@@ -315,6 +313,13 @@ static final Object[][] contents = {
 	{"File List","Lista de Ficheros"},
 	{"Choose","Escoge"},
 	{"EnableMessageBodyAA", "Activa antialiasing para el Cuerpo del Mensaje"},
+	
+	//	News (3) Panel (preferences)
+	{"Background color if updating board is not selected","Color de fondo para los foros no seleccionados que se estén refrescando"},
+	{"Background color if updating board is selected","Color de fondo para los foros seleccionados que se estén refrescando"},
+	{"Choose", "Escoge"},
+	{"Color", "Color"},
+	{"Silently retry failed messages", "Reintentar silenciosamente los mensajes fallidos"},
 	
 	//	Board Settings Dialog
 	{"Settings for board","Configuración del foro"},
