@@ -357,8 +357,7 @@ public class MessageFrame extends JFrame
         
         state = true; // exit state
         
-        hide();
-        
+        setVisible(false);        
         dispose();
     }
     
@@ -579,7 +578,7 @@ public class MessageFrame extends JFrame
 		headerArea.setStartPos(headerAreaStart);
 		headerArea.setEndPos(headerAreaEnd);
 		headerArea.setEnabled(true);
-		show();
+		setVisible(true);
 
 		// reset the splitpanes (java bug)        
 		SwingUtilities.invokeLater(new Runnable() {
@@ -884,14 +883,14 @@ public class MessageFrame extends JFrame
             Bok = new JButton("OK");
             Bok.addActionListener( new ActionListener() {
                    public void actionPerformed(ActionEvent e) {
-                       okPressed = true;
-                       hide();
+                       	okPressed = true;
+                       	setVisible(false);
                    } });
             Bcancel = new JButton("Cancel");
             Bcancel.addActionListener( new ActionListener() {
                    public void actionPerformed(ActionEvent e) {
-                       okPressed = false;
-                       hide();
+                       	okPressed = false;
+						setVisible(false);
                    } });
             JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
             buttonsPanel.add( Bok );
@@ -910,7 +909,7 @@ public class MessageFrame extends JFrame
         }
         public Vector runDialog()
         {
-            this.show();
+            setVisible(true);
             if( okPressed == false )
                 return null;
 

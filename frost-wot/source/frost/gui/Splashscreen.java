@@ -78,7 +78,7 @@ public class Splashscreen extends JDialog {
 	/**Close the splashscreen*/
 	public void closeMe() {
 		if (!noSplash) {
-			hide();
+			setVisible(false);
 			dispose();
 			logger.info("Splashscreen: I'm gone now :-(");
 		}

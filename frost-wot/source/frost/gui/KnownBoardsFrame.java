@@ -226,7 +226,7 @@ public class KnownBoardsFrame extends JDialog
                 }
             }
         }
-        show();
+        setVisible(true);
         // after we return, check if we should save the known boards file ...
         if( this.savingNeeded )
         {

@@ -647,7 +647,7 @@ public class BoardSettingsFrame extends JDialog {
 
 	public boolean runDialog() {
 		setModal(true); // paranoia
-		show();
+		setVisible(true);
 		return exitState;
 	}
 

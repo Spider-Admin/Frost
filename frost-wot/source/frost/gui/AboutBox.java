@@ -119,7 +119,7 @@ public class AboutBox extends JDialog implements ActionListener {
 
 	/**Close the dialog*/
 	void cancel() {
-		hide();
+		setVisible(false);
 		dispose();
 	}
 

@@ -106,7 +106,7 @@ class DisplayPanel extends JPanel {
 		FontChooser fontChooser = new FontChooser(owner, languageResource);
 		fontChooser.setModal(true);
 		fontChooser.setSelectedFont(selectedFileListFont);
-		fontChooser.show();
+		fontChooser.setVisible(true);
 		Font selectedFontTemp = fontChooser.getSelectedFont();
 		if (selectedFontTemp != null) {
 			selectedFileListFont = selectedFontTemp;
@@ -282,7 +282,7 @@ class DisplayPanel extends JPanel {
 		FontChooser fontChooser = new FontChooser(owner, languageResource);
 		fontChooser.setModal(true);
 		fontChooser.setSelectedFont(selectedBodyFont);
-		fontChooser.show();
+		fontChooser.setVisible(true);
 		Font selectedFontTemp = fontChooser.getSelectedFont();
 		if (selectedFontTemp != null) {
 			selectedBodyFont = selectedFontTemp;
@@ -297,7 +297,7 @@ class DisplayPanel extends JPanel {
 		FontChooser fontChooser = new FontChooser(owner, languageResource);
 		fontChooser.setModal(true);
 		fontChooser.setSelectedFont(selectedMessageListFont);
-		fontChooser.show();
+		fontChooser.setVisible(true);
 		Font selectedFontTemp = fontChooser.getSelectedFont();
 		if (selectedFontTemp != null) {
 			selectedMessageListFont = selectedFontTemp;

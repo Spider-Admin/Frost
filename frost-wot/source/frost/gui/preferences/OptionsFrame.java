@@ -575,9 +575,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Can be called to run dialog and get its answer (true=OK, false=CANCEL)
 	 */
 	public boolean runDialog() {
-		this.exitState = false;
-		show(); // run dialog
-		return this.exitState;
+		exitState = false;
+		setVisible(true); // run dialog
+		return exitState;
 	}
 
 	/**
