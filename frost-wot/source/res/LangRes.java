@@ -18,9 +18,10 @@ public class LangRes extends ListResourceBundle {
     {"News", "News"},
     {"Status", "Status"},
 
-    //About box
+    // About box
     {"Version 20030126", "Version 20030126"},
     {"Open Source Project", "Open Source Project"},
+
     // Menus
     {"File", "File"},
     {"Exit", "Exit"},
@@ -34,6 +35,18 @@ public class LangRes extends ListResourceBundle {
 
     {"Options", "Options"},
     {"Preferences", "Preferences"},
+
+	{"Plugins", "Plugins"},
+	{"Experimental Freenet Browser", "Experimental Freenet Browser"},
+	{"Translate Frost into another language", "Translate Frost into another language"},
+
+	{"Language", "Language"},
+	{"German", "German"},
+	{"English", "English"},
+	{"Dutch", "Dutch"},
+	{"Japanese", "Japanese"},
+	{"French", "French"},
+	{"Italian", "Italian"},
 
     {"Help", "Help"},
     {"About", "About"},

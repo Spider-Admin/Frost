@@ -1847,9 +1847,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// create objects
 		JMenuBar menuBar = new JMenuBar();
 
+		//File Menu
 		JMenu fileMenu = new JMenu(LangRes.getString("File"));
 		JMenuItem fileExitMenuItem = new JMenuItem(LangRes.getString("Exit"));
 
+		//Messages (tof) Menu
 		JMenu tofMenu = new JMenu(LangRes.getString("News"));
 		JMenuItem tofConfigureBoardMenuItem =
 			new JMenuItem(LangRes.getString("Configure selected board"));
@@ -1869,30 +1871,36 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			new JMenuItem(LangRes.getString("Increase Font Size"));
 		JMenuItem tofDecreaseFontSizeMenuItem =
 			new JMenuItem(LangRes.getString("Decrease Font Size"));
-
 		JMenuItem tofDisplayKnownBoards =
 			new JMenuItem(LangRes.getString("Display known boards"));
 		tofDisplayKnownBoards.setIcon(getScaledImage("/data/knownboards.gif"));
 
+		//Options Menu
 		JMenu optionsMenu = new JMenu(LangRes.getString("Options"));
 		JMenuItem optionsPreferencesMenuItem =
 			new JMenuItem(LangRes.getString("Preferences"));
 
-		JMenu pluginMenu = new JMenu("Plugin");
+		//Plugin Menu
+		JMenu pluginMenu = new JMenu("Plugins");
 		JMenuItem pluginBrowserMenuItem =
-			new JMenuItem("EFB (Experimental Freenet Browser)");
+			new JMenuItem(LangRes.getString("Experimental Freenet Browser"));
 		JMenuItem pluginTranslateMenuItem =
-			new JMenuItem("Translate Frost into another language");
-		JMenuItem pluginGermanMenuItem = new JMenuItem("German");
-		JMenuItem pluginEnglishMenuItem = new JMenuItem("English");
-		JMenuItem pluginDutchMenuItem = new JMenuItem("Dutch");
-		JMenuItem pluginFrenchMenuItem = new JMenuItem("French");
-		JMenuItem pluginJapaneseMenuItem = new JMenuItem("Japanese");
-		JMenuItem pluginItalianMenuItem = new JMenuItem("Italian");
+			new JMenuItem(LangRes.getString("Translate Frost into another language"));
 
+		//Language Menu
+		JMenu languageMenu = new JMenu(LangRes.getString("Language"));
+		JMenuItem languageGermanMenuItem = new JMenuItem(LangRes.getString("German"));
+		JMenuItem languageEnglishMenuItem = new JMenuItem(LangRes.getString("English"));
+		JMenuItem languageDutchMenuItem = new JMenuItem(LangRes.getString("Dutch"));
+		JMenuItem languageFrenchMenuItem = new JMenuItem(LangRes.getString("French"));
+		JMenuItem languageJapaneseMenuItem = new JMenuItem(LangRes.getString("Japanese"));
+		JMenuItem languageItalianMenuItem = new JMenuItem(LangRes.getString("Italian"));
+		
+		//Help Menu
 		JMenu helpMenu = new JMenu(LangRes.getString("Help"));
 		JMenuItem helpHelpMenuItem = new JMenuItem(LangRes.getString("Help"));
 		JMenuItem helpAboutMenuItem = new JMenuItem(LangRes.getString("About"));
+		
 		// add action listener
 		fileExitMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
@@ -1949,7 +1957,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				translate.show();
 			}
 		});
-		pluginGermanMenuItem.addActionListener(new ActionListener() {
+		languageGermanMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				java.util.ResourceBundle bundle =
 					java.util.ResourceBundle.getBundle(
@@ -1958,7 +1966,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setLanguageResource(bundle);
 			}
 		});
-		pluginEnglishMenuItem.addActionListener(new ActionListener() {
+		languageEnglishMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				java.util.ResourceBundle bundle =
 					java.util.ResourceBundle.getBundle(
@@ -1967,7 +1975,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setLanguageResource(bundle);
 			}
 		});
-		pluginDutchMenuItem.addActionListener(new ActionListener() {
+		languageDutchMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				java.util.ResourceBundle bundle =
 					java.util.ResourceBundle.getBundle(
@@ -1976,7 +1984,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setLanguageResource(bundle);
 			}
 		});
-		pluginFrenchMenuItem.addActionListener(new ActionListener() {
+		languageFrenchMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				java.util.ResourceBundle bundle =
 					java.util.ResourceBundle.getBundle(
@@ -1985,7 +1993,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setLanguageResource(bundle);
 			}
 		});
-		pluginJapaneseMenuItem.addActionListener(new ActionListener() {
+		languageJapaneseMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				java.util.ResourceBundle bundle =
 					java.util.ResourceBundle.getBundle(
@@ -1994,7 +2002,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				setLanguageResource(bundle);
 			}
 		});
-		pluginItalianMenuItem.addActionListener(new ActionListener() {
+		languageItalianMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				java.util.ResourceBundle bundle =
 					java.util.ResourceBundle.getBundle(
@@ -2033,12 +2041,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// Plugin Menu
 		pluginMenu.add(pluginBrowserMenuItem);
 		pluginMenu.add(pluginTranslateMenuItem);
-		pluginMenu.add(pluginGermanMenuItem);
-		pluginMenu.add(pluginEnglishMenuItem);
-		pluginMenu.add(pluginDutchMenuItem);
-		pluginMenu.add(pluginFrenchMenuItem);
-		pluginMenu.add(pluginJapaneseMenuItem);
-		pluginMenu.add(pluginItalianMenuItem);
+		// Language Menu
+		languageMenu.add(languageGermanMenuItem);
+		languageMenu.add(languageEnglishMenuItem);
+		languageMenu.add(languageDutchMenuItem);
+		languageMenu.add(languageFrenchMenuItem);
+		languageMenu.add(languageJapaneseMenuItem);
+		languageMenu.add(languageItalianMenuItem);		
 		// Help Menu
 		helpMenu.add(helpHelpMenuItem);
 		helpMenu.add(helpAboutMenuItem);
@@ -2047,6 +2056,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		menuBar.add(tofMenu);
 		menuBar.add(optionsMenu);
 		menuBar.add(pluginMenu);
+		menuBar.add(languageMenu);
 		menuBar.add(helpMenu);
 		this.setJMenuBar(menuBar);
 	}
