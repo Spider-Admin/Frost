@@ -1,4 +1,7 @@
 package fecimpl;
+
+import java.util.logging.Logger;
+
 /**
  * This class encapsulates the logic used to
  * select parameters for encoding/decoding
@@ -6,6 +9,8 @@ package fecimpl;
  **/
 
 class SegmentationParams {
+
+	private static Logger logger = Logger.getLogger(SegmentationParams.class.getName());
 
     public final int baseN;
     public final int baseK;
@@ -124,19 +129,19 @@ class SegmentationParams {
 
     // REDFLAG: remove debugging function
     public final void dump() {
-        System.err.println("----------------------------------------");
-        System.err.println("baseN: " + baseN);
-        System.err.println("baseK: " + baseK);
-        System.err.println("endN: " + endN);
-        System.err.println("endK: " + endK);
-        System.err.println("baseBlockSize: " + baseBlockSize);
-        System.err.println("endBlockSize: " + endBlockSize);
-        System.err.println("baseStripeWidth: " + baseStripeWidth);
-        System.err.println("endStripeWidth: " + endStripeWidth);
-        System.err.println("baseSegmentSize: " + baseSegmentSize);
-        System.err.println("endSegmentSize: " + endSegmentSize);
-        System.err.println("segments: " + segments);
-        System.err.println("----------------------------------------");
+        logger.fine("----------------------------------------\n" +
+        			"baseN: " + baseN + "\n" +
+        			"baseK: " + baseK + "\n" +
+        			"endN: " + endN + "\n" +
+        			"endK: " + endK + "\n" +
+        			"baseBlockSize: " + baseBlockSize + "\n" +
+        			"endBlockSize: " + endBlockSize + "\n" +
+        			"baseStripeWidth: " + baseStripeWidth + "\n" +
+        			"endStripeWidth: " + endStripeWidth + "\n" +
+        			"baseSegmentSize: " + baseSegmentSize + "\n" +
+        			"endSegmentSize: " + endSegmentSize + "\n" +
+        			"segments: " + segments + "\n" +
+        			"----------------------------------------");
     }
 
 

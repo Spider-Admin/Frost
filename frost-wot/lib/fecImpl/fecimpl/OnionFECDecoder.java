@@ -2,6 +2,7 @@ package fecimpl;
 
 import java.io.IOException;
 import java.util.*;
+import java.util.logging.Logger;
 
 import freenet.client.FECDecoder;
 import freenet.support.*;
@@ -18,6 +19,8 @@ import freenet.support.*;
  * @author giannij
  **/
 public class OnionFECDecoder extends OnionFECBase implements FECDecoder {
+
+	private static Logger logger = Logger.getLogger(OnionFECDecoder.class.getName());
 
     private Hashtable buckets = new Hashtable();
 
@@ -68,7 +71,7 @@ public class OnionFECDecoder extends OnionFECBase implements FECDecoder {
         }
 
         if (decodedIndices.length == 0) {
-            System.err.println("OnionFECDecoder.decode -- Refusing to decode 0 segments.");
+            logger.warning("OnionFECDecoder.decode -- Refusing to decode 0 segments.");
             return false;
         }
 
@@ -114,7 +117,7 @@ public class OnionFECDecoder extends OnionFECBase implements FECDecoder {
                         Bucket[] packetStripe = packetArray.allocate(nn.buckets);
                         Bucket[] decodedStripe = decodedArray.allocate(decoded);
                         for (int i = 0; i < stripeCount; i++) {
-                            System.out.println("Decoding stripe "+i);
+                            logger.fine("Decoding stripe " + i);
                             packetArray.setRange(i * stripeWidth, stripeWidth);
                             decodedArray.setRange(i * stripeWidth, stripeWidth);
                             FECUtils.decode(code, packetStripe, nn.indices,
