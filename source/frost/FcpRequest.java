@@ -16,6 +16,8 @@ import fillament.util.*;
  * Requests a key from freenet
  * @author <a href=mailto:jantho666@hotmail.com>Jan-Thomas Czornack</a>
  */
+
+// TODO: mark checked blocks marked and dont recheck them on every download
 public class FcpRequest
 {
     final static boolean DEBUG = true;
