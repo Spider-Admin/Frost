@@ -1,3 +1,5 @@
+package fecimpl;
+
 import freenet.client.FECDecoder;
 import freenet.support.Bucket;
 import freenet.support.BucketFactory;

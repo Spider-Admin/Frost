@@ -1,3 +1,4 @@
+package fecimpl;
 /**
  * This class encapsulates the logic used to
  * select parameters for encoding/decoding
@@ -54,7 +55,7 @@ class SegmentationParams {
         // 128MB at a time.  Past that, we
         // have to segment.
         int segCount = (int)(len / C_SEGLEN);
-        
+
         if ((len % C_SEGLEN) != 0) {
             segCount++;
         }
@@ -73,19 +74,19 @@ class SegmentationParams {
             // in order to make the stats work.
             segLen = C_MIN_SEGLEN;
         }
-        
+
         baseSegmentSize = (int)segLen;
         baseBlockSize = selectBlockSize(baseSegmentSize);
         baseK = calculateK(baseSegmentSize, baseBlockSize);
         baseN = calculateN(baseK, redundancyNum, redundancyDenom);
         baseStripeWidth = selectStripeWidth(baseSegmentSize,
                                             baseBlockSize);
-       
+
         if (segments > 1) {
             // Calculate values for the final segment
             segLen = len % baseSegmentSize;
             if (segLen == 0) {
-                endSegmentSize = baseSegmentSize; 
+                endSegmentSize = baseSegmentSize;
                 endBlockSize = baseBlockSize;
                 endK = baseK;
                 endN = baseN;
@@ -102,7 +103,7 @@ class SegmentationParams {
                     // in order to make the stats work.
                     segLen = C_MIN_SEGLEN;
                 }
-                
+
                 endSegmentSize = (int)segLen;
                 endBlockSize = selectBlockSize(endSegmentSize);
                 endK = calculateK(endSegmentSize, endBlockSize);
@@ -145,7 +146,7 @@ class SegmentationParams {
     private final static int selectBlockSize(long segLen) {
         int blockSize;
         if (segLen < C_1M) {
-            // hmmmm... unprincipled. 
+            // hmmmm... unprincipled.
             blockSize = C_128K;
         }
         else if (segLen < C_32M) {
@@ -189,7 +190,7 @@ class SegmentationParams {
             // Could go a little higher.  But you don't want to do that
             // because the FEC encode/decode times go up dramatically.
             //
-            // *Must* keep n under 256 so that we are using the 8-bit 
+            // *Must* keep n under 256 so that we are using the 8-bit
             // coders.
             throw new IllegalArgumentException("Maximum allowed redundancy is 50%.");
         }
@@ -210,15 +211,15 @@ class SegmentationParams {
             // Set stripe width so that we never
             // need to load more that 16Mb of
             // data blocks into memory.
-            
+
             // REDFLAG: double check
             int stripeCount = 1;
             while (segLen / stripeCount > C_16M) {
                 stripeCount = stripeCount << 1;
             }
-            
+
             stripeWidth = blockSize / stripeCount;
-            
+
             // REFLAG: remove
             if (blockSize % stripeCount != 0) {
                 throw new RuntimeException("assertion failure: blockSize % stripeCount == 0");
@@ -226,14 +227,14 @@ class SegmentationParams {
         }
         return stripeWidth;
     }
-    private final static int C_128K = 128 * 1024; 
-    private final static int C_256K = 256 * 1024; 
-    private final static int C_512K = 512 * 1024; 
-    private final static int C_1M = 1024 * 1024; 
+    private final static int C_128K = 128 * 1024;
+    private final static int C_256K = 256 * 1024;
+    private final static int C_512K = 512 * 1024;
+    private final static int C_1M = 1024 * 1024;
     private final static int C_16M = 16 * 1024 * 1024;
     private final static int C_32M = 32 * 1024 * 1024;
-    private final static int C_64M = 64 * 1024 * 1024; 
-    private final static int C_128M = 128 * 1024 * 1024; 
+    private final static int C_64M = 64 * 1024 * 1024;
+    private final static int C_128M = 128 * 1024 * 1024;
 
 
     // REDFLAG: hack for testing segmentation

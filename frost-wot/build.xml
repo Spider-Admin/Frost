@@ -93,6 +93,12 @@ Build log  : ${logfilename}</echo>
            optimize="${optimize}"
            classpath="${src.dir.feclib}">
     </javac>
+    <copy todir="${build.classes.feclib}">
+        <fileset dir="${lib.dir}/fecImpl">
+            <include name="**/*.class"/>
+            <include name="**/*.properties"/>
+        </fileset>
+    </copy>
 
     <javac srcdir="${src.dir.genchklib}"
            destdir="${build.classes.genchklib}"
@@ -135,13 +141,6 @@ Build log  : ${logfilename}</echo>
         <include name="**"/>
       </fileset>
     </jar>
-
-    <copy todir="${build.classes.feclib}">
-        <fileset dir="${lib.dir}/fecImpl">
-            <include name="**/*.class"/>
-            <include name="**/*.properties"/>
-        </fileset>
-    </copy>
 
     <delete quiet="true" file="${dist.dir}/lib/fecImpl.jar"/>
     <mkdir dir="${dist.dir}/lib"/>
