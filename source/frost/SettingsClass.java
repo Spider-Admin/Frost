@@ -26,7 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.threads.maintenance.Savable;
+import frost.storage.Savable;
 
 /**
  * Read settings from frost.ini and store them.
