@@ -20,6 +20,7 @@ package frost;
 
 import java.awt.*;
 import javax.swing.UIManager;
+
 import frost.ext.JSysTrayIcon;
 
 public class frost
@@ -69,8 +70,29 @@ public class frost
         System.out.println();
         System.out.println();
         
-        // FIXME: check for needed .jar files by instanciating a class and catching the error
-        //        or do it much more gently using reflection ;)  
+        // check for needed .jar files by loading a class and catching the error
+        
+        try
+        {
+            // check for xercesImpl.jar
+            Class.forName("org.apache.xerces.dom.DocumentImpl");
+            // check for xml-apis.jar
+            Class.forName("org.w3c.dom.Document");
+            // extra check for OutputFormat
+            Class.forName("org.apache.xml.serialize.OutputFormat");
+            // check for genChkImpl.jar
+            Class.forName("freenet.client.ClientKey");
+            // check for fecImpl.jar
+            Class.forName("fecimpl.FECUtils");
+        }
+        catch (ClassNotFoundException e1)
+        {
+            System.out.println("ERROR: There are missing jars files. Please start Frost using the provided start scripts "+
+                               "(frost.bat for win32, frost.sh for unix).\n");
+            e1.printStackTrace();
+            System.exit(3);
+        }
+
 
         String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
 
