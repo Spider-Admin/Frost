@@ -1,23 +1,24 @@
 Frost
 -----
-Jan-Thomas Czornack <jantho@users.sourceforge.net>
-Thomas Mueller <thm2001@users.sourceforge.net>
-Jim Hunziker <landtuna@users.sourceforge.net>
-Stefan Majewski <e9926279@stud3.tuwien.ac.at>
-Jose Manuel Arnesto <jarnesto@computer.org>
-
+Jan-Thomas Czornack <jantho -AT+ users.sourceforge.net>
+Thomas Mueller <thm2001 -AT+ users.sourceforge.net>
+Jim Hunziker <landtuna -AT+ users.sourceforge.net>
+Stefan Majewski <e9926279 -AT+ stud3.tuwien.ac.at>
+Jose Manuel Arnesto <jarnesto -AT+ computer.org>
 
 Windows Installer
 -----------------
-Benoit Laniel <nels@pgroupe.net>
-
+Benoit Laniel <nels -AT+ pgroupe.net>
 
 System Tray Executables
 -----------------------
-Jeeva S <vavjeeva@yahoo.com> (Free code from http://www.codeproject.com)
+Jeeva S <vavjeeva -AT+ yahoo.com> (Free code from http://www.codeproject.com)
 http://www.codeproject.com/useritems/System_Tray_In_Java.asp
-
 
 German Translation Support
 --------------------------
 Rudolf Krist <rudi666 -AT+ users.sourceforge.net>
+
+Splash Screen Logo
+------------------
+Frédéric Scheer <fred.scheer -AT+ free.fr>
