@@ -498,7 +498,9 @@ public class FileAccess
                 }
                 else if (
                     oldKey.getOwner() == null
-                        || oldKey.getOwner().compareTo(newKey.getOwner()) == 0)
+                        || ( newKey.getOwner()!= null &&
+                             oldKey.getOwner().compareTo(newKey.getOwner()) == 0)
+                           )  
                 {
                     //check if the old key was not or is the same owner
                     // and update the fields

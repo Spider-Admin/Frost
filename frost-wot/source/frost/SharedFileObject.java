@@ -244,7 +244,6 @@ public class SharedFileObject implements XMLizable
             this.size = null;
         }
     }
-    
    
     /**Set size*/
     public void setSize(long size)
@@ -299,8 +298,6 @@ public class SharedFileObject implements XMLizable
 
 			 //we do not add keys who are not signed by people we marked as GOOD!
 			 //but we add unsigned keys for now; this will probably change soon
-			
-			
                 
 			 Element fileelement = doc.createElement("File");
                 
