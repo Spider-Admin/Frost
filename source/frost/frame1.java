@@ -273,6 +273,14 @@ public class frame1 extends JFrame implements ClipboardOwner
                 public void run() {
                     System.out.println("saving identities");
                     File identities = new File("identities");
+                    if( identities.exists() )
+                    {
+                        String bakFilename = "identities.bak";
+                        File bakFile = new File(bakFilename);
+                        bakFile.delete();
+                        identities.renameTo(bakFile);
+                        identities = new File("identities");
+                    }
 
                     try
                     { //TODO: replace this with a call to XML serializer
@@ -303,10 +311,13 @@ public class frame1 extends JFrame implements ClipboardOwner
                         }
                         fout.write("*****************\n");
                         fout.close();
+                        System.out.println("identities saved successfully.");
+
                     }
                     catch( IOException e )
                     {
-                        System.out.println("couldn't save buddy list"); System.out.println(e.toString());
+                        System.out.println("ERROR: couldn't save identities:");
+                        e.printStackTrace();
                     }
                     saveOnExit();
                     FileAccess.cleanKeypool(keypool);
