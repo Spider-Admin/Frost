@@ -19,8 +19,9 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 package frost.gui;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -123,6 +124,9 @@ public class MessageFrame extends JFrame
 				if (e.getSource() == filesTable) {
 					attFilesPopupMenu.show(filesTable, e.getX(), e.getY());
 				}
+				if (e.getSource() == messageTextArea) {
+					getMessageBodyPopupMenu().show(messageTextArea, e.getX(), e.getY());
+				}
 			}
 		}
 
@@ -144,10 +148,162 @@ public class MessageFrame extends JFrame
 		}
 	}
     
-/*******************************************************************************
- * ************************************************ * INTERNAL CLASSES
- * *************************** ************************************************
- ******************************************************************************/
+	/**
+	 * @author $author$
+	 * @version $revision$
+	 */
+	private class MessageBodyPopupMenu 
+		extends JSkinnablePopupMenu 
+		implements ActionListener, ClipboardOwner {
+		
+		private Clipboard clipboard;
+
+		private JTextComponent sourceTextComponent;
+
+		private JMenuItem cutItem = new JMenuItem();
+		private JMenuItem copyItem = new JMenuItem();
+		private JMenuItem pasteItem = new JMenuItem();
+		private JMenuItem cancelItem = new JMenuItem();
+
+		/**
+		 * @param sourceTextComponent
+		 */
+		public MessageBodyPopupMenu(JTextComponent sourceTextComponent) {
+			super();
+			this.sourceTextComponent = sourceTextComponent;
+			initialize();
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == cutItem) {
+				cutSelectedText();
+			}
+			if (e.getSource() == copyItem) {
+				copySelectedText();
+			}
+			if (e.getSource() == pasteItem) {
+				pasteText();
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private void copySelectedText() {
+			StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
+			clipboard.setContents(selection, this);
+		}
+		
+		/**
+		 * 
+		 */
+		private void cutSelectedText() {
+			StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
+			clipboard.setContents(selection, this);
+			
+			int start = sourceTextComponent.getSelectionStart();
+			int end = sourceTextComponent.getSelectionEnd();
+			try {
+				sourceTextComponent.getDocument().remove(start, end - start);
+			} catch (BadLocationException ble) {
+				logger.log(Level.SEVERE, "Problem while cutting text.", ble);
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private void pasteText() {
+			Transferable clipboardContent = clipboard.getContents(this);
+			try {
+				String text = (String) clipboardContent.getTransferData(DataFlavor.stringFlavor);
+				
+				Caret caret = sourceTextComponent.getCaret();
+				int p0 = Math.min(caret.getDot(), caret.getMark());
+                int p1 = Math.max(caret.getDot(), caret.getMark());
+				
+				Document document = sourceTextComponent.getDocument();
+				
+				if (document instanceof PlainDocument) {
+					((PlainDocument) document).replace(p0, p1 - p0, text, null);
+				} else {
+					if (p0 != p1) {
+						document.remove(p0, p1 - p0);
+                    }
+					document.insertString(p0, text, null);
+				}
+			} catch (IOException ioe) {
+				logger.log(Level.SEVERE, "Problem while pasting text.", ioe);
+			} catch (UnsupportedFlavorException ufe) {
+				logger.log(Level.SEVERE, "Problem while pasting text.", ufe);
+			} catch (BadLocationException ble) {
+				logger.log(Level.SEVERE, "Problem while pasting text.", ble);
+			}
+		}
+
+		/**
+		 *  
+		 */
+		private void initialize() {
+			refreshLanguage();
+			
+			Toolkit toolkit = Toolkit.getDefaultToolkit();
+			clipboard = toolkit.getSystemClipboard();
+			
+			cutItem.addActionListener(this);
+			copyItem.addActionListener(this);
+			pasteItem.addActionListener(this);
+
+			add(cutItem);
+			add(copyItem);
+			add(pasteItem);
+			addSeparator();
+			add(cancelItem);
+		}
+
+		/**
+		 *  
+		 */
+		private void refreshLanguage() {
+			cutItem.setText(languageResource.getString("Cut"));
+			copyItem.setText(languageResource.getString("Copy"));
+			pasteItem.setText(languageResource.getString("Paste"));
+			cancelItem.setText(languageResource.getString("Cancel"));
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
+		 */
+		public void lostOwnership(Clipboard clipboard, Transferable contents) {
+			// Nothing here
+		}
+		
+		/*
+		 * (non-Javadoc)
+		 * 
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			if (sourceTextComponent.getSelectedText() != null) {
+				cutItem.setEnabled(true);
+				copyItem.setEnabled(true);
+			} else {
+				cutItem.setEnabled(false);
+				copyItem.setEnabled(false);
+			}
+			Transferable clipboardContent = clipboard.getContents(this);
+			if ((clipboardContent != null) &&
+					(clipboardContent.isDataFlavorSupported(DataFlavor.stringFlavor))) {
+				pasteItem.setEnabled(true);
+			} else {
+				pasteItem.setEnabled(false);
+			}
+			super.show(invoker, x, y);
+		}
+	}
 
     private class MFAttachedBoard implements TableMember
     {
@@ -363,6 +519,7 @@ public class MessageFrame extends JFrame
     
 	private JSkinnablePopupMenu attFilesPopupMenu;
 	private JSkinnablePopupMenu attBoardsPopupMenu;
+	private MessageBodyPopupMenu messageBodyPopupMenu;
     
 	private JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
 	private JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
@@ -577,6 +734,16 @@ public class MessageFrame extends JFrame
 	public void dispose() {
 		// TODO Auto-generated method stub
 		super.dispose();
+	}
+	
+	/**
+	 * @return
+	 */
+	private MessageBodyPopupMenu getMessageBodyPopupMenu() {
+		if (messageBodyPopupMenu == null) {
+			messageBodyPopupMenu = new MessageBodyPopupMenu(messageTextArea);
+		}
+		return messageBodyPopupMenu;
 	}
 
 	private void initialize() throws Exception {
