@@ -27,6 +27,8 @@ import javax.swing.table.*;
 import javax.swing.event.*;
 
 import frost.*;
+import frost.gui.objects.*;
+import frost.gui.model.*;
 
 public class SearchThread extends Thread {
     private static boolean DEBUG = false;
@@ -35,7 +37,7 @@ public class SearchThread extends Thread {
     private String date;
     private String keypool;
     private String searchType;
-    private DefaultTableModel searchTableModel;
+    private SearchTableModel searchTableModel;
     private Vector results = new Vector();
     private boolean searchAllBoards;
     private Map chk = Collections.synchronizedMap(new TreeMap());
@@ -217,7 +219,7 @@ public class SearchThread extends Thread {
             allFileCount++;
             KeyClass key = (KeyClass)results.elementAt(i);
             String filename = key.getFilename();
-            Integer size = new Integer(key.getSize());
+            Long size = key.getSize();
             String date = key.getDate();
             String keyData = key.getKey();
 
@@ -226,7 +228,8 @@ public class SearchThread extends Thread {
             if( file.exists() )
                 filename = "<html><font color=\"red\">" + filename + "</font></html>";
 
-            final Object[] row = {filename, size, date, keyData, board};
+            final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key);
+
             if( searchTableModel.getRowCount() < 13000 )
             {
                 boolean updateLabel2 = false;
@@ -240,7 +243,7 @@ public class SearchThread extends Thread {
                     {
                         public void run()
                         {
-                            searchTableModel.addRow(row);
+                            searchTableModel.addRow(searchItem);
                             if( updateLabel )
                             {
                                 frame1.getInstance().updateSearchResultCountLabel();
@@ -316,7 +319,7 @@ public class SearchThread extends Thread {
             SettingsClass frostSettings)
     {
     this.request = request.toLowerCase();
-    this.searchTableModel = (DefaultTableModel)frame1.getInstance().getSearchTable().getModel();
+    this.searchTableModel = (SearchTableModel)frame1.getInstance().getSearchTable().getModel();
     this.keypool = keypool;
     this.searchType = searchType;
     this.audioExtension = frostSettings.getArrayValue("audioExtension");

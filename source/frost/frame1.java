@@ -36,6 +36,7 @@ import java.awt.datatransfer.*;
 import frost.FcpTools.*;
 import frost.gui.*;
 import frost.gui.model.*;
+import frost.gui.objects.*;
 import frost.ext.*;
 import frost.components.*;
 import frost.crypt.*;
@@ -46,6 +47,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
     static ImageIcon[] newMessage = new ImageIcon[2];
 
+    private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
+
     String clipboard = new String();
     int counter = 55;
     int idleTime = 0;
@@ -54,14 +57,20 @@ public class frame1 extends JFrame implements ClipboardOwner
     boolean started = false;
     boolean stopTofTreeUpdate = false;
     public static boolean updateDownloads = true;
+/*
     public static Vector activeTofThreads = new Vector();
     public static Vector TOFThreads = new Vector();
     public static Vector GRTThreads = new Vector();
+
     public static int tofUploadThreads = 0;
     public static int tofDownloadThreads = 0;
+*/
     public static boolean updateTof = false;
     public static boolean updateTree = false;
     public static String fileSeparator = System.getProperty("file.separator");
+    // "keypool.dir" is the corresponding key in frostSettings,
+    // set in constructor of SettingsClass to this val.
+    // this is the new way to access this value.
     public static String keypool = "keypool" + fileSeparator;
     public static String newMessageHeader = new String("");
     public static String oldMessageHeader = new String("");
@@ -72,7 +81,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     public static int tofUpdateSpeed = 6; // Default at least 6!
     public static int tofUpdateInterleave = 60; // Default 60
     public static Map boardStats = Collections.synchronizedMap(new TreeMap());
-    public static VerifyableMessageObject selectedMessage = new VerifyableMessageObject();
+    public static FrostMessageObject selectedMessage = new FrostMessageObject();
     public static boolean generateCHK = false;
 
     private Hashtable boardsThatContainNewMessages = new Hashtable();
@@ -237,11 +246,19 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void             setLastUsedBoard(String v) { lastUsedBoard=v; }
     public JButton          getSearchButton() { return searchButton; }
 
+
+    public RunningBoardUpdateThreads getRunningBoardUpdateThreads()
+    {
+        return runningBoardUpdateThreads;
+    }
+
     /**Construct the frame*/
     public frame1()
     {
         instance = this;
         loaded_tables=false;
+
+        runningBoardUpdateThreads = new RunningBoardUpdateThreads();
 
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
@@ -962,7 +979,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     getTofTree().loadTree(boardsfile);
     getTofTree().readTreeState(new File("toftree.txt"));
     TOF.initialSearchNewMessages(getTofTree(), frostSettings.getIntValue("maxMessageDisplay"));
-    //updateTofTree();
 
     loadSettings(); //check this!
     Startup.startupCheck();
@@ -992,7 +1008,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     UploadTableFun.load(uploadTable);
 
     // Start tofTree
-    Startup.resendFailedMessages(this);
+    resendFailedMessages();
     timer.start();
     started = true;
     } // ************** end-of: jbInit()
@@ -1457,7 +1473,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(i, 1);
                 String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(i, 2);
 
-                File newBoard = new File("keypool" + File.separatorChar+ name.toLowerCase() + ".key");
+                File newBoard = new File(keypool + name.toLowerCase() + ".key");
 
                 //ask if we already have the board
                 if( newBoard.exists() )
@@ -1495,7 +1511,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 String pubKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 1);
                 String privKey = (String)getAttachedBoardsTable().getModel().getValueAt(selectedRows[i], 2);
 
-                File newBoard = new File("keypool" + File.separatorChar+ name + ".key");
+                File newBoard = new File(keypool + name + ".key");
 
                 //ask if we already have the board
                 if( newBoard.exists() )
@@ -1552,15 +1568,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     public boolean isUpdating(String board)
     {
-        int threadCount = activeTofThreads.size();
-        for (int i = 0; i < threadCount; i++)
-        {
-            if (board.equals((String)activeTofThreads.elementAt(i)))
-            {
-                return true;
-            }
-        }
-        return false;
+        return runningBoardUpdateThreads.isUpdating(board);
     }
 
     /**tof / Update*/
@@ -1573,44 +1581,18 @@ public class frame1 extends JFrame implements ClipboardOwner
 
 //        String[] args = {board, frostSettings.getValue("tofDownloadHtl"), keypool};
         // first download the messages of today
-        MessageDownloadThread tofd = new MessageDownloadThread( true,
-                                                                board,
-                                                                frostSettings.getValue("tofDownloadHtl"),
-                                                                keypool,
-                                                                frostSettings.getValue("maxMessageDownload"),
-                                                                this
-                                                              );
-        tofd.start();
-        synchronized(TOFThreads)
-        {
-            TOFThreads.add(tofd);
-        }
+        runningBoardUpdateThreads.startMessageDownloadToday(board, frostSettings, null);
+
         System.out.println("Default update of " + board);
         // maybe get the files list
         if( !frostSettings.getBoolValue("disableRequests") )
         {
-            GetRequestsThread grt = new GetRequestsThread( board,
-                                                           frostSettings.getValue("tofDownloadHtl"),
-                                                           keypool,
-                                                           uploadTable
-                                                         );
-            grt.start();
-
-            synchronized(GRTThreads)
-            {
-                GRTThreads.add(grt);
-            }
+            runningBoardUpdateThreads.startBoardFilesDownload(board, frostSettings, null);
         }
 
         // finally get the older messages
-        MessageDownloadThread backload = new MessageDownloadThread( false,
-                                                                board,
-                                                                frostSettings.getValue("tofDownloadHtl"),
-                                                                keypool,
-                                                                frostSettings.getValue("maxMessageDownload"),
-                                                                this
-                                                              );
-        backload.start();
+        runningBoardUpdateThreads.startMessageDownloadBack(board, frostSettings, null);
+
         System.out.println("Backload update of " + board);
     }
 
@@ -1682,10 +1664,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         private void processItem(String dirItem)
         {
             File f = new File(dirItem);
-            VerifyableMessageObject temp;
+            FrostMessageObject temp;
             if( f.getPath().endsWith(".txt") )
             {//open file and check it
-                temp = new VerifyableMessageObject(f);
+                temp = new FrostMessageObject(f);
                 if( temp.getFrom().equals(currentMsg.getFrom()) &&
                     temp.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
                     if( trust ) temp.setStatus(VerifyableMessageObject.VERIFIED);
@@ -1738,33 +1720,15 @@ public class frame1 extends JFrame implements ClipboardOwner
                         current.spam();
                         timer2.schedule(new ClearSpam(current),24*60*60*1000);
 
-                        //now, kill the thread
-                        ListIterator threads = TOFThreads.listIterator();
-                        Thread doomed;
-                        while(threads.hasNext())
+                        //now, kill all threads for board
+                        Vector threads = runningBoardUpdateThreads.getDownloadThreadsForBoard(current.getBoard());
+                        Iterator i = threads.iterator();
+                        while( i.hasNext() )
                         {
-                            doomed = (MessageDownloadThread)threads.next();
-                            if(current.getBoard().equals(((MessageDownloadThread)doomed).board) ||
-                                ((MessageDownloadThread)doomed).board.equals("_boardlist"))
-                            {
-                                //doomed.stop();//also kills boardlist.  wander why.
-                                doomed.interrupt();
-                                frame1.activeTofThreads.remove(((MessageDownloadThread)doomed).board);
-                                threads.remove();
-                            }
+                            BoardUpdateThread thread = (BoardUpdateThread)i.next();
+                            while( thread.isInterrupted() == false )
+                                thread.interrupt();
                         }
-                        //repeat with request threads
-                        threads = GRTThreads.listIterator();
-                        while(threads.hasNext())
-                        {
-                            doomed = (GetRequestsThread)threads.next();
-                            if (current.getBoard().equals(((GetRequestsThread)doomed).board))
-                            {
-                                doomed.interrupt(); //stop();//TODO kill doomed
-                                threads.remove();
-                            }
-                        }
-                        tofDownloadThreads--;
                     }
                     current.resetBlocked();
                 }
@@ -1791,7 +1755,11 @@ public class frame1 extends JFrame implements ClipboardOwner
             if (i.length > 0)
                 frostSettings.setValue("tofTreeSelectedRow", i[0]);
         }
-        TreePath selectedTreePath = e.getNewLeadSelectionPath();
+        TreePath selectedTreePath = null;
+        if( e != null )
+        {
+            selectedTreePath = e.getNewLeadSelectionPath();
+        }
         if (selectedTreePath == null)
             getTofTree().setSelectedTof(null);
         else
@@ -2189,8 +2157,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     System.out.println("*****************************************");
     System.out.println("CP**AC**RV**Board************************");
-    for (int i = 0; i < statArray.length; i++) {
-
+    for (int i = 0; i < statArray.length; i++)
+    {
         // 50% chance to take the first board
         int randomValue = Math.abs(rand.nextInt())%2;
 
@@ -2202,9 +2170,10 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         System.out.println(outLine);
         String tmp = statArray[i].getBoard();
-        if (doUpdate(tmp) && board.equals("") && randomValue == 0) {
-        System.out.println("-----------------------------------------");
-        board = tmp;
+        if (doUpdate(tmp) && board.equals("") && randomValue == 0)
+        {
+            System.out.println("-----------------------------------------");
+            board = tmp;
         }
     }
     System.out.println("*****************************************");
@@ -2248,8 +2217,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     String newText = new StringBuffer()
                 .append(LangRes.getString("Up: ")).append(activeUploadThreads)
                 .append(LangRes.getString("   Down: ")).append(activeDownloadThreads)
-                .append(LangRes.getString("   TOFUP: ")).append(tofUploadThreads)
-                .append(LangRes.getString("   TOFDO: ")).append(tofDownloadThreads)
+                .append(LangRes.getString("   TOFUP: ")).append(runningBoardUpdateThreads.getRunningUploadThreadCount() )
+                .append(LangRes.getString("   TOFDO: ")).append( runningBoardUpdateThreads.getRunningDownloadThreadCount() )
                 .append(LangRes.getString("   Selected board: ")).append(getLastUsedBoard()).toString();
 
     statusLabel.setText(newText);
@@ -2269,7 +2238,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     // automatic TOF update
     if (counter%tofUpdateInterleave == 0 &&
-        tofDownloadThreads < tofUpdateSpeed &&
+        runningBoardUpdateThreads.getRunningDownloadThreadCount() < tofUpdateSpeed &&
         tofAutomaticUpdateMenuItem.isSelected()) {
 
         Vector boards = getTofTree().getAllBoards();
@@ -2285,8 +2254,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
 
         if (itemCount > 0) {
-        String actualBoard = new String();
-        actualBoard = selectNextBoard(boards, itemCount);
+        String actualBoard = selectNextBoard(boards, itemCount);
         incTries(actualBoard);
         resetAccess(actualBoard);
         if (doUpdate(actualBoard)) {
@@ -2997,5 +2965,41 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
         }
     }
+
+    /**
+     * Tries to send old messages that have not been sent yet
+     */
+    protected void resendFailedMessages()
+    {
+        Vector entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
+
+        for( int i = 0; i < entries.size(); i++ )
+        {
+            if( ((File)entries.elementAt(i)).getName().startsWith("unsent") )
+            {
+                // Resend message
+                VerifyableMessageObject mo = new VerifyableMessageObject((File)entries.elementAt(i));
+                if( mo.isValid() )
+                {
+                    runningBoardUpdateThreads.startMessageUpload(
+                        mo.getBoard(),
+                        mo.getFrom(),
+                        mo.getSubject(),
+                        mo.getContent(),
+                        mo.getDate(),
+                        mo.getTime(),
+                        "",
+                        frostSettings,
+                        this,
+                        null);
+                    System.out.println("Message " + mo.getSubject() + " will be resent.");
+                }
+// TODO: check if upload was successful before deleting the file!
+                mo.getFile().delete();
+            }
+        }
+    }
+
+
 }
 

@@ -34,6 +34,15 @@ public class DownloadTableModel extends DefaultTableModel
         LangRes.getString("Source"),
         LangRes.getString("Key")
     };
+    protected final static Class columnClasses[] = {
+        String.class, //LangRes.getString("Filename"),
+        String.class, //LangRes.getString("Size"),
+        String.class, //LangRes.getString("Age"),
+        String.class, //LangRes.getString("State"),
+        String.class, //LangRes.getString("HTL"),
+        String.class, //LangRes.getString("Source"),
+        String.class //LangRes.getString("Key")
+    };
 
     public DownloadTableModel()
     {
@@ -55,8 +64,10 @@ public class DownloadTableModel extends DefaultTableModel
     {
         return columnNames.length;
     }
-    public Class getColumnClass(int columnIndex)
+    public Class getColumnClass(int column)
     {
-        return String.class;
+        if( column >= 0 && column < columnClasses.length )
+            return columnClasses[column];
+        return null;
     }
 }

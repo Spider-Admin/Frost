@@ -32,11 +32,18 @@ public class MessageTableModel extends SortedTableModel
         "Sig",
         LangRes.getString("Date")
     };
+    protected final static Class columnClasses[] = {
+        String.class, //LangRes.getString("Index"),
+        String.class, //LangRes.getString("From"),
+        String.class, //LangRes.getString("Subject"),
+        String.class, //"Sig",
+        String.class //LangRes.getString("Date")
+    };
 
     public MessageTableModel()
     {
         super();
-        sortColumn(4, false); // default for messages: sort by date descending
+        sortModelColumn(4, false); // default for messages: sort by date descending
     }
 
     public boolean isCellEditable(int row, int col)
@@ -54,8 +61,10 @@ public class MessageTableModel extends SortedTableModel
     {
         return columnNames.length;
     }
-    public Class getColumnClass(int columnIndex)
+    public Class getColumnClass(int column)
     {
-        return String.class;
+        if( column >= 0 && column < columnClasses.length )
+            return columnClasses[column];
+        return null;
     }
 }

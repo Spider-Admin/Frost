@@ -27,13 +27,13 @@ import javax.swing.*;
 import java.awt.*;
 
 import frost.*;
+import frost.gui.objects.*;
 
 /**
  * Downloads messages
  */
-public class MessageDownloadThread extends Thread
+public class MessageDownloadThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
-    private Frame frameToLock;
     public String board;
     private String downloadHtl;
     private String keypool;
@@ -47,8 +47,22 @@ public class MessageDownloadThread extends Thread
 
     final String[] block = {"_boardlist", "frost_message_system"};
 
+    public int getThreadType()
+    {
+        if( flagNew )
+        {
+            return BoardUpdateThread.MSG_DNLOAD_TODAY;
+        }
+        else
+        {
+            return BoardUpdateThread.MSG_DNLOAD_BACK;
+        }
+    }
+
     public void run()
     {
+        notifyThreadStarted(this);
+
         String tofType;
         if( flagNew )
             tofType="TOF Download";
@@ -62,9 +76,6 @@ public class MessageDownloadThread extends Thread
 
         System.out.println(tofType + " Thread started for board "+board);
 
-        frame1.tofDownloadThreads++;
-        frame1.activeTofThreads.add(board);
-
         UpdateIdThread uit=null;
         if( flagNew && !mixed.isElementOf(board, block) )
         {
@@ -74,7 +85,10 @@ public class MessageDownloadThread extends Thread
         }
 
         if( isInterrupted() )
+        {
+            notifyThreadFinished(this);
             return;
+        }
 
         // switch public / secure board
         String val = new StringBuffer().append(frame1.keypool).append(board).append(".key").toString();
@@ -121,12 +135,8 @@ public class MessageDownloadThread extends Thread
             }
         }
         System.out.println(tofType + " Thread stopped for board "+board);
-        frame1.activeTofThreads.removeElement(board);
-        frame1.tofDownloadThreads--;
-        synchronized(frame1.TOFThreads)
-        {
-            frame1.TOFThreads.removeElement(this);
-        }
+
+        notifyThreadFinished(this);
     }
 
     /**Returns true if message is duplicate*/
@@ -288,7 +298,7 @@ public class MessageDownloadThread extends Thread
                             FileAccess.writeFile(contents,testMe);
                         }
 
-                        currentMsg = new VerifyableMessageObject(testMe);
+                        currentMsg = new FrostMessageObject(testMe);
                         if( currentMsg.getSubject().trim().indexOf("ENCRYPTED MSG FOR") != -1 &&
                             currentMsg.getSubject().indexOf(frame1.getMyId().getName()) == -1 )
                         {
@@ -367,10 +377,9 @@ public class MessageDownloadThread extends Thread
     }
 
     /**Constructor*/ //
-    public MessageDownloadThread(boolean fn, String boa, String dlHtl, String kpool, String maxmsg, Frame frame)
+    public MessageDownloadThread(boolean fn, String boa, String dlHtl, String kpool, String maxmsg)
     {
-        super();
-        this.frameToLock=frame;
+        super(boa);
         this.flagNew = fn;
         this.board = boa;
         this.downloadHtl = dlHtl;

@@ -153,18 +153,18 @@ public class AltEdit extends Thread {
     }
 
     if(!fileContentNew.equals(fileContentOld)){
-        String[] args = {boardNew,
-                 fromNew,
-                 subjectNew,
-                 textNew,
-                 frostSettings.getValue("tofUploadHtl"),
-                 keypool,
-                 frostSettings.getValue("tofDownloadHtl")
-        };
-
         frostSettings.setValue("userName", from);
-        MessageUploadThread mut = new MessageUploadThread(args, parentFrame);
-        mut.start();
+        frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
+            boardNew,
+            fromNew,
+            subjectNew,
+            textNew,
+            "",
+            "",
+            "",
+            frostSettings,
+            parentFrame,
+            null);
     }
     else{
         System.out.println("Message not edited, skipping upload!");

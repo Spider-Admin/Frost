@@ -22,12 +22,26 @@ public class SortedTable extends JTable
         initSortHeader();
     }
 
+    public void sortColumn(int col, boolean ascending)
+    {
+        if( ! (getModel() instanceof SortedTableModel) )
+            return;
+        SortedTableModel model = (SortedTableModel)getModel();
+
+        // TODO: remember selected items, deselect all,
+        //       sort and reselect the rememered items
+
+        // sort this column
+        model.sortModelColumn( col, ascending );
+    }
+
+
     public void setSavedSettings( int val, boolean val2 )
     {
         sortedColumnIndex = val;
         sortedColumnAscending = val2;
         SortedTableModel model = (SortedTableModel)getModel();
-        model.sortColumn(sortedColumnIndex, sortedColumnAscending);
+        sortColumn(sortedColumnIndex, sortedColumnAscending);
     }
 
     protected void initSortHeader()
@@ -73,7 +87,7 @@ public class SortedTable extends JTable
                 }
                 sortedColumnIndex = modelIndex;
 
-                model.sortColumn(modelIndex, sortedColumnAscending);
+                sortColumn(modelIndex, sortedColumnAscending);
             }
         }
         public void mouseEntered(MouseEvent event) {}

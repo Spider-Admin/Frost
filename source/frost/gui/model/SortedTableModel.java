@@ -23,7 +23,12 @@ public class SortedTableModel extends DefaultTableModel
         return true;
     }
 
-    public void sortColumn(int col, boolean ascending)
+    public void sortModelColumn(int col, boolean ascending)
+    {
+        sortColumn(col,ascending);
+    }
+
+    private void sortColumn(int col, boolean ascending)
     {
         // sort this column
         colComparator = new ColumnComparator(col, ascending);

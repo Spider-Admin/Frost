@@ -85,16 +85,13 @@ public class BoardInfoFrame extends JFrame
     // Generate objects
     //------------------------------------------------------------------------
     JPanel mainPanel = new JPanel(new BorderLayout());
-    //JPanel boardlistPanel = new JPanel(new BorderLayout());
     JPanel boardTablePanel = new JPanel(new BorderLayout());
 
     JLabel summaryLabel = new JLabel();
 
     JButton updateButton = new JButton(LangRes.getString("Update"));
-    //JButton addBoardButton = new JButton(LangRes.getString("Add board"));
     JButton updateSelectedBoardButton = new JButton(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
     JButton updateAllBoardsButton = new JButton("Update all boards");
-
     JButton Bclose = new JButton("Close");
 
     JPopupMenu popupMenu = new JPopupMenu();
@@ -103,16 +100,7 @@ public class BoardInfoFrame extends JFrame
     JMenuItem MIupdateAllBoards = new JMenuItem("Update all boards");
 
     BoardInfoTableModel boardTableModel = new BoardInfoTableModel();
-//    DefaultListSelectionModel boardTableListModel = new DefaultListSelectionModel();
     SortedTable boardTable = new SortedTable(boardTableModel);
-
-    //DefaultListModel boardListModel = new DefaultListModel();
-    //JList boardList = new JList(boardListModel);
-
-    //JScrollPane boardlistScrollPane = new JScrollPane(boardList);
-    /*JSplitPane splitPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT,
-                      boardlistPanel,
-                      boardTablePanel);*/
 
     private void Init() throws Exception {
         //------------------------------------------------------------------------
@@ -148,13 +136,6 @@ public class BoardInfoFrame extends JFrame
         updateButton.addActionListener(al);
         MIupdate.addActionListener(al);
 
-        // addBoardButton
-        /*addBoardButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                addBoardButton_actionPerformed(e);
-            }
-            });
-        */
         // updateSelectedBoardButton
         al = new java.awt.event.ActionListener()
         {
@@ -188,7 +169,6 @@ public class BoardInfoFrame extends JFrame
         //------------------------------------------------------------------------
         this.getContentPane().add(mainPanel, null); // add Main panel
 
-        //mainPanel.add(splitPane, BorderLayout.CENTER);
         mainPanel.add(boardTablePanel, BorderLayout.CENTER);
         boardTablePanel.add(updateSelectedBoardButton, BorderLayout.NORTH);
         boardTablePanel.add(new JScrollPane(boardTable), BorderLayout.CENTER);
@@ -209,9 +189,6 @@ public class BoardInfoFrame extends JFrame
                                                      new EmptyBorder(7,7,7,7),
                                                      boardTablePanel.getBorder()
                                                      ));
-        //boardlistPanel.add(addBoardButton, BorderLayout.NORTH);
-        //boardlistPanel.add(boardlistScrollPane, BorderLayout.CENTER);
-        //addBoardButton.setEnabled(false);
 
         JPanel buttonsPanel = new JPanel();
         buttonsPanel.setLayout(new BoxLayout(buttonsPanel, BoxLayout.X_AXIS));
@@ -234,14 +211,7 @@ public class BoardInfoFrame extends JFrame
 
         updateButton_actionPerformed(null);
     }
-/*
-    private void boardListModel_valueChanged(ListSelectionEvent e) {
-    if (boardList.getSelectedIndex() == -1)
-        addBoardButton.setEnabled(false);
-    else
-        addBoardButton.setEnabled(true);
-    }
-*/
+
     class TableDoubleClickMouseListener implements MouseListener
     {
         public void mouseReleased(MouseEvent event) {}
@@ -288,27 +258,7 @@ public class BoardInfoFrame extends JFrame
             MIupdateSelectedBoard.setEnabled(false);
         }
     }
-/*
-    private void addBoardButton_actionPerformed(ActionEvent e) {
-    boards = TreeFun.getAllLeafs(frame1.tofTreeNode);
-    if (boardList.getSelectedIndex() != -1) {
-        int[] selectedIndices = boardList.getSelectedIndices();
-        for (int i = 0; i < selectedIndices.length; i++) {
-        String selectedBoard = (String)boardListModel.getElementAt(selectedIndices[i]);
-        boolean addBoard = true;
-        for (int j = 0; j < boards.size(); j++) {
-            if (selectedBoard.equals((String)boards.elementAt(j)))
-            addBoard = false;
-        }
-        if (addBoard) {
-            frame1.tofTreeNode.add(new DefaultMutableTreeNode(selectedBoard));
-            boards.add(selectedBoard);
-        }
-        }
-        frame1.updateTree = true;
-    }
-    }
-*/
+
     private void updateButton_actionPerformed(ActionEvent e)
     {
         Object[] row = new Object[5];
@@ -348,8 +298,6 @@ public class BoardInfoFrame extends JFrame
                              messageCount +
                              LangRes.getString("   Files: ") +
                              fileCount);
-        //updateBoardList();
-        //requestNewBoards();
         updateSelectedBoardButton.setEnabled(false);
         MIupdateSelectedBoard.setEnabled(false);
     }
@@ -394,64 +342,7 @@ public class BoardInfoFrame extends JFrame
             boardTable.clearSelection();
         }
     }
-/*
-    private void updateBoardList() {
-    boardListModel.clear();
-    addBoardButton.setEnabled(false);
 
-    GregorianCalendar cal = new GregorianCalendar();
-    cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-    for (int j = 0; j < frame1.frostSettings.getIntValue("maxMessageDisplay"); j++) {
-        String date = cal.get(Calendar.YEAR) + ".";
-        date += cal.get(Calendar.MONTH) + 1 + ".";
-        date += cal.get(Calendar.DATE);
-        File today = new File(frame1.keypool +
-                  "_boardlist" +
-                  System.getProperty("file.separator") +
-                  date);
-//      System.out.println("Reading boardlist from " + today.getPath());
-        if (today.isDirectory()) {
-        File[] files = today.listFiles();
-        if (files != null) {
-            for (int i = 0; i < files.length; i++) {
-            if (files[i].length() > 0 && files[i].getName().endsWith(".txt")) {
-                String boardName = (FileAccess.readFile(files[i])).trim();
-
-                boolean exists = false;
-                for (int k = 0; k < boardListModel.size(); k++) {
-                if (boardName.equals((String)boardListModel.elementAt(k)))
-                    exists = true;
-                }
-
-                if (!boardName.equals("Empty") && !exists && boardName.length() < 65)
-                boardListModel.addElement(mixed.makeFilename(boardName));
-
-            }
-            }
-        }
-        }
-        cal.add(Calendar.DATE, -1); // Yesterday
-    }
-    }
-
-    private void requestNewBoards() {
-    boolean request = true;
-    for (int i = 0; i < frame1.activeTofThreads.size(); i++) {
-        String updatedBoard = (String)frame1.activeTofThreads.elementAt(i);
-        if (updatedBoard.equals("_boardlist"))
-        request = false;
-    }
-    if (request) {
-        String[] args = new String[3];
-        args[0] = "_boardlist";
-        args[1] = frame1.frostSettings.getValue("tofDownloadHtl");
-        args[2] = frame1.keypool;
-        MessageDownloadThread tofd = new MessageDownloadThread(true, args,this);
-        tofd.start();
-    }
-    }
-*/
     protected void closeDialog()
     {
         dispose();

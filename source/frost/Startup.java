@@ -98,38 +98,4 @@ public class Startup
             execDirectory.mkdir();
         }
     }
-
-    /**
-     * Tries to send old messages that have not been sent yet
-     */
-    public static void resendFailedMessages(Frame parentFrame)
-    {
-        Vector entries = FileAccess.getAllEntries(new File(frame1.keypool), ".txt");
-
-        for( int i = 0; i < entries.size(); i++ )
-        {
-            if( ((File)entries.elementAt(i)).getName().startsWith("unsent") )
-            {
-                // Resend message
-                VerifyableMessageObject mo = new VerifyableMessageObject((File)entries.elementAt(i));
-                if( mo.isValid() )
-                {
-                    String[] par = new String[9];
-                    par[0] = mo.getBoard();
-                    par[1] = mo.getFrom();
-                    par[2] = mo.getSubject();
-                    par[3] = mo.getContent();
-                    par[4] = frame1.frostSettings.getValue("tofUploadHtl");
-                    par[5] = frame1.keypool;
-                    par[6] = frame1.frostSettings.getValue("tofDownloadHtl");
-                    par[7] = mo.getDate();
-                    par[8] = mo.getTime();
-                    MessageUploadThread messageUploadThread = new MessageUploadThread(par, parentFrame);
-                    messageUploadThread.start();
-                    System.out.println("Message " + par[2] + " will be resent.");
-                }
-                mo.getFile().delete();
-            }
-        }
-    }
 }

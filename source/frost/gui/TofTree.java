@@ -33,6 +33,7 @@ import java.io.*;
 import java.util.*;
 
 import frost.*;
+import frost.gui.objects.*;
 
 public class TofTree extends JTree
 implements DragGestureListener, DropTargetListener, DragSourceListener
