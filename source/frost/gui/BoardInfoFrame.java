@@ -288,8 +288,7 @@ public class BoardInfoFrame extends JFrame
                     row.setUpdating(true);
                     boardTableModel.fireTableCellUpdated(rowIx, 0);
                 }
-                if( row.isUpdating() == false && // is already updating?
-                    parent.doUpdate(row.getBoard()) == true ) // is update allowed for this board?
+                if( parent.isUpdateAllowed(row.getBoard()) == true ) // is update allowed for this board?
                 {
                     parent.updateBoard(row.getBoard());
                     row.setUpdating(true);

@@ -547,7 +547,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener to buttons
         tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { // Update selected board
-                if (doUpdate(getActualNode()))  {  updateBoard(getActualNode());  }
+                // restarts all finished threads if there are some long running threads
+                if (isUpdateAllowed(getActualNode()))  { updateBoard(getActualNode());  }
             } });
         tofNewMessageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1034,6 +1035,10 @@ public class frame1 extends JFrame implements ClipboardOwner
     started = true;
     } // ************** end-of: jbInit()
 
+    /**
+     * Build ALL popup menus.
+     * Should be called only once.
+     */
     private void buildPopupMenus()
     {
         buildPopupMenuSearch();
@@ -1043,6 +1048,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         buildPopupMenuTofTree();
     }
 
+    /**
+     * Build the search table popup menu.
+     * Should be called only once.
+     */
     private void buildPopupMenuSearch()
     {
 // create objects
@@ -1078,6 +1087,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         searchPopupMenu.add(searchPopupCancel);
     }
 
+    /**
+     * Build the upload table popup menu.
+     * Should be called only once.
+     */
     private void buildPopupMenuUpload()
     {
 // create objects
@@ -1193,6 +1206,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupMenu.add(uploadPopupCancel);
 
     }
+
+    /**
+     * Build the download table popup menu.
+     * Should be called only once.
+     */
     private void buildPopupMenuDownload()
     {
 // construct objects
@@ -1240,6 +1258,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         downloadPopupMenu.add(downloadPopupCancel);
 
     }
+
+    /**
+     * Build the tof text popup menu.
+     * Should be called only once.
+     */
     private void buildPopupMenuTofText()
     {
 // create objects
@@ -1283,6 +1306,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTextPopupMenu.add(tofTextPopupCancel);
 
     }
+
+    /**
+     * Build the tof tree popup menu.
+     * Should be called only once.
+     */
     private void buildPopupMenuTofTree()
     {
 // create objects
@@ -1340,6 +1368,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTreePopupMenu.add(tofTreePopupCancel);
     }
 
+    /**
+     * Build the menu bar.
+     * Should be called only once.
+     */
     private void buildMenuBar()
     {
 // create objects
@@ -1441,13 +1473,15 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     //------------------------------------------------------------------------
-    //------------------------------------------------------------------------
 
-    public static void displayWarning(String message) {
-    newMessageHeader = " " + message;
+    public static void displayWarning(String message)
+    {
+        newMessageHeader = " " + message;
     }
 
-    // Add attachments to download table
+    /**
+     * Adds either the selected or all files from the attachmentTable to downloads table.
+     */
     public void downloadAttachments() {
     int[] selectedRows = attachmentTable.getSelectedRows();
 
@@ -1481,6 +1515,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
 
+    /**
+     * Adds all boards from the attachedBoardsTable to board list.
+     */
     private void downloadBoards()
     {
         System.out.println("adding boards");
@@ -1513,13 +1550,11 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
 
             // prepare key vars for creation of FrostBoardObject (val=null if key is empty)
-            if( privKey.compareTo("N/A") == 0 ||
-                privKey.length() == 0 )
+            if( privKey.compareTo("N/A") == 0 || privKey.length() == 0 )
             {
                 privKey = null;
             }
-            if( pubKey.compareTo("N/A") == 0 ||
-                pubKey.length() == 0 )
+            if( pubKey.compareTo("N/A") == 0 || pubKey.length() == 0 )
             {
                 pubKey = null;
             }
@@ -1528,8 +1563,26 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
-    // Test if board should be updated
+    /**
+     * Returns true if board is allowed to be updated.
+     * Also checks if board update is already running.
+     */
     public boolean doUpdate(FrostBoardObject board)
+    {
+        if( isUpdateAllowed(board) == false )
+            return false;
+
+        if( isUpdating(board) )
+            return false;
+
+        return true;
+    }
+
+    /**
+     * Returns true if board is allowed to be updated.
+     * Does NOT check if board update is already running.
+     */
+    public boolean isUpdateAllowed(FrostBoardObject board)
     {
         if( board == null )
             return false;
@@ -1540,12 +1593,24 @@ public class frame1 extends JFrame implements ClipboardOwner
         if (board.isSpammed())
             return false;
 
-        if( isUpdating(board) )
-            return false;
-
         return true;
     }
 
+    private boolean isThreadOfTypeRunning(FrostBoardObject board, int type)
+    {
+        Vector threads = getRunningBoardUpdateThreads().getDownloadThreadsForBoard(board);
+        for( int x=0; x<threads.size(); x++ )
+        {
+            BoardUpdateThread thread = (BoardUpdateThread)threads.get(x);
+            if( thread.getThreadType() == type )
+                return true;
+        }
+        return false;
+    }
+
+    /**
+     * Returns true if this board is currently running update threads.
+     */
     public boolean isUpdating(FrostBoardObject board)
     {
         return getRunningBoardUpdateThreads().isUpdating(board);
@@ -1553,38 +1618,57 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     /**tof / Update*/
     /**
-     * Should only be called if this board is not already updating.
+     * Starts the board update threads, getRequest thread and update id thread.
+     * Checks for each type of thread if its already running, and starts allowed
+     * not-running threads for this board.
      */
     public void updateBoard(FrostBoardObject board)
     {
         if( board == null || board.isFolder() )
             return;
 
-        // this is the only place where message downloads are started
-        board.setLastUpdateStartMillis( System.currentTimeMillis() );
+        boolean threadStarted = false;
 
         // first download the messages of today
-        getRunningBoardUpdateThreads().startMessageDownloadToday(board, frostSettings, null);
-        System.out.println("Starting update (MSG_TODAY) of " + board.toString());
+        if( isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY) == false )
+        {
+            getRunningBoardUpdateThreads().startMessageDownloadToday(board, frostSettings, null);
+            System.out.println("Starting update (MSG_TODAY) of " + board.toString());
+            threadStarted = true;
+        }
 
         // maybe get the files list
-        if( !frostSettings.getBoolValue("disableRequests") )
+        if( !frostSettings.getBoolValue("disableRequests") &&
+            !isThreadOfTypeRunning(board, BoardUpdateThread.ID_THREAD)
+          )
         {
             getRunningBoardUpdateThreads().startBoardFilesUpload(board, frostSettings, null);
             System.out.println("Starting update (BOARD_UPLOAD) of " + board.toString());
-
+            threadStarted = true;
         }
 
-    if( !frostSettings.getBoolValue("disableDownloads") )
+        if( !frostSettings.getBoolValue("disableDownloads") &&
+            !isThreadOfTypeRunning(board, BoardUpdateThread.BOARD_FILE_DNLOAD)
+          )
         {
             getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, null);
             System.out.println("Starting update (BOARD_DOWNLOAD) of " + board.toString());
-
+            threadStarted = true;
         }
 
         // finally get the older messages
-        getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, null);
-        System.out.println("Starting update (MSG_BACKLOAD) of " + board.toString());
+        if( isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK) == false )
+        {
+            getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, null);
+            System.out.println("Starting update (MSG_BACKLOAD) of " + board.toString());
+            threadStarted = true;
+        }
+
+        // if there was a new thread started, update the lastUpdateStartTimeMillis
+        if( threadStarted == true )
+        {
+            board.setLastUpdateStartMillis( System.currentTimeMillis() );
+        }
     }
 
     public void updateTofTree(FrostBoardObject board)
@@ -1886,7 +1970,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( node!=null )
             if( node.isLeaf() )
             { //TODO: refresh current board
-                if( doUpdate( node ) )
+                if( isUpdateAllowed( node ) )
                 {
                     updateBoard(node);
                 }
@@ -2111,7 +2195,9 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
-
+    /**
+     * Used to sort FrostBoardObjects by lastUpdateStartMillis ascending.
+     */
     static final Comparator lastUpdateStartMillisCmp = new Comparator() {
         public int compare(Object o1, Object o2) {
         FrostBoardObject value1 = (FrostBoardObject)o1;
@@ -2124,7 +2210,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     };
 
     /**
-     * Chooses the next FrostBoard to update.
+     * Chooses the next FrostBoard to update (automatic update).
      * First sorts by lastUpdateStarted time, then chooses first board
      * that is allowed to update.
      * Used only for automatic updating.
@@ -2149,7 +2235,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             board = (FrostBoardObject)boards.get(i);
 //            System.out.println( "lastUpdate= "+board.getLastUpdateStartMillis()+" ; Board = "+board.toString() );
             if( nextBoard == null &&
-                doUpdate(board) &&  // update allowed, already updating, ...?
+                doUpdate(board) &&
                 (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
               )
             {
