@@ -152,9 +152,9 @@ public class SearchThread extends Thread {
 
         int age = 1;
         try { age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos)); }
-        catch (NumberFormatException e) { if (DEBUG) Core.getOut().println("Did not recognice age, using default 1"); }
+        catch (NumberFormatException e) {  Core.getOut().println("Did not recognice age, using default 1"); }
 
-        if (DEBUG) Core.getOut().println("AGE = " + age);
+         Core.getOut().println("AGE = " + age);
 
         GregorianCalendar today = new GregorianCalendar();
         today.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -170,6 +170,7 @@ public class SearchThread extends Thread {
 
         		if (keyCal.before(today)) {
          	   		results.removeElementAt(i);
+         	   		Core.getOut().println("removing because of keyCal");
         		}
 		}
         }
@@ -183,8 +184,9 @@ public class SearchThread extends Thread {
      while (it.hasNext()) {
      	SharedFileObject key = (SharedFileObject)it.next();
 	if ((key.getOwner() == null || 
-		key.getOwner()!=null && key.getOwner().compareToIgnoreCase("anonymous")==0) &&
+		(key.getOwner()!=null && key.getOwner().compareToIgnoreCase("anonymous")==0)) &&
 		hideAnon) {
+		//	Core.getOut().println("removing anon result");
 		it.remove();
 		continue;
 	}
@@ -193,6 +195,7 @@ public class SearchThread extends Thread {
 		(frame1.getEnemies().Get(key.getOwner()) != null ||
 			frame1.getBadIds().contains(key.getOwner())) &&
 			hideBad) {
+		//Core.getOut().println("removing bad result");
 		it.remove();
 		continue;
 	}	

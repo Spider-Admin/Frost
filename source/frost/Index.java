@@ -103,7 +103,8 @@ public class Index
             totalIdx = FileAccess.readKeyFile(boardFiles);
         }
 
-        Map toUpload = FileAccess.readKeyFile(boardNewUploads).getFilesMap();
+		FrostIndex _toUpload =FileAccess.readKeyFile(boardNewUploads); 
+        Map toUpload = _toUpload!=null ? _toUpload.getFilesMap() : new HashMap();
 		
         //add friends's files 
         // TODO:  add a limit
