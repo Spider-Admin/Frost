@@ -351,40 +351,35 @@ public class DownloadPanel extends JPanel {
 		 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
 		 */
 		public void keyReleased(KeyEvent e) {
-			// TODO Auto-generated method stub
-
+			// Nothing here	
 		}
 
 		/* (non-Javadoc)
 		 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
 		 */
 		public void keyTyped(KeyEvent e) {
-			// TODO Auto-generated method stub
-
+			// Nothing here
 		}
 
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 		 */
 		public void mouseClicked(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+			// Nothing here				
 		}
 
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 		 */
 		public void mouseEntered(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+			// Nothing here			
 		}
 
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 		 */
 		public void mouseExited(MouseEvent e) {
-			// TODO Auto-generated method stub
-			
+			// Nothing here				
 		}
 
 		/* (non-Javadoc)
@@ -482,8 +477,7 @@ public class DownloadPanel extends JPanel {
 			downloadTopPanel.add(Box.createHorizontalGlue());
 
 			String downloadCountPrefix = languageResource.getString("Waiting");
-			//TODO: internacionalize this
-			JLabel dummyLabel = new JLabel(downloadCountPrefix + " : 00000");
+			JLabel dummyLabel = new JLabel(downloadCountPrefix + " : 00000000");
 			dummyLabel.doLayout();
 			Dimension labelSize = dummyLabel.getPreferredSize();
 			downloadItemCountLabel.setPreferredSize(labelSize);
@@ -513,7 +507,13 @@ public class DownloadPanel extends JPanel {
 		downloadActivateCheckBox.setToolTipText(languageResource.getString("Activate downloading"));
 		downloadShowHealingInfo.setToolTipText(
 			languageResource.getString("Show healing information"));
-
+		String s =
+			new StringBuffer()
+				.append(languageResource.getString("Waiting"))
+				.append(" : ")
+				.append(downloadItemCount)
+				.toString();
+		downloadItemCountLabel.setText(s);
 	}
 
 	/**
