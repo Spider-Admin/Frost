@@ -20,8 +20,9 @@ package frost;
 
 import java.io.*;
 import java.util.*;
+
+import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
-import frost.gui.model.*;
 
 public class Index
 {

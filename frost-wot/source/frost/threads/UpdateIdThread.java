@@ -19,11 +19,12 @@
 package frost.threads;
 
 import java.io.*;
-import java.util.*;
+import java.util.Vector;
 
 import frost.*;
+import frost.crypt.crypt;
 import frost.gui.objects.FrostBoardObject;
-import frost.identities.*;
+import frost.identities.Identity;
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
@@ -377,7 +378,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				
 				
 				//strip the sig
-				unzipped = unzipped.substring(frame1.getCrypto().MSG_HEADER_SIZE,
+				unzipped = unzipped.substring(crypt.MSG_HEADER_SIZE,
 							unzipped.lastIndexOf("\n=== Frost message signature: ===\n"));
 			} else 
 				if (frame1.frostSettings.getBoolValue("hideAnonFiles")) {

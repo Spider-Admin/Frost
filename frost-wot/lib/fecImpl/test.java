@@ -1,12 +1,7 @@
-import fecimpl.*;
-import com.onionnetworks.fec.*;
-import com.onionnetworks.util.*;
-
-import freenet.client.*;
-import freenet.support.*;
-import freenet.support.io.*;
-
 import java.io.*;
+
+import fecimpl.OnionFECEncoder;
+import freenet.support.*;
 
 public class test
 {
