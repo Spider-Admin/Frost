@@ -47,6 +47,238 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * 
 	 */
+	private class UploadPanel extends JPanel {
+
+		/**
+		 * 
+		 */
+		private class Listener implements ActionListener {
+
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == disableRequestsCheckBox) {
+					disableUploadsPressed();
+				}
+			}
+
+		}
+		
+		private Listener listener = new Listener();
+		
+		private JCheckBox disableRequestsCheckBox = new JCheckBox();
+		private JCheckBox automaticIndexingCheckBox = new JCheckBox();
+		private JCheckBox helpFriendsCheckBox = new JCheckBox();
+		private JCheckBox shareDownloadsCheckBox = new JCheckBox();
+		private JCheckBox signUploadsCheckBox = new JCheckBox();
+	
+		private JTextField htlTextField = new JTextField(6);
+		private JTextField threadsTextField = new JTextField(6);
+		private JTextField splitfileThreadsTextField = new JTextField(6);
+		private JTextField batchSizeTextField = new JTextField(6);
+		private JTextField indexFileRedundancyTextField = new JTextField(6);
+		
+		private JLabel htlLabel = new JLabel();
+		private JLabel htlExplanationLabel = new JLabel();
+		private JLabel threadsLabel = new JLabel();
+		private JLabel splitfileThreadsLabel = new JLabel();
+		private JLabel splitfileThreadsExplanationLabel = new JLabel();
+		private JLabel batchSizeLabel = new JLabel();
+		private JLabel batchSizeExplanationLabel = new JLabel();
+		private JLabel indexFileRedundancyLabel = new JLabel();
+		private JLabel indexFileRedundancyExplanationLabel = new JLabel();
+
+		/**
+		 * 
+		 */
+		public UploadPanel() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			setName("UploadPanel");
+			setLayout(new GridBagLayout());
+			refreshLanguage();
+
+			//Adds all of the components
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			Insets insets0555 = new Insets(0, 5, 5, 5);
+			Insets insets5555 = new Insets(5, 5, 5, 5);
+			Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
+			constraints.weighty = 1;
+			
+			constraints.gridwidth = 3;
+			constraints.insets = insets0555;
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			add(disableRequestsCheckBox, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			constraints.gridwidth = 2;
+			add(automaticIndexingCheckBox, constraints);
+			constraints.insets = insets5555;			
+			constraints.gridx = 2;
+			constraints.gridwidth = 1;
+			add(shareDownloadsCheckBox, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 2;
+			constraints.gridwidth = 2;
+			add(signUploadsCheckBox, constraints);
+			constraints.insets = insets5555;
+			constraints.gridx = 2;
+			constraints.gridwidth = 1;
+			add(helpFriendsCheckBox, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 3;
+			add(htlLabel, constraints);
+			constraints.insets = insets5555;
+			constraints.gridx = 1;
+			add(htlTextField, constraints);
+			constraints.gridx = 2;
+			add(htlExplanationLabel, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 4;
+			add(threadsLabel, constraints);
+			constraints.insets = insets5555;
+			constraints.gridx = 1;
+			add(threadsTextField, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 5;
+			add(splitfileThreadsLabel, constraints);
+			constraints.insets = insets5555;
+			constraints.gridx = 1;
+			add(splitfileThreadsTextField, constraints);
+			constraints.gridx = 2;
+			add(splitfileThreadsExplanationLabel, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 6;
+			add(batchSizeLabel, constraints);
+			constraints.insets = insets5555;
+			constraints.gridx = 1;
+			add(batchSizeTextField, constraints);
+			constraints.gridx = 2;
+			add(batchSizeExplanationLabel, constraints);
+			
+			constraints.insets = insets5_30_5_5;
+			constraints.gridx = 0;
+			constraints.gridy = 7;
+			add(indexFileRedundancyLabel, constraints);
+			constraints.insets = insets5555;
+			constraints.gridx = 1;
+			add(indexFileRedundancyTextField, constraints);
+			constraints.gridx = 2;
+			add(indexFileRedundancyExplanationLabel, constraints);
+
+			// Add listeners
+			disableRequestsCheckBox.addActionListener(listener);
+
+		}
+		
+		/**
+		 * Load the settings of this panel
+		 * @param uploadSettings class the settings will be loaded from
+		 */
+		public void loadSettings(SettingsClass uploadSettings) {
+			signUploadsCheckBox.setSelected(frostSettings.getBoolValue("signUploads"));
+			helpFriendsCheckBox.setSelected(frostSettings.getBoolValue("helpFriends"));
+			automaticIndexingCheckBox.setSelected(frostSettings.getBoolValue("automaticIndexing"));
+			shareDownloadsCheckBox.setSelected(frostSettings.getBoolValue("shareDownloads"));
+			htlTextField.setText(frostSettings.getValue("htlUpload"));
+			threadsTextField.setText(frostSettings.getValue("uploadThreads"));
+			batchSizeTextField.setText(frostSettings.getValue("uploadBatchSize"));
+			indexFileRedundancyTextField.setText(frostSettings.getValue("indexFileRedundancy"));
+			splitfileThreadsTextField.setText(frostSettings.getValue("splitfileUploadThreads"));
+			disableRequestsCheckBox.setSelected(frostSettings.getBoolValue("disableRequests"));
+			
+			setEnabled(!disableRequestsCheckBox.isSelected());
+		}
+		
+		public void ok() {
+			saveSettings(frostSettings);
+		}
+		
+		/**
+		 * @param frostSettings
+		 */
+		private void saveSettings(SettingsClass frostSettings) {
+			frostSettings.setValue("htlUpload", htlTextField.getText());
+			frostSettings.setValue("uploadThreads", threadsTextField.getText());
+			frostSettings.setValue("uploadBatchSize", batchSizeTextField.getText());
+			frostSettings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
+			frostSettings.setValue("splitfileUploadThreads", splitfileThreadsTextField.getText());
+			frostSettings.setValue("disableRequests", disableRequestsCheckBox.isSelected());
+			frostSettings.setValue("signUploads", signUploadsCheckBox.isSelected());
+			frostSettings.setValue("automaticIndexing", automaticIndexingCheckBox.isSelected());
+			frostSettings.setValue("shareDownloads", shareDownloadsCheckBox.isSelected());
+			frostSettings.setValue("helpFriends", helpFriendsCheckBox.isSelected());
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.Component#setEnabled(boolean)
+		 */
+		public void setEnabled(boolean enabled) {
+			super.setEnabled(enabled);
+
+			ArrayList exceptions = new ArrayList();
+			exceptions.add(disableRequestsCheckBox);
+			MiscToolkit.getInstance().setContainerEnabled(this, enabled, exceptions);
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			disableRequestsCheckBox.setText(languageResource.getString("Disable uploads"));
+			signUploadsCheckBox.setText(languageResource.getString("Sign shared files"));
+			automaticIndexingCheckBox.setText(languageResource.getString("Automatic Indexing"));
+			shareDownloadsCheckBox.setText(languageResource.getString("Share Downloads"));
+			helpFriendsCheckBox.setText(
+				languageResource.getString("Help spread files from people marked GOOD"));
+			htlLabel.setText(languageResource.getString("Upload HTL") + " (8)");
+			htlExplanationLabel.setText(languageResource.getString("up htl explanation"));
+			threadsLabel.setText(
+				languageResource.getString("Number of simultaneous uploads") + " (3)");
+			splitfileThreadsLabel.setText(
+				languageResource.getString("Number of splitfile threads") + " (15)");
+			splitfileThreadsExplanationLabel.setText(
+				languageResource.getString("splitfile explanation"));
+			batchSizeLabel.setText(languageResource.getString("Upload batch size"));
+			batchSizeExplanationLabel.setText(languageResource.getString("batch explanation"));
+			indexFileRedundancyLabel.setText(languageResource.getString("Index file redundancy"));
+			indexFileRedundancyExplanationLabel.setText(
+				languageResource.getString("redundancy explanation"));
+		}
+		
+		/**
+		 * 
+		 */
+		private void disableUploadsPressed() {
+			// enable panel if checkbox is not selected
+			setEnabled(!disableRequestsCheckBox.isSelected());
+		}
+	}
+	
+	/**
+	 * 
+	 */
 	private class DownloadPanel extends JPanel {
 
 		/**
@@ -79,7 +311,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == disableDownloadsCheckBox) {
-					disableDownloadsPressed();
+					refreshComponentsState();
 				}	
 				if (e.getSource() == browseDirectoryButton) {
 					browseDirectoryPressed();	
@@ -95,22 +327,25 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JCheckBox disableDownloadsCheckBox = new JCheckBox();
 		private JCheckBox enableRequestingCheckBox = new JCheckBox();
 		private JCheckBox restartFailedDownloadsCheckBox = new JCheckBox();
-		private JTextField requestAfterTriesTextField = new JTextField();
-		private JLabel requestAfterTriesLabel = new JLabel();
-		private JTextField maxRetriesTextField = new JTextField();
-		private JLabel maxRetriesLabel = new JLabel();
-		private JTextField waitTimeTextField = new JTextField();
-		private JLabel waitTimeLabel = new JLabel();
-		private JTextField directoryTextField = new JTextField();
-		private JLabel directoryLabel = new JLabel();
-		private JButton browseDirectoryButton = new JButton();
-		private JTextField threadsTextField = new JTextField();
-		private JTextField splitfileThreadsTextField = new JTextField();
-		private JLabel threadsTextLabel = new JLabel();
-		private JLabel splitfileThreadsLabel = new JLabel();
 		private JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox();
 		private JCheckBox tryAllSegmentsCheckBox = new JCheckBox();
 		private JCheckBox decodeAfterEachSegmentCheckBox = new JCheckBox();
+		
+		private JButton browseDirectoryButton = new JButton();
+		
+		private JTextField directoryTextField = new JTextField();
+		private JTextField requestAfterTriesTextField = new JTextField(6);
+		private JTextField maxRetriesTextField = new JTextField(6);
+		private JTextField waitTimeTextField = new JTextField(6);
+		private JTextField threadsTextField = new JTextField(6);
+		private JTextField splitfileThreadsTextField = new JTextField(6);
+		
+		private JLabel waitTimeLabel = new JLabel();
+		private JLabel directoryLabel = new JLabel();
+		private JLabel maxRetriesLabel = new JLabel();
+		private JLabel requestAfterTriesLabel = new JLabel();
+		private JLabel threadsTextLabel = new JLabel();
+		private JLabel splitfileThreadsLabel = new JLabel();
 		
 		/**
 		 * 
@@ -195,12 +430,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			add(threadsTextLabel, constraints);
 			constraints.gridx = 1;
 			constraints.insets = insets5555;
+			constraints.weightx = 0;
 			add(threadsTextField, constraints);
 			
-			constraints.gridx = 2;
-			constraints.weightx = 3;
-			add(new JPanel(), constraints);	//Filler
-
 			constraints.insets = insets5_30_5_5;
 			constraints.gridy = 6;
 			constraints.gridx = 0;
@@ -208,12 +440,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			add(splitfileThreadsLabel, constraints);
 			constraints.gridx = 1;
 			constraints.insets = insets5555;
+			constraints.weightx = 0;
 			add(splitfileThreadsTextField, constraints);
 
 			constraints.insets = insets5_30_5_5;
 			constraints.gridwidth = 4;
 			constraints.gridy = 7;
 			constraints.gridx = 0;
+			constraints.weightx = 1;
 			add(removeFinishedDownloadsCheckBox, constraints);
 			constraints.gridy = 8;
 			add(tryAllSegmentsCheckBox, constraints);
@@ -233,19 +467,22 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			GridBagConstraints constraints = new GridBagConstraints();
 			constraints.fill = GridBagConstraints.HORIZONTAL;
 			constraints.insets = new Insets(5, 5, 5, 5);			
-			constraints.weightx = 1;
 			constraints.weighty = 1;
 			
 			constraints.gridx = 0;
 			constraints.gridy = 0;
+			constraints.weightx = 1;
 			subPanel.add(maxRetriesLabel, constraints);
 			constraints.gridx = 1;
+			constraints.weightx = 0;
 			subPanel.add(maxRetriesTextField, constraints);
 			
 			constraints.gridy = 1;
 			constraints.gridx = 0;
+			constraints.weightx = 1;
 			subPanel.add(waitTimeLabel, constraints);
 			constraints.gridx = 1;
+			constraints.weightx = 0;
 			subPanel.add(waitTimeTextField, constraints);
 			
 			return subPanel;
@@ -257,14 +494,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			GridBagConstraints constraints = new GridBagConstraints();
 			constraints.fill = GridBagConstraints.HORIZONTAL;
 			constraints.insets = new Insets(5, 5, 5, 5);
-			constraints.weightx = 1;
 			constraints.weighty = 1;
 			
 			constraints.gridx = 0;
 			constraints.gridy = 0;
+			constraints.weightx = 1;
 			subPanel.add(requestAfterTriesLabel, constraints);
 			constraints.gridx = 1;
-			constraints.ipadx = 10;
+			constraints.weightx = 0;
 			subPanel.add(requestAfterTriesTextField, constraints);
 			
 			return subPanel;
@@ -335,9 +572,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				"removeFinishedDownloads",
 				removeFinishedDownloadsCheckBox.isSelected());
 
-			removeFinishedDownloadsCheckBox.setSelected(//TODO: What is this doing here??
-			frostSettings.getBoolValue("removeFinishedDownloads"));
-
 			frostSettings.setValue("splitfileDownloadThreads", splitfileThreadsTextField.getText());
 			frostSettings.setValue("disableDownloads", disableDownloadsCheckBox.isSelected());
 			frostSettings.setValue(
@@ -383,22 +617,25 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			decodeAfterEachSegmentCheckBox.setSelected(
 				frostSettings.getBoolValue("downloadDecodeAfterEachSegment"));
 
-			requestAfterTriesTextField.setEnabled(enableRequestingCheckBox.isSelected());
-			maxRetriesTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-			waitTimeTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-			requestAfterTriesLabel.setEnabled(enableRequestingCheckBox.isSelected());
-			maxRetriesLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-			waitTimeLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
-
-			setEnabled(!disableDownloadsCheckBox.isSelected());
+			refreshComponentsState();
 		}
 
 		/**
 		 * 
 		 */
-		private void disableDownloadsPressed() {
-			// enable panel if checkbox is not selected
-			setEnabled(!disableDownloadsCheckBox.isSelected());
+		private void refreshComponentsState() {
+			boolean downloadsEnabled = !disableDownloadsCheckBox.isSelected();
+			if (downloadsEnabled) {
+				setEnabled(true);
+				requestAfterTriesTextField.setEnabled(enableRequestingCheckBox.isSelected());
+				maxRetriesTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+				waitTimeTextField.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+				requestAfterTriesLabel.setEnabled(enableRequestingCheckBox.isSelected());
+				maxRetriesLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+				waitTimeLabel.setEnabled(restartFailedDownloadsCheckBox.isSelected());
+			} else {
+				setEnabled(false);
+			}
 		}
 
 		/**
@@ -440,6 +677,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 
 	}
+	
 	/**
 	 * Display Panel. Contains appearace options: skins and more in the future
 	 */
@@ -733,7 +971,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel mainPanel = null;
 	JPanel buttonPanel = null; // OK / Cancel
 	private DownloadPanel downloadPanel = null;
-	JPanel uploadPanel = null;
+	private UploadPanel uploadPanel = null;
 	JPanel tofPanel = null;
 	JPanel tof2Panel = null;
 	JPanel tof3Panel = null;
@@ -745,11 +983,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	JAATextArea tofTextArea = new JAATextArea(4, 50);
 
-	JTextField uploadHtlTextField = new JTextField(5);
-	JTextField uploadThreadsTextField = new JTextField(5);
-	JTextField uploadSplitfileThreadsTextField = new JTextField(5);
-	JTextField uploadBatchSizeTextField = new JTextField(4);
-	JTextField indexFileRedundancyTextField = new JTextField(1);
 	JTextField tofUploadHtlTextField = new JTextField(5);
 	JTextField tofDownloadHtlTextField = new JTextField(5);
 	JTextField tofDisplayDaysTextField = new JTextField(5);
@@ -780,10 +1013,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JCheckBox allowEvilBertCheckBox = new JCheckBox();
 	JCheckBox miscAltEditCheckBox = new JCheckBox();
 	JCheckBox miscSplashscreenCheckBox = new JCheckBox();
-	JCheckBox signUploads = new JCheckBox();
-	JCheckBox automaticIndexing = new JCheckBox();
-	JCheckBox shareDownloads = new JCheckBox();
-	JCheckBox helpFriends = new JCheckBox();
 	JCheckBox hideBadFiles = new JCheckBox();
 	JCheckBox hideAnonFiles = new JCheckBox();
 	JList optionsGroupsList = null;
@@ -793,7 +1022,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JTextField sampleInterval = new JTextField(5);
 	JTextField spamTreshold = new JTextField(5);
 
-	JCheckBox uploadDisableRequests = new JCheckBox();
 	JCheckBox signedOnly = new JCheckBox();
 	JCheckBox hideBadMessages = new JCheckBox();
 	JCheckBox hideCheckMessages = new JCheckBox();
@@ -826,7 +1054,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	// the result of this
 	boolean shouldRemoveDummyReqFiles = false;
 	boolean shouldReloadMessages = false;
-	boolean _signUploads, _helpFriends, _hideBad, _hideAnon;
+	boolean _hideBad, _hideAnon;
 
 	/**
 	 * These translate* methods are used to apply translatable
@@ -852,14 +1080,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				+ " ("
 				+ languageResource.getString("Off")
 				+ ")");
-		signUploads.setText(languageResource.getString("Sign shared files"));
-		automaticIndexing.setText(languageResource.getString("Automatic Indexing"));
-		shareDownloads.setText(languageResource.getString("Share Downloads"));
-		helpFriends.setText(
-			languageResource.getString("Help spread files from people marked GOOD"));
 		hideBadFiles.setText(languageResource.getString("Hide files from people marked BAD"));
 		hideAnonFiles.setText(languageResource.getString("Hide files from anonymous users"));
-		uploadDisableRequests.setText(languageResource.getString("Disable uploads"));
 		signedOnly.setText(languageResource.getString("Hide unsigned messages"));
 		hideBadMessages.setText(
 			languageResource.getString("Hide messages flagged BAD")
@@ -1061,100 +1283,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * Build the upload panel.
 	 */
-	protected JPanel getUploadPanel() {
+	private UploadPanel getUploadPanel() {
 		if (uploadPanel == null) {
-			uploadPanel = new JPanel(new GridBagLayout());
-			GridBagConstraints constr = new GridBagConstraints();
-			constr.anchor = GridBagConstraints.WEST;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			constr.gridy = 0;
-			uploadDisableRequests
-				.addActionListener(new java.awt.event.ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					// enable panel if checkbox is not selected
-					setPanelEnabled(
-						getUploadPanel(),
-						(uploadDisableRequests.isSelected() == false));
-				}
-			});
-			uploadPanel.add(uploadDisableRequests, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			uploadPanel.add(automaticIndexing, constr);
-			constr.gridx += 2;
-			uploadPanel.add(shareDownloads, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			uploadPanel.add(signUploads, constr);
-			constr.gridx = 2;
-			uploadPanel.add(helpFriends, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			uploadPanel.add(
-				new JLabel(languageResource.getString("Upload HTL") + " (8)"),
-				constr);
-			constr.gridx = 1;
-			uploadPanel.add(uploadHtlTextField, constr);
-			constr.gridx++;
-			uploadPanel.add(
-				new JLabel(languageResource.getString("up htl explanation")),
-				constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			uploadPanel.add(
-				new JLabel(
-			languageResource.getString("Number of simultaneous uploads")
-						+ " (3)"),
-				constr);
-			constr.gridx = 1;
-			uploadPanel.add(uploadThreadsTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-
-			constr.insets = new Insets(5, 5, 5, 5);
-			uploadPanel.add(
-				new JLabel(
-			languageResource.getString("Number of splitfile threads")
-						+ " (15)"),
-				constr);
-			constr.gridx = 1;
-			uploadPanel.add(uploadSplitfileThreadsTextField, constr);
-			constr.gridx++;
-			uploadPanel.add(
-				new JLabel(languageResource.getString("splitfile explanation")),
-				constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			uploadPanel.add(
-				new JLabel(languageResource.getString("Upload batch size")),
-				constr);
-			constr.gridx++;
-			uploadPanel.add(uploadBatchSizeTextField, constr);
-			constr.gridx++;
-			uploadPanel.add(
-				new JLabel(languageResource.getString("batch explanation")),
-				constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			uploadPanel.add(
-				new JLabel(languageResource.getString("Index file redundancy")),
-				constr);
-			constr.gridx++;
-			uploadPanel.add(indexFileRedundancyTextField, constr);
-			constr.gridx++;
-			uploadPanel.add(
-				new JLabel(languageResource.getString("redundancy explanation")),
-				constr);
-
-			// filler (glue)
-			constr.gridy++;
-			constr.gridx = 1;
-			constr.weightx = 0.7;
-			constr.weighty = 0.7;
-			constr.insets = new Insets(0, 0, 0, 0);
-			constr.fill = GridBagConstraints.BOTH;
-			uploadPanel.add(new JLabel(" "), constr);
+			uploadPanel = new UploadPanel();
+			uploadPanel.loadSettings(frostSettings);
 		}
 		return uploadPanel;
 	}
@@ -1688,9 +1820,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		int componentCount = panel.getComponentCount();
 		for (int x = 0; x < componentCount; x++) {
 			Component c = panel.getComponent(x);
-			if (c != uploadDisableRequests) {
-				c.setEnabled(enabled);
-			}
+			c.setEnabled(enabled);
 		}
 	}
 
@@ -1711,20 +1841,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkHideNAMessages = frostSettings.getBoolValue("hideNAMessages");
 		checkBlock = frostSettings.getBoolValue("blockMessageChecked");
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
-		_signUploads = frostSettings.getBoolValue("signUploads");
-		_helpFriends = frostSettings.getBoolValue("helpFriends");
 		_hideBad = frostSettings.getBoolValue("hideBadFiles");
 		_hideAnon = frostSettings.getBoolValue("hideAnonFiles");
 
 		// now load
-		signUploads.setSelected(_signUploads);
-		helpFriends.setSelected(_helpFriends);
 		hideBadFiles.setSelected(_hideBad);
 		hideAnonFiles.setSelected(_hideAnon);
-		automaticIndexing.setSelected(
-			frostSettings.getBoolValue("automaticIndexing"));
-		shareDownloads.setSelected(
-			frostSettings.getBoolValue("shareDownloads"));
 		allowEvilBertCheckBox.setSelected(
 			frostSettings.getBoolValue("allowEvilBert"));
 		miscAltEditCheckBox.setSelected(
@@ -1748,12 +1870,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		blockBody.setSelected(
 			frostSettings.getBoolValue("blockMessageBodyChecked"));
 		miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
-		uploadHtlTextField.setText(frostSettings.getValue("htlUpload"));
-		uploadThreadsTextField.setText(frostSettings.getValue("uploadThreads"));
-		uploadBatchSizeTextField.setText(
-			frostSettings.getValue("uploadBatchSize"));
-		indexFileRedundancyTextField.setText(
-			frostSettings.getValue("indexFileRedundancy"));
 		tofUploadHtlTextField.setText(frostSettings.getValue("tofUploadHtl"));
 		tofDownloadHtlTextField.setText(
 			frostSettings.getValue("tofDownloadHtl"));
@@ -1767,8 +1883,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.getValue("keyDownloadHtl"));
 		miscShowSystrayIcon.setSelected(
 			frostSettings.getBoolValue("showSystrayIcon"));
-		uploadSplitfileThreadsTextField.setText(
-			frostSettings.getValue("splitfileUploadThreads"));
 		miscAvailableNodesTextField.setText(
 			frostSettings.getValue("availableNodes"));
 		//miscNodePortTextField.setText(frostSettings.getValue("nodePort"));
@@ -1798,9 +1912,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		searchArchiveExtensionTextField.setText(
 			frostSettings.getValue("archiveExtension"));
 		cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
-		uploadDisableRequests.setSelected(
-			frostSettings.getBoolValue("disableRequests"));
-
 		TFautomaticUpdate_concurrentBoardUpdates.setText(
 			frostSettings.getValue("automaticUpdate.concurrentBoardUpdates"));
 		TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
@@ -1829,19 +1940,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Save settings
 	 */
 	private void saveSettings() {
-
-		//        frostSettings.setValue("htl",  downloadMinHtlTextField.getText());
-		//        frostSettings.setValue("htlMax",  downloadMaxHtlTextField.getText());
-		frostSettings.setValue("htlUpload", uploadHtlTextField.getText());
-		frostSettings.setValue(
-			"uploadThreads",
-			uploadThreadsTextField.getText());
-		frostSettings.setValue(
-			"uploadBatchSize",
-			uploadBatchSizeTextField.getText());
-		frostSettings.setValue(
-			"indexFileRedundancy",
-			indexFileRedundancyTextField.getText());
 		frostSettings.setValue("tofUploadHtl", tofUploadHtlTextField.getText());
 		frostSettings.setValue(
 			"tofDownloadHtl",
@@ -1858,9 +1956,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"maxMessageDownload",
 			tofDownloadDaysTextField.getText());
-		frostSettings.setValue(
-			"splitfileUploadThreads",
-			uploadSplitfileThreadsTextField.getText());
 		frostSettings.setValue(
 			"availableNodes",
 			miscAvailableNodesTextField.getText());
@@ -1920,9 +2015,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue("hideNAMessages", hideNAMessages.isSelected());
 		frostSettings.setValue("altEdit", miscAltEditTextField.getText());
 		frostSettings.setValue("doCleanUp", cleanUP.isSelected());
-		frostSettings.setValue(
-			"disableRequests",
-			uploadDisableRequests.isSelected());
 
 		frostSettings.setValue(
 			"automaticUpdate.concurrentBoardUpdates",
@@ -1944,12 +2036,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"autoSaveInterval",
 			miscAutoSaveInterval.getText());
-		frostSettings.setValue("signUploads", signUploads.isSelected());
-		frostSettings.setValue(
-			"automaticIndexing",
-			automaticIndexing.isSelected());
-		frostSettings.setValue("shareDownloads", shareDownloads.isSelected());
-		frostSettings.setValue("helpFriends", helpFriends.isSelected());
 		frostSettings.setValue("hideBadFiles", hideBadFiles.isSelected());
 		frostSettings.setValue("hideAnonFiles", hideAnonFiles.isSelected());
 
@@ -1995,6 +2081,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		if (downloadPanel != null) {
 			//If the display panel has been used, commit its changes
 			downloadPanel.ok();
+		}
+		
+		if (uploadPanel != null) {
+			//If the display panel has been used, commit its changes
+			uploadPanel.ok();
 		}
 
 		saveSettings();
@@ -2110,15 +2201,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		// set initial selection (also sets panel)
 		optionsGroupsList.setSelectedIndex(0);
-
-		// enable or disable components
-		// enable panel if checkbox is not selected
-		setPanelEnabled(
-			getUploadPanel(),
-			(uploadDisableRequests.isSelected() == false));
-		// ... but not the checkboxes itself :)
-		uploadDisableRequests.setEnabled(true);
-
+		
 		// final layouting
 		pack();
 
@@ -2130,7 +2213,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Build the display panel.
 	 */
 
-	private JPanel getDisplayPanel() {
+	private DisplayPanel getDisplayPanel() {
 		if (displayPanel == null) {
 			displayPanel = new DisplayPanel();
 			displayPanel.loadSettings(frostSettings);
@@ -2142,7 +2225,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Build the download panel.
 	 */
 
-		private JPanel getDownloadPanel() {
+		private DownloadPanel getDownloadPanel() {
 			if (downloadPanel == null) {
 				downloadPanel = new DownloadPanel();
 				downloadPanel.loadSettings(frostSettings);
