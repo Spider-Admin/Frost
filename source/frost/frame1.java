@@ -1293,26 +1293,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				java.util.List l = getSearchTable().getSelectedItemsOwners();
 				Iterator i = l.iterator();
 				while (i.hasNext()) {
-					Identity owner_id = null;
-					String owner_s = null;
-					try {
-						owner_id = (Identity) i.next();
-					} catch (ClassCastException cce) {
-						owner_s = (String) i.next();
-					}
+					Identity owner_id = (Identity)i.next();
+					
+					getEnemies().remove(owner_id.getUniqueName());
+					Core.getNeutral().remove(owner_id.getUniqueName());
+					getFriends().Add(owner_id);
 
-					if (owner_id != null) {
-						getEnemies().remove(owner_id.getUniqueName());
-						Core.getNeutral().remove(owner_id.getUniqueName());
-						getFriends().Add(owner_id);
-						continue;
-					}
-
-					if (owner_s != null) {
-						getBadIds().remove(owner_s);
-						getGoodIds().put(owner_s, owner_s);
-						continue;
-					}
 				}
 			}
 		});
@@ -1322,26 +1308,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				java.util.List l = getSearchTable().getSelectedItemsOwners();
 				Iterator i = l.iterator();
 				while (i.hasNext()) {
-					Identity owner_id = null;
-					String owner_s = null;
-					try {
-						owner_id = (Identity) i.next();
-					} catch (ClassCastException cce) {
-						owner_s = (String) i.next();
-					}
+					Identity owner_id =(Identity) i.next();
 
-					if (owner_id != null) {  
-						getFriends().remove(owner_id.getUniqueName());
-						Core.getNeutral().remove(owner_id.getUniqueName());
-						getEnemies().Add(owner_id);
-						continue;
-					}
-
-					if (owner_s != null) {
-						getGoodIds().remove(owner_s);
-						getBadIds().put(owner_s, owner_s);
-						continue;
-					}
+					getFriends().remove(owner_id.getUniqueName());
+					Core.getNeutral().remove(owner_id.getUniqueName());
+					getEnemies().Add(owner_id);
 				}
 			}
 		});

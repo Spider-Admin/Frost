@@ -46,13 +46,13 @@ public class BuddyList extends HashMap implements XMLizable
      */
     public synchronized boolean Add(Identity user)
     {
-        if (containsKey(user.getName()))
+        if (containsKey(mixed.makeFilename(user.getUniqueName())))
         {
             return false;
         }
         else
         {
-            put(user.getName(), user);
+            put(mixed.makeFilename(user.getUniqueName()), user);
             return true;
         }
     }
@@ -62,9 +62,9 @@ public class BuddyList extends HashMap implements XMLizable
      */
     public synchronized Identity Get(String name)
     {
-        if (containsKey(name))
+        if (containsKey(mixed.makeFilename(name)))
         {
-            return (Identity)get(name);
+            return (Identity)get(mixed.makeFilename(name));
         }
         else
         {
