@@ -43,6 +43,7 @@ import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
 import frost.threads.*;
+import frost.threads.maintenance.*;
 
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)
@@ -226,7 +227,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JMenuItem uploadPopupRestoreDefaultFilenamesForSelectedFiles = null;
 	JMenuItem uploadPopupRestoreDefaultFilenamesForAllFiles = null;
 	JMenu uploadPopupChangeDestinationBoard = null;
-	JMenuItem uploadPopupAddFilesToBoard = null;
+	//JMenuItem uploadPopupAddFilesToBoard = null;
 	JMenuItem uploadPopupGenerateChkForSelectedFiles = null;
 	JMenuItem uploadPopupCancel = null;
 	JMenu uploadPopupCopyToClipboard = null;
@@ -257,6 +258,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	JMenuItem msgTablePopupMarkMessageUnread = null;
 	JMenuItem msgTablePopupMarkAllMessagesRead = null;
+	JMenuItem msgTablePopupSetGood = null;
+	JMenuItem msgTablePopupSetBad = null;
 
 	public static Hashtable getMyBatches() {
 		return Core.getMyBatches();
@@ -1294,9 +1297,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				while (i.hasNext()) {
 					Identity owner_id = (Identity)i.next();
 					
-					getEnemies().remove(owner_id.getUniqueName());
-					Core.getNeutral().remove(owner_id.getUniqueName());
-					getFriends().Add(owner_id);
+					Truster truster = new Truster(Core.getInstance(),new Boolean(true),owner_id.getUniqueName());
+					truster.start();
 
 				}
 			}
@@ -1309,9 +1311,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				while (i.hasNext()) {
 					Identity owner_id =(Identity) i.next();
 
-					getFriends().remove(owner_id.getUniqueName());
-					Core.getNeutral().remove(owner_id.getUniqueName());
-					getEnemies().Add(owner_id);
+					Truster truster = new Truster(Core.getInstance(),new Boolean(false),owner_id.getUniqueName());
+					truster.start();
 				}
 			}
 		});
@@ -1350,8 +1351,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				LangRes.getString("Restore default filenames for all files"));
 		uploadPopupChangeDestinationBoard =
 			new JMenu(LangRes.getString("Change destination board"));
-		uploadPopupAddFilesToBoard =
-			new JMenuItem(LangRes.getString("Add files to board"));
+	//	uploadPopupAddFilesToBoard =
+	//		new JMenuItem(LangRes.getString("Add files to board"));
 		uploadPopupGenerateChkForSelectedFiles =
 			new JMenuItem("Start encoding of selected files");
 		uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
@@ -1514,15 +1515,15 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			}
 		});
 		// Upload / Restore default filenames for all files
-		uploadPopupAddFilesToBoard.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getUploadTable().addFilesToBoardIndex();
+//		uploadPopupAddFilesToBoard.addActionListener(new ActionListener() {
+//			public void actionPerformed(ActionEvent e) {
+//				getUploadTable().addFilesToBoardIndex();
 				// FIXME: ZAB! - what does this do? -- ANSWERED, see below!
 				// bback: is'nt my code, but i assume this was intended to add the
 				// selected files to board files list (e.g. after you changed target board).
 				// i'm not sure if longer needed, just comment it out and wait for comments ;)
-			}
-		});
+//			}
+//		});
 	}
 
 	/**
@@ -3722,7 +3723,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			}
 			pmenu.add(uploadPopupChangeDestinationBoard);
 		}
-		pmenu.add(uploadPopupAddFilesToBoard);
+		//pmenu.add(uploadPopupAddFilesToBoard);
 		pmenu.addSeparator();
 		pmenu.add(uploadPopupCancel);
 		pmenu.show(e.getComponent(), e.getX(), e.getY());

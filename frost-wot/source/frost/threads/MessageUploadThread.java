@@ -108,7 +108,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 sfo.setFilename( sfo.getFile().getName()); // remove path from filename
                 sfo.setFile(null);
                 
-                // serialize the xml file to disk to save the uploading state
+                // BBACKFLAG: serialize the xml file to disk to save the uploading state
                 File tmpFile = new File(this.messageFile.getPath() + ".tmp");
                 boolean wasOK = false; 
                 try {
@@ -130,6 +130,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     // not successful, will not track this upload, but continue uploading
                     tmpFile.delete();
                 }
+                //return true;
             }
             else
             {

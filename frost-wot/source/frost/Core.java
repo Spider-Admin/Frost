@@ -805,11 +805,11 @@ public class Core {
 	}
 
 	public void startTruster(boolean what, FrostMessageObject which) {
-		new Truster(this, Boolean.valueOf(what), which).start();
+		new Truster(this, Boolean.valueOf(what), which.getFrom()).start();
 	}
 
 	public void startTruster(FrostMessageObject which) {
-		new Truster(this, null, which).start();
+		new Truster(this, null, which.getFrom()).start();
 	}
 	/**
 	 * @param b

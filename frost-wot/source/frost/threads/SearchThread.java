@@ -191,8 +191,7 @@ public class SearchThread extends Thread {
 	}
 	//check if file from someone bad
 	if (key.getOwner() != null &&
-		(frame1.getEnemies().Get(key.getOwner()) != null ||
-			frame1.getBadIds().contains(key.getOwner())) &&
+		frame1.getEnemies().Get(key.getOwner()) != null &&
 			hideBad) {
 		//Core.getOut().println("removing bad result");
 		it.remove();
@@ -232,16 +231,6 @@ public class SearchThread extends Thread {
         }
     }
     }
-    
-    /**
-     * Filters items by setting of Hide offline, Hide downloaded/downloading.
-     * @param state
-     * @return
-     */
-    private boolean filterBySearchItemState( int state )
-    {
-        return true;
-    }
 
     /**
      * Displays search results in search table
@@ -264,15 +253,13 @@ public class SearchThread extends Thread {
             Long size = key.getSize();
             String date = key.getDate();
             String keyData = key.getKey();
-    	    String SHA1 = key.getSHA1();
-    	    
-    	    if (SHA1 == null)
-            { 
-                System.err.println(" SHA1 null in SearchThread!!! ");
-            }
-    
+	    String SHA1 = key.getSHA1();
+	    
+	    if (SHA1 == null) 
+	    	System.err.println(" SHA1 null in SearchThread!!! ");
+
             int searchItemState = FrostSearchItemObject.STATE_NONE;
-    
+
             // Already downloaded files get a nice color outfit (see renderer in SearchTable)
             File file = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
             if( file.exists() )
@@ -288,48 +275,34 @@ public class SearchThread extends Thread {
             else if( frame1.getInstance().getUploadTable().containsItemWithKey( SHA1 ) )
             {
                 // this file is in upload table -> green
-                searchItemState = FrostSearchItemObject.STATE_UPLOADING;
+                searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
             }
-            else if( isOffline(key) )
-            {
-                // this file is offline -> gray
-                searchItemState = FrostSearchItemObject.STATE_OFFLINE;
-            }
-            
-            // filter by searchItemState
-            if( filterBySearchItemState(searchItemState) == false ) 
-            {
-                continue;
-            }
-    
+
             final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key, searchItemState);
-    
+
             boolean updateLabel2 = false;
             if( allFileCount > 9 && allFileCount%10==0 )
             {
                 updateLabel2 = true;
             }
             final boolean updateLabel = updateLabel2;
-            SwingUtilities.invokeLater( new Runnable() {
-                    public void run(){
+            SwingUtilities.invokeLater(
+                new Runnable()
+                {
+                    public void run()
+                    {
                         searchTableModel.addRow(searchItem);
                         if( updateLabel )
                         {
                             frame1.getInstance().updateSearchResultCountLabel();
                         }
-                    } });
+                    }
+                });
         }
         SwingUtilities.invokeLater( new Runnable() {
                 public void run() {
                     frame1.getInstance().updateSearchResultCountLabel();
                 } });
-    }
-    
-    private boolean isOffline(SharedFileObject key)
-    {
-        boolean offline = (key.getDate() == null || key.getDate().length()==0) &&
-                (key.getKey() == null || key.getKey().length() ==0);
-        return offline;                
     }
 
     public void run()

@@ -25,18 +25,16 @@ public class Truster extends Thread
 	private final Core core;
     private Boolean trust;
     private Identity newIdentity;
-    private VerifyableMessageObject currentMsg;
-
-    public Truster(Core core, Boolean what, VerifyableMessageObject msg)
+    private String from;
+    public Truster(Core core, Boolean what, String from)
     {
         trust=what;
 		this.core = core;
-        currentMsg = msg;
+        this.from=mixed.makeFilename(from);
     }
 
     public void run()
     {
-        String from = currentMsg.getFrom();
         String newState;
 
         if( trust == null )  newState = "CHECK";
@@ -51,21 +49,10 @@ public class Truster extends Thread
 
         if( trust == null )
         {
-            // set enemy/friend to CHECK
-            newIdentity = Core.friends.Get(from);
-            if( newIdentity==null )
-                newIdentity=Core.enemies.Get(from);
-
-          //  if( newIdentity == null ) // not found -> paranoia
-          //  {
-          //      newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
-          //  }
-          //  else
-          //  {
+         
                 Core.friends.remove( from );
                 Core.enemies.remove( from );
                 Core.getNeutral().Add(newIdentity);
-          //  }
         }
         else if( Core.friends.containsKey(from) && trust.booleanValue() == false )
         {
@@ -95,7 +82,7 @@ public class Truster extends Thread
 
         if( newIdentity == null || Identity.NA.equals( newIdentity.getKey() ) )
         {
-            System.out.println("Truster - ERROR: could not get public key for '"+currentMsg.getFrom()+"'");
+            System.out.println("Truster - ERROR: could not get public key for '"+from+"'");
             System.out.println("Truster: Will stop to set message states!!!");
             return;
         }
@@ -114,7 +101,7 @@ public class Truster extends Thread
             }catch (Exception e){
             	e.printStackTrace(Core.getOut());
             }
-            if( tempMsg != null && tempMsg.getFrom().equals(currentMsg.getFrom()) &&
+            if( tempMsg != null && tempMsg.getFrom().equals(from) &&
                 (
                   tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) ||
                   tempMsg.getStatus().trim().equals(VerifyableMessageObject.VERIFIED) ||
@@ -150,7 +137,7 @@ public class Truster extends Thread
                 public void run() {
                     frame1.getInstance().tofTree_actionPerformed(null);
                 } });
-        System.out.println("\nTruster: Finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
+        System.out.println("\nTruster: Finished to update messages, set '"+from+"' to '"+
                            newState+"'");
     }
 }
