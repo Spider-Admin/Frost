@@ -219,19 +219,17 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
     public void dropActionChanged(DropTargetDragEvent e) {}
 
 
-    public FrostBoardObject cutSelectedNode()
+    public FrostBoardObject cutNode(FrostBoardObject result)
     {
-        FrostBoardObject result = (FrostBoardObject)this.getLastSelectedPathComponent();
         if( result != null )
         {
-            removeSelectedNode();
+            removeNode(result);
         }
         return result;
     }
 
-    public void removeSelectedNode()
+    public void removeNode(DefaultMutableTreeNode node)
     {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)this.getLastSelectedPathComponent();
         DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
         if( node != null && parent != null )
         {
@@ -247,9 +245,8 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
         }
     }
 
-    public boolean pasteFromClipboard(FrostBoardObject clipboard)
+    public boolean pasteFromClipboard(FrostBoardObject clipboard, FrostBoardObject node)
     {
-        FrostBoardObject node = (FrostBoardObject)getLastSelectedPathComponent();
         if( node == null || clipboard == null )
             return false;
         if( node.isFolder() == false ) // dont allow to add to boards

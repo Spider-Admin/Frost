@@ -107,6 +107,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     // buttons that are enabled/disabled later
     JButton pasteBoardButton = null;
     JButton configBoardButton = null;
+    JButton removeBoardButton = null;
+    JButton cutBoardButton = null;
+    JButton renameBoardButton = null;
 
     JButton tofNewMessageButton = null;
     JButton tofReplyButton = null;
@@ -162,13 +165,11 @@ public class frame1 extends JFrame implements ClipboardOwner
 //    JCheckBox reducedBlockCheckCheckBox= new JCheckBox();
 
     // all popupmenu items
-    JPopupMenu searchPopupMenu = null;
     JMenuItem searchPopupDownloadSelectedKeys = null;
     JMenuItem searchPopupDownloadAllKeys = null;
     JMenuItem searchPopupCopyAttachment = null;
     JMenuItem searchPopupCancel = null;
 
-    JPopupMenu uploadPopupMenu = null;
     JMenuItem uploadPopupRemoveSelectedFiles = null;
     JMenuItem uploadPopupRemoveAllFiles = null;
     JMenuItem uploadPopupReloadSelectedFiles = null;
@@ -181,30 +182,18 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem uploadPopupAddFilesToBoard = null;
     JMenuItem uploadPopupCancel = null;
 
-    JPopupMenu downloadPopupMenu = null;
     JMenuItem downloadPopupRemoveSelectedDownloads = null;
     JMenuItem downloadPopupRemoveAllDownloads = null;
     JMenuItem downloadPopupResetHtlValues = null;
     JMenuItem downloadPopupRemoveFinished = null;
     JMenuItem downloadPopupCancel = null;
 
-    JPopupMenu tofTextPopupMenu = null;
     JMenuItem tofTextPopupSaveMessage = null;
     JMenuItem tofTextPopupSaveAttachments = null;
     JMenuItem tofTextPopupSaveAttachment = null;
     JMenuItem tofTextPopupSaveBoards = null;
     JMenuItem tofTextPopupSaveBoard = null;
     JMenuItem tofTextPopupCancel = null;
-
-    JPopupMenu tofTreePopupMenu = null;
-    JMenuItem tofTreePopupRefresh = null;
-    JMenuItem tofTreePopupAddNode = null;
-    JMenuItem tofTreePopupAddFolder = null;
-    JMenuItem tofTreePopupRemoveNode = null;
-    JMenuItem tofTreePopupCutNode = null;
-    JMenuItem tofTreePopupPasteNode = null;
-    JMenuItem tofTreePopupConfigureBoard = null;
-    JMenuItem tofTreePopupCancel = null;
 
     //------------------------------------------------------------------------
     // end-of: Generate objects
@@ -377,12 +366,11 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         JButton newBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newboard.gif")));
         JButton newFolderButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newfolder.gif")));
-        JButton removeBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
-        JButton renameBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/rename.gif")));
-        JButton cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
+        removeBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
+        renameBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/rename.gif")));
+        cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
         JButton boardInfoButton= new JButton(new ImageIcon(frame1.class.getResource("/data/info.gif")));
         JButton systemTrayButton= new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
-
         configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
         configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif");
         configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
@@ -404,23 +392,23 @@ public class frame1 extends JFrame implements ClipboardOwner
             } });
         renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                renameSelectedNode();
+                renameNode(getActualNode());
             } });
         removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                removeSelectedNode();
+                removeNode(getActualNode());
             } });
         cutBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                cutSelectedNode();
+                cutNode(getActualNode());
             } });
         pasteBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                pasteFromClipboard();
+                pasteFromClipboard(getActualNode());
             } });
         configBoardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                tofConfigureBoardMenuItem_actionPerformed(e);
+                tofConfigureBoardMenuItem_actionPerformed(e, getActualNode());
             } });
         systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1085,7 +1073,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         buildPopupMenuUpload();
         buildPopupMenuDownload();
         buildPopupMenuTofText();
-        buildPopupMenuTofTree();
     }
 
     /**
@@ -1095,7 +1082,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void buildPopupMenuSearch()
     {
 // create objects
-        searchPopupMenu = new JPopupMenu();
         searchPopupDownloadSelectedKeys = new JMenuItem(LangRes.getString("Download selected keys"));
         searchPopupDownloadAllKeys = new JMenuItem(LangRes.getString("Download all keys"));
         searchPopupCopyAttachment = new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
@@ -1119,14 +1105,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                 StringSelection contents = new StringSelection(srcData);
                 clipboard.setContents(contents, frame1.this);
             } });
-// construct menu
-        searchPopupMenu.add(searchPopupDownloadSelectedKeys);
-        searchPopupMenu.addSeparator();
-        searchPopupMenu.add(searchPopupDownloadAllKeys);
-        searchPopupMenu.addSeparator();
-        searchPopupMenu.add(searchPopupCopyAttachment);
-        searchPopupMenu.addSeparator();
-        searchPopupMenu.add(searchPopupCancel);
     }
 
     /**
@@ -1136,7 +1114,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void buildPopupMenuUpload()
     {
 // create objects
-        uploadPopupMenu = new JPopupMenu();
         uploadPopupRemoveSelectedFiles = new JMenuItem(LangRes.getString("Remove selected files"));
         uploadPopupRemoveAllFiles = new JMenuItem(LangRes.getString("Remove all files"));
         uploadPopupReloadSelectedFiles = new JMenuItem(LangRes.getString("Reload selected files"));
@@ -1220,23 +1197,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 getUploadTable().addFilesToBoardIndex();
             } });
-// construct menu
-        uploadPopupMenu.add(uploadPopupRemoveSelectedFiles);
-        uploadPopupMenu.add(uploadPopupRemoveAllFiles);
-        uploadPopupMenu.addSeparator();
-        uploadPopupMenu.add(uploadPopupReloadSelectedFiles);
-        uploadPopupMenu.add(uploadPopupReloadAllFiles);
-        uploadPopupMenu.addSeparator();
-        uploadPopupMenu.add(uploadPopupSetPrefixForSelectedFiles);
-        uploadPopupMenu.add(uploadPopupSetPrefixForAllFiles);
-        uploadPopupMenu.addSeparator();
-        uploadPopupMenu.add(uploadPopupRestoreDefaultFilenamesForSelectedFiles);
-        uploadPopupMenu.add(uploadPopupRestoreDefaultFilenamesForAllFiles);
-        uploadPopupMenu.addSeparator();
-        uploadPopupMenu.add(uploadPopupChangeDestinationBoard);
-        uploadPopupMenu.add(uploadPopupAddFilesToBoard);
-        uploadPopupMenu.addSeparator();
-        uploadPopupMenu.add(uploadPopupCancel);
     }
 
     /**
@@ -1246,7 +1206,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void buildPopupMenuDownload()
     {
 // construct objects
-        downloadPopupMenu = new JPopupMenu(); // Downloads popup
         downloadPopupRemoveSelectedDownloads = new JMenuItem(LangRes.getString("Remove selected downloads"));
         downloadPopupRemoveAllDownloads = new JMenuItem(LangRes.getString("Remove all downloads"));
         downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
@@ -1272,15 +1231,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().removeFinishedDownloads();
             } });
-// construct menu
-        downloadPopupMenu.add(downloadPopupRemoveSelectedDownloads);
-        downloadPopupMenu.add(downloadPopupRemoveAllDownloads);
-        downloadPopupMenu.addSeparator();
-        downloadPopupMenu.add(downloadPopupResetHtlValues);
-        downloadPopupMenu.addSeparator();
-        downloadPopupMenu.add(downloadPopupRemoveFinished);
-        downloadPopupMenu.addSeparator();
-        downloadPopupMenu.add(downloadPopupCancel);
     }
 
     /**
@@ -1290,7 +1240,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void buildPopupMenuTofText()
     {
 // create objects
-        tofTextPopupMenu = new JPopupMenu(); // TOF text popup
         tofTextPopupSaveMessage = new JMenuItem(LangRes.getString("Save message to disk"));
         tofTextPopupSaveAttachments = new JMenuItem(LangRes.getString("Download attachment(s)"));
         tofTextPopupSaveAttachment = new JMenuItem("Download selected attachment");
@@ -1318,77 +1267,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 downloadBoards();
             } });
-// construct menu
-        tofTextPopupMenu.add(tofTextPopupSaveMessage);
-        tofTextPopupMenu.addSeparator();
-        tofTextPopupMenu.add(tofTextPopupSaveAttachments);
-        tofTextPopupMenu.add(tofTextPopupSaveAttachment);
-        tofTextPopupMenu.addSeparator();
-        tofTextPopupMenu.add(tofTextPopupSaveBoards);
-        tofTextPopupMenu.add(tofTextPopupSaveBoard);
-        tofTextPopupMenu.addSeparator();
-        tofTextPopupMenu.add(tofTextPopupCancel);
-    }
-
-    /**
-     * Build the tof tree popup menu.
-     * Should be called only once.
-     */
-    private void buildPopupMenuTofTree()
-    {
-// create objects
-        tofTreePopupMenu = new JPopupMenu(); // TOF tree popup
-        tofTreePopupRefresh = new JMenuItem("Refresh board/folder");
-        tofTreePopupAddNode = new JMenuItem("Add new board"); // TODO: translate
-        tofTreePopupAddFolder = new JMenuItem("Add new folder");
-        tofTreePopupRemoveNode = new JMenuItem(LangRes.getString("Remove selected board / folder"));
-        tofTreePopupCutNode = new JMenuItem(LangRes.getString("Cut selected board / folder"));
-        tofTreePopupPasteNode = new JMenuItem(LangRes.getString("Paste board / folder"));
-        tofTreePopupConfigureBoard = new JMenuItem(LangRes.getString("Configure selected board"));
-        tofTreePopupCancel = new JMenuItem(LangRes.getString("Cancel"));
-// add action listener
-        tofTreePopupAddNode.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                getTofTree().createNewBoard(frame1.getInstance());
-            } });
-        tofTreePopupAddFolder.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                getTofTree().createNewFolder(frame1.getInstance());
-            } });
-        tofTreePopupRefresh.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                refreshNode( getActualNode() );
-            } });
-        tofTreePopupRemoveNode.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                removeSelectedNode();
-            } });
-        tofTreePopupCutNode.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                cutSelectedNode();
-            } });
-        tofTreePopupPasteNode.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                pasteFromClipboard();
-            } });
-        tofTreePopupConfigureBoard.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                tofConfigureBoardMenuItem_actionPerformed(e);
-            } });
-
-// construct menu
-        tofTreePopupMenu.add(tofTreePopupRefresh);
-        tofTreePopupMenu.addSeparator();
-        tofTreePopupMenu.add(tofTreePopupAddNode);
-        tofTreePopupMenu.add(tofTreePopupAddFolder);
-        tofTreePopupMenu.add(tofTreePopupRemoveNode);
-        tofTreePopupMenu.addSeparator();
-        tofTreePopupMenu.add(tofTreePopupCutNode);
-        tofTreePopupMenu.add(tofTreePopupPasteNode);
-        tofTreePopupMenu.addSeparator();
-        tofTreePopupMenu.add(tofTreePopupConfigureBoard);
-        tofTreePopupMenu.addSeparator();
-        tofTreePopupMenu.add(tofTreePopupCancel);
     }
 
     /**
@@ -1446,7 +1324,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             }});
         tofConfigureBoardMenuItem.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                tofConfigureBoardMenuItem_actionPerformed(e);
+                tofConfigureBoardMenuItem_actionPerformed(e, getActualNode());
             } });
         tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -1895,11 +1773,13 @@ public class frame1 extends JFrame implements ClipboardOwner
                 tofUpdateButton.setEnabled(true);
 
                 saveMessageButton.setEnabled(false);
+                removeBoardButton.setEnabled(true);
 
                 updateButtons(node);
 
                 System.out.println( "Board "+node.toString()+" blocked count: "+node.getBlockedCount() );
 
+                renameBoardButton.setEnabled(false);
                 tofReplyButton.setEnabled(false);
                 downloadAttachmentsButton.setEnabled(false);
                 downloadBoardsButton.setEnabled(false);
@@ -1915,9 +1795,20 @@ public class frame1 extends JFrame implements ClipboardOwner
                 model.setRowCount( 0 );
                 updateMessageCountLabels( node );
 
+                renameBoardButton.setEnabled(true);
                 configBoardButton.setEnabled(false);
                 tofNewMessageButton.setEnabled(false);
                 tofUpdateButton.setEnabled(false);
+                if( node.isRoot() )
+                {
+                    removeBoardButton.setEnabled(false);
+                    cutBoardButton.setEnabled(false);
+                }
+                else
+                {
+                    removeBoardButton.setEnabled(true);
+                    cutBoardButton.setEnabled(true);
+                }
             }
         }
     }
@@ -1946,11 +1837,10 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**
-     * Removes the currently selected tree node, asks before deleting.
+     * Removes the given tree node, asks before deleting.
      */
-    public void removeSelectedNode()
+    public void removeNode(FrostBoardObject selectedNode)
     {
-        FrostBoardObject selectedNode = getActualNode();
         String txt;
         if( selectedNode.isFolder() )
         {
@@ -1968,7 +1858,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                                       JOptionPane.YES_NO_OPTION);
         if( answer == JOptionPane.YES_OPTION )
         {
-            getTofTree().removeSelectedNode();
+            getTofTree().removeNode(selectedNode);
             // TODO: ask user if to delete board directory also
         }
     }
@@ -1977,9 +1867,8 @@ public class frame1 extends JFrame implements ClipboardOwner
      * Opens dialog to rename the board / folder.
      * For boards it checks for double names.
      */
-    public void renameSelectedNode()
+    public void renameNode(FrostBoardObject selected)
     {
-        FrostBoardObject selected = getActualNode();
         if( selected == null )
             return;
         String newname = null;
@@ -2002,7 +1891,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         updateTofTree( selected );
     }
 
-    public void pasteFromClipboard()
+    public void pasteFromClipboard(FrostBoardObject node)
     {
         if( clipboard == null )
         {
@@ -2010,16 +1899,16 @@ public class frame1 extends JFrame implements ClipboardOwner
             return;
         }
 
-        if( getTofTree().pasteFromClipboard(clipboard) == true )
+        if( getTofTree().pasteFromClipboard(clipboard, node) == true )
         {
             clipboard = null;
             pasteBoardButton.setEnabled(false);
         }
     }
 
-    public void cutSelectedNode()
+    public void cutNode(FrostBoardObject cuttedNode)
     {
-        FrostBoardObject cuttedNode = getTofTree().cutSelectedNode();
+        cuttedNode = getTofTree().cutNode(cuttedNode);
         if( cuttedNode != null )
         {
             clipboard = cuttedNode;
@@ -2033,13 +1922,13 @@ public class frame1 extends JFrame implements ClipboardOwner
     if (!getTofTree().isEditing())
     {
         if (key == KeyEvent.VK_DELETE)
-            removeSelectedNode();
+            removeNode(getActualNode());
         if (key == KeyEvent.VK_N)
             getTofTree().createNewBoard(frame1.getInstance());
         if (key == KeyEvent.VK_X)
-            cutSelectedNode();
+            cutNode(getActualNode());
         if (key == KeyEvent.VK_V)
-            pasteFromClipboard();
+            pasteFromClipboard(getActualNode());
     }
     }
 
@@ -2743,7 +2632,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     /**File | Exit action performed*/
     private void fileExitMenuItem_actionPerformed(ActionEvent e) {
-
     // Remove the tray icon
     try {
         Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayKill.exe");
@@ -2753,10 +2641,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**News | Configure Board action performed*/
-    private void tofConfigureBoardMenuItem_actionPerformed(ActionEvent e)
+    private void tofConfigureBoardMenuItem_actionPerformed(ActionEvent e, FrostBoardObject board)
     {
-        FrostBoardObject board = getActualNode();
-        if( board.isFolder() )
+        if( board == null || board.isFolder() )
             return;
 
         BoardSettingsFrame newFrame = new BoardSettingsFrame(this, board);
@@ -2913,158 +2800,36 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             return;
         }
-
-        if (e.getComponent().equals(getUploadTable())) { // Upload Popup
-
-            // Add boards to changeDestinationBoard submenu
-            Vector boards = getTofTree().getAllBoards();
-            Collections.sort(boards);
-            uploadPopupChangeDestinationBoard.removeAll();
-            for (int i = 0; i < boards.size(); i++)
-            {
-                final FrostBoardObject aBoard = (FrostBoardObject)boards.elementAt(i);
-                JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
-                uploadPopupChangeDestinationBoard.add(boardMenuItem);
-                // add all boards to menu + set action listener for each board menu item
-                boardMenuItem.addActionListener(new ActionListener()  {
-                    public void actionPerformed(ActionEvent e) {
-                        // set new board for all selected rows
-                        UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
-                        int[] selectedRows = getUploadTable().getSelectedRows();
-                        for( int x=0; x<selectedRows.length; x++ )
-                        {
-                            FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( selectedRows[x] );
-                            ulItem.setTargetBoard( aBoard );
-                            ulModel.updateRow( ulItem );
-                        }
-                    } });
-            }
-
-            if (getUploadTable().getSelectedRow() == -1) {
-                uploadPopupRemoveSelectedFiles.setEnabled(false);
-                uploadPopupReloadSelectedFiles.setEnabled(false);
-                uploadPopupSetPrefixForSelectedFiles.setEnabled(false);
-                uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(false);
-                uploadPopupChangeDestinationBoard.setEnabled(false);
-            }
-            else {
-                uploadPopupRemoveSelectedFiles.setEnabled(true);
-                uploadPopupReloadSelectedFiles.setEnabled(true);
-                uploadPopupSetPrefixForSelectedFiles.setEnabled(true);
-                uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(true);
-                uploadPopupChangeDestinationBoard.setEnabled(true);
-            }
-            uploadPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        else if( e.getComponent().equals(getUploadTable()) )
+        { // Upload Popup
+            showUploadTablePopupMenu(e);
         }
-
-        if (e.getComponent().equals(searchTable)) { // Search Popup
-            if (searchTable.getSelectedRow() == -1) {
-            searchPopupDownloadSelectedKeys.setEnabled(false);
-            searchPopupCopyAttachment.setEnabled(false);
-            }
-            else {
-            searchPopupDownloadSelectedKeys.setEnabled(true);
-            searchPopupCopyAttachment.setEnabled(true);
-            }
-            searchPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        else if( e.getComponent().equals(searchTable) )
+        { // Search Popup
+            showSearchTablePopupMenu(e);
         }
-
-        if (e.getComponent().equals(getDownloadTable())) { // Downloads Popup
-            if (getDownloadTable().getSelectedRow() == -1) {
-            downloadPopupRemoveSelectedDownloads.setEnabled(false);
-            downloadPopupResetHtlValues.setEnabled(false);
-            }
-            else {
-            downloadPopupRemoveSelectedDownloads.setEnabled(true);
-            downloadPopupResetHtlValues.setEnabled(true);
-            }
-            downloadPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        else if( e.getComponent().equals(getDownloadTable()) )
+        { // Downloads Popup
+            showDownloadTablePopupMenu(e);
         }
-
-        if (e.getComponent().equals(tofTextArea)) { // TOF text popup
-            if(selectedMessage!= null &&  selectedMessage.getContent() != null) {
-                tofTextPopupSaveBoard.setEnabled(false);
-            tofTextPopupSaveBoards.setEnabled(false);
-            tofTextPopupSaveAttachment.setEnabled(false);
-            tofTextPopupSaveAttachments.setEnabled(false);
-/*
-            if (text.indexOf("<attached>") != -1 && text.indexOf("</attached>") != -1) {
-                tofTextPopupSaveAttachments.setEnabled(true);
-            }
-            else
-                tofTextPopupSaveAttachments.setEnabled(false);
-
-            if (text.indexOf("<board>") != -1 && text.indexOf("</board>") != -1) {
-                tofTextPopupSaveBoards.setEnabled(true);
-            }
-            else
-                tofTextPopupSaveBoards.setEnabled(false);
-*/
-            tofTextPopupSaveMessage.setEnabled(true);
-            tofTextPopupMenu.show(e.getComponent(), e.getX(), e.getY());
-            }
-            else {
-            tofTextPopupSaveAttachments.setEnabled(false);
-            tofTextPopupSaveAttachment.setEnabled(false);
-            tofTextPopupSaveBoards.setEnabled(false);
-            tofTextPopupSaveBoard.setEnabled(false);
-            tofTextPopupSaveMessage.setEnabled(false);
-
-            }
+        else if( e.getComponent().equals(tofTextArea) )
+        { // TOF text popup
+            showTofTextAreaPopupMenu(e);
         }
-
-        if (e.getComponent().equals(boardTable)) {// Board attached popup
-            //if (e.getComponent().equals(tofTextArea)) System.out.println("uh oh");
-            if (boardTable.getSelectedRow() == -1) {
-                tofTextPopupSaveBoards.setEnabled(true);
-                tofTextPopupSaveBoard.setEnabled(false);
-            } else {
-                tofTextPopupSaveBoards.setEnabled(false);
-                tofTextPopupSaveBoard.setEnabled(true);
-            }
-            tofTextPopupSaveAttachments.setEnabled(false);
-            tofTextPopupSaveAttachment.setEnabled(false);
-            tofTextPopupSaveMessage.setEnabled(false);
-                tofTextPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        else if( e.getComponent().equals(boardTable) )
+        {// Board attached popup
+            showAttachmentBoardPopupMenu(e);
         }
-
-        if (e.getComponent().equals(attachmentTable)) {// Board attached popup
-            //if (e.getComponent().equals(tofTextArea)) System.out.println("uh oh");
-            if (attachmentTable.getSelectedRow() == -1) {
-                tofTextPopupSaveAttachments.setEnabled(true);
-                tofTextPopupSaveAttachment.setEnabled(false);
-            } else {
-                tofTextPopupSaveAttachments.setEnabled(false);
-                tofTextPopupSaveAttachment.setEnabled(true);
-            }
-            tofTextPopupSaveBoards.setEnabled(false);
-            tofTextPopupSaveBoard.setEnabled(false);
-            tofTextPopupSaveMessage.setEnabled(false);
-                tofTextPopupMenu.show(e.getComponent(), e.getX(), e.getY());
+        else if( e.getComponent().equals(attachmentTable) )
+        {// Board attached popup
+            showAttachmentTablePopupMenu(e);
         }
-
-        if (e.getComponent().equals(getTofTree())) { // TOF tree popup
-            DefaultMutableTreeNode node = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
-            tofTreePopupConfigureBoard.setEnabled(false);
-            tofTreePopupRemoveNode.setEnabled(false);
-            tofTreePopupCutNode.setEnabled(false);
-            tofTreePopupPasteNode.setEnabled(false);
-            if (node != null) {
-            DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
-            if (parent != null) {
-                tofTreePopupRemoveNode.setEnabled(true);
-                tofTreePopupCutNode.setEnabled(true);
-                if (node.isLeaf())
-                    tofTreePopupConfigureBoard.setEnabled(true);
-            }
-            }
-            if( clipboard != null )
-                tofTreePopupPasteNode.setEnabled(true);
-
-            tofTreePopupMenu.show(e.getComponent(), e.getX(), e.getY());
-        }
+        else if( e.getComponent().equals(getTofTree()) )
+        { // TOF tree popup
+            showTofTreePopupMenu(e);
         }
     }
+    } // end of class popuplistener
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
     //System.out.println("Clipboard contents replaced");
@@ -3290,6 +3055,238 @@ public class frame1 extends JFrame implements ClipboardOwner
             // uploads disabled
             tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Uploads")), false );
         }
+    }
+
+    protected void showTofTreePopupMenu(MouseEvent e)
+    {
+        int selRow = getTofTree().getRowForLocation(e.getX(), e.getY());
+        if( selRow == -1 )
+        {
+            // no node is clicked -> no menu
+            return;
+        }
+
+        TreePath selPath = getTofTree().getPathForLocation(e.getX(), e.getY());
+        final FrostBoardObject board = (FrostBoardObject)selPath.getLastPathComponent();
+
+        // create menu objects
+        String dtxt = ((board.isFolder())?"Folder":"Board");
+        JMenuItem description = new JMenuItem(dtxt+": "+board.toString());
+        String dtxt2 = ((board.isFolder())?"folder":"board");
+        description.setEnabled(false);
+        JMenuItem tofTreePopupRefresh = new JMenuItem("Refresh "+dtxt2);
+        JMenuItem tofTreePopupAddNode = new JMenuItem("Add new board"); // TODO: translate
+        JMenuItem tofTreePopupAddFolder = new JMenuItem("Add new folder");
+        JMenuItem tofTreePopupRemoveNode = new JMenuItem("Remove "+dtxt2);
+        JMenuItem tofTreePopupCutNode = new JMenuItem("Cut "+dtxt2);
+
+        JMenuItem tofTreePopupPasteNode = null;
+        if( clipboard != null )
+        {
+            String dtxt3 = ((clipboard.isFolder())?"folder":"board");
+            tofTreePopupPasteNode = new JMenuItem("Paste "+dtxt3+" '"+clipboard.toString()+"'");
+            tofTreePopupPasteNode.addActionListener(new ActionListener()  {
+                public void actionPerformed(ActionEvent e) {
+                    pasteFromClipboard(board);
+                } });
+        }
+
+        JMenuItem tofTreePopupConfigureBoard = new JMenuItem(LangRes.getString("Configure selected board"));
+        JMenuItem tofTreePopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+        // add action listeners
+        tofTreePopupAddNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                getTofTree().createNewBoard(frame1.getInstance());
+            } });
+        tofTreePopupAddFolder.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                getTofTree().createNewFolder(frame1.getInstance());
+            } });
+        tofTreePopupRefresh.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                refreshNode( board );
+            } });
+        tofTreePopupRemoveNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                removeNode(board);
+            } });
+        tofTreePopupCutNode.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                cutNode(board);
+            } });
+        tofTreePopupConfigureBoard.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                tofConfigureBoardMenuItem_actionPerformed(e, board);
+            } });
+
+        JPopupMenu pmenu = new JPopupMenu();
+        pmenu.add(description);
+        pmenu.addSeparator();
+        pmenu.add(tofTreePopupRefresh);
+        pmenu.addSeparator();
+        pmenu.add(tofTreePopupAddNode);
+        pmenu.add(tofTreePopupAddFolder);
+        if( board.isRoot() == false )
+        {
+            pmenu.add(tofTreePopupRemoveNode);
+        }
+        pmenu.addSeparator();
+        if( board.isRoot() == false )
+        {
+            pmenu.add(tofTreePopupCutNode);
+        }
+        if( clipboard != null && tofTreePopupPasteNode != null && board.isFolder() )
+        {
+            pmenu.add(tofTreePopupPasteNode);
+        }
+        pmenu.addSeparator();
+        if( board.isFolder() == false )
+        {
+            pmenu.add(tofTreePopupConfigureBoard);
+            pmenu.addSeparator();
+        }
+        pmenu.add(tofTreePopupCancel);
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
+    }
+
+    protected void showAttachmentTablePopupMenu(MouseEvent e)
+    {
+        JPopupMenu pmenu = new JPopupMenu();
+        if (attachmentTable.getSelectedRow() == -1)
+        {
+            pmenu.add(tofTextPopupSaveAttachments);
+        }
+        else
+        {
+            pmenu.add(tofTextPopupSaveAttachment);
+        }
+        pmenu.addSeparator();
+        pmenu.add(tofTextPopupCancel);
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
+    }
+
+    protected void showAttachmentBoardPopupMenu(MouseEvent e)
+    {
+        JPopupMenu pmenu = new JPopupMenu();
+        if (boardTable.getSelectedRow() == -1)
+        {
+            pmenu.add(tofTextPopupSaveBoards);
+        }
+        else
+        {
+            pmenu.add(tofTextPopupSaveBoard);
+        }
+        pmenu.addSeparator();
+        pmenu.add(tofTextPopupCancel);
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
+    }
+
+    protected void showTofTextAreaPopupMenu(MouseEvent e)
+    {
+        if(selectedMessage == null ||  selectedMessage.getContent() == null)
+            return; // no menu
+
+        JPopupMenu pmenu = new JPopupMenu();
+        pmenu.add(tofTextPopupSaveMessage);
+        pmenu.addSeparator();
+        pmenu.add(tofTextPopupCancel);
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
+    }
+
+    protected void showDownloadTablePopupMenu(MouseEvent e)
+    {
+        JPopupMenu pmenu = new JPopupMenu();
+        if (getDownloadTable().getSelectedRow() > -1)
+        {
+            pmenu.add(downloadPopupRemoveSelectedDownloads);
+        }
+        pmenu.add(downloadPopupRemoveAllDownloads);
+        pmenu.addSeparator();
+        if (getDownloadTable().getSelectedRow() > -1)
+        {
+            pmenu.add(downloadPopupResetHtlValues);
+            pmenu.addSeparator();
+        }
+        pmenu.add(downloadPopupRemoveFinished);
+        pmenu.addSeparator();
+        pmenu.add(downloadPopupCancel);
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
+    }
+
+    protected void showUploadTablePopupMenu(MouseEvent e)
+    {
+        JPopupMenu pmenu = new JPopupMenu();
+        if (getUploadTable().getSelectedRow() == -1) {
+            pmenu.add(uploadPopupRemoveSelectedFiles);
+        }
+        pmenu.add(uploadPopupRemoveAllFiles);
+        pmenu.addSeparator();
+        if (getUploadTable().getSelectedRow() == -1) {
+            pmenu.add(uploadPopupReloadSelectedFiles);
+        }
+        pmenu.add(uploadPopupReloadAllFiles);
+        pmenu.addSeparator();
+        if (getUploadTable().getSelectedRow() == -1) {
+            pmenu.add(uploadPopupSetPrefixForSelectedFiles);
+        }
+        pmenu.add(uploadPopupSetPrefixForAllFiles);
+        pmenu.addSeparator();
+        if (getUploadTable().getSelectedRow() == -1) {
+            pmenu.add(uploadPopupRestoreDefaultFilenamesForSelectedFiles);
+        }
+        pmenu.add(uploadPopupRestoreDefaultFilenamesForAllFiles);
+        pmenu.addSeparator();
+        if (getUploadTable().getSelectedRow() == -1)
+        {
+            // Add boards to changeDestinationBoard submenu
+            Vector boards = getTofTree().getAllBoards();
+            Collections.sort(boards);
+            uploadPopupChangeDestinationBoard.removeAll();
+            for (int i = 0; i < boards.size(); i++)
+            {
+                final FrostBoardObject aBoard = (FrostBoardObject)boards.elementAt(i);
+                JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
+                uploadPopupChangeDestinationBoard.add(boardMenuItem);
+                // add all boards to menu + set action listener for each board menu item
+                boardMenuItem.addActionListener(new ActionListener()  {
+                    public void actionPerformed(ActionEvent e) {
+                        // set new board for all selected rows
+                        UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
+                        int[] selectedRows = getUploadTable().getSelectedRows();
+                        for( int x=0; x<selectedRows.length; x++ )
+                        {
+                            FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( selectedRows[x] );
+                            ulItem.setTargetBoard( aBoard );
+                            ulModel.updateRow( ulItem );
+                        }
+                    } });
+            }
+            pmenu.add(uploadPopupChangeDestinationBoard);
+        }
+        pmenu.add(uploadPopupAddFilesToBoard);
+        pmenu.addSeparator();
+        pmenu.add(uploadPopupCancel);
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
+    }
+
+    protected void showSearchTablePopupMenu(MouseEvent e)
+    {
+        JPopupMenu pmenu = new JPopupMenu();
+
+        if (searchTable.getSelectedRow() > -1)
+        {
+            pmenu.add(searchPopupDownloadSelectedKeys);
+            pmenu.addSeparator();
+        }
+        pmenu.add(searchPopupDownloadAllKeys);
+        pmenu.addSeparator();
+        if (searchTable.getSelectedRow() > -1)
+        {
+            pmenu.add(searchPopupCopyAttachment);
+            pmenu.addSeparator();
+        }
+        pmenu.add(searchPopupCancel);
+        pmenu.show( e.getComponent(), e.getX(), e.getY() );
     }
 }
 

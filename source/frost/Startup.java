@@ -102,30 +102,29 @@ public class Startup
         if( !downloadDirectory.isDirectory() )
         {
             System.out.println("Creating download directory");
-            downloadDirectory.mkdir();
+            downloadDirectory.mkdirs();
         }
 
         File keypoolDirectory = new File(frame1.keypool);
         if( !keypoolDirectory.isDirectory() )
         {
             System.out.println("Creating keypool directory");
-            keypoolDirectory.mkdir();
+            keypoolDirectory.mkdirs();
         }
 
         File execDirectory = new File("exec");
         if( !execDirectory.isDirectory() )
         {
             System.out.println("Creating exec directory");
-            execDirectory.mkdir();
+            execDirectory.mkdirs();
         }
 
         File unsentDirectory = new File(frame1.frostSettings.getValue("unsent.dir"));
         if( !unsentDirectory.isDirectory() )
         {
             System.out.println("Creating unsent directory");
-            unsentDirectory.mkdir();
+            unsentDirectory.mkdirs();
         }
-
     }
 
     private static void deleteLockFiles()

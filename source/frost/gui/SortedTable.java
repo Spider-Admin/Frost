@@ -121,6 +121,9 @@ public class SortedTable extends JTable
         public void mousePressed(MouseEvent event) {}
         public void mouseClicked(MouseEvent event)
         {
+            if( event.isPopupTrigger() == true )
+                return; // dont allow right click sorts
+
             TableColumnModel colModel = getColumnModel();
             int index = colModel.getColumnIndexAtX(event.getX());
             int modelIndex = colModel.getColumn(index).getModelIndex();
