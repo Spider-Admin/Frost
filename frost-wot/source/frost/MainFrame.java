@@ -1429,30 +1429,36 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 		 */
 		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == refreshItem) {
-				refreshSelected();
-			}
-			if (e.getSource() == addBoardItem) {
-				addBoardSelected();
-			}
-			if (e.getSource() == addFolderItem) {
-				addFolderSelected();
-			}
-			if (e.getSource() == removeNodeItem) {
-				removeNodeSelected();
-			}
-			if (e.getSource() == cutNodeItem) {
-				cutNodeSelected();
-			}
-			if (e.getSource() == pasteNodeItem) {
-				pasteNodeSelected();
-			}
-			if (e.getSource() == configureBoardItem) {
-				configureBoardSelected();
-			}
-			if (e.getSource() == sortFolderItem) {
-				sortFolderSelected();
-			}
+			final Object source = e.getSource();
+
+			SwingWorker worker = new SwingWorker(tofTree) {
+				
+				protected void doNonUILogic() throws RuntimeException {
+					if (source == refreshItem) {
+						refreshSelected();
+					} else if (source == addBoardItem) {
+						addBoardSelected();
+					} else if (source == addFolderItem) {
+						addFolderSelected();
+					} else if (source == removeNodeItem) {
+						removeNodeSelected();
+					} else if (source == cutNodeItem) {
+						cutNodeSelected();
+					} else if (source == pasteNodeItem) {
+						pasteNodeSelected();
+					} else if (source == configureBoardItem) {
+						configureBoardSelected();
+					} else if (source == sortFolderItem) {
+						sortFolderSelected();
+					}
+				}
+
+				protected void doUIUpdateLogic() throws RuntimeException {
+					//Nothing here
+				}
+
+			};
+			worker.start();
 		}
 
 		/**
