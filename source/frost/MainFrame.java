@@ -762,7 +762,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				FileAccess.saveDialog(
 					getInstance(),
 					sourceTextComponent.getText(),
-					frostSettings.getValue("lastUsedDirectory"),
+					settings.getValue("lastUsedDirectory"),
 					language.getString("Save message to disk"));
 			}
 
@@ -789,7 +789,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 		}
 
-		private SettingsClass settingsClass;
+		private Logger logger = Logger.getLogger(MainFrame.MessagePanel.class.getName());
+		
+		private SettingsClass settings;
+		private Language language;
 
 		private boolean initialized = false;
 
@@ -829,17 +832,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private JScrollPane boardsTableScrollPane;
 
 		/**
-		 * @param settingsClass
+		 * @param settings
 		 */
-		public MessagePanel(SettingsClass settingsClass) {
+		public MessagePanel(SettingsClass settings) {
 			super();
-			this.settingsClass = settingsClass;
-			settingsClass.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
-			settingsClass.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
-			settingsClass.addPropertyChangeListener(
+			this.settings = settings;
+			language = Language.getInstance();
+			
+			settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
+			settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
+			settings.addPropertyChangeListener(
 				SettingsClass.MESSAGE_BODY_FONT_STYLE,
 				listener);
-			settingsClass.addPropertyChangeListener("messageBodyAA", listener);
+			settings.addPropertyChangeListener("messageBodyAA", listener);
 		}
 		
 		/**
@@ -1098,7 +1103,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				messageTextArea.setEditable(false);
 				messageTextArea.setLineWrap(true);
 				messageTextArea.setWrapStyleWord(true);
-				messageTextArea.setAntiAliasEnabled(settingsClass.getBoolValue("messageBodyAA"));
+				messageTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
 				JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
 
 				// build attached files scroll pane
@@ -1173,28 +1178,28 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * 
 		 */
 		private void fontChanged() {
-			String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-			int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-			int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+			String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+			int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+			int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
 			Font font = new Font(fontName, fontStyle, fontSize);
 			if (!font.getFamily().equals(fontName)) {
 				logger.severe(
 					"The selected font was not found in your system\n"
 						+ "That selection will be changed to \"Monospaced\".");
-				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
+				settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
 				font = new Font("Monospaced", fontStyle, fontSize);
 			}
 			messageTextArea.setFont(font);
 
-			fontName = frostSettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
-			fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
-			fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
+			fontName = settings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
+			fontStyle = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
+			fontSize = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
 			font = new Font(fontName, fontStyle, fontSize);
 			if (!font.getFamily().equals(fontName)) {
 				logger.severe(
 					"The selected font was not found in your system\n"
 						+ "That selection will be changed to \"SansSerif\".");
-				frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
+				settings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
 				font = new Font("SansSerif", fontStyle, fontSize);
 			}
 			messageTable.setFont(font);
@@ -1354,15 +1359,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			if (subject.startsWith("Re:") == false)
 				subject = "Re: " + subject;
 			/*
-			 * if (frostSettings.getBoolValue("useAltEdit")) { altEdit = new
+			 * if (settings.getBoolValue("useAltEdit")) { altEdit = new
 			 * AltEdit(getSelectedNode(), subject, // subject
-			 * getTofTextAreaText(), frostSettings, this); altEdit.start(); }
+			 * getTofTextAreaText(), settings, this); altEdit.start(); }
 			 * else {
 			 */
-			MessageFrame newMessageFrame = new MessageFrame(frostSettings, MainFrame.this,
+			MessageFrame newMessageFrame = new MessageFrame(settings, MainFrame.this,
 												core.getIdentities().getMyId());
 			newMessageFrame.setTofTree(tofTree);
-			newMessageFrame.composeReply(getSelectedNode(), frostSettings.getValue("userName"),
+			newMessageFrame.composeReply(getSelectedNode(), settings.getValue("userName"),
 												subject, messageTextArea.getText());
 		}
 
@@ -1373,7 +1378,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			FileAccess.saveDialog(
 				getInstance(),
 				messageTextArea.getText(),
-				frostSettings.getValue("lastUsedDirectory"),
+				settings.getValue("lastUsedDirectory"),
 				language.getString("Save message to disk"));
 		}
 		
@@ -1519,7 +1524,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @param evt
 		 */
 		private void antialiasing_propertyChanged(PropertyChangeEvent evt) {
-			messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+			messageTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
 		}
 		
 		/**
@@ -1547,7 +1552,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			final FrostMessageObject targetMessage = selectedMessage;
 
 			//if we show deleted messages we don't need to remove them from the table
-			if ( ! frostSettings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
+			if ( ! settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
 				messageTableModel.deleteRow(selectedMessage);
 				updateMessageCountLabels(getSelectedNode());
 			}
