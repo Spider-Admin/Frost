@@ -157,8 +157,11 @@ public class GetRequestsThread extends Thread
                         File requestLock = new File(destination + SHA1 + ".lck");
                         if( !requestLock.exists() )
                         {
-                            // FIXME: what to do if state is ENCODING ?
-                            // change of state ENCODING_REQUESTED to REQUESTED is ok
+                            // FIXME: what to do if state is ENCODING ? In this case actually encoding runs,
+                            // and the next state should be REQUESTED.
+                            // maybe we need to set the REQUESTED as next state in insertThread ...
+                            
+                            // change of state ENCODING_REQUESTED to REQUESTED is ok!
                             if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
                                 ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
 				                ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
