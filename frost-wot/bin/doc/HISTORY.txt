@@ -7,6 +7,9 @@ Added:  in case Frost finds an error while auto saving a resource, a popup is sh
 
 Changed: when an unsigned message is received with the @ character in the from field, it is automatically
          blocked.
+         
+Bugfix: some information was being saved duplicated on the identities.xml file.
+Bugfix: with Java 1.5 Frost was failing to start from time to time (deadlock when showing the main frame).
 
 **************************************************************************************************
 
