@@ -109,6 +109,7 @@ public class Core {
 		myBatches = new Hashtable();
 		friends = new BuddyList();
 		enemies = new BuddyList();
+		neutral = new BuddyList();
 		File identities = new File("identities");
 		File identitiesxml = new File ("identities.xml");
 		try{
@@ -192,8 +193,10 @@ public class Core {
 				Element current = (Element) it.next();
 				if (current.getAttribute("type").equals("friends"))
 					friends.loadXMLElement(current);
-				else
+				else if (current.getAttribute("type").equals("enemies"))
 					enemies.loadXMLElement(current);
+				else
+					neutral.loadXMLElement(current);
 			}
 			}catch (Exception e){
 				e.printStackTrace(getOut());				
@@ -359,7 +362,7 @@ public class Core {
 
 	// returns the current id,crypt, etc.
 
-	public static BuddyList friends, enemies;
+	public static BuddyList friends, enemies, neutral;
 	// saved to frost.ini
 	public static SettingsClass frostSettings = null;
 	static Hashtable goodIds;
@@ -616,6 +619,13 @@ public class Core {
 	 */
 	public static Core getInstance(){
 		return self;
+	}
+
+	/**
+	 * @return the list of neutral people
+	 */
+	public static BuddyList getNeutral() {
+		return neutral;
 	}
 
 }

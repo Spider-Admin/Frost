@@ -27,6 +27,7 @@ public class BuddyList extends HashMap implements XMLizable
 	}
 	
 	public void loadXMLElement(Element el) throws SAXException {
+		if (el == null) return;
 		List l = XMLTools.getChildElementsByTagName(el,"Identity");
 		Iterator it = l.iterator();
 		while (it.hasNext()) 

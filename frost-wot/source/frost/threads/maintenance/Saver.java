@@ -46,6 +46,10 @@ public class Saver extends Thread {
 				Element enemies = Core.getEnemies().getXMLElement(d);
 				enemies.setAttribute("type","enemies");
 				rootElement.appendChild(enemies);
+				//then everybody else
+				Element neutral = Core.getNeutral().getXMLElement(d);
+				neutral.setAttribute("type","neutral");
+				rootElement.appendChild(neutral);
 				
 				d.appendChild(rootElement);
 				
