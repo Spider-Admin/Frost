@@ -187,7 +187,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
 	    try { //make a wide net so that evil messages don't kill us
             String val = new StringBuffer().append(destination)
                                            .append(System.currentTimeMillis())
-                                           .append(".txt.msg").toString();
+                                           .append(".xml.msg").toString();
             File testMe = new File(val);
             val = new StringBuffer().append(destination)
                                     .append(dirdate)
@@ -195,7 +195,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                                     .append(board.getBoardFilename())
                                     .append("-")
                                     .append(index)
-                                    .append(".txt").toString();
+                                    .append(".xml").toString();
             File testMe2 = new File(val);
             if( testMe2.length() > 0 ) // already downloaded
             {
@@ -214,7 +214,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                                                 .append(dirdate)
                                                 .append("-")
                                                 .append(index)
-                                                .append(".txt").toString();
+                                                .append(".xml").toString();
                 }
                 else
                 {
@@ -226,14 +226,14 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                                                 .append(board.getBoardFilename())
                                                 .append("-")
                                                 .append(index)
-                                                .append(".txt").toString();
+                                                .append(".xml").toString();
                 }
 
                 try { 
+                	
                     boolean fastDownload = !flagNew; // for backload use fast download, deep for today
-                    // FIXME: maybe enable doRedirect=true to split larger messages?
-                    // To do that we need to check the size of the file before downloading, and we
-                    // can do that only after we have the CHK
+                    
+                    //FIXME: get the metadata here
                     FcpRequest.getFile(downKey, null, testMe, downloadHtl, false, fastDownload);
                     mixed.wait(111); // wait some time to not to hurt the node on next retry 
                 }
