@@ -131,6 +131,7 @@ public class XMLTools
             XMLSerializer serializer = new XMLSerializer (writer, format);
             serializer.asDOMSerializer();
             serializer.serialize(doc);
+            writer.close();
             return true;
         }
         catch(Exception ex)
