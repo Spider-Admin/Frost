@@ -195,7 +195,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             {
                 // Does this index already exist?
 		           
-                result = FcpInsert.putFile(insertKey + index + ".idx.sha.zip",
+                result = FcpInsert.putFile(insertKey + index + ".idx.sha2.zip",
                                            new File(keypool + board.getBoardFilename() + "_upload.txt"),
                                            insertHtl,
                                            true,
@@ -271,7 +271,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					new File(frame1.frostSettings.getValue("temp.dir")));
                 if( DEBUG ) System.out.println("FILEDN: Requesting index " + index);
                 // Download the keyfile
-                FcpRequest.getFile(requestKey + index + ".idx.sha.zip",
+                FcpRequest.getFile(requestKey + index + ".idx.sha2.zip",
                                    null,
                                    target,
                                    requestHtl+ ((Integer)indices.elementAt(index)).intValue(),
