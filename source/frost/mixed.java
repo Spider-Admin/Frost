@@ -101,6 +101,9 @@ public static String makeSafeXML(String text) {
             char[] invalidChars =
                 { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#' }; //FIXME: this one is missing the "&" char as opposed to MessageObject()
 
+            if( text.startsWith(".") )
+                newText.append("_"); // dont allow a boardfilename like "."
+
             for (int i = 0; i < invalidChars.length; i++)
                 text = text.replace(invalidChars[i], '_');
 
