@@ -183,8 +183,9 @@ public class GetRequestsThread extends Thread
         }
 
         }
-	}
 	mixed.wait(5*60*1000);
+	}
+	
 	} //people with nice ides can refactor :-P
         catch(Throwable t)
         {
