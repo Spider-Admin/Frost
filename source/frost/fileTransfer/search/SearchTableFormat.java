@@ -165,7 +165,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 			if (!isSelected) {
 				ModelItem item = modelTable.getItemAt(row);	//It may be null
 				if (item != null) {
-					FrostSearchItem searchItem = (FrostSearchItem) modelTable.getItemAt(row);
+					FrostSearchItem searchItem = (FrostSearchItem) item;
 
 					if (searchItem.getState() == FrostSearchItem.STATE_DOWNLOADED) {
 						setForeground(Color.LIGHT_GRAY);
