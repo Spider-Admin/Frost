@@ -115,6 +115,23 @@ System.out.println("Board tree loaded successfully.");
                 FrostBoardObject fbobj = new FrostBoardObject(nodename, publicKey, privateKey);
                 // look for <config/> element and maybe configure board
                 getBoardConfiguration( child, fbobj );
+                // maybe restore lastUpdateStartedMillis ( = board update progress)                
+                ArrayList ltmp = XMLTools.getChildElementsByTagName(child, "lastUpdateStartedMillis");
+                if( ltmp.size() > 0 )
+                {
+                    Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
+                    if( txtname != null )
+                    {
+                        long millis = -1;
+                        try { millis = Long.parseLong( txtname.getData().trim() ); }
+                        catch(Exception e) { ; }
+                        
+                        if( millis > 0 )
+                        {
+                            fbobj.setLastUpdateStartMillis(millis);
+                        }
+                    }
+                }
 
                 treeFolder.add( fbobj );
             }
@@ -388,6 +405,15 @@ System.out.println("Board tree loaded successfully.");
             {
                 element.setAttribute("hideNAMessages", ""+board.getHideNA());
             }
+            rootBoardElement.appendChild( element );
+        }
+        
+        // append lastTimeMillisUpdated
+        if( board.getLastUpdateStartMillis() > 0 )
+        {
+            element = doc.createElement("lastUpdateStartedMillis");
+            text = doc.createTextNode( "" + board.getLastUpdateStartMillis() );
+            element.appendChild( text );
             rootBoardElement.appendChild( element );
         }
 
