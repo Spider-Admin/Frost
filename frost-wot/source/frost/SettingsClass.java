@@ -424,6 +424,7 @@ public class SettingsClass
         defaults.put("messageBase", "news");
         defaults.put("nodeAddress", "127.0.0.1");
         defaults.put("nodePort", "8481");
+        defaults.put("showSystrayIcon", "true");
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
         defaults.put("searchAllBoards", "true");
