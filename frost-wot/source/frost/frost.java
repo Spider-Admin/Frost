@@ -20,12 +20,47 @@ package frost;
 
 import java.awt.*;
 import java.io.*;
-import frost.gui.*;
-import javax.swing.UIManager;
+
+import javax.swing.*;
+
+import com.l2fprod.gui.plaf.skin.*;
 
 import frost.ext.JSysTrayIcon;
+import frost.gui.Splashscreen;
 
 public class frost {
+	/**
+	 * Initializes the skins system
+	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
+	 * @param frame the root JFrame to update its UI when skins are activated
+	 */
+	private void initializeSkins(SettingsClass frostSettings) {
+		String skinsEnabled = frostSettings.getValue("skinsEnabled");
+		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
+			String selectedSkinPath = frostSettings.getValue("selectedSkin");
+			if ((selectedSkinPath != null)
+				&& (!selectedSkinPath.equals("none"))) {
+				try {
+					Skin selectedSkin =
+						SkinLookAndFeel.loadThemePack(selectedSkinPath);
+					SkinLookAndFeel.setSkin(selectedSkin);
+					SkinLookAndFeel.enable();
+				} catch (UnsupportedLookAndFeelException exception) {
+					System.out.println(
+						"The selected skin is not supported by your system");
+					System.out.println(
+						"Skins will be disabled until you choose another one\n");
+					frostSettings.setValue("skinsEnabled", false);
+				} catch (Exception exception) {
+					System.out.println(
+						"There was an error while loading the selected skin");
+					System.out.println(
+						"Skins will be disabled until you choose another one\n");
+					frostSettings.setValue("skinsEnabled", false);
+				}
+			}
+		}
+	}
 
 	private static String locale = "default";
 
@@ -50,9 +85,14 @@ public class frost {
 		if (!splashchk.exists()) {
 			splashscreen.show();
 		}
+				
+		SettingsClass frostSettings = new SettingsClass();
+		
+		// Initializes the skins
+		initializeSkins(frostSettings);
 
 		//Main frame		
-		final frame1 frame = new frame1(locale, splashscreen);
+		final frame1 frame = new frame1(frostSettings, locale, splashscreen);
 		frame.validate();
 
 		Dimension frameSize = frame.getSize();
