@@ -1,15 +1,16 @@
 Changes since version 2-Dec-2004 dev:
 
-Added: if we have an old identities file, it is deleted after being converted to the new xml format.
-Added: saving of both the uploads and downloads models is much more robust now.
-Added: some internationalization improvements.
-Added: the messages about downloading and uploading files at the status bar are clearer now.
-Added: more details to the About dialog.
-Added: option to see again those messages that have been deleted (they appear crossed)
-Added: messagepopup menu option to undelete deleted messages
-Added: del key deletes selected message
-Added: new message window by double click on a message, ESC closes it
-Added: details to the dialog that pops up when there is an error while automatically saving a resource.
+Added:  if we have an old identities file, it is deleted after being converted to the new xml format.
+Added:  saving of both the uploads and downloads models is much more robust now.
+Added:  some internationalization improvements.
+Added:  the messages about downloading and uploading files at the status bar are clearer now.
+Added:  more details to the About dialog.
+Added:  option to see again those messages that have been deleted (they appear crossed)
+Added:  messagepopup menu option to undelete deleted messages
+Added:  del key deletes selected message
+Added:  new message window by double click on a message, ESC closes it
+Added:  details to the dialog that pops up when there is an error while automatically saving a resource.
+Added:  popup menus to some other text fields (to perform the usual clipboard operations).
 
 Changed: messages are signed by default.
 Changed: now the sizes of the new message window, the known boards window and the boards info window are
