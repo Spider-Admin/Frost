@@ -17,10 +17,9 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
      * an existing file.
      * 
      * @param file  The xml file to read
-     * @throws Exception  If the file could'nt be loaded
+     * @throws MessageCreationException  If the file couldn't be loaded
      */
-    FrostMessageObject(File file) throws Exception
-    {
+    FrostMessageObject(File file) throws MessageCreationException {
         super(file);
         buildVisibleStrings();
     }
