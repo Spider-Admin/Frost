@@ -7,9 +7,12 @@
 package frost.util.model.gui;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import javax.swing.JTable;
 import javax.swing.table.*;
+
+import frost.util.model.ModelItem;
 
 /**
  * @author Administrator
@@ -19,8 +22,11 @@ import javax.swing.table.*;
  */
 public abstract class AbstractTableFormat implements ModelTableFormat {
 
+	private static Logger logger = Logger.getLogger(AbstractTableFormat.class.getName());
+
 	private int columnCount;
 	private String columnNames[];
+	private boolean columnEditable[];
 	
 	protected Vector tables;
 
@@ -31,6 +37,11 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 		super();
 		columnCount = newColumnCount;
 		columnNames = new String[columnCount];
+		
+		columnEditable = new boolean[columnCount];
+		for (int i = 0; i < columnEditable.length; i++) {
+			columnEditable[i] = false;			
+		}
 	}
 
 	/* (non-Javadoc)
@@ -88,6 +99,31 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 				};
 			}			
 		}	
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.util.model.gui.ModelTableFormat#isColumnEditable(int)
+	 */
+	public boolean isColumnEditable(int column) {
+		return columnEditable[column];
+	}
+	
+	/** 
+	 * This methods sets if the column whose index is passed as a parameter
+	 * is editable or not.
+	 * @param column index of the column
+	 * @param editable true if the column is editable. False if it is not.
+	 **/
+	public void setColumnEditable(int column, boolean editable) {
+		columnEditable[column] = editable;
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.util.model.gui.ModelTableFormat#setCellValue(java.lang.Object, frost.util.model.ModelItem, int)
+	 */
+	public void setCellValue(Object value, ModelItem item, int columnIndex) {
+		//By default all columns are not editable. Override in subclasses when needed.
+		logger.warning("The column number " + columnIndex + "is not editable.");
 	}
 
 }
