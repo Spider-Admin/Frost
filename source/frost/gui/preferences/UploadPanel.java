@@ -163,14 +163,14 @@ class UploadPanel extends JPanel {
 		constraints.gridy = 1;
 		constraints.weightx = 0;
 		constraints.gridwidth = 1;
-		//add(restartFailedUploadsCheckBox, constraints);	//TODO: remove comment when retrying uploads is implemented
+		add(restartFailedUploadsCheckBox, constraints);
 		constraints.gridwidth = 3;
 		constraints.insets = insets5555;
 		constraints.gridx = 1;
 		constraints.weightx = 1;
 		constraints.anchor = GridBagConstraints.CENTER;
 		constraints.fill = GridBagConstraints.BOTH;
-		//add(getRetriesPanel(), constraints);	//TODO: remove comment when retrying uploads is implemented
+		add(getRetriesPanel(), constraints);
 		
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.insets = insets5_30_5_5;
