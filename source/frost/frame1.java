@@ -56,16 +56,218 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * 
 	 */
+	private class PopupMenuTofTree extends JPopupMenu implements LanguageListener, ActionListener {
+
+		private JMenuItem descriptionItem = new JMenuItem();
+		private JMenuItem refreshItem = new JMenuItem(getScaledImage("/data/update.gif"));
+		private JMenuItem addBoardItem = new JMenuItem(getScaledImage("/data/newboard.gif"));
+		private JMenuItem addFolderItem = new JMenuItem(getScaledImage("/data/newfolder.gif"));
+		private JMenuItem removeNodeItem = new JMenuItem(getScaledImage("/data/remove.gif"));
+		private JMenuItem cutNodeItem = new JMenuItem(getScaledImage("/data/cut.gif"));
+		private JMenuItem pasteNodeItem = new JMenuItem(getScaledImage("/data/paste.gif"));
+		private JMenuItem configureBoardItem = new JMenuItem(getScaledImage("/data/configure.gif"));
+		private JMenuItem cancelItem = new JMenuItem();
+		
+		private FrostBoardObject selectedTreeNode = null;
+
+		/**
+		 * 
+		 */
+		public PopupMenuTofTree() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			addBoardItem.setText(languageResource.getString("Add new board"));
+			addFolderItem.setText(languageResource.getString("Add new folder"));
+			configureBoardItem.setText(languageResource.getString("Configure selected board"));
+			cancelItem.setText(languageResource.getString("Cancel"));
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+
+			descriptionItem.setEnabled(false);
+
+			// add listeners
+			refreshItem.addActionListener(this);
+			addBoardItem.addActionListener(this);
+			addFolderItem.addActionListener(this);
+			removeNodeItem.addActionListener(this);
+			cutNodeItem.addActionListener(this);
+			pasteNodeItem.addActionListener(this);
+			configureBoardItem.addActionListener(this);
+		}
+
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			int selRow = getTofTree().getRowForLocation(x, y);
+
+			if (selRow != -1) { // only if a node is selected
+				removeAll();
+
+				TreePath selPath = getTofTree().getPathForLocation(x, y);
+				selectedTreeNode = (FrostBoardObject) selPath.getLastPathComponent();
+
+				String folderOrBoard1 =
+					((selectedTreeNode.isFolder())
+						? languageResource.getString("Folder")
+						: languageResource.getString("Board"));
+				String folderOrBoard2 =
+					((selectedTreeNode.isFolder())
+						? languageResource.getString("folder")
+						: languageResource.getString("board"));
+
+				descriptionItem.setText(folderOrBoard1 + " : " + selectedTreeNode);
+				refreshItem.setText(languageResource.getString("Refresh") + " " + folderOrBoard2);
+				removeNodeItem.setText(languageResource.getString("Remove") + " " + folderOrBoard2);
+				cutNodeItem.setText(languageResource.getString("Cut") + " " + folderOrBoard2);
+
+				add(descriptionItem);
+				addSeparator();
+				add(refreshItem);
+				if (selectedTreeNode.isFolder() == false) {
+					addSeparator();
+					add(configureBoardItem);
+				}
+				addSeparator();
+				add(addBoardItem);
+				add(addFolderItem);
+				if (selectedTreeNode.isRoot() == false) {
+					add(removeNodeItem);
+				}
+				addSeparator();
+				if (selectedTreeNode.isRoot() == false) {
+					add(cutNodeItem);
+				}
+				if (clipboard != null && selectedTreeNode.isFolder()) {
+					String folderOrBoard3 =
+						((clipboard.isFolder())
+							? languageResource.getString("folder")
+							: languageResource.getString("board"));
+					pasteNodeItem.setText(
+						languageResource.getString("Paste")
+							+ " "
+							+ folderOrBoard3
+							+ " '"
+							+ clipboard.toString()
+							+ "'");
+					add(pasteNodeItem);
+				}
+				addSeparator();
+				add(cancelItem);
+
+				super.show(invoker, x, y);
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == refreshItem) {
+				refreshSelected();
+			}
+			if (e.getSource() == addBoardItem) {
+				addBoardSelected();
+			}
+			if (e.getSource() == addFolderItem) {
+				addFolderSelected();
+			}
+			if (e.getSource() == removeNodeItem) {
+				removeNodeSelected();
+			}
+			if (e.getSource() == cutNodeItem) {
+				cutNodeSelected();
+			}
+			if (e.getSource() == pasteNodeItem) {
+				pasteNodeSelected();
+			}
+			if (e.getSource() == configureBoardItem) {
+				configureBoardSelected();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void configureBoardSelected() {
+			tofConfigureBoardMenuItem_actionPerformed(selectedTreeNode);
+		}
+
+		/**
+		 * 
+		 */
+		private void pasteNodeSelected() {
+			if (clipboard != null) {
+				pasteFromClipboard(selectedTreeNode);
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void cutNodeSelected() {
+			cutNode(selectedTreeNode);
+		}
+		
+		/**
+		 * 
+		 */
+		private void removeNodeSelected() {
+			removeNode(selectedTreeNode);
+		}
+
+		/**
+		 * 
+		 */
+		private void addFolderSelected() {
+			getTofTree().createNewFolder(frame1.this);
+		}
+
+		/**
+		 * 
+		 */
+		private void addBoardSelected() {
+			getTofTree().createNewBoard(frame1.this);
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshSelected() {
+			refreshNode(selectedTreeNode);
+		}
+	}
+	/**
+	 * 
+	 */
 	private class PopupMenuMessageTable
 		extends JPopupMenu
 		implements ActionListener, LanguageListener {
 
-		JMenuItem markAllMessagesReadItem = new JMenuItem();
-		JMenuItem markMessageUnreadItem = new JMenuItem();
-		JMenuItem setGoodItem = new JMenuItem();
-		JMenuItem setBadItem = new JMenuItem();
-		JMenuItem setCheckItem = new JMenuItem();
-		JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem markAllMessagesReadItem = new JMenuItem();
+		private JMenuItem markMessageUnreadItem = new JMenuItem();
+		private JMenuItem setGoodItem = new JMenuItem();
+		private JMenuItem setBadItem = new JMenuItem();
+		private JMenuItem setCheckItem = new JMenuItem();
+		private JMenuItem cancelItem = new JMenuItem();
 
 		/**
 		 * 
@@ -220,14 +422,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	}
 
-	private PopupMenuMessageTable popupMenuMessageTable = null;
-
 	/**
 	 * 
 	 */
 	private class PopupMenuAttachmentBoard
 		extends JPopupMenu
 		implements ActionListener, LanguageListener {
+
+		private JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem saveBoardItem = new JMenuItem();
+		private JMenuItem saveBoardsItem = new JMenuItem();
+
 		/**
 		 * 
 		 */
@@ -240,10 +445,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		private void saveBoards() {
 			downloadBoards();
 		}
-		JMenuItem cancelItem = new JMenuItem();
-		JMenuItem saveBoardItem = new JMenuItem();
-		JMenuItem saveBoardsItem = new JMenuItem();
-
 		/**
 		 * 
 		 */
@@ -265,8 +466,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		 */
 		private void refreshLanguage() {
 			saveBoardsItem.setText(languageResource.getString("Add Board(s)"));
-			saveBoardItem.setText(
-				languageResource.getString("Add selected board"));
+			saveBoardItem.setText(languageResource.getString("Add selected board"));
 			cancelItem.setText(languageResource.getString("Cancel"));
 		}
 		/* (non-Javadoc)
@@ -306,14 +506,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	}
 
-	private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
-
 	/**
 	 * 
 	 */
 	private class PopupMenuAttachmentTable
 		extends JPopupMenu
 		implements ActionListener, LanguageListener {
+			
+		private JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem saveAttachmentItem = new JMenuItem();
+		private JMenuItem saveAttachmentsItem = new JMenuItem();
+			
 		/**
 		 * 
 		 */
@@ -326,11 +529,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		private void saveAttachments() {
 			downloadAttachments();
 		}
-
-		JMenuItem cancelItem = new JMenuItem();
-		JMenuItem saveAttachmentItem = new JMenuItem();
-		JMenuItem saveAttachmentsItem = new JMenuItem();
-
 		/**
 		 * @throws java.awt.HeadlessException
 		 */
@@ -394,8 +592,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	}
 
-	private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
-
 	/**
 	 * 
 	 */
@@ -403,8 +599,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		extends JPopupMenu
 		implements ActionListener, LanguageListener {
 
-		JMenuItem cancelItem = new JMenuItem();
-		JMenuItem saveMessageItem = new JMenuItem();
+		private JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem saveMessageItem = new JMenuItem();
 
 		/**
 		 * 
@@ -474,8 +670,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 	}
-
-	private PopupMenuTofText popupMenuTofText = null;
 
 	/**
 	 * Getter for the language resource bundle
@@ -730,10 +924,18 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private HealingTable healingTable = null;
 
 	private JTextArea tofTextArea = null;
+	
 	//Panels
 	private DownloadPanel downloadPanel = null;
 	private UploadPanel uploadPanel = null;
 	private SearchPanel searchPanel = null;
+	
+	//Popups
+	private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
+	private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
+	private PopupMenuMessageTable popupMenuMessageTable = null;
+	private PopupMenuTofText popupMenuTofText = null;
+	private PopupMenuTofTree popupMenuTofTree = null;
 
 	public static Hashtable getMyBatches() {
 		return Core.getMyBatches();
@@ -1058,7 +1260,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		configBoardButton
 			.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tofConfigureBoardMenuItem_actionPerformed(e, getSelectedNode());
+				tofConfigureBoardMenuItem_actionPerformed(getSelectedNode());
 			}
 		});
 		systemTrayButton
@@ -1589,7 +1791,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		});
 		tofConfigureBoardMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				tofConfigureBoardMenuItem_actionPerformed(e, getSelectedNode());
+				tofConfigureBoardMenuItem_actionPerformed(getSelectedNode());
 			}
 		});
 		tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
@@ -2834,9 +3036,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	/**News | Configure Board action performed*/
-	private void tofConfigureBoardMenuItem_actionPerformed(
-		ActionEvent e,
-		FrostBoardObject board) {
+	private void tofConfigureBoardMenuItem_actionPerformed(FrostBoardObject board) {
 		if (board == null || board.isFolder())
 			return;
 
@@ -3113,135 +3313,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	protected void showTofTreePopupMenu(MouseEvent e) {
-		int selRow = getTofTree().getRowForLocation(e.getX(), e.getY());
-		if (selRow == -1) {
-			// no node is clicked -> no menu
-			return;
-		}
-
-		TreePath selPath = getTofTree().getPathForLocation(e.getX(), e.getY());
-		final FrostBoardObject board =
-			(FrostBoardObject) selPath.getLastPathComponent();
-
-		// create menu objects
-		String dtxt = ((board.isFolder()) ? "Folder" : "Board");
-		JMenuItem description = new JMenuItem(dtxt + ": " + board.toString());
-		String dtxt2 = ((board.isFolder()) ? "folder" : "board");
-		description.setEnabled(false);
-		JMenuItem tofTreePopupRefresh =
-			new JMenuItem(
-				languageResource.getString("Refresh")
-					+ " "
-					+ languageResource.getString(dtxt2));
-		tofTreePopupRefresh.setIcon(getScaledImage("/data/update.gif"));
-
-		JMenuItem tofTreePopupAddNode =
-			new JMenuItem(languageResource.getString("Add new board"));
-		// TODO: translate
-		tofTreePopupAddNode.setIcon(getScaledImage("/data/newboard.gif"));
-
-		JMenuItem tofTreePopupAddFolder =
-			new JMenuItem(languageResource.getString("Add new folder"));
-		tofTreePopupAddFolder.setIcon(getScaledImage("/data/newfolder.gif"));
-
-		JMenuItem tofTreePopupRemoveNode =
-			new JMenuItem(
-				languageResource.getString("Remove")
-					+ " "
-					+ languageResource.getString(dtxt2));
-		tofTreePopupRemoveNode.setIcon(getScaledImage("/data/remove.gif"));
-
-		JMenuItem tofTreePopupCutNode =
-			new JMenuItem(
-				languageResource.getString("Cut")
-					+ " "
-					+ languageResource.getString(dtxt2));
-		tofTreePopupCutNode.setIcon(getScaledImage("/data/cut.gif"));
-
-		JMenuItem tofTreePopupPasteNode = null;
-		if (clipboard != null) {
-			String dtxt3 = ((clipboard.isFolder()) ? "folder" : "board");
-			tofTreePopupPasteNode =
-				new JMenuItem(
-					languageResource.getString("Paste")
-						+ " "
-						+ languageResource.getString(dtxt3)
-						+ " '"
-						+ clipboard.toString()
-						+ "'");
-			tofTreePopupPasteNode.setIcon(getScaledImage("/data/paste.gif"));
-			tofTreePopupPasteNode.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					pasteFromClipboard(board);
-				}
-			});
-		}
-
-		JMenuItem tofTreePopupConfigureBoard =
-			new JMenuItem(
-				languageResource.getString("Configure selected board"));
-		tofTreePopupConfigureBoard.setIcon(
-			getScaledImage("/data/configure.gif"));
-		JMenuItem tofTreePopupCancel =
-			new JMenuItem(languageResource.getString("Cancel"));
-		// add action listeners
-		tofTreePopupAddNode.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewBoard(frame1.getInstance());
-			}
-		});
-		tofTreePopupAddFolder.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewFolder(frame1.getInstance());
-			}
-		});
-		tofTreePopupRefresh.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				refreshNode(board);
-			}
-		});
-		tofTreePopupRemoveNode.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				removeNode(board);
-			}
-		});
-		tofTreePopupCutNode.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				cutNode(board);
-			}
-		});
-		tofTreePopupConfigureBoard.addActionListener(new ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofConfigureBoardMenuItem_actionPerformed(e, board);
-			}
-		});
-
-		JPopupMenu pmenu = new JPopupMenu();
-		pmenu.add(description);
-		pmenu.addSeparator();
-		pmenu.add(tofTreePopupRefresh);
-		if (board.isFolder() == false) {
-			pmenu.addSeparator();
-			pmenu.add(tofTreePopupConfigureBoard);
-		}
-		pmenu.addSeparator();
-		pmenu.add(tofTreePopupAddNode);
-		pmenu.add(tofTreePopupAddFolder);
-		if (board.isRoot() == false) {
-			pmenu.add(tofTreePopupRemoveNode);
-		}
-		pmenu.addSeparator();
-		if (board.isRoot() == false) {
-			pmenu.add(tofTreePopupCutNode);
-		}
-		if (clipboard != null
-			&& tofTreePopupPasteNode != null
-			&& board.isFolder()) {
-			pmenu.add(tofTreePopupPasteNode);
-		}
-		pmenu.addSeparator();
-		pmenu.add(tofTreePopupCancel);
-		pmenu.show(e.getComponent(), e.getX(), e.getY());
+		getPopupMenuTofTree().show(
+			e.getComponent(),
+			e.getX(),
+			e.getY());
 	}
 
 	protected void showAttachmentTablePopupMenu(MouseEvent e) {
@@ -3345,6 +3420,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			languageResource.addLanguageListener(popupMenuTofText);
 		}
 		return popupMenuTofText;
+	}
+	
+	/**
+	 * @return
+	 */
+	private PopupMenuTofTree getPopupMenuTofTree() {
+		if (popupMenuTofTree == null) {
+			popupMenuTofTree = new PopupMenuTofTree();
+			languageResource.addLanguageListener(popupMenuTofTree);
+		}
+		return popupMenuTofTree;
 	}
 
 	/**
