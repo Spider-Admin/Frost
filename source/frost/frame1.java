@@ -2747,7 +2747,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 Core.getOut().println("Executing: " + file.getPath());
                 if( file.exists() )
                 {
-                    Execute.run("exec.bat" + " " + file.getPath());
+                    Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
                 }
             }
 
@@ -2760,7 +2760,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 Core.getOut().println("Executing: "+file.getPath());
                 if( file.exists() )
                 {
-                    Execute.run("exec.bat" + " " + file.getPath());
+                    Execute.run("exec.bat" + " \"" + file.getPath() +"\"");
                 }
             }
 
