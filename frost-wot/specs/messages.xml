@@ -1,0 +1,56 @@
+====frost signed message====
+ <?xml version="1.0" encoding="UTF-16"?>
+ <frostMessage>
+     <signer>
+       <name>somebody</name>
+       <privateKeyHash>hash(privkey of sender)</privateKeyHash>
+        ^^^ this allows for non-unique nicknames, public key is known for all
+       <publicKey>...</publicKey>
+     </signer>
+
+     <thread id="SHA1-hash(privKey)^currentTimeMillis of root msg">
+         <message id="same as thread id"> <==root message
+          <from>sender</from>
+          <privateKeyHash>hash(privkey of root sender)</privateKeyHash>
+            ^^^ in messages, include the public Key only of the sender.  This
+                makes it somewhat harder to spoof other people's public keys.
+          <date>1.2.3</date>
+          <time>10.20</time>
+          <subject>this is a new thread</subject>
+          <board>public</board>
+          <attachment type="file">
+            <name>hello.jpg</name>
+            <size>12345665</size>
+            <freenetKey>CHK@...</freenetKey>
+          </attachment>
+          <attachment type="board">
+             <name>my_board</name>
+             <freenetKey>SSK@...</freenetKey>
+          </attachment>
+          <attachment type="identity">
+            <name>hello.jpg</name>
+            <publicKey>12345665</publicKey>
+          </attachment>
+          <body><![CDATA[   some text ...]]></body>
+
+          <replies>   <== all replies to root message
+            <message id = "id of the second message">
+             ...
+               <replies>
+                  <message id = "id of the second message"> <== current message or a leaf in the tree
+                  <from>somebody</from>
+                  <privateKeyHash>...</privateKeyHash> again only the private key hash here
+                  ...
+                  </message>
+               </replies>
+            </message>
+            <message>
+              ... maybe more messages on this level, but only 1 root msg!
+            </message>
+          </replies>
+         </message>
+     </threadId>
+ </frostMessage>
+ =======begin frost signature===
+ ....
+ =======end frost signature=====
