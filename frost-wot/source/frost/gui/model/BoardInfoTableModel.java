@@ -19,18 +19,15 @@
 
 package frost.gui.model;
 
+import frost.gui.translation.*;
 
-public class BoardInfoTableModel extends SortedTableModel
+
+public class BoardInfoTableModel extends SortedTableModel implements LanguageListener
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+	private UpdatingLanguageResource languageResource = null;
 
-    protected final static String columnNames[] =  {
-        LangRes.getString("Board"),
-        LangRes.getString("State"),
-        LangRes.getString("Messages"),
-        LangRes.getString("Messages Today"), //LangRes.getString("New messages"),
-        LangRes.getString("Files")
-    };
+	protected final static String columnNames[] = new String[5];
+
     protected final static Class columnClasses[] =  {
         String.class, //LangRes.getString("Board"),
         String.class, //LangRes.getString("State"),
@@ -39,12 +36,33 @@ public class BoardInfoTableModel extends SortedTableModel
         Integer.class //LangRes.getString("Files")
     };
 
-    public BoardInfoTableModel()
-    {
-        super();
-    }
+	public BoardInfoTableModel(UpdatingLanguageResource newLanguageResource) {
+		super();
+		languageResource = newLanguageResource;
+		refreshLanguage();
+	}
 
-    public boolean isCellEditable(int row, int col)
+    /**
+	 * 
+	 */
+	private void refreshLanguage() {
+	   	columnNames[0] = languageResource.getString("Board");
+		columnNames[1] = languageResource.getString("State");
+		columnNames[2] = languageResource.getString("Messages");
+		columnNames[3] = languageResource.getString("Messages Today");
+		columnNames[4] = languageResource.getString("Files");
+		
+		fireTableStructureChanged();		
+	}
+	
+	/* (non-Javadoc)
+	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+	 */
+	public void languageChanged(LanguageEvent event) {
+		refreshLanguage();
+	}
+
+	public boolean isCellEditable(int row, int col)
     {
         return false;
     }
