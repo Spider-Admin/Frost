@@ -85,7 +85,7 @@ public class insertThread extends Thread
                     || result[0].equals("KeyCollision"))
                 {
                     success = true;
-                    System.out.println("Upload of " + file + " successfull.");
+                    System.out.println("Upload of " + file + " was successful.");
                     uploadItem.setKey(result[1]);
                     lastUploadDate = currentDate;
                 }
@@ -103,16 +103,20 @@ public class insertThread extends Thread
                 }
 
                 //now update the files.xml with the CHK
-                KeyClass current = new KeyClass(result[1]);
-                if (sign)
-                    current.setOwner(frame1.getMyId().getUniqueName());
-                current.setFilename(uploadItem.getFileName());
-                current.setSHA1(uploadItem.getSHA1());
-                current.setBatch(uploadItem.getBatch());
-                current.setSize(uploadItem.getFileSize().longValue());
-                current.setDate(lastUploadDate);
-                Index.addMine(current, board);
-                Index.add(current, board);
+                // REDFLAG: was this really intented to run even if upload failed?
+                if( success == true )
+                {
+                    KeyClass current = new KeyClass(result[1]);
+                    if (sign)
+                        current.setOwner(frame1.getMyId().getUniqueName());
+                    current.setFilename(uploadItem.getFileName());
+                    current.setSHA1(uploadItem.getSHA1());
+                    current.setBatch(uploadItem.getBatch());
+                    current.setSize(uploadItem.getFileSize().longValue());
+                    current.setDate(lastUploadDate);
+                    Index.addMine(current, board);
+                    Index.add(current, board);
+                }
             }
             else if( mode == MODE_GENERATE_SHA1 )
             {
@@ -177,14 +181,6 @@ public class insertThread extends Thread
                 {
                     try {
                         splitfile.encode();
-                        splitfile.finishUpload();
-                        String chkkey = FecTools.generateCHK(splitfile.getRedirectFile());
-                        if( chkkey != null )
-                        {
-                            String prefix = new String("freenet:");
-                            if( chkkey.startsWith(prefix) ) chkkey = chkkey.substring(prefix.length());
-                        }
-                        uploadItem.setKey(chkkey);
                     }
                     catch(Throwable t)
                     {
@@ -193,6 +189,16 @@ public class insertThread extends Thread
                         return;
                     }
                 }
+                // FIXME: dont destroy upload progress!
+                splitfile.finishUpload();
+                String chkkey = FecTools.generateCHK(splitfile.getRedirectFile(), splitfile.getRedirectFile().length());
+                if( chkkey != null )
+                {
+                    String prefix = new String("freenet:");
+                    if( chkkey.startsWith(prefix) ) chkkey = chkkey.substring(prefix.length());
+                }
+                uploadItem.setKey(chkkey);
+                
                 uploadItem.setState(FrostUploadItemObject.STATE_IDLE);
                 frame1.setGeneratingCHK(false);
             }
