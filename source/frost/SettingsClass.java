@@ -60,6 +60,7 @@ public class SettingsClass implements Savable {
 	public static final String MESSAGE_LIST_FONT_SIZE = "messageListFontSize";
 	public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
 	public static final String SEARCH_ALL_BOARDS = "searchAllBoards";
+	public static final String SILENTLY_RETRY_MESSAGES = "silentlyRetryMessages";
 	
 	//Constructors
 	public SettingsClass() {
@@ -663,6 +664,8 @@ public class SettingsClass implements Savable {
 		defaults.put(LOG_TO_FILE, "true");
 		defaults.put(LOG_LEVEL, Logging.DEFAULT);
 		defaults.put(LOG_FILE_SIZE_LIMIT, "1000");
+		
+		defaults.put(SILENTLY_RETRY_MESSAGES, "false");
 
 		settingsHash.putAll(defaults);
 	}
