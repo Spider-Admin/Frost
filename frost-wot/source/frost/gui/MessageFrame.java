@@ -516,10 +516,13 @@ public class MessageFrame extends JFrame
 
 		int caretPos = text.length();
 
-		File signature = new File("signature.txt");
-		if (signature.isFile()) {
-			text += "\n-- \n";
-			text += FileAccess.readFile("signature.txt");
+		File signatureFile = new File("signature.txt");
+		if (signatureFile.isFile()) {
+			String signature = FileAccess.readFile("signature.txt").trim();
+			if (signature.length() > 0) {
+				text += "\n-- \n";
+				text += signature;
+			}
 		}
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
