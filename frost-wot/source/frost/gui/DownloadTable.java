@@ -272,7 +272,6 @@ public class DownloadTable extends SortedTable
             {
                 dlItem.setState( dlItem.STATE_WAITING );
                 dlItem.setRetries(0);
-                dlItem.setLastDownloadStartTimeMillis(0);
                 dlItem.setLastDownloadStopTimeMillis(0);
                 dlItem.setEnableDownload( Boolean.valueOf(true) );  // enable download on restart
                 dlModel.updateRow( dlItem );

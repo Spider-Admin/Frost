@@ -2548,8 +2548,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
             if( dlItem.getState() == dlItem.STATE_WAITING &&
-                ( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true ) &&
-                dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
+                ( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true )
+//                && dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
               )
             {
                 // check if waittime is expired
@@ -2566,7 +2566,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         if( waitingItems.size() > 1 ) // performance issues
         {
-            Collections.sort( waitingItems, downloadDlStartMillisCmp );
+            Collections.sort( waitingItems, downloadDlStopMillisCmp );
         }
         return (FrostDownloadItemObject)waitingItems.get(0);
     }
@@ -2574,13 +2574,13 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**
      * Used to sort FrostDownloadItemObjects by lastUpdateStartTimeMillis ascending.
      */
-    static final Comparator downloadDlStartMillisCmp = new Comparator() {
+    static final Comparator downloadDlStopMillisCmp = new Comparator() {
         public int compare(Object o1, Object o2) {
         FrostDownloadItemObject value1 = (FrostDownloadItemObject)o1;
         FrostDownloadItemObject value2 = (FrostDownloadItemObject)o2;
-        if( value1.getLastDownloadStartTimeMillis() > value2.getLastDownloadStartTimeMillis() )
+        if( value1.getLastDownloadStopTimeMillis() > value2.getLastDownloadStopTimeMillis() )
             return 1;
-        else if( value1.getLastDownloadStartTimeMillis() < value2.getLastDownloadStartTimeMillis() )
+        else if( value1.getLastDownloadStopTimeMillis() < value2.getLastDownloadStopTimeMillis() )
             return -1;
         else
             return 0;

@@ -17,8 +17,8 @@ import fillament.util.*;
  * @author <a href=mailto:jantho666@hotmail.com>Jan-Thomas Czornack</a>
  */
 
-// TODO: mark checked blocks marked and dont recheck them on every download
-// check nextDownload behaviour!
+// while requesting / inserting, show chunks left to try (incl. trying chunks) -> Warte (9) / 18% (9)
+
 public class FcpRequest
 {
     final static boolean DEBUG = true;
@@ -79,11 +79,11 @@ public class FcpRequest
         healer.set(hl);
 
         Vector segmentHeaders = null;
-        FcpFECUtils fecutils = new FcpFECUtils(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getIntValue("nodePort"));
+        FcpFECUtils fecutils = new FcpFECUtils(frame1.frostSettings.getValue("nodeAddress"),
+                                               frame1.frostSettings.getIntValue("nodePort"));
         boolean success = true;
 
-        int maxThreads = 3;
-        maxThreads = frame1.frostSettings.getIntValue("splitfileDownloadThreads");
+        int maxThreads = frame1.frostSettings.getIntValue("splitfileDownloadThreads");
 
         long splitFileSize = -1;
         try
@@ -91,7 +91,10 @@ public class FcpRequest
             splitFileSize = Long.parseLong(SettingsFun.getValue(target.getPath(), "SplitFile.Size"), 16);
         }
         catch( NumberFormatException e )
-        {}
+        {
+            System.out.println("getFECSplitFile - Error: Could not parse SplitFile.Size for "+target.getPath());
+            return false;
+        }
 
         {
             synchronized (fecutils.getClass())
@@ -183,16 +186,22 @@ public class FcpRequest
                                                .append(target.getName())
                                                .append("-chunk-")
                                                .append((j + chunkBase + 1)).toString() );
-                    boolean chunkOK = getKeyThread.checkKey(
+/*                    boolean chunkOK = getKeyThread.checkKey(
                                              SettingsFun.getValue(target.getPath(),
                                                 "SplitFile.Block." + Integer.toHexString(j+chunkBase+1)),
                                              chunkFile,
-                                             blockSize );
-                    if( chunkOK )
+                                             blockSize );*/
+                    // getKeyThread deletes a file with check failed, so all existing files with correct len are OK
+                    if( chunkFile.isFile() && chunkFile.exists() )
                     {
-                        results[j] = true;
-                        availableChunks++;
-                        successfullBlocks++;
+                        if( chunkFile.length() == blockSize )
+                        {
+                            results[j] = true;
+                            availableChunks++;
+                            successfullBlocks++;
+                        }
+                        else
+                            chunkFile.delete();
                     }
                 }
                 else
@@ -202,15 +211,20 @@ public class FcpRequest
                                                .append(target.getName())
                                                .append("-check-")
                                                .append((j + checkBase + 1)).toString() );
-                    boolean chunkOK = getKeyThread.checkKey(
+/*                    boolean chunkOK = getKeyThread.checkKey(
                                              SettingsFun.getValue(target.getPath(),
                                                 "SplitFile.Block." + Integer.toHexString(j+checkBase+1)),
                                              checkFile,
-                                             checkBlockSize );
-                    if( chunkOK )
+                                             checkBlockSize );*/
+                    if( checkFile.isFile() && checkFile.exists() )
                     {
-                        results[j] = true;
-                        successfullBlocks++;
+                        if( checkFile.length() == checkBlockSize )
+                        {
+                            results[j] = true;
+                            successfullBlocks++;
+                        }
+                        else
+                            checkFile.delete();
                     }
                 }
             }
@@ -223,8 +237,12 @@ public class FcpRequest
                 ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
             }
 
-            System.out.println(new StringBuffer().append("Found ").append(availableChunks)
-                               .append(" chunks on disc for segment ").append(segmentCnt).toString());
+            System.out.println(new StringBuffer().append("Found ")
+                               .append(availableChunks)
+                               .append(" data blocks + ")
+                               .append(successfullBlocks - availableChunks)
+                               .append(" check blocks on disc for segment ")
+                               .append(segmentCnt).toString());
 
             // Already have all data for the segment?
             if( availableChunks == requiredBlocks )
@@ -244,7 +262,7 @@ public class FcpRequest
                             chunk.delete();
                     }
                 }
-                continue;
+                continue; // try next segment
             }
 
             int i = 0;
@@ -419,12 +437,14 @@ public class FcpRequest
                         // Does an exception prevent release of the lock, better catch them
                         try
                         {
-                            fcpSock = new Socket(InetAddress.getByName(frame1.frostSettings.getValue("nodeAddress")), frame1.frostSettings.getIntValue("nodePort"));
+                            fcpSock = new Socket(InetAddress.getByName(frame1.frostSettings.getValue("nodeAddress")),
+                                                 frame1.frostSettings.getIntValue("nodePort"));
                             fcpSock.setSoTimeout(1800000);
                             fcpOut = new PrintStream(fcpSock.getOutputStream());
                             fcpIn = new BufferedInputStream(fcpSock.getInputStream());
                             String headerString = new StringBuffer().append("SegmentHeader\n")
-                                                  .append(currentSegment.reconstruct()).append("EndMessage\n").toString();
+                                                      .append(currentSegment.reconstruct())
+                                                      .append("EndMessage\n").toString();
                             String dataHeaderString = new StringBuffer().append("\0\0\0\2FECDecodeSegment\n")
                                                       .append("BlockList=").append(blockList).append("\n")
                                                       .append("CheckList=").append(checkList).append("\n")
@@ -849,30 +869,30 @@ Document
             catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException
             {
                 // do nothing, data not found is usual ...
-                if( DEBUG ) System.out.println("FcpRequest.getKey: DataNotFoundException (usual if not found)");
+                if( DEBUG ) System.out.println("FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
             }
             catch( FcpToolsException e )
             {
-                if( DEBUG ) System.out.println("FcpRequest.getKey: FcpToolsException " + e);
+                if( DEBUG ) System.out.println("FcpRequest.getKey(1): FcpToolsException " + e);
             }
             catch( IOException e )
             {
-                if( DEBUG ) System.out.println("FcpRequest.getKey: IOException " + e);
+                if( DEBUG ) System.out.println("FcpRequest.getKey(1): IOException " + e);
             }
         }
         catch( FcpToolsException e )
         {
-            if( DEBUG ) System.out.println("FcpRequest.getKey: FcpToolsException " + e);
+            if( DEBUG ) System.out.println("FcpRequest.getKey(2): FcpToolsException " + e);
             frame1.displayWarning(e.toString());
         }
         catch( UnknownHostException e )
         {
-            if( DEBUG ) System.out.println("FcpRequest.getKey: UnknownHostException " + e);
+            if( DEBUG ) System.out.println("FcpRequest.getKey(2): UnknownHostException " + e);
             frame1.displayWarning(e.toString());
         }
         catch( IOException e )
         {
-            if( DEBUG ) System.out.println("FcpRequest.getKey: IOException " + e);
+            if( DEBUG ) System.out.println("FcpRequest.getKey(2): IOException " + e);
             frame1.displayWarning(e.toString());
         }
 

@@ -38,7 +38,6 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     int requiredBlocks = 0;
     int totalBlocks = 0;
 
-    private long lastDownloadStartTimeMillis = 0; // used for one by one update mode
     private long lastDownloadStopTimeMillis = 0; // time when download try finished, used for pause between tries
 
     public FrostDownloadItemObject( FrostSearchItem searchItem )
@@ -212,16 +211,6 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         state = v;
     }
-
-    public long getLastDownloadStartTimeMillis()
-    {
-        return lastDownloadStartTimeMillis;
-    }
-    public void setLastDownloadStartTimeMillis( long val )
-    {
-        lastDownloadStartTimeMillis = val;
-    }
-
 
     public long getLastDownloadStopTimeMillis()
     {
