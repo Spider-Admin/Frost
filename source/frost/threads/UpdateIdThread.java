@@ -79,6 +79,16 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 	return -1;
     }
     
+    private int findFreeUploadIndex(int exclude) {
+    	for (int i = 0;i<indices.size();i++){
+		if (i==exclude) continue;
+		Integer current = (Integer)indices.elementAt(i);
+		if (current.intValue() > -1)
+			return i;
+	}
+	return -1;
+    }
+    
     private int findFreeDownloadIndex() {
     	for (int i = 0;i<indices.size();i++){
 		Integer current = (Integer)indices.elementAt(i);
@@ -178,7 +188,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
                     if( result[0].equals("KeyCollision") )
                     {
-                        index++;
+                        findFreeUploadIndex(index);
                         tries=0; // reset tries
                         if( DEBUG ) System.out.println("FILEDN:***** Index file collided, increasing index. *****");
                     }
