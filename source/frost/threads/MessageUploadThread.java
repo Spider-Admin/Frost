@@ -618,7 +618,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 				logger.warning("TOFUP: Paranoia - will try to upload message again.");
 				tryAgain = true;
 			}
-			faildialog.dispose();
 		}
 		logger.info("TOFUP: Upload Thread finished");
 		return tryAgain;
