@@ -367,7 +367,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                         String[] messages = entries[i].list();
                         for( int j = 0; j < messages.length; j++ )
                         {
-                            if( messages[j].endsWith(".txt") )
+                            if( messages[j].endsWith(".xml") )
                             {
                                 if( newMessageDate == true )
                                 {
