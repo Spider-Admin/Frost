@@ -20,6 +20,7 @@
 package frost;
 import java.awt.Component;
 import java.io.*;
+import java.nio.channels.FileChannel;
 import java.util.*;
 import java.util.logging.*;
 import java.util.zip.*;
@@ -696,5 +697,31 @@ public class FileAccess
         return result;*/
     }
     
+
+	/**
+	 * This method copies the contents of one file to another. If the destination file didn't exist, 
+	 * it is created. If it did exist, its contents are overwritten.
+	 * @param sourceName name of the source file
+	 * @param destName name of the destination file
+	 * @throws IOException if there was a problem while copying the file
+	 */
+	public static void copyFile(String sourceName, String destName) throws IOException {
+		FileChannel sourceChannel = null;
+		FileChannel destChannel = null;
+		try {
+			sourceChannel = new FileInputStream(sourceName).getChannel();
+			destChannel = new FileOutputStream(destName).getChannel();
+			destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+		} catch (IOException exception) {
+			throw exception;
+		} finally {
+			if (sourceChannel != null) {
+				try { sourceChannel.close(); } catch (IOException ex) {}
+			}
+			if (destChannel != null) {
+				try { destChannel.close(); } catch (IOException ex) {}
+			}
+		}
+	}
 
 }
