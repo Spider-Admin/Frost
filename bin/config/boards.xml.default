@@ -61,6 +61,11 @@
             <FrostBoardTreeEntry>
                 <name>warez</name>
             </FrostBoardTreeEntry>
+	    <FrostBoardTreeEntry>
+		<name>torrents</name>
+		<privateKey>SSK@AKZf7Le0IWEf0NMP~O1PXDEEYl-V</privateKey>
+		<publicKey>SSK@4iSezwz~x2cUP-4DR5V-hwgT5kwPAgM</publicKey>
+	    </FrostBoardTreeEntry>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry isfolder="true" isexpanded="false">
             <name>chat</name>
