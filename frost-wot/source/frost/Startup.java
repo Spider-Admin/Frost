@@ -36,6 +36,27 @@ public class Startup
      */
     public static void startupCheck()
     {
+        File runLock = new File(".frost_run_lock");
+        boolean fileCreated = false;
+        try {
+            fileCreated = runLock.createNewFile();
+        } catch(IOException ex) {
+            ex.printStackTrace();
+        }
+
+        if( fileCreated == false )
+        {
+            System.out.println("ERROR: Found frost lock file '.frost_run_lock'.\n" +
+                               "This indicates that another frost instance is already running in "+
+                               "this directory. Running frost concurrently will cause data "+
+                               "loss.\nIf you are REALLY SURE that frost is not already running, "+
+                               "delete the lockfile.");
+            System.out.println("\nTERMINATING...\n");
+            System.exit(1);
+        }
+
+        runLock.deleteOnExit();
+
         checkDirectories();
         copyFiles();
         deleteLockFiles();
@@ -109,14 +130,26 @@ public class Startup
 
     private static void deleteLockFiles()
     {
-        System.out.println("StartUp: Deleting old '.lock' files from keypool");
+        System.out.println("StartUp: Deleting obsolete '.lock' and '.tmp' files from keypool.");
         ArrayList entries = FileAccess.getAllEntries(new File(frame1.frostSettings.getValue("keypool.dir")),
-                                                  ".lock");
+                                                  "");
+        int filesDeleted=0;
         for( int i = 0; i < entries.size(); i++ )
         {
+            File entry = (File)entries.get(i);
             // delete lock files
-            ((File)entries.get(i)).delete();
+            if( entry.getName().endsWith(".lock") )
+            {
+                entry.delete();
+                filesDeleted++;
+            }
+            // delete .tmp files
+            else if( entry.getName().endsWith(".tmp") )
+            {
+                entry.delete();
+                filesDeleted++;
+            }
         }
-        System.out.println("StartUp: Finished deleting old '.lock' files from keypool");
+        System.out.println("StartUp: Deleted "+filesDeleted+" obsolete files.");
     }
 }

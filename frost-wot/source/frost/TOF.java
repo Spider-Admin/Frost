@@ -477,13 +477,6 @@ public class TOF
                                 {
                                     // update the node that contains new messages
                                     board.incNewMessageCount();
-
-                                    SwingUtilities.invokeLater( new Runnable() {
-                                           public void run()
-                                           {
-                                               frame1.getInstance().updateTofTree(board);
-                                           }
-                                       });
                                 }
                                 else
                                 {
@@ -497,6 +490,13 @@ public class TOF
                 counter++;
                 cal.add(Calendar.DATE, -1); // process previous day
             }
+            // now a board is finished, update the tree
+            SwingUtilities.invokeLater( new Runnable() {
+                   public void run()
+                   {
+                       frame1.getInstance().updateTofTree(board);
+                   }
+               });
         }
     }
 }
