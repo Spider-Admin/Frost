@@ -520,9 +520,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         if( sharer == null ||
                             Core.getFriends().containsKey(sharer.getUniqueName()) == false )
                         {
-                            // add only files from that user        
-                            Core.getOut().println("adding only files from "+sharer.getUniqueName());                    
-                            Index.add( receivedIndex, board, sharer.getUniqueName() );
+                            // add only files from that user     
+                        	String _sharer = sharer==null? "Anonymous" : sharer.getUniqueName();
+                            Core.getOut().println("adding only files from "+_sharer);                    
+                            Index.add( receivedIndex, board, _sharer );
                         }
                         else
                         {
