@@ -570,10 +570,7 @@ public class MessageDownloadThread
                 TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
                 //add all files indexed files
                 Iterator it =
-                    currentMsg
-                        .getAttachmentList()
-                        .getAllOfType(Attachment.FILE)
-                        .iterator();
+                    currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
                 while (it.hasNext())
                 {
                     SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
@@ -581,8 +578,7 @@ public class MessageDownloadThread
                         	Index.add(current, board);
                 }
                 //add all boards to the list of known boards
-                Core.addNewKnownBoards(
-                    currentMsg.getAttachmentList().getAllOfType(Attachment.BOARD) );
+                Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
             }
         }
         else

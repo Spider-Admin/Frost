@@ -518,7 +518,7 @@ public class TOF
 		}
 		// Block by attached boards
 		if (MainFrame.frostSettings.getBoolValue("blockMessageBoardChecked")) {
-			List boards = message.getAttachmentList().getAllOfType(Attachment.BOARD);
+			List boards = message.getAttachmentsOfType(Attachment.BOARD);
 			StringTokenizer blockWords =
 				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBoard"), ";");
 			boolean found = false;

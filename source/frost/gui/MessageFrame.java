@@ -1332,14 +1332,14 @@ public class MessageFrame extends JFrame
 			
 			
             FileAttachment fa = new FileAttachment(sfo);
-            mo.getAttachmentList().add(fa);
+            mo.addAttachment(fa);
         }
         for(int x=0; x < boardsTableModel.getRowCount(); x++)
         {
             MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
             Board aChosedBoard = ab.getBoardObject();
             BoardAttachment ba = new BoardAttachment(aChosedBoard);
-            mo.getAttachmentList().add(ba);
+            mo.addAttachment(ba);
         }
 
         // start upload thread which also saves the file, uploads attachments+signs if choosed
