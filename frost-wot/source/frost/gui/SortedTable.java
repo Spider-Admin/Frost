@@ -24,7 +24,7 @@ import java.util.*;
 import javax.swing.JTable;
 import javax.swing.table.*;
 
-import frost.gui.model.*;
+import frost.gui.model.SortedTableModel;
 
 public class SortedTable extends JTable
 {
@@ -46,25 +46,14 @@ public class SortedTable extends JTable
     public void sortColumn(int col, boolean ascending)
     {
         SortedTableModel model = null;
-        SortedTableModel2 model2 = null;
-        if( !(getModel() instanceof SortedTableModel) )
-        {
-            model2 = (SortedTableModel2)getModel();
-        }
-        else
-        {
-            model = (SortedTableModel)getModel();
-        }
+        model = (SortedTableModel)getModel();
 
         // get the list of selected items
         ArrayList list = getListOfSelectedItems();
         clearSelection();
 
         // sort this column
-        if( model != null )
-            model.sortModelColumn( col, ascending );
-        else
-            model2.sortModelColumn( col, ascending );
+        model.sortModelColumn( col, ascending );
 
         // reselect the selected items
         setSelectedItems( list );
@@ -74,15 +63,7 @@ public class SortedTable extends JTable
     {
         sortColumn( sortedColumnIndex, sortedColumnAscending );
         SortedTableModel model = null;
-        SortedTableModel2 model2 = null;
-        if( !(getModel() instanceof SortedTableModel) )
-        {
-            ((SortedTableModel2)getModel()).tableEntriesChanged();
-        }
-        else
-        {
-            ((SortedTableModel)getModel()).tableEntriesChanged();
-        }
+        ((SortedTableModel)getModel()).tableEntriesChanged();
     }
 
     protected void setSelectedItems( ArrayList items )
@@ -170,20 +151,10 @@ public class SortedTable extends JTable
             int modelIndex = colModel.getColumn(index).getModelIndex();
 
             SortedTableModel model = null;
-            SortedTableModel2 model2 = null;
+            model = (SortedTableModel)getModel();
 
-            if( !(getModel() instanceof SortedTableModel) )
-            {
-                model2 = (SortedTableModel2)getModel();
-            }
-            else
-            {
-                model = (SortedTableModel)getModel();
-            }
             boolean isSortable = false;
             if( model != null && model.isSortable(modelIndex) )
-                isSortable = true;
-            if( model2 != null && model2.isSortable(modelIndex) )
                 isSortable = true;
             if( isSortable )
             {

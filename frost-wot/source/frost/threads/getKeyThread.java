@@ -1,9 +1,7 @@
 package frost.threads;
 
 import java.io.*;
-// import java.net.*;
 
-// import frost.*;
 import frost.FcpTools.*;
 
 /**

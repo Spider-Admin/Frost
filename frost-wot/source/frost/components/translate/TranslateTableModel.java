@@ -19,7 +19,7 @@
 
 package frost.components.translate;
 
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableModel;
 
 public class TranslateTableModel extends DefaultTableModel
 {

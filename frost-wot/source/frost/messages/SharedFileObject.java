@@ -18,13 +18,14 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.messages;
 
-import java.util.*;
 import java.io.File;
+import java.util.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 
 
 //Renamed this class to SharedFileObject.

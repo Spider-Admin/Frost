@@ -205,27 +205,6 @@ public class MessageObject implements XMLizable
     return file;
     }
 
-    public String[] getRow() {
-    String fatFrom = from;
-    File newMessage = new File(file.getPath() + ".lck");
-
-    if (newMessage.isFile()) {
-        // this is the point where new messages get its bold look,
-        // this is resetted in TOF.evalSelection to non-bold on first view
-        fatFrom = new StringBuffer().append("<html><b>").append(from).append("</b></html>").toString();
-    }
-    if( attachments.getAllOfType(Attachment.BOARD).size() > 0 || 
-        attachments.getAllOfType(Attachment.FILE).size() > 0 )
-    {
-        if (fatFrom.startsWith("<html><b>"))
-            fatFrom = "<html><b><font color=\"blue\">" + from + "</font></b></html>";
-        else
-            fatFrom = "<html><font color=\"blue\">" + from + "</font></html>";
-    }
-    String[] row = {index, fatFrom, subject, date, time};
-    return row;
-    }
-
     /**Set*/
     public void setBoard(String board) {
     this.board = board;

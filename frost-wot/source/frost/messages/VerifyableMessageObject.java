@@ -23,7 +23,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import frost.*;
+import frost.FileAccess;
 
 
 
@@ -115,52 +115,6 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         {
             currentStatus = FileAccess.readFileRaw(sigFile);
         }
-    }
-
-    private String[] cachedRow = null;
-
-    public String[] getVRow()
-    {
-        if( cachedRow == null )
-        {
-            cachedRow = buildRowData();
-        }
-        return cachedRow;
-    }
-
-    protected String[] buildRowData()
-    {
-        String []row = new String[5];
-        String []temp = ((MessageObject)this).getRow();
-
-        row[0]=temp[0];
-        row[1]=temp[1];
-        row[2]=temp[2];
-        row[3]=currentStatus;
-        // row[4]=temp[3]; // date + " " + time
-
-        // this is date format xxxx.x.x , but we want xxxx.xx.xx , so lets convert it
-        String date = temp[3];
-        String time = temp[4];
-
-        int point1 = date.indexOf(".");
-        int point2 = date.lastIndexOf(".");
-        String year = date.substring(0, point1);
-        String month = date.substring(point1+1, point2);
-        String day = date.substring(point2+1, date.length());
-        StringBuffer datetime = new StringBuffer(11);
-        datetime.append(year).append(".");
-        if( month.length() == 1 )
-            datetime.append("0");
-        datetime.append(month).append(".");
-        if( day.length() == 1 )
-            datetime.append("0");
-        datetime.append(day);
-        datetime.append(" ").append( time );
-
-        row[4] = datetime.toString();
-
-        return row;
     }
 
     /**

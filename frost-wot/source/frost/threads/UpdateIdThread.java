@@ -21,14 +21,12 @@ package frost.threads;
 import java.io.*;
 import java.util.*;
 
-
-
 import frost.*;
 import frost.FcpTools.*;
 import frost.crypt.MetaData;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
-import frost.messages.*;
+import frost.messages.FrostIndex;
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {

@@ -19,14 +19,15 @@
 
 package frost.gui;
 
-import javax.swing.*;
 import java.awt.*;
 import java.awt.event.*;
-import javax.swing.event.*;
-import javax.swing.tree.*;
+import java.io.File;
 import java.util.*;
-import javax.swing.table.*;
-import java.io.*;
+
+import javax.swing.*;
+import javax.swing.event.*;
+import javax.swing.table.DefaultTableModel;
+import javax.swing.tree.*;
 
 public class SkinManager extends JFrame {
 	//     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");

@@ -6,13 +6,13 @@
  */
 package frost.messages;
 
-import frost.gui.objects.*;
-import frost.*;
-
 import java.util.List;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.*;
+import frost.gui.objects.FrostBoardObject;
 
 /**
  * @author zlatinb

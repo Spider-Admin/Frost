@@ -6,12 +6,12 @@
  */
 package frost.messages;
 
-import frost.*;
-
 import java.io.File;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.XMLTools;
 
 /**
  * @author zlatinb

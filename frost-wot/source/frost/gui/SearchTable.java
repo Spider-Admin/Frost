@@ -141,7 +141,7 @@ public class SearchTable extends SortedTable
                 }
                 else if(sItem.getState() == FrostSearchItemObject.STATE_UPLOADING )
                 {
-                    setForeground( Color.GREEN );
+                    setForeground( Color.MAGENTA );
                 }
                 else if(sItem.getState() == FrostSearchItemObject.STATE_OFFLINE )
                 {

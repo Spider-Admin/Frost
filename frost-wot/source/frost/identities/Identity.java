@@ -2,11 +2,13 @@ package frost.identities;
 
 
 import java.util.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
 import frost.*;
-import frost.FcpTools.*;
-import frost.messages.*;
+import frost.FcpTools.FcpConnection;
+import frost.messages.BoardAttachment;
 
 /**
  * Represents a user identity, should be immutable.

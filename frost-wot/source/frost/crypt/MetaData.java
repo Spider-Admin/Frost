@@ -6,8 +6,7 @@
  */
 package frost.crypt;
 
-import java.io.*;
-
+import java.io.File;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;

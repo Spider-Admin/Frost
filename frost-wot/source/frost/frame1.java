@@ -4103,34 +4103,20 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			return;
 
 		FrostMessageObject targetMessage = selectedMessage;
-
-		File msgFile = targetMessage.getFile();
-		FileAccess.writeFile(
-			"This message is new!",
-			msgFile.getPath() + ".lck");
-
-		messageTable.removeRowSelectionInterval(
-			0,
-			messageTable.getRowCount() - 1);
-
-		String from = (String) messageTable.getModel().getValueAt(row, 1);
-		if (from.indexOf("<font color=\"blue\">") != -1) {
-			StringBuffer sbtmp = new StringBuffer();
-			sbtmp.append("<html><font color=\"blue\"><b>");
-			sbtmp.append(targetMessage.getFrom());
-			sbtmp.append("</b></font></html>");
-			messageTable.getModel().setValueAt(sbtmp.toString(), row, 1);
-			// Message with attachment
-		} else {
-			StringBuffer sbtmp = new StringBuffer();
-			sbtmp.append("<html><b>");
-			sbtmp.append(targetMessage.getFrom());
-			sbtmp.append("</b></html>");
-			messageTable.getModel().setValueAt(sbtmp.toString(), row, 1);
-		}
+        
+        messageTable.removeRowSelectionInterval(
+            0,
+            messageTable.getRowCount() - 1);
+        
+        targetMessage.setMessageNew(true);
+        // let renderer check for new state
+        MessageTableModel model = (MessageTableModel)getMessageTable().getModel();
+        model.updateRow(targetMessage);    
 
 		getSelectedNode().incNewMessageCount();
-		updateTofTree(getSelectedNode());
+        
+        updateMessageCountLabels(getSelectedNode());
+        updateTofTree(getSelectedNode());
 	}
 
 	/**

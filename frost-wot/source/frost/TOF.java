@@ -22,15 +22,15 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.event.ListSelectionEvent;
-import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.*;
 
+import frost.gui.model.*;
 import frost.gui.objects.*;
-import frost.messages.*;
+import frost.messages.VerifyableMessageObject;
 
 public class TOF
 {
-    private static Hashtable messages = null;
+//    private static Hashtable messages = null;
     private static UpdateTofFilesThread updateThread = null;
     private static UpdateTofFilesThread nextUpdateThread = null;
 
@@ -43,53 +43,28 @@ public class TOF
      */
     public static FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, FrostBoardObject board)
     {
-        DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
+        MessageTableModel tableModel = (MessageTableModel)table.getModel();
         if( !e.getValueIsAdjusting() && !table.isEditing() )
         {
             int row = table.getSelectedRow();
             if( row != -1 && row < tableModel.getRowCount() )
             {
-                String index = (String)tableModel.getValueAt(row, 0);
-                String date = (String)tableModel.getValueAt(row, 4);
-
-                FrostMessageObject message = (FrostMessageObject)messages.get(index+date);
+                FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
 
                 if( message != null )
                 {
                     // Test if lockfile exists, remove it and update the tree display
-                    final File messageLock = new File( message.getFile().getPath() + ".lck" );
-                    if( messageLock.exists() == false )
+                    if( message.isMessageNew() == false )
                     {
                         // its a read message, nothing more to do here ...
                         return message;
                     }
-
+                    
                     // this is a new message
-
-                    Runnable deleter = new Runnable() {
-                            public void run() {
-                                messageLock.delete();
-                            } };
-                    new Thread( deleter ).start(); // do IO in another thread, not here in Swing thread
+                    message.setMessageNew(false); // mark as read
+                    tableModel.updateRow(message);
 
                     board.decNewMessageCount();
-
-                    // here we reset the bold-look from sender column,
-                    // wich was set by MessageObject.getRow()
-                    String from = (String)tableModel.getValueAt(row, 1);
-
-                    if( from.indexOf("<font color=\"blue\">") != -1 )
-                    {
-                        String sbtmp = new StringBuffer()
-                        .append("<html><font color=\"blue\">")
-                        .append(message.getFrom())
-                        .append("</font></html>").toString();
-                        tableModel.setValueAt( sbtmp, row, 1); // Message with attachment
-                    }
-                    else
-                    {
-                        tableModel.setValueAt(message.getFrom(), row, 1);
-                    }
 
                     frame1.getInstance().updateMessageCountLabels(board);
                     frame1.getInstance().updateTofTree(board);
@@ -112,44 +87,29 @@ public class TOF
         Runnable resetter = new Runnable() {
             public void run()
             {
-                DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
+                final MessageTableModel tableModel = (MessageTableModel)table.getModel();
                 for(int row=0; row < tableModel.getRowCount(); row++ )
                 {
-                    String index = (String)tableModel.getValueAt(row, 0);
-                    String date = (String)tableModel.getValueAt(row, 4);
-
-                    FrostMessageObject message = (FrostMessageObject)messages.get(index+date);
+                    final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
                     if( message != null )
                     {
                         // Test if lockfile exists, remove it and update the tree display
-                        final File messageLock = new File( message.getFile().getPath() + ".lck" );
-                        if( messageLock.exists() == false )
+                        if( message.isMessageNew() == false )
                         {
                             // its a read message, nothing more to do here ...
                             continue;
                         }
 
                         // this is a new message
-                        messageLock.delete();
+                        message.setMessageNew(false); // mark as read
                         
                         board.decNewMessageCount();
-
-                        // here we reset the bold-look from sender column,
-                        // wich was set by MessageObject.getRow()
-                        String from = (String)tableModel.getValueAt(row, 1);
-
-                        if( from.indexOf("<font color=\"blue\">") != -1 )
-                        {
-                            String sbtmp = new StringBuffer()
-                            .append("<html><font color=\"blue\">")
-                            .append(message.getFrom())
-                            .append("</font></html>").toString();
-                            tableModel.setValueAt( sbtmp, row, 1); // Message with attachment
-                        }
-                        else
-                        {
-                            tableModel.setValueAt(message.getFrom(), row, 1);
-                        }
+                        
+                        SwingUtilities.invokeLater( new Runnable() {
+                            public void run() {
+                                tableModel.updateRow(message);
+                            }
+                        });                
                     }
                 }
                 // all new messages should be gone now ...
@@ -167,7 +127,7 @@ public class TOF
     public static void addNewMessageToTable(File newMsgFile, final FrostBoardObject board, boolean markNew)
     {
         JTable table = frame1.getInstance().getMessageTable();
-        final DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
+        final SortedTableModel tableModel = (SortedTableModel)table.getModel();
 
         if( (newMsgFile.getName()).endsWith(".xml") &&
              newMsgFile.length() > 0 
@@ -186,8 +146,6 @@ public class TOF
             }
             if( message.isValid() && !blocked(message, board) )
             {
-                final String[] sMessage = message.getVRow();
-
                 if(markNew)
                 {
                     frame1.displayNewMessageIcon(true);
@@ -200,9 +158,7 @@ public class TOF
                             frame1.getInstance().updateTofTree(board);
                             if( frame1.getInstance().getSelectedNode().toString().equals( board.toString() ) )
                             {
-                                messages.put( message.getIndex() + sMessage[4], message);
-
-                                tableModel.addRow(sMessage);
+                                tableModel.addRow(message);
                                 frame1.getInstance().updateMessageCountLabels(board);
                             }
                         } });
@@ -251,7 +207,7 @@ public class TOF
         String keypool;
         int daysToRead;
         JTable table;
-        DefaultTableModel tableModel;
+        SortedTableModel tableModel;
         boolean isCancelled = false;
         String fileSeparator = System.getProperty("file.separator");
 
@@ -261,7 +217,7 @@ public class TOF
             this.keypool = keypool;
             this.daysToRead = daysToRead;
             this.table = table;
-            this.tableModel = (DefaultTableModel)table.getModel();
+            this.tableModel = (SortedTableModel)table.getModel();
         }
 
         public synchronized void cancel()
@@ -300,7 +256,7 @@ public class TOF
                 updateThread = this;
             }
 
-            messages = new Hashtable();
+            //messages = new Hashtable();
 
             // Clear tofTable
             final FrostBoardObject innerTargetBoard = board;
@@ -310,8 +266,8 @@ public class TOF
                         // check if tof table shows this board
                         if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                         {
-                            DefaultTableModel model = (DefaultTableModel)table.getModel();
-                            model.setRowCount( 0 );
+                            MessageTableModel model = (MessageTableModel)table.getModel();
+                            model.clearDataModel();
                             frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }
@@ -361,7 +317,7 @@ public class TOF
                                 }
                                 catch(Exception ex)
                                 {
-                                    // skip the file quitely
+                                    // skip the file silently
                                     message = null;
                                 }
                                 if( message != null &&
@@ -369,8 +325,7 @@ public class TOF
                                     !blocked(message,board) )
                                 {
                                     msgcount++;
-                                    final String[] sMessage = message.getVRow();
-                                    messages.put( message.getIndex() + sMessage[4], message);
+                                    //messages.put( message.getIndex() + message.getDateAndTime(), message);
                                     // also update labels each 10 messages (or at end, see below)
                                     boolean updateMessagesCountLabels2 = false;
                                     if(msgcount > 9 && msgcount%10==0)
@@ -378,13 +333,14 @@ public class TOF
                                         updateMessagesCountLabels2 = true;
                                     }
                                     final boolean updateMessagesCountLabels = updateMessagesCountLabels2;
+                                    final FrostMessageObject finalMessage = message;
                                     SwingUtilities.invokeLater( new Runnable() {
                                         public void run()
                                         {
                                             // check if tof table shows this board
                                             if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                                             {
-                                                tableModel.addRow(sMessage);
+                                                tableModel.addRow(finalMessage);
                                                 if(updateMessagesCountLabels)
                                                 {
                                                     frame1.getInstance().updateMessageCountLabels(innerTargetBoard);

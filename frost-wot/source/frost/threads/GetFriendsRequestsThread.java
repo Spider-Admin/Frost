@@ -18,11 +18,12 @@
 */
 package frost.threads;
 
+import java.io.File;
 import java.util.*;
-import java.io.*;
+
 import frost.*;
-import frost.FcpTools.*;
-import frost.messages.*;
+import frost.FcpTools.FcpRequest;
+import frost.messages.SharedFileObject;
 
 /**
  * @author zlatinb

@@ -20,7 +20,7 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
+import java.io.File;
 import java.util.*;
 
 import javax.swing.*;
@@ -31,8 +31,8 @@ import javax.swing.table.DefaultTableCellRenderer;
 import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.messages.FrostIndex;
 import frost.threads.*;
-import frost.messages.*;
 
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 {
@@ -82,7 +82,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     public BoardInfoFrame(frame1 p, ResourceBundle LangRes)
     {
         super();
-		this.LangRes = LangRes;
+		BoardInfoFrame.LangRes = LangRes;
 		translateButtons();
 		translateMenu();
         parent = p;

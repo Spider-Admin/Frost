@@ -23,11 +23,11 @@ import java.io.File;
 import java.util.*;
 
 import frost.*;
-import frost.crypt.*;
-import frost.gui.objects.*;
-import frost.messages.*;
 import frost.FcpTools.*;
-import frost.identities.*;
+import frost.crypt.MetaData;
+import frost.gui.objects.FrostBoardObject;
+import frost.identities.Identity;
+import frost.messages.*;
 
 /**
  * Downloads messages

@@ -23,11 +23,11 @@ import java.text.SimpleDateFormat;
 import java.util.Date;
 
 import frost.*;
+import frost.FcpTools.*;
 import frost.gui.DownloadTable;
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
-import frost.messages.*;
-import frost.FcpTools.*;
+import frost.messages.SharedFileObject;
 
 public class requestThread extends Thread
 {

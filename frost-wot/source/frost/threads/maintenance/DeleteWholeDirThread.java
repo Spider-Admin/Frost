@@ -8,8 +8,7 @@ package frost.threads.maintenance;
 
 import java.io.File;
 
-import frost.Core;
-import frost.FileAccess;
+import frost.*;
 
 
 public class DeleteWholeDirThread extends Thread

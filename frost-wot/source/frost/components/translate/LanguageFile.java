@@ -19,7 +19,7 @@
 
 package frost.components.translate;
 
-import java.io.*;
+import java.io.File;
 
 /**
  * Reads and generates Frost language resource files.

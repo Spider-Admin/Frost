@@ -28,6 +28,6 @@ public interface TableMember
      */
     public Object getValueAt(int column);
 
-    public int compareTo( TableMember anOther, int tableColumIndex );
+    public int compareTo( TableMember anOther, int tableColumnIndex );
 
 }

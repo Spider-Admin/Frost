@@ -32,7 +32,6 @@ import frost.FcpTools.FcpInsert;
 import frost.crypt.MetaData;
 import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
-//import frost.identities.Identity;
 import frost.messages.*;
 
 /**

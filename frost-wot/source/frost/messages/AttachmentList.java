@@ -7,9 +7,11 @@
 package frost.messages;
 
 import java.util.*;
-import frost.*;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.*;
 
 /**
  * @author zlatinb
