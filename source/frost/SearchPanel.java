@@ -4,23 +4,19 @@
 package frost;
 
 import java.awt.*;
-import java.awt.Insets;
 import java.awt.event.*;
-import java.awt.event.ActionListener;
+import java.beans.*;
 import java.util.*;
-import java.util.Vector;
+import java.util.logging.Logger;
 
 import javax.swing.*;
-import javax.swing.JPanel;
 import javax.swing.table.DefaultTableModel;
 
 import frost.gui.*;
-import frost.gui.SearchTable;
-import frost.gui.components.*;
+import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
-import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.Identity;
 import frost.threads.SearchThread;
 import frost.threads.maintenance.Truster;
@@ -204,7 +200,9 @@ public class SearchPanel extends JPanel {
 	/**
 	 * 
 	 */
-	private class Listener implements ActionListener, MouseListener, LanguageListener {
+	private class Listener
+		extends MouseAdapter
+		implements ActionListener, MouseListener, LanguageListener, PropertyChangeListener {
 
 		/**
 		 * 
@@ -229,27 +227,6 @@ public class SearchPanel extends JPanel {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-		 */
-		public void mouseClicked(MouseEvent e) {
-			// Nothing here		
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-		 */
-		public void mouseEntered(MouseEvent e) {
-			// Nothing here					
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-		 */
-		public void mouseExited(MouseEvent e) {
-			// Nothing here					
-		}
-
-		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
 		public void mousePressed(MouseEvent e) {
@@ -258,12 +235,10 @@ public class SearchPanel extends JPanel {
 			}
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
 
-				if ((e.getSource() == searchTable)
-					|| (e.getSource() == searchTableScrollPane)) {
+				if ((e.getSource() == searchTable) || (e.getSource() == searchTableScrollPane)) {
 					showSearchTablePopupMenu(e);
 				}
-
-			}	
+			}
 		}
 
 		/* (non-Javadoc)
@@ -272,12 +247,10 @@ public class SearchPanel extends JPanel {
 		public void mouseReleased(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
 
-				if ((e.getSource() == searchTable)
-					|| (e.getSource() == searchTableScrollPane)) {
+				if ((e.getSource() == searchTable) || (e.getSource() == searchTableScrollPane)) {
 					showSearchTablePopupMenu(e);
 				}
-
-			}			
+			}
 		}
 
 		/* (non-Javadoc)
@@ -287,7 +260,24 @@ public class SearchPanel extends JPanel {
 			refreshLanguage();
 		}
 
+		/* (non-Javadoc)
+		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+		 */
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
+				fontChanged();
+			}
+		}
+
 	}
+	
+	private static Logger logger = Logger.getLogger(SearchPanel.class.getName());
 	
 	private PopupMenuSearch popupMenuSearch = null;
 	
@@ -296,6 +286,7 @@ public class SearchPanel extends JPanel {
 	private SearchTable searchTable = null;
 	private DownloadTable downloadTable = null;
 	private TofTree tofTree = null;
+	private SettingsClass settingsClass = null;
 	private String keypool = null;
 	
 	private UpdatingLanguageResource languageResource = null;
@@ -319,8 +310,9 @@ public class SearchPanel extends JPanel {
 	/**
 	 * 
 	 */
-	public SearchPanel() {
+	public SearchPanel(SettingsClass newSettingsClass) {
 		super();
+		settingsClass = newSettingsClass;
 	}
 
 	/**
@@ -363,12 +355,16 @@ public class SearchPanel extends JPanel {
 			setLayout(new BorderLayout());
 			add(searchTopPanel, BorderLayout.NORTH);
 			add(searchTableScrollPane, BorderLayout.CENTER);
+			fontChanged();
 			
 			// listeners
 			searchTextField.addActionListener(listener);
 			searchDownloadButton.addActionListener(listener);
 			searchButton.addActionListener(listener);
 			searchTableScrollPane.addMouseListener(listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 			
 			initialized = true;
 		}
@@ -481,6 +477,24 @@ public class SearchPanel extends JPanel {
 			searchResultsCountLabel.setText(results + " : 0");
 		}
 		searchResultsCountLabel.setText(results + " : " + searchResultsCount);
+	}
+	
+
+	/**
+	 * 
+	 */
+	private void fontChanged() {
+		String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+		int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+		int fontSize = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+		Font font = new Font(fontName, fontStyle, fontSize);
+		if (!font.getFamily().equals(fontName)) {
+			logger.severe("The selected font was not found in your system\n" +
+						   "That selection will be changed to \"SansSerif\".");
+			settingsClass.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
+			font = new Font("SansSerif", fontStyle, fontSize);
+		}
+		searchTable.setFont(font);
 	}
 
 
