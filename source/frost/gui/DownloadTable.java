@@ -265,5 +265,23 @@ public class DownloadTable extends SortedTable
             }
         }
     }
+
+    /**
+     * Returns true if the table contains an item with the given key.
+     */
+    public boolean containsItemWithKey(String key)
+    {
+        DownloadTableModel model = (DownloadTableModel)getModel();
+        for( int x=0; x<model.getRowCount(); x++ )
+        {
+            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
+            if( dlItem.getKey() != null &&
+                dlItem.getKey().equals( key ) )
+            {
+                return true;
+            }
+        }
+        return false;
+    }
 }
 

@@ -18,6 +18,7 @@ public class SearchTable extends SortedTable
     public SearchTable(TableModel m)
     {
         super(m);
+        setDefaultRenderer( Object.class, new cellRenderer() );
 
         // set column sizes
         int[] widths = {250, 80, 80, 80, 80};
@@ -66,6 +67,36 @@ public class SearchTable extends SortedTable
             attachments += "<attached>" + filename + " * " + key + "</attached>\n";
         }
         return(attachments);
+    }
+
+    /**
+     * This renderer renders rows in different colors, depending on state of search item.
+     * States are: NONE, DOWNLOADED, DOWNLOADING
+     */
+    private class cellRenderer extends DefaultTableCellRenderer
+    {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+        {
+            super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
+
+            SearchTableModel model = (SearchTableModel)getModel();
+            FrostSearchItemObject sItem = (FrostSearchItemObject)model.getRow(row);
+
+            if( sItem.getState() == sItem.STATE_DOWNLOADED )
+            {
+                setForeground( Color.LIGHT_GRAY );
+            }
+            else if( sItem.getState() == sItem.STATE_DOWNLOADING )
+            {
+                setForeground( Color.BLUE );
+            }
+            else
+            {
+                // normal item, drawn in black
+                setForeground( Color.BLACK );
+            }
+            return this;
+        }
     }
 }
 
