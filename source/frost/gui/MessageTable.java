@@ -21,7 +21,7 @@ package frost.gui;
 import java.awt.*;
 
 import javax.swing.JTable;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.gui.model.MessageTableModel;
 import frost.gui.objects.FrostMessageObject;
@@ -30,7 +30,7 @@ public class MessageTable extends SortedTable
 {
 	private CellRenderer cellRenderer = new CellRenderer();
 	
-	public MessageTable(TableModel m) {
+	public MessageTable(MessageTableModel m) {
 		super(m);
 
 		setDefaultRenderer(Object.class, cellRenderer);

@@ -18,12 +18,12 @@
 */
 package frost.gui;
 
-import javax.swing.table.TableModel;
+import frost.gui.model.HealingTableModel;
 
 
 public class HealingTable extends SortedTable
 {
-    public HealingTable(TableModel model)
+    public HealingTable(HealingTableModel model)
     {
         super(model);
     }

@@ -6,7 +6,6 @@ import java.util.Random;
 import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
-import javax.swing.table.TableModel;
 
 import frost.*;
 import frost.gui.model.UploadTableModel;
@@ -19,7 +18,7 @@ public class UploadTable extends SortedTable
 	
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
-    public UploadTable(TableModel m)
+    public UploadTable(UploadTableModel m)
     {
         super(m);
        
