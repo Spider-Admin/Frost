@@ -2384,13 +2384,25 @@ public class frame1 extends JFrame implements ClipboardOwner
                         int minHtl = ((FrostDownloadItemObject)waitingItems.get(0)).getHtl().intValue();
                         int x = 0;
                         ArrayList minHtlItems = new ArrayList();
-                        while( ((FrostDownloadItemObject)waitingItems.get(x)).getHtl().intValue() == minHtl)
+                        for( int z=0; z<waitingItems.size(); z++ )
                         {
-                            minHtlItems.add( waitingItems.get(x) );
-                            x++;
+                            FrostDownloadItemObject dlItemobj = (FrostDownloadItemObject)waitingItems.get(z);
+                            if( dlItemobj != null &&
+                                dlItemobj.getHtl().intValue() == minHtl )
+                            {
+                                minHtlItems.add( waitingItems.get(z) );
+                                x++;
+                            }
+                            else
+                            {
+                                break;
+                            }
                         }
-                        // sort minHtl items by lastDownloadSTartedMillis
-                        Collections.sort( minHtlItems, downloadDlStartMillisCmp );
+                        if( minHtlItems.size() > 1 )
+                        {
+                            // sort minHtl items by lastDownloadSTartedMillis
+                            Collections.sort( minHtlItems, downloadDlStartMillisCmp );
+                        }
                         waitingItems = minHtlItems;
                     }
                     else
