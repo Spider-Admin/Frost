@@ -4,7 +4,8 @@ import frost.gui.model.*;
 
 public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
 {
-    private final static String STATE_WAITING = "Waiting";
+    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    private final static String STATE_WAITING = LangRes.getString("Waiting");
 
     String fileName = null;
     Long fileSize = null;
