@@ -195,6 +195,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JCheckBox tofBoardUpdateVisualization = new JCheckBox();
 	JCheckBox allowEvilBertCheckBox = new JCheckBox();
 	JCheckBox miscAltEditCheckBox = new JCheckBox();
+	JCheckBox miscSplashscreenCheckBox = new JCheckBox();
 	JCheckBox signUploads = new JCheckBox();
 	JCheckBox automaticIndexing = new JCheckBox();
 	JCheckBox shareDownloads = new JCheckBox();
@@ -264,6 +265,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * not apply text anywhere else.
 	 */
 	private void translateCheckBox() {
+		miscSplashscreenCheckBox.setText(
+			LangRes.getString("Disable splashscreen"));
 		miscShowSystrayIcon.setText(LangRes.getString("Show systray icon"));
 		downloadEnableRequesting.setText(
 			LangRes.getString(
@@ -304,17 +307,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			LangRes.getString("Disable downloads"));
 		signedOnly.setText(LangRes.getString("Hide unsigned messages"));
 		hideBadMessages.setText(
-			LangRes.getString(
-				"Hide messages flagged BAD")
-					+ " "
-					+ LangRes.getString("(Off)"));
+			LangRes.getString("Hide messages flagged BAD")
+				+ " "
+				+ LangRes.getString("(Off)"));
 		hideCheckMessages.setText(
-			LangRes.getString(
-				"Hide messages flagged CHECK")
-					+ " "
-					+ LangRes.getString("(Off)"));
+			LangRes.getString("Hide messages flagged CHECK")
+				+ " "
+				+ LangRes.getString("(Off)"));
 		hideNAMessages.setText(
-			LangRes.getString("Hide messages flagged N/A") + " " + LangRes.getString("(Off)"));
+			LangRes.getString("Hide messages flagged N/A")
+				+ " "
+				+ LangRes.getString("(Off)"));
 		block.setText(
 			LangRes.getString(
 				"Block messages with subject containing (separate by ';' ):"));
@@ -330,7 +333,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		downloadMaxRetriesLabel.setText(
 			LangRes.getString("Maximum number of retries:") + " ");
 		downloadRequestAfterTriesLabel.setText(
-			LangRes.getString("Request file after this count of retries:") + " ");
+			LangRes.getString("Request file after this count of retries:")
+				+ " ");
 		interval.setText(LangRes.getString("Sample interval (hours)"));
 		treshold.setText(LangRes.getString("Threshold of blocked messages"));
 	}
@@ -1089,6 +1093,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 1;
 			miscPanel.add(miscAutoSaveInterval, constr);
 
+			constr.gridy++;
+			constr.gridx = 0;
+			File splashchk = new File("nosplash.chk");
+			if (splashchk.exists()) {
+				miscSplashscreenCheckBox.setSelected(true);
+			} else {
+				miscSplashscreenCheckBox.setSelected(false);
+			}
+			miscPanel.add(miscSplashscreenCheckBox, constr);
+
 			// filler (glue)
 			constr.gridy++;
 			constr.gridx = 1;
@@ -1668,6 +1682,20 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 		saveSettings();
 		saveSignature();
+
+		//Save splashchk
+		try {
+			File splashFile = new File("nosplash.chk");
+			if (miscSplashscreenCheckBox.isSelected()) {
+				splashFile.createNewFile();
+			} else {
+				splashFile.delete();
+			}
+		} catch (java.io.IOException ioex) {
+			System.out.println(
+				"Could not create splashscreen checkfile: " + ioex);
+		}
+
 		dispose();
 	}
 
