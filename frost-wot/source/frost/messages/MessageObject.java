@@ -432,6 +432,27 @@ public class MessageObject implements XMLizable
                 attachments.loadXMLElement(_attachments);
             }
 	}
+	
+	/**
+	 * 
+	 */
+	public void save() {
+		File tmpFile = new File(file.getPath() + ".tmp");
+		boolean success = false;
+		try {
+			Document doc = XMLTools.createDomDocument();
+			doc.appendChild(getXMLElement(doc));
+			success = XMLTools.writeXmlFile(doc, tmpFile.getPath());
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Error while saving message.", e);
+		}
+		if (success && tmpFile.length() > 0) {
+			file.delete();
+			tmpFile.renameTo(file);
+		} else {
+			tmpFile.delete();
+		}		
+	}
 
 	/**
 	 * @param board
@@ -452,6 +473,13 @@ public class MessageObject implements XMLizable
 	 */
 	public void setDate(String date) {
 		this.date = date;
+	}
+	
+	/**
+	 * @param deleted
+	 */
+	public void setDeleted(boolean deleted) {
+		this.deleted = deleted;
 	}
 
 	/**

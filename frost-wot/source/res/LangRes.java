@@ -167,6 +167,7 @@ public class LangRes extends ListResourceBundle {
 	// Popup over message table
 	{"Mark message unread", "Mark message unread"},
 	{"Mark ALL messages read", "Mark ALL messages read"},
+	{"Delete message", "Delete message"},
 	{"Cancel", "Cancel"},	
 
 	// Popup over message (main frame)
