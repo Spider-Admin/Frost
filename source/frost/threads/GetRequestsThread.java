@@ -213,9 +213,7 @@ public class GetRequestsThread extends Thread
                                         SHA1 = SHA1.trim();
                                     if (SHA1.equals(content))
                                     {
-                                        // FIXED: 1st: there is never such a file written (using SHA1 in name)
-                                        // are you sure?  I've seen it written several times --zab  ->> tell me where!
-                                        //        2nd: is'nt it possible to use uploadItem.getLastUploadData for this?
+                                        // ? is'nt it possible to use uploadItem.getLastUploadData for this?
                                         // probably, this .lck thing is jantho's style 
                                         File requestLock =
                                             new File(
