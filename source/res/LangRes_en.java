@@ -395,6 +395,7 @@ public class LangRes_en extends ListResourceBundle {
 	{"Keyfile upload HTL", "Keyfile upload HTL"},
 	{"Keyfile download HTL", "Keyfile download HTL"},
 	{"list of nodes","Comma-separated list of nodes you have FCP access to"},
+	{"list of nodes 2","(nodeA:portA, nodeB:portB, ...)"},
 	{"Maximum number of keys to store", "Maximum number of keys to store"},
 	{"Allow 2 byte characters", "Allow 2 byte characters"},
 	{"Use editor for writing messages", "Use editor for writing messages"},
