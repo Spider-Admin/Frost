@@ -71,7 +71,7 @@ public class Core implements Savable {
 	public static SettingsClass frostSettings = null;
 	static Hashtable myBatches = new Hashtable();
 
-	private static crypt crypto = new FrostCrypt();
+	private static Crypt crypto = new FrostCrypt();
 	
 	private MainFrame mainFrame;
 	private SearchManager searchManager;
@@ -378,7 +378,7 @@ public class Core implements Savable {
 		return false;
 	}
     
-	public static crypt getCrypto() {
+	public static Crypt getCrypto() {
 		return crypto;
 	}
 	/**

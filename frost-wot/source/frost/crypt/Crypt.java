@@ -4,7 +4,7 @@ import java.io.File;
  * facade for verifying/signing messages in frost
  */
 
- public interface crypt {
+ public interface Crypt {
  
  	public static final int MSG_HEADER_SIZE = 27;
 	public static final int SIG_HEADER_SIZE = 34;
