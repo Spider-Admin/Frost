@@ -40,7 +40,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     {
         super();
         boardName = name;
-        boardFileName = mixed.makeFilename( boardName );
+        boardFileName = mixed.makeFilename( boardName.toLowerCase() );
     }
     /**
      * Constructs a new FrostBoardObject wich is a Board.
@@ -64,7 +64,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     public void setBoardName(String newname)
     {
         boardName = newname;
-        boardFileName = mixed.makeFilename( boardName );
+        boardFileName = mixed.makeFilename( boardName.toLowerCase() );
     }
 
     public boolean isWriteAccessBoard()

@@ -75,7 +75,7 @@ public class mixed
     public static String makeFilename(String text)
     {
         StringBuffer newText = new StringBuffer();
-        text = text.toLowerCase();
+        //text = text.toLowerCase();
 
         if (frame1.frostSettings.getBoolValue("allowEvilBert"))
         {

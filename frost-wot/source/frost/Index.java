@@ -104,7 +104,7 @@ public class Index
 		if (current.getOwner() != null && //not anonymous
 			frame1.getMyId().getUniqueName().compareTo(current.getOwner()) !=0 && //not myself
 			frame1.frostSettings.getBoolValue("helpFriends") && //and helping is enabled
-			(frame1.getFriends().Get(current.getOwner()) != null || //and marked GOOD
+			(frame1.getFriends().containsKey(mixed.makeFilename(current.getOwner()))  || //and marked GOOD
 				frame1.getGoodIds().contains(current.getOwner()))) //or marked to be helped 
 			{
 			mine.put(current.getSHA1(),current);
