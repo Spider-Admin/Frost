@@ -433,7 +433,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// enable the machine ;)
 		try {
 			core = new Core();
-			splashscreen.setText("sending out credit card number");
+			splashscreen.setText("sending IP address to NSA");
 			splashscreen.setProgress(60);
 			jbInit();
 			splashscreen.setText("wasting more time");
