@@ -24,11 +24,11 @@ import frost.crypt.crypt;
 
 public class VerifyableMessageObject extends MessageObject implements Cloneable
 {
+    public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
     public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
     public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
     public static final String NA       = "N/A";
     public static final String OLD      = "NONE";
-    public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
 
     private String currentStatus;
     private final boolean isVerifyable;
