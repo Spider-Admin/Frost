@@ -54,7 +54,7 @@ import frost.threads.maintenance.Truster;
 // after removing a board, let actual board selected (currently if you delete another than selected board
 //   the tofTree is updated)
 
-public class frame1 extends JFrame implements ClipboardOwner {
+public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	/**
 	 * This listener changes the 'updating' state of a board if a thread starts/finishes.
@@ -139,16 +139,16 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			// save size,location and state of window
 			Rectangle bounds = getBounds();
 			boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
-			
+
 			frostSettings.setValue("lastFrameMaximized", isMaximized);
-			
-			if (!isMaximized) {	//Only saves the dimension if it is not maximized
+
+			if (!isMaximized) { //Only saves the dimension if it is not maximized
 				frostSettings.setValue("lastFrameHeight", bounds.height);
 				frostSettings.setValue("lastFrameWidth", bounds.width);
 				frostSettings.setValue("lastFramePosX", bounds.x);
 				frostSettings.setValue("lastFramePosY", bounds.y);
 			}
-			
+
 			fileExitMenuItem_actionPerformed(null);
 		}
 
@@ -1042,6 +1042,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		keypool = frostSettings.getValue("keypool.dir");
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
+
+		frostSettings.addUpdater(this);
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		// enable the machine ;)
@@ -2085,7 +2087,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		setResizable(true);
 
 		setTitle("Frost");
-		
+
 		addWindowListener(listener);
 
 		JPanel contentPanel = (JPanel) getContentPane();
@@ -2379,7 +2381,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	/**Options | Preferences action performed*/
 	private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
-		saveSettings();
+		frostSettings.save();
 		OptionsFrame optionsDlg = new OptionsFrame(this, frostSettings, languageResource);
 		boolean okPressed = optionsDlg.runDialog();
 		if (okPressed) {
@@ -2564,19 +2566,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		boardSplitPane.setDividerSize(0);
 		boardSplitPane.setDividerLocation(1.0);
 		setTofTextAreaText(languageResource.getString("Select a message to view its content."));
-	}
-
-	/**Save settings*/
-	public void saveSettings() {
-		frostSettings.setValue("downloadingActivated", getDownloadPanel().isDownloadingActivated());
-		//      frostSettings.setValue("uploadingActivated", uploadActivateCheckBox.isSelected());
-		frostSettings.setValue("searchAllBoards", getSearchPanel().isAllBoardsSelected());
-		//      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
-		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
-
-		frostSettings.writeSettingsFile();
-		// all other stuff is saved in class Saver
-		// screen size, pos and state saves in the Listener (WindowClosing)
 	}
 
 	/**
@@ -3346,6 +3335,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			mixed.wait(500);
 			resetMessageViewSplitPanes();
 		}
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.SettingsUpdater#updateSettings()
+	 */
+	public void updateSettings() {
+		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
 	}
 
 }
