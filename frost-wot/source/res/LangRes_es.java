@@ -139,7 +139,8 @@ public class LangRes_es extends ListResourceBundle {
 	//{"Cancel", "Cancel"}, // Defined above
 
 	// Popup over attachments table
-	{"Add selected board", "Añade foro seleccionado"},	
+	{"Add selected board", "Añade el foro seleccionado"},	
+	{"Download selected attachment", "Descarga el adjunto seleccionado"},	
 	//{"Cancel", "Cancel"}, // Defined above
 	
 	///////////////////////////////////////////////////
@@ -186,7 +187,7 @@ public class LangRes_es extends ListResourceBundle {
 	{"Browse", "Examina"},
 
     // FileChooser in Uploads Tab
-	{"Select file you want to upload to the", "Selecciona el fichero que quieres subir al"},
+	{"Select file you want to upload to the", "Selecciona los ficheros que quieras subir al"},
 	{"board", "foro"},
 
 	// Popup over uploads table    
@@ -211,7 +212,14 @@ public class LangRes_es extends ListResourceBundle {
 	// Main Window Board Selection Tree
 	///////////////////////////////////////////////////
     // Popup over Tree
-	{"Refresh folder", "Refresca carpeta"},
+	{"Refresh", "Refresca"},
+	{"Remove", "Elimina"},
+	{"folder", "carpeta"},
+	{"Folder", "Carpeta"},
+	{"board", "foro"},
+	{"Board", "Foro"},
+	{"Cut", "Corta"},
+	{"Paste", "Pega"},
 	{"Add new board", "Añade nuevo foro"},
 	{"Add new folder", "Añade nueva carpeta"},
 	{"Configure selected board", "Configura foro seleccionado"},
