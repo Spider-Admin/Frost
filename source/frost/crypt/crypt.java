@@ -27,9 +27,9 @@ import java.io.File;
 	 * @param key the private key
 	 * @return a detached signature not ascii armored
 	 */
-	public byte[] detachedSign(String message,String key);
+	public String detachedSign(String message,String key);
 	
-	public byte[] detachedSign(byte [] message,String key);
+	public String detachedSign(byte [] message,String key);
 	
 	/**
 	 * the key is the verification key
@@ -44,8 +44,8 @@ import java.io.File;
 	 * @param sig the binary signature
 	 * @return whether the verification was successful
 	 */
-    public boolean detachedVerify(String message, String key, byte[] sig);
-    public boolean detachedVerify(byte [] plaintext, String key, byte[] sig);
+    public boolean detachedVerify(String message, String key, String sig);
+    public boolean detachedVerify(byte [] plaintext, String key, String sig);
 	/**
 	 * symmetric encryption of a string.
 	 */

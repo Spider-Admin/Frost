@@ -33,7 +33,8 @@ import frost.identities.Identity;
 public class MetaData implements XMLizable {
 
 	Identity sharer;
-	byte [] plaintext,sig;
+	byte [] plaintext;
+	String sig;
 	boolean signed; //true = signed, false = encrypted
 	
 	public MetaData(){
@@ -115,7 +116,7 @@ public class MetaData implements XMLizable {
 		el.appendChild(_sharer);
 		
 		Element _sig = container.createElement("sig");
-		CDATASection cdata = container.createCDATASection(new String(sig));
+		CDATASection cdata = container.createCDATASection(sig);
 		_sig.appendChild(cdata);
 		
 		el.appendChild(_sig);
@@ -128,7 +129,7 @@ public class MetaData implements XMLizable {
 	public void loadXMLElement(Element e) throws SAXException {
 		Element _sharer = (Element) XMLTools.getChildElementsByTagName(e,"MyIdentity").iterator().next();
 		sharer = new Identity(_sharer);
-		sig = XMLTools.getChildElementsCDATAValue(e,"sig").getBytes();
+		sig = XMLTools.getChildElementsCDATAValue(e,"sig");
 	}
 
 	/**
@@ -141,7 +142,7 @@ public class MetaData implements XMLizable {
 	/**
 	 * @return
 	 */
-	public byte[] getSig() {
+	public String getSig() {
 		return sig;
 	}
 
