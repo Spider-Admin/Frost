@@ -39,30 +39,21 @@ public class insertThread extends Thread
 
     public void run()
     {
-        System.out.println("Upload of " + file + " with HTL " + htl + " started.");
-
-        if( mode )
+    try{    
+    
+	String lastUploadDate = null; // NEVER uploaded
+        boolean success = false;
+        String[] result = {"Error", "Error"};
+	String currentDate = DateFun.getExtendedDate();
+    	
+        if( mode ) {  //real upload
+	    System.out.println("Upload of " + file + " with HTL " + htl + " started.");
             synchronized(frame1.threadCountLock)
             {
                 frame1.activeUploadThreads++;
             }
-        else
-        {
-            frame1.setGeneratingCHK( true );
-        }
-
-        try {
-
-        String lastUploadDate = null; // NEVER uploaded
-        boolean success = false;
-        String[] result = {"Error", "Error"};
-
-        if( file.length() > 0 && file.isFile() )
-        {
-            String oldLastUploadDate = uploadItem.getLastUploadDate();
-
-	    if (mode) {
-            result = FcpInsert.putFile("CHK@",
+	    
+	    result = FcpInsert.putFile("CHK@",
                                        file,
                                        htl,
                                        true,
@@ -74,6 +65,7 @@ public class insertThread extends Thread
                 success = true;
                 System.out.println("Upload of " + file + " successfull.");
 		uploadItem.setKey(result[1]);
+		lastUploadDate=currentDate;
             }
             else if( result[0].equals("KeyCollision") )
             {
@@ -81,82 +73,64 @@ public class insertThread extends Thread
                 success = true;
                 System.out.println("Upload of " + file + " collided.");
 		uploadItem.setKey(result[1]);
+		lastUploadDate = uploadItem.getLastUploadDate();
             }
-	    } else 
-	    	success =true; //so that we generate SHA1
-	     
 	    
-	    String SHA1=null;
-            if( success )
-            {
-	    	//generate SHA1 - its fast
-	
-		long now = System.currentTimeMillis();
-		SHA1 = frame1.getCrypto().digest(file);
-		System.out.println("digest generated in "+(System.currentTimeMillis()-now) +
-				 "  " + SHA1);
-		
-                String date = DateFun.getExtendedDate();
-                lastUploadDate = date;
-		KeyClass newKey;
-		if (mode) {
-                	newKey = new KeyClass();
-			newKey.setDate(date);
-			newKey.setKey(result[1]);
-		}
-		else  {
-			newKey = new KeyClass();
-			newKey.setKey(null);
-			newKey.setDate(null);
-		}
-		newKey.setSHA1(SHA1);  
-                newKey.setFilename(destination);
-                newKey.setSize(file.length());
-		newKey.setOwner(frame1.getMyId().getUniqueName());
-                Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
-            }
-            else
-            {
-                lastUploadDate = oldLastUploadDate; // NEVER uploaded
-            }
-
-            // update table item
-            if( mode )
-            {
-                // item uploaded (maybe)
-                uploadItem.setLastUploadDate( lastUploadDate ); // if NULL then upload failed -> shows NEVER in table
-		uploadItem.setKey(result[1]);
-            }
-            else if( success )
-            {
-                // key was computed?
-                uploadItem.setSHA1( SHA1 );
-		uploadItem.setKey(null);
-		uploadItem.setLastUploadDate(null);
-            }
-            uploadItem.setState( FrostUploadItemObject.STATE_IDLE );
-
-            UploadTableModel tableModel = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
-            tableModel.updateRow( uploadItem );
-        }
-        }
-        catch(Throwable t)
-        {
-            System.out.println("Oo. EXCEPTION in insertThread.run:");
-            t.printStackTrace();
-        }
-
-        if( mode )
-        {
-            synchronized(frame1.threadCountLock)
+	    // item uploaded (maybe)
+            uploadItem.setLastUploadDate( lastUploadDate ); // if NULL then upload failed -> shows NEVER in table
+	    uploadItem.setKey(result[1]);
+	    
+	    uploadItem.setState( FrostUploadItemObject.STATE_IDLE );
+	    
+	    synchronized(frame1.threadCountLock)
             {
                 frame1.activeUploadThreads--;
             }
-        }
+	    
+	    //now update the files.xml with the CHK
+	    KeyClass current = Index.getKey(uploadItem.getSHA1(),board);
+	    current.setKey(result[1]);
+	    current.setDate(lastUploadDate);
+	    Index.add(current,board);
+	}
         else
         {
-            frame1.setGeneratingCHK( false );
+            frame1.setGeneratingCHK( true );
+	    long now = System.currentTimeMillis();
+	    String  SHA1 = frame1.getCrypto().digest(file);
+	    System.out.println("digest generated in "+(System.currentTimeMillis()-now) +
+				 "  " + SHA1);
+				 
+	    //create new KeyClass
+	    KeyClass newKey = new KeyClass();
+	    newKey.setKey(null);
+	    newKey.setDate(null);
+	    newKey.setSHA1(SHA1);  
+            newKey.setFilename(destination);
+            newKey.setSize(file.length());
+	    newKey.setOwner(frame1.getMyId().getUniqueName());
+	    
+	    //update the gui
+	    uploadItem.setSHA1( SHA1 );
+	    uploadItem.setKey(null);
+	    uploadItem.setLastUploadDate(null);
+	    
+	    //add to index
+            Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+	    
+	    frame1.setGeneratingCHK( false );
+	    
         }
+	
+	    UploadTableModel tableModel = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
+            tableModel.updateRow( uploadItem );
+        
+	}catch(Throwable t) {
+		t.printStackTrace();
+	}
+        
+
+        
     }
 
     /**Constructor*/

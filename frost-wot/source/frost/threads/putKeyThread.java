@@ -52,7 +52,7 @@ public class putKeyThread extends Thread {
            tries < 8)
     {
         if( tries > 0 )
-            mixed.wait(3000); // wait some time between 2 tries
+            mixed.wait(30000); // wait some time between 2 tries
 
         tries++;
         System.out.println("putKeyThread: Splitfile upload: " + tries);

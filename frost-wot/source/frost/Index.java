@@ -20,6 +20,7 @@ package frost;
 
 import java.io.File;
 import java.util.*;
+import frost.gui.objects.*;
 
 public class Index
 {
@@ -28,6 +29,28 @@ public class Index
      * @param board The boardsname (in filename type)
      * @return Vector with KeyClass objects
      */
+     
+    public static KeyClass getKey(String SHA1,FrostBoardObject board) {
+    	return getKey(SHA1,board.getBoardFilename());
+    }
+    
+    public static KeyClass getKey(String SHA1,String board) {
+    	final Map keys = Collections.synchronizedMap(new HashMap());
+	final String fileSeparator = System.getProperty("file.separator");
+	
+	File keyFile = new File(frame1.keypool + board + fileSeparator + "files.xml");
+	
+	//if no such file exists, return null
+	if (!keyFile.exists()) return null;
+	
+	FileAccess.readKeyFile(keyFile, keys);
+	
+	return (KeyClass)keys.get(SHA1);
+	
+    }
+    
+ 
+    
     public static int getUploadKeys(String board)
     {
     
@@ -38,14 +61,32 @@ public class Index
         final String fileSeparator = System.getProperty("file.separator");
 
         // Abort if boardDir does not exist
-        File boardNewUploads = new File(frame1.keypool + board+fileSeparator+"sha_ids.exc");
+        File boardNewUploads = new File(frame1.keypool + board+fileSeparator+"new_files.xml");
         if( !boardNewUploads.exists() )
             return 0;
+	
+	File boardFiles = new File (frame1.keypool + board + fileSeparator +"files.xml");
+	if (boardFiles.exists()) 
+		FileAccess.readKeyFile(boardFiles,total);
 
+	FileAccess.readKeyFile(boardNewUploads,mine);
+	
+	
+	//add friends's files 
+	//TODO: make this configurable, or add a limit
+	Iterator i = total.values().iterator(); 
+	
+	while (i.hasNext()) {
+		KeyClass current = (KeyClass) i.next();
+		if (current.getOwner() != null &&
+			frame1.getFriends().Get(current.getOwner()) != null)
+			mine.put(current.getSHA1(),current);
+			
+	}
         // Create boards tempDir if it does not exists
-        File tempDir = new File(boardDir + fileSeparator + "temp");
-        if( !tempDir.isDirectory() )
-            tempDir.mkdir();
+        //File tempDir = new File(boardDir + fileSeparator + "temp");
+        //if( !tempDir.isDirectory() )
+          //  tempDir.mkdir();
 
         // Get a list of this boards index files
         // Abort if there are none
@@ -54,7 +95,7 @@ public class Index
             return 0;*/
 
         // Generate temporary index from keyfiles
-        File[] keypoolFiles = (new File(frame1.keypool)).listFiles();
+        /*File[] keypoolFiles = (new File(frame1.keypool)).listFiles();
         if( keypoolFiles != null )
         {
             for( int i = 0; i < keypoolFiles.length; i++ )
@@ -93,53 +134,54 @@ public class Index
         // with it's tempIndex counterpart
         // Maps are funny and fast, we better use one here.
         
-        StringBuffer keyFile = new StringBuffer();
-        File[] tempFiles = tempDir.listFiles();
-        int keyCount = 0;
-	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\""+
-			" pubkey = \""+frame1.getMyId()+"\">\n");
         
-
-        chk.clear();
-        FileAccess.readKeyFile(boardNewFiles, chk, true);
+        File[] tempFiles = tempDir.listFiles();
+        
+        
+*/
+        /*chk.clear();
+        FileAccess.readKeyFile(boardNewFiles, chk);
         FileAccess.readKeyFile(tempDir.getPath() + fileSeparator + index[i].getName(), chk, false);
 
                 // Add keys that are still getExchange() == true to the
-                // keys Vector
-		
-                synchronized(chk)
-                {
-                    Iterator j = chk.values().iterator();
-                    while( j.hasNext() )
-                    {
-                        KeyClass current = (KeyClass)j.next();
-                        if( current.getExchange() && 
-				(current.getOwner() == null || 
-					frame1.getFriends().Get(current.getOwner()) != null ||
-					frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0))
-                        {
-                            keyCount++;
-                            keyFile.append("<File>\n");
-		    	    keyFile.append("<name>" + current.getFilename()+"</name>\n");
-		    	    keyFile.append("<SHA1>" + current.getSHA1()+"</SHA1>\n");
-			    keyFile.append("<size>" + current.getSize()+"</size>\n");
+                // keys Vector*/
+	StringBuffer keyFile = new StringBuffer();
+	int keyCount = 0;
+	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
+	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\""+
+			" pubkey = \""+frame1.getMyId()+"\">\n");
+				
+        synchronized(mine)
+        {
+             Iterator j = mine.values().iterator();
+             while( j.hasNext() )
+             {
+                  KeyClass current = (KeyClass)j.next();
+		  
+		  //make an update only if the user has inserted at least one file
+                  if(frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0)                 
+                        keyCount++;
+			
+                  keyFile.append("<File>\n");
+		  keyFile.append("<name>" + current.getFilename()+"</name>\n");
+		  keyFile.append("<SHA1>" + current.getSHA1()+"</SHA1>\n");
+		  keyFile.append("<size>" + current.getSize()+"</size>\n");
 		    
-			    if (current.getOwner() != null)
-			    	keyFile.append("<owner>" + current.getOwner() + "</owner>\n");
-		    	    if (current.getKey() != null)
-			    	keyFile.append("<key>" + current.getKey() + "</key>\n");
-			    if (current.getDate() != null)
-			    	keyFile.append("<date>" + current.getDate() + "</date>\n");
+		  if (current.getOwner() != null)
+		    	keyFile.append("<owner>" + current.getOwner() + "</owner>\n");
+		  if (current.getKey() != null)
+		    	keyFile.append("<key>" + current.getKey() + "</key>\n");
+		  if (current.getDate() != null)
+		    	keyFile.append("<date>" + current.getDate() + "</date>\n");
 		    
-		    	    keyFile.append("</File>\n");
+		  keyFile.append("</File>\n");
 			 
-                        }
-                    }
-                }
-            }
-        }
-        chk.clear();
+             }
+       }
+                
+            
+        
+        
 	keyFile.append("</Filelist>");
 	
 	//String signed = frame1.getCrypto().sign(keyFile.toString(),frame1.getMyId().getPrivKey());
@@ -151,8 +193,18 @@ public class Index
         }
 
         return keyCount;
+	
     }
 
+    public static void add(KeyClass key, FrostBoardObject board) {
+        final String fileSeparator = System.getProperty("file.separator");
+    	add(key,new File(frame1.keypool + board.getBoardFilename()+fileSeparator+"files.xml"));
+    }
+    
+    public static void addMine(KeyClass key, FrostBoardObject board) {
+        final String fileSeparator = System.getProperty("file.separator");
+    	add(key,new File(frame1.keypool + board.getBoardFilename()+fileSeparator+"new_files.xml"));
+    }
     /**
      * Adds a key object to an index located at target dir.
      * Target dir will be created if it does not exist
@@ -176,10 +228,12 @@ public class Index
        // if( split.indexOf(firstLetter) == -1 )
          //   firstLetter = "other";
 
-        File indexFile = new File(target.getPath()  + fileSeparator + "sha_ids.exc");
+        File indexFile = new File(target.getPath()  + fileSeparator + "files.xml");
 
-        FileAccess.readKeyFile(indexFile, chk, true);
-        chk.put(hash, key);
+        FileAccess.readKeyFile(indexFile, chk);
+        if (chk.get(hash) != null)
+		chk.remove(hash);
+	chk.put(hash, key);
         FileAccess.writeKeyFile(chk, indexFile);
     }
 
@@ -198,7 +252,7 @@ public class Index
         if( !target.isDirectory() )
             target.mkdir();
 
-        FileAccess.readKeyFile(keyfile, chk, true);
+        FileAccess.readKeyFile(keyfile, chk);
 
         synchronized(chk)
         {
@@ -237,7 +291,7 @@ public class Index
      * @param firstLetter identifier for the keyfile
      */
     protected static void add(Map chunk, File target)
-    {
+    {/*
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         final String fileSeparator = System.getProperty("file.separator");
 
@@ -247,10 +301,10 @@ public class Index
         if( chunk.size() > 0 )
         {
           /*  if( split.indexOf(firstLetter) == -1 )
-                firstLetter = "other";*/
+                firstLetter = "other";
             FileAccess.readKeyFile(new File(target.getPath() + fileSeparator +"sha_ids.exc"), chunk, false);
             FileAccess.writeKeyFile(chunk, new File(target.getPath() + fileSeparator + "sha_ids.exc"));
             chunk.clear();
-        }
+        }*/
     }
 }
