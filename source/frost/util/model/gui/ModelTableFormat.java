@@ -44,9 +44,9 @@ public interface ModelTableFormat {
 	public void setCellValue(Object value, ModelItem item, int columnIndex);
 	
 	/**
-	 * @param table
+	 * @param modelTable
 	 */
-	public void customizeTable(JTable table);
+	public void customizeTable(ModelTable modelTable);
 	
 	/**
 	 * This method returns the numbers of the columns that reflect

@@ -45,9 +45,9 @@ public abstract class AbstractTableFormat implements ModelTableFormat {
 	}
 
 	/* (non-Javadoc)
-	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(javax.swing.JTable)
+	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(frost.util.model.gui.ModelTable)
 	 */
-	public void customizeTable(JTable table) {
+	public void customizeTable(ModelTable modelTable) {
 		// Nothing here. Override in subclasses if necessary.
 
 	}

@@ -10,11 +10,11 @@ import java.awt.Component;
 import java.util.Comparator;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.*;
 
 import frost.gui.translation.*;
 import frost.util.model.ModelItem;
-import frost.util.model.gui.SortedTableFormat;
+import frost.util.model.gui.*;
 
 /**
  * @author Administrator
@@ -278,17 +278,20 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 	}
 
 	/* (non-Javadoc)
-	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(javax.swing.JTable)
+	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(frost.util.model.gui.ModelTable)
 	 */
-	public void customizeTable(JTable table) {
-		super.customizeTable(table);
+	public void customizeTable(ModelTable modelTable) {
+		super.customizeTable(modelTable);
+		
+		//Sets the relative widths of the columns
+		TableColumnModel columnModel = modelTable.getTable().getColumnModel();
 		int[] widths = { 250, 80, 80, 80, 80 };
 		for (int i = 0; i < widths.length; i++) {
-			table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}
 		
 		// Column "Size"
-		table.getColumnModel().getColumn(1).setCellRenderer(new FileSizeRenderer());
+		columnModel.getColumn(1).setCellRenderer(new FileSizeRenderer());
 	}
 
 	/* (non-Javadoc)

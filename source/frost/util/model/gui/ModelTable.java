@@ -175,7 +175,7 @@ public class ModelTable extends AbstractTableModel {
 		table = new JTable(this);
 		scrollPane = new JScrollPane(table);
 		tableFormat.addTable(table);
-		tableFormat.customizeTable(table);
+		tableFormat.customizeTable(this);
 		
 		model.addOrderedModelListener(listener);
 	}
@@ -200,6 +200,7 @@ public class ModelTable extends AbstractTableModel {
 	public Object getValueAt(int rowIndex, int columnIndex) {
 		return tableFormat.getCellValue(model.getItemAt(rowIndex), columnIndex);
 	}
+	
 	
 	/**
 	 * @param positions

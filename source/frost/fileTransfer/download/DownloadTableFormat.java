@@ -10,13 +10,13 @@ import java.awt.Component;
 import java.util.Comparator;
 
 import javax.swing.*;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.table.*;
 
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.*;
 import frost.util.gui.BooleanCell;
 import frost.util.model.ModelItem;
-import frost.util.model.gui.SortedTableFormat;
+import frost.util.model.gui.*;
 
 /**
  * @author Administrator
@@ -499,23 +499,26 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	}
 
 	/* (non-Javadoc)
-	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(javax.swing.JTable)
+	 * @see frost.util.model.gui.ModelTableFormat#customizeTable(frost.util.model.gui.ModelTable)
 	 */
-	public void customizeTable(JTable table) {
-		super.customizeTable(table);
+	public void customizeTable(ModelTable modelTable) {
+		super.customizeTable(modelTable);
+		
+		// Sets the relative widths of the columns
+		TableColumnModel columnModel = modelTable.getTable().getColumnModel();
 		int[] widths = { 0, 170, 80, 70, 80, 85, 25, 60, 60, 30 };
 		for (int i = 0; i < widths.length; i++) { // col 0 default width
-			table.getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}
 		
 		// Column "Enabled"
-		table.getColumnModel().getColumn(0).setResizable(false);
-		table.getColumnModel().getColumn(0).setCellRenderer(BooleanCell.RENDERER);
-		table.getColumnModel().getColumn(0).setCellEditor(BooleanCell.EDITOR);
+		columnModel.getColumn(0).setResizable(false);
+		columnModel.getColumn(0).setCellRenderer(BooleanCell.RENDERER);
+		columnModel.getColumn(0).setCellEditor(BooleanCell.EDITOR);
 		setColumnEditable(0, true);
 		
 		//Column "Size"
-		table.getColumnModel().getColumn(2).setCellRenderer(new SizeRenderer());
+		columnModel.getColumn(2).setCellRenderer(new SizeRenderer());
 	}
 
 	/* (non-Javadoc)
