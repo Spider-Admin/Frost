@@ -3307,7 +3307,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	public void setPanelEnabled(String title, boolean enabled) {
 		int position = tabbedPane.indexOfTab(title);
 		if (position != -1) { 
-			tabbedPane.setEnabled(enabled);
+			tabbedPane.setEnabledAt(position, enabled);
 		}
 	}
 
