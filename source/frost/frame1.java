@@ -2653,7 +2653,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		/**  Do not generate CHKs, get SHA1 only! */
 		//do this only if the automatic index handling is set
 		/**  and generate CHK if requested ... */
-		boolean automaticIndexing = frostSettings.getBoolValue("AutomaticIndexing");
+		boolean automaticIndexing = frostSettings.getBoolValue("automaticIndexing");
 		if (isGeneratingCHK() == false)
 			// do not start another generate if there is already 1 running
 			{
