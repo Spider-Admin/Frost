@@ -1179,7 +1179,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         // Upload / Restore default filenames for all files
         uploadPopupAddFilesToBoard.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                getUploadTable().addFilesToBoardIndex(); //FIXME: what does this do?
+                getUploadTable().addFilesToBoardIndex(); 
+                // FIXME: what does this do? -- ANSWERED, see below!
+                // bback: is'nt my code, but i assume this was intended to add the
+                // selected files to board files list (e.g. after you changed target board).
+                // i'm not sure if longer needed, just comment it out and wait for comments ;)
             } });
     }
 
