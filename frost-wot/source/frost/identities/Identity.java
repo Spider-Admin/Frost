@@ -1,6 +1,7 @@
 package frost.identities;
 
 import java.io.*;
+import java.util.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 import frost.*;
@@ -17,6 +18,10 @@ public class Identity implements XMLizable
     protected transient FcpConnection con;
     public static final String NA = "NA";
     private static ThreadLocal tmpfile;
+    
+    //some trust map methods
+    protected int noMessages,noFiles;
+    protected List trustees;
 
 	//if this was C++ LocalIdentity wouldn't work
 	//fortunately we have virtual construction so loadXMLElement will be called
@@ -52,6 +57,32 @@ public class Identity implements XMLizable
 		element.appendChild( cdata );
 		el.appendChild( element );
 		
+		//# of files
+		element = doc.createElement("files");
+		Text text = doc.createTextNode(""+noFiles);
+		element.appendChild(text);
+		el.appendChild(element);
+		
+		//# of messages
+		element = doc.createElement("messages");
+		text = doc.createTextNode(""+noMessages);
+		element.appendChild(text);
+		el.appendChild(element);
+		
+		//trusted identities
+		if (trustees != null) {
+			element = doc.createElement("trustedIds");
+			Iterator it = trustees.iterator();
+			while (it.hasNext()) {
+				String id = (String)it.next();
+				Element trustee = doc.createElement("trustee");
+				cdata = doc.createCDATASection(id);
+				trustee.appendChild(cdata);
+				element.appendChild(trustee);
+			}
+			el.appendChild(element);
+		}
+		
 		return el;
 	}
 
@@ -66,6 +97,27 @@ public class Identity implements XMLizable
 				name = uniqueName.substring(0,uniqueName.indexOf("@"));
 				keyaddress =  XMLTools.getChildElementsCDATAValue(e, "CHK");
 				key =  XMLTools.getChildElementsCDATAValue(e, "key");
+				try {
+					noMessages = (new Integer(XMLTools.getChildElementsTextValue(e,"messages"))).intValue();
+					noFiles = (new Integer(XMLTools.getChildElementsTextValue(e,"files"))).intValue();
+				}catch (NullPointerException npe) {
+					Core.getOut().println("no data about # of messages found for identity " + uniqueName);
+				}
+				
+				
+				Element trusteesList = (Element) XMLTools.getChildElementsByTagName(e,"trustees").get(0);
+				if (trusteesList != null) {
+					if (trustees == null)
+						trustees = new LinkedList();
+					List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
+					Iterator it = trusteeEntities.iterator();
+					while (it.hasNext()) {
+						Element trustee = (Element)it.next();
+						String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
+						trustees.add(id);
+					}
+				}
+				
 	}
 	
 	public void loadXMLElement(Element e) throws SAXException {
@@ -169,4 +221,11 @@ public class Identity implements XMLizable
     {
         return uniqueName;
     }
+	/**
+	 * @return list of identities this identity trusts
+	 */
+	public List getTrustees() {
+		return trustees;
+	}
+
 }
