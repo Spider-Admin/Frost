@@ -474,7 +474,7 @@ public class MessageFrame extends JFrame
 			}
 			// build a new board because maybe privKey should'nt be uploaded
 			FrostBoardObject aNewBoard =
-				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, null);
+				new FrostBoardObject(board.getBoardName(), board.getPublicKey(), privKey, board.getDescription());
 			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
 			attBoardsTableModel.addRow(ab);
 		}
@@ -697,16 +697,19 @@ public class MessageFrame extends JFrame
             return c1.compareTo( c2 );
         }
 
-        public Object getValueAt(int column)
-        {
-            switch(column)
-            {
-                case 0: return aBoard.getBoardName();
-                case 1: return (aBoard.getPublicKey()==null)?"N/A":aBoard.getPublicKey();
-                case 2: return (aBoard.getPrivateKey()==null)?"N/A":aBoard.getPrivateKey();
-            }
-            return "*ERR*";
-        }
+		public Object getValueAt(int column) {
+			switch (column) {
+				case 0 :
+					return aBoard.getBoardName();
+				case 1 :
+					return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();
+				case 2 :
+					return (aBoard.getPrivateKey() == null) ? "N/A" : aBoard.getPrivateKey();
+				case 3 :
+					return (aBoard.getDescription() == null) ? "N/A" : aBoard.getDescription();
+			}
+			return "*ERR*";
+		}
     }
     
     private class MFAttachedFile implements TableMember
@@ -781,12 +784,14 @@ public class MessageFrame extends JFrame
         protected final String columnNames[] = {
             "Boardname",
             "public key",
-            "Private key"
+            "Private key", 
+            "Description"
         };
         protected final Class columnClasses[] = {
             String.class, 
             String.class,
-            String.class
+            String.class,
+			String.class
         };
 
         public MFAttachedBoardsTableModel()
