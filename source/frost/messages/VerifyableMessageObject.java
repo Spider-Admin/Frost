@@ -116,9 +116,9 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         isVerifyable=false;
     }
 
-    public VerifyableMessageObject(File file)
+    public VerifyableMessageObject(File file) throws Exception
     {
-        super(file);
+        super(file); // throws exception if loading failed
 
         if( from.indexOf("@") == -1 ||
             content.indexOf("===Frost signed message===\n") == -1 ||

@@ -40,6 +40,17 @@ public class XMLTools
     public static Document parseXmlFile(String filename, boolean validating)
     throws IllegalArgumentException
     {
+        return parseXmlFile(new File(filename), validating);
+    }
+    
+    /**
+     * Parses an XML file and returns a DOM document.
+     * If validating is true, the contents is validated against the DTD
+     * specified in the file.
+     */
+    public static Document parseXmlFile(File file, boolean validating)
+    throws IllegalArgumentException
+    {
         try
         {
             // Create a builder factory
@@ -47,7 +58,7 @@ public class XMLTools
             factory.setValidating(validating);
 
             // Create the builder and parse the file
-            Document doc = factory.newDocumentBuilder().parse(new File(filename));
+            Document doc = factory.newDocumentBuilder().parse(file);
             return doc;
         }
         catch( SAXException e )
