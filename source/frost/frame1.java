@@ -886,8 +886,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	//Help Menu
 	JMenu helpMenu = new JMenu();
-	JRadioButtonMenuItem helpHelpMenuItem = new JRadioButtonMenuItem();
-	JRadioButtonMenuItem helpAboutMenuItem = new JRadioButtonMenuItem();
+	JMenuItem helpHelpMenuItem = new JMenuItem();
+	JMenuItem helpAboutMenuItem = new JMenuItem();
 
 	// buttons that are enabled/disabled later
 	JButton newBoardButton = null;
