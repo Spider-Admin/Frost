@@ -86,7 +86,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                            keypool + board.getBoardFilename() + "_upload.txt",
                                            insertHtl,
                                            true,
-                                           true);
+                                           true,
+                                           board.getBoardFilename());
 
                 if( result[0].equals("Success") )
                 {
@@ -255,10 +256,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                          .append(date)
                          .append("/").toString();
             requestKeyWorkaround = new StringBuffer().append("KSK@sextmeage/")
-                                   .append(board.getBoardFilename())
-                                   .append("/")
-                                   .append(date)
-                                   .append("/").toString();
+                         .append(board.getBoardFilename())
+                         .append("/")
+                         .append(date)
+                         .append("/").toString();
         }
 
         if( board.isPublicBoard()==false && privateKey != null )

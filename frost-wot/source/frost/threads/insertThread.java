@@ -63,7 +63,7 @@ public class insertThread extends Thread
         if( file.length() > 0 && file.isFile() )
         {
 
-            result = FcpInsert.putFile("CHK@", file, htl, true, mode);
+            result = FcpInsert.putFile("CHK@", file, htl, true, mode,board.getBoardFilename());
 
             if( result[0].equals("Success") )
             {

@@ -119,7 +119,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         System.out.println("Uploading attachment " + attachment + " with HTL " + frame1.frostSettings.getValue("htlUpload") + ".");
 
         while( !result[0].equals("KeyCollision") && !result[0].equals("Success"))
-        result = FcpInsert.putFile("CHK@", attachment, frame1.frostSettings.getValue("htlUpload"), true, true);
+        result = FcpInsert.putFile("CHK@", attachment, frame1.frostSettings.getValue("htlUpload"), true, true,
+                                   board.getBoardFilename());
 
         String chk = result[1];
         int position = text.indexOf("<attach>" + attachment + "</attach>");
@@ -213,21 +214,24 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
                         String upKey = privateKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
                         if( DEBUG ) System.out.println(upKey);
-                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
+                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                                                   board.getBoardFilename());
                     }
                     else
                     {
                         // Temporary hack for wrong name space
                         String upKey = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
                         if( DEBUG ) System.out.println(upKey);
-                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
+                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                                                   board.getBoardFilename());
                         // END Temporary hack for wrong name space
                         if( result[0].equals("Success") )
                         {
                             /* String */
                             upKey = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
                             if( DEBUG ) System.out.println(upKey);
-                            /*result =*/FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
+                            /*result =*/FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                                                          board.getBoardFilename());
                         }
                     }
 
