@@ -133,7 +133,7 @@ public class DownloadTable extends SortedTable
      * @param keypoolDirectory This directory should contain the temporary chunks
      * @param downloadDirectory This directory should contain the downloaded file
      */
-    public void update(SettingsClass frostSettings)
+/*    public void update(SettingsClass frostSettings)
     {
         int maxDownloadHtl = frostSettings.getIntValue("htlMax");
         File keypoolDirectory = new File( frostSettings.getValue("keypool.dir") );
@@ -170,7 +170,7 @@ public class DownloadTable extends SortedTable
             }
             tableModel.updateRow( dlItem ); // finally tell model that row was updated
         }
-    }
+    }*/
 
     /**
      * Removes chunks of selected download files from keypool.

@@ -111,12 +111,12 @@ public class FcpInsert
     /**
      * Updates the 'state' column for a file that is in table.
      */
-    private static void updateUploadTable(File file, long progress, boolean mode)
+    private static FrostUploadItemObject getUploadItemForFile(File file, boolean mode)
     {
         if( mode == false ) // uploading mode?
         {
             // no, generate key mode
-            return;
+            return null;
         }
 
         // TODO: do not search for item in table, but give the item to this method directly
@@ -127,21 +127,14 @@ public class FcpInsert
         FrostUploadItemObject ulItem = null;
         for( int i = 0; i < model.getRowCount(); i++ )
         {
-            ulItem = (FrostUploadItemObject)model.getRow(i);
-            if( filePath.equals(ulItem.getFilePath()) )
+            FrostUploadItemObject tmpUlItem = ((FrostUploadItemObject)model.getRow(i));
+            if( filePath.equals(tmpUlItem.getFilePath()) )
             {
+                ulItem = tmpUlItem;
                 break;
             }
         }
-        // if found, update item
-        if( ulItem != null )
-        {
-            // item found
-            ulItem.setUploadProgress( progress );
-            ulItem.setState( ulItem.STATE_PROGRESS );
-
-            model.updateRow( ulItem );
-        }
+        return ulItem;
     }
 
     public static String[] putFECSplitFile(String boardfilename, String uri, File file,
@@ -153,6 +146,8 @@ public class FcpInsert
     Vector segmentKeyMaps = new Vector();
     Vector checkKeyMaps = new Vector();
     long fileLength = file.length();
+
+    FrostUploadItemObject ulItem = getUploadItemForFile(file, mode);
 
     String output = new String();
     int maxThreads = frame1.frostSettings.getIntValue("splitfileUploadThreads");
@@ -299,10 +294,31 @@ public class FcpInsert
         catch (Exception e){System.out.println("putFECSplitFile NOT GOOD "+e.toString());}
         }
 
+        // count totalBlocks
+        if( ulItem != null )
+        {
+            int totalBlocks = 0;
+            for (int i = 0; i < segmentFileMaps.size(); i++)
+            {
+                File[] currentFileMap = (File[])segmentFileMaps.get(i);
+                totalBlocks += currentFileMap.length;
+            }
+            for (int i = 0; i < checkFileMaps.size(); i++)
+            {
+                File[] currentFileMap = (File[])checkFileMaps.get(i);
+                totalBlocks += currentFileMap.length;
+            }
+            ulItem.setUploadProgressTotalBlocks( totalBlocks );
+            ulItem.setUploadProgressDoneBlocks( 0 );
+            ulItem.setState( ulItem.STATE_PROGRESS );
+            UploadTableModel model = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
+            model.updateRow( ulItem );
+        }
+
         // upload all chunk blocks
 
         int chunkNo = 0;
-        long uploadedBytes = 0;
+//        long uploadedBytes = 0;
         for (int i = 0; i < segmentFileMaps.size(); i++) {
             File[] currentFileMap = (File[])segmentFileMaps.get(i);
         chunkThreads = new Thread[currentFileMap.length];   // We have as many results as we have files
@@ -321,11 +337,12 @@ public class FcpInsert
                                 htl,
                                 chunkResults,
                                 threadCount,
-                                mode);
+                                mode,
+                                ulItem);
             chunkThreads[threadCount].start();
             threadCount++;
-            uploadedBytes += currentFileMap[j].length();
-            updateUploadTable(file, uploadedBytes, mode);
+//            uploadedBytes += currentFileMap[j].length();
+//            updateUploadTable(file, uploadedBytes, mode);
             mixed.wait(3000);
             chunkNo++;
         }
@@ -359,11 +376,12 @@ public class FcpInsert
                                 htl,
                                 checkResults,
                                 threadCount,
-                                mode);
+                                mode,
+                                ulItem);
             checkThreads[threadCount].start();
             threadCount++;
-            uploadedBytes += currentFileMap[j].length();
-            updateUploadTable(file, uploadedBytes, mode);
+//            uploadedBytes += currentFileMap[j].length();
+//            updateUploadTable(file, uploadedBytes, mode);
             mixed.wait(3000);
             checkNo++;
         }
@@ -374,7 +392,6 @@ public class FcpInsert
         }
         checkKeyMaps.add(checkResults);
         }
-
 
         checkThreads = null;
 

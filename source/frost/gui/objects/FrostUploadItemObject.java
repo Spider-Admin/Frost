@@ -18,14 +18,15 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     private final static String STATE_UPLOADED_NEVER_STR = LangRes.getString("Never");
     private final static String STATE_REQUESTED_STR      = LangRes.getString("Requested");
     private final static String STATE_UPLOADING_STR      = LangRes.getString("Uploading");
-    private final static String STATE_PROGRESS_STR       = " kb";
+//    private final static String STATE_PROGRESS_STR       = " kb";
 
     private String fileName = null;
     private String filePath = null;
     private Long fileSize = null;
     private int state = 0;
     private String lastUploadDate = null; // is null as long as NEVER uploaded
-    private long uploadProgress = 0;
+    private int uploadProgressTotalBlocks = -1;
+    private int uploadProgressDoneBlocks = -1;
 
     private String key = null;
     private FrostBoardObject targetBoard = null;
@@ -142,22 +143,20 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         {
         case STATE_REQUESTED:   statestr = STATE_REQUESTED_STR; break;
         case STATE_UPLOADING:   statestr = STATE_UPLOADING_STR; break;
-        case STATE_PROGRESS:    statestr = (uploadProgress/1024) + STATE_PROGRESS_STR; break;
+        case STATE_PROGRESS:    statestr = getUploadProgress(); break;
+//        case STATE_PROGRESS:    statestr = (uploadProgress/1024) + STATE_PROGRESS_STR; break;
         case STATE_IDLE:        statestr = ( (lastUploadDate==null) ? STATE_UPLOADED_NEVER_STR : lastUploadDate );
         }
         return statestr;
     }
 
-
-    public long getUploadProgress()
+    public String getUploadProgress()
     {
-        return uploadProgress;
+        int percentDone = 0;
+        if( uploadProgressTotalBlocks > 0 )
+            percentDone = (int)((uploadProgressDoneBlocks * 100) / uploadProgressTotalBlocks);
+        return( uploadProgressDoneBlocks + " / " + uploadProgressTotalBlocks + " ("+percentDone+"%)" );
     }
-    public void setUploadProgress( long val )
-    {
-        uploadProgress = val;
-    }
-
 
     public String getLastUploadDate()
     {
@@ -168,5 +167,18 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         lastUploadDate = val;
     }
 
+    public void setUploadProgressTotalBlocks( int val )
+    {
+        uploadProgressTotalBlocks = val;
+    }
+
+    public void setUploadProgressDoneBlocks( int val )
+    {
+        uploadProgressDoneBlocks = val;
+    }
+    public void incUploadProgressDoneBlocks()
+    {
+        uploadProgressDoneBlocks++;
+    }
 }
 

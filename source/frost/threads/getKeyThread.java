@@ -95,7 +95,7 @@ public class getKeyThread extends Thread {
 
     public void run() {
 
-    frame1.updateDownloads = true;
+//    frame1.updateDownloads = true;
     int tries = 0;
     boolean success = false;
 
