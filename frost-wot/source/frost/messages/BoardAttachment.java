@@ -57,8 +57,7 @@ public class BoardAttachment implements Attachment {
 		el.appendChild(pubkey);
 		
 		Element privkey = container.createElement("privKey");
-		cdata = container.createCDATASection(
-					mixed.makeSafeXML(boardObj.getPrivateKey()));
+		cdata = container.createCDATASection(boardObj.getPrivateKey()); //null is ok
 		privkey.appendChild(cdata);
 		el.appendChild(privkey);
 		
