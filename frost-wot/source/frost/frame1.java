@@ -307,9 +307,10 @@ public class frame1 extends JFrame implements ClipboardOwner
             Runtime.getRuntime().addShutdownHook(saver);
 
             cleaner = new TimerTask() {
+                int i = 0;
                 public void run() {
-                    int i =0;
-                    if( i==10 && frostSettings.getBoolValue("doCleanUp") )
+                    // maybe each 6 hours cleanup files (12 * 30 minutes)
+                    if( i==12 && frostSettings.getBoolValue("doCleanUp") )
                     {
                         i=0;
                         System.out.println("discarding old files");
@@ -320,7 +321,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     i++;
                 }
                 };
-            timer2.schedule(cleaner,10*60*1000,10*60*1000);
+            timer2.schedule(cleaner,30*60*1000,30*60*1000); // all 30 minutes
         }
         catch( Exception e ) { e.printStackTrace(); }
     }

@@ -310,10 +310,10 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 }
                 else
                 {
-                    if( !flagNew )
+/*                    if( !flagNew )
                     {
                         System.out.println("TOFDN: *** Increased TOF index for board '"+board.toString()+"' ***");
-                    }
+                    }*/
                     failures++;
                     index++;
                 }
