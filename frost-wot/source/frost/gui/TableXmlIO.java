@@ -25,6 +25,8 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
+import frost.fileTransfer.download.*;
+import frost.fileTransfer.upload.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 

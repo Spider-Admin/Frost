@@ -26,8 +26,8 @@ import javax.swing.JTable;
 
 import frost.*;
 import frost.FcpTools.FcpRequest;
-import frost.gui.model.UploadTableModel;
-import frost.gui.objects.FrostUploadItemObject;
+import frost.fileTransfer.upload.*;
+import frost.fileTransfer.upload.FrostUploadItemObject;
 import frost.identities.FrostIdentities;
 /**
  * Downloads file requests

@@ -22,7 +22,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.gui.model.DownloadTableModel;
+import frost.fileTransfer.download.*;
 import frost.gui.objects.*;
 import frost.identities.Identity;
 import frost.messages.*;

@@ -9,6 +9,7 @@ package frost.search;
 import java.beans.*;
 
 import frost.*;
+import frost.fileTransfer.download.*;
 import frost.gui.*;
 import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.FrostIdentities;

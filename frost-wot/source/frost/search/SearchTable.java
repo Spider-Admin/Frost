@@ -24,10 +24,10 @@ import java.util.LinkedList;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
+import frost.fileTransfer.download.*;
 import frost.gui.*;
 import frost.gui.objects.*;
 import frost.identities.*;
-import frost.search.*;
 
 class SearchTable extends SortedTable
 {

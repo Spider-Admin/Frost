@@ -10,7 +10,7 @@ import javax.mail.internet.*;
 import com.sun.mail.smtp.*;
 
 import frost.*;
-import frost.gui.objects.FrostDownloadItemObject;
+import frost.fileTransfer.download.FrostDownloadItemObject;
 
 /**
  * @author zlatinb
