@@ -27,29 +27,20 @@ public class ReadAccess {
      */
     public static String readFile(File file)
     {
-        return readFile(file.getPath());
-    }
-    public static String readFile(String path)
-    {
-        BufferedReader f;
-        String line = new String();
-        StringBuffer stringBuffer = new StringBuffer();
-
-        try
-	    {
-		f = new BufferedReader(new FileReader(path));
-		while( (line = f.readLine()) != null )
-		    {
-			stringBuffer.append(line);
-			stringBuffer.append("\r\n");
-		    }
-		f.close();
+	StringBuffer buffer = new StringBuffer();
+	try {
+	    FileInputStream fis = new FileInputStream(file);
+	    InputStreamReader isr = new InputStreamReader(fis, "UTF8");
+	    Reader in = new BufferedReader(isr);
+	    int ch;
+	    while ((ch = in.read()) > -1) {
+		buffer.append((char)ch);
 	    }
-        catch( IOException e )
-	    {
-		System.out.println("Read Error: " + path);
-	    }
-
-        return stringBuffer.toString();
+	    in.close();
+	    return buffer.toString();
+	} catch (IOException e) {
+	    e.printStackTrace();
+	    return null;
+	}
     }
 }
