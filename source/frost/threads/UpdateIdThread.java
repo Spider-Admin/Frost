@@ -36,6 +36,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private static final int MAX_TRIES = 2; //number of times each index will be tried -1
 
     private Vector indices;
+    private File indicesFile;
     private int maxKeys;
     private String date;
     private String oldDate;
@@ -57,6 +58,18 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
      * @return true if index file was created, else false.
      */
      
+     
+    private void commit() {
+    	try{
+		indicesFile.delete();
+		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indicesFile));
+		out.writeObject(indices);
+		out.flush();
+		out.close();
+	}catch(IOException e) {
+		e.printStackTrace();
+	}
+    }
     private int findFreeIndex() {
     	for (int i = 0;i<indices.size();i++){
 		Integer current = (Integer)indices.elementAt(i);
@@ -64,6 +77,20 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			return i;
 	}
 	return -1;
+    }
+    
+    private void setIndexFailed(int i) {
+    	int current = ((Integer)indices.elementAt(i)).intValue();
+	
+	if (current == -1 || current >= MAX_TRIES) {
+		System.err.println("\n\nWARNING - index sequence screwed. report to a dev\n\n");
+		return;
+	}
+	
+	indices.setElementAt(new Integer(current++),i);
+	
+	commit();
+		
     }
     private boolean makeIndexFile()
     {
@@ -352,10 +379,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         keypool = frame1.frostSettings.getValue("keypool.dir");
         maxKeys = frame1.frostSettings.getIntValue("maxKeys");
 	
+	indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices");
+	
 	//indices = new Vector();
 	
 	try {
-		File indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices");
 		if (indicesFile.exists()) {
 			ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
 			indices = (Vector)in.readObject();
