@@ -13,6 +13,7 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
+import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
 /**
@@ -110,6 +111,9 @@ public class NewBoardDialog extends JDialog {
 		setContentPane(contentPanel);
 		contentPanel.setLayout(new GridBagLayout());
 		refreshLanguage();
+		
+		new TextComponentClipboardMenu(nameTextField, language);
+		new TextComponentClipboardMenu(descriptionTextArea, language);
 		
 		// Adds all of the components			
 		GridBagConstraints constraints = new GridBagConstraints();

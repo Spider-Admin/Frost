@@ -32,7 +32,7 @@ import frost.boards.TofTree;
 import frost.gui.model.*;
 import frost.gui.objects.Board;
 import frost.messages.BoardAttachment;
-import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.*;
 import frost.util.gui.translation.Language;
 
 /**
@@ -110,6 +110,7 @@ public class KnownBoardsFrame extends JDialog
         BaddBoard = new JButton(language.getString("KnownBoardsFrame.Add board"));
 
         TFlookupBoard = new JTextField(10);
+        new TextComponentClipboardMenu(TFlookupBoard, language);
         // force a max size, needed for BoxLayout
         TFlookupBoard.setMaximumSize(TFlookupBoard.getPreferredSize());
         
