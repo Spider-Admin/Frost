@@ -252,7 +252,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 				return uploadItem.getFilePath();
 				
 			case 4 :	//Destination
-				return uploadItem.getTargetBoard();
+				return uploadItem.getTargetBoard().getName();
 				
 			case 5 :	//Key
 				if (uploadItem.getKey() == null) {

@@ -264,7 +264,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 				} 
 			
 			case 4 :	//Board
-				return searchItem.getBoard();
+				return searchItem.getBoard().getName();
 			
 			default: 
 				return "**ERROR**";	

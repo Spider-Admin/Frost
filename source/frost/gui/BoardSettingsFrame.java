@@ -621,7 +621,7 @@ public class BoardSettingsFrame extends JDialog {
 	 * 
 	 */
 	private void refreshLanguage() {
-		setTitle(language.getString("Settings for board") + " '" + board + "'");
+		setTitle(language.getString("Settings for board") + " '" + board.getName() + "'");
 
 		publicBoardRadioButton.setText(language.getString("Public board"));
 		secureBoardRadioButton.setText(language.getString("Secure board"));

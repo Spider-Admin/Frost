@@ -377,7 +377,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 				if (downloadItem.getSourceBoard() == null) {
 					return "";
 				} else {
-					return downloadItem.getSourceBoard();
+					return downloadItem.getSourceBoard().getName();
 				}
 
 			case 8 : //From

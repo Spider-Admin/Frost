@@ -1714,7 +1714,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						? language.getString("folder")
 						: language.getString("board"));
 
-				descriptionItem.setText(folderOrBoard1 + " : " + selectedTreeNode);
+				descriptionItem.setText(folderOrBoard1 + " : " + selectedTreeNode.getName());
 				refreshItem.setText(language.getString("Refresh") + " " + folderOrBoard2);
 				removeNodeItem.setText(language.getString("Remove") + " " + folderOrBoard2);
 				cutNodeItem.setText(language.getString("Cut") + " " + folderOrBoard2);
