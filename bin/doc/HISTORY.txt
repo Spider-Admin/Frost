@@ -2,9 +2,12 @@ Changes since version 2-Dec-2004 dev:
 
 Added: if we have an old identities file, it is deleted after being converted to the new xml format.
 Added: saving of both the uploads and downloads models is much more robust now.
+Added: some internationalization improvements.
 
 Changed: messages are signed by default.
 Changed: now the size of the new message window is relative to the size of the main window.
+Changed: now, when you are writing a new message and you want to attach a board to it, you can choose 
+         among all the known boards, instead of among the ones you are subscribed to.
 
 Bugfix: obsolete strings in the language resources were causing an exception when trying to open 
         the translation frame.
