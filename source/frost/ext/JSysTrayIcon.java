@@ -80,7 +80,7 @@ public class JSysTrayIcon
       if( System.getProperty("os.name").startsWith("Windows") )
       {
           try {
-              System.loadLibrary("JSysTray"); // Load JSysTray.dll
+              System.loadLibrary("exec/JSysTray"); // Load JSysTray.dll
               libLoaded = true;
           }
           catch(UnsatisfiedLinkError e)
@@ -280,4 +280,6 @@ public class JSysTrayIcon
   {
       return JSysTrayIcon.sysTrayIcon;
   }
+  
+  // TODO: wrap all instance methods to not to need the test if getInstance() is null
 }
