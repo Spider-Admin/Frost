@@ -324,7 +324,6 @@ public class requestThread extends Thread
                                                htl.toString(),
                                                false) )
                         {
-
                             File numberOne = new File(compareMe);
                             File numberTwo = requestFile;
                             String contentOne = (FileAccess.readFile(numberOne)).trim();
@@ -342,8 +341,17 @@ public class requestThread extends Thread
                             {
                                 index++;
                                 System.out.println("Request Upload collided, increasing index to " + index);
-                                // write a .req file to inform others to not try this index again
-                                FileAccess.writeFile("ERROR: key collision", testMe);
+
+                                if( frame1.frostSettings.getBoolValue("disableRequests") == true )
+                                {
+                                    // uploading is disabled, therefore already existing requests are not
+                                    // written to disk, causing key collosions on every request insert.
+
+                                    // this write a .req file to inform others to not try this index again
+                                    // if user switches to uploading enabled, this dummy .req files should
+                                    // be silently deleted to enable receiving of new requests
+                                    FileAccess.writeFile("ERROR: key collision", testMe);
+                                }
                             }
                         }
                         else

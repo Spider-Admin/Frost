@@ -259,18 +259,7 @@ public class TOF
                     {
                         String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ )
-                        {/*
-                            if( filePointers[j].getName().endsWith(".txt.lck") )
-                            {
-                                // update the node that contains new messages
-                                newMsgCount++;
-                                board.setNewMessageCount(newMsgCount);
-                                SwingUtilities.invokeLater( new Runnable() {
-                                    public void run() {
-                                        frame1.getInstance().updateTofTree(board);
-                                    } });
-                            }
-                            else */
+                        {
                             if( (filePointers[j].getName()).endsWith(".txt") &&
                                  filePointers[j].length() > 0 &&
                                  filePointers[j].length() < 32000 &&
@@ -356,13 +345,9 @@ public class TOF
             return true;
 
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
-            frame1.frostSettings.getBoolValue("hideBadMessages") &&
-            (message.getStatus().indexOf("BAD")!=-1))
+            frame1.frostSettings.getBoolValue("hideBad") &&
+            (message.getStatus().indexOf("BAD")>-1) )
             return true;
-	if( frame1.frostSettings.getBoolValue("signedOnly") &&
-	    frame1.frostSettings.getBoolValue("hideCheckMessages") &&
-	    (message.getStatus().indexOf("CHECK")!=-1))
-	    return true;
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
         {
@@ -460,17 +445,46 @@ public class TOF
                         {
                             if( filePointers[j].getName().endsWith(".txt.lck") )
                             {
-                                // update the node that contains new messages
-                                board.incNewMessageCount();
+                                // search for message
+                                String lockFilename = filePointers[j].getName();
+                                String messagename = lockFilename.substring(0, lockFilename.length()-4);
+                                boolean found = false;
+                                int k;
+                                for( k=0; k<filePointers.length; k++ )
+                                {
+                                    if( filePointers[k].getName().equals( messagename ) &&
+                                        filePointers[k].length() > 0 &&
+                                        filePointers[k].length() < 32000
+                                      )
+                                    {
+                                        // found message file for lock file
+                                        found = true;
+                                        break;
+                                    }
+                                }
+                                if( found == false )
+                                {
+                                    filePointers[j].delete();
+                                    continue;  // next .lck file
+                                }
+                                FrostMessageObject message = new FrostMessageObject(filePointers[k]);
+                                if( message.isValid() && !blocked(message) )
+                                {
+                                    // update the node that contains new messages
+                                    board.incNewMessageCount();
 
-                                SwingUtilities.invokeLater( new Runnable() {
-                                       public void run()
-                                       {
-                                           frame1.getInstance().updateTofTree(board);
-                                       }
-                                   });
-                                // search through all to get correct newMessageCount
-                                //break; // process next board
+                                    SwingUtilities.invokeLater( new Runnable() {
+                                           public void run()
+                                           {
+                                               frame1.getInstance().updateTofTree(board);
+                                           }
+                                       });
+                                }
+                                else
+                                {
+                                    // message is blocked
+                                    filePointers[j].delete();
+                                }
                             }
                         }
                     }
@@ -480,5 +494,4 @@ public class TOF
             }
         }
     }
-
 }
