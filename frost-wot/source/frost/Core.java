@@ -38,6 +38,7 @@ import frost.gui.objects.*;
 import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.*;
 import frost.messages.*;
+import frost.search.SearchManager;
 import frost.threads.*;
 import frost.threads.maintenance.*;
 
@@ -69,6 +70,9 @@ public class Core {
 	static Hashtable myBatches = new Hashtable();
 
 	private static crypt crypto = new FrostCrypt();
+	
+	private frame1 mainFrame;
+	private SearchManager searchManager;
 	
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	
@@ -568,8 +572,9 @@ private FrostIdentities identities;
 		splashscreen.setProgress(60);
 
 		//Main frame		
-		frame1 frame = new frame1(frostSettings, languageResource);
-		frame.validate();
+		mainFrame = new frame1(frostSettings, languageResource);
+		mainFrame.validate();
+		initializeSearch();
 
 		splashscreen.setText(languageResource.getString("Wasting more time"));
 		splashscreen.setProgress(70);
@@ -605,7 +610,7 @@ private FrostIdentities identities;
 		splashscreen.setText(languageResource.getString("Reaching ridiculous speed..."));
 		splashscreen.setProgress(80);
 
-		frame.setVisible(true);
+		mainFrame.setVisible(true);
 
 		splashscreen.closeMe();
 
@@ -615,6 +620,19 @@ private FrostIdentities identities;
 				logger.severe("Could not create systray icon.");
 			}
 		}
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeSearch() {
+		searchManager = new SearchManager(languageResource, frostSettings);
+		searchManager.setMainFrame(mainFrame);
+		searchManager.setDownloadTable(mainFrame.getDownloadTable());
+		searchManager.setTofTree(mainFrame.getTofTree()); 
+		searchManager.setKeypool(frame1.keypool); 
+		searchManager.setIdentities(getIdentities());
+		searchManager.initialize();
 	}
 
 	/**
