@@ -39,9 +39,12 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public FrostUploadItemObject(File file, FrostBoardObject board)
     {
         //this.fileName = mixed.makeFilename( file.getName() ); //users weren't happy with this
-	    this.fileName = file.getName();
-        this.filePath = file.getPath();
-        this.fileSize = new Long( file.length() );
+    	if (file!=null) {
+    		this.fileName = file.getName();
+        	this.filePath = file.getPath();
+        	this.fileSize = new Long( file.length() );
+    	} else 
+    		assert(board==null) : "constructor called with null file, but not null board";
         this.targetBoard = board;
         this.state = STATE_IDLE;
         this.lastUploadDate = null;

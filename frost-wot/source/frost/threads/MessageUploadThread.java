@@ -30,8 +30,8 @@ import org.w3c.dom.Document;
 import frost.*;
 import frost.FcpTools.FcpInsert;
 import frost.crypt.SignMetaData;
-import frost.gui.MessageUploadFailedDialog;
-import frost.gui.objects.FrostBoardObject;
+import frost.gui.*;
+import frost.gui.objects.*;
 import frost.messages.*;
 
 import frost.FcpTools.*;
@@ -90,8 +90,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 try {
                     result = FcpInsert.putFile("CHK@",
                                                sfo.getFile(),
+                    						   null,
                                                uploadHtl,
-                                               true); // doRedirect
+                                               true,new FrostUploadItemObject(null,null)); // doRedirect
                 }
                 catch(Exception ex)
                 {
@@ -118,6 +119,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 						
 						((FECRedirectFileObject)sfo).setRedirect(
 								new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
+						splitFile.finishUpload(true);
                 } else
                 	Core.getOut().println("not attaching redirect");
                 
