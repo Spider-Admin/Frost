@@ -31,6 +31,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     private Boolean showSignedOnly = null;
     private Boolean hideBad = null;
     private Boolean hideCheck = null;
+    private Boolean hideNA = null;
 
     /**
      * Constructs a new FrostBoardObject wich is a Board.
@@ -346,4 +347,21 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
         hideCheck = val;
     }
 
+    public boolean getHideNA()
+    {
+        if( !isConfigured() || hideNA == null )
+        {
+            // return default
+            return frame1.frostSettings.getBoolValue("hideNAMessages");
+        }
+        return hideNA.booleanValue();
+    }
+    public Boolean getHideNAObj()
+    {
+        return hideNA;
+    }
+    public void setHideNA( Boolean val )
+    {
+        hideNA = val;
+    }
 }
