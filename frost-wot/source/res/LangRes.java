@@ -533,12 +533,14 @@ public class LangRes extends ListResourceBundle {
 	{"This will not delete messages","This will not delete messages"},
 		
 	///
-	///	FrostSearchItemObject
+	///	SearchTableFormat
 	///
 	
 	{"FrostSearchItemObject.Offline","Offline"},
 	{"FrostSearchItemObject.Anonymous","Anonymous"},
-	{"FrostSearchItemObject.*ERROR*","*ERROR*"},
+	{"SearchTableFormat.Uploading","Uploading"},
+	{"SearchTableFormat.Downloading","Downloading"},
+	{"SearchTableFormat.Downloaded","Downloaded"},
 		
 	///
 	/// DownloadTableFormat

@@ -162,7 +162,7 @@ static final Object[][] contents = {
 {"Maximum number of retries","Número máximo de reintentos"},
 {"Maximum search results","Número máximo de resultados de búsqueda"},
 {"Message base","Base de mensajes"},
-{"Message download HTL","HTL para bajada de mensajes"},
+{"Message download HTL","HTL para descarga de mensajes"},
 {"Message upload HTL","HTL para subida de mensajes"},
 {"Messages","Mensajes"},
 {"Messages Today","Mensajes Hoy"},
@@ -361,12 +361,14 @@ static final Object[][] contents = {
 	{"This will not delete messages","Esto no borrará los mensajes"},
 	
 	///
-	///	FrostSearchItemObject
+	///	SearchTableFormat
 	///
 	
 	{"FrostSearchItemObject.Offline","Offline"},
 	{"FrostSearchItemObject.Anonymous","Anónimo"},
-	{"FrostSearchItemObject.*ERROR*","*ERROR*"},
+	{"SearchTableFormat.Uploading","Subiendo"},
+	{"SearchTableFormat.Downloading","Descargando"},
+	{"SearchTableFormat.Downloaded","Descargado"},
 	
 	///
 	/// DownloadTableFormat
