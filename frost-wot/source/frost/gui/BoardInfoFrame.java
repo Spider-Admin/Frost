@@ -48,23 +48,24 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
     JLabel summaryLabel = new JLabel();
 
-    JButton updateButton = new JButton(LangRes.getString("Update"));
+    JButton updateButton = new JButton(LangRes.getString("BoardInfoFrame.Update"));
     JButton updateSelectedBoardButton = new JButton(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-    JButton updateAllBoardsButton = new JButton("Update all boards");
-    JButton Bclose = new JButton("Close");
+    JButton updateAllBoardsButton = new JButton(LangRes.getString("BoardInfoFrame.Update all boards"));
+    JButton Bclose = new JButton(LangRes.getString("BoardInfoFrame.Close"));
 
     JPopupMenu popupMenu = new JPopupMenu();
-    JMenuItem MIupdate = new JMenuItem(LangRes.getString("Update"));
+    JMenuItem MIupdate = new JMenuItem(LangRes.getString("BoardInfoFrame.Update"));
     JMenuItem MIupdateSelectedBoard = new JMenuItem(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-    JMenuItem MIupdateAllBoards = new JMenuItem("Update all boards");
+    JMenuItem MIupdateAllBoards = new JMenuItem(LangRes.getString("BoardInfoFrame.Update all boards"));
 
     BoardInfoTableModel boardTableModel = new BoardInfoTableModel();
     SortedTable boardTable = new SortedTable(boardTableModel);
 
     /**Constructor*/
-    public BoardInfoFrame(frame1 p)
+    public BoardInfoFrame(frame1 p, ResourceBundle LangRes)
     {
         super();
+		this.LangRes = LangRes;
         parent = p;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
@@ -83,7 +84,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         //------------------------------------------------------------------------
 
         this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
-        this.setTitle(LangRes.getString("Board information"));
+        this.setTitle(LangRes.getString("BoardInfoFrame.Board information window"));
         this.setSize(new Dimension(300, 200));
         this.setResizable(true);
 
@@ -272,11 +273,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                 SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             boardTableModel.addRow(finalRow);
-                            summaryLabel.setText(LangRes.getString("Boards") +"   :"+
+                            summaryLabel.setText(LangRes.getString("BoardInfoFrame.Boards") +"   :"+
                                                  finalBoardCount +"    "+
-                                                 LangRes.getString("Messages") +"  : "+
+                                                 LangRes.getString("BoardInfoFrame.Messages") +"  : "+
                                                  finalMessageCount +"    "+
-                                                 LangRes.getString("Files") + "   :"+
+                                                 LangRes.getString("BoardInfoFrame.Files") + "   :"+
                                                  finalFileCount);
                         }});
             }
