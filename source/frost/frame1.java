@@ -1060,7 +1060,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		searchTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 		searchTopPanel.add(Box.createHorizontalGlue());
 
-		searchResultsCountPrefix = LangRes.getString("   Results: ");
+		searchResultsCountPrefix = "   " + LangRes.getString("Results") + ": ";
 		JLabel dummyLabel = new JLabel(searchResultsCountPrefix + "00000");
 		dummyLabel.doLayout();
 		Dimension labelSize = dummyLabel.getPreferredSize();
@@ -2823,25 +2823,25 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		/////////////////////////////////////////////////
 		String newText =
 			new StringBuffer()
-				.append(LangRes.getString("Up: "))
+				.append(LangRes.getString("Up") + ": ")
 				.append(activeUploadThreads)
-				.append(LangRes.getString("   Down: "))
+				.append("   " + LangRes.getString("Down") + ": ")
 				.append(activeDownloadThreads)
-				.append(LangRes.getString("   TOFUP: "))
+				.append("   " + LangRes.getString("TOFUP") + ": ")
 				.append(getRunningBoardUpdateThreads().getUploadingBoardCount())
 				.append("B / ")
 				.append(
 					getRunningBoardUpdateThreads()
 						.getRunningUploadThreadCount())
 				.append("T")
-				.append(LangRes.getString("   TOFDO: "))
+				.append("   " + LangRes.getString("TOFDO") + ": ")
 				.append(getRunningBoardUpdateThreads().getUpdatingBoardCount())
 				.append("B / ")
 				.append(
 					getRunningBoardUpdateThreads()
 						.getRunningDownloadThreadCount())
 				.append("T")
-				.append(LangRes.getString("   Selected board: "))
+				.append("   " + LangRes.getString("Selected board") + ": ")
 				.append(getSelectedNode().toString())
 				.toString();
 		statusLabel.setText(newText);

@@ -121,7 +121,7 @@ public class MessageFrame extends JFrame
         }
         
         addAttachedFilesToUploadTable.setSelected(false);
-        addAttachedFilesToUploadTable.setToolTipText("Should file attachments be added to upload table?");
+        addAttachedFilesToUploadTable.setToolTipText(LangRes.getString("Should file attachments be added to upload table?"));
 
         //------------------------------------------------------------------------
         // Actionlistener
@@ -164,9 +164,9 @@ public class MessageFrame extends JFrame
         JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
         JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
         
-        JLabel Lboard = new JLabel(LangRes.getString("Board: "));
-        JLabel Lfrom = new JLabel(LangRes.getString("From: "));
-        JLabel Lsubject = new JLabel(LangRes.getString("Subject: "));
+        JLabel Lboard = new JLabel(LangRes.getString("Board") + ": ");
+        JLabel Lfrom = new JLabel(LangRes.getString("From") + ": ");
+        JLabel Lsubject = new JLabel(LangRes.getString("Subject") + ": ");
 
         JScrollPane textScroller = new JScrollPane(TAcontent); // Textscrollpane
         textScroller.setMinimumSize(new Dimension(100, 50));
