@@ -42,7 +42,7 @@ import frost.gui.objects.*;
 import frost.gui.translation.*;
 import frost.identities.Identity;
 import frost.messages.*;
-import frost.search.*;
+import frost.search.FrostSearchItemObject;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
 
@@ -993,15 +993,13 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 	JButton saveMessageButton = null;
-	private SearchPanel searchPanel = null;
-	private SearchTableModel searchTableModel = null;
 
 	// labels that are updated later
 	JLabel statusLabel = null;
 	JLabel statusMessageLabel = null;
 	JButton systemTrayButton = null;
 
-	JTabbedPane tabbedPane = null;
+	private JTranslatableTabbedPane tabbedPane = null;
 	JLabel timeLabel = null;
 
 	JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
@@ -1665,12 +1663,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	}
 
 	private JPanel buildTofMainPanel() {
-		this.tabbedPane = new JTabbedPane();
+		tabbedPane = new JTranslatableTabbedPane(languageResource);
 		//add a tab for buddies perhaps?
-		tabbedPane.add(languageResource.getString("News"), buildMessagePane());
-		tabbedPane.add(languageResource.getString("Search"), getSearchPanel());
-		tabbedPane.add(languageResource.getString("Downloads"), getDownloadPanel());
-		tabbedPane.add(languageResource.getString("Uploads"), getUploadPanel());
+		tabbedPane.add("News", buildMessagePane());
+		tabbedPane.add("Downloads", getDownloadPanel());
+		tabbedPane.add("Uploads", getUploadPanel());
 
 		updateOptionsAffectedComponents();
 
@@ -1982,32 +1979,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		return icon;
 	}
 
-	/**
-		 * @return
-		 */
-	private SearchPanel getSearchPanel() {
-		if (searchPanel == null) {
-			searchPanel = new SearchPanel(frostSettings);
-			searchPanel.setTableModel(getSearchTableModel());
-			searchPanel.setDownloadTable(getDownloadTable());
-			searchPanel.setTofTree(getTofTree());
-			searchPanel.setKeypool(keypool);
-			searchPanel.setLanguageResource(languageResource);
-			searchPanel.setIdentities(core.getIdentities());
-			searchPanel.initialize();
-		}
-		return searchPanel;
-	}
-	/**
-	 * @return
-	 */
-	public SearchTableModel getSearchTableModel() {
-		if (searchTableModel == null) {
-			searchTableModel = new SearchTableModel(languageResource);
-		}
-		return searchTableModel;
-	}
-
 	public FrostBoardObject getSelectedNode() { //TODO: move this method to TofTree
 		FrostBoardObject node = (FrostBoardObject) getTofTree().getLastSelectedPathComponent();
 		if (node == null) {
@@ -2149,7 +2120,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			getDownloadPanel().setDownloadingActivated(false);
 			tofAutomaticUpdateMenuItem.setSelected(false);
 		}
-		getSearchPanel().setAllBoardsSelected(frostSettings.getBoolValue("searchAllBoards"));
 		//      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
 		//      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
 
@@ -2657,7 +2627,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	public void setLanguageResource(ResourceBundle newLanguageResource) {
 		languageResource.setLanguageResource(newLanguageResource);
 		translateMainMenu();
-		translateTabbedPane();
 		translateButtons();
 	}
 
@@ -3110,13 +3079,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		helpAboutMenuItem.setText(languageResource.getString("About"));
 	}
 
-	private void translateTabbedPane() {
-		tabbedPane.setTitleAt(0, languageResource.getString("News"));
-		tabbedPane.setTitleAt(1, languageResource.getString("Search"));
-		tabbedPane.setTitleAt(2, languageResource.getString("Downloads"));
-		tabbedPane.setTitleAt(3, languageResource.getString("Uploads"));
-	}
-
 	private void trustButton_actionPerformed(ActionEvent e) {
 		if (selectedMessage != null) {
 			if (core.getIdentities().getEnemies().containsKey(selectedMessage.getFrom())) {
@@ -3176,7 +3138,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			threadStarted = true;
 		}
 
-		if (!frostSettings.getBoolValue("disableDownloads")
+		if (!frostSettings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS)
 			&& !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
 				board,
 				BoardUpdateThread.BOARD_FILE_DNLOAD)) {
@@ -3215,7 +3177,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	 * Called periodically by timer_actionPerformed().
 	 */
 	public void updateDownloadCountLabel() {
-		if (frostSettings.getBoolValue("disableDownloads") == true)
+		if (frostSettings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS) == true)
 			return;
 
 		DownloadTableModel model = (DownloadTableModel) getDownloadTable().getModel();
@@ -3256,36 +3218,22 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	 * 'Search' and 'Downloads'
 	 */
 	protected void updateOptionsAffectedComponents() {
-		if (frostSettings.getBoolValue("disableDownloads") == false) {
-			// search + downloads enabled
-			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(languageResource.getString("Search")),
-				true);
-			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(languageResource.getString("Downloads")),
-				true);
+		if (frostSettings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS) == false) {
+			// downloads enabled
+			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Downloads"), true);
 		} else {
-			// search + downloads disabled
-			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(languageResource.getString("Search")),
-				false);
-			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(languageResource.getString("Downloads")),
-				false);
+			// downloads disabled 
+			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Downloads"), false);
 		}
 
 		if (frostSettings.getBoolValue("disableRequests") == false) {
 			// uploads enabled
-			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(languageResource.getString("Uploads")),
-				true);
+			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Uploads"), true);
 		} else {
 			// uploads disabled
-			tabbedPane.setEnabledAt(
-				tabbedPane.indexOfTab(languageResource.getString("Uploads")),
-				false);
+			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Uploads"), false);
 		}
-		initializeFonts();	//In case the fonts were changed
+		initializeFonts(); //In case the fonts were changed
 		tofTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
 	}
 	/**
@@ -3342,6 +3290,25 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	 */
 	public void updateSettings() {
 		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
+	}
+
+	/**
+	 * @param title
+	 * @param panel
+	 */
+	public void addPanel(String title, JPanel panel) {
+		tabbedPane.add(title, panel);
+	}
+
+	/**
+	 * @param title
+	 * @param enabled
+	 */
+	public void setPanelEnabled(String title, boolean enabled) {
+		int position = tabbedPane.indexOfTab(title);
+		if (position != -1) { 
+			tabbedPane.setEnabled(enabled);
+		}
 	}
 
 }
