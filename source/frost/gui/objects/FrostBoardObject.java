@@ -35,8 +35,8 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     public FrostBoardObject(String name, String pubKey, String privKey)
     {
         this(name);
-        this.publicKey = pubKey;
-        this.privateKey = privKey;
+        setPublicKey( pubKey );
+        setPrivateKey( privKey );
     }
     /**
      * Constructs a new FrostBoardObject.
@@ -98,6 +98,8 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     }
     public void setPublicKey( String val )
     {
+        if( val != null )
+            val = val.trim();
         publicKey = val;
     }
     public String getPrivateKey()
@@ -106,6 +108,8 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
     }
     public void setPrivateKey( String val )
     {
+        if( val != null )
+            val = val.trim();
         privateKey = val;
     }
 
