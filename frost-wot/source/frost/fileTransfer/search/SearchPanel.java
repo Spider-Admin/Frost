@@ -19,7 +19,7 @@ import frost.gui.TofTree;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.*;
 import frost.threads.maintenance.Truster;
-import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
 import frost.util.model.gui.SortedModelTable;
@@ -389,8 +389,9 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 				{ "All files", "Audio", "Video", "Images", "Documents", "Executables", "Archives" };
 			searchComboBox = new JTranslatableComboBox(languageResource, searchComboBoxKeys);
 
-			configureButton(searchButton, "/data/search_rollover.gif");
-			configureButton(downloadButton, "/data/save_rollover.gif");
+			MiscToolkit toolkit = MiscToolkit.getInstance();
+			toolkit.configureButton(searchButton, "/data/search_rollover.gif");
+			toolkit.configureButton(downloadButton, "/data/save_rollover.gif");
 			downloadButton.setEnabled(false);
 			searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
 			searchTextField.setMaximumSize(searchTextField.getPreferredSize());
@@ -410,16 +411,16 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			searchTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			searchTopPanel.add(Box.createHorizontalGlue());
 			searchTopPanel.add(searchResultsCountLabel);
-			
+
 			// create the main search panel
 			SearchTableFormat tableFormat = new SearchTableFormat(languageResource);
-			
+
 			modelTable = new SortedModelTable(model, tableFormat);
 			setLayout(new BorderLayout());
 			add(searchTopPanel, BorderLayout.NORTH);
 			add(modelTable.getScrollPane(), BorderLayout.CENTER);
 			fontChanged();
-			
+
 			// listeners
 			searchTextField.addActionListener(listener);
 			downloadButton.addActionListener(listener);
@@ -431,7 +432,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 			modelTable.getTable().getSelectionModel().addListSelectionListener(listener);
 			model.addModelListener(listener);
-			
+
 			initialized = true;
 		}
 	}
@@ -457,18 +458,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		return dummyLabel.getPreferredSize();
 	}
 
-	/**
-	 * Configures a button to be a default icon button
-	 * @param button The new icon button
-	 * @param rolloverIcon Displayed when mouse is over button
-	 */
-	private void configureButton(JButton button, String rolloverIcon) {
-		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setBorderPainted(false);
-		button.setFocusPainted(false);
-	}
-	
 	/**searchButton Action Listener (Search)*/
 	private void searchButton_actionPerformed(ActionEvent e) {
 		searchButton.setEnabled(false);

@@ -16,7 +16,7 @@ import frost.*;
 import frost.ext.Execute;
 import frost.gui.TofTree;
 import frost.gui.objects.FrostBoardObject;
-import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
 import frost.util.model.gui.SortedModelTable;
@@ -483,13 +483,14 @@ public class UploadPanel extends JPanel {
 			refreshLanguage();
 
 			// create the top panel
-			configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
+			MiscToolkit toolkit = MiscToolkit.getInstance();
+			toolkit.configureButton(uploadAddFilesButton, "/data/browse_rollover.gif");
 			uploadTopPanel.setLayout(new FlowLayout(FlowLayout.LEFT, 8, 0));
 			uploadTopPanel.add(uploadAddFilesButton);
 
 			// create the main upload panel
 			UploadTableFormat tableFormat = new UploadTableFormat(languageResource);
-			
+
 			modelTable = new SortedModelTable(model, tableFormat);
 			setLayout(new BorderLayout());
 			add(uploadTopPanel, BorderLayout.NORTH);
@@ -598,18 +599,6 @@ public class UploadPanel extends JPanel {
 
 	private void showUploadTablePopupMenu(MouseEvent e) {
 		getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
-	}
-
-	/**
-	 * Configures a button to be a default icon button
-	 * @param button The new icon button
-	 * @param rolloverIcon Displayed when mouse is over button
-	 */
-	private void configureButton(JButton button, String rolloverIcon) {
-		button.setRolloverIcon(new ImageIcon(MainFrame.class.getResource(rolloverIcon)));
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setBorderPainted(false);
-		button.setFocusPainted(false);
 	}
 
 	/**
