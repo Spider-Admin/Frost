@@ -6,6 +6,8 @@
  */
 package frost.fileTransfer.upload;
 
+import java.util.*;
+
 import javax.swing.event.EventListenerList;
 
 import frost.*;
@@ -32,6 +34,22 @@ public class UploadTicker extends Thread {
 	private UploadModel model;
 
 	private int counter;
+	
+	/**
+	 * Used to sort FrostUploadItems by lastUploadStopTimeMillis ascending.
+	 */
+	static final Comparator uploadDlStopMillisCmp = new Comparator() {
+		public int compare(Object o1, Object o2) {
+			FrostUploadItem value1 = (FrostUploadItem) o1;
+			FrostUploadItem value2 = (FrostUploadItem) o2;
+			if (value1.getLastUploadStopTimeMillis() > value2.getLastUploadStopTimeMillis())
+				return 1;
+			else if (value1.getLastUploadStopTimeMillis() < value2.getLastUploadStopTimeMillis())
+				return -1;
+			else
+				return 0;
+		}
+	};
 	
 	/**
 	 * The number of allocated threads is used to limit the total of threads
@@ -300,7 +318,33 @@ public class UploadTicker extends Thread {
 				foundItem = ulItem;
 			}
 		}
-		return foundItem;
+		if (foundItem != null || !settings.getBoolValue(SettingsClass.RESTART_FAILED_UPLOADS)) {
+			return foundItem;
+		} else {
+			// Nothing requested? Let's see if there are waiting items.
+			ArrayList waitingItems = new ArrayList();
+			
+			for (int i = 0; i < model.getItemCount(); i++) {
+				FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+				if (ulItem.getState() == FrostUploadItem.STATE_WAITING 
+						&& (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue())) {
+					// check if waittime has expired
+					long waittimeMillis = settings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME) * 60 * 1000;
+					if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis())
+								> waittimeMillis) {
+						waitingItems.add(ulItem);
+					}
+				}
+			}
+			
+			if (waitingItems.size() == 0)
+				return null;
+
+			if (waitingItems.size() > 1) { // performance issues
+				Collections.sort(waitingItems, uploadDlStopMillisCmp);
+			}
+			return (FrostUploadItem) waitingItems.get(0);
+		}
 	}
 	
 	/**
