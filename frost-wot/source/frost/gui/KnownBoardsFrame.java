@@ -307,16 +307,19 @@ public class KnownBoardsFrame extends JDialog
             this.frostboard = ba.getBoardObj();
         }
 
-        public Object getValueAt(int column)
-        {
-            switch( column )
-            {
-                case 0: return frostboard.getBoardName();
-                case 1: return ((frostboard.getPublicKey()==null)?"":frostboard.getPublicKey());
-                case 2: return ((frostboard.getPrivateKey()==null)?"":frostboard.getPrivateKey());
-            }
-            return "*ERR*";
-        }
+		public Object getValueAt(int column) {
+			switch (column) {
+				case 0 :
+					return frostboard.getBoardName();
+				case 1 :
+					return ((frostboard.getPublicKey() == null) ? "" : frostboard.getPublicKey());
+				case 2 :
+					return ((frostboard.getPrivateKey() == null) ? "" : frostboard.getPrivateKey());
+				case 3 :
+					return ((frostboard.getDescription() == null) ? "" : frostboard.getDescription());
+			}
+			return "*ERR*";
+		}
         public int compareTo( TableMember anOther, int tableColumIndex )
         {
             String c1 = (String)getValueAt(tableColumIndex);
