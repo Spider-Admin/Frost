@@ -85,12 +85,12 @@ public class GetFriendsRequestsThread extends TimerTask {
 		
 		Core.getOut().println("will help total of "+ prefixes.size() +" batches");
 		Iterator it = prefixes.iterator();
-		File tempFile = null;
-		try {
-			tempFile = File.createTempFile("tmp"+System.currentTimeMillis(),null);
-		}catch (IOException e) {
-			e.printStackTrace(Core.getOut());
-		}
+		File tempFile = new File("requests"+File.separator+"helper");
+		//try {
+	//		tempFile = File.createTempFile("tmp"+System.currentTimeMillis(),null);
+	//	}catch (IOException e) {
+	//		e.printStackTrace(Core.getOut());
+	//	}
 		while (it.hasNext()){
 			String currentPrefix = (String)it.next();
 			
