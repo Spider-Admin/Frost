@@ -424,7 +424,15 @@ public class LangRes extends ListResourceBundle {
 	{"Use editor for writing messages", "Use editor for writing messages"},
 	{"Clean the keypool", "Clean the keypool"},
 	{"Automatic saving interval", "Automatic saving interval"}, 	
-	{"Disable splashscreen", "Disable splashscreen"}, 	
+	{"Disable splashscreen", "Disable splashscreen"}, 
+	{"Enable logging", "Enable logging"},
+	{"Logging level", "Logging level"},
+	{"Log file size limit (in KB)", "Log file size limit (in KB)"},
+	{"Very high", "Very high"},
+	{"High", "High"},
+	{"Medium", "Medium"},
+	{"Low", "Low"},
+	{"Very low", "Very low"},	
 
     // Display Panel
     {"EnableSkins", "Enable Skins"}, 	
