@@ -208,8 +208,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     // already on local disk, compare contents
                     String contentOne = (FileAccess.readFile(messageFile)).trim();
                     String contentTwo = (FileAccess.readFile(testMe)).trim();
-                    if( DEBUG ) System.out.println(contentOne);
-                    if( DEBUG ) System.out.println(contentTwo);
+                    //if( DEBUG ) System.out.println(contentOne);
+                    //if( DEBUG ) System.out.println(contentTwo);
                     if( contentOne.equals(contentTwo) )
                     {
                         if( DEBUG ) System.out.println("TOFUP: Message has already been uploaded.");

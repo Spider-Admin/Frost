@@ -1781,11 +1781,11 @@ public class frame1 extends JFrame implements ClipboardOwner
                 enemies.Add(newFriend);
 
             // get all .txt files in keypool
-            File[] entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
+            ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
                                                        ".txt");
-            for( int ii=0; ii<entries.length; ii++ )
+            for( int ii=0; ii<entries.size(); ii++ )
             {
-                FrostMessageObject tempMsg = new FrostMessageObject( entries[ii] );
+                FrostMessageObject tempMsg = new FrostMessageObject( (File)entries.get(ii) );
                 if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
                     tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
                 {
@@ -2458,7 +2458,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void searchTextField_actionPerformed(ActionEvent e)
     {
         if( searchButton.isEnabled() )
+        {
             searchButton_actionPerformed(e);
+        }
     }
 
     /**downloadTextField Action Listener (Download/Quickload)*/
@@ -2543,8 +2545,26 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         else
         {
-            boardsToSearch = new Vector();
-            boardsToSearch.add( getActualNode() );
+            if( getActualNode().isFolder() == false )
+            {
+                // search in selected board
+                boardsToSearch = new Vector();
+                boardsToSearch.add( getActualNode() );
+            }
+            else
+            {
+                // search in all boards below the selected folder
+                Enumeration enu = getActualNode().depthFirstEnumeration();
+                boardsToSearch = new Vector();
+                while( enu.hasMoreElements() )
+                {
+                    FrostBoardObject b = (FrostBoardObject)enu.nextElement();
+                    if( b.isFolder() == false )
+                    {
+                        boardsToSearch.add( b );
+                    }
+                }
+            }
         }
 
         SearchThread searchThread = new SearchThread(searchTextField.getText(),
@@ -2650,10 +2670,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                 for( int i = 0; i < selectedFiles.length; i++ )
                 {
                     // collect all choosed files + files in all choosed directories
-                    File[] allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
-                    for( int j = 0; j < allFiles.length; j++ )
+                    ArrayList allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+                    for( int j = 0; j < allFiles.size(); j++ )
                     {
-                        File newFile = allFiles[j];
+                        File newFile = (File)allFiles.get(j);
                         if( newFile.isFile() )
                         {
                             FrostUploadItemObject ulItem = new FrostUploadItemObject( newFile, board );
@@ -3141,16 +3161,15 @@ public class frame1 extends JFrame implements ClipboardOwner
             if( isInterrupted() )
                 return;
 
-            File[] entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
+            System.out.println("Starting search for unsent messages ...");
 
-            if( isInterrupted() )
-                return;
+            ArrayList entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
 
-            for( int i = 0; i < entries.length; i++ )
+            for( int i = 0; i < entries.size(); i++ )
             {
-                if( entries[i].getName().startsWith("unsent") )
+                File unsentMsgFile = (File)entries.get(i);
+                if( unsentMsgFile.getName().startsWith("unsent") )
                 {
-                    File unsentMsgFile = entries[i];
                     // Resend message
                     VerifyableMessageObject mo = new VerifyableMessageObject(unsentMsgFile);
                     if( mo.isValid() )
@@ -3181,6 +3200,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     unsentMsgFile.delete();
                 }
             }
+            System.out.println("Finished search for unsent messages ...");
         }
     }
 
