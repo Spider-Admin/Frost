@@ -60,12 +60,12 @@ public class frost
     public static void main(String[] args)
     {
         System.out.println();
-        System.out.println("Frost, Copyright (C) 2001 Jan-Thomas Czornack");
+        System.out.println("Frost, Copyright (C) 2003 Jan-Thomas Czornack");
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
-	    System.out.println("Frost uses code from bouncycastle.org (BSD license) and");
-	    System.out.println("apache.org (Apache license)");
+	    System.out.println("Frost uses code from apache.org (Apache license),");
+	    System.out.println("bouncycastle.org (BSD license) and Onion Networks (BSD license).");
         System.out.println();
         System.out.println();
 
@@ -79,7 +79,6 @@ public class frost
                 args[0].equals("/?") ||
                 args[0].equals("/help") )
             {
-
                 System.out.println("frost [-lf]");
                 System.out.println();
                 System.out.println("-lf     Allows to set the used 'Look and Feel'.");
@@ -87,13 +86,12 @@ public class frost
                 System.out.println("        com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
                 System.out.println("        com.sun.java.swing.plaf.motif.MotifLookAndFeel");
                 System.out.println("        javax.swing.plaf.mac.MacLookAndFeel");*/
-		UIManager.LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
-		for (int i =0;i<feels.length;i++)
-			System.out.println("           "+feels[i].getClassName());
-		System.out.println("\n default is " +lookAndFeel);
-
-
-
+        		UIManager.LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
+        		for (int i =0;i<feels.length;i++)
+                {
+                    System.out.println("           "+feels[i].getClassName());
+                }
+        		System.out.println("\n default is " +lookAndFeel);
                 System.exit(0);
             }
         }
