@@ -9,7 +9,7 @@ package frost.util.model;
 import java.util.EventListenerProxy;
 
 /**
- * This class forwards model change events a listener delegate. Its purpose
+ * This class forwards model change events to a listener delegate. Its purpose
  * is to be able to associate a certain field ID to that delegate.
  */
 public class OrderedModelListenerProxy extends EventListenerProxy implements OrderedModelListener {
@@ -17,13 +17,13 @@ public class OrderedModelListenerProxy extends EventListenerProxy implements Ord
 	private int fieldID;
 
 	/**
-	 * Constructor which binds the OrderedModelListener to a specific
+	 * Constructor which binds the given OrderedModelListener to a specific
 	 * field.
 	 * 
 	 * @param newListener The listener object
 	 * @param newFieldID The ID of the field to listen on. 
 	 */
-	public OrderedModelListenerProxy(int newFieldID, ModelListener newListener) {
+	public OrderedModelListenerProxy(int newFieldID, OrderedModelListener newListener) {
 		super(newListener);
 		fieldID = newFieldID;
 	}

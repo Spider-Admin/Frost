@@ -16,7 +16,7 @@ package frost.util.model;
 import java.util.EventListenerProxy;
 
 /**
- * This class forwards model change events a listener delegate. Its purpose
+ * This class forwards model change events to a listener delegate. Its purpose
  * is to be able to associate a certain field ID to that delegate.
  */
 class ModelListenerProxy extends EventListenerProxy implements ModelListener {
@@ -24,7 +24,7 @@ class ModelListenerProxy extends EventListenerProxy implements ModelListener {
 	private int fieldID;
 
 	/**
-	 * Constructor which binds the ModelChangeListener to a specific
+	 * Constructor which binds the given ModelListener to a specific
 	 * field.
 	 * 
 	 * @param newListener The listener object
