@@ -32,7 +32,7 @@ import frost.FcpTools.FcpInsert;
 import frost.crypt.MetaData;
 import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
-import frost.identities.Identity;
+//import frost.identities.Identity;
 import frost.messages.*;
 
 /**
@@ -51,7 +51,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private String privateKey;
     private String publicKey;
     private boolean secure;
-    private Identity recipient;
+//    private Identity recipient;
     
     File messageFile;
     
@@ -471,6 +471,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         mo.setTime(DateFun.getFullExtendedTime()+"GMT");
         mo.setDate(DateFun.getDate());
         
+        this.messageUploadHtl = frame1.frostSettings.getIntValue("tofUploadHtl");
+        this.keypool = frame1.frostSettings.getValue("keypool.dir");
         this.frameToLock = frame1.getInstance();
         
         // this class always creates a new msg file on hd and deletes the file 
