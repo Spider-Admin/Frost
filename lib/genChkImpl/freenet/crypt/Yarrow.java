@@ -70,8 +70,8 @@ public final class Yarrow extends RandomSource {
 	EntropySource startupEntropy=new EntropySource();
 
 	// Consume the system properties list
-	for (Enumeration enum=sys.propertyNames(); enum.hasMoreElements();) {
-	    String key=(String)enum.nextElement();
+	for (Enumeration enumeration=sys.propertyNames(); enumeration.hasMoreElements();) {
+	    String key=(String)enumeration.nextElement();
 	    consumeString(key);
 	    consumeString(sys.getProperty(key));
 	}
@@ -266,8 +266,8 @@ public final class Yarrow extends RandomSource {
 
 		if (slow_entropy >= (SLOW_THRESHOLD * 2)) {
 		    int kc=0;
-		    for (Enumeration enum=entropySeen.keys(); enum.hasMoreElements();) {
-			Object key=enum.nextElement();
+		    for (Enumeration enumeration=entropySeen.keys(); enumeration.hasMoreElements();) {
+			Object key=enumeration.nextElement();
 			Integer v=(Integer)entropySeen.get(key);
 			
 			logger.fine("Key: <" + key + "> "+ v);
@@ -382,8 +382,8 @@ public final class Yarrow extends RandomSource {
 	slow_entropy=0;
 
 	Integer ZERO=new Integer(0);
-	for (Enumeration enum=entropySeen.keys(); enum.hasMoreElements(); )
-	    entropySeen.put(enum.nextElement(), ZERO);
+	for (Enumeration enumeration=entropySeen.keys(); enumeration.hasMoreElements(); )
+	    entropySeen.put(enumeration.nextElement(), ZERO);
     }
 
     /**
