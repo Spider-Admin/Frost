@@ -92,6 +92,8 @@ public class requestThread extends Thread
                 }
                 downloadItem.setState(FrostDownloadItemObject.STATE_REQUESTED);
                 tableModel.updateRow(downloadItem);
+                
+                downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
                 synchronized (frame1.threadCountLock)
                 {
                     frame1.activeDownloadThreads--;
@@ -106,8 +108,7 @@ public class requestThread extends Thread
             // Download file
             FcpResults success = null;
 
-            try
-            {
+            try {
                 success =
                     FcpRequest.getFile(
                         key,
@@ -119,10 +120,9 @@ public class requestThread extends Thread
                         false, // createTempFile
                         downloadItem);
             }
-            catch (Throwable t)
-            {
+            catch (Throwable t){
                 t.printStackTrace(Core.getOut());
-            } //please don't do like this { ; }--zab
+            } 
 
             // file might be erased from table during download...
             boolean inTable = false;
