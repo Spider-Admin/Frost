@@ -52,10 +52,7 @@ import frost.identities.*;
 // after removing a board, let actual board selected (currently if you delete another than selected board
 //   the tofTree is updates)
 
-// Folders should count up and display the number
-// of unread messages in their child boards.  Otherwise
-// it never makes any sense to collapse a folder.
-
+// save tables/boards all ... minutes
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
