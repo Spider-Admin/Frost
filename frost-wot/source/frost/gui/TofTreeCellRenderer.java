@@ -40,6 +40,9 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
     ImageIcon boardSpammedIcon;
     String fileSeparator;
 
+    Font boldFont = null;
+    Font normalFont = null;
+
     public TofTreeCellRenderer()
     {
         fileSeparator = System.getProperty("file.separator");
@@ -53,6 +56,9 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         this.setLeafIcon(new ImageIcon(frame1.class.getResource("/data/board.gif")));
         this.setClosedIcon(new ImageIcon(frame1.class.getResource("/data/closed.gif")));
         this.setOpenIcon(new ImageIcon(frame1.class.getResource("/data/open.gif")));
+
+        normalFont = new JTable().getFont();
+        boldFont = normalFont.deriveFont( Font.BOLD );
     }
 
     public Component getTreeCellRendererComponent(JTree tree,
@@ -79,6 +85,17 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         }
 
         boolean containsNewMessage = board.containsNewMessage();
+
+        setText( board.getVisibleText() );
+
+        if( board.getNewMessageCount() > 0 )
+        {
+            setFont( boldFont );
+        }
+        else
+        {
+            setFont( normalFont );
+        }
 
         if( leaf == true )
         {
