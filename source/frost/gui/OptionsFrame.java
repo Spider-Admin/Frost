@@ -353,7 +353,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		downloadRequestAfterTriesLabel.setText(
 			LangRes.getString("Request file after this count of retries")
 				+ ": ");
-		interval.setText(LangRes.getString("Sample interval" + " (" + LangRes.getString("hours") + ")"));
+		interval.setText(LangRes.getString("Sample interval") + " (" + LangRes.getString("hours") + ")");
 		treshold.setText(LangRes.getString("Threshold of blocked messages"));
 	}
 
