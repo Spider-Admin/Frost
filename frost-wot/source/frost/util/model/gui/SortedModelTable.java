@@ -21,6 +21,10 @@ import frost.util.model.*;
 public class SortedModelTable extends ModelTable {
 	private static Logger logger = Logger.getLogger(SortedModelTable.class.getName());
 	
+	/**
+	 * Index in the ModelTable of the column the model is 
+	 * sorted by (or -1 if it is not currently sorted). 
+	 */
 	private int currentColumnNumber = -1;
 	private boolean ascending;
 	
@@ -56,7 +60,8 @@ public class SortedModelTable extends ModelTable {
 		SwingWorker worker = new SwingWorker(table) {
 
 			protected void doNonUILogic() throws RuntimeException {
-				((SortedModel) model).sort(columnNumberFinal, ascending);
+				int index = convertColumnIndexToFormat(columnNumberFinal);
+				((SortedModel) model).sort(index, ascending);
 			}
 
 			protected void doUIUpdateLogic() throws RuntimeException {
@@ -94,6 +99,20 @@ public class SortedModelTable extends ModelTable {
 	 */
 	public ModelItem getItemAt(int rowIndex) {
 		return model.getItemAt(rowIndex);
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.util.model.gui.ModelTable#setColumnVisible(int, boolean)
+	 */
+	public void setColumnVisible(int index, boolean visible) {
+		super.setColumnVisible(index, visible);
+		if (!visible) {
+			if (index == currentColumnNumber) {
+				currentColumnNumber = -1;
+			} else if (index < currentColumnNumber) {
+				currentColumnNumber--;
+			}
+		}
 	}
 
 }
