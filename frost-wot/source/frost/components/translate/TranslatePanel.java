@@ -68,6 +68,7 @@ public class TranslatePanel extends JPanel {
     private void init() {
 	//assemble gui objects
 	generateComboBox();
+	comboBox.setMaximumRowCount(25);
 
 	toolBar.add(comboBox);
 	toolBar.add(saveButton);
@@ -93,7 +94,7 @@ public class TranslatePanel extends JPanel {
     private void configureTable(String language) {
 	java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes", 
 									     new Locale(getSelectedLanguageCode()));
-
+	
 	tableModel.setRowCount(0);
 	for (Enumeration e = bundle.getKeys(); e.hasMoreElements(); ) {
 	    String originalText = (String)e.nextElement();
@@ -107,13 +108,12 @@ public class TranslatePanel extends JPanel {
      * comboBox.
      */
     private void generateComboBox() {
-	comboBox.addItem("English (en)");
-	comboBox.addItem("German (de)");
-	comboBox.addItem("French (fr)");
-	comboBox.addItem("Japanese (ja)");
-	comboBox.addItem("Javanese (jw)");
-	comboBox.addItem("Korean (ko)");
-	comboBox.addItem("Chinese (zh)");
+	Locale actualLocale = LangRes.getLocale();
+	Locale availableLocales[] = actualLocale.getAvailableLocales();
+	for (int i = 0; i < availableLocales.length; i++) {
+	    comboBox.addItem(availableLocales[i].getDisplayName() + " (" +  
+			     availableLocales[i].getLanguage() + ")");
+	}
     }
 
     /**

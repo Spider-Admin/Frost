@@ -66,7 +66,51 @@ public class frame1 extends JFrame implements ClipboardOwner {
      * Setter for thelanguage resource bundle
      */
     public void setLanguageResource(ResourceBundle LangRes) {
-	   frame1.LangRes = LangRes;
+	this.LangRes = LangRes;
+	translateMenuEntries();
+	translateTabbedPane();
+	translateButtons();
+    }
+
+    /**
+     * We really have to use ONE single point to configure all translateable 
+     * objecs. This way we can change the resourceBundle and change
+     * Frost's language on runtime.
+     */
+    private void translateMenuEntries() {
+	buildMenuBar();
+	buildPopupMenus();
+    }
+    private void translateTabbedPane() {
+	tabbedPane.setTitleAt(0, LangRes.getString("News"));
+	tabbedPane.setTitleAt(1, LangRes.getString("Search"));
+	tabbedPane.setTitleAt(2, LangRes.getString("Downloads"));
+	tabbedPane.setTitleAt(3, LangRes.getString("Uploads"));
+    }
+    private void translateButtons() {
+	newBoardButton.setToolTipText(LangRes.getString("New board"));
+	searchDownloadButton.setToolTipText(LangRes.getString("Download selected keys"));
+ 	systemTrayButton.setToolTipText(LangRes.getString("Minimize to System Tray"));
+ 	knownBoardsButton.setToolTipText(LangRes.getString("Display list of known boards"));
+ 	boardInfoButton.setToolTipText(LangRes.getString("Board Information Window"));
+	newFolderButton.setToolTipText(LangRes.getString("New folder"));
+ 	pasteBoardButton.setToolTipText(LangRes.getString("Paste board"));
+ 	configBoardButton.setToolTipText(LangRes.getString("Configure board"));
+	removeBoardButton.setToolTipText(LangRes.getString("Remove board"));
+ 	cutBoardButton.setToolTipText(LangRes.getString("Cut board"));
+	renameBoardButton.setToolTipText(LangRes.getString("Rename folder"));
+	tofNewMessageButton.setToolTipText(LangRes.getString("New message"));
+	tofReplyButton.setToolTipText(LangRes.getString("Reply"));
+	downloadAttachmentsButton.setToolTipText(LangRes.getString("Download attachment(s)"));
+	downloadBoardsButton.setToolTipText(LangRes.getString("Add Board(s)"));
+	saveMessageButton.setToolTipText(LangRes.getString("Save message"));
+	trustButton.setToolTipText(LangRes.getString("Trust"));
+	notTrustButton.setToolTipText(LangRes.getString("Do not trust"));
+	checkTrustButton.setToolTipText(LangRes.getString("Set to CHECK"));
+	tofUpdateButton.setToolTipText(LangRes.getString("Update"));
+	uploadAddFilesButton.setToolTipText(LangRes.getString("Browse..."));
+	downloadShowHealingInfo.setToolTipText(LangRes.getString("Show healing information"));
+	searchButton.setToolTipText(LangRes.getString("Search"));
     }
 
 	/**
@@ -161,6 +205,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	//------------------------------------------------------------------------
 
 	// buttons that are enabled/disabled later
+    JButton newBoardButton = null;
+    JButton searchDownloadButton = null;
+    JButton systemTrayButton = null;
+    JButton knownBoardsButton = null;
+    JButton boardInfoButton = null;
+    JButton newFolderButton = null;
 	JButton pasteBoardButton = null;
 	JButton configBoardButton = null;
 	JButton removeBoardButton = null;
@@ -443,14 +493,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/configure.gif")));
 
-		JButton knownBoardsButton =
+		knownBoardsButton =
 			new JButton(
 				new ImageIcon(
 					frame1.class.getResource("/data/knownboards.gif")));
-		JButton newBoardButton =
+		newBoardButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/newboard.gif")));
-		JButton newFolderButton =
+		newFolderButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/newfolder.gif")));
 		removeBoardButton =
@@ -462,10 +512,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		cutBoardButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/cut.gif")));
-		JButton boardInfoButton =
+		boardInfoButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/info.gif")));
-		JButton systemTrayButton =
+		systemTrayButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/tray.gif")));
 		configureButton(
@@ -916,7 +966,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private JPanel buildSearchPane() {
 		// create objects for button toolbar
 		this.searchAllBoardsCheckBox = new JCheckBox(LangRes.getString("all boards"), true);
-		JButton searchDownloadButton =
+		searchDownloadButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/save.gif")));
 		this.searchButton =
@@ -1794,6 +1844,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			new JMenuItem("EFB (Experimental Freenet Browser)");
 		JMenuItem pluginTranslateMenuItem =
 			new JMenuItem("Translate Frost into another language");
+		JMenuItem pluginGermanMenuItem = new JMenuItem("German");
+		JMenuItem pluginEnglishMenuItem = new JMenuItem("English");
+		JMenuItem pluginDutchMenuItem = new JMenuItem("Dutch");
+		JMenuItem pluginFrenchMenuItem = new JMenuItem("French");
+		JMenuItem pluginJapaneseMenuItem = new JMenuItem("Japanese");
+		JMenuItem pluginItalianMenuItem = new JMenuItem("Italian");
 
 		JMenu helpMenu = new JMenu(LangRes.getString("Help"));
 		JMenuItem helpHelpMenuItem = new JMenuItem(LangRes.getString("Help"));
@@ -1854,6 +1910,42 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				translate.show();
 			}
 		});
+		pluginGermanMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes", new Locale("de"));
+			    setLanguageResource(bundle);
+			}
+		});
+		pluginEnglishMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes", new Locale("en"));
+			    setLanguageResource(bundle);
+			}
+		});
+		pluginDutchMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes", new Locale("nl"));
+			    setLanguageResource(bundle);
+			}
+		});
+		pluginFrenchMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes", new Locale("fr"));
+			    setLanguageResource(bundle);
+			}
+		});
+		pluginJapaneseMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes", new Locale("ja"));
+			    setLanguageResource(bundle);
+			}
+		});
+		pluginItalianMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+			    java.util.ResourceBundle bundle = java.util.ResourceBundle.getBundle("res.LangRes", new Locale("it"));
+			    setLanguageResource(bundle);
+			}
+		});
 		helpHelpMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				HelpFrame dlg = new HelpFrame(getInstance());
@@ -1884,6 +1976,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// Plugin Menu
 		pluginMenu.add(pluginBrowserMenuItem);
 		pluginMenu.add(pluginTranslateMenuItem);
+		pluginMenu.add(pluginGermanMenuItem);
+		pluginMenu.add(pluginEnglishMenuItem);
+		pluginMenu.add(pluginDutchMenuItem);
+		pluginMenu.add(pluginFrenchMenuItem);
+		pluginMenu.add(pluginJapaneseMenuItem);
+		pluginMenu.add(pluginItalianMenuItem);
 		// Help Menu
 		helpMenu.add(helpHelpMenuItem);
 		helpMenu.add(helpAboutMenuItem);
