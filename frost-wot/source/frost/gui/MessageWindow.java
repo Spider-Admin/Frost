@@ -30,7 +30,6 @@ public class MessageWindow extends JFrame{
 		}
 		
 		public void maybeDoSomething(KeyEvent e){
-			System.out.println(e);
 			if( e.getKeyChar() == KeyEvent.VK_ESCAPE ){
 					messageWindow.dispose();
 			}
