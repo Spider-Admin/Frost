@@ -352,6 +352,26 @@ public class LangRes_es extends ListResourceBundle {
     {"EnableSkins", "Activa Skins"}, 	
 	{"MessageBodyFont", "Fuente del cuerpo de los mensajes"}, 
 	{"MoreSkinsAt", "Puedes conseguir más skins en"},
+	{"Preview", "Vista previa"},
+	{"RefreshList", "Refresca lista"},
+	{"NoSkinsFound", "¡No se han encontrado skins!"},
+	{"AvailableSkins","Skins disponibles"},
+
+	//other stuff which people forget to include
+	{"BoardInfoFrame.UpdateSelectedBoardButton", "Refresca Foro Seleccionado"},
+	{"Show systray icon", "Muestra icono en Bandeja del Sistema"},
+	{"Display", "Pantalla"},
+	{"Miscellaneous", "Miscelánea"},
+	{"Messages", "Mensajes"},
+	{"Messages Today", "Mensajes de Hoy"},
+	{"Board information", "Información del Foro"},
+	{"Boards", "Foros"},
+	{"Public board", "Foro público"},
+	{"Secure board", "Foro seguro"},
+	{"Generate new keypair", "Genera nueva pareja de claves"},
+	{"Private key", "Clave privada"},
+	{"Public key", "Clave pública"},
+	{"Not available", "No disponible"}
 
     };
 }
