@@ -116,6 +116,7 @@ public class NotifyByEmailThread extends Thread implements Observer{
 					
 					//now send the message
 					transport.sendMessage(message, new Address[]{address});
+					Core.getOut().println("message sent successfully");
 					
 					//check if there are more messages to send, and if not disconnect
 					if (queue.size()==0)
