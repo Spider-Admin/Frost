@@ -19,7 +19,7 @@
 package frost.threads;
 
 import java.io.*;
-import java.util.Vector;
+import java.util.*;
 
 
 
@@ -28,7 +28,7 @@ import frost.FcpTools.*;
 import frost.crypt.MetaData;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
-
+import frost.messages.*;
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
@@ -178,28 +178,26 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 	commit();
     }
     
-    private boolean makeIndexFile()
+    private FrostIndex makeIndexFile()
     {
         if( DEBUG ) Core.getOut().println("FILEDN: UpdateIdThread.makeIndexFile for " + board.toString());
 
         // Calculate the keys to be uploaded
-        keyCount = Index.getUploadKeys(board.getBoardFilename());
-
-        // Adjust maxAge
-        adjustMaxAge(keyCount);
-
-        if( keyCount > 0 )
-            return true;
-        else
-            return false;
+        Set files = Index.getUploadKeys(board.getBoardFilename());
+        
+		if (files == null)
+			return null;
+       
+     	return new FrostIndex(files);
     }
 
-    private void uploadIndexFile()
+    private void uploadIndexFile(FrostIndex idx) throws Throwable
     {
     	//load the indices for the current date
 	//currentDate = DateFun.getDate();
     	loadIndex(currentDate);
-        File indexFile = new File(keypool + board.getBoardFilename() + "_upload.txt");
+        File indexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
+        XMLTools.writeXmlFile(XMLTools.getXMLDocument(idx),indexFile.getPath());
         boolean success = false;
         int tries = 0;
         String[] result = {"Error", "Error"};
@@ -211,7 +209,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             
             // first zip, then maybe sign the zipped file
             FileAccess.writeZipFile(FileAccess.readByteArray(indexFile), 
-                                    "entry", indexFile); // WRITE TO SAME NAME???
+                                    "entry", indexFile); // WRITE TO SAME NAME??? 
+                                    							//why not? ;)
             
             if( signUpload )
             {
@@ -226,7 +225,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             {
                 // Does this index already exist?
 		           
-                result = FcpInsert.putFile(insertKey + index + ".idx.sha2.zip",
+                result = FcpInsert.putFile(insertKey + index + ".idx.sha3.zip",  //this format is sha3 ;)
                                            indexFile,
                                            metadata,
                                            insertHtl,
@@ -480,10 +479,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             // 1. We've got more than minKeyCount keys to upload
             // 2. We don't upload any more files
             //index -= maxFailures;
-            if (makeIndexFile())
+            FrostIndex frostIndex = makeIndexFile();
+            if (frostIndex!=null)
             {
-                if (frame1.isGeneratingCHK() == false
-                    || keyCount >= minKeyCount)
+                if (frame1.isGeneratingCHK() == false)
+                 //   || keyCount >= minKeyCount) //FIXME: what is this minKeyCount?
                 {
                     if (DEBUG)
                         Core.getOut().println(
@@ -491,7 +491,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                 + board.toString()
                                 + "'; uploadFiles = "
                                 + keyCount);
-                    uploadIndexFile();
+                    uploadIndexFile(frostIndex);
                 }
             }
             else

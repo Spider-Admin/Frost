@@ -24,7 +24,7 @@ import java.util.*;
 import frost.identities.*;
 import frost.messages.*;
 
-import org.w3c.dom.*;
+//import org.w3c.dom.*;
 
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
@@ -73,11 +73,9 @@ public class Index
     
  
     
-    //this method transports stuff from new_files.xml and files.xml to
-    //boardname_upload.txt
-    //it does not use xml serialization because there are some fields
-    //that we don't want to upload, like last shared date, etc.
-    public static int getUploadKeys(String board)
+    //this method puts the SharedFileObjects into the target set and 
+    //returns the number of the files shared by the user himself
+    public static Set getUploadKeys(String board)
     {
     
     	final Map mine = Collections.synchronizedMap(new HashMap());
@@ -110,11 +108,10 @@ public class Index
 		if (current.getOwner() != null && //not anonymous
 			frame1.getMyId().getUniqueName().compareTo(current.getOwner()) !=0 && //not myself
 			frame1.frostSettings.getBoolValue("helpFriends") && //and helping is enabled
-			(frame1.getFriends().containsKey(mixed.makeFilename(current.getOwner()))  || //and marked GOOD
-				frame1.getGoodIds().contains(current.getOwner()))) //or marked to be helped 
+			(frame1.getFriends().containsKey(mixed.makeFilename(current.getOwner()))))   //and marked GOOD
 			{
 			mine.put(current.getSHA1(),current);
-			Core.getOut().print("f");
+			Core.getOut().print("f"); //f means added file from friend
 			}
 		//also add the file if its been shared too long ago
 		if (current.getOwner()!=null && //not anonymous 
@@ -124,34 +121,35 @@ public class Index
 				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
 					current.setLastSharedDate(DateFun.getDate());
 					mine.put(current.getSHA1(),current);
-					Core.getOut().print("d");
+					Core.getOut().print("d"); //d means it was shared too long ago
 					updated.put(current.getSHA1(),current);
 				}
 		}
 	}
-        
+    
+    //update the lastSharedDate of the shared files    
 	add(updated, new File(frame1.keypool+board+fileSeparator+"files.xml"));
 	
-	StringBuffer keyFile = new StringBuffer();
-	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
+	//StringBuffer keyFile = new StringBuffer();
+//	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
 	int keyCount = 0;
 	
     // FIXME: TEST XML code, especially the removing of "owner"
-    Document doc = XMLTools.createDomDocument();
-    if( doc == null )
-    {
-        System.out.println("Error - getUploadKeys: factory could'nt create XML Document.");
-        return -1;
-    }
+  //  Document doc = XMLTools.createDomDocument();
+   // if( doc == null )
+    //{
+     //   System.out.println("Error - getUploadKeys: factory could'nt create XML Document.");
+   //     return -1;
+   // }
 
-    Element rootElement = doc.createElement("Filelist");
+   // Element rootElement = doc.createElement("Filelist");
     //only add personal info if we chose to sign
-    if (signUploads)
-    {
-        rootElement.setAttribute("sharer", frame1.getMyId().getUniqueName());
-        rootElement.setAttribute("pubkey", frame1.getMyId().getKey());
-    }
-    doc.appendChild(rootElement);
+   // if (signUploads)
+    //{
+      //  rootElement.setAttribute("sharer", frame1.getMyId().getUniqueName());
+       // rootElement.setAttribute("pubkey", frame1.getMyId().getKey());
+  //  }
+  //  doc.appendChild(rootElement);
     
     synchronized( mine )
     {
@@ -167,23 +165,23 @@ public class Index
                 keyCount++;
             }
             
-            Element element = current.getXMLElement(doc);
+            //Element element = current.getXMLElement(doc);
             
-            if( current.getOwner() != null && my && !signUploads )
-            {
+           // if( current.getOwner() != null && my && !signUploads )
+           // {  //REDFLAG: don't forget to remove these
                 // remove owner, we don't want to sign ...
-                ArrayList lst = XMLTools.getChildElementsByTagName(element, "owner");
-                if( lst.size() > 0 )
-                {
-                    Element r = (Element)lst.get(0);          
-                    element.removeChild(r);                }
-                else
-                {
-                    System.out.println("ERROR - getUploadKeys: Could not locate the 'owner' tag in XML tree!");
-                }
-            }
-            rootElement.appendChild( element );
-        }
+           //     ArrayList lst = XMLTools.getChildElementsByTagName(element, "owner");
+           //     if( lst.size() > 0 )
+            //    {
+            //        Element r = (Element)lst.get(0);          
+             //       element.removeChild(r);                }
+             //   else
+             //   {
+             //       System.out.println("ERROR - getUploadKeys: Could not locate the 'owner' tag in XML tree!");
+             //   }
+          //  }
+         //   rootElement.appendChild( element );
+       }
     }
 /*        synchronized(mine)
         {
@@ -223,23 +221,25 @@ public class Index
 */	
 	//String signed = frame1.getCrypto().sign(keyFile.toString(),frame1.getMyId().getPrivKey());
         // Make keyfile
-        if( keyCount > 0 )
-        {
-            boolean writeOK = false;
-            try {
-                writeOK = XMLTools.writeXmlFile(doc, frame1.keypool + board + "_upload.txt");
-            } catch(Throwable t)
-            {
-                System.out.println("Exception - getUploadKeys:");
-                t.printStackTrace(System.out);
-                return -1; // keep newUploads file
-            }
-        }
+        //if( keyCount > 0 )
+       // {
+       //     boolean writeOK = false;
+       //     try {
+       //         writeOK = XMLTools.writeXmlFile(doc, frame1.keypool + board + "_upload.txt");
+       //     } catch(Throwable t)
+       //     {
+       //         System.out.println("Exception - getUploadKeys:");
+       //         t.printStackTrace(System.out);
+       //         return -1; // keep newUploads file
+       //     }
+      //  }
 	
     	//clear the new uploads
-    	boardNewUploads.delete();
-
-        return keyCount;
+    //	boardNewUploads.delete();
+	if (keyCount > 0)
+        return new HashSet(mine.values());
+     else 
+     	return null;
     }
 
     public static void add(SharedFileObject key, FrostBoardObject board) {
