@@ -316,7 +316,10 @@ static final Object[][] contents = {
 	{"Bold","Negrita"},
 	{"Bold Italic","Negrita Cursiva"},
 	{"Sample","Muestra"},
-	{"Choose a Font","Escoge un Tipo de Letra"}
+	{"Choose a Font","Escoge un Tipo de Letra"},
+	{"Fonts","Tipos de Letra"},
+	{"Message Body","Cuerpo del Mensaje"},
+	{"Choose","Escoge"}
 
 };
 }

@@ -439,6 +439,9 @@ public class LangRes extends ListResourceBundle {
 	{"Bold Italic","Bold Italic"},
 	{"Sample","Sample"},
 	{"Choose a Font","Choose a Font"},
+	{"Fonts","Fonts"},
+	{"Message Body","Message Body"},
+	{"Choose","Choose"},
 
 	///////////////////////////////////////////////////
 	// Board Information Window
