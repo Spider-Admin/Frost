@@ -10,7 +10,7 @@ package frost.messages;
  */
 public class MessageCreationException extends Exception {
 
-	private boolean empty;
+	private boolean empty = false;
 	
 	/**
 	 * This method creates a new MessageCreationException with the given
