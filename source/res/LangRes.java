@@ -317,6 +317,8 @@ public class LangRes extends ListResourceBundle {
 	// About box
 	///////////////////////////////////////////////////
 	{"About", "About"},
+	{"Version", "Version"},
+	{"Open Source Project (GPL license)", "Open Source Project (GPL license)"},
 	{"OK", "OK"},
 
 	///////////////////////////////////////////////////
