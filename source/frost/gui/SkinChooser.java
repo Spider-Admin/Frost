@@ -181,9 +181,9 @@ public class SkinChooser extends JPanel {
 					}
 				}
 			} catch (UnsupportedLookAndFeelException exception) {
-				System.out.println("Exception while activating the skin: \n" + exception.getMessage() + "\n");
+				System.out.println("The selected skin is not supported by your system:\n" + exception.getMessage() + "\n");
 			} catch (Exception exception) {
-				System.out.println("Exception while loading the skin: \n" + exception.getMessage() + "\n");
+				System.out.println("There was an error while loading the selected skin:\n" + exception.getMessage() + "\n");
 			}
 		}
 	}
