@@ -22,7 +22,7 @@ import java.awt.Toolkit;
 import java.awt.datatransfer.*;
 import java.io.*;
 
-public class mixed
+public final class mixed
 {
 
     /**

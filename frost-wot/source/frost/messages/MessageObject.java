@@ -17,9 +17,13 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost;
+package frost.messages;
 import java.io.File;
 import java.util.*;
+
+import frost.Core;
+import frost.FileAccess;
+import frost.SettingsFun;
 
 public class MessageObject {
 

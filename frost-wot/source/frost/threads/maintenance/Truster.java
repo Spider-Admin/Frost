@@ -14,10 +14,10 @@ import javax.swing.SwingUtilities;
 import frost.Core;
 import frost.FileAccess;
 import frost.TOF;
-import frost.VerifyableMessageObject;
 import frost.frame1;
 import frost.gui.objects.FrostMessageObject;
 import frost.identities.Identity;
+import frost.messages.VerifyableMessageObject;
 
 
 /**

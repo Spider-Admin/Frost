@@ -12,9 +12,9 @@ import java.util.ArrayList;
 
 import frost.Core;
 import frost.FileAccess;
-import frost.VerifyableMessageObject;
 import frost.frame1;
 import frost.gui.objects.FrostBoardObject;
+import frost.messages.VerifyableMessageObject;
 
 
 public class ResendFailedMessagesThread extends Thread

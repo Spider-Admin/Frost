@@ -2,7 +2,7 @@ package frost.gui.objects;
 
 import java.io.File;
 
-import frost.VerifyableMessageObject;
+import frost.messages.VerifyableMessageObject;
 
 public class FrostMessageObject extends VerifyableMessageObject implements FrostMessage
 {
