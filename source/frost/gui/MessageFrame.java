@@ -517,7 +517,7 @@ public class MessageFrame extends JFrame
 
 		File signatureFile = new File("signature.txt");
 		if (signatureFile.isFile()) {
-			String signature = FileAccess.readFile("signature.txt").trim();
+			String signature = FileAccess.readFile("signature.txt", "UTF-8").trim();
 			if (signature.length() > 0) {
 				text += "\n-- \n";
 				text += signature;
