@@ -36,6 +36,11 @@ public class LocalIdentity extends Identity implements Serializable
     {
         this(name, frame1.getCrypto().generateKeys(), null);
 
+	try{
+	con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+	}catch (FcpToolsException e) {System.out.println("fcptools exception");this.key=NA;}
+	catch (IOException e){this.key=NA;}
+	
         //this is not so brutal anymore.
         FileAccess.writeFile(key,"pubkey.txt");
         try

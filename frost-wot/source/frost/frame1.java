@@ -315,17 +315,42 @@ public class frame1 extends JFrame implements ClipboardOwner {
         saver = new Thread() {
         public void run() {
             System.out.println("saving identities");
-            File identities = new File("contacts");
+            File identities = new File("identities");
 
             try{ //TODO: complete this
-                id_writer = new ObjectOutputStream(new FileOutputStream(identities));
+            /*    id_writer = new ObjectOutputStream(new FileOutputStream(identities));
             //System.out.println("myself: " + frame1.getMyId().toString());
             //id_writer.writeObject(frame1.getMyId());
             System.out.println("friends: " + frame1.getFriends().toString());
             id_writer.writeObject(frame1.getFriends());
             System.out.println("enemies: " + frame1.getEnemies().toString());
             id_writer.writeObject(frame1.getEnemies());
-            id_writer.close();
+            id_writer.close();*/
+	    FileWriter fout = new FileWriter(identities);
+		fout.write(mySelf.getName() + "\n");
+		fout.write(mySelf.getKeyAddress() + "\n");
+		fout.write(mySelf.getKey() + "\n");
+		fout.write(mySelf.getPrivKey() + "\n");
+		
+		//now do the friends
+		fout.write("*****************\n");
+		Iterator i = friends.values().iterator();
+		while (i.hasNext()) {
+			Identity cur = (Identity)i.next();
+			fout.write(cur.getName() + "\n");
+			fout.write(cur.getKeyAddress() + "\n");
+			fout.write(cur.getKey() + "\n");
+		}
+		fout.write("*****************\n");
+		i = enemies.values().iterator();
+		while (i.hasNext()) {
+			Identity cur = (Identity)i.next();
+			fout.write(cur.getName() + "\n");
+			fout.write(cur.getKeyAddress() + "\n");
+			fout.write(cur.getKey() + "\n");
+		}
+		fout.write("*****************\n");
+		fout.close();
             }catch(IOException e){System.out.println("couldn't save buddy list"); System.out.println(e.toString());}
             saveOnExit();
             FileAccess.cleanKeypool(keypool);
@@ -1360,7 +1385,7 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     //load the identities
 
     File identities = new File("identities");
-    File contacts = new File("contacts");
+    //File contacts = new File("contacts");
     System.out.println("trying to create/load ids");
     try {
         if (identities.createNewFile()) {//create new identities
@@ -1387,16 +1412,37 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
 		keys[1] = fin.readLine();
 		keys[0] = fin.readLine();
 		mySelf = new LocalIdentity(name, keys, address);
+		System.out.println("loaded myself with name " + mySelf.getName());
+            	System.out.println("and public key" + mySelf.getKey());
+	    
+		//take out the ****
+		fin.readLine();
 		
-            id_reader = new ObjectInputStream(new FileInputStream(contacts));
-	    
-	    
-            //mySelf = (LocalIdentity)id_reader.readObject();
-            System.out.println("loaded myself with name " + mySelf.getName());
-            System.out.println("and public key" + mySelf.getKey());
-            friends = (BuddyList)id_reader.readObject();
-            enemies = (BuddyList)id_reader.readObject();
-            id_reader.close();
+		//process the friends
+		System.out.println("loading friends");
+		friends = new BuddyList();
+	    	boolean stop = false;
+	    	String key;
+	    	while (!stop) {
+			name = fin.readLine();
+			if (name.startsWith("***")) break;
+			address = fin.readLine();
+			key = fin.readLine();
+			friends.Add(new Identity(name, address,key));
+		}
+		System.out.println("loaded " + friends.size() + " friends");
+		
+		//and the enemies
+		enemies = new BuddyList();
+		System.out.println("loading enemies");
+		while (!stop) {
+			name = fin.readLine();
+			if (name.startsWith("***")) break;
+			address = fin.readLine();
+			key = fin.readLine();
+			enemies.Add(new Identity(name, address,key));
+		}
+		System.out.println("loaded " + enemies.size() + " enemies");
 	    
         }
         catch(IOException e) {
