@@ -362,7 +362,21 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 	 */
 	public JDragTree(TreeNode root) {
 		super(root);
-		
+		initialize();
+	}
+	
+	/**
+	 * @param root
+	 */
+	public JDragTree(TreeModel model) {
+		super(model);
+		initialize();
+	}
+	
+	/**
+	 * 
+	 */
+	private void initialize() {
 		// install drag n drop support
 		dragSource = DragSource.getDefaultDragSource();
 		dgRecognizer = dragSource.createDefaultDragGestureRecognizer(this,
