@@ -24,10 +24,7 @@ public Identity(String name, String keyaddress, String key) {
 	this.name = name;
 	this.keyaddress = keyaddress;
 	this.key = key;
-	try{
-	con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
-	}catch (FcpToolsException e) {System.out.println("fcptools exception");this.key=NA;}
-	catch (IOException e){this.key=NA;}
+	
 }
 
 /**
@@ -37,6 +34,10 @@ public Identity(String name, String keyaddress, String key) {
 public Identity(String name, String keyaddress) throws IllegalArgumentException{
 	this.name=name;
 	this.keyaddress = keyaddress;
+	try{
+	con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+	}catch (FcpToolsException e) {System.out.println("fcptools exception");this.key=NA;}
+	catch (IOException e){this.key=NA;}
 
 	if( !keyaddress.startsWith("CHK@")) {
 		this.key = NA;
