@@ -23,7 +23,6 @@ import com.l2fprod.gui.plaf.skin.*;
 public class SkinChooser extends JPanel {
 
 	private static final String THEMES_DIR = "themes"; //Directory where themes are stored
-	private static final String BUNDLE_CLASS = "res.LangRes"; //Class that has messages in the currently selected language
 
 	/**
 	 * Inner class to handle all the events 
@@ -76,21 +75,13 @@ public class SkinChooser extends JPanel {
 
 	/**
 	 * 	Constructor
+	 * @param bundle The resourceBundle to get the messages from
 	 */
-	public SkinChooser() {
+	
+	public SkinChooser(ResourceBundle bundle) {
 		super();
+		languageBundle = bundle;
 		initialize();
-	}
-
-	/**
-	 * Return the LanguageBundle property value.
-	 * @return java.util.ResourceBundle
-	 */
-	private ResourceBundle getLanguageBundle() {
-		if (languageBundle == null) {
-			languageBundle = ResourceBundle.getBundle(BUNDLE_CLASS);
-		}
-		return languageBundle;
 	}
 
 	/**
@@ -122,7 +113,7 @@ public class SkinChooser extends JPanel {
 				if (enableSkinsCheckBox == null) {
 					enableSkinsCheckBox = new javax.swing.JCheckBox();
 					enableSkinsCheckBox.setName("EnableSkinsCheckBox");
-					enableSkinsCheckBox.setText("EnableSkins");
+					enableSkinsCheckBox.setText(languageBundle.getString("EnableSkins"));
 					enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
 					enableSkinsCheckBox.setSelected(true);
 				}
@@ -248,7 +239,7 @@ public class SkinChooser extends JPanel {
 
 			Collections.sort(skinsListData);
 			if (skinsListData.isEmpty()) {
-				skinsListData.add(getLanguageBundle().getString("NoSkinsFound"));
+				skinsListData.add(languageBundle.getString("NoSkinsFound"));
 				noSkinsFound = true;
 				getSkinsList().setEnabled(false);
 				getSkinsList().setEnabled(false);
@@ -386,7 +377,7 @@ public class SkinChooser extends JPanel {
 		if (availableSkinsLabel == null) {
 			availableSkinsLabel = new JLabel();
 			availableSkinsLabel.setName("AvailableSkinsLabel");
-			availableSkinsLabel.setText(getLanguageBundle().getString("AvailableSkins"));
+			availableSkinsLabel.setText(languageBundle.getString("AvailableSkins"));
 			availableSkinsLabel.setMaximumSize(new Dimension(200, 30));
 			availableSkinsLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 			availableSkinsLabel.setPreferredSize(new Dimension(120, 30));
@@ -404,7 +395,7 @@ public class SkinChooser extends JPanel {
 		if (previewButton == null) {
 			previewButton = new JButton();
 			previewButton.setName("PreviewButton");
-			previewButton.setText(getLanguageBundle().getString("Preview"));
+			previewButton.setText(languageBundle.getString("Preview"));
 			previewButton.setEnabled(false);
 		}
 		return previewButton;
@@ -418,7 +409,7 @@ public class SkinChooser extends JPanel {
 		if (refreshButton == null) {
 			refreshButton = new JButton();
 			refreshButton.setName("RefreshButton");
-			refreshButton.setText(getLanguageBundle().getString("RefreshList"));
+			refreshButton.setText(languageBundle.getString("RefreshList"));
 		}
 		return refreshButton;
 	}
