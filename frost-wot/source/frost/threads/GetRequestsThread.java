@@ -161,7 +161,7 @@ public class GetRequestsThread extends Thread
                         File requestLock = new File(destination + SHA1 + ".lck");
                         if( !requestLock.exists() )
                         {
-                            // FIXME: what to do if state is ENCODING ? In this case actually encoding runs,
+                            // FIXME: (IMPORTANT, ideas needed!) what to do if state is ENCODING ? In this case actually encoding runs,
                             // and the next state should be REQUESTED.
                             // maybe we need to set the REQUESTED as next state in insertThread ...
                             
