@@ -60,6 +60,9 @@ public class GetRequestsThread extends Thread
         int failures = 0;
         int maxFailures = 2;
 
+        if( isInterrupted() )
+            return;
+
         while( failures < maxFailures )
         {
             String val = new StringBuffer().append(destination).append(dirdate).append("-")
@@ -143,6 +146,8 @@ public class GetRequestsThread extends Thread
             {
                 failures++;
             }
+            if( isInterrupted() )
+                break;
         }
         synchronized(frame1.GRTThreads)
         {

@@ -326,31 +326,31 @@ public class frame1 extends JFrame implements ClipboardOwner {
             System.out.println("enemies: " + frame1.getEnemies().toString());
             id_writer.writeObject(frame1.getEnemies());
             id_writer.close();*/
-	    FileWriter fout = new FileWriter(identities);
-		fout.write(mySelf.getName() + "\n");
-		fout.write(mySelf.getKeyAddress() + "\n");
-		fout.write(mySelf.getKey() + "\n");
-		fout.write(mySelf.getPrivKey() + "\n");
-		
-		//now do the friends
-		fout.write("*****************\n");
-		Iterator i = friends.values().iterator();
-		while (i.hasNext()) {
-			Identity cur = (Identity)i.next();
-			fout.write(cur.getName() + "\n");
-			fout.write(cur.getKeyAddress() + "\n");
-			fout.write(cur.getKey() + "\n");
-		}
-		fout.write("*****************\n");
-		i = enemies.values().iterator();
-		while (i.hasNext()) {
-			Identity cur = (Identity)i.next();
-			fout.write(cur.getName() + "\n");
-			fout.write(cur.getKeyAddress() + "\n");
-			fout.write(cur.getKey() + "\n");
-		}
-		fout.write("*****************\n");
-		fout.close();
+        FileWriter fout = new FileWriter(identities);
+        fout.write(mySelf.getName() + "\n");
+        fout.write(mySelf.getKeyAddress() + "\n");
+        fout.write(mySelf.getKey() + "\n");
+        fout.write(mySelf.getPrivKey() + "\n");
+
+        //now do the friends
+        fout.write("*****************\n");
+        Iterator i = friends.values().iterator();
+        while (i.hasNext()) {
+            Identity cur = (Identity)i.next();
+            fout.write(cur.getName() + "\n");
+            fout.write(cur.getKeyAddress() + "\n");
+            fout.write(cur.getKey() + "\n");
+        }
+        fout.write("*****************\n");
+        i = enemies.values().iterator();
+        while (i.hasNext()) {
+            Identity cur = (Identity)i.next();
+            fout.write(cur.getName() + "\n");
+            fout.write(cur.getKeyAddress() + "\n");
+            fout.write(cur.getKey() + "\n");
+        }
+        fout.write("*****************\n");
+        fout.close();
             }catch(IOException e){System.out.println("couldn't save buddy list"); System.out.println(e.toString());}
             saveOnExit();
             FileAccess.cleanKeypool(keypool);
@@ -406,8 +406,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
     public void configureCheckBox(JCheckBox checkBox, String toolTipText, String rolloverIcon,
                                     String selectedIcon, String rolloverSelectedIcon)
     {
-        
-	checkBox.setToolTipText(LangRes.getString(toolTipText));
+
+    checkBox.setToolTipText(LangRes.getString(toolTipText));
         checkBox.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
         checkBox.setSelectedIcon(new ImageIcon(frame1.class.getResource(selectedIcon)));
         checkBox.setRolloverSelectedIcon(new ImageIcon(frame1.class.getResource(rolloverSelectedIcon)));
@@ -417,7 +417,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
     /**Component initialization*/
     private void jbInit() throws Exception  {
-    
+
 setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
     this.setSize(new Dimension(790, 580));
     this.setResizable(true);
@@ -1405,52 +1405,52 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
             if (friends.Add(frame1.getMyId())) System.out.println("added myself to list");
             enemies = new BuddyList();
         } else try {
-		BufferedReader fin = new BufferedReader(new FileReader(identities));
-		String name = fin.readLine();
-		String address = fin.readLine();
-		String keys[] = new String[2];
-		keys[1] = fin.readLine();
-		keys[0] = fin.readLine();
-		mySelf = new LocalIdentity(name, keys, address);
-		System.out.println("loaded myself with name " + mySelf.getName());
-            	System.out.println("and public key" + mySelf.getKey());
-	    
-		//take out the ****
-		fin.readLine();
-		
-		//process the friends
-		System.out.println("loading friends");
-		friends = new BuddyList();
-	    	boolean stop = false;
-	    	String key;
-	    	while (!stop) {
-			name = fin.readLine();
-			if (name.startsWith("***")) break;
-			address = fin.readLine();
-			key = fin.readLine();
-			friends.Add(new Identity(name, address,key));
-		}
-		System.out.println("loaded " + friends.size() + " friends");
-		
-		//and the enemies
-		enemies = new BuddyList();
-		System.out.println("loading enemies");
-		while (!stop) {
-			name = fin.readLine();
-			if (name.startsWith("***")) break;
-			address = fin.readLine();
-			key = fin.readLine();
-			enemies.Add(new Identity(name, address,key));
-		}
-		System.out.println("loaded " + enemies.size() + " enemies");
-	    
+        BufferedReader fin = new BufferedReader(new FileReader(identities));
+        String name = fin.readLine();
+        String address = fin.readLine();
+        String keys[] = new String[2];
+        keys[1] = fin.readLine();
+        keys[0] = fin.readLine();
+        mySelf = new LocalIdentity(name, keys, address);
+        System.out.println("loaded myself with name " + mySelf.getName());
+                System.out.println("and public key" + mySelf.getKey());
+
+        //take out the ****
+        fin.readLine();
+
+        //process the friends
+        System.out.println("loading friends");
+        friends = new BuddyList();
+            boolean stop = false;
+            String key;
+            while (!stop) {
+            name = fin.readLine();
+            if (name.startsWith("***")) break;
+            address = fin.readLine();
+            key = fin.readLine();
+            friends.Add(new Identity(name, address,key));
+        }
+        System.out.println("loaded " + friends.size() + " friends");
+
+        //and the enemies
+        enemies = new BuddyList();
+        System.out.println("loading enemies");
+        while (!stop) {
+            name = fin.readLine();
+            if (name.startsWith("***")) break;
+            address = fin.readLine();
+            key = fin.readLine();
+            enemies.Add(new Identity(name, address,key));
+        }
+        System.out.println("loaded " + enemies.size() + " enemies");
+
         }
         catch(IOException e) {
-		System.out.println("IOException :" + e.toString());
-		friends = new BuddyList();
-		enemies = new BuddyList();
-		friends.Add(mySelf);
-	}
+        System.out.println("IOException :" + e.toString());
+        friends = new BuddyList();
+        enemies = new BuddyList();
+        friends.Add(mySelf);
+    }
         catch(Exception e) {System.out.println(e.toString());}
 
 
@@ -1830,7 +1830,8 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
                             if(current.getBoard().equals(((MessageDownloadThread)doomed).board) ||
                                 ((MessageDownloadThread)doomed).board.equals("_boardlist"))
                             {
-                                doomed.stop();//also kills boardlist.  wander why.
+                                //doomed.stop();//also kills boardlist.  wander why.
+                                doomed.interrupt();
                                 frame1.activeTofThreads.remove(((MessageDownloadThread)doomed).board);
                                 threads.remove();
                             }
@@ -1842,7 +1843,7 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
                             doomed = (GetRequestsThread)threads.next();
                             if (current.getBoard().equals(((GetRequestsThread)doomed).board))
                             {
-                                doomed.stop();//TODO kill doomed
+                                doomed.interrupt(); //stop();//TODO kill doomed
                                 threads.remove();
                             }
                         }
@@ -2168,11 +2169,11 @@ setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/
     /**Selects message icon in lower right corner*/
     public static void displayNewMessageIcon(boolean showNewMessageIcon) {
     if (showNewMessageIcon) {
-        
+
 frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/newmessage.gif")));
         statusMessageLabel.setIcon(newMessage[0]);
     }
-    else {        
+    else {
 frame1.getInstance().setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
         statusMessageLabel.setIcon(newMessage[1]);
     }

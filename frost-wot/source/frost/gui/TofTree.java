@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.gui;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.plaf.metal.*;
@@ -31,7 +31,9 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
-class TofTree extends JTree
+import frost.*;
+
+public class TofTree extends JTree
     implements DragGestureListener, DropTargetListener, DragSourceListener {
 
     final public static DataFlavor NODE_FLAVOR = new DataFlavor(TofTree.class, "Tof Tree Node");
@@ -281,7 +283,7 @@ class TofTree extends JTree
 
             node.removeFromParent();
 
-            DefaultTreeModel model = (DefaultTreeModel)frame1.getInstance().getTofTree().getModel();
+            DefaultTreeModel model = (DefaultTreeModel)getModel();
             TreePath pathToParent = new TreePath(model.getPathToRoot( parent ));
             model.nodesWereRemoved( parent, childIndices, removedChilds );
             setSelectionPath(pathToParent);
