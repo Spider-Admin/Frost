@@ -56,6 +56,7 @@ public class DownloadThread extends Thread {
 	private DownloadModel downloadModel;
 
 	public void run() {
+		ticker.threadStarted();		
 		try {
 			// some vars
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
@@ -81,7 +82,7 @@ public class DownloadThread extends Thread {
 
 				downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
 				
-				ticker.releaseThread();
+				ticker.threadFinished();
 				return;
 			}
 
@@ -189,7 +190,7 @@ public class DownloadThread extends Thread {
 			logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
 		}
 
-		ticker.releaseThread();
+		ticker.threadFinished();
 		downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
 	}
 

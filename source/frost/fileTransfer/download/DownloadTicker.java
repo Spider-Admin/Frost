@@ -8,6 +8,8 @@ package frost.fileTransfer.download;
 
 import java.util.*;
 
+import javax.swing.event.EventListenerList;
+
 import frost.*;
 
 /**
@@ -21,7 +23,18 @@ public class DownloadTicker extends Thread {
 	private DownloadModel model;
 
 	private int counter;
-	private int threadCount = 0;
+	
+	/**
+	 * The number of allocated threads is used to limit the total of threads
+	 * that can be running at a given time, whereas the number of running
+	 * threads is the number of threads that are actually running.
+	 */
+	private int allocatedThreads = 0;
+	private int runningThreads = 0;
+	
+	private Object threadCountLock = new Object();
+	
+	protected EventListenerList listenerList = new EventListenerList();
 
 	/**
 	 * Used to sort FrostDownloadItems by lastUpdateStartTimeMillis ascending.
@@ -53,33 +66,66 @@ public class DownloadTicker extends Thread {
 		model = newModel;
 		panel = newPanel;
 	}
+	
+	/**
+	 * Adds a <code>DownloadTickerListener</code> to the DownloadTicker.
+	 * @param listener the <code>DownloadTickerListener</code> to be added
+	 */
+	public void addDownloadTickerListener(DownloadTickerListener listener) {
+		listenerList.add(DownloadTickerListener.class, listener);
+	}
 
 	/**
-	 * 
+	 * This method is called to find out if a new thread can start. It temporarily 
+	 * allocates it and it will have to be relased when it is no longer
+	 * needed (no matter whether the thread was actually used or not).
+	 * @return true if a new thread can start. False otherwise.
 	 */
-	public synchronized boolean allocateThread() {
-		if (threadCount < settings.getIntValue("downloadThreads")) {
-			threadCount++;
-			return true;
-		} else {	
-			return false;	
+	private boolean allocateThread() {
+		synchronized (threadCountLock) {
+			if (allocatedThreads < settings.getIntValue("downloadThreads")) {
+				allocatedThreads++;
+				return true;
+			} 
+		}
+		return false;	
+	}
+	
+	/**
+	 * Notifies all listeners that have registered interest for
+	 * notification on this event type.  
+	 *
+	 * @see EventListenerList
+	 */
+	protected void fireThreadCountChanged() {
+		// Guaranteed to return a non-null array
+		Object[] listeners = listenerList.getListenerList();
+		// Process the listeners last to first, notifying
+		// those that are interested in this event
+		for (int i = listeners.length - 2; i >= 0; i -= 2) {
+			if (listeners[i] == DownloadTickerListener.class) {
+				((DownloadTickerListener) listeners[i + 1]).threadCountChanged();
+			}
 		}
 	}
 	
 	/**
-	 * 
+	 * This method is used to release a thread.
 	 */
-	public synchronized void releaseThread() {
-		if (threadCount > 0) {
-			threadCount--;
+	private void releaseThread() {
+		synchronized (threadCountLock) {
+			if (allocatedThreads > 0) {
+				allocatedThreads--;
+			} 
 		}
 	}
 
 	/**
-	 * @return
+	 * This method returns the number of threads that are running
+	 * @return the number of threads that are running
 	 */
-	public synchronized int getThreadCount() {
-		return threadCount;
+	public int getRunningThreads() {
+		return runningThreads;
 	}
 
 	/* (non-Javadoc)
@@ -96,6 +142,26 @@ public class DownloadTicker extends Thread {
 			removeFinishedDownloads();
 		}
 	}
+	
+	/**
+	 * This method is usually called from a thread to notify the ticker that
+	 * the thread has finished (so that it can notify its listeners of the fact). It also
+	 * releases the thread so that new threads can start if needed.
+	 */
+	void threadFinished() {
+		runningThreads--;
+		fireThreadCountChanged();
+		releaseThread();
+	}
+	
+	/**
+	 * This method is called from a thread to notify the ticker that
+	 * the thread has started (so that it can notify its listeners of the fact)
+	 */
+	void threadStarted() {
+		runningThreads++;
+		fireThreadCountChanged();
+	}
 
 	/**
 	 * 
@@ -104,6 +170,14 @@ public class DownloadTicker extends Thread {
 		if (counter % 300 == 0 && settings.getBoolValue("removeFinishedDownloads")) {
 			model.removeFinishedDownloads();
 		}
+	}
+	
+	/**
+	 * Removes an <code>DownloadTickerListener</code> from the DownloadTicker.
+	 * @param listener the <code>DownloadTickerListener</code> to be removed
+	 */
+	public void removeDownloadTickerListener(DownloadTickerListener listener) {
+		listenerList.remove(DownloadTickerListener.class, listener);
 	}
 
 	/**
