@@ -625,9 +625,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             return null;        
         }
         //create the identity of the sharer
-        sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")),
-                               null,
-                               _pubkey);
+        sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")),_pubkey);
         //add him to the neutral list
         Core.getNeutral().Add(sharer);
         return sharer;

@@ -238,7 +238,7 @@ public class Core {
 								+ "\n");
 
 					}
-					mySelf = new LocalIdentity(name, keys, address);
+					mySelf = new LocalIdentity(name, keys);
 					out.println(
 						"loaded myself with name " + mySelf.getName());
 					//out.println("and public key" + mySelf.getKey());
@@ -257,7 +257,7 @@ public class Core {
 							break;
 						address = fin.readLine();
 						key = fin.readLine();
-						friends.Add(new Identity(name, address, key));
+						friends.Add(new Identity(name, key));
 					}
 					out.println("loaded " + friends.size() + " friends");
 
@@ -280,7 +280,7 @@ public class Core {
 							break;
 						address = fin.readLine();
 						key = fin.readLine();
-						enemies.Add(new Identity(name, address, key));
+						enemies.Add(new Identity(name, key));
 					}
 					out.println("loaded " + enemies.size() + " enemies");
 
