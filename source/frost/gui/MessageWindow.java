@@ -22,40 +22,56 @@ import frost.util.gui.*;
  * @version $Revision$
  */
 public class MessageWindow extends JFrame{
+	
+	private static Logger logger = Logger.getLogger(MessageWindow.class.getName());
+	
 	private final MessageObject message;
 	private AntialiasedTextArea messageTextArea;
 	private JScrollPane scrollpane;
 	private MessageWindow messageWindow;
 	private Listener listener;
 	private SettingsClass settings;
-	private Logger logger = Logger.getLogger(MessageWindow.class.getName());
 	private Window parentWindow;
 	
-	
+	/**
+	 * 
+	 */
 	private class Listener extends WindowAdapter implements KeyListener, PropertyChangeListener, WindowListener{
-		
+		/* (non-Javadoc)
+		 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+		 */
 		public void keyPressed(KeyEvent e){
 			maybeDoSomething(e);
 		}
-		
+		/* (non-Javadoc)
+		 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+		 */
 		public void keyReleased(KeyEvent e){
 			//Nothing
 		}
-		
+		/* (non-Javadoc)
+		 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+		 */
 		public void keyTyped(KeyEvent e){
 			//Nothing
 		}
-		
+		/* (non-Javadoc)
+		 * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
+		 */
 		public void windowClosing(WindowEvent e){
 			close();
 		}
-		
+		/**
+		 * @param e
+		 */
 		public void maybeDoSomething(KeyEvent e){
 			if( e.getKeyChar() == KeyEvent.VK_ESCAPE ){
 					close();
 			}
 		}
-		
+		/* (non-Javadoc)
+		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+		 */
 		public void propertyChange( PropertyChangeEvent evt){
 			
 			if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_NAME)) {
@@ -68,9 +84,14 @@ public class MessageWindow extends JFrame{
 				fontChanged();
 			}
 		}
-		
 	}
 	
+	/**
+	 * @param frostSettings
+	 * @param parentWindow
+	 * @param message
+	 * @param size
+	 */
 	public MessageWindow(SettingsClass frostSettings, Window parentWindow, MessageObject message, Dimension size){
 		super();
 		this.setSize(size);
@@ -80,6 +101,9 @@ public class MessageWindow extends JFrame{
 		initialize();
 	}
 	
+	/**
+	 * 
+	 */
 	private void initialize(){
 		listener = new Listener();
 		
@@ -87,6 +111,7 @@ public class MessageWindow extends JFrame{
 		this.setTitle(message.getSubject());
 		
 		messageTextArea = new AntialiasedTextArea();
+		messageTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
 		messageTextArea.setWrapStyleWord(true);
 		messageTextArea.setLineWrap(true);
 		messageTextArea.setEditable(false);
@@ -146,6 +171,9 @@ public class MessageWindow extends JFrame{
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	private void close(){
 		settings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
 		settings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
