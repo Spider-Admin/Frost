@@ -117,7 +117,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 		}
 		tempFile.delete();
 		prefixes = null;
-		
+		Core.getInstance().schedule(this,3*60*60*1000); //3 hrs	
 		Core.getOut().println("finishing requesting friend's requests");
 	}
 
