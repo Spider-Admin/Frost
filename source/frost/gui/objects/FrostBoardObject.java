@@ -58,20 +58,23 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	/**
 	 * Constructs a new FrostBoardObject wich is a Board.
 	 */
-	public FrostBoardObject(String name) {
+	public FrostBoardObject(String name, String description) {
 		super();
 		boardName = name;
+		boardDescription = description;
 		boardFileName = Mixed.makeFilename(boardName.toLowerCase());
 
-		if (Mixed.containsForeign(name))
+		if (Mixed.containsForeign(name)) {
 			b64FileName = Core.getCrypto().encode64(name);
+		}
 	}
 	/**
 	 * Constructs a new FrostBoardObject.
-	 * If isFold is true, this will be a folder, else a board.
+	 * @param name
+	 * @param isFold if true, this will be a folder, else a board.
 	 */
 	public FrostBoardObject(String name, boolean isFold) {
-		this(name);
+		this(name, null);
 		isFolder = isFold;
 	}
 	/**
@@ -82,10 +85,9 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
 	 * @param description the description of the board, or null if none.
 	 */
 	public FrostBoardObject(String name, String pubKey, String privKey, String description) {
-		this(name);
+		this(name, description);
 		setPublicKey(pubKey);
 		setPrivateKey(privKey);
-		boardDescription = description;
 	}
 
 	/* (non-Javadoc)
