@@ -862,21 +862,24 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private JToolBar getButtonsToolbar() {
 			// configure buttons	
-			configureButton(newMessageButton, "New message", "/data/newmessage_rollover.gif");
-			configureButton(updateButton, "Update", "/data/update_rollover.gif");
-			configureButton(replyButton, "Reply", "/data/reply_rollover.gif");
-			configureButton(
+			MiscToolkit toolkit = MiscToolkit.getInstance();
+			toolkit.configureButton(newMessageButton, "New message", "/data/newmessage_rollover.gif", languageResource);
+			toolkit.configureButton(updateButton, "Update", "/data/update_rollover.gif", languageResource);
+			toolkit.configureButton(replyButton, "Reply", "/data/reply_rollover.gif", languageResource);
+			toolkit.configureButton(
 				downloadAttachmentsButton,
 				"Download attachment(s)",
-				"/data/attachment_rollover.gif");
-			configureButton(
+				"/data/attachment_rollover.gif",
+				languageResource);
+			toolkit.configureButton(
 				downloadBoardsButton,
 				"Add Board(s)",
-				"/data/attachmentBoard_rollover.gif");
-			configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif");
-			configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
-			configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif");
-			configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif");
+				"/data/attachmentBoard_rollover.gif",
+				languageResource);
+			toolkit.configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif", languageResource);
+			toolkit.configureButton(trustButton, "Trust", "/data/trust_rollover.gif", languageResource);
+			toolkit.configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif", languageResource);
+			toolkit.configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif", languageResource);
 
 			replyButton.setEnabled(false);
 			downloadAttachmentsButton.setEnabled(false);
@@ -1883,36 +1886,41 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private JToolBar buildButtonPanel() {
 		timeLabel = new JLabel("");
 		// configure buttons
-		this.pasteBoardButton =
-			new JButton(new ImageIcon(MainFrame.class.getResource("/data/paste.gif")));
-		this.configBoardButton =
-			new JButton(new ImageIcon(MainFrame.class.getResource("/data/configure.gif")));
+		pasteBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/paste.gif")));
+		configBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/configure.gif")));
 
-		knownBoardsButton =
-			new JButton(new ImageIcon(MainFrame.class.getResource("/data/knownboards.gif")));
-		newBoardButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/newboard.gif")));
-		newFolderButton =
-			new JButton(new ImageIcon(MainFrame.class.getResource("/data/newfolder.gif")));
-		removeBoardButton =
-			new JButton(new ImageIcon(MainFrame.class.getResource("/data/remove.gif")));
-		renameBoardButton =
-			new JButton(new ImageIcon(MainFrame.class.getResource("/data/rename.gif")));
-		cutBoardButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/cut.gif")));
-		boardInfoButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/info.gif")));
-		systemTrayButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/tray.gif")));
-		configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
-		configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif");
-		configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
-		configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif");
-		configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif");
-		configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif");
-		configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif");
-		configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif");
-		configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif");
-		configureButton(
+		knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
+		newBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/newboard.gif")));
+		newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
+		removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
+		renameBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
+		cutBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/cut.gif")));
+		boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
+		systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
+
+		MiscToolkit toolkit = MiscToolkit.getInstance();
+		toolkit.configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif", languageResource);
+		toolkit.configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif", languageResource);
+		toolkit.configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif", languageResource);
+		toolkit.configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif", languageResource);
+		toolkit.configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif", languageResource);
+		toolkit.configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif", languageResource);
+		toolkit.configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif", languageResource);
+		toolkit.configureButton(
+			boardInfoButton,
+			"Board Information Window",
+			"/data/info_rollover.gif",
+			languageResource);
+		toolkit.configureButton(
+			systemTrayButton,
+			"Minimize to System Tray",
+			"/data/tray_rollover.gif",
+			languageResource);
+		toolkit.configureButton(
 			knownBoardsButton,
 			"Display list of known boards",
-			"/data/knownboards_rollover.gif");
+			"/data/knownboards_rollover.gif",
+			languageResource);
 
 		// add action listener
 		knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2278,27 +2286,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		JPanel tofMainPanel = new JPanel(new BorderLayout());
 		tofMainPanel.add(treeAndTabbedPane, BorderLayout.CENTER); // TOF/Text
 		return tofMainPanel;
-	}
-
-	/**
-	 * Configures a button to be a default icon button
-	 * @param button The new icon button
-	 * @param toolTipText Is displayed when the mousepointer is some seconds over a button
-	 * @param rolloverIcon Displayed when mouse is over button
-	 */
-	protected void configureButton(JButton button, String toolTipText, String rolloverIcon) {
-		String text = null;
-		try {
-			text = languageResource.getString(toolTipText);
-		} catch (MissingResourceException ex) {
-			text = toolTipText; // better than nothing ;)
-		}
-		button.setToolTipText(text);
-
-		button.setRolloverIcon(new ImageIcon(MainFrame.class.getResource(rolloverIcon)));
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setBorderPainted(false);
-		button.setFocusPainted(false);
 	}
 
 	public void cutNode(FrostBoardObject cuttedNode) {
