@@ -399,7 +399,7 @@ static final Object[][] contents = {
 	{"NewBoardDialog.title", "Añade un foro nuevo"},
 	{"NewBoardDialog.details", "Por favor, introduce los detalles del nuevo foro:"},
 	{"NewBoardDialog.name","Nombre:"},
-	{"NewBoardDialog.description","Descripción (opcional):"},
+	{"NewBoardDialog.description","Descripción (Opcional). No pongas aquí información privada:"},
 	{"NewBoardDialog.add","Añade foro"},
 	
 	///
