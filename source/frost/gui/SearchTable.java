@@ -100,7 +100,7 @@ public class SearchTable extends SortedTable
     /**
      * Builds a String with contains all selected files from searchtable as attachements.
      */
-    public String getSelectedSearchItemsAsAttachmentsString()
+/*    public String getSelectedSearchItemsAsAttachmentsString()
     {
         SearchTableModel searchTableModel = (SearchTableModel)getModel();
         int[] selectedRows = getSelectedRows();
@@ -115,7 +115,7 @@ public class SearchTable extends SortedTable
         }
         return(attachments);
     }
-
+*/
     /**
      * This renderer renders rows in different colors, depending on state of search item.
      * States are: NONE, DOWNLOADED, DOWNLOADING, UPLOADING
