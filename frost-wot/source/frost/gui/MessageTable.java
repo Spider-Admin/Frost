@@ -22,6 +22,10 @@ public class MessageTable extends SortedTable
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
+        // default for messages: sort by date descending
+        sortedColumnIndex = 4;
+        sortedColumnAscending = false;
+        resortTable();
     }
 }
 

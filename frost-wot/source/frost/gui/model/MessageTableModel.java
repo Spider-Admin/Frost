@@ -43,7 +43,6 @@ public class MessageTableModel extends SortedTableModel2
     public MessageTableModel()
     {
         super();
-        sortModelColumn(4, false); // default for messages: sort by date descending
     }
 
     public boolean isCellEditable(int row, int col)

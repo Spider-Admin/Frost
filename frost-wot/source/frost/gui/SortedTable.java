@@ -30,16 +30,26 @@ public class SortedTable extends JTable
 
     public void sortColumn(int col, boolean ascending)
     {
-        if( ! (getModel() instanceof SortedTableModel) )
-            return;
-        SortedTableModel model = (SortedTableModel)getModel();
+        SortedTableModel model = null;
+        SortedTableModel2 model2 = null;
+        if( !(getModel() instanceof SortedTableModel) )
+        {
+            model2 = (SortedTableModel2)getModel();
+        }
+        else
+        {
+            model = (SortedTableModel)getModel();
+        }
 
         // get the list of selected items
         ArrayList list = getListOfSelectedItems();
         clearSelection();
 
         // sort this column
-        model.sortModelColumn( col, ascending );
+        if( model != null )
+            model.sortModelColumn( col, ascending );
+        else
+            model2.sortModelColumn( col, ascending );
 
         // reselect the selected items
         setSelectedItems( list );
@@ -53,6 +63,8 @@ public class SortedTable extends JTable
 
     protected void setSelectedItems( ArrayList items )
     {
+        if( !(getModel() instanceof SortedTableModel ))
+            return;
         SortedTableModel model = (SortedTableModel)getModel();
         for( int x=0; x<model.getRowCount(); x++ )
         {
@@ -73,9 +85,12 @@ public class SortedTable extends JTable
 
     protected ArrayList getListOfSelectedItems()
     {
-        SortedTableModel model = (SortedTableModel)getModel();
         // build a list containing all selected items
         ArrayList lst = new ArrayList();
+        if( !(getModel() instanceof SortedTableModel ))
+            return lst;
+
+        SortedTableModel model = (SortedTableModel)getModel();
         int selectedRows[] = getSelectedRows();
         for( int x=0; x<selectedRows.length; x++ )
         {
@@ -86,6 +101,8 @@ public class SortedTable extends JTable
 
     public void setSavedSettings( int val, boolean val2 )
     {
+        if( !(getModel() instanceof SortedTableModel ))
+            return;
         sortedColumnIndex = val;
         sortedColumnAscending = val2;
         SortedTableModel model = (SortedTableModel)getModel();
@@ -128,13 +145,23 @@ public class SortedTable extends JTable
             int index = colModel.getColumnIndexAtX(event.getX());
             int modelIndex = colModel.getColumn(index).getModelIndex();
 
+            SortedTableModel model = null;
+            SortedTableModel2 model2 = null;
+
             if( !(getModel() instanceof SortedTableModel) )
             {
-                System.out.println("Known problem: cant sort message table.");
-                return;
+                model2 = (SortedTableModel2)getModel();
             }
-            SortedTableModel model = (SortedTableModel)getModel();
-            if( model.isSortable(modelIndex) )
+            else
+            {
+                model = (SortedTableModel)getModel();
+            }
+            boolean isSortable = false;
+            if( model != null && model.isSortable(modelIndex) )
+                isSortable = true;
+            if( model2 != null && model2.isSortable(modelIndex) )
+                isSortable = true;
+            if( isSortable )
             {
                 // toggle ascension, if already sorted
                 if( sortedColumnIndex == modelIndex )
