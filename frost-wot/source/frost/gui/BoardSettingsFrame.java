@@ -17,7 +17,8 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost;
+package frost.gui;
+
 import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.*;
@@ -26,6 +27,8 @@ import javax.swing.*;
 import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
+
+import frost.*;
 import frost.FcpTools.*;
 
 public class BoardSettingsFrame extends JDialog {

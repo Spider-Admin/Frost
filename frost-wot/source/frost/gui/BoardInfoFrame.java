@@ -24,7 +24,7 @@
     - multiple interval selection in table
 
 */
-package frost;
+package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
@@ -36,7 +36,7 @@ import javax.swing.table.*;
 import javax.swing.tree.*;
 import javax.swing.border.*;
 import frost.gui.model.*;
-import frost.gui.*;
+import frost.*;
 
 public class BoardInfoFrame extends JFrame
 {
@@ -119,7 +119,7 @@ public class BoardInfoFrame extends JFrame
         //------------------------------------------------------------------------
         // Configure objects
         //------------------------------------------------------------------------
-        
+
 this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
         this.setTitle(LangRes.getString("Board information"));
         this.setSize(new Dimension(300, 200));

@@ -17,7 +17,8 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost;
+package frost.gui;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -26,6 +27,8 @@ import java.util.*;
 import java.io.*;
 import javax.swing.table.*;
 import javax.swing.tree.*;
+
+import frost.*;
 import frost.gui.model.*;
 
 public class HelpFrame extends JFrame {
@@ -52,7 +55,7 @@ public class HelpFrame extends JFrame {
     //------------------------------------------------------------------------
     // Configure objects
     //------------------------------------------------------------------------
-    
+
 this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
     this.setTitle("Help frame");
     this.setSize(new Dimension(600, 500));
