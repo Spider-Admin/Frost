@@ -36,7 +36,7 @@ public class SkinChooser extends JPanel {
 		 */
 		public void actionPerformed(ActionEvent event) {
 			if (event.getSource() == SkinChooser.this.getPreviewButton())
-				previewButtonPressed(event);
+				previewButtonPressed();
 			if (event.getSource() == SkinChooser.this.getRefreshButton())
 				refreshButtonPressed(event);
 		}
@@ -163,27 +163,20 @@ public class SkinChooser extends JPanel {
 	 * Method called when the Preview Button is pressed
 	 * @param actionEvent The action event
 	 */
-	public void previewButtonPressed(ActionEvent actionEvent) {
+	public void previewButtonPressed() {
 		if (!getSkinsList().isSelectionEmpty()) {
 			String selectedItem = getSkinsList().getSelectedValue().toString();
 			try {
 				Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedItem);
 				SkinLookAndFeel.setSkin(selectedSkin);
 				SkinLookAndFeel.enable();
-				Frame[] appFrames = Frame.getFrames();
-				for (int i = 0; i < appFrames.length; i++) {	//Loop to update all the frames
-					SwingUtilities.updateComponentTreeUI(appFrames[i]);
-					Window[] ownedWindows = appFrames[i].getOwnedWindows();
-					for (int j = 0; j < ownedWindows.length; j++) {	//Loop to update the dialogs
-						if (ownedWindows[j] instanceof Dialog) {
-							SwingUtilities.updateComponentTreeUI(ownedWindows[j]); 
-						}
-					}
-				}
+				updateComponentTreesUI();
 			} catch (UnsupportedLookAndFeelException exception) {
 				System.out.println("The selected skin is not supported by your system:\n" + exception.getMessage() + "\n");
+				getSkinsList().clearSelection();
 			} catch (Exception exception) {
 				System.out.println("There was an error while loading the selected skin:\n" + exception.getMessage() + "\n");
+				getSkinsList().clearSelection();
 			}
 		}
 	}
@@ -408,19 +401,39 @@ public class SkinChooser extends JPanel {
 			if (previousLookAndFeel instanceof SkinLookAndFeel) {
 				SkinLookAndFeel.setSkin(previousSkin);
 			}
-			Frame[] appFrames = Frame.getFrames();
-			for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
-				SwingUtilities.updateComponentTreeUI(appFrames[i]);
-				Window[] ownedWindows = appFrames[i].getOwnedWindows();
-				for (int j = 0; j < ownedWindows.length; j++) { //Loop to update the dialogs
-					if (ownedWindows[j] instanceof Dialog) {
-						SwingUtilities.updateComponentTreeUI(ownedWindows[j]);
-					}
-				}
-			}
+			updateComponentTreesUI();
 		} catch (UnsupportedLookAndFeelException exception) { //This exception will never be throwed, but just in case...
 			System.out.println("There was an exception when restoring the state of the Look and Feel: \n" + exception.getMessage());
 		}
 	}
+	
+	/**
+	 *	Updates the component tree UI of all the frames and dialogs of the application
+	 */
+	private void updateComponentTreesUI() {
+		Frame[] appFrames = Frame.getFrames();
+		for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
+			SwingUtilities.updateComponentTreeUI(appFrames[i]);
+			Window[] ownedWindows = appFrames[i].getOwnedWindows();
+			for (int j = 0; j < ownedWindows.length; j++) { //Loop to update the dialogs
+				if (ownedWindows[j] instanceof Dialog) {
+					SwingUtilities.updateComponentTreeUI(ownedWindows[j]);
+				}
+			}
+		}
+	}
+	
+	public void enableSkins() {
+		previewButtonPressed();
+	}
 
+	public void disableSkins() {
+		String systemLF = UIManager.getSystemLookAndFeelClassName();
+		try {
+			UIManager.setLookAndFeel(systemLF);
+		} catch (Exception exception) {
+			System.out.println("There was an error while restoring the system look and feel:\n" + exception.getMessage());
+		}
+		updateComponentTreesUI();
+	}
 }
