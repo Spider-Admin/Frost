@@ -269,27 +269,38 @@ public class UploadTicker extends Thread {
 	 */
 	private void startUploadThread() {
 		if (allocateUploadingThread()) {
-			boolean threadLaunched = false;
 			
-			for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
-				FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-				if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED
-					&& ulItem.getSHA1() != null
-					&& ulItem.getKey() != null)
-					// file have key after encoding
-					{
-					ulItem.setState(FrostUploadItem.STATE_UPLOADING);
-					UploadThread newInsert =
-						new UploadThread(this, ulItem, settings, UploadThread.MODE_UPLOAD, myID);
-					newInsert.start();
-					threadLaunched = true; 	// start only 1 thread per loop (=second)
-				}
-			}
-			
-			if (!threadLaunched) {
+			FrostUploadItem item = selectNextUploadItem();
+			if (item != null) {
+				item.setState(FrostUploadItem.STATE_UPLOADING);
+				UploadThread newInsert =
+					new UploadThread(this, item, settings, UploadThread.MODE_UPLOAD, myID);
+				newInsert.start();
+			} else {
 				releaseUploadingThread();	
 			}
 		}
+	}
+	
+	/**
+	 * Chooses next upload item to start from upload table.
+	 * @return the next upload item to start uploading or null if a suitable
+	 * 			one was not found.
+	 */
+	private FrostUploadItem selectNextUploadItem() {
+		FrostUploadItem foundItem = null;
+		for (int i = 0; i < model.getItemCount() && foundItem == null; i++) {
+			FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+			if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED
+				&& ulItem.getSHA1() != null
+				&& ulItem.getKey() != null
+				&& (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue()))
+				// file have key after encoding
+				{
+				foundItem = ulItem;
+			}
+		}
+		return foundItem;
 	}
 	
 	/**

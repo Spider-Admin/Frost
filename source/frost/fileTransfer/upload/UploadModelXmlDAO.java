@@ -112,6 +112,7 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 		String key = XMLTools.getChildElementsCDATAValue(element, "key");
 		String SHA1 = XMLTools.getChildElementsCDATAValue(element, "SHA1");
 		String batch = XMLTools.getChildElementsTextValue(element, "batch");
+		String enabled = element.getAttribute("enabled");
 
 		// batch is allowed to be null, I think
 		if (filename == null || filepath == null || targetboardname == null || state == null) {//|| batch==null)
@@ -162,11 +163,18 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 								targetboardname + ") does not exist. Removed.");
 			return null;
 		}
+		
+		boolean uploadEnabled = false;
+		if (enabled == null || enabled.length() == 0 ||
+				enabled.toLowerCase().equals("true")) {
+			uploadEnabled = true; // default is true
+		}
 
 		// create FrostUploadItem
 		FrostUploadItem ulItem = new FrostUploadItem(filename, filepath, uploadFile.length(),
 														board, iState, lastUploadDate, key, SHA1);
 		ulItem.setBatch(batch);
+		ulItem.setEnabled(new Boolean(uploadEnabled));
 		return ulItem;
 	}
 
@@ -295,6 +303,14 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 			element.appendChild(text);
 			itemElement.appendChild(element);
 		}
+		// enabled 
+		String enabled;
+		if (uploadItem.isEnabled() == null) {
+			enabled = "true";
+		} else {
+			enabled = uploadItem.isEnabled().toString();
+		}
+		itemElement.setAttribute("enabled", enabled);
 		return itemElement;
 	}
 

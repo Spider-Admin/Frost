@@ -9,7 +9,6 @@ import frost.util.model.ModelItem;
 public class FrostUploadItem extends ModelItem
 {
 	// the constants representing field IDs
-
 	public final static int FIELD_ID_DONE_BLOCKS = 100;
 	public final static int FIELD_ID_FILE_NAME = 101; 
 	public final static int FIELD_ID_FILE_PATH = 102;
@@ -20,6 +19,7 @@ public class FrostUploadItem extends ModelItem
 	public final static int FIELD_ID_SHA1 = 107;
 	public final static int FIELD_ID_STATE = 108;
 	public final static int FIELD_ID_TARGET_BOARD = 109;
+	public final static int FIELD_ID_ENABLED = 110;
 
     // the constants representing upload states
     public final static int STATE_IDLE       = 1; // shows either last date uploaded or Never
@@ -31,15 +31,16 @@ public class FrostUploadItem extends ModelItem
     
 	//the fields
 	private int state;					//FIELD_ID_STATE
-    private String fileName;				//FIELD_ID_FILE_NAME
-    private String filePath;				//FIELD_ID_FILE_PATH
-    private Long fileSize;					//FIELD_ID_FILE_SIZE
+    private String fileName;			//FIELD_ID_FILE_NAME
+    private String filePath;			//FIELD_ID_FILE_PATH
+    private Long fileSize;				//FIELD_ID_FILE_SIZE
 	private String key;					//FIELD_ID_KEY
-	private String sha1;					//FIELD_ID_SHA
-	private Board targetBoard;	//FIELD_ID_TARGET_BOARD
-	private int totalBlocks = -1;			//FIELD_ID_TOTAL_BLOCKS
-	private int doneBlocks = -1;			//FIELD_ID_DONE_BLOCKS
-	private String lastUploadDate;			//FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
+	private String sha1;				//FIELD_ID_SHA
+	private Board targetBoard;			//FIELD_ID_TARGET_BOARD
+	private int totalBlocks = -1;		//FIELD_ID_TOTAL_BLOCKS
+	private int doneBlocks = -1;		//FIELD_ID_DONE_BLOCKS
+	private String lastUploadDate;		//FIELD_ID_LAST_UPLOAD_DATE (null as long as NEVER uploaded)
+	private Boolean enabled = new Boolean(true);	//FIELD_ID_ENABLED
     
     private int nextState = 0;
 
@@ -258,11 +259,34 @@ public class FrostUploadItem extends ModelItem
 		doneBlocks = newDoneBlocks;
 		fireFieldChange(FIELD_ID_DONE_BLOCKS, oldDoneBlocks, newDoneBlocks);
 	}
+	
+	/**
+	 * @param enabled new enable status of the item. If null, the current 
+	 * 		  status is inverted
+	 */
+	public void setEnabled(Boolean newEnabled) {
+		if (newEnabled == null && enabled != null) {
+			//Invert the enable status
+			boolean temp = enabled.booleanValue();
+			newEnabled = new Boolean(!temp);
+		}
+		Boolean oldEnabled = enabled;
+		enabled = newEnabled;
+		fireFieldChange(FIELD_ID_ENABLED, oldEnabled, newEnabled);
+	}
+	
 	/**
 	 * @return
 	 */
 	public int getDoneBlocks() {
 		return doneBlocks;
+	}
+	
+	/**
+	 * @return
+	 */
+	public Boolean isEnabled() {
+		return enabled;
 	}
 
 	/**
