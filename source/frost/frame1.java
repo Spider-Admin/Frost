@@ -1354,7 +1354,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		tofTopPanel.add(newMessagesCountLabel);
 		tofTopPanel.add(Box.createRigidArea(blankSpace));
 		// build panel wich shows the message list + message
-		MessageTableModel messageTableModel = new MessageTableModel();
+		MessageTableModel messageTableModel = new MessageTableModel(languageResource);
+		languageResource.addLanguageListener(messageTableModel);
 		this.messageTable = new MessageTable(messageTableModel);
 		messageTable.setSelectionMode(
 			DefaultListSelectionModel.SINGLE_SELECTION);

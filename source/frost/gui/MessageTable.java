@@ -28,24 +28,17 @@ import frost.gui.objects.FrostMessageObject;
 
 public class MessageTable extends SortedTable
 {
-    public MessageTable(TableModel m)
-    {
-        super(m);
-        
-        CellRenderer cellRenderer = new CellRenderer();
-        setDefaultRenderer( Object.class, cellRenderer );
-        
-        // set column sizes
-        int[] widths = {30, 150, 250, 50, 150};
-        for (int i = 0; i < widths.length; i++)
-        {
-            getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
-        }
-        // default for messages: sort by date descending
-        sortedColumnIndex = 4;
-        sortedColumnAscending = false;
-        resortTable();
-    }
+	public MessageTable(TableModel m) {
+		super(m);
+
+		CellRenderer cellRenderer = new CellRenderer();
+		setDefaultRenderer(Object.class, cellRenderer);
+
+		// default for messages: sort by date descending
+		sortedColumnIndex = 4;
+		sortedColumnAscending = false;
+		resortTable();
+	}
     
     /**
      * This renderer renders rows in different colors.
@@ -99,5 +92,18 @@ public class MessageTable extends SortedTable
             return this;
         }
     }
+	/* (non-Javadoc)
+	 * @see javax.swing.JTable#createDefaultColumnsFromModel()
+	 */
+	public void createDefaultColumnsFromModel() {
+		super.createDefaultColumnsFromModel();
+
+		// set column sizes
+		int[] widths = { 30, 150, 250, 50, 150 };
+		for (int i = 0; i < widths.length; i++) {
+			getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+		}
+	}
+
 }
 
