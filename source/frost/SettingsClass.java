@@ -405,6 +405,9 @@ public class SettingsClass
         defaults.put("downloadRequestAfterTries", "5");
         defaults.put("downloadMaxRetries", "5");
         defaults.put("downloadWaittime", "5");
+        
+        defaults.put("downloadDecodeAfterEachSegment", "true");
+        defaults.put("downloadTryAllSegments", "true");
 
         defaults.put("disableRequests", "false");
         defaults.put("disableDownloads","false");

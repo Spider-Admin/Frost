@@ -157,9 +157,11 @@ public class GetRequestsThread extends Thread
                         File requestLock = new File(destination + SHA1 + ".lck");
                         if( !requestLock.exists() )
                         {
+                            // FIXME: what to do if state is ENCODING ?
+                            // change of state ENCODING_REQUESTED to REQUESTED is ok
                             if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
                                 ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
-				ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
+				                ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
                             {
                                 Core.getOut().println("Request matches row " + i);
                                 ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
