@@ -17,9 +17,9 @@ public class BuddyList extends HashMap implements XMLizable
 	// note - I decided to keep the same structure.  Its probably better from
 	//XML point of view to have each identity's trust status marked as attribute,
 	//but this way is easier..
-	public Element getXMLElement(Document doc){
+	public synchronized Element getXMLElement(Document doc){
 		Element main = doc.createElement("BuddyList");
-		Iterator it = values().iterator();
+		Iterator it = values().iterator();	//We iterate: therefore synchronized.
 		while (it.hasNext()) {
 			Identity id = (Identity)it.next();
 			Element el = id.getXMLElement(doc);
