@@ -26,7 +26,7 @@ import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
-import java.util.logging.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -790,7 +790,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 							FrostSearchItemObject.STATE_NONE);
 					//FIXME: <-does this matter?
 					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-					boolean added = getDownloadTable().addDownloadItem(dlItem);
+					boolean added = getDownloadModel().addDownloadItem(dlItem);
 				}
 
 			} else {
@@ -806,7 +806,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 							sfo,
 							FrostSearchItemObject.STATE_NONE);
 					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-					boolean added = getDownloadTable().addDownloadItem(dlItem);
+					boolean added = getDownloadModel().addDownloadItem(dlItem);
 				}
 			}
 		}
@@ -1741,7 +1741,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	JButton cutBoardButton = null;
 
 	//Panels
-	private DownloadTable downloadTable = null;
+	private DownloadModel downloadModel = null;
 	JMenuItem fileExitMenuItem = new JMenuItem();
 
 	//File Menu
@@ -2341,8 +2341,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			System.exit(0);
 		}
 	}
-	public DownloadTable getDownloadTable() {
-		return downloadTable;
+	public DownloadModel getDownloadModel() {
+		return downloadModel;
 	}
 	private HealingTable getHealingTable() {
 		if (healingTable == null) {
@@ -3159,8 +3159,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	/**
 	 * @param table
 	 */
-	public void setDownloadTable(DownloadTable table) {
-		downloadTable = table;
+	public void setDownloadModel(DownloadModel table) {
+		downloadModel = table;
 	}
 
 	/**

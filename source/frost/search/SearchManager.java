@@ -9,7 +9,7 @@ package frost.search;
 import java.beans.*;
 
 import frost.*;
-import frost.fileTransfer.download.DownloadTable;
+import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
 import frost.gui.TofTree;
 import frost.gui.translation.UpdatingLanguageResource;
@@ -24,7 +24,7 @@ import frost.identities.FrostIdentities;
 public class SearchManager implements PropertyChangeListener {
 
 	private TofTree tofTree;
-	private DownloadTable downloadTable;
+	private DownloadModel downloadModel;
 	private UploadModel uploadModel;
 	private String keypool;
 	private FrostIdentities identities;
@@ -76,10 +76,10 @@ public class SearchManager implements PropertyChangeListener {
 	}
 
 	/**
-	 * @param table
+	 * @param model
 	 */
-	public void setDownloadTable(DownloadTable newDownloadTable) {
-		downloadTable = newDownloadTable;		
+	public void setDownloadModel(DownloadModel model) {
+		downloadModel = model;		
 	}
 
 	/**
@@ -96,7 +96,7 @@ public class SearchManager implements PropertyChangeListener {
 		if (panel == null) {
 			panel = new SearchPanel(settings, this); 
 			panel.setTableModel(getTableModel());
-			panel.setDownloadTable(downloadTable);
+			panel.setDownloadModel(downloadModel);
 			panel.setUploadModel(uploadModel);
 			panel.setTofTree(tofTree);
 			panel.setKeypool(keypool);

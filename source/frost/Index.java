@@ -23,7 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.fileTransfer.download.*;
-import frost.gui.objects.*;
+import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
 import frost.messages.*;
 
@@ -459,21 +459,20 @@ public class Index
             return;
         }
 
-        DownloadTableModel dlModel =
-            (DownloadTableModel)frame1
+        DownloadModel dlModel =
+            (DownloadModel)frame1
                 .getInstance()
-                .getDownloadTable()
-                .getModel();
-        for (int i = 0; i < dlModel.getRowCount(); i++)
+                .getDownloadModel();
+        for (int i = 0; i < dlModel.getItemCount(); i++)
         {
             FrostDownloadItem dlItem =
-                (FrostDownloadItem)dlModel.getRow(i);
+                (FrostDownloadItem)dlModel.getItemAt(i);
             if (dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
                 && dlItem.getSHA1() != null
                 && dlItem.getSHA1().compareTo(key.getSHA1()) == 0)
             {
                 dlItem.setKey(key.getKey());
-                dlItem.setDate(key.getDate());
+                dlItem.setFileAge(key.getDate());
                 break;
             }
 

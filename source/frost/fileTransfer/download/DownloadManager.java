@@ -23,7 +23,7 @@ public class DownloadManager implements PropertyChangeListener {
 	private SettingsClass settings;
 	private UpdatingLanguageResource languageResource;
 	
-	private DownloadTable table;
+	private DownloadModel model;
 	private DownloadPanel panel;
 	private DownloadTicker ticker;
 
@@ -55,7 +55,7 @@ public class DownloadManager implements PropertyChangeListener {
 		mainFrame.addPanel("Downloads", getPanel());
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
 		updateDownloadStatus();
-		getTable().load();
+		getModel().load();
 		if (freenetIsOnline) {
 			getTicker().start();
 		}
@@ -75,7 +75,7 @@ public class DownloadManager implements PropertyChangeListener {
 	public DownloadPanel getPanel() {
 		if (panel == null) {
 			panel = new DownloadPanel(settings);
-			panel.setDownloadTable(getTable());
+			panel.setModel(getModel());
 			panel.setLanguageResource(languageResource);
 			panel.initialize();
 		}
@@ -85,12 +85,11 @@ public class DownloadManager implements PropertyChangeListener {
 	/**
 	 * @return
 	 */
-	public DownloadTable getTable() {
-		if (table == null) {
-			DownloadTableModel downloadTableModel = new DownloadTableModel(languageResource);
-			table = new DownloadTable(downloadTableModel, settings);
+	public DownloadModel getModel() {
+		if (model == null) {
+			model = new DownloadModel(settings);	
 		}
-		return table;
+		return model;
 	}
 	
 	/**
@@ -98,7 +97,7 @@ public class DownloadManager implements PropertyChangeListener {
 	 */
 	public DownloadTicker getTicker() {
 		if (ticker == null) {
-			ticker = new DownloadTicker(settings, getTable(), getPanel());
+			ticker = new DownloadTicker(settings, getModel(), getPanel());
 		}
 		return ticker;
 	}

@@ -36,7 +36,7 @@ public class TableXmlIO
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
 	/**************************************************
-	 * TABLE LOAD METHODS *****************************
+	 * MODEL LOAD METHODS *****************************
 	 **************************************************/
 
 	////////  UPLOAD MODEL  /////////
@@ -79,11 +79,12 @@ public class TableXmlIO
 			Element uploadItemElement = (Element) nodelist.get(x);
 			appendUploadModelItemToModel(uploadItemElement, model);
 		}
-		logger.info("Loaded " + nodelist.size() + " items into upload table.");
+		logger.info("Loaded " + nodelist.size() + " items into upload model.");
 		return true;
 	}
 
 	protected static void appendUploadModelItemToModel(Element ulItemElement, UploadModel model) {
+		
 		FrostUploadItem ulObj = getUploadItemFromElement(ulItemElement);
 		if (ulObj == null)
 			return;
@@ -102,7 +103,7 @@ public class TableXmlIO
 	    String SHA1 = XMLTools.getChildElementsCDATAValue(ulItemElement, "SHA1");
 	    String batch = XMLTools.getChildElementsTextValue(ulItemElement, "batch");
 
-// batch is allowed to be null, i think
+		// batch is allowed to be null, i think
         if( filename == null || filepath == null || targetboardname == null || state == null )//|| batch==null)
         {
 			logger.warning("UploadTable: Error in XML save file, skipping entry.");
@@ -174,53 +175,58 @@ public class TableXmlIO
         return ulItem;
     }
 
-////////  DOWNLOAD TABLE  /////////
+	////////  DOWNLOAD MODEL  /////////
 
-    public static boolean loadDownloadTableItems( DownloadTableModel model, String filename )
-    {
-        Document doc = null;
-        try {
-            doc = XMLTools.parseXmlFile(filename, false);
-        } catch(Exception ex) { ; } // xml format error
+	public static boolean loadDownloadModel(DownloadModel model, String filename) {
+		Document doc = null;
+		try {
+			doc = XMLTools.parseXmlFile(filename, false);
+		} catch (Exception ex) {
+			;
+		} // xml format error
 
-        if( doc == null )
-            return false;
+		if (doc == null) {
+			logger.severe("Error - loadDownloadModel: factory could'nt create XML Document.");
+			return false;
+		}
 
-        Element rootNode = doc.getDocumentElement();
+		Element rootNode = doc.getDocumentElement();
 
-        if( rootNode.getTagName().equals("FrostDownloadTable") == false )
-        {
-            logger.severe("Error - uploads.xml invalid: does not contain the root tag 'FrostDownloadTable'");
-            return false;
-        }
-        // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
-        ArrayList nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostDownloadTableItemList");
-        if( nodelist.size() != 1 )
-            return false;
+		if (rootNode.getTagName().equals("FrostDownloadTable") == false) {
+			logger.severe(
+				"Error - downloads.xml invalid: does not contain the root tag 'FrostDownloadTable'");
+			return false;
+		}
+		// check if rootnode contains only a single boardEntry wich must be a folder (root folder)
+		ArrayList nodelist =
+			XMLTools.getChildElementsByTagName(rootNode, "FrostDownloadTableItemList");
+		if (nodelist.size() != 1)
+			return false;
 
-        Element itemListRootNode = (Element)nodelist.get(0);
+		Element itemListRootNode = (Element) nodelist.get(0);
 
-        nodelist = XMLTools.getChildElementsByTagName( itemListRootNode, "FrostDownloadTableItem" );
+		nodelist = XMLTools.getChildElementsByTagName(itemListRootNode, "FrostDownloadTableItem");
 
-        if( nodelist.size() == 0 )
-            return true; // empty save file
+		if (nodelist.size() == 0)
+			return true; // empty save file
 
-        for( int x=0; x<nodelist.size(); x++ )
-        {
-            Element downloadItemElement = (Element)nodelist.get(x);
-            appendDownloadTableItemToModel( downloadItemElement, model );
-        }
-		logger.info("Loaded " + nodelist.size() + " items into download table.");
-        return true;
-    }
+		for (int x = 0; x < nodelist.size(); x++) {
+			Element downloadItemElement = (Element) nodelist.get(x);
+			appendDownloadModelItemToModel(downloadItemElement, model);
+		}
+		logger.info("Loaded " + nodelist.size() + " items into download model.");
+		return true;
+	}
 
-    protected static void appendDownloadTableItemToModel(Element dlItemElement, DownloadTableModel model)
-    {
-        FrostDownloadItem dlObj = getDownloadItemFromElement( dlItemElement );
-        if( dlObj == null )
-            return;
-        model.addRow( dlObj );
-    }
+	protected static void appendDownloadModelItemToModel(
+		Element dlItemElement,
+		DownloadModel model) {
+
+		FrostDownloadItem dlObj = getDownloadItemFromElement(dlItemElement);
+		if (dlObj == null)
+			return;
+		model.addDownloadItem(dlObj);
+	}
 
     protected static FrostDownloadItem getDownloadItemFromElement(Element dlItemElement)
     {
@@ -317,7 +323,7 @@ public class TableXmlIO
 	public static boolean saveUploadModel(UploadModel model, String filename) {
 		Document doc = XMLTools.createDomDocument();
 		if (doc == null) {
-			logger.severe("Error - saveUploadTableItems: factory could'nt create XML Document.");
+			logger.severe("Error - saveUploadModel: factory could'nt create XML Document.");
 			return false;
 		}
 
@@ -336,11 +342,11 @@ public class TableXmlIO
 		boolean writeOK = false;
 		try {
 			writeOK = XMLTools.writeXmlFile(doc, filename);
-			logger.info("Saved " + model.getItemCount() + " items from upload table.");
+			logger.info("Saved " + model.getItemCount() + " items from upload model.");
 		} catch (Throwable t) {
 			logger.log(
 				Level.SEVERE,
-				"Exception - saveUploadModel\n" + "ERROR saving upload table!",
+				"Exception - saveUploadModel\n" + "ERROR saving upload model!",
 				t);
 		}
 		return writeOK;
@@ -405,42 +411,40 @@ public class TableXmlIO
         parent.appendChild( itemElement );
     }
 
-////////  DOWNLOAD TABLE  /////////
+	////////  DOWNLOAD MODEL  /////////
 
-    public static boolean saveDownloadTableItems( DownloadTableModel model, String filename )
-    {
-        Document doc = XMLTools.createDomDocument();
-        if( doc == null )
-        {
-            logger.severe("Error - saveDownloadTableItems: factory could'nt create XML Document.");
-            return false;
-        }
+	public static boolean saveDownloadModel(DownloadModel model, String filename) {
+		Document doc = XMLTools.createDomDocument();
+		if (doc == null) {
+			logger.severe("Error - saveDownloadModel: factory couldn't create XML Document.");
+			return false;
+		}
 
-        Element rootElement = doc.createElement("FrostDownloadTable");
-        doc.appendChild(rootElement);
+		Element rootElement = doc.createElement("FrostDownloadTable");
+		doc.appendChild(rootElement);
 
-        Element itemsRoot = doc.createElement("FrostDownloadTableItemList");
-        rootElement.appendChild( itemsRoot );
+		Element itemsRoot = doc.createElement("FrostDownloadTableItemList");
+		rootElement.appendChild(itemsRoot);
 
-        // now add all items to itemsRoot
-        for( int x=0; x<model.getRowCount(); x++ )
-        {
-            FrostDownloadItem dlItem = (FrostDownloadItem)model.getRow( x );
-            appendDownloadItemToDomTree( itemsRoot, dlItem, doc );
-        }
+		// now add all items to itemsRoot
+		for (int x = 0; x < model.getItemCount(); x++) {
+			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
+			appendDownloadItemToDomTree(itemsRoot, dlItem, doc);
+		}
 
-        boolean writeOK = false;
-        try {
-            writeOK = XMLTools.writeXmlFile(doc, filename);
-			logger.info("Saved " + model.getRowCount() + " items from download table.");
-        } catch(Throwable t)
-        {
-			logger.log(Level.SEVERE, "Exception - saveDownloadTableItems\n" +
-									 "ERROR saving download table!", t);
-        }
+		boolean writeOK = false;
+		try {
+			writeOK = XMLTools.writeXmlFile(doc, filename);
+			logger.info("Saved " + model.getItemCount() + " items from download model.");
+		} catch (Throwable t) {
+			logger.log(
+				Level.SEVERE,
+				"Exception - saveDownloadModel\n" + "ERROR saving download model!",
+				t);
+		}
 
-        return writeOK;
-    }
+		return writeOK;
+	}
 
     protected static void appendDownloadItemToDomTree( Element parent, FrostDownloadItem dlItem, Document doc )
     {

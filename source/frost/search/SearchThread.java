@@ -25,6 +25,7 @@ import java.util.logging.Logger;
 import javax.swing.SwingUtilities;
 
 import frost.*;
+import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
 import frost.gui.objects.FrostBoardObject;
 import frost.gui.translation.UpdatingLanguageResource;
@@ -55,6 +56,7 @@ class SearchThread extends Thread {
     int maxSearchResults;
     private SearchPanel searchPanel = null;
     
+	private DownloadModel downloadModel;
     private UploadModel uploadModel;
 
 	private SettingsClass settings;
@@ -288,7 +290,7 @@ class SearchThread extends Thread {
 			if (file.exists()) {
 				// file is already downloaded -> light_gray
 				searchItemState = FrostSearchItemObject.STATE_DOWNLOADED;
-			} else if (frame1.getInstance().getDownloadTable().containsItemWithKey(SHA1)) {
+			} else if (downloadModel.containsItemWithKey(SHA1)) {
 				// this file is in download table -> blue
 				searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
 			} else if (uploadModel.containsItemWithKey(SHA1)) {
@@ -414,6 +416,13 @@ class SearchThread extends Thread {
 	 */
 	public void setUploadModel(UploadModel model) {
 		uploadModel = model;
+	}
+	
+	/**
+	 * @param model
+	 */
+	public void setDownloadModel(DownloadModel model) {
+		downloadModel = model;
 	}
 
 }

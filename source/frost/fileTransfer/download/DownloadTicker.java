@@ -18,7 +18,7 @@ public class DownloadTicker extends Thread {
 	private SettingsClass settings;
 
 	private DownloadPanel panel;
-	private DownloadTable table;
+	private DownloadModel model;
 
 	private int counter;
 	private int threadCount = 0;
@@ -45,19 +45,34 @@ public class DownloadTicker extends Thread {
 	 */
 	public DownloadTicker(
 		SettingsClass newSettings,
-		DownloadTable newTable,
+		DownloadModel newModel,
 		DownloadPanel newPanel) {
+
 		super("Download");
 		settings = newSettings;
-		table = newTable;
+		model = newModel;
 		panel = newPanel;
 	}
 
 	/**
 	 * 
 	 */
-	public synchronized void decreaseThreadCount() {
-		threadCount--;
+	public synchronized boolean allocateThread() {
+		if (threadCount < settings.getIntValue("downloadThreads")) {
+			threadCount++;
+			return true;
+		} else {	
+			return false;	
+		}
+	}
+	
+	/**
+	 * 
+	 */
+	public synchronized void releaseThread() {
+		if (threadCount > 0) {
+			threadCount--;
+		}
 	}
 
 	/**
@@ -67,13 +82,6 @@ public class DownloadTicker extends Thread {
 		return threadCount;
 	}
 
-	/**
-	 * 
-	 */
-	public synchronized void increaseThreadCount() {
-		threadCount++;
-	}
-
 	/* (non-Javadoc)
 	 * @see java.lang.Runnable#run()
 	 */
@@ -81,19 +89,12 @@ public class DownloadTicker extends Thread {
 		super.run();
 		while (true) {
 			mixed.wait(1000);
-			timer_actionPerformed();
+			// this method is called by a timer each second, so this counter counts seconds
+			counter++;
+			updateDownloadCountLabel();
+			startDownloadThread();
+			removeFinishedDownloads();
 		}
-	}
-
-	/**
-	 * 
-	 */
-	private void timer_actionPerformed() {
-		// this method is called by a timer each second, so this counter counts seconds
-		counter++;
-		updateDownloadCountLabel();
-		startDownloadThread();
-		removeFinishedDownloads();
 	}
 
 	/**
@@ -101,7 +102,7 @@ public class DownloadTicker extends Thread {
 	 */
 	private void removeFinishedDownloads() {
 		if (counter % 300 == 0 && settings.getBoolValue("removeFinishedDownloads")) {
-			table.removeFinishedDownloads();
+			model.removeFinishedDownloads();
 		}
 	}
 
@@ -113,10 +114,9 @@ public class DownloadTicker extends Thread {
 		if (settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS) == true)
 			return;
 
-		DownloadTableModel model = (DownloadTableModel) table.getModel();
 		int waitingItems = 0;
-		for (int x = 0; x < model.getRowCount(); x++) {
-			FrostDownloadItem dlItem = (FrostDownloadItem) model.getRow(x);
+		for (int x = 0; x < model.getItemCount(); x++) {
+			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(x);
 			if (dlItem.getState() == FrostDownloadItem.STATE_WAITING) {
 				waitingItems++;
 			}
@@ -128,37 +128,35 @@ public class DownloadTicker extends Thread {
 	 * 
 	 */
 	private void startDownloadThread() {
-		int activeThreads = getThreadCount();
+		if (panel.isDownloadingActivated() && allocateThread()) {
+			boolean threadLaunched = false;
 
-		// check all 3 seconds if a download could be started
-		if (counter % 3 == 0
-			&& activeThreads < settings.getIntValue("downloadThreads")
-			&& panel.isDownloadingActivated()) {
-			// choose first item
 			FrostDownloadItem dlItem = selectNextDownloadItem();
 			if (dlItem != null) {
-				DownloadTableModel dlModel = (DownloadTableModel) table.getModel();
-
 				dlItem.setState(FrostDownloadItem.STATE_TRYING);
-				dlModel.updateRow(dlItem);
 
-				DownloadThread newRequest = new DownloadThread(this, dlItem, table, settings);
+				DownloadThread newRequest = new DownloadThread(this, dlItem, model, settings);
 				newRequest.start();
+				threadLaunched = true;
+			}
+
+			if (!threadLaunched) {
+				releaseThread();
 			}
 		}
-
 	}
+
+
 
 	/**
 	 * Chooses next download item to start from download table.
 	 */
 	private FrostDownloadItem selectNextDownloadItem() {
-		DownloadTableModel dlModel = (DownloadTableModel) table.getModel();
 
 		// get the item with state "Waiting", minimum htl and not over maximum htl
 		ArrayList waitingItems = new ArrayList();
-		for (int i = 0; i < dlModel.getRowCount(); i++) {
-			FrostDownloadItem dlItem = (FrostDownloadItem) dlModel.getRow(i);
+		for (int i = 0; i < model.getItemCount(); i++) {
+			FrostDownloadItem dlItem = (FrostDownloadItem) model.getItemAt(i);
 			if ((dlItem.getState() == FrostDownloadItem.STATE_WAITING
 				&& (dlItem.getEnableDownload() == null
 					|| dlItem.getEnableDownload().booleanValue()
@@ -182,8 +180,7 @@ public class DownloadTicker extends Thread {
 		if (waitingItems.size() == 0)
 			return null;
 
-		if (waitingItems.size() > 1) // performance issues
-			{
+		if (waitingItems.size() > 1) { // performance issues
 			Collections.sort(waitingItems, downloadDlStopMillisCmp);
 		}
 		return (FrostDownloadItem) waitingItems.get(0);

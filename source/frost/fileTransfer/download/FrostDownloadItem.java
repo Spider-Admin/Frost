@@ -1,86 +1,27 @@
 package frost.fileTransfer.download;
 
-import frost.Core;
-import frost.gui.model.TableMember;
 import frost.gui.objects.FrostBoardObject;
 import frost.search.FrostSearchItem;
-import frost.util.*;
+import frost.util.model.ModelItem;
 
-public class FrostDownloadItem implements TableMember {
-	/**
-	 * 
-	 */
-	private class DownloadObservable extends FlexibleObservable {
+public class FrostDownloadItem extends ModelItem {
 
-		/**
-		 * 
-		 */
-		public DownloadObservable() {
-			super();
-		}
+	// the constants representing field IDs
 
-		/**
-		 * 
-		 */
-		public void done() {
-			setChanged();
-			//deliver the notification in the same thread.
-			//I don't see any locking issues
-			notifyObservers(getFileName());
-			deleteObservers(); //only once! 
-		}
-
-		/**
-		 * @param what
-		 */
-		public void setNotifiable(boolean what) {
-			if (what) {
-				assert Core.getEmailNotifier()
-					!= null : "FrostDownloadItem.setNotifiable was called with true without the emailNotifier "
-						+ "being instantiated.";
-
-				addObserver(Core.getEmailNotifier());
-			} else {
-				deleteObservers();
-			}
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.util.FlexibleObservable#notifyObservers(java.lang.Object)
-		 */
-		public void notifyObservers(Object arg) {
-			/*
-			 * a temporary array buffer, used as a snapshot of the state of
-			 * current Observers.
-			 */
-			Object[] arrLocal;
-
-			synchronized (this) {
-				/* We don't want the Observer doing callbacks into
-				 * arbitrary code while holding its own Monitor.
-				 * The code where we extract each Observable from 
-				 * the Vector and store the state of the Observer
-				 * needs synchronization, but notifying observers
-				 * does not (should not).  The worst result of any 
-				 * potential race-condition here is that:
-				 * 1) a newly-added Observer will miss a
-				 *   notification in progress
-				 * 2) a recently unregistered Observer will be
-				 *   wrongly notified when it doesn't care
-				 */
-				if (!hasChanged())
-					return;
-				arrLocal = observers.toArray();
-				clearChanged();
-			}
-
-			for (int i = arrLocal.length - 1; i >= 0; i--)
-				 ((FlexibleObserver) arrLocal[i]).update(FrostDownloadItem.this, arg);
-		}
-
-	}
-	static java.util.ResourceBundle LangRes =
-		java.util.ResourceBundle.getBundle("res.LangRes") /*#BundleType=List*/;
+	public final static int FIELD_ID_DONE_BLOCKS = 100;
+	public final static int FIELD_ID_ENABLED = 101;
+	public final static int FIELD_ID_FILE_AGE = 102;
+	public final static int FIELD_ID_FILE_NAME = 103; 
+	public final static int FIELD_ID_FILE_SIZE = 104;
+	public final static int FIELD_ID_KEY = 105;
+	public final static int FIELD_ID_OWNER = 106;
+	public final static int FIELD_ID_REQUIRED_BLOCKS = 107;
+	public final static int FIELD_ID_RETRIES = 108;
+	public final static int FIELD_ID_SHA1 = 109;
+	public final static int FIELD_ID_STATE = 110;
+	public final static int FIELD_ID_SOURCE_BOARD = 111;
+	public final static int FIELD_ID_TOTAL_BLOCKS = 112;
+	
 
 	// the constants representing download states
 	public final static int STATE_WAITING = 1;
@@ -92,49 +33,43 @@ public class FrostDownloadItem implements TableMember {
 	public final static int STATE_REQUESTED = 7;
 	public final static int STATE_DECODING = 8; // decoding runs
 
-	// the strings that are shown in table for the states
-	private final static String STATE_WAITING_STR = LangRes.getString("Waiting");
-	private final static String STATE_TRYING_STR = LangRes.getString("Trying");
-	private final static String STATE_DONE_STR = LangRes.getString("Done");
-	private final static String STATE_FAILED_STR = LangRes.getString("Failed");
-	private final static String STATE_REQUESTING_STR = LangRes.getString("Requesting");
-	private final static String STATE_REQUESTED_STR = LangRes.getString("Requested");
-	private final static String STATE_DECODING_STR = LangRes.getString("Decoding segment") + "...";
+	// the fields
+	private String fileName = null;		//FIELD_ID_FILE_NAME
+	private Long fileSize = null;			//FIELD_ID_FILE_SIZE
+	private String fileAge = null;		//FIELD_ID_FILE_AGE
+	private String key = null;			//FIELD_ID_KEY
+	private FrostBoardObject sourceBoard;	//FIELD_ID_SOURCE_BOARD
+	private int retries;					//FIELD_ID_RETRIES
+	private Boolean enableDownload = 
+				new Boolean(true);			//FIELD_ID_ENABLED
+	private String owner = null;			//FIELD_ID_OWNER
+	private String sha1 = null;			//FIELD_ID_SHA1
+	private int state = 0;				//FIELD_ID_STATE
+	private int doneBlocks = 0;			//FIELD_ID_DONE_BLOCKS
+	private int requiredBlocks = 0;		//FIELD_ID_REQUIRED_BLOCKS
+	private int totalBlocks = 0;			//FIELD_ID_TOTAL_BLOCKS
 
-	private DownloadObservable observable = new DownloadObservable();
-
-	private String fileName = null;
-	private Long fileSize = null;
-	private String fileAge = null;
-	private String key = null;
-	private FrostBoardObject sourceBoard = null;
-	private Integer retries = null;
-	private Boolean enableDownload = null;
-	private String owner = null;
-	private String SHA1 = null;
 	private String batch = null;
 
 	private String redirect;
 
-	private int state = 0;
-
-	int doneBlocks = 0;
-	int requiredBlocks = 0;
-	int totalBlocks = 0;
-
 	private long lastDownloadStopTimeMillis = 0;
+	
+	/**
+	 * @param searchItem
+	 */
 	// time when download try finished, used for pause between tries
 
 	public FrostDownloadItem(FrostSearchItem searchItem) {
 		fileName = searchItem.getFilename();
 		fileSize = searchItem.getSize();
-		fileAge = searchItem.getDate();
+		fileAge = searchItem.getDate(); 
 		key = searchItem.getKey();
 		owner = searchItem.getOwner();
 		sourceBoard = searchItem.getBoard();
-		SHA1 = searchItem.getSHA1();
+		sha1 = searchItem.getSHA1();
 		batch = searchItem.getBatch();
-		retries = new Integer(0);
+		retries = 0;
 
 		state = STATE_WAITING;
 
@@ -144,12 +79,13 @@ public class FrostDownloadItem implements TableMember {
 
 	//TODO: add .redirect to this or fix it to use SharedFileObject
 	public FrostDownloadItem(String fileName, String key, FrostBoardObject board) {
+		
 		this.fileName = fileName;
 		fileSize = null; // not set yet
 		fileAge = null;
 		this.key = key;
 		sourceBoard = board;
-		retries = new Integer(0);
+		retries = 0;
 
 		state = STATE_WAITING;
 	}
@@ -170,136 +106,17 @@ public class FrostDownloadItem implements TableMember {
 			this.fileSize = new Long(fileSize);
 
 		if (tries != null)
-			retries = new Integer(tries);
+			retries = Integer.parseInt(tries);
 		else
-			retries = new Integer(0);
+			retries = 0;
 
 		this.fileAge = fileAge;
 		this.key = key;
 		this.sourceBoard = board;
 		this.state = state;
-		this.SHA1 = SHA1;
+		this.sha1 = SHA1;
 		this.enableDownload = Boolean.valueOf(isDownloadEnabled);
 		owner = from;
-	}
-
-	/**
-	 * Returns the object representing value of column. Can be string or icon
-	 *
-	 * @param   column  Column to be displayed
-	 * @return  Object representing table entry.
-	 */
-	public Object getValueAt(int column) {
-		String aFileAge = ((fileAge == null && fileSize != null) ? "offline" : fileAge);
-		Object aFileSize;
-		if (fileSize == null) // unknown
-			aFileSize = "Unknown";
-		else
-			aFileSize = fileSize;
-
-		String blocks;
-		if (totalBlocks > 0)
-			blocks = getBlockProgressStr();
-		else
-			blocks = "";
-
-		String board;
-		if (sourceBoard != null)
-			board = sourceBoard.toString();
-		else
-			board = "";
-
-		Boolean downloadEnabled;
-		if (getEnableDownload() == null)
-			downloadEnabled = Boolean.valueOf(true); // default = enabled
-		else
-			downloadEnabled = getEnableDownload();
-
-		switch (column) {
-			case 0 :
-				return downloadEnabled; //LangRes.getString("on"),
-			case 1 :
-				return fileName; //LangRes.getString("Filename"),
-			case 2 :
-				return aFileSize; //LangRes.getString("Size"),
-			case 3 :
-				return aFileAge; //LangRes.getString("Age"),
-			case 4 :
-				return getStateString(state); //LangRes.getString("State"),
-			case 5 :
-				return blocks; //LangRes.getString("Blocks"),
-			case 6 :
-				return retries; //LangRes.getString("Retries"),
-			case 7 :
-				return board; //LangRes.getString("Source"),
-			case 8 :
-				return owner == null ? "anonymous" : owner; //LangRes.getString("Key")
-			case 9 :
-				return key == null ? " ?" : key; //LangRes.getString("Key")
-			default :
-				return "*ERR*";
-		}
-	}
-
-	private String getBlockProgressStr() {
-		return (doneBlocks + " / " + requiredBlocks + " (" + totalBlocks + ")");
-	}
-
-	public String getStateString(int state) {
-		String statestr = "*ERR*";
-		switch (state) {
-			case STATE_WAITING :
-				statestr = STATE_WAITING_STR;
-				break;
-			case STATE_TRYING :
-				statestr = STATE_TRYING_STR;
-				break;
-			case STATE_FAILED :
-				statestr = STATE_FAILED_STR;
-				break;
-			case STATE_DONE :
-				statestr = STATE_DONE_STR;
-				break;
-			case STATE_REQUESTING :
-				statestr = STATE_REQUESTING_STR;
-				break;
-			case STATE_REQUESTED :
-				statestr = STATE_REQUESTED_STR;
-				break;
-			case STATE_DECODING :
-				statestr = STATE_DECODING_STR;
-				break;
-			case STATE_PROGRESS :
-				if (totalBlocks > 0)
-					statestr = (int) ((doneBlocks * 100) / requiredBlocks) + "%";
-				else
-					statestr = "0%";
-				break;
-		}
-		return statestr;
-	}
-
-	public int compareTo(TableMember anOther, int tableColumIndex) {
-		Comparable c1 = (Comparable) getValueAt(tableColumIndex);
-		Comparable c2 = (Comparable) anOther.getValueAt(tableColumIndex);
-		if (tableColumIndex != 2)
-			return c1.compareTo(c2);
-		// handle the size column. The values are either Integer or String ("Unknown")
-		// sort strings below numbers
-		if (c1 instanceof String && c2 instanceof String)
-			return 0;
-		if (c1 instanceof String && !(c2 instanceof String))
-			return 1;
-		if (!(c1 instanceof String) && c2 instanceof String)
-			return -1;
-		return c1.compareTo(c2);
-	}
-
-	/**
-	 * @param what
-	 */
-	public void setNotifiable(boolean what) {
-		observable.setNotifiable(what); 
 	}
 
 	public String getFileName() {
@@ -308,21 +125,36 @@ public class FrostDownloadItem implements TableMember {
 	public Long getFileSize() {
 		return fileSize;
 	}
-	public void setFileSize(long s) {
-		fileSize = new Long(s);
+	/**
+	 * @param newFileSize
+	 */
+	public void setFileSize(Long newFileSize) {
+		Long oldFileSize = fileSize;
+		fileSize = newFileSize;
+		fireFieldChange(FIELD_ID_FILE_SIZE, oldFileSize, newFileSize);		
 	}
 
 	public String getFileAge() {
 		return fileAge;
 	}
-	public void setDate(String date) {
-		fileAge = date;
+	/**
+	 * @param newFileAge
+	 */
+	public void setFileAge(String newFileAge) {
+		String oldFileAge = fileAge;
+		fileAge = newFileAge;
+		fireFieldChange(FIELD_ID_FILE_AGE, oldFileAge, newFileAge);
 	}
 	public String getKey() {
 		return key;
 	}
-	public void setKey(String newkey) {
-		key = newkey;
+	/**
+	 * @param newKey
+	 */
+	public void setKey(String newKey) {
+		String oldKey = key;
+		key = newKey;
+		fireFieldChange(FIELD_ID_KEY, oldKey, newKey);
 	}
 	public FrostBoardObject getSourceBoard() {
 		return sourceBoard;
@@ -331,11 +163,13 @@ public class FrostDownloadItem implements TableMember {
 	public int getState() {
 		return state;
 	}
-	public void setState(int v) {
-		state = v;
-		if (state == STATE_DONE) {
-			observable.done();
-		}
+	/**
+	 * @param newState
+	 */
+	public void setState(int newState) {
+		int oldState = state;
+		state = newState; 
+		fireFieldChange(FIELD_ID_STATE, oldState, newState);
 	}
 
 	public long getLastDownloadStopTimeMillis() {
@@ -346,10 +180,15 @@ public class FrostDownloadItem implements TableMember {
 	}
 
 	public int getRetries() {
-		return retries.intValue();
+		return retries;
 	}
-	public void setRetries(int val) {
-		retries = new Integer(val);
+	/**
+	 * @param newRetries
+	 */
+	public void setRetries(int newRetries) {
+		int oldRetries = retries;
+		retries = newRetries;
+		fireFieldChange(FIELD_ID_RETRIES, oldRetries, newRetries);
 	}
 	public String getBatch() {
 		return batch;
@@ -358,40 +197,56 @@ public class FrostDownloadItem implements TableMember {
 		this.batch = batch;
 	}
 
-	public void setBlockProgress(int actualBlocks, int requiredBlocks, int allAvailableBlocks) {
-		this.doneBlocks = actualBlocks;
-		this.requiredBlocks = requiredBlocks;
-		this.totalBlocks = allAvailableBlocks;
-	}
-
 	public Boolean getEnableDownload() {
 		return enableDownload;
 	}
-	public void setEnableDownload(Boolean val) {
-		enableDownload = val;
+	/**
+	 * @param enabled new enable status of the item. If null, the current 
+	 * 		  status is inverted
+	 */
+	public void setEnableDownload(Boolean newEnabled) {
+		if (newEnabled == null && enableDownload != null) {
+			//Invert the enable status
+			boolean enable = enableDownload.booleanValue();
+			newEnabled = new Boolean(!enable);
+		}
+		Boolean oldEnabled = enableDownload;
+		enableDownload = newEnabled;
+		fireFieldChange(FIELD_ID_ENABLED, oldEnabled, newEnabled);
 	}
-
 	public String getOwner() {
 		return owner;
 	}
 
-	public void setOwner(String owner) {
-		this.owner = owner;
+	/**
+	 * @param newOwner
+	 */
+	public void setOwner(String newOwner) {
+		String oldOwner = owner;
+		owner = newOwner;
+		fireFieldChange(FIELD_ID_OWNER, oldOwner, newOwner);
 	}
 
 	public String getSHA1() {
-		return SHA1;
-	}
-
-	public void setSHA1(String sha1) {
-		SHA1 = sha1;
+		return sha1;
 	}
 
 	/**
-	 * @param string
+	 * @param newSha1
 	 */
-	public void setFileName(String string) {
-		fileName = string;
+	public void setSHA1(String newSha1) {
+		String oldSha1 = sha1;
+		sha1 = newSha1;
+		fireFieldChange(FIELD_ID_SHA1, oldSha1, newSha1);
+	}
+
+	/**
+	 * @param newFileName
+	 */
+	public void setFileName(String newFileName) {
+		String oldFileName = fileName;
+		fileName = newFileName;
+		fireFieldChange(FIELD_ID_FILE_NAME, oldFileName, newFileName);
 	}
 
 	/**
@@ -406,6 +261,54 @@ public class FrostDownloadItem implements TableMember {
 	 */
 	public void setRedirect(String redirect) {
 		this.redirect = redirect;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getDoneBlocks() {
+		return doneBlocks;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getRequiredBlocks() {
+		return requiredBlocks;
+	}
+
+	/**
+	 * @return
+	 */
+	public int getTotalBlocks() {
+		return totalBlocks;
+	}
+
+	/**
+	 * @param newDoneBlocks
+	 */
+	public void setDoneBlocks(int newDoneBlocks) {
+		int oldDoneBlocks = doneBlocks;
+		doneBlocks = newDoneBlocks;
+		fireFieldChange(FIELD_ID_DONE_BLOCKS, oldDoneBlocks, newDoneBlocks);
+	}
+
+	/**
+	 * @param newRequiredBlocks
+	 */
+	public void setRequiredBlocks(int newRequiredBlocks) {
+		int oldRequiredBlocks = requiredBlocks;
+		requiredBlocks = newRequiredBlocks;
+		fireFieldChange(FIELD_ID_REQUIRED_BLOCKS, oldRequiredBlocks, newRequiredBlocks);
+	}
+
+	/**
+	 * @param newTotalBlocks
+	 */
+	public void setTotalBlocks(int newTotalBlocks) {
+		int oldTotalBlocks = totalBlocks; 
+		totalBlocks = newTotalBlocks;
+		fireFieldChange(FIELD_ID_TOTAL_BLOCKS, oldTotalBlocks, newTotalBlocks);
 	}
 
 }

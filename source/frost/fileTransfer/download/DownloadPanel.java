@@ -14,9 +14,10 @@ import javax.swing.*;
 
 import frost.*;
 import frost.ext.Execute;
-import frost.gui.*;
 import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.translation.*;
+import frost.util.model.ModelItem;
+import frost.util.model.gui.SortedModelTable;
 
 /**
  * 
@@ -150,87 +151,84 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		 * 
 		 */
 		private void invertEnabledSelected() {
-			downloadTable.setDownloadEnabled(2, false);
-			// 2=invert , false means SELECTED in table!
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.setItemsEnabled(null, selectedItems);
 		}
 
 		/**
 		 * 
 		 */
 		private void invertEnabledAll() {
-			downloadTable.setDownloadEnabled(2, true);
-			// 2=invert , true means ALL in table!
+			model.setAllItemsEnabled(null);
 		}
 
 		/**
 		 * 
 		 */
 		private void disableSelectedDownloads() {
-			downloadTable.setDownloadEnabled(0, false);
-			// 0=disabled , false means SELECTED in table!
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.setItemsEnabled(new Boolean(false), selectedItems);
 		}
 
 		/**
 		 * 
 		 */
 		private void enableSelectedDownloads() {
-			downloadTable.setDownloadEnabled(1, false);
-			// 1=enabled , false means SELECTED in table!
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.setItemsEnabled(new Boolean(true), selectedItems);
 		}
 
 		/**
 		 * 
 		 */
 		private void disableAllDownloads() {
-			downloadTable.setDownloadEnabled(0, true);
-			// 0=disabled , true means ALL in table!
+			model.setAllItemsEnabled(new Boolean(false));
 		}
 
 		/**
 		 * 
 		 */
 		private void enableAllDownloads() {
-			downloadTable.setDownloadEnabled(1, true);
-			// 1=enabled , true means ALL in table!	
+			model.setAllItemsEnabled(new Boolean(true));
 		}
 
 		/**
 		 * 
 		 */
 		private void removeFinished() {
-			downloadTable.removeFinishedDownloads();
+			model.removeFinishedDownloads();
 		}
 
 		/**
 		 * 
 		 */
 		private void removeAllDownloads() {
-			downloadTable.removeAllItemsFromTable();
+			model.removeAllItems();
 		}
 
 		/**
 		 * 
 		 */
 		private void removeSelectedDownloads() {
-			downloadTable.removeSelectedItemsFromTable();
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.removeItems(selectedItems);
 		}
 
 		/**
 		 * 
 		 */
 		private void restartSelectedDownloads() {
-			downloadTable.restartSelectedDownloads();
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.restartItems(selectedItems);
 		}
 
 		/**
 		 * add CHK key + filename to clipboard 
 		 */
 		private void copyChkKeyAndFilenameToClipboard() {
-			DownloadTableModel tableModel = (DownloadTableModel) downloadTable.getModel();
-			int selectedRow = downloadTable.getSelectedRow();
-			if (selectedRow > -1) {
-				FrostDownloadItem dlItem =
-					(FrostDownloadItem) tableModel.getRow(selectedRow);
+			ModelItem selectedItem = modelTable.getSelectedItem();
+			if (selectedItem != null) {
+				FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
 				String chkKey = dlItem.getKey();
 				String filename = dlItem.getFileName();
 				if (chkKey != null && filename != null) {
@@ -243,11 +241,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		 * add CHK key to clipboard
 		 */
 		private void copyChkKeyToClipboard() {
-			DownloadTableModel tableModel = (DownloadTableModel) downloadTable.getModel();
-			int selectedRow = downloadTable.getSelectedRow();
-			if (selectedRow > -1) {
-				FrostDownloadItem dlItem =
-					(FrostDownloadItem) tableModel.getRow(selectedRow);
+			ModelItem selectedItem = modelTable.getSelectedItem();
+			if (selectedItem != null) {
+				FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
 				String chkKey = dlItem.getKey();
 				if (chkKey != null) {
 					mixed.setSystemClipboard(chkKey);
@@ -268,26 +264,27 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		public void show(Component invoker, int x, int y) {
 			removeAll();
 
-			if (downloadTable.getSelectedRowCount() == 1) {
-				// if 1 item is selected
-				FrostDownloadItem dlItem =
-					(FrostDownloadItem)
-						((DownloadTableModel) downloadTable.getModel()).getRow(
-						downloadTable.getSelectedRow());
-				if (dlItem.getKey() != null) {
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+
+			if (selectedItems.length == 1) {
+				// If 1 item is selected
+				FrostDownloadItem item = (FrostDownloadItem) selectedItems[0];
+				if (item.getKey() != null) {
 					add(copyToClipboardMenu);
 					addSeparator();
 				}
 			}
 
-			if (downloadTable.getSelectedRow() > -1) {
+			if (selectedItems.length != 0) {
+				// If at least 1 item is selected
 				add(restartSelectedDownloadsItem);
 				addSeparator();
 			}
 
 			JMenu enabledSubMenu =
 				new JMenu(languageResource.getString("Enable downloads") + "...");
-			if (downloadTable.getSelectedRow() > -1) {
+			if (selectedItems.length != 0) {
+				// If at least 1 item is selected
 				enabledSubMenu.add(enableSelectedDownloadsItem);
 				enabledSubMenu.add(disableSelectedDownloadsItem);
 				enabledSubMenu.add(invertEnabledSelectedItem);
@@ -299,7 +296,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			add(enabledSubMenu);
 
 			JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
-			if (downloadTable.getSelectedRow() > -1) {
+			if (selectedItems.length != 0) {
+				// If at least 1 item is selected
 				removeSubMenu.add(removeSelectedDownloadsItem);
 			}
 			removeSubMenu.add(removeAllDownloadsItem);
@@ -354,7 +352,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
 		 */
 		public void keyPressed(KeyEvent e) {
-			if (e.getSource() == downloadTable) {
+			if (e.getSource() == modelTable.getTable()) {
 				downloadTable_keyPressed(e);
 			}
 		}
@@ -378,13 +376,13 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		 */
 		public void mousePressed(MouseEvent e) {
 			if (e.getClickCount() == 2) {
-				if (e.getSource() == downloadTable) {
+				if (e.getSource() == modelTable.getTable()) {
 					// Start file from download table. Is this a good idea?
 					downloadTableDoubleClick(e);
 				}
 			} else if (e.isPopupTrigger()) {
-				if ((e.getSource() == downloadTable)
-					|| (e.getSource() == downloadTableScrollPane)) {
+				if ((e.getSource() == modelTable.getTable())
+					|| (e.getSource() == modelTable.getScrollPane())) {
 					showDownloadTablePopupMenu(e);
 				}
 			}
@@ -396,8 +394,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		public void mouseReleased(MouseEvent e) {
 			if ((e.getClickCount() == 1) && (e.isPopupTrigger())) {
 
-				if ((e.getSource() == downloadTable)
-					|| (e.getSource() == downloadTableScrollPane)) {
+				if ((e.getSource() == modelTable.getTable())
+					|| (e.getSource() == modelTable.getScrollPane())) {
 					showDownloadTablePopupMenu(e);
 				}
 
@@ -427,8 +425,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	
 	private static Logger logger = Logger.getLogger(DownloadPanel.class.getName());
 
-	private DownloadTable downloadTable = null;
-	private HealingTable healingTable = null;
+	private DownloadModel model = null;
+
 	private SettingsClass settingsClass = null;
 
 	private UpdatingLanguageResource languageResource = null;
@@ -439,10 +437,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
     private JButton downloadPauseButton =
         new JButton(new ImageIcon(getClass().getResource("/data/down.gif")));
 	private JTextField downloadTextField = new JTextField(25);
-	private JButton downloadShowHealingInfo =
-		new JButton(new ImageIcon(getClass().getResource("/data/healinginfo.gif")));
 	private JLabel downloadItemCountLabel = new JLabel();
-	private JScrollPane downloadTableScrollPane = null;
+	private SortedModelTable modelTable;
 
 	private boolean initialized = false;
 
@@ -474,9 +470,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 downloadPauseButton,
                "/data/down_rollover.gif"); // pause_rollover
                 
-			configureButton(downloadShowHealingInfo, "/data/healinginfo_rollover.gif");
-			downloadShowHealingInfo.setEnabled(false); // disabled until implemented ;)
-
 			BoxLayout dummyLayout = new BoxLayout(downloadTopPanel, BoxLayout.X_AXIS);
 			downloadTopPanel.setLayout(dummyLayout);
 			downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
@@ -484,24 +477,26 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
 			downloadTopPanel.add(downloadActivateButton); //Download/Start transfer
             downloadTopPanel.add(downloadPauseButton); //Download/Start transfer
-			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-			downloadTopPanel.add(downloadShowHealingInfo);
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			downloadTopPanel.add(Box.createHorizontalGlue());
 			downloadTopPanel.add(downloadItemCountLabel);
 
 			// create the main download panel
-			downloadTableScrollPane = new JScrollPane(downloadTable);
+			DownloadTableFormat tableFormat = new DownloadTableFormat(languageResource);
+			
+			modelTable = new SortedModelTable(model, tableFormat);
 			setLayout(new BorderLayout());
 			add(downloadTopPanel, BorderLayout.NORTH);
-			add(downloadTableScrollPane, BorderLayout.CENTER);
+			add(modelTable.getScrollPane(), BorderLayout.CENTER);
 			fontChanged();
 
 			// listeners
 			downloadTextField.addActionListener(listener);
 			downloadActivateButton.addActionListener(listener);
             downloadPauseButton.addActionListener(listener);
-			downloadTableScrollPane.addMouseListener(listener);
+			modelTable.getScrollPane().addMouseListener(listener);
+			modelTable.getTable().addKeyListener(listener);
+			modelTable.getTable().addMouseListener(listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
@@ -525,8 +520,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private void refreshLanguage() {
 		downloadActivateButton.setToolTipText(languageResource.getString("Activate downloading"));
         downloadPauseButton.setToolTipText(languageResource.getString("Pause downloading"));
-		downloadShowHealingInfo.setToolTipText(
-			languageResource.getString("Show healing information"));
 
 		String waiting = languageResource.getString("Waiting");
 		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
@@ -536,18 +529,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	/**
-	 * description
-	 * 
-	 * @param downloadTable description
+	 * @param model
 	 */
-	public void setDownloadTable(DownloadTable newDownloadTable) {
-		if (downloadTable != null) {
-			downloadTable.removeKeyListener(listener);
-			downloadTable.removeMouseListener(listener);
-		}
-		downloadTable = newDownloadTable;
-		downloadTable.addKeyListener(listener);
-		downloadTable.addMouseListener(listener);
+	public void setModel(DownloadModel model) {
+		this.model = model;
 	}
 
 	/**
@@ -650,7 +635,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				// add valid key to download table
 				FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key, null);
 				//users weren't happy with '_'
-				boolean isAdded = downloadTable.addDownloadItem(dlItem);
+				boolean isAdded = model.addDownloadItem(dlItem);
 
 				if (isAdded == true)
 					downloadTextField.setText("");
@@ -676,17 +661,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	/**Get keyTyped for downloadTable*/
 	private void downloadTable_keyPressed(KeyEvent e) {
 		char key = e.getKeyChar();
-		if (key == KeyEvent.VK_DELETE && !downloadTable.isEditing()) {
-			downloadTable.removeSelectedChunks();
-			downloadTable.removeSelectedRows();
+		if (key == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
+			ModelItem[] selectedItems = modelTable.getSelectedItems();
+			model.removeItems(selectedItems);
 		}
-	}
-
-	/**
-	 * @param table
-	 */
-	public void setHealingTable(HealingTable newHealingTable) {
-		healingTable = newHealingTable;
 	}
 
 	/**
@@ -750,7 +728,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			settingsClass.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
 			font = new Font("SansSerif", fontStyle, fontSize);
 		}
-		downloadTable.setFont(font);
+		modelTable.setFont(font);
 	}
 
 	/**
@@ -768,27 +746,28 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * @param e
 	 */
 	private void downloadTableDoubleClick(MouseEvent e) {
-		int clickedCol = downloadTable.columnAtPoint(e.getPoint());
-		int modelIx = downloadTable.getColumnModel().getColumn(clickedCol).getModelIndex();
-		if (modelIx == 0)
+		int clickedCol = modelTable.getTable().columnAtPoint(e.getPoint());
+		int modelIx = modelTable.getTable().getColumnModel().getColumn(clickedCol).getModelIndex();
+		if (modelIx == 0) {
 			return;
-
-		DownloadTableModel dlModel = (DownloadTableModel) downloadTable.getModel();
-		FrostDownloadItem dlItem =
-			(FrostDownloadItem) dlModel.getRow(downloadTable.getSelectedRow());
-		String execFilename =
-			new StringBuffer()
-				.append(System.getProperty("user.dir"))
-				.append(fileSeparator)
-				.append(settingsClass.getValue("downloadDirectory"))
-				.append(dlItem.getFileName())
-				.toString();
-		File file = new File(execFilename);
-		logger.info("Executing: " + file.getPath());
-		if (file.exists()) {
-			Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
 		}
 
+		ModelItem selectedItem = modelTable.getSelectedItem();
+		if (selectedItem != null) {
+			FrostDownloadItem dlItem = (FrostDownloadItem) selectedItem;
+			String execFilename =
+				new StringBuffer()
+					.append(System.getProperty("user.dir"))
+					.append(fileSeparator)
+					.append(settingsClass.getValue("downloadDirectory"))
+					.append(dlItem.getFileName())
+					.toString();
+			File file = new File(execFilename);
+			logger.info("Executing: " + file.getPath());
+			if (file.exists()) {
+				Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
+			}
+		}
 	}
 
 	/* (non-Javadoc)
