@@ -3040,14 +3040,15 @@ public class frame1 extends JFrame implements ClipboardOwner {
 						altEdit = new AltEdit(getSelectedNode(), subject, // subject
 				"", // new msg
 			frostSettings, this);
-					altEdit.start();
+					altEdit.start(); 
 				} else {*/
-		MessageFrame newMessage =
-			new MessageFrame(getSelectedNode(), frostSettings.getValue("userName"), "No subject",
-			// subject
-		"", // content empty for new msg 
-	frostSettings, this, languageResource.getResourceBundle());
-		//}
+		MessageFrame newMessageFrame =
+			new MessageFrame(frostSettings, this, languageResource.getResourceBundle());
+		newMessageFrame.composeNewMessage(
+			getSelectedNode(),
+			frostSettings.getValue("userName"),
+			"No subject",
+			"");
 	}
 
 	/**tofReplyButton Action Listener (tof/Reply)*/
@@ -3061,16 +3062,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			getTofTextAreaText(), frostSettings, this);
 					altEdit.start();
 				} else {*/
-		MessageFrame newMessage =
-			new MessageFrame(
-				getSelectedNode(),
-				frostSettings.getValue("userName"),
-				subject,
-				getTofTextAreaText(),
-				frostSettings,
-				this,
-				languageResource.getResourceBundle());
-		//		}
+		MessageFrame newMessageFrame =
+			new MessageFrame(frostSettings, this, languageResource.getResourceBundle());
+		newMessageFrame.composeReply(
+			getSelectedNode(),
+			frostSettings.getValue("userName"),
+			subject,
+			getTofTextAreaText());
 	}
 
 	/**TOF Board selected*/
