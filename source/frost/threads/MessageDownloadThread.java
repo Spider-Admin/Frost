@@ -196,9 +196,9 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             {
                 // message is of this day (less than 1 day difference)
                 // msg is OK, do nothing here
+                System.out.println("TOFDN: Checked message date, seems to be OK.");
             }
-            else
-            if( diffDays < 0 )
+            else if( diffDays < 0 )
             {
                 // msgDate is later than dirDate
                 System.out.println("TOFDN: Date in message is later than date in URL, will discard message: "+msgDateStr);
