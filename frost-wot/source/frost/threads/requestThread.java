@@ -154,7 +154,8 @@ public class requestThread extends Thread
                             >= frame1.frostSettings.getIntValue(
                                 "downloadRequestAfterTries")
                         && board != null
-                        && board.isFolder() == false)
+                        && board.isFolder() == false 
+                        && this.owner != null ) // upload requests only if they are NOT manually added 
                     {
                         if (DEBUG)
                             Core.getOut().println(
@@ -219,7 +220,8 @@ public class requestThread extends Thread
             // download successfull
             else
             {
-                if (board != null && board.isFolder() == false)
+                // do NOT add manually downloaded files (file have no SHA1, no owner, no board)
+                if (board != null && board.isFolder() == false && this.SHA1 != null )
                 {
                     // Add successful downloaded key to database
                     SharedFileObject newKey = new SharedFileObject(key);
@@ -563,7 +565,14 @@ public class requestThread extends Thread
         this.board = dlItem.getSourceBoard();
         this.SHA1 = dlItem.getSHA1();
         this.batch = dlItem.getBatch();
-        this.owner = mixed.makeFilename(dlItem.getOwner());
+        if( dlItem.getOwner() != null ) // owner is null for manually added files
+        {
+            this.owner = mixed.makeFilename(dlItem.getOwner());
+        }
+        else
+        {
+            this.owner = null;
+        }
 
         this.downloadItem = dlItem;
 
