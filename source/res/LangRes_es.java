@@ -171,7 +171,6 @@ static final Object[][] contents = {
 {"minutes","minutos"},
 {"Miscellaneous","Miscelánea"},
 {"MoreSkinsAt","Puedes conseguir más skins en"},
-{"Never","Nunca"},
 {"New board","Nuevo foro"},
 {"New folder","Nueva carpeta"},
 {"New message","Nuevo mensaje"},
@@ -273,7 +272,6 @@ static final Object[][] contents = {
 {"Upload batch size","Tamaño del lote de subidas"},
 {"Upload HTL","HTL para subidas"},
 {"Upload selected files","Sube ficheros seleccionados"},
-{"Uploading","Subiendo"},
 {"Uploads","Subidas"},
 {"Use editor for writing messages","Usa editor para escribir mensajes"},
 {"Version", "Versión"},
@@ -381,7 +379,16 @@ static final Object[][] contents = {
 	{"Failed","Falló"},
 	{"Requesting","Pidiendo"},
 	{"Requested","Pedido"},
-	{"Decoding segment","Decodificando segmento"}
+	{"Decoding segment","Decodificando segmento"},
 	
-};
+	///
+	/// FrostUploadItemObject
+	///
+	
+	{"Never","Nunca"},
+	{"Uploading","Subiendo"},
+	{"Encode requested","Codificación pedida"},
+	{"Encoding file","Codificando fichero"}
+	
+	};
 }
