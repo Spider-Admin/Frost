@@ -34,7 +34,7 @@ import frost.messages.*;
 
 public class MessageFrame extends JFrame
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    static java.util.ResourceBundle LangRes;
 
     //------------------------------------------------------------------------
     // Class Vars
@@ -69,8 +69,8 @@ public class MessageFrame extends JFrame
     JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
     JButton BattachBoard= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
 
-    JCheckBox sign = new JCheckBox("Sign");
-    JCheckBox addAttachedFilesToUploadTable = new JCheckBox("Indexed attachments");
+    JCheckBox sign = new JCheckBox();
+    JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
 
     JTextField TFboard = new JTextField(); // Board (To)
     JTextField TFfrom = new JTextField(); // From
@@ -101,6 +101,9 @@ public class MessageFrame extends JFrame
         configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
         configureButton(BattachFile, "Add attachment(s)", "/data/attachment_rollover.gif");
         configureButton(BattachBoard, "Add Board(s)", "/data/attachmentBoard_rollover.gif");
+
+	sign.setText(LangRes.getString("Sign"));
+	addAttachedFilesToUploadTable.setText(LangRes.getString("Indexed attachments"));
 
         TFboard.setEnabled(false);
         TFboard.setText(board.toString());
@@ -218,8 +221,8 @@ public class MessageFrame extends JFrame
         attFilesPopupMenu = new JPopupMenu();
         attBoardsPopupMenu = new JPopupMenu();
         
-        JMenuItem removeFiles = new JMenuItem("Remove");
-        JMenuItem removeBoards = new JMenuItem("Remove");
+        JMenuItem removeFiles = new JMenuItem(LangRes.getString("Remove"));
+        JMenuItem removeBoards = new JMenuItem(LangRes.getString("Remove"));
         
         removeFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -503,9 +506,10 @@ public class MessageFrame extends JFrame
     
     /**Constructor*/
     public MessageFrame(FrostBoardObject board, String from, String subject, String text,
-                        SettingsClass config, Frame parentFrame)
+                        SettingsClass config, Frame parentFrame, ResourceBundle LangRes)
     {
         super();
+	this.LangRes = LangRes;
         this.parentFrame = parentFrame;
         this.board = board;
         this.from=from;
@@ -766,7 +770,7 @@ public class MessageFrame extends JFrame
         public AttachBoardsChooser(Vector boards)
         {
             super();
-            setTitle("Choose boards to attach");
+            setTitle(LangRes.getString("Choose boards to attach"));
             setModal(true);
             this.boards = boards;
             initGui();
