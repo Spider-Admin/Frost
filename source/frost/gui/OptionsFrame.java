@@ -438,7 +438,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             listData.add( new ListBoxData( " "+LangRes.getString("News")+" (2) ",      getTof2Panel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("News")+" (3) ",      getTof3Panel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Search")+" ",        getSearchPanel() ) );
-			listData.add( new ListBoxData( " "+LangRes.getString("Display")+" ",       getDisplayPanel() ) );
+			//listData.add( new ListBoxData( " "+LangRes.getString("Display")+" ",       getDisplayPanel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Miscellaneous")+" ", getMiscPanel() ) );
             optionsGroupsList = new JList( listData );
             optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
