@@ -300,6 +300,8 @@ class TofTree extends JTree
 
     for (int i = 0; i < lines.size(); i++) {
         String line = ((String)lines.elementAt(i)).trim();
+        if( line.length() == 0 )
+            continue;
         String name = line.substring(1, line.length());
 
         if (line.startsWith("="))

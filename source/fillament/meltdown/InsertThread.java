@@ -1,23 +1,23 @@
 package fillament.meltdown;
 
-import FcpTools.*;
+import frost.FcpTools.*;
 import fillament.util.*;
 import java.io.*;
 import java.util.*;
 
 public class InsertThread extends WorkThread {
-    
+
     Hashtable queues;
     WorkQueue info;
     FcpConnection fcp;
     static String pSep = System.getProperty("file.separator");
     String workingFile = "meltdown.ins";
     String meltdownPath = "fillament"+pSep+"meltdown";
-    
+
     public InsertThread(Hashtable Queues) {
         this(Queues, 1000);
     }
-    
+
     public InsertThread(Hashtable Queues, int SleepTime) {
         super((WorkQueue) Queues.get("Insert"),"InsertThread", SleepTime);
         info = (WorkQueue) Queues.get("Info");
@@ -34,7 +34,7 @@ public class InsertThread extends WorkThread {
             System.exit(-1);
         }
     }
-    
+
     public void doWork(Object o) {
         File outMsg = (File) o;
         String board = "";
