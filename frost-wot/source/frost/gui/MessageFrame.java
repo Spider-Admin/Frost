@@ -54,17 +54,14 @@ public class MessageFrame extends JFrame
     MFAttachedFilesTable attFilesTable;
     MFAttachedBoardsTableModel attBoardsTableModel;
     MFAttachedFilesTableModel attFilesTableModel;
+
+    // scrollers needed globally because we need to add them dynamically to panel    
+    JScrollPane attFilesScroller;
+    JScrollPane attBoardsScroller;
     
     //------------------------------------------------------------------------
     // Generate objects
     //------------------------------------------------------------------------
-    JPanel jPanel1 = new JPanel(new BorderLayout()); // Main Panel
-    JPanel jPanel2 = new JPanel(new BorderLayout()); // Textfields
-    JPanel jPanel3 = new JPanel(new BorderLayout()); // Toolbar / Textfields(jPanel2)
-    JPanel jPanel4 = new JPanel(new BorderLayout()); // Labels
-    JPanel jPanel5 = new JPanel(new BorderLayout());
-    JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-
     JButton Bsend = new JButton(new ImageIcon(this.getClass().getResource("/data/send.gif")));
     JButton Bcancel = new JButton(new ImageIcon(this.getClass().getResource("/data/remove.gif")));
     JButton BattachFile = new JButton(new ImageIcon(this.getClass().getResource("/data/attachment.gif")));
@@ -79,12 +76,6 @@ public class MessageFrame extends JFrame
 
     JTextArea TAcontent = new JTextArea(); // Text
 
-    JScrollPane jScrollPane1 = new JScrollPane(); // Textscrollpane
-
-    JLabel Lboard = new JLabel(LangRes.getString("Board: ")); // Board
-    JLabel Lfrom = new JLabel(LangRes.getString("From: ")); // From
-    JLabel Lsubject = new JLabel(LangRes.getString("Subject: ")); // Subject
-    
     private void Init() throws Exception {
         //------------------------------------------------------------------------
         // Configure objects
@@ -96,9 +87,11 @@ public class MessageFrame extends JFrame
         
         attBoardsTableModel = new MFAttachedBoardsTableModel();
         attBoardsTable = new MFAttachedBoardsTable(attBoardsTableModel);
+        attBoardsScroller = new JScrollPane( attBoardsTable );
         
         attFilesTableModel = new MFAttachedFilesTableModel();
         attFilesTable = new MFAttachedFilesTable(attFilesTableModel);
+        attFilesScroller = new JScrollPane( attFilesTable );
 
         configureButton(Bsend, "Send message", "/data/send_rollover.gif");
         configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif");
@@ -123,7 +116,6 @@ public class MessageFrame extends JFrame
         addAttachedFilesToUploadTable.setSelected(false);
         addAttachedFilesToUploadTable.setToolTipText("Should file attachments be added to upload table?");
 
-        jScrollPane1.setPreferredSize(new Dimension(600, 400));
         //------------------------------------------------------------------------
         // Actionlistener
         //------------------------------------------------------------------------
@@ -159,32 +151,44 @@ public class MessageFrame extends JFrame
         //------------------------------------------------------------------------
         // Append objects
         //------------------------------------------------------------------------
-        this.getContentPane().add(jPanel1, null); // add Main panel
+        JPanel panelMain = new JPanel(new BorderLayout()); // Main Panel
+        JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
+        JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields(jPanel2)
+        JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
+        JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 
-        jPanel1.add(jPanel3, BorderLayout.NORTH); // Buttons
-        jPanel1.add(jScrollPane1, BorderLayout.CENTER); // Textfields
+        JLabel Lboard = new JLabel(LangRes.getString("Board: ")); // Board
+        JLabel Lfrom = new JLabel(LangRes.getString("From: ")); // From
+        JLabel Lsubject = new JLabel(LangRes.getString("Subject: ")); // Subject
 
-        jPanel2.add(TFboard, BorderLayout.NORTH); // Board (to)
-        jPanel2.add(TFfrom, BorderLayout.CENTER); // From
-        jPanel2.add(TFsubject, BorderLayout.SOUTH); // Subject
+        JScrollPane textScroller = new JScrollPane(TAcontent); // Textscrollpane
+        textScroller.setPreferredSize(new Dimension(600, 400));
 
-        jPanel3.add(buttonPanel, BorderLayout.NORTH);
-        jPanel3.add(jPanel5, BorderLayout.SOUTH);
-
-        jPanel4.add(Lboard, BorderLayout.NORTH); // Board
-        jPanel4.add(Lfrom, BorderLayout.CENTER); // From
-        jPanel4.add(Lsubject, BorderLayout.SOUTH); // Subject
-
-        jPanel5.add(jPanel4, BorderLayout.WEST);
-        jPanel5.add(jPanel2, BorderLayout.CENTER);
-
-        jScrollPane1.getViewport().add(TAcontent, null); // Text
+        panelLabels.add(Lboard, BorderLayout.NORTH); // Board
+        panelLabels.add(Lfrom, BorderLayout.CENTER); // From
+        panelLabels.add(Lsubject, BorderLayout.SOUTH); // Subject
+        
+        panelTextfields.add(TFboard, BorderLayout.NORTH); // Board (to)
+        panelTextfields.add(TFfrom, BorderLayout.CENTER); // From
+        panelTextfields.add(TFsubject, BorderLayout.SOUTH); // Subject
 
         buttonPanel.add(Bsend); // Send
         buttonPanel.add(Bcancel); // Cancel
         buttonPanel.add(BattachFile); // Add attachment(s)
         buttonPanel.add(BattachBoard); //Add boards(s)
         buttonPanel.add(sign);
+
+        JPanel dummyPanel = new JPanel(new BorderLayout());
+        dummyPanel.add(panelLabels, BorderLayout.WEST);
+        dummyPanel.add(panelTextfields, BorderLayout.CENTER);
+        
+        panelToolbar.add(buttonPanel, BorderLayout.NORTH);
+        panelToolbar.add(dummyPanel, BorderLayout.SOUTH);
+
+        panelMain.add(panelToolbar, BorderLayout.NORTH); // Buttons
+        panelMain.add(textScroller, BorderLayout.CENTER); // Textfields
+
+        this.getContentPane().add(panelMain, null); // add Main panel
     }
 
     /**jButton1 Action Listener (Send)*/
@@ -323,6 +327,12 @@ public class MessageFrame extends JFrame
         {
             System.out.println("Open command cancelled by user.");
         }
+        
+        if( attFilesTableModel.getRowCount() > 0 )
+        {
+            // show the table if not already shown
+            showAttachedFilesTable(true);
+        }
     }
 
     private void attachBoards_actionPerformed(ActionEvent e)
@@ -367,6 +377,12 @@ public class MessageFrame extends JFrame
             MFAttachedBoard ab = new MFAttachedBoard( aNewBoard );
             attBoardsTableModel.addRow( ab );
         }
+        
+        if( attBoardsTableModel.getRowCount() > 0 )
+        {
+            // show the table if not already shown
+            showAttachedBoardsTable(true);
+        }
     }
 
     /**
@@ -382,6 +398,14 @@ public class MessageFrame extends JFrame
         button.setMargin(new Insets(0, 0, 0, 0));
         button.setBorderPainted(false);
         button.setFocusPainted(false);
+    }
+    
+    protected void showAttachedBoardsTable(boolean show)
+    {
+    }
+    
+    protected void showAttachedFilesTable(boolean show)
+    {
     }
 
     protected void processWindowEvent(WindowEvent e)
