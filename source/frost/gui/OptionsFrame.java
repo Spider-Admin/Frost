@@ -1359,7 +1359,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			downloadSettings.setValue(
 				"splitfileDownloadThreads",
 				splitfileThreadsTextField.getText());
-			downloadSettings.setValue("disableDownloads", disableDownloadsCheckBox.isSelected());
+			downloadSettings.setValue(
+				SettingsClass.DISABLE_DOWNLOADS,
+				disableDownloadsCheckBox.isSelected());
 			downloadSettings.setValue(
 				"downloadRestartFailedDownloads",
 				restartFailedDownloadsCheckBox.isSelected());
@@ -1390,7 +1392,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			threadsTextField.setText(downloadSettings.getValue("downloadThreads"));
 			splitfileThreadsTextField.setText(
 				downloadSettings.getValue("splitfileDownloadThreads"));
-			disableDownloadsCheckBox.setSelected(downloadSettings.getBoolValue("disableDownloads"));
+			disableDownloadsCheckBox.setSelected(
+				downloadSettings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS));
 			restartFailedDownloadsCheckBox.setSelected(
 				downloadSettings.getBoolValue("downloadRestartFailedDownloads"));
 			enableRequestingCheckBox.setSelected(
