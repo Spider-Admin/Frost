@@ -139,8 +139,6 @@ public class AltEdit extends Thread {
             subjectNew,
             textNew,
             "",
-            "",
-            "",
             frostSettings,
             parentFrame,
             null);

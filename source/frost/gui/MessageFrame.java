@@ -274,8 +274,6 @@ public class MessageFrame extends JFrame
                                               from,
                                               subject,
                                               text,
-                                              "",
-                                              "",
                                               recpnt,
                                               frostSettings,
                                               parentFrame,
