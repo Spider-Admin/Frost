@@ -51,7 +51,6 @@ public class requestThread extends Thread
             frame1.activeDownloadThreads++;
         }
         try {
-
         // some vars
         final DownloadTableModel tableModel = (DownloadTableModel)downloadTable.getModel();
         SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
@@ -65,84 +64,89 @@ public class requestThread extends Thread
         // Download file
         boolean success = FcpRequest.getFile(key, size.toString(), newFile, htl.toString(), true);
 
-        // We need to synchronize accesses to the table
-        synchronized (downloadTable)
+        // file might be erased from table during download...
+        boolean inTable = false;
+        for( int x=0; x<tableModel.getRowCount(); x++ )
         {
-            // Does an exception prevent release of the lock, better catch them
-            try
+            FrostDownloadItemObject actItem = (FrostDownloadItemObject)tableModel.getRow(x);
+            if( actItem.getKey().equals( downloadItem.getKey() ) )
             {
-                // file might be erased from table during download...
-                boolean inTable = false;
-                for( int x=0; x<tableModel.getRowCount(); x++ )
-                {
-                    FrostDownloadItemObject actItem = (FrostDownloadItemObject)tableModel.getRow(x);
-                    if( actItem.getKey().equals( downloadItem.getKey() ) )
-                    {
-                        inTable = true;
-                        break;
-                    }
-                }
-
-                // download failed
-                if( !success )
-                {
-                    System.out.println("Download of " + filename + " failed.");
-                    SwingUtilities.invokeLater(new Runnable()
-                                               {
-                                                   public void run()
-                                                   {
-                                                       downloadItem.setState(LangRes.getString("Failed"));
-                                                       tableModel.updateRow( downloadItem );
-                                                   }
-                                               });
-
-                    if( inTable == true )
-                    {
-                        // Upload request to request stack
-                        int intHtl = htl.intValue();
-
-                        if( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl") )
-                        {
-                            if( DEBUG ) System.out.println("Download failed, uploading request for " + filename);
-                            // We may not do the request here due to the synchronize
-                            do_request = true;
-                        }
-                        else
-                        {
-                            if( DEBUG ) System.out.println("Download failed, but htl is too low to request it.");
-                        }
-                    }
-                }
-                // download successfull
-                else
-                {
-                    // Add successful downloaded key to database
-                    KeyClass newKey = new KeyClass(key);
-                    newKey.setFilename(filename);
-                    newKey.setSize(newFile.length());
-                    newKey.setDate(date);
-                    newKey.setExchange(false);
-                    Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
-
-                    SwingUtilities.invokeLater( new Runnable()
-                                                {
-                                                    public void run()
-                                                    {
-                                                        downloadItem.setState( LangRes.getString("Done") );
-                                                        tableModel.updateRow( downloadItem );
-                                                        frame1.updateDownloads = true;
-                                                    }
-                                                });
-                }
-            }
-            catch( Exception e )
-            {
-                System.out.println("Exception " + e.toString() + " occured in requestThread.run() for file " + filename);
+                inTable = true;
+                break;
             }
         }
-        if( do_request )
+
+        // download failed
+        if( !success )
         {
-            request(key.trim(), board);
+            System.out.println("Download of " + filename + " failed.");
+            SwingUtilities.invokeLater(new Runnable()
+                                       {
+                                           public void run()
+                                           {
+                                               downloadItem.setState(LangRes.getString("Failed"));
+                                               tableModel.updateRow( downloadItem );
+                                           }
+                                       });
+            if( inTable == true )
+            {
+                // Upload request to request stack
+                int intHtl = htl.intValue();
+
+                if( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl") )
+                {
+                    if( DEBUG ) System.out.println("Download failed, uploading request for " + filename);
+                    SwingUtilities.invokeLater(new Runnable()
+                           {
+                               public void run()
+                               {
+                                   downloadItem.setState( "Requesting" ); // TODO: translate
+                                   tableModel.updateRow( downloadItem );
+                               }
+                           });
+                    // We may not do the request here due to the synchronize
+                    // -> no lock needed, using models
+                    // doing it after this , the table states Waiting and there are threads running,
+                    // so download seems to stall
+                    request(key.trim(), board);
+
+                    SwingUtilities.invokeLater(new Runnable()
+                           {
+                               public void run()
+                               {
+                                   downloadItem.setState( LangRes.getString("Waiting") );
+                                   tableModel.updateRow( downloadItem );
+                               }
+                           });
+                    if( DEBUG ) System.out.println("Uploaded request for " + filename);
+                }
+                else
+                {
+                    // leave state at FAILED, will be resettet in frame1
+                    if( DEBUG ) System.out.println("Download failed, but htl is too low to request it.");
+                }
+            }
+        }
+        // download successfull
+        else
+        {
+            // Add successful downloaded key to database
+            KeyClass newKey = new KeyClass(key);
+            newKey.setFilename(filename);
+            newKey.setSize(newFile.length());
+            newKey.setDate(date);
+            newKey.setExchange(false);
+            Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+
+            SwingUtilities.invokeLater( new Runnable()
+                    {
+                        public void run()
+                        {
+                            downloadItem.setState( LangRes.getString("Done") );
+                            tableModel.updateRow( downloadItem );
+                            frame1.updateDownloads = true;
+                        }
+                    });
         }
         }
         catch(Throwable t)
