@@ -102,9 +102,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
     JCheckBox  tofBoardUpdateVisualization = new JCheckBox("Show board update visualization (on)");
 
-    JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox(LangRes.getString("Remove finished downloads every 5 minutes.") +
-                                  " " + LangRes.getString("(Off)"));
-
     JCheckBox allowEvilBertCheckBox = new JCheckBox(LangRes.getString("Allow 2 byte characters") + " " +
                                                     LangRes.getString("(Off)"));
     JCheckBox miscAltEditCheckBox = new JCheckBox(LangRes.getString("Use editor for writing messages: ") + " " +
@@ -115,6 +112,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox hideBadFiles = new JCheckBox(LangRes.getString("Hide files from people marked BAD"));
     JCheckBox hideAnonFiles = new JCheckBox(LangRes.getString("Hide files from anonymous users"));
     
+    JCheckBox downloadRemoveFinishedDownloads = new JCheckBox(LangRes.getString("Remove finished downloads every 5 minutes.") +
+                                  " " + LangRes.getString("(Off)"));
     JCheckBox downloadRestartFailedDownloads = new JCheckBox("Restart failed downloads");
     JTextField downloadRequestAfterTries = new JTextField(5);
     JCheckBox downloadEnableRequesting = new JCheckBox("Enable requesting of failed download files (on)");
@@ -123,6 +122,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JLabel downloadWaittimeLabel = new JLabel("Waittime after each try (min): ");
     JLabel downloadMaxRetriesLabel = new JLabel("Maximum number of retries: ");
     JLabel downloadRequestAfterTriesLabel = new JLabel("Request file after this count of retries: ");
+    
+    JCheckBox downloadTryAllSegments = new JCheckBox("Try to download all segments, even if one fails (on)");
+    JCheckBox downloadDecodeAfterEachSegment = new JCheckBox("Decode each segment immediately after its download");
 
     JList optionsGroupsList = null;
 
@@ -415,8 +417,20 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 0;
             constr.gridwidth = 3;
             constr.insets = new Insets(5,5,5,5);
-            downloadPanel.add(removeFinishedDownloadsCheckBox, constr);
+            downloadPanel.add(downloadRemoveFinishedDownloads, constr);
 
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.gridwidth = 3;
+            constr.insets = new Insets(0,5,5,5);
+            downloadPanel.add(downloadTryAllSegments, constr);
+            
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.gridwidth = 3;
+            constr.insets = new Insets(0,5,5,5);
+            downloadPanel.add(downloadDecodeAfterEachSegment, constr);
+            
             // filler (glue)
             constr.gridy++;
             constr.gridx = 3;
@@ -1001,7 +1015,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 	helpFriends.setSelected(_helpFriends);
 	hideBadFiles.setSelected(_hideBad);
 	hideAnonFiles.setSelected(_hideAnon);
-        removeFinishedDownloadsCheckBox.setSelected(frostSettings.getBoolValue("removeFinishedDownloads"));
+        downloadRemoveFinishedDownloads.setSelected(frostSettings.getBoolValue("removeFinishedDownloads"));
         allowEvilBertCheckBox.setSelected(frostSettings.getBoolValue("allowEvilBert"));
         miscAltEditCheckBox.setSelected(frostSettings.getBoolValue("useAltEdit"));
         signedOnly.setSelected(frostSettings.getBoolValue("signedOnly"));
@@ -1067,6 +1081,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         downloadRequestAfterTries.setText(""+frostSettings.getIntValue("downloadRequestAfterTries"));
         downloadMaxRetries.setText(""+frostSettings.getIntValue("downloadMaxRetries"));
         downloadWaittime.setText(""+frostSettings.getIntValue("downloadWaittime"));
+        downloadTryAllSegments.setSelected(frostSettings.getBoolValue("downloadTryAllSegments"));
+        downloadDecodeAfterEachSegment.setSelected(frostSettings.getBoolValue("downloadDecodeAfterEachSegment"));
 
         downloadRequestAfterTries.setEnabled(downloadEnableRequesting.isSelected());
         downloadMaxRetries.setEnabled(downloadRestartFailedDownloads.isSelected());
@@ -1104,8 +1120,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 //        frostSettings.setValue("htlMax",  downloadMaxHtlTextField.getText());
         frostSettings.setValue("htlUpload",  uploadHtlTextField.getText());
         frostSettings.setValue("uploadThreads",  uploadThreadsTextField.getText());
-	frostSettings.setValue("uploadBatchSize", uploadBatchSizeTextField.getText());
-	frostSettings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
+    	frostSettings.setValue("uploadBatchSize", uploadBatchSizeTextField.getText());
+    	frostSettings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
         frostSettings.setValue("downloadThreads",  downloadThreadsTextField.getText());
         frostSettings.setValue("tofUploadHtl",  tofUploadHtlTextField.getText());
         frostSettings.setValue("tofDownloadHtl",  tofDownloadHtlTextField.getText());
@@ -1113,7 +1129,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("keyDownloadHtl",  miscKeyDownloadHtlTextField.getText());
         frostSettings.setValue("maxMessageDisplay",  tofDisplayDaysTextField.getText());
         frostSettings.setValue("maxMessageDownload",  tofDownloadDaysTextField.getText());
-        frostSettings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
+        frostSettings.setValue("removeFinishedDownloads", downloadRemoveFinishedDownloads.isSelected());
         frostSettings.setValue("splitfileUploadThreads", uploadSplitfileThreadsTextField.getText());
         frostSettings.setValue("splitfileDownloadThreads", downloadSplitfileThreadsTextField.getText());
         frostSettings.setValue("nodeAddress", miscNodeAddressTextField.getText());
@@ -1158,15 +1174,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("downloadRequestAfterTries", downloadRequestAfterTries.getText() );
         frostSettings.setValue("downloadMaxRetries", downloadMaxRetries.getText() );
         frostSettings.setValue("downloadWaittime", downloadWaittime.getText() );
+        frostSettings.setValue("downloadTryAllSegments", downloadTryAllSegments.isSelected() );
+        frostSettings.setValue("downloadDecodeAfterEachSegment", downloadDecodeAfterEachSegment.isSelected());
 
         frostSettings.setObjectValue("boardUpdatingSelectedBackgroundColor", boardUpdSelectedBackgroundColor);
         frostSettings.setObjectValue("boardUpdatingNonSelectedBackgroundColor", boardUpdNonSelectedBackgroundColor);
 
         frostSettings.setValue("autoSaveInterval", miscAutoSaveInterval.getText() );
-	frostSettings.setValue("signUploads",signUploads.isSelected());
-	frostSettings.setValue("helpFriends",helpFriends.isSelected());
-	frostSettings.setValue("hideBadFiles",hideBadFiles.isSelected());
-	frostSettings.setValue("hideAnonFiles",hideAnonFiles.isSelected());
+    	frostSettings.setValue("signUploads",signUploads.isSelected());
+    	frostSettings.setValue("helpFriends",helpFriends.isSelected());
+    	frostSettings.setValue("hideBadFiles",hideBadFiles.isSelected());
+    	frostSettings.setValue("hideAnonFiles",hideAnonFiles.isSelected());
         frostSettings.writeSettingsFile();
 
         // now check if some settings changed
