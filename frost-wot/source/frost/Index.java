@@ -39,42 +39,6 @@ public class Index
 
     private static final String fileSeparator =
         System.getProperty("file.separator");
-    public static SharedFileObject getKey(String SHA1, FrostBoardObject board)
-    {
-        return getKey(SHA1, board.getBoardFilename());
-    }
-
-    public static SharedFileObject getKey(String SHA1, String board)
-    {
-        
-        //final String fileSeparator = System.getProperty("file.separator");
-
-        File keyFile =
-            new File(MainFrame.keypool + board + fileSeparator + "files.xml");
-
-        //if no such file exists, return null
-        if (!keyFile.exists())
-        {
-            logger.warning("keyfile didn't exist??");
-            return null;
-        }
-
-        FrostIndex idx = FileAccess.readKeyFile(keyFile);
-		if (idx.getFilesMap().containsKey(SHA1))
-			return (SharedFileObject)idx.getFilesMap().get(SHA1);
-        
-//		then try the recently uploaded files
-		keyFile =
-			  new File(
-				  MainFrame.keypool + board + fileSeparator + "new_files.xml");
-		idx = FileAccess.readKeyFile(keyFile);
-		if (idx.getFilesMap().containsKey(SHA1))
-				return (SharedFileObject)idx.getFilesMap().get(SHA1);
-		
-        return null;
-       
-    }
-
     //this method puts the SharedFileObjects into the target set and 
     //returns the number of the files shared by the user himself
     public static Map getUploadKeys(String board)
@@ -239,24 +203,13 @@ public class Index
                     + "files.xml"),
             owner);
     }
-    public static void add(File keyFile, FrostBoardObject board, String owner)
-    {
-        add(
-            keyFile,
-            new File(
-                MainFrame.keypool
-                    + board.getBoardFilename()
-                    + fileSeparator
-                    + "files.xml"),
-            owner);
-    }
     /**
      * Adds a key object to an index located at target dir.
      * Target dir will be created if it does not exist
      * @param key the key to add to the index
      * @param target directory containing index
      */
-    public static void add(SharedFileObject key, File target)
+	private static void add(SharedFileObject key, File target)
     {
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         //final String fileSeparator = System.getProperty("file.separator");
@@ -295,11 +248,8 @@ public class Index
      */
     //REDFLAG: this method is called only from UpdateIdThread and that's why
     //I put the accounting for trustmap here.  Be careful when you change it!!
-    public static void add(File keyfile, File target, Identity owner)
+    private static void add(File keyfile, File target, Identity owner)
     {
-
-        
-
         try
         {
             if (!target.exists())
@@ -332,7 +282,7 @@ public class Index
      * @param target the already existing keyfile
      * @param owner the unique name of the person who shared the file
      */
-    public static void add(File keyfile, File target, String owner)
+    private static void add(File keyfile, File target, String owner)
     {
         try
         {
@@ -348,7 +298,7 @@ public class Index
         add(idx, target, owner);
     }
     
-    public static void add(FrostIndex a, File b){
+    private static void add(FrostIndex a, File b){
     	add(a.getFilesMap(),b);
     }
     /**
@@ -358,7 +308,7 @@ public class Index
      * @param target directory containing index
      * @param firstLetter identifier for the keyfile
      */
-    protected static void add(Map chunk, File target)
+    private static void add(Map chunk, File target)
     {
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         //        final String fileSeparator = System.getProperty("file.separator");
@@ -398,11 +348,11 @@ public class Index
 	public static void add(FrostIndex a, FrostBoardObject b, String owner){
 		add(a.getFilesMap(),new File(MainFrame.keypool+b.getBoardFilename()+File.separator+"files.xml"),owner);
 	}
-	public static void add(FrostIndex a, File b, String owner){
+	private static void add(FrostIndex a, File b, String owner){
 		add(a.getFilesMap(),b,owner);
 	}
 	
-    protected static void add(Map chunk, File target, String owner)
+	private static void add(Map chunk, File target, String owner)
     {
         
         if (owner == null)
