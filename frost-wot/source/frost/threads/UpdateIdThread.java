@@ -369,7 +369,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         keypool = frame1.frostSettings.getValue("keypool.dir");
         maxKeys = frame1.frostSettings.getIntValue("maxKeys");
 	
-	indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices");
+	indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices-"+date);
 	
 	//indices = new Vector();
 	
