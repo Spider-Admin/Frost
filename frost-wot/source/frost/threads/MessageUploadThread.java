@@ -173,7 +173,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         {
             ex.printStackTrace(Core.getOut());
         }
-        if( !wasOK )
+        if( !wasOK || messageFile.length() == 0)
         {
             // now we really have a problem:
             //  writing of file was not successful, so this msg will be lost!
@@ -208,7 +208,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         {
             ex.printStackTrace(Core.getOut());
         }
-        if( !wasOK )
+        if( !wasOK || messageFile.length() == 0)
         {
             // now we really have a problem:
             //  writing of file was not successful, so this msg will be lost!
