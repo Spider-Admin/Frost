@@ -313,6 +313,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     catch(Throwable t)
                     {
                         System.out.println("Error in UpdateIdThread: "+t.getMessage());
+			t.printStackTrace();
                         // delete the file and try a re download???
                     }
 

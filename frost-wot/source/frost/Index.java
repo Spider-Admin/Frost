@@ -179,8 +179,8 @@ public class Index
                         keyCount++;
 			
                   keyFile.append("<File>\n");
-		  keyFile.append("<name>" + current.getFilename()+"</name>\n");
-		  keyFile.append("<SHA1>" + current.getSHA1()+"</SHA1>\n");
+		  keyFile.append("<name><![CDATA[" + current.getFilename()+"]]></name>\n");
+		  keyFile.append("<SHA1><![CDATA[" + current.getSHA1()+"]]></SHA1>\n");
 		  keyFile.append("<size>" + current.getSize()+"</size>\n");
 		    
 		  if (current.getOwner() != null)
