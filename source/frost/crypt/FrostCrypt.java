@@ -24,7 +24,7 @@ import org.bouncycastle.util.encoders.Base64;
  */
 
 
- public class FrostCrypt implements crypt {
+ public final class FrostCrypt implements crypt {
 
  public static Base64 texter; //so people can use it outside the class
 

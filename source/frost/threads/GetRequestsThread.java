@@ -30,6 +30,7 @@ import frost.gui.objects.*;
 /**
  * Downloads file requests
  */
+ //TODO: VERY IMPORTANT:  this channel is very easily spammable.  We need a solution
 public class GetRequestsThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
@@ -89,7 +90,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                                            .append(board.getBoardFilename())
                                            .append("-")
                                            .append(index)
-                                           .append(".req").toString();
+                                           .append(".req.sha").toString();
             File testMe = new File(val);
             boolean justDownloaded = false;
 
@@ -129,10 +130,10 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                 for( int i = 0; i < rowCount; i++ )
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow(i);
-                    String chk = ulItem.getKey().trim();
-                    if( chk.equals(content) )
+                    String SHA1 = ulItem.getSHA1().trim();
+                    if( SHA1.equals(content) )
                     {
-                        File requestLock = new File(destination + chk + ".lck");
+                        File requestLock = new File(destination + SHA1 + ".lck");
                         if( !requestLock.exists() )
                         {
                             if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
@@ -145,7 +146,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                         }
                         else
                         {
-                            System.out.println("File with key " + chk + " was requested, but already uploaded today");
+                            System.out.println("File with hash " + SHA1 + " was requested, but already uploaded today");
                         }
                     }
                 }
