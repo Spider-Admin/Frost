@@ -451,7 +451,10 @@ public class FileAccess
             {
             	if (source.length() > 0 ) {
             		Core.getOut().println("\n\n****Index empty but file is not!***");
-            		Core.getOut().println("send badfile.xml to dev for analysis\n\n");
+            		Core.getOut().println("send badfile.xml to dev for analysis with the following info: \n\n");
+            		Exception e = new Exception();
+            		e.fillInStackTrace();
+            		e.printStackTrace(Core.getOut());
 					File badfile = new File ("badfile.xml");
 					source.renameTo(badfile);
             	}
