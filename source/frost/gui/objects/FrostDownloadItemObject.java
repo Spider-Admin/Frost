@@ -311,4 +311,11 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
 		return redirect;
 	}
 
+	/**
+	 * @param redirect The redirect to set.
+	 */
+	public void setRedirect(String redirect) {
+		this.redirect = redirect;
+	}
+
 }
