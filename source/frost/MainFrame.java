@@ -785,7 +785,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 		private Listener listener = new Listener();
 		
-		private FrostMessageObject selectedMessage = new FrostMessageObject();
+		private FrostMessageObject selectedMessage;
 		private String lastSelectedMessage;
 
 		private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;

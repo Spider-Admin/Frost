@@ -86,14 +86,6 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         FileAccess.writeFile(currentStatus,file.getPath() + ".sig");
     }
 
-    /**Constructors*/
-    public VerifyableMessageObject()
-    {
-        super();
-        currentStatus = NA;
-        isVerifyable=false;
-    }
-
     public VerifyableMessageObject(File file) throws Exception
     {
         super(file); // throws exception if loading failed
