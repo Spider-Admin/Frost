@@ -28,9 +28,10 @@ public class Saver extends Thread
 	
     private final Core core;
     
-    public Saver(Core core)
+    public Saver(Core newCore)
     {
-        this.core = core;
+        core = newCore;
+		Runtime.getRuntime().addShutdownHook(this);
     }
 
     /**
