@@ -340,7 +340,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel contentAreaPanel = null;
 	JPanel optionsGroupsPanel = null;
 
-	JTextArea tofTextArea = new JTextArea(4, 50);
+	JAATextArea tofTextArea = new JAATextArea(4, 50);
 
 	JTextField downloadDirectoryTextField = new JTextField(30);
 	//    JTextField downloadMinHtlTextField = new JTextField(5);
@@ -973,6 +973,21 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 */
 	protected JPanel getTofPanel() {
 		if (tofPanel == null) {
+			// Initialize AA and fot fot the tofTextArea
+			String fontName = frostSettings.getValue("messageBodyFontName");
+			int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
+			int fontSize = frostSettings.getIntValue("messageBodyFontSize");
+			Font tofFont = new Font(fontName, fontStyle, fontSize);
+			if (!tofFont.getFamily().equals(fontName)) {
+				System.out.println("The selected font was not found in your system");
+				System.out.println("That selection will be changed to \"Monospaced\".\n");
+				frostSettings.setValue("messageBodyFontName", "Monospaced");
+				tofFont = new Font("Monospaced", fontStyle, fontSize);
+			}
+			tofTextArea.setFont(tofFont);
+			tofTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+			
+			//Build the panel
 			tofPanel = new JPanel(new GridBagLayout());
 			GridBagConstraints constr = new GridBagConstraints();
 			constr.anchor = GridBagConstraints.WEST;
@@ -1925,7 +1940,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private void loadSignature() {
 		File signature = new File("signature.txt");
 		if (signature.isFile()) {
-			tofTextArea.setText(FileAccess.readFile("signature.txt"));
+			tofTextArea.setText(FileAccess.readFile("signature.txt", "UTF-8"));
 		}
 	}
 
