@@ -26,6 +26,9 @@ import java.util.logging.Logger;
 public final class Mixed
 {
 	private static Logger logger = Logger.getLogger(Mixed.class.getName());
+	
+	private static char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#' };
+	//FIXME: this one is missing the "&" char as opposed to MessageObject()
 
     /**
      * Copys a file from the jar file to disk
@@ -76,58 +79,56 @@ public static String makeSafeXML(String text) {
 		text = text.substring(0,index) + "___"+text.substring(index+3,text.length());
 	return text;
 }
-    /**
-     * Replaces characters that are not 0-9, a-z or in 'allowedCharacters'
-     * with '_' and returns a lowerCase String
-     *
-     * NEW: does not allow the '#' char, because that will be used for internal folders
-     *      in keypool, e.g. '#unsent#'
-     *
-     * @param text original String
-     * @return modified String
-     */
-    public static String makeFilename(String text)
-    {
-        if( text == null )
-        {
-            logger.severe("ERROR: mixed.makeFilename() was called with NULL!");
-            return null;
-        }
-        
-        StringBuffer newText = new StringBuffer();
-        //text = text.toLowerCase();
+	/**
+	 * Replaces characters that are not 0-9, a-z or in 'allowedCharacters'
+	 * with '_' and returns a lowerCase String
+	 *
+	 * NEW: does not allow the '#' char, because that will be used for internal folders
+	 *      in keypool, e.g. '#unsent#'
+	 *
+	 * @param text original String
+	 * @return modified String
+	 */
+	public static String makeFilename(String text) {
+		if (text == null) {
+			logger.severe("ERROR: mixed.makeFilename() was called with NULL!");
+			return null;
+		}
 
-        //if (frame1.frostSettings.getBoolValue("allowEvilBert"))
-       // {
-            // I hope that this allows the display of 2 byte characters
-            char[] invalidChars =
-                { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#' }; //FIXME: this one is missing the "&" char as opposed to MessageObject()
+		StringBuffer newText = new StringBuffer();
+		
+		//text = text.toLowerCase();
 
-            if( text.startsWith(".") )
-                newText.append("_"); // dont allow a boardfilename like "."
+		//if (frame1.frostSettings.getBoolValue("allowEvilBert"))
+		// {
+		// I hope that this allows the display of 2 byte characters
 
-            for (int i = 0; i < invalidChars.length; i++)
-                text = text.replace(invalidChars[i], '_');
+		if (text.startsWith("."))
+			newText.append("_"); // dont allow a boardfilename like "."
 
-            newText.append(text);
-       // }
-      //  else
-       // {
-        //    String allowedCharacters = "()-!.";
-         //   for (int i = 0; i < text.length(); i++)
-          //  {
-           //     int value = Character.getNumericValue(text.charAt(i));
-            //    char character = text.charAt(i);
-             //   if ((value >= 0 && value < 36)
-              //      || allowedCharacters.indexOf(character) != -1)
-               //     newText.append(character);
-             //   else
-             //       newText.append("_");
-           // }
-      //  }
+		for (int i = 0; i < invalidChars.length; i++)
+			text = text.replace(invalidChars[i], '_');
 
-        return newText.toString();
-    }
+		newText.append(text);
+		
+		// }
+		//  else
+		// {
+		//    String allowedCharacters = "()-!.";
+		//   for (int i = 0; i < text.length(); i++)
+		//  {
+		//     int value = Character.getNumericValue(text.charAt(i));
+		//    char character = text.charAt(i);
+		//   if ((value >= 0 && value < 36)
+		//      || allowedCharacters.indexOf(character) != -1)
+		//     newText.append(character);
+		//   else
+		//       newText.append("_");
+		// }
+		//  }
+
+		return newText.toString();
+	}
     
     /**
      * Filters all non-english characters as well as those filtered by makeFilename
