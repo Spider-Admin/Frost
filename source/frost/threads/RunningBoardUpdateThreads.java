@@ -3,6 +3,8 @@ package frost.threads;
 import java.util.*;
 import java.util.logging.*;
 
+import javax.swing.JFrame;
+
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.FrostIdentities;
@@ -17,8 +19,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
 	private static Logger logger = Logger.getLogger(RunningBoardUpdateThreads.class.getName());
 	
-	private FrostIdentities identities;
-	private UpdatingLanguageResource languageResource;
+    private JFrame parentFrame;
+    private FrostIdentities identities;
+    private UpdatingLanguageResource languageResource;
+    private SettingsClass frostSettings;
 	
     // listeners are notified of each finished thread
     Hashtable threadListenersForBoard = null; // contains all listeners registered for 1 board
@@ -29,11 +33,19 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     // contains key=board, data=vector of BoardUpdateThread's (multiple of kind MSG_UPLOAD)
     Hashtable runningUploadThreads = null;
 
-    public RunningBoardUpdateThreads(FrostIdentities identities, UpdatingLanguageResource languageResource)
-    {
-    	this.identities = identities;
-    	this.languageResource = languageResource;
-    	
+    /**
+     * @param parentFrame
+     * @param identities
+     * @param languageResource
+     * @param frostSettings
+     */
+    public RunningBoardUpdateThreads(JFrame parentFrame, FrostIdentities identities,
+            UpdatingLanguageResource languageResource, SettingsClass frostSettings) {
+        this.parentFrame = parentFrame;
+        this.identities = identities;
+        this.languageResource = languageResource;
+        this.frostSettings = frostSettings;
+
         threadListenersForBoard = new Hashtable();
         threadListenersForAllBoards = new Vector();
 
@@ -189,7 +201,9 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 		BoardUpdateThreadListener listener) {
 			
 		MessageUploadThread msgUploadThread =
-			new MessageUploadThread(board, mo, identities, languageResource);
+			new MessageUploadThread(board, mo, identities, frostSettings);
+		msgUploadThread.setLanguageResource(languageResource);
+		msgUploadThread.setParentFrame(parentFrame);
 		// register listener and this class as listener
 		msgUploadThread.addBoardUpdateThreadListener(this);
 		if (listener != null) {

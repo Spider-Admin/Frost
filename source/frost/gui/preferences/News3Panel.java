@@ -198,7 +198,6 @@ class News3Panel extends JPanel {
 		add(getColorPanel(), constraints);
 		
 		constraints.gridy = 4;
-		silentlyRetryCheckBox.setEnabled(false);	//Until it is finished
 		add(silentlyRetryCheckBox, constraints);
 
 		// Add listeners

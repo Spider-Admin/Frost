@@ -2410,91 +2410,93 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 
 	//**********************************************************************************************
-	//**********************************************************************************************
-	//**********************************************************************************************
-	/**initialization*/
-	public void initialize() {
+    //**********************************************************************************************
+    //**********************************************************************************************
+    /** initialization */
+    public void initialize() {
 
-		// step through all messages on disk up to maxMessageDisplay and check if there are new messages
-		// if a new message is in a folder, this folder is show yellow in tree
-		TOF.initialSearchNewMessages();
+        // step through all messages on disk up to maxMessageDisplay and check
+        // if there are new messages
+        // if a new message is in a folder, this folder is show yellow in tree
+        TOF.initialSearchNewMessages();
 
-		if (core.isFreenetOnline()) {
-			tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
-		} else {
-			tofAutomaticUpdateMenuItem.setSelected(false);
-		}
-		//      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
-		//      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
+        if (core.isFreenetOnline()) {
+            tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
+        } else {
+            tofAutomaticUpdateMenuItem.setSelected(false);
+        }
+        //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
+        //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
 
-		if (getTofTree().getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
-			getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
+        if (getTofTree().getRowCount() > frostSettings.getIntValue("tofTreeSelectedRow"))
+            getTofTree().setSelectionRow(frostSettings.getIntValue("tofTreeSelectedRow"));
 
-		// make sure the font size isn't too small to see
-		if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6)
-			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, 6);
+        // make sure the font size isn't too small to see
+        if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6)
+            frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, 6);
 
-		// load size, location and state of window
-		int lastHeight = frostSettings.getIntValue("lastFrameHeight");
-		int lastWidth = frostSettings.getIntValue("lastFrameWidth");
-		int lastPosX = frostSettings.getIntValue("lastFramePosX");
-		int lastPosY = frostSettings.getIntValue("lastFramePosY");
-		boolean lastMaximized = frostSettings.getBoolValue("lastFrameMaximized");
-		Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
+        // load size, location and state of window
+        int lastHeight = frostSettings.getIntValue("lastFrameHeight");
+        int lastWidth = frostSettings.getIntValue("lastFrameWidth");
+        int lastPosX = frostSettings.getIntValue("lastFramePosX");
+        int lastPosY = frostSettings.getIntValue("lastFramePosY");
+        boolean lastMaximized = frostSettings.getBoolValue("lastFrameMaximized");
+        Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 
-		if (lastWidth < 100) {
-			lastWidth = 700;
-		}
-		if (lastWidth > scrSize.width) {
-			lastWidth = scrSize.width;
-		}
+        if (lastWidth < 100) {
+            lastWidth = 700;
+        }
+        if (lastWidth > scrSize.width) {
+            lastWidth = scrSize.width;
+        }
 
-		if (lastHeight < 100) {
-			lastHeight = 500;
-		}
-		if (lastHeight > scrSize.height) {
-			lastWidth = scrSize.height;
-		}
+        if (lastHeight < 100) {
+            lastHeight = 500;
+        }
+        if (lastHeight > scrSize.height) {
+            lastWidth = scrSize.height;
+        }
 
-		if (lastPosX < 0) {
-			lastPosX = 0;
-		}
-		if (lastPosY < 0) {
-			lastPosY = 0;
-		}
+        if (lastPosX < 0) {
+            lastPosX = 0;
+        }
+        if (lastPosY < 0) {
+            lastPosY = 0;
+        }
 
-		if ((lastPosX + lastWidth) > scrSize.width) {
-			lastPosX = scrSize.width / 10;
-			lastWidth = (int) ((scrSize.getWidth() / 10.0) * 8.0);
-		}
+        if ((lastPosX + lastWidth) > scrSize.width) {
+            lastPosX = scrSize.width / 10;
+            lastWidth = (int) ((scrSize.getWidth() / 10.0) * 8.0);
+        }
 
-		if ((lastPosY + lastHeight) > scrSize.height) {
-			lastPosY = scrSize.height / 10;
-			lastHeight = (int) ((scrSize.getHeight() / 10.0) * 8.0);
-		}
+        if ((lastPosY + lastHeight) > scrSize.height) {
+            lastPosY = scrSize.height / 10;
+            lastHeight = (int) ((scrSize.getHeight() / 10.0) * 8.0);
+        }
 
-		setBounds(lastPosX, lastPosY, lastWidth, lastHeight);
+        setBounds(lastPosX, lastPosY, lastWidth, lastHeight);
 
-		if (lastMaximized) {
-			setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
-		}
+        if (lastMaximized) {
+            setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
+        }
 
-		// enable the machine ;)
-		runningBoardUpdateThreads = new RunningBoardUpdateThreads(core.getIdentities(), core.getLanguageResource());
-		//note: changed this from timertask so that I can give it a name --zab
-		Thread tickerThread = new Thread("tick tack") {
-			public void run() {
-				while (true) {
-					Mixed.wait(1000);
-					//TODO: refactor this method in Core. lots of work :)
-					timer_actionPerformed();
-				}
-			}
-		};
-		tickerThread.start();
-		
-		validate();
-	}
+        // enable the machine ;)
+        runningBoardUpdateThreads = new RunningBoardUpdateThreads(this, core.getIdentities(), core
+                .getLanguageResource(), frostSettings);
+        //note: changed this from timertask so that I can give it a name --zab
+        Thread tickerThread = new Thread("tick tack") {
+            public void run() {
+                while (true) {
+                    Mixed.wait(1000);
+                    //TODO: refactor this method in Core. lots of work :)
+                    timer_actionPerformed();
+                }
+            }
+        };
+        tickerThread.start();
+
+        validate();
+    }
 
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
 		//Core.getOut().println("Clipboard contents replaced");
