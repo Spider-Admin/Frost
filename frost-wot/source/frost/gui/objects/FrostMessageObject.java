@@ -122,15 +122,35 @@ public class FrostMessageObject extends VerifyableMessageObject implements Frost
         return false;
     }
     
-    /* 
-     * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
-     */
-    public int compareTo(TableMember anOther, int tableColumnIndex)
-    {
-        Comparable c1 = (Comparable)getValueAt(tableColumnIndex);
-        Comparable c2 = (Comparable)anOther.getValueAt(tableColumnIndex);
-        return c1.compareTo(c2);
-    }
+	/* 
+	 * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
+	 */
+	public int compareTo(TableMember another, int tableColumnIndex) {
+		String c1 = (String) getValueAt(tableColumnIndex);
+		String c2 = (String) another.getValueAt(tableColumnIndex);
+		if (tableColumnIndex == 4) {
+			return c1.compareTo(c2);
+		} else {
+			// If we are sorting by anything but date...
+			if (tableColumnIndex == 2) {
+				//If we are sorting by subject...
+				if (c1.indexOf("Re: ") == 0) {
+					c1 = c1.substring(4);
+				}
+				if (c2.indexOf("Re: ") == 0) {
+					c2 = c2.substring(4);
+				}
+			}
+			int result = c1.compareToIgnoreCase(c2);
+			if (result == 0) { // Items are the same. Date and time decides
+				String d1 = (String) getValueAt(4);
+				String d2 = (String) another.getValueAt(4);
+				return d1.compareTo(d2);
+			} else {
+				return result;
+			}
+		}
+	}
 
     /* 
      * @see frost.gui.model.TableMember#getValueAt(int)
