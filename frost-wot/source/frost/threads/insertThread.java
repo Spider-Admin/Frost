@@ -107,6 +107,7 @@ public class insertThread extends Thread
 
                 //now update the files.xml with the CHK
                 // REDFLAG: was this really intented to run even if upload failed?
+                //what was it before?
                 if( success == true )
                 {
                     KeyClass current = new KeyClass(uploadItem.getKey());
