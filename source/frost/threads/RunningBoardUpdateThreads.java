@@ -1,6 +1,7 @@
 package frost.threads;
 
 import java.util.*;
+import java.util.logging.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
@@ -12,6 +13,8 @@ import frost.messages.MessageObject;
  */
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
+	private static Logger logger = Logger.getLogger(RunningBoardUpdateThreads.class.getName());
+	
     // listeners are notified of each finished thread
     Hashtable threadListenersForBoard = null; // contains all listeners registered for 1 board
     Vector threadListenersForAllBoards = null; // contains all listeners for all boards
@@ -154,7 +157,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 				//if we get interrupted, continue with next thread
 				//or perhaps we want to stop all of them?
 				} catch (InterruptedException e) {
-					e.printStackTrace(System.out);
+					logger.log(Level.SEVERE, "Exception thrown in startBoardFilesDownload(...)", e);
 				}
 			}
 		}

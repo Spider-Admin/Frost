@@ -21,6 +21,7 @@ package frost.threads;
 
 import java.io.File;
 import java.util.*;
+import java.util.logging.*;
 
 import org.w3c.dom.Element;
 
@@ -46,6 +47,8 @@ public class MessageDownloadThread
     private boolean secure;
     private String publicKey;
     private boolean flagNew;
+    
+	private static Logger logger = Logger.getLogger(MessageDownloadThread.class.getName());
 
     public int getThreadType()
     {
@@ -78,11 +81,7 @@ public class MessageDownloadThread
             // wait a max. of 5 seconds between start of threads
             mixed.wait(waitTime);
 
-            Core.getOut().println(
-                "TOFDN: "
-                    + tofType
-                    + " Thread started for board "
-                    + board.toString());
+			logger.info("TOFDN: " + tofType + " Thread started for board " + board.toString());
 
             if (isInterrupted())
             {
@@ -127,18 +126,11 @@ public class MessageDownloadThread
                     downloadDate(cal);
                 }
             }
-            Core.getOut().println(
-                "TOFDN: "
-                    + tofType
-                    + " Thread stopped for board "
-                    + board.toString());
+			logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.toString());
         }
         catch (Throwable t)
         {
-            Core.getOut().println(
-                Thread.currentThread().getName()
-                    + ": Oo. Exception in MessageDownloadThread:");
-            t.printStackTrace(Core.getOut());
+        	logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
         }
         notifyThreadFinished(this);
     }
@@ -296,10 +288,7 @@ public class MessageDownloadThread
                     }
                     catch (Throwable t)
                     {
-                        Core.getOut().println(
-                            Thread.currentThread().getName()
-                                + " :TOFDN - Error in run()/FcpRequest.getFile:");
-                        t.printStackTrace(Core.getOut());
+						logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", t);
                     }
 
                     // Download successful?
@@ -335,7 +324,7 @@ public class MessageDownloadThread
                                 }
                                 catch (Exception ex)
                                 {
-                                    ex.printStackTrace(Core.getOut());
+									logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
                                     // TODO: file could not be read, mark it invalid not to confuse gui
                                     index++;
                                     continue;
@@ -366,10 +355,8 @@ public class MessageDownloadThread
                             catch (Throwable t)
                             {
                                 //TODO: metadata failed, do something
-                                t.printStackTrace(Core.getOut());
-                                Core.getOut().println(
-                                    "metadata couldn't be read. "
-                                        + "offending file saved as badmetadata.xml - send to a dev for analysis");
+								logger.log(Level.SEVERE, "metadata couldn't be read. " +
+                                        		"Offending file saved as badmetadata.xml - send to a dev for analysis", t);
                                 File badmetadata = new File("badmetadata.xml");
                                 FileAccess.writeByteArray(
                                     metadata,
@@ -433,7 +420,7 @@ public class MessageDownloadThread
                             }
                             catch (Exception ex)
                             {
-                                ex.printStackTrace();
+								logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
                                 // TODO: file could not be read, mark it invalid not to confuse gui
                                 index++;
                                 continue;
@@ -444,8 +431,7 @@ public class MessageDownloadThread
                             {
                                 currentMsg.setStatus(
                                     VerifyableMessageObject.TAMPERED);
-                                Core.getOut().println(
-                                    "TOFDN: message failed verification");
+                                logger.warning("TOFDN: message failed verification");
                                 addMessageToGui(currentMsg, testMe, false);    
                                 index++;
                                 continue;
@@ -465,13 +451,9 @@ public class MessageDownloadThread
 
                             if (!metaDataHash.equals(messageHash))
                             {
-                                Core.getOut().println(
-                                    "hash in metadata doesn't match hash in message!");
-                                Core.getOut().println(
-                                    "metadata : "
-                                        + metaDataHash
-                                        + " , message: "
-                                        + messageHash);
+                                logger.warning("hash in metadata doesn't match hash in message!\n" +
+                                			   "metadata : " + metaDataHash + 
+											   " , message: " + messageHash);
                                 currentMsg.setStatus(
                                     VerifyableMessageObject.TAMPERED);
                                     
@@ -511,7 +493,7 @@ public class MessageDownloadThread
                             	//1. check if the message is for myself
                             	if (!_metaData.getPerson().getUniqueName().equals(
                             					Core.getMyId().getUniqueName())) {
-                            		Core.getOut().println("encrypted message was for "+
+                            		logger.fine("encrypted message was for "+
                             				_metaData.getPerson().getUniqueName());
                             		
 									index++;
@@ -527,11 +509,10 @@ public class MessageDownloadThread
                         }
                         else
                         {
-                            Core.getOut().println(
-                                Thread.currentThread().getName()
-                                    + ": TOFDN: ****** Duplicate Message : "
-                                    + testMe.getName()
-                                    + " *****");
+                            logger.info(Thread.currentThread().getName() +
+                                    	": TOFDN: ****** Duplicate Message : " +
+                                    	testMe.getName() +
+                                    	" *****");
                             FileAccess.writeFile("Empty", testMe);
                         }
                         index++;
@@ -552,7 +533,7 @@ public class MessageDownloadThread
             }
             catch (Throwable t)
             {
-                t.printStackTrace(Core.getOut());
+				logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", t);
                 index++;
             }
         } // end-of: while
@@ -568,10 +549,9 @@ public class MessageDownloadThread
             if (TOF.blocked(currentMsg, board) && testMe.length() > 0)
             {
                 board.incBlocked();
-                Core.getOut().println(
-                    "\nTOFDN: ########### blocked message for board '"
-                        + board.toString()
-                        + "' #########\n");
+                logger.info("TOFDN: ########### blocked message for board '" +
+                        		board.toString() +
+                        		"' #########\n");
             }
             else
             {

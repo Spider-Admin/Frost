@@ -1,14 +1,16 @@
 package frost.threads;
 
-import java.util.*;
-
-import frost.gui.objects.FrostDownloadItemObject;
-import frost.*;
 import java.io.File;
+import java.util.*;
+import java.util.logging.*;
 
 import javax.mail.*;
 import javax.mail.internet.*;
+
 import com.sun.mail.smtp.*;
+
+import frost.*;
+import frost.gui.objects.FrostDownloadItemObject;
 
 /**
  * @author zlatinb
@@ -21,6 +23,8 @@ public class NotifyByEmailThread extends Thread implements Observer {
 	private static String template; 
 	private static final String nameTag = "<filename>";
 	private static final String subject = "[Frost] Download finished";
+	
+	private static Logger logger = Logger.getLogger(NotifyByEmailThread.class.getName());
 
 	private static String SMTPServer, SMTPuser, SMTPpass, notifyAddress;
 
@@ -96,7 +100,7 @@ public class NotifyByEmailThread extends Thread implements Observer {
 					} else
 					currentName = (String) queue.removeFirst();
 			}
-			Core.getOut().println("notifying for received file " + currentName);
+			logger.info("notifying for received file " + currentName);
 
 			String messageBody = template.replaceAll(nameTag, currentName);
 
@@ -106,8 +110,7 @@ public class NotifyByEmailThread extends Thread implements Observer {
 				try {
 					transport.connect(SMTPServer, SMTPuser, SMTPpass);
 				} catch (MessagingException e) {
-					Core.getOut().println("couldn't connect to smtp server");
-					e.printStackTrace(Core.getOut());
+					logger.log(Level.SEVERE, "couldn't connect to smtp server", e);
 					//TODO:decide what to do. I think just wait 5 mins and try
 					// again?
 					mixed.wait(5 * 60 * 1000);
@@ -126,21 +129,21 @@ public class NotifyByEmailThread extends Thread implements Observer {
 
 				//now send the message
 				transport.sendMessage(message, new Address[] { address });
-				Core.getOut().println("message sent successfully");
+				logger.info("message sent successfully");
 
 				//check if there are more messages to send, and if not
 				// disconnect
 				if (queue.size() == 0)
 					transport.close();
 			} catch (SendFailedException e) {
-				e.printStackTrace(Core.getOut());
+				logger.log(Level.SEVERE, "Exception thrown in run()", e);
 				//wait 5 mins, retry
 				mixed.wait(5 * 60 * 1000);
 				queue.addFirst(currentName);
 				continue running;
 			} catch (MessagingException e) {
 				//we screwed up somehow..
-				e.printStackTrace(Core.getOut());
+				logger.log(Level.SEVERE, "Exception thrown in run()", e);
 			}
 
 		}
