@@ -297,7 +297,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			}
 			
                         FileAccess.writeFile(unzipped,target);
-                       //FIXME: adding an entire file to board index --> Index.add(target, board);
+                        Index.add(target, 
+				new File(frame1.keypool+board.getBoardFilename()+fileSeparator+"files.xml"));
 			target.delete();
                     }
                     catch(Throwable t)
