@@ -30,7 +30,7 @@ import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.BoardAttachment;
-// BBACKFLAG: Implement removing of known boards via popup menu !
+
 public class KnownBoardsFrame extends JDialog
 {
     static ImageIcon boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
@@ -147,7 +147,7 @@ public class KnownBoardsFrame extends JDialog
     {
         tablePopupMenu = new JPopupMenu();
         JMenuItem addBoardsMenu = new JMenuItem("Add board");
-        JMenuItem removeBoardEntry = new JMenuItem("Remove known board");
+        JMenuItem removeBoardEntry = new JMenuItem("Remove board");
         
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
