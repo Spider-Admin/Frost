@@ -425,7 +425,15 @@ public class FileAccess
             int counter = 0;
 
             //parse the xml file
-            Document d = XMLTools.parseXmlFile(source.getPath(), false);
+            Document d= null;
+            try{
+            d = XMLTools.parseXmlFile(source.getPath(), false);
+            }catch (Throwable t){
+            	t.printStackTrace(Core.getOut());
+            	File badfile = new File("badfile.xml");
+            	source.renameTo(badfile);
+            	Core.getOut().println("offending file saved as badfile.xml - send it to a dev for analysis");
+            }
 
             if (d == null)
             {
