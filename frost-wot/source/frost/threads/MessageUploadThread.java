@@ -239,7 +239,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
  
         // zip the xml file to a temp file, sign this file and upload it
         File uploadZipFile = new File( this.messageFile.getPath() + ".upltmp" );
-        uploadZipFile.delete(); // just for the case
+        uploadZipFile.delete(); 		// just in case it already exists
+        uploadZipFile.deleteOnExit();	// so that it is deleted when Frost exits
         
         FileAccess.writeZipFile(FileAccess.readByteArray( this.messageFile ), 
                                 "entry", uploadZipFile); 
