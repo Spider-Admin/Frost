@@ -456,10 +456,13 @@ System.out.println("ERROR saving download table!");
         element.appendChild( text );
         itemElement.appendChild( element );
 	//owner
+	if (dlItem.getOwner() != null &&
+		dlItem.getOwner().compareToIgnoreCase("anonymous") != 0) {
 	element = doc.createElement("owner");
         text = doc.createTextNode( String.valueOf(dlItem.getOwner()) );
         element.appendChild( text );
         itemElement.appendChild( element );
+	}
         // sourceboard
         if( dlItem.getSourceBoard() != null )
         {
