@@ -20,23 +20,15 @@
 package frost.gui.model;
 
 import frost.gui.objects.FrostDownloadItemObject;
+import frost.gui.translation.*;
 
-public class DownloadTableModel extends SortedTableModel
+public class DownloadTableModel extends SortedTableModel implements LanguageListener
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+	
+	private UpdatingLanguageResource languageResource = null;
 
-    protected final static String columnNames[] = {
-        " ",
-        LangRes.getString("Filename"),
-        LangRes.getString("Size"),
-        LangRes.getString("Age"),
-        LangRes.getString("State"),
-        LangRes.getString("Blocks"),
-        LangRes.getString("Tries"),
-        LangRes.getString("Source"),
-        LangRes.getString("From"),
-        LangRes.getString("Key")
-    };
+    protected final static String columnNames[] = new String[10];
+  
     protected final static Class columnClasses[] = {
         Boolean.class, //LangRes.getString("on"),
         String.class, //LangRes.getString("Filename"),
@@ -50,9 +42,11 @@ public class DownloadTableModel extends SortedTableModel
         String.class
     };
 
-    public DownloadTableModel()
+    public DownloadTableModel(UpdatingLanguageResource newLanguageResource)
     {
         super();
+        languageResource = newLanguageResource;
+        refreshLanguage();
     }
 
     public boolean isCellEditable(int row, int col)
@@ -84,5 +78,30 @@ public class DownloadTableModel extends SortedTableModel
         FrostDownloadItemObject dlItem = (FrostDownloadItemObject)getRow(row);
         dlItem.setEnableDownload( (Boolean)aValue );
     }
+
+	/* (non-Javadoc)
+	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+	 */
+	public void languageChanged(LanguageEvent event) {
+		refreshLanguage();		
+	}
+
+	/**
+	 * 
+	 */
+	private void refreshLanguage() {
+		columnNames[0] = " ";
+		columnNames[1] = languageResource.getString("Filename");
+		columnNames[2] = languageResource.getString("Size");
+		columnNames[3] = languageResource.getString("Age");
+		columnNames[4] = languageResource.getString("State");
+		columnNames[5] = languageResource.getString("Blocks");
+		columnNames[6] = languageResource.getString("Tries");
+		columnNames[7] = languageResource.getString("Source");
+		columnNames[8] = languageResource.getString("From");
+		columnNames[9] = languageResource.getString("Key");		
+		
+		fireTableStructureChanged();		
+	}
 
 }
