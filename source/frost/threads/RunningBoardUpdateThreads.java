@@ -1,10 +1,10 @@
 package frost.threads;
 
-import java.awt.Frame;
 import java.util.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.messages.MessageObject;
 
 /**
  * This class maintains the message download and upload threads.
@@ -167,24 +167,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * will be notified if THIS thread is finished
      */
     public boolean startMessageUpload(FrostBoardObject board,
-                                      String from,
-                                      String subject,
-                                      String content,
-                                      String recipient,
-                                      SettingsClass config,
-                                      Frame frameToLock,
+                                      MessageObject mo,
                                       BoardUpdateThreadListener listener)
     {
-        MessageUploadThread msgUploadThread = new MessageUploadThread(
-            board,
-            from,
-            subject,
-            content,
-            config.getValue("tofUploadHtl"),
-            config.getValue("keypool.dir"),
-            config.getValue("tofDownloadHtl"),
-            recipient,
-            frameToLock);
+        MessageUploadThread msgUploadThread = new MessageUploadThread(board, mo);
         // register listener and this class as listener
         msgUploadThread.addBoardUpdateThreadListener( this );
         if( listener != null )

@@ -7,7 +7,7 @@ import java.util.StringTokenizer;
 import frost.gui.objects.FrostBoardObject;
 
 public class AltEdit extends Thread {
-    private Frame parentFrame;
+/*    private Frame parentFrame;
     private String linesep;
     private FrostBoardObject board;
     private String from;
@@ -174,4 +174,5 @@ public class AltEdit extends Thread {
 
         linesep = System.getProperty("line.separator");
     }
+*/    
 }
