@@ -39,6 +39,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private File indicesFile;
     private int maxKeys;
     private String date;
+    private String currentDate;
     private String oldDate;
     private int requestHtl;
     private int insertHtl;
@@ -59,6 +60,27 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
      */
      
      
+    private void loadIndex(String date) {
+    	indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices-"+date);
+	
+	//indices = new Vector();
+	
+	try {
+		if (indicesFile.exists()) {
+			ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
+			indices = (Vector)in.readObject();
+			in.close();
+		}else {
+			indices = new Vector(100);
+			for (int i = 0;i < 100;i++)
+				indices.add(new Integer(0));
+		}
+	}catch(IOException e) {
+		e.printStackTrace();
+	}catch(ClassNotFoundException e) {
+		e.printStackTrace();
+	}
+    }
     private void commit() {
     	try{
 		indicesFile.delete();
@@ -152,6 +174,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
     private void uploadIndexFile()//int i)
     {
+    	//load the indices for the current date
+    	loadIndex(currentDate);
         File indexFile = new File(keypool + board.getBoardFilename() + "_upload.txt");
         boolean success = false;
         int tries = 0;
@@ -409,35 +433,19 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     }
 
     /**Constructor*/
-    public UpdateIdThread(FrostBoardObject board)
+    public UpdateIdThread(FrostBoardObject board, String date)
     {
         super(board);
         this.board = board;
-        date = DateFun.getExtendedDate();
+        this.date = date;
+	currentDate = DateFun.getDate();
         requestHtl = frame1.frostSettings.getIntValue("keyDownloadHtl");
         insertHtl = frame1.frostSettings.getIntValue("keyUploadHtl");
         keypool = frame1.frostSettings.getValue("keypool.dir");
         maxKeys = frame1.frostSettings.getIntValue("maxKeys");
 	
-	indicesFile = new File(frame1.keypool + board.getBoardFilename() + fileSeparator + "indices-"+date);
-	
-	//indices = new Vector();
-	
-	try {
-		if (indicesFile.exists()) {
-			ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
-			indices = (Vector)in.readObject();
-			in.close();
-		}else {
-			indices = new Vector(100);
-			for (int i = 0;i < 100;i++)
-				indices.add(new Integer(0));
-		}
-	}catch(IOException e) {
-		e.printStackTrace();
-	}catch(ClassNotFoundException e) {
-		e.printStackTrace();
-	}
+	//first load the index with the date we wish to download
+	loadIndex(date);
 
         publicKey = board.getPublicKey();
         privateKey = board.getPrivateKey();
@@ -455,11 +463,12 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                          .append("/").toString();
         }
 
+	//make all inserts today
         if( board.isPublicBoard()==false && privateKey != null )
-            insertKey = new StringBuffer().append(privateKey).append("/").append(date).append("/").toString();
+            insertKey = new StringBuffer().append(privateKey).append("/").append(currentDate).append("/").toString();
         else
             insertKey = new StringBuffer().append("KSK@frost/index/").append(board.getBoardFilename())
-                        .append("/").append(date).append("/").toString();
+                        .append("/").append(currentDate).append("/").toString();
     }
 }
 

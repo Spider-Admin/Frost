@@ -124,14 +124,35 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
-        UpdateIdThread uit = new UpdateIdThread(board);
+    	final int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
+	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
+	for (int i =0;i<downloadBack;i++) 
+		threads[i] = new UpdateIdThread(board,DateFun.getDate(i));
+        
+	//add listener only to the last thread
+	UpdateIdThread uit = threads[downloadBack-1];
         uit.addBoardUpdateThreadListener( this );
         if( listener != null )
         {
             uit.addBoardUpdateThreadListener( listener );
         }
         getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
-        uit.start();
+	//now start the threads one after another
+	Thread starter = new Thread() {
+		public void run() {
+			for (int j = 0;j<downloadBack;j++) {
+				threads[j].start();
+				try{
+				threads[j].join();
+				//if we get interrupted, continue with next thread
+				//or perhaps we want to stop all of them?
+				} catch (InterruptedException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	};
+	starter.start();
         return true;
     }
     /**
