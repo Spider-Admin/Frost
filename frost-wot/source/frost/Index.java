@@ -248,41 +248,15 @@ public class Index
      */
     public static void add(File keyfile, File target)
     {
-        //String oldFirstLetter = "";
-        final Map chk = Collections.synchronizedMap(new HashMap());
+     
         final Map chunk = Collections.synchronizedMap(new HashMap());
 
         if( !target.isDirectory() )
             target.mkdir();
 
-        FileAccess.readKeyFile(keyfile, chk);
+        FileAccess.readKeyFile(keyfile, chunk);
 
-        synchronized(chk)
-        {
-            Iterator i = chk.values().iterator();
-            while( i.hasNext() )
-            {
-                KeyClass key = (KeyClass)i.next();
-                String hash = key.getSHA1();
-		
-	/*	String firstLetter;
-		if (key.getKey() != null)
-                	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
-		else
-			firstLetter ="(";*/
-              //  if( !firstLetter.equals(oldFirstLetter) )
-              //  {
-                    // System.out.print(".");
-                    if( chunk.size() > 0 )
-                    {
-                        add(chunk, target);
-                        chunk.clear();
-                    }
-                //    oldFirstLetter = firstLetter;
-               // }
-                chunk.put(hash, key);
-            }
-        }
+        
         add(chunk, target);
     }
 
@@ -294,20 +268,30 @@ public class Index
      * @param firstLetter identifier for the keyfile
      */
     protected static void add(Map chunk, File target)
-    {/*
+    {
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         final String fileSeparator = System.getProperty("file.separator");
-
+	final Map whole = Collections.synchronizedMap(new HashMap());
+	
+	FileAccess.readKeyFile(target,whole);
+	
         if( !target.isDirectory() )
             target.mkdir();
 
-        if( chunk.size() > 0 )
-        {
-          /*  if( split.indexOf(firstLetter) == -1 )
-                firstLetter = "other";
-            FileAccess.readKeyFile(new File(target.getPath() + fileSeparator +"sha_ids.exc"), chunk, false);
-            FileAccess.writeKeyFile(chunk, new File(target.getPath() + fileSeparator + "sha_ids.exc"));
-            chunk.clear();
-        }*/
+        Iterator i = chunk.values().iterator();
+	while (i.hasNext()) {
+		KeyClass current = (KeyClass)i.next();
+		KeyClass old = (KeyClass)whole.get(current.getSHA1());
+		
+		if (old == null) {
+			whole.put(current.getSHA1(),current);
+			continue;
+		}
+		old.setDate(current.getDate());
+		old.setKey(current.getKey());
+		//TODO: allow unsigned files to be appropriated
+	}
+	
+	FileAccess.writeKeyFile(whole,target);
     }
 }
