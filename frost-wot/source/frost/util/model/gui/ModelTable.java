@@ -6,6 +6,7 @@
  */
 package frost.util.model.gui;
 
+import java.awt.Font;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.*;
 
@@ -173,6 +174,7 @@ public class ModelTable extends AbstractTableModel {
 				
 		table = new JTable(this);
 		scrollPane = new JScrollPane(table);
+		tableFormat.addTable(table);
 		tableFormat.customizeTable(table);
 		
 		model.addOrderedModelListener(listener);
@@ -248,6 +250,14 @@ public class ModelTable extends AbstractTableModel {
 	 */
 	public JTable getTable() {
 		return table;
+	}
+
+	/**
+	 * @param font
+	 */
+	public void setFont(Font font) {
+		table.setFont(font);
+		table.setRowHeight(font.getSize() + 5);
 	}
 
 }
