@@ -405,7 +405,7 @@ public class FileAccess
      * Reads a keyfile from disk and adds the keys to a map
      * @param source keyfile as String or as File
      * @param chk Map that will be used to add the keys
-     * @param exchange the exchange flag of KeyClass will be set to this value
+     * @param exchange the exchange flag of SharedFileObject will be set to this value
      */
     public static void readKeyFile(String source, Map chk)
     {
@@ -459,7 +459,7 @@ public class FileAccess
             while (i.hasNext())
             {
                 Element current = (Element)i.next();
-                KeyClass newKey = new KeyClass();
+                SharedFileObject newKey = new SharedFileObject();
 
                 //extract the values
                 try
@@ -501,7 +501,7 @@ public class FileAccess
                 }
 
                 //check if we already have such key in the map
-                KeyClass oldKey = (KeyClass)chk.get(newKey.getSHA1());
+                SharedFileObject oldKey = (SharedFileObject)chk.get(newKey.getSHA1());
 
                 //if we don't just add the new key
                 if (oldKey == null)
@@ -580,7 +580,7 @@ public class FileAccess
             Iterator i = chk.values().iterator();
             while (i.hasNext())
             {
-                KeyClass current = (KeyClass)i.next();
+                SharedFileObject current = (SharedFileObject)i.next();
 
                 //we do not add keys who are not signed by people we marked as GOOD!
                 //but we add unsigned keys for now; this will probably change soon

@@ -82,7 +82,7 @@ public class SearchThread extends Thread {
         synchronized(chk) {
         Iterator i = chk.values().iterator();
         while (i.hasNext()) {
-            KeyClass key = (KeyClass)i.next();
+            SharedFileObject key = (SharedFileObject)i.next();
             String filename = key.getFilename().toLowerCase().trim();
             boolean acceptFile = true;
             for (int j = 0; j < singleRequests.size(); j++) {
@@ -160,7 +160,7 @@ public class SearchThread extends Thread {
 
 	
         for (int i = results.size() - 1; i >= 0; i--) {
-        	KeyClass key = (KeyClass)results.elementAt(i);
+        	SharedFileObject key = (SharedFileObject)results.elementAt(i);
 		GregorianCalendar keyCal=null;
 		if (key.getDate() != null){
         		keyCal = key.getCal();
@@ -180,7 +180,7 @@ public class SearchThread extends Thread {
     //check if file anonymous
      Iterator it = results.iterator();
      while (it.hasNext()) {
-     	KeyClass key = (KeyClass)it.next();
+     	SharedFileObject key = (SharedFileObject)it.next();
 	if ((key.getOwner() == null || 
 		key.getOwner()!=null && key.getOwner().compareToIgnoreCase("anonymous")==0) &&
 		hideAnon) {
@@ -221,7 +221,7 @@ public class SearchThread extends Thread {
         for (int j = 0; j < removeStrings.size(); j++) {
         notString = (String)removeStrings.elementAt(j);
         for (int i = results.size() - 1; i >= 0; i--) {
-            KeyClass key = (KeyClass)results.elementAt(i);
+            SharedFileObject key = (SharedFileObject)results.elementAt(i);
             if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase()) != -1) {
             results.removeElementAt(i);
             }
@@ -245,7 +245,7 @@ public class SearchThread extends Thread {
                 return;
             }
 
-            KeyClass key = (KeyClass)results.elementAt(i);
+            SharedFileObject key = (SharedFileObject)results.elementAt(i);
 
             String filename = key.getFilename();
             Long size = key.getSize();

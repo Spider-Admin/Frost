@@ -1,13 +1,13 @@
 package frost.gui.objects;
 
-import frost.KeyClass;
+import frost.SharedFileObject;
 import frost.gui.model.TableMember;
 
 
 public class FrostSearchItemObject implements FrostSearchItem, TableMember
 {
     FrostBoardObject board;
-    KeyClass key;
+    SharedFileObject key;
     int state;
 
     public static final int STATE_NONE        = 1; // set if a search table item is only in search table
@@ -15,7 +15,7 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     public static final int STATE_DOWNLOADING = 3; // set if file is not already downloaded, but in download table
     public static final int STATE_UPLOADING   = 4; // set if file is in upload table
 
-    public FrostSearchItemObject( FrostBoardObject board, KeyClass key, int state )
+    public FrostSearchItemObject( FrostBoardObject board, SharedFileObject key, int state )
     {
         this.board = board;
         this.key = key;
