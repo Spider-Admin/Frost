@@ -26,6 +26,7 @@ import frost.*;
 import frost.gui.DownloadTable;
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
+import frost.FcpTools.*;
 
 public class requestThread extends Thread
 {
@@ -205,7 +206,7 @@ public class requestThread extends Thread
     // Request a certain file by SHA1
     private void request()
     {
-        String messageUploadHtl = frame1.frostSettings.getValue("tofUploadHtl");
+        int messageUploadHtl = frame1.frostSettings.getIntValue("tofUploadHtl");
         boolean requested = false;
 
         if( DEBUG ) System.out.println("FILEDN: Uploading request for '"+filename+"' to board '" + board.toString()+"'");
@@ -324,7 +325,7 @@ public class requestThread extends Thread
                                    .toString();
                     if( DEBUG ) System.out.println(upKey);
                     result = FcpInsert.putFile(upKey,
-                                               requestFile.getPath(),
+                                               requestFile,
                                                messageUploadHtl,
                                                false,
                                                true,
@@ -433,10 +434,9 @@ public class requestThread extends Thread
         this.size = dlItem.getFileSize();
         this.key = dlItem.getKey();
         this.board = dlItem.getSourceBoard();
-	this.SHA1 = dlItem.getSHA1();
-	this.batch = dlItem.getBatch();
-	this.owner = dlItem.getOwner();
-	
+    	this.SHA1 = dlItem.getSHA1();
+    	this.batch = dlItem.getBatch();
+    	this.owner = dlItem.getOwner();
 
         this.downloadItem = dlItem;
 

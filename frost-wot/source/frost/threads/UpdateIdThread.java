@@ -25,6 +25,7 @@ import frost.*;
 import frost.crypt.crypt;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
+import frost.FcpTools.*;
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {

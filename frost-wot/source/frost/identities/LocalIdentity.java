@@ -44,7 +44,7 @@ public class LocalIdentity extends Identity implements Serializable
         final byte[] pubkeydata = pubkeydata1;
 
         try {
-            String tmp = con.putKeyFromFile("CHK@", pubkeydata, null, 0, false);
+            String tmp = con.putKeyFromArray("CHK@", pubkeydata, null, 0, false);
             keyaddress = tmp.substring(tmp.indexOf("CHK@"),tmp.indexOf("CHK@") + 58);
             System.out.println("Calculated my public key CHK: " + keyaddress + "\n");
         }
@@ -59,7 +59,7 @@ public class LocalIdentity extends Identity implements Serializable
                 String ret=null;
                 System.out.println("Trying to upload my public key ...");
                 try {
-                    ret = con.putKeyFromFile("CHK@", pubkeydata, null, 25, true);
+                    ret = con.putKeyFromArray("CHK@", pubkeydata, null, 25, true);
                 }
                 catch( IOException e ) {
                     System.out.println("... couldn't upload public key.");

@@ -25,6 +25,7 @@ import java.util.Random;
 import frost.*;
 import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
+import frost.FcpTools.*;
 
 public class insertThread extends Thread
 {
@@ -32,7 +33,7 @@ public class insertThread extends Thread
 
     private String destination;
     private File file;
-    private String htl;
+    private int htl;
     private FrostBoardObject board;
     private boolean mode;
     private static int fileIndex=1;
@@ -171,7 +172,7 @@ public class insertThread extends Thread
 
         this.uploadItem = ulItem;
 
-        this.htl = config.getValue("htlUpload");
+        this.htl = config.getIntValue("htlUpload");
         this.board = ulItem.getTargetBoard();
         this.mode = mode; // true=upload file false=generate chk (do not upload)
     }
