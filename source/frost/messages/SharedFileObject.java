@@ -488,7 +488,6 @@ public class SharedFileObject implements XMLizable
 	 * @see java.lang.Object#equals(java.lang.Object)
 	 */
 	public boolean equals(Object obj) {
-		// TODO Auto-generated method stub
 		SharedFileObject other = (SharedFileObject) obj;
 		return SHA1.equals(other.getSHA1());
 	}
@@ -497,7 +496,7 @@ public class SharedFileObject implements XMLizable
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-		// TODO Auto-generated method stub
+
 		return SHA1.hashCode();
 	}
 
