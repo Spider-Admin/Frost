@@ -122,7 +122,7 @@ public class TableXmlIO
             return null;
         }
 
-        // check if targat board exists in board tree
+        // check if target board exists in board tree
         FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( targetboardname );
         if( board == null )
         {
@@ -199,7 +199,7 @@ public class TableXmlIO
         String state = XMLTools.getChildElementsTextValue(dlItemElement, "state");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
 
-        if( filename == null ||  key == null || state == null || sourceboardname == null )
+        if( filename == null || key == null || state == null )
         {
             System.out.println("DownloadTable: Error in XML save file, skipping entry.");
             return null;
@@ -231,11 +231,16 @@ public class TableXmlIO
         }
 
         // check if target board exists in board tree
-        FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( sourceboardname );
-        if( board == null )
+
+        FrostBoardObject board = null;
+        if( sourceboardname != null )
         {
-            System.out.println("DownloadTable: source board '"+sourceboardname+"' for file '"+filename+"' was not found, removing file from table.");
-            return null;
+            board = frame1.getInstance().getTofTree().getBoardByName( sourceboardname );
+            if( board == null )
+            {
+                System.out.println("DownloadTable: source board '"+sourceboardname+"' for file '"+filename+"' was not found, removing file from table.");
+                return null;
+            }
         }
 
         // create FrostDownloadItemObject
@@ -397,10 +402,13 @@ public class TableXmlIO
         element.appendChild( text );
         itemElement.appendChild( element );
         // sourceboard
-        element = doc.createElement("sourceboard");
-        text = doc.createTextNode( dlItem.getSourceBoard().toString() );
-        element.appendChild( text );
-        itemElement.appendChild( element );
+        if( dlItem.getSourceBoard() != null )
+        {
+            element = doc.createElement("sourceboard");
+            text = doc.createTextNode( dlItem.getSourceBoard().toString() );
+            element.appendChild( text );
+            itemElement.appendChild( element );
+        }
 
         parent.appendChild( itemElement );
     }

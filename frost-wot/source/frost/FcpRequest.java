@@ -129,7 +129,7 @@ public class FcpRequest
             {
                 if( dlItem.getFileSize().longValue() != splitFileSize )
                 {
-                    System.out.println("WARNING: size of fec splitfile differs from size given from download table. MUST not happen!");
+                    System.out.println("WARNING: size of FEC splitfile differs from size given from download table. MUST not happen!");
                 }
             }
 
@@ -257,24 +257,20 @@ public class FcpRequest
             int i = 0;
             while( successfullBlocks < requiredBlocks )
             {
-// System.out.println("PROGRESS: "+successfullBlocks+" / "+totalRequiredBlocks);
-
                 int j;
                 String chk;
 
                 // Skip asking for blocks already there
-                while( (i < totalBlocks) && (results[blockNumbers[i]]) ) i++;
+                if( i < totalBlocks && results[blockNumbers[i]] == true )
+                {
+                    i++;
+                    continue;
+                }
 
                 if( i < totalBlocks )
                 {
-
                     j = blockNumbers[i];
 
-/*                    System.out.println(new StringBuffer().append("FcpRequest i = ").append(i)
-                                       .append(", j = ").append(j)
-                                       .append(", successfulBlock = ").append(successfullBlocks)
-                                       .append(", activeThreads = ").append(getActiveThreads(threads)).toString() );
-*/
                     // Decide whether we ask for a chunk block or a check block
                     if( j < blockCount )
                         chk = SettingsFun.getValue(target.getPath(), "SplitFile.Block." + Integer.toHexString(j+chunkBase+1));
@@ -327,7 +323,6 @@ public class FcpRequest
                     // enough to reconstruct the segment, start a new thread
                     if( getActiveThreads(threads) + successfullBlocks < requiredBlocks )
                     {
-
                         if( j < blockCount )
                             threads[j] = new getKeyThread(chk,
                                                           new File(new StringBuffer().append(frame1.keypool).append(target.getName())
@@ -446,7 +441,7 @@ public class FcpRequest
                                                       .append(Long.toHexString(headerString.length() + suppliedBlocks * currentSegment.BlockSize + suppliedChecks * currentSegment.CheckBlockSize))
                                                       .append("\n")
                                                       .append("Data\n").append(headerString).toString();
-                            System.out.print(dataHeaderString);
+//                            System.out.print(dataHeaderString);
                             fcpOut.print(dataHeaderString);
                             String[] Elements = blockList.split(",");
                             byte[] buffer;
@@ -720,11 +715,19 @@ public class FcpRequest
             if( isSplitfile )
             { // File is a splitfile
                 boolean success;
+// FIXED: decide by algo if this is a FEC splitfile, not by format
+                String algo = SettingsFun.getValue(tempFile.getPath(), "SplitFile.AlgoName");
+                if( algo.equals("OnionFEC_a_1_2") )
+                    success = getFECSplitFile(key, tempFile, htl, dlItem);
+                else
+                    success = getSplitFile(key, tempFile, htl, dlItem);
+/*
                 String format = SettingsFun.getValue(tempFile.getPath(), "Info.Format");
                 if( format.equals("Frost/FEC") )
                     success = getFECSplitFile(key, tempFile, htl, dlItem);
                 else
                     success = getSplitFile(key, tempFile, htl);
+*/
                 if( success )
                 {
                     // If the target file exists, we remove it
@@ -825,9 +828,8 @@ public class FcpRequest
 ///////////////////////////////////////////
 // OLD splitfile support (non-FEC)
 ///////////////////////////////////////////
-    private static boolean getSplitFile(String key, File target, int htl)
+    private static boolean getSplitFile(String key, File target, int htl, FrostDownloadItemObject dlItem)
     {
-
         String blockCount = SettingsFun.getValue(target.getPath(), "SplitFile.BlockCount");
         String splitFileSize = SettingsFun.getValue(target.getPath(), "SplitFile.Size");
         String splitFileBlocksize = SettingsFun.getValue(target.getPath(), "SplitFile.Blocksize");
@@ -836,31 +838,22 @@ public class FcpRequest
         maxThreads = frame1.frostSettings.getIntValue("splitfileDownloadThreads");
 
         int intBlockCount = 0;
-        try
-        {
+        try {
             intBlockCount = Integer.parseInt(blockCount, 16);
         }
-        catch( NumberFormatException e )
-        {
-        }
+        catch( NumberFormatException e ) {}
 
-        int intSplitFileSize = -1;
-        try
-        {
-            intSplitFileSize = Integer.parseInt(splitFileSize, 16);
+        long intSplitFileSize = -1;
+        try {
+            intSplitFileSize = Long.parseLong(splitFileSize, 16);
         }
-        catch( NumberFormatException e )
-        {
-        }
+        catch( NumberFormatException e ) {}
 
         int intSplitFileBlocksize = -1;
-        try
-        {
+        try {
             intSplitFileBlocksize = Integer.parseInt(splitFileBlocksize, 16);
         }
-        catch( NumberFormatException e )
-        {
-        }
+        catch( NumberFormatException e ) {}
 
         // Put ascending numbers into array
         int[] blockNumbers = new int[intBlockCount];
@@ -877,6 +870,28 @@ public class FcpRequest
             blockNumbers[randomNumber] = tmp;
         }
 
+        if( dlItem != null )
+        {
+
+            if( dlItem.getFileSize() == null )
+            {
+                dlItem.setFileSize( intSplitFileSize );
+            }
+            else // paranoia
+            {
+                if( dlItem.getFileSize().longValue() != intSplitFileSize )
+                {
+                    System.out.println("WARNING: size of fec splitfile differs from size given from download table. MUST not happen!");
+                }
+            }
+            // update gui table
+            dlItem.setBlockProgress( 0,
+                                     intBlockCount,
+                                     intBlockCount);
+            dlItem.setState( dlItem.STATE_PROGRESS );
+            ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
+        }
+
         boolean success = true;
         boolean[] results = new boolean[intBlockCount];
         Thread[] threads = new Thread[intBlockCount];
@@ -885,18 +900,36 @@ public class FcpRequest
             int j = blockNumbers[i];
             String chk = SettingsFun.getValue(target.getPath(), "SplitFile.Block." + Integer.toHexString(j));
 
-            if( DEBUG ) System.out.println("Requesting: SplitFile.Block." + Integer.toHexString(j) + "=" + chk);
-
             // Do not exceed maxThreads limit
             while( getActiveThreads(threads) >= maxThreads )
+            {
                 mixed.wait(5000);
+                // update gui
+                if( dlItem != null )
+                {
+                    int doneBlocks = 0;
+                    for( int z = 0; z < intBlockCount; z++ )
+                    {
+                        if( results[z] == true )
+                        {
+                            doneBlocks++;
+                        }
+                    }
+                    dlItem.setBlockProgress( doneBlocks,
+                                             intBlockCount,
+                                             intBlockCount);
+                    ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
+                }
+            }
+
+            if( DEBUG ) System.out.println("Requesting: SplitFile.Block." + Integer.toHexString(j) + "=" + chk);
 
             // checkSize is the size (in bytes) of one chunk.
             // Because the last chunk is probably smaller, we
             // calculate the last chunks size here.
             int checkSize = intSplitFileBlocksize;
             if( blockNumbers[i] == intBlockCount && intSplitFileBlocksize != -1 )
-                checkSize = intSplitFileSize - (intSplitFileBlocksize * (intBlockCount - 1));
+                checkSize = (int)(intSplitFileSize - (intSplitFileBlocksize * (intBlockCount - 1)));
 
             threads[i] = new getKeyThread(chk,
                                           new File(frame1.keypool + target.getName() + "-chunk-" + j),
@@ -905,13 +938,46 @@ public class FcpRequest
                                           i,
                                           checkSize);
             threads[i].start();
+
+            // update gui
+            if( dlItem != null )
+            {
+                int doneBlocks = 0;
+                for( int z = 0; z < intBlockCount; z++ )
+                {
+                    if( results[z] == true )
+                    {
+                        doneBlocks++;
+                    }
+                }
+                dlItem.setBlockProgress( doneBlocks,
+                                         intBlockCount,
+                                         intBlockCount);
+                ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
+            }
         }
 
         // wait until all threads are done
         while( getActiveThreads(threads) > 0 )
         {
-            if( DEBUG ) System.out.println("Active Splitfile request remaining (htl " + htl + "): " + getActiveThreads(threads));
+//            if( DEBUG ) System.out.println("Active Splitfile request remaining (htl " + htl + "): " + getActiveThreads(threads));
             mixed.wait(5000);
+            // update gui
+            if( dlItem != null )
+            {
+                int doneBlocks = 0;
+                for( int z = 0; z < intBlockCount; z++ )
+                {
+                    if( results[z] == true )
+                    {
+                        doneBlocks++;
+                    }
+                }
+                dlItem.setBlockProgress( doneBlocks,
+                                         intBlockCount,
+                                         intBlockCount);
+                ((DownloadTableModel)frame1.getInstance().getDownloadTable().getModel()).updateRow( dlItem );
+            }
         }
 
         // Each request thread stores it's result in results[]
