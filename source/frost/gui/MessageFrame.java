@@ -54,7 +54,6 @@ public class MessageFrame extends JFrame
     String lastUsedDirectory;
     String keypool;
     boolean state;
-    Frame parentFrame;
     SettingsClass frostSettings;
     
     private boolean initialized = false;
@@ -645,12 +644,11 @@ public class MessageFrame extends JFrame
 	/**Constructor*/
 	public MessageFrame(
 		SettingsClass newSettings,
-		Frame newParentFrame,
+		Component parentComponent,
 		ResourceBundle newLangRes,
 		LocalIdentity newMyId) {
 		super();
 		LangRes = newLangRes;
-		parentFrame = newParentFrame;
 		myId = newMyId;
 		state = false;
 		frostSettings = newSettings;
@@ -675,7 +673,7 @@ public class MessageFrame extends JFrame
 		messageTextArea.setDocument(messageDocument);
 
 		setSize(600, 460);
-		setLocationRelativeTo(parentFrame);
+		setLocationRelativeTo(parentComponent);
 	}
 
 /*************************************************
