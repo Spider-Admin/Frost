@@ -283,7 +283,9 @@ public class SettingsClass
         defaults.put("blockMessageBody","");
         defaults.put("blockMessageBodyChecked","false");
         defaults.put("signedOnly","false");
-        defaults.put("goodOnly","false");
+        //defaults.put("goodOnly","false");
+	defaults.put("hideBadMessages","false");
+	defaults.put("hideCheckMessages","false");
         defaults.put("downloadDirectory", "downloads" + fs);
         defaults.put("downloadThreads", "3");
         defaults.put("downloadingActivated", "true");

@@ -356,9 +356,13 @@ public class TOF
             return true;
 
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
-            frame1.frostSettings.getBoolValue("goodOnly") &&
-            (message.getStatus().indexOf("GOOD")==-1) )
+            frame1.frostSettings.getBoolValue("hideBadMessages") &&
+            (message.getStatus().indexOf("GOOD")!=-1))
             return true;
+	if( frame1.frostSettings.getBoolValue("signedOnly") &&
+	    frame1.frostSettings.getBoolValue("hideCheckMessages") &&
+	    (message.getStatus().indexOf("CHECK")!=-1))
+	    return true;
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
         {
