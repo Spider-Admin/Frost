@@ -32,7 +32,6 @@ import javax.swing.table.DefaultTableCellRenderer;
 import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
-import frost.gui.translation.*;
 import frost.messages.FrostIndex;
 import frost.threads.*;
 import frost.util.gui.JSkinnablePopupMenu;

@@ -17,7 +17,6 @@ import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
 import frost.gui.TofTree;
 import frost.gui.objects.FrostBoardObject;
-import frost.gui.translation.*;
 import frost.identities.*;
 import frost.threads.maintenance.Truster;
 import frost.util.gui.JSkinnablePopupMenu;

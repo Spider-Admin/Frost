@@ -13,7 +13,6 @@ import javax.swing.*;
 import javax.swing.table.*;
 
 import frost.gui.objects.FrostBoardObject;
-import frost.gui.translation.*;
 import frost.util.gui.BooleanCell;
 import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
