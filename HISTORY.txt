@@ -7,10 +7,12 @@ Added:  now the user can choose which columns the search, download and upload ta
 		selection is made via a contextual menu that pops up when right clicking on the table header.
 Added:  French translation vastly updated (thanks to RapHHfr).
 Added:  Message upload failed dialog internationalized.
-Added:  Option added to the preferences to disable the message upload failed dialog. If disabled, Frost will
-		retry to send it without asking the user.
+Added:  Option added to the preferences to disable the message upload failed dialog. If disabled, Frost 
+		will retry to send it without asking the user.
 
 Changed: splash screen logo replaced by a new one (thanks to Frédéric Scheer).
+Changed: when you are sending an anonymous message, the @ character is no longer allowed as part of the 
+		 from field.
 
 Bugfix: when the text in the "Name" column of the uploads table is written in bold and it doesn't fit
 		in the cell it isn't cropped correctly. Fixed now (it no longer uses HTML internally to display 
