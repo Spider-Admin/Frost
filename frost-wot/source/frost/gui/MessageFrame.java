@@ -354,7 +354,7 @@ public class MessageFrame extends JFrame
                                               null);
 
         frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
-        frostSettings.writeSettingsFile();
+        frostSettings.save();
         
         state = true; // exit state
         
