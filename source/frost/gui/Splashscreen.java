@@ -19,6 +19,7 @@
 package frost.gui;
 
 import java.awt.*;
+import java.io.File;
 import java.util.logging.Logger;
 
 import javax.swing.*;
@@ -88,6 +89,20 @@ public class Splashscreen extends JDialog {
 	/**Set the text for the progressBar*/
 	public void setText(String text) {
 		progressBar.setString(text);
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setVisible(boolean)
+	 */
+	public void setVisible(boolean b) {
+		if (b) {
+			File splashchk = new File("nosplash.chk");
+			if (!splashchk.exists()) {
+				super.setVisible(b);
+			}
+		} else {
+			super.setVisible(b);
+		}
 	}
 
 }
