@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package frost.installer;
+package frost.installer; 
 
 import java.awt.*;
 import java.awt.event.*;
@@ -14,11 +14,11 @@ import javax.swing.*;
 import javax.swing.border.TitledBorder;
 import javax.swing.event.*;
 
-
 /**
  * 
  */
 public class LocationPanel extends JPanel {
+	
 	private InstallerApplet applet;
 	private JFileChooser fileChooser = null;
 	private javax.swing.JPanel topPanel = null;
@@ -32,6 +32,7 @@ public class LocationPanel extends JPanel {
 	private javax.swing.JPanel folderPanel = null;
 	private javax.swing.JButton browseButton = null;
 	private javax.swing.JTextField pathTextField = null;
+	
 	/**
 	 * 
 	 */
@@ -39,6 +40,7 @@ public class LocationPanel extends JPanel {
 		super();
 		this.applet = applet;
 	}
+	
 	/**
 	 * This method initializes this
 	 * 
@@ -66,6 +68,7 @@ public class LocationPanel extends JPanel {
         this.setPreferredSize(new java.awt.Dimension(500,340));
 		this.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.gray,1));	
 	}
+	
 	/**
 	 * This method initializes topPanel
 	 * 
@@ -94,6 +97,7 @@ public class LocationPanel extends JPanel {
 		}
 		return topPanel;
 	}
+	
 	/**
 	 * This method initializes bottomPanel
 	 * 
@@ -144,6 +148,7 @@ public class LocationPanel extends JPanel {
 		}
 		return bottomPanel;
 	}
+	
 	/**
 	 * This method initializes jLabel
 	 * 
@@ -156,6 +161,7 @@ public class LocationPanel extends JPanel {
 		}
 		return jLabel;
 	}
+	
 	/**
 	 * This method initializes jLabel1
 	 * 
@@ -169,6 +175,7 @@ public class LocationPanel extends JPanel {
 		}
 		return jLabel1;
 	}
+	
 	/**
 	 * This method initializes jLabel2
 	 * 
@@ -182,6 +189,7 @@ public class LocationPanel extends JPanel {
 		}
 		return jLabel2;
 	}
+	
 	/**
 	 * This method initializes backButton
 	 * 
@@ -200,6 +208,7 @@ public class LocationPanel extends JPanel {
 		}
 		return backButton;
 	}
+	
 	/**
 	 * This method initializes installButton
 	 * 
@@ -218,6 +227,7 @@ public class LocationPanel extends JPanel {
 		}
 		return installButton;
 	}
+	
 	/**
 	 * This method initializes jTextArea
 	 * 
@@ -235,6 +245,7 @@ public class LocationPanel extends JPanel {
 		}
 		return jTextArea;
 	}
+	
 	/**
 	 * This method initializes folderPanel
 	 * 
@@ -262,6 +273,7 @@ public class LocationPanel extends JPanel {
 		}
 		return folderPanel;
 	}
+	
 	/**
 	 * This method initializes browseButton
 	 * 
@@ -280,6 +292,7 @@ public class LocationPanel extends JPanel {
 		}
 		return browseButton;
 	}
+	
 	/**
 	 * This method initializes jTextField
 	 * 
@@ -303,7 +316,6 @@ public class LocationPanel extends JPanel {
 		return pathTextField;
 	}
 	
-
 	/**
 	 * 
 	 */
@@ -316,10 +328,11 @@ public class LocationPanel extends JPanel {
 			getInstallButton().setEnabled(false);	
 		}					 	
 	}
+	
 	/**
 	 * @return
 	 */
-	private String getPath() {
+	String getPath() {
 		return getPathTextField().getText();
 	}
 
