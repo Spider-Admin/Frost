@@ -387,8 +387,12 @@ public class Index
         
         if (owner == null)
             owner = "Anonymous";
-        
-        FrostIndex idx = FileAccess.readKeyFile(target); 
+        FrostIndex idx = null;
+        if (target.exists())
+        	idx = FileAccess.readKeyFile(target);
+        else
+        	idx = new FrostIndex(new HashMap());
+         
         
 
         //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
