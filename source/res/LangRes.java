@@ -171,6 +171,10 @@ public class LangRes extends ListResourceBundle {
     {"Document Extension:", "Document Extension:"},
     {"Executable Extension:", "Executable Extension:"},
     {"Use editor for writing messages: ", "Use editor for writing messages: "},
+    
+    //Preferences. Display panel		//TODO: Add these entries to the other languages
+    {"EnableSkins", "Enable Skins"}, 	
+	{"MessageBodyFont", "Message Body Font"}, 
 
     // Preferences / Tabbed Pane
     {"Downloads", "Downloads"},
@@ -178,6 +182,7 @@ public class LangRes extends ListResourceBundle {
     {"Miscellaneous", "Miscellaneous"},
     {"Skins", "Skins"},
     {"News", "News"},
+	{"Display", "Display"},		//TODO: Add this entry to the other languages
 
     // Search table
     {"Filename", "Filename"},
@@ -264,6 +269,11 @@ public class LangRes extends ListResourceBundle {
     // New node dialog window
     {"New Node Name","New board name"},
     {"New Folder","New Folder"},
+
+	//Skin chooser				//TODO: Add these entries to the other languages
+	{"AvailableSkins", "Available Skins"},
+	{"Preview", "Preview"},
+	{"RefreshList", "Refresh List"},
 
     // Other
     {"Frost by Jantho", "Frost by Jantho"},
