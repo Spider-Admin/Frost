@@ -199,6 +199,8 @@ Build log  : ${logfilename}</echo>
         <include name="**"/>
       </fileset>
     </jar>
+    
+    <delete quiet="true" file="${dist.dir}/frost.manifest"/>
 
     <delete quiet="true" file="${dist.dir}/lib/fecImpl.jar"/>
     <mkdir dir="${dist.dir}/lib"/>
@@ -245,7 +247,7 @@ Build log  : ${logfilename}</echo>
 
 	<!-- Prepares the zip -->
 
-    <copy todir="${dist.dir}" >
+    <copy todir="${dist.dir}">
       <fileset dir="${bin.dir}"/>
     </copy>
 
