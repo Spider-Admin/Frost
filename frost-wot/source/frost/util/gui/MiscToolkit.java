@@ -94,6 +94,20 @@ public class MiscToolkit {
 
 		configureButton(button, toolTipKey, rolloverIcon, language.getResourceBundle());
 	}
+	
+	/**
+	 * This method loads an image from the given resource path and scales it to
+	 * the dimensions passed as parameters.
+	 * @param imgPath resource path to load de image from.
+	 * @param width width to scale the image to.
+	 * @param height height to scale the image to.
+	 * @return an ImageIcon containing the image.
+	 */
+	private ImageIcon getScaledImage(String imgPath, int width, int height) {
+		ImageIcon icon = new ImageIcon(getClass().getResource(imgPath));
+		icon = new ImageIcon(icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
+		return icon;
+	}
 
 	/**
 	 * This method enables/disables the subcomponents of a container.
