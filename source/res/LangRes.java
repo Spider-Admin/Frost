@@ -354,6 +354,7 @@ public class LangRes extends ListResourceBundle {
 
 	// Uploads Panel
 	{"Disable uploads", "Disable uploads"},
+	{"Restart failed uploads", "Restart failed uploads"},
 	{"Automatic Indexing", "Automatic Indexing"},
 	{"Share Downloads","Share Downloads"},
 	{"Sign shared files", "Sign shared files"},

@@ -201,6 +201,7 @@ static final Object[][] contents = {
 {"Reply","Contesta"},
 {"Request file after this count of retries","Solicita el fichero tras este número de reintentos"},
 {"Restart failed downloads","Reintenta descargas fallidas"},
+{"Restart failed uploads","Reintenta subidas fallidas"},
 {"Restart selected downloads","Reanuda descargas seleccionadas"},
 {"Restore default filenames for all files","Restaura nombres por defecto para todos los ficheros"},
 {"Restore default filenames for selected files","Restaura nombres por defecto para los ficheros seleccionados"},
