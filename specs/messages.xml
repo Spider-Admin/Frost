@@ -31,7 +31,13 @@
             <name>hello.jpg</name>
             <publicKey>12345665</publicKey>
           </attachment>
+          <encryptedFor>
+             <name>...</name>
+             <publicKey>...</publicKey>
+          </encryptedFor>
           <body><![CDATA[   some text ...]]></body>
+
+          <signature>...</signature>  <!-- the signature for the message -->
 
           <replies>   <== all replies to root message
             <message id = "id of the second message">
