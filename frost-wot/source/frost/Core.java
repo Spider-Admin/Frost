@@ -43,17 +43,18 @@ public class Core {
 	private static final Set nodes = new HashSet(); //list of available nodes
 	private static Set messageSet = new HashSet(); // set of message digests
 	private static final SortedSet knownBoards = new TreeSet(); //list of known boards
+	private static NotifyByEmailThread emailNotifier = null;
 	private static Core self = null;
 	private ResourceBundle languageResource = null;
-    
+
 	public Core(ResourceBundle newLanguageResource) {
 		languageResource = newLanguageResource;
 		out = System.out; //when we want to redirect to file just change this.
-		
+
 		frostSettings = frame1.frostSettings;
 		//parse the list of available nodes
 		String nodesUnparsed = frostSettings.getValue("availableNodes");
-		
+
 		if (nodesUnparsed == null) { //old format
 			String converted = new String(frostSettings.getValue("nodeAddress")+":"+
 							frostSettings.getValue("nodePort"));
@@ -62,22 +63,22 @@ public class Core {
 		} else { // new format
 			String []_nodes = nodesUnparsed.split(",");
 			for (int i=0;i<_nodes.length;i++)
-				nodes.add(_nodes[i]);	
+				nodes.add(_nodes[i]);
 		}
-		
+
 		if (nodes.size() == 0) {
 			getOut().println("not a single Freenet node configured!  You need at least one");
 			System.exit(1);
 		}
-		
+
 		getOut().println("Frost will use "+nodes.size() +" Freenet nodes");
-		
-		
+
+
 		//		check whether the user is running a transient node
 		setFreenetIsTransient(false);
 		setFreenetIsOnline(false);
 		try {
-			
+
 			FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
 			if (con1 != null) {
 				String[] nodeInfo = con1.getInfo();
@@ -772,6 +773,9 @@ public class Core {
 			resendFailedMessages();
 		}
 
+		//TODO: check if email notification is on and instantiate the emailNotifier
+		//of course it needs to be added as a setting first ;-p
+		
 		Thread requestsThread =
 			new GetRequestsThread(
 				frostSettings.getIntValue("tofDownloadHtl"),
@@ -936,15 +940,15 @@ public class Core {
                       }
                 }     
             }
-            if( addMe ) 
+            if( addMe )
             {
                 getKnownBoards().add(newba);
             }
         }
     }
-	
+
 	/**
-	 * 
+	 *
 	 * @return pointer to the live core
 	 */
 	public static Core getInstance(){
@@ -963,6 +967,13 @@ public class Core {
 	 */
 	public static Set getMessageSet() {
 		return messageSet;
+	}
+
+	/**
+	 * @return the thread that will notify the user for email
+	 */
+	public static Observer getEmailNotifier(){
+		return emailNotifier;
 	}
 
 }

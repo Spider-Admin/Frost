@@ -2,7 +2,9 @@ package frost.gui.objects;
 
 import frost.gui.model.TableMember;
 
-public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
+import java.util.Observable;
+
+public class FrostDownloadItemObject extends Observable implements FrostDownloadItem, TableMember
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
@@ -15,7 +17,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public final static int STATE_PROGRESS   = 6; // download runs
     public final static int STATE_REQUESTED  = 7;
     public final static int STATE_DECODING   = 8; // decoding runs
-    
+
     // the strings that are shown in table for the states
     private final static String STATE_WAITING_STR    = LangRes.getString("Waiting");
     private final static String STATE_TRYING_STR     = LangRes.getString("Trying");
@@ -35,9 +37,9 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private String owner = null;
     private String SHA1 = null;
     private String batch = null;
-    
+
     private String redirect;
-    
+
 
     private int state = 0;
 
@@ -60,9 +62,9 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         retries = new Integer(0);
 
         state = STATE_WAITING;
-        
+
         redirect = searchItem.getRedirect();
-        
+
     }
 
     //TODO: add .redirect to this or fix it to use SharedFileObject
@@ -198,6 +200,18 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         return c1.compareTo( c2 );
     }
 
+    public void setNotifyable(boolean what) {
+    	if (what) {
+		assert Core.getEmailNotifier() != null :
+		"FrostDownloadItemObject.setNotifyable was called with true without the emailNotifier " +
+		"being instantiated.";
+
+		addObserver(Core.getEmailNotifier());
+	}
+	else
+		deleteObservers();
+    }
+
     public String getFileName()
     {
         return fileName;
@@ -237,6 +251,13 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public void setState(int v)
     {
         state = v;
+	if (state == STATE_DONE) {
+		setChanged();
+		//deliver the notification in the same thread.
+		//I don't see any locking issues
+		notifyObservers();
+		deleteObservers(); //only once! 
+	}
     }
 
     public long getLastDownloadStopTimeMillis()
@@ -279,19 +300,19 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         enableDownload = val;
     }
-    
+
     public String getOwner() {
     	return owner;
     }
-    
+
     public void setOwner(String owner) {
     	this.owner = owner;
     }
-    
+
     public String getSHA1() {
     	return SHA1;
     }
-    
+
     public void setSHA1(String sha1) {
     	SHA1 = sha1;
     }
