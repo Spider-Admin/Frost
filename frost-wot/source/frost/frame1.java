@@ -2372,10 +2372,11 @@ public class frame1 extends JFrame implements ClipboardOwner
                 {
                     fileName = key.substring(4);
                 }
-
+// FIXME: zab, why did you comment this out, its needed, because otherwise you
+//  use a wrong CHK key for download! i pasted a CHK@afcdf432dk/mytargetfilename.data
                 // remove filename from key for CHK
-/*                if( keyType == 1 ) // CHK?
-                    key = key.substring(0, key.indexOf("/") );*/
+                if( keyType == 1 ) // CHK?
+                    key = key.substring(0, key.indexOf("/") );
 
                 // add valid key to download table
                 FrostDownloadItemObject dlItem = new FrostDownloadItemObject( fileName, //users weren't happy with '_'

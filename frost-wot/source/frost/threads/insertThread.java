@@ -76,8 +76,7 @@ public class insertThread extends Thread
                         "CHK@",
                         file,
                         htl,
-                        true,
-                        board.getBoardFilename(),
+                        true, // doRedirect
                         uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
                 if( result[0].equals("Success") ||
