@@ -2347,13 +2347,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		return downloadModel;
 	}
 	/**
-	 * Getter for the language resource bundle
-	 */
-	public ResourceBundle getLanguageResource() {
-		return languageResource.getResourceBundle();
-	}
-
-	/**
 	 * 
 	 */
 	private MessagePanel getMessagePanel() {
