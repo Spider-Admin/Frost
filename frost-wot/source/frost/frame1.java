@@ -49,6 +49,9 @@ import frost.identities.*;
 //             - each identity have 3 states: GOOD, BAD, NEUTRAL
 //             - filter out enemies on read of messages
 
+// after removing a board, let actual board selected (currently if you delete another than selected board
+//   the tofTree is updates)
+
 public class frame1 extends JFrame implements ClipboardOwner
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");

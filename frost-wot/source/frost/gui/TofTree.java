@@ -95,16 +95,12 @@ implements DragGestureListener, DragSourceListener
     {
         //we should make sure we aren't in edit mode
         InputEvent ievent=e.getTriggerEvent();
-        MouseEvent mevent=(MouseEvent)ievent;
-        if( mevent!=null )
+        if( ievent instanceof MouseEvent )
         {
-            System.out.println("checking mouse event");
-            //even though I tell dgRecognizer to ignore the
-            //the right mouse button, it thinks the RMB starts
-            //a drag event...argh
-            if( (mevent.getModifiers() & InputEvent.BUTTON3_MASK) != 0 )
+            //even though I tell dgRecognizer to ignore the the right mouse button,
+            // it thinks the RMB starts a drag event...argh
+            if( (((MouseEvent)ievent).getModifiers() & InputEvent.BUTTON3_MASK) != 0 )
             {
-                //System.out.println("button3 in drag!");
                 return;
             }
         }
@@ -692,24 +688,24 @@ implements DragGestureListener, DragSourceListener
         {
             _path = path;
         }
-        
+
         // Transferable interface methods...
         public DataFlavor[] getTransferDataFlavors()
         {
             return _flavors;
         }
-        
+
         public boolean isDataFlavorSupported(DataFlavor flavor)
         {
             return java.util.Arrays.asList(_flavors).contains(flavor);
         }
-        
+
         public synchronized Object getTransferData(DataFlavor flavor) throws UnsupportedFlavorException
         {
             if (flavor.isMimeTypeEqual(TREEPATH_FLAVOR.getMimeType()))
                 return _path;
             else
-                throw new UnsupportedFlavorException(flavor);   
+                throw new UnsupportedFlavorException(flavor);
         }
     }
 
