@@ -77,7 +77,7 @@ public class frost
 		String skinsEnabled = frostSettings.getValue("skinsEnabled");
 		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
 			String selectedSkinPath = frostSettings.getValue("selectedSkin");
-			if ((selectedSkinPath != null) && (!selectedSkinPath.equals(""))) {
+			if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
 				try {
 					Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
 					SkinLookAndFeel.setSkin(selectedSkin);
