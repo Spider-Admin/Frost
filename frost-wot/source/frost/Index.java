@@ -175,7 +175,8 @@ public class Index
                   KeyClass current = (KeyClass)j.next();
 		  
 		  //make an update only if the user has inserted at least one file
-                  if(frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0)                 
+                  if(current.getOwner()!= null &&
+		  	frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0)                 
                         keyCount++;
 			
                   keyFile.append("<File>\n");
