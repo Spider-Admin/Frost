@@ -111,7 +111,7 @@ public class Startup
             if( ((File)entries.elementAt(i)).getName().startsWith("unsent") )
             {
                 // Resend message
-                MessageObject mo = new MessageObject((File)entries.elementAt(i));
+                VerifyableMessageObject mo = new VerifyableMessageObject((File)entries.elementAt(i));
                 if( mo.isValid() )
                 {
                     String[] par = new String[9];
