@@ -12,6 +12,8 @@ import java.util.logging.Logger;
 
 import javax.swing.*;
 
+import frost.util.gui.translation.UpdatingLanguageResource;
+
 /**
  * @author Administrator
  *
@@ -38,12 +40,25 @@ public class MiscToolkit {
 	}
 
 	/**
+	 * Configures a button to be a default icon button, setting its rollover icon 
+	 * and some other default properties.
+	 * @param button the button to configure
+	 * @param rolloverIcon displayed icon when mouse arrow is over button
+	 */
+	public void configureButton(JButton button, String rolloverIcon) {
+		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
+		button.setMargin(new Insets(0, 0, 0, 0));
+		button.setBorderPainted(false);
+		button.setFocusPainted(false);
+	}
+
+	/**
 	 * Configures a button, setting its tooltip text, rollover icon and some other
 	 * default properties.
 	 * @param button the button to configure
 	 * @param toolTipKey language resource key to extract its tooltip text with
 	 * @param rolloverIcon displayed icon when mouse arrow is over button
-	 * @param languageResource language resource key to extract its tooltip text from
+	 * @param languageResource language resource to extract the tooltip text from
 	 */
 	public void configureButton(
 		JButton button,
@@ -60,10 +75,24 @@ public class MiscToolkit {
 		}
 		button.setToolTipText(text);
 
-		button.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
-		button.setMargin(new Insets(0, 0, 0, 0));
-		button.setBorderPainted(false);
-		button.setFocusPainted(false);
+		configureButton(button, rolloverIcon);
+	}
+	
+	/**
+	 * Configures a button, setting its tooltip text, rollover icon and some other
+	 * default properties.
+	 * @param button the button to configure
+	 * @param toolTipKey language resource key to extract its tooltip text with
+	 * @param rolloverIcon displayed icon when mouse arrow is over button
+	 * @param languageResource language resource to extract the tooltip text from
+	 */
+	public void configureButton(
+		JButton button,
+		String toolTipKey,
+		String rolloverIcon,
+		UpdatingLanguageResource languageResource) {
+
+		configureButton(button, toolTipKey, rolloverIcon, languageResource.getResourceBundle());
 	}
 
 	/**
