@@ -11,7 +11,8 @@ import frost.FcpTools.*;
  */
 public class Identity implements Serializable
 {
-    private final String name;
+    private String name;
+    private String uniqueName;
     protected String key, keyaddress;
     protected transient FcpConnection con;
     public static final String NA = "NA";
@@ -22,9 +23,9 @@ public class Identity implements Serializable
      */
     public Identity(String name, String keyaddress, String key)
     {
-        this.name = name;
         this.keyaddress = keyaddress;
         this.key = key;
+        setName(name);
     }
 
     /**
@@ -33,7 +34,6 @@ public class Identity implements Serializable
      */
     public Identity(String name, String keyaddress) throws IllegalArgumentException
     {
-        this.name=name;
         this.keyaddress = keyaddress;
 
         con = FcpFactory.getFcpConnectionInstance();
@@ -79,6 +79,17 @@ public class Identity implements Serializable
         }
         File tfile = new File(targetFile);
         tfile.delete();
+
+        setName(name); // must be called after key is got!
+    }
+
+    private void setName(String nam)
+    {
+        this.name = nam;
+        if( getKey().equals( NA ) )
+            this.uniqueName = nam;
+        else
+            this.uniqueName = nam + "@" + frame1.getCrypto().digest( getKey() );
     }
 
     //obvious stuff
@@ -97,5 +108,11 @@ public class Identity implements Serializable
     public String getStrippedName()
     {
         return new String(name.substring(0,name.indexOf("@")));
+    }
+
+
+    public String getUniqueName()
+    {
+        return uniqueName;
     }
 }

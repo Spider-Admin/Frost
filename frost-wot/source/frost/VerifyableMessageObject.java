@@ -202,7 +202,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 currentMsg.setStatus(VerifyableMessageObject.OLD);
             }
             // check if this msg is sent by me
-            else if( frame1.getMyId().getKey().equals(currentMsg.getFrom()) )
+            else if( frame1.getMyId().getUniqueName().equals(currentMsg.getFrom()) )
             {
                 if( frame1.getCrypto().verify(currentMsg.getContent(), frame1.getMyId().getKey()) )
                 {

@@ -863,11 +863,12 @@ Document
         {
             int tries = 0;
             int maxtries = 3;
-            while( tries < maxtries )
+            while( tries < maxtries || results != null )
             {
                 try
                 {
                     results = connection.getKeyToFile(key, target.getPath(), htl);
+                    break;
                 }
                 catch( java.net.ConnectException e )
                 {

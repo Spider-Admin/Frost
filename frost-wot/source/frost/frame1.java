@@ -1118,7 +1118,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     keys[0] = fin.readLine();
                     mySelf = new LocalIdentity(name, keys, address);
                     System.out.println("loaded myself with name " + mySelf.getName());
-                    System.out.println("and public key" + mySelf.getKey());
+                    //System.out.println("and public key" + mySelf.getKey());
 
                     //take out the ****
                     fin.readLine();
@@ -1166,6 +1166,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         catch( IOException e ) {
             System.out.println("couldn't create identities file");
         }
+        System.out.println("ME = '"+getMyId().getUniqueName()+"'");
+
     }
 
     /**
