@@ -506,6 +506,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
+			//Settings
+			setDownloadingActivated(settingsClass.getBoolValue(SettingsClass.DOWNLOADING_ACTIVATED));
+
 			initialized = true;
 		}
 	}
@@ -792,7 +795,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * @see frost.SettingsUpdater#updateSettings()
 	 */
 	public void updateSettings() {
-		settingsClass.setValue("downloadingActivated", isDownloadingActivated());		
+		settingsClass.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
 
 }
