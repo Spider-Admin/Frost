@@ -163,8 +163,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem searchPopupCancel = null;
 
     JPopupMenu uploadPopupMenu = null;
-    JMenuItem uploadPopupMoveSelectedFilesUp = null;
-    JMenuItem uploadPopupMoveSelectedFilesDown = null;
+//    JMenuItem uploadPopupMoveSelectedFilesUp = null;
+//    JMenuItem uploadPopupMoveSelectedFilesDown = null;
     JMenuItem uploadPopupRemoveSelectedFiles = null;
     JMenuItem uploadPopupRemoveAllFiles = null;
     JMenuItem uploadPopupReloadSelectedFiles = null;
@@ -181,8 +181,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem downloadPopupRemoveSelectedDownloads = null;
     JMenuItem downloadPopupRemoveAllDownloads = null;
     JMenuItem downloadPopupResetHtlValues = null;
-    JMenuItem downloadPopupMoveUp = null;
-    JMenuItem downloadPopupMoveDown = null;
+//    JMenuItem downloadPopupMoveUp = null;
+//    JMenuItem downloadPopupMoveDown = null;
     JMenuItem downloadPopupCancel = null;
 
     JPopupMenu tofTextPopupMenu = null;
@@ -723,9 +723,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             } });
         searchDownloadButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"),
-                                                    frame1.getInstance().getSearchTable(),
-                                                    frame1.getInstance().getDownloadTable());
+                addSelectedSearchItemsToDownloadTable();
             } });
         searchButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -785,7 +783,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void keyTyped(KeyEvent e) {}
             public void keyPressed(KeyEvent e) {
                 if (e.getKeyChar() == KeyEvent.VK_DELETE && !uploadTable.isEditing())
-                    TableFun.removeSelectedRows(uploadTable);
+                    getUploadTable().removeSelectedRows();
             }
             public void keyReleased(KeyEvent e) {}
         });
@@ -1028,11 +1026,11 @@ public class frame1 extends JFrame implements ClipboardOwner
     if (frostSettings.getFloatValue("tofFontSize") < 6.0f)
         frostSettings.setValue("tofFontSize",  6.0f);
 
-    tofTextArea.setFont(tofTextArea.getFont ().deriveFont (frostSettings.getFloatValue("tofFontSize")));
+    tofTextArea.setFont( tofTextArea.getFont().deriveFont(frostSettings.getFloatValue("tofFontSize")) );
 
     // Load table settings
-    DownloadTableFun.load(getDownloadTable());
-    UploadTableFun.load(getUploadTable());
+    getDownloadTable().load();
+    getUploadTable().load();
 
     // Start tofTree
     resendFailedMessages();
@@ -1068,16 +1066,16 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener
         searchPopupDownloadSelectedKeys.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
+                addSelectedSearchItemsToDownloadTable();
             } });
         searchPopupDownloadAllKeys.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 searchTable.selectAll();
-                SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, downloadTable);
+                addSelectedSearchItemsToDownloadTable();
             } });
         searchPopupCopyAttachment.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                String srcData=SearchTableFun.getSelectedAttachmentsString(searchTable);
+                String srcData = getSelectedSearchItemsAsAttachmentsString();
                 Clipboard clipboard = getToolkit().getSystemClipboard();
                 StringSelection contents = new StringSelection(srcData);
                 clipboard.setContents(contents, frame1.this);
@@ -1100,8 +1098,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
 // create objects
         uploadPopupMenu = new JPopupMenu();
-        uploadPopupMoveSelectedFilesUp = new JMenuItem(LangRes.getString("Move selected files up"));
-        uploadPopupMoveSelectedFilesDown = new JMenuItem(LangRes.getString("Move selected files down"));
+//        uploadPopupMoveSelectedFilesUp = new JMenuItem(LangRes.getString("Move selected files up"));
+//        uploadPopupMoveSelectedFilesDown = new JMenuItem(LangRes.getString("Move selected files down"));
         uploadPopupRemoveSelectedFiles = new JMenuItem(LangRes.getString("Remove selected files"));
         uploadPopupRemoveAllFiles = new JMenuItem(LangRes.getString("Remove all files"));
         uploadPopupReloadSelectedFiles = new JMenuItem(LangRes.getString("Reload selected files"));
@@ -1115,7 +1113,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
 // add action listener
         // Upload / Move selected files up
-        uploadPopupMoveSelectedFilesUp.addActionListener(new ActionListener()  {
+/*        uploadPopupMoveSelectedFilesUp.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 TableFun.moveSelectedEntriesUp(getUploadTable());
             } });
@@ -1124,28 +1122,33 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 TableFun.moveSelectedEntriesDown(getUploadTable());
             } });
+*/
         // Upload / Remove selected files
         uploadPopupRemoveSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.removeSelectedRows(getUploadTable());
+                getUploadTable().removeSelectedRows();
             } });
         // Upload / Remove all files
         uploadPopupRemoveAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.removeAllRows(getUploadTable());
+                UploadTableModel model = (UploadTableModel)getUploadTable().getModel();
+                model.clearDataModel();
             } });
         // Upload / Reload selected files
         uploadPopupReloadSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                DefaultTableModel tableModel = (DefaultTableModel)getUploadTable().getModel();
+                UploadTableModel tableModel = (UploadTableModel)getUploadTable().getModel();
                 synchronized (getUploadTable()) { try {
                 int[] selectedRows = getUploadTable().getSelectedRows();
                 for (int i = 0; i < selectedRows.length; i++){
-                    String state = (String)tableModel.getValueAt(selectedRows[i], 2);
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRows[i] );
                     // Since it is difficult to identify the states where we are allowed to
                     // start an upload we decide based on the states in which we are not allowed
-                    if (!state.equals(LangRes.getString("Uploading")) && (state.indexOf("Kb") == -1)){
-                    tableModel.setValueAt(LangRes.getString("Requested"), selectedRows[i], 2);
+                    if( !ulItem.getState().equals(LangRes.getString("Uploading")) &&
+                        ulItem.getState().indexOf("Kb") == -1 )
+                    {
+                        ulItem.setState(LangRes.getString("Requested"));
+                        tableModel.updateRow(ulItem);
                     }
                 }
                 }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
@@ -1154,48 +1157,50 @@ public class frame1 extends JFrame implements ClipboardOwner
         // Upload / Reload all files
         uploadPopupReloadAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                // Needs to be fixed for proper synchronization and locked against restart
-                synchronized(getUploadTable()) {
-                try{
-                getUploadTable().selectAll();
-                TableFun.setSelectedRowsColumnValue(getUploadTable(), 2, LangRes.getString("Requested"));
+                UploadTableModel tableModel = (UploadTableModel)getUploadTable().getModel();
+                synchronized (getUploadTable()) { try {
+                for (int i = 0; i < tableModel.getRowCount(); i++){
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( i );
+                    ulItem.setState(LangRes.getString("Requested"));
+                    tableModel.updateRow(ulItem);
+                }
                 }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
                 }
             } });
         // Upload / Set Prefix for selected files
         uploadPopupSetPrefixForSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                UploadTableFun.setPrefixForSelectedFiles(getUploadTable());
+                getUploadTable().setPrefixForSelectedFiles();
             } });
         // Upload / Set Prefix for all files
         uploadPopupSetPrefixForAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 getUploadTable().selectAll();
-                UploadTableFun.setPrefixForSelectedFiles(getUploadTable());
+                getUploadTable().setPrefixForSelectedFiles();
             } });
         // Upload / Restore default filenames for selected files
         uploadPopupRestoreDefaultFilenamesForSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                UploadTableFun.restoreDefaultFilenames(getUploadTable());
+                getUploadTable().restoreOriginalFilenamesForSelectedRows();
             } });
         // Upload / Restore default filenames for all files
         uploadPopupRestoreDefaultFilenamesForAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 getUploadTable().selectAll();
-                UploadTableFun.restoreDefaultFilenames(getUploadTable());
+                getUploadTable().restoreOriginalFilenamesForSelectedRows();
             } });
         // Upload / Restore default filenames for all files
         uploadPopupAddFilesToBoard.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                UploadTableFun.addFilesToBoard(getUploadTable());
+                getUploadTable().addFilesToBoardIndex();
             } });
 // construct menu
         uploadPopupMenu.add(uploadPopupRemoveSelectedFiles);
         uploadPopupMenu.add(uploadPopupRemoveAllFiles);
         uploadPopupMenu.addSeparator();
-        uploadPopupMenu.add(uploadPopupMoveSelectedFilesUp);
-        uploadPopupMenu.add(uploadPopupMoveSelectedFilesDown);
-        uploadPopupMenu.addSeparator();
+//        uploadPopupMenu.add(uploadPopupMoveSelectedFilesUp);
+//        uploadPopupMenu.add(uploadPopupMoveSelectedFilesDown);
+//        uploadPopupMenu.addSeparator();
         uploadPopupMenu.add(uploadPopupReloadSelectedFiles);
         uploadPopupMenu.add(uploadPopupReloadAllFiles);
         uploadPopupMenu.addSeparator();
@@ -1223,22 +1228,25 @@ public class frame1 extends JFrame implements ClipboardOwner
         downloadPopupRemoveSelectedDownloads = new JMenuItem(LangRes.getString("Remove selected downloads"));
         downloadPopupRemoveAllDownloads = new JMenuItem(LangRes.getString("Remove all downloads"));
         downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-        downloadPopupMoveUp = new JMenuItem(LangRes.getString("Move selected downloads up"));
-        downloadPopupMoveDown = new JMenuItem(LangRes.getString("Move selected downloads down"));
+//        downloadPopupMoveUp = new JMenuItem(LangRes.getString("Move selected downloads up"));
+//        downloadPopupMoveDown = new JMenuItem(LangRes.getString("Move selected downloads down"));
+
+        // TODO: implement cancel of downloading
         downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
 // add action listener
         downloadPopupRemoveSelectedDownloads.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                DownloadTableFun.removeSelectedChunks(getDownloadTable());
-                TableFun.removeSelectedRows(getDownloadTable());
+                getDownloadTable().removeSelectedChunks();
+                getDownloadTable().removeSelectedRows();
             } });
         downloadPopupRemoveAllDownloads.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().selectAll();
-                DownloadTableFun.removeSelectedChunks(getDownloadTable());
-                TableFun.removeAllRows(getDownloadTable());
+                getDownloadTable().removeSelectedChunks();
+                DownloadTableModel model = (DownloadTableModel)getDownloadTable().getModel();
+                model.clearDataModel();
             } });
-        downloadPopupMoveUp.addActionListener(new ActionListener()  {
+/*        downloadPopupMoveUp.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 TableFun.moveSelectedEntriesUp(getDownloadTable());
             } });
@@ -1246,10 +1254,19 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 TableFun.moveSelectedEntriesDown(getDownloadTable());
             } });
+*/
         downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                TableFun.setSelectedRowsColumnValue(getDownloadTable(), 4, frostSettings.getValue("htl"));
-                TableFun.setSelectedRowsColumnValue(getDownloadTable(), 3, LangRes.getString("Waiting"));
+                // reset HTL for all selected items in download table
+                DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
+                int[] selectedRows = getDownloadTable().getSelectedRows();
+                for( int x=0; x<dlModel.getRowCount(); x++ )
+                {
+                    FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
+                    dlItem.setHtl( frostSettings.getIntValue("htl"));
+                    dlItem.setState(LangRes.getString("Waiting"));
+                    dlModel.updateRow( dlItem );
+                }
             } });
 // construct menu
         downloadPopupMenu.add(downloadPopupRemoveSelectedDownloads);
@@ -1257,9 +1274,9 @@ public class frame1 extends JFrame implements ClipboardOwner
         downloadPopupMenu.addSeparator();
         downloadPopupMenu.add(downloadPopupResetHtlValues);
         downloadPopupMenu.addSeparator();
-        downloadPopupMenu.add(downloadPopupMoveUp);
-        downloadPopupMenu.add(downloadPopupMoveDown);
-        downloadPopupMenu.addSeparator();
+//        downloadPopupMenu.add(downloadPopupMoveUp);
+//        downloadPopupMenu.add(downloadPopupMoveDown);
+//        downloadPopupMenu.addSeparator();
         downloadPopupMenu.add(downloadPopupCancel);
 
     }
@@ -1487,38 +1504,40 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**
      * Adds either the selected or all files from the attachmentTable to downloads table.
      */
-    public void downloadAttachments() {
-    int[] selectedRows = attachmentTable.getSelectedRows();
+    public void downloadAttachments()
+    {
+        int[] selectedRows = attachmentTable.getSelectedRows();
 
-    // If no rows are selected, add all attachments to download table
-    if (selectedRows.length == 0) {
-        for (int i = 0; i < getAttachmentTable().getModel().getRowCount(); i++) {
-        String filename = (String)getAttachmentTable().getModel().getValueAt(i, 0);
-        String key = (String)getAttachmentTable().getModel().getValueAt(i, 1);
-        DownloadTableFun.insertDownload(filename,
-                        "Unknown",
-                        "Unknown",
-                        key,
-                        frostSettings.getIntValue("htl"),
-                        getDownloadTable(),
-                        getActualNode().toString()); // TODO: pass FrostBoardObject
+        // If no rows are selected, add all attachments to download table
+        if( selectedRows.length == 0 )
+        {
+            for( int i = 0; i < getAttachmentTable().getModel().getRowCount(); i++ )
+            {
+                String filename = (String)getAttachmentTable().getModel().getValueAt(i, 0);
+                String key = (String)getAttachmentTable().getModel().getValueAt(i, 1);
+                FrostDownloadItemObject dlItem = new FrostDownloadItemObject( filename,
+                                                                              key,
+                                                                              getActualNode(),
+                                                                              frostSettings.getIntValue("htl")
+                                                                            );
+                 boolean added = getDownloadTable().addDownloadItem( dlItem );
+            }
+        }
+        else
+        {
+            for( int i = 0; i < selectedRows.length; i++ )
+            {
+                String filename = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],0);
+                String key = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],1);
+                FrostDownloadItemObject dlItem = new FrostDownloadItemObject( filename,
+                                                                              key,
+                                                                              getActualNode(),
+                                                                              frostSettings.getIntValue("htl")
+                                                                            );
+                 boolean added = getDownloadTable().addDownloadItem( dlItem );
+            }
         }
     }
-    else {
-        for (int i = 0; i < selectedRows.length; i++) {
-        String filename = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],0);
-        String key = (String)getAttachmentTable().getModel().getValueAt(selectedRows[i],1);
-        DownloadTableFun.insertDownload(filename,
-                        "Unknown",
-                        "Unknown",
-                        key,
-                        frostSettings.getIntValue("htl"),
-                        getDownloadTable(),
-                        getActualNode().toString()); // TODO: pass FrostBoardObject
-        }
-    }
-    }
-
 
     /**
      * Adds all boards from the attachedBoardsTable to board list.
@@ -1859,7 +1878,8 @@ public class frame1 extends JFrame implements ClipboardOwner
             else
             {
                 // node is a folder
-                TableFun.removeAllRows( getMessageTable() );
+                DefaultTableModel model = (DefaultTableModel)getMessageTable().getModel();
+                model.setRowCount( 0 );
                 updateMessageCountLabels( node );
 
                 configBoardButton.setEnabled(false);
@@ -2063,8 +2083,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void downloadTable_keyPressed(KeyEvent e) {
     char key = e.getKeyChar();
     if (key == KeyEvent.VK_DELETE && !getDownloadTable().isEditing()) {
-        DownloadTableFun.removeSelectedChunks(getDownloadTable());
-        TableFun.removeSelectedRows(getDownloadTable());
+        getDownloadTable().removeSelectedChunks();
+        getDownloadTable().removeSelectedRows();
     }
     }
 
@@ -2271,23 +2291,36 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
 
         if( counter%180 == 0 ) // Check uploadTable every 3 minutes
-            UploadTableFun.update(getUploadTable());
+        {
+            getUploadTable().removeNotExistingFiles();
+        }
 
         if( counter%300 == 0 && frostSettings.getBoolValue("removeFinishedDownloads") )
-            DownloadTableFun.removeFinishedDownloads(getDownloadTable());
+        {
+            getDownloadTable().removeFinishedDownloads();
+        }
 
         if( updateDownloads || counter%10 == 0 )
         {
-            DownloadTableFun.update(getDownloadTable(), frostSettings.getIntValue("htlMax"), new File(keypool), new File(frostSettings.getValue("downloadDirectory")));
+            getDownloadTable().update( frostSettings );
             updateDownloads = false;
 
             // Sometimes it seems that download table entries do not get reset to "Failed"
             // I did not find the bug yet, but if there is no download thread active
             // all unfinished downloads are set to "Waiting"
             if( activeDownloadThreads == 0 && downloadActivateCheckBox.isSelected() )
-                for( int i = 0; i < getDownloadTable().getModel().getRowCount(); i++ )
-                    if( !getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Done")) )
-                        getDownloadTable().getModel().setValueAt(LangRes.getString("Waiting"), i, 3);
+            {
+                DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
+                for( int i = 0; i < dlModel.getRowCount(); i++ )
+                {
+                    FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
+                    if( dlItem.getState().equals(LangRes.getString("Done")) == false )
+                    {
+                        dlItem.setState(LangRes.getString("Waiting"));
+                        dlModel.updateRow( dlItem );
+                    }
+                }
+            }
         }
 
         //////////////////////////////////////////////////
@@ -2344,42 +2377,19 @@ public class frame1 extends JFrame implements ClipboardOwner
         //////////////////////////////////////////////////
         if( !generateCHK )
         {
-            if( getUploadTable().getModel().getRowCount() > 0 )
+            UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
+            if( ulModel.getRowCount() > 0 )
             {
-                for( int i = 0; i < getUploadTable().getModel().getRowCount(); i++ )
+                for( int i = 0; i < ulModel.getRowCount(); i++ )
                 {
-                    String file = null;
-                    String target = null;
-                    String destination = null;
-                    boolean isUnknown = false;
-                    synchronized (getUploadTable())
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
+                    if( ulItem.getKey() == null || ulItem.getKey().equals(LangRes.getString("Unknown")) )
                     {
-                        try
-                        {
-                            String state = (String)getUploadTable().getModel().getValueAt(i, 5);
-                            if( state.equals(LangRes.getString("Unknown")) )
-                            {
-                                file = (String)getUploadTable().getModel().getValueAt(i, 3);
-                                target = (String)getUploadTable().getModel().getValueAt(i, 4);
-                                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
-                                getUploadTable().getModel().setValueAt("Working...", i, 5);
-                                isUnknown = true;
-                            }
-                        }
-                        catch( Exception e )
-                        {
-                            System.out.println("generating chk NOT GOOD " +e.toString());
-                        }
-                    }
-                    if( isUnknown )
-                    {
-                        insertThread newInsert = new insertThread(destination,
-                                                                  new File(file),
-                                                                  frostSettings.getValue("htlUpload"),
-                                                                  target,
-                                                                  false);
+                        ulItem.setKey( "Working..." );
+                        ulModel.updateRow( ulItem );
+                        insertThread newInsert = new insertThread(ulItem, frostSettings, false);
                         newInsert.start();
-                        break;
+                        break; // start generate for 1 item per loop
                     }
                 }
             }
@@ -2395,41 +2405,19 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         if( activeUthreads < frostSettings.getIntValue("uploadThreads") )
         {
-            if( getUploadTable().getModel().getRowCount() > 0 )
+            UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
+            if( ulModel.getRowCount() > 0 )
             {
-                for( int i = 0; i < getUploadTable().getModel().getRowCount(); i++ )
+                for( int i = 0; i < ulModel.getRowCount(); i++ )
                 {
-                    String file = null;
-                    String target = null;
-                    String destination = null;
-                    boolean isRequested = false;
-                    synchronized (getUploadTable())
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
+                    if( ulItem.getState().equals(LangRes.getString("Requested")) &&
+                        ulItem.getKey().startsWith("CHK@")
+                      )
                     {
-                        try
-                        {
-                            String state = (String)getUploadTable().getModel().getValueAt(i, 2);
-                            String key = (String)getUploadTable().getModel().getValueAt(i, 5);
-                            if( state.equals(LangRes.getString("Requested")) && key.startsWith("CHK@") )
-                            {
-                                file = (String)getUploadTable().getModel().getValueAt(i, 3);
-                                target = (String)getUploadTable().getModel().getValueAt(i, 4);
-                                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
-                                getUploadTable().getModel().setValueAt(LangRes.getString("Uploading"), i, 2);
-                                isRequested = true;
-                            }
-                        }
-                        catch( Exception e )
-                        {
-                            System.out.println("uploading NOT GOOD " +e.toString());
-                        }
-                    }
-                    if( isRequested )
-                    {
-                        insertThread newInsert = new insertThread(destination,
-                                                                  new File(file),
-                                                                  frostSettings.getValue("htlUpload"),
-                                                                  target,
-                                                                  true);
+                        ulItem.setState( LangRes.getString("Uploading") );
+                        ulModel.updateRow( ulItem );
+                        insertThread newInsert = new insertThread(ulItem, frostSettings, true);
                         newInsert.start();
                         break;
                     }
@@ -2446,37 +2434,18 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         if( activeDthreads < frostSettings.getIntValue("downloadThreads") && downloadActivateCheckBox.isSelected() )
         {
-            for( int i = 0; i < getDownloadTable().getModel().getRowCount(); i++ )
+            DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
+            for( int i = 0; i < dlModel.getRowCount(); i++ )
             {
-                if( getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Waiting")) )
+                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
+                if( dlItem.getState().equals(LangRes.getString("Waiting")) )
                 {
-                    String filename = null;
-                    String size = null;
-                    String htl = null;
-                    String source = null;
-                    String key = null;
-                    boolean isWaiting = false;
-                    synchronized (getDownloadTable()) {
-                        try {
-                            filename = (String)getDownloadTable().getModel().getValueAt(i,0);
-                            size = (String)getDownloadTable().getModel().getValueAt(i,1);
-                            htl = (String)getDownloadTable().getModel().getValueAt(i,4);
-                            key = (String)getDownloadTable().getModel().getValueAt(i,6);
-                            source = (String)getDownloadTable().getModel().getValueAt(i,5);
-                            getDownloadTable().getModel().setValueAt(LangRes.getString("Trying"), i, 3);
-                            isWaiting = true;
-                        }
-                        catch( Exception e ) {
-                            System.out.println("download NOT GOOD " +e.toString());
-                        }
-                    }
-                    if( isWaiting )
-                    {
-                        requestThread newRequest = new requestThread(filename, size, getDownloadTable(),
-                                                                     getUploadTable(), htl, key, new FrostBoardObject(source)); // TODO: pass FrostBoardObject
-                        newRequest.start();
-                        break;
-                    }
+                    dlItem.setState( LangRes.getString("Trying") );
+                    dlModel.updateRow( dlItem );
+
+                    requestThread newRequest = new requestThread( dlItem, getDownloadTable() );
+                    newRequest.start();
+                    break; // start only 1 download per loop
                 }
             }
         }
@@ -2532,13 +2501,12 @@ public class frame1 extends JFrame implements ClipboardOwner
                     fileName = key.substring(4);
                 }
                 // add valid key to download table
-                DownloadTableFun.insertDownload(mixed.makeFilename(fileName),
-                                                "Unknown",
-                                                "Unknown",
-                                                key,
-                                                frostSettings.getIntValue("htl"),
-                                                getDownloadTable(),
-                                                getActualNode().getBoardFilename());
+                FrostDownloadItemObject dlItem = new FrostDownloadItemObject( mixed.makeFilename(fileName),
+                                                                              key,
+                                                                              getActualNode(),
+                                                                              frostSettings.getIntValue("htl")
+                                                                            );
+                boolean isAdded = getDownloadTable().addDownloadItem( dlItem );
             }
             else
             {
@@ -2654,34 +2622,44 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     //------------------------------------------------------------------------
 
-    private void uploadAddFilesButton_actionPerformed(ActionEvent e) {
-    final JFileChooser fc = new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
-    fc.setDialogTitle("Select files you want to upload to the " + getActualNode().toString() + " board.");
-    fc.setFileHidingEnabled(true);
-    fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-    fc.setMultiSelectionEnabled(true);
-    fc.setPreferredSize(new Dimension(600, 400));
+    private void uploadAddFilesButton_actionPerformed(ActionEvent e)
+    {
+        FrostBoardObject board = getActualNode();
+        if( board.isFolder() )
+            return;
 
-    int returnVal = fc.showOpenDialog(frame1.this);
-    if (returnVal == JFileChooser.APPROVE_OPTION) {
-        File file = fc.getSelectedFile();
-        if (file != null) {
-        frostSettings.setValue("lastUsedDirectory", file.getParent());
-        File[] selectedFiles = fc.getSelectedFiles();
+        final JFileChooser fc = new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
+        fc.setDialogTitle("Select files you want to upload to the " + board.toString() + " board.");
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fc.setMultiSelectionEnabled(true);
+        fc.setPreferredSize(new Dimension(600, 400));
 
-        String masterDirectory = new String();
-        for (int i = 0; i < selectedFiles.length; i++) {
-            Vector allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
-            for (int j = 0; j < allFiles.size(); j++) {
-            File newFile = (File)allFiles.elementAt(j);
-            if (newFile.isFile()) {
-                // TODO: pass FrostBoardObject
-                UploadTableFun.add(getUploadTable(), newFile, selectedFiles[i], getActualNode().toString());
-            }
+        int returnVal = fc.showOpenDialog(frame1.this);
+        if( returnVal == JFileChooser.APPROVE_OPTION )
+        {
+            File file = fc.getSelectedFile();
+            if( file != null )
+            {
+                frostSettings.setValue("lastUsedDirectory", file.getParent());
+                File[] selectedFiles = fc.getSelectedFiles();
+
+                for( int i = 0; i < selectedFiles.length; i++ )
+                {
+                    // collect all choosed files + files in all choosed directories
+                    Vector allFiles = FileAccess.getAllEntries(selectedFiles[i], "");
+                    for( int j = 0; j < allFiles.size(); j++ )
+                    {
+                        File newFile = (File)allFiles.elementAt(j);
+                        if( newFile.isFile() )
+                        {
+                            FrostUploadItemObject ulItem = new FrostUploadItemObject( newFile, board );
+                            boolean isAdded = getUploadTable().addUploadItem( ulItem );
+                        }
+                    }
+                }
             }
         }
-        }
-    }
     }
 
     /**File | Exit action performed*/
@@ -2744,10 +2722,11 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**Save on exit*/
     private void saveOnExit()
     {
+        System.out.println("Saving settings ...");
         saveSettings();
-        TableFun.saveTable(getDownloadTable(), new File("download.txt"));
-        TableFun.saveTable(getUploadTable(), new File("upload.txt"));
-        System.out.println("Bye...");
+        getDownloadTable().save();
+        getUploadTable().save();
+        System.out.println("Bye!");
     }
 
     /**Save settings*/
@@ -2773,37 +2752,52 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     class PopupListener extends MouseAdapter {
-    public void mousePressed(MouseEvent e) {
-        if (e.getClickCount() == 2) {
+    public void mousePressed(MouseEvent e)
+    {
+        if( e.getClickCount() == 2 )
+        {
 
-        // Start file from download table
-        if (e.getComponent().equals(getDownloadTable())) {
-            File file = new File(System.getProperty("user.dir") +
-                     fileSeparator +
-                     frostSettings.getValue("downloadDirectory") +
-                     (String)getDownloadTable().getModel().getValueAt(getDownloadTable().getSelectedRow(), 0));
-            System.out.println(file.getPath());
-            if (file.exists())
-            Execute.run("exec.bat" + " " + file.getPath());
-        }
+            // Start file from download table
+            if( e.getComponent().equals(getDownloadTable()) )
+            {
+                DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
+                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( getDownloadTable().getSelectedRow() );
+                String execFilename = new StringBuffer()
+                                            .append(System.getProperty("user.dir") )
+                                            .append(fileSeparator)
+                                            .append(frostSettings.getValue("downloadDirectory"))
+                                            .append(dlItem.getFileName()).toString();
+                File file = new File( execFilename );
+                System.out.println("Executing: " + file.getPath());
+                if( file.exists() )
+                {
+                    Execute.run("exec.bat" + " " + file.getPath());
+                }
+            }
 
-        // Start file from upload table
-        if (e.getComponent().equals(getUploadTable())) {
-            File file = new File((String)getUploadTable().getModel().getValueAt(
-                getUploadTable().getSelectedRow(), 3));
-            System.out.println(file.getPath());
-            if (file.exists())
-            Execute.run("exec.bat" + " " + file.getPath());
-        }
+            // Start file from upload table
+            if( e.getComponent().equals(getUploadTable()) )
+            {
+                UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
+                FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( getUploadTable().getSelectedRow() );
+                File file = new File( ulItem.getFilePath() );
+                System.out.println("Executing: "+file.getPath());
+                if( file.exists() )
+                {
+                    Execute.run("exec.bat" + " " + file.getPath());
+                }
+            }
 
-        // Add search result to download table
-        if (e.getComponent().equals(searchTable)) {
-            SearchTableFun.downloadSelectedKeys(frostSettings.getIntValue("htl"), searchTable, getDownloadTable());
-        }
+            // Add search result to download table
+            if( e.getComponent().equals(searchTable) )
+            {
+                addSelectedSearchItemsToDownloadTable();
+            }
 
         }
-        else {
-        maybeShowPopup(e);
+        else
+        {
+            maybeShowPopup(e);
         }
     }
 
@@ -2829,27 +2823,35 @@ public class frame1 extends JFrame implements ClipboardOwner
                 final FrostBoardObject aBoard = (FrostBoardObject)boards.elementAt(i);
                 JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
                 uploadPopupChangeDestinationBoard.add(boardMenuItem);
+                // add all boards to menu + set action listener for each board menu item
                 boardMenuItem.addActionListener(new ActionListener()  {
                     public void actionPerformed(ActionEvent e) {
-                        TableFun.setSelectedRowsColumnValue(getUploadTable(), 4, aBoard.getBoardFilename());
-                    }
-                    });
+                        // set new board for all selected rows
+                        UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
+                        int[] selectedRows = getUploadTable().getSelectedRows();
+                        for( int x=0; x<selectedRows.length; x++ )
+                        {
+                            FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( selectedRows[x] );
+                            ulItem.setTargetBoard( aBoard );
+                            ulModel.updateRow( ulItem );
+                        }
+                    } });
             }
 
             if (getUploadTable().getSelectedRow() == -1) {
                 uploadPopupRemoveSelectedFiles.setEnabled(false);
                 uploadPopupReloadSelectedFiles.setEnabled(false);
-                uploadPopupMoveSelectedFilesUp.setEnabled(false);
-                uploadPopupMoveSelectedFilesDown.setEnabled(false);
+//                uploadPopupMoveSelectedFilesUp.setEnabled(false);
+//                uploadPopupMoveSelectedFilesDown.setEnabled(false);
                 uploadPopupSetPrefixForSelectedFiles.setEnabled(false);
                 uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(false);
                 uploadPopupChangeDestinationBoard.setEnabled(false);
             }
             else {
                 uploadPopupRemoveSelectedFiles.setEnabled(true);
-                uploadPopupMoveSelectedFilesUp.setEnabled(true);
+//                uploadPopupMoveSelectedFilesUp.setEnabled(true);
                 uploadPopupReloadSelectedFiles.setEnabled(true);
-                uploadPopupMoveSelectedFilesDown.setEnabled(true);
+//                uploadPopupMoveSelectedFilesDown.setEnabled(true);
                 uploadPopupSetPrefixForSelectedFiles.setEnabled(true);
                 uploadPopupRestoreDefaultFilenamesForSelectedFiles.setEnabled(true);
                 uploadPopupChangeDestinationBoard.setEnabled(true);
@@ -2872,14 +2874,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         if (e.getComponent().equals(getDownloadTable())) { // Downloads Popup
             if (getDownloadTable().getSelectedRow() == -1) {
             downloadPopupRemoveSelectedDownloads.setEnabled(false);
-            downloadPopupMoveUp.setEnabled(false);
-            downloadPopupMoveDown.setEnabled(false);
+//            downloadPopupMoveUp.setEnabled(false);
+//            downloadPopupMoveDown.setEnabled(false);
             downloadPopupResetHtlValues.setEnabled(false);
             }
             else {
             downloadPopupRemoveSelectedDownloads.setEnabled(true);
-            downloadPopupMoveUp.setEnabled(true);
-            downloadPopupMoveDown.setEnabled(true);
+//            downloadPopupMoveUp.setEnabled(true);
+//            downloadPopupMoveDown.setEnabled(true);
             downloadPopupResetHtlValues.setEnabled(true);
             }
             downloadPopupMenu.show(e.getComponent(), e.getX(), e.getY());
@@ -3164,6 +3166,42 @@ public class frame1 extends JFrame implements ClipboardOwner
             // uploads disabled
             tabbedPane.setEnabledAt( tabbedPane.indexOfTab(LangRes.getString("Uploads")), false );
         }
+    }
+
+    /**
+     * Adds all selected items in searchtable to download table.
+     */
+    protected void addSelectedSearchItemsToDownloadTable()
+    {
+        SearchTableModel searchTableModel = (SearchTableModel)getSearchTable().getModel();
+        int[] selectedRows = searchTable.getSelectedRows();
+
+        for (int i = 0; i < selectedRows.length; i++)
+        {
+            FrostSearchItem searchItem = (FrostSearchItem)searchTableModel.getRow( selectedRows[i] );
+            FrostDownloadItemObject dlItem = new FrostDownloadItemObject(searchItem, frostSettings.getIntValue("htl"));
+
+            boolean isAdded = getDownloadTable().addDownloadItem( dlItem ); // will not add if item is already in table
+        }
+    }
+
+    /**
+     * Builds a String with contains all selected files from searchtable as attachements.
+     */
+    public String getSelectedSearchItemsAsAttachmentsString()
+    {
+        SearchTableModel searchTableModel = (SearchTableModel)searchTable.getModel();
+        int[] selectedRows = searchTable.getSelectedRows();
+        String attachments = "";
+        for( int i = 0; i < selectedRows.length; i++ )
+        {
+            FrostSearchItemObject srItem = (FrostSearchItemObject)searchTableModel.getRow( selectedRows[i] );
+
+            String key = srItem.getKey();
+            String filename = srItem.getFilename();
+            attachments += "<attached>" + filename + " * " + key + "</attached>\n";
+        }
+        return(attachments);
     }
 }
 

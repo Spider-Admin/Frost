@@ -5,12 +5,11 @@ import javax.xml.parsers.*;
 import org.w3c.dom.*;
 import org.xml.sax.*;
 
-import org.apache.xml.serialize.*;
-
 import java.util.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
+import frost.*;
 import frost.gui.objects.*;
 
 public class TofTreeXmlIO
@@ -26,7 +25,10 @@ public class TofTreeXmlIO
      */
     public boolean loadBoardTree(JTree tree, String filename)
     {
-        Document doc = parseXmlFile(filename, false);
+        Document doc = null;
+        try {
+            doc = XMLTools.parseXmlFile(filename, false);
+        } catch(Exception ex) { ; } // xml format error
 
         if( doc == null )
             return false;
@@ -39,7 +41,7 @@ public class TofTreeXmlIO
             return false;
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
-        ArrayList nodelist = getChildElementsByTagName(rootNode, "FrostBoardTreeEntry");
+        ArrayList nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostBoardTreeEntry");
 
         if( nodelist.size() != 1 )
         {
@@ -87,7 +89,7 @@ public class TofTreeXmlIO
     public void loadProcessFolder(Element boardFolder, FrostBoardObject treeFolder, JTree tree, DefaultTreeModel model)
     {
         // process all childs of type "FrostBoardTreeEntry" , dive into folder and process them
-        final ArrayList list = getChildElementsByTagName(boardFolder, "FrostBoardTreeEntry");
+        final ArrayList list = XMLTools.getChildElementsByTagName(boardFolder, "FrostBoardTreeEntry");
         for( int x=0; x<list.size(); x++ )
         {
             String nodename = null;
@@ -143,29 +145,6 @@ public class TofTreeXmlIO
         model.nodesWereInserted(node, childIndicies);
     }
 
-    /**
-     * Returns a list containing all Elements of this parent with given tag name.
-     */
-    protected ArrayList getChildElementsByTagName(Element parent, String name)
-    {
-        ArrayList newList = new ArrayList();
-
-        NodeList childs = parent.getChildNodes();
-        for(int x=0; x<childs.getLength(); x++)
-        {
-            Node child = childs.item(x);
-            if( child.getNodeType() == Node.ELEMENT_NODE )
-            {
-                Element ele = (Element)child;
-                if( ele.getTagName().equals( name ) == true )
-                {
-                    newList.add( ele );
-                }
-            }
-        }
-        return newList;
-    }
-
     protected boolean getIsFolderFromFrostBoardTreeEntry(Element treeEntry)
     {
         String isFolder = treeEntry.getAttribute("isfolder");
@@ -188,19 +167,21 @@ public class TofTreeXmlIO
 
     protected String getNameFromFrostBoardTreeEntry(Element treeEntry)
     {
-        ArrayList list = getChildElementsByTagName(treeEntry, "name");
+        ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "name");
         if( list.size() != 1 )
         {
             System.out.println("Error - boards.xml invalid: there must be 1 <name> tag for each entry");
             return null;
         }
         Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
+        if( txtname == null )
+            return null;
         return txtname.getData().trim();
     }
 
     protected String getPublicKeyFromFrostBoardTreeEntry(Element treeEntry)
     {
-        ArrayList list = getChildElementsByTagName(treeEntry, "publicKey");
+        ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "publicKey");
         if( list.size() > 1 )
         {
             System.out.println("Error - boards.xml invalid: there should be a maximum of 1 <publicKey> tag for each entry");
@@ -211,12 +192,14 @@ public class TofTreeXmlIO
             return null;
         }
         Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
+        if( txtname == null )
+            return null;
         return txtname.getData().trim();
     }
 
     protected String getPrivateKeyFromFrostBoardTreeEntry(Element treeEntry)
     {
-        ArrayList list = getChildElementsByTagName(treeEntry, "privateKey");
+        ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "privateKey");
         if( list.size() > 1 )
         {
             System.out.println("Error - boards.xml invalid: there should be a maximum of 1 <privateKey> tag for each entry");
@@ -227,31 +210,9 @@ public class TofTreeXmlIO
             return null;
         }
         Text txtname = (Text) ((Node)list.get(0)).getFirstChild();
+        if( txtname == null )
+            return null;
         return txtname.getData().trim();
-    }
-
-    // Parses an XML file and returns a DOM document.
-    // If validating is true, the contents is validated against the DTD
-    // specified in the file.
-    public Document parseXmlFile(String filename, boolean validating)
-    {
-        try {
-            // Create a builder factory
-            DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
-            factory.setValidating(validating);
-
-            // Create the builder and parse the file
-            Document doc = factory.newDocumentBuilder().parse(new File(filename));
-            return doc;
-        } catch (SAXException e) {
-            e.printStackTrace();
-            // A parsing error occurred; the xml input is not valid
-        } catch (ParserConfigurationException e) {
-            e.printStackTrace();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        return null;
     }
 
     /**************************************************
@@ -260,7 +221,7 @@ public class TofTreeXmlIO
 
     public boolean saveBoardTree(JTree tree, String filename)
     {
-        Document doc = createDomDocument();
+        Document doc = XMLTools.createDomDocument();
         if( doc == null )
             return false;
 
@@ -284,7 +245,12 @@ public class TofTreeXmlIO
         // append all childs and subchilds
         saveProcessFolder(rootBoardElement, root, doc, model, tree);
 
-        return writeXmlFile(doc, filename);
+        boolean writeOK = false;
+        try {
+            writeOK = XMLTools.writeXmlFile(doc, filename);
+        } catch(Throwable t) { ; }
+
+        return writeOK;
     }
 
     protected void saveProcessFolder(Element parentElement, FrostBoardObject treeNode, Document doc,
@@ -360,36 +326,5 @@ public class TofTreeXmlIO
         rootBoardElement.appendChild( element );
         parent.appendChild( rootBoardElement );
         return rootBoardElement;
-    }
-
-    protected Document createDomDocument()
-    {
-        try {
-            DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
-            Document doc = builder.newDocument();
-            return doc;
-        } catch (ParserConfigurationException e) { ; }
-        return null;
-    }
-
-    // This method writes a DOM document to a file
-    protected boolean writeXmlFile(Document doc, String filename)
-    {
-        try {
-            OutputFormat format = new OutputFormat(doc);
-            format.setLineSeparator(LineSeparator.Windows);
-            format.setIndenting(true);
-            format.setLineWidth(0);
-            format.setPreserveSpace(true);
-            XMLSerializer serializer = new XMLSerializer (new FileWriter(filename), format);
-            serializer.asDOMSerializer();
-            serializer.serialize(doc);
-            return true;
-        }
-        catch(Exception ex)
-        {
-            ex.printStackTrace();
-        }
-        return false;
     }
 }

@@ -25,6 +25,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.gui.objects.*;
+import frost.gui.model.*;
 
 /**
  * Downloads file requests
@@ -120,7 +121,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
 
                 String content = (FileAccess.readFile(testMe)).trim();
                 System.out.println("Request content is " + content);
-                DefaultTableModel tableModel = (DefaultTableModel)uploadTable.getModel();
+                UploadTableModel tableModel = (UploadTableModel)uploadTable.getModel();
                 synchronized (uploadTable)
                 {
                     try
@@ -128,17 +129,19 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                         int rowCount = tableModel.getRowCount();
                         for( int i = 0; i < rowCount; i++ )
                         {
-                            String chk = ((String)tableModel.getValueAt(i, 5)).trim();
+                            FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow(i);
+                            String chk = ulItem.getKey().trim();
                             if( chk.equals(content) )
                             {
                                 File requestLock = new File(destination + chk + ".lck");
                                 if( !requestLock.exists() )
                                 {
-                                    String state = (String)tableModel.getValueAt(i, 2);
+                                    String state = ulItem.getState();
                                     if( !state.equals(LangRes.getString("Uploading")) && (state.indexOf("Kb") == -1) )
                                     {
                                         System.out.println("Request matches row " + i);
-                                        tableModel.setValueAt(LangRes.getString("Requested"), i, 2);
+                                        ulItem.setState( LangRes.getString("Requested") );
+                                        tableModel.updateRow( ulItem );;
                                     }
                                 }
                                 else

@@ -7,41 +7,32 @@ import javax.swing.table.*;
 public class SortedTableModel2 extends DefaultTableModel
 {
     private boolean bWasResized = false;
-    private ArrayList rows = null;
 
     // we always need to hold the actual sorting comparator to allow sorted insertion
     private ColumnComparator colComparator  = new ColumnComparator(0, true); // default
 
-    public SortedTableModel2()
-    {
-        super();
-        rows = new ArrayList();
-    }
+    public SortedTableModel2() { super(); }
+    public SortedTableModel2(int rowCount, int columnCount) { super(rowCount,columnCount); }
+    public SortedTableModel2(Object[][] data, Object[] columnNames) { super(data,columnNames); }
+    public SortedTableModel2(Object[] columnNames, int rowCount) { super(columnNames,rowCount); }
+    public SortedTableModel2(Vector columnNames, int rowCount) { super(columnNames,rowCount); }
+    public SortedTableModel2(Vector data, Vector columnNames) { super(data,columnNames); }
 
     public boolean isSortable(int col)
     {
         return true;
     }
 
-    public int getRowCount()
-    {
-        if( rows == null )
-            return 0;
-        return rows.size();
-    }
-
     public void sortModelColumn(int col, boolean ascending)
     {
         sortColumn(col,ascending);
     }
+
     private void sortColumn(int col, boolean ascending)
     {
         // sort this column
         colComparator = new ColumnComparator(col, ascending);
-        if( rows.size() > 1 )
-        {
-            Collections.sort(rows, colComparator);
-        }
+        Collections.sort(getDataVector(), colComparator);
     }
 
     public class ColumnComparator implements Comparator
@@ -55,20 +46,21 @@ public class SortedTableModel2 extends DefaultTableModel
             this.ascending = ascending;
         }
 
-        // uses implementation in ITableMember or default impl. in abstracttreemodel
         public int compare(Object one, Object two)
         {
             try {
-                TableMember oOne = (TableMember)one;
-                TableMember oTwo = (TableMember)two;
+                Vector vOne = (Vector)one;
+                Vector vTwo = (Vector)two;
+                Comparable cOne = (Comparable)vOne.elementAt(index);
+                Comparable cTwo = (Comparable)vTwo.elementAt(index);
 
                 if( ascending )
                 {
-                    return oOne.compareTo(oTwo, index);
+                    return cOne.compareTo(cTwo);
                 }
                 else
                 {
-                    return oTwo.compareTo(oOne, index);
+                    return cTwo.compareTo(cOne);
                 }
             }
             catch(Exception e) { }
@@ -82,10 +74,10 @@ public class SortedTableModel2 extends DefaultTableModel
      *
      * @see #setSortingColumn
      */
-    public void addRow(TableMember member)
+    public void addRow(Vector row)
     {
         // compute pos to insert and insert node sorted into table
-        int insertPos = Collections.binarySearch(rows, member, colComparator);
+        int insertPos = Collections.binarySearch(getDataVector(), row, colComparator);
         if( insertPos < 0 )
         {
             // compute insertion pos
@@ -96,118 +88,15 @@ public class SortedTableModel2 extends DefaultTableModel
             // if such an item is already contained in search column,
             // determine last element and insert after
             insertPos =
-                Collections.lastIndexOfSubList(rows, Collections.singletonList(rows.get(insertPos)));
+                Collections.lastIndexOfSubList(getDataVector(), Collections.singletonList(getDataVector().elementAt(insertPos)));
             insertPos++; // insert AFTER last
 
         }
-        insertRowAt(member, insertPos);
+        insertRow(insertPos, row);
     }
-
-    public void insertRowAt(TableMember member, int index)
+    public void addRow(Object rowdata[])
     {
-       if (index <= rows.size())
-       {
-          rows.add(index, member);
-          fireTableRowsInserted(index,index);
-       }
-    }
-
-    /**
-     * Deletes the passed object obj.
-     *
-     * @param obj instance of ITableMember
-     */
-    public void deleteRow(TableMember obj)
-    {
-        if (obj!=null)
-        {
-            int i = rows.indexOf(obj);
-            rows.remove(obj);
-            if (i!=-1) fireTableRowsDeleted(i,i);
-        }
-    }
-
-    /**
-     * Updates the passed object obj.
-     *
-     * @param obj instance of ITableMember
-     */
-    public void updateRow(TableMember obj)
-    {
-        if (obj!=null)
-        {
-            int i = rows.indexOf(obj);
-            if (i!=-1) fireTableRowsUpdated(i,i);
-        }
-    }
-
-    /**
-     * Returns the row at index <I>row</I>.
-     *
-     * @param row Index of row
-     * @return Instance of ITableMember at index row. <I>null</I> if index contains
-     * no ITableMember
-     */
-    public TableMember getRow(int row)
-    {
-        if (row<getRowCount())
-        {
-            Object obj = rows.get(row);
-            if (obj instanceof TableMember)
-                return (TableMember) obj;
-        }
-        return null;
-    }
-
-    /**
-     * Returns the value at <I>column</I> and <I>row</I>. Used by JTable.
-     *
-     * @param row Row for which the value will be returned.
-     * @param column Column for which the value will be returned.
-     * @return Value at <I>column</I> and <I>row</I>
-     */
-    public Object getValueAt(int row, int column)
-    {
-        if (row>=getRowCount() || row<0) return null;
-
-        TableMember obj = (TableMember)rows.get(row);
-        if (obj == null)
-            return null;
-        else
-            return obj.getValueAt(column);
-    }
-
-    /**
-     * Clears this data model.
-     */
-    public void clearDataModel()
-    {
-        int size = rows.size();
-        if (size>0)
-        {
-            rows = new ArrayList();
-            fireTableRowsDeleted(0,size);
-        }
-        //System.gc();
-    }
-
-    /**
-     * Indicates that the whole table should be repainted.
-     */
-    public void tableEntriesChanged()
-    {
-        fireTableRowsUpdated(0,getRowCount());
-    }
-
-    /**
-     * Indicates that the rows <I>from</I> to <I>to</I> should be repainted.
-     *
-     * @param from first line that was changed
-     * @param to last line that was changed
-     */
-    public void tableEntriesChanged(int from, int to)
-    {
-        fireTableRowsUpdated(from,to);
+        addRow( new Vector( Arrays.asList(rowdata)) );
     }
 
     /**
@@ -220,7 +109,8 @@ public class SortedTableModel2 extends DefaultTableModel
      */
     public void setValueAt(Object aValue, int row, int column)
     {
-        System.out.println("setValueAt() - ERROR: NOT IMPLEMENTED");
+        super.setValueAt(aValue,row,column);
+        Collections.sort(getDataVector(), colComparator);
     }
 
     /**
@@ -242,5 +132,6 @@ public class SortedTableModel2 extends DefaultTableModel
     {
         bWasResized = newValue;
     }
+
 }
 

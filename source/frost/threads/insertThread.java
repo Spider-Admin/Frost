@@ -23,92 +23,108 @@ import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 
-import frost.*;
+import javax.swing.*;
 
-public class insertThread extends Thread {
+import frost.*;
+import frost.gui.objects.*;
+import frost.gui.model.*;
+
+public class insertThread extends Thread
+{
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
     private String destination;
     private String date;
     private File file;
     private String htl;
-    private String board;
+    private FrostBoardObject board;
     private boolean mode;
 
-    public void run() {
+    FrostUploadItemObject uploadItem;
 
-    System.out.println("Upload of " + file + " with HTL " + htl + " started.");
+    public void run()
+    {
+        System.out.println("Upload of " + file + " with HTL " + htl + " started.");
 
-    if (mode)
-        synchronized(frame1.threadCountLock) {
-            frame1.activeUploadThreads++;
-        }
-    else
-        frame1.generateCHK = true;
-
-    String status = LangRes.getString("Never");
-    boolean success = false;
-    String[] result = {"Error", "Error"};
-
-    if (file.length() > 0 && file.isFile()) {
-
-        result = FcpInsert.putFile("CHK@", file, htl, true, mode);
-
-        if (result[0].equals("Success")) {
-        success = true;
-        System.out.println("Upload of " + file + " successfull.");
-        }
-        if (result[0].equals("KeyCollision")) {
-        success = true;
-        System.out.println("Upload of " + file + " collided.");
-        }
-
-        if (success) {
-        status = date;
-        KeyClass newKey = new KeyClass(result[1]);
-        newKey.setFilename(destination);
-        newKey.setSize(file.length());
-        newKey.setDate(date);
-        Index.add(newKey, new File(frame1.keypool + board));
-        }
-
-        synchronized (frame1.getInstance().getUploadTable()) {
-            try {
-            int row = getTableEntry();
-            if (row != -1) {
-            if (mode)
-                frame1.getInstance().getUploadTable().getModel().setValueAt(status, row, 2);
-            else
-                frame1.getInstance().getUploadTable().getModel().setValueAt(result[1], row, 5);
+        if( mode )
+            synchronized(frame1.threadCountLock)
+            {
+                frame1.activeUploadThreads++;
             }
+        else
+            frame1.generateCHK = true;
+
+        String status = LangRes.getString("Never");
+        boolean success = false;
+        String[] result = {"Error", "Error"};
+
+        if( file.length() > 0 && file.isFile() )
+        {
+
+            result = FcpInsert.putFile("CHK@", file, htl, true, mode);
+
+            if( result[0].equals("Success") )
+            {
+                success = true;
+                System.out.println("Upload of " + file + " successfull.");
             }
-        catch (Exception e) {System.out.println("insertThread NOT GOOD "+e.toString());}
+            if( result[0].equals("KeyCollision") )
+            {
+                success = true;
+                System.out.println("Upload of " + file + " collided.");
+            }
+
+            if( success )
+            {
+                status = date;
+                KeyClass newKey = new KeyClass(result[1]);
+                newKey.setFilename(destination);
+                newKey.setSize(file.length());
+                newKey.setDate(date);
+                Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+            }
+
+            final String finalStatus = status;
+            final String finalKey = result[1];
+            SwingUtilities.invokeLater( new Runnable() {
+                public void run() {
+                    UploadTableModel tableModel = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
+                    if( mode )
+                    {
+                        uploadItem.setState( finalStatus );
+                    }
+                    else
+                    {
+                        uploadItem.setKey( finalKey );
+                    }
+                    tableModel.updateRow( uploadItem );
+                } });
         }
 
-    }
-
-    if (mode)
-        synchronized(frame1.threadCountLock) {
-            frame1.activeUploadThreads--;
+        if( mode )
+        {
+            synchronized(frame1.threadCountLock)
+            {
+                frame1.activeUploadThreads--;
+            }
         }
-    else
-        frame1.generateCHK = false;
-    }
-
-    public int getTableEntry() {
-    for (int i = 0; i < frame1.getInstance().getUploadTable().getModel().getRowCount(); i++)
-        if ((file.getPath()).equals(frame1.getInstance().getUploadTable().getModel().getValueAt(i, 3)))
-        return i;
-    return -1;
+        else
+        {
+            frame1.generateCHK = false;
+        }
     }
 
     /**Constructor*/
-    public insertThread(String destination, File file, String htl, String board, boolean mode) {
-    this.destination = destination;
-    this.file = file;
-    this.htl = htl;
-    this.board = board.toLowerCase();
-    this.date = DateFun.getExtendedDate();
-    this.mode = mode; // true=upload file false=generate chk (do not upload)
+    public insertThread(FrostUploadItemObject ulItem, SettingsClass config, boolean mode)
+    {
+        this.destination = ulItem.getFileName();
+        this.file = new File(ulItem.getFilePath());
+
+        this.uploadItem = ulItem;
+
+        this.htl = config.getValue("htlUpload");
+        this.board = ulItem.getTargetBoard();
+        this.date = DateFun.getExtendedDate();
+        this.mode = mode; // true=upload file false=generate chk (do not upload)
     }
 }

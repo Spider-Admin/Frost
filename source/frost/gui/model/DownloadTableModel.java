@@ -21,7 +21,7 @@ package frost.gui.model;
 
 import javax.swing.table.*;
 
-public class DownloadTableModel extends DefaultTableModel
+public class DownloadTableModel extends SortedTableModel
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
@@ -36,12 +36,12 @@ public class DownloadTableModel extends DefaultTableModel
     };
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
-        String.class, //LangRes.getString("Size"),
+        Long.class,   //LangRes.getString("Size"),
         String.class, //LangRes.getString("Age"),
         String.class, //LangRes.getString("State"),
-        String.class, //LangRes.getString("HTL"),
+        Integer.class,//LangRes.getString("HTL"),
         String.class, //LangRes.getString("Source"),
-        String.class //LangRes.getString("Key")
+        String.class  //LangRes.getString("Key")
     };
 
     public DownloadTableModel()
