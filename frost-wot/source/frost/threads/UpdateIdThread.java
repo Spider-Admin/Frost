@@ -67,7 +67,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             return false;
     }
 
-    private void uploadIndexFile(int i)
+    private void uploadIndexFile()//int i)
     {
         File indexFile = new File(keypool + board.getBoardFilename() + "_upload.txt");
         boolean success = false;
@@ -77,11 +77,30 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         if( indexFile.length() > 0 && indexFile.isFile() )
         {
             String tozip = FileAccess.readFile(indexFile);
-            FileAccess.writeZipFile(tozip, "entry",indexFile);
+            FileAccess.writeZipFile(tozip, "entry", indexFile);
+
+            // search empty slot
+            int index = 0;
             while( !success && tries <= maxFailures )
             {
+                // Does this index already exist?
+                String testFilename = new StringBuffer().append(keypool)
+                                                        .append(date)
+                                                        .append("-")
+                                                        .append(board.getBoardFilename())
+                                                        .append("-")
+                                                        .append(index)
+                                                        .append(".idx").toString();
+                File testMe = new File(testFilename);
+                if( testMe.length() > 0 )
+                {
+                    index++;
+                    if( DEBUG ) System.out.println("FILEDN: File exists, increasing index to " + index);
+                    continue;
+                }
+
                 tries++;
-                result = FcpInsert.putFile(insertKey + i + ".idx.zip",
+                result = FcpInsert.putFile(insertKey + index + ".idx.zip",
                                            keypool + board.getBoardFilename() + "_upload.txt",
                                            insertHtl,
                                            true,
@@ -97,7 +116,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
                     if( result[0].equals("KeyCollision") )
                     {
-                        i++;
+                        index++;
+                        tries=0; // reset tries
                         if( DEBUG ) System.out.println("FILEDN:***** Index file collided, increasing index. *****");
                     }
                     else
@@ -174,7 +194,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                    true);
                 if( target.length() > 0 )
                 {
-                    // Add it to the index //TODO:unzip
+                    // Add it to the index
                     String unzipped = FileAccess.readZipFile(target);
                     FileAccess.writeFile(unzipped,target);
                     Index.add(target, new File(keypool + board.getBoardFilename()));
@@ -203,14 +223,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         // We only upload own keyfiles if:
         // 1. We've got more than minKeyCount keys to upload
         // 2. We don't upload any more files
-        index -= maxFailures;
+        //index -= maxFailures;
         if( makeIndexFile() )
         {
-            if( !frame1.generateCHK ||
-                keyCount >= minKeyCount )
+            if( !frame1.generateCHK || keyCount >= minKeyCount )
             {
-                if( DEBUG ) System.out.println("FILEDN: UpdateIdThread (" + board.toString() + "): UploadFiles = " + keyCount);
-                uploadIndexFile(index);
+                if( DEBUG ) System.out.println("FILEDN: Starting upload of index file to board '"+board.toString()+"': UploadFiles = " + keyCount);
+                uploadIndexFile();
             }
         }
         else
