@@ -532,7 +532,7 @@ public class UploadPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		uploadAddFilesButton.setToolTipText(languageResource.getString("Browse..."));
+		uploadAddFilesButton.setToolTipText(languageResource.getString("Browse") + "...");
 	}
 	
 	/**
