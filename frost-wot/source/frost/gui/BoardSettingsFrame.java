@@ -377,7 +377,10 @@ public class BoardSettingsFrame extends JDialog
         }
         catch( IOException ex )
         {
-            frame1.displayWarning(ex.toString());
+            JOptionPane.showMessageDialog(frame1.getInstance(), 
+                 ex.toString(), // message
+                 "Warning", 
+                 JOptionPane.WARNING_MESSAGE);
         }
     }
 

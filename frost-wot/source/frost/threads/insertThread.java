@@ -83,6 +83,7 @@ public class insertThread extends Thread
                 result =
                     FcpInsert.putFile(
                         "CHK@",
+                        // !!! byte[] metadata !!!
                         file,
                         htl,
                         true, // doRedirect

@@ -122,8 +122,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	// "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
 	// this is the new way to access this value :)
 	public static String keypool = null;
-	public static String newMessageHeader = new String("");
-	public static String oldMessageHeader = new String("");
+//	public static String newMessageHeader = new String("");
+//	public static String oldMessageHeader = new String("");
 	public static int activeUploadThreads = 0;
 	public static int activeDownloadThreads = 0;
 	private String lastSelectedMessage;
@@ -1895,10 +1895,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	//------------------------------------------------------------------------
 	//------------------------------------------------------------------------
 
-	public static void displayWarning(String message) {
-		newMessageHeader = " " + message;
-	}
-
 	/**
 	 * Adds either the selected or all files from the attachmentTable to downloads table.
 	 */
@@ -3192,7 +3188,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			// update gui parts
 			updateOptionsAffectedComponents();
 		}
-		oldMessageHeader = "";
 	}
 
 	/**
