@@ -1958,6 +1958,9 @@ public class frame1 extends JFrame implements ClipboardOwner
                     }
                     boardSplitPane.setDividerLocation(0.75);
                     boardSplitPane.setDividerSize(3);
+                    
+                    //add all boards to the list of known boards
+                    Core.getKnownBoards().addAll(selectedMessage.getBoardsAsStrings());
 
                     // Add attachments to table
                     ((DefaultTableModel)getAttachedBoardsTable().getModel()).setDataVector(selectedMessage.getBoards(),

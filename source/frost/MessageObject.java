@@ -19,7 +19,7 @@
 
 package frost;
 import java.io.File;
-import java.util.Vector;
+import java.util.*;
 
 public class MessageObject {
 
@@ -63,6 +63,28 @@ public class MessageObject {
     return table;
     }
 
+/**
+ * 
+ * @return list of the attached boards as raw strings
+ */
+	public Collection getBoardsAsStrings(){
+		Collection result = new Vector();
+		int start = content.indexOf("<board>");
+		int end = content.lastIndexOf("</board>");
+		if (end==-1) return null;
+		
+		String boardBlock = content.substring(start,end);
+		String[] _boards = boardBlock.split("</board>");
+		
+		for (int i =0;i<_boards.length;i++) {
+			String current = _boards[i].trim();
+			current = current.substring("<board>".length(),current.length());
+			result.add(current.trim());
+		}
+			
+		return result;
+		
+	}
 // TODO: should return AttachedBoards (to create)
     // newContent is created here and contains whole msg without the found board tags
     public Vector getBoards()
