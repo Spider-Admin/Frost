@@ -156,6 +156,7 @@ static final Object[][] contents = {
 {"Language","Idioma"},
 {"Last upload","Última subida"},
 {"list of nodes","Lista separada por comas de nodos a los que tienes acceso por FCP"},
+{"list of nodes 2","(nodoA:puertoA, nodoB:puertoB, ...)"},
 {"Mark ALL messages read","Marca TODOS los mensajes como leídos"},
 {"Mark message unread","Marca el mensaje como no leído"},
 {"Maximum number of keys to store","Número máximo de claves a guardar"},
