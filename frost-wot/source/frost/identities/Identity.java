@@ -61,7 +61,7 @@ public class Identity implements SafeXMLizable
 		//if board is present, remove the safe element and add the
 		//full one.
 		if (board!=null) {
-			List list = XMLTools.getChildElementsByTagName(el,"board");
+			List list = XMLTools.getChildElementsByTagName(el,"Attachment");
 			if (list.size() > 0)
 				el.removeChild((Element)(list.get(0)));
 			el.appendChild(board.getXMLElement(doc));
