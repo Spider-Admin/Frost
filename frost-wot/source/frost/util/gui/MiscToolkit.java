@@ -103,7 +103,7 @@ public class MiscToolkit {
 	 * @param height height to scale the image to.
 	 * @return an ImageIcon containing the image.
 	 */
-	private ImageIcon getScaledImage(String imgPath, int width, int height) {
+	public ImageIcon getScaledImage(String imgPath, int width, int height) {
 		ImageIcon icon = new ImageIcon(getClass().getResource(imgPath));
 		icon = new ImageIcon(icon.getImage().getScaledInstance(width, height, Image.SCALE_SMOOTH));
 		return icon;
