@@ -429,9 +429,9 @@ public class FileAccess
 
             //parse the xml file
             Document d= null;
-            try{
-            d = XMLTools.parseXmlFile(source.getPath(), false);
-            }catch (IllegalArgumentException t){
+            try {
+                d = XMLTools.parseXmlFile(source.getPath(), false);
+            } catch (IllegalArgumentException t) {
             	t.printStackTrace(Core.getOut());
             	File badfile = new File("badfile.xml");
             	source.renameTo(badfile);
@@ -541,7 +541,7 @@ public class FileAccess
                     // ^^^ this allows for taking ownership of unsigned files.  It is deliberately so
                 }
 
-                //check if it 
+                //check if it (??? what ???) 
 
             }
         }
@@ -554,26 +554,22 @@ public class FileAccess
     }
     public static void writeKeyFile(Map chk, File destination)
     {
+        File tmpFile = new File( destination.getPath() + ".tmp" );
+        
+        Document doc = XMLTools.createDomDocument();
+        if( doc == null )
+        {
+            System.out.println("Error - writeKeyFile: factory could'nt create XML Document.");
+            return;
+        }
 
-        //TODO: make this go through proper XML methods!!
-        //but those proper xml methods have to be written first ;)
-        //so it just writes out the tags manually
-
-        File tmpFile = new File(destination.getPath() + ".tmp");
-        FileWriter f1;
-        StringBuffer text = new StringBuffer();
-
-        text.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-
+        Element rootElement = doc.createElement("Filelist");
         if (frame1.frostSettings.getBoolValue("signUploads"))
-            text.append(
-                "<Filelist sharer = \""
-                    + frame1.getMyId().getUniqueName()
-                    + "\" pubkey = \""
-                    + frame1.getMyId().getKey()
-                    + "\">");
-        else
-            text.append("<Filelist>");
+        {
+            rootElement.setAttribute("sharer", frame1.getMyId().getUniqueName());
+            rootElement.setAttribute("pubkey", frame1.getMyId().getKey());
+        }
+        doc.appendChild(rootElement);
 
         synchronized (chk)
         {
@@ -590,47 +586,90 @@ public class FileAccess
                     Core.getOut().println("skipping file from BAD user");
                     continue;
                 }
+                
+                Element fileelement = doc.createElement("File");
+                
+                Element element = doc.createElement("name");
+                CDATASection cdata = doc.createCDATASection(current.getFilename());
+                element.appendChild( cdata );
+                fileelement.appendChild( element );
+                
+                element = doc.createElement("SHA1");
+                cdata = doc.createCDATASection(current.getSHA1());
+                element.appendChild( cdata );
+                fileelement.appendChild( element );
+                
+                element = doc.createElement("size");
+                Text textnode = doc.createTextNode(""+current.getSize());
+                element.appendChild( textnode );
+                fileelement.appendChild( element );
+                
+                if( current.getBatch() != null )
+                {
+                    element = doc.createElement("batch");
+                    textnode = doc.createTextNode(current.getBatch());
+                    element.appendChild( textnode );
+                    fileelement.appendChild( element );
+                }
 
-                //f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
-                text.append("<File>");
-                text.append(
-                    "<name><![CDATA[" + current.getFilename() + "]]></name>");
-                text.append(
-                    "<SHA1><![CDATA[" + current.getSHA1() + "]]></SHA1>");
-                text.append("<size>" + current.getSize() + "</size>");
-                text.append("<batch>" + current.getBatch() + "</batch>");
+// f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
 
                 if (current.getOwner() != null)
-                    text.append("<owner>" + current.getOwner() + "</owner>");
+                {
+                    element = doc.createElement("owner");
+                    textnode = doc.createTextNode(current.getOwner());
+                    element.appendChild( textnode );
+                    fileelement.appendChild( element );
+                }
                 if (current.getKey() != null)
-                    text.append("<key>" + current.getKey() + "</key>");
+                {
+                    element = doc.createElement("key");
+                    textnode = doc.createTextNode(current.getKey());
+                    element.appendChild( textnode );
+                    fileelement.appendChild( element );
+                }
                 if (current.getDate() != null)
-                    text.append("<date>" + current.getDate() + "</date>");
+                {
+                    element = doc.createElement("date");
+                    textnode = doc.createTextNode(current.getDate());
+                    element.appendChild( textnode );
+                    fileelement.appendChild( element );
+                }
                 if (current.getLastSharedDate() != null)
-                    text.append(
-                        "<dateShared>"
-                            + current.getLastSharedDate()
-                            + "</dateShared>");
-
-                text.append("</File>");
+                {
+                    element = doc.createElement("dateShared");
+                    textnode = doc.createTextNode(current.getLastSharedDate());
+                    element.appendChild( textnode );
+                    fileelement.appendChild( element );
+                }
+                
+                rootElement.appendChild( fileelement );
             }
         }
-        text.append("</Filelist>");
+        
+        // xml tree created, now save
+        
+        boolean writeOK = false;
+        try {
+            writeOK = XMLTools.writeXmlFile(doc, tmpFile.getPath());
+        } catch(Throwable t)
+        {
+            System.out.println("Exception - writeKeyFile:");
+            t.printStackTrace(Core.getOut());
+        }
 
-        try
+        if( writeOK )
         {
-            f1 = new FileWriter(tmpFile);
-            f1.write(text.toString());
-            f1.close();
+            File oldFile = new File(destination.getPath() + ".old");
+            oldFile.delete();
+            destination.renameTo(oldFile);
+            tmpFile.renameTo(destination);
         }
-        catch (IOException e)
+        else
         {
-            Core.getOut().println("Write Error: " + destination);
+            // delete incomplete file
+            tmpFile.delete();
         }
-        File oldFile = new File(destination.getPath() + ".old");
-        oldFile.delete();
-        destination.renameTo(oldFile);
-        tmpFile.renameTo(destination);
     }
 
     public static String readFileRaw(String path)
