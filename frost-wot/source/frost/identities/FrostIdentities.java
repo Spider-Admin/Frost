@@ -5,6 +5,7 @@ import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 
+import frost.SettingsClass;
 import frost.storage.*;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
@@ -24,11 +25,13 @@ public class FrostIdentities implements Savable {
 	
 	private LocalIdentity mySelf = null;
 	
+	private SettingsClass settings;
 	private UpdatingLanguageResource languageResource = null;
 
-	public FrostIdentities(UpdatingLanguageResource newLanguageResource) {
+	public FrostIdentities(SettingsClass settings, UpdatingLanguageResource languageResource) {
 		super();
-		languageResource = newLanguageResource;
+		this.settings = settings;
+		this.languageResource = languageResource;
 	}
 	
 	/**
@@ -77,6 +80,7 @@ public class FrostIdentities implements Savable {
 			if (friends.add(mySelf)) {
 				logger.info("added myself to list");
 			}
+			settings.setValue("userName", mySelf.getUniqueName());
 		} else {
 			//Storage exists. Load from it.
 			identitiesDAO.load(this);
