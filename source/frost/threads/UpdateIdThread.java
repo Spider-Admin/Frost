@@ -22,6 +22,7 @@ import java.io.File;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.identities.*;
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
@@ -201,8 +202,42 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			if (unzipped.startsWith("===")) {
 				int name_index = unzipped.indexOf("sharer = \"");
 				name_index = unzipped.indexOf("\"",name_index)+1;
-				String sharer = unzipped.substring(name_index,
+				//get the unique name of the person sharing the files
+				String _sharer = unzipped.substring(name_index,
 							unzipped.indexOf("\"",name_index));
+				Identity sharer = frame1.getFriends().Get(_sharer);
+				
+				//we have the person
+				if (sharer==null) { //we don't have it, use the provided key
+					int key_index = unzipped.indexOf("pubkey =");
+					key_index = unzipped.indexOf("\"",key_index)+1;
+					
+					//get the key
+					String pubKey = unzipped.substring(key_index,
+							unzipped.indexOf("\"",key_index));
+							
+					//check if the digest matches
+					String given_digest = _sharer.substring(_sharer.indexOf("@")+1,_sharer.length());
+					if (given_digest.compareTo(frame1.getCrypto().digest(pubKey)) != 0) {
+						System.out.println("pubkey in index file didn't match digest");
+						continue;
+					}
+					
+					//create the identity of the sharer
+					sharer = new Identity(_sharer.substring(0,_sharer.indexOf("@")),
+								null,
+								pubKey);
+				}
+				
+				//verify the archive
+				if (!frame1.getCrypto().verify(unzipped,sharer.getKey())) {
+					System.out.println("index file failed verification!");
+					continue;
+				}
+				
+				//strip the sig
+				unzipped = unzipped.substring(frame1.getCrypto().MSG_HEADER_SIZE,
+							unzipped.lastIndexOf("\n=== Frost message signature: ===\n"));
 			}
 			
                         FileAccess.writeFile(unzipped,target);

@@ -160,7 +160,9 @@ public class Index
         final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         final String fileSeparator = System.getProperty("file.separator");
         final String hash = key.getSHA1();
-        String firstLetter = (hash.substring(4, 5)).toLowerCase();
+	String firstLetter = ")";
+	if (key.getKey() != null)
+        	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
         final Map chk = Collections.synchronizedMap(new TreeMap());
 
         if( !target.isDirectory() )

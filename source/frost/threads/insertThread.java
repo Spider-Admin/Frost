@@ -82,17 +82,20 @@ public class insertThread extends Thread
                 System.out.println("Upload of " + file + " collided.");
 		uploadItem.setKey(result[1]);
             }
-	    } else { //generate SHA1
-	    	success=true;
-		long now = System.currentTimeMillis();
-		result[1] = frame1.getCrypto().digest(file);
-		System.out.println("digest generated in "+(System.currentTimeMillis()-now) +
-				 "  " + result[1]);
-	    }
+	    } else 
+	    	success =true; //so that we generate SHA1
+	     
 	    
 	    
             if( success )
             {
+	    	//generate SHA1 - its fast
+	
+		long now = System.currentTimeMillis();
+		String SHA1 = frame1.getCrypto().digest(file);
+		System.out.println("digest generated in "+(System.currentTimeMillis()-now) +
+				 "  " + SHA1);
+		
                 String date = DateFun.getExtendedDate();
                 lastUploadDate = date;
 		KeyClass newKey;
@@ -103,11 +106,11 @@ public class insertThread extends Thread
 		}
 		else  {
 			newKey = new KeyClass();
-			newKey.setSHA1(result[1]);  //date stays null, so does CHK
 			newKey.setKey(null);
 			String nil = null; //stupid java
 			newKey.setDate(nil);
 		}
+		newKey.setSHA1(SHA1);  
                 newKey.setFilename(destination);
                 newKey.setSize(file.length());
 		newKey.setOwner(frame1.getMyId().getUniqueName());
