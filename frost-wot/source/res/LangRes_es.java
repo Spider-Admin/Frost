@@ -143,12 +143,6 @@ static final Object[][] contents = {
 {"Key","Clave"},
 {"Keyfile download HTL","HTL de descarga de Keyfiles"},
 {"Keyfile upload HTL","HTL de subida de Keyfiles"},
-{"KnownBoardsFrame.Add board","Añade foro"},
-{"KnownBoardsFrame.Close","Cierra"},
-{"KnownBoardsFrame.List of known boards","Lista de foros conocidos"},
-{"KnownBoardsFrame.Lookup","Busca"},
-{"KnownBoardsFrame.Remove board","Elimina foro"},
-{"KnownBoardsTableModel.Boardname","Nombre"},
 {"Language","Idioma"},
 {"Last upload","Última subida"},
 {"list of nodes","Lista separada por comas de nodos a los que tienes acceso por FCP"},
@@ -436,7 +430,17 @@ static final Object[][] contents = {
 	
 	//AttachedBoardTableModel
 	{"Board Name", "Nombre del foro"},
-	{"Access rights", "Derechos de acceso"}
+	{"Access rights", "Derechos de acceso"}, 
+	
+	///////////////////////////////////////////////////
+	// List of known boards window
+	///////////////////////////////////////////////////
+	{"KnownBoardsFrame.Add board","Añade foro"},
+	{"KnownBoardsFrame.Close","Cierra"},
+	{"KnownBoardsFrame.List of known boards","Lista de foros conocidos"},
+	{"KnownBoardsFrame.Lookup","Busca"},
+	{"KnownBoardsFrame.Remove board","Elimina foro"},
+	{"KnownBoardsTableModel.Boardname","Nombre"}
 	
 	};
 }
