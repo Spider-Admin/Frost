@@ -1,7 +1,7 @@
 package frost.identities;
 
 import java.io.*;
-import java.util.*;
+import java.util.Hashtable;
 import java.util.logging.*;
 
 import javax.swing.JOptionPane;
@@ -9,8 +9,9 @@ import javax.swing.JOptionPane;
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.fcp.FecTools;
+import frost.storage.*;
 import frost.threads.maintenance.Savable;
+import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
@@ -35,199 +36,59 @@ public class FrostIdentities implements Savable {
 		languageResource = newLanguageResource;
 	}
 	
-	public void load(boolean freenetIsOnline) {
-		File identities = new File("identities");
-		File identitiesxml = new File("identities.xml");
-		try {
-
-			if (identities.length() == 0)
-				identities.delete();
-			if (identitiesxml.length() == 0)
-				identitiesxml.delete();
-			if (identities.createNewFile() && identitiesxml.createNewFile()) {
-				if (freenetIsOnline == false) {
-					JOptionPane.showMessageDialog(
-						MainFrame.getInstance(),
-						languageResource.getString(
-							"Core.loadIdentities.ConnectionNotEstablishedBody"),
-						languageResource.getString(
-							"Core.loadIdentities.ConnectionNotEstablishedTitle"),
-						JOptionPane.ERROR_MESSAGE);
-					System.exit(2);
-				}
-				//create new identities
-				try {
-					String nick = null;
-					do {
-						nick =
-							JOptionPane.showInputDialog(
-								languageResource.getString("Core.loadIdentities.ChooseName"));
-						if (!(nick == null || nick.length() == 0)) {
-							// check for a '@' in nick, this is strongly forbidden
-							if (nick.indexOf("@") > -1) {
-								JOptionPane.showMessageDialog(
-									MainFrame.getInstance(),
-									languageResource.getString(
-										"Core.loadIdentities.InvalidNameBody"),
-									languageResource.getString(
-										"Core.loadIdentities.InvalidNameTitle"),
-									JOptionPane.ERROR_MESSAGE);
-								nick = "";
-							}
+	/**
+	 * @param freenetIsOnline
+	 */
+	public void initialize(boolean freenetIsOnline) throws StorageException {
+		IdentitiesDAO identitiesDAO = DAOFactory.getFactory(DAOFactory.XML).getIdentitiesDAO();
+		if (!identitiesDAO.exists()) {
+			//The storage doesn't exist yet. We create it.
+			identitiesDAO.create();
+			if (freenetIsOnline == false) {
+				MiscToolkit.getInstance().showMessage(
+						languageResource.getString("Core.loadIdentities.ConnectionNotEstablishedBody"),
+						JOptionPane.ERROR_MESSAGE,
+						languageResource.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
+				System.exit(2);
+			}
+			//create new identities
+			try {
+				String nick = null;
+				do {
+					nick = MiscToolkit.getInstance().showInputDialog(
+							languageResource.getString("Core.loadIdentities.ChooseName"));
+					if (!(nick == null || nick.length() == 0)) {
+						// check for a '@' in nick, this is strongly forbidden
+						if (nick.indexOf("@") > -1) {
+							MiscToolkit.getInstance().showMessage(
+									languageResource.getString("Core.loadIdentities.InvalidNameBody"),
+									JOptionPane.ERROR_MESSAGE,
+									languageResource.getString("Core.loadIdentities.InvalidNameTitle"));
+							nick = "";
 						}
-
-					} while (nick != null && nick.length() == 0);
-					if (nick == null) {
-						logger.severe("Frost can't run without an identity.");
-						System.exit(1);
 					}
-
-					do { //make sure there's no // in the name.
-						mySelf = new LocalIdentity(nick);
-					} while (mySelf.getUniqueName().indexOf("//") != -1);
-
-					//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
-				} catch (Exception e) {
-					logger.severe("couldn't create new identitiy" + e.toString());
+				} while (nick != null && nick.length() == 0);
+				if (nick == null) {
+					logger.severe("Frost can't run without an identity.");
+					System.exit(1);
 				}
-				//friends = new BuddyList();
-
-				if (friends.add(mySelf)) {
-					logger.info("added myself to list");
-				}
-				//enemies = new BuddyList();
-			} else
-				//first try with the new format
-				if (identitiesxml.exists()) {
-					//friends = new BuddyList();
-					//enemies = new BuddyList();
-					try {
-						logger.info("trying to create/load ids");
-						Document d = XMLTools.parseXmlFile("identities.xml", false);
-						Element rootEl = d.getDocumentElement();
-						//first myself
-						Element myself =
-							(Element) XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(
-								0);
-						mySelf = new LocalIdentity(myself);
-
-						//then friends
-						List lists = XMLTools.getChildElementsByTagName(rootEl, "BuddyList");
-						Iterator it = lists.iterator();
-						while (it.hasNext()) {
-							Element current = (Element) it.next();
-							if (current.getAttribute("type").equals("friends"))
-								friends.loadXMLElement(current);
-							else if (current.getAttribute("type").equals("enemies"))
-								enemies.loadXMLElement(current);
-							else
-								neutrals.loadXMLElement(current);
-						}
-					} catch (Exception e) {
-						logger.log(Level.SEVERE, "Exception thrown in loadIdentities()", e);
-					}
-					logger.info(
-						"loaded "
-							+ friends.size()
-							+ " friends and "
-							+ enemies.size()
-							+ " enemies and "
-							+ neutrals.size()
-							+ " neutrals.");
-					if (friends.add(mySelf))
-						logger.info("added myself to list");
-
-				} else {
-					try {
-
-						BufferedReader fin = new BufferedReader(new FileReader(identities));
-						String name = fin.readLine();
-						String address = fin.readLine();
-						String keys[] = new String[2];
-						keys[1] = fin.readLine();
-						keys[0] = fin.readLine();
-						if (address.startsWith("CHK@") == false) {
-							// pubkey chk was not successfully computed
-							byte[] pubkeydata;
-							try {
-								pubkeydata = keys[1].getBytes("UTF-8");
-							} catch (UnsupportedEncodingException ex) {
-								pubkeydata = keys[1].getBytes();
-							}
-
-							String tmp = FecTools.generateCHK(pubkeydata);
-							address = tmp.substring(tmp.indexOf("CHK@"), tmp.indexOf("CHK@") + 58);
-							logger.info("Re-calculated my public key CHK: " + address + "\n");
-
-						}
-						mySelf = new LocalIdentity(name, keys);
-						logger.info("loaded myself with name " + mySelf.getName());
-						//out.println("and public key" + mySelf.getKey());
-
-						//take out the ****
-						fin.readLine();
-
-						//process the friends
-						logger.info("loading friends");
-						friends = new BuddyList();
-						boolean stop = false;
-						String key;
-						while (!stop) {
-							name = fin.readLine();
-							if (name == null || name.startsWith("***"))
-								break;
-							address = fin.readLine();
-							key = fin.readLine();
-							friends.add(new Identity(name, key));
-						}
-						logger.info("loaded " + friends.size() + " friends");
-
-						//just the good ids
-						while (!stop) {
-							String id = fin.readLine();
-							if (id == null || id.startsWith("***"))
-								break;
-							goodIds.put(id, id);
-						}
-						logger.info("loaded " + goodIds.size() + " good ids");
-
-						//and the enemies
-						enemies = new BuddyList();
-						logger.info("loading enemies");
-						while (!stop) {
-							name = fin.readLine();
-							if (name == null || name.startsWith("***"))
-								break;
-							address = fin.readLine();
-							key = fin.readLine();
-							enemies.add(new Identity(name, key));
-						}
-						logger.info("loaded " + enemies.size() + " enemies");
-
-						//and the bad ids
-						while (!stop) {
-							String id = fin.readLine();
-							if (id == null || id.startsWith("***"))
-								break;
-							badIds.put(id, id);
-						}
-						logger.info("loaded " + badIds.size() + " bad ids");
-
-					} catch (IOException e) {
-						logger.severe("IOException :" + e.toString());
-						friends = new BuddyList();
-						enemies = new BuddyList();
-						friends.add(mySelf);
-					} catch (Exception e) {
-						logger.log(Level.SEVERE, "Exception thrown in loadIdentities()", e);
-					}
-				}
-
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Exception thrown in loadIdentities()", e);
+				do { //make sure there's no // in the name.
+					mySelf = new LocalIdentity(nick);
+				} while (mySelf.getUniqueName().indexOf("//") != -1);
+				
+			} catch (Exception e) {
+				logger.severe("couldn't create new identitiy" + e.toString());
+			}
+			if (friends.add(mySelf)) {
+				logger.info("added myself to list");
+			}
+		} else {
+			//Storage exists. Load from it.
+			identitiesDAO.load(this);
+			logger.info("ME = '" + mySelf.getUniqueName() + "'");
 		}
-		logger.info("ME = '" + mySelf.getUniqueName() + "'");
 	}
+	
 	public boolean save() {
 		logger.info("saving identities.xml");
 
@@ -331,6 +192,13 @@ public class FrostIdentities implements Savable {
 	 */
 	public LocalIdentity getMyId() {
 		return mySelf;
+	}
+	
+	/**
+	 * @return
+	 */
+	void setMyId(LocalIdentity myId) {
+		mySelf = myId;
 	}
 
 	/**

@@ -20,7 +20,7 @@ package frost;
 
 import java.io.*;
 import java.util.Locale;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
@@ -161,7 +161,12 @@ public class Frost {
 			System.exit(3);
 		}
 
-		core.initialize();
+		try {
+			core.initialize();
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "There was a problem while initializing Frost.", e);
+			System.exit(3);
+		}
 	}
 
 	/**
@@ -240,7 +245,7 @@ public class Frost {
 				languageResource.getString("Frost.lockFileFound") + "'" + 
 					runLock.getAbsolutePath() + "'",
 				JOptionPane.ERROR_MESSAGE,
-				"ERROR: Found Frost lock file '.frost_run_lock'.\n");
+				"ERROR: Found Frost lock file '.frost_run_lock'.");
 			return false;
 		}
 		runLock.deleteOnExit();

@@ -4,6 +4,8 @@
  */
 package frost.storage;
 
+import frost.identities.IdentitiesDAO;
+
 /**
  * This class implements the Abstract Factory pattern. It is used by the business objects
  * to get the concrete factory for the specific storage method they use.
@@ -61,5 +63,12 @@ public abstract class DAOFactory {
 		}	
 		return xmlDAOFactory;
 	}
+	
+	/**
+	 * This method returns a data access object for the FrostIdentities
+	 * business object.
+	 * @return a IdentitiesDAO for the FrostIdentities business object.
+	 */
+	public abstract IdentitiesDAO getIdentitiesDAO();
 	
 }
