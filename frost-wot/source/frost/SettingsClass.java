@@ -392,7 +392,6 @@ public class SettingsClass {
 		defaults.put("splitfileUploadThreads", "15");
 		//        defaults.put("startRequestingAfterHtl", "10");
 		defaults.put("tofDownloadHtl", "23");
-		defaults.put("tofFontSize", "12.0");
 		defaults.put("tofTreeSelectedRow", "0");
 		defaults.put("tofUploadHtl", "21");
 		defaults.put("uploadThreads", "3");
