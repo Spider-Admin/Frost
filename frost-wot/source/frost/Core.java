@@ -517,8 +517,8 @@ public class Core {
 	 * @param task
 	 * @param delay
 	 */
-	public void schedule(TimerTask task, long delay) {
-		timer2.schedule(task, delay);
+	public static void schedule(TimerTask task, long delay) {
+		getInstance().timer2.schedule(task, delay);
 	}
 
 	/**
@@ -526,8 +526,8 @@ public class Core {
 	 * @param delay
 	 * @param period
 	 */
-	public void schedule(TimerTask task, long delay, long period) {
-		timer2.schedule(task, delay, period);
+	public static void schedule(TimerTask task, long delay, long period) {
+		getInstance().timer2.schedule(task, delay, period);
 	}
 	/**
 	 * @return the PrintStream where messages are logged

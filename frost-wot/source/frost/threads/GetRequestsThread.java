@@ -42,6 +42,7 @@ public class GetRequestsThread extends Thread
     private String destination;
     private String fileSeparator = System.getProperty("file.separator");
     private JTable uploadTable;
+    private String date;
 
     /*public int getThreadType()
     {
@@ -49,7 +50,18 @@ public class GetRequestsThread extends Thread
     }*/
 
     public void run()
-    {
+    {   
+    	//first, start today's thread.
+    	if (DateFun.getDate().compareTo(date)!=0) {
+    	
+			GetRequestsThread todaysRequests = new GetRequestsThread(downloadHtl,keypool,uploadTable, DateFun.getDate());
+			todaysRequests.start();
+			try{
+				todaysRequests.join();
+			}catch (InterruptedException e){
+				e.printStackTrace(Core.getOut());
+			}
+    	} 	
         // notifyThreadStarted(this);
         try
         {
@@ -63,7 +75,7 @@ public class GetRequestsThread extends Thread
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-            String dirdate = DateFun.getDate();
+            String dirdate = date;
 
             /*destination = new StringBuffer().append(keypool)
                             .append(board.getBoardFilename()).append(fileSeparator)
@@ -99,7 +111,7 @@ public class GetRequestsThread extends Thread
             boolean firstRun = true;
             while (true)
             {
-                dirdate = DateFun.getDate();
+                dirdate = date;
                 if( firstRun )
                 {
                     firstRun = false;
@@ -289,8 +301,14 @@ public class GetRequestsThread extends Thread
     {
         //super(boa);
         //this.board = boa;
-        this.downloadHtl = dlHtl;
-        this.keypool = kpool;
-        this.uploadTable = uploadTable;
+        this(dlHtl,kpool,uploadTable, DateFun.getDate(1));
+        
     }
+    public GetRequestsThread(int htl, String kpool, JTable table, String date){
+		this.downloadHtl = htl;
+		this.keypool = kpool;
+		this.uploadTable = table;
+    	this.date = date;
+    }
+    
 }

@@ -98,26 +98,27 @@ public class GetFriendsRequestsThread extends TimerTask {
 			//and its ok to request the same keys again the next time around
 			
 				String date = DateFun.getDate();
-				int index =0;
-				
+				int index =-1;
+				String slot;
 				do{
-					tempFile.delete();
-					String slot = currentPrefix +"-"+date+"-"+index+".req.sha";
-					Core.getOut().println("friend's request address is "+slot);
-					FcpRequest.getFile(slot,
-													null,
-													tempFile,
-													25,
-													true, //do redirect
-													false); //deep request
 					index++;
-				} while(tempFile.exists() && tempFile.length() > 0); //break when dnfs
+					slot = currentPrefix +"-"+date+"-"+index+".req.sha";
+					Core.getOut().println("friend's request address is "+slot);
+					tempFile.delete();
+					
+				} while(FcpRequest.getFile(slot,
+					null,
+					tempFile,
+					25,
+					true, //do redirect
+					false) //deep request
+					); //break when dnfs
 			
-			Core.getOut().println("batch of "+currentPrefix+ " had "+ (index--) + " requests");
+			Core.getOut().println("batch of "+currentPrefix+ " had "+ index + " requests");
 		}
 		tempFile.delete();
 		prefixes = null;
-		Core.getInstance().schedule(this,3*60*60*1000); //3 hrs	
+		Core.schedule(this,3*60*60*1000); //3 hrs	
 		Core.getOut().println("finishing requesting friend's requests");
 	}
 
