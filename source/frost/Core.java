@@ -560,7 +560,11 @@ public class Core implements Savable {
 		splashscreen.setText(getLanguageResource().getString("Reaching ridiculous speed..."));
 		splashscreen.setProgress(80);
 
-		mainFrame.setVisible(true);
+		SwingUtilities.invokeLater(new Runnable() {
+			public void run() {
+				mainFrame.setVisible(true);	
+			}
+		});
 
 		splashscreen.closeMe();
 
