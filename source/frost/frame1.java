@@ -2098,12 +2098,28 @@ public class frame1 extends JFrame implements ClipboardOwner
                         newInsert.start();
                         break; // start only 1 thread per loop (=second)
                     }
-                    else if(ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED_GENCHK)
+                    else if( ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED_GENCHK ||
+                             ( ulItem.getKey() == null &&                   
+                               ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED )
+                           )   
                     {
                         setGeneratingCHK( true );
+                        insertThread newInsert = null; 
+                        if( ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED )
+                        {
+                            // set next state for item to REQUESTED, default is IDLE
+                            // needed to keep the REQUESTED state for real uploading
+                            newInsert = new insertThread(ulItem, frostSettings, 
+                                                        insertThread.MODE_GENERATE_CHK,
+                                                        FrostUploadItemObject.STATE_REQUESTED );
+                        }
+                        else
+                        {
+                            // next state will be IDLE (=default)
+                            newInsert = new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_CHK);
+                        }
                         ulItem.setState( FrostUploadItemObject.STATE_WORKING_GENCHK );
                         ulModel.updateRow( ulItem );
-                        insertThread newInsert = new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_CHK);
                         newInsert.start();
                         break; // start only 1 thread per loop (=second)
                     }
@@ -2128,7 +2144,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
                     if( ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED &&
-                        ulItem.getSHA1() != null )
+                        ulItem.getSHA1() != null && 
+                        ulItem.getKey() != null ) // file have key after encoding 
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_UPLOADING );
                         ulModel.updateRow( ulItem );

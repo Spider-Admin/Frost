@@ -35,6 +35,7 @@ public class insertThread extends Thread
     public static final int MODE_GENERATE_CHK  = 2;
     public static final int MODE_UPLOAD        = 3;
 
+    private int nextState; // the state to set on uploadItem when finished, or -1 for default (IDLE)
     private String destination;
     private File file;
     private int htl;
@@ -56,7 +57,6 @@ public class insertThread extends Thread
     {
         try
         {
-
             String lastUploadDate = null; // NEVER uploaded
             boolean success = false;
             String[] result = { "Error", "Error" };
@@ -65,8 +65,7 @@ public class insertThread extends Thread
 
             if( mode == MODE_UPLOAD )
             { //real upload
-                System.out.println(
-                    "Upload of " + file + " with HTL " + htl + " started.");
+                System.out.println("Upload of " + file + " with HTL " + htl + " started.");
                 synchronized (frame1.threadCountLock)
                 {
                     frame1.activeUploadThreads++;
@@ -81,21 +80,26 @@ public class insertThread extends Thread
                         true, // real upload
                         board.getBoardFilename());
 
-                if (result[0].equals("Success")
-                    || result[0].equals("KeyCollision"))
+                if( result[0].equals("Success") ||
+                    result[0].equals("KeyCollision") )
                 {
                     success = true;
                     System.out.println("Upload of " + file + " was successful.");
                     uploadItem.setKey(result[1]);
                     lastUploadDate = currentDate;
                 }
+                else
+                {
+                    System.out.println("Upload of " + file + " was successful.");
+                }
 
                 // item uploaded (maybe)
-                uploadItem.setLastUploadDate(lastUploadDate);
+                // REDFLAG: but this also resets upload date of yesterday, ... !
+                if( lastUploadDate != null ) 
+                    uploadItem.setLastUploadDate(lastUploadDate);
                 // if NULL then upload failed -> shows NEVER in table
-                //uploadItem.setKey(result[1]);
 
-                uploadItem.setState(FrostUploadItemObject.STATE_IDLE);
+                uploadItem.setState(this.nextState);
 
                 synchronized (frame1.threadCountLock)
                 {
@@ -106,7 +110,7 @@ public class insertThread extends Thread
                 // REDFLAG: was this really intented to run even if upload failed?
                 if( success == true )
                 {
-                    KeyClass current = new KeyClass(result[1]);
+                    KeyClass current = new KeyClass(uploadItem.getKey());
                     if (sign)
                         current.setOwner(frame1.getMyId().getUniqueName());
                     current.setFilename(uploadItem.getFileName());
@@ -167,7 +171,7 @@ public class insertThread extends Thread
                 Index.addMine(newKey, board);
                 Index.add(newKey, board);
 
-                uploadItem.setState(FrostUploadItemObject.STATE_IDLE);
+                uploadItem.setState(this.nextState);
                 frame1.setGeneratingCHK(false);
             }
             else if( mode == MODE_GENERATE_CHK )
@@ -189,7 +193,8 @@ public class insertThread extends Thread
                         return;
                     }
                 }
-                // FIXME: dont destroy upload progress!
+                // yes, this destroys any upload progress, but we come only here if 
+                // chkKey == null, so the file should'nt be uploaded until now 
                 splitfile.finishUpload();
                 String chkkey = FecTools.generateCHK(splitfile.getRedirectFile(), splitfile.getRedirectFile().length());
                 if( chkkey != null )
@@ -197,9 +202,13 @@ public class insertThread extends Thread
                     String prefix = new String("freenet:");
                     if( chkkey.startsWith(prefix) ) chkkey = chkkey.substring(prefix.length());
                 }
+                else
+                {
+                    System.out.println("Could not generate CHK key for redirect file.");
+                }
                 uploadItem.setKey(chkkey);
                 
-                uploadItem.setState(FrostUploadItemObject.STATE_IDLE);
+                uploadItem.setState(this.nextState);
                 frame1.setGeneratingCHK(false);
             }
 
@@ -214,6 +223,10 @@ public class insertThread extends Thread
     /**Constructor*/
     public insertThread(FrostUploadItemObject ulItem, SettingsClass config, int mode)
     {
+        this(ulItem, config, mode, -1);
+    }
+    public insertThread(FrostUploadItemObject ulItem, SettingsClass config, int mode, int nextState)
+    {
         this.destination = ulItem.getFileName();
         this.file = new File(ulItem.getFilePath());
 
@@ -222,5 +235,10 @@ public class insertThread extends Thread
         this.htl = config.getIntValue("htlUpload");
         this.board = ulItem.getTargetBoard();
         this.mode = mode; // true=upload file false=generate chk (do not upload)
+        this.nextState = nextState;
+        if( this.nextState < 0 )
+        {
+            this.nextState = FrostUploadItemObject.STATE_IDLE;
+        }
     }
 }
