@@ -124,6 +124,7 @@ public class MessageTable extends SortedTable
 		if (cellRenderer != null) {
 			cellRenderer.setFont(font);
 		}
+		setRowHeight(font.getSize() + 5);
 	}
 
 }
