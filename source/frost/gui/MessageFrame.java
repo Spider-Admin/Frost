@@ -38,6 +38,7 @@ import frost.identities.LocalIdentity;
 import frost.messages.*;
 import frost.storage.StorageException;
 import frost.util.gui.*;
+import frost.util.gui.translation.*;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
 public class MessageFrame extends JFrame
@@ -114,7 +115,7 @@ public class MessageFrame extends JFrame
 	 * @author $author$
 	 * @version $revision$
 	 */
-	private class Listener implements MouseListener {
+	private class Listener implements MouseListener, LanguageListener {
 
 		protected void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
@@ -145,6 +146,13 @@ public class MessageFrame extends JFrame
 
 		public void mouseReleased(MouseEvent event) {
 			maybeShowPopup(event);
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();					
 		}
 	}
     
@@ -529,6 +537,9 @@ public class MessageFrame extends JFrame
 	private JCheckBox sign = new JCheckBox();
     private JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
 
+    private JLabel Lboard = new JLabel();
+    private JLabel Lfrom = new JLabel();
+    private JLabel Lsubject = new JLabel();    
     private JTextField TFboard = new JTextField(); // Board (To)
     private JTextField fromTextField = new JTextField(); // From
     private JTextField subjectTextField = new JTextField(); // Subject
@@ -732,7 +743,10 @@ public class MessageFrame extends JFrame
 	 * @see java.awt.Window#dispose()
 	 */
 	public void dispose() {
-		// TODO Auto-generated method stub
+		if (initialized) {
+			languageResource.removeLanguageListener(listener);
+			initialized = false;
+		}
 		super.dispose();
 	}
 	
@@ -748,12 +762,10 @@ public class MessageFrame extends JFrame
 
 	private void initialize() throws Exception {
 		if (!initialized) {
-			//------------------------------------------------------------------------
-			// Configure objects
-			//------------------------------------------------------------------------
+			refreshLanguage();
+			languageResource.addLanguageListener(listener);
 
 			setIconImage(Toolkit.getDefaultToolkit().createImage(getClass().getResource("/data/newmessage.gif")));
-			setTitle(languageResource.getString("Create message"));
 			setResizable(true);
 
 			boardsTableModel = new MFAttachedBoardsTableModel();
@@ -780,9 +792,6 @@ public class MessageFrame extends JFrame
 				"/data/attachmentBoard_rollover.gif",
 				languageResource);
 
-			sign.setText(languageResource.getString("Sign"));
-			addAttachedFilesToUploadTable.setText(languageResource.getString("Indexed attachments"));
-
 			TFboard.setEditable(false);
 			TFboard.setText(board.toString());
 			fromTextField.setText(from);
@@ -799,8 +808,6 @@ public class MessageFrame extends JFrame
 			}
 
 			addAttachedFilesToUploadTable.setSelected(false);
-			addAttachedFilesToUploadTable.setToolTipText(
-				languageResource.getString("Should file attachments be added to upload table?"));
 
 			//------------------------------------------------------------------------
 			// Actionlistener
@@ -885,10 +892,6 @@ public class MessageFrame extends JFrame
 			JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
 			JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
 			JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-
-			JLabel Lboard = new JLabel(languageResource.getString("Board") + ": ");
-			JLabel Lfrom = new JLabel(languageResource.getString("From") + ": ");
-			JLabel Lsubject = new JLabel(languageResource.getString("Subject") + ": ");
 
 			JScrollPane bodyScrollPane = new JScrollPane(messageTextArea); // Textscrollpane
 			bodyScrollPane.setMinimumSize(new Dimension(100, 50));
@@ -1003,6 +1006,28 @@ public class MessageFrame extends JFrame
         }
         super.processWindowEvent(e);
     }
+    
+    /**
+	 * 
+	 */
+	private void refreshLanguage() {
+		setTitle(languageResource.getString("Create message"));
+		
+		Bsend.setToolTipText(languageResource.getString("Send message"));
+		Bcancel.setToolTipText(languageResource.getString("Cancel"));
+		BattachFile.setToolTipText(languageResource.getString("Add attachment(s)"));
+		BattachBoard.setToolTipText(languageResource.getString("Add Board(s)"));
+		
+		sign.setText(languageResource.getString("Sign"));
+		addAttachedFilesToUploadTable.setText(languageResource.getString("Indexed attachments"));
+		
+		addAttachedFilesToUploadTable.setToolTipText(
+				languageResource.getString("Should file attachments be added to upload table?"));
+		
+		Lboard.setText(languageResource.getString("Board") + ": ");
+		Lfrom.setText(languageResource.getString("From") + ": ");
+		Lsubject.setText(languageResource.getString("Subject") + ": ");
+	}
         
     protected void removeSelectedItemsFromTable( JTable tbl )
     {
