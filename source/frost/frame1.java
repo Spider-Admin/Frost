@@ -439,7 +439,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			systemTrayButton,
 			"Minimize to System Tray",
 			"/data/tray_rollover.gif");
-		// FIXME: add a rollover icon for knownboards.gif !!!
 		configureButton(
 			knownBoardsButton,
 			"Display list of known boards",
@@ -1504,7 +1503,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		uploadPopupAddFilesToBoard.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				getUploadTable().addFilesToBoardIndex();
-				// FIXME: what does this do? -- ANSWERED, see below!
+				// FIXME: ZAB! - what does this do? -- ANSWERED, see below!
 				// bback: is'nt my code, but i assume this was intended to add the
 				// selected files to board files list (e.g. after you changed target board).
 				// i'm not sure if longer needed, just comment it out and wait for comments ;)

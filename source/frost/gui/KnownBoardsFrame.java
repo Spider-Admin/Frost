@@ -153,14 +153,12 @@ public class KnownBoardsFrame extends JDialog
             }
             String bname, bpubkey, bprivkey;
             int pos = aboardstr.indexOf("*");
-            // BBACKFLAG: maybe there is no * in string ;)
             bname = aboardstr.substring(0, pos).trim();
             int pos2 = aboardstr.indexOf("*", pos+1);
             bpubkey = aboardstr.substring(pos+1, pos2).trim();
             bprivkey = aboardstr.substring(pos2+1).trim();
             if( bpubkey.length() < 10 )  bpubkey = null;
             if( bprivkey.length() < 10 )  bprivkey = null;
-            
             
             // check if this board is already contained in frostboards, if not add to list
             Iterator j = frostboards.iterator();
