@@ -100,7 +100,7 @@ public class Core {
 				if (isFreenetOnline() == false) {
 					JOptionPane.showMessageDialog(
 						frame1.getInstance(),
-						"Frost could not establish a connection to your freenet node. "
+						"Frost could not establish a connection to your freenet node(s). "
 							+ "For first setup of Frost and creating your identity a connection is needed,"
 							+ "later you can run Frost without a connection.\n"
 							+ "Please ensure that you are online and freenet is running, then restart Frost.",
@@ -376,6 +376,8 @@ public class Core {
 		}
 
 		if (isFreenetTransient()) {
+			//FIXME; this probably shouldn't be displayed if the user has more than one nodes
+			// even if both are transient
 			JOptionPane.showMessageDialog(
 				frame1.getInstance(),
 				"      You are running a TRANSIENT node.  "
