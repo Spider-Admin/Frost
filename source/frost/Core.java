@@ -689,7 +689,7 @@ public class Core implements Savable {
 		saver.addAutoSavable(getUploadManager().getModel());
 		saver.addExitSavable(this);
 		saver.addExitSavable(getIdentities());
-		saver.addAutoSavable(getMessagingManager().getMessageHashes());
+		saver.addExitSavable(getMessagingManager().getMessageHashes());
 		saver.addExitSavable(getBoardsManager().getTofTree());
 		saver.addExitSavable(getDownloadManager().getModel());
 		saver.addExitSavable(getUploadManager().getModel());
