@@ -369,7 +369,7 @@ static final Object[][] contents = {
 	{"FrostSearchItemObject.*ERROR*","*ERROR*"},
 	
 	///
-	/// FrostDownloadItemObject
+	/// FrostDownloadItem
 	///
 
 	{"Waiting","Esperando"},
