@@ -269,24 +269,27 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			LangRes.getString("Disable splashscreen"));
 		miscShowSystrayIcon.setText(LangRes.getString("Show systray icon"));
 		downloadEnableRequesting.setText(
-			LangRes.getString(
-				"Enable requesting of failed download files (on)"));
+			LangRes.getString("Enable requesting of failed download files")
+				+ " ("
+				+ LangRes.getString("On") + ")");
 		downloadTryAllSegments.setText(
 			LangRes.getString(
-				"Try to download all segments, even if one fails (on)"));
+				"Try to download all segments, even if one fails")
+				+ " ("
+				+ LangRes.getString("On") + ")");
 		downloadDecodeAfterEachSegment.setText(
 			LangRes.getString(
 				"Decode each segment immediately after its download"));
 		tofBoardUpdateVisualization.setText(
-			LangRes.getString("Show board update visualization (on)"));
+			LangRes.getString("Show board update visualization") + " (" + LangRes.getString("On") + ")");
 		allowEvilBertCheckBox.setText(
 			LangRes.getString("Allow 2 byte characters")
-				+ " "
-				+ LangRes.getString("(Off)"));
+				+ " ("
+				+ LangRes.getString("Off") + ")");
 		miscAltEditCheckBox.setText(
-			LangRes.getString("Use editor for writing messages: ")
-				+ " "
-				+ LangRes.getString("(Off)"));
+			LangRes.getString("Use editor for writing messages")
+				+ " ("
+				+ LangRes.getString("Off") + ")");
 		signUploads.setText(LangRes.getString("Sign shared files"));
 		automaticIndexing.setText(LangRes.getString("Automatic Indexing"));
 		shareDownloads.setText(LangRes.getString("Share Downloads"));
@@ -297,9 +300,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		hideAnonFiles.setText(
 			LangRes.getString("Hide files from anonymous users"));
 		downloadRemoveFinishedDownloads.setText(
-			LangRes.getString("Remove finished downloads every 5 minutes.")
-				+ " "
-				+ LangRes.getString("(Off)"));
+			LangRes.getString("Remove finished downloads every 5 minutes")
+				+ " ("
+				+ LangRes.getString("Off") + ")");
 		downloadRestartFailedDownloads.setText(
 			LangRes.getString("Restart failed downloads"));
 		uploadDisableRequests.setText(LangRes.getString("Disable uploads"));
@@ -308,34 +311,34 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		signedOnly.setText(LangRes.getString("Hide unsigned messages"));
 		hideBadMessages.setText(
 			LangRes.getString("Hide messages flagged BAD")
-				+ " "
-				+ LangRes.getString("(Off)"));
+				+ " ("
+				+ LangRes.getString("Off") + ")");
 		hideCheckMessages.setText(
 			LangRes.getString("Hide messages flagged CHECK")
-				+ " "
-				+ LangRes.getString("(Off)"));
+				+ " ("
+				+ LangRes.getString("Off") + ")");
 		hideNAMessages.setText(
 			LangRes.getString("Hide messages flagged N/A")
-				+ " "
-				+ LangRes.getString("(Off)"));
+				+ " ("
+				+ LangRes.getString("Off") + ")");
 		block.setText(
 			LangRes.getString(
-				"Block messages with subject containing (separate by ';' ):"));
+				"Block messages with subject containing (separate by ';' )") + ": ");
 		blockBody.setText(
 			LangRes.getString(
-				"Block messages with body containing (separate by ';' ):"));
+				"Block messages with body containing (separate by ';' )") + ": ");
 		doBoardBackoff.setText(LangRes.getString("Do spam detection"));
 		cleanUP.setText(LangRes.getString("Clean the keypool"));
 	}
 	private void translateLabel() {
 		downloadWaittimeLabel.setText(
-			LangRes.getString("Waittime after each try (min):") + " ");
+			LangRes.getString("Waittime after each try") + " ("  + LangRes.getString("minutes") + "): ");
 		downloadMaxRetriesLabel.setText(
-			LangRes.getString("Maximum number of retries:") + " ");
+			LangRes.getString("Maximum number of retries") + ": ");
 		downloadRequestAfterTriesLabel.setText(
-			LangRes.getString("Request file after this count of retries:")
-				+ " ");
-		interval.setText(LangRes.getString("Sample interval (hours)"));
+			LangRes.getString("Request file after this count of retries")
+				+ ": ");
+		interval.setText(LangRes.getString("Sample interval" + " (" + LangRes.getString("hours") + ")"));
 		treshold.setText(LangRes.getString("Threshold of blocked messages"));
 	}
 
@@ -549,7 +552,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridy++;
 			constr.gridx = 0;
 			downloadPanel.add(
-				new JLabel(LangRes.getString("Download directory:")),
+				new JLabel(LangRes.getString("Download directory") + ": "),
 				constr);
 			downloadDirectoryTextField.setEditable(true);
 			constr.gridx = 1;
@@ -557,7 +560,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			downloadPanel.add(downloadDirectoryTextField, constr);
 
 			JButton browseDownloadDirectoryButton =
-				new JButton(LangRes.getString("Browse..."));
+				new JButton(LangRes.getString("Browse") + "...");
 			browseDownloadDirectoryButton
 				.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -617,7 +620,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			downloadPanel.add(
 				new JLabel(
-					LangRes.getString("Number of simultaneous downloads:")
+					LangRes.getString("Number of simultaneous downloads")
 						+ " (3)"),
 				constr);
 			constr.gridx = 1;
@@ -627,7 +630,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			downloadPanel.add(
 				new JLabel(
-					LangRes.getString("Number of splitfile threads:")
+					LangRes.getString("Number of splitfile threads")
 						+ " (30)"),
 				constr);
 			constr.gridx = 1;
@@ -698,7 +701,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridy++;
 			constr.gridx = 0;
 			uploadPanel.add(
-				new JLabel(LangRes.getString("Upload HTL:") + " (8)"),
+				new JLabel(LangRes.getString("Upload HTL") + " (8)"),
 				constr);
 			constr.gridx = 1;
 			uploadPanel.add(uploadHtlTextField, constr);
@@ -710,7 +713,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			uploadPanel.add(
 				new JLabel(
-					LangRes.getString("Number of simultaneous uploads:")
+					LangRes.getString("Number of simultaneous uploads")
 						+ " (3)"),
 				constr);
 			constr.gridx = 1;
@@ -721,7 +724,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.insets = new Insets(5, 5, 5, 5);
 			uploadPanel.add(
 				new JLabel(
-					LangRes.getString("Number of splitfile threads:")
+					LangRes.getString("Number of splitfile threads")
 						+ " (15)"),
 				constr);
 			constr.gridx = 1;
@@ -777,7 +780,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			constr.gridy = 0;
 			tofPanel.add(
-				new JLabel(LangRes.getString("Message upload HTL:") + " (21)"),
+				new JLabel(LangRes.getString("Message upload HTL") + " (21)"),
 				constr);
 			constr.gridx = 1;
 			tofPanel.add(tofUploadHtlTextField, constr);
@@ -785,7 +788,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			tofPanel.add(
 				new JLabel(
-					LangRes.getString("Message download HTL:") + " (23)"),
+					LangRes.getString("Message download HTL") + " (23)"),
 				constr);
 			constr.gridx = 1;
 			tofPanel.add(tofDownloadHtlTextField, constr);
@@ -793,7 +796,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			tofPanel.add(
 				new JLabel(
-					LangRes.getString("Number of days to display:") + " (10)"),
+					LangRes.getString("Number of days to display") + " (10)"),
 				constr);
 			constr.gridx = 1;
 			tofPanel.add(tofDisplayDaysTextField, constr);
@@ -801,7 +804,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			tofPanel.add(
 				new JLabel(
-					LangRes.getString("Number of days to download backwards:")
+					LangRes.getString("Number of days to download backwards")
 						+ " (3)"),
 				constr);
 			constr.gridx = 1;
@@ -809,7 +812,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridy++;
 			constr.gridx = 0;
 			tofPanel.add(
-				new JLabel(LangRes.getString("Message base:") + " (news)"),
+				new JLabel(LangRes.getString("Message base") + " (news)"),
 				constr);
 			constr.gridx = 1;
 			tofPanel.add(tofMessageBaseTextField, constr);
@@ -912,7 +915,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 					Color newCol =
 						JColorChooser.showDialog(
 							OptionsFrame.this,
-							"Choose updating color of SELECTED boards",
+							LangRes.getString("Choose updating color of SELECTED boards"),
 							boardUpdSelectedBackgroundColor);
 					if (newCol != null) {
 						boardUpdSelectedBackgroundColor = newCol;
@@ -927,7 +930,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 					Color newCol =
 						JColorChooser.showDialog(
 							OptionsFrame.this,
-							"Choose updating color of NON-SELECTED boards",
+							LangRes.getString("Choose updating color of NON-SELECTED boards"),
 							boardUpdNonSelectedBackgroundColor);
 					if (newCol != null) {
 						boardUpdNonSelectedBackgroundColor = newCol;
@@ -943,10 +946,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
 			row1Panel.add(chooseBoardUpdSelectedBackgroundColor);
 			row1Panel.add(
-				new JLabel("Choose background color if updating board is selected."));
+				new JLabel(LangRes.getString("Choose background color if updating board is selected")));
 			row2Panel.add(chooseBoardUpdNonSelectedBackgroundColor);
 			row2Panel.add(
-				new JLabel("Choose background color if updating board is not selected."));
+				new JLabel(LangRes.getString("Choose background color if updating board is not selected")));
 
 			tofBoardUpdateVisualization
 				.addActionListener(new ActionListener() {
@@ -975,8 +978,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			tof3Panel.add(
 				new JLabel(
 					LangRes.getString(
-						"Minimum update interval of a board (minutes) :")
-						+ " (45)"),
+						"Minimum update interval of a board") + " (" + LangRes.getString("minutes")
+						+ ") (45)"),
 				constr);
 			constr.gridx = 1;
 			constr.insets = new Insets(5, 5, 5, 5);
@@ -989,7 +992,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			tof3Panel.add(
 				new JLabel(
 					LangRes.getString(
-						"Number of concurrently updating boards:")
+						"Number of concurrently updating boards")
 						+ " (6)"),
 				constr);
 			constr.gridx = 1;
@@ -1029,7 +1032,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			constr.gridy = 0;
 			miscPanel.add(
-				new JLabel(LangRes.getString("Keyfile upload HTL:") + " (21)"),
+				new JLabel(LangRes.getString("Keyfile upload HTL") + " (21)"),
 				constr);
 			constr.gridx = 1;
 			miscPanel.add(miscKeyUploadHtlTextField, constr);
@@ -1037,7 +1040,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			miscPanel.add(
 				new JLabel(
-					LangRes.getString("Keyfile download HTL:") + " (24)"),
+					LangRes.getString("Keyfile download HTL") + " (24)"),
 				constr);
 			constr.gridx = 1;
 			miscPanel.add(miscKeyDownloadHtlTextField, constr);
@@ -1065,7 +1068,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.insets = new Insets(5, 5, 5, 5);
 			miscPanel.add(
 				new JLabel(
-					LangRes.getString("Maximum number of keys to store:")
+					LangRes.getString("Maximum number of keys to store")
 						+ " (100000)"),
 				constr);
 			constr.gridx = 1;
@@ -1088,7 +1091,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridy++;
 			constr.gridx = 0;
 			miscPanel.add(
-				new JLabel("Automatic saving interval: (15)"),
+				new JLabel(
+					LangRes.getString("Automatic saving interval") + " (15)"),
 				constr);
 			constr.gridx = 1;
 			miscPanel.add(miscAutoSaveInterval, constr);
@@ -1127,48 +1131,50 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constr.gridx = 0;
 			constr.gridy = 0;
 			searchPanel.add(
-				new JLabel(LangRes.getString("Image Extension:")),
+				new JLabel(LangRes.getString("Image Extension")),
 				constr);
 			constr.gridx = 1;
 			searchPanel.add(searchImageExtensionTextField, constr);
 			constr.gridy++;
 			constr.gridx = 0;
 			searchPanel.add(
-				new JLabel(LangRes.getString("Video Extension:")),
+				new JLabel(LangRes.getString("Video Extension")),
 				constr);
 			constr.gridx = 1;
 			searchPanel.add(searchVideoExtensionTextField, constr);
 			constr.gridy++;
 			constr.gridx = 0;
 			searchPanel.add(
-				new JLabel(LangRes.getString("Archive Extension:")),
+				new JLabel(LangRes.getString("Archive Extension")),
 				constr);
 			constr.gridx = 1;
 			searchPanel.add(searchArchiveExtensionTextField, constr);
 			constr.gridy++;
 			constr.gridx = 0;
 			searchPanel.add(
-				new JLabel(LangRes.getString("Document Extension:")),
+				new JLabel(LangRes.getString("Document Extension")),
 				constr);
 			constr.gridx = 1;
 			searchPanel.add(searchDocumentExtensionTextField, constr);
 			constr.gridy++;
 			constr.gridx = 0;
 			searchPanel.add(
-				new JLabel(LangRes.getString("Audio Extension:")),
+				new JLabel(LangRes.getString("Audio Extension")),
 				constr);
 			constr.gridx = 1;
 			searchPanel.add(searchAudioExtensionTextField, constr);
 			constr.gridy++;
 			constr.gridx = 0;
 			searchPanel.add(
-				new JLabel(LangRes.getString("Executable Extension:")),
+				new JLabel(LangRes.getString("Executable Extension")),
 				constr);
 			constr.gridx = 1;
 			searchPanel.add(searchExecutableExtensionTextField, constr);
 			constr.gridy++;
 			constr.gridx = 0;
-			searchPanel.add(new JLabel("Maximum search results: "), constr);
+			searchPanel.add(
+				new JLabel(LangRes.getString("Maximum search results")),
+				constr);
 			constr.gridx = 1;
 			searchPanel.add(searchMaxSearchResults, constr);
 			constr.gridy++;
@@ -1288,7 +1294,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private void browseDownloadDirectoryButton_actionPerformed(ActionEvent e) {
 		final JFileChooser fc =
 			new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
-		fc.setDialogTitle(LangRes.getString("Select download directory."));
+		fc.setDialogTitle(LangRes.getString("Select download directory"));
 		fc.setFileHidingEnabled(true);
 		fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
 		fc.setMultiSelectionEnabled(false);
