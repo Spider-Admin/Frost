@@ -14,6 +14,6 @@ package frost.storage;
  */
 public interface Savable {
 
-	boolean save();
+	public boolean save();
 
 }

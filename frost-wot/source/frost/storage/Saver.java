@@ -7,9 +7,13 @@
 package frost.storage;
 
 import java.util.*;
+import java.util.Timer;
 import java.util.logging.Logger;
 
+import javax.swing.*;
+
 import frost.*;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * @author Administrator
@@ -41,7 +45,14 @@ public class Saver extends Timer {
 			if (autoSavables != null) {
 				Enumeration enumeration = autoSavables.elements();
 				while (enumeration.hasMoreElements()) {
-					((Savable) enumeration.nextElement()).save();
+					Savable savable = (Savable) enumeration.nextElement();
+					if (!savable.save()) {
+						JOptionPane.showMessageDialog(parentFrame,
+								languageResource.getString("Saver.AutoTask.message"),
+								languageResource.getString("Saver.AutoTask.title"),
+								JOptionPane.ERROR_MESSAGE);
+						System.exit(3);
+					}
 				}
 			}			
 		}
@@ -70,7 +81,10 @@ public class Saver extends Timer {
 			if (exitSavables != null) {
 				Enumeration enumeration = exitSavables.elements();
 				while (enumeration.hasMoreElements()) {
-					((Savable) enumeration.nextElement()).save();
+					Savable savable = (Savable) enumeration.nextElement();
+					if (!savable.save()) {
+						logger.severe("Error while saving a resource inside the shutdown hook.");
+					}
 				}
 			}
 			FileAccess.cleanKeypool(MainFrame.keypool);
@@ -81,6 +95,9 @@ public class Saver extends Timer {
 	
 	private static Logger logger = Logger.getLogger(Saver.class.getName());
 
+	private UpdatingLanguageResource languageResource;
+	private JFrame parentFrame;
+	
 	private ShutdownThread shutdownThread = new ShutdownThread();
 	private AutoTask autoTask = new AutoTask();
 	
@@ -90,8 +107,10 @@ public class Saver extends Timer {
 	/**
 	 * @param newCore
 	 */
-	public Saver(SettingsClass frostSettings) {
+	public Saver(SettingsClass frostSettings, UpdatingLanguageResource languageResource, JFrame parentFrame) {
 		super();
+		this.languageResource = languageResource;
+		this.parentFrame = parentFrame;
 		Runtime.getRuntime().addShutdownHook(shutdownThread);
 		int autoSaveIntervalMinutes = frostSettings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL);
 		schedule(
