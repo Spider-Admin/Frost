@@ -48,24 +48,43 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
     JLabel summaryLabel = new JLabel();
 
-    JButton updateButton = new JButton(LangRes.getString("BoardInfoFrame.Update"));
-    JButton updateSelectedBoardButton = new JButton(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-    JButton updateAllBoardsButton = new JButton(LangRes.getString("BoardInfoFrame.Update all boards"));
-    JButton Bclose = new JButton(LangRes.getString("BoardInfoFrame.Close"));
+    JButton updateButton = new JButton();
+    JButton updateSelectedBoardButton = new JButton();
+    JButton updateAllBoardsButton = new JButton();
+    JButton Bclose = new JButton();
 
     JPopupMenu popupMenu = new JPopupMenu();
-    JMenuItem MIupdate = new JMenuItem(LangRes.getString("BoardInfoFrame.Update"));
-    JMenuItem MIupdateSelectedBoard = new JMenuItem(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-    JMenuItem MIupdateAllBoards = new JMenuItem(LangRes.getString("BoardInfoFrame.Update all boards"));
+    JMenuItem MIupdate = new JMenuItem();
+    JMenuItem MIupdateSelectedBoard = new JMenuItem();
+    JMenuItem MIupdateAllBoards = new JMenuItem();
 
     BoardInfoTableModel boardTableModel = new BoardInfoTableModel();
     SortedTable boardTable = new SortedTable(boardTableModel);
+
+	/**
+	 * We really have to use ONE single point to configure all translateable 
+	 * objecs. This way we can change the resourceBundle and change
+	 * Frost's language on runtime.
+	 */
+	private void translateButtons() {
+		updateButton.setText(LangRes.getString("BoardInfoFrame.Update"));
+		updateSelectedBoardButton.setText(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+		updateAllBoardsButton.setText(LangRes.getString("BoardInfoFrame.Update all boards"));
+		Bclose.setText(LangRes.getString("BoardInfoFrame.Close"));		
+	}
+	private void translateMenu() {
+		MIupdate.setText(LangRes.getString("BoardInfoFrame.Update"));
+		MIupdateSelectedBoard.setText(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+		MIupdateAllBoards.setText(LangRes.getString("BoardInfoFrame.Update all boards"));		
+	}
 
     /**Constructor*/
     public BoardInfoFrame(frame1 p, ResourceBundle LangRes)
     {
         super();
 		this.LangRes = LangRes;
+		translateButtons();
+		translateMenu();
         parent = p;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
