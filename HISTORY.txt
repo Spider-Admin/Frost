@@ -8,20 +8,22 @@ Legend:
 * Changes since upd6 (next planned release: upd7)
 
 - fixed 'Minimize to tray and never come up again' bug on Windows systems --bback
-+ added new systray support that could also be used on different platforms, currently win32 supported
-* changed file transfer methods to 'bleeding edge' : 
++ added new systray support that could also be used on different platforms, currently win32 supported;
+  there is now a new icon for frost ...
+* changed file transfer methods to 'bleeding edge' :   --zab
 	*  Reworked the indexing scheme, serialized in object format in "indices-date" format
 	*  There is only one request thread, each batch of files has its own request channel
 	+  Files shared more than N days ago are re-shared
 	+  Frost looks for indices up to N days ago	
-	--zab
 + made the FileAccess methods explicitly define the encoding and use nio --zab
 * added some short comments explaining what the different options do in the gui --zab
 + added rewritten FEC insert and request code:  --bback
-  - uses java classes, not freenet node
-  - native encoding plugins supported (same as for freenet)
-  - stores temp files in data,checkblocks sand redirect file, not longer 1 file for each block
-  - reliable handling of uploads and downloads
+  + uses java classes directly, not freenet node
+  + native encoding plugins supported (same as for freenet) - but not really needed, Java IS fast
+  + stores temp files in data, checkblocks and redirect file, not longer 1 file for each block
+  * reliable handling of uploads and downloads
+  + decode after each segment or all on end of download
+  + download all segments, even if one fails
 ! to insert a file directly, add it to upload table, right click it and choose 'Reload'
   you can also encode a newly added file on demand (see popup menu) to prepare it for upload,
   but file will also be encoded if you choose to reload (upload) it or if file is requested  --bback
