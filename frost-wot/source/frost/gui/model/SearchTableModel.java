@@ -20,7 +20,6 @@
 package frost.gui.model;
 
 import frost.gui.translation.*;
-import frost.gui.translation.LanguageListener;
 
 
 public class SearchTableModel extends SortedTableModel implements LanguageListener
@@ -40,6 +39,7 @@ public class SearchTableModel extends SortedTableModel implements LanguageListen
 	public SearchTableModel(UpdatingLanguageResource newLanguageResource) {
 		super();
 		languageResource = newLanguageResource;
+		languageResource.addLanguageListener(this);
 		refreshLanguage();
 	}
 
