@@ -83,7 +83,8 @@ public class MessageUploadFailedDialog extends JDialog
         tryOnNextStartupButton = new JButton( tryOnNextStartupText );
         tryOnNextStartupButton.addActionListener( bl );
 
-        this.getContentPane().add(new JLabel(new IconFromUI().getIcon()), constr);
+		Icon warningIcon = UIManager.getIcon("OptionPane.warningIcon");
+	    getContentPane().add(new JLabel(warningIcon), constr);
 
         constr.anchor = GridBagConstraints.CENTER;
         constr.gridwidth = GridBagConstraints.REMAINDER;
@@ -149,15 +150,5 @@ public class MessageUploadFailedDialog extends JDialog
             hide();
         }
     }
-    class IconFromUI extends BasicOptionPaneUI
-    {
-        public IconFromUI ()
-        {
-            super();
-        }
-        public Icon getIcon()
-        {
-            return super.getIconForType(JOptionPane.WARNING_MESSAGE);
-        }
-    }
+    
 }
