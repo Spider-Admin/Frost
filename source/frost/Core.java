@@ -543,7 +543,7 @@ public class Core implements Savable {
 		getSearchManager().initialize();
 		
 		//Until the downloads are fully separated from frame1:
-		mainFrame.setDownloadPanel(getDownloadManager().getPanel());
+		mainFrame.setDownloadTicker(getDownloadManager().getTicker());
 		mainFrame.setDownloadTable(getDownloadManager().getTable());
 		mainFrame.initialize();
 

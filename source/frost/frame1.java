@@ -1656,7 +1656,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			}
 		}
 	}
-	public static int activeDownloadThreads = 0;
+	private DownloadTicker downloadTicker;
 	//	public static String newMessageHeader = new String("");
 	//	public static String oldMessageHeader = new String("");
 	public static int activeUploadThreads = 0;
@@ -1664,22 +1664,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	public static Core core;
 
-	/**
-	 * Used to sort FrostDownloadItemObjects by lastUpdateStartTimeMillis ascending.
-	 */
-	static final Comparator downloadDlStopMillisCmp = new Comparator() {
-		public int compare(Object o1, Object o2) {
-			FrostDownloadItemObject value1 = (FrostDownloadItemObject) o1;
-			FrostDownloadItemObject value2 = (FrostDownloadItemObject) o2;
-			if (value1.getLastDownloadStopTimeMillis() > value2.getLastDownloadStopTimeMillis())
-				return 1;
-			else if (
-				value1.getLastDownloadStopTimeMillis() < value2.getLastDownloadStopTimeMillis())
-				return -1;
-			else
-				return 0;
-		}
-	};
 	public static String fileSeparator = System.getProperty("file.separator");
 	// saved to frost.ini
 	public static SettingsClass frostSettings = null;
@@ -1765,7 +1749,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	JButton cutBoardButton = null;
 
 	//Panels
-	private DownloadPanel downloadPanel = null;
 	private DownloadTable downloadTable = null;
 	JMenuItem fileExitMenuItem = new JMenuItem();
 
@@ -2829,46 +2812,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	}
 
 	/**
-	 * Chooses next download item to start from download table.
-	 */
-	protected FrostDownloadItemObject selectNextDownloadItem() {
-		DownloadTableModel dlModel = (DownloadTableModel) getDownloadTable().getModel();
-
-		// get the item with state "Waiting", minimum htl and not over maximum htl
-		ArrayList waitingItems = new ArrayList();
-		for (int i = 0; i < dlModel.getRowCount(); i++) {
-			FrostDownloadItemObject dlItem = (FrostDownloadItemObject) dlModel.getRow(i);
-			if ((dlItem.getState() == FrostDownloadItemObject.STATE_WAITING
-				&& (dlItem.getEnableDownload() == null
-					|| dlItem.getEnableDownload().booleanValue()
-						== true) //                && dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
-			)
-				|| ((dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED
-					|| dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTING)
-					&& dlItem.getKey() != null
-					&& (dlItem.getEnableDownload() == null
-						|| dlItem.getEnableDownload().booleanValue() == true))) {
-				// check if waittime is expired
-				long waittimeMillis = frostSettings.getIntValue("downloadWaittime") * 60 * 1000;
-				// min->millisec
-				if (frostSettings.getBoolValue("downloadRestartFailedDownloads")
-					&& (System.currentTimeMillis() - dlItem.getLastDownloadStopTimeMillis())
-						> waittimeMillis) {
-					waitingItems.add(dlItem);
-				}
-			}
-		}
-		if (waitingItems.size() == 0)
-			return null;
-
-		if (waitingItems.size() > 1) // performance issues
-			{
-			Collections.sort(waitingItems, downloadDlStopMillisCmp);
-		}
-		return (FrostDownloadItemObject) waitingItems.get(0);
-	}
-
-	/**
 	 * Setter for thelanguage resource bundle
 	 */
 	public void setLanguageResource(ResourceBundle newLanguageResource) {
@@ -2940,12 +2883,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			getUploadTable().removeNotExistingFiles();
 		}
 
-		if (counter % 300 == 0 && frostSettings.getBoolValue("removeFinishedDownloads")) {
-			getDownloadTable().removeFinishedDownloads();
-		}
-
-		updateDownloadCountLabel();
-
 		//////////////////////////////////////////////////
 		//   Automatic TOF update
 		//////////////////////////////////////////////////
@@ -2983,7 +2920,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				.append(languageResource.getString("Up") + ": ")
 				.append(activeUploadThreads)
 				.append("   " + languageResource.getString("Down") + ": ")
-				.append(activeDownloadThreads)
+				.append(downloadTicker.getThreadCount())
 				.append("   " + languageResource.getString("TOFUP") + ": ")
 				.append(getRunningBoardUpdateThreads().getUploadingBoardCount())
 				.append("B / ")
@@ -3077,31 +3014,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 						break; // start only 1 thread per loop (=second)
 					}
 				}
-			}
-		}
-
-		//////////////////////////////////////////////////
-		// Start download thread
-		//////////////////////////////////////////////////
-		int activeDthreads = 0;
-		synchronized (threadCountLock) {
-			activeDthreads = activeDownloadThreads;
-		}
-		if (counter % 3 == 0
-			&& // check all 3 seconds if a download could be started
-		activeDthreads
-				< frostSettings.getIntValue("downloadThreads")
-			&& downloadPanel.isDownloadingActivated() && core.isFreenetOnline()) {
-			// choose first item
-			FrostDownloadItemObject dlItem = selectNextDownloadItem();
-			if (dlItem != null) {
-				DownloadTableModel dlModel = (DownloadTableModel) getDownloadTable().getModel();
-
-				dlItem.setState(FrostDownloadItemObject.STATE_TRYING);
-				dlModel.updateRow(dlItem);
-
-				DownloadThread newRequest = new DownloadThread(dlItem, getDownloadTable());
-				newRequest.start();
 			}
 		}
 	}
@@ -3337,25 +3249,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	}
 
 	/**
-	 * Updates the download items count label. The label shows all WAITING items in download table.
-	 * Called periodically by timer_actionPerformed().
-	 */
-	public void updateDownloadCountLabel() {
-		if (frostSettings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS) == true)
-			return;
-
-		DownloadTableModel model = (DownloadTableModel) getDownloadTable().getModel();
-		int waitingItems = 0;
-		for (int x = 0; x < model.getRowCount(); x++) {
-			FrostDownloadItemObject dlItem = (FrostDownloadItemObject) model.getRow(x);
-			if (dlItem.getState() == FrostDownloadItemObject.STATE_WAITING) {
-				waitingItems++;
-			}
-		}
-		downloadPanel.setDownloadItemCount(waitingItems);
-	}
-
-	/**
 	 * Method that update the Msg and New counts for tof table
 	 * Expects that the boards messages are shown in table
 	 */
@@ -3428,17 +3321,17 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	}
 
 	/**
-	 * @param panel
-	 */
-	public void setDownloadPanel(DownloadPanel panel) {
-		downloadPanel = panel;
-	}
-
-	/**
 	 * @param table
 	 */
 	public void setDownloadTable(DownloadTable table) {
 		downloadTable = table;
+	}
+
+	/**
+	 * @param ticker
+	 */
+	public void setDownloadTicker(DownloadTicker ticker) {
+		downloadTicker = ticker;		
 	}
 
 }
