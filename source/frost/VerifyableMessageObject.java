@@ -283,7 +283,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
         }
         catch(Throwable t)
         {
-            System.out.println("Oo. Exception in verify() - settings message state to N/A.");
+            System.out.println("Oo. Exception in verify() - setting message state to N/A.");
             t.printStackTrace();
             currentMsg.setStatus(VerifyableMessageObject.NA);
         }
