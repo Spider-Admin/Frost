@@ -9,6 +9,7 @@ This is the Frost TODO file. Please maintain it carefully.
     that appears only when the message is signed/with attachment
   * Instead of "Refresh board/folder" say "Get new messages" everywhere
 - Move the @digest part of the nickname in its own column
+- Possibly allow rich text or some limited markup of messages
 
 ***** 2003/05/12 - bback
 Here are Janthos TODOs (german), below i translated it to english:
