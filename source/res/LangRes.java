@@ -383,6 +383,7 @@ public class LangRes extends ListResourceBundle {
 	// News (2) Panel
 	{"Block messages with subject containing (separate by ';' )", "Block messages with subject containing (separate by ';' )"},
 	{"Block messages with body containing (separate by ';' )", "Block messages with body containing (separate by ';' )"},
+	{"Block messages with these attached boards (separate by ';' )", "Block messages with these attached boards (separate by ';' )"},
 	{"Hide unsigned messages", "Hide unsigned messages"},
 	{"Hide messages flagged BAD", "Hide messages flagged BAD"},
 	{"Hide messages flagged CHECK", "Hide messages flagged CHECK"},

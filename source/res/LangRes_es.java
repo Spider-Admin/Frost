@@ -39,6 +39,7 @@ static final Object[][] contents = {
 {"Automatic update options","Opciones de refresco automático"},
 {"AvailableSkins","Skins disponibles"},
 {"batch explanation","(cuanto mayor más rápido pero menos resistente a spam)"},
+{"Block messages with these attached boards (separate by ';' )", "Bloquea mensajes con estos foros adjuntos (separados por ';' )"},
 {"Block messages with body containing (separate by ';' )","Bloquea mensajes cuyo cuerpo contiene (separados por ';' )"},
 {"Block messages with subject containing (separate by ';' )","Bloquea mensajes cuyo asunto contiene (separados por ';' )"},
 {"Blocks", "Bloques"},
