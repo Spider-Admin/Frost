@@ -69,7 +69,8 @@ public class GetRequestsThread extends Thread
 	
 	//yes mister spammer, this is a special for you!
 	destination = new StringBuffer().append("requests")
-			.append(fileSeparator).append(frame1.getMyId().getUniqueName()).toString();
+			.append(fileSeparator)
+			.append(mixed.makeFilename(frame1.getMyId().getUniqueName())).toString();
 
         File makedir = new File(destination);
         if( !makedir.exists() )
@@ -95,6 +96,7 @@ public class GetRequestsThread extends Thread
         while( failures < maxFailures )
         {
             String val = new StringBuffer().append(destination)
+	    				   .append(fileSeparator)
 					   .append(currentBatch)
                                            .append("-")
                                            .append(dirdate)
@@ -181,7 +183,9 @@ public class GetRequestsThread extends Thread
         }
 
         }
-	}} //people with nice ides can refactor :-P
+	}
+	mixed.wait(5*60*1000);
+	} //people with nice ides can refactor :-P
         catch(Throwable t)
         {
             System.out.println(Thread.currentThread().getName()+": Oo. EXCEPTION in GetRequestsThread:");
@@ -193,7 +197,7 @@ public class GetRequestsThread extends Thread
     }
 
     /**Constructor*/
-    public GetRequestsThread(FrostBoardObject boa, int dlHtl, String kpool, JTable uploadTable)
+    public GetRequestsThread(int dlHtl, String kpool, JTable uploadTable)
     {
         //super(boa);
         //this.board = boa;
