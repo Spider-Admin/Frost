@@ -1273,7 +1273,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 // reset HTL for all selected items in download table
                 DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
                 int[] selectedRows = getDownloadTable().getSelectedRows();
-                for( int x=0; x<dlModel.getRowCount(); x++ )
+                for( int x=0; x<selectedRows.length; x++ )
                 {
                     FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
                     dlItem.setHtl( frostSettings.getIntValue("htl"));
@@ -2362,10 +2362,18 @@ public class frame1 extends JFrame implements ClipboardOwner
             for( int i = 0; i < dlModel.getRowCount(); i++ )
             {
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-                if( dlItem.getHtl().intValue() <= frostSettings.getIntValue("htlMax") &&
-                    dlItem.getState().equals(LangRes.getString("Waiting")) )
+                if( dlItem.getState().equals(LangRes.getString("Waiting")) )
                 {
-                    waitingItems.add( dlItem );
+                    if( dlItem.getHtl().intValue() <= frostSettings.getIntValue("htlMax") )
+                    {
+                        waitingItems.add( dlItem );
+                    }
+                    else
+                    {
+                        // set item to failed state
+                        dlItem.setState( LangRes.getString("Failed") );
+                        dlModel.updateRow( dlItem );
+                    }
                 }
             }
             if( waitingItems.size() > 0 )
