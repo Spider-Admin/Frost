@@ -387,10 +387,13 @@ public class LangRes extends ListResourceBundle {
 	//{"minutes", "minutes"}, // Defined above
 	{"Number of concurrently updating boards", "Number of concurrently updating boards"},
 	{"Show board update visualization", "Show board update visualization"},
-	{"Choose background color if updating board is selected", "Choose background color if updating board is selected"},
-	{"Choose background color if updating board is not selected", "Choose background color if updating board is not selected"},
+	{"Background color if updating board is selected", "Background color if updating board is selected"},
+	{"Background color if updating board is not selected", "Background color if updating board is not selected"},
+	{"Choose", "Choose"},
+	{"Color", "Color"},
 	{"Choose updating color of SELECTED boards", "Choose updating color of SELECTED boards"},
 	{"Choose updating color of NON-SELECTED boards", "Choose updating color of NON-SELECTED boards"},
+	{"Silently retry failed messages", "Silently retry failed messages"},
 	
     // Search Panel
 	{"Image Extension", "Image Extension"},
