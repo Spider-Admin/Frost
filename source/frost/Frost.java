@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import frost.util.gui.MiscToolkit;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 public class Frost {
 
@@ -151,7 +152,8 @@ public class Frost {
 	 * Constructor
 	 */
 	public Frost() {
-		if (!initializeLockFile()) {
+		Core core = Core.getInstance();
+		if (!initializeLockFile(core.getLanguageResource())) {
 			System.exit(1);
 		}
 
@@ -159,7 +161,7 @@ public class Frost {
 			System.exit(3);
 		}
 
-		Core.getInstance();
+		core.initialize();
 	}
 
 	/**
@@ -219,10 +221,11 @@ public class Frost {
 	/**
 	 * This method checks if the lockfile is present (therefore indicating that another instance
 	 * of Frost is running off the same directory). If it is, it shows a Dialog warning the
-	 * user of the situation and returns false. If not, it creates a lockfile and returns true. 
+	 * user of the situation and returns false. If not, it creates a lockfile and returns true.
+	 * @param languageResource the language resource to use in case an error message has to be displayed. 
 	 * @return boolean false if there was a problem while initializing the lockfile. True otherwise.
 	 */
-	private boolean initializeLockFile() {
+	private boolean initializeLockFile(UpdatingLanguageResource languageResource) {
 		// check for running frost (lock file)
 		File runLock = new File(".frost_run_lock");
 		boolean fileCreated = false;
@@ -234,12 +237,8 @@ public class Frost {
 
 		if (fileCreated == false) {
 			MiscToolkit.getInstance().showMessage(
-				"This indicates that another Frost instance is already running in "
-					+ "this directory.\nRunning Frost concurrently will cause data loss.\n"
-					+ "If you are REALLY SURE that Frost is not already running, "
-					+ "delete the lockfile:\n'"
-					+ runLock.getAbsolutePath()
-					+ "'",
+				languageResource.getString("Frost.lockFileFound") + "'" + 
+					runLock.getAbsolutePath() + "'",
 				JOptionPane.ERROR_MESSAGE,
 				"ERROR: Found Frost lock file '.frost_run_lock'.\n");
 			return false;
