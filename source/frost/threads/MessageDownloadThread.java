@@ -235,7 +235,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                     if( !exists(testMe) )
                     {
                         //test if encrypted and decrypt
-                        String contents = FileAccess.readFile(testMe);
+                        String contents = FileAccess.readFileRaw(testMe);
                         //System.out.println(contents);
                         String plaintext;
                         int encstart = contents.indexOf("==== Frost Signed+Encrypted Message ====");
