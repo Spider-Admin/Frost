@@ -2,6 +2,8 @@ package com.onionnetworks.fec;
 
 //import java.security.AccessController;
 //import sun.security.action.*;
+import java.util.logging.Logger;
+
 import com.onionnetworks.util.NativeDeployer;
 
 /**
@@ -15,6 +17,8 @@ import com.onionnetworks.util.NativeDeployer;
  */
 public class Native16Code extends FECCode {
     
+	private static Logger logger = Logger.getLogger(Native16Code.class.getName());
+    
     // One must be very very careful not to let code escape, it stores the
     // memory address of a fec_parms struct and if modified could give an
     // attacker the ability to point to anything in memory.
@@ -26,7 +30,7 @@ public class Native16Code extends FECCode {
         if (path != null) {
             System.load(path);
         } else {
-            System.out.println("Unable to find native library for fec16");
+            logger.severe("Unable to find native library for fec16");
         }
     }
     

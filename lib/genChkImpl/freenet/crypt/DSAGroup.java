@@ -3,6 +3,7 @@ package freenet.crypt;
 import java.io.*;
 import java.math.BigInteger;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * Holds DSA group parameters.  These are the public (possibly shared) values
@@ -10,7 +11,7 @@ import java.util.*;
  */
 public class DSAGroup extends CryptoKey {
 
-    private static final boolean DEBUG=false;
+	private static Logger logger = Logger.getLogger(DSAGroup.class.getName());
     private BigInteger p,q,g;
     private String pAsHexString,gAsHexString,qAsHexString; //Cached versions of the hexadecimal string representations of p,q and g 
 
@@ -187,7 +188,7 @@ public class DSAGroup extends CryptoKey {
     step1:
 	do {
 	    if ((cc++)%15 == 0)
-		System.err.print(".");
+		logger.finer(".");
 	    if (multithread) {
 		while (qg.qs.size() < 1) {
 		    try {
@@ -217,7 +218,7 @@ public class DSAGroup extends CryptoKey {
 	BigInteger h;
 	do {
 	    if ((cc++)%5 == 0)
-		System.err.print("+");
+		logger.finer("+");
 	    h=new BigInteger(160, r);
 	    g=h.modPow(pmin1.divide(q), p);
 	} while ((h.compareTo(p.subtract(Util.ONE)) != -1) ||

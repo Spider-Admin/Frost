@@ -18,6 +18,7 @@ Exception in thread "main" java.lang.ArrayIndexOutOfBoundsException: -103284
 
 import java.io.*;
 import java.util.Properties;
+import java.util.logging.Logger;
 
 import com.onionnetworks.fec.*;
 import com.onionnetworks.util.Buffer;
@@ -33,6 +34,8 @@ import freenet.support.*;
  **/
 public class FECUtils {
 
+	private static Logger logger = Logger.getLogger(FECUtils.class.getName());
+
     // Calling this prevents an ugly warning stack
     // trace from the DefaultFECCodeFactory when the
     // native libs are not installed.
@@ -40,7 +43,7 @@ public class FECUtils {
         Properties systemProps = System.getProperties();
         systemProps.setProperty("com.onionnetworks.fec.keys","pure8,pure16");
         System.setProperties(systemProps);
-        System.out.println("Native code off. Using Java FEC implementaion.");
+        logger.info("Native code off. Using Java FEC implementaion.");
     }
 
     // package scope on purpose.
@@ -89,7 +92,7 @@ public class FECUtils {
             // any of the buckets.
             dumpBlock(repair[i], checkBlocks[i]);
         }
-        System.out.println("Made " + index.length + " " + BLOCK_SIZE + " byte check blocks in "
+        logger.fine("Made " + index.length + " " + BLOCK_SIZE + " byte check blocks in "
                            + (System.currentTimeMillis() - start ) + "ms ("+
                            (end2-start2)+"ms for computing).");
 
@@ -218,7 +221,7 @@ public class FECUtils {
 
         //System.err.println("Decoded into packets: " + list.trim());
 
-        System.out.println("FEC decode took " + (System.currentTimeMillis() - start ) + "ms.");
+        logger.fine("FEC decode took " + (System.currentTimeMillis() - start ) + "ms.");
 
         for (int i = 0; i < decodeIndices.length; i++) {
             // Nothing to clean up on exception

@@ -2,6 +2,7 @@ package freenet.crypt;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.Logger;
 
 /*
   This code is part of the Java Adaptive Network Client by Ian Clarke.
@@ -38,10 +39,11 @@ import java.util.*;
  */
 public final class Yarrow extends RandomSource {
 
+	private static Logger logger = Logger.getLogger(Yarrow.class.getName());
+
     /**
      * Security parameters
      */
-    private static final boolean DEBUG=false;
     private static final int
 	Pg = 10;
 
@@ -267,9 +269,9 @@ public final class Yarrow extends RandomSource {
 		    for (Enumeration enum=entropySeen.keys(); enum.hasMoreElements();) {
 			Object key=enum.nextElement();
 			Integer v=(Integer)entropySeen.get(key);
-			if (DEBUG)
-//			    Core.logger.log(this,"Key: <"+key+"> "+
-//					    v,Logger.NORMAL);
+			
+			logger.fine("Key: <" + key + "> "+ v);
+			
 			if (v.intValue() > SLOW_THRESHOLD )
 			    {
 				kc++;
@@ -282,9 +284,7 @@ public final class Yarrow extends RandomSource {
 		}
 	    }
 	}
-	if (DEBUG)
-	    //	    Core.logger.log(this,"Fast pool: "+fast_entropy+"\tSlow pool: "+slow_entropy, Logger.NORMAL);
-	    System.err.println("Fast pool: "+fast_entropy+"\tSlow pool: "+slow_entropy);
+	logger.fine("Fast pool: " + fast_entropy + "\tSlow pool: " + slow_entropy);
 	return actualEntropy;
     }
 
