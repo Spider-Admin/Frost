@@ -7,6 +7,7 @@ package frost.boards;
 import frost.*;
 import frost.MainFrame;
 import frost.gui.objects.Board;
+import frost.messaging.MessageHashes;
 
 /**
  * @author $Author$
@@ -21,6 +22,7 @@ public class BoardsManager {
 	
 	private SettingsClass settings;
 	private Core core;
+	private MessageHashes messageHashes;
 	
 	/**
 	 * 
@@ -53,6 +55,7 @@ public class BoardsManager {
 			tofTree.setSettings(settings);
 			tofTree.setCore(core);
 			tofTree.setMainFrame(mainFrame);
+			tofTree.setMessageHashes(messageHashes);
 		}
 		return tofTree;
 	}
@@ -83,5 +86,12 @@ public class BoardsManager {
 	 */
 	public void setCore(Core core) {
 		this.core = core;		
+	}
+
+	/**
+	 * @param messageHashes
+	 */
+	public void setMessageHashes(MessageHashes messageHashes) {
+		this.messageHashes = messageHashes;		
 	}
 }

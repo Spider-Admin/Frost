@@ -33,6 +33,7 @@ import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.identities.Identity;
 import frost.messages.*;
+import frost.messaging.MessageHashes;
 
 /**
  * Downloads messages
@@ -51,6 +52,7 @@ public class MessageDownloadThread
     private boolean flagNew;
     
 	private static Logger logger = Logger.getLogger(MessageDownloadThread.class.getName());
+	private MessageHashes messageHashes;
 
     public int getThreadType()
     {
@@ -304,10 +306,10 @@ public class MessageDownloadThread
 
                         // Does a duplicate message exist?
                         if (!exists(testMe)
-                            && !Core.getMessageSet().contains(messageId))
+                            && !messageHashes.contains(messageId))
                         {
 
-                            Core.getMessageSet().add(messageId);
+                        	messageHashes.add(messageId);
 
                             //if no metadata, message wasn't signed
                             if (metadata == null)
@@ -605,5 +607,12 @@ public class MessageDownloadThread
 		this.downloadHtl = dlHtl;
 		this.keypool = kpool;
 		this.maxMessageDownload = Integer.parseInt(maxmsg);
+	}
+
+	/**
+	 * @param messageHashes
+	 */
+	public void setMessageHashes(MessageHashes messageHashes) {
+		this.messageHashes = messageHashes;		
 	}
 }

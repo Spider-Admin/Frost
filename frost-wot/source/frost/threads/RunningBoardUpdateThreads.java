@@ -9,6 +9,7 @@ import frost.*;
 import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
 import frost.messages.MessageObject;
+import frost.messaging.MessageHashes;
 
 /**
  * This class maintains the message download and upload threads.
@@ -32,6 +33,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     Hashtable runningDownloadThreads = null;
     // contains key=board, data=vector of BoardUpdateThread's (multiple of kind MSG_UPLOAD)
     Hashtable runningUploadThreads = null;
+
+	private MessageHashes messageHashes;
 
     /**
      * @param parentFrame
@@ -72,6 +75,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 				config.getValue("keypool.dir"),
 				config.getValue("maxMessageDownload"),
 				identities);
+		tofd.setMessageHashes(messageHashes);
 
 		// register listener and this class as listener
 		tofd.addBoardUpdateThreadListener(this);
@@ -107,6 +111,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 				config.getValue("keypool.dir"),
 				config.getValue("maxMessageDownload"),
 				identities);
+		backload.setMessageHashes(messageHashes);
 
 		// register listener and this class as listener
 		backload.addBoardUpdateThreadListener(this);
@@ -169,8 +174,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     	final int downloadBack=MainFrame.frostSettings.getIntValue("maxMessageDownload");
    
 	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
-	for (int i =0;i<downloadBack;i++) 
-		threads[i] = new UpdateIdThread(board,DateFun.getDate(i), identities);
+	for (int i =0;i<downloadBack;i++) {
+		UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), identities);
+		thread.setMessageHashes(messageHashes);
+		threads[i] = thread;
+	}
         
 	//NOTE: since we now do deep requests, it takes a lot of time for
 	//all these threads to finish.  So I'll notify the gui that the message downlaod thread is done updating
@@ -542,6 +550,13 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         }
         return false;
     }
+
+	/**
+	 * @param messageHashes
+	 */
+	public void setMessageHashes(MessageHashes messageHashes) {
+		this.messageHashes = messageHashes;
+	}
 
 /*
 maybe useable if the counters are set on thread start/end

@@ -29,6 +29,7 @@ import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.identities.Identity;
 import frost.messages.FrostIndex;
+import frost.messaging.MessageHashes;
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
@@ -57,6 +58,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private String insertKey;
     private String boardState;
     private final static String fileSeparator = System.getProperty("file.separator");
+	private MessageHashes messageHashes;
     
     //these pertain to the currently received index
 //	Identity sharer = null;
@@ -329,14 +331,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
 					//check if we have received such file before
 					String digest = Core.getCrypto().digest(target);
-					if (Core.getMessageSet().contains(digest)) {
+					if (messageHashes.contains(digest)) {
 						//we have.  erase and continue
 						target.delete();
 						index = findFreeDownloadIndex();
 						continue;
 					}
 					//else add it to the set of received files to prevent duplicates
-					Core.getMessageSet().add(digest);
+					messageHashes.add(digest);
 
 					// Add it to the index
 					try {
@@ -629,5 +631,12 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					.append(currentDate)
 					.append("/")
 					.toString();
+	}
+
+	/**
+	 * @param messageHashes
+	 */
+	public void setMessageHashes(MessageHashes messageHashes) {
+		this.messageHashes = messageHashes;		
 	}
 }
