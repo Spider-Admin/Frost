@@ -54,6 +54,8 @@ import javax.swing.table.*;
 
 import com.l2fprod.gui.plaf.skin.DefaultButton;
 
+import frost.gui.SortedTable;
+
 /**
  * Description of the Class
  *
@@ -145,13 +147,13 @@ public class GtkTableHeaderRenderer extends DefaultTableCellRenderer implements 
 		int modelIndex = -1;
 		boolean ascending = true;
 		if (table != null) {
-			/*if (table instanceof SortedTable) {
+			if (table instanceof SortedTable) {
 				SortedTable sortTable = (SortedTable) table;
 				index = sortTable.getSortedColumnIndex();
 				ascending = sortTable.isSortedColumnAscending();
 				TableColumnModel colModel = table.getColumnModel();
 				modelIndex = colModel.getColumn(column).getModelIndex();
-			}*/
+			}
 			JTableHeader header = table.getTableHeader();
 			if (header != null) {
 				setForeground(header.getForeground());
@@ -163,7 +165,7 @@ public class GtkTableHeaderRenderer extends DefaultTableCellRenderer implements 
 		this.isSelected = isSelected;
 		this.hasFocus = hasFocus;
 		Icon icon = ascending ? ASCENDING : DECENDING;
-		//setIcon(modelIndex == index ? icon : NONSORTED);
+		setIcon(modelIndex == index ? icon : NONSORTED);
 		setText((value == null) ? "" : value.toString());
 		return this;
 	}
