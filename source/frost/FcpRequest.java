@@ -677,9 +677,7 @@ public class FcpRequest
                 doRedirect )
             { // File may be a redirect
 
-                // Check if this file is a redirect. We do not yet use metadata here
-                // but the files are uploaded with metadata. Perhapes I'll fix this later.
-                // if this is a redirect, try to find the CHK for the requested file
+                // Check if this file is a redirect and if there is a key to the file in the metadata
                 String redirectCHK = getRedirectCHK( results.getMetadata(), key );
 
                 if( redirectCHK != null )
