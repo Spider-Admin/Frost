@@ -11,6 +11,7 @@ import java.awt.*;
 import javax.swing.*;
 
 import frost.SettingsClass;
+import frost.util.gui.JClipboardTextField;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
@@ -24,22 +25,22 @@ class SearchPanel extends JPanel {
 		
 	private JLabel archiveExtensionLabel = new JLabel();
 		
-	private JTextField archiveExtensionTextField = new JTextField();
+	private JClipboardTextField archiveExtensionTextField;
 	private JLabel audioExtensionLabel = new JLabel();
-	private JTextField audioExtensionTextField = new JTextField();
+	private JClipboardTextField audioExtensionTextField;
 	private JLabel documentExtensionLabel = new JLabel();
-	private JTextField documentExtensionTextField = new JTextField();
+	private JClipboardTextField documentExtensionTextField;
 	private JLabel executableExtensionLabel = new JLabel();
-	private JTextField executableExtensionTextField = new JTextField();
+	private JClipboardTextField executableExtensionTextField;
 		
 	private JCheckBox hideAnonFilesCheckBox = new JCheckBox();
 	private JCheckBox hideBadFilesCheckBox = new JCheckBox();
 	private JLabel imageExtensionLabel = new JLabel();
-	private JTextField imageExtensionTextField = new JTextField();
+	private JClipboardTextField imageExtensionTextField;
 	private JLabel maxSearchResultsLabel = new JLabel();
-	private JTextField maxSearchResultsTextField = new JTextField(8);
+	private JClipboardTextField maxSearchResultsTextField;
 	private JLabel videoExtensionLabel = new JLabel();
-	private JTextField videoExtensionTextField = new JTextField();
+	private JClipboardTextField videoExtensionTextField;
 	
 	/**
 	 * @param languageResource the LanguageResource to get localized strings from
@@ -63,6 +64,16 @@ class SearchPanel extends JPanel {
 		setLayout(new GridBagLayout());
 		refreshLanguage();
 
+		// We create the components
+		archiveExtensionTextField = new JClipboardTextField(languageResource);
+		audioExtensionTextField = new JClipboardTextField(languageResource);
+		documentExtensionTextField = new JClipboardTextField(languageResource);
+		executableExtensionTextField = new JClipboardTextField(languageResource);
+			
+		imageExtensionTextField = new JClipboardTextField(languageResource);
+		maxSearchResultsTextField = new JClipboardTextField(8, languageResource);
+		videoExtensionTextField = new JClipboardTextField(languageResource);
+		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;

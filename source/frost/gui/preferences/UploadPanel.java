@@ -13,6 +13,7 @@ import java.util.ArrayList;
 import javax.swing.*;
 
 import frost.SettingsClass;
+import frost.util.gui.*;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
@@ -43,7 +44,7 @@ class UploadPanel extends JPanel {
 	private JCheckBox automaticIndexingCheckBox = new JCheckBox();
 	private JLabel batchSizeExplanationLabel = new JLabel();
 	private JLabel batchSizeLabel = new JLabel();
-	private JTextField batchSizeTextField = new JTextField(8);
+	private JClipboardTextField batchSizeTextField;
 		
 	private JCheckBox disableRequestsCheckBox = new JCheckBox();
 	private JCheckBox helpFriendsCheckBox = new JCheckBox();
@@ -51,19 +52,19 @@ class UploadPanel extends JPanel {
 		
 	private JLabel htlLabel = new JLabel();
 	
-	private JTextField htlTextField = new JTextField(8);
+	private JClipboardTextField htlTextField;
 	private JLabel indexFileRedundancyExplanationLabel = new JLabel();
 	private JLabel indexFileRedundancyLabel = new JLabel();
-	private JTextField indexFileRedundancyTextField = new JTextField(8);
+	private JClipboardTextField indexFileRedundancyTextField;
 		
 	private Listener listener = new Listener();
 	private JCheckBox shareDownloadsCheckBox = new JCheckBox();
 	private JCheckBox signUploadsCheckBox = new JCheckBox();
 	private JLabel splitfileThreadsExplanationLabel = new JLabel();
 	private JLabel splitfileThreadsLabel = new JLabel();
-	private JTextField splitfileThreadsTextField = new JTextField(8);
+	private JClipboardTextField splitfileThreadsTextField;
 	private JLabel threadsLabel = new JLabel();
-	private JTextField threadsTextField = new JTextField(8);
+	private JClipboardTextField threadsTextField;
 
 	/**
 	 * @param languageResource the LanguageResource to get localized strings from
@@ -95,6 +96,13 @@ class UploadPanel extends JPanel {
 		setLayout(new GridBagLayout());
 		refreshLanguage();
 
+		// We create the components
+		batchSizeTextField = new JClipboardTextField(8, languageResource);
+		htlTextField = new JClipboardTextField(8, languageResource);
+		indexFileRedundancyTextField = new JClipboardTextField(8, languageResource);
+		splitfileThreadsTextField = new JClipboardTextField(8, languageResource);
+		threadsTextField = new JClipboardTextField(8, languageResource);
+		
 		//Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;

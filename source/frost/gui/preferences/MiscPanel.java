@@ -16,6 +16,7 @@ import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
+import frost.util.gui.JClipboardTextField;
 import frost.util.gui.translation.*;
 import frost.util.gui.translation.JTranslatableComboBox;
 
@@ -56,29 +57,29 @@ class MiscPanel extends JPanel {
 
 	private JCheckBox allowEvilBertCheckBox = new JCheckBox();
 	private JCheckBox altEditCheckBox = new JCheckBox();
-	private JTextField altEditTextField = new JTextField();
+	private JClipboardTextField altEditTextField;
 	private JLabel autoSaveIntervalLabel = new JLabel();
-	private JTextField autoSaveIntervalTextField = new JTextField(8);
+	private JClipboardTextField autoSaveIntervalTextField;
 	private JLabel availableNodesLabel1 = new JLabel();
 	private JLabel availableNodesLabel2 = new JLabel();
-	private JTextField availableNodesTextField = new JTextField();
+	private JClipboardTextField availableNodesTextField;
 	private JCheckBox cleanupCheckBox = new JCheckBox();
 	private JCheckBox enableLoggingCheckBox = new JCheckBox();
 	private JLabel keyDownloadHtlLabel = new JLabel();
-	private JTextField keyDownloadHtlTextField = new JTextField(8);
+	private JClipboardTextField keyDownloadHtlTextField;
 
 	private JLabel keyUploadHtlLabel = new JLabel();
 
-	private JTextField keyUploadHtlTextField = new JTextField(8);
+	private JClipboardTextField keyUploadHtlTextField;
 
 	private Listener listener = new Listener();
 	private JLabel logFileSizeLabel = new JLabel();
-	private JTextField logFileSizeTextField = new JTextField(8);
+	private JClipboardTextField logFileSizeTextField;
 		
 	private JTranslatableComboBox logLevelComboBox = null;
 	private JLabel logLevelLabel = new JLabel();
 	private JLabel maxKeysLabel = new JLabel();
-	private JTextField maxKeysTextField = new JTextField(8);
+	private JClipboardTextField maxKeysTextField;
 	private JCheckBox showSystrayIconCheckBox = new JCheckBox();
 	private JCheckBox splashScreenCheckBox = new JCheckBox();
 
@@ -147,6 +148,15 @@ class MiscPanel extends JPanel {
 		setName("MiscPanel");
 		setLayout(new GridBagLayout());
 		refreshLanguage();
+		
+		// We create the components
+		altEditTextField = new JClipboardTextField(languageResource);
+		autoSaveIntervalTextField = new JClipboardTextField(8, languageResource);
+		availableNodesTextField = new JClipboardTextField(languageResource);
+		keyDownloadHtlTextField = new JClipboardTextField(8, languageResource);
+		keyUploadHtlTextField = new JClipboardTextField(8, languageResource);
+		logFileSizeTextField = new JClipboardTextField(8, languageResource);
+		maxKeysTextField = new JClipboardTextField(8, languageResource);
 
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
