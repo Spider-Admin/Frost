@@ -1142,6 +1142,26 @@ public class frame1 extends JFrame implements ClipboardOwner
                     String keys[] = new String[2];
                     keys[1] = fin.readLine();
                     keys[0] = fin.readLine();
+                    if( address.startsWith("CHK@") == false )
+                    {
+                        // pubkey chk was not successfully computed
+                        byte[] pubkeydata;
+                        try { pubkeydata = keys[1].getBytes("UTF-8"); }
+                        catch(UnsupportedEncodingException ex) { pubkeydata = keys[1].getBytes(); }
+
+                        try {
+                            FcpConnection con = FcpFactory.getFcpConnectionInstance();
+                            if( con != null )
+                            {
+                                String tmp = con.putKeyFromFile("CHK@", pubkeydata, null, 0, false);
+                                address = tmp.substring(tmp.indexOf("CHK@"),tmp.indexOf("CHK@") + 58);
+                                System.out.println("Re-calculated my public key CHK: " + address + "\n");
+                            }
+                        }
+                        catch( IOException e ) {
+                            System.out.println("Couldn't re-calculate my public key CHK: "+e.toString());
+                        }
+                    }
                     mySelf = new LocalIdentity(name, keys, address);
                     System.out.println("loaded myself with name " + mySelf.getName());
                     //System.out.println("and public key" + mySelf.getKey());
