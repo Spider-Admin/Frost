@@ -136,6 +136,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
     JCheckBox cleanUP = new JCheckBox(LangRes.getString("Clean the keypool"));
 
+    JButton chooseBoardUpdSelectedBackgroundColor = new JButton("Choose color if board is selected...");
+    JButton chooseBoardUpdNonSelectedBackgroundColor = new JButton("Choose color if board is not selected...");
+    Color boardUpdSelectedBackgroundColor = null;
+    Color boardUpdNonSelectedBackgroundColor = null;
+
     // this vars hold some settings from start of dialog to the end.
     // then its checked if the settings are changed by user
     boolean checkDisableRequests;
@@ -585,6 +590,29 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     {
         if( tof3Panel == null )
         {
+            chooseBoardUpdSelectedBackgroundColor.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        Color newCol = JColorChooser.showDialog(
+                                             OptionsFrame.this,
+                                             "Choose updating color of SELECTED boards",
+                                             boardUpdSelectedBackgroundColor);
+                        if( newCol != null )
+                        {
+                            boardUpdSelectedBackgroundColor = newCol;
+                        }
+                    } });
+            chooseBoardUpdNonSelectedBackgroundColor.addActionListener(new ActionListener() {
+                    public void actionPerformed(ActionEvent e) {
+                        Color newCol = JColorChooser.showDialog(
+                                             OptionsFrame.this,
+                                             "Choose updating color of NON-SELECTED boards",
+                                             boardUpdNonSelectedBackgroundColor);
+                        if( newCol != null )
+                        {
+                            boardUpdNonSelectedBackgroundColor = newCol;
+                        }
+                    } });
+
             tof3Panel = new JPanel(new GridBagLayout());
             GridBagConstraints constr = new GridBagConstraints();
             constr.anchor = GridBagConstraints.WEST;
@@ -610,6 +638,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 0;
             constr.insets = new Insets(15, 5, 5, 5);
             tof3Panel.add( tofBoardUpdateVisualization, constr );
+            constr.gridy++;
+            constr.gridx = 0;
+            constr.insets = new Insets(5, 25, 5, 5);
+            tof3Panel.add( chooseBoardUpdSelectedBackgroundColor, constr );
+            constr.gridy++;
+            tof3Panel.add( chooseBoardUpdNonSelectedBackgroundColor, constr );
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -981,6 +1015,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         {
             downloadUpdateMethodOneByOne.setSelected(true);
         }
+
+        boardUpdSelectedBackgroundColor = (Color)frostSettings.getObjectValue("boardUpdatingSelectedBackgroundColor");
+        boardUpdNonSelectedBackgroundColor = (Color)frostSettings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
     }
 
     /**
@@ -1064,6 +1101,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             frostSettings.setValue("downloadMethodOneByOne", true);
             frostSettings.setValue("downloadMethodLeastHtl", false);
         }
+
+        frostSettings.setObjectValue("boardUpdatingSelectedBackgroundColor", boardUpdSelectedBackgroundColor);
+        frostSettings.setObjectValue("boardUpdatingNonSelectedBackgroundColor", boardUpdNonSelectedBackgroundColor);
+
         frostSettings.writeSettingsFile();
 
         // now check if some settings changed
