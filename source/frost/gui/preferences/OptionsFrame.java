@@ -26,17 +26,14 @@ package frost.gui.preferences;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
-import java.util.*;
+import java.util.Vector;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
-import frost.*;
-import frost.util.gui.*;
-import frost.util.gui.translation.*;
+import frost.SettingsClass;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /*******************************
  * TODO: - add thread listeners (listen to all running threads) to change the

@@ -6,8 +6,6 @@
  */
 package frost.util.gui.translation;
 
-import java.awt.Component;
-
 import javax.swing.JTabbedPane;
 
 /**

@@ -12,7 +12,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.event.TableColumnModelEvent;
 import javax.swing.table.*;
 
 import frost.util.model.*;

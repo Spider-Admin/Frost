@@ -9,10 +9,8 @@ import java.awt.event.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
-import javax.swing.border.EmptyBorder;
 
 import frost.SettingsClass;
-import frost.gui.NewBoardDialog;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
