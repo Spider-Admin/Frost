@@ -119,19 +119,44 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                            " with HTL " +
                            frame1.frostSettings.getValue("htlUpload"));
 
-        // TODO: change this to try max. X times + catch Exceptions
-        while( !result[0].equals("KeyCollision") && !result[0].equals("Success"))
-        result = FcpInsert.putFile("CHK@", attachment, frame1.frostSettings.getValue("htlUpload"), true, true,
-                                   board.getBoardFilename());
-
-        String chk = result[1];
-        int position = text.indexOf("<attach>" + attachment + "</attach>");
-        int length = attachment.length() + 17;
-        File attachedFile = new File(attachment);
-        String newText = text.substring(0, position) + "<attached>" + attachedFile.getName();
-        newText += " * " + chk + "</attached>";
-        newText += text.substring(position + length, text.length());
-        text = newText;
+        int maxTries = 3;
+        int tries = 0;
+        while( tries < maxTries &&
+               !result[0].equals("KeyCollision") &&
+               !result[0].equals("Success"))
+        {
+            try {
+                result = FcpInsert.putFile("CHK@",
+                                           attachment,
+                                           frame1.frostSettings.getValue("htlUpload"),
+                                           true,
+                                           true,
+                                           board.getBoardFilename());
+            }
+            catch(Exception ex)
+            {
+                result = new String[1];
+                result[0]="Error";
+            }
+            tries++;
+        }
+        if( result[0].equals("KeyCollision") ||
+            result[0].equals("Success") )
+        {
+            System.out.println("TOFUP: Upload of attachment '"+attachment+"' was successful.");
+            String chk = result[1];
+            int position = text.indexOf("<attach>" + attachment + "</attach>");
+            int length = attachment.length() + 17;
+            File attachedFile = new File(attachment);
+            String newText = text.substring(0, position) + "<attached>" + attachedFile.getName();
+            newText += " * " + chk + "</attached>";
+            newText += text.substring(position + length, text.length());
+            text = newText;
+        }
+        else
+        {
+            System.out.println("TOFUP: Upload of attachment '"+attachment+"' was NOT successful.");
+        }
     }
     }
 

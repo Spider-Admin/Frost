@@ -58,7 +58,16 @@ public class SortedTable extends JTable
     public void resortTable()
     {
         sortColumn( sortedColumnIndex, sortedColumnAscending );
-        ((SortedTableModel)getModel()).tableEntriesChanged();
+        SortedTableModel model = null;
+        SortedTableModel2 model2 = null;
+        if( !(getModel() instanceof SortedTableModel) )
+        {
+            ((SortedTableModel2)getModel()).tableEntriesChanged();
+        }
+        else
+        {
+            ((SortedTableModel)getModel()).tableEntriesChanged();
+        }
     }
 
     protected void setSelectedItems( ArrayList items )

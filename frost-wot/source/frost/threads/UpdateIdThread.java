@@ -137,7 +137,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     // to work with large numbers of keys because they are
     // no longer kept in memory, but on disk.
     private void adjustMaxAge(int count) {
-    if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: old value = " + frame1.frostSettings.getValue("maxAge"));
+    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: old value = " + frame1.frostSettings.getValue("maxAge"));
 
     int lowerLimit = 10 * maxKeys / 100;
     int upperLimit = 90 * maxKeys / 100;
@@ -149,7 +149,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         maxAge--;
 
     frame1.frostSettings.setValue("maxAge", maxAge);
-    if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: new value = " + maxAge);
+    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: new value = " + maxAge);
     }
 
     public void run()
@@ -226,7 +226,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         {
             if( !frame1.generateCHK || keyCount >= minKeyCount )
             {
-                if( DEBUG ) System.out.println("FILEDN: Starting upload of index file to board '"+board.toString()+"': UploadFiles = " + keyCount);
+                if( DEBUG ) System.out.println("FILEDN: Starting upload of index file to board '"+board.toString()+"'; uploadFiles = " + keyCount);
                 uploadIndexFile();
             }
         }
