@@ -718,7 +718,7 @@ public class Core implements Savable {
 				try {
 					Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
 					SkinLookAndFeel.setSkin(selectedSkin);
-					SkinLookAndFeel.enable();
+					UIManager.setLookAndFeel(new SkinLookAndFeel());
 				} catch (UnsupportedLookAndFeelException exception) {
 					logger.severe("The selected skin is not supported by your system\n" +
 							  	"Skins will be disabled until you choose another one");

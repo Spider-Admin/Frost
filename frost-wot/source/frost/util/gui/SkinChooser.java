@@ -212,7 +212,7 @@ public class SkinChooser extends JPanel {
 				try {
 					Skin skin = SkinLookAndFeel.loadThemePack(selectedSkin);
 					SkinLookAndFeel.setSkin(skin);
-					SkinLookAndFeel.enable();
+					UIManager.setLookAndFeel(new SkinLookAndFeel());
 					updateComponentTreesUI();
 				} catch (UnsupportedLookAndFeelException exception) {
 					logger.log(Level.SEVERE, "The selected skin is not supported by your system", exception);
