@@ -193,6 +193,12 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem downloadPopupRemoveAllDownloads = null;
     JMenuItem downloadPopupRemoveFinished = null;
     JMenuItem downloadPopupCancel = null;
+    JMenuItem downloadPopupEnableAllDownloads = null;
+    JMenuItem downloadPopupDisableAllDownloads = null;
+    JMenuItem downloadPopupEnableSelectedDownloads = null;
+    JMenuItem downloadPopupDisableSelectedDownloads = null;
+    JMenuItem downloadPopupInvertEnabledAll = null;
+    JMenuItem downloadPopupInvertEnabledSelected = null;
 
     JMenuItem tofTextPopupSaveMessage = null;
     JMenuItem tofTextPopupSaveAttachments = null;
@@ -1290,6 +1296,13 @@ public class frame1 extends JFrame implements ClipboardOwner
 //        downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
         downloadPopupRemoveFinished = new JMenuItem("Remove finished downloads");
 
+        downloadPopupEnableAllDownloads = new JMenuItem("Enable all downloads");
+        downloadPopupDisableAllDownloads = new JMenuItem("Disable all downloads");
+        downloadPopupEnableSelectedDownloads = new JMenuItem("Enable selected downloads");
+        downloadPopupDisableSelectedDownloads = new JMenuItem("Disable selected downloads");
+        downloadPopupInvertEnabledAll = new JMenuItem("Invert enabled state for all downloads");
+        downloadPopupInvertEnabledSelected = new JMenuItem("Invert enabled state for selected downloads");
+
         // TODO: implement cancel of downloading
         downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
 
@@ -1306,13 +1319,34 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().removeAllItemsFromTable();
             } });
-/*        downloadPopupResetHtlValues.addActionListener(new ActionListener()  {
-            public void actionPerformed(ActionEvent e) {
-                getDownloadTable().resetHtlForSelectedItems();
-            } });*/
         downloadPopupRemoveFinished.addActionListener(new ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 getDownloadTable().removeFinishedDownloads();
+            } });
+
+        downloadPopupEnableAllDownloads.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().setDownloadEnabled( 1, true ); // 1=enabled , true means ALL in table!
+            } });
+        downloadPopupDisableAllDownloads.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().setDownloadEnabled( 0, true ); // 0=disabled , true means ALL in table!
+            } });
+        downloadPopupEnableSelectedDownloads.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().setDownloadEnabled( 1, false ); // 1=enabled , false means SELECTED in table!
+            } });
+        downloadPopupDisableSelectedDownloads.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().setDownloadEnabled( 0, false ); // 0=disabled , false means SELECTED in table!
+            } });
+        downloadPopupInvertEnabledAll.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().setDownloadEnabled( 2, true ); // 2=invert , true means ALL in table!
+            } });
+        downloadPopupInvertEnabledSelected.addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                getDownloadTable().setDownloadEnabled( 2, false ); // 2=invert , false means SELECTED in table!
             } });
     }
 
@@ -2500,11 +2534,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         for( int i = 0; i < dlModel.getRowCount(); i++ )
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-            if( dlItem.getState() == dlItem.STATE_WAITING
-// doing this frost will always try to download each file after startup -> nice.
-// but also means if you lower the maxRetries value in options, download will start 1 time more
-// even if maxRetries is lower, after the try its set to FAILED
-                &&
+            if( dlItem.getState() == dlItem.STATE_WAITING &&
+                ( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true ) &&
                 dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
               )
             {
@@ -2516,9 +2547,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                     waitingItems.add( dlItem );
                 }
             }
-/*            else if( dlItem.getState() == dlItem.STATE_FAILED )
-            {
-            }*/
         }
         if( waitingItems.size() == 0 )
             return null;
@@ -2941,10 +2969,14 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         if( e.getClickCount() == 2 )
         {
-
             // Start file from download table
             if( e.getComponent().equals(getDownloadTable()) )
             {
+                int clickedCol = getDownloadTable().columnAtPoint( e.getPoint() );
+                int modelIx = getDownloadTable().getColumnModel().getColumn(clickedCol).getModelIndex();
+                if( modelIx == 0 )
+                    return;
+
                 DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( getDownloadTable().getSelectedRow() );
                 String execFilename = new StringBuffer()
@@ -3112,7 +3144,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
             else
             {
-                new Truster(new Boolean(true), selectedMessage).start();
+                new Truster(Boolean.valueOf(true), selectedMessage).start();
             }
         }
         trustButton.setEnabled(false);
@@ -3138,7 +3170,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
             else
             {
-                new Truster(new Boolean(false), selectedMessage).start();
+                new Truster(Boolean.valueOf(false), selectedMessage).start();
             }
         }
         trustButton.setEnabled(false);
@@ -3404,11 +3436,28 @@ public class frame1 extends JFrame implements ClipboardOwner
             pmenu.add(downloadPopupRestartSelectedDownloads);
             pmenu.addSeparator();
         }
+
+        JMenu enabledSubMenu = new JMenu("Enable downloads ...");
         if (getDownloadTable().getSelectedRow() > -1)
         {
-            pmenu.add(downloadPopupRemoveSelectedDownloads);
+            enabledSubMenu.add( downloadPopupEnableSelectedDownloads );
+            enabledSubMenu.add( downloadPopupDisableSelectedDownloads );
+            enabledSubMenu.add( downloadPopupInvertEnabledSelected );
+            enabledSubMenu.addSeparator();
         }
-        pmenu.add(downloadPopupRemoveAllDownloads);
+        enabledSubMenu.add( downloadPopupEnableAllDownloads );
+        enabledSubMenu.add( downloadPopupDisableAllDownloads );
+        enabledSubMenu.add( downloadPopupInvertEnabledAll );
+        pmenu.add(enabledSubMenu);
+
+        JMenu removeSubMenu = new JMenu("Remove ...");
+        if (getDownloadTable().getSelectedRow() > -1)
+        {
+            removeSubMenu.add(downloadPopupRemoveSelectedDownloads);
+        }
+        removeSubMenu.add(downloadPopupRemoveAllDownloads);
+        pmenu.add(removeSubMenu);
+
         pmenu.addSeparator();
         pmenu.add(downloadPopupRemoveFinished);
         pmenu.addSeparator();
@@ -3419,10 +3468,14 @@ public class frame1 extends JFrame implements ClipboardOwner
     protected void showUploadTablePopupMenu(MouseEvent e)
     {
         JPopupMenu pmenu = new JPopupMenu();
+
+        JMenu removeSubMenu = new JMenu("Remove ...");
         if (getUploadTable().getSelectedRow() > -1) {
-            pmenu.add(uploadPopupRemoveSelectedFiles);
+            removeSubMenu.add(uploadPopupRemoveSelectedFiles);
         }
-        pmenu.add(uploadPopupRemoveAllFiles);
+        removeSubMenu.add(uploadPopupRemoveAllFiles);
+
+        pmenu.add(removeSubMenu);
         pmenu.addSeparator();
         if (getUploadTable().getSelectedRow() > -1) {
             pmenu.add(uploadPopupReloadSelectedFiles);

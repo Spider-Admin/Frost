@@ -149,7 +149,7 @@ public class TofTreeXmlIO
         element = (Element)list.get(0);
 
         String val = element.getAttribute("autoUpdate");
-        board.setAutoUpdateEnabled( new Boolean(val).booleanValue() );
+        board.setAutoUpdateEnabled( Boolean.valueOf(val).booleanValue() );
 
         val = element.getAttribute("maxMessageDisplay");
         if( val.length() == 0 )
@@ -161,25 +161,25 @@ public class TofTreeXmlIO
         if( val.length() == 0 )
             board.setShowSignedOnly( null );
         else
-            board.setShowSignedOnly( new Boolean(val) );
+            board.setShowSignedOnly( Boolean.valueOf(val) );
 
         val = element.getAttribute("hideBadMessages");
         if( val.length() == 0 )
             board.setHideBad( null );
         else
-            board.setHideBad( new Boolean(val) );
+            board.setHideBad( Boolean.valueOf(val) );
 
         val = element.getAttribute("hideCheckMessages");
         if( val.length() == 0 )
             board.setHideCheck( null );
         else
-            board.setHideCheck( new Boolean(val) );
+            board.setHideCheck( Boolean.valueOf(val) );
 
         val = element.getAttribute("hideNAMessages");
         if( val.length() == 0 )
             board.setHideNA( null );
         else
-            board.setHideNA( new Boolean(val) );
+            board.setHideNA( Boolean.valueOf(val) );
     }
 
     protected void refreshModel(DefaultTreeModel model, FrostBoardObject node)

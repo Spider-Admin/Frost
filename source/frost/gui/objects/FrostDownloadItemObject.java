@@ -30,6 +30,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private String key = null;
     private FrostBoardObject sourceBoard = null;
     private Integer retries = null;
+    private Boolean enableDownload = null;
 
     private int state = 0;
 
@@ -70,6 +71,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
                                     String key,
                                     String tries,
                                     int state,
+                                    boolean isDownloadEnabled,
                                     FrostBoardObject board )
     {
         this.fileName = fileName;
@@ -85,6 +87,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         this.key = key;
         this.sourceBoard = board;
         this.state = state;
+        this.enableDownload = Boolean.valueOf(isDownloadEnabled);
     }
 
     /**
@@ -114,15 +117,22 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         else
             board = "";
 
+        Boolean downloadEnabled;
+        if( getEnableDownload() == null )
+            downloadEnabled = Boolean.valueOf(true); // default = enabled
+        else
+            downloadEnabled = getEnableDownload();
+
         switch(column) {
-            case 0: return fileName;                //LangRes.getString("Filename"),
-            case 1: return aFileSize;               //LangRes.getString("Size"),
-            case 2: return aFileAge;                //LangRes.getString("Age"),
-            case 3: return getStateString( state ); //LangRes.getString("State"),
-            case 4: return blocks;                  //LangRes.getString("Blocks"),
-            case 5: return retries;                 //LangRes.getString("Retries"),
-            case 6: return board;                   //LangRes.getString("Source"),
-            case 7: return key;                     //LangRes.getString("Key")
+            case 0: return downloadEnabled;         //LangRes.getString("on"),
+            case 1: return fileName;                //LangRes.getString("Filename"),
+            case 2: return aFileSize;               //LangRes.getString("Size"),
+            case 3: return aFileAge;                //LangRes.getString("Age"),
+            case 4: return getStateString( state ); //LangRes.getString("State"),
+            case 5: return blocks;                  //LangRes.getString("Blocks"),
+            case 6: return retries;                 //LangRes.getString("Retries"),
+            case 7: return board;                   //LangRes.getString("Source"),
+            case 8: return key;                     //LangRes.getString("Key")
             default: return "*ERR*";
         }
     }
@@ -236,6 +246,16 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         this.doneBlocks = actualBlocks;
         this.requiredBlocks = requiredBlocks;
         this.totalBlocks = allAvailableBlocks;
+    }
+
+
+    public Boolean getEnableDownload()
+    {
+        return enableDownload;
+    }
+    public void setEnableDownload( Boolean val )
+    {
+        enableDownload = val;
     }
 
 }

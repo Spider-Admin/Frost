@@ -155,9 +155,9 @@ public class requestThread extends Thread
 
             downloadItem.setFileSize( newFile.length() );
             downloadItem.setState( downloadItem.STATE_DONE );
+            downloadItem.setEnableDownload( Boolean.valueOf(false) );
 
             tableModel.updateRow( downloadItem );
-//            frame1.updateDownloads = true;
         }
         }
         catch(Throwable t)
