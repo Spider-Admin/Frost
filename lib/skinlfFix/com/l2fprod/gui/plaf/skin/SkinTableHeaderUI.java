@@ -1,6 +1,6 @@
 /* ====================================================================
  *
- * Skin Look And Feel 1.2.8 License.
+ * Skin Look And Feel 1.2.10 License.
  *
  * Copyright (c) 2000-2004 L2FProd.com.  All rights reserved.
  *
