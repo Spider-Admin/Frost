@@ -18,7 +18,7 @@
 */
 package frost.gui;
 
-import java.awt.Component;
+import java.awt.*;
 import java.io.File;
 import java.util.ArrayList;
 import java.util.logging.Logger;
@@ -35,6 +35,8 @@ public class DownloadTable extends SortedTable
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
     
 	private static Logger logger = Logger.getLogger(DownloadTable.class.getName());
+	
+	private CellRenderer cellRenderer = new CellRenderer();
 
 	public DownloadTable(TableModel m) {
 		super(m);
@@ -370,6 +372,17 @@ public class DownloadTable extends SortedTable
                 dlItem.setEnableDownload( Boolean.valueOf( true ) );
         }
     }
+    
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setFont(java.awt.Font)
+	 */
+	public void setFont(Font font) {
+		super.setFont(font);
+		if (cellRenderer != null) {
+			cellRenderer.setFont(font);
+		}
+		setRowHeight(font.getSize() + 5);
+	}
 
     /**
      * This renderer renders the size column (=1) with right alignment
@@ -393,7 +406,6 @@ public class DownloadTable extends SortedTable
 		super.createDefaultColumnsFromModel();
 
 		// size column
-		CellRenderer cellRenderer = new CellRenderer();
 		getColumnModel().getColumn(2).setCellRenderer(cellRenderer);
 
 		// set column sizes

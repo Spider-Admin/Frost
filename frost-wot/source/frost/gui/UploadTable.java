@@ -1,5 +1,6 @@
 package frost.gui;
 
+import java.awt.Font;
 import java.io.File;
 import java.util.Random;
 import java.util.logging.Logger;
@@ -99,6 +100,14 @@ public class UploadTable extends SortedTable
             }
         }
     }
+    
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setFont(java.awt.Font)
+	 */
+	public void setFont(Font font) {
+		super.setFont(font);
+		setRowHeight(font.getSize() + 5);
+	}
 
     /**
      * Checks if all files in upload table still exist on hard disc.

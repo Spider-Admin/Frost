@@ -31,10 +31,11 @@ import frost.identities.Identity;
 
 public class SearchTable extends SortedTable
 {
+	private CellRenderer cellRenderer = new CellRenderer();
+	
 	public SearchTable(TableModel m) {
 		super(m);
 
-		CellRenderer cellRenderer = new CellRenderer();
 		setDefaultRenderer( Object.class, cellRenderer );
 		setDefaultRenderer( Number.class, cellRenderer );
 
@@ -61,34 +62,45 @@ public class SearchTable extends SortedTable
         }
     }
     
-    /**
-     * returns a list of the identities of the owners of the selected items
-     */
-    public java.util.List getSelectedItemsOwners() {
-    	SearchTableModel searchTableModel = (SearchTableModel)getModel();
-        int[] selectedRows = getSelectedRows();
-	java.util.List result = new LinkedList();
-	for (int i =0;i<selectedRows.length;i++) {
-		FrostSearchItemObject srItem = (FrostSearchItemObject)searchTableModel.getRow( selectedRows[i] );
-		String owner = srItem.getOwner();
-		//check if null or from myself
-		if (owner == null ||
-			owner.compareTo(frame1.getMyId().getUniqueName())==0) continue;
-			
-		//see if already on some list
-		Identity id = frame1.getFriends().Get(owner);
-		if (id==null)
-			id = frame1.getEnemies().Get(owner);
-		if (id==null)
-					id = frost.Core.getNeutral().Get(owner);
-		//and if still null, add the string
-		if (id!=null)
-			result.add(id);
-		
+	/**
+	 * returns a list of the identities of the owners of the selected items
+	 */
+	public java.util.List getSelectedItemsOwners() {
+		SearchTableModel searchTableModel = (SearchTableModel) getModel();
+		int[] selectedRows = getSelectedRows();
+		java.util.List result = new LinkedList();
+		for (int i = 0; i < selectedRows.length; i++) {
+			FrostSearchItemObject srItem =
+				(FrostSearchItemObject) searchTableModel.getRow(selectedRows[i]);
+			String owner = srItem.getOwner();
+			//check if null or from myself
+			if (owner == null || owner.compareTo(frame1.getMyId().getUniqueName()) == 0)
+				continue;
+
+			//see if already on some list
+			Identity id = frame1.getFriends().Get(owner);
+			if (id == null)
+				id = frame1.getEnemies().Get(owner);
+			if (id == null)
+				id = frost.Core.getNeutral().Get(owner);
+			//and if still null, add the string
+			if (id != null)
+				result.add(id);
+
+		}
+		return result;
 	}
-	return result;
 	
-    }
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setFont(java.awt.Font)
+	 */
+	public void setFont(Font font) {
+		super.setFont(font);
+		if (cellRenderer != null) {
+			cellRenderer.setFont(font);
+		}
+		setRowHeight(font.getSize() + 5);
+	}
     
     /**
      * Builds a String with contains all selected files from searchtable as attachements.
