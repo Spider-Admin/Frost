@@ -23,6 +23,7 @@ public class Core {
 	
 	private static PrintStream out = System.out; //default is System.out
 	private static final Set nodes = new HashSet(); //list of available nodes
+	private static final SortedSet knownBoards = new TreeSet(); //list of known boards
 	
 	public Core() {
 		
@@ -245,6 +246,7 @@ public class Core {
 		}
 		out.println("ME = '" + getMyId().getUniqueName() + "'");
 
+		//load the batches
 		File batches = new File("batches");
 		if (batches.exists())
 			try {
@@ -260,6 +262,21 @@ public class Core {
 			} catch (Throwable e) {
 				out.println("couldn't load batches");
 				e.printStackTrace(out);
+			}
+			
+		//and load the known boards
+		//don't really need xml here, its just a flat list
+		File boards = new File("boards");
+		if (boards.exists())
+			try {
+				String allBoards = FileAccess.readFile(boards);
+				String []_boards = allBoards.split(":");
+				for (int i=0;i<_boards.length;i++)
+					knownBoards.add(_boards[i].trim());
+				out.println("loaded "+ _boards.length +" known boards");
+			}catch (Throwable t){
+				out.println("couldn't load known boards");
+				t.printStackTrace(out);
 			}
 
 	}
@@ -518,10 +535,17 @@ public class Core {
 	}
 
 	/**
-	 * @return
+	 * @return list of nodes Frost is using
 	 */
 	public static Set getNodes() {
 		return nodes;
+	}
+
+	/**
+	 * @return list of known boards
+	 */
+	public static SortedSet getKnownBoards() {
+		return knownBoards;
 	}
 
 }

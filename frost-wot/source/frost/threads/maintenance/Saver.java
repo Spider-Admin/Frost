@@ -85,6 +85,7 @@ public class Saver extends Thread {
 									Core.getOut().println("ERROR: couldn't save identities:");
 									e.printStackTrace(Core.getOut());
 								}
+								//save the batches
 						try {
 							StringBuffer buf = new StringBuffer();
 						Iterator i = Core.getMyBatches().keySet().iterator();
@@ -96,6 +97,22 @@ public class Saver extends Thread {
 						FileAccess.writeFile(buf.toString(),batches);
 		
 						} catch (Throwable t) {
+							t.printStackTrace(Core.getOut());
+						}
+						
+						//save the known boards
+						try {
+							StringBuffer buf = new StringBuffer();
+							Iterator i = Core.getKnownBoards().iterator();
+							while (i.hasNext()) {
+								String current = (String)i.next();
+								buf.append(current).append(":");
+							}
+							if (buf.length() >0)
+								buf.deleteCharAt(buf.length()-1);
+							File boards = new File("boards");
+							FileAccess.writeFile(buf.toString(),boards);
+						}catch (Throwable t){
 							t.printStackTrace(Core.getOut());
 						}
 								core.saveOnExit();
