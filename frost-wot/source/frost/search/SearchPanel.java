@@ -12,6 +12,7 @@ import java.util.logging.Logger;
 import javax.swing.*;
 import javax.swing.table.DefaultTableModel;
 
+import frost.*;
 import frost.SettingsClass;
 import frost.gui.*;
 import frost.gui.components.JSkinnablePopupMenu;
@@ -23,7 +24,7 @@ import frost.threads.maintenance.Truster;
 /**
  * 
  */
-public class SearchPanel extends JPanel {
+public class SearchPanel extends JPanel implements SettingsUpdater {
 	/**
 	 * 
 	 */
@@ -311,6 +312,7 @@ public class SearchPanel extends JPanel {
 	public SearchPanel(SettingsClass newSettingsClass) {
 		super();
 		settingsClass = newSettingsClass;
+		settingsClass.addUpdater(this);
 	}
 
 	/**
@@ -569,13 +571,6 @@ public class SearchPanel extends JPanel {
 		languageResource.addLanguageListener(listener);
 	}
 	
-	/**
-	 * @return
-	 */
-	public boolean isAllBoardsSelected() {
-		return allBoardsSelected;
-	}
-	
 /**
 	 * @return
 	 */
@@ -592,6 +587,13 @@ public class SearchPanel extends JPanel {
  */
 public void setIdentities(FrostIdentities newIdentities) {
 	identities = newIdentities;
+}
+
+/* (non-Javadoc)
+ * @see frost.SettingsUpdater#updateSettings()
+ */
+public void updateSettings() {
+	settingsClass.setValue("searchAllBoards", allBoardsSelected);	
 }
 
 
