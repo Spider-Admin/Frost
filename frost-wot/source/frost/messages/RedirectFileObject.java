@@ -29,11 +29,11 @@ public abstract class RedirectFileObject extends SharedFileObject {
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element current) throws SAXException {
-		if (current.getAttribute("redirect").length()>0)
-			super.loadXMLElement(current);
-		else
-			throw new SAXException("redirect attribute not found");
-		
+
+		assert current.getAttribute("redirect").length()>0 : 
+			"redirect attribute not found!";
+
+		super.loadXMLElement(current);		
 	}
 
 	/**
