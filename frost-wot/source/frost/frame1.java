@@ -84,6 +84,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     public ObjectOutputStream id_writer;
     public static LocalIdentity mySelf;
     public static BuddyList friends,enemies;
+    public static Hashtable goodIds,badIds;
     public static crypt crypto;
 
     // saved to frost.ini
@@ -168,6 +169,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem searchPopupDownloadSelectedKeys = null;
     JMenuItem searchPopupDownloadAllKeys = null;
     JMenuItem searchPopupCopyAttachment = null;
+    JMenuItem searchPopupSetGood = null;
+    JMenuItem searchPopupSetBad = null;
     JMenuItem searchPopupCancel = null;
 
     JMenuItem uploadPopupRemoveSelectedFiles = null;
@@ -210,6 +213,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     // returns the current id,crypt, etc.
     public static LocalIdentity getMyId() {return mySelf;}
     public static BuddyList getFriends() {return friends;}
+    public static Hashtable getGoodIds() {return goodIds;}
+    public static Hashtable getBadIds() {return badIds;}
     public static crypt getCrypto() {return crypto;}
     public static BuddyList getEnemies() {return enemies;}
     //------------------------------------------------------------------------
@@ -298,6 +303,11 @@ public class frame1 extends JFrame implements ClipboardOwner
                             fout.write(cur.getKey() + "\n");
                         }
                         fout.write("*****************\n");
+			i = goodIds.values().iterator();
+			while (i.hasNext()) {
+				fout.write((String)i.next() + "\n");
+			}
+			fout.write("*****************\n");
                         i = enemies.values().iterator();
                         while( i.hasNext() )
                         {
@@ -307,6 +317,11 @@ public class frame1 extends JFrame implements ClipboardOwner
                             fout.write(cur.getKey() + "\n");
                         }
                         fout.write("*****************\n");
+			i = badIds.values().iterator();
+			while (i.hasNext()) {
+				fout.write((String)i.next() + "\n");
+			}
+			fout.write("*****************\n");
                         fout.close();
                         System.out.println("identities saved successfully.");
 
@@ -960,10 +975,12 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
     else
     {
-        System.out.println("Error - could not establish a connection to freenet node.");
-        System.out.println("Make sure your node is running and that you have configured frost correctly.");
-        System.out.println("Nevertheless, to allow you to read messages, Frost will startup now.");
-        System.out.println("Don't get confusing by some error messages ;)");
+        JOptionPane.showMessageDialog(this,
+        "Make sure your node is running and that you have configured frost correctly."+
+        "Nevertheless, to allow you to read messages, Frost will startup now."+
+        "Don't get confused by some error messages ;)",
+	"Error - could not establish a connection to freenet node.",
+	JOptionPane.WARNING_MESSAGE);
         setFreenetIsOnline(false);
     }
 
@@ -1072,6 +1089,8 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     protected void loadIdentities()
     {
+    	goodIds = new Hashtable();
+	badIds = new Hashtable();
         File identities = new File("identities");
         //File contacts = new File("contacts");
         System.out.println("trying to create/load ids");
@@ -1124,11 +1143,13 @@ public class frame1 extends JFrame implements ClipboardOwner
                     System.out.println(e.toString());
                 }
                 friends = new BuddyList();
+		
                 if( friends.Add(frame1.getMyId()) )
                 {
                     System.out.println("added myself to list");
                 }
                 enemies = new BuddyList();
+		
             }
             else
             {
@@ -1174,12 +1195,20 @@ public class frame1 extends JFrame implements ClipboardOwner
                     while( !stop )
                     {
                         name = fin.readLine();
-                        if( name.startsWith("***") ) break;
+                        if( name==null || name.startsWith("***") ) break;
                         address = fin.readLine();
                         key = fin.readLine();
                         friends.Add(new Identity(name, address,key));
                     }
                     System.out.println("loaded " + friends.size() + " friends");
+		    
+		    //just the good ids
+		    while (!stop) {
+		        String id = fin.readLine();
+			if (id == null || id.startsWith("***")) break;
+			goodIds.put(id,id);
+		    }
+		    System.out.println("loaded " +goodIds.size() + " good ids");
 
                     //and the enemies
                     enemies = new BuddyList();
@@ -1187,12 +1216,21 @@ public class frame1 extends JFrame implements ClipboardOwner
                     while( !stop )
                     {
                         name = fin.readLine();
-                        if( name.startsWith("***") ) break;
+                        if( name == null || name.startsWith("***") ) break;
                         address = fin.readLine();
                         key = fin.readLine();
                         enemies.Add(new Identity(name, address,key));
                     }
                     System.out.println("loaded " + enemies.size() + " enemies");
+		    
+		    //and the bad ids
+		    while (!stop) {
+		    	String id = fin.readLine();
+			if (id == null || id.startsWith("***")) break;
+			badIds.put(id,id);
+		    }
+		    System.out.println("loaded " +badIds.size() + " bad ids");
+		    
 
                 }
                 catch( IOException e ) {
@@ -1202,7 +1240,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     friends.Add(mySelf);
                 }
                 catch( Exception e ) {
-                    System.out.println(e.toString());
+                    e.printStackTrace();
                 }
             }
         }
@@ -1245,6 +1283,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         searchPopupDownloadSelectedKeys = new JMenuItem(LangRes.getString("Download selected keys"));
         searchPopupDownloadAllKeys = new JMenuItem(LangRes.getString("Download all keys"));
         searchPopupCopyAttachment = new JMenuItem(LangRes.getString("Copy as attachment to clipboard"));
+	searchPopupSetGood = new JMenuItem(LangRes.getString("help user (sets to GOOD)"));
+	searchPopupSetBad = new JMenuItem(LangRes.getString("block user (sets to BAD)"));
         searchPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
 // add action listener
         searchPopupDownloadSelectedKeys.addActionListener(new ActionListener()  {
@@ -1263,6 +1303,66 @@ public class frame1 extends JFrame implements ClipboardOwner
                 StringSelection contents = new StringSelection(srcData);
                 clipboard.setContents(contents, frame1.this);
             } });
+	    
+	searchPopupSetGood.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+	    	java.util.List l = getSearchTable().getSelectedItemsOwners();
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			Identity owner_id = null;
+			String owner_s = null;
+			try {
+				owner_s = (String)i.next();
+			} catch(ClassCastException cce) {
+				owner_id = (Identity)i.next();
+			}
+			
+			if (owner_id != null) {
+				getEnemies().remove(owner_id.getUniqueName());
+				getFriends().Add(owner_id);
+				continue;
+			}
+			
+			if (owner_s != null) {
+				getBadIds().remove(owner_s);
+				getGoodIds().put(owner_s,owner_s);
+				continue;
+			}
+		}
+	}});
+			
+	searchPopupSetBad.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+	    	java.util.List l = getSearchTable().getSelectedItemsOwners();
+		Iterator i = l.iterator();
+		while (i.hasNext()) {
+			Identity owner_id = null;
+			String owner_s = null;
+			try {
+				owner_s = (String)i.next();
+			} catch(ClassCastException cce) {
+				owner_id = (Identity)i.next();
+			}
+			
+			if (owner_id != null) {
+				getFriends().remove(owner_id.getUniqueName());
+				getEnemies().Add(owner_id);
+				continue;
+			}
+			
+			if (owner_s != null) {
+				getGoodIds().remove(owner_s);
+				getBadIds().put(owner_s,owner_s);
+				continue;
+			}
+		}
+	}});		
+;
+	searchPopupSetBad.addActionListener(new ActionListener() {
+	    public void actionPerformed(ActionEvent e) {
+	    	//String
+	    }
+	 });
     }
 
     /**
