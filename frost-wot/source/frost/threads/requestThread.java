@@ -64,8 +64,7 @@ public class requestThread extends Thread
         // Download file
         boolean success = false;
         try {
-            FcpRequest.getFile(key, size.toString(), newFile, htl.toString(), true);
-            success = true;
+            success = FcpRequest.getFile(key, size.toString(), newFile, htl.toString(), true);
         }
         catch(Throwable t) { ; }
 
