@@ -38,7 +38,10 @@ public class ModelTable extends AbstractTableModel {
 		 * @see frost.util.model.OrderedModelListener#itemChanged(int, frost.util.model.ModelItem, int, java.lang.Object, java.lang.Object)
 		 */
 		public void itemChanged(int position, ModelItem item, int fieldID, Object oldValue, Object newValue) {
-			fireTableCellUpdated(position, tableFormat.getColumnNumber(fieldID));
+			int[] columns = tableFormat.getColumnNumbers(fieldID);
+			for (int i = 0; i < columns.length; i++) {
+				fireTableCellUpdated(position, columns[i]);
+			}
 		}
 
 		/* (non-Javadoc)
