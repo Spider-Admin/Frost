@@ -22,10 +22,13 @@ import javax.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
 
+import java.io.File;
+
 public class FrostBoardObject extends DefaultMutableTreeNode implements Comparable
 {
     private String boardName = null;
     private String boardFileName = null;
+    private String b64FileName = null;
     private long lastUpdateStartMillis = -1; // never updated
 
     private int newMessageCount = 0;
@@ -59,6 +62,9 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
         super();
         boardName = name;
         boardFileName = mixed.makeFilename( boardName.toLowerCase() );
+        
+        if (mixed.containsForeign(name))
+        	b64FileName = Core.getCrypto().encode64(name);
     }
     /**
      * Constructs a new FrostBoardObject wich is a Board.
@@ -82,7 +88,17 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
     public void setBoardName(String newname)
     {
         boardName = newname;
-        boardFileName = mixed.makeFilename( boardName.toLowerCase() );
+		boardFileName = mixed.makeFilename( boardName.toLowerCase() );
+		
+		if (mixed.containsForeign(newname))
+					b64FileName = Core.getCrypto().encode64(newname);
+		else
+			b64FileName=null;
+		
+		File boardFile = new File(frame1.keypool+boardFileName);
+		if (!boardFile.exists() || !boardFile.isDirectory()) //if it doesn't exist already, strip foreign chars
+			boardFileName = Core.getCrypto().encode64(newname);
+        
     }
 
     public boolean isWriteAccessBoard()
@@ -110,7 +126,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
     }
     public String getBoardFilename()
     {
-        return boardFileName;
+        return b64FileName == null ? boardFileName : b64FileName;
     }
 
     public String toString()
