@@ -531,7 +531,7 @@ public class BoardSettingsFrame extends JDialog {
 					languageResource.getString("BoardSettingsFrame.confirmBody"),
 					languageResource.getString("BoardSettingsFrame.confirmTitle"),
 					JOptionPane.YES_NO_OPTION,
-					JOptionPane.QUESTION_MESSAGE);
+					JOptionPane.WARNING_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
 				board.setPublicKey(null);
 				board.setPrivateKey(null);
