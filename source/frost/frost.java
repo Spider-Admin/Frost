@@ -57,7 +57,9 @@ public class frost
         System.out.println("Frost, Copyright (C) 2001 Jan-Thomas Czornack");
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
         System.out.println("This is free software, and you are welcome to");
-        System.out.println("redistribute it under certain conditions.");
+        System.out.println("redistribute it under the GPL conditions.");
+	System.out.println("Frost uses code from bouncycastle.org (BSD license) and");
+	System.out.println("apache.org (Apache license)");
         System.out.println();
         System.out.println();
 
