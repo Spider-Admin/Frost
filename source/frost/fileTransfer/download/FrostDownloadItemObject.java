@@ -1,13 +1,84 @@
 package frost.fileTransfer.download;
 
+import frost.Core;
 import frost.gui.model.TableMember;
 import frost.gui.objects.FrostBoardObject;
-import frost.search.*;
-import frost.util.FlexibleObservable;
-import frost.Core;
-import java.util.Observable;
+import frost.search.FrostSearchItem;
+import frost.util.*;
 
-public class FrostDownloadItemObject extends FlexibleObservable implements FrostDownloadItem, TableMember {
+public class FrostDownloadItemObject implements FrostDownloadItem, TableMember {
+	/**
+	 * 
+	 */
+	private class DownloadObservable extends FlexibleObservable {
+
+		/**
+		 * 
+		 */
+		public DownloadObservable() {
+			super();
+		}
+
+		/**
+		 * 
+		 */
+		public void done() {
+			setChanged();
+			//deliver the notification in the same thread.
+			//I don't see any locking issues
+			notifyObservers(getFileName());
+			deleteObservers(); //only once! 
+		}
+
+		/**
+		 * @param what
+		 */
+		public void setNotifiable(boolean what) {
+			if (what) {
+				assert Core.getEmailNotifier()
+					!= null : "FrostDownloadItemObject.setNotifiable was called with true without the emailNotifier "
+						+ "being instantiated.";
+
+				addObserver(Core.getEmailNotifier());
+			} else {
+				deleteObservers();
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.util.FlexibleObservable#notifyObservers(java.lang.Object)
+		 */
+		public void notifyObservers(Object arg) {
+			/*
+			 * a temporary array buffer, used as a snapshot of the state of
+			 * current Observers.
+			 */
+			Object[] arrLocal;
+
+			synchronized (this) {
+				/* We don't want the Observer doing callbacks into
+				 * arbitrary code while holding its own Monitor.
+				 * The code where we extract each Observable from 
+				 * the Vector and store the state of the Observer
+				 * needs synchronization, but notifying observers
+				 * does not (should not).  The worst result of any 
+				 * potential race-condition here is that:
+				 * 1) a newly-added Observer will miss a
+				 *   notification in progress
+				 * 2) a recently unregistered Observer will be
+				 *   wrongly notified when it doesn't care
+				 */
+				if (!hasChanged())
+					return;
+				arrLocal = observers.toArray();
+				clearChanged();
+			}
+
+			for (int i = arrLocal.length - 1; i >= 0; i--)
+				 ((FlexibleObserver) arrLocal[i]).update(FrostDownloadItemObject.this, arg);
+		}
+
+	}
 	static java.util.ResourceBundle LangRes =
 		java.util.ResourceBundle.getBundle("res.LangRes") /*#BundleType=List*/;
 
@@ -29,6 +100,8 @@ public class FrostDownloadItemObject extends FlexibleObservable implements Frost
 	private final static String STATE_REQUESTING_STR = LangRes.getString("Requesting");
 	private final static String STATE_REQUESTED_STR = LangRes.getString("Requested");
 	private final static String STATE_DECODING_STR = LangRes.getString("Decoding segment") + "...";
+
+	private DownloadObservable observable = new DownloadObservable();
 
 	private String fileName = null;
 	private Long fileSize = null;
@@ -222,15 +295,11 @@ public class FrostDownloadItemObject extends FlexibleObservable implements Frost
 		return c1.compareTo(c2);
 	}
 
-	public void setNotifyable(boolean what) {
-		if (what) {
-			assert Core.getEmailNotifier()
-				!= null : "FrostDownloadItemObject.setNotifyable was called with true without the emailNotifier "
-					+ "being instantiated.";
-
-			addObserver(Core.getEmailNotifier());
-		} else
-			deleteObservers();
+	/**
+	 * @param what
+	 */
+	public void setNotifiable(boolean what) {
+		observable.setNotifiable(what); 
 	}
 
 	public String getFileName() {
@@ -265,11 +334,7 @@ public class FrostDownloadItemObject extends FlexibleObservable implements Frost
 	public void setState(int v) {
 		state = v;
 		if (state == STATE_DONE) {
-			setChanged();
-			//deliver the notification in the same thread.
-			//I don't see any locking issues
-			notifyObservers(getFileName());
-			deleteObservers(); //only once! 
+			observable.done();
 		}
 	}
 
