@@ -368,7 +368,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         checkBox.setFocusPainted(false);
     }
 
-    private JPanel buildButtonPanel()
+    private JToolBar buildButtonPanel()
     {
         timeLabel = new JLabel("");
 // configure buttons
@@ -433,39 +433,46 @@ public class frame1 extends JFrame implements ClipboardOwner
                 tofDisplayBoardInfoMenuItem_actionPerformed(e);
             } });
 // build panel
-        JPanel buttonPanel = new JPanel(new GridBagLayout());
-        GridBagConstraints buttonPanelConstr = new GridBagConstraints();
+        JToolBar buttonPanel = new JToolBar();
+        buttonPanel.setRollover( true );
+        buttonPanel.setFloatable( false );
+        Dimension blankSpace = new Dimension(3,3);
 
-        buttonPanelConstr.anchor = buttonPanelConstr.WEST;
-        buttonPanelConstr.gridx = buttonPanelConstr.RELATIVE;
-        buttonPanelConstr.insets = new Insets(0,2,0,2);
-        buttonPanel.add(newBoardButton,buttonPanelConstr);
-        buttonPanel.add(newFolderButton,buttonPanelConstr);
-// add a separator here
-        buttonPanel.add(configBoardButton,buttonPanelConstr);
-        buttonPanel.add(renameBoardButton,buttonPanelConstr);
-// add a separator here
-        buttonPanel.add(cutBoardButton,buttonPanelConstr);
-        buttonPanel.add(pasteBoardButton,buttonPanelConstr);
-        buttonPanel.add(removeBoardButton,buttonPanelConstr);
-// add a separator here
-        buttonPanel.add(boardInfoButton,buttonPanelConstr);
-// add a separator here
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.add(newBoardButton);
+        buttonPanel.add(newFolderButton);
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.addSeparator();
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.add(configBoardButton);
+        buttonPanel.add(renameBoardButton);
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.addSeparator();
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.add(cutBoardButton);
+        buttonPanel.add(pasteBoardButton);
+        buttonPanel.add(removeBoardButton);
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.addSeparator();
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.add(boardInfoButton);
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
+        buttonPanel.addSeparator();
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
         // The System Tray Icon does only work on Windows machines.
         // It uses the Visual Basic files (compiled ones) in the data directory.
         if ((System.getProperty("os.name").startsWith("Windows")))
         {
-            buttonPanel.add(systemTrayButton,buttonPanelConstr);
+            buttonPanel.add(systemTrayButton);
         }
-        buttonPanelConstr.gridwidth = buttonPanelConstr.REMAINDER;
-        buttonPanelConstr.anchor = buttonPanelConstr.EAST;
-        buttonPanelConstr.weightx = 1;
-        buttonPanel.add(timeLabel,buttonPanelConstr);
+        buttonPanel.add( Box.createHorizontalGlue() );
+        buttonPanel.add(timeLabel);
+        buttonPanel.add( Box.createRigidArea( blankSpace ) );
 
         return buttonPanel;
     }
 
-    private JPanel buildStatusPanel() //OK
+    private JPanel buildStatusPanel()
     {
         statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
         statusMessageLabel = new JLabel();
@@ -795,8 +802,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 //**********************************************************************************************
 //**********************************************************************************************
 //**********************************************************************************************
-//**********************************************************************************************
-//**********************************************************************************************
     /**Component initialization*/
     private void jbInit() throws Exception  {
 
@@ -868,31 +873,39 @@ public class frame1 extends JFrame implements ClipboardOwner
     FcpConnection con1 = null;
     String []nodeInfo=null;
     try {
-            con1 = new FcpConnection(frostSettings.getValue("nodeAddress"),
-                                    frostSettings.getValue("nodePort"));
+        con1 = new FcpConnection(frostSettings.getValue("nodeAddress"), frostSettings.getValue("nodePort"));
         nodeInfo = con1.getInfo();
     }catch(Exception e) {
         System.out.println("Error - could not establish a connection to freenet node.");
-    System.out.println("make sure your node is running and that you have configured frost correctly");
-    return;
+        System.out.println("Make sure your node is running and that you have configured frost correctly.");
+        System.out.println("Nevertheless, to allow you to read messages, Frost will startup now.");
+        System.out.println("And don't get confusing by the error messages ... maybe disable the automatic board update.");
     }
-    boolean TransientNode = false;
-    for (int ij=0;ij<nodeInfo.length;ij++)
-        if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
-        TransientNode=true;
 
-   if (TransientNode)
-    JOptionPane.showMessageDialog(this,
-                    "      You are running a TRANSIENT node.  "+
-                    "Filesharing will be disabled!\n"+
-                    "If you want to be able to download/upload files,"+
-                    "run a PERMANENT node.",
-                    "Transient node detected",
-                    JOptionPane.WARNING_MESSAGE);
+    boolean transientNode = false;
+    if( nodeInfo != null )
+    {
+        for (int ij=0;ij<nodeInfo.length;ij++)
+        {
+            if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
+            {
+                transientNode=true;
+            }
+        }
+    }
 
-
-
-   con1=null;nodeInfo=null;
+    if (transientNode)
+    {
+        JOptionPane.showMessageDialog(this,
+                        "      You are running a TRANSIENT node.  "+
+                        "Filesharing will be disabled!\n"+
+                        "If you want to be able to download/upload files,"+
+                        "run a PERMANENT node.",
+                        "Transient node detected",
+                        JOptionPane.WARNING_MESSAGE);
+    }
+    con1=null;
+    nodeInfo=null;
 
     //create a crypt object
     crypto = new FrostCrypt();
