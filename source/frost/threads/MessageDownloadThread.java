@@ -322,6 +322,8 @@ public class MessageDownloadThread
                                 //unzip
                                 byte[] unzippedXml =
                                     FileAccess.readZipFileBinary(testMe);
+                                System.out.println("flen="+testMe.length());
+                                System.out.println("DBG='"+new String(FileAccess.readByteArray(testMe))+"'");                                
                                 FileAccess.writeByteArray(unzippedXml, testMe);
 
                                 try
