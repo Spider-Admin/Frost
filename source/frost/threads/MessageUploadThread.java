@@ -51,7 +51,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private String privateKey;
     private String publicKey;
     private boolean secure;
-    private boolean signMessage;
     private Identity recipient;
     
     File messageFile;
@@ -205,7 +204,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                 "entry", uploadZipFile); 
         
         // now maybe sign the msg before start to upload,
-        if( signMessage )
+        // we have to sign if the From is our complete unique id set by MessageFrame
+        if( message.getFrom().equals(frame1.getMyId().getUniqueName()) )  //nick same as my identity
         {
             byte[] zipped = FileAccess.readByteArray(uploadZipFile);
             MetaData md = new MetaData(zipped);
@@ -437,15 +437,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     /**Constructor*/
     public MessageUploadThread(FrostBoardObject board, MessageObject mo) 
     {
-        this(board, mo, true);
-    }
-    
-    public MessageUploadThread(FrostBoardObject board, MessageObject mo, boolean signMessage) 
-    {
         super(board);
         this.board = board;
         this.message = mo;
-        this.signMessage = signMessage;
 
         // we start to upload now, so set actual time
         mo.setTime(DateFun.getFullExtendedTime()+"GMT");

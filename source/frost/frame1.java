@@ -835,7 +835,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		tofTextArea.setLineWrap(true);
 		tofTextArea.setWrapStyleWord(true);
 
-		AttachmentTableModel attachmentTableModel = new AttachmentTableModel();
+		AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
 		this.attachmentTable = new JTable(attachmentTableModel);
 		JScrollPane attachmentTableScrollPane =
 			new JScrollPane(attachmentTable);
