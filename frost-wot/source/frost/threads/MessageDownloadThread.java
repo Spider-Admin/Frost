@@ -27,6 +27,7 @@ import org.w3c.dom.Element;
 
 import frost.*;
 import frost.fcp.*;
+import frost.boards.TOF;
 import frost.crypt.*;
 import frost.gui.objects.Board;
 import frost.identities.*;

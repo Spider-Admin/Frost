@@ -2569,7 +2569,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	TofTree getTofTree() {
+	public TofTree getTofTree() {
 		if (tofTree == null) {
 			tofTree = new TofTree(getTofTreeModel());
 		}
