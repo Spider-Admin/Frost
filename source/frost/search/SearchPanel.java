@@ -24,7 +24,7 @@ import frost.threads.maintenance.Truster;
 /**
  * 
  */
-public class SearchPanel extends JPanel implements SettingsUpdater {
+class SearchPanel extends JPanel implements SettingsUpdater {
 	/**
 	 * 
 	 */
@@ -273,6 +273,8 @@ public class SearchPanel extends JPanel implements SettingsUpdater {
 
 	}
 	
+	private SearchManager searchManager;
+
 	private FrostIdentities identities;
 
 	private static Logger logger = Logger.getLogger(SearchPanel.class.getName());
@@ -309,10 +311,12 @@ public class SearchPanel extends JPanel implements SettingsUpdater {
 	/**
 	 * 
 	 */
-	public SearchPanel(SettingsClass newSettingsClass) {
+	public SearchPanel(SettingsClass newSettingsClass, SearchManager newSearchManager) {
 		super();
 		settingsClass = newSettingsClass;
+		searchManager = newSearchManager;
 		settingsClass.addUpdater(this);
+		setAllBoardsSelected(settingsClass.getBoolValue(SettingsClass.SEARCH_ALL_BOARDS));
 	}
 
 	/**
@@ -436,10 +440,8 @@ public class SearchPanel extends JPanel implements SettingsUpdater {
 			new SearchThread(
 				searchTextField.getText(),
 				boardsToSearch,
-				keypool,
 				searchComboBox.getSelectedKey(),
-				this, 
-				identities);
+				searchManager);
 		searchThread.start();
 	}
 	
@@ -571,7 +573,7 @@ public class SearchPanel extends JPanel implements SettingsUpdater {
 		languageResource.addLanguageListener(listener);
 	}
 	
-/**
+	/**
 	 * @return
 	 */
 	private PopupMenuSearch getPopupMenuSearch() {
@@ -582,21 +584,18 @@ public class SearchPanel extends JPanel implements SettingsUpdater {
 		return popupMenuSearch;
 	}
 
-/**
- * @param identities
- */
-public void setIdentities(FrostIdentities newIdentities) {
-	identities = newIdentities;
-}
+	/**
+ 	 * @param identities
+ 	 */
+	public void setIdentities(FrostIdentities newIdentities) {
+		identities = newIdentities;
+	}
 
-/* (non-Javadoc)
- * @see frost.SettingsUpdater#updateSettings()
- */
-public void updateSettings() {
-	settingsClass.setValue("searchAllBoards", allBoardsSelected);	
-}
-
-
-
+	/* (non-Javadoc)
+	 * @see frost.SettingsUpdater#updateSettings()
+	 */
+	public void updateSettings() {
+		settingsClass.setValue(SettingsClass.SEARCH_ALL_BOARDS, allBoardsSelected);	
+	}
 
 }
