@@ -200,7 +200,7 @@ public class Index
     {
         //final String fileSeparator = System.getProperty("file.separator");
         File boardDir = new File(frame1.keypool + board.getBoardFilename());
-        // FIXME: why creating a dir /frost/boardname ??? 
+         
         if (!(boardDir.exists() && boardDir.isDirectory()))
             boardDir.mkdir();
         add(
