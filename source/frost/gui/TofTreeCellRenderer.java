@@ -72,8 +72,11 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 
         if( value == null )
             return this;
-
-        FrostBoardObject board = (FrostBoardObject)value;
+	
+	FrostBoardObject board = null;
+	try{
+        board = (FrostBoardObject)value;
+	}catch (ClassCastException e) {e.printStackTrace();return this;}
         boolean containsNewMessage = board.containsNewMessage();
 
         if( leaf == true )
