@@ -37,7 +37,7 @@ public final class FrostCrypt implements crypt {
 
 	public FrostCrypt() {
 		keygen = new RSAKeyPairGenerator();
-		//System.out.println("creating signer " + signer.toString());
+		//frost.Core.getOut().println("creating signer " + signer.toString());
 		twofish = new TwofishEngine();
 		texter = new Base64();
 	}
@@ -156,9 +156,9 @@ public final class FrostCrypt implements crypt {
 
 		//now extract the message and sig
 		String plaintext = msg.substring(a + MSG_HEADER_SIZE, b);
-		//System.out.println("plaintext is " + plaintext);
+		//frost.Core.getOut().println("plaintext is " + plaintext);
 		String signature = msg.substring(b + SIG_HEADER_SIZE, c);
-		//System.out.println("signature is " + signature);
+		//frost.Core.getOut().println("signature is " + signature);
 
 		//extract the key
 		StringTokenizer keycutter = new StringTokenizer(key, ":");
@@ -195,7 +195,7 @@ public final class FrostCrypt implements crypt {
 		try {
 			chan = (new FileInputStream(file)).getChannel();
 		} catch (IOException e) {
-			e.printStackTrace(System.out);
+			e.printStackTrace(frost.Core.getOut());
 		}
 		byte[] temp = new byte[1024 * 1024];
 		ByteBuffer _temp = ByteBuffer.wrap(temp);
@@ -215,7 +215,7 @@ public final class FrostCrypt implements crypt {
 			}
 			chan.close();
 		} catch (IOException e) {
-			e.printStackTrace(System.out);
+			e.printStackTrace(frost.Core.getOut());
 		}
 		stomach.doFinal(poop, 0);
 		return (new String(Base64.encode(poop))).substring(0, 27);
@@ -242,13 +242,13 @@ public final class FrostCrypt implements crypt {
 	
 	
 	
-	 System.out.println("encrypting " + what + " to a buffer size " + result.length + " but block size is " + sd_encryptor.getBlockSize());
+	 frost.Core.getOut().println("encrypting " + what + " to a buffer size " + result.length + " but block size is " + sd_encryptor.getBlockSize());
 	 try{
 	 if (sd_encryptor.processBytes(source,0,what.length(),result,0) == 0) {
-	 	System.out.println("doing final");
+	 	frost.Core.getOut().println("doing final");
 	 	sd_encryptor.doFinal(result,0);
 		}
-	 }catch (InvalidCipherTextException e){System.out.println("problems");};
+	 }catch (InvalidCipherTextException e){frost.Core.getOut().println("problems");};
 	 /*
 	 boolean overflow =false;
 	
@@ -298,15 +298,15 @@ public final class FrostCrypt implements crypt {
 		rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
 		//d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
 		int size = rsa.getInputBlockSize();
-		//System.out.println("input block size "+size);
+		//frost.Core.getOut().println("input block size "+size);
 		int outSize = rsa.getOutputBlockSize();
-		//System.out.println("output block size " + outSize);
+		//frost.Core.getOut().println("output block size " + outSize);
 
 		//sign the message
 		what = sign(what, myKey);
-		/*System.out.println(what);/*
-		System.out.println("encoded plaintext looks like \n " + new String(texter.encode(what.getBytes())));
-		System.out.println("this will need " + (what.length()/size +1) + " blocks");*/
+		/*frost.Core.getOut().println(what);/*
+		frost.Core.getOut().println("encoded plaintext looks like \n " + new String(texter.encode(what.getBytes())));
+		frost.Core.getOut().println("this will need " + (what.length()/size +1) + " blocks");*/
 
 		//put the message in the encryptor
 
@@ -353,8 +353,8 @@ public final class FrostCrypt implements crypt {
 			what.substring(
 				crypt.ENC_HEADER_SIZE,
 				what.indexOf("==== End Of Frost SE Message ===="));
-		//System.out.println("stripped what: " +what);
-		//if (what.length() % 172 == 0) System.out.println("good size");
+		//frost.Core.getOut().println("stripped what: " +what);
+		//if (what.length() % 172 == 0) frost.Core.getOut().println("good size");
 
 		RSAEngine rsa = new RSAEngine();
 

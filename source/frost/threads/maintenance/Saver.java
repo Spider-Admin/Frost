@@ -27,7 +27,7 @@ public class Saver extends Thread {
 		// TODO Auto-generated constructor stub
 	}
 	public void run() {
-								System.out.println("saving identities");
+								Core.getOut().println("saving identities");
 								File identities = new File("identities");
 								if( identities.exists() )
 								{
@@ -77,13 +77,13 @@ public class Saver extends Thread {
 						}
 						fout.write("*****************\n");
 									fout.close();
-									System.out.println("identities saved successfully.");
+									Core.getOut().println("identities saved successfully.");
 
 								}
 								catch( IOException e )
 								{
-									System.out.println("ERROR: couldn't save identities:");
-									e.printStackTrace(System.out);
+									Core.getOut().println("ERROR: couldn't save identities:");
+									e.printStackTrace(Core.getOut());
 								}
 						try {
 							StringBuffer buf = new StringBuffer();
@@ -96,7 +96,7 @@ public class Saver extends Thread {
 						FileAccess.writeFile(buf.toString(),batches);
 		
 						} catch (Throwable t) {
-							t.printStackTrace(System.out);
+							t.printStackTrace(Core.getOut());
 						}
 								core.saveOnExit();
 								FileAccess.cleanKeypool(frame1.keypool);

@@ -101,7 +101,7 @@ public class FileAccess
             fileOut.close();
         }
         catch( IOException e ) {
-            System.out.println("writeByteArray: " + e);
+            Core.getOut().println("writeByteArray: " + e);
         }
     }
 
@@ -220,7 +220,7 @@ public class FileAccess
             zos.close();
         }
         catch( IOException e ) {
-            System.out.println("files.writeZipFile: " + e);
+            Core.getOut().println("files.writeZipFile: " + e);
         }
     }
 
@@ -271,11 +271,11 @@ public class FileAccess
                 zis.close();
             }
             catch( IOException e ) {
-                System.out.println("files.readZipFile: " + e);
+                Core.getOut().println("files.readZipFile: " + e);
             }
         }
         catch( FileNotFoundException e ) {
-            System.out.println("files.readZipFile: " + e);
+            Core.getOut().println("files.readZipFile: " + e);
         }
         return sb.toString();
     }
@@ -303,7 +303,7 @@ public class FileAccess
             f.close();
         }
         catch( IOException e ) {
-            System.out.println("Read Error: " + path);
+            Core.getOut().println("Read Error: " + path);
         }
         return data;
     }
@@ -334,7 +334,7 @@ public class FileAccess
         }
         catch( IOException e )
         {
-            System.out.println("Read Error: " + path);
+            Core.getOut().println("Read Error: " + path);
         }
         return stringBuffer.toString();
     }
@@ -355,7 +355,7 @@ public class FileAccess
             f1.close();
         }
         catch( IOException e ) {
-            System.out.println("Write Error: " + file.getPath());
+            Core.getOut().println("Write Error: " + file.getPath());
         }
     }
 
@@ -429,7 +429,7 @@ public class FileAccess
 
             if (d == null)
             {
-                System.out.println("Couldn't parse index file.");
+                Core.getOut().println("Couldn't parse index file.");
                 return;
             }
 
@@ -438,7 +438,7 @@ public class FileAccess
 
             if (files.size() == 0)
             {
-                System.out.println("Index empty!");
+                Core.getOut().println("Index empty!");
                 return;
             }
 
@@ -460,7 +460,7 @@ public class FileAccess
                 }
                 catch (ClassCastException e)
                 {
-                    System.out.println(
+                    Core.getOut().println(
                         "received an index from early beta. grr");
                     newKey.setSHA1(
                         XMLTools.getChildElementsTextValue(current, "SHA1"));
@@ -485,7 +485,7 @@ public class FileAccess
                 //validate the key
                 if (!newKey.isValid())
                 {
-                    System.out.println("invalid key found");
+                    Core.getOut().println("invalid key found");
                     continue;
                 }
 
@@ -576,7 +576,7 @@ public class FileAccess
                 if (current.getOwner() != null
                     && frame1.getEnemies().Get(current.getOwner()) != null)
                 {
-                    System.out.println("skipping file from BAD user");
+                    Core.getOut().println("skipping file from BAD user");
                     continue;
                 }
 
@@ -614,7 +614,7 @@ public class FileAccess
         }
         catch (IOException e)
         {
-            System.out.println("Write Error: " + destination);
+            Core.getOut().println("Write Error: " + destination);
         }
         File oldFile = new File(destination.getPath() + ".old");
         oldFile.delete();
@@ -649,7 +649,7 @@ public class FileAccess
         }
         catch (IOException e)
         {
-            e.printStackTrace(System.out);
+            e.printStackTrace(Core.getOut());
             return new String();
         }
         return result;*/

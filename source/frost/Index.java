@@ -45,7 +45,7 @@ public class Index
 	
 	//if no such file exists, return null
 	if (!keyFile.exists()) {
-		System.out.println("keyfile didn't exist??");
+		Core.getOut().println("keyfile didn't exist??");
 		return null;
 	}
 		
@@ -56,7 +56,7 @@ public class Index
 		//try the recently uploaded files
 		keyFile = new File(frame1.keypool + board + fileSeparator + "new_files.xml");
 		if (!keyFile.exists()) {
-			System.out.println(keyFile.getPath() + " didn't exist");
+			Core.getOut().println(keyFile.getPath() + " didn't exist");
 			return null;
 		}
 		keys.clear();
@@ -78,7 +78,7 @@ public class Index
     	final Map mine = Collections.synchronizedMap(new HashMap());
 	final Map total = Collections.synchronizedMap(new HashMap());
 	final Map updated = Collections.synchronizedMap(new HashMap());
-        System.out.println("Index.getUploadKeys(" + board + ")");
+        Core.getOut().println("Index.getUploadKeys(" + board + ")");
         Vector keys = new Vector();
         //final String fileSeparator = System.getProperty("file.separator");
 
@@ -98,7 +98,7 @@ public class Index
 	//TODO:  add a limit
 	Iterator i = total.values().iterator(); 
 	int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
-	System.out.println("re-sharing files shared before "+DateFun.getDate(downloadBack));
+	Core.getOut().println("re-sharing files shared before "+DateFun.getDate(downloadBack));
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass) i.next();
 		if (current.getOwner() != null && //not anonymous
@@ -108,7 +108,7 @@ public class Index
 				frame1.getGoodIds().contains(current.getOwner()))) //or marked to be helped 
 			{
 			mine.put(current.getSHA1(),current);
-			System.out.print("f");
+			Core.getOut().print("f");
 			}
 		//also add the file if its been shared too long ago
 		if (current.getOwner()!=null && //not anonymous 
@@ -118,7 +118,7 @@ public class Index
 				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
 					current.setLastSharedDate(DateFun.getDate());
 					mine.put(current.getSHA1(),current);
-					System.out.print("d");
+					Core.getOut().print("d");
 					updated.put(current.getSHA1(),current);
 				}
 		}
@@ -243,7 +243,7 @@ public class Index
 	try {
 		if (!indexFile.exists()) indexFile.createNewFile();
 	}catch(IOException e) {
-		e.printStackTrace(System.out);
+		e.printStackTrace(Core.getOut());
 	}
         FileAccess.readKeyFile(indexFile, chk);
         if (chk.get(hash) != null)
@@ -266,7 +266,7 @@ public class Index
         if( !target.exists() )
             target.createNewFile();
 	}catch(IOException e) {
-		e.printStackTrace(System.out);
+		e.printStackTrace(Core.getOut());
 	}
         FileAccess.readKeyFile(keyfile, chunk);
 
@@ -281,7 +281,7 @@ public class Index
         if( !target.exists() )
             target.createNewFile();
 	}catch(IOException e) {
-		e.printStackTrace(System.out);
+		e.printStackTrace(Core.getOut());
 	}
         FileAccess.readKeyFile(keyfile, chunk);
 

@@ -82,14 +82,14 @@ public class getKeyThread extends Thread
                             }
                             catch( ConnectException e )
                             {
-                                System.out.println("Exception in checkKey(): "+e.getMessage());
+                                frost.Core.getOut().println("Exception in checkKey(): "+e.getMessage());
                                 tries++;
                                 mixed.wait(1750);
                             }
                         }
                         if( contentKey == null )
                         {
-                            System.out.println("Error in checkKey(): FAILED to check key because of connection errors to node!");
+                            frost.Core.getOut().println("Error in checkKey(): FAILED to check key because of connection errors to node!");
                             return false;
                         }
 
@@ -103,18 +103,18 @@ public class getKeyThread extends Thread
                         else
                         {
                             // We have the file, but the key does not match the content
-                            System.out.println("ERROR: We have file " + file.getName() + ", but the content does not match the key");
+                            frost.Core.getOut().println("ERROR: We have file " + file.getName() + ", but the content does not match the key");
                         }
                     }
                 }
                 catch( UnknownHostException e )
                 {
-                    System.out.println(e.toString());
+                    frost.Core.getOut().println(e.toString());
                     frame1.displayWarning(e.toString());
                 }
                 catch( IOException e )
                 {
-                    System.out.println(e.toString());
+                    frost.Core.getOut().println(e.toString());
                     frame1.displayWarning(e.toString());
                 }
             }
@@ -136,11 +136,11 @@ public class getKeyThread extends Thread
         // just for the case ...
 /*        if( results[index] = checkKey(key, file, checkSize) )
         {
-            if( DEBUG ) System.out.println("Chunk exists (skip request): " + file);
+            if( DEBUG ) frost.Core.getOut().println("Chunk exists (skip request): " + file);
             return;
         }
 */
-        if( DEBUG ) System.out.println("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");
+        if( DEBUG ) frost.Core.getOut().println("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");
 
         boolean exception = false;
         FcpConnection connection = FcpFactory.getFcpConnectionInstance();

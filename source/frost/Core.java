@@ -20,8 +20,13 @@ import javax.swing.*;
  */
 
 public class Core {
+	
+	private static PrintStream out = System.out; //default is System.out
 
 	public Core() {
+		
+		out = System.out; //when we want to redirect to file just change this.
+		
 		//		check whether the user is running a transient node
 		setFreenetIsTransient(false);
 		setFreenetIsOnline(false);
@@ -40,7 +45,7 @@ public class Core {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace(System.out);
+			e.printStackTrace(out);
 		}
 	}
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
@@ -63,7 +68,7 @@ public class Core {
 		File identities = new File("identities");
 
 		//File contacts = new File("contacts");
-		System.out.println("trying to create/load ids");
+		out.println("trying to create/load ids");
 		try {
 			if (identities.length() == 0)
 				identities.delete();
@@ -100,20 +105,20 @@ public class Core {
 
 					} while (nick != null && nick.length() == 0);
 					if (nick == null) {
-						System.out.println(
+						out.println(
 							"Frost can't run without an identity.");
 						System.exit(1);
 					}
 					mySelf = new LocalIdentity(nick);
 					//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
 				} catch (Exception e) {
-					System.out.println("couldn't create new identitiy");
-					System.out.println(e.toString());
+					out.println("couldn't create new identitiy");
+					out.println(e.toString());
 				}
 				friends = new BuddyList();
 
 				if (friends.Add(frame1.getMyId())) {
-					System.out.println("added myself to list");
+					out.println("added myself to list");
 				}
 				enemies = new BuddyList();
 
@@ -150,27 +155,27 @@ public class Core {
 									tmp.substring(
 										tmp.indexOf("CHK@"),
 										tmp.indexOf("CHK@") + 58);
-								System.out.println(
+								out.println(
 									"Re-calculated my public key CHK: "
 										+ address
 										+ "\n");
 							}
 						} catch (IOException e) {
-							System.out.println(
+							out.println(
 								"Couldn't re-calculate my public key CHK: "
 									+ e.toString());
 						}
 					}
 					mySelf = new LocalIdentity(name, keys, address);
-					System.out.println(
+					out.println(
 						"loaded myself with name " + mySelf.getName());
-					//System.out.println("and public key" + mySelf.getKey());
+					//out.println("and public key" + mySelf.getKey());
 
 					//take out the ****
 					fin.readLine();
 
 					//process the friends
-					System.out.println("loading friends");
+					out.println("loading friends");
 					friends = new BuddyList();
 					boolean stop = false;
 					String key;
@@ -182,7 +187,7 @@ public class Core {
 						key = fin.readLine();
 						friends.Add(new Identity(name, address, key));
 					}
-					System.out.println("loaded " + friends.size() + " friends");
+					out.println("loaded " + friends.size() + " friends");
 
 					//just the good ids
 					while (!stop) {
@@ -191,12 +196,12 @@ public class Core {
 							break;
 						goodIds.put(id, id);
 					}
-					System.out.println(
+					out.println(
 						"loaded " + goodIds.size() + " good ids");
 
 					//and the enemies
 					enemies = new BuddyList();
-					System.out.println("loading enemies");
+					out.println("loading enemies");
 					while (!stop) {
 						name = fin.readLine();
 						if (name == null || name.startsWith("***"))
@@ -205,7 +210,7 @@ public class Core {
 						key = fin.readLine();
 						enemies.Add(new Identity(name, address, key));
 					}
-					System.out.println("loaded " + enemies.size() + " enemies");
+					out.println("loaded " + enemies.size() + " enemies");
 
 					//and the bad ids
 					while (!stop) {
@@ -214,21 +219,21 @@ public class Core {
 							break;
 						badIds.put(id, id);
 					}
-					System.out.println("loaded " + badIds.size() + " bad ids");
+					out.println("loaded " + badIds.size() + " bad ids");
 
 				} catch (IOException e) {
-					System.out.println("IOException :" + e.toString());
+					out.println("IOException :" + e.toString());
 					friends = new BuddyList();
 					enemies = new BuddyList();
 					friends.Add(mySelf);
 				} catch (Exception e) {
-					e.printStackTrace(System.out);
+					e.printStackTrace(out);
 				}
 			}
 		} catch (IOException e) {
-			System.out.println("couldn't create identities file");
+			out.println("couldn't create identities file");
 		}
-		System.out.println("ME = '" + getMyId().getUniqueName() + "'");
+		out.println("ME = '" + getMyId().getUniqueName() + "'");
 
 		File batches = new File("batches");
 		if (batches.exists())
@@ -240,11 +245,11 @@ public class Core {
 				for (int i = 0; i < _batches.length; i++)
 					myBatches.put(_batches[i], _batches[i]);
 
-				System.out.println(
+				out.println(
 					"loaded " + _batches.length + " batches of shared files");
 			} catch (Throwable e) {
-				System.out.println("couldn't load batches");
-				e.printStackTrace(System.out);
+				out.println("couldn't load batches");
+				e.printStackTrace(out);
 			}
 
 	}
@@ -253,9 +258,9 @@ public class Core {
 
 	/**Save on exit*/
 	public void saveOnExit() {
-		System.out.println("Saving settings ...");
+		out.println("Saving settings ...");
 		frame1.getInstance().saveSettings();
-		System.out.println("Bye!");
+		out.println("Bye!");
 	}
 
 	java.util.Timer timer; // Uploads / Downloads
@@ -319,10 +324,10 @@ public class Core {
 				// maybe each 6 hours cleanup files (12 * 30 minutes)
 				if (i == 12 && frostSettings.getBoolValue("doCleanUp")) {
 					i = 0;
-					System.out.println("discarding old files");
+					out.println("discarding old files");
 					fileCleaner.doCleanup();
 				}
-				System.out.println("freeing memory");
+				out.println("freeing memory");
 				System.gc();
 				i++;
 			}
@@ -398,14 +403,14 @@ public class Core {
 				}
 				FileAccess.writeFile(mySelf.getKey(), tempUploadfile);
 
-				System.out.println("KeyReinserter: Re-uploading public key...");
+				out.println("KeyReinserter: Re-uploading public key...");
 				FcpInsert.putFile(
 					"CHK@",
 					tempUploadfile,
 					25,
 					false,
 					null);
-				System.out.println(
+				out.println(
 					"KeyReinserter: Finished re-uploading public key.");
 
 				tempUploadfile.deleteOnExit();
@@ -493,4 +498,11 @@ public class Core {
 	public void schedule(TimerTask task, long delay, long period) {
 		timer2.schedule(task, delay, period);
 	}
+	/**
+	 * @return the PrintStream where messages are logged
+	 */
+	public static PrintStream getOut() {
+		return out;
+	}
+
 }

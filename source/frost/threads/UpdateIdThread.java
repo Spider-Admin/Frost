@@ -78,9 +78,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				indices.add(new Integer(0));
 		}
 	}catch(IOException e) {
-		e.printStackTrace(System.out);
+		e.printStackTrace(Core.getOut());
 	}catch(ClassNotFoundException e) {
-		e.printStackTrace(System.out);
+		e.printStackTrace(Core.getOut());
 	}
     }
     private void commit() {
@@ -91,7 +91,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		out.flush();
 		out.close();
 	}catch(IOException e) {
-		e.printStackTrace(System.out);
+		e.printStackTrace(Core.getOut());
 	}
     }
     
@@ -172,7 +172,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     
     private boolean makeIndexFile()
     {
-        if( DEBUG ) System.out.println("FILEDN: UpdateIdThread.makeIndexFile for " + board.toString());
+        if( DEBUG ) Core.getOut().println("FILEDN: UpdateIdThread.makeIndexFile for " + board.toString());
 
         // Calculate the keys to be uploaded
         keyCount = Index.getUploadKeys(board.getBoardFilename());
@@ -220,7 +220,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
                     success = true;
 		            setIndexSuccessfull(index);
-                    if( DEBUG ) System.out.println("FILEDN:***** Index file successfully uploaded *****");
+                    if( DEBUG ) Core.getOut().println("FILEDN:***** Index file successfully uploaded *****");
                 }
                 else
                 {
@@ -228,13 +228,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     {
                         index = findFreeUploadIndex(index);
                         tries=0; // reset tries
-                        if( DEBUG ) System.out.println("FILEDN:***** Index file collided, increasing index. *****");
+                        if( DEBUG ) Core.getOut().println("FILEDN:***** Index file collided, increasing index. *****");
                     }
                     else
                     {
                         String tv = result[0];
                         if( tv == null ) tv="";
-                        if( DEBUG ) System.out.println("FILEDN:***** Unknown upload error (#" + tries + ", '"+tv+"'), retrying. *****");
+                        if( DEBUG ) Core.getOut().println("FILEDN:***** Unknown upload error (#" + tries + ", '"+tv+"'), retrying. *****");
                     }
                 }
                 tries++;
@@ -248,7 +248,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     // to work with large numbers of keys because they are
     // no longer kept in memory, but on disk.
     private void adjustMaxAge(int count) {/*  //this is not used
-    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: old value = " + frame1.frame1.frostSettings.getValue("maxAge"));
+    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: old value = " + frame1.frame1.frostSettings.getValue("maxAge"));
 
     int lowerLimit = 10 * maxKeys / 100;
     int upperLimit = 90 * maxKeys / 100;
@@ -260,7 +260,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         maxAge--;
 
     frame1.frame1.frame1.frostSettings.setValue("maxAge", maxAge);
-    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: new value = " + maxAge);*/
+    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: new value = " + maxAge);*/
     }
 
     public void run()
@@ -284,7 +284,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		}
 		File target = File.createTempFile("frost-index-"+index,board.getBoardFilename(),
 					new File(frame1.frostSettings.getValue("temp.dir")));
-                if( DEBUG ) System.out.println("FILEDN: Requesting index " + index + " for board "+board.getBoardName() +
+                if( DEBUG ) Core.getOut().println("FILEDN: Requesting index " + index + " for board "+board.getBoardName() +
 				" for date " + date);
                 // Download the keyfile
                 FcpRequest.getFile(requestKey + index + ".idx.sha2.zip",
@@ -315,13 +315,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				sharer = null;
 				if (frame1.getMyId().getUniqueName().trim().compareTo(_sharer)==0) {
 				
-					System.out.println("received index from myself");
+					Core.getOut().println("received index from myself");
 					
 					sharer = frame1.getMyId();
 					
 				} else {
 					
-					System.out.println("received index from "+_sharer);			
+					Core.getOut().println("received index from "+_sharer);			
 				
 					sharer = frame1.getFriends().Get(_sharer);
 				}
@@ -339,7 +339,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					int key_index = unzipped.indexOf("pubkey =");
 					
 					if (key_index == -1) {
-						System.out.println("file didn't contain public key!");
+						Core.getOut().println("file didn't contain public key!");
 						target.delete();
 						index = findFreeDownloadIndex();
 						continue;
@@ -354,10 +354,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					//check if the digest matches
 					String given_digest = _sharer.substring(_sharer.indexOf("@")+1,_sharer.length());
 					if (given_digest.trim().compareTo(frame1.getCrypto().digest(pubKey.trim()).trim()) != 0) {
-						System.out.println("pubkey in index file didn't match digest");
-						System.out.println("given digest "+ given_digest.trim());
-						System.out.println("pubkey " +pubKey.trim());
-						System.out.println("calculated digest "+frame1.getCrypto().digest(pubKey).trim());
+						Core.getOut().println("pubkey in index file didn't match digest");
+						Core.getOut().println("given digest "+ given_digest.trim());
+						Core.getOut().println("pubkey " +pubKey.trim());
+						Core.getOut().println("calculated digest "+frame1.getCrypto().digest(pubKey).trim());
 						target.delete();
 						index=findFreeDownloadIndex();
 						continue;
@@ -371,7 +371,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				
 				//verify the archive
 				if (!frame1.getCrypto().verify(unzipped,sharer.getKey())) {
-					System.out.println("index file failed verification!");
+					Core.getOut().println("index file failed verification!");
 					target.delete();
 					index++;
 					continue;
@@ -397,8 +397,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     }
                     catch(Throwable t)
                     {
-                        System.out.println("Error in UpdateIdThread: "+t.getMessage());
-			t.printStackTrace(System.out);
+                        Core.getOut().println("Error in UpdateIdThread: "+t.getMessage());
+			t.printStackTrace(Core.getOut());
                         // delete the file and try a re download???
                     }
 
@@ -409,7 +409,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
                     // download failed. Sometimes there are some 0 byte
                     // files left, we better remove them now.
-		    //System.out.println("FILEDN:failed getting index "+index
+		    //Core.getOut().println("FILEDN:failed getting index "+index
                     target.delete();
 		    setIndexFailed(index);
                     failures++;
@@ -433,20 +433,20 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         {
             if( frame1.isGeneratingCHK() == false || keyCount >= minKeyCount )
             {
-                if( DEBUG ) System.out.println("FILEDN: Starting upload of index file to board '"+board.toString()+"'; uploadFiles = " + keyCount);
+                if( DEBUG ) Core.getOut().println("FILEDN: Starting upload of index file to board '"+board.toString()+"'; uploadFiles = " + keyCount);
                 uploadIndexFile();
             }
         }
         else
         {
-            if( DEBUG ) System.out.println("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.toString());
+            if( DEBUG ) Core.getOut().println("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.toString());
         }
 
         }
         catch(Throwable t)
         {
-            System.out.println("Oo. EXCEPTION in UpdateIdThread:");
-            t.printStackTrace(System.out);
+            Core.getOut().println("Oo. EXCEPTION in UpdateIdThread:");
+            t.printStackTrace(Core.getOut());
         }
 
         notifyThreadFinished( this );
