@@ -104,7 +104,7 @@ public class OnionFECEncoder extends OnionFECBase implements FECEncoder {
                     Bucket[] dataStripe = dataArray.allocate(blocks);
                     Bucket[] checkStripe = checkArray.allocate(checkBlocks);
                     for (i = 0; i < stripeCount; i++) {
-                        System.err.println("Encoding stripe: " + i +
+                        System.out.println("Encoding stripe: " + i +
                                            " [" + stripeWidth + "]");
                         dataArray.setRange(i * stripeWidth, stripeWidth);
                         checkArray.setRange(i * stripeWidth, stripeWidth);
