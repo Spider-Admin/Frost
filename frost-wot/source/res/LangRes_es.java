@@ -1,391 +1,261 @@
-/*
- * Created on Nov 8, 2003
+/**
+ * Language file for Frost
  *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * This file has been created automatically.
+ * Do NOT edit unless you REALLY know what you're doing!
+ *
+ * Language: es
  */
+
 package res;
 
 import java.util.ListResourceBundle;
 
-
 public class LangRes_es extends ListResourceBundle {
 
-    public Object[][] getContents() {
+public Object[][] getContents() {
     return contents;
-    }
-    static final Object[][] contents = {
-	
-	///////////////////////////////////////////////////
-	// Unknown translations
-	// Have to look where in the GUI these translations are needed
-	///////////////////////////////////////////////////
-	{"Minimize to System Tray", "Minimiza a la Bandeja del Sistema"},
-	{"Index", "Õndice"},
-	{"From", "De"},
-	{"Subject", "Asunto"},
-	{"Date", "Fecha"},
-	{"Filename", "Nombre del fichero"},
-	{"Key", "Clave"},
-	{"Select a message to view its content.", "Selecciona un mensaje para ver su contenido."},
-	{"Size", "TamaÒo"},
-	{"Age", "Antig¸edad"},
-	{"Board", "Foro"},
-	{"Waiting", "Esperando"},
-	{"State", "Estado"},
-	{"Source", "Origen"},
-	{"Last upload", "⁄ltima subida"},
-	{"Path", "Directorio"},
-	{"Destination", "Destino"},
-	{"Frost by Jantho", "Frost por Jantho"},
-	{"Reload selected files", "Sube los ficheros seleccionados"},
-	{"Reload all files", "Sube todos los ficheros"}, //reload????
-	{"Trying", "Intentando"},
-	{"Done", "Hecho"},
-	{"Failed", "FallÛ"},
-	{"Never", "Nunca"},
-	{"Requested", "Pedido"},
-	{"Uploading", "Subiendo"},
-	{"Unknown", "Desconocido"},
+}
 
-	///////////////////////////////////////////////////
-    // Welcome message
-	///////////////////////////////////////////////////
-    {"Welcome message", "!Por favor, lee esto!\n\nPara usar Frost, primero debes seleccionar un tema en la ventana de informaciÛn de foros. Puedes abrir esta ventana con el botÛn i de arriba. Puedes enviar mensajes y ficheros a gente usando el mismo foro. Probablemente pase un rato hasta que aparezcan los primeros foros (pulsa el botÛn de refresco)."},
-
-	///////////////////////////////////////////////////
-	// Main Window Menu
-	///////////////////////////////////////////////////
-    // Menu File
-    {"File", "Fichero"},
-    {"Exit", "Salir"},
-
-	// Menu News
-    {"News", "Noticias"},
-    {"Automatic message update", "Refresco autom·tico de foros"},
-    {"Increase Font Size", "Aumenta TamaÒo del Fuente"},
-    {"Decrease Font Size", "Reduce TamaÒo del Fuente"},
-    {"Configure selected board", "Configura foro seleccionado"},
-    {"Display board information window", "Muestra ventana de informaciÛn de foros"},
-	{"Display known boards", "Muestra foros conocidos"},
-	
-	// Menu Options
-    {"Options", "Opciones"},
-    {"Preferences", "Preferencias"},
-
-	// Menu Plugins
-	{"Plugins", "Plugins"},
-	{"Experimental Freenet Browser", "Navegador Experimental para Freenet"},
-	{"Translate Frost into another language", "Traduce Frost a otro idioma"},
-
-	// Menu Language
-	{"Language", "Idioma"},
-	{"German", "Alem·n"},
-	{"English", "InglÈs"},
-	{"Dutch", "HolandÈs"},
-	{"Japanese", "JaponÈs"},
-	{"French", "FrancÈs"},
-	{"Italian", "Italiano"},
-	{"Spanish", "EspaÒol"},
-	{"Bulgarian","B˙lgaro"},
-
-	// Menu Help
-    {"Help", "Ayuda"},
-    {"About", "Acerca de"},
-
-	///////////////////////////////////////////////////
-    // Main Window ToolBar
-	///////////////////////////////////////////////////
-	{"New board", "Nuevo foro"},
-	{"New folder", "Nueva carpeta"},
-	{"Configure board", "Configura foro"},
-	{"Rename folder", "Renombra carpeta"},
-	{"Cut board", "Corta foro"},
-	{"Paste board", "Pega foro"},
-	{"Remove board", "Elimina foro"},
-	{"Board Information Window", "Ventana de InformaciÛn de Foros"},
-	{"Display list of known boards", "Muestra lista de foros conocidos"},
-    
-	///////////////////////////////////////////////////
-	// Main Window Tabbed Pane
-	///////////////////////////////////////////////////
-	{"Search", "Busca"},
-	{"Downloads", "Descargas"},
-	{"Uploads", "Subidas"},
-	{"News", "Noticias"},
-	{"Status", "Estado"},
-
-	///////////////////////////////////////////////////
-    // Main Window News Tab
-	///////////////////////////////////////////////////
-    // ToolBar in News Tab
-	{"Save message", "Graba mensaje"},
-	{"New message", "Nuevo mensaje"},
-	{"Reply", "Contesta"},
-	{"Update", "Refresca"},
-	{"Download attachment(s)", "Descarga adjunto(s)"},
-	{"Add Board(s)","AÒade Foro(s)"},
-	{"Trust","Confiar"},
-	{"Set to CHECK", "Marca como COMPROBAR"},
-	{"Do not trust","No confiar"},
-
-	// Popup over message table
-	{"Mark message unread", "Marca el mensaje como no leÌdo"},
-	{"Mark ALL messages read", "Marca TODOS los mensajes como leÌdos"},
-	{"Cancel", "Cancela"},	
-
-	// Popup over message
-	{"Save message to disk", "Graba mensaje a disco"},
-	//{"Cancel", "Cancel"}, // Defined above
-
-	// Popup over attachments table
-	{"Add selected board", "AÒade el foro seleccionado"},	
-	{"Download selected attachment", "Descarga el adjunto seleccionado"},	
-	//{"Cancel", "Cancel"}, // Defined above
-	
-	///////////////////////////////////////////////////
-	// Main Window Search Tab
-	///////////////////////////////////////////////////
-	// ToolBar in Search tab
-	//{"Search", "Search"}, // Defined above
-	{"Download selected keys", "Descarga claves seleccionadas"},
-	{"all boards", "todos los foros"},
-	
-	// Popup over search results table
-	//{"Download selected keys", "Download selected keys"}, // Defined above
-	{"Download all keys", "Descarga todas las claves"},
-	{"help user (sets to GOOD)", "ayuda a usuario (marca como BUENO)"},
-	{"block user (sets to BAD)", "bloquea usuario (marca como MALO)"},
-	//{"Cancel", "Cancel"}, // Defined above
-		
-	///////////////////////////////////////////////////
-    // Main Window Downloads Tab
-	///////////////////////////////////////////////////
-	// ToolBar in Downloads Tab
-	{"Activate downloading", "Activa descarga"},
-	{"Show healing information", "Muestra informaciÛn de reparaciÛn"},
-    
-    // Popup over download table
-	{"Restart selected downloads", "Reanuda descargas seleccionadas"},
-	{"Enable downloads", "Activa descargas"},
-	{"Enable selected downloads", "Activa descargas seleccionadas"},
-	{"Disable selected downloads", "Desactiva descargas seleccionadas"},
-	{"Invert enabled state for selected downloads", "Invierte la activaciÛn de las descargas seleccionadas"},
-	{"Enable all downloads", "Activa todas las descargas"},
-	{"Disable all downloads", "Desactiva todas las descargas"},
-	{"Invert enabled state for all downloads", "Invierte la activaciÛn de todas las descargas"},
-	{"Remove", "Elimina"},
-	{"Remove selected downloads", "Elimina descargas seleccionadas"},
-	{"Remove all downloads", "Elimina todas las descargas"},
-	{"Remove finished downloads", "Elimina las descargas finalizadas"},
-	//{"Cancel", "Cancel"}, // Defined above
-        
-	///////////////////////////////////////////////////
-    // Main Window Uploads Tab
-	///////////////////////////////////////////////////
-	// ToolBar in Uploads Tab
-	{"Browse", "Examina"},
-
-    // FileChooser in Uploads Tab
-	{"Select file you want to upload to the", "Selecciona los ficheros que quieras subir al"},
-	{"board", "foro"},
-
-	// Popup over uploads table    
-	{"Copy to clipboard", "Copia al portapapeles"},
-	{"CHK key", "clave CHK"},
-	{"CHK key + filename", "clave CHK + nombre de fichero"},
-	//{"Remove", "Remove"}, // Defined above
-	{"Remove selected files", "Elimina ficheros seleccionados"},
-	{"Remove all files", "Elimina todos los ficheros"},
-	{"Start encoding of selected files", "Inicia la codificaciÛn de los ficheros seleccionados"},
-	{"Upload selected files", "Sube ficheros seleccionados"},
-	{"Upload all files", "Sube todos los ficheros"},
-	{"Set prefix for selected files", "Establece prefijo para los ficheros seleccionados"},
-	{"Set prefix for all files", "Establece prefijo para todos los ficheros"},
-	{"Restore default filenames for selected files", "Restaura nombres por defecto para los ficheros seleccionados"},
-	{"Restore default filenames for all files", "Restaura nombres por defecto para todos los ficheros"},
-	{"Change destination board", "Cambia foro de destino"},
-	{"Please enter the prefix you want to use for your files.", "Por favor, introduce el prefijo que quieres usar para tus ficheros."}, 
-	//{"Cancel", "Cancel"}, // Defined above    
-    
-	///////////////////////////////////////////////////
-	// Main Window Board Selection Tree
-	///////////////////////////////////////////////////
-    // Popup over Tree
-	{"Refresh", "Refresca"},
-	{"Remove", "Elimina"},
-	{"folder", "carpeta"},
-	{"Folder", "Carpeta"},
-	{"board", "foro"},
-	{"Board", "Foro"},
-	{"Cut", "Corta"},
-	{"Paste", "Pega"},
-	{"Add new board", "AÒade nuevo foro"},
-	{"Add new folder", "AÒade nueva carpeta"},
-	{"Configure selected board", "Configura foro seleccionado"},
-	//{"Remove board", "Remove board"}, // Defined above
-	//{"Cut board", "Cut board"}, // Defined above
-	//{"Cancel", "Cancel"}, // Defined above
-    
-	///////////////////////////////////////////////////
-    // Main Window Status Bar
-	///////////////////////////////////////////////////
-	{"Up", "Arriba"},
-	{"Down", "Abajo"},
-	{"TOFUP", "TOFSU"},
-	{"TOFDO", "TOFDE"},
-	{"Results", "Resultados"},
-	{"Files", "Ficheros"},
-	{"Selected board", "Foro seleccionado"},
-      
-	///////////////////////////////////////////////////
-	// New Message Window
-	///////////////////////////////////////////////////
-	{"Create message", "Crea mensaje"},
-	{"Send message", "EnvÌa mensaje"},
-	{"Add attachment(s)", "AÒade adjunto(s)"},
-	{"Sign", "Firma"},
-	{"Indexed attachments", "Adjuntos indexados"},
-	{"Should file attachments be added to upload table?", "øDebo aÒadir los ficheros adjuntos a la tabla de subidas?"},
-	{"Board", "Foro"},
-	{"From", "De"},
-	{"Subject", "Asunto"},
-	{"Remove", "Elimina"},
-	{"Do you want to enter a subject?", "øQuieres introducir un asunto?"},
-	{"No subject specified!", "!No se ha especificado un asunto!"},
-	{"You must enter a subject!", "!Debes introducir un asunto!"},
-	{"You must enter a sender name!", "!Debes introducir un nombre de remitente!"},
-	{"No 'From' specified!", "!No se ha especificado 'Origen'!"},
-	{"Choose file(s) / directory(s) to attach", "Escoge el fichero(s) / directorio(s) a adjuntar"},
-	{"Choose boards to attach", "Escoge el foro(s) a adjuntar"},
-
-	///////////////////////////////////////////////////
-	// About box
-	///////////////////////////////////////////////////
-	{"About", "Acerca de"},
-	{"OK", "De acuerdo"},
-
-	///////////////////////////////////////////////////
-	// Preferences
-	///////////////////////////////////////////////////
-	// More often used translations
-	{"On", "Encendido"},
-	{"Off", "Apagado"},
-	//{"OK", "OK"}, // Defined above
-	//{"Cancel", "Cancel"}, // Defined above
-	
-	// Downloads Panel
-	{"Downloads", "Descargas"},
-	{"Disable downloads", "Desactiva descargas"},
-	{"Download directory", "Directorio para descargas"},
-	//{"Browse", "Browse"}, // Defined above
-	{"Restart failed downloads", "Reintenta descargas fallidas"},
-	{"Maximum number of retries", "N˙mero m·ximo de reintentos"},
-	{"Waittime after each try", "Tiempo de espera tras cada intento"},
-	{"minutes", "minutos"},
-	{"Enable requesting of failed download files", "Activa la peticiÛn de ficheros de descargas fallidas"},
-	{"Request file after this count of retries", "Solicita el fichero tras este n˙mero de reintentos"},
-	{"Number of simultaneous downloads", "N˙mero de descargas simult·neas"},
-	{"Number of splitfile threads", "N˙mero de hilos de splitfile"},
-	{"Remove finished downloads every 5 minutes", "Elimina las descargas finalizadas cada 5 minutos"},
-	{"Try to download all segments, even if one fails", "Intenta descargar todos los segmentos, aunque alguno falle"},
-	{"Decode each segment immediately after its download", "Decodifica cada segmento nada m·s descargarse"},
-	{"Select download directory", "Escoge el directorio para las descargas"},
-
-	// Uploads Panel
-	{"Disable uploads", "Desactiva subidas"},
-	{"Automatic Indexing", "IndexaciÛn autom·tica"},
-	{"Share Downloads","Comparte descargas"},
-	{"Sign shared files", "Firma ficheros compartidos"},
-	{"Help spread files from people marked GOOD" , "Ayuda a difundir los ficheros de la gente marcada BUENA"},
-	{"Upload HTL", "HTL para subidas"},
-	{"up htl explanation","(cuanto mayor m·s lento pero m·s fiable)"},
-	{"Number of simultaneous uploads", "N˙mero de subidas simult·neas"},
-	{"Number of splitfile threads", "N˙mero de hilos de splitfile"},
-	{"splitfile explanation","(cuanto mayor m·s r·pido pero consume m·s CPU)"},
-	{"Upload batch size","TamaÒo del lote de subidas"},
-	{"batch explanation", "(cuanto mayor m·s r·pido pero menos resistente a spam)"},
-	{"Index file redundancy","Redundancia en ficheros de Ìndice"},
-	{"redundancy explanation", "(todavÌa no funciona)"},
-
-	// News (1) Panel
-	{"Message upload HTL", "HTL para subida de mensajes"},
-	{"Message download HTL", "HTL para bajada de mensajes"},
-	{"Number of days to display", "N˙mero de dÌas a mostrar"},
-	{"Number of days to download backwards", "N˙mero de dÌas en los que descargar hacia atr·s"},
-	{"Message base", "Base de mensajes"},
-	{"Signature", "Firma"},
-		
-	// News (2) Panel
-	{"Block messages with subject containing (separate by ';' )", "Bloquea mensajes cuyo asunto contiene (separados por ';' )"},
-	{"Block messages with body containing (separate by ';' )", "Bloquea mensajes cuyo cuerpo contiene (separados por ';' )"},
-	{"Hide unsigned messages", "Oculta mensajes sin firmar"},
-	{"Hide messages flagged BAD", "Oculta mensajes marcados como MALO"},
-	{"Hide messages flagged CHECK", "Oculta mensajes marcados como COMPROBAR"},
-	{"Hide messages flagged N/A", "Oculta mensajes marcados como N/A"},
-	{"Do spam detection", "Realiza detecciÛn de spam"},
-	{"Sample interval", "Intervalo de muestreo"},
-	{"hours", "horas"},
-	{"Threshold of blocked messages", "Umbral de mensajes bloqueados"},
-		
-	// News (3) Panel
-	{"Automatic update options", "Opciones de refresco autom·tico"},
-	{"Minimum update interval of a board", "Intervalo mÌnimo de refresco de un foro"},
-	//{"minutes", "minutes"}, // Defined above
-	{"Number of concurrently updating boards", "N˙mero de foros refresc·ndose a la vez"},
-	{"Show board update visualization", "Muestra visualmente el refresco de los foros"},
-	{"Choose background color if updating board is selected", "Escoge el color de fondo para los foros seleccionados que se est·n refrescando"},
-	{"Choose background color if updating board is not selected", "Escoge el color de fondo para los foros no seleccionados que se est·n refrescando"},
-	{"Choose updating color of SELECTED boards", "Escoge el color de refresco de los foros SELECCIONADOS"},
-	{"Choose updating color of NON-SELECTED boards", "Escoge el color de refresco de los foros NO SELECCIONADOS"},
-	
-    // Search Panel
-	{"Image Extension", "Extensiones de Imagen"},
-	{"Video Extension", "Extensiones de VÌdeo"},
-	{"Archive Extension", "Extensiones de Archivo"},
-	{"Document Extension", "Extensiones de Documento"},
-	{"Audio Extension", "Extensiones de Sonido"},
-	{"Executable Extension", "Extensiones Ejecutables"},
-	{"Maximum search results", "N˙mero m·ximo de resultados de b˙squeda"},
-	{"Hide files from people marked BAD" ,"Oculta ficheros de gente marcada como MALA"},
-	{"Hide files from anonymous users", "Oculta ficheros de usuarios anÛnimos"},
-
-	// Miscelaneous Panel
-	{"Keyfile upload HTL", "HTL de subida de Keyfiles"},
-	{"Keyfile download HTL", "HTL de descarga de Keyfiles"},
-	{"list of nodes","Lista separada por comas de nodos a los que tienes acceso por FCP"},
-	{"Maximum number of keys to store", "N˙mero m·ximo de claves a guardar"},
-	{"Allow 2 byte characters", "Permite caracteres de 2 bytes"},
-	{"Use editor for writing messages", "Usa editor para escribir mensajes"},
-	{"Clean the keypool", "Limpia el pool de claves"},
-	{"Automatic saving interval", "Intervalo de grabaciÛn autom·tica"}, 	
-	{"Disable splashscreen", "Desactiva pantalla de splash"}, 	
-
-    // Display Panel
-    {"EnableSkins", "Activa Skins"}, 	
-	{"MessageBodyFont", "Fuente del cuerpo de los mensajes"}, 
-	{"MoreSkinsAt", "Puedes conseguir m·s skins en"},
-	{"Preview", "Vista previa"},
-	{"RefreshList", "Refresca lista"},
-	{"NoSkinsFound", "°No se han encontrado skins!"},
-	{"AvailableSkins","Skins disponibles"},
-
-	//other stuff which people forget to include
-	{"BoardInfoFrame.UpdateSelectedBoardButton", "Refresca Foro Seleccionado"},
-	{"Show systray icon", "Muestra icono en Bandeja del Sistema"},
-	{"Display", "Pantalla"},
-	{"Miscellaneous", "Miscel·nea"},
-	{"Messages", "Mensajes"},
-	{"Messages Today", "Mensajes de Hoy"},
-	{"Board information", "InformaciÛn del Foro"},
-	{"Boards", "Foros"},
-	{"Public board", "Foro p˙blico"},
-	{"Secure board", "Foro seguro"},
-	{"Generate new keypair", "Genera nueva pareja de claves"},
-	{"Private key", "Clave privada"},
-	{"Public key", "Clave p˙blica"},
-	{"Not available", "No disponible"},
-	{"New Node Name", "Nombre del Nuevo Foro"}
-
-    };
+static final Object[][] contents = {
+{"Requested","\u0050\u0065\u0064\u0069\u0064\u006f"}, //Pedido
+{"Remove selected files","\u0045\u006c\u0069\u006d\u0069\u006e\u0061\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073"}, //Elimina ficheros seleccionados
+{"Help","\u0041\u0079\u0075\u0064\u0061"}, //Ayuda
+{"Waittime after each try","\u0054\u0069\u0065\u006d\u0070\u006f\u0020\u0064\u0065\u0020\u0065\u0073\u0070\u0065\u0072\u0061\u0020\u0074\u0072\u0061\u0073\u0020\u0063\u0061\u0064\u0061\u0020\u0069\u006e\u0074\u0065\u006e\u0074\u006f"}, //Tiempo de espera tras cada intento
+{"Send message","\u0045\u006e\u0076\u00ed\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065"}, //Env√≠a mensaje
+{"Should file attachments be added to upload table?","\u00bf\u0044\u0065\u0062\u006f\u0020\u0061\u00f1\u0061\u0064\u0069\u0072\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0061\u0064\u006a\u0075\u006e\u0074\u006f\u0073\u0020\u0061\u0020\u006c\u0061\u0020\u0074\u0061\u0062\u006c\u0061\u0020\u0064\u0065\u0020\u0073\u0075\u0062\u0069\u0064\u0061\u0073\u003f"}, //¬øDebo a√±adir los ficheros adjuntos a la tabla de subidas?
+{"Hide unsigned messages","\u004f\u0063\u0075\u006c\u0074\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u0073\u0069\u006e\u0020\u0066\u0069\u0072\u006d\u0061\u0072"}, //Oculta mensajes sin firmar
+{"Public key","\u0043\u006c\u0061\u0076\u0065\u0020\u0070\u00fa\u0062\u006c\u0069\u0063\u0061"}, //Clave p√∫blica
+{"Remove finished downloads every 5 minutes","\u0045\u006c\u0069\u006d\u0069\u006e\u0061\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0066\u0069\u006e\u0061\u006c\u0069\u007a\u0061\u0064\u0061\u0073\u0020\u0063\u0061\u0064\u0061\u0020\u0035\u0020\u006d\u0069\u006e\u0075\u0074\u006f\u0073"}, //Elimina las descargas finalizadas cada 5 minutos
+{"splitfile explanation","\u0028\u0063\u0075\u0061\u006e\u0074\u006f\u0020\u006d\u0061\u0079\u006f\u0072\u0020\u006d\u00e1\u0073\u0020\u0072\u00e1\u0070\u0069\u0064\u006f\u0020\u0070\u0065\u0072\u006f\u0020\u0063\u006f\u006e\u0073\u0075\u006d\u0065\u0020\u006d\u00e1\u0073\u0020\u0043\u0050\u0055\u0029"}, //(cuanto mayor m√°s r√°pido pero consume m√°s CPU)
+{"Waiting","\u0045\u0073\u0070\u0065\u0072\u0061\u006e\u0064\u006f"}, //Esperando
+{"New folder","\u004e\u0075\u0065\u0076\u0061\u0020\u0063\u0061\u0072\u0070\u0065\u0074\u0061"}, //Nueva carpeta
+{"Do spam detection","\u0052\u0065\u0061\u006c\u0069\u007a\u0061\u0020\u0064\u0065\u0074\u0065\u0063\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u0073\u0070\u0061\u006d"}, //Realiza detecci√≥n de spam
+{"Disable downloads","\u0044\u0065\u0073\u0061\u0063\u0074\u0069\u0076\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Desactiva descargas
+{"Help spread files from people marked GOOD","\u0041\u0079\u0075\u0064\u0061\u0020\u0061\u0020\u0064\u0069\u0066\u0075\u006e\u0064\u0069\u0072\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0064\u0065\u0020\u006c\u0061\u0020\u0067\u0065\u006e\u0074\u0065\u0020\u006d\u0061\u0072\u0063\u0061\u0064\u0061\u0020\u0042\u0055\u0045\u004e\u0041"}, //Ayuda a difundir los ficheros de la gente marcada BUENA
+{"Add new folder","\u0041\u00f1\u0061\u0064\u0065\u0020\u006e\u0075\u0065\u0076\u0061\u0020\u0063\u0061\u0072\u0070\u0065\u0074\u0061"}, //A√±ade nueva carpeta
+{"No 'From' specified!","\u0021\u004e\u006f\u0020\u0073\u0065\u0020\u0068\u0061\u0020\u0065\u0073\u0070\u0065\u0063\u0069\u0066\u0069\u0063\u0061\u0064\u006f\u0020\u0027\u004f\u0072\u0069\u0067\u0065\u006e\u0027\u0021"}, //!No se ha especificado 'Origen'!
+{"Index","\u00cd\u006e\u0064\u0069\u0063\u0065"}, //√çndice
+{"Add Board(s)","\u0041\u00f1\u0061\u0064\u0065\u0020\u0046\u006f\u0072\u006f\u0028\u0073\u0029"}, //A√±ade Foro(s)
+{"Automatic Indexing","\u0049\u006e\u0064\u0065\u0078\u0061\u0063\u0069\u00f3\u006e\u0020\u0061\u0075\u0074\u006f\u006d\u00e1\u0074\u0069\u0063\u0061"}, //Indexaci√≥n autom√°tica
+{"Search","\u0042\u0075\u0073\u0063\u0061"}, //Busca
+{"RefreshList","\u0052\u0065\u0066\u0072\u0065\u0073\u0063\u0061\u0020\u006c\u0069\u0073\u0074\u0061"}, //Refresca lista
+{"Download selected attachment","\u0044\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0020\u0065\u006c\u0020\u0061\u0064\u006a\u0075\u006e\u0074\u006f\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f"}, //Descarga el adjunto seleccionado
+{"Download selected keys","\u0044\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0020\u0063\u006c\u0061\u0076\u0065\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u0061\u0073"}, //Descarga claves seleccionadas
+{"New board","\u004e\u0075\u0065\u0076\u006f\u0020\u0066\u006f\u0072\u006f"}, //Nuevo foro
+{"Mark message unread","\u004d\u0061\u0072\u0063\u0061\u0020\u0065\u006c\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0020\u0063\u006f\u006d\u006f\u0020\u006e\u006f\u0020\u006c\u0065\u00ed\u0064\u006f"}, //Marca el mensaje como no le√≠do
+{"Restart selected downloads","\u0052\u0065\u0061\u006e\u0075\u0064\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u0061\u0073"}, //Reanuda descargas seleccionadas
+{"Enable downloads","\u0041\u0063\u0074\u0069\u0076\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Activa descargas
+{"Upload selected files","\u0053\u0075\u0062\u0065\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073"}, //Sube ficheros seleccionados
+{"Try to download all segments, even if one fails","\u0049\u006e\u0074\u0065\u006e\u0074\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0072\u0020\u0074\u006f\u0064\u006f\u0073\u0020\u006c\u006f\u0073\u0020\u0073\u0065\u0067\u006d\u0065\u006e\u0074\u006f\u0073\u002c\u0020\u0061\u0075\u006e\u0071\u0075\u0065\u0020\u0061\u006c\u0067\u0075\u006e\u006f\u0020\u0066\u0061\u006c\u006c\u0065"}, //Intenta descargar todos los segmentos, aunque alguno falle
+{"CHK key","\u0063\u006c\u0061\u0076\u0065\u0020\u0043\u0048\u004b"}, //clave CHK
+{"Files","\u0046\u0069\u0063\u0068\u0065\u0072\u006f\u0073"}, //Ficheros
+{"Remove","\u0045\u006c\u0069\u006d\u0069\u006e\u0061"}, //Elimina
+{"Select files you want to upload to the","\u0053\u0065\u006c\u0065\u0063\u0074\u0020\u0066\u0069\u006c\u0065\u0073\u0020\u0079\u006f\u0075\u0020\u0077\u0061\u006e\u0074\u0020\u0074\u006f\u0020\u0075\u0070\u006c\u006f\u0061\u0064\u0020\u0074\u006f\u0020\u0074\u0068\u0065"}, //Select files you want to upload to the
+{"Folder","\u0043\u0061\u0072\u0070\u0065\u0074\u0061"}, //Carpeta
+{"all boards","\u0074\u006f\u0064\u006f\u0073\u0020\u006c\u006f\u0073\u0020\u0066\u006f\u0072\u006f\u0073"}, //todos los foros
+{"Status","\u0045\u0073\u0074\u0061\u0064\u006f"}, //Estado
+{"Preview","\u0056\u0069\u0073\u0074\u0061\u0020\u0070\u0072\u0065\u0076\u0069\u0061"}, //Vista previa
+{"Maximum number of retries","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u006d\u00e1\u0078\u0069\u006d\u006f\u0020\u0064\u0065\u0020\u0072\u0065\u0069\u006e\u0074\u0065\u006e\u0074\u006f\u0073"}, //N√∫mero m√°ximo de reintentos
+{"Upload all files","\u0053\u0075\u0062\u0065\u0020\u0074\u006f\u0064\u006f\u0073\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073"}, //Sube todos los ficheros
+{"Welcome message","\u0021\u0050\u006f\u0072\u0020\u0066\u0061\u0076\u006f\u0072\u002c\u0020\u006c\u0065\u0065\u0020\u0065\u0073\u0074\u006f\u0021\u005c\u006e\u005c\u006e\u0050\u0061\u0072\u0061\u0020\u0075\u0073\u0061\u0072\u0020\u0046\u0072\u006f\u0073\u0074\u002c\u0020\u0070\u0072\u0069\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0062\u0065\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0072\u0020\u0075\u006e\u0020\u0074\u0065\u006d\u0061\u0020\u0065\u006e\u0020\u006c\u0061\u0020\u0076\u0065\u006e\u0074\u0061\u006e\u0061\u0020\u0064\u0065\u0020\u0069\u006e\u0066\u006f\u0072\u006d\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u0066\u006f\u0072\u006f\u0073\u002e\u0020\u0050\u0075\u0065\u0064\u0065\u0073\u0020\u0061\u0062\u0072\u0069\u0072\u0020\u0065\u0073\u0074\u0061\u0020\u0076\u0065\u006e\u0074\u0061\u006e\u0061\u0020\u0063\u006f\u006e\u0020\u0065\u006c\u0020\u0062\u006f\u0074\u00f3\u006e\u0020\u0069\u0020\u0064\u0065\u0020\u0061\u0072\u0072\u0069\u0062\u0061\u002e\u0020\u0050\u0075\u0065\u0064\u0065\u0073\u0020\u0065\u006e\u0076\u0069\u0061\u0072\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u0079\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0061\u0020\u0067\u0065\u006e\u0074\u0065\u0020\u0075\u0073\u0061\u006e\u0064\u006f\u0020\u0065\u006c\u0020\u006d\u0069\u0073\u006d\u006f\u0020\u0066\u006f\u0072\u006f\u002e\u0020\u0050\u0072\u006f\u0062\u0061\u0062\u006c\u0065\u006d\u0065\u006e\u0074\u0065\u0020\u0070\u0061\u0073\u0065\u0020\u0075\u006e\u0020\u0072\u0061\u0074\u006f\u0020\u0068\u0061\u0073\u0074\u0061\u0020\u0071\u0075\u0065\u0020\u0061\u0070\u0061\u0072\u0065\u007a\u0063\u0061\u006e\u0020\u006c\u006f\u0073\u0020\u0070\u0072\u0069\u006d\u0065\u0072\u006f\u0073\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u0028\u0070\u0075\u006c\u0073\u0061\u0020\u0065\u006c\u0020\u0062\u006f\u0074\u00f3\u006e\u0020\u0064\u0065\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u006f\u0029\u002e"},
+//!Por favor, lee esto!\nPara usar Frost, primero debes seleccionar un tema en la ventana de informaci√≥n de foros. Puedes abrir esta ventana con el bot√≥n i de arriba. Puedes enviar mensajes y ficheros a gente usando el mismo foro. Probablemente pase un rato hasta que aparezcan los primeros foros (pulsa el bot√≥n de refresco).
+{"German","\u0041\u006c\u0065\u006d\u00e1\u006e"}, //Alem√°n
+{"Filename","\u004e\u006f\u006d\u0062\u0072\u0065\u0020\u0064\u0065\u006c\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f"}, //Nombre del fichero
+{"Disable splashscreen","\u0044\u0065\u0073\u0061\u0063\u0074\u0069\u0076\u0061\u0020\u0070\u0061\u006e\u0074\u0061\u006c\u006c\u0061\u0020\u0064\u0065\u0020\u0073\u0070\u006c\u0061\u0073\u0068"}, //Desactiva pantalla de splash
+{"OK","\u0044\u0065\u0020\u0061\u0063\u0075\u0065\u0072\u0064\u006f"}, //De acuerdo
+{"Enable all downloads","\u0041\u0063\u0074\u0069\u0076\u0061\u0020\u0074\u006f\u0064\u0061\u0073\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Activa todas las descargas
+{"Download all keys","\u0044\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0020\u0074\u006f\u0064\u0061\u0073\u0020\u006c\u0061\u0073\u0020\u0063\u006c\u0061\u0076\u0065\u0073"}, //Descarga todas las claves
+{"MoreSkinsAt","\u0050\u0075\u0065\u0064\u0065\u0073\u0020\u0063\u006f\u006e\u0073\u0065\u0067\u0075\u0069\u0072\u0020\u006d\u00e1\u0073\u0020\u0073\u006b\u0069\u006e\u0073\u0020\u0065\u006e"}, //Puedes conseguir m√°s skins en
+{"AvailableSkins","\u0053\u006b\u0069\u006e\u0073\u0020\u0064\u0069\u0073\u0070\u006f\u006e\u0069\u0062\u006c\u0065\u0073"}, //Skins disponibles
+{"Italian","\u0049\u0074\u0061\u006c\u0069\u0061\u006e\u006f"}, //Italiano
+{"Maximum search results","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u006d\u00e1\u0078\u0069\u006d\u006f\u0020\u0064\u0065\u0020\u0072\u0065\u0073\u0075\u006c\u0074\u0061\u0064\u006f\u0073\u0020\u0064\u0065\u0020\u0062\u00fa\u0073\u0071\u0075\u0065\u0064\u0061"}, //N√∫mero m√°ximo de resultados de b√∫squeda
+{"Start encoding of selected files","\u0049\u006e\u0069\u0063\u0069\u0061\u0020\u006c\u0061\u0020\u0063\u006f\u0064\u0069\u0066\u0069\u0063\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073"}, //Inicia la codificaci√≥n de los ficheros seleccionados
+{"Number of simultaneous downloads","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0073\u0069\u006d\u0075\u006c\u0074\u00e1\u006e\u0065\u0061\u0073"}, //N√∫mero de descargas simult√°neas
+{"Save message to disk","\u0047\u0072\u0061\u0062\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0020\u0061\u0020\u0064\u0069\u0073\u0063\u006f"}, //Graba mensaje a disco
+{"Disable selected downloads","\u0044\u0065\u0073\u0061\u0063\u0074\u0069\u0076\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u0061\u0073"}, //Desactiva descargas seleccionadas
+{"Bulgarian","\u0042\u00fa\u006c\u0067\u0061\u0072\u006f"}, //B√∫lgaro
+{"up htl explanation","\u0028\u0063\u0075\u0061\u006e\u0074\u006f\u0020\u006d\u0061\u0079\u006f\u0072\u0020\u006d\u00e1\u0073\u0020\u006c\u0065\u006e\u0074\u006f\u0020\u0070\u0065\u0072\u006f\u0020\u006d\u00e1\u0073\u0020\u0066\u0069\u0061\u0062\u006c\u0065\u0029"}, //(cuanto mayor m√°s lento pero m√°s fiable)
+{"Generate new keypair","\u0047\u0065\u006e\u0065\u0072\u0061\u0020\u006e\u0075\u0065\u0076\u0061\u0020\u0070\u0061\u0072\u0065\u006a\u0061\u0020\u0064\u0065\u0020\u0063\u006c\u0061\u0076\u0065\u0073"}, //Genera nueva pareja de claves
+{"Hide files from anonymous users","\u004f\u0063\u0075\u006c\u0074\u0061\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0064\u0065\u0020\u0075\u0073\u0075\u0061\u0072\u0069\u006f\u0073\u0020\u0061\u006e\u00f3\u006e\u0069\u006d\u006f\u0073"}, //Oculta ficheros de usuarios an√≥nimos
+{"Uploads","\u0053\u0075\u0062\u0069\u0064\u0061\u0073"}, //Subidas
+{"Remove board","\u0045\u006c\u0069\u006d\u0069\u006e\u0061\u0020\u0066\u006f\u0072\u006f"}, //Elimina foro
+{"Enable selected downloads","\u0041\u0063\u0074\u0069\u0076\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u0061\u0073"}, //Activa descargas seleccionadas
+{"Executable Extension","\u0045\u0078\u0074\u0065\u006e\u0073\u0069\u006f\u006e\u0065\u0073\u0020\u0045\u006a\u0065\u0063\u0075\u0074\u0061\u0062\u006c\u0065\u0073"}, //Extensiones Ejecutables
+{"Restore default filenames for selected files","\u0052\u0065\u0073\u0074\u0061\u0075\u0072\u0061\u0020\u006e\u006f\u006d\u0062\u0072\u0065\u0073\u0020\u0070\u006f\u0072\u0020\u0064\u0065\u0066\u0065\u0063\u0074\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073"}, //Restaura nombres por defecto para los ficheros seleccionados
+{"Threshold of blocked messages","\u0055\u006d\u0062\u0072\u0061\u006c\u0020\u0064\u0065\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u0062\u006c\u006f\u0071\u0075\u0065\u0061\u0064\u006f\u0073"}, //Umbral de mensajes bloqueados
+{"Translate Frost into another language","\u0054\u0072\u0061\u0064\u0075\u0063\u0065\u0020\u0046\u0072\u006f\u0073\u0074\u0020\u0061\u0020\u006f\u0074\u0072\u006f\u0020\u0069\u0064\u0069\u006f\u006d\u0061"}, //Traduce Frost a otro idioma
+{"Add selected board","\u0041\u00f1\u0061\u0064\u0065\u0020\u0065\u006c\u0020\u0066\u006f\u0072\u006f\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f"}, //A√±ade el foro seleccionado
+{"Secure board","\u0046\u006f\u0072\u006f\u0020\u0073\u0065\u0067\u0075\u0072\u006f"}, //Foro seguro
+{"Increase Font Size","\u0041\u0075\u006d\u0065\u006e\u0074\u0061\u0020\u0054\u0061\u006d\u0061\u00f1\u006f\u0020\u0064\u0065\u006c\u0020\u0046\u0075\u0065\u006e\u0074\u0065"}, //Aumenta Tama√±o del Fuente
+{"Upload batch size","\u0054\u0061\u006d\u0061\u00f1\u006f\u0020\u0064\u0065\u006c\u0020\u006c\u006f\u0074\u0065\u0020\u0064\u0065\u0020\u0073\u0075\u0062\u0069\u0064\u0061\u0073"}, //Tama√±o del lote de subidas
+{"Sign","\u0046\u0069\u0072\u006d\u0061"}, //Firma
+{"Update","\u0052\u0065\u0066\u0072\u0065\u0073\u0063\u0061"}, //Refresca
+{"You must enter a subject!","\u0021\u0044\u0065\u0062\u0065\u0073\u0020\u0069\u006e\u0074\u0072\u006f\u0064\u0075\u0063\u0069\u0072\u0020\u0075\u006e\u0020\u0061\u0073\u0075\u006e\u0074\u006f\u0021"}, //!Debes introducir un asunto!
+{"Trust","\u0043\u006f\u006e\u0066\u0069\u0061\u0072"}, //Confiar
+{"Number of days to download backwards","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0020\u0064\u00ed\u0061\u0073\u0020\u0065\u006e\u0020\u006c\u006f\u0073\u0020\u0071\u0075\u0065\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0072\u0020\u0068\u0061\u0063\u0069\u0061\u0020\u0061\u0074\u0072\u00e1\u0073"}, //N√∫mero de d√≠as en los que descargar hacia atr√°s
+{"Cut board","\u0043\u006f\u0072\u0074\u0061\u0020\u0066\u006f\u0072\u006f"}, //Corta foro
+{"Choose background color if updating board is not selected","\u0045\u0073\u0063\u006f\u0067\u0065\u0020\u0065\u006c\u0020\u0063\u006f\u006c\u006f\u0072\u0020\u0064\u0065\u0020\u0066\u006f\u006e\u0064\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u006c\u006f\u0073\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u006e\u006f\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073\u0020\u0071\u0075\u0065\u0020\u0073\u0065\u0020\u0065\u0073\u0074\u00e1\u006e\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u0061\u006e\u0064\u006f"}, //Escoge el color de fondo para los foros no seleccionados que se est√°n refrescando
+{"Age","\u0041\u006e\u0074\u0069\u0067\u00fc\u0065\u0064\u0061\u0064"}, //Antig√ºedad
+{"Plugins","\u0050\u006c\u0075\u0067\u0069\u006e\u0073"}, //Plugins
+{"board","\u0066\u006f\u0072\u006f"}, //foro
+{"Hide messages flagged N/A","\u004f\u0063\u0075\u006c\u0074\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u006d\u0061\u0072\u0063\u0061\u0064\u006f\u0073\u0020\u0063\u006f\u006d\u006f\u0020\u004e\u002f\u0041"}, //Oculta mensajes marcados como N/A
+{"No subject specified!","\u0021\u004e\u006f\u0020\u0073\u0065\u0020\u0068\u0061\u0020\u0065\u0073\u0070\u0065\u0063\u0069\u0066\u0069\u0063\u0061\u0064\u006f\u0020\u0075\u006e\u0020\u0061\u0073\u0075\u006e\u0074\u006f\u0021"}, //!No se ha especificado un asunto!
+{"Size","\u0054\u0061\u006d\u0061\u00f1\u006f"}, //Tama√±o
+{"Number of splitfile threads","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0020\u0068\u0069\u006c\u006f\u0073\u0020\u0064\u0065\u0020\u0073\u0070\u006c\u0069\u0074\u0066\u0069\u006c\u0065"}, //N√∫mero de hilos de splitfile
+{"News","\u004e\u006f\u0074\u0069\u0063\u0069\u0061\u0073"}, //Noticias
+{"Invert enabled state for all downloads","\u0049\u006e\u0076\u0069\u0065\u0072\u0074\u0065\u0020\u006c\u0061\u0020\u0061\u0063\u0074\u0069\u0076\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u0074\u006f\u0064\u0061\u0073\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Invierte la activaci√≥n de todas las descargas
+{"NoSkinsFound","\u00a1\u004e\u006f\u0020\u0073\u0065\u0020\u0068\u0061\u006e\u0020\u0065\u006e\u0063\u006f\u006e\u0074\u0072\u0061\u0064\u006f\u0020\u0073\u006b\u0069\u006e\u0073\u0021"}, //¬°No se han encontrado skins!
+{"Invert enabled state for selected downloads","\u0049\u006e\u0076\u0069\u0065\u0072\u0074\u0065\u0020\u006c\u0061\u0020\u0061\u0063\u0074\u0069\u0076\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u0061\u0073"}, //Invierte la activaci√≥n de las descargas seleccionadas
+{"Number of days to display","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0020\u0064\u00ed\u0061\u0073\u0020\u0061\u0020\u006d\u006f\u0073\u0074\u0072\u0061\u0072"}, //N√∫mero de d√≠as a mostrar
+{"Message upload HTL","\u0048\u0054\u004c\u0020\u0070\u0061\u0072\u0061\u0020\u0073\u0075\u0062\u0069\u0064\u0061\u0020\u0064\u0065\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073"}, //HTL para subida de mensajes
+{"Restart failed downloads","\u0052\u0065\u0069\u006e\u0074\u0065\u006e\u0074\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0066\u0061\u006c\u006c\u0069\u0064\u0061\u0073"}, //Reintenta descargas fallidas
+{"Mark ALL messages read","\u004d\u0061\u0072\u0063\u0061\u0020\u0054\u004f\u0044\u004f\u0053\u0020\u006c\u006f\u0073\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u0063\u006f\u006d\u006f\u0020\u006c\u0065\u00ed\u0064\u006f\u0073"}, //Marca TODOS los mensajes como le√≠dos
+{"Done","\u0048\u0065\u0063\u0068\u006f"}, //Hecho
+{"Do not trust","\u004e\u006f\u0020\u0063\u006f\u006e\u0066\u0069\u0061\u0072"}, //No confiar
+{"list of nodes","\u004c\u0069\u0073\u0074\u0061\u0020\u0073\u0065\u0070\u0061\u0072\u0061\u0064\u0061\u0020\u0070\u006f\u0072\u0020\u0063\u006f\u006d\u0061\u0073\u0020\u0064\u0065\u0020\u006e\u006f\u0064\u006f\u0073\u0020\u0061\u0020\u006c\u006f\u0073\u0020\u0071\u0075\u0065\u0020\u0074\u0069\u0065\u006e\u0065\u0073\u0020\u0061\u0063\u0063\u0065\u0073\u006f\u0020\u0070\u006f\u0072\u0020\u0046\u0043\u0050"}, //Lista separada por comas de nodos a los que tienes acceso por FCP
+{"About","\u0041\u0063\u0065\u0072\u0063\u0061\u0020\u0064\u0065"}, //Acerca de
+{"Private key","\u0043\u006c\u0061\u0076\u0065\u0020\u0070\u0072\u0069\u0076\u0061\u0064\u0061"}, //Clave privada
+{"Board Information Window","\u0056\u0065\u006e\u0074\u0061\u006e\u0061\u0020\u0064\u0065\u0020\u0049\u006e\u0066\u006f\u0072\u006d\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u0046\u006f\u0072\u006f\u0073"}, //Ventana de Informaci√≥n de Foros
+{"Image Extension","\u0045\u0078\u0074\u0065\u006e\u0073\u0069\u006f\u006e\u0065\u0073\u0020\u0064\u0065\u0020\u0049\u006d\u0061\u0067\u0065\u006e"}, //Extensiones de Imagen
+{"Restore default filenames for all files","\u0052\u0065\u0073\u0074\u0061\u0075\u0072\u0061\u0020\u006e\u006f\u006d\u0062\u0072\u0065\u0073\u0020\u0070\u006f\u0072\u0020\u0064\u0065\u0066\u0065\u0063\u0074\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u0074\u006f\u0064\u006f\u0073\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073"}, //Restaura nombres por defecto para todos los ficheros
+{"Block messages with body containing (separate by ';' )","\u0042\u006c\u006f\u0071\u0075\u0065\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u0063\u0075\u0079\u006f\u0020\u0063\u0075\u0065\u0072\u0070\u006f\u0020\u0063\u006f\u006e\u0074\u0069\u0065\u006e\u0065\u0020\u0028\u0073\u0065\u0070\u0061\u0072\u0061\u0064\u006f\u0073\u0020\u0070\u006f\u0072\u0020\u0027\u003b\u0027\u0020\u0029"}, //Bloquea mensajes cuyo cuerpo contiene (separados por ';' )
+{"Show healing information","\u004d\u0075\u0065\u0073\u0074\u0072\u0061\u0020\u0069\u006e\u0066\u006f\u0072\u006d\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u0072\u0065\u0070\u0061\u0072\u0061\u0063\u0069\u00f3\u006e"}, //Muestra informaci√≥n de reparaci√≥n
+{"Choose updating color of SELECTED boards","\u0045\u0073\u0063\u006f\u0067\u0065\u0020\u0065\u006c\u0020\u0063\u006f\u006c\u006f\u0072\u0020\u0064\u0065\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u006f\u0020\u0064\u0065\u0020\u006c\u006f\u0073\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u0053\u0045\u004c\u0045\u0043\u0043\u0049\u004f\u004e\u0041\u0044\u004f\u0053"}, //Escoge el color de refresco de los foros SELECCIONADOS
+{"BoardInfoFrame.UpdateSelectedBoardButton","\u0052\u0065\u0066\u0072\u0065\u0073\u0063\u0061\u0020\u0046\u006f\u0072\u006f\u0020\u0053\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f"}, //Refresca Foro Seleccionado
+{"Message base","\u0042\u0061\u0073\u0065\u0020\u0064\u0065\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073"}, //Base de mensajes
+{"Messages","\u004d\u0065\u006e\u0073\u0061\u006a\u0065\u0073"}, //Mensajes
+{"minutes","\u006d\u0069\u006e\u0075\u0074\u006f\u0073"}, //minutos
+{"Clean the keypool","\u004c\u0069\u006d\u0070\u0069\u0061\u0020\u0065\u006c\u0020\u0070\u006f\u006f\u006c\u0020\u0064\u0065\u0020\u0063\u006c\u0061\u0076\u0065\u0073"}, //Limpia el pool de claves
+{"Add new board","\u0041\u00f1\u0061\u0064\u0065\u0020\u006e\u0075\u0065\u0076\u006f\u0020\u0066\u006f\u0072\u006f"}, //A√±ade nuevo foro
+{"Key","\u0043\u006c\u0061\u0076\u0065"}, //Clave
+{"Trying","\u0049\u006e\u0074\u0065\u006e\u0074\u0061\u006e\u0064\u006f"}, //Intentando
+{"Sample interval","\u0049\u006e\u0074\u0065\u0072\u0076\u0061\u006c\u006f\u0020\u0064\u0065\u0020\u006d\u0075\u0065\u0073\u0074\u0072\u0065\u006f"}, //Intervalo de muestreo
+{"Date","\u0046\u0065\u0063\u0068\u0061"}, //Fecha
+{"Options","\u004f\u0070\u0063\u0069\u006f\u006e\u0065\u0073"}, //Opciones
+{"block user (sets to BAD)","\u0062\u006c\u006f\u0071\u0075\u0065\u0061\u0020\u0075\u0073\u0075\u0061\u0072\u0069\u006f\u0020\u0028\u006d\u0061\u0072\u0063\u0061\u0020\u0063\u006f\u006d\u006f\u0020\u004d\u0041\u004c\u004f\u0029"}, //bloquea usuario (marca como MALO)
+{"Display known boards","\u004d\u0075\u0065\u0073\u0074\u0072\u0061\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u0063\u006f\u006e\u006f\u0063\u0069\u0064\u006f\u0073"}, //Muestra foros conocidos
+{"Index file redundancy","\u0052\u0065\u0064\u0075\u006e\u0064\u0061\u006e\u0063\u0069\u0061\u0020\u0065\u006e\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0064\u0065\u0020\u00ed\u006e\u0064\u0069\u0063\u0065"}, //Redundancia en ficheros de √≠ndice
+{"Signature","\u0046\u0069\u0072\u006d\u0061"}, //Firma
+{"You must enter a sender name!","\u0021\u0044\u0065\u0062\u0065\u0073\u0020\u0069\u006e\u0074\u0072\u006f\u0064\u0075\u0063\u0069\u0072\u0020\u0075\u006e\u0020\u006e\u006f\u006d\u0062\u0072\u0065\u0020\u0064\u0065\u0020\u0072\u0065\u006d\u0069\u0074\u0065\u006e\u0074\u0065\u0021"}, //!Debes introducir un nombre de remitente!
+{"Board","\u0046\u006f\u0072\u006f"}, //Foro
+{"Enable requesting of failed download files","\u0041\u0063\u0074\u0069\u0076\u0061\u0020\u006c\u0061\u0020\u0070\u0065\u0074\u0069\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0064\u0065\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0066\u0061\u006c\u006c\u0069\u0064\u0061\u0073"}, //Activa la petici√≥n de ficheros de descargas fallidas
+{"Upload HTL","\u0048\u0054\u004c\u0020\u0070\u0061\u0072\u0061\u0020\u0073\u0075\u0062\u0069\u0064\u0061\u0073"}, //HTL para subidas
+{"Minimum update interval of a board","\u0049\u006e\u0074\u0065\u0072\u0076\u0061\u006c\u006f\u0020\u006d\u00ed\u006e\u0069\u006d\u006f\u0020\u0064\u0065\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u006f\u0020\u0064\u0065\u0020\u0075\u006e\u0020\u0066\u006f\u0072\u006f"}, //Intervalo m√≠nimo de refresco de un foro
+{"Audio Extension","\u0045\u0078\u0074\u0065\u006e\u0073\u0069\u006f\u006e\u0065\u0073\u0020\u0064\u0065\u0020\u0053\u006f\u006e\u0069\u0064\u006f"}, //Extensiones de Sonido
+{"On","\u0045\u006e\u0063\u0065\u006e\u0064\u0069\u0064\u006f"}, //Encendido
+{"Share Downloads","\u0043\u006f\u006d\u0070\u0061\u0072\u0074\u0065\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Comparte descargas
+{"Miscellaneous","\u004d\u0069\u0073\u0063\u0065\u006c\u00e1\u006e\u0065\u0061"}, //Miscel√°nea
+{"Uploading","\u0053\u0075\u0062\u0069\u0065\u006e\u0064\u006f"}, //Subiendo
+{"Cancel","\u0043\u0061\u006e\u0063\u0065\u006c\u0061"}, //Cancela
+{"State","\u0045\u0073\u0074\u0061\u0064\u006f"}, //Estado
+{"Destination","\u0044\u0065\u0073\u0074\u0069\u006e\u006f"}, //Destino
+{"Never","\u004e\u0075\u006e\u0063\u0061"}, //Nunca
+{"Keyfile download HTL","\u0048\u0054\u004c\u0020\u0064\u0065\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0020\u0064\u0065\u0020\u004b\u0065\u0079\u0066\u0069\u006c\u0065\u0073"}, //HTL de descarga de Keyfiles
+{"Show systray icon","\u004d\u0075\u0065\u0073\u0074\u0072\u0061\u0020\u0069\u0063\u006f\u006e\u006f\u0020\u0065\u006e\u0020\u0042\u0061\u006e\u0064\u0065\u006a\u0061\u0020\u0064\u0065\u006c\u0020\u0053\u0069\u0073\u0074\u0065\u006d\u0061"}, //Muestra icono en Bandeja del Sistema
+{"Results","\u0052\u0065\u0073\u0075\u006c\u0074\u0061\u0064\u006f\u0073"}, //Resultados
+{"Board information","\u0049\u006e\u0066\u006f\u0072\u006d\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u006c\u0020\u0046\u006f\u0072\u006f"}, //Informaci√≥n del Foro
+{"English","\u0049\u006e\u0067\u006c\u00e9\u0073"}, //Ingl√©s
+{"Path","\u0044\u0069\u0072\u0065\u0063\u0074\u006f\u0072\u0069\u006f"}, //Directorio
+{"TOFDO","\u0054\u004f\u0046\u0044\u0045"}, //TOFDE
+{"Please enter the prefix you want to use for your files.","\u0050\u006f\u0072\u0020\u0066\u0061\u0076\u006f\u0072\u002c\u0020\u0069\u006e\u0074\u0072\u006f\u0064\u0075\u0063\u0065\u0020\u0065\u006c\u0020\u0070\u0072\u0065\u0066\u0069\u006a\u006f\u0020\u0071\u0075\u0065\u0020\u0071\u0075\u0069\u0065\u0072\u0065\u0073\u0020\u0075\u0073\u0061\u0072\u0020\u0070\u0061\u0072\u0061\u0020\u0074\u0075\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u002e"}, //Por favor, introduce el prefijo que quieres usar para tus ficheros.
+{"Do you want to enter a subject?","\u00bf\u0051\u0075\u0069\u0065\u0072\u0065\u0073\u0020\u0069\u006e\u0074\u0072\u006f\u0064\u0075\u0063\u0069\u0072\u0020\u0075\u006e\u0020\u0061\u0073\u0075\u006e\u0074\u006f\u003f"}, //¬øQuieres introducir un asunto?
+{"Disable uploads","\u0044\u0065\u0073\u0061\u0063\u0074\u0069\u0076\u0061\u0020\u0073\u0075\u0062\u0069\u0064\u0061\u0073"}, //Desactiva subidas
+{"Select download directory","\u0045\u0073\u0063\u006f\u0067\u0065\u0020\u0065\u006c\u0020\u0064\u0069\u0072\u0065\u0063\u0074\u006f\u0072\u0069\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Escoge el directorio para las descargas
+{"Save message","\u0047\u0072\u0061\u0062\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065"}, //Graba mensaje
+{"Exit","\u0053\u0061\u006c\u0069\u0072"}, //Salir
+{"Download directory","\u0044\u0069\u0072\u0065\u0063\u0074\u006f\u0072\u0069\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Directorio para descargas
+{"Remove finished downloads","\u0045\u006c\u0069\u006d\u0069\u006e\u0061\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0066\u0069\u006e\u0061\u006c\u0069\u007a\u0061\u0064\u0061\u0073"}, //Elimina las descargas finalizadas
+{"Browse","\u0045\u0078\u0061\u006d\u0069\u006e\u0061"}, //Examina
+{"Last upload","\u00da\u006c\u0074\u0069\u006d\u0061\u0020\u0073\u0075\u0062\u0069\u0064\u0061"}, //√öltima subida
+{"Copy to clipboard","\u0043\u006f\u0070\u0069\u0061\u0020\u0061\u006c\u0020\u0070\u006f\u0072\u0074\u0061\u0070\u0061\u0070\u0065\u006c\u0065\u0073"}, //Copia al portapapeles
+{"Reply","\u0043\u006f\u006e\u0074\u0065\u0073\u0074\u0061"}, //Contesta
+{"Document Extension","\u0045\u0078\u0074\u0065\u006e\u0073\u0069\u006f\u006e\u0065\u0073\u0020\u0064\u0065\u0020\u0044\u006f\u0063\u0075\u006d\u0065\u006e\u0074\u006f"}, //Extensiones de Documento
+{"Spanish","\u0045\u0073\u0070\u0061\u00f1\u006f\u006c"}, //Espa√±ol
+{"hours","\u0068\u006f\u0072\u0061\u0073"}, //horas
+{"Keyfile upload HTL","\u0048\u0054\u004c\u0020\u0064\u0065\u0020\u0073\u0075\u0062\u0069\u0064\u0061\u0020\u0064\u0065\u0020\u004b\u0065\u0079\u0066\u0069\u006c\u0065\u0073"}, //HTL de subida de Keyfiles
+{"Maximum number of keys to store","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u006d\u00e1\u0078\u0069\u006d\u006f\u0020\u0064\u0065\u0020\u0063\u006c\u0061\u0076\u0065\u0073\u0020\u0061\u0020\u0067\u0075\u0061\u0072\u0064\u0061\u0072"}, //N√∫mero m√°ximo de claves a guardar
+{"redundancy explanation","\u0028\u0074\u006f\u0064\u0061\u0076\u00ed\u0061\u0020\u006e\u006f\u0020\u0066\u0075\u006e\u0063\u0069\u006f\u006e\u0061\u0029"}, //(todav√≠a no funciona)
+{"Download attachment(s)","\u0044\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0020\u0061\u0064\u006a\u0075\u006e\u0074\u006f\u0028\u0073\u0029"}, //Descarga adjunto(s)
+{"New message","\u004e\u0075\u0065\u0076\u006f\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065"}, //Nuevo mensaje
+{"Add attachment(s)","\u0041\u00f1\u0061\u0064\u0065\u0020\u0061\u0064\u006a\u0075\u006e\u0074\u006f\u0028\u0073\u0029"}, //A√±ade adjunto(s)
+{"Messages Today","\u004d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u0064\u0065\u0020\u0048\u006f\u0079"}, //Mensajes de Hoy
+{"Block messages with subject containing (separate by ';' )","\u0042\u006c\u006f\u0071\u0075\u0065\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u0063\u0075\u0079\u006f\u0020\u0061\u0073\u0075\u006e\u0074\u006f\u0020\u0063\u006f\u006e\u0074\u0069\u0065\u006e\u0065\u0020\u0028\u0073\u0065\u0070\u0061\u0072\u0061\u0064\u006f\u0073\u0020\u0070\u006f\u0072\u0020\u0027\u003b\u0027\u0020\u0029"}, //Bloquea mensajes cuyo asunto contiene (separados por ';' )
+{"Unknown","\u0044\u0065\u0073\u0063\u006f\u006e\u006f\u0063\u0069\u0064\u006f"}, //Desconocido
+{"Use editor for writing messages","\u0055\u0073\u0061\u0020\u0065\u0064\u0069\u0074\u006f\u0072\u0020\u0070\u0061\u0072\u0061\u0020\u0065\u0073\u0063\u0072\u0069\u0062\u0069\u0072\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073"}, //Usa editor para escribir mensajes
+{"File","\u0046\u0069\u0063\u0068\u0065\u0072\u006f"}, //Fichero
+{"MessageBodyFont","\u0046\u0075\u0065\u006e\u0074\u0065\u0020\u0064\u0065\u006c\u0020\u0063\u0075\u0065\u0072\u0070\u006f\u0020\u0064\u0065\u0020\u006c\u006f\u0073\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073"}, //Fuente del cuerpo de los mensajes
+{"Display list of known boards","\u004d\u0075\u0065\u0073\u0074\u0072\u0061\u0020\u006c\u0069\u0073\u0074\u0061\u0020\u0064\u0065\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u0063\u006f\u006e\u006f\u0063\u0069\u0064\u006f\u0073"}, //Muestra lista de foros conocidos
+{"TOFUP","\u0054\u004f\u0046\u0053\u0055"}, //TOFSU
+{"Reload all files","\u0053\u0075\u0062\u0065\u0020\u0074\u006f\u0064\u006f\u0073\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073"}, //Sube todos los ficheros
+{"Paste","\u0050\u0065\u0067\u0061"}, //Pega
+{"Set prefix for all files","\u0045\u0073\u0074\u0061\u0062\u006c\u0065\u0063\u0065\u0020\u0070\u0072\u0065\u0066\u0069\u006a\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u0074\u006f\u0064\u006f\u0073\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073"}, //Establece prefijo para todos los ficheros
+{"Off","\u0041\u0070\u0061\u0067\u0061\u0064\u006f"}, //Apagado
+{"Rename folder","\u0052\u0065\u006e\u006f\u006d\u0062\u0072\u0061\u0020\u0063\u0061\u0072\u0070\u0065\u0074\u0061"}, //Renombra carpeta
+{"Activate downloading","\u0041\u0063\u0074\u0069\u0076\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061"}, //Activa descarga
+{"Choose updating color of NON-SELECTED boards","\u0045\u0073\u0063\u006f\u0067\u0065\u0020\u0065\u006c\u0020\u0063\u006f\u006c\u006f\u0072\u0020\u0064\u0065\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u006f\u0020\u0064\u0065\u0020\u006c\u006f\u0073\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u004e\u004f\u0020\u0053\u0045\u004c\u0045\u0043\u0043\u0049\u004f\u004e\u0041\u0044\u004f\u0053"}, //Escoge el color de refresco de los foros NO SELECCIONADOS
+{"help user (sets to GOOD)","\u0061\u0079\u0075\u0064\u0061\u0020\u0061\u0020\u0075\u0073\u0075\u0061\u0072\u0069\u006f\u0020\u0028\u006d\u0061\u0072\u0063\u0061\u0020\u0063\u006f\u006d\u006f\u0020\u0042\u0055\u0045\u004e\u004f\u0029"}, //ayuda a usuario (marca como BUENO)
+{"Experimental Freenet Browser","\u004e\u0061\u0076\u0065\u0067\u0061\u0064\u006f\u0072\u0020\u0045\u0078\u0070\u0065\u0072\u0069\u006d\u0065\u006e\u0074\u0061\u006c\u0020\u0070\u0061\u0072\u0061\u0020\u0046\u0072\u0065\u0065\u006e\u0065\u0074"}, //Navegador Experimental para Freenet
+{"French","\u0046\u0072\u0061\u006e\u0063\u00e9\u0073"}, //Franc√©s
+{"Automatic update options","\u004f\u0070\u0063\u0069\u006f\u006e\u0065\u0073\u0020\u0064\u0065\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u006f\u0020\u0061\u0075\u0074\u006f\u006d\u00e1\u0074\u0069\u0063\u006f"}, //Opciones de refresco autom√°tico
+{"Frost by Jantho","\u0046\u0072\u006f\u0073\u0074\u0020\u0070\u006f\u0072\u0020\u004a\u0061\u006e\u0074\u0068\u006f"}, //Frost por Jantho
+{"Public board","\u0046\u006f\u0072\u006f\u0020\u0070\u00fa\u0062\u006c\u0069\u0063\u006f"}, //Foro p√∫blico
+{"Preferences","\u0050\u0072\u0065\u0066\u0065\u0072\u0065\u006e\u0063\u0069\u0061\u0073"}, //Preferencias
+{"Remove all downloads","\u0045\u006c\u0069\u006d\u0069\u006e\u0061\u0020\u0074\u006f\u0064\u0061\u0073\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Elimina todas las descargas
+{"Down","\u0041\u0062\u0061\u006a\u006f"}, //Abajo
+{"New Node Name","\u004e\u006f\u006d\u0062\u0072\u0065\u0020\u0064\u0065\u006c\u0020\u004e\u0075\u0065\u0076\u006f\u0020\u0046\u006f\u0072\u006f"}, //Nombre del Nuevo Foro
+{"Request file after this count of retries","\u0053\u006f\u006c\u0069\u0063\u0069\u0074\u0061\u0020\u0065\u006c\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0020\u0074\u0072\u0061\u0073\u0020\u0065\u0073\u0074\u0065\u0020\u006e\u00fa\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0020\u0072\u0065\u0069\u006e\u0074\u0065\u006e\u0074\u006f\u0073"}, //Solicita el fichero tras este n√∫mero de reintentos
+{"Archive Extension","\u0045\u0078\u0074\u0065\u006e\u0073\u0069\u006f\u006e\u0065\u0073\u0020\u0064\u0065\u0020\u0041\u0072\u0063\u0068\u0069\u0076\u006f"}, //Extensiones de Archivo
+{"Indexed attachments","\u0041\u0064\u006a\u0075\u006e\u0074\u006f\u0073\u0020\u0069\u006e\u0064\u0065\u0078\u0061\u0064\u006f\u0073"}, //Adjuntos indexados
+{"Subject","\u0041\u0073\u0075\u006e\u0074\u006f"}, //Asunto
+{"Select a message to view its content.","\u0053\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0020\u0075\u006e\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0020\u0070\u0061\u0072\u0061\u0020\u0076\u0065\u0072\u0020\u0073\u0075\u0020\u0063\u006f\u006e\u0074\u0065\u006e\u0069\u0064\u006f\u002e"}, //Selecciona un mensaje para ver su contenido.
+{"Automatic message update","\u0052\u0065\u0066\u0072\u0065\u0073\u0063\u006f\u0020\u0061\u0075\u0074\u006f\u006d\u00e1\u0074\u0069\u0063\u006f\u0020\u0064\u0065\u0020\u0066\u006f\u0072\u006f\u0073"}, //Refresco autom√°tico de foros
+{"Failed","\u0046\u0061\u006c\u006c\u00f3"}, //Fall√≥
+{"Choose background color if updating board is selected","\u0045\u0073\u0063\u006f\u0067\u0065\u0020\u0065\u006c\u0020\u0063\u006f\u006c\u006f\u0072\u0020\u0064\u0065\u0020\u0066\u006f\u006e\u0064\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u006c\u006f\u0073\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073\u0020\u0071\u0075\u0065\u0020\u0073\u0065\u0020\u0065\u0073\u0074\u00e1\u006e\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u0061\u006e\u0064\u006f"}, //Escoge el color de fondo para los foros seleccionados que se est√°n refrescando
+{"Selected board","\u0046\u006f\u0072\u006f\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f"}, //Foro seleccionado
+{"Configure selected board","\u0043\u006f\u006e\u0066\u0069\u0067\u0075\u0072\u0061\u0020\u0066\u006f\u0072\u006f\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f"}, //Configura foro seleccionado
+{"Remove selected downloads","\u0045\u006c\u0069\u006d\u0069\u006e\u0061\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u0061\u0073"}, //Elimina descargas seleccionadas
+{"Display board information window","\u004d\u0075\u0065\u0073\u0074\u0072\u0061\u0020\u0076\u0065\u006e\u0074\u0061\u006e\u0061\u0020\u0064\u0065\u0020\u0069\u006e\u0066\u006f\u0072\u006d\u0061\u0063\u0069\u00f3\u006e\u0020\u0064\u0065\u0020\u0066\u006f\u0072\u006f\u0073"}, //Muestra ventana de informaci√≥n de foros
+{"Show board update visualization","\u004d\u0075\u0065\u0073\u0074\u0072\u0061\u0020\u0076\u0069\u0073\u0075\u0061\u006c\u006d\u0065\u006e\u0074\u0065\u0020\u0065\u006c\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u006f\u0020\u0064\u0065\u0020\u006c\u006f\u0073\u0020\u0066\u006f\u0072\u006f\u0073"}, //Muestra visualmente el refresco de los foros
+{"Dutch","\u0048\u006f\u006c\u0061\u006e\u0064\u00e9\u0073"}, //Holand√©s
+{"Decode each segment immediately after its download","\u0044\u0065\u0063\u006f\u0064\u0069\u0066\u0069\u0063\u0061\u0020\u0063\u0061\u0064\u0061\u0020\u0073\u0065\u0067\u006d\u0065\u006e\u0074\u006f\u0020\u006e\u0061\u0064\u0061\u0020\u006d\u00e1\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0072\u0073\u0065"}, //Decodifica cada segmento nada m√°s descargarse
+{"Disable all downloads","\u0044\u0065\u0073\u0061\u0063\u0074\u0069\u0076\u0061\u0020\u0074\u006f\u0064\u0061\u0073\u0020\u006c\u0061\u0073\u0020\u0064\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Desactiva todas las descargas
+{"Set prefix for selected files","\u0045\u0073\u0074\u0061\u0062\u006c\u0065\u0063\u0065\u0020\u0070\u0072\u0065\u0066\u0069\u006a\u006f\u0020\u0070\u0061\u0072\u0061\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073"}, //Establece prefijo para los ficheros seleccionados
+{"Display","\u0050\u0061\u006e\u0074\u0061\u006c\u006c\u0061"}, //Pantalla
+{"Sign shared files","\u0046\u0069\u0072\u006d\u0061\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0063\u006f\u006d\u0070\u0061\u0072\u0074\u0069\u0064\u006f\u0073"}, //Firma ficheros compartidos
+{"Japanese","\u004a\u0061\u0070\u006f\u006e\u00e9\u0073"}, //Japon√©s
+{"Create message","\u0043\u0072\u0065\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065"}, //Crea mensaje
+{"folder","\u0063\u0061\u0072\u0070\u0065\u0074\u0061"}, //carpeta
+{"Language","\u0049\u0064\u0069\u006f\u006d\u0061"}, //Idioma
+{"Choose boards to attach","\u0045\u0073\u0063\u006f\u0067\u0065\u0020\u0065\u006c\u0020\u0066\u006f\u0072\u006f\u0028\u0073\u0029\u0020\u0061\u0020\u0061\u0064\u006a\u0075\u006e\u0074\u0061\u0072"}, //Escoge el foro(s) a adjuntar
+{"Hide files from people marked BAD","\u004f\u0063\u0075\u006c\u0074\u0061\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0064\u0065\u0020\u0067\u0065\u006e\u0074\u0065\u0020\u006d\u0061\u0072\u0063\u0061\u0064\u0061\u0020\u0063\u006f\u006d\u006f\u0020\u004d\u0041\u004c\u0041"}, //Oculta ficheros de gente marcada como MALA
+{"Boards","\u0046\u006f\u0072\u006f\u0073"}, //Foros
+{"Paste board","\u0050\u0065\u0067\u0061\u0020\u0066\u006f\u0072\u006f"}, //Pega foro
+{"Minimize to System Tray","\u004d\u0069\u006e\u0069\u006d\u0069\u007a\u0061\u0020\u0061\u0020\u006c\u0061\u0020\u0042\u0061\u006e\u0064\u0065\u006a\u0061\u0020\u0064\u0065\u006c\u0020\u0053\u0069\u0073\u0074\u0065\u006d\u0061"}, //Minimiza a la Bandeja del Sistema
+{"batch explanation","\u0028\u0063\u0075\u0061\u006e\u0074\u006f\u0020\u006d\u0061\u0079\u006f\u0072\u0020\u006d\u00e1\u0073\u0020\u0072\u00e1\u0070\u0069\u0064\u006f\u0020\u0070\u0065\u0072\u006f\u0020\u006d\u0065\u006e\u006f\u0073\u0020\u0072\u0065\u0073\u0069\u0073\u0074\u0065\u006e\u0074\u0065\u0020\u0061\u0020\u0073\u0070\u0061\u006d\u0029"}, //(cuanto mayor m√°s r√°pido pero menos resistente a spam)
+{"Number of concurrently updating boards","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0020\u0066\u006f\u0072\u006f\u0073\u0020\u0072\u0065\u0066\u0072\u0065\u0073\u0063\u00e1\u006e\u0064\u006f\u0073\u0065\u0020\u0061\u0020\u006c\u0061\u0020\u0076\u0065\u007a"}, //N√∫mero de foros refresc√°ndose a la vez
+{"Video Extension","\u0045\u0078\u0074\u0065\u006e\u0073\u0069\u006f\u006e\u0065\u0073\u0020\u0064\u0065\u0020\u0056\u00ed\u0064\u0065\u006f"}, //Extensiones de V√≠deo
+{"Message download HTL","\u0048\u0054\u004c\u0020\u0070\u0061\u0072\u0061\u0020\u0062\u0061\u006a\u0061\u0064\u0061\u0020\u0064\u0065\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073"}, //HTL para bajada de mensajes
+{"Hide messages flagged BAD","\u004f\u0063\u0075\u006c\u0074\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u006d\u0061\u0072\u0063\u0061\u0064\u006f\u0073\u0020\u0063\u006f\u006d\u006f\u0020\u004d\u0041\u004c\u004f"}, //Oculta mensajes marcados como MALO
+{"Cut","\u0043\u006f\u0072\u0074\u0061"}, //Corta
+{"From","\u0044\u0065"}, //De
+{"Choose file(s) / directory(s) to attach","\u0045\u0073\u0063\u006f\u0067\u0065\u0020\u0065\u006c\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0028\u0073\u0029\u0020\u002f\u0020\u0064\u0069\u0072\u0065\u0063\u0074\u006f\u0072\u0069\u006f\u0028\u0073\u0029\u0020\u0061\u0020\u0061\u0064\u006a\u0075\u006e\u0074\u0061\u0072"}, //Escoge el fichero(s) / directorio(s) a adjuntar
+{"Hide messages flagged CHECK","\u004f\u0063\u0075\u006c\u0074\u0061\u0020\u006d\u0065\u006e\u0073\u0061\u006a\u0065\u0073\u0020\u006d\u0061\u0072\u0063\u0061\u0064\u006f\u0073\u0020\u0063\u006f\u006d\u006f\u0020\u0043\u004f\u004d\u0050\u0052\u004f\u0042\u0041\u0052"}, //Oculta mensajes marcados como COMPROBAR
+{"Up","\u0041\u0072\u0072\u0069\u0062\u0061"}, //Arriba
+{"Downloads","\u0044\u0065\u0073\u0063\u0061\u0072\u0067\u0061\u0073"}, //Descargas
+{"Source","\u004f\u0072\u0069\u0067\u0065\u006e"}, //Origen
+{"Decrease Font Size","\u0052\u0065\u0064\u0075\u0063\u0065\u0020\u0054\u0061\u006d\u0061\u00f1\u006f\u0020\u0064\u0065\u006c\u0020\u0046\u0075\u0065\u006e\u0074\u0065"}, //Reduce Tama√±o del Fuente
+{"Configure board","\u0043\u006f\u006e\u0066\u0069\u0067\u0075\u0072\u0061\u0020\u0066\u006f\u0072\u006f"}, //Configura foro
+{"Change destination board","\u0043\u0061\u006d\u0062\u0069\u0061\u0020\u0066\u006f\u0072\u006f\u0020\u0064\u0065\u0020\u0064\u0065\u0073\u0074\u0069\u006e\u006f"}, //Cambia foro de destino
+{"CHK key + filename","\u0063\u006c\u0061\u0076\u0065\u0020\u0043\u0048\u004b\u0020\u002b\u0020\u006e\u006f\u006d\u0062\u0072\u0065\u0020\u0064\u0065\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f"}, //clave CHK + nombre de fichero
+{"EnableSkins","\u0041\u0063\u0074\u0069\u0076\u0061\u0020\u0053\u006b\u0069\u006e\u0073"}, //Activa Skins
+{"Number of simultaneous uploads","\u004e\u00fa\u006d\u0065\u0072\u006f\u0020\u0064\u0065\u0020\u0073\u0075\u0062\u0069\u0064\u0061\u0073\u0020\u0073\u0069\u006d\u0075\u006c\u0074\u00e1\u006e\u0065\u0061\u0073"}, //N√∫mero de subidas simult√°neas
+{"Allow 2 byte characters","\u0050\u0065\u0072\u006d\u0069\u0074\u0065\u0020\u0063\u0061\u0072\u0061\u0063\u0074\u0065\u0072\u0065\u0073\u0020\u0064\u0065\u0020\u0032\u0020\u0062\u0079\u0074\u0065\u0073"}, //Permite caracteres de 2 bytes
+{"Reload selected files","\u0053\u0075\u0062\u0065\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073\u0020\u0073\u0065\u006c\u0065\u0063\u0063\u0069\u006f\u006e\u0061\u0064\u006f\u0073"}, //Sube los ficheros seleccionados
+{"Automatic saving interval","\u0049\u006e\u0074\u0065\u0072\u0076\u0061\u006c\u006f\u0020\u0064\u0065\u0020\u0067\u0072\u0061\u0062\u0061\u0063\u0069\u00f3\u006e\u0020\u0061\u0075\u0074\u006f\u006d\u00e1\u0074\u0069\u0063\u0061"}, //Intervalo de grabaci√≥n autom√°tica
+{"Remove all files","\u0045\u006c\u0069\u006d\u0069\u006e\u0061\u0020\u0074\u006f\u0064\u006f\u0073\u0020\u006c\u006f\u0073\u0020\u0066\u0069\u0063\u0068\u0065\u0072\u006f\u0073"}, //Elimina todos los ficheros
+{"Not available","\u004e\u006f\u0020\u0064\u0069\u0073\u0070\u006f\u006e\u0069\u0062\u006c\u0065"}, //No disponible
+{"Set to CHECK","\u004d\u0061\u0072\u0063\u0061\u0020\u0063\u006f\u006d\u006f\u0020\u0043\u004f\u004d\u0050\u0052\u004f\u0042\u0041\u0052"}, //Marca como COMPROBAR
+{"Refresh","\u0052\u0065\u0066\u0072\u0065\u0073\u0063\u0061"}, //Refresca
+};
 }
