@@ -56,8 +56,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 			 */
 			public void actionPerformed(ActionEvent event) {
 				if (event.getSource() == DisplayPanel.this.getEnableSkinsCheckBox())
-					getSkinChooser().setEnabled(getEnableSkinsCheckBox().isSelected());
+					enableSkinsPressed();
 			}
+			
 		}
 		
 		EventHandler eventHandler = new EventHandler();
@@ -85,6 +86,19 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 			add(getSkinChooser(), "Center");
 			add(getEnableSkinsCheckBox(), "North");
 			initConnections();
+		}
+		
+		/**
+		 *	This method is executed when the state of the enableSkins checkBox changes
+		 */
+		private void enableSkinsPressed() {
+			boolean enabled = getEnableSkinsCheckBox().isSelected();
+			getSkinChooser().setEnabled(enabled);
+			if (enabled) {
+				getSkinChooser().enableSkins();
+			} else {
+				getSkinChooser().disableSkins();
+			}
 		}
 		
 		/**
@@ -158,7 +172,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 				displaySettings.setValue("selectedSkin", selectedSkin);
 			}
 		}
-			
+		
 		/**
 		 * Load the settings of this panel
 		 * @param displaySettings class the settings will be loaded from
@@ -420,7 +434,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             listData.add( new ListBoxData( " "+LangRes.getString("News")+" (2) ",      getTof2Panel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("News")+" (3) ",      getTof3Panel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Search")+" ",        getSearchPanel() ) );
-			//listData.add( new ListBoxData( " "+LangRes.getString("Display")+" ",       getDisplayPanel() ) );
+			listData.add( new ListBoxData( " "+LangRes.getString("Display")+" ",       getDisplayPanel() ) );
             listData.add( new ListBoxData( " "+LangRes.getString("Miscellaneous")+" ", getMiscPanel() ) );
             optionsGroupsList = new JList( listData );
             optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
