@@ -22,9 +22,12 @@ package frost;
 
 import java.util.*;
 import java.io.*;
+import java.awt.*;
 
 /**
  * Read settings from frost.ini and store them.
+ *
+ * TODO: why handle all in strings and convert between types? FIX!
  */
 public class SettingsClass
 {
@@ -86,16 +89,50 @@ public class SettingsClass
                     StringTokenizer strtok = new StringTokenizer(line, "=");
                     String key = "";
                     String value = "";
+                    Object objValue = value;
                     if( strtok.countTokens() >= 2 )
                     {
-                        key = strtok.nextToken();
-                        value = strtok.nextToken();
+                        key = strtok.nextToken().trim();
+                        value = strtok.nextToken().trim();
                         // to allow '=' in values
                         while( strtok.hasMoreElements() )
                         {
                             value += "=" + strtok.nextToken();
                         }
-                        settingsHash.put(key, value);
+                        if( value.startsWith("type.color(") && value.endsWith(")") )
+                        {
+                            // this is a color
+                            String rgbPart = value.substring( 11 , value.length()-1 );
+                            StringTokenizer strtok2 = new StringTokenizer(rgbPart, ",");
+
+                            if( strtok2.countTokens() == 3 )
+                            {
+                                try {
+                                    int red, green, blue;
+                                    red = Integer.parseInt(strtok2.nextToken().trim());
+                                    green = Integer.parseInt(strtok2.nextToken().trim());
+                                    blue = Integer.parseInt(strtok2.nextToken().trim());
+                                    Color c = new Color(red, green, blue);
+                                    objValue = c;
+                                }
+                                catch(Exception ex) {
+                                    objValue = null;
+                                }
+                            }
+                            else
+                            {
+                                objValue = null; // dont insert in settings, use default instead
+                            }
+                        }
+                        else
+                        {
+                            // 'old' behaviour
+                            objValue = value;
+                        }
+                        if( objValue != null )
+                        {
+                            settingsHash.put(key, objValue);
+                        }
                     }
                 }
             }
@@ -119,7 +156,7 @@ public class SettingsClass
         return true;
     }
 
-    public boolean writeSettingsFile ()
+    public boolean writeSettingsFile()
     {
         PrintWriter settingsWriter = null;
         try {
@@ -135,7 +172,26 @@ public class SettingsClass
         while( i.hasNext() )
         {
             String key = (String)i.next();
-            settingsWriter.println(key + "=" + sortedSettings.get(key));
+
+            String val = null;
+            if( sortedSettings.get(key) instanceof Color )
+            {
+                Color c = (Color)sortedSettings.get(key);
+
+                val = new StringBuffer().append("type.color(")
+                .append( c.getRed() )
+                .append( "," )
+                .append( c.getGreen() )
+                .append( "," )
+                .append( c.getBlue() )
+                .append( ")" ).toString();
+            }
+            else
+            {
+                val = sortedSettings.get(key).toString();
+            }
+
+            settingsWriter.println(key + "=" + val );
         }
 
         try {
@@ -159,7 +215,12 @@ public class SettingsClass
         return(String) settingsHash.get(key);
     }
 
-    public String[] getArrayValue (String key)
+    public Object getObjectValue(String key)
+    {
+        return settingsHash.get(key);
+    }
+
+    public String[] getArrayValue(String key)
     {
         String str = (String) settingsHash.get(key);
         if(str==null) return new String[0];
@@ -256,6 +317,11 @@ public class SettingsClass
         this.setValue(key, String.valueOf(value));
     }
 
+    public void setObjectValue(String key, Object value)
+    {
+        settingsHash.put(key, value);
+    }
+
     /**
      * Contains all default values that are used if no value is found in .ini file.
      */
@@ -328,6 +394,9 @@ public class SettingsClass
         defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
         defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
         defaults.put("doCleanUp","false");
+
+        defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233,233,233) );//"type.color(233,233,233)"
+        defaults.put("boardUpdatingSelectedBackgroundColor", new Color(137,137,191) );//"type.color(137,137,191)
 
         settingsHash.putAll(defaults);
     }

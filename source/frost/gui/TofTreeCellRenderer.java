@@ -39,8 +39,6 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
     ImageIcon boardNewIcon;
     ImageIcon boardSpammedIcon;
     String fileSeparator;
-    Color updatingSelectedColor;
-    Color updatingNonSelectedColor;
     Color notUpdatingSelectedColor;
     Color notUpdatingNonSelectedColor;
 
@@ -65,8 +63,6 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         normalFont = dummyTable.getFont();
         boldFont = normalFont.deriveFont( Font.BOLD );
 
-        updatingSelectedColor = new Color( 137, 137, 191 );
-        updatingNonSelectedColor = new Color( 233, 233, 233 );
         notUpdatingSelectedColor = dummyTable.getSelectionBackground();
         notUpdatingNonSelectedColor = Color.WHITE;
     }
@@ -112,8 +108,12 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
             board.isUpdating() == true )
         {
             // set special updating colors
-            setBackgroundNonSelectionColor( updatingNonSelectedColor );
-            setBackgroundSelectionColor( updatingSelectedColor );
+            Color c;
+            c = (Color)frame1.frostSettings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
+            setBackgroundNonSelectionColor( c );
+
+            c = (Color)frame1.frostSettings.getObjectValue("boardUpdatingSelectedBackgroundColor");
+            setBackgroundSelectionColor( c );
         }
         else
         {
