@@ -90,7 +90,7 @@ public class BoardAttachment extends Attachment implements Comparable, SafeXMLiz
 
 	}
 	
-	public BoardAttachment(Element e) throws SAXException{
+	protected BoardAttachment(Element e) throws SAXException{
 		loadXMLElement(e);
 	}
 	
