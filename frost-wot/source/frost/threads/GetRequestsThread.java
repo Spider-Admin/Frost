@@ -87,6 +87,7 @@ public class GetRequestsThread extends Thread
 	
 	//start the request loop
 	while (true) {
+	dirdate = DateFun.getDate();
 	try{
 	Iterator it = frame1.getMyBatches().keySet().iterator();
 	while (it.hasNext()) {
