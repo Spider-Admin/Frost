@@ -231,7 +231,9 @@ public class TableXmlIO
         }
 
         boolean isDownloadEnabled = false;
-        if( enableDownload == null || enableDownload.toLowerCase().equals("true") )
+        if( enableDownload == null ||
+            enableDownload.length() == 0 ||
+            enableDownload.toLowerCase().equals("true") )
         {
             isDownloadEnabled = true; // default is true
         }
@@ -373,10 +375,11 @@ public class TableXmlIO
     {
         Element itemElement = doc.createElement("FrostDownloadTableItem");
         String isDownloadEnabled;
-        if( dlItem.getEnableDownload() != null )
-        {
-            itemElement.setAttribute("enableDownload", dlItem.getEnableDownload().toString() );
-        }
+        if( dlItem.getEnableDownload() == null )
+            isDownloadEnabled = "true";
+        else
+            isDownloadEnabled = dlItem.getEnableDownload().toString();
+        itemElement.setAttribute("enableDownload", isDownloadEnabled );
 
         Element element;
         Text text;
