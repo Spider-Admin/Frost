@@ -109,7 +109,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JLabel getMoreSkinsLabel() {
 			if (moreSkinsLabel == null) {
 				LangRes.getString("MoreSkinsAt");
-				moreSkinsLabel = new JLabel(LangRes.getString("MoreSkinsAt") + " http://www.javootoo.com/");
+				moreSkinsLabel = new JLabel(LangRes.getString("MoreSkinsAt") + " http://javootoo.l2fprod.com/plaf/skinlf/");
 				moreSkinsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 			}
 			return moreSkinsLabel;
