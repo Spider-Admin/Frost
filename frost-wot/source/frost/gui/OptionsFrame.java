@@ -169,6 +169,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 			if (selectedSkin == null) {
 				displaySettings.setValue("selectedSkin", "");
 			} else {
+				getSkinChooser().previewButtonPressed();
 				displaySettings.setValue("selectedSkin", selectedSkin);
 			}
 		}
