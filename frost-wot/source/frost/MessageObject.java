@@ -24,7 +24,7 @@ import java.util.*;
 public class MessageObject {
 
     char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
-
+			//FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     String board, content, from, subject, date, time, index, publicKey, newContent;
     File file;
 

@@ -77,31 +77,31 @@ public class mixed
         StringBuffer newText = new StringBuffer();
         //text = text.toLowerCase();
 
-        if (frame1.frostSettings.getBoolValue("allowEvilBert"))
-        {
+        //if (frame1.frostSettings.getBoolValue("allowEvilBert"))
+       // {
             // I hope that this allows the display of 2 byte characters
             char[] invalidChars =
-                { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#' };
+                { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#' }; //FIXME: this one is missing the "&" char as opposed to MessageObject()
 
             for (int i = 0; i < invalidChars.length; i++)
                 text = text.replace(invalidChars[i], '_');
 
             newText.append(text);
-        }
-        else
-        {
-            String allowedCharacters = "()-!.";
-            for (int i = 0; i < text.length(); i++)
-            {
-                int value = Character.getNumericValue(text.charAt(i));
-                char character = text.charAt(i);
-                if ((value >= 0 && value < 36)
-                    || allowedCharacters.indexOf(character) != -1)
-                    newText.append(character);
-                else
-                    newText.append("_");
-            }
-        }
+       // }
+      //  else
+       // {
+        //    String allowedCharacters = "()-!.";
+         //   for (int i = 0; i < text.length(); i++)
+          //  {
+           //     int value = Character.getNumericValue(text.charAt(i));
+            //    char character = text.charAt(i);
+             //   if ((value >= 0 && value < 36)
+              //      || allowedCharacters.indexOf(character) != -1)
+               //     newText.append(character);
+             //   else
+             //       newText.append("_");
+           // }
+      //  }
 
         return newText.toString();
     }
