@@ -3,7 +3,7 @@
   Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
   Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
 
-  This program is free software; you can redistribute it and/or
+  This program is free software; you can redistribute it and/or 
   modify it under the terms of the GNU General Public License as
   published by the Free Software Foundation; either version 2 of
   the License, or (at your option) any later version.
@@ -23,6 +23,7 @@ package frost;
 import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
@@ -52,10 +53,9 @@ import frost.threads.maintenance.Truster;
 //             - filter out enemies on read of messages
 
 // after removing a board, let actual board selected (currently if you delete another than selected board
-//   the tofTree is updated)
+//   the tofTree is updated) 
 
 public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
-
 	/**
 	 * This listener changes the 'updating' state of a board if a thread starts/finishes.
 	 * It also launches popup menus
@@ -63,7 +63,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	private class Listener
 		extends WindowAdapter
 		implements MouseListener, BoardUpdateThreadListener, WindowListener {
-			
 		public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
 			int running =
 				getRunningBoardUpdateThreads()
@@ -92,27 +91,9 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger() == false) {
 				return;
-			} else if (e.getComponent().equals(tofTextArea)) { // TOF text popup
-				showTofTextAreaPopupMenu(e);
-			} else if (e.getComponent().equals(boardTable)) {
-				// Board attached popup
-				showAttachmentBoardPopupMenu(e);
-			} else if (e.getComponent().equals(attachmentTable)) {
-				// Board attached popup
-				showAttachmentTablePopupMenu(e);
 			} else if (e.getComponent().equals(getTofTree())) { // TOF tree popup
 				showTofTreePopupMenu(e);
-			} else if (e.getComponent().equals(messageTable)) { // TOF tree popup
-				showMessageTablePopupMenu(e);
 			}
-		}
-		public void mousePressed(MouseEvent e) {
-			if (e.getClickCount() != 2)
-				maybeShowPopup(e);
-		}
-
-		public void mouseReleased(MouseEvent e) {
-			maybeShowPopup(e);
 		}
 		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
@@ -131,6 +112,14 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		 */
 		public void mouseExited(MouseEvent e) {
 			//Nothing here				
+		}
+		public void mousePressed(MouseEvent e) {
+			if (e.getClickCount() != 2)
+				maybeShowPopup(e);
+		}
+
+		public void mouseReleased(MouseEvent e) {
+			maybeShowPopup(e);
 		}
 		/* (non-Javadoc)
 		 * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
@@ -155,403 +144,1248 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	} // end of class popuplistener
 
 	/**
-	 * 
+	 * @author Administrator
+	 *
+	 * To change the template for this generated type comment go to
+	 * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
 	 */
-	private class PopupMenuAttachmentBoard
-		extends JSkinnablePopupMenu
-		implements ActionListener, LanguageListener {
+	private class MessagePanel extends JPanel {
 
-		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem saveBoardItem = new JMenuItem();
-		private JMenuItem saveBoardsItem = new JMenuItem();
 		/**
-		 * 
+		 *  
 		 */
-		public PopupMenuAttachmentBoard() {
-			super();
-			initialize();
-		}
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == saveBoardsItem) {
-				saveBoards();
+		private class Listener
+			extends MouseAdapter
+			implements
+				ActionListener,
+				ListSelectionListener,
+				PropertyChangeListener,
+				TreeSelectionListener,
+				TreeModelListener {
+
+			/**
+			 * 
+			 */
+			public Listener() {
+				super();
 			}
-			if (e.getSource() == saveBoardItem) {
-				saveBoard();
+
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == updateButton) {
+					updateButton_actionPerformed(e);
+				}
+				if (e.getSource() == newMessageButton) {
+					newMessageButton_actionPerformed(e);
+				}
+				if (e.getSource() == downloadAttachmentsButton) {
+					downloadAttachments();
+				}
+				if (e.getSource() == downloadBoardsButton) {
+					downloadBoards();
+				}
+				if (e.getSource() == replyButton) {
+					replyButton_actionPerformed(e);
+				}
+				if (e.getSource() == saveMessageButton) {
+					saveMessageButton_actionPerformed(e);
+				}
+				if (e.getSource() == trustButton) {
+					trustButton_actionPerformed(e);
+				}
+				if (e.getSource() == notTrustButton) {
+					notTrustButton_actionPerformed(e);
+				}
+				if (e.getSource() == checkTrustButton) {
+					checkTrustButton_actionPerformed(e);
+				}
 			}
-		}
-		/**
-		 * 
-		 */
-		private void initialize() {
-			refreshLanguage();
 
-			saveBoardsItem.addActionListener(this);
-			saveBoardItem.addActionListener(this);
-		}
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
-		/**
-		 * 
-		 */
-		private void refreshLanguage() {
-			saveBoardsItem.setText(languageResource.getString("Add Board(s)"));
-			saveBoardItem.setText(languageResource.getString("Add selected board"));
-			cancelItem.setText(languageResource.getString("Cancel"));
-		}
-
-		/**
-		 * 
-		 */
-		private void saveBoard() {
-			downloadBoards();
-		}
-		/**
-		 * 
-		 */
-		private void saveBoards() {
-			downloadBoards();
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-		 */
-		public void show(Component invoker, int x, int y) {
-			removeAll();
-
-			if (boardTable.getSelectedRow() == -1) {
-				add(saveBoardsItem);
-			} else {
-				add(saveBoardItem);
+			/**
+			 * @param e
+			 */
+			private void maybeShowPopup(MouseEvent e) {
+				if (e.isPopupTrigger()) {
+					if (e.getComponent() == messageTextArea) {
+						showTofTextAreaPopupMenu(e);
+					}
+					if (e.getComponent() == messageTable) {
+						showMessageTablePopupMenu(e);
+					}
+					if (e.getComponent() == boardTable) {
+						showAttachmentBoardPopupMenu(e);
+					}
+					if (e.getComponent() == attachmentTable) {
+						showAttachmentTablePopupMenu(e);
+					}
+				}
 			}
-			addSeparator();
-			add(cancelItem);
 
-			super.show(invoker, x, y);
-		}
-
-	}
-
-	/**
-	 * 
-	 */
-	private class PopupMenuAttachmentTable
-		extends JSkinnablePopupMenu
-		implements ActionListener, LanguageListener {
-
-		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem saveAttachmentItem = new JMenuItem();
-		private JMenuItem saveAttachmentsItem = new JMenuItem();
-		/**
-		 * @throws java.awt.HeadlessException
-		 */
-		public PopupMenuAttachmentTable() throws HeadlessException {
-			super();
-			initialize();
-		}
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == saveAttachmentsItem) {
-				saveAttachments();
+			/* (non-Javadoc)
+			 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+			 */
+			public void mousePressed(MouseEvent e) {
+				maybeShowPopup(e);
 			}
-			if (e.getSource() == saveAttachmentItem) {
-				saveAttachment();
+
+			/* (non-Javadoc)
+			 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+			 */
+			public void mouseReleased(MouseEvent e) {
+				maybeShowPopup(e);
 			}
-		}
-		/**
-		 * 
-		 */
-		private void initialize() {
-			refreshLanguage();
 
-			saveAttachmentsItem.addActionListener(this);
-			saveAttachmentItem.addActionListener(this);
-		}
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
-		/**
-		 * 
-		 */
-		private void refreshLanguage() {
-			saveAttachmentsItem.setText(languageResource.getString("Download attachment(s)"));
-			saveAttachmentItem.setText(languageResource.getString("Download selected attachment"));
-			cancelItem.setText(languageResource.getString("Cancel"));
-		}
-
-		/**
-		 * 
-		 */
-		private void saveAttachment() {
-			downloadAttachments();
-		}
-		/**
-		 * 
-		 */
-		private void saveAttachments() {
-			downloadAttachments();
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-		 */
-		public void show(Component invoker, int x, int y) {
-			removeAll();
-
-			if (attachmentTable.getSelectedRow() == -1) {
-				add(saveAttachmentsItem);
-			} else {
-				add(saveAttachmentItem);
+			/* (non-Javadoc)
+			 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+			 */
+			public void valueChanged(ListSelectionEvent e) {
+				messageTable_itemSelected(e);
 			}
-			addSeparator();
-			add(cancelItem);
 
-			super.show(invoker, x, y);
-		}
-
-	}
-	/**
-	 * 
-	 */
-	private class PopupMenuMessageTable
-		extends JSkinnablePopupMenu
-		implements ActionListener, LanguageListener {
-		private JMenuItem cancelItem = new JMenuItem();
-
-		private JMenuItem markAllMessagesReadItem = new JMenuItem();
-		private JMenuItem markMessageUnreadItem = new JMenuItem();
-		private JMenuItem setBadItem = new JMenuItem();
-		private JMenuItem setCheckItem = new JMenuItem();
-		private JMenuItem setGoodItem = new JMenuItem();
-
-		/**
-		 * 
-		 */
-		public PopupMenuMessageTable() {
-			super();
-			initialize();
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == markMessageUnreadItem) {
-				markMessageUnread();
+			/* (non-Javadoc)
+			 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+			 */
+			public void propertyChange(PropertyChangeEvent evt) {
+				if (evt.getPropertyName().equals("messageBodyAA")) {
+					antialiasing_propertyChanged(evt);
+				}
+				if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_NAME)) {
+					fontChanged();
+				}
+				if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_SIZE)) {
+					fontChanged();
+				}
+				if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_STYLE)) {
+					fontChanged();
+				}
 			}
-			if (e.getSource() == markAllMessagesReadItem) {
-				markAllMessagesRead();
+
+			/* (non-Javadoc)
+			 * @see javax.swing.event.TreeSelectionListener#valueChanged(javax.swing.event.TreeSelectionEvent)
+			 */
+			public void valueChanged(TreeSelectionEvent e) {
+				boardsTree_actionPerformed(e);
 			}
-			if (e.getSource() == setGoodItem) {
-				setGood();
+
+			/* (non-Javadoc)
+			 * @see javax.swing.event.TreeModelListener#treeNodesChanged(javax.swing.event.TreeModelEvent)
+			 */
+			public void treeNodesChanged(TreeModelEvent e) {
+				boardsTreeNode_Changed(e);
 			}
-			if (e.getSource() == setBadItem) {
-				setBad();
+
+			/* (non-Javadoc)
+			 * @see javax.swing.event.TreeModelListener#treeNodesInserted(javax.swing.event.TreeModelEvent)
+			 */
+			public void treeNodesInserted(TreeModelEvent e) {
+				//Nothing here				
 			}
-			if (e.getSource() == setCheckItem) {
-				setCheck();
+
+			/* (non-Javadoc)
+			 * @see javax.swing.event.TreeModelListener#treeNodesRemoved(javax.swing.event.TreeModelEvent)
+			 */
+			public void treeNodesRemoved(TreeModelEvent e) {
+				//Nothing here					
 			}
-		}
 
+			/* (non-Javadoc)
+			 * @see javax.swing.event.TreeModelListener#treeStructureChanged(javax.swing.event.TreeModelEvent)
+			 */
+			public void treeStructureChanged(TreeModelEvent e) {
+				//Nothing here						
+			}
+
+		}
 		/**
 		 * 
 		 */
-		private void initialize() {
-			refreshLanguage();
+		private class PopupMenuAttachmentBoard
+			extends JSkinnablePopupMenu
+			implements ActionListener, LanguageListener {
 
-			markMessageUnreadItem.addActionListener(this);
-			markAllMessagesReadItem.addActionListener(this);
-			setGoodItem.addActionListener(this);
-			setBadItem.addActionListener(this);
-			setCheckItem.addActionListener(this);
-		}
+			private JMenuItem cancelItem = new JMenuItem();
+			private JMenuItem saveBoardItem = new JMenuItem();
+			private JMenuItem saveBoardsItem = new JMenuItem();
+			/**
+			 * 
+			 */
+			public PopupMenuAttachmentBoard() {
+				super();
+				initialize();
+			}
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == saveBoardsItem) {
+					saveBoards();
+				}
+				if (e.getSource() == saveBoardItem) {
+					saveBoard();
+				}
+			}
+			/**
+			 * 
+			 */
+			private void initialize() {
+				refreshLanguage();
 
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
+				saveBoardsItem.addActionListener(this);
+				saveBoardItem.addActionListener(this);
+			}
+			/* (non-Javadoc)
+			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+			 */
+			public void languageChanged(LanguageEvent event) {
+				refreshLanguage();
+			}
+			/**
+			 * 
+			 */
+			private void refreshLanguage() {
+				saveBoardsItem.setText(languageResource.getString("Add Board(s)"));
+				saveBoardItem.setText(languageResource.getString("Add selected board"));
+				cancelItem.setText(languageResource.getString("Cancel"));
+			}
 
-		/**
-		 * 
-		 */
-		private void markAllMessagesRead() {
-			TOF.setAllMessagesRead(getMessageTable(), getSelectedNode());
-		}
+			/**
+			 * 
+			 */
+			private void saveBoard() {
+				downloadBoards();
+			}
+			/**
+			 * 
+			 */
+			private void saveBoards() {
+				downloadBoards();
+			}
 
-		/**
-		 * 
-		 */
-		private void markMessageUnread() {
-			markSelectedMessageUnread();
-		}
-
-		/**
-		 * 
-		 */
-		private void refreshLanguage() {
-			markMessageUnreadItem.setText(languageResource.getString("Mark message unread"));
-			markAllMessagesReadItem.setText(languageResource.getString("Mark ALL messages read"));
-			setGoodItem.setText(languageResource.getString("help user (sets to GOOD)"));
-			setBadItem.setText(languageResource.getString("block user (sets to BAD)"));
-			setCheckItem.setText(languageResource.getString("set to neutral (CHECK)"));
-			cancelItem.setText(languageResource.getString("Cancel"));
-		}
-
-		/**
-		 * 
-		 */
-		private void setBad() {
-			setMessageTrust(new Boolean(false));
-		}
-
-		/**
-		 * 
-		 */
-		private void setCheck() {
-			setMessageTrust(null);
-		}
-
-		/**
-		 * 
-		 */
-		private void setGood() {
-			setMessageTrust(new Boolean(true));
-		}
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-		 */
-		public void show(Component invoker, int x, int y) {
-			if (!getSelectedNode().isFolder()) {
+			/* (non-Javadoc)
+			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 */
+			public void show(Component invoker, int x, int y) {
 				removeAll();
 
-				if (messageTable.getSelectedRow() > -1) {
-					add(markMessageUnreadItem);
+				if (boardTable.getSelectedRow() == -1) {
+					add(saveBoardsItem);
+				} else {
+					add(saveBoardItem);
 				}
-				add(markAllMessagesReadItem);
-				addSeparator();
-				add(setGoodItem);
-				add(setCheckItem);
-				add(setBadItem);
-				setGoodItem.setEnabled(false);
-				setCheckItem.setEnabled(false);
-				setBadItem.setEnabled(false);
-				if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
-					//fscking html on all these..
-					if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.VERIFIED)
-						> -1) {
-						setCheckItem.setEnabled(true);
-						setBadItem.setEnabled(true);
-					} else if (
-						selectedMessage.getStatus().indexOf(VerifyableMessageObject.PENDING)
-							> -1) {
-						setGoodItem.setEnabled(true);
-						setBadItem.setEnabled(true);
-					} else if (
-						selectedMessage.getStatus().indexOf(VerifyableMessageObject.FAILED) > -1) {
-						setGoodItem.setEnabled(true);
-						setCheckItem.setEnabled(true);
-					} else
-						logger.warning("invalid message state : " + selectedMessage.getStatus());
-				}
-
 				addSeparator();
 				add(cancelItem);
-				// ATT: misuse of another menuitem displaying 'Cancel' ;)
+
 				super.show(invoker, x, y);
 			}
+
+		}
+		/**
+		 * 
+		 */
+		private class PopupMenuAttachmentTable
+			extends JSkinnablePopupMenu
+			implements ActionListener, LanguageListener {
+
+			private JMenuItem cancelItem = new JMenuItem();
+			private JMenuItem saveAttachmentItem = new JMenuItem();
+			private JMenuItem saveAttachmentsItem = new JMenuItem();
+			/**
+			 * @throws java.awt.HeadlessException
+			 */
+			public PopupMenuAttachmentTable() throws HeadlessException {
+				super();
+				initialize();
+			}
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == saveAttachmentsItem) {
+					saveAttachments();
+				}
+				if (e.getSource() == saveAttachmentItem) {
+					saveAttachment();
+				}
+			}
+			/**
+			 * 
+			 */
+			private void initialize() {
+				refreshLanguage();
+
+				saveAttachmentsItem.addActionListener(this);
+				saveAttachmentItem.addActionListener(this);
+			}
+			/* (non-Javadoc)
+			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+			 */
+			public void languageChanged(LanguageEvent event) {
+				refreshLanguage();
+			}
+			/**
+			 * 
+			 */
+			private void refreshLanguage() {
+				saveAttachmentsItem.setText(languageResource.getString("Download attachment(s)"));
+				saveAttachmentItem.setText(
+					languageResource.getString("Download selected attachment"));
+				cancelItem.setText(languageResource.getString("Cancel"));
+			}
+
+			/**
+			 * 
+			 */
+			private void saveAttachment() {
+				downloadAttachments();
+			}
+			/**
+			 * 
+			 */
+			private void saveAttachments() {
+				downloadAttachments();
+			}
+
+			/* (non-Javadoc)
+			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 */
+			public void show(Component invoker, int x, int y) {
+				removeAll();
+
+				if (attachmentTable.getSelectedRow() == -1) {
+					add(saveAttachmentsItem);
+				} else {
+					add(saveAttachmentItem);
+				}
+				addSeparator();
+				add(cancelItem);
+
+				super.show(invoker, x, y);
+			}
+
+		}
+		/**
+		 * 
+		 */
+		private class PopupMenuMessageTable
+			extends JSkinnablePopupMenu
+			implements ActionListener, LanguageListener {
+
+			private JMenuItem cancelItem = new JMenuItem();
+
+			private JMenuItem markAllMessagesReadItem = new JMenuItem();
+			private JMenuItem markMessageUnreadItem = new JMenuItem();
+			private JMenuItem setBadItem = new JMenuItem();
+			private JMenuItem setCheckItem = new JMenuItem();
+			private JMenuItem setGoodItem = new JMenuItem();
+
+			/**
+			 * 
+			 */
+			public PopupMenuMessageTable() {
+				super();
+				initialize();
+			}
+
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == markMessageUnreadItem) {
+					markMessageUnread();
+				}
+				if (e.getSource() == markAllMessagesReadItem) {
+					markAllMessagesRead();
+				}
+				if (e.getSource() == setGoodItem) {
+					setGood();
+				}
+				if (e.getSource() == setBadItem) {
+					setBad();
+				}
+				if (e.getSource() == setCheckItem) {
+					setCheck();
+				}
+			}
+
+			/**
+			 * 
+			 */
+			private void initialize() {
+				refreshLanguage();
+
+				markMessageUnreadItem.addActionListener(this);
+				markAllMessagesReadItem.addActionListener(this);
+				setGoodItem.addActionListener(this);
+				setBadItem.addActionListener(this);
+				setCheckItem.addActionListener(this);
+			}
+
+			/* (non-Javadoc)
+			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+			 */
+			public void languageChanged(LanguageEvent event) {
+				refreshLanguage();
+			}
+
+			/**
+			 * 
+			 */
+			private void markAllMessagesRead() {
+				TOF.setAllMessagesRead(getMessageTable(), getSelectedNode());
+			}
+
+			/**
+			 * 
+			 */
+			private void markMessageUnread() {
+				markSelectedMessageUnread();
+			}
+
+			/**
+			 * 
+			 */
+			private void refreshLanguage() {
+				markMessageUnreadItem.setText(languageResource.getString("Mark message unread"));
+				markAllMessagesReadItem.setText(
+					languageResource.getString("Mark ALL messages read"));
+				setGoodItem.setText(languageResource.getString("help user (sets to GOOD)"));
+				setBadItem.setText(languageResource.getString("block user (sets to BAD)"));
+				setCheckItem.setText(languageResource.getString("set to neutral (CHECK)"));
+				cancelItem.setText(languageResource.getString("Cancel"));
+			}
+
+			/**
+			 * 
+			 */
+			private void setBad() {
+				setMessageTrust(new Boolean(false));
+			}
+
+			/**
+			 * 
+			 */
+			private void setCheck() {
+				setMessageTrust(null);
+			}
+
+			/**
+			 * 
+			 */
+			private void setGood() {
+				setMessageTrust(new Boolean(true));
+			}
+			/* (non-Javadoc)
+			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 */
+			public void show(Component invoker, int x, int y) {
+				if (!getSelectedNode().isFolder()) {
+					removeAll();
+
+					if (messageTable.getSelectedRow() > -1) {
+						add(markMessageUnreadItem);
+					}
+					add(markAllMessagesReadItem);
+					addSeparator();
+					add(setGoodItem);
+					add(setCheckItem);
+					add(setBadItem);
+					setGoodItem.setEnabled(false);
+					setCheckItem.setEnabled(false);
+					setBadItem.setEnabled(false);
+					if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
+						//fscking html on all these..
+						if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.VERIFIED)
+							> -1) {
+							setCheckItem.setEnabled(true);
+							setBadItem.setEnabled(true);
+						} else if (
+							selectedMessage.getStatus().indexOf(VerifyableMessageObject.PENDING)
+								> -1) {
+							setGoodItem.setEnabled(true);
+							setBadItem.setEnabled(true);
+						} else if (
+							selectedMessage.getStatus().indexOf(VerifyableMessageObject.FAILED)
+								> -1) {
+							setGoodItem.setEnabled(true);
+							setCheckItem.setEnabled(true);
+						} else
+							logger.warning(
+								"invalid message state : " + selectedMessage.getStatus());
+					}
+
+					addSeparator();
+					add(cancelItem);
+					// ATT: misuse of another menuitem displaying 'Cancel' ;)
+					super.show(invoker, x, y);
+				}
+			}
+
 		}
 
-	}
+		/**
+					 * 
+					 */
+		private class PopupMenuTofText
+			extends JSkinnablePopupMenu
+			implements ActionListener, LanguageListener {
 
-	/**
-	 * 
-	 */
-	private class PopupMenuTofText
-		extends JSkinnablePopupMenu
-		implements ActionListener, LanguageListener {
+			private JMenuItem cancelItem = new JMenuItem();
+			private JMenuItem saveMessageItem = new JMenuItem();
 
-		private JMenuItem cancelItem = new JMenuItem();
-		private JMenuItem saveMessageItem = new JMenuItem();
+			/**
+			 * 
+			 */
+			public PopupMenuTofText() {
+				super();
+				initialize();
+			}
+
+			/* (non-Javadoc)
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == saveMessageItem) {
+					saveMessage();
+				}
+			}
+
+			/**
+			 * 
+			 */
+			private void initialize() {
+				refreshLanguage();
+
+				saveMessageItem.addActionListener(this);
+
+				add(saveMessageItem);
+				addSeparator();
+				add(cancelItem);
+			}
+
+			/* (non-Javadoc)
+			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+			 */
+			public void languageChanged(LanguageEvent event) {
+				refreshLanguage();
+			}
+
+			/**
+			 * 
+			 */
+			private void refreshLanguage() {
+				saveMessageItem.setText(languageResource.getString("Save message to disk"));
+				cancelItem.setText(languageResource.getString("Cancel"));
+			}
+
+			/**
+			 * 
+			 */
+			private void saveMessage() {
+				FileAccess.saveDialog(
+					getInstance(),
+					messageTextArea.getText(),
+					frostSettings.getValue("lastUsedDirectory"),
+					languageResource.getString("Save message to disk"));
+			}
+
+			/* (non-Javadoc)
+			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+			 */
+			public void show(Component invoker, int x, int y) {
+				if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
+					super.show(invoker, x, y);
+				}
+			}
+
+		}
+
+		private SettingsClass settingsClass;
+
+		private boolean initialized = false;
+
+		private Listener listener = new Listener();
+
+		private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
+		private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
+		private PopupMenuMessageTable popupMenuMessageTable = null;
+		private PopupMenuTofText popupMenuTofText = null;
+
+		private JButton checkTrustButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
+		private JButton downloadAttachmentsButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/attachment.gif")));
+		private JButton downloadBoardsButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/attachmentBoard.gif")));
+		private JButton newMessageButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/newmessage.gif")));
+		private JButton notTrustButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/nottrust.gif")));
+		private JButton replyButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/reply.gif")));
+		private JButton saveMessageButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
+		private JButton trustButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
+		private JButton updateButton =
+			new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
+
+		private MessageTextArea messageTextArea = null;
+		private JSplitPane attachmentSplitPane = null;
+		private JSplitPane boardSplitPane = null;
+		private JTable attachmentTable = null;
+		private JTable boardTable = null;
 
 		/**
 		 * 
 		 */
-		public PopupMenuTofText() {
+		public MessagePanel(SettingsClass newSettingsClass) {
 			super();
-			initialize();
+			settingsClass = newSettingsClass;
+			settingsClass.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
+			settingsClass.addPropertyChangeListener(
+				SettingsClass.MESSAGE_BODY_FONT_STYLE,
+				listener);
+			settingsClass.addPropertyChangeListener("messageBodyAA", listener);
+		}
+		private void checkTrustButton_actionPerformed(ActionEvent e) {
+			trustButton.setEnabled(false);
+			notTrustButton.setEnabled(false);
+			checkTrustButton.setEnabled(false);
+			if (selectedMessage != null) {
+				core.startTruster(selectedMessage);
+			}
 		}
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		/**
+		 * Adds either the selected or all files from the attachmentTable to downloads table.
 		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == saveMessageItem) {
-				saveMessage();
+		public void downloadAttachments() {
+			int[] selectedRows = attachmentTable.getSelectedRows();
+
+			// If no rows are selected, add all attachments to download table
+			if (selectedRows.length == 0) {
+				Iterator it =
+					selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE).iterator();
+				while (it.hasNext()) {
+					FileAttachment fa = (FileAttachment) it.next();
+					SharedFileObject sfo = fa.getFileObj();
+					FrostSearchItemObject fsio =
+						new FrostSearchItemObject(
+							getSelectedNode(),
+							sfo,
+							FrostSearchItemObject.STATE_NONE);
+					//FIXME: <-does this matter?
+					FrostDownloadItemObject dlItem = new FrostDownloadItemObject(fsio);
+					boolean added = getDownloadTable().addDownloadItem(dlItem);
+				}
+
+			} else {
+				LinkedList attachments =
+					selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE);
+				for (int i = 0; i < selectedRows.length; i++) {
+					FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
+					SharedFileObject sfo = fo.getFileObj();
+					FrostSearchItemObject fsio =
+						new FrostSearchItemObject(
+							getSelectedNode(),
+							sfo,
+							FrostSearchItemObject.STATE_NONE);
+					FrostDownloadItemObject dlItem = new FrostDownloadItemObject(fsio);
+					boolean added = getDownloadTable().addDownloadItem(dlItem);
+				}
+			}
+		}
+		/**
+		 * Adds all boards from the attachedBoardsTable to board list.
+		 */
+		private void downloadBoards() {
+			logger.info("adding boards");
+			int[] selectedRows = boardTable.getSelectedRows();
+
+			if (selectedRows.length == 0) {
+				// add all rows
+				boardTable.selectAll();
+				selectedRows = boardTable.getSelectedRows();
+				if (selectedRows.length == 0)
+					return;
+			}
+			LinkedList boards = selectedMessage.getAttachmentList().getAllOfType(Attachment.BOARD);
+			for (int i = 0; i < selectedRows.length; i++) {
+				BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
+				FrostBoardObject fbo = ba.getBoardObj();
+				String name = fbo.getBoardName();
+
+				// search board in exising boards list
+				FrostBoardObject board = getTofTree().getBoardByName(name);
+
+				//ask if we already have the board
+				if (board != null) {
+					if (JOptionPane
+						.showConfirmDialog(
+							this,
+							"You already have a board named "
+								+ name
+								+ ".\n"
+								+ "Are you sure you want to download this one over it?",
+							"Board already exists",
+							JOptionPane.YES_NO_OPTION)
+						!= 0) {
+						continue; // next row of table / next attached board
+					} else {
+						// change existing board keys to keys of new board
+						board.setPublicKey(fbo.getPublicKey());
+						board.setPrivateKey(fbo.getPrivateKey());
+						updateTofTree(board);
+					}
+				} else {
+					// its a new board
+					getTofTree().addNodeToTree(fbo);
+				}
+			}
+		}
+		/**
+		 * @return JToolBar 
+		 */
+		private JToolBar getButtonsToolbar() {
+			// configure buttons	
+			configureButton(newMessageButton, "New message", "/data/newmessage_rollover.gif");
+			configureButton(updateButton, "Update", "/data/update_rollover.gif");
+			configureButton(replyButton, "Reply", "/data/reply_rollover.gif");
+			configureButton(
+				downloadAttachmentsButton,
+				"Download attachment(s)",
+				"/data/attachment_rollover.gif");
+			configureButton(
+				downloadBoardsButton,
+				"Add Board(s)",
+				"/data/attachmentBoard_rollover.gif");
+			configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif");
+			configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
+			configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif");
+			configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif");
+
+			replyButton.setEnabled(false);
+			downloadAttachmentsButton.setEnabled(false);
+			downloadBoardsButton.setEnabled(false);
+			saveMessageButton.setEnabled(false);
+			trustButton.setEnabled(false);
+			notTrustButton.setEnabled(false);
+			checkTrustButton.setEnabled(false);
+
+			// build buttons panel
+			JToolBar buttonsToolbar = new JToolBar();
+			buttonsToolbar.setRollover(true);
+			buttonsToolbar.setFloatable(false);
+			Dimension blankSpace = new Dimension(3, 3);
+
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.add(saveMessageButton);
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.addSeparator();
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.add(newMessageButton);
+			buttonsToolbar.add(replyButton);
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.addSeparator();
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.add(updateButton);
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.addSeparator();
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.add(downloadAttachmentsButton);
+			buttonsToolbar.add(downloadBoardsButton);
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.addSeparator();
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+			buttonsToolbar.add(trustButton);
+			buttonsToolbar.add(checkTrustButton);
+			buttonsToolbar.add(notTrustButton);
+
+			buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
+			buttonsToolbar.add(Box.createHorizontalGlue());
+			JLabel dummyLabel = new JLabel(allMessagesCountPrefix + "00000");
+			dummyLabel.doLayout();
+			Dimension labelSize = dummyLabel.getPreferredSize();
+			allMessagesCountLabel.setPreferredSize(labelSize);
+			allMessagesCountLabel.setMinimumSize(labelSize);
+			newMessagesCountLabel.setPreferredSize(labelSize);
+			newMessagesCountLabel.setMinimumSize(labelSize);
+			buttonsToolbar.add(allMessagesCountLabel);
+			buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
+			buttonsToolbar.add(newMessagesCountLabel);
+			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+
+			// listeners
+			newMessageButton.addActionListener(listener);
+			updateButton.addActionListener(listener);
+			replyButton.addActionListener(listener);
+			downloadAttachmentsButton.addActionListener(listener);
+			downloadBoardsButton.addActionListener(listener);
+			saveMessageButton.addActionListener(listener);
+			trustButton.addActionListener(listener);
+			notTrustButton.addActionListener(listener);
+			checkTrustButton.addActionListener(listener);
+
+			return buttonsToolbar;
+
+		}
+		/**
+		 * @return
+		 */
+		private PopupMenuAttachmentBoard getPopupMenuAttachmentBoard() {
+			if (popupMenuAttachmentBoard == null) {
+				popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
+				languageResource.addLanguageListener(popupMenuAttachmentBoard);
+			}
+			return popupMenuAttachmentBoard;
+		}
+		/**
+		 * @return
+		 */
+		private PopupMenuAttachmentTable getPopupMenuAttachmentTable() {
+			if (popupMenuAttachmentTable == null) {
+				popupMenuAttachmentTable = new PopupMenuAttachmentTable();
+				languageResource.addLanguageListener(popupMenuAttachmentTable);
+			}
+			return popupMenuAttachmentTable;
+		}
+		/**
+		 * @return
+		 */
+		private PopupMenuMessageTable getPopupMenuMessageTable() {
+			if (popupMenuMessageTable == null) {
+				popupMenuMessageTable = new PopupMenuMessageTable();
+				languageResource.addLanguageListener(popupMenuMessageTable);
+			}
+			return popupMenuMessageTable;
+		}
+
+		/**
+		 * @return
+		 */
+		private PopupMenuTofText getPopupMenuTofText() {
+			if (popupMenuTofText == null) {
+				popupMenuTofText = new PopupMenuTofText();
+				languageResource.addLanguageListener(popupMenuTofText);
+			}
+			return popupMenuTofText;
+		}
+
+		public void initialize() {
+			if (!initialized) {
+				refreshLanguage();
+
+				// build messages list
+				MessageTableModel messageTableModel = new MessageTableModel(languageResource);
+				languageResource.addLanguageListener(messageTableModel);
+				messageTable = new MessageTable(messageTableModel);
+				messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+				messageTable.getSelectionModel().addListSelectionListener(listener);
+				JScrollPane messageTableScrollPane = new JScrollPane(messageTable);
+
+				// build message content area (text, attached files and attached boards)
+				messageTextArea = new MessageTextArea();
+				messageTextArea.setEditable(false);
+				messageTextArea.setLineWrap(true);
+				messageTextArea.setWrapStyleWord(true);
+				messageTextArea.setAntiAliasEnabled(settingsClass.getBoolValue("messageBodyAA"));
+				JScrollPane textAreaScrollPane = new JScrollPane(messageTextArea);
+
+				AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
+				attachmentTable = new JTable(attachmentTableModel);
+				JScrollPane attachmentTableScrollPane = new JScrollPane(attachmentTable);
+				attachmentSplitPane =
+					new JSplitPane(
+						JSplitPane.VERTICAL_SPLIT,
+						textAreaScrollPane,
+						attachmentTableScrollPane);
+				attachmentSplitPane.setDividerSize(0);
+				attachmentSplitPane.setDividerLocation(10000);
+
+				AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
+				boardTable = new JTable(boardTableModel);
+				JScrollPane boardTableScrollPane = new JScrollPane(boardTable);
+				boardSplitPane =
+					new JSplitPane(
+						JSplitPane.VERTICAL_SPLIT,
+						attachmentSplitPane,
+						boardTableScrollPane);
+				boardSplitPane.setDividerSize(0);
+				boardSplitPane.setDividerLocation(10000);
+
+				fontChanged();
+
+				// build main split pane
+				JSplitPane mainSplitPane =
+					new JSplitPane(
+						JSplitPane.VERTICAL_SPLIT,
+						messageTableScrollPane,
+						boardSplitPane);
+				mainSplitPane.setDividerSize(10);
+				mainSplitPane.setDividerLocation(160);
+				mainSplitPane.setResizeWeight(0.5d);
+				mainSplitPane.setMinimumSize(new Dimension(50, 20));
+
+				// build main panel
+				setLayout(new BorderLayout());
+				add(getButtonsToolbar(), BorderLayout.NORTH);
+				add(mainSplitPane, BorderLayout.CENTER);
+
+				//listeners
+				messageTextArea.addMouseListener(listener);
+				attachmentTable.addMouseListener(listener);
+				boardTable.addMouseListener(listener);
+				messageTable.addMouseListener(listener);
+
+				//other listeners
+				getTofTree().addTreeSelectionListener(listener);
+				getTofTree().getModel().addTreeModelListener(listener);
+
+				// display welcome message if no boards are available
+				if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
+					messageTextArea.setText(languageResource.getString("Welcome message"));
+				}
+
+				initialized = true;
 			}
 		}
 
 		/**
 		 * 
 		 */
-		private void initialize() {
-			refreshLanguage();
+		private void fontChanged() {
+			String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+			int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+			int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+			Font font = new Font(fontName, fontStyle, fontSize);
+			if (!font.getFamily().equals(fontName)) {
+				logger.severe(
+					"The selected font was not found in your system\n"
+						+ "That selection will be changed to \"Monospaced\".");
+				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
+				font = new Font("Monospaced", fontStyle, fontSize);
+			}
+			messageTextArea.setFont(font);
 
-			saveMessageItem.addActionListener(this);
-
-			add(saveMessageItem);
-			addSeparator();
-			add(cancelItem);
+			fontName = frostSettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
+			fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
+			fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
+			font = new Font(fontName, fontStyle, fontSize);
+			if (!font.getFamily().equals(fontName)) {
+				logger.severe(
+					"The selected font was not found in your system\n"
+						+ "That selection will be changed to \"SansSerif\".");
+				frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
+				font = new Font("SansSerif", fontStyle, fontSize);
+			}
+			messageTable.setFont(font);
 		}
 
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		/**
+		 * @param e
 		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
+		private void messageTable_itemSelected(ListSelectionEvent e) {
+			FrostBoardObject selectedBoard = getSelectedNode();
+			if (selectedBoard.isFolder())
+				return;
+			selectedMessage = TOF.evalSelection(e, messageTable, selectedBoard);
+			if (selectedMessage != null) {
+				displayNewMessageIcon(false);
+				downloadAttachmentsButton.setEnabled(false);
+				downloadBoardsButton.setEnabled(false);
+
+				lastSelectedMessage = selectedMessage.getSubject();
+				if (selectedBoard.isReadAccessBoard() == false) {
+					replyButton.setEnabled(true);
+				}
+
+				if (selectedMessage.getStatus().trim().equals(VerifyableMessageObject.PENDING)) {
+					trustButton.setEnabled(true);
+					notTrustButton.setEnabled(true);
+					checkTrustButton.setEnabled(false);
+				} else if (
+					selectedMessage.getStatus().trim().equals(VerifyableMessageObject.VERIFIED)) {
+					trustButton.setEnabled(false);
+					notTrustButton.setEnabled(true);
+					checkTrustButton.setEnabled(true);
+				} else if (
+					selectedMessage.getStatus().trim().equals(VerifyableMessageObject.FAILED)) {
+					trustButton.setEnabled(true);
+					notTrustButton.setEnabled(false);
+					checkTrustButton.setEnabled(true);
+				} else {
+					trustButton.setEnabled(false);
+					notTrustButton.setEnabled(false);
+					checkTrustButton.setEnabled(false);
+				}
+
+				messageTextArea.setText(selectedMessage.getContent());
+				if (selectedMessage.getContent().length() > 0)
+					saveMessageButton.setEnabled(true);
+				else
+					saveMessageButton.setEnabled(false);
+
+				Vector fileAttachments = selectedMessage.getFileAttachments();
+				Vector boardAttachments = selectedMessage.getBoardAttachments();
+
+				if (fileAttachments.size() == 0 && boardAttachments.size() == 0) {
+					// Move divider to 100% and make it invisible
+					attachmentSplitPane.setDividerSize(0);
+					attachmentSplitPane.setDividerLocation(1.0);
+					boardSplitPane.setDividerSize(0);
+					boardSplitPane.setDividerLocation(1.0);
+				} else {
+					// Attachment available
+					if (fileAttachments.size() > 0) {
+						// Add attachments to table
+						((DefaultTableModel) attachmentTable.getModel()).setDataVector(
+							selectedMessage.getFileAttachments(),
+							null);
+
+						if (boardAttachments.size() == 0) {
+							boardSplitPane.setDividerSize(0);
+							boardSplitPane.setDividerLocation(1.0);
+						} 
+						attachmentSplitPane.setDividerLocation(0.75);
+						attachmentSplitPane.setDividerSize(3);
+
+						downloadAttachmentsButton.setEnabled(true);
+					}
+					// Board Available
+					if (boardAttachments.size() > 0) {
+						// Add attachments to table
+						((DefaultTableModel) boardTable.getModel()).setDataVector(
+							selectedMessage.getBoardAttachments(),
+							null);
+
+						//only a board, no attachments.
+						if (fileAttachments.size() == 0) {
+							attachmentSplitPane.setDividerSize(0);
+							attachmentSplitPane.setDividerLocation(1.0);
+							boardSplitPane.setDividerLocation(0.75);
+						} else {
+							boardSplitPane.setDividerLocation(0.87);
+						}
+						boardSplitPane.setDividerSize(3);
+
+						downloadBoardsButton.setEnabled(true);
+						//TODO: downloadBoardsButton
+					}
+				}
+			} else {
+				// no msg selected
+				messageTextArea.setText(
+					languageResource.getString("Select a message to view its content."));
+				replyButton.setEnabled(false);
+				saveMessageButton.setEnabled(false);
+				downloadAttachmentsButton.setEnabled(false);
+				downloadBoardsButton.setEnabled(false);
+			}
+		}
+		/**
+		 * @param e
+		 */
+		private void newMessageButton_actionPerformed(ActionEvent e) {
+			tofNewMessageButton_actionPerformed(e);
+		}
+		private void notTrustButton_actionPerformed(ActionEvent e) {
+			if (selectedMessage != null) {
+				if (core.getIdentities().getFriends().containsKey(selectedMessage.getFrom())) {
+					if (JOptionPane
+						.showConfirmDialog(
+							getInstance(),
+							"Are you sure you want to revoke trust to user "
+								+ selectedMessage.getFrom().substring(
+									0,
+									selectedMessage.getFrom().indexOf("@"))
+								+ " ? \n If you choose yes, future messages from this user will be marked BAD",
+							"revoke trust",
+							JOptionPane.YES_NO_OPTION)
+						!= 0) {
+						return;
+					}
+				} else {
+					core.startTruster(false, selectedMessage);
+				}
+			}
+			trustButton.setEnabled(false);
+			notTrustButton.setEnabled(false);
+			checkTrustButton.setEnabled(false);
 		}
 
 		/**
 		 * 
 		 */
 		private void refreshLanguage() {
-			saveMessageItem.setText(languageResource.getString("Save message to disk"));
-			cancelItem.setText(languageResource.getString("Cancel"));
+			newMessageButton.setToolTipText(languageResource.getString("New message"));
+			replyButton.setToolTipText(languageResource.getString("Reply"));
+			downloadAttachmentsButton.setToolTipText(
+				languageResource.getString("Download attachment(s)"));
+			downloadBoardsButton.setToolTipText(languageResource.getString("Add Board(s)"));
+			saveMessageButton.setToolTipText(languageResource.getString("Save message"));
+			trustButton.setToolTipText(languageResource.getString("Trust"));
+			notTrustButton.setToolTipText(languageResource.getString("Do not trust"));
+			checkTrustButton.setToolTipText(languageResource.getString("Set to CHECK"));
+			updateButton.setToolTipText(languageResource.getString("Update"));
+		}
+		/**
+		 * @param e
+		 */
+		private void replyButton_actionPerformed(ActionEvent e) {
+			String subject = lastSelectedMessage;
+			if (subject.startsWith("Re:") == false)
+				subject = "Re: " + subject;
+			/*
+					if (frostSettings.getBoolValue("useAltEdit")) {
+							altEdit = new AltEdit(getSelectedNode(), subject, // subject
+				getTofTextAreaText(), frostSettings, this);
+						altEdit.start();
+					} else {*/
+			MessageFrame newMessageFrame =
+				new MessageFrame(
+					frostSettings,
+					frame1.this,
+					languageResource.getResourceBundle(),
+					core.getIdentities().getMyId());
+			newMessageFrame.composeReply(
+				getSelectedNode(),
+				frostSettings.getValue("userName"),
+				subject,
+				messageTextArea.getText());
 		}
 
 		/**
-		 * 
+		 * @param e
 		 */
-		private void saveMessage() {
+		private void saveMessageButton_actionPerformed(ActionEvent e) {
 			FileAccess.saveDialog(
 				getInstance(),
-				getTofTextAreaText(),
+				messageTextArea.getText(),
 				frostSettings.getValue("lastUsedDirectory"),
 				languageResource.getString("Save message to disk"));
 		}
+		private void showAttachmentBoardPopupMenu(MouseEvent e) {
+			getPopupMenuAttachmentBoard().show(e.getComponent(), e.getX(), e.getY());
+		}
 
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		private void showAttachmentTablePopupMenu(MouseEvent e) {
+			getPopupMenuAttachmentTable().show(e.getComponent(), e.getX(), e.getY());
+		}
+
+		private void showMessageTablePopupMenu(MouseEvent e) {
+			getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
+		}
+
+		private void showTofTextAreaPopupMenu(MouseEvent e) {
+			getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
+		}
+		private void trustButton_actionPerformed(ActionEvent e) {
+			if (selectedMessage != null) {
+				if (core.getIdentities().getEnemies().containsKey(selectedMessage.getFrom())) {
+					if (JOptionPane
+						.showConfirmDialog(
+							getInstance(),
+							"are you sure you want to grant trust to user "
+								+ selectedMessage.getFrom().substring(
+									0,
+									selectedMessage.getFrom().indexOf("@"))
+								+ " ? \n If you choose yes, future messages from this user will be marked GOOD",
+							"re-grant trust",
+							JOptionPane.YES_NO_OPTION)
+						!= 0) {
+						return;
+					}
+				} else {
+					core.startTruster(true, selectedMessage);
+				}
+			}
+			trustButton.setEnabled(false);
+			notTrustButton.setEnabled(false);
+			checkTrustButton.setEnabled(false);
+		}
+		/**
+		 * @param e
 		 */
-		public void show(Component invoker, int x, int y) {
-			if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
-				super.show(invoker, x, y);
+		private void updateButton_actionPerformed(ActionEvent e) {
+			// restarts all finished threads if there are some long running threads
+			if (isUpdateAllowed(getSelectedNode())) {
+				updateBoard(getSelectedNode());
 			}
 		}
 
+		/**
+		 * @param e
+		 */
+		private void boardsTree_actionPerformed(TreeSelectionEvent e) {
+
+			attachmentSplitPane.setDividerSize(0);
+			attachmentSplitPane.setDividerLocation(10000);
+			boardSplitPane.setDividerSize(0);
+			boardSplitPane.setDividerLocation(10000);
+
+			if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
+				//There are no boards. //TODO: check if there are really no boards (folders count as children)
+				attachmentSplitPane.setDividerSize(0);
+				attachmentSplitPane.setDividerLocation(10000);
+				messageTextArea.setText(languageResource.getString("Welcome message"));
+			} else {
+				//There are boards.
+				FrostBoardObject node =
+					(FrostBoardObject) getTofTree().getLastSelectedPathComponent();
+				if (node != null) {
+					if (!node.isFolder()) {
+						// node is a board
+						messageTextArea.setText(
+							languageResource.getString("Select a message to view its content."));
+						updateButton.setEnabled(true);
+						saveMessageButton.setEnabled(false);
+						replyButton.setEnabled(false);
+						downloadAttachmentsButton.setEnabled(false);
+						downloadBoardsButton.setEnabled(false);
+						if (node.isReadAccessBoard()) {
+							newMessageButton.setEnabled(false);
+						} else {
+							newMessageButton.setEnabled(true);
+						}
+					} else {
+						// node is a folder
+						messageTextArea.setText(
+							languageResource.getString("Select a board to view its content."));
+						newMessageButton.setEnabled(false);
+						updateButton.setEnabled(false);
+					}
+				}
+			}
+		}
+
+		/**
+		 * @param e
+		 */
+		private void boardsTreeNode_Changed(TreeModelEvent e) {
+			Object[] path = e.getPath();
+			FrostBoardObject board = (FrostBoardObject) path[path.length - 1];
+
+			if (board == getSelectedNode()) { // is the board actually shown?
+				if (board.isReadAccessBoard()) {
+					newMessageButton.setEnabled(false);
+				} else {
+					newMessageButton.setEnabled(true);
+				}
+			}
+		}
+
+		/**
+		 * @param evt
+		 */
+		private void antialiasing_propertyChanged(PropertyChangeEvent evt) {
+			messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+		}
+
 	}
+
 	/**
 	 * 
 	 */
@@ -836,8 +1670,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	public static String fileSeparator = System.getProperty("file.separator");
 	// saved to frost.ini
 	public static SettingsClass frostSettings = null;
-	
-	private static Logger logger = Logger.getLogger(frame1.class.getName());
 
 	//the identity stuff.  This really shouldn't be here but where else?
 	public static ObjectInputStream id_reader;
@@ -863,6 +1695,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				return 0;
 		}
 	};
+
+	private static Logger logger = Logger.getLogger(frame1.class.getName());
 	static ImageIcon[] newMessage = new ImageIcon[2];
 
 	public static FrostMessageObject selectedMessage = new FrostMessageObject();
@@ -911,18 +1745,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	final String allMessagesCountPrefix = "Msg: ";
 	JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 
-	JSplitPane attachmentSplitPane = null;
-	private JTable attachmentTable = null;
 	JButton boardInfoButton = null;
-	JSplitPane boardSplitPane = null;
-	private JTable boardTable = null;
-	JButton checkTrustButton = null;
 	FrostBoardObject clipboard = null;
 	JButton configBoardButton = null;
 	long counter = 55;
 	JButton cutBoardButton = null;
-	JButton downloadAttachmentsButton = null;
-	JButton downloadBoardsButton = null;
 
 	//Panels
 	private DownloadPanel downloadPanel = null;
@@ -955,12 +1782,15 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	JRadioButtonMenuItem languageSpanishMenuItem = new JRadioButtonMenuItem();
 	private String lastSelectedMessage;
 
+	private Listener listener = new Listener();
+
 	//------------------------------------------------------------------------
 	// Generate objects
 	//------------------------------------------------------------------------
 
 	// The main menu
 	JMenuBar menuBar = new JMenuBar();
+	private MessagePanel messagePanel = null;
 	private MessageTable messageTable = null;
 
 	// buttons that are enabled/disabled later
@@ -969,8 +1799,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	final String newMessagesCountPrefix = "New: ";
 	JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
-
-	JButton notTrustButton = null;
 
 	//Options Menu
 	JMenu optionsMenu = new JMenu();
@@ -983,16 +1811,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	JMenuItem pluginTranslateMenuItem = new JMenuItem();
 
 	//Popups
-	private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
-	private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
-	private PopupMenuMessageTable popupMenuMessageTable = null;
-	private PopupMenuTofText popupMenuTofText = null;
 	private PopupMenuTofTree popupMenuTofTree = null;
 	JButton removeBoardButton = null;
 	JButton renameBoardButton = null;
 
 	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
-	JButton saveMessageButton = null;
 
 	// labels that are updated later
 	JLabel statusLabel = null;
@@ -1014,21 +1837,9 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	//Messages (tof) Menu
 	JMenu tofMenu = new JMenu();
 
-	JButton tofNewMessageButton = null;
-	JButton tofReplyButton = null;
-
-	private MessageTextArea tofTextArea = null;
-
 	TofTree tofTree = null;
-	JButton tofUpdateButton = null;
-	JButton trustButton = null;
 	private UploadPanel uploadPanel = null;
-
 	private UploadTable uploadTable = null;
-
-	private Listener listener = new Listener();
-
-	private boolean alreadyShown = false;
 
 	/**Construct the frame*/
 	public frame1(SettingsClass newSettings, UpdatingLanguageResource newLanguageResource) {
@@ -1063,6 +1874,14 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			logger.log(Level.SEVERE, "Exception thrown in the constructor", t);
 		}
 	}
+
+	/**
+	 * @param title
+	 * @param panel
+	 */
+	public void addPanel(String title, JPanel panel) {
+		tabbedPane.add(title, panel);
+	}
 	private JToolBar buildButtonPanel() {
 		timeLabel = new JLabel("");
 		// configure buttons
@@ -1083,42 +1902,15 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
 		boardInfoButton = new JButton(new ImageIcon(frame1.class.getResource("/data/info.gif")));
 		systemTrayButton = new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
-		configureButton(
-			newBoardButton,
-			"New board",
-			"/data/newboard_rollover.gif");
-		configureButton(
-			newFolderButton,
-			"New folder",
-			"/data/newfolder_rollover.gif");
-		configureButton(
-			removeBoardButton,
-			"Remove board",
-			"/data/remove_rollover.gif");
-		configureButton(
-			renameBoardButton,
-			"Rename folder",
-			"/data/rename_rollover.gif");
-		configureButton(
-			configBoardButton,
-			"Configure board",
-			"/data/configure_rollover.gif");
-		configureButton(
-			cutBoardButton,
-			"Cut board",
-			"/data/cut_rollover.gif");
-		configureButton(
-			pasteBoardButton,
-			"Paste board",
-			"/data/paste_rollover.gif");
-		configureButton(
-			boardInfoButton,
-			"Board Information Window",
-			"/data/info_rollover.gif");
-		configureButton(
-			systemTrayButton,
-			"Minimize to System Tray",
-			"/data/tray_rollover.gif");
+		configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
+		configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif");
+		configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
+		configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif");
+		configureButton(configBoardButton, "Configure board", "/data/configure_rollover.gif");
+		configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif");
+		configureButton(pasteBoardButton, "Paste board", "/data/paste_rollover.gif");
+		configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif");
+		configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif");
 		configureButton(
 			knownBoardsButton,
 			"Display list of known boards",
@@ -1243,20 +2035,16 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		});
 		tofIncreaseFontSizeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// make the font size in the TOF text area one point bigger
-				Font f = tofTextArea.getFont();
-				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, f.getSize() + 1);
-				f = f.deriveFont(frostSettings.getFloatValue(SettingsClass.MESSAGE_BODY_FONT_SIZE));
-				tofTextArea.setFont(f);
+				// make size of the message body font one point bigger
+				int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size + 1);
 			}
 		});
 		tofDecreaseFontSizeMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				// make the font size in the TOF text area one point smaller
-				Font f = tofTextArea.getFont();
-				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, f.getSize() - 1);
-				f = f.deriveFont(frostSettings.getFloatValue(SettingsClass.MESSAGE_BODY_FONT_SIZE));
-				tofTextArea.setFont(f);
+				// make size of the message body font one point smaller
+				int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size - 1);
 			}
 		});
 		tofConfigureBoardMenuItem.addActionListener(new ActionListener() {
@@ -1444,209 +2232,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		this.setJMenuBar(menuBar);
 	}
 
-	private JPanel buildMessagePane() {
-		// configure buttons
-		this.tofNewMessageButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/newmessage.gif")));
-		this.tofUpdateButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/update.gif")));
-		this.tofReplyButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/reply.gif")));
-		this.downloadAttachmentsButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/attachment.gif")));
-		this.downloadBoardsButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
-		this.saveMessageButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/save.gif")));
-		this.trustButton = new JButton(new ImageIcon(frame1.class.getResource("/data/trust.gif")));
-		this.notTrustButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/nottrust.gif")));
-		this.checkTrustButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/check.gif")));
-
-		configureButton(
-			tofNewMessageButton,
-			"New message",
-			"/data/newmessage_rollover.gif");
-		configureButton(
-			tofUpdateButton,
-			"Update",
-			"/data/update_rollover.gif");
-		configureButton(
-			tofReplyButton,
-			"Reply",
-			"/data/reply_rollover.gif");
-		configureButton(
-			downloadAttachmentsButton,
-			"Download attachment(s)",
-			"/data/attachment_rollover.gif");
-		configureButton(
-			downloadBoardsButton,
-			"Add Board(s)",
-			"/data/attachmentBoard_rollover.gif");
-		configureButton(
-			saveMessageButton,
-			"Save message",
-			"/data/save_rollover.gif");
-		configureButton(
-			trustButton, 
-			"Trust", 
-			"/data/trust_rollover.gif");
-		configureButton(
-			notTrustButton,
-			"Do not trust",
-			"/data/nottrust_rollover.gif");
-		configureButton(
-			checkTrustButton,
-			"Set to CHECK",
-			"/data/check_rollover.gif");
-
-		// add action listener to buttons
-		tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) { // Update selected board
-				// restarts all finished threads if there are some long running threads
-				if (isUpdateAllowed(getSelectedNode())) {
-					updateBoard(getSelectedNode());
-				}
-			}
-		});
-		tofNewMessageButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofNewMessageButton_actionPerformed(e);
-			}
-		});
-		downloadAttachmentsButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				downloadAttachments();
-			}
-		});
-		downloadBoardsButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				downloadBoards();
-			}
-		});
-		tofReplyButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				tofReplyButton_actionPerformed(e);
-			}
-		});
-		saveMessageButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				FileAccess.saveDialog(
-					getInstance(),
-					getTofTextAreaText(),
-					frostSettings.getValue("lastUsedDirectory"),
-					languageResource.getString("Save message to disk"));
-			}
-		});
-		trustButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				trustButton_actionPerformed(e);
-			}
-		});
-		notTrustButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				notTrustButton_actionPerformed(e);
-			}
-		});
-		checkTrustButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				checkTrustButton_actionPerformed(e);
-			}
-		});
-		// build buttons panel
-		JToolBar tofTopPanel = new JToolBar();
-		tofTopPanel.setRollover(true);
-		tofTopPanel.setFloatable(false);
-		Dimension blankSpace = new Dimension(3, 3);
-
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.add(saveMessageButton); // TOF/ Save Message
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.addSeparator();
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.add(tofNewMessageButton); // TOF/ New Message
-		tofTopPanel.add(tofReplyButton); // TOF/ Reply
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.addSeparator();
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.add(tofUpdateButton); // TOF/ Update
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.addSeparator();
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.add(downloadAttachmentsButton);
-		// TOF/ Download Attachments
-		tofTopPanel.add(downloadBoardsButton); // TOF/ Download Boards
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.addSeparator();
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		tofTopPanel.add(trustButton); //TOF /trust
-		tofTopPanel.add(checkTrustButton); //TOF /check trust
-		tofTopPanel.add(notTrustButton); //TOF /do not trust
-
-		tofTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		tofTopPanel.add(Box.createHorizontalGlue());
-		JLabel dummyLabel = new JLabel(allMessagesCountPrefix + "00000");
-		dummyLabel.doLayout();
-		Dimension labelSize = dummyLabel.getPreferredSize();
-		allMessagesCountLabel.setPreferredSize(labelSize);
-		allMessagesCountLabel.setMinimumSize(labelSize);
-		newMessagesCountLabel.setPreferredSize(labelSize);
-		newMessagesCountLabel.setMinimumSize(labelSize);
-		tofTopPanel.add(allMessagesCountLabel);
-		tofTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		tofTopPanel.add(newMessagesCountLabel);
-		tofTopPanel.add(Box.createRigidArea(blankSpace));
-		// build panel wich shows the message list + message
-		MessageTableModel messageTableModel = new MessageTableModel(languageResource);
-		languageResource.addLanguageListener(messageTableModel);
-		this.messageTable = new MessageTable(messageTableModel);
-		messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-		messageTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
-			public void valueChanged(ListSelectionEvent e) {
-				messageTableListModel_valueChanged(e);
-			}
-		});
-		JScrollPane messageTableScrollPane = new JScrollPane(messageTable);
-
-		tofTextArea = new MessageTextArea();
-		JScrollPane tofTextAreaScrollPane = new JScrollPane(tofTextArea);
-		tofTextArea.setEditable(false);
-		tofTextArea.setLineWrap(true);
-		tofTextArea.setWrapStyleWord(true);
-
-		AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
-
-		this.attachmentTable = new JTable(attachmentTableModel);
-
-		JScrollPane attachmentTableScrollPane = new JScrollPane(attachmentTable);
-
-		AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
-		this.boardTable = new JTable(boardTableModel);
-		JScrollPane boardTableScrollPane = new JScrollPane(boardTable);
-
-		this.attachmentSplitPane =
-			new JSplitPane(
-				JSplitPane.VERTICAL_SPLIT,
-				tofTextAreaScrollPane,
-				attachmentTableScrollPane);
-		this.boardSplitPane =
-			new JSplitPane(JSplitPane.VERTICAL_SPLIT, attachmentSplitPane, boardTableScrollPane);
-
-		JSplitPane tofSplitPane =
-			new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageTableScrollPane, boardSplitPane);
-		tofSplitPane.setDividerSize(10);
-		tofSplitPane.setDividerLocation(160);
-		tofSplitPane.setResizeWeight(0.5d);
-		tofSplitPane.setMinimumSize(new Dimension(50, 20));
-
-		// build panel
-		JPanel messageTablePanel = new JPanel(new BorderLayout());
-		messageTablePanel.add(tofTopPanel, BorderLayout.NORTH);
-		messageTablePanel.add(tofSplitPane, BorderLayout.CENTER);
-		return messageTablePanel;
-	}
-
 	private JPanel buildStatusPanel() {
 		statusLabel = new JLabel(languageResource.getString("Frost by Jantho"));
 		statusMessageLabel = new JLabel();
@@ -1665,7 +2250,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	private JPanel buildTofMainPanel() {
 		tabbedPane = new JTranslatableTabbedPane(languageResource);
 		//add a tab for buddies perhaps?
-		tabbedPane.add("News", buildMessagePane());
+		tabbedPane.add("News", getMessagePanel());
 		tabbedPane.add("Downloads", getDownloadPanel());
 		tabbedPane.add("Uploads", getUploadPanel());
 
@@ -1700,15 +2285,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		JPanel tofMainPanel = new JPanel(new BorderLayout());
 		tofMainPanel.add(treeAndTabbedPane, BorderLayout.CENTER); // TOF/Text
 		return tofMainPanel;
-	}
-
-	private void checkTrustButton_actionPerformed(ActionEvent e) {
-		trustButton.setEnabled(false);
-		notTrustButton.setEnabled(false);
-		checkTrustButton.setEnabled(false);
-		if (selectedMessage != null) {
-			core.startTruster(selectedMessage);
-		}
 	}
 
 	/**
@@ -1754,98 +2330,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		return true;
 	}
 
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-
-	/**
-	 * Adds either the selected or all files from the attachmentTable to downloads table.
-	 */
-	public void downloadAttachments() {
-		int[] selectedRows = attachmentTable.getSelectedRows();
-
-		// If no rows are selected, add all attachments to download table
-		if (selectedRows.length == 0) {
-			Iterator it =
-				selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE).iterator();
-			while (it.hasNext()) {
-				FileAttachment fa = (FileAttachment) it.next();
-				SharedFileObject sfo = fa.getFileObj();
-				FrostSearchItemObject fsio =
-					new FrostSearchItemObject(
-						getSelectedNode(),
-						sfo,
-						FrostSearchItemObject.STATE_NONE);
-				//FIXME: <-does this matter?
-				FrostDownloadItemObject dlItem = new FrostDownloadItemObject(fsio);
-				boolean added = getDownloadTable().addDownloadItem(dlItem);
-			}
-
-		} else {
-			LinkedList attachments =
-				selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE);
-			for (int i = 0; i < selectedRows.length; i++) {
-				FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
-				SharedFileObject sfo = fo.getFileObj();
-				FrostSearchItemObject fsio =
-					new FrostSearchItemObject(
-						getSelectedNode(),
-						sfo,
-						FrostSearchItemObject.STATE_NONE);
-				FrostDownloadItemObject dlItem = new FrostDownloadItemObject(fsio);
-				boolean added = getDownloadTable().addDownloadItem(dlItem);
-			}
-		}
-	}
-
-	/**
-	 * Adds all boards from the attachedBoardsTable to board list.
-	 */
-	private void downloadBoards() {
-		logger.info("adding boards");
-		int[] selectedRows = getAttachedBoardsTable().getSelectedRows();
-
-		if (selectedRows.length == 0) {
-			// add all rows
-			getAttachedBoardsTable().selectAll();
-			selectedRows = getAttachedBoardsTable().getSelectedRows();
-			if (selectedRows.length == 0)
-				return;
-		}
-		LinkedList boards = selectedMessage.getAttachmentList().getAllOfType(Attachment.BOARD);
-		for (int i = 0; i < selectedRows.length; i++) {
-			BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
-			FrostBoardObject fbo = ba.getBoardObj();
-			String name = fbo.getBoardName();
-
-			// search board in exising boards list
-			FrostBoardObject board = getTofTree().getBoardByName(name);
-
-			//ask if we already have the board
-			if (board != null) {
-				if (JOptionPane
-					.showConfirmDialog(
-						this,
-						"You already have a board named "
-							+ name
-							+ ".\n"
-							+ "Are you sure you want to download this one over it?",
-						"Board already exists",
-						JOptionPane.YES_NO_OPTION)
-					!= 0) {
-					continue; // next row of table / next attached board
-				} else {
-					// change existing board keys to keys of new board
-					board.setPublicKey(fbo.getPublicKey());
-					board.setPrivateKey(fbo.getPrivateKey());
-					updateTofTree(board);
-				}
-			} else {
-				// its a new board
-				getTofTree().addNodeToTree(fbo);
-			}
-		}
-	}
-
 	/**File | Exit action performed*/
 	private void fileExitMenuItem_actionPerformed(ActionEvent e) {
 		// Remove the tray icon
@@ -1869,13 +2353,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			System.exit(0);
 		}
 	}
-	public JTable getAttachedBoardsTable() {
-		return boardTable;
-	}
-	public JTable getAttachmentTable() {
-		return attachmentTable;
-	}
-
 	/**
 	 * @return
 	 */
@@ -1911,52 +2388,19 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	public ResourceBundle getLanguageResource() {
 		return languageResource.getResourceBundle();
 	}
+
+	/**
+	 * 
+	 */
+	private MessagePanel getMessagePanel() {
+		if (messagePanel == null) {
+			messagePanel = new MessagePanel(frostSettings);
+			messagePanel.initialize();
+		}
+		return messagePanel;
+	}
 	public MessageTable getMessageTable() {
 		return messageTable;
-	}
-
-	/**
-	 * @return
-	 */
-	private PopupMenuAttachmentBoard getPopupMenuAttachmentBoard() {
-		if (popupMenuAttachmentBoard == null) {
-			popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
-			languageResource.addLanguageListener(popupMenuAttachmentBoard);
-		}
-		return popupMenuAttachmentBoard;
-	}
-
-	/**
-	 * @return
-	 */
-	private PopupMenuAttachmentTable getPopupMenuAttachmentTable() {
-		if (popupMenuAttachmentTable == null) {
-			popupMenuAttachmentTable = new PopupMenuAttachmentTable();
-			languageResource.addLanguageListener(popupMenuAttachmentTable);
-		}
-		return popupMenuAttachmentTable;
-	}
-
-	/**
-	 * @return
-	 */
-	private PopupMenuMessageTable getPopupMenuMessageTable() {
-		if (popupMenuMessageTable == null) {
-			popupMenuMessageTable = new PopupMenuMessageTable();
-			languageResource.addLanguageListener(popupMenuMessageTable);
-		}
-		return popupMenuMessageTable;
-	}
-
-	/**
-	 * @return
-	 */
-	private PopupMenuTofText getPopupMenuTofText() {
-		if (popupMenuTofText == null) {
-			popupMenuTofText = new PopupMenuTofText();
-			languageResource.addLanguageListener(popupMenuTofText);
-		}
-		return popupMenuTofText;
 	}
 
 	/**
@@ -1987,9 +2431,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			node = (FrostBoardObject) getTofTree().getModel().getRoot();
 		}
 		return node;
-	}
-	public String getTofTextAreaText() {
-		return tofTextArea.getText();
 	}
 	public TofTree getTofTree() {
 		if (tofTree == null) {
@@ -2083,11 +2524,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		             "data/allboards_selected_rollover.gif");*/
 
 		// Add Popup listeners
-		tofTextArea.addMouseListener(listener);
 		getTofTree().addMouseListener(listener);
-		getAttachmentTable().addMouseListener(listener);
-		getAttachedBoardsTable().addMouseListener(listener);
-		messageTable.addMouseListener(listener);
 
 		//**********************************************************************************************
 		//**********************************************************************************************
@@ -2095,14 +2532,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 		//------------------------------------------------------------------------
 
-		tofReplyButton.setEnabled(false);
-		downloadAttachmentsButton.setEnabled(false);
-		downloadBoardsButton.setEnabled(false);
-		saveMessageButton.setEnabled(false);
 		pasteBoardButton.setEnabled(false);
-		trustButton.setEnabled(false);
-		notTrustButton.setEnabled(false);
-		checkTrustButton.setEnabled(false);
 
 		//on with other stuff
 
@@ -2141,62 +2571,45 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		int lastPosY = frostSettings.getIntValue("lastFramePosY");
 		boolean lastMaximized = frostSettings.getBoolValue("lastFrameMaximized");
 		Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
-	
-		if (lastWidth < 100) 				{	lastWidth  = 700;  				}
-		if (lastWidth > scrSize.width)		{	lastWidth  = scrSize.width;		}
-		
-		if (lastHeight < 100) 				{	lastHeight = 500;				}
-		if (lastHeight > scrSize.height) 	{	lastWidth  = scrSize.height;	}
-		
-		if (lastPosX < 0) 	{	lastPosX = 0;	}
-		if (lastPosY < 0) 	{	lastPosY = 0;	}
-		
-		if ((lastPosX + lastWidth)  > scrSize.width) {
+
+		if (lastWidth < 100) {
+			lastWidth = 700;
+		}
+		if (lastWidth > scrSize.width) {
+			lastWidth = scrSize.width;
+		}
+
+		if (lastHeight < 100) {
+			lastHeight = 500;
+		}
+		if (lastHeight > scrSize.height) {
+			lastWidth = scrSize.height;
+		}
+
+		if (lastPosX < 0) {
+			lastPosX = 0;
+		}
+		if (lastPosY < 0) {
+			lastPosY = 0;
+		}
+
+		if ((lastPosX + lastWidth) > scrSize.width) {
 			lastPosX = scrSize.width / 10;
 			lastWidth = (int) ((scrSize.getWidth() / 10.0) * 8.0);
 		}
-		
+
 		if ((lastPosY + lastHeight) > scrSize.height) {
 			lastPosY = scrSize.height / 10;
 			lastHeight = (int) ((scrSize.getHeight() / 10.0) * 8.0);
 		}
 
 		setBounds(lastPosX, lastPosY, lastWidth, lastHeight);
-		
+
 		if (lastMaximized) {
 			setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
 		}
 
 	} // ************** end-of: jbInit()
-
-	/**
-	 * 
-	 */
-	private void initializeFonts() {
-		String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-		int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-		int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-		Font font = new Font(fontName, fontStyle, fontSize);
-		if (!font.getFamily().equals(fontName)) {
-			logger.severe("The selected font was not found in your system\n" +
-						   "That selection will be changed to \"Monospaced\".");
-			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
-			font = new Font("Monospaced", fontStyle, fontSize);
-		}
-		tofTextArea.setFont(font);
-
-		fontName = frostSettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
-		fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
-		fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
-		font = new Font(fontName, fontStyle, fontSize);
-		if (!font.getFamily().equals(fontName)) {
-			logger.severe("The selected font was not found in your system\n" +
-						   "That selection will be changed to \"SansSerif\".");
-			frostSettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, "SansSerif");
-			font = new Font("SansSerif", fontStyle, fontSize);
-		}
-		messageTable.setFont(font);
-	}
 
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
 		//Core.getOut().println("Clipboard contents replaced");
@@ -2226,127 +2639,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 		updateMessageCountLabels(getSelectedNode());
 		updateTofTree(getSelectedNode());
-	}
-
-	/**valueChanged messageTable (messageTableListModel / TOF)*/
-	public void messageTableListModel_valueChanged(ListSelectionEvent e) {
-		FrostBoardObject selectedBoard = getSelectedNode();
-		if (selectedBoard.isFolder())
-			return;
-		selectedMessage = TOF.evalSelection(e, messageTable, selectedBoard);
-		if (selectedMessage != null) {
-			displayNewMessageIcon(false);
-			downloadAttachmentsButton.setEnabled(false);
-			downloadBoardsButton.setEnabled(false);
-
-			lastSelectedMessage = selectedMessage.getSubject();
-			if (selectedBoard.isReadAccessBoard() == false) {
-				tofReplyButton.setEnabled(true);
-			}
-
-			if (selectedMessage.getStatus().trim().equals(VerifyableMessageObject.PENDING)) {
-				trustButton.setEnabled(true);
-				notTrustButton.setEnabled(true);
-				checkTrustButton.setEnabled(false);
-			} else if (
-				selectedMessage.getStatus().trim().equals(VerifyableMessageObject.VERIFIED)) {
-				trustButton.setEnabled(false);
-				notTrustButton.setEnabled(true);
-				checkTrustButton.setEnabled(true);
-			} else if (selectedMessage.getStatus().trim().equals(VerifyableMessageObject.FAILED)) {
-				trustButton.setEnabled(true);
-				notTrustButton.setEnabled(false);
-				checkTrustButton.setEnabled(true);
-			} else {
-				trustButton.setEnabled(false);
-				notTrustButton.setEnabled(false);
-				checkTrustButton.setEnabled(false);
-			}
-
-			setTofTextAreaText(selectedMessage.getContent());
-			if (selectedMessage.getContent().length() > 0)
-				saveMessageButton.setEnabled(true);
-			else
-				saveMessageButton.setEnabled(false);
-
-			Vector fileAttachments = selectedMessage.getFileAttachments();
-			Vector boardAttachments = selectedMessage.getBoardAttachments();
-
-			if (fileAttachments.size() == 0 && boardAttachments.size() == 0) {
-				// Move divider to 100% and make it invisible
-				attachmentSplitPane.setDividerSize(0);
-				attachmentSplitPane.setDividerLocation(1.0);
-				boardSplitPane.setDividerSize(0);
-				boardSplitPane.setDividerLocation(1.0);
-			} else {
-				// Attachment available
-				if (fileAttachments.size() > 0) {
-					// Add attachments to table
-					((DefaultTableModel) getAttachmentTable().getModel()).setDataVector(
-						selectedMessage.getFileAttachments(),
-						null);
-
-					if (boardAttachments.size() == 0) {
-						boardSplitPane.setDividerSize(0);
-						boardSplitPane.setDividerLocation(1.0);
-					}
-					attachmentSplitPane.setDividerLocation(0.75);
-					attachmentSplitPane.setDividerSize(3);
-
-					downloadAttachmentsButton.setEnabled(true);
-				}
-				// Board Available
-				if (boardAttachments.size() > 0) {
-					// Add attachments to table
-					((DefaultTableModel) getAttachedBoardsTable().getModel()).setDataVector(
-						selectedMessage.getBoardAttachments(),
-						null);
-
-					//only a board, no attachments.
-					if (fileAttachments.size() == 0) {
-						attachmentSplitPane.setDividerSize(0);
-						attachmentSplitPane.setDividerLocation(1.0);
-					}
-					boardSplitPane.setDividerLocation(0.75);
-					boardSplitPane.setDividerSize(3);
-
-					downloadBoardsButton.setEnabled(true);
-					//TODO: downloadBoardsButton
-				}
-			}
-		} else {
-			// no msg selected
-			resetMessageViewSplitPanes(); // clear message view
-			tofReplyButton.setEnabled(false);
-			saveMessageButton.setEnabled(false);
-			downloadAttachmentsButton.setEnabled(false);
-			downloadBoardsButton.setEnabled(false);
-		}
-	}
-
-	private void notTrustButton_actionPerformed(ActionEvent e) {
-		if (selectedMessage != null) {
-			if (core.getIdentities().getFriends().containsKey(selectedMessage.getFrom())) {
-				if (JOptionPane
-					.showConfirmDialog(
-						getInstance(),
-						"Are you sure you want to revoke trust to user "
-							+ selectedMessage.getFrom().substring(
-								0,
-								selectedMessage.getFrom().indexOf("@"))
-							+ " ? \n If you choose yes, future messages from this user will be marked BAD",
-						"revoke trust",
-						JOptionPane.YES_NO_OPTION)
-					!= 0) {
-					return;
-				}
-			} else {
-				core.startTruster(false, selectedMessage);
-			}
-		}
-		trustButton.setEnabled(false);
-		notTrustButton.setEnabled(false);
-		checkTrustButton.setEnabled(false);
 	}
 
 	/**Options | Preferences action performed*/
@@ -2398,7 +2690,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 					ulItem.setKey("Working...");
 					ulModel.updateRow(ulItem);
 					insertThread newInsert =
-						new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_SHA1, core.getIdentities().getMyId());
+						new insertThread(
+							ulItem,
+							frostSettings,
+							insertThread.MODE_GENERATE_SHA1,
+							core.getIdentities().getMyId());
 					newInsert.start();
 					break; //start only one thread/second
 				}
@@ -2525,20 +2821,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	}
 
 	/**
-	 * Called by frost after call of show().
-	 * Sets the initial states of the message splitpanes.
-	 * Must be called AFTER frame is shown.
-	 **/
-	public void resetMessageViewSplitPanes() {
-		// initially hide the attachment tables
-		attachmentSplitPane.setDividerSize(0);
-		attachmentSplitPane.setDividerLocation(1.0);
-		boardSplitPane.setDividerSize(0);
-		boardSplitPane.setDividerLocation(1.0);
-		setTofTextAreaText(languageResource.getString("Select a message to view its content."));
-	}
-
-	/**
 	 * Chooses the next FrostBoard to update (automatic update).
 	 * First sorts by lastUpdateStarted time, then chooses first board
 	 * that is allowed to update.
@@ -2572,8 +2854,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			}
 		}
 		if (nextBoard != null) {
-			logger.info(
-				"*** Automatic board update started for: " + nextBoard.toString());
+			logger.info("*** Automatic board update started for: " + nextBoard.toString());
 		} else {
 			logger.info(
 				"*** Automatic board update - min update interval not reached.  waiting...");
@@ -2665,26 +2946,17 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		Truster truster = new Truster(core.getIdentities(), what, selectedMessage.getFrom());
 		truster.start();
 	}
-	public void setTofTextAreaText(String txt) {
-		tofTextArea.setText(txt);
-	}
 
-	protected void showAttachmentBoardPopupMenu(MouseEvent e) {
-		getPopupMenuAttachmentBoard().show(e.getComponent(), e.getX(), e.getY());
+	/**
+	 * @param title
+	 * @param enabled
+	 */
+	public void setPanelEnabled(String title, boolean enabled) {
+		int position = tabbedPane.indexOfTab(title);
+		if (position != -1) {
+			tabbedPane.setEnabledAt(position, enabled);
+		}
 	}
-
-	protected void showAttachmentTablePopupMenu(MouseEvent e) {
-		getPopupMenuAttachmentTable().show(e.getComponent(), e.getX(), e.getY());
-	}
-
-	protected void showMessageTablePopupMenu(MouseEvent e) {
-		getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
-	}
-
-	protected void showTofTextAreaPopupMenu(MouseEvent e) {
-		getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
-	}
-
 	protected void showTofTreePopupMenu(MouseEvent e) {
 		getPopupMenuTofTree().show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -2693,13 +2965,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	public void timer_actionPerformed() {
 		// this method is called by a timer each second, so this counter counts seconds
 		counter++;
-
-		// Display welcome message if no boards are available
-		if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
-			attachmentSplitPane.setDividerSize(0);
-			attachmentSplitPane.setDividerLocation(1.0);
-			setTofTextAreaText(languageResource.getString("Welcome message"));
-		}
 
 		//////////////////////////////////////////////////
 		//   Misc. stuff
@@ -2797,7 +3062,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 									ulItem,
 									frostSettings,
 									insertThread.MODE_GENERATE_CHK,
-									FrostUploadItemObject.STATE_REQUESTED, 
+									FrostUploadItemObject.STATE_REQUESTED,
 									core.getIdentities().getMyId());
 						} else {
 							// next state will be IDLE (=default)
@@ -2837,7 +3102,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 						ulItem.setState(FrostUploadItemObject.STATE_UPLOADING);
 						ulModel.updateRow(ulItem);
 						insertThread newInsert =
-							new insertThread(ulItem, frostSettings, insertThread.MODE_UPLOAD, core.getIdentities().getMyId());
+							new insertThread(
+								ulItem,
+								frostSettings,
+								insertThread.MODE_UPLOAD,
+								core.getIdentities().getMyId());
 						newInsert.start();
 						break; // start only 1 thread per loop (=second)
 					}
@@ -2876,7 +3145,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		if (board == null || board.isFolder())
 			return;
 
-		BoardSettingsFrame newFrame = new BoardSettingsFrame(this, board, languageResource.getResourceBundle());
+		BoardSettingsFrame newFrame =
+			new BoardSettingsFrame(this, board, languageResource.getResourceBundle());
 		if (newFrame.runDialog() == true) // OK pressed?
 			{
 			updateTofTree(board);
@@ -2926,30 +3196,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			"");
 	}
 
-	/**tofReplyButton Action Listener (tof/Reply)*/
-	private void tofReplyButton_actionPerformed(ActionEvent e) {
-		String subject = lastSelectedMessage;
-		if (subject.startsWith("Re:") == false)
-			subject = "Re: " + subject;
-		/*
-				if (frostSettings.getBoolValue("useAltEdit")) {
-						altEdit = new AltEdit(getSelectedNode(), subject, // subject
-			getTofTextAreaText(), frostSettings, this);
-					altEdit.start();
-				} else {*/
-		MessageFrame newMessageFrame =
-			new MessageFrame(
-				frostSettings,
-				this,
-				languageResource.getResourceBundle(),
-				core.getIdentities().getMyId());
-		newMessageFrame.composeReply(
-			getSelectedNode(),
-			frostSettings.getValue("userName"),
-			subject,
-			getTofTextAreaText());
-	}
-
 	/**TOF Board selected*/
 	// Core.getOut()
 	// if e == NULL, the method is called by truster or by the reloader after options were changed
@@ -2962,16 +3208,10 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 		FrostBoardObject node = (FrostBoardObject) getTofTree().getLastSelectedPathComponent();
 
-		resetMessageViewSplitPanes(); // clear message view
-
 		if (node != null) {
 			if (node.isFolder() == false) {
 				// node is a board
 				configBoardButton.setEnabled(true);
-				tofNewMessageButton.setEnabled(true);
-				tofUpdateButton.setEnabled(true);
-
-				saveMessageButton.setEnabled(false);
 				removeBoardButton.setEnabled(true);
 
 				updateButtons(node);
@@ -2981,9 +3221,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 				getUploadPanel().setAddFilesButtonEnabled(true);
 				renameBoardButton.setEnabled(false);
-				tofReplyButton.setEnabled(false);
-				downloadAttachmentsButton.setEnabled(false);
-				downloadBoardsButton.setEnabled(false);
 
 				// read all messages for this board into message table
 				TOF.updateTofTable(node, keypool);
@@ -2997,8 +3234,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				getUploadPanel().setAddFilesButtonEnabled(false);
 				renameBoardButton.setEnabled(true);
 				configBoardButton.setEnabled(false);
-				tofNewMessageButton.setEnabled(false);
-				tofUpdateButton.setEnabled(false);
 				if (node.isRoot()) {
 					removeBoardButton.setEnabled(false);
 					cutBoardButton.setEnabled(false);
@@ -3036,16 +3271,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		removeBoardButton.setToolTipText(languageResource.getString("Remove board"));
 		cutBoardButton.setToolTipText(languageResource.getString("Cut board"));
 		renameBoardButton.setToolTipText(languageResource.getString("Rename folder"));
-		tofNewMessageButton.setToolTipText(languageResource.getString("New message"));
-		tofReplyButton.setToolTipText(languageResource.getString("Reply"));
-		downloadAttachmentsButton.setToolTipText(
-			languageResource.getString("Download attachment(s)"));
-		downloadBoardsButton.setToolTipText(languageResource.getString("Add Board(s)"));
-		saveMessageButton.setToolTipText(languageResource.getString("Save message"));
-		trustButton.setToolTipText(languageResource.getString("Trust"));
-		notTrustButton.setToolTipText(languageResource.getString("Do not trust"));
-		checkTrustButton.setToolTipText(languageResource.getString("Set to CHECK"));
-		tofUpdateButton.setToolTipText(languageResource.getString("Update"));
 	}
 	private void translateMainMenu() {
 		fileMenu.setText(languageResource.getString("File"));
@@ -3079,31 +3304,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		helpAboutMenuItem.setText(languageResource.getString("About"));
 	}
 
-	private void trustButton_actionPerformed(ActionEvent e) {
-		if (selectedMessage != null) {
-			if (core.getIdentities().getEnemies().containsKey(selectedMessage.getFrom())) {
-				if (JOptionPane
-					.showConfirmDialog(
-						getInstance(),
-						"are you sure you want to grant trust to user "
-							+ selectedMessage.getFrom().substring(
-								0,
-								selectedMessage.getFrom().indexOf("@"))
-							+ " ? \n If you choose yes, future messages from this user will be marked GOOD",
-						"re-grant trust",
-						JOptionPane.YES_NO_OPTION)
-					!= 0) {
-					return;
-				}
-			} else {
-				core.startTruster(true, selectedMessage);
-			}
-		}
-		trustButton.setEnabled(false);
-		notTrustButton.setEnabled(false);
-		checkTrustButton.setEnabled(false);
-	}
-
 	/**tof / Update*/
 	/**
 	 * Starts the board update threads, getRequest thread and update id thread.
@@ -3124,7 +3324,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				board,
 				frostSettings,
 				listener);
-				logger.info("Starting update (MSG_TODAY) of " + board.toString());
+			logger.info("Starting update (MSG_TODAY) of " + board.toString());
 			threadStarted = true;
 		}
 
@@ -3164,10 +3364,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	private void updateButtons(FrostBoardObject board) {
 		if (board.isReadAccessBoard()) {
-			tofNewMessageButton.setEnabled(false);
 			getUploadPanel().setAddFilesButtonEnabled(false);
 		} else {
-			tofNewMessageButton.setEnabled(true);
 			getUploadPanel().setAddFilesButtonEnabled(true);
 		}
 	}
@@ -3233,8 +3431,13 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			// uploads disabled
 			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Uploads"), false);
 		}
-		initializeFonts(); //In case the fonts were changed
-		tofTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.SettingsUpdater#updateSettings()
+	 */
+	public void updateSettings() {
+		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
 	}
 	/**
 	 * Fires a nodeChanged (redraw) for all boards.
@@ -3266,48 +3469,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		if (board == getSelectedNode()) // is the board actually shown?
 			{
 			updateButtons(board);
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see java.awt.Component#setVisible(boolean)
-	 */
-	public void setVisible(boolean b) {
-		super.setVisible(b);
-		if (!alreadyShown && b) {
-			alreadyShown = true;
-			// this really obscuring stuff is needed to change the divider size
-			// after the frame is shown. The goal is to see the blank message view
-			// without any attachment table after startup
-			resetMessageViewSplitPanes();
-			mixed.wait(500);
-			resetMessageViewSplitPanes();
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see frost.SettingsUpdater#updateSettings()
-	 */
-	public void updateSettings() {
-		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
-	}
-
-	/**
-	 * @param title
-	 * @param panel
-	 */
-	public void addPanel(String title, JPanel panel) {
-		tabbedPane.add(title, panel);
-	}
-
-	/**
-	 * @param title
-	 * @param enabled
-	 */
-	public void setPanelEnabled(String title, boolean enabled) {
-		int position = tabbedPane.indexOfTab(title);
-		if (position != -1) { 
-			tabbedPane.setEnabledAt(position, enabled);
 		}
 	}
 
