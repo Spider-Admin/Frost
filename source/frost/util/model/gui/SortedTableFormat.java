@@ -8,7 +8,7 @@ package frost.util.model.gui;
 
 import java.util.Comparator;
 
-import frost.util.model.ModelItem;
+import frost.util.ReverseComparator;
 
 /**
  * @author Administrator
@@ -19,6 +19,7 @@ import frost.util.model.ModelItem;
 public abstract class SortedTableFormat extends AbstractTableFormat {
 
 	private Comparator[] comparators;
+	private Comparator[] reverseComparators;
 
 	/**
 	 * 
@@ -26,6 +27,7 @@ public abstract class SortedTableFormat extends AbstractTableFormat {
 	protected SortedTableFormat(int newColumnCount) {
 		super(newColumnCount);
 		comparators = new Comparator[newColumnCount];
+		reverseComparators = new Comparator[newColumnCount];
 	}
 	
 	/**
@@ -34,6 +36,7 @@ public abstract class SortedTableFormat extends AbstractTableFormat {
 	 */
 	public void setComparator(Comparator comparator, int columnNumber) {
 		comparators[columnNumber] = comparator;
+		reverseComparators[columnNumber] = new ReverseComparator(comparator);
 	}
 	
 	/**
@@ -42,6 +45,14 @@ public abstract class SortedTableFormat extends AbstractTableFormat {
 	 */
 	public Comparator getComparator(int columnNumber) {
 		return comparators[columnNumber];
+	}
+	
+	/**
+	 * @param columnNumber
+	 * @return
+	 */
+	public Comparator getReverseComparator(int columnNumber) {
+		return reverseComparators[columnNumber];
 	}
 
 }
