@@ -1658,7 +1658,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	private UploadTicker uploadTicker;
 	//	public static String newMessageHeader = new String("");
 	//	public static String oldMessageHeader = new String("");
-	public static AltEdit altEdit;
 
 	public static Core core;
 
@@ -1745,7 +1744,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	//File Menu
 	JMenu fileMenu = new JMenu();
 
-	private HealingTable healingTable = null;
 	JMenuItem helpAboutMenuItem = new JMenuItem();
 	JMenuItem helpHelpMenuItem = new JMenuItem();
 
@@ -2342,14 +2340,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	public DownloadModel getDownloadModel() {
 		return downloadModel;
 	}
-	private HealingTable getHealingTable() {
-		if (healingTable == null) {
-			HealingTableModel htModel = new HealingTableModel();
-			healingTable = new HealingTable(htModel);
-		}
-		return healingTable;
-	}
-
 	/**
 	 * Getter for the language resource bundle
 	 */
