@@ -146,8 +146,10 @@ public class GtkTableHeaderRenderer extends DefaultTableCellRenderer implements 
 		int index = -1;
 		int modelIndex = -1;
 		boolean ascending = true;
+		boolean isSortedTable = false;
 		if (table != null) {
 			if (table instanceof SortedTable) {
+				isSortedTable = true;
 				SortedTable sortTable = (SortedTable) table;
 				index = sortTable.getSortedColumnIndex();
 				ascending = sortTable.isSortedColumnAscending();
@@ -165,7 +167,7 @@ public class GtkTableHeaderRenderer extends DefaultTableCellRenderer implements 
 		this.isSelected = isSelected;
 		this.hasFocus = hasFocus;
 		Icon icon = ascending ? ASCENDING : DECENDING;
-		setIcon(modelIndex == index ? icon : NONSORTED);
+		setIcon((modelIndex == index) && isSortedTable ? icon : NONSORTED);
 		setText((value == null) ? "" : value.toString());
 		return this;
 	}
