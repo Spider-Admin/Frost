@@ -518,6 +518,8 @@ public class SettingsClass {
 		defaults.put("blockMessageChecked", "false");
 		defaults.put("blockMessageBody", "");
 		defaults.put("blockMessageBodyChecked", "false");
+		defaults.put("blockMessageBoard", "");
+		defaults.put("blockMessageBoardChecked", "false");
 		defaults.put("signedOnly", "false");
 		defaults.put("hideBadMessages", "false");
 		defaults.put("hideCheckMessages", "false");
