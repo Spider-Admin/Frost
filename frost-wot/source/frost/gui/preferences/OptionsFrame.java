@@ -64,9 +64,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	
 	private static Logger logger = Logger.getLogger(OptionsFrame.class.getName());
 	boolean _hideBad, _hideAnon;
-	Color boardUpdNonSelectedBackgroundColor = null;
 
-	Color boardUpdSelectedBackgroundColor = null;
 	JPanel buttonPanel = null; // OK / Cancel
 	boolean checkBlock;
 	boolean checkBlockBody;
@@ -79,11 +77,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	boolean checkHideNAMessages;
 	String checkMaxMessageDisplay;
 	boolean checkSignedOnly;
-	JButton chooseBoardUpdNonSelectedBackgroundColor = new JButton("   ");
 
 	//    JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
 
-	JButton chooseBoardUpdSelectedBackgroundColor = new JButton("   ");
 	JPanel contentAreaPanel = null;
 	private DisplayPanel displayPanel = null;
 	private DownloadPanel downloadPanel = null;
@@ -101,19 +97,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	//------------------------------------------------------------------------
 	JPanel mainPanel = null;
 	private MiscPanel miscPanel = null;
-	private News2Panel news2Panel = null;
 	private NewsPanel newsPanel = null;
+	private News2Panel news2Panel = null;
+	private News3Panel news3Panel = null;
 	JList optionsGroupsList = null;
 	JPanel optionsGroupsPanel = null;
 	private SearchPanel searchPanel = null;
 	boolean shouldReloadMessages = false;
 	// the result of this
 	boolean shouldRemoveDummyReqFiles = false;
-	JTextField TFautomaticUpdate_boardsMinimumUpdateInterval =
-		new JTextField(5);
-	JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
-	JPanel tof3Panel = null;
-	JCheckBox tofBoardUpdateVisualization = new JCheckBox();
 	
 	private UploadPanel uploadPanel = null;
 
@@ -124,7 +116,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		super(parent);
 		languageResource = newLanguageResource;
 		setModal(true);
-		translateCheckBox();
 
 		frostSettings = newSettingsClass;
 		setDataElements();
@@ -266,6 +257,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	}
 	
 	/**
+	 * Build the news3 panel (update options).
+	 */
+	private News3Panel getNews3Panel() {
+		if (news3Panel == null) {
+			news3Panel = new News3Panel(languageResource, frostSettings);
+		}
+		return news3Panel;
+	}
+	
+	/**
 	 * Build the news panel (general options).
 	 */
 	private NewsPanel getNewsPanel() {
@@ -301,7 +302,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			listData.add(
 				new ListBoxData(
 					" " + languageResource.getString("News") + " (3) ",
-					getTof3Panel()));
+					getNews3Panel()));
 			listData.add(
 				new ListBoxData(
 					" " + languageResource.getString("Search") + " ",
@@ -347,122 +348,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		return searchPanel;
 	}
 	
-	/**
-	 * Build the tof3 panel (automatic update options).
-	 */
-	protected JPanel getTof3Panel() {
-		if (tof3Panel == null) {
-			chooseBoardUpdSelectedBackgroundColor
-				.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					Color newCol =
-						JColorChooser.showDialog(
-							OptionsFrame.this,
-					languageResource.getString("Choose updating color of SELECTED boards"),
-							boardUpdSelectedBackgroundColor);
-					if (newCol != null) {
-						boardUpdSelectedBackgroundColor = newCol;
-						chooseBoardUpdSelectedBackgroundColor.setBackground(
-							boardUpdSelectedBackgroundColor);
-					}
-				}
-			});
-			chooseBoardUpdNonSelectedBackgroundColor
-				.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					Color newCol =
-						JColorChooser.showDialog(
-							OptionsFrame.this,
-					languageResource.getString("Choose updating color of NON-SELECTED boards"),
-							boardUpdNonSelectedBackgroundColor);
-					if (newCol != null) {
-						boardUpdNonSelectedBackgroundColor = newCol;
-						chooseBoardUpdNonSelectedBackgroundColor.setBackground(
-							boardUpdNonSelectedBackgroundColor);
-					}
-				}
-			});
-
-			final JPanel row1Panel =
-				new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-			final JPanel row2Panel =
-				new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
-			row1Panel.add(chooseBoardUpdSelectedBackgroundColor);
-			row1Panel.add(
-				new JLabel(languageResource.getString("Choose background color if updating board is selected")));
-			row2Panel.add(chooseBoardUpdNonSelectedBackgroundColor);
-			row2Panel.add(
-				new JLabel(languageResource.getString("Choose background color if updating board is not selected")));
-
-			tofBoardUpdateVisualization
-				.addActionListener(new ActionListener() {
-				public void actionPerformed(ActionEvent e) {
-					setPanelEnabled(
-						row1Panel,
-						tofBoardUpdateVisualization.isSelected());
-					setPanelEnabled(
-						row2Panel,
-						tofBoardUpdateVisualization.isSelected());
-				}
-			});
-
-			tof3Panel = new JPanel(new GridBagLayout());
-			GridBagConstraints constr = new GridBagConstraints();
-			constr.anchor = GridBagConstraints.WEST;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			constr.gridy = 0;
-			tof3Panel.add(
-				new JLabel(languageResource.getString("Automatic update options")),
-				constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(5, 25, 5, 5);
-			tof3Panel.add(
-				new JLabel(
-			languageResource.getString(
-						"Minimum update interval of a board") + " (" + languageResource.getString("minutes")
-						+ ") (45)"),
-				constr);
-			constr.gridx = 1;
-			constr.insets = new Insets(5, 5, 5, 5);
-			tof3Panel.add(
-				TFautomaticUpdate_boardsMinimumUpdateInterval,
-				constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(5, 25, 5, 5);
-			tof3Panel.add(
-				new JLabel(
-			languageResource.getString(
-						"Number of concurrently updating boards")
-						+ " (6)"),
-				constr);
-			constr.gridx = 1;
-			constr.insets = new Insets(5, 5, 5, 5);
-			tof3Panel.add(TFautomaticUpdate_concurrentBoardUpdates, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(15, 5, 5, 5);
-			tof3Panel.add(tofBoardUpdateVisualization, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(5, 25, 5, 5);
-			tof3Panel.add(row1Panel, constr);
-			constr.gridy++;
-			tof3Panel.add(row2Panel, constr);
-			// filler (glue)
-			constr.gridy++;
-			constr.gridx = 1;
-			constr.weightx = 0.7;
-			constr.weighty = 0.7;
-			constr.insets = new Insets(0, 0, 0, 0);
-			constr.fill = GridBagConstraints.BOTH;
-			tof3Panel.add(new JLabel(" "), constr);
-		}
-		return tof3Panel;
-	}
-
 	/**
 	 * Build the upload panel.
 	 */
@@ -548,6 +433,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			//If the news 2 panel has been used, commit its changes
 			news2Panel.ok();
 		}
+		
+		if (news3Panel != null) {
+			//If the news 3 panel has been used, commit its changes
+			news3Panel.ok();
+		}
 
 		saveSettings();
 
@@ -584,22 +474,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Save settings
 	 */
 	private void saveSettings() {
-		frostSettings.setValue(
-			"automaticUpdate.concurrentBoardUpdates",
-			TFautomaticUpdate_concurrentBoardUpdates.getText());
-		frostSettings.setValue(
-			"automaticUpdate.boardsMinimumUpdateInterval",
-			TFautomaticUpdate_boardsMinimumUpdateInterval.getText());
-		frostSettings.setValue(
-			"boardUpdateVisualization",
-			tofBoardUpdateVisualization.isSelected());
-
-		frostSettings.setObjectValue(
-			"boardUpdatingSelectedBackgroundColor",
-			boardUpdSelectedBackgroundColor);
-		frostSettings.setObjectValue(
-			"boardUpdatingNonSelectedBackgroundColor",
-			boardUpdNonSelectedBackgroundColor);
 
 		frostSettings.save();
 
@@ -646,34 +520,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkHideNAMessages = frostSettings.getBoolValue("hideNAMessages");
 		checkBlock = frostSettings.getBoolValue("blockMessageChecked");
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
-
-		// now load
-		TFautomaticUpdate_concurrentBoardUpdates.setText(
-			frostSettings.getValue("automaticUpdate.concurrentBoardUpdates"));
-		TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
-			frostSettings.getValue(
-				"automaticUpdate.boardsMinimumUpdateInterval"));
-		tofBoardUpdateVisualization.setSelected(
-			frostSettings.getBoolValue("boardUpdateVisualization"));
-
-		boardUpdSelectedBackgroundColor =
-			(Color) frostSettings.getObjectValue(
-				"boardUpdatingSelectedBackgroundColor");
-		boardUpdNonSelectedBackgroundColor =
-			(Color) frostSettings.getObjectValue(
-				"boardUpdatingNonSelectedBackgroundColor");
-		chooseBoardUpdSelectedBackgroundColor.setBackground(
-			boardUpdSelectedBackgroundColor);
-		chooseBoardUpdNonSelectedBackgroundColor.setBackground(
-			boardUpdNonSelectedBackgroundColor);
-	}
-
-	private void setPanelEnabled(JPanel panel, boolean enabled) {
-		int componentCount = panel.getComponentCount();
-		for (int x = 0; x < componentCount; x++) {
-			Component c = panel.getComponent(x);
-			c.setEnabled(enabled);
-		}
 	}
 
 	/**
@@ -696,20 +542,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 */
 	public boolean shouldRemoveDummyReqFiles() {
 		return shouldRemoveDummyReqFiles;
-	}
-
-	/**
-	 * These translate* methods are used to apply translatable
-	 * information to the GUI objects. If you add/remove GUI
-	 * objects that use text, please update these methods. Do
-	 * not apply text anywhere else.
-	 */
-	private void translateCheckBox() {
-		tofBoardUpdateVisualization.setText(
-			languageResource.getString("Show board update visualization")
-				+ " ("
-				+ languageResource.getString("On")
-				+ ")");
 	}
 
 	/**
