@@ -781,6 +781,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private boolean initialized = false;
 
 		private Listener listener = new Listener();
+		
+		private FrostMessageObject selectedMessage = new FrostMessageObject();
+		private String lastSelectedMessage;
 
 		private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
 		private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
@@ -1348,7 +1351,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * getTofTextAreaText(), settings, this); altEdit.start(); }
 			 * else {
 			 */
-			MessageFrame newMessageFrame = new MessageFrame(settings, MainFrame.this,
+			MessageFrame newMessageFrame = new MessageFrame(settings, parentFrame,
 												identities.getMyId());
 			newMessageFrame.setTofTree(tofTree);
 			newMessageFrame.composeReply(tofTreeModel.getSelectedNode(), settings.getValue("userName"),
@@ -1599,6 +1602,71 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		public void startTruster(FrostMessageObject which) {
 			new Truster(identities, null, which.getFrom()).start();
 		}
+
+		/**
+		 * Marks current selected message unread
+		 */
+		private void markSelectedMessageUnread() {
+			int row = messageTable.getSelectedRow();
+			if (row < 0
+				|| selectedMessage == null
+				|| tofTreeModel.getSelectedNode() == null
+				|| tofTreeModel.getSelectedNode().isFolder() == true)
+				return;
+		
+			FrostMessageObject targetMessage = selectedMessage;
+		
+			messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
+		
+			targetMessage.setMessageNew(true);
+			// let renderer check for new state
+			MessageTableModel model = (MessageTableModel) getMessageTable().getModel();
+			model.updateRow(targetMessage);
+		
+			tofTreeModel.getSelectedNode().incNewMessageCount();
+		
+			updateMessageCountLabels(tofTreeModel.getSelectedNode());
+			updateTofTree(tofTreeModel.getSelectedNode());
+		}
+
+		/**
+		 * @param what
+		 */
+		private void setMessageTrust(Boolean what) {
+			int row = messageTable.getSelectedRow();
+			if (row < 0 || selectedMessage == null)
+				return;
+		
+			String status = selectedMessage.getStatus();
+		
+			if (status.indexOf(VerifyableMessageObject.PENDING) > -1) {
+				Identity owner = identities.getNeutrals().get(selectedMessage.getFrom());
+				if (owner == null) {
+					logger.warning("message was CHECK but not found in Neutral list");
+					return;
+				}
+			}
+		
+			if (status.indexOf(VerifyableMessageObject.FAILED) > -1) {
+				Identity owner = identities.getEnemies().get(selectedMessage.getFrom());
+				if (owner == null) {
+					logger.warning("message was BAD but not found in BAD list");
+					return;
+				}
+		
+			}
+		
+			if (status.indexOf(VerifyableMessageObject.VERIFIED) > -1) {
+				Identity owner = identities.getFriends().get(selectedMessage.getFrom());
+				if (owner == null) {
+					logger.warning("message was GOOD but not found in GOOD list");
+					return;
+				}
+			}
+		
+			Truster truster = new Truster(identities, what, selectedMessage.getFrom());
+			truster.start();
+		}
 	}
 
 	/**
@@ -1674,8 +1742,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private static Logger logger = Logger.getLogger(MainFrame.class.getName());
 	private static ImageIcon[] newMessage = new ImageIcon[2];
 
-	private static FrostMessageObject selectedMessage = new FrostMessageObject();
-
 	/**
 	 * Selects message icon in lower right corner
 	 * @param showNewMessageIcon
@@ -1741,7 +1807,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	private Language language = null;
 	private JRadioButtonMenuItem languageSpanishMenuItem = new JRadioButtonMenuItem();
-	private String lastSelectedMessage;
 
 	private Listener listener = new Listener();
 
@@ -2541,32 +2606,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	}
 
 	/**
-	 * Marks current selected message unread
-	 */
-	private void markSelectedMessageUnread() {
-		int row = messageTable.getSelectedRow();
-		if (row < 0
-			|| selectedMessage == null
-			|| tofTreeModel.getSelectedNode() == null
-			|| tofTreeModel.getSelectedNode().isFolder() == true)
-			return;
-
-		FrostMessageObject targetMessage = selectedMessage;
-
-		messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
-
-		targetMessage.setMessageNew(true);
-		// let renderer check for new state
-		MessageTableModel model = (MessageTableModel) getMessageTable().getModel();
-		model.updateRow(targetMessage);
-
-		tofTreeModel.getSelectedNode().incNewMessageCount();
-
-		updateMessageCountLabels(tofTreeModel.getSelectedNode());
-		updateTofTree(tofTreeModel.getSelectedNode());
-	}
-
-	/**
 	 * Options | Preferences action performed
 	 * @param e
 	 */
@@ -2682,45 +2721,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		language.setLanguageResource(newLanguageResource);
 		translateMainMenu();
 		translateButtons();
-	}
-
-	/**
-	 * @param what
-	 */
-	private void setMessageTrust(Boolean what) {
-		int row = messageTable.getSelectedRow();
-		if (row < 0 || selectedMessage == null)
-			return;
-
-		String status = selectedMessage.getStatus();
-
-		if (status.indexOf(VerifyableMessageObject.PENDING) > -1) {
-			Identity owner = core.getIdentities().getNeutrals().get(selectedMessage.getFrom());
-			if (owner == null) {
-				logger.warning("message was CHECK but not found in Neutral list");
-				return;
-			}
-		}
-
-		if (status.indexOf(VerifyableMessageObject.FAILED) > -1) {
-			Identity owner = core.getIdentities().getEnemies().get(selectedMessage.getFrom());
-			if (owner == null) {
-				logger.warning("message was BAD but not found in BAD list");
-				return;
-			}
-
-		}
-
-		if (status.indexOf(VerifyableMessageObject.VERIFIED) > -1) {
-			Identity owner = core.getIdentities().getFriends().get(selectedMessage.getFrom());
-			if (owner == null) {
-				logger.warning("message was GOOD but not found in GOOD list");
-				return;
-			}
-		}
-
-		Truster truster = new Truster(core.getIdentities(), what, selectedMessage.getFrom());
-		truster.start();
 	}
 
 	/**
