@@ -495,6 +495,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                     sharer = addNewSharer(_owner, _pubkey);
                                     if( sharer == null ) // digest did not match, block file
                                     {
+                                    	Core.getOut().println("sharer was null... :(");
                                         unzippedTarget.delete();
                                         target.delete();
                                         index = findFreeDownloadIndex();
@@ -519,12 +520,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         if( sharer == null ||
                             Core.getFriends().containsKey(sharer.getUniqueName()) == false )
                         {
-                            // add only files from that user                            
+                            // add only files from that user        
+                            Core.getOut().println("adding only files from "+sharer.getUniqueName());                    
                             Index.add( receivedIndex, board, sharer.getUniqueName() );
                         }
                         else
                         {
                             // if user is, add all files
+							Core.getOut().println("adding all files from "+sharer.getUniqueName());
                             Index.add(unzippedTarget, board, sharer);
                         }
                         target.delete();
