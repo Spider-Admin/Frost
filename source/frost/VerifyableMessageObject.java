@@ -201,60 +201,57 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                 System.out.println("TOFDN: *** Message is NOT signed at all: "+currentMsg.getFrom());
                 currentMsg.setStatus(VerifyableMessageObject.OLD);
             }
+            //the message contains the CHK of a public key, see if we have this name on our list
+            else if( frame1.getFriends().containsKey(currentMsg.getFrom()) )
+            {
+                //yes, we have that person, see if the addreses are the same
+                currentId = frame1.getFriends().Get(currentMsg.getFrom());
+                //check if the key addreses are the same, verify
+                if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
+                    frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
+                {
+                    System.out.println("TOFDN: *** Message is signed by a FRIEND, set state to GOOD: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
+                }
+                else // verification FAILED!
+                {
+                    System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
+                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                }
+            }
+            else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
+            {
+                System.out.println("TOFDN: *** Message is from an EMEMY, set state to BAD: "+currentMsg.getFrom());
+                currentMsg.setStatus(VerifyableMessageObject.FAILED);
+            }
             else
-            { //the message contains the CHK of a public key
-                // see if we have this name on our list
-                if( frame1.getFriends().containsKey(currentMsg.getFrom()) )
-                {
-                    //yes, we have that person, see if the addreses are the same
-                    currentId = frame1.getFriends().Get(currentMsg.getFrom());
-                    //check if the key addreses are the same, verify
-                    if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
-                        frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
-                    {
-                        System.out.println("TOFDN: *** Message is signed by a FRIEND, set state to GOOD: "+currentMsg.getFrom());
-                        currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
-                    }
-                    else // verification FAILED!
-                    {
-                        System.out.println("TOFDN: *** Message seems to be from a FRIEND (from is equal), but signature is wrong; set state to N/A: "+currentMsg.getFrom());
-                        currentMsg.setStatus(VerifyableMessageObject.NA);
-                    }
+            {
+                //we don't have that person
+                //check if the message is authentic anyways
+                System.out.println("TOFDN: *** Don't found sender of message in our lists, checking message: "+currentMsg.getFrom() );
+                try {
+                    currentId =new Identity(currentMsg.getFrom(),currentMsg.getKeyAddress());
                 }
-                else if( frame1.getEnemies().containsKey(currentMsg.getFrom()) ) //we have the person, but he is blacklisted
-                {
-                    System.out.println("TOFDN: *** Message is from an EMEMY, set state to BAD: "+currentMsg.getFrom());
-                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                catch( IllegalArgumentException e ) {
+                    System.out.println("TODDN: *** IllegalArgumentException, set message state to N/A.");
+                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                    return;
                 }
-                else
-                {
-                    //we don't have that person
-                    //check if the message is authentic anyways
-                    System.out.println("TOFDN: *** Don't found sender of message in our lists, checking message: "+currentMsg.getFrom() );
-                    try {
-                        currentId =new Identity(currentMsg.getFrom(),currentMsg.getKeyAddress());
-                    }
-                    catch( IllegalArgumentException e ) {
-                        System.out.println("TODDN: *** IllegalArgumentException, set message state to N/A.");
-                        currentMsg.setStatus(VerifyableMessageObject.NA);
-                        return;
-                    }
 
-                    if( currentId.getKey() == Identity.NA )
-                    {
-                        System.out.println("TOFDN: *** Don't found public key of unknown sender, set state to N/A: "+currentMsg.getFrom() );
-                        currentMsg.setStatus(VerifyableMessageObject.NA);
-                    }
-                    else if( frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
-                    {
-                        System.out.println("TOFDN: *** Message of unknown sender is signed correctly, set state to CHECK: "+currentMsg.getFrom() );
-                        currentMsg.setStatus(VerifyableMessageObject.PENDING);
-                    }
-                    else //failed authentication, don't ask the user
-                    {
-                        System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to N/A: "+currentMsg.getFrom() );
-                        currentMsg.setStatus(VerifyableMessageObject.NA);
-                    }
+                if( currentId.getKey() == Identity.NA )
+                {
+                    System.out.println("TOFDN: *** Don't found public key of unknown sender, set state to N/A: "+currentMsg.getFrom() );
+                    currentMsg.setStatus(VerifyableMessageObject.NA);
+                }
+                else if( frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
+                {
+                    System.out.println("TOFDN: *** Message of unknown sender is signed correctly, set state to CHECK: "+currentMsg.getFrom() );
+                    currentMsg.setStatus(VerifyableMessageObject.PENDING);
+                }
+                else //failed authentication, don't ask the user
+                {
+                    System.out.println("TOFDN: *** Message of unknown sender is NOT signed correctly, set state to N/A: "+currentMsg.getFrom() );
+                    currentMsg.setStatus(VerifyableMessageObject.NA);
                 }
             }
         }
