@@ -99,6 +99,10 @@ public class SortedModel extends OrderedModel {
 		sourceModel = newSourceModel; 
 		tableFormat = newFormat;
 		
+		for (int i = 0; i < sourceModel.getItemCount(); i++) {
+			addItem(sourceModel.getItemAt(i));
+		}
+		
 		sourceModel.addOrderedModelListener(listener);
 	}
 
