@@ -79,9 +79,9 @@ public class SearchThread extends Thread {
         Vector singleRequests = getSingleRequests();
 
         synchronized(chk) {
-        Iterator i = chk.keySet().iterator();
+        Iterator i = chk.values().iterator();
         while (i.hasNext()) {
-            KeyClass key = (KeyClass)chk.get((String)i.next());
+            KeyClass key = (KeyClass)i.next();
             String filename = key.getFilename();
             boolean acceptFile = true;
             for (int j = 0; j < singleRequests.size(); j++) {
@@ -158,15 +158,17 @@ public class SearchThread extends Thread {
         today.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         for (int i = results.size() - 1; i >= 0; i--) {
-        KeyClass key = (KeyClass)results.elementAt(i);
-        GregorianCalendar keyCal = key.getCal();
+        	KeyClass key = (KeyClass)results.elementAt(i);
+		GregorianCalendar keyCal=null;
+		if (key.getDate() != null){
+        		keyCal = key.getCal();
 
-        keyCal.add(Calendar.DATE, + (age));
+        		keyCal.add(Calendar.DATE, + (age));
 
-        if (keyCal.before(today)) {
-            results.removeElementAt(i);
-        }
-
+        		if (keyCal.before(today)) {
+         	   		results.removeElementAt(i);
+        		}
+		}
         }
     }
 
@@ -224,6 +226,10 @@ public class SearchThread extends Thread {
             Long size = key.getSize();
             String date = key.getDate();
             String keyData = key.getKey();
+	    String SHA1 = key.getSHA1();
+	    
+	    if (SHA1 == null) 
+	    	System.err.println(" SHA1 null in SearchThread!!! ");
 
             int searchItemState = FrostSearchItemObject.STATE_NONE;
 
@@ -234,12 +240,12 @@ public class SearchThread extends Thread {
                 // file is already downloaded -> light_gray
                 searchItemState = FrostSearchItemObject.STATE_DOWNLOADED;
             }
-            else if( frame1.getInstance().getDownloadTable().containsItemWithKey( keyData ) )
+            else if( frame1.getInstance().getDownloadTable().containsItemWithKey( SHA1 ) )
             {
                 // this file is in download table -> blue
                 searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
             }
-            else if( frame1.getInstance().getUploadTable().containsItemWithKey( keyData ) )
+            else if( frame1.getInstance().getUploadTable().containsItemWithKey( SHA1 ) )
             {
                 // this file is in upload table -> green
                 searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;

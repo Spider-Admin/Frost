@@ -30,13 +30,16 @@ public class Index
      */
     public static int getUploadKeys(String board)
     {
+    
+    	final Map mine = Collections.synchronizedMap(new HashMap());
+	final Map total = Collections.synchronizedMap(new HashMap());
         System.out.println("Index.getUploadKeys(" + board + ")");
         Vector keys = new Vector();
         final String fileSeparator = System.getProperty("file.separator");
 
         // Abort if boardDir does not exist
-        File boardDir = new File(frame1.keypool + board);
-        if( !boardDir.isDirectory() )
+        File boardNewUploads = new File(frame1.keypool + board+fileSeparator+"sha_ids.exc");
+        if( !boardNewUploads.exists() )
             return 0;
 
         // Create boards tempDir if it does not exists
@@ -46,9 +49,9 @@ public class Index
 
         // Get a list of this boards index files
         // Abort if there are none
-        File[] index = boardDir.listFiles();
+        /*File[] index = boardDir.listFiles();
         if( index == null )
-            return 0;
+            return 0;*/
 
         // Generate temporary index from keyfiles
         File[] keypoolFiles = (new File(frame1.keypool)).listFiles();
@@ -89,20 +92,18 @@ public class Index
         // Now we compare each file of the original index
         // with it's tempIndex counterpart
         // Maps are funny and fast, we better use one here.
-        final Map chk = Collections.synchronizedMap(new HashMap());
+        
         StringBuffer keyFile = new StringBuffer();
         File[] tempFiles = tempDir.listFiles();
         int keyCount = 0;
 	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\""+
 			" pubkey = \""+frame1.getMyId()+"\">\n");
-        for( int i = 0; i < index.length; i++ )
-        {
-            if( index[i].getName().endsWith(".exc") )
-            {
-                chk.clear();
-                FileAccess.readKeyFile(index[i], chk, true);
-                FileAccess.readKeyFile(tempDir.getPath() + fileSeparator + index[i].getName(), chk, false);
+        
+
+        chk.clear();
+        FileAccess.readKeyFile(boardNewFiles, chk, true);
+        FileAccess.readKeyFile(tempDir.getPath() + fileSeparator + index[i].getName(), chk, false);
 
                 // Add keys that are still getExchange() == true to the
                 // keys Vector
@@ -160,20 +161,22 @@ public class Index
      */
     public static void add(KeyClass key, File target)
     {
-        final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
+        //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         final String fileSeparator = System.getProperty("file.separator");
         final String hash = key.getSHA1();
-	String firstLetter = ")";
-	if (key.getKey() != null)
-        	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
+	
+	//I'm removing the entire first letter thing.  
+	//String firstLetter = ")";
+	//if (key.getKey() != null)
+        //	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
         final Map chk = Collections.synchronizedMap(new HashMap());
 
         if( !target.isDirectory() )
             target.mkdir();
-        if( split.indexOf(firstLetter) == -1 )
-            firstLetter = "other";
+       // if( split.indexOf(firstLetter) == -1 )
+         //   firstLetter = "other";
 
-        File indexFile = new File(target.getPath()  + fileSeparator + firstLetter + ".exc");
+        File indexFile = new File(target.getPath()  + fileSeparator + "sha_ids.exc");
 
         FileAccess.readKeyFile(indexFile, chk, true);
         chk.put(hash, key);
@@ -188,7 +191,7 @@ public class Index
      */
     public static void add(File keyfile, File target)
     {
-        String oldFirstLetter = "";
+        //String oldFirstLetter = "";
         final Map chk = Collections.synchronizedMap(new HashMap());
         final Map chunk = Collections.synchronizedMap(new HashMap());
 
@@ -205,25 +208,25 @@ public class Index
                 KeyClass key = (KeyClass)i.next();
                 String hash = key.getSHA1();
 		
-		String firstLetter;
+	/*	String firstLetter;
 		if (key.getKey() != null)
                 	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
 		else
-			firstLetter ="(";
-                if( !firstLetter.equals(oldFirstLetter) )
-                {
+			firstLetter ="(";*/
+              //  if( !firstLetter.equals(oldFirstLetter) )
+              //  {
                     // System.out.print(".");
                     if( chunk.size() > 0 )
                     {
-                        add(chunk, target, oldFirstLetter);
+                        add(chunk, target);
                         chunk.clear();
                     }
-                    oldFirstLetter = firstLetter;
-                }
+                //    oldFirstLetter = firstLetter;
+               // }
                 chunk.put(hash, key);
             }
         }
-        add(chunk, target, oldFirstLetter);
+        add(chunk, target);
     }
 
     /**
@@ -233,9 +236,9 @@ public class Index
      * @param target directory containing index
      * @param firstLetter identifier for the keyfile
      */
-    protected static void add(Map chunk, File target, String firstLetter)
+    protected static void add(Map chunk, File target)
     {
-        final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
+        //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
         final String fileSeparator = System.getProperty("file.separator");
 
         if( !target.isDirectory() )
@@ -243,10 +246,10 @@ public class Index
 
         if( chunk.size() > 0 )
         {
-            if( split.indexOf(firstLetter) == -1 )
-                firstLetter = "other";
-            FileAccess.readKeyFile(new File(target.getPath() + fileSeparator + firstLetter + ".exc"), chunk, false);
-            FileAccess.writeKeyFile(chunk, new File(target.getPath() + fileSeparator + firstLetter + ".exc"));
+          /*  if( split.indexOf(firstLetter) == -1 )
+                firstLetter = "other";*/
+            FileAccess.readKeyFile(new File(target.getPath() + fileSeparator +"sha_ids.exc"), chunk, false);
+            FileAccess.writeKeyFile(chunk, new File(target.getPath() + fileSeparator + "sha_ids.exc"));
             chunk.clear();
         }
     }
