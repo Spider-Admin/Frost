@@ -222,7 +222,16 @@ public class insertThread extends Thread
                 }
                 uploadItem.setKey(chkkey);
                 
-                uploadItem.setState(this.nextState);
+                // test if the GetRequestsThread did set us the nextState field...
+                if( uploadItem.getNextState() > 0 )
+                {
+                    uploadItem.setState( uploadItem.getNextState() );
+                    uploadItem.setNextState(0); // reset nextState
+                }
+                else
+                {
+                    uploadItem.setState( this.nextState );
+                }
                 frame1.setGeneratingCHK(false);
             }
             ((UploadTableModel)frame1.getInstance().getUploadTable().getModel()).updateRow(uploadItem);

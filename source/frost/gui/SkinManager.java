@@ -26,7 +26,7 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 import java.util.*;
 import javax.swing.table.*;
-import java.io.*;
+// import java.io.*;
 
 public class SkinManager extends JFrame {
     //     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");

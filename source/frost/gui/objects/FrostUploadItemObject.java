@@ -26,6 +26,7 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     private String filePath = null;
     private Long fileSize = null;
     private int state = 0;
+    private int nextState = 0;
     private String lastUploadDate = null; // is null as long as NEVER uploaded
     private int uploadProgressTotalBlocks = -1;
     private int uploadProgressDoneBlocks = -1;
@@ -153,6 +154,21 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public void setState(int v)
     {
         state = v;
+    }
+    /**
+     * If nextState is set (value > 0), this is the next state for this icon.
+     * Currently used by GetRequestsThread if the requested item is
+     * currently ENCODING, insertThread will then set state to
+     * nextState after encoding.
+     * @return
+     */
+    public int getNextState()
+    {
+        return nextState;
+    }
+    public void setNextState(int v)
+    {
+        nextState = v;
     }
     public String getBatch() {
     	return batch;
