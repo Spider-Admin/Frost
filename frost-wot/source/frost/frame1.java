@@ -2525,13 +2525,21 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/newmessage.gif")));
             frame1inst.statusMessageLabel.setIcon(newMessage[0]);
-            frame1inst.setTitle("*Frost*");
+			// The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
+			if ((System.getProperty("os.name").startsWith("Windows")) == false )
+			{
+            	frame1inst.setTitle("*Frost*");
+			}
         }
         else
         {
             frame1inst.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
             frame1inst.statusMessageLabel.setIcon(newMessage[1]);
-            frame1inst.setTitle("Frost");
+			// The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
+			if ((System.getProperty("os.name").startsWith("Windows")) == false )
+			{
+				frame1inst.setTitle("Frost");
+			}
         }
     }
 
