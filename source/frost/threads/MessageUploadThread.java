@@ -240,6 +240,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                .append(fileSeparator)
                                                .append(DateFun.getDate())
                                                .append(fileSeparator).toString();
+        File makedir = new File(destination);
+        if( !makedir.exists() )
+        {
+            makedir.mkdirs();
+        }
 
         while( retry )
         {
