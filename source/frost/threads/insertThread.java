@@ -60,21 +60,14 @@ public class insertThread extends Thread
                                        mode,
                                        board.getBoardFilename());
 
-            if( result[0].equals("Success") )
+            if( result[0].equals("Success") || result[0].equals("KeyCollision") )
             {
                 success = true;
                 System.out.println("Upload of " + file + " successfull.");
 		uploadItem.setKey(result[1]);
 		lastUploadDate=currentDate;
             }
-            else if( result[0].equals("KeyCollision") )
-            {
-                // collided means file is already in freenet
-                success = true;
-                System.out.println("Upload of " + file + " collided.");
-		uploadItem.setKey(result[1]);
-		lastUploadDate = uploadItem.getLastUploadDate();
-            }
+            
 	    
 	    // item uploaded (maybe)
             uploadItem.setLastUploadDate( lastUploadDate ); // if NULL then upload failed -> shows NEVER in table
