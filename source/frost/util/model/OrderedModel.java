@@ -26,7 +26,6 @@ public class OrderedModel extends Model {
 	public OrderedModel() {
 		super();
 		data = new ArrayList();
-
 	}
 	
 	/* (non-Javadoc)
@@ -35,6 +34,18 @@ public class OrderedModel extends Model {
 	protected void addItem(ModelItem item) {
 		synchronized(data) {
 			data.add(item);
+			fireItemAdded(item);
+		}
+		item.setModel(this);
+	}
+	
+	/**
+	 * @param item
+	 * @param position
+	 */
+	protected void addItem(ModelItem item, int position) {
+		synchronized(data) {
+			data.add(position, item);
 			fireItemAdded(item);
 		}
 		item.setModel(this);
