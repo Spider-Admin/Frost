@@ -18,6 +18,7 @@ import fillament.util.*;
  */
 
 // TODO: mark checked blocks marked and dont recheck them on every download
+// check nextDownload behaviour!
 public class FcpRequest
 {
     final static boolean DEBUG = true;
