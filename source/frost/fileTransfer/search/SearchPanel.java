@@ -297,7 +297,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		 */
 		public void itemChanged(ModelItem item, int fieldID, Object oldValue, Object newValue) {
 			// Nothing here
-			
 		}
 
 		/* (non-Javadoc)
@@ -305,7 +304,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		 */
 		public void itemChanged(ModelItem item) {
 			// Nothing here
-			
 		}
 
 		/* (non-Javadoc)
@@ -432,6 +430,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 			modelTable.getTable().getSelectionModel().addListSelectionListener(listener);
+			model.addModelListener(listener);
 			
 			initialized = true;
 		}
