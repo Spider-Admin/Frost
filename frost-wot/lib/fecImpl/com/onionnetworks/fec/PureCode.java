@@ -19,7 +19,7 @@ public class PureCode extends FECCode {
     public static final int FEC_MAGIC = 0xFECC0DEC;
     protected static final FECMath fecMath = new FECMath(8);
     protected char[] encMatrix;
-    
+
     //create a new encoder. This contains n,k and the encoding matrix.
     public PureCode(int k, int n) {
         this(k,n,fecMath.createEncodeMatrix(k,n));
@@ -35,14 +35,14 @@ public class PureCode extends FECCode {
      * and produces as output a packet pointed to by fec, computed
      * with index "index".
      */
-    protected void encode(byte[][] src, int[] srcOff, byte[][] repair, 
+    protected void encode(byte[][] src, int[] srcOff, byte[][] repair,
                           int[] repairOff, int[] index, int packetLength) {
         for (int i=0;i<repair.length;i++) {
             encode(src,srcOff,repair[i],repairOff[i],index[i],packetLength);
         }
     }
 
-    protected void encode(byte[][] src, int[] srcOff, byte[] repair, 
+    private void encode(byte[][] src, int[] srcOff, byte[] repair,
                           int repairOff, int index, int packetLength) {
         // *remember* indices start at 0, k starts at 1.
         if (index < k) { // < k, systematic so direct copy.
@@ -52,14 +52,15 @@ public class PureCode extends FECCode {
             int pos = index*k;
             Util.bzero(repair,repairOff,packetLength);
             for (int i=0; i<k ; i++) {
+// TODO: remove method call, compute directly here ...
                 fecMath.addMul(repair,repairOff,src[i],srcOff[i],
-                                   (byte) encMatrix[pos+i],packetLength);
+                                   (byte)encMatrix[pos+i],packetLength);
             }
-        } 
+        }
     }
-    
-    protected void decode(byte[][] pkts, int[] pktsOff, int[] index, 
-                          int packetLength, boolean shuffled) {                
+
+    protected void decode(byte[][] pkts, int[] pktsOff, int[] index,
+                          int packetLength, boolean shuffled) {
         // This may be the second time shuffle has been called, if so
         // this is ok because it will quickly determine that things are in
         // order.  The previous shuffles may have been necessary to keep
@@ -69,14 +70,14 @@ public class PureCode extends FECCode {
         }
 
         char[] decMatrix = fecMath.createDecodeMatrix(encMatrix,index,k,n);
-        
+
         // do the actual decoding..
         byte[][] tmpPkts = new byte[k][];
         for (int row=0; row<k; row++) {
             if (index[row] >= k) {
                 tmpPkts[row] = new byte[packetLength];
                 for (int col=0 ; col<k ; col++) {
-                    fecMath.addMul(tmpPkts[row],0,pkts[col],pktsOff[col], 
+                    fecMath.addMul(tmpPkts[row],0,pkts[col],pktsOff[col],
                                    (byte) decMatrix[row*k + col],
                                    packetLength);
                 }
@@ -92,7 +93,7 @@ public class PureCode extends FECCode {
             }
         }
     }
-    
+
     public String toString() {
         return new String("PureCode[k="+k+",n="+n+"]");
     }

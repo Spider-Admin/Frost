@@ -246,7 +246,7 @@ public class FECMath {
         if (c == 0) {
             return;
         }
-//        int unroll = 16; // unroll the loop 16 times.
+        int unroll = 16; // unroll the loop 16 times.
         int i = dstPos;
         int j = srcPos;
         int lim = dstPos + len;
@@ -259,12 +259,11 @@ public class FECMath {
 
             // Not sure if loop unrolling has any real benefit in Java, but
             // what the hey.
-//            for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
-            for (;i < lim; i++, j++) {
+            for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
                 // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
 
                 dst[i] ^= gf_mulc[src[j]];
-/*                dst[i+1] ^= gf_mulc[src[j+1]];
+                dst[i+1] ^= gf_mulc[src[j+1]];
                 dst[i+2] ^= gf_mulc[src[j+2]];
                 dst[i+3] ^= gf_mulc[src[j+3]];
                 dst[i+4] ^= gf_mulc[src[j+4]];
@@ -278,17 +277,15 @@ public class FECMath {
                 dst[i+12] ^= gf_mulc[src[j+12]];
                 dst[i+13] ^= gf_mulc[src[j+13]];
                 dst[i+14] ^= gf_mulc[src[j+14]];
-                dst[i+15] ^= gf_mulc[src[j+15]];*/
+                dst[i+15] ^= gf_mulc[src[j+15]];
             }
 
             // final components
             for (;i < lim; i++, j++) {
                 dst[i] ^= gf_mulc[src[j]];
             }
-
         } else { // gfBits > 8, no multiplication table
             int mulcPos = gf_log[c];
-
             // unroll your own damn loop.
             int y;
             for (;i < lim;i++,j++) {
@@ -306,90 +303,123 @@ public class FECMath {
      * The case c=0 is also optimized, whereas c=1 is not. These
      * calls are unfrequent in my typical apps so I did not bother.
      *
+     * This would be much faster if using int arrays. But this would
+     * need 4 times as much memory ...
+     * Currently the processing needs max. 128 blocks * 131072 bytes (stripe) +
+     * 64 checkblocks * 131072 bytes = 16MB + 8MB = 24MB
+     * Using int this would need 4*24MB = 96MB
      */
-    public final void addMul(byte[] dst, int dstPos, byte[] src,
-                             int srcPos, byte c, int len) {
+    public final void addMul(byte[] dst, final int dstPos, byte[] _src,
+                             final int srcPos, final byte c, final int len) {
         // nop, optimize
         if (c == 0) {
             return;
         }
-// hmm, the Intel Pentium cpu likes this unrolling -> much faster
-// but the AMD XP cpu seems not to like it, this cpu is faster without unrolling it
-// tested with sun java 1.4.2
 
         final int unroll = 16; // unroll the loop 16 times.
-        int i = dstPos;
-        int j = srcPos;
         final int lim = dstPos + len;
         final int unrolledLoopEnd = lim - (len % unroll);
+
+        final byte[] src = _src; // local var for faster access
 
         // use our multiplication table.
         // Instead of doing gf_mul_table[c,x] for multiply, we'll save
         // the gf_mul_table[c] to a local variable since it is going to
         // be used many times.
-        char[] gf_mulc = gf_mul_table[c & 0xff];
+        final char[] gf_mulc = gf_mul_table[c & 0xff];
 
-        // Not sure if loop unrolling has any real benefit in Java, but
-        // what the hey.
-//        for (;i < lim && (lim-i) > unroll; ){//i += unroll, j += unroll) {
-//        for (;i < lim;){// i++, j++) {
-        for (;i < unrolledLoopEnd;) {
-            // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
-
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            i++; j++;
-
-/*            dst[i] ^= gf_mulc[ src[j] & 0xff ];
-            dst[i+1] ^= gf_mulc[src[j+1] & 0xff];
-            dst[i+2] ^= gf_mulc[src[j+2] & 0xff];
-            dst[i+3] ^= gf_mulc[src[j+3] & 0xff];
-            dst[i+4] ^= gf_mulc[src[j+4] & 0xff];
-            dst[i+5] ^= gf_mulc[src[j+5] & 0xff];
-            dst[i+6] ^= gf_mulc[src[j+6] & 0xff];
-            dst[i+7] ^= gf_mulc[src[j+7] & 0xff];
-            dst[i+8] ^= gf_mulc[src[j+8] & 0xff];
-            dst[i+9] ^= gf_mulc[src[j+9] & 0xff];
-            dst[i+10] ^= gf_mulc[src[j+10] & 0xff];
-            dst[i+11] ^= gf_mulc[src[j+11] & 0xff];
-            dst[i+12] ^= gf_mulc[src[j+12] & 0xff];
-            dst[i+13] ^= gf_mulc[src[j+13] & 0xff];
-            dst[i+14] ^= gf_mulc[src[j+14] & 0xff];
-            dst[i+15] ^= gf_mulc[src[j+15] & 0xff];*/
+        // Not sure if loop unrolling has any real benefit in Java, but what the hey.
+        if( dstPos == srcPos )
+        {
+            int i = dstPos;
+            // we can optimize: use only 1 counter variable
+            while(i < unrolledLoopEnd) {
+                // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+                dst[i] ^= gf_mulc[ src[i] & 0xff ];
+                i++;
+            }
+            // final components
+            while(i < lim) {
+                dst[i] ^= gf_mulc[src[i] & 0xff];
+                i++;
+            }
+            return;
         }
-
-        // final components
-        for (;i < lim; i++, j++) {
-            dst[i] ^= gf_mulc[src[j] & 0xff];
+        else
+        {
+            int i = dstPos;
+            int j = srcPos;
+            while(i < unrolledLoopEnd) {
+                // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+                dst[i] ^= gf_mulc[ src[j] & 0xff ];
+                i++; j++;
+            }
+            // final components
+            while(i < lim) {
+                dst[i] ^= gf_mulc[src[j] & 0xff];
+                i++; j++;
+            }
+            return;
         }
     }
 
