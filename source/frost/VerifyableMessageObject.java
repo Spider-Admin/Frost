@@ -90,7 +90,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
     /** set the status */
     public void setStatus(String newStatus)
     {
-        System.out.println("setting message status to "+newStatus);
+        //System.out.println("setting message status to "+newStatus);
         currentStatus = newStatus;
         FileAccess.writeFile(currentStatus,file.getPath() + ".sig");
     }

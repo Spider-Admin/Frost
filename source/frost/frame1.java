@@ -1666,7 +1666,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     private class Truster extends Thread
     {
         private Boolean trust;
-        private Identity newFriend;
+        private Identity newIdentity;
         private VerifyableMessageObject currentMsg;
 
         public Truster(Boolean what, VerifyableMessageObject msg)
@@ -1684,48 +1684,62 @@ public class frame1 extends JFrame implements ClipboardOwner
             else if( trust.booleanValue() == true ) newState = "GOOD";
             else newState = "BAD";
 
-            System.out.println("Truster: starting to update messages, setting '"+
+            System.out.println("Truster: Setting '"+
                                from+
                                "' to '"+
-                               newState);
-
+                               newState+
+                               "'.");
 
             if( trust == null )
             {
                 // set enemy/friend to CHECK
+                newIdentity=friends.Get(from);
+                if( newIdentity==null )
+                    newIdentity=enemies.Get(from);
+
                 friends.remove( from );
                 enemies.remove( from );
             }
             else if( friends.containsKey(from) && trust.booleanValue() == false )
             {
                 // set friend to bad
-                Identity o = friends.Get(from);
+                newIdentity = friends.Get(from);
                 friends.remove( from );
-                enemies.Add( o );
+                enemies.Add( newIdentity );
             }
             else if( enemies.containsKey(from) && trust.booleanValue() == true )
             {
                 // set enemy to good
-                Identity o = enemies.Get(from);
-                enemies.remove( o );
-                friends.Add( o );
+                newIdentity = enemies.Get(from);
+                enemies.remove( newIdentity );
+                friends.Add( newIdentity );
             }
             else
             {
                 // new new enemy/friend
-                newFriend = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
+                newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
                 if( trust.booleanValue() )
-                    friends.Add(newFriend);
+                    friends.Add(newIdentity);
                 else
-                    enemies.Add(newFriend);
+                    enemies.Add(newIdentity);
+            }
+
+            if( newIdentity == null || Identity.NA.equals( newIdentity.getKey() ) )
+            {
+                System.out.println("Truster - ERROR: could not get public key for '"+currentMsg.getFrom()+"'");
+                System.out.println("Truster: Will stop to set message states!!!");
+                return;
             }
 
             // get all .txt files in keypool
             ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
                                                        ".txt");
+            System.out.println("Truster: Starting to update messages:");
+
             for( int ii=0; ii<entries.size(); ii++ )
             {
-                FrostMessageObject tempMsg = new FrostMessageObject( (File)entries.get(ii) );
+                File msgFile = (File)entries.get(ii);
+                FrostMessageObject tempMsg = new FrostMessageObject( msgFile );
                 if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
                     (
                       tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) ||
@@ -1734,12 +1748,25 @@ public class frame1 extends JFrame implements ClipboardOwner
                     )
                   )
                 {
-                    if( trust == null )
-                        tempMsg.setStatus(VerifyableMessageObject.PENDING);
-                    else if( trust.booleanValue() )
-                        tempMsg.setStatus(VerifyableMessageObject.VERIFIED);
+                    // check if message is correctly signed
+                    if( newIdentity.getKeyAddress().equals( tempMsg.getKeyAddress() ) &&
+                        getCrypto().verify(tempMsg.getContent(), newIdentity.getKey()) )
+                    {
+                        // set new state of message
+                        if( trust == null )
+                            tempMsg.setStatus(VerifyableMessageObject.PENDING);
+                        else if( trust.booleanValue() )
+                            tempMsg.setStatus(VerifyableMessageObject.VERIFIED);
+                        else
+                            tempMsg.setStatus(VerifyableMessageObject.FAILED);
+
+                        System.out.print("."); // progress
+                    }
                     else
-                        tempMsg.setStatus(VerifyableMessageObject.FAILED);
+                    {
+                        System.out.println("\n!Truster: Could not verify message, maybe the message is faked!" +
+                                           " Message state NOT changed for '"+msgFile.getPath()+"'.");
+                    }
                 }
             }
             // finally step through all board files, count new messages and delete new messages from enemies
@@ -1750,7 +1777,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     {
                         tofTree_actionPerformed(null);
                     } });
-            System.out.println("Truster: finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
+            System.out.println("\nTruster: Finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
                                newState+"'");
         }
     }
