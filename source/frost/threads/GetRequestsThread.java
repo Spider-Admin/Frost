@@ -30,11 +30,11 @@ import frost.FcpTools.*;
 /**
  * Downloads file requests
  */
- 
- 
+
 public class GetRequestsThread extends Thread
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+    static java.util.ResourceBundle LangRes =
+        java.util.ResourceBundle.getBundle("res.LangRes");
 
     //public FrostBoardObject board;
     private int downloadHtl;
@@ -50,170 +50,237 @@ public class GetRequestsThread extends Thread
 
     public void run()
     {
-       // notifyThreadStarted(this);
-        try {
-
-        // Wait some random time to speed up the update of the TOF table
-        // ... and to not to flood the node
-        int waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
-        mixed.wait(waitTime);
-
-        GregorianCalendar cal= new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-        String dirdate = DateFun.getDate();
-
-        /*destination = new StringBuffer().append(keypool)
-                        .append(board.getBoardFilename()).append(fileSeparator)
-                        .append(dirdate).append(fileSeparator).toString();*/
-	
-	//yes mister spammer, this is a special for you!
-	destination = new StringBuffer().append("requests")
-			.append(fileSeparator)
-			.append(mixed.makeFilename(frame1.getMyId().getUniqueName())).toString();
-
-        File makedir = new File(destination);
-        if( !makedir.exists() )
+        // notifyThreadStarted(this);
+        try
         {
-            Core.getOut().println(Thread.currentThread().getName()+ ": Creating directory: " + destination);
-            makedir.mkdirs();
-        }
 
-        if( isInterrupted() )
-        {
-            //notifyThreadFinished(this);
-            return;
-        }
-	
-	//start the request loop
-	while (true) {
-	dirdate = DateFun.getDate();
-	mixed.wait(15*60*1000);
-	if (Core.getMyBatches().isEmpty()) continue; //do not start requesting until the user has shared something
-	try{
-	Iterator it = frame1.getMyBatches().keySet().iterator();
-	while (it.hasNext()) {
-	String currentBatch = (String)it.next();
-        int index = 0;
-        int failures = 0;
-        int maxFailures = 3; // increased, skips now up to 3 request indicies (in case if gaps occured)
-        while( failures < maxFailures )
-        {
-            String val = new StringBuffer().append(destination)
-	    				   .append(fileSeparator)
-					   .append(currentBatch)
-                                           .append("-")
-                                           .append(dirdate)
-                                           .append("-")
-                                           .append(index)
-                                           .append(".req.sha").toString();
-            File testMe = new File(val);
-            boolean justDownloaded = false;
+            // Wait some random time to speed up the update of the TOF table
+            // ... and to not to flood the node
+            int waitTime = (int) (Math.random() * 5000);
+            // wait a max. of 5 seconds between start of threads
+            mixed.wait(waitTime);
 
-            // already downloaded ?
-            if( testMe.length() > 0 )
+            GregorianCalendar cal = new GregorianCalendar();
+            cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+
+            String dirdate = DateFun.getDate();
+
+            /*destination = new StringBuffer().append(keypool)
+                            .append(board.getBoardFilename()).append(fileSeparator)
+                            .append(dirdate).append(fileSeparator).toString();*/
+
+            //yes mister spammer, this is a special for you!
+            destination =
+                new StringBuffer()
+                    .append("requests")
+                    .append(fileSeparator)
+                    .append(
+                        mixed.makeFilename(frame1.getMyId().getUniqueName()))
+                    .toString();
+
+            File makedir = new File(destination);
+            if (!makedir.exists())
             {
-                index++;
-                failures = 0;
-		continue;
+                Core.getOut().println(
+                    Thread.currentThread().getName()
+                        + ": Creating directory: "
+                        + destination);
+                makedir.mkdirs();
             }
-            else
+
+            if (isInterrupted())
             {
-                String tmp = new StringBuffer().append("GetRequestsThread.run, file = ")
+                //notifyThreadFinished(this);
+                return;
+            }
+
+            //start the request loop
+            mixed.wait(60 * 1000); // wait 1 min before first start
+            boolean firstRun = true;
+            while (true)
+            {
+                dirdate = DateFun.getDate();
+                if( firstRun )
+                {
+                    firstRun = false;
+                }
+                else
+                {
+                    mixed.wait(15 * 60 * 1000);
+                }
+                if (Core.getMyBatches().isEmpty())
+                    continue;
+                //do not start requesting until the user has shared something
+                try
+                {
+                    Iterator it = frame1.getMyBatches().keySet().iterator();
+                    while (it.hasNext())
+                    {
+                        String currentBatch = (String)it.next();
+                        int index = 0;
+                        int failures = 0;
+                        int maxFailures = 3;
+                        // increased, skips now up to 3 request indicies (in case if gaps occured)
+                        while (failures < maxFailures)
+                        {
+                            String val =
+                                new StringBuffer()
+                                    .append(destination)
+                                    .append(fileSeparator)
+                                    .append(currentBatch.trim())
+                                    .append("-")
+                                    .append(dirdate)
+                                    .append("-")
+                                    .append(index)
+                                    .append(".req.sha")
+                                    .toString();
+                            File testMe = new File(val);
+                            boolean justDownloaded = false;
+
+                            // already downloaded ?
+                            if (testMe.length() > 0)
+                            {
+                                index++;
+                                failures = 0;
+                                continue;
+                            }
+                            else
+                            {
+                                String tmp =
+                                    new StringBuffer()
+                                        .append("GetRequestsThread.run, file = ")
                                         .append(testMe.getName())
                                         .append(", failures = ")
-                                        .append(failures).toString();
-                Core.getOut().println( tmp );
+                                        .append(failures)
+                                        .toString();
+                                Core.getOut().println(tmp);
 
-                FcpRequest.getFile("KSK@frost/request/" +
-                                   frame1.frostSettings.getValue("messageBase") + "/" +
-				   frame1.getMyId().getUniqueName() + "-"+
-				   testMe.getName(),
-                                   null,
-                                   testMe,
-                                   downloadHtl,
-                                   false);
-                justDownloaded = true;
-            }
+                                FcpRequest.getFile(
+                                    "KSK@frost/request/"
+                                        + frame1.frostSettings.getValue(
+                                            "messageBase")
+                                        + "/"
+                                        + frame1.getMyId().getUniqueName()
+                                        + "-"
+                                        + testMe.getName(),
+                                    null,
+                                    testMe,
+                                    downloadHtl,
+                                    false);
+                                justDownloaded = true;
+                            }
 
-            // Download successful?
-            if( testMe.length() > 0 /* && justDownloaded */ )
-            {
-                Core.getOut().println(Thread.currentThread().getName()+" Received request " + testMe.getName());
-
-                String content = (FileAccess.readFileRaw(testMe)).trim();
-                Core.getOut().println("Request content is " + content);
-                UploadTableModel tableModel = (UploadTableModel)uploadTable.getModel();
-                int rowCount = tableModel.getRowCount();
-
-                for( int i = 0; i < rowCount; i++ )
-                {
-                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow(i);
-                    String SHA1 = ulItem.getSHA1();
-		    if (SHA1==null) continue;
-		    else SHA1=SHA1.trim();
-                    if( SHA1.equals(content) )
-                    {
-                        // FIXED: 1st: there is never such a file written (using SHA1 in name)
-                        // are you sure?  I've seen it written several times --zab  ->> tell me where!
-                        //        2nd: is'nt it possible to use uploadItem.getLastUploadData for this?
-                        // probably, this .lck thing is jantho's style 
-                        File requestLock = new File(destination + SHA1 + ".lck");
-                        if( !requestLock.exists() )
-                        {
-                            // for handling of ENCODING state see ulItem.getNextState() javadoc                            
-                            // changing state ENCODING_REQUESTED to REQUESTED is ok!
-                            if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
-                                ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
-				                ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
+                            // Download successful?
+                            if (testMe.length() > 0 /* && justDownloaded */
+                                )
                             {
-                                Core.getOut().println("Request matches row " + i);
-                                if( ulItem.getState() == FrostUploadItemObject.STATE_ENCODING )
+                                Core.getOut().println(
+                                    Thread.currentThread().getName()
+                                        + " Received request "
+                                        + testMe.getName());
+
+                                String content =
+                                    (FileAccess.readFileRaw(testMe)).trim();
+                                Core.getOut().println(
+                                    "Request content is " + content);
+                                UploadTableModel tableModel =
+                                    (UploadTableModel)uploadTable.getModel();
+                                int rowCount = tableModel.getRowCount();
+
+                                for (int i = 0; i < rowCount; i++)
                                 {
-                                    ulItem.setNextState( FrostUploadItemObject.STATE_REQUESTED );
+                                    FrostUploadItemObject ulItem =
+                                        (
+                                            FrostUploadItemObject)tableModel
+                                                .getRow(
+                                            i);
+                                    String SHA1 = ulItem.getSHA1();
+                                    if (SHA1 == null)
+                                        continue;
+                                    else
+                                        SHA1 = SHA1.trim();
+                                    if (SHA1.equals(content))
+                                    {
+                                        // FIXED: 1st: there is never such a file written (using SHA1 in name)
+                                        // are you sure?  I've seen it written several times --zab  ->> tell me where!
+                                        //        2nd: is'nt it possible to use uploadItem.getLastUploadData for this?
+                                        // probably, this .lck thing is jantho's style 
+                                        File requestLock =
+                                            new File(
+                                                destination + SHA1 + ".lck");
+                                        if (!requestLock.exists())
+                                        {
+                                            // for handling of ENCODING state see ulItem.getNextState() javadoc                            
+                                            // changing state ENCODING_REQUESTED to REQUESTED is ok!
+                                            if (ulItem.getState()
+                                                != FrostUploadItemObject
+                                                    .STATE_UPLOADING
+                                                && ulItem.getState()
+                                                    != FrostUploadItemObject
+                                                        .STATE_PROGRESS
+                                                && ulItem.getBatch().equals(
+                                                    currentBatch)) //TOTHINK: this is optional
+                                            {
+                                                Core.getOut().println(
+                                                    "Request matches row " + i);
+                                                if (ulItem.getState()
+                                                    == FrostUploadItemObject
+                                                        .STATE_ENCODING)
+                                                {
+                                                    ulItem.setNextState(
+                                                        FrostUploadItemObject
+                                                            .STATE_REQUESTED);
+                                                }
+                                                else
+                                                {
+                                                    ulItem.setState(
+                                                        FrostUploadItemObject
+                                                            .STATE_REQUESTED);
+                                                }
+                                                tableModel.updateRow(ulItem);
+                                            }
+                                        }
+                                        else
+                                        {
+                                            Core.getOut().println(
+                                                "File with hash "
+                                                    + SHA1
+                                                    + " was requested, but already uploaded today");
+                                        }
+                                    }
                                 }
-                                else
-                                {
-                                    ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
-                                }
-                                tableModel.updateRow( ulItem );
+                                index++;
+                                failures = 0;
+                            }
+                            else
+                            {
+                                index++;
+                                // this now skips gaps in requests, but gives each download only 1 try
+                                failures++;
+                            }
+                            if (isInterrupted())
+                            {
+                                break;
                             }
                         }
-                        else
-                        {
-                            Core.getOut().println("File with hash " + SHA1 + " was requested, but already uploaded today");
-                        }
-                    }
-                }
-                index++;
-                failures = 0;
-            }
-            else
-            {
-                index++; // this now skips gaps in requests, but gives each download only 1 try
-                failures++;
-            }
-            if( isInterrupted() )
-            {
-                break;
-            }
-        }
 
-        }
-	
-	
-	}catch(ConcurrentModificationException e) {
-		continue;
-	}
-	}
-	} //people with nice ides can refactor :-P
-        catch(Throwable t)
+                    }
+
+                }
+                catch (ConcurrentModificationException e)
+                {
+                    continue;
+                }
+            }
+        } //people with nice ides can refactor :-P
+        catch (Throwable t)
         {
-            Core.getOut().println(Thread.currentThread().getName()+": Oo. EXCEPTION in GetRequestsThread:");
+            Core.getOut().println(
+                Thread.currentThread().getName()
+                    + ": Oo. EXCEPTION in GetRequestsThread:");
             t.printStackTrace(Core.getOut());
         }
-	
-	
+
         //notifyThreadFinished(this);
     }
 
