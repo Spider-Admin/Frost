@@ -48,28 +48,18 @@
 package com.l2fprod.gui.plaf.skin;
 
 import java.awt.*;
-import java.awt.Color;
-import java.awt.Font;
-import java.awt.SystemColor;
-import java.awt.event.InputEvent;
 import java.awt.event.KeyEvent;
-import java.io.BufferedInputStream;
-import java.io.ByteArrayInputStream;
-import java.io.ByteArrayOutputStream;
-import java.io.File;
-import java.io.InputStream;
-import java.io.Serializable;
+import java.io.*;
 import java.net.URL;
 import java.util.*;
+
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.plaf.*;
-import javax.swing.plaf.basic.*;
-import javax.swing.plaf.metal.MetalLookAndFeel;
-import javax.swing.text.DefaultEditorKit;
-import javax.swing.text.JTextComponent;
+import javax.swing.plaf.basic.BasicLookAndFeel;
+import javax.swing.text.*;
 
-import com.l2fprod.contrib.nanoxml.*;
+import com.l2fprod.contrib.nanoxml.XMLElement;
 import com.l2fprod.gui.plaf.skin.impl.gtk.GtkSkin;
 import com.l2fprod.gui.plaf.skin.impl.kde.KdeSkin;
 import com.l2fprod.util.*;
@@ -279,6 +269,8 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
     Object treeCollapsedIcon = SkinTreeUI.CollapsedIcon.createCollapsedIcon();
 
     Object checkIcon = new SkinCheckBoxIcon();
+    
+	Border buttonBorder = new BorderUIResource.EmptyBorderUIResource(0,0,0,0);
 
     Object[] defaults = {
       //  	    // Buttons
@@ -287,6 +279,7 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
       "Button.dashedRectGapWidth", new Integer(10),
       "Button.dashedRectGapHeight", new Integer(8),
       "Button.textShiftOffset", new Integer(1),
+	  "Button.border", buttonBorder,
       "Desktop.background", table.get("desktop"),
       "ToggleButton.textShiftOffset", new Integer(1),
       "CheckBoxMenuItem.checkIcon", checkIcon,
