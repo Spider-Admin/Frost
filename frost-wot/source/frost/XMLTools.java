@@ -90,6 +90,11 @@ public class XMLTools
         {
             // Create a builder factory
             DocumentBuilderFactory factory = DocumentBuilderFactory.newInstance();
+            factory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
+            factory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
+            factory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
+			factory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
+			factory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
             factory.setValidating(validating);
 
             // Create the builder and parse the file
