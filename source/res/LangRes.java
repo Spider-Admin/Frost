@@ -601,7 +601,11 @@ public class LangRes extends ListResourceBundle {
 	{"Frost was not able to upload your message.", "Frost was not able to upload your message."},
 	{"Retry", "Retry"},
 	{"Retry on next startup", "Retry on next startup"},
-	{"Discard message", "Discard message"}
+	{"Discard message", "Discard message"},
+	
+	//AttachedBoardTableModel
+	{"Board Name", "Board name"},
+	{"Access rights", "Access rights"}
 		
     };
 }

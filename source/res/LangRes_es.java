@@ -432,7 +432,11 @@ static final Object[][] contents = {
 	{"Frost was not able to upload your message.", "Frost no pudo subir tu mensaje."},
 	{"Retry", "Reintentar"},
 	{"Retry on next startup", "Reintentar en el próximo arranque"},
-	{"Discard message", "Descartar mensaje"}
+	{"Discard message", "Descartar mensaje"},
+	
+	//AttachedBoardTableModel
+	{"Board Name", "Nombre del foro"},
+	{"Access rights", "Derechos de acceso"}
 	
 	};
 }

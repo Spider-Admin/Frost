@@ -1013,12 +1013,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
 
 				// build attached files scroll pane
-				AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
+				AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel(languageResource);
+				languageResource.addLanguageListener(attachmentTableModel);
 				filesTable = new JTable(attachmentTableModel);
 				filesTableScrollPane = new JScrollPane(filesTable);
 
 				// build attached boards scroll pane
-				AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
+				AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel(languageResource);
+				languageResource.addLanguageListener(boardTableModel);
 				boardsTable = new JTable(boardTableModel);
 				boardsTableScrollPane = new JScrollPane(boardsTable);
 
