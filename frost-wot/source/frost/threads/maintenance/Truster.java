@@ -50,6 +50,8 @@ public class Truster extends Thread
         if( trust == null )
         {
          
+        		newIdentity = Core.friends.Get(from);
+        		if (newIdentity==null) newIdentity = Core.enemies.Get(from);
                 Core.friends.remove( from );
                 Core.enemies.remove( from );
                 Core.getNeutral().Add(newIdentity);
@@ -95,6 +97,8 @@ public class Truster extends Thread
         for( int ii=0; ii<entries.size(); ii++ )
         {
             File msgFile = (File)entries.get(ii);
+            if (msgFile.getName().equals("files.xml")) continue;
+            if (msgFile.getName().equals("new_files.xml")) continue;
             FrostMessageObject tempMsg = null;
             try {
             tempMsg = new FrostMessageObject( msgFile );

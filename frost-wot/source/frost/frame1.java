@@ -1032,6 +1032,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JMenuItem msgTablePopupMarkAllMessagesRead = null;
 	JMenuItem msgTablePopupSetGood = null;
 	JMenuItem msgTablePopupSetBad = null;
+	JMenuItem msgTablePopupSetCheck = null;
 	JMenuItem msgTablePopupCancel = null;
 
 	public static Hashtable getMyBatches() {
@@ -2056,7 +2057,69 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			}
 		});
 		
+		msgTablePopupSetGood =
+			new JMenuItem(languageResource.getString("help user (sets to GOOD)"));
+		msgTablePopupSetGood.addActionListener( new ActionListener(){
+			public void actionPerformed(ActionEvent e) {
+				setMessageTrust(new Boolean(true));
+			}
+		});
+		
+		msgTablePopupSetBad =
+				new JMenuItem(languageResource.getString("block user (sets to BAD)"));
+			msgTablePopupSetBad.addActionListener( new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					setMessageTrust(new Boolean(false));
+				}
+			});
+		
+		msgTablePopupSetCheck =
+			new JMenuItem(languageResource.getString("set to neutral (CHECK)"));
+				msgTablePopupSetCheck.addActionListener( new ActionListener(){
+				public void actionPerformed(ActionEvent e) {
+					setMessageTrust(null);
+				}
+			});
+		
 		msgTablePopupCancel = new JMenuItem(languageResource.getString("Cancel")); 
+	}
+	
+	private void setMessageTrust(Boolean what){
+		int row = messageTable.getSelectedRow();
+		if (row < 0 || selectedMessage==null)
+				return;
+				
+		String status = selectedMessage.getStatus();
+				
+		if(status.indexOf(VerifyableMessageObject.PENDING)>-1) {
+			Identity owner = Core.getNeutral().Get(selectedMessage.getFrom());
+			if (owner ==null) {
+				Core.getOut().println("message was CHECK but not found in Neutral list");
+				return;
+			}
+		}
+				
+		if(status.indexOf(VerifyableMessageObject.FAILED)>-1) {
+		Identity owner = Core.getEnemies().Get(selectedMessage.getFrom());
+		if (owner ==null) {
+				Core.getOut().println("message was BAD but not found in BAD list");
+				return;
+			}
+					
+		}
+				
+		if(status.indexOf(VerifyableMessageObject.VERIFIED)>-1) {
+			Identity owner = Core.getFriends().Get(selectedMessage.getFrom());
+			if (owner ==null) {
+				Core.getOut().println("message was GOOD but not found in GOOD list");
+				return;
+			}
+		}
+			
+		Truster truster = new Truster(Core.getInstance(),what,selectedMessage.getFrom());
+		truster.start();
+		return;
+
 	}
 
 	/**
@@ -4139,6 +4202,28 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			pmenu.add(msgTablePopupMarkMessageUnread);
 		}
 		pmenu.add(msgTablePopupMarkAllMessagesRead);
+		pmenu.addSeparator();
+		pmenu.add(msgTablePopupSetGood);
+		pmenu.add(msgTablePopupSetCheck);
+		pmenu.add(msgTablePopupSetBad);
+		msgTablePopupSetGood.setEnabled(false);
+		msgTablePopupSetCheck.setEnabled(false);
+		msgTablePopupSetBad.setEnabled(false);
+		if (messageTable.getSelectedRow()>-1){  //fscking html on all these..
+			if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.VERIFIED)>-1) {
+				msgTablePopupSetCheck.setEnabled(true);
+				msgTablePopupSetBad.setEnabled(true);
+			}
+			else if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.PENDING)>-1) {
+				msgTablePopupSetGood.setEnabled(true);
+				msgTablePopupSetBad.setEnabled(true);
+			}
+			else if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.FAILED)>-1) {
+				msgTablePopupSetGood.setEnabled(true);
+				msgTablePopupSetCheck.setEnabled(true);
+			}
+			else Core.getOut().println("invalid message state : "+selectedMessage.getStatus());
+		}
 		pmenu.addSeparator();
 		pmenu.add(msgTablePopupCancel);
 		// ATT: misuse of another menuitem displaying 'Cancel' ;)

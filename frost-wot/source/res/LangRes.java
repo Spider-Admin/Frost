@@ -191,6 +191,7 @@ public class LangRes extends ListResourceBundle {
 	{"Download all keys", "Download all keys"},
 	{"help user (sets to GOOD)", "help user (sets to GOOD)"},
 	{"block user (sets to BAD)", "block user (sets to BAD)"},
+	{"set to neutral (CHECK)","set to neutral (CHECK)"},
 	//{"Cancel", "Cancel"}, // Defined above
 		
 	///////////////////////////////////////////////////
