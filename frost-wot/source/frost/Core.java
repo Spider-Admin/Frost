@@ -1,10 +1,8 @@
 /*
  * Created on Sep 10, 2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 package frost;
+
 import frost.FcpTools.*;
 import java.util.*;
 import frost.crypt.*;
@@ -15,10 +13,7 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 /**
- * @author root
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * Class hold the more non-gui parts of frame1.java.
  */
 
 public class Core {
@@ -505,16 +500,12 @@ public class Core {
 	
 	public static crypt crypto;
 	
-	
 	public static Hashtable getBadIds() {return badIds;}
 	public static crypt getCrypto() {return crypto;}
 	public static BuddyList getEnemies() {return enemies;}
 	public static BuddyList getFriends() {return friends;}
 	public static Hashtable getGoodIds() {return goodIds;}
 	public static LocalIdentity getMyId() {return mySelf;}
-
-
-
 
 	/**
 	 * @return
@@ -655,13 +646,6 @@ public class Core {
 		try {
 			Process process = Runtime.getRuntime().exec("exec" + frame1.fileSeparator + "SystemTray.exe");
 		}catch(IOException _IoExc) { }
-
-		
-
-		
-		
-		
-		
 		
 		if (!isFreenetIsOnline()){
 			JOptionPane.showMessageDialog(frame1.getInstance(),
@@ -776,8 +760,3 @@ public class Core {
 	}
 
 }
-	
-
-
-
-
