@@ -466,9 +466,9 @@ public class Index
                 .getModel();
         for (int i = 0; i < dlModel.getRowCount(); i++)
         {
-            FrostDownloadItemObject dlItem =
-                (FrostDownloadItemObject)dlModel.getRow(i);
-            if (dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED
+            FrostDownloadItem dlItem =
+                (FrostDownloadItem)dlModel.getRow(i);
+            if (dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
                 && dlItem.getSHA1() != null
                 && dlItem.getSHA1().compareTo(key.getSHA1()) == 0)
             {

@@ -789,7 +789,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 							sfo,
 							FrostSearchItemObject.STATE_NONE);
 					//FIXME: <-does this matter?
-					FrostDownloadItemObject dlItem = new FrostDownloadItemObject(fsio);
+					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
 					boolean added = getDownloadTable().addDownloadItem(dlItem);
 				}
 
@@ -805,7 +805,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 							getSelectedNode(),
 							sfo,
 							FrostSearchItemObject.STATE_NONE);
-					FrostDownloadItemObject dlItem = new FrostDownloadItemObject(fsio);
+					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
 					boolean added = getDownloadTable().addDownloadItem(dlItem);
 				}
 			}

@@ -24,12 +24,12 @@ public class DownloadTicker extends Thread {
 	private int threadCount = 0;
 
 	/**
-	 * Used to sort FrostDownloadItemObjects by lastUpdateStartTimeMillis ascending.
+	 * Used to sort FrostDownloadItems by lastUpdateStartTimeMillis ascending.
 	 */
 	static final Comparator downloadDlStopMillisCmp = new Comparator() {
 		public int compare(Object o1, Object o2) {
-			FrostDownloadItemObject value1 = (FrostDownloadItemObject) o1;
-			FrostDownloadItemObject value2 = (FrostDownloadItemObject) o2;
+			FrostDownloadItem value1 = (FrostDownloadItem) o1;
+			FrostDownloadItem value2 = (FrostDownloadItem) o2;
 			if (value1.getLastDownloadStopTimeMillis() > value2.getLastDownloadStopTimeMillis())
 				return 1;
 			else if (
@@ -116,8 +116,8 @@ public class DownloadTicker extends Thread {
 		DownloadTableModel model = (DownloadTableModel) table.getModel();
 		int waitingItems = 0;
 		for (int x = 0; x < model.getRowCount(); x++) {
-			FrostDownloadItemObject dlItem = (FrostDownloadItemObject) model.getRow(x);
-			if (dlItem.getState() == FrostDownloadItemObject.STATE_WAITING) {
+			FrostDownloadItem dlItem = (FrostDownloadItem) model.getRow(x);
+			if (dlItem.getState() == FrostDownloadItem.STATE_WAITING) {
 				waitingItems++;
 			}
 		}
@@ -135,11 +135,11 @@ public class DownloadTicker extends Thread {
 			&& activeThreads < settings.getIntValue("downloadThreads")
 			&& panel.isDownloadingActivated()) {
 			// choose first item
-			FrostDownloadItemObject dlItem = selectNextDownloadItem();
+			FrostDownloadItem dlItem = selectNextDownloadItem();
 			if (dlItem != null) {
 				DownloadTableModel dlModel = (DownloadTableModel) table.getModel();
 
-				dlItem.setState(FrostDownloadItemObject.STATE_TRYING);
+				dlItem.setState(FrostDownloadItem.STATE_TRYING);
 				dlModel.updateRow(dlItem);
 
 				DownloadThread newRequest = new DownloadThread(this, dlItem, table, settings);
@@ -152,20 +152,20 @@ public class DownloadTicker extends Thread {
 	/**
 	 * Chooses next download item to start from download table.
 	 */
-	private FrostDownloadItemObject selectNextDownloadItem() {
+	private FrostDownloadItem selectNextDownloadItem() {
 		DownloadTableModel dlModel = (DownloadTableModel) table.getModel();
 
 		// get the item with state "Waiting", minimum htl and not over maximum htl
 		ArrayList waitingItems = new ArrayList();
 		for (int i = 0; i < dlModel.getRowCount(); i++) {
-			FrostDownloadItemObject dlItem = (FrostDownloadItemObject) dlModel.getRow(i);
-			if ((dlItem.getState() == FrostDownloadItemObject.STATE_WAITING
+			FrostDownloadItem dlItem = (FrostDownloadItem) dlModel.getRow(i);
+			if ((dlItem.getState() == FrostDownloadItem.STATE_WAITING
 				&& (dlItem.getEnableDownload() == null
 					|| dlItem.getEnableDownload().booleanValue()
 						== true) //                && dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
 			)
-				|| ((dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTED
-					|| dlItem.getState() == FrostDownloadItemObject.STATE_REQUESTING)
+				|| ((dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
+					|| dlItem.getState() == FrostDownloadItem.STATE_REQUESTING)
 					&& dlItem.getKey() != null
 					&& (dlItem.getEnableDownload() == null
 						|| dlItem.getEnableDownload().booleanValue() == true))) {
@@ -186,7 +186,7 @@ public class DownloadTicker extends Thread {
 			{
 			Collections.sort(waitingItems, downloadDlStopMillisCmp);
 		}
-		return (FrostDownloadItemObject) waitingItems.get(0);
+		return (FrostDownloadItem) waitingItems.get(0);
 	}
 
 }

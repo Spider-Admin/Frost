@@ -10,7 +10,7 @@ import javax.mail.internet.*;
 import com.sun.mail.smtp.*;
 
 import frost.*;
-import frost.fileTransfer.download.FrostDownloadItemObject;
+import frost.fileTransfer.download.FrostDownloadItem;
 import frost.util.FlexibleObserver;
 
 /**
@@ -152,7 +152,7 @@ public class NotifyByEmailThread extends Thread implements FlexibleObserver {
 
 	public void update(Object o, Object arg) {
 
-		assert o instanceof FrostDownloadItemObject
+		assert o instanceof FrostDownloadItem
 			&& arg instanceof String : "incorrect parameters at email notifier";
 
 		synchronized (queue) {
