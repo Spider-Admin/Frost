@@ -32,14 +32,80 @@ import frost.*;
 import frost.gui.components.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
+import frost.gui.translation.*;
+import frost.gui.translation.UpdatingLanguageResource;
 import frost.messages.FrostIndex;
 import frost.threads.*;
 
-public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
+public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 {
+	/**
+	 * 
+	 */
+	private class Listener implements MouseListener, LanguageListener {
+		/**
+		 * 
+		 */
+		public Listener() {
+			super();
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+		 */
+		public void mouseClicked(MouseEvent e) {
+			if (e.getClickCount() == 2) {
+				updateSelectedBoardButton_actionPerformed(null);
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+		 */
+		public void mouseEntered(MouseEvent e) {
+			//Nothing here			
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+		 */
+		public void mouseExited(MouseEvent e) {
+			//Nothing here
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
+		public void mousePressed(MouseEvent e) {
+			maybeShowPopup(e);			
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
+		public void mouseReleased(MouseEvent e) {
+			maybeShowPopup(e);			
+		}
+		
+		private void maybeShowPopup(MouseEvent e) {
+			if( e.isPopupTrigger() ) {
+				popupMenu.show(boardTable, e.getX(), e.getY());
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();			
+		}
+
+	}
+	
     frame1 parent = null;
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
     static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
+    private UpdatingLanguageResource languageResource = null;
+    private Listener listener = new Listener();
 
     //------------------------------------------------------------------------
     // Generate objects
@@ -63,29 +129,27 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     SortedTable boardTable = new SortedTable(boardTableModel);
 
 	/**
-	 * We really have to use ONE single point to configure all translateable 
-	 * objecs. This way we can change the resourceBundle and change
-	 * Frost's language on runtime.
+	 * 
 	 */
-	private void translateButtons() {
-		updateButton.setText(LangRes.getString("BoardInfoFrame.Update"));
-		updateSelectedBoardButton.setText(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-		updateAllBoardsButton.setText(LangRes.getString("BoardInfoFrame.Update all boards"));
-		Bclose.setText(LangRes.getString("BoardInfoFrame.Close"));		
-	}
-	private void translateMenu() {
-		MIupdate.setText(LangRes.getString("BoardInfoFrame.Update"));
-		MIupdateSelectedBoard.setText(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-		MIupdateAllBoards.setText(LangRes.getString("BoardInfoFrame.Update all boards"));		
+	private void refreshLanguage() {
+		setTitle(languageResource.getString("BoardInfoFrame.Board information window"));
+		
+		updateButton.setText(languageResource.getString("BoardInfoFrame.Update"));
+		updateSelectedBoardButton.setText(languageResource.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+		updateAllBoardsButton.setText(languageResource.getString("BoardInfoFrame.Update all boards"));
+		Bclose.setText(languageResource.getString("BoardInfoFrame.Close"));	
+		
+		MIupdate.setText(languageResource.getString("BoardInfoFrame.Update"));
+		MIupdateSelectedBoard.setText(languageResource.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+		MIupdateAllBoards.setText(languageResource.getString("BoardInfoFrame.Update all boards"));		
 	}
 
     /**Constructor*/
-    public BoardInfoFrame(frame1 p, ResourceBundle LangRes)
+    public BoardInfoFrame(frame1 p, UpdatingLanguageResource newLanguageResource)
     {
         super();
-		BoardInfoFrame.LangRes = LangRes;
-		translateButtons();
-		translateMenu();
+		languageResource = newLanguageResource;
+		refreshLanguage();
         parent = p;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
@@ -104,7 +168,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         //------------------------------------------------------------------------
 
         this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
-        this.setTitle(LangRes.getString("BoardInfoFrame.Board information window"));
         this.setSize(new Dimension(300, 200));
         this.setResizable(true);
 
@@ -193,8 +256,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         buttonsPanel.add(Bclose);
         mainPanel.add(buttonsPanel, BorderLayout.SOUTH);
 
-        boardTable.addMouseListener(new TableDoubleClickMouseListener());
-        boardTable.addMouseListener(new TablePopupMenuMouseListener());
+        boardTable.addMouseListener(listener);
 
         popupMenu.add(MIupdateSelectedBoard);
         popupMenu.add(MIupdateAllBoards);
@@ -202,37 +264,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         popupMenu.add(MIupdate);
 
         updateButton_actionPerformed(null);
-    }
-
-    class TableDoubleClickMouseListener implements MouseListener
-    {
-        public void mouseReleased(MouseEvent event) {}
-        public void mousePressed(MouseEvent event) {}
-        public void mouseClicked(MouseEvent event) {
-            if( event.getClickCount() == 2 ) {
-                updateSelectedBoardButton_actionPerformed(null);
-            }
-        }
-        public void mouseEntered(MouseEvent event) {}
-        public void mouseExited(MouseEvent event) {}
-    }
-
-    class TablePopupMenuMouseListener implements MouseListener
-    {
-        public void mouseReleased(MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mousePressed(MouseEvent event) {
-            maybeShowPopup(event);
-        }
-        public void mouseClicked(MouseEvent event) {}
-        public void mouseEntered(MouseEvent event) {}
-        public void mouseExited(MouseEvent event) {}
-        protected void maybeShowPopup(MouseEvent e) {
-            if( e.isPopupTrigger() ) {
-                popupMenu.show(boardTable, e.getX(), e.getY());
-            }
-        }
     }
 
     private void boardTableListModel_valueChanged(ListSelectionEvent e)
@@ -293,11 +324,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                 SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             boardTableModel.addRow(finalRow);
-                            summaryLabel.setText(LangRes.getString("BoardInfoFrame.Boards") +"   :"+
+                            summaryLabel.setText(languageResource.getString("BoardInfoFrame.Boards") +"   :"+
                                                  finalBoardCount +"    "+
-                                                 LangRes.getString("BoardInfoFrame.Messages") +"  : "+
+												 languageResource.getString("BoardInfoFrame.Messages") +"  : "+
                                                  finalMessageCount +"    "+
-                                                 LangRes.getString("BoardInfoFrame.Files") + "   :"+
+												 languageResource.getString("BoardInfoFrame.Files") + "   :"+
                                                  finalFileCount);
                         }});
             }
@@ -428,14 +459,16 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
     public void startDialog()
     {
-        frame1.getInstance().getRunningBoardUpdateThreads().addBoardUpdateThreadListener( this );
+        frame1.getInstance().getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
+        languageResource.addLanguageListener(listener);
         setDialogShowing( true );
         show();
     }
 
     protected void closeDialog()
     {
-        frame1.getInstance().getRunningBoardUpdateThreads().removeBoardUpdateThreadListener( this );
+        frame1.getInstance().getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
+		languageResource.removeLanguageListener(listener);
         setDialogShowing( false );
         dispose();
     }
@@ -541,22 +574,22 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             return this;
         }
     }
-
-    // Implementing the BoardUpdateThreadListener ...
-
-    /**
-     * Is called if a Thread is finished.
-     */
-    public void boardUpdateThreadFinished(BoardUpdateThread thread)
-    {
-        boardTableModel.tableEntriesChanged();
-    }
-    /**
-     * Is called if a Thread is started.
-     */
-    public void boardUpdateThreadStarted(BoardUpdateThread thread)
-    {
-        boardTableModel.tableEntriesChanged();
-    }
+    
+	//	Implementing the BoardUpdateThreadListener ...
+	
+	 /**
+	  * Is called if a Thread is finished.
+	  */
+	 public void boardUpdateThreadFinished(BoardUpdateThread thread)
+	 {
+		 boardTableModel.tableEntriesChanged();
+	 }
+	 /**
+	  * Is called if a Thread is started.
+	  */
+	 public void boardUpdateThreadStarted(BoardUpdateThread thread)
+	 {
+		 boardTableModel.tableEntriesChanged();
+	 }
 
 }
