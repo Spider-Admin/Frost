@@ -668,104 +668,194 @@ public class FcpRequest
         }
 
         // First we just download the file, not knowing what lies ahead
-        if( getKey(key, size, tempFile, htl) )
+        FcpResults results = null;
+        if( (results = getKey(key, tempFile, htl)) != null &&
+            tempFile.length() > 0 )
         {
-            String[] content = FileAccess.readFile(tempFile).split("\n");
-            if( tempFile.length() <= 65536 && doRedirect )
+            if( results.getMetadata() != null &&
+                tempFile.length() <= 65536 &&
+                doRedirect )
             { // File may be a redirect
 
                 // Check if this file is a redirect. We do not yet use metadata here
                 // but the files are uploaded with metadata. Perhapes I'll fix this later.
-                boolean isRedirect = false;
-                for( int i = 0; i < content.length; i++ )
-                    if( content[i].startsWith("Redirect.Target") ) isRedirect = true;
-                if( isRedirect )
+                // if this is a redirect, try to find the CHK for the requested file
+                String redirectCHK = getRedirectCHK( results.getMetadata(), key );
+
+                if( redirectCHK != null )
                 { // File is a redirect
-                    String redirect = SettingsFun.getValue(tempFile.getPath(), "Redirect.Target");
-                    if( DEBUG ) System.out.println("Redirecting to " + redirect);
+                    if( DEBUG ) System.out.println("Redirecting to " + redirectCHK);
 
-// TODO: what if the redirect target is a split file?
+                    results = null;
+                    results = getKey(redirectCHK, tempFile, htl);
+                    if( results == null || tempFile.length() == 0 )
+                    {
+                        // remove temporary file if download failed
+                        tempFile.delete();
+                        return false;
+                    }
+                }
+            }
 
-                    boolean success = getKey(redirect, null, tempFile, htl);
+// TODO: check if the redirect file is a splitfile !
+
+            // Check if file is a splitfile.
+            boolean isSplitfile = false;
+            if( tempFile.length() < 65536 ) // TODO: is redirect file of this max size?
+            {
+                String content[] = FileAccess.readFile(tempFile).split("\n");
+                for( int i = 0; i < content.length; i++ )
+                    if( content[i].startsWith("SplitFile.Size") ) isSplitfile = true;
+                if( isSplitfile )
+                { // File is a splitfile
+                    boolean success;
+    // FIXED: decide by algo if this is a supported FEC splitfile, not by format
+                    String algo = SettingsFun.getValue(tempFile.getPath(), "SplitFile.AlgoName");
+                    if( algo.equals("OnionFEC_a_1_2") )
+                        success = getFECSplitFile(key, tempFile, htl, dlItem);
+                    else
+                        success = getSplitFile(key, tempFile, htl, dlItem);
+    /*
+                    String format = SettingsFun.getValue(tempFile.getPath(), "Info.Format");
+                    if( format.equals("Frost/FEC") )
+    */
                     if( success )
                     {
                         // If the target file exists, we remove it
                         if( target.isFile() )
                             target.delete();
-                        boolean wasOK = tempFile.renameTo(target);
-                        if( wasOK == false )
-                        {
-                            System.out.println("ERROR: Could not move file '"+tempFile.getPath()+"' to '"+target.getPath()+"'.");
-                            System.out.println("May the locations are on different filesystems where a move is not allowed.");
-                            System.out.println("Please try change the location of 'temp.dir' in the frost.ini file.");
-                        }
+                        tempFile.renameTo(target);
                     }
                     else
                     {
-                        // remove temporary file if download failed
+                        // remove temporary file (e.g. redirect file) if download failed
                         tempFile.delete();
                     }
                     return success;
                 }
+            }
 
+            // download should be successful now
+            if( size == null || size.longValue() == tempFile.length() )
+            {
+                // If the target file exists, we remove it
+                if( target.isFile() )
+                    target.delete();
+                boolean wasOK = tempFile.renameTo(target);
+                if( wasOK == false )
+                {
+                    System.out.println("ERROR: Could not move file '"+tempFile.getPath()+"' to '"+target.getPath()+"'.");
+                    System.out.println("Maybe the locations are on different filesystems where a move is not allowed.");
+                    System.out.println("Please try change the location of 'temp.dir' in the frost.ini file.");
+                }
+                return true;
             }
-            // Check if file is a splitfile.
-            boolean isSplitfile = false;
-            for( int i = 0; i < content.length; i++ )
-                if( content[i].startsWith("SplitFile.Size") ) isSplitfile = true;
-            if( isSplitfile )
-            { // File is a splitfile
-                boolean success;
-// FIXED: decide by algo if this is a supported FEC splitfile, not by format
-                String algo = SettingsFun.getValue(tempFile.getPath(), "SplitFile.AlgoName");
-                if( algo.equals("OnionFEC_a_1_2") )
-                    success = getFECSplitFile(key, tempFile, htl, dlItem);
-                else
-                    success = getSplitFile(key, tempFile, htl, dlItem);
+        }
+
+        // if we reach here, the download was NOT successful in any way
+        tempFile.delete();
+        return false;
+    }
+
+    private static String getRedirectCHK(String[] metadata, String key)
+    {
 /*
-                String format = SettingsFun.getValue(tempFile.getPath(), "Info.Format");
-                if( format.equals("Frost/FEC") )
+SAMPLE URL:
+------------
+
+SSK@CKesZYUJWn2GMvoif1R4SDbujIgPAgM/fuqid/9//FUQID-1.2.zip
+
+METAFILE FORMAT:
+-----------------
+Version
+Revision=1
+EndPart
+Document
+Redirect.Target=freenet:CHK@OvGKjXgv3CpQ50AhHumTxQ1TQdkOAwI,eMG88L0X0H82rQjM4h1y4g
+Name=index.html
+Info.Format=text/html
+EndPart
+Document
+Redirect.Target=freenet:CHK@~ZzKVquUvXfnbaI5bR12wvu99-4LAwI,~QYjCzYNT6E~kVIbxF7DoA
+Name=activelink.png
+Info.Format=image/png
+EndPart
+Document
+Redirect.Target=freenet:CHK@9rz6vjVwOBPn6GhxmSsl5ZUf9SgUAwI,09Tt5bS-bsGWZiNSzLD38A
+Name=FUQID-1.2.zip
+Info.Format=application/zip
+End
+Document
 */
-                if( success )
-                {
-                    // If the target file exists, we remove it
-                    if( target.isFile() )
-                        target.delete();
-                    tempFile.renameTo(target);
-                }
-                else
-                {
-                    // remove temporary file (e.g. redirect file) if download failed
-                    tempFile.delete();
-                }
-                return success;
-            }
-            // If the target file exists, we remove it
-            if( target.isFile() )
-                target.delete();
-            tempFile.renameTo(target);
-            return true;
-        }
-        else
+        String searchedFilename = null;
+        int pos1 = key.lastIndexOf("/");
+        if( pos1 > -1 )
         {
-            tempFile.delete();
-            return false;
+            searchedFilename = key.substring(pos1+1).trim();
+            if( searchedFilename.length() == 0 )
+                searchedFilename = null;
+
         }
+        if( searchedFilename == null )
+            return null; // no filename found in key
+
+        // scan through lines and find the Redirect.Target=(CHK) for Name=(our searchedFilename)
+        // and get the CHK of the file
+        final String keywordName = "Name=";
+        final String keywordRedirTarget = "Redirect.Target=";
+        String actualFilename = null;
+        String actualCHK = null;
+        String resultCHK = null;
+        for( int lineno = 0; lineno < metadata.length; lineno++ )
+        {
+            String line = metadata[lineno].trim();
+            if( line.length() == 0 )
+                continue;
+
+            if( line.equals("Document") )
+            {
+                // new file section begins
+                actualFilename = null;
+                actualCHK = null;
+            }
+            else if( line.equals("End") || line.equals("EndPart") )
+            {
+                // we should have actualFilename and actualCHK now, look if this is our searched file
+                if( actualCHK != null && actualFilename != null )
+                {
+                    if( actualFilename.equals( searchedFilename ) )
+                    {
+                        resultCHK = actualCHK;
+                        return resultCHK;
+                    }
+                }
+            }
+            else if( line.startsWith(keywordName) )
+            {
+                actualFilename = line.substring( keywordName.length() ).trim();
+            }
+            else if( line.startsWith(keywordRedirTarget) )
+            {
+                actualCHK = line.substring( keywordRedirTarget.length() ).trim();
+            }
+        }
+        return null;
     }
 
     // used by getFile
-    private static boolean getKey(String key, Long size, File target, int htl)
+    private static FcpResults getKey(String key, File target, int htl)
     {
-        if( key.indexOf("null") != -1 ) return false;
+        if( key == null || key.length() == 0 || key.startsWith("null") )
+            return null;
 
-        boolean success = false;
+        FcpResults results = null;
         try
         {
             FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
                                                          frame1.frostSettings.getValue("nodePort"));
             try
             {
-                connection.getKeyToFile(key, target.getPath(), htl);
+                results = connection.getKeyToFile(key, target.getPath(), htl);
             }
             catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException
             {
@@ -780,7 +870,6 @@ public class FcpRequest
             {
                 if( DEBUG ) System.out.println("FcpRequest.getKey: IOException " + e);
             }
-            success = true;
         }
         catch( FcpToolsException e )
         {
@@ -810,17 +899,14 @@ public class FcpRequest
                                              .append(keyUrl).toString();
         }
 
-        if( success == true && target.length() > 0 )
+        if( results != null && target.length() > 0 )
         {
-            if( size == null || target.length() == size.longValue() || size.longValue() >= chunkSize )
-            {
-                if( DEBUG ) System.out.println("getKey - Success: " + printableKey );
-                return true;
-            }
+            if( DEBUG ) System.out.println("getKey - Success: " + printableKey );
+            return results;
         }
         target.delete();
         if( DEBUG ) System.out.println("getKey - Failed: " + printableKey );
-        return false;
+        return null;
     }
 
 
