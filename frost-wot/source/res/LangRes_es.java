@@ -165,7 +165,7 @@ static final Object[][] contents = {
 {"Message download HTL","HTL para bajada de mensajes"},
 {"Message upload HTL","HTL para subida de mensajes"},
 {"Messages","Mensajes"},
-{"Messages Today","Mensajes de Hoy"},
+{"Messages Today","Mensajes Hoy"},
 {"Minimize to System Tray","Minimiza a la Bandeja del Sistema"},
 {"Minimum update interval of a board","Intervalo mínimo de refresco de un foro"},
 {"minutes","minutos"},
