@@ -43,6 +43,8 @@ THIS SOFTWARE, EVEN IF ADVISED OF THE POSSIBILITY OF SUCH DAMAGE.
 
 HINSTANCE hInstance      = NULL;
 HWND   hSystrayWnd       = NULL;
+HANDLE hThread           = NULL; 
+HANDLE hEvent            = NULL; 
 
 typedef struct tag_JSYSTRAYICON
         {
@@ -168,14 +170,58 @@ LRESULT CALLBACK JSystrayWndProc(HWND hWnd,UINT uMsg,WPARAM wParam,LPARAM lParam
   return(TRUE);
 }
 
+DWORD WINAPI MessageThread(LPVOID param)
+{
+  MSG msg;
+  WNDCLASS WndClass;
+
+  // create a Systray window
+  if(hSystrayWnd==NULL)
+  {
+    WndClass.style         = 0;
+    WndClass.lpfnWndProc   = (WNDPROC)JSystrayWndProc;
+    WndClass.cbClsExtra    = 0;
+    WndClass.cbWndExtra    = 0;
+    WndClass.hInstance     = hInstance;
+    WndClass.hIcon         = NULL;
+    WndClass.hCursor       = NULL;
+    WndClass.hbrBackground = NULL;
+    WndClass.lpszMenuName  = NULL;
+    WndClass.lpszClassName = "JSYSTRAY";
+
+    RegisterClass(&WndClass);
+
+    hSystrayWnd = CreateWindow("JSYSTRAY","JSYSTRAY",WS_OVERLAPPED,CW_USEDEFAULT,CW_USEDEFAULT,10,10,
+                                HWND_DESKTOP,NULL,hInstance,NULL);
+    if(hSystrayWnd==NULL)
+    {
+      SetEvent(hEvent);
+      return(-1);
+    };
+
+    // invisible
+    ShowWindow(hSystrayWnd,SW_HIDE);
+  };
+  // Signal thread Init ready
+  SetEvent(hEvent);
+
+
+  while(GetMessage(&msg,NULL,0,0))
+  {
+    TranslateMessage(&msg);
+    DispatchMessage(&msg);
+  }
+
+  return(0);
+}
 
 
 // Cretaes a Systray icon
 void* JCreateSystrayIcon(int iconIndex,LPSTR szTooltip,LPSTR szTitle)
 {
-  WNDCLASS WndClass;
   NOTIFYICONDATA nData;
   JSYSTRAYICON*  lpSystray;
+  DWORD id;
 
   if(szTooltip==NULL ||szTitle==NULL)
     return(NULL);
@@ -199,33 +245,17 @@ void* JCreateSystrayIcon(int iconIndex,LPSTR szTooltip,LPSTR szTitle)
     return(NULL);
   };
 
-  // create a Systray window
+  if(hThread==NULL)
+  {
+    hEvent = CreateEvent(NULL,FALSE,FALSE,NULL);
+    hThread = CreateThread(NULL,0,MessageThread,NULL,0,&id);
+    WaitForSingleObject(hEvent,INFINITE);
+  }
   if(hSystrayWnd==NULL)
   {
-    WndClass.style         = 0;
-    WndClass.lpfnWndProc   = (WNDPROC)JSystrayWndProc;
-    WndClass.cbClsExtra    = 0;
-    WndClass.cbWndExtra    = 0;
-    WndClass.hInstance     = hInstance;
-    WndClass.hIcon         = NULL;
-    WndClass.hCursor       = NULL;
-    WndClass.hbrBackground = NULL;
-    WndClass.lpszMenuName  = NULL;
-    WndClass.lpszClassName = "JSYSTRAY";
-
-    RegisterClass(&WndClass);
-
-    hSystrayWnd = CreateWindow("JSYSTRAY","JSYSTRAY",WS_CAPTION,0,0,10,10,
-                                NULL,NULL,hInstance,NULL);
-    if(hSystrayWnd==NULL)
-    {
-      // failed
-      free(lpSystray);
-      return(NULL);
-     };
-
-    // invisible
-    ShowWindow(hSystrayWnd,SW_HIDE);
+    // failed
+    free(lpSystray);
+    return(NULL);
   };
 
   // Create the Notifyicon
