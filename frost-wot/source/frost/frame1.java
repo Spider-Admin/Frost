@@ -2475,50 +2475,51 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			} 
             else 
             {
-				// Attachment available
-				if( fileAttachments.size() > 0 ) 
+                // Attachment available
+                if( fileAttachments.size() > 0 ) 
                 {
-					if( boardAttachments.size() == 0 )
+                    // Add attachments to table
+                    ((DefaultTableModel)getAttachmentTable().getModel())
+                            .setDataVector(selectedMessage.getFileAttachments(), null);
+
+                    if( boardAttachments.size() == 0 )
                     {
-						boardSplitPane.setDividerSize(0);
-						boardSplitPane.setDividerLocation(1.0);
-					}
-					attachmentSplitPane.setDividerLocation(0.75);
-					attachmentSplitPane.setDividerSize(3);
+                        boardSplitPane.setDividerSize(0);
+                        boardSplitPane.setDividerLocation(1.0);
+                    }
+                    attachmentSplitPane.setDividerLocation(0.75);
+                    attachmentSplitPane.setDividerSize(3);
 
-					// Add attachments to table
-					((DefaultTableModel)getAttachmentTable().getModel())
-							.setDataVector(selectedMessage.getFileAttachments(), null);
-
-					downloadAttachmentsButton.setEnabled(true);
-				}
-				// Board Available
-				if( boardAttachments.size() > 0 ) 
+                    downloadAttachmentsButton.setEnabled(true);
+                }
+                // Board Available
+                if( boardAttachments.size() > 0 ) 
                 {
-					//only a board, no attachments.
-					if(fileAttachments.size() == 0 ) 
+                    // Add attachments to table
+                    (
+                        (DefaultTableModel) getAttachedBoardsTable()
+                            .getModel())
+                            .setDataVector(
+                        selectedMessage.getBoardAttachments(),
+                        null);
+
+                    //only a board, no attachments.
+                    if(fileAttachments.size() == 0 ) 
                     {
-						attachmentSplitPane.setDividerSize(0);
-						attachmentSplitPane.setDividerLocation(1.0);
-					}
-					boardSplitPane.setDividerLocation(0.75);
-					boardSplitPane.setDividerSize(3);
+                        attachmentSplitPane.setDividerSize(0);
+                        attachmentSplitPane.setDividerLocation(1.0);
+                    }
+                    boardSplitPane.setDividerLocation(0.75);
+                    boardSplitPane.setDividerSize(3);
 
-					//add all boards to the list of known boards
-					Core.getKnownBoards().addAll(
-						selectedMessage.getBoardsAsStrings());
+                    //add all boards to the list of known boards
+                    Core.getKnownBoards().addAll(
+                        selectedMessage.getBoardsAsStrings());
 
-					// Add attachments to table
-					(
-						(DefaultTableModel) getAttachedBoardsTable()
-							.getModel())
-							.setDataVector(
-						selectedMessage.getBoardAttachments(),
-						null);
-					downloadBoardsButton.setEnabled(true);
-					//TODO: downloadBoardsButton
-				}
-			}
+                    downloadBoardsButton.setEnabled(true);
+                    //TODO: downloadBoardsButton
+                }
+            }
 		} else {
 			// no msg selected
 			resetMessageViewSplitPanes(); // clear message view
