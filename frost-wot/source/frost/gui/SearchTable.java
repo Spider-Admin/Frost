@@ -73,7 +73,7 @@ public class SearchTable extends SortedTable
 
     /**
      * This renderer renders rows in different colors, depending on state of search item.
-     * States are: NONE, DOWNLOADED, DOWNLOADING
+     * States are: NONE, DOWNLOADED, DOWNLOADING, UPLOADING
      */
     private class CellRenderer extends DefaultTableCellRenderer
     {
