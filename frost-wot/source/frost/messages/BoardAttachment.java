@@ -37,8 +37,10 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 
 		Element el = getSafeXMLElement(container);
 
+		CDATASection cdata;
+
 		Element privkey = container.createElement("privKey");
-		CDATASection cdata = container.createCDATASection(boardObj.getPrivateKey()); //null is ok
+		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPrivateKey())); //null is ok
 		privkey.appendChild(cdata);
 		el.appendChild(privkey);
 		
@@ -58,9 +60,10 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 		Element el = container.createElement("Attachment");
 		el.setAttribute("type", "board");
 
+		CDATASection cdata;
+
 		Element name = container.createElement("Name");
-		CDATASection cdata =
-			container.createCDATASection(Mixed.makeSafeXML(boardObj.getBoardName()));
+		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getBoardName()));
 		name.appendChild(cdata);
 		el.appendChild(name);
 
