@@ -415,7 +415,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         this.lastUsedDirectory = config.getValue("lastUsedDirectory");
         this.state = false;
         this.keypool = config.getValue("keypool.dir");
-        this.frostSettings = frostSettings;
+        this.frostSettings = config;
 
         String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime();
         String lineSeparator = System.getProperty("line.separator");
