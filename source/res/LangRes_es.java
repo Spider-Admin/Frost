@@ -203,6 +203,7 @@ public class LangRes_es extends ListResourceBundle {
 	{"Restore default filenames for selected files", "Restaura nombres por defecto para los ficheros seleccionados"},
 	{"Restore default filenames for all files", "Restaura nombres por defecto para todos los ficheros"},
 	{"Change destination board", "Cambia foro de destino"},
+	{"Please enter the prefix you want to use for your files.", "Por favor, introduce el prefijo que quieres usar para tus ficheros."}, 
 	//{"Cancel", "Cancel"}, // Defined above    
     
 	///////////////////////////////////////////////////
