@@ -104,18 +104,20 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
         new Thread( ioworker ).start(); // do IO in another thread, not here in Swing thread
     }
     
-    public boolean containsAttachments()
-    {
-        if( getAttachmentList().getAllOfType(Attachment.BOARD).size() > 0 || 
-            getAttachmentList().getAllOfType(Attachment.FILE).size() > 0 )
-        {
-            return true;
-        }
-        return false;
-    }
+    /**
+	 * @return
+	 */
+	public boolean containsAttachments() {
+		if ((getAttachmentsOfType(Attachment.BOARD).size() > 0) ||
+			(getAttachmentsOfType(Attachment.FILE).size() > 0)) {
+			return true;
+		}
+		return false;
+	}
     
-	/* 
-	 * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
+	/*
+	 * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember,
+	 *      int)
 	 */
 	public int compareTo(TableMember another, int tableColumnIndex) {
 		String c1 = (String) getValueAt(tableColumnIndex);

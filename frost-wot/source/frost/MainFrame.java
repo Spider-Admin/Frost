@@ -861,8 +861,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 			// If no rows are selected, add all attachments to download table
 			if (selectedRows.length == 0) {
-				Iterator it =
-					selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE).iterator();
+				Iterator it = selectedMessage.getAttachmentsOfType(Attachment.FILE).iterator();
 				while (it.hasNext()) {
 					FileAttachment fa = (FileAttachment) it.next();
 					SharedFileObject sfo = fa.getFileObj();
@@ -877,8 +876,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				}
 
 			} else {
-				LinkedList attachments =
-					selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE);
+				LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
 				for (int i = 0; i < selectedRows.length; i++) {
 					FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
 					SharedFileObject sfo = fo.getFileObj();
@@ -907,7 +905,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (selectedRows.length == 0)
 					return;
 			}
-			LinkedList boards = selectedMessage.getAttachmentList().getAllOfType(Attachment.BOARD);
+			LinkedList boards = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
 			for (int i = 0; i < selectedRows.length; i++) {
 				BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
 				Board fbo = ba.getBoardObj();
@@ -1241,8 +1239,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				else
 					saveMessageButton.setEnabled(false);
 
-				List fileAttachments = selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE);
-				List boardAttachments = selectedMessage.getAttachmentList().getAllOfType(Attachment.BOARD);
+				List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+				List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
 
 				positionDividers(fileAttachments.size(), boardAttachments.size());
 				

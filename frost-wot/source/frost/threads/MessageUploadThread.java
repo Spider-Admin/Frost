@@ -122,8 +122,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 			if (!localMessage.getFrom().equals(message.getFrom())) {
 				return false;	
 			} 
-			AttachmentList attachments1 = message.getAttachmentList();
-			AttachmentList attachments2 = localMessage.getAttachmentList();
+			AttachmentList attachments1 = message.getAllAttachments();
+			AttachmentList attachments2 = localMessage.getAllAttachments();
 			if (attachments1.size() != attachments2.size()) {
 				return false;	
 			}
