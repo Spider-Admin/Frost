@@ -220,7 +220,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 if( result[0].equals("Success") )
                 {
                     success = true;
-		    setIndexSuccessfull(index);
+		            setIndexSuccessfull(index);
                     if( DEBUG ) System.out.println("FILEDN:***** Index file successfully uploaded *****");
                 }
                 else
@@ -238,6 +238,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         if( DEBUG ) System.out.println("FILEDN:***** Unknown upload error (#" + tries + ", '"+tv+"'), retrying. *****");
                     }
                 }
+                tries++;
             }
         }
     }
