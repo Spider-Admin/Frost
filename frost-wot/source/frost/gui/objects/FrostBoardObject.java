@@ -4,7 +4,7 @@ import javax.swing.tree.*;
 
 import frost.*;
 
-public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoard
+public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoard, Comparable
 {
     private String boardName = null;
     private String boardFileName = null;
@@ -189,4 +189,17 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements FrostBoa
             return true;
         return false;
     }
+
+    public int compareTo(Object o)
+    {
+        if( o instanceof FrostBoardObject )
+        {
+            return this.toString().toLowerCase().compareTo( o.toString().toLowerCase() );
+        }
+        else
+        {
+            return 0;
+        }
+    }
+
 }
