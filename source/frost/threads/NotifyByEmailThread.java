@@ -6,6 +6,11 @@ import frost.gui.objects.FrostDownloadItemObject;
 import frost.*;
 import java.io.File;
 
+
+import javax.mail.*;
+import javax.mail.internet.*;
+import com.sun.mail.smtp.*;
+
 /**
  * 
  * @author zlatinb
@@ -19,14 +24,21 @@ public class NotifyByEmailThread extends Thread implements Observer{
 	private static final String nameTag = "<filename>"; 
 	private static final String subject = "[Frost] Download finished";
 	
-	private static String SMTPServer, SMTPuser, SMTPpass;
+	private static String SMTPServer, SMTPuser, SMTPpass, notifyAddress;
 	
 	private LinkedList queue;
 	
-	public NotifyByEmailThread() {
+	private SMTPMessage message;
+	private InternetAddress address;
+	private Session session;
+	private Properties sessionProperties;
+	private SMTPTransport transport;
+	
+	public NotifyByEmailThread() throws Error {
 		queue = new LinkedList();
 		setDaemon(true);
 		
+		//init the body of the message
 		File body = new File("email");
 		if (body.exists() && body.isFile() && body.length() >0 && body.length() < 64*1024)
 			template = FileAccess.read(body.getPath());
@@ -34,6 +46,29 @@ public class NotifyByEmailThread extends Thread implements Observer{
 			template = "Hello\n, this is the automatic Frost email notifier. "+
 							"The download of file <filename> has completed.\n\n";
 			FileAccess.writeFile(template,body);
+			
+		//get the settings
+			SMTPServer = Core.frostSettings.getValue("SMTP.server");
+			SMTPuser = Core.frostSettings.getValue("SMTP.user");
+			SMTPpass = Core.frostSettings.getValue("SMTP.pass");
+			notifyAddress = Core.frostSettings.getValue("notifyAddress");
+			
+			if (SMTPServer == null || SMTPuser == null || SMTPpass == null || notifyAddress ==null ||
+					SMTPServer.length()==0 || SMTPuser.length()==0 || SMTPpass.length()==0 || notifyAddress.length()==0)
+				throw new Error ("invalid SMTP parameters");
+		//init the session properties
+			sessionProperties = new Properties();
+			sessionProperties.setProperty("mail.host",SMTPServer);
+			sessionProperties.setProperty("mail.user",SMTPpass);
+			session = Session.getInstance(sessionProperties);
+			transport = new SMTPTransport(session, new URLName("frostNotifier"));
+			
+			try{
+				address = new InternetAddress(notifyAddress);
+				address.validate();
+			}catch(AddressException e){
+				throw new Error("invalid email address");
+			}
 		}
 		
 	}
@@ -56,7 +91,47 @@ public class NotifyByEmailThread extends Thread implements Observer{
 			
 			String messageBody = template.replaceAll(nameTag,currentName);
 			
-			throw new UnsupportedOperationException("not implemented yet. Come back later");
+			//check if we're connected, and if not connect
+			
+			if (!transport.isConnected())
+				try{
+					transport.connect(SMTPServer,SMTPuser,SMTPpass);
+				}catch(MessagingException e){
+					Core.getOut().println("couldn't connect to smtp server");
+					e.printStackTrace(Core.getOut());
+					//TODO:decide what to do.  I think just wait 5 mins and try again?
+					mixed.wait(5*60*1000);
+					queue.addFirst(currentName);
+					continue running;
+				}
+			
+			//compose the message
+				message = new SMTPMessage(session);
+				message.setNotifyOptions(SMTPMessage.NOTIFY_NEVER);
+				message.setReturnOption(SMTPMessage.NOTIFY_NEVER);
+				try{
+					message.setEnvelopeFrom("Frost");
+					message.setSubject(subject);
+					message.setText(messageBody);
+					
+					//now send the message
+					transport.sendMessage(message, new Address[]{address});
+					
+					//check if there are more messages to send, and if not disconnect
+					if (queue.size()==0)
+						transport.close();
+				}catch (SendFailedException e){
+					e.printStackTrace(Core.getOut());
+					//wait 5 mins, retry
+					mixed.wait(5*60*1000);
+					queue.addFirst(currentName);
+					continue running;
+				}catch(MessagingException e){
+					//we screwed up somehow..
+					e.printStackTrace(Core.getOut());
+				} 
+				
+					
 		}
 	}
 
@@ -73,6 +148,7 @@ public class NotifyByEmailThread extends Thread implements Observer{
 			
 	}
 	
+
 	/**
 	 * @return
 	 */
