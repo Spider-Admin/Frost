@@ -382,7 +382,7 @@ public class FileAccess
             while( (line = f.readLine()) != null )
             {
                 stringBuffer.append(line);
-                stringBuffer.append("\r\n");
+                stringBuffer.append("\n");
             }
             f.close();
         }
