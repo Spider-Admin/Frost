@@ -45,6 +45,7 @@ public class SearchThread extends Thread {
     private String[] executableExtension;
     private String[] archiveExtension;
     private Vector boards;
+    private static String fileSeparator = System.getProperty("file.separator");
     int allFileCount;
     int maxSearchResults;
 
@@ -82,7 +83,7 @@ public class SearchThread extends Thread {
         Iterator i = chk.values().iterator();
         while (i.hasNext()) {
             KeyClass key = (KeyClass)i.next();
-            String filename = key.getFilename();
+            String filename = key.getFilename().toLowerCase().trim();
             boolean acceptFile = true;
             for (int j = 0; j < singleRequests.size(); j++) {
             String singleRequest = (String)singleRequests.elementAt(j);
@@ -297,20 +298,25 @@ public class SearchThread extends Thread {
                 File keypoolDir = new File(keypool + board);
                 if( keypoolDir.isDirectory() )
                 {
-                    File[] keypoolfiles = keypoolDir.listFiles();
-                    if( keypoolfiles != null )
+                    File shaIndex = new File(keypoolDir+fileSeparator+"files.xml");
+                    if( shaIndex.exists() )
                     {
-                        for( int i = 0; i < keypoolfiles.length; i++ )
-                        {
-                            if( keypoolfiles[i].getName().endsWith(".exc") )
-                            {
-                                chk.clear();
-                                FileAccess.readKeyFile(keypoolfiles[i], chk);
-                                getSearchResults();
-                                if( DEBUG ) System.out.println(keypoolfiles[i].getName() + " - " + chk.size() + ";");
-                            }
-                        }
+                         chk.clear();
+                         FileAccess.readKeyFile(shaIndex, chk);
+                         getSearchResults();
+                         if( DEBUG ) System.out.println(shaIndex.getName() + " - " + chk.size() + ";");
+                        
+                        
                     }
+		    
+		    File lastUploads = new File(keypoolDir+fileSeparator+"new_files.xml");
+		    if (lastUploads.exists()) {
+		    	chk.clear();
+			FileAccess.readKeyFile(lastUploads,chk);
+			getSearchResults();
+			if( DEBUG ) System.out.println(lastUploads.getName() + " - " + chk.size() + ";");
+		    }
+		    
                 }
                 chk.clear();
 
