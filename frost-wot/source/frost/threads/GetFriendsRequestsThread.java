@@ -55,8 +55,6 @@ public class GetFriendsRequestsThread extends TimerTask {
 			//		+ "and his safe name is "+ mixed.makeFilename(current.getOwner()));	
 			if (
 				current.getOwner().compareTo(Core.getMyId().getUniqueName()) != 0 //not me
-				&& 
-				current.getOwner().indexOf("//") == -1 // not invalid
 				&&
 			 		(
 						//Core.getFriends().Get(current.getOwner().substring(0,current.getOwner().indexOf("@"))) != null
@@ -68,7 +66,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 				String newPrefix = new String("KSK@frost/request/"
 					+ Core.frostSettings.getValue("messageBase")
 					+ "/"
-					+ current.getOwner()
+					+ mixed.makeFilename(current.getOwner())
 					+ "-"
 					+ current.getBatch()); 
 				prefixes.add(newPrefix);
@@ -120,7 +118,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 		}
 		tempFile.delete();
 		prefixes = null;
-		Core.schedule(this,3*60*60*1000); //3 hrs	
+		//Core.schedule(this,3*60*60*1000); //3 hrs	
 		Core.getOut().println("finishing requesting friend's requests");
 	}
 

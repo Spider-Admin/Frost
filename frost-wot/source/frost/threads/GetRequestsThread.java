@@ -172,7 +172,7 @@ public class GetRequestsThread extends Thread
                                         + frame1.frostSettings.getValue(
                                             "messageBase")
                                         + "/"
-                                        + frame1.getMyId().getUniqueName()
+                                        + mixed.makeFilename(frame1.getMyId().getUniqueName())
                                         + "-"
                                         + testMe.getName(),
                                     null,
