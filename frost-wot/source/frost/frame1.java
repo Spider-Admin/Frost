@@ -1790,7 +1790,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                     else
                     {
                         System.out.println("\n!Truster: Could not verify message, maybe the message is faked!" +
-                                           " Message state NOT changed for '"+msgFile.getPath()+"'.");
+                                           " Message state set to N/A for '"+msgFile.getPath()+"'.");
+                        tempMsg.setStatus(VerifyableMessageObject.NA);
                     }
                 }
             }
@@ -1798,8 +1799,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             TOF.initialSearchNewMessages( getTofTree() );
 
             SwingUtilities.invokeLater(new Runnable() {
-                    public void run()
-                    {
+                    public void run() {
                         tofTree_actionPerformed(null);
                     } });
             System.out.println("\nTruster: Finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
