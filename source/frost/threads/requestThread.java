@@ -227,7 +227,7 @@ public class requestThread extends Thread
                 if( testMe.length() > 0 )
                 { // already downloaded
                     index++;
-                    if( DEBUG ) System.out.println("FILEDN: File exists, increasing index to " + index);
+                    //if( DEBUG ) System.out.println("FILEDN: File exists, increasing index to " + index);
                     continue; // while
                 }
                 else
