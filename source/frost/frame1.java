@@ -62,8 +62,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     boolean started = false;
     public static boolean updateDownloads = true;
 
-    public static boolean updateTof = false;
-    public static boolean updateTree = false;
+    private boolean freenetIsOnline = false;
+    private boolean freenetIsTransient = false;
+
     public static String fileSeparator = System.getProperty("file.separator");
     // "keypool.dir" is the corresponding key in frostSettings,
     // set in defaults of SettingsClass.java
@@ -199,8 +200,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     // end-of: Generate objects
     //------------------------------------------------------------------------
 
-    boolean loaded_tables;
-
     // returns the current id,crypt, etc.
     public static LocalIdentity getMyId() {return mySelf;}
     public static BuddyList getFriends() {return friends;}
@@ -222,6 +221,15 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void             setTofTextAreaText(String txt) { tofTextArea.setText(txt); }
     public TofTree          getTofTree() { return tofTree; }
     public JButton          getSearchButton() { return searchButton; }
+    public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
+        return runningBoardUpdateThreads;
+    }
+
+    public boolean isFreenetOnline() { return freenetIsOnline; }
+    public void setFreenetIsOnline( boolean val ) { freenetIsOnline = val; }
+
+    public boolean isFreenetTransient() { return freenetIsTransient; }
+    public void setFreenetIsTransient( boolean val ) { freenetIsTransient = val; }
 
     public FrostBoardObject getActualNode()
     {
@@ -235,16 +243,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         return node;
     }
 
-    public RunningBoardUpdateThreads getRunningBoardUpdateThreads()
-    {
-        return runningBoardUpdateThreads;
-    }
-
     /**Construct the frame*/
     public frame1()
     {
         instance = this;
-        loaded_tables=false;
 
         runningBoardUpdateThreads = new RunningBoardUpdateThreads();
 
@@ -887,43 +889,38 @@ public class frame1 extends JFrame implements ClipboardOwner
     checkTrustButton.setEnabled(false);
 
     //check whether the user is running a transient node
-    FcpConnection con1 = null;
-    String []nodeInfo=null;
+    setFreenetIsTransient(false);
+    setFreenetIsOnline(false);
     try {
-        con1 = new FcpConnection(frostSettings.getValue("nodeAddress"), frostSettings.getValue("nodePort"));
-        nodeInfo = con1.getInfo();
-    }catch(Exception e) {
-        System.out.println("Error - could not establish a connection to freenet node.");
-        System.out.println("Make sure your node is running and that you have configured frost correctly.");
-        System.out.println("Nevertheless, to allow you to read messages, Frost will startup now.");
-        System.out.println("And don't get confusing by the error messages ... maybe disable the automatic board update.");
-    }
-
-    boolean transientNode = false;
-    if( nodeInfo != null )
-    {
+        FcpConnection con1 = new FcpConnection(frostSettings.getValue("nodeAddress"),
+                                               frostSettings.getValue("nodePort"));
+        String[] nodeInfo = con1.getInfo();
+        // freenet is online
+        setFreenetIsOnline(true);
         for (int ij=0;ij<nodeInfo.length;ij++)
         {
             if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
             {
-                transientNode=true;
+                setFreenetIsTransient(true);
             }
         }
+    }catch(Exception e) {
+        System.out.println("Error - could not establish a connection to freenet node.");
+        System.out.println("Make sure your node is running and that you have configured frost correctly.");
+        System.out.println("Nevertheless, to allow you to read messages, Frost will startup now.");
+        System.out.println("Don't get confusing by some error messages ;)");
+        setFreenetIsOnline(false);
     }
 
-    if (transientNode)
+
+    if( isFreenetTransient() )
     {
         JOptionPane.showMessageDialog(this,
                         "      You are running a TRANSIENT node.  "+
-//                        "Filesharing will be disabled!\n"+
-//                        "If you want to be able to download/upload files,"+
-//                        "run a PERMANENT node.",
                         "Better run a PERMANENT freenet node.",
                         "Transient node detected",
                         JOptionPane.WARNING_MESSAGE);
     }
-    con1=null;
-    nodeInfo=null;
 
     //create a crypt object
     crypto = new FrostCrypt();
@@ -933,12 +930,13 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     TimerTask KeyReinserter = new TimerTask() {
         public void run() {
-            System.out.println("re-uploading public key");
+            if( isFreenetOnline() == false )
+                return;
+            System.out.println("KeyReinserter: Re-uploading public key...");
             FcpInsert.putFile("CHK@",new File("pubkey.txt"),25,false,true,null);
-            System.out.println("finished re-uploading public key");
+            System.out.println("KeyReinserter: Finished re-uploading public key.");
         }
     };
-
     timer2.schedule(KeyReinserter,0,60*60*1000);
 
     //on with other stuff
@@ -949,7 +947,20 @@ public class frame1 extends JFrame implements ClipboardOwner
     // if a new message is in a folder, this folder is show yellow in tree
     TOF.initialSearchNewMessages(getTofTree());
 
-    loadSettings(); //check this!
+    if( isFreenetOnline() )
+    {
+        downloadActivateCheckBox.setSelected(frostSettings.getBoolValue("downloadingActivated"));
+        tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
+    }
+    else
+    {
+        downloadActivateCheckBox.setSelected(false);
+        tofAutomaticUpdateMenuItem.setSelected(false);
+    }
+    searchAllBoardsCheckBox.setSelected(frostSettings.getBoolValue("searchAllBoards"));
+    //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
+    //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
+
     Startup.startupCheck();
 
     FileAccess.cleanKeypool(keypool);
@@ -973,7 +984,10 @@ public class frame1 extends JFrame implements ClipboardOwner
     getUploadTable().load();
 
     // Start tofTree
-    resendFailedMessages();
+    if( isFreenetOnline() )
+    {
+        resendFailedMessages();
+    }
     timer.start();
     started = true;
     } // ************** end-of: jbInit()
@@ -986,6 +1000,17 @@ public class frame1 extends JFrame implements ClipboardOwner
         try {
             if( identities.createNewFile() )
             {
+                if( isFreenetOnline() == false )
+                {
+                    JOptionPane.showMessageDialog(this,
+                                                  "Frost could not establish a connection to your freenet node. "+
+                                                  "For first setup of Frost and creating your identity a connection is needed,"+
+                                                  "later you can run Frost without a connection.\n"+
+                                                  "Please ensure that you are online and freenet is running, then restart Frost.",
+                                                  "Connect to Freenet node failed",
+                                                  JOptionPane.ERROR_MESSAGE);
+                    System.exit(2);
+                }
                 //create new identities
                 try {
                     String nick = null;
@@ -2819,16 +2844,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
         frostSettings.writeSettingsFile();
         getTofTree().saveTree();
-    }
-
-    /**Load Settings*/
-    private void loadSettings()
-    {
-        downloadActivateCheckBox.setSelected(frostSettings.getBoolValue("downloadingActivated"));
-        //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
-        searchAllBoardsCheckBox.setSelected(frostSettings.getBoolValue("searchAllBoards"));
-        //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
-        tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
     }
 
     class PopupListener extends MouseAdapter {
