@@ -6,6 +6,7 @@ Added:  now the dialogs that may pop up when Frost is started create a dummy fra
 Added:  in case Frost finds an error while auto saving a resource, a popup is shown to warn the user
         about the situation and the application closes itself.
 Added:  popup menu to the message body of the new message frame (cut, copy and paste).
+Added:  popup menus to all the JTextFields in the preferences (to perform the usual clipboard operations).
 
 Changed: when an unsigned message is received with the @ character in the from field, it is automatically
          blocked.
