@@ -386,10 +386,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                             currentMsg.getSubject().indexOf(frame1.getMyId().getName()) == -1 )
                         {
                             System.out.println("TOFDN: Message is encrypted for someone else.");
-                            // need to be deleted, because later there will be no check for encrypted msg. if messages are loaded into table
-                            // TODO: implement later check for enc. msg and not delete the file here,
-                            // because we download it again and again ...
-                            testMe.delete();
+                            //testMe.delete();
+                            FileAccess.writeFile("Empty", testMe); // no more checking if for me, no more downloading
                             index++;
                             continue;
                         }

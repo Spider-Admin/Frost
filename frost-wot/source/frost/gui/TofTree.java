@@ -130,7 +130,15 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
 
             String childInfo = (String) trans.getTransferData(DataFlavor.stringFlavor /* NODE_FLAVOR */);
             Point loc = e.getLocation();
-            TreePath destPath = getPathForLocation(loc.x, loc.y);
+
+            int selRow = getRowForLocation(loc.x, loc.y);
+            if( selRow < 0 )
+            {
+                // we have no destination, cancel
+                return;
+            }
+
+            TreePath destPath = getPathForRow(selRow);
             DefaultMutableTreeNode newParent = (DefaultMutableTreeNode)destPath.getLastPathComponent();
             DefaultMutableTreeNode oldParent = (DefaultMutableTreeNode)dragNode.getParent();
             // we need to verify that the drag/drop operation is valid
