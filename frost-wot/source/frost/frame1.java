@@ -933,6 +933,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     notTrustButton.setEnabled(false);
     checkTrustButton.setEnabled(false);
 
+    // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
+    Startup.startupCheck();
+
     //check whether the user is running a transient node
     setFreenetIsTransient(false);
     setFreenetIsOnline(false);
@@ -996,9 +999,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     searchAllBoardsCheckBox.setSelected(frostSettings.getBoolValue("searchAllBoards"));
     //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
     //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
-
-    // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
-    Startup.startupCheck();
 
     FileAccess.cleanKeypool(keypool);
 
