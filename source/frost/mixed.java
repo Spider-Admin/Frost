@@ -148,4 +148,19 @@ public class mixed
         StringSelection ss = new StringSelection(str);
         Toolkit.getDefaultToolkit().getSystemClipboard().setContents(ss, null);
     }
+    
+    public static boolean binaryCompare(byte[] src, int offs, String searchTxt)
+    {
+        int searchLen = searchTxt.length();
+        for(int x=0; x < searchLen; x++)
+        {
+            byte a = (byte)searchTxt.charAt(x);
+            byte b = src[offs+x];
+            if( a != b )
+            {
+                return false;
+            }
+        }
+        return true;
+    }
 }

@@ -20,8 +20,6 @@ package frost.threads;
 
 import java.io.*;
 import java.util.Vector;
-import java.nio.charset.*;
-import java.nio.*;
 
 import org.xml.sax.*;
 import org.xml.sax.helpers.*;
@@ -332,39 +330,78 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     try
                     {
                         // maybe the file is corrupted ... so try
-                        String unzipped = FileAccess.readZipFile(target);
+                        byte[] unzipbin = FileAccess.readZipFileBinary(target);
+                        byte[] stripped = null;
+                        if( mixed.binaryCompare(unzipbin, 0, "===Frost signed message===") )
+                        {
+                            // skip header
+                            int headerLen = "===Frost signed message===".length();
+                            while( unzipbin[headerLen] == 0x0d ||
+                                   unzipbin[headerLen] == 0x0a )
+                            {
+                                headerLen++;       
+                            }
+                            // remove all 0x0d and 0x0a
+                            int bytesToRemove = 0;
+                            for(int x=headerLen; x<unzipbin.length;x++)
+                            {
+                                // count bytes to remove
+                                if( unzipbin[x] == 0x0a )
+                                {
+                                    bytesToRemove++;
+                                }
+                            }
+                            // extract utf-16 content
+                            byte[] newb = new byte[unzipbin.length - headerLen - bytesToRemove];
+                            int actOffset = 0;
+                            for(int x=headerLen; x<unzipbin.length; x++)
+                            {
+                                if( unzipbin[x] != 0x0a && actOffset < newb.length)
+                                {
+                                    newb[actOffset] = unzipbin[x];
+                                    actOffset++;
+                                }
+                            }
+                            //System.arraycopy(unzipbin, headerLen, newb, 0, newb.length);
+                            stripped = newb;
+                        }
+                        
+                        String unzipped = new String(unzipbin); 
+                        //FileAccess.readZipFile(target);
 
                         //verify the file 
-                        if (unzipped.startsWith("==="))
+                        if( stripped != null ) //(unzipped.startsWith("==="))
                         {
+//System.out.println("STRIPPED='"+new String(stripped)+"'");                            
                             // FIXME: FILELIST PBL:
                             // now all up to signature is XML code (UTF-16)
                             // extract the utf-16 code, and parse it using dom parser
                             // FIXED: use a SAX parser at the end of this file
-                            String stripped =
+                         /*   String stripped =
                                 new String(
                                     unzipped.substring(
                                         crypt.MSG_HEADER_SIZE,
                                         unzipped.lastIndexOf(
                                             "\n=== Frost message signature: ===\n")));
-							
+							*/
 							SimpleParser sp = new SimpleParser();
                             try
                             {
-                            	byte [] bytes = stripped.getBytes();
-                            	ByteBuffer _stripped = ByteBuffer.wrap(bytes);
-								Charset ch = Charset.forName("utf-16");
-								ch.decode(_stripped); 
                                 ByteArrayInputStream bis = 
                                     new ByteArrayInputStream(
-                                        bytes);
+                                        stripped );
 
                                 SAXParserFactory factory =
                                     SAXParserFactory.newInstance();
                                 factory.setValidating(false);
 
                                 // Create the builder and parse the file
-                                factory.newSAXParser().parse(bis, sp);
+                                SAXParser sparser = factory.newSAXParser();
+                                XMLReader xmlreader = sparser.getXMLReader();
+                                xmlreader.setFeature("http://apache.org/xml/features/allow-java-encodings", 
+                                                      true);
+
+                                sparser.parse(bis, sp);
                                 _sharer = sp.sharer;
                                 pubkey = sp.pubkey;
                             }

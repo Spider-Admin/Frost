@@ -124,7 +124,7 @@ public class GetFriendsRequestsThread extends TimerTask {
 					25,
 					true, //do redirect
 					false) //deep request
-					); //break when dnfs
+					!= null ); //break when dnfs
 			
 			Core.getOut().println("batch of "+currentPrefix+ " had "+ index + " requests");
 		}

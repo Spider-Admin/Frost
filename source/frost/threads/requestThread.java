@@ -103,7 +103,7 @@ public class requestThread extends Thread
             Core.getOut().println("FILEDN: Download of '" + filename + "' started.");
 
             // Download file
-            boolean success = false;
+            FcpResults success = null;
 
             try
             {
@@ -138,7 +138,7 @@ public class requestThread extends Thread
             }
 
             // download failed
-            if (!success)
+            if( success == null )
             {
                 downloadItem.setRetries(downloadItem.getRetries() + 1);
 
@@ -460,8 +460,8 @@ public class requestThread extends Thread
 
                         String requestMe = upKey;
 
-                        if (FcpRequest
-                            .getFile(requestMe, null, compareMe, 25, false))
+                        if( FcpRequest.getFile(requestMe, null, compareMe, 25, false)
+                            != null )
                         {
                             File numberOne = compareMe;
                             File numberTwo = requestFile;
