@@ -1,14 +1,15 @@
 package frost.identities;
 
 import java.io.*;
-
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 import frost.*;
 import frost.FcpTools.*;
 
 /**
  * Represents a user identity, should be immutable.
  */
-public class Identity implements Serializable
+public class Identity implements XMLizable
 {
     private String name;
     private String uniqueName;
@@ -16,6 +17,49 @@ public class Identity implements Serializable
     protected transient FcpConnection con;
     public static final String NA = "NA";
     private static ThreadLocal tmpfile;
+
+	/**
+	 * creates an Element with specific fields for this classes
+	 * inheriting classes should call this method to fill in their elements
+	 */
+	protected Element baseIdentityPopulateElement(Element el, Document doc){
+		//name
+		Element element = doc.createElement("name");
+		CDATASection cdata = doc.createCDATASection(getUniqueName());
+		element.appendChild( cdata );
+		el.appendChild( element );
+		
+		//key address - we really need to get rid of this, it slows down everything
+		element = doc.createElement("CHK");
+		cdata = doc.createCDATASection(getKeyAddress());
+		element.appendChild( cdata );
+		el.appendChild( element );
+		
+		//key itself
+		element = doc.createElement("key");
+		cdata = doc.createCDATASection(getKey());
+		element.appendChild( cdata );
+		el.appendChild( element );
+		
+		return el;
+	}
+
+	public Element getXMLElement(Document doc)  {
+		Element el = doc.createElement("Identity");
+		el = baseIdentityPopulateElement(el,doc);
+		return el;
+	}
+	
+	protected void baseIdentityPopulateFromElement(Element e) throws SAXException {
+				uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
+				name = uniqueName.substring(0,uniqueName.indexOf("@"));
+				keyaddress =  XMLTools.getChildElementsCDATAValue(e, "CHK");
+				key =  XMLTools.getChildElementsCDATAValue(e, "key");
+	}
+	
+	public void loadXMLElement(Element e) throws SAXException {
+		baseIdentityPopulateFromElement(e);
+	}
 
     /**
      * we use this constructor whenever we have all the info
