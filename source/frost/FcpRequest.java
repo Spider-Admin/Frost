@@ -710,6 +710,11 @@ public class FcpRequest {
 
     public static boolean getKey(String key, String size, File target, int htl) {
         if (key.indexOf("null") != -1) return false;
+        String keyUrl = "";
+        if( key.indexOf("/") > -1 )
+        {
+            keyUrl = key.substring(key.indexOf("/"));
+        }
     try {
         FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
                                                      frame1.frostSettings.getValue("nodePort"));
@@ -750,12 +755,20 @@ public class FcpRequest {
 
     if (target.length() > 0) {
         if (intSize == -1 || target.length() == intSize || intSize >= chunkSize) {
-        if (DEBUG) System.out.println("File " + target.getName() + " successfully downloaded :)");
+        if (DEBUG) System.out.println("getKey: Key " +
+                                      key +
+                                      " (targetfile='"+
+                                      target.getName()+
+                                      " successfully downloaded :)");
         return true;
         }
     }
     target.delete();
-    if (DEBUG) System.out.println("File " + target.getName() + " not found :(");
+    if (DEBUG) System.out.println("getKey: Key " +
+                                  key +
+                                  " (targetfile='"+
+                                  target.getName()+
+                                  "') not found :(");
     return false;
     }
 }

@@ -163,7 +163,7 @@ public class getKeyThread extends Thread {
             System.out.println("******************************************************************");
         }
         results[index] = false;
-        mixed.wait(3000);
+        //mixed.wait(3000); we finish now
         }
     } // end-of: while
     }
