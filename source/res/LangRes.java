@@ -498,7 +498,13 @@ public class LangRes extends ListResourceBundle {
 	{"No","No"},
 	{"Enable automatic board update","Enable automatic board update"},
 	{"Maximum message display (days)","Maximum message display (days)"},
-	{"Warning","Warning"}
+	{"Warning","Warning"},
+	
+	//	Uploads underway warning when exiting
+	 {"UploadsUnderway.title","Uploads underway"},
+	 {"UploadsUnderway.body","If you exit now, some of the messages\n"
+							 + "that you are uploading may appear duplicated.\n"
+							 + "Do you want to exit anyway?"}
 
     };
 }
