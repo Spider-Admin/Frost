@@ -808,8 +808,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		// all other stuff is saved in class Saver
 	}
 
-	private UpdatingLanguageResource languageResource =
-		new UpdatingLanguageResource(ResourceBundle.getBundle("res.LangRes"));
+	private UpdatingLanguageResource languageResource = null;
 
 	private Splashscreen splashscreen;
 
@@ -1078,20 +1077,28 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	/**Construct the frame*/
-	public frame1(
-		SettingsClass newSettings,
-		String locale,
-		Splashscreen splashscreen) {
+	public frame1(SettingsClass newSettings, String locale, Splashscreen splashscreen) {
 		this.splashscreen = splashscreen;
+
+		instance = this;
+		frostSettings = newSettings;
+
+		//Initializes the language
+		if (!locale.equals("default")) {
+			languageResource = new UpdatingLanguageResource("res.LangRes", new Locale(locale));
+		} else {
+			String language = frostSettings.getValue("locale");
+			if (!language.equals("default")) {
+				languageResource =
+					new UpdatingLanguageResource("res.LangRes", new Locale(language));
+			} else {
+				languageResource = new UpdatingLanguageResource("res.LangRes");
+			}
+		}
 
 		splashscreen.setText("Initializing Mainframe");
 		splashscreen.setProgress(20);
 
-		if (!locale.equals("default"))
-			languageResource.setLanguageResource(
-				ResourceBundle.getBundle("res.LangRes", new Locale(locale)));
-		instance = this;
-		frostSettings = newSettings;
 		keypool = frostSettings.getValue("keypool.dir");
 
 		splashscreen.setText("Hypercube fluctuating!");
@@ -1839,6 +1846,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			public void actionPerformed(ActionEvent e) {
 				java.util.ResourceBundle bundle =
 					java.util.ResourceBundle.getBundle("res.LangRes");
+				frostSettings.setValue("locale", "default");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1848,6 +1856,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("de"));
+				frostSettings.setValue("locale", "de");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1857,6 +1866,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("en"));
+				frostSettings.setValue("locale", "en");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1866,6 +1876,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("nl"));
+				frostSettings.setValue("locale", "nl");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1875,6 +1886,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("fr"));
+				frostSettings.setValue("locale", "fr");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1884,6 +1896,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("ja"));
+				frostSettings.setValue("locale", "ja");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1893,6 +1906,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("it"));
+				frostSettings.setValue("locale", "it");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1902,6 +1916,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("es"));
+				frostSettings.setValue("locale", "es");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1911,6 +1926,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					java.util.ResourceBundle.getBundle(
 						"res.LangRes",
 						new Locale("bg"));
+				frostSettings.setValue("locale", "bg");
 				setLanguageResource(bundle);
 			}
 		});
@@ -1956,7 +1972,25 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		languageMenuButtonGroup.add(languageJapaneseMenuItem);
 		languageMenuButtonGroup.add(languageSpanishMenuItem);
 		languageMenuButtonGroup.add(languageBulgarianMenuItem);
-
+		
+		// Selects the language menu option according to the settings
+		HashMap languageMenuItems = new HashMap(); 
+		languageMenuItems.put("default", languageDefaultMenuItem);
+		languageMenuItems.put("de", languageGermanMenuItem);
+		languageMenuItems.put("en", languageEnglishMenuItem);
+		languageMenuItems.put("nl", languageDutchMenuItem);
+		languageMenuItems.put("fr", languageFrenchMenuItem);
+		languageMenuItems.put("ja", languageJapaneseMenuItem);
+		languageMenuItems.put("it", languageItalianMenuItem);
+		languageMenuItems.put("es", languageSpanishMenuItem);
+		languageMenuItems.put("bg", languageBulgarianMenuItem);
+		
+		String language = frostSettings.getValue("locale");
+		Object languageItem = languageMenuItems.get(language);
+		if (languageItem != null) {
+			languageMenuButtonGroup.setSelected(((JMenuItem) languageItem).getModel(), true);	
+		}
+		
 		languageMenu.add(languageDefaultMenuItem);
 		languageMenu.addSeparator();
 		languageMenu.add(languageDutchMenuItem);

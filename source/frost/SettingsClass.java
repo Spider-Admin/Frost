@@ -471,6 +471,8 @@ public class SettingsClass
 
 		defaults.put("skinsEnabled", "false");
 		defaults.put("selectedSkin", "none");
+		
+		defaults.put("locale", "default");
 
         settingsHash.putAll(defaults);
     }
