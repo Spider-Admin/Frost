@@ -224,6 +224,8 @@ public class DownloadTicker extends Thread {
 
 	/**
 	 * Chooses next download item to start from download table.
+	 * @return the next download item to start downloading or null if a suitable
+	 * 			one was not found.
 	 */
 	private FrostDownloadItem selectNextDownloadItem() {
 
