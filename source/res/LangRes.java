@@ -206,7 +206,7 @@ public class LangRes extends ListResourceBundle {
 	{"Browse", "Browse"},
 
     // FileChooser in Uploads Tab
-	{"Select file you want to upload to the", "Select file you want to upload to the"},
+	{"Select files you want to upload to the", "Select files you want to upload to the"},
 	{"board", "board"},
 
 	// Popup over uploads table    

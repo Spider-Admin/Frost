@@ -81,6 +81,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	private void translateCheckBox() {
 		searchAllBoardsCheckBox.setText(languageResource.getString("all boards"));
+		downloadActivateCheckBox.setToolTipText(languageResource.getString("Activate downloading"));
 	}
 	private void translateMenuEntries() {
 		buildMenuBar();
@@ -1110,7 +1111,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				true);
 		configureCheckBox(
 			downloadActivateCheckBox,
-			"Activate downloading (if paused)",
+			languageResource.getString("Activate downloading"),
 			"/data/down_rollover.gif",
 			"/data/down_selected.gif",
 			"/data/down_selected_rollover.gif");
@@ -3305,9 +3306,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		final JFileChooser fc =
 			new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
 		fc.setDialogTitle(
-			"Select files you want to upload to the "
+			languageResource.getString("Select files you want to upload to the") + " "
 				+ board.toString()
-				+ " board.");
+				+ " " + languageResource.getString("board") + ".");
 		fc.setFileHidingEnabled(true);
 		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
 		fc.setMultiSelectionEnabled(true);
