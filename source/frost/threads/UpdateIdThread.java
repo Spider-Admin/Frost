@@ -209,7 +209,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         while( failures < maxFailures )
         {
             
-		File target = File.createTempFile("frost-index-"+index,board.getBoardFilename());
+		File target = File.createTempFile("frost-index-"+index,board.getBoardFilename(),
+					new File(frame1.frostSettings.getValue("temp.dir")));
                 if( DEBUG ) System.out.println("FILEDN: Requesting index " + index);
                 // Download the keyfile
                 FcpRequest.getFile(requestKey + index + ".idx.sha.zip",
