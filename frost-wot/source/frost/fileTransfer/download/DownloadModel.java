@@ -147,7 +147,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 	/**
 	 * Removes download items from the download model.
 	 */
-	public void removeItems(ModelItem[] items) {
+	public boolean removeItems(ModelItem[] items) {
 		//First we remove the chunks from disk
 		ArrayList oldChunkFilesList = new ArrayList(items.length);
 		String dlDir = settings.getValue("downloadDirectory");
@@ -159,7 +159,7 @@ public class DownloadModel extends OrderedModel implements Savable {
 		t.start();
 		
 		//And now we remove the items from the model
-		super.removeItems(items);
+		return super.removeItems(items);
 	}
 	
 	/**

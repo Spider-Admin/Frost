@@ -134,10 +134,15 @@ public abstract class Model {
 	protected abstract void addItem(ModelItem item);
 	
 	/**
-	 * Removes several items from the model
-	 * @param items
+	 * This method removes all of the ModelItems in the given array
+	 * from the model. If a ModelItem is not in the model, its link
+	 * to its model is cleared, but nothing else is done with it.
+	 * If a ModelItem appears more than once in the model, only the
+	 * first occurrence is removed from it.
+	 * @param items array of items to remove from the model.
+	 * @return true if at least one item was removed from the model. False otherwise.
 	 */
-	public abstract void removeItems(ModelItem[] items);
+	public abstract boolean removeItems(ModelItem[] items);
 	
 	/**
 	 *	Returns the number of items the model has.
