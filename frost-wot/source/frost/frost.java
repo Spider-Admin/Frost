@@ -141,10 +141,18 @@ public class frost {
 			Class.forName("com.l2fprod.gui.SkinApplet");
 			// check for skinlfFix.jar
 			Class.forName("com.l2fprod.gui.plaf.skin.SkinlfFixMarkerClass");
+			//REDFLAG, FIXME: I'm not sure about licensing here.  Theoretically we need to
+			//make this optional, but we're linking against so much closed source it probably
+			//doesn't matter anymore.
+			// check for mailapi.jar
+			Class.forName("javax.mail.Address");
+			// check for smtp.jar
+			Class.forName("com.sun.mail.smtp.SMTPTransport");
 		} catch (ClassNotFoundException e1) {
-			System.out.println(
+			System.err.println(
 				"ERROR: There are missing jar files. Please start Frost using the provided start scripts "
-					+ "(frost.bat for win32, frost.sh for unix).\n");
+					+ "(frost.bat for win32, frost.sh for unix).\n"+
+					"  If Frost was working and you updated just frost.jar, try updating with Frost.zip\n");
 			e1.printStackTrace();
 			System.exit(3);
 		}
