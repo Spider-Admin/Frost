@@ -11,7 +11,6 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import frost.SettingsClass;
-import frost.gui.TableXmlIO;
 import frost.storage.*;
 import frost.util.model.*;
 
@@ -236,33 +235,22 @@ public class DownloadModel extends OrderedModel implements Savable {
 	 * Saves the download model to disk.
 	 */
 	public void save() throws StorageException {
-		String filename = settings.getValue("config.dir") + "downloads.xml";
-		File check = new File(filename);
-		if (check.exists()) {
-			// rename old file to .bak, overwrite older .bak
-			String bakFilename = settings.getValue("config.dir") + "downloads.xml.bak";
-			File bakFile = new File(bakFilename);
-			if (bakFile.exists()) {
-				bakFile.delete();
-			}
-			check.renameTo(bakFile);
-		}
-		if (!TableXmlIO.saveDownloadModel(this, filename)) {
-			throw new StorageException("Error while saving the downloads model.");
-		}
+		DownloadModelDAO downloadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getDownloadModelDAO();
+		downloadModelDAO.save(this);
 	}
 	
 	/**
-	 * Loads the download model from disk
+	 * Initializes the model
 	 */
-	public boolean load() {
-		String filename = settings.getValue("config.dir") + "downloads.xml";
-		// the call changes the tablemodel and loads nodes into it
-		File iniFile = new File(filename);
-		if (iniFile.exists() == false) {
-			return true; // nothing loaded, but no error
+	public void initialize() throws StorageException {
+		DownloadModelDAO downloadModelDAO = DAOFactory.getFactory(DAOFactory.XML).getDownloadModelDAO();
+		if (!downloadModelDAO.exists()) {
+			// The storage doesn't exist yet. We create it.
+			downloadModelDAO.create();
+		} else {
+			// Storage exists. Load from it.
+			downloadModelDAO.load(this);
 		}
-		return TableXmlIO.loadDownloadModel(this, filename);
 	}
 
 }

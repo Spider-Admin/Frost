@@ -23,7 +23,7 @@ public class DownloadModelHsqldbDAO implements DownloadModelDAO {
 	/* (non-Javadoc)
 	 * @see frost.fileTransfer.download.DownloadModelDAO#load(frost.fileTransfer.download.DownloadModel)
 	 */
-	public void load(DownloadModel DownloadModel) throws StorageException {
+	public void load(DownloadModel downloadModel) throws StorageException {
 		// TODO Auto-generated method stub
 		
 	}

@@ -9,6 +9,7 @@ package frost.fileTransfer.download;
 import java.beans.*;
 
 import frost.*;
+import frost.storage.StorageException;
 
 /**
  * @author $Author$
@@ -44,11 +45,11 @@ public class DownloadManager implements PropertyChangeListener {
 	/**
 	 * 
 	 */
-	public void initialize() {
+	public void initialize() throws StorageException {
 		mainFrame.addPanel("Downloads", getPanel());
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
 		updateDownloadStatus();
-		getModel().load();
+		getModel().initialize();
 		if (freenetIsOnline) {
 			getTicker().start();
 		}
