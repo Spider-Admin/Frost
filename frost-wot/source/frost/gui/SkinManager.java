@@ -26,7 +26,7 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 import java.util.*;
 import javax.swing.table.*;
-// import java.io.*;
+import java.io.*;
 
 public class SkinManager extends JFrame {
     //     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
@@ -150,8 +150,16 @@ public class SkinManager extends JFrame {
 		    if (first.equals("IconTextGap"))
 			thisButton.setIconTextGap(Integer.parseInt((String)tableModel.getValueAt(i, 2)));
 
-		    if (first.equals("Icon"))
-			thisButton.setIcon(new ImageIcon((String)tableModel.getValueAt(i, 2)));
+		    if (first.equals("Mnemonic"))
+			thisButton.setMnemonic(Integer.parseInt((String)tableModel.getValueAt(i, 2)));
+
+		    if (first.equals("Icon")) {
+		        File iconDescriptor  = new File((String)tableModel.getValueAt(i, 2));
+			if (iconDescriptor.isFile())
+			    thisButton.setIcon(new ImageIcon(iconDescriptor.getPath()));
+			else
+			    thisButton.setIcon(null);
+		    }
 
 		    if (first.equals("PressedIcon"))
 			thisButton.setPressedIcon(new ImageIcon((String)tableModel.getValueAt(i, 2)));
@@ -171,8 +179,73 @@ public class SkinManager extends JFrame {
 		    if (first.equals("SelectedIcon"))
 			thisButton.setSelectedIcon(new ImageIcon((String)tableModel.getValueAt(i, 2)));
 
+		    if (first.equals("VerticalAlignment")) {
+			String value = (((String)tableModel.getValueAt(i, 2)).toUpperCase()).trim();
+			
+			if (value.equals("CENTER"))
+			    thisButton.setVerticalAlignment(SwingConstants.CENTER);
+			if (value.equals("TOP"))
+			    thisButton.setVerticalAlignment(SwingConstants.TOP);
+			if (value.equals("BOTTOM"))
+			    thisButton.setVerticalAlignment(SwingConstants.BOTTOM);
+
+		    }
+
+		    if (first.equals("VerticalTextPosition")) {
+			String value = (((String)tableModel.getValueAt(i, 2)).toUpperCase()).trim();
+			
+			if (value.equals("CENTER"))
+			    thisButton.setVerticalTextPosition(SwingConstants.CENTER);
+			if (value.equals("TOP"))
+			    thisButton.setVerticalTextPosition(SwingConstants.TOP);
+			if (value.equals("BOTTOM"))
+			    thisButton.setVerticalTextPosition(SwingConstants.BOTTOM);
+
+		    }
+
+		    if (first.equals("HorizontalAlignment")) {
+			String value = (((String)tableModel.getValueAt(i, 2)).toUpperCase()).trim();
+			
+			if (value.equals("RIGHT"))
+			    thisButton.setHorizontalAlignment(SwingConstants.RIGHT);
+			if (value.equals("LEFT"))
+			    thisButton.setHorizontalAlignment(SwingConstants.LEFT);
+			if (value.equals("CENTER"))
+			    thisButton.setHorizontalAlignment(SwingConstants.CENTER);
+			if (value.equals("LEADING"))
+			    thisButton.setHorizontalAlignment(SwingConstants.LEADING);
+			if (value.equals("TRAILING"))
+			    thisButton.setHorizontalAlignment(SwingConstants.TRAILING);
+
+		    }
+
+		    if (first.equals("HorizontalTextPosition")) {
+			String value = (((String)tableModel.getValueAt(i, 2)).toUpperCase()).trim();
+			
+			if (value.equals("RIGHT"))
+			    thisButton.setHorizontalTextPosition(SwingConstants.RIGHT);
+			if (value.equals("LEFT"))
+			    thisButton.setHorizontalTextPosition(SwingConstants.LEFT);
+			if (value.equals("CENTER"))
+			    thisButton.setHorizontalTextPosition(SwingConstants.CENTER);
+			if (value.equals("LEADING"))
+			    thisButton.setHorizontalTextPosition(SwingConstants.LEADING);
+			if (value.equals("TRAILING"))
+			    thisButton.setHorizontalTextPosition(SwingConstants.TRAILING);
+
+		    }
+
 		    if (first.equals("Margin")) {
-			getIntegerTuple((String)tableModel.getValueAt(i, 2));
+			Vector values = getIntegerTuple((String)tableModel.getValueAt(i, 2));
+			if (values.size() == 4) {
+			    thisButton.setMargin(new Insets(
+							    Integer.parseInt((String)values.elementAt(0)), 
+							    Integer.parseInt((String)values.elementAt(1)),
+							    Integer.parseInt((String)values.elementAt(2)),
+							    Integer.parseInt((String)values.elementAt(3))
+							    )
+						 );
+			}
 		    }
 		}
 	    }
@@ -187,19 +260,20 @@ public class SkinManager extends JFrame {
      * @param data This String contains the numbers divided by spaces
      * @return Each field of this array contains one number. 'NULL' is returned if none is found.
      */
-    private int[] getIntegerTuple(String data) {
-
+    private Vector getIntegerTuple(String data) {
+	int nextSpace = data.indexOf(" ");
+	Vector values = new Vector();
+	
 	data = data.trim();
 
-	int i = 0;
-	int numCount = 0;
-	while (data.indexOf(" ", i) != -1) {
-	    i = data.indexOf(" ", i) + 1;
-	    numCount++;
+	while (nextSpace != -1) {
+	    values.add(data.substring(0, nextSpace).trim());
+	    data = data.substring(nextSpace).trim();
+	    nextSpace = data.indexOf(" ");
 	}
+	values.add(data.trim());
 
-	System.out.println("Number of values: " + numCount);
-	return null;
+	return values;
     }
 
     protected void processWindowEvent(WindowEvent e) {
