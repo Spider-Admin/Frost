@@ -3,7 +3,7 @@ Changes since version 2-Dec-2004 dev:
 Added: if we have an old identities file, it is deleted after being converted to the new xml format.
 Added: saving of both the uploads and downloads models is much more robust now.
 Added: some internationalization improvements.
-Added: the message about uploading files at the status bar is clearer now.
+Added: the messages about downloading and uploading files at the status bar are clearer now.
 
 Changed: messages are signed by default.
 Changed: now the sizes of the new message window, the known boards window and the boards info window are
