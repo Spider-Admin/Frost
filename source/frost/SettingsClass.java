@@ -60,9 +60,12 @@ public class SettingsClass implements Savable {
 	public static final String MESSAGE_LIST_FONT_NAME = "messageListFontName";
 	public static final String MESSAGE_LIST_FONT_SIZE = "messageListFontSize";
 	public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
+	public static final String RESTART_FAILED_UPLOADS = "restartFailedUploads";
 	public static final String SEARCH_ALL_BOARDS = "searchAllBoards";
 	public static final String SHOW_DELETED_MESSAGES = "showDeletedMessages";
 	public static final String SILENTLY_RETRY_MESSAGES = "silentlyRetryMessages";
+	public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
+	public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
 	
 	//Constructors
 	public SettingsClass() {
@@ -670,6 +673,10 @@ public class SettingsClass implements Savable {
 		defaults.put(SILENTLY_RETRY_MESSAGES, "false");
 		
 		defaults.put(SHOW_DELETED_MESSAGES, "false");
+		
+		defaults.put(RESTART_FAILED_UPLOADS, "true");
+		defaults.put(UPLOAD_MAX_RETRIES, "5");
+		defaults.put(UPLOAD_RETRIES_WAIT_TIME, "5");
 
 		settingsHash.putAll(defaults);
 	}
