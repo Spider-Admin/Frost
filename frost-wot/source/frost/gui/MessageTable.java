@@ -47,9 +47,13 @@ public class MessageTable extends SortedTable
      */
     private class CellRenderer extends DefaultTableCellRenderer
     {
-        Font boldFont = null;
-        Font normalFont = null;
+        private Font boldFont = null;
+        private Font normalFont = null;
+        private boolean isDeleted = false;
         
+        /**
+         * 
+         */
         public CellRenderer()
         {
         	Font baseFont = MessageTable.this.getFont();
@@ -57,6 +61,22 @@ public class MessageTable extends SortedTable
             boldFont = baseFont.deriveFont(Font.BOLD);
         }
         
+        /* (non-Javadoc)
+         * @see java.awt.Component#paint(java.awt.Graphics)
+         */
+        public void paint (Graphics g){
+        	super.paint(g);
+        	Dimension size = getSize();
+        	
+        	if(isDeleted) {
+        		g.drawLine(0, size.height / 2, size.width, size.height / 2);
+        	}
+        }
+
+        
+		/* (non-Javadoc)
+		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+		 */
 		public Component getTableCellRendererComponent(
 			JTable table,
 			Object value,
@@ -90,7 +110,13 @@ public class MessageTable extends SortedTable
 						setForeground(Color.BLACK);
 					}
 				}
+				
 			}
+			
+			setDeleted(msg.isDeleted());
+			
+			
+			
 			return this;
 		}
 		/* (non-Javadoc)
@@ -100,6 +126,13 @@ public class MessageTable extends SortedTable
 			super.setFont(font);
 			normalFont = font.deriveFont(Font.PLAIN);
 			boldFont = font.deriveFont(Font.BOLD);
+		}
+		
+		/**
+		 * @param value
+		 */
+		public void setDeleted(boolean value) {
+			isDeleted = value;
 		}
 
     }
