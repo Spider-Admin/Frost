@@ -500,10 +500,12 @@ public class SharedFileObject implements XMLizable
 			else{
 				SharedFileObject result = new SharedFileObject();
 				result.loadXMLElement(e);
-				
-				//The file was not recreated and the upload thread failed
-				File file = new File(result.getFilename());
-				result.setFile(file);
+				 
+				//TODO: The file was not recreated and the upload thread failed
+				//Could not recreate the problem. 
+				//Left commented until I figure out what is going on
+				//File file = new File(result.getFilename());
+				//result.setFile(file);
 				 
 				return result;
 			}
