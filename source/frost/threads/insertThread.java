@@ -26,7 +26,7 @@ import frost.*;
 import frost.FcpTools.*;
 import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
-import frost.messages.SharedFileObject;
+import frost.messages.*;
 
 public class insertThread extends Thread
 {
@@ -120,7 +120,26 @@ public class insertThread extends Thread
                 //what was it before?
                 if( success == true )
                 {
-                    SharedFileObject current = new SharedFileObject(uploadItem.getKey());
+					SharedFileObject current;
+                	
+					if (uploadItem.getFileSize().longValue() > FcpInsert.smallestChunk ) {
+						Core.getOut().println("attaching redirect to file "+file.getName());
+						current = new FECRedirectFileObject();
+						FecSplitfile splitFile = new FecSplitfile(file);
+						if (!splitFile.uploadInit()) 
+							throw new Error("file was just uploaded, but .redirect missing!");
+						
+						((FECRedirectFileObject)current).setRedirect(
+								new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
+					}
+					else {
+						current = new SharedFileObject();
+						Core.getOut().println("not attaching redirect");
+					}
+                	
+					
+                	
+                	current.setKey(uploadItem.getKey());
                     if (sign)
                         current.setOwner(frame1.getMyId().getUniqueName());
                     current.setFilename(uploadItem.getFileName());
