@@ -2675,7 +2675,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		String status = selectedMessage.getStatus();
 
 		if (status.indexOf(VerifyableMessageObject.PENDING) > -1) {
-			Identity owner = core.getIdentities().getNeutrals().Get(selectedMessage.getFrom());
+			Identity owner = core.getIdentities().getNeutrals().get(selectedMessage.getFrom());
 			if (owner == null) {
 				logger.warning("message was CHECK but not found in Neutral list");
 				return;
@@ -2683,7 +2683,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 		if (status.indexOf(VerifyableMessageObject.FAILED) > -1) {
-			Identity owner = core.getIdentities().getEnemies().Get(selectedMessage.getFrom());
+			Identity owner = core.getIdentities().getEnemies().get(selectedMessage.getFrom());
 			if (owner == null) {
 				logger.warning("message was BAD but not found in BAD list");
 				return;
@@ -2692,7 +2692,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 
 		if (status.indexOf(VerifyableMessageObject.VERIFIED) > -1) {
-			Identity owner = core.getIdentities().getFriends().Get(selectedMessage.getFrom());
+			Identity owner = core.getIdentities().getFriends().get(selectedMessage.getFrom());
 			if (owner == null) {
 				logger.warning("message was GOOD but not found in GOOD list");
 				return;

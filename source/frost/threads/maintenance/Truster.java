@@ -52,36 +52,36 @@ public class Truster extends Thread
         if( trust == null )
         {
          
-        		newIdentity = identities.getFriends().Get(from);
-        		if (newIdentity==null) newIdentity = identities.getEnemies().Get(from);
+        		newIdentity = identities.getFriends().get(from);
+        		if (newIdentity==null) newIdentity = identities.getEnemies().get(from);
 				identities.getFriends().remove( from );
 				identities.getEnemies().remove( from );
-				identities.getNeutrals().Add(newIdentity);
+				identities.getNeutrals().add(newIdentity);
         }
         else if( identities.getFriends().containsKey(from) && trust.booleanValue() == false )
         {
             // set friend to bad
-            newIdentity = identities.getFriends().Get(from);
+            newIdentity = identities.getFriends().get(from);
 			identities.getFriends().remove( from );
-			identities.getEnemies().Add( newIdentity );
+			identities.getEnemies().add( newIdentity );
         }
         else if( identities.getEnemies().containsKey(from) && trust.booleanValue() == true )
         {
             // set enemy to good
-            newIdentity = identities.getEnemies().Get(from);
+            newIdentity = identities.getEnemies().get(from);
 			identities.getEnemies().remove( newIdentity );
-			identities.getFriends().Add( newIdentity );
+			identities.getFriends().add( newIdentity );
         }
         else
         {
             // new new enemy/friend
-            newIdentity = identities.getNeutrals().Get(from);
+            newIdentity = identities.getNeutrals().get(from);
             if (newIdentity==null) logger.warning("neutral list not working :(");
 			identities.getNeutrals().remove(newIdentity);
             if( trust.booleanValue() )
-				identities.getFriends().Add(newIdentity);
+				identities.getFriends().add(newIdentity);
             else
-				identities.getEnemies().Add(newIdentity);
+				identities.getEnemies().add(newIdentity);
         }
 
         if( newIdentity == null || Identity.NA.equals( newIdentity.getKey() ) )

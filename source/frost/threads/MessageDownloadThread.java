@@ -384,20 +384,20 @@ public class MessageDownloadThread
 
                             Identity owner;
                             //check friends
-                            owner = identities.getFriends().Get(_owner);
+                            owner = identities.getFriends().get(_owner);
                             //if not, check neutral
                             if (owner == null)
-                                owner = identities.getNeutrals().Get(_owner);
+                                owner = identities.getNeutrals().get(_owner);
                             //if not, check enemies
                             if (owner == null)
-                                owner = identities.getEnemies().Get(_owner);
+                                owner = identities.getEnemies().get(_owner);
                             //if still not, use the parsed id
                             if (owner == null)
                             {
                                 owner = metaData.getPerson();
                                 owner.noFiles = 0;
                                 owner.noMessages = 1;
-								identities.getNeutrals().Add(owner);
+								identities.getNeutrals().add(owner);
                             }
 
                             //verify! :)

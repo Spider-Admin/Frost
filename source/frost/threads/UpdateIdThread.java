@@ -433,10 +433,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							} else {
 								String message = "Received index file from " + _owner;
 								if (identities.getFriends().containsKey(_owner)) {
-									sharer = identities.getFriends().Get(_owner);
+									sharer = identities.getFriends().get(_owner);
 									logger.info(message + ", a friend");
 								} else if (identities.getNeutrals().containsKey(_owner)) {
-									sharer = identities.getNeutrals().Get(_owner);
+									sharer = identities.getNeutrals().get(_owner);
 									logger.info(message + ", a neutral");
 								} else if (identities.getEnemies().containsKey(_owner)) {
 									if (frame1.frostSettings.getBoolValue("hideBadFiles")) {
@@ -447,7 +447,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 										continue;
 									}
 									//we may chose not to block files from bad people
-									sharer = identities.getEnemies().Get(_owner);
+									sharer = identities.getEnemies().get(_owner);
 									logger.info(message + ", an enemy");
 								} else {
 									// a new sharer, put to neutral list
@@ -562,7 +562,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         //create the identity of the sharer
         sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")),_pubkey);
         //add him to the neutral list
-		identities.getNeutrals().Add(sharer);
+		identities.getNeutrals().add(sharer);
         return sharer;
     }
 
