@@ -41,6 +41,11 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 		CDATASection cdata = container.createCDATASection(boardObj.getPrivateKey()); //null is ok
 		privkey.appendChild(cdata);
 		el.appendChild(privkey);
+		
+		Element description = container.createElement("description");
+		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getDescription()));	//null is ok
+		description.appendChild(cdata);
+		el.appendChild(description);
 
 		return el;
 	}
@@ -71,12 +76,13 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
-		String name, privkey, pubkey;
+		String name, privkey, pubkey, description;
 		name = XMLTools.getChildElementsCDATAValue(e, "Name");
 		privkey = XMLTools.getChildElementsCDATAValue(e, "privKey");
 		pubkey = XMLTools.getChildElementsCDATAValue(e, "pubKey");
+		description = XMLTools.getChildElementsCDATAValue(e, "description");
 
-		boardObj = new FrostBoardObject(name, pubkey, privkey, null);
+		boardObj = new FrostBoardObject(name, pubkey, privkey, description);
 	}
 
 	/**
