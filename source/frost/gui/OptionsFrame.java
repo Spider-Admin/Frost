@@ -199,6 +199,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
     JCheckBox signUploads = new JCheckBox(LangRes.getString("Sign shared files"));
     JCheckBox automaticIndexing = new JCheckBox(LangRes.getString("Automatic Indexing"));
+    JCheckBox shareDownloads = new JCheckBox(LangRes.getString("Share Downloads"));
     JCheckBox helpFriends = new JCheckBox(LangRes.getString("Help spread files from people marked GOOD"));
     JCheckBox hideBadFiles = new JCheckBox(LangRes.getString("Hide files from people marked BAD"));
     JCheckBox hideAnonFiles = new JCheckBox(LangRes.getString("Hide files from anonymous users"));
@@ -558,6 +559,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx=0;
             uploadPanel.add(automaticIndexing,constr);
+            constr.gridx+=2;
+            uploadPanel.add(shareDownloads,constr);
             constr.gridy++;
             constr.gridx=0;
 	    uploadPanel.add(signUploads,constr);
@@ -1118,6 +1121,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 	hideBadFiles.setSelected(_hideBad);
 	hideAnonFiles.setSelected(_hideAnon);
 	automaticIndexing.setSelected(frostSettings.getBoolValue("automaticIndexing"));
+	shareDownloads.setSelected(frostSettings.getBoolValue("shareDownloads"));
         downloadRemoveFinishedDownloads.setSelected(frostSettings.getBoolValue("removeFinishedDownloads"));
         allowEvilBertCheckBox.setSelected(frostSettings.getBoolValue("allowEvilBert"));
         miscAltEditCheckBox.setSelected(frostSettings.getBoolValue("useAltEdit"));
@@ -1288,6 +1292,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("autoSaveInterval", miscAutoSaveInterval.getText() );
     	frostSettings.setValue("signUploads",signUploads.isSelected());
     	frostSettings.setValue("automaticIndexing",automaticIndexing.isSelected());
+    	frostSettings.setValue("shareDownloads",shareDownloads.isSelected());
     	frostSettings.setValue("helpFriends",helpFriends.isSelected());
     	frostSettings.setValue("hideBadFiles",hideBadFiles.isSelected());
     	frostSettings.setValue("hideAnonFiles",hideAnonFiles.isSelected());
