@@ -271,7 +271,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 FcpRequest.getFile(requestKey + index + ".idx.sha.zip",
                                    null,
                                    target,
-                                   requestHtl,
+                                   requestHtl+ ((Integer)indices.elementAt(index)).intValue(),
+				   //^^^ this way we bypass the failure table
                                    true);
                 if( target.length() > 0 )
                 {
