@@ -93,14 +93,18 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public Object getValueAt(int column)
     {
         String aFileAge = ( (fileAge==null) ? "Unknown" : fileAge );
-        Long aFileSize =  ( (fileSize==null) ? new Long(-1) : fileSize );
+        Object aFileSize;
+        if( fileSize == null ) // unknown
+            aFileSize = "Unknown";
+        else
+            aFileSize = fileSize;
 
         switch(column) {
             case 0: return fileName;                //LangRes.getString("Filename"),
             case 1: return aFileSize;               //LangRes.getString("Size"),
             case 2: return aFileAge;                //LangRes.getString("Age"),
             case 3: return getStateString( state ); //LangRes.getString("State"),
-            case 4: return retries;                   //LangRes.getString("Retries"),
+            case 4: return retries;                 //LangRes.getString("Retries"),
             case 5: return sourceBoard.toString();  //LangRes.getString("Source"),
             case 6: return key;                     //LangRes.getString("Key")
             default: return "*ERR*";
@@ -111,6 +115,16 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     {
         Comparable c1 = (Comparable)getValueAt(tableColumIndex);
         Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
+        if( tableColumIndex != 1 )
+            return c1.compareTo( c2 );
+        // handle the size column. The values are either Integer or String ("Unknown")
+        // sort strings below numbers
+        if( c1 instanceof String && c2 instanceof String )
+            return 0;
+        if( c1 instanceof String && !(c2 instanceof String) )
+            return 1;
+        if( !(c1 instanceof String) && c2 instanceof String )
+            return -1;
         return c1.compareTo( c2 );
     }
 

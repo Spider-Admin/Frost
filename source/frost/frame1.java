@@ -2500,7 +2500,13 @@ public class frame1 extends JFrame implements ClipboardOwner
         for( int i = 0; i < dlModel.getRowCount(); i++ )
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-            if( dlItem.getState() == dlItem.STATE_WAITING )
+            if( dlItem.getState() == dlItem.STATE_WAITING
+// doing this frost will always try to download each file after startup -> nice.
+// but also means if you lower the maxRetries value in options, download will start 1 time more
+// even if maxRetries is lower, after the try its set to FAILED
+//                &&
+//                dlItem.getRetries() <= frame1.frostSettings.getIntValue("downloadMaxRetries")
+              )
             {
                 // check if waittime is expired
                 long waittimeMillis = frostSettings.getIntValue("downloadWaittime") * 60 * 1000; // min->millisec

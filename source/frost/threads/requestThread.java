@@ -68,15 +68,8 @@ public class requestThread extends Thread
         // Download file
         boolean success = false;
 
-        String sizeStr;
-        if( size == null )
-            sizeStr = "Unknown";
-        else
-            sizeStr = size.toString();
-
         try {
-            // TODO: size -> long (FcpRequest.getKeyToFile)
-            success = FcpRequest.getFile(key, sizeStr, newFile, 25, true, false);
+            success = FcpRequest.getFile(key, size, newFile, 25, true, false);
         }
         catch(Throwable t) { ; }
 
@@ -327,7 +320,7 @@ public class requestThread extends Thread
                         String requestMe = upKey;
 
                         if( FcpRequest.getFile(requestMe,
-                                               "Unknown",
+                                               null,
                                                compareMe,
                                                25,
                                                false) )

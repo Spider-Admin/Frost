@@ -695,7 +695,8 @@ public class FcpRequest
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or
      * just a simple file. It checks the size for the file and returns false if sizes do not match.
-     * Size is ignored if it is no integer value (NumberFormatException).
+     * Size is ignored if it is NULL
+     *
      * @param key The key to retrieve. All to Freenet known key formats are allowed (passed to node via FCP).
      * @param size Size of the file in bytes. Is ignored if not an integer value or -1 (splitfiles do not need this setting).
      * @param target Target path
@@ -703,13 +704,13 @@ public class FcpRequest
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return True if download was successful, else false.
      */
-    public static boolean getFile(String key, String size, File target, int htl, boolean doRedirect)
+    public static boolean getFile(String key, Long size, File target, int htl, boolean doRedirect)
     {
         // use temp file by default, only filedownload needs the target file to monitor download progress
         return getFile(key,size,target,htl,doRedirect,    true);
     }
 
-    public static boolean getFile(String key, String size, File target, int htl, boolean doRedirect, boolean createTempFile)
+    public static boolean getFile(String key, Long size, File target, int htl, boolean doRedirect, boolean createTempFile)
     {
         File tempFile = null;
         if( createTempFile )
@@ -746,7 +747,7 @@ public class FcpRequest
                     String redirect = SettingsFun.getValue(tempFile.getPath(), "Redirect.Target");
                     if( DEBUG ) System.out.println("Redirecting to " + redirect);
 
-                    boolean success = getKey(redirect, "Unknown", tempFile, htl);
+                    boolean success = getKey(redirect, null, tempFile, htl);
                     if( success )
                     {
                         // If the target file exists, we remove it
@@ -809,7 +810,7 @@ public class FcpRequest
         }
     }
 
-    public static boolean getKey(String key, String size, File target, int htl)
+    public static boolean getKey(String key, Long size, File target, int htl)
     {
         if( key.indexOf("null") != -1 ) return false;
 
@@ -852,16 +853,6 @@ public class FcpRequest
             frame1.displayWarning(e.toString());
         }
 
-        int intSize = -1;
-        try
-        {
-            intSize = Integer.parseInt(size);
-        }
-        catch( NumberFormatException e )
-        {
-            intSize = -1;
-        }
-
         String printableKey = null;
         if( DEBUG )
         {
@@ -876,7 +867,7 @@ public class FcpRequest
 
         if( success == true && target.length() > 0 )
         {
-            if( intSize == -1 || target.length() == intSize || intSize >= chunkSize )
+            if( size == null || target.length() == size.longValue() || size.longValue() >= chunkSize )
             {
                 if( DEBUG ) System.out.println("getKey - Success: " + printableKey );
                 return true;

@@ -109,7 +109,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
 
                 FcpRequest.getFile("KSK@frost/request/" +
                                    frame1.frostSettings.getValue("messageBase") + "/" + testMe.getName(),
-                                   "Unknown",
+                                   null,
                                    testMe,
                                    downloadHtl,
                                    false);
