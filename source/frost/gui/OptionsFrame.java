@@ -39,6 +39,11 @@ import java.util.*;
 
 import frost.*;
 
+/*******************************
+ * TODO: - add thread listeners (listen to all running threads) to change the
+ *         updating state (bold text in table row) on demand (from bback)
+ *******************************/
+
 public class OptionsFrame extends JDialog implements ListSelectionListener
 {
     //------------------------------------------------------------------------
@@ -98,7 +103,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
 
     JCheckBox removeFinishedDownloadsCheckBox = new JCheckBox(LangRes.getString("Remove finished downloads every 5 minutes.") +
-							      " " + LangRes.getString("(Off)"));
+                                  " " + LangRes.getString("(Off)"));
 
     JCheckBox allowEvilBertCheckBox = new JCheckBox(LangRes.getString("Allow 2 byte characters") + " " +
                                                     LangRes.getString("(Off)"));
@@ -337,11 +342,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 3;
             downloadPanel.add(downloadMaxHtlTextField, constr);
 
-	    constr.gridy++;
-	    constr.gridx = 0;
-	    downloadPanel.add(startRequestingAfterHtlLabel, constr);
-	    constr.gridx = 1;
-	    downloadPanel.add(startRequestingAfterHtlTextField, constr);
+        constr.gridy++;
+        constr.gridx = 0;
+        downloadPanel.add(startRequestingAfterHtlLabel, constr);
+        constr.gridx = 1;
+        downloadPanel.add(startRequestingAfterHtlTextField, constr);
 
             constr.gridy++;
             constr.gridx = 0;
@@ -925,7 +930,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         searchDocumentExtensionTextField.setText(frostSettings.getValue("documentExtension"));
         searchExecutableExtensionTextField.setText(frostSettings.getValue("executableExtension"));
         searchArchiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
-	startRequestingAfterHtlTextField.setText(frostSettings.getValue("startRequestingAfterHtl"));
+    startRequestingAfterHtlTextField.setText(frostSettings.getValue("startRequestingAfterHtl"));
         cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
         uploadDisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
         downloadDisableDownloads.setSelected(frostSettings.getBoolValue("disableDownloads"));
@@ -969,7 +974,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
         frostSettings.setValue("splitfileUploadThreads", uploadSplitfileThreadsTextField.getText());
         frostSettings.setValue("splitfileDownloadThreads", downloadSplitfileThreadsTextField.getText());
-	frostSettings.setValue("startRequestingAfterHtl", startRequestingAfterHtlTextField.getText());
+    frostSettings.setValue("startRequestingAfterHtl", startRequestingAfterHtlTextField.getText());
         frostSettings.setValue("nodeAddress", miscNodeAddressTextField.getText());
         frostSettings.setValue("nodePort", miscNodePortTextField.getText());
         frostSettings.setValue("maxKeys", miscMaxKeysTextField.getText());
