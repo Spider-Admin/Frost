@@ -1,6 +1,7 @@
 package frost.threads;
 
 import java.io.*;
+import java.util.logging.Logger;
 
 import frost.FcpTools.*;
 
@@ -11,8 +12,8 @@ import frost.FcpTools.*;
  */
 public class getKeyThread extends Thread
 {
+	private static Logger logger = Logger.getLogger(getKeyThread.class.getName());
 
-    private boolean DEBUG = true;
     private String key;
     private File file;
     private int htl;
@@ -138,7 +139,7 @@ public class getKeyThread extends Thread
             return;
         }
 */
-        if( DEBUG ) frost.Core.getOut().println("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");
+        logger.fine("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");
 
         boolean exception = false;
         FcpConnection connection = FcpFactory.getFcpConnectionInstance();

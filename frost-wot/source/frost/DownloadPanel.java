@@ -7,12 +7,13 @@ package frost;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
 import frost.ext.Execute;
 import frost.gui.*;
-import frost.gui.components.*;
+import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.FrostDownloadItemObject;
 import frost.gui.translation.*;
@@ -427,6 +428,8 @@ public class DownloadPanel extends JPanel {
 	private PopupMenuDownload popupMenuDownload = null;
 
 	private Listener listener = new Listener();
+	
+	private static Logger logger = Logger.getLogger(DownloadPanel.class.getName());
 
 	private DownloadTable downloadTable = null;
 	private HealingTable healingTable = null;
@@ -765,7 +768,7 @@ public class DownloadPanel extends JPanel {
 				.append(dlItem.getFileName())
 				.toString();
 		File file = new File(execFilename);
-		Core.getOut().println("Executing: " + file.getPath());
+		logger.info("Executing: " + file.getPath());
 		if (file.exists()) {
 			Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
 		}

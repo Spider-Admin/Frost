@@ -18,12 +18,13 @@
 */
 package frost;
 import java.util.*;
+import java.util.logging.Logger;
 
 
 public class DateFun
 {
-    final static boolean DEBUG = false;
-
+	private static Logger logger = Logger.getLogger(DateFun.class.getName());
+	
     /**
      * Returns date
      * @return Date as String yyyy.m.d in GMT without leading zeros
@@ -186,7 +187,7 @@ public class DateFun
                 cal.set(Calendar.YEAR, year);
                 cal.set(Calendar.MONTH, month - 1);
                 cal.set(Calendar.DATE, day - 1);
-                if( DEBUG ) System.out.print("TOF Date: " + year+"."+month+"."+day);
+                logger.fine("TOF Date: " + year + "." + month + "." + day);
             }
         }
         return cal;
