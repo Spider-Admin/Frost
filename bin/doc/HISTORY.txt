@@ -1,5 +1,8 @@
 Changes since version 22-Nov-2004 dev:
 
+Added:   now the dialogs that may pop up when Frost is started create a dummy frame so that the user can
+         see on the task bar that there is activity going on.
+
 Changed: when an unsigned message is received with the @ character in the from field, it is automatically
          blocked.
 
