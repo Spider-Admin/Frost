@@ -605,7 +605,11 @@ public class LangRes extends ListResourceBundle {
 	
 	//AttachedBoardTableModel
 	{"Board Name", "Board name"},
-	{"Access rights", "Access rights"}
+	{"Access rights", "Access rights"},
+	
+	//Saver popup
+	{"Saver.AutoTask.title", "Problem found."},
+	{"Saver.AutoTask.message", "Frost found an error while saving a resource and it will close itself."}
 		
     };
 }
