@@ -24,6 +24,20 @@ import java.util.logging.Logger;
 
 import javax.swing.*;
 
+/**
+ * @author Administrator
+ *
+ * Problem with JProgressBar: a user reported having problems when starting Frost. He was getting this stack trace:
+ * Exception in thread "main" java.lang.NullPointerException
+ *       at java.awt.Dimension.<init>(Unknown Source)
+ *       at javax.swing.plaf.basic.BasicProgressBarUI.getPreferredSize(Unknown Source)
+ *     	 [..]
+ * 		 at java.awt.Window.pack(Unknown Source)
+ *       at frost.gui.Splashscreen.init(Splashscreen.java:66)
+ * 		 [..]
+ * The suggested workaround was to create the nosplash.chk file to completely disable the splash screen, but it would
+ * be nice to find out why the JProgressBar is causing that trouble.
+ */
 public class Splashscreen extends JDialog {
 
 	private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
@@ -36,16 +50,28 @@ public class Splashscreen extends JDialog {
 	JLabel pictureLabel = new JLabel();
 	JProgressBar progressBar = new JProgressBar(0, 100);
 
-	/**Constructor*/
+	private boolean noSplash;
+
+	/**
+	 * 
+	 */
 	public Splashscreen() {
-		init();
+		File splashchk = new File("nosplash.chk");
+		if (splashchk.exists()) {
+			noSplash = true;
+		} else {
+			noSplash = false;
+			init();
+		}
 	}
 
 	/**Close the splashscreen*/
 	public void closeMe() {
-		hide();
-		dispose();
-		logger.info("Splashscreen: I'm gone now :-(");
+		if (!noSplash) {
+			hide();
+			dispose();
+			logger.info("Splashscreen: I'm gone now :-(");
+		}
 	}
 
 	/**Component initialization*/
@@ -83,24 +109,23 @@ public class Splashscreen extends JDialog {
 	 * Default range is from 0 to 100.
 	 * */
 	public void setProgress(int progress) {
-		progressBar.setValue(progress);
+		if (!noSplash) {
+			progressBar.setValue(progress);
+		}
 	}
 
 	/**Set the text for the progressBar*/
 	public void setText(String text) {
-		progressBar.setString(text);
+		if (!noSplash) {
+			progressBar.setString(text);
+		}
 	}
 
 	/* (non-Javadoc)
 	 * @see java.awt.Component#setVisible(boolean)
 	 */
 	public void setVisible(boolean b) {
-		if (b) {
-			File splashchk = new File("nosplash.chk");
-			if (!splashchk.exists()) {
-				super.setVisible(b);
-			}
-		} else {
+		if (!noSplash) {
 			super.setVisible(b);
 		}
 	}
