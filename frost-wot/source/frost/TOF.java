@@ -259,7 +259,18 @@ public class TOF
                     {
                         String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ )
-                        {
+                        {/*
+                            if( filePointers[j].getName().endsWith(".txt.lck") )
+                            {
+                                // update the node that contains new messages
+                                newMsgCount++;
+                                board.setNewMessageCount(newMsgCount);
+                                SwingUtilities.invokeLater( new Runnable() {
+                                    public void run() {
+                                        frame1.getInstance().updateTofTree(board);
+                                    } });
+                            }
+                            else */
                             if( (filePointers[j].getName()).endsWith(".txt") &&
                                  filePointers[j].length() > 0 &&
                                  filePointers[j].length() < 32000 &&
@@ -345,9 +356,13 @@ public class TOF
             return true;
 
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
-            frame1.frostSettings.getBoolValue("hideBad") &&
-            (message.getStatus().indexOf("BAD")>-1) )
+            frame1.frostSettings.getBoolValue("hideBadMessages") &&
+            (message.getStatus().indexOf("BAD")!=-1))
             return true;
+	if( frame1.frostSettings.getBoolValue("signedOnly") &&
+	    frame1.frostSettings.getBoolValue("hideCheckMessages") &&
+	    (message.getStatus().indexOf("CHECK")!=-1))
+	    return true;
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
         {
@@ -494,4 +509,5 @@ public class TOF
             }
         }
     }
+
 }

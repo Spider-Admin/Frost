@@ -114,7 +114,6 @@ public class requestThread extends Thread
                 }
                 else
                 {
-                    // leave state at FAILED, will be resettet in frame1
                     if( DEBUG ) System.out.println("Download failed, but htl is too low to request it.");
                 }
                 // Download / restart failed downloads
@@ -129,14 +128,12 @@ public class requestThread extends Thread
                 {
                     downloadItem.setState( LangRes.getString("Failed") ); // max htl reached, no more updating
                 }
-
                 SwingUtilities.invokeLater(new Runnable()
                        {
                            public void run()
                            {
                                tableModel.updateRow( downloadItem );
-                           }
-                       });
+                           } });
             }
         }
         // download successfull
