@@ -202,9 +202,18 @@ public class SettingsClass
         try {
             settingsWriter = new PrintWriter(new FileWriter(settingsFile));
         }
-        catch( Exception e ) {
-            e.printStackTrace();
-            return false;
+        catch( IOException exception) {
+        	try {
+        		//Perhaps the problem is that the config dir doesn't exist? In that case, we create it and try again
+				File configDir = new File("config");
+				if (!configDir.exists()) {
+					configDir.mkdir();	// if the config dir doesn't exist, we create it 
+				}
+				settingsWriter = new PrintWriter(new FileWriter(settingsFile));
+        	} catch(IOException exception2) {
+				exception2.printStackTrace();
+				return false;
+        	}
         }
 
         TreeMap sortedSettings = new TreeMap( settingsHash ); // sort the lines
