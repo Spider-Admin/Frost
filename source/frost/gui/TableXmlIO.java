@@ -77,12 +77,13 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
         String targetboardname = XMLTools.getChildElementsTextValue(ulItemElement, "targetboard");
         String state = XMLTools.getChildElementsTextValue(ulItemElement, "state");
         String lastUploadDate = XMLTools.getChildElementsTextValue(ulItemElement, "lastuploaddate");
-	String sharedDate = XMLTools.getChildElementsTextValue(ulItemElement, "dateShared");
+	    String sharedDate = XMLTools.getChildElementsTextValue(ulItemElement, "dateShared");
         String key = XMLTools.getChildElementsCDATAValue(ulItemElement, "key");
-	String SHA1 = XMLTools.getChildElementsCDATAValue(ulItemElement, "SHA1");
-	String batch = XMLTools.getChildElementsTextValue(ulItemElement, "batch");
+	    String SHA1 = XMLTools.getChildElementsCDATAValue(ulItemElement, "SHA1");
+	    String batch = XMLTools.getChildElementsTextValue(ulItemElement, "batch");
 
-        if( filename == null || filepath == null || targetboardname == null || state == null || batch==null)
+// batch is allowed to be null, i think
+        if( filename == null || filepath == null || targetboardname == null || state == null )//|| batch==null)
         {
             System.out.println("UploadTable: Error in XML save file, skipping entry.");
             return null;
@@ -144,7 +145,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
                                                                   lastUploadDate,
                                                                   key,
 								  SHA1);
-	ulItem.setBatch(batch);
+	    ulItem.setBatch(batch);
         return ulItem;
     }
 
@@ -344,11 +345,11 @@ System.out.println("ERROR saving upload table!");
         text = doc.createTextNode( String.valueOf(ulItem.getState()) );
         element.appendChild( text );
         itemElement.appendChild( element );
-	//batch -all upload elements have it
-	element = doc.createElement("batch");
-	text = doc.createTextNode(ulItem.getBatch());
-	element.appendChild(text);
-	itemElement.appendChild(element);
+    	//batch -all upload elements have it
+    	element = doc.createElement("batch");
+    	text = doc.createTextNode(ulItem.getBatch());
+    	element.appendChild(text);
+    	itemElement.appendChild(element);
         // key
         if( ulItem.getKey() != null )
         {
@@ -357,7 +358,7 @@ System.out.println("ERROR saving upload table!");
             element.appendChild( cdata );
             itemElement.appendChild( element );
         }
-	if( ulItem.getSHA1() != null )
+	    if( ulItem.getSHA1() != null )
         {
             element = doc.createElement("SHA1");
             cdata = doc.createCDATASection( ulItem.getSHA1() );

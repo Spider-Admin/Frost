@@ -190,6 +190,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem uploadPopupRestoreDefaultFilenamesForAllFiles = null;
     JMenu uploadPopupChangeDestinationBoard = null;
     JMenuItem uploadPopupAddFilesToBoard = null;
+    JMenuItem uploadPopupGenerateChkForSelectedFiles = null;
     JMenuItem uploadPopupCancel = null;
 
     JMenuItem downloadPopupRestartSelectedDownloads = null;
@@ -1039,6 +1040,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupRestoreDefaultFilenamesForAllFiles = new JMenuItem(LangRes.getString("Restore default filenames for all files"));
         uploadPopupChangeDestinationBoard = new JMenu(LangRes.getString("Change destination board"));
         uploadPopupAddFilesToBoard = new JMenuItem(LangRes.getString("Add files to board"));
+        uploadPopupGenerateChkForSelectedFiles = new JMenuItem("Start encoding of selected files");
         uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
 // add action listener
         // Upload / Remove selected files
@@ -1081,6 +1083,22 @@ public class frame1 extends JFrame implements ClipboardOwner
                         ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS )
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_REQUESTED );
+                        tableModel.updateRow(ulItem);
+                    }
+                }
+            } });
+        // Generate CHK for selected files
+        uploadPopupGenerateChkForSelectedFiles.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                UploadTableModel tableModel = (UploadTableModel)getUploadTable().getModel();
+                int[] selectedRows = getUploadTable().getSelectedRows();
+                for (int i = 0; i < selectedRows.length; i++){
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRows[i] );
+                    // start gen chk only if IDLE
+                    if( ulItem.getState() == FrostUploadItemObject.STATE_IDLE &&
+                        ulItem.getKey() == null )
+                    {
+                        ulItem.setState( FrostUploadItemObject.STATE_REQUESTED_GENCHK );
                         tableModel.updateRow(ulItem);
                     }
                 }
@@ -1628,6 +1646,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
                 System.out.println( "Board "+node.toString()+" blocked count: "+node.getBlockedCount() );
 
+                uploadAddFilesButton.setEnabled(true);
                 renameBoardButton.setEnabled(false);
                 tofReplyButton.setEnabled(false);
                 downloadAttachmentsButton.setEnabled(false);
@@ -1644,6 +1663,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 model.setRowCount( 0 );
                 updateMessageCountLabels( node );
 
+                uploadAddFilesButton.setEnabled(false);
                 renameBoardButton.setEnabled(true);
                 configBoardButton.setEnabled(false);
                 tofNewMessageButton.setEnabled(false);
@@ -2057,7 +2077,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         //////////////////////////////////////////////////
         // Generate CHK's for upload table entries
         //////////////////////////////////////////////////
-	/**  Do not generate CHKs, get SHA1 only!*/
+	    /**  Do not generate CHKs, get SHA1 only! */
+        /**  and generate CHK if requested ... */
         if( isGeneratingCHK() == false ) // do not start another generate if there is already 1 running
         {
             UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
@@ -2071,7 +2092,16 @@ public class frame1 extends JFrame implements ClipboardOwner
                         setGeneratingCHK( true );
                         ulItem.setKey( "Working..." );
                         ulModel.updateRow( ulItem );
-                        insertThread newInsert = new insertThread(ulItem, frostSettings, false);
+                        insertThread newInsert = new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_SHA1);
+                        newInsert.start();
+                        break; // start only 1 thread per loop (=second)
+                    }
+                    else if(ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED_GENCHK)
+                    {
+                        setGeneratingCHK( true );
+                        ulItem.setState( FrostUploadItemObject.STATE_WORKING_GENCHK );
+                        ulModel.updateRow( ulItem );
+                        insertThread newInsert = new insertThread(ulItem, frostSettings, insertThread.MODE_GENERATE_CHK);
                         newInsert.start();
                         break; // start only 1 thread per loop (=second)
                     }
@@ -2100,7 +2130,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_UPLOADING );
                         ulModel.updateRow( ulItem );
-                        insertThread newInsert = new insertThread(ulItem, frostSettings, true);
+                        insertThread newInsert = new insertThread(ulItem, frostSettings, insertThread.MODE_UPLOAD);
                         newInsert.start();
                         break; // start only 1 thread per loop (=second)
                     }
@@ -3066,6 +3096,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         pmenu.add(removeSubMenu);
         pmenu.addSeparator();
         if (getUploadTable().getSelectedRow() > -1) {
+            pmenu.add(uploadPopupGenerateChkForSelectedFiles);
             pmenu.add(uploadPopupReloadSelectedFiles);
         }
         pmenu.add(uploadPopupReloadAllFiles);

@@ -10,14 +10,17 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
 
     // the constants representing upload states
     public final static int STATE_IDLE       = 1; // shows either last date uploaded or Never
-    public final static int STATE_REQUESTED  = 2;
+    public final static int STATE_REQUESTED  = 2; // a start of uploading is requested
     public final static int STATE_UPLOADING  = 3;
     public final static int STATE_PROGRESS   = 4; // upload runs, shows "... kb"
+    public final static int STATE_REQUESTED_GENCHK  = 5; // a start of genchk is requested
+    public final static int STATE_WORKING_GENCHK  = 6; // a start of genchk is requested
     // the strings that are shown in table for the states
     private final static String STATE_UPLOADED_NEVER_STR = LangRes.getString("Never");
     private final static String STATE_REQUESTED_STR      = LangRes.getString("Requested");
     private final static String STATE_UPLOADING_STR      = LangRes.getString("Uploading");
-//    private final static String STATE_PROGRESS_STR       = " kb";
+    private final static String STATE_REQUESTED_GENCHK_STR      = "Encode requested";
+    private final static String STATE_WORKING_GENCHK_STR      = "Encoding file...";
 
     private String fileName = null;
     private String filePath = null;
@@ -35,7 +38,7 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public FrostUploadItemObject(File file, FrostBoardObject board)
     {
         //this.fileName = mixed.makeFilename( file.getName() ); //users weren't happy with this
-	this.fileName = file.getName();
+	    this.fileName = file.getName();
         this.filePath = file.getPath();
         this.fileSize = new Long( file.length() );
         this.targetBoard = board;
@@ -73,12 +76,12 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
             case 0: 
 	    	if (SHA1 == null)
 			return "<html><font color=\"gray\">"+fileName+"</font></html>";
-		else return "<html><b>"+fileName+"</b></html>";               //LangRes.getString("Filename"),
+		      else return "<html><b>"+fileName+"</b></html>";               //LangRes.getString("Filename"),
             case 1: return fileSize;               //LangRes.getString("Size"),
             case 2: return getStateString(state);  //LangRes.getString("Last upload"),
             case 3: return filePath;               //LangRes.getString("Path"),
             case 4: return targetBoard.toString(); //LangRes.getString("Destination"),
-            //case 5: return ((key==null) ? LangRes.getString("Unknown") : key); //LangRes.getString("Key")
+            case 5: return ((key==null) ? LangRes.getString("Unknown") : key); //LangRes.getString("Key")
         }
         return "*ERR*";
     }
@@ -165,7 +168,8 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         case STATE_REQUESTED:   statestr = STATE_REQUESTED_STR; break;
         case STATE_UPLOADING:   statestr = STATE_UPLOADING_STR; break;
         case STATE_PROGRESS:    statestr = getUploadProgress(); break;
-//        case STATE_PROGRESS:    statestr = (uploadProgress/1024) + STATE_PROGRESS_STR; break;
+        case STATE_REQUESTED_GENCHK:    statestr = STATE_REQUESTED_GENCHK_STR; break;
+        case STATE_WORKING_GENCHK:    statestr = STATE_WORKING_GENCHK_STR; break;
         case STATE_IDLE:        statestr = ( (lastUploadDate==null) ? STATE_UPLOADED_NEVER_STR : lastUploadDate );
         }
         return statestr;
