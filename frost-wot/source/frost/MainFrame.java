@@ -1411,7 +1411,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 		
 		private MessageWindow getMessageWindow(MessageObject message,Dimension size){
-			MessageWindow messagewindow = new MessageWindow(settings,getInstance() , message, size);
+			MessageWindow messagewindow = new MessageWindow( settings, getInstance(), message, size );
 			return messagewindow;
 		}
 		
