@@ -86,6 +86,7 @@ public class LangRes_es extends ListResourceBundle {
 	{"Japanese", "Japonés"},
 	{"French", "Francés"},
 	{"Italian", "Italiano"},
+	{"Spanish", "Español"},
 
 	// Menu Help
     {"Help", "Ayuda"},
