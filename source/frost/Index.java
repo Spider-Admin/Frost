@@ -76,6 +76,7 @@ public class Index
     
     	final Map mine = Collections.synchronizedMap(new HashMap());
 	final Map total = Collections.synchronizedMap(new HashMap());
+	final Map updated = Collections.synchronizedMap(new HashMap());
         System.out.println("Index.getUploadKeys(" + board + ")");
         Vector keys = new Vector();
         //final String fileSeparator = System.getProperty("file.separator");
@@ -95,7 +96,8 @@ public class Index
 	//add friends's files 
 	//TODO:  add a limit
 	Iterator i = total.values().iterator(); 
-	
+	int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
+	System.out.println("re-sharing files shared before "+DateFun.getDate(downloadBack));
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass) i.next();
 		if (current.getOwner() != null && //not anonymous
@@ -103,83 +105,27 @@ public class Index
 			frame1.frostSettings.getBoolValue("helpFriends") && //and helping is enabled
 			(frame1.getFriends().Get(current.getOwner()) != null || //and marked GOOD
 				frame1.getGoodIds().contains(current.getOwner()))) //or marked to be helped 
-				
+			{
 			mine.put(current.getSHA1(),current);
+			System.out.print("f");
+			}
 		//also add the file if its been shared too long ago
 		if (current.getOwner()!=null && //not anonymous 
 			current.getOwner().compareTo(frame1.getMyId().getUniqueName())==0 && //from myself
 			current.getLastSharedDate() != null) { //not from the old format
-				int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
+				
 				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
 					current.setLastSharedDate(DateFun.getDate());
 					mine.put(current.getSHA1(),current);
-					add(current,new File(board+fileSeparator+"files.xml")); //this can be optimized
+					System.out.print("d");
+					updated.put(current.getSHA1(),current);
 				}
 		}
 			
 	}
-        // Create boards tempDir if it does not exists
-        //File tempDir = new File(boardDir + fileSeparator + "temp");
-        //if( !tempDir.isDirectory() )
-          //  tempDir.mkdir();
-
-        // Get a list of this boards index files
-        // Abort if there are none
-        /*File[] index = boardDir.listFiles();
-        if( index == null )
-            return 0;*/
-
-        // Generate temporary index from keyfiles
-        /*File[] keypoolFiles = (new File(frame1.keypool)).listFiles();
-        if( keypoolFiles != null )
-        {
-            for( int i = 0; i < keypoolFiles.length; i++ )
-            {
-                if( keypoolFiles[i].getName().indexOf("-" + board + "-") != -1 &&
-                    keypoolFiles[i].getName().endsWith(".idx") )
-                {
-                    File lockfile = new File(keypoolFiles[i].getPath() + ".loc");
-                    if( !lockfile.exists() )
-                    {
-                        // Clear the tempIndex if we add keyfile #0
-                        // This way we only have to do this fuckin slow
-                        // add once per board / day.
-                        if( keypoolFiles[i].getName().endsWith("-" + board + "-0.idx") )
-                        {
-
-                            // Get a list of this boards temp files
-                            // and remove existing files in the tempDir
-                            File[] tempFiles = tempDir.listFiles();
-                            if( tempFiles != null )
-                            {
-                                for( int j = 0; j < tempFiles.length; j++ )
-                                    tempFiles[j].delete();
-                            }
-
-                        }
-                        // create tempIndex
-                        add(keypoolFiles[i], tempDir);
-                        FileAccess.writeFile("Locked", lockfile);
-                    }
-                }
-            }
-        }
-
-        // Now we compare each file of the original index
-        // with it's tempIndex counterpart
-        // Maps are funny and fast, we better use one here.
         
-        
-        File[] tempFiles = tempDir.listFiles();
-        
-        
-*/
-        /*chk.clear();
-        FileAccess.readKeyFile(boardNewFiles, chk);
-        FileAccess.readKeyFile(tempDir.getPath() + fileSeparator + index[i].getName(), chk, false);
-
-                // Add keys that are still getExchange() == true to the
-                // keys Vector*/
+	add(updated, new File(frame1.keypool+board+fileSeparator+"files.xml"));
+	
 	StringBuffer keyFile = new StringBuffer();
 	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
 	int keyCount = 0;
