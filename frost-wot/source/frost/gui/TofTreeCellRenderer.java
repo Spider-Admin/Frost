@@ -37,8 +37,6 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
     ImageIcon boardNewIcon;
     ImageIcon boardSpammedIcon;
     String fileSeparator;
-    Color notUpdatingSelectedColor;
-    Color notUpdatingNonSelectedColor;
 
     Font boldFont = null;
     Font normalFont = null;
@@ -61,8 +59,6 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         normalFont = dummyTable.getFont();
         boldFont = normalFont.deriveFont( Font.BOLD );
 
-        notUpdatingSelectedColor = dummyTable.getSelectionBackground();
-        notUpdatingNonSelectedColor = Color.WHITE;
     }
 
     public Component getTreeCellRendererComponent(JTree tree,
@@ -74,7 +70,7 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
                                                   boolean hasFocus)
     {
         super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
-
+        
         FrostBoardObject board = null;
         if( value instanceof FrostBoardObject )
         {
@@ -127,12 +123,17 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 
             c = (Color)frame1.frostSettings.getObjectValue("boardUpdatingSelectedBackgroundColor");
             setBackgroundSelectionColor( c );
+            
+			setTextSelectionColor(Color.white);
+			setTextNonSelectionColor(Color.white);
         }
         else
         {
-            // set normal colors
-            setBackgroundNonSelectionColor( notUpdatingNonSelectedColor );
-            setBackgroundSelectionColor( notUpdatingSelectedColor );
+            // refresh colours from the L&F
+			setTextSelectionColor(UIManager.getColor("Tree.selectionForeground"));
+			setTextNonSelectionColor(UIManager.getColor("Tree.textForeground"));
+            setBackgroundNonSelectionColor( UIManager.getColor("Tree.textBackground") );
+            setBackgroundSelectionColor( UIManager.getColor("Tree.selectionBackground") );
         }
 
         // set the icon
@@ -178,4 +179,5 @@ public class TofTreeCellRenderer extends DefaultTreeCellRenderer
         }
         return this;
     }
+
 }
