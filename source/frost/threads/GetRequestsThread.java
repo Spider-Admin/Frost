@@ -195,7 +195,7 @@ public class GetRequestsThread extends Thread
         catch(Throwable t)
         {
             System.out.println(Thread.currentThread().getName()+": Oo. EXCEPTION in GetRequestsThread:");
-            t.printStackTrace();
+            t.printStackTrace(System.out);
         }
 	
 	

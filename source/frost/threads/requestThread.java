@@ -76,7 +76,7 @@ public class requestThread extends Thread
                     }
                catch(Throwable t) {
                         System.out.println("FILEDN: Uploading request failed for "+filename);
-			t.printStackTrace();
+			t.printStackTrace(System.out);
 		}
 		downloadItem.setState( FrostDownloadItemObject.STATE_REQUESTED );
 		tableModel.updateRow( downloadItem );
@@ -97,7 +97,7 @@ public class requestThread extends Thread
 	try {
             success = FcpRequest.getFile(key, size, newFile, 25, true, false, downloadItem);
         }
-        catch(Throwable t) { t.printStackTrace(); }  //please don't do like this { ; }--zab
+        catch(Throwable t) { t.printStackTrace(System.out); }  //please don't do like this { ; }--zab
 	
 
         // file might be erased from table during download...
@@ -192,7 +192,7 @@ public class requestThread extends Thread
         catch(Throwable t)
         {
             System.out.println("Oo. EXCEPTION in requestThread.run:");
-            t.printStackTrace();
+            t.printStackTrace(System.out);
         }
 
         synchronized(frame1.threadCountLock)
@@ -289,7 +289,7 @@ public class requestThread extends Thread
                     try { lockFileCreated = lockRequestIndex.createNewFile(); }
                     catch(IOException ex) {
                         System.out.println("ERROR: requestThread.request(): unexpected IOException, terminating thread ...");
-                        ex.printStackTrace();
+                        ex.printStackTrace(System.out);
                         return;
                     }
 

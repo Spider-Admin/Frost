@@ -312,7 +312,7 @@ System.out.println("Saved "+model.getRowCount()+" items from upload table.");
         } catch(Throwable t)
         {
             System.out.println("Exception - saveUploadTableItems:");
-            t.printStackTrace();
+            t.printStackTrace(System.out);
 System.out.println("ERROR saving upload table!");
         }
         return writeOK;
@@ -408,7 +408,7 @@ System.out.println("Saved "+model.getRowCount()+" items from download table.");
         } catch(Throwable t)
         {
             System.out.println("Exception - saveDownloadTableItems:");
-            t.printStackTrace();
+            t.printStackTrace(System.out);
 System.out.println("ERROR saving download table!");
         }
 

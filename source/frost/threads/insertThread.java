@@ -146,7 +146,7 @@ public class insertThread extends Thread
             tableModel.updateRow( uploadItem );
         
 	}catch(Throwable t) {
-		t.printStackTrace();
+		t.printStackTrace(System.out);
 	}
         
 

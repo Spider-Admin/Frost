@@ -296,7 +296,7 @@ public class Index
 	try {
 		if (!indexFile.exists()) indexFile.createNewFile();
 	}catch(IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
         FileAccess.readKeyFile(indexFile, chk);
         if (chk.get(hash) != null)
@@ -319,7 +319,7 @@ public class Index
         if( !target.exists() )
             target.createNewFile();
 	}catch(IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
         FileAccess.readKeyFile(keyfile, chunk);
 
@@ -334,7 +334,7 @@ public class Index
         if( !target.exists() )
             target.createNewFile();
 	}catch(IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
         FileAccess.readKeyFile(keyfile, chunk);
 

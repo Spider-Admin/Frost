@@ -76,9 +76,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				indices.add(new Integer(0));
 		}
 	}catch(IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}catch(ClassNotFoundException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
     }
     private void commit() {
@@ -89,7 +89,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		out.flush();
 		out.close();
 	}catch(IOException e) {
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
     }
     
@@ -396,7 +396,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     catch(Throwable t)
                     {
                         System.out.println("Error in UpdateIdThread: "+t.getMessage());
-			t.printStackTrace();
+			t.printStackTrace(System.out);
                         // delete the file and try a re download???
                     }
 
@@ -444,7 +444,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         catch(Throwable t)
         {
             System.out.println("Oo. EXCEPTION in UpdateIdThread:");
-            t.printStackTrace();
+            t.printStackTrace(System.out);
         }
 
         notifyThreadFinished( this );

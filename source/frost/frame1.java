@@ -331,7 +331,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     catch( IOException e )
                     {
                         System.out.println("ERROR: couldn't save identities:");
-                        e.printStackTrace();
+                        e.printStackTrace(System.out);
                     }
 		    try {
 		    	StringBuffer buf = new StringBuffer();
@@ -344,7 +344,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 			FileAccess.writeFile(buf.toString(),batches);
 			
 		    } catch (Throwable t) {
-		    	t.printStackTrace();
+		    	t.printStackTrace(System.out);
 		    }
                     saveOnExit();
                     FileAccess.cleanKeypool(keypool);
@@ -382,7 +382,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                             autoSaveIntervalMinutes*60*1000,
                             autoSaveIntervalMinutes*60*1000);
         }
-        catch( Exception e ) { e.printStackTrace(); }
+        catch( Exception e ) { e.printStackTrace(System.out); }
     }
 
     /**
@@ -1261,7 +1261,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                     friends.Add(mySelf);
                 }
                 catch( Exception e ) {
-                    e.printStackTrace();
+                    e.printStackTrace(System.out);
                 }
             }
         }
@@ -1282,7 +1282,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 		System.out.println("loaded "+_batches.length+" batches of shared files");
 	}catch(Throwable e) {
 		System.out.println("couldn't load batches");
-		e.printStackTrace();
+		e.printStackTrace(System.out);
 	}
 
     }

@@ -147,7 +147,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 				//if we get interrupted, continue with next thread
 				//or perhaps we want to stop all of them?
 				} catch (InterruptedException e) {
-					e.printStackTrace();
+					e.printStackTrace(System.out);
 				}
 			}
 		}
