@@ -21,6 +21,7 @@
 package frost;
 
 import java.awt.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 
@@ -34,6 +35,7 @@ public class SettingsClass {
 	private Hashtable settingsHash;
 	private Hashtable defaults = null;
 	private final String fs = System.getProperty("file.separator");
+	private PropertyChangeSupport changeSupport = null;
 
 	//Constructors
 	public SettingsClass() {
@@ -222,6 +224,151 @@ public class SettingsClass {
 		}
 		return false;
 	}
+	
+	/**
+	 * Adds a PropertyChangeListener to the listener list. 
+	 * <p>
+	 * If listener is null, no exception is thrown and no action is performed.
+	 *
+	 * @param    listener  the PropertyChangeListener to be added
+	 *
+	 * @see #removePropertyChangeListener
+	 * @see #getPropertyChangeListeners
+	 * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener) 
+	 */
+	public synchronized void addPropertyChangeListener(PropertyChangeListener listener) {
+		if (listener == null) {
+			return;
+		}
+		if (changeSupport == null) {
+			changeSupport = new PropertyChangeSupport(this);
+		}
+		changeSupport.addPropertyChangeListener(listener);
+	}
+	
+	/**
+	 * Adds a PropertyChangeListener to the listener list for a specific
+	 * property. 
+	 * <p>
+	 * If listener is null, no exception is thrown and no action is performed.
+	 *
+	 * @param propertyName one of the property names listed above
+	 * @param listener the PropertyChangeListener to be added
+	 *
+	 * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+	 * @see #getPropertyChangeListeners(java.lang.String)
+	 * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+	 */
+	public synchronized void addPropertyChangeListener(
+		String propertyName,
+		PropertyChangeListener listener) {
+			
+		if (listener == null) {
+			return;
+		}
+		if (changeSupport == null) {
+			changeSupport = new PropertyChangeSupport(this);
+		}
+		changeSupport.addPropertyChangeListener(propertyName, listener);
+	}
+	
+	/**
+	 * Removes a PropertyChangeListener from the listener list. 
+	 * <p>
+	 * If listener is null, no exception is thrown and no action is performed.
+	 *
+	 * @param listener the PropertyChangeListener to be removed
+	 *
+	 * @see #addPropertyChangeListener
+	 * @see #getPropertyChangeListeners
+	 * @see #removePropertyChangeListener(java.lang.String,java.beans.PropertyChangeListener)
+	 */
+	public synchronized void removePropertyChangeListener(PropertyChangeListener listener) {
+		if (listener == null || changeSupport == null) {
+			return;
+		}
+		changeSupport.removePropertyChangeListener(listener);
+	}
+	
+	/**
+	 * Removes a PropertyChangeListener from the listener list for a specific
+	 * property.
+	 * <p>
+	 * If listener is null, no exception is thrown and no action is performed.
+	 * 
+	 * @param propertyName a valid property name
+	 * @param listener the PropertyChangeListener to be removed
+	 *
+	 * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+	 * @see #getPropertyChangeListeners(java.lang.String)
+	 * @see #removePropertyChangeListener(java.beans.PropertyChangeListener)
+	 */
+	public synchronized void removePropertyChangeListener(
+		String propertyName,
+		PropertyChangeListener listener) {
+			
+		if (listener == null || changeSupport == null) {
+			return;
+		}
+		changeSupport.removePropertyChangeListener(propertyName, listener);
+	}
+	
+	/**
+	 * Returns an array of all the property change listeners
+	 * registered on this component.
+	 *
+	 * @return all of this component's <code>PropertyChangeListener</code>s
+	 *         or an empty array if no property change
+	 *         listeners are currently registered
+	 *
+	 * @see      #addPropertyChangeListener
+	 * @see      #removePropertyChangeListener
+	 * @see      #getPropertyChangeListeners(java.lang.String)
+	 * @see      java.beans.PropertyChangeSupport#getPropertyChangeListeners
+	 */
+	public synchronized PropertyChangeListener[] getPropertyChangeListeners() {
+		if (changeSupport == null) {
+			return new PropertyChangeListener[0];
+		}
+		return changeSupport.getPropertyChangeListeners();
+	}
+	
+	/**
+	 * Returns an array of all the listeners which have been associated 
+	 * with the named property.
+	 *
+	 * @return all of the <code>PropertyChangeListeners</code> associated with
+	 *         the named property or an empty array if no listeners have 
+	 *         been added
+	 *
+	 * @see #addPropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+	 * @see #removePropertyChangeListener(java.lang.String, java.beans.PropertyChangeListener)
+	 * @see #getPropertyChangeListeners
+	 */
+	public synchronized PropertyChangeListener[] getPropertyChangeListeners(String propertyName) {
+		if (changeSupport == null) {
+			return new PropertyChangeListener[0];
+		}
+		return changeSupport.getPropertyChangeListeners(propertyName);
+	}
+	
+	/**
+	 * Support for reporting bound property changes for Object properties. 
+	 * This method can be called when a bound property has changed and it will
+	 * send the appropriate PropertyChangeEvent to any registered
+	 * PropertyChangeListeners.
+	 *
+	 * @param propertyName the property whose value has changed 
+	 * @param oldValue the property's previous value
+	 * @param newValue the property's new value
+	 */
+	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
+		PropertyChangeSupport changeSupport = this.changeSupport;
+		if (changeSupport == null) {
+			return;
+		}
+		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+	}
 
 	/* Get the values from the Hash
 	 * Functions will return null if nothing appropriate
@@ -297,29 +444,35 @@ public class SettingsClass {
 	}
 
 	public void setValue(String key, String value) {
-		settingsHash.put(key, value);
+		Object oldValue = settingsHash.get(key);
+		settingsHash.put(key, value);		
+		// Report the change to any registered listeners.
+		firePropertyChange(key, oldValue, value);		
 	}
 	public void setValue(String key, Integer value) {
-		this.setValue(key, String.valueOf(value));
+		setValue(key, String.valueOf(value));
 	}
 	public void setValue(String key, int value) {
-		this.setValue(key, String.valueOf(value));
+		setValue(key, String.valueOf(value));
 	}
 	public void setValue(String key, Float value) {
-		this.setValue(key, String.valueOf(value));
+		setValue(key, String.valueOf(value));
 	}
 	public void setValue(String key, float value) {
-		this.setValue(key, String.valueOf(value));
+		setValue(key, String.valueOf(value));
 	}
 	public void setValue(String key, Boolean value) {
-		this.setValue(key, String.valueOf(value));
+		setValue(key, String.valueOf(value));
 	}
 	public void setValue(String key, boolean value) {
-		this.setValue(key, String.valueOf(value));
+		setValue(key, String.valueOf(value));
 	}
 
 	public void setObjectValue(String key, Object value) {
+		Object oldValue = settingsHash.get(key);
 		settingsHash.put(key, value);
+		// Report the change to any registered listeners.
+		firePropertyChange(key, oldValue, value);
 	}
 
 	/**
