@@ -142,8 +142,6 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
                                       String from,
                                       String subject,
                                       String content,
-                                      String date,
-                                      String time,
                                       String recipient,
                                       SettingsClass config,
                                       Frame frameToLock,
@@ -157,8 +155,6 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
             config.getValue("tofUploadHtl"),
             config.getValue("keypool.dir"),
             config.getValue("tofDownloadHtl"),
-            date,
-            time,
             recipient,
             frameToLock);
         // register listener and this class as listener

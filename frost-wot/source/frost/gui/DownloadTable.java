@@ -252,7 +252,7 @@ public class DownloadTable extends SortedTable
 
         DownloadTableModel dlModel = (DownloadTableModel)getModel();
         int[] selectedRows = getSelectedRows();
-        for( int x=0; x<selectedRows.length; x++ )
+        for( int x=selectedRows.length-1; x>=0; x-- )
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
             // reset only waiting+failed items

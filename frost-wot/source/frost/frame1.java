@@ -3166,8 +3166,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                             mo.getFrom(),
                             mo.getSubject(),
                             mo.getContent(),
-                            mo.getDate(),
-                            mo.getTime(),
                             "",
                             frostSettings,
                             frameToLock,

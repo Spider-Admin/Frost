@@ -430,8 +430,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                String msgUplHtl,
                                String keypool,
                                String msgDlHtl,
-                               String date,
-                               String time,
                                String recipient,
                                Frame frameToLock)
     {
@@ -445,13 +443,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         this.keypool = keypool;
         this.messageDownloadHtl = msgDlHtl;
 
-        if( date.length() == 0 && time.length() == 0 )
-        {
-            date = DateFun.getDate();
-            time = DateFun.getFullExtendedTime()+"GMT";
-        }
-        this.date = date;
-        this.time = time;
+        // date and time are always updated on send
+        date = DateFun.getDate();
+        time = DateFun.getFullExtendedTime()+"GMT";
 
         if( recipient != null && recipient.length() > 0 )
         {

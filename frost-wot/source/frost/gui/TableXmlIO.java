@@ -199,8 +199,7 @@ public class TableXmlIO
         String state = XMLTools.getChildElementsTextValue(dlItemElement, "state");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
 
-        if( filename == null || filesize == null || key == null || htl == null ||
-            state == null || sourceboardname == null )
+        if( filename == null ||  key == null || htl == null || state == null || sourceboardname == null )
         {
             System.out.println("DownloadTable: Error in XML save file, skipping entry.");
             return null;
@@ -370,10 +369,13 @@ public class TableXmlIO
         element.appendChild( cdata );
         itemElement.appendChild( element );
         // filesize
-        element = doc.createElement("filesize");
-        text = doc.createTextNode( dlItem.getFileSize().toString() );
-        element.appendChild( text );
-        itemElement.appendChild( element );
+        if( dlItem.getFileSize() != null )
+        {
+            element = doc.createElement("filesize");
+            text = doc.createTextNode( dlItem.getFileSize().toString() );
+            element.appendChild( text );
+            itemElement.appendChild( element );
+        }
         // fileage
         element = doc.createElement("fileage");
         text = doc.createTextNode( dlItem.getFileAge() );

@@ -69,7 +69,10 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
                                     FrostBoardObject board )
     {
         this.fileName = fileName;
-        this.fileSize = new Long( fileSize );
+        if( fileSize != null )
+        {
+            this.fileSize = new Long( fileSize );
+        }
         this.fileAge = fileAge;
         this.key = key;
         this.sourceBoard = board;
