@@ -8,11 +8,13 @@ public class AttachedBoardTableModel extends DefaultTableModel
 
     protected final static String columnNames[] = {
         "Board Name",
-        "Access rights"
+        "Access rights", 
+		"Description"
     };
     protected final static Class columnClasses[] = {
         String.class, //"Board Name",
-        String.class //"Access rights"
+        String.class, //"Access rights"
+		String.class, //"Description"
     };
 
     public AttachedBoardTableModel()
