@@ -87,12 +87,22 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 	}
 	return -1;
     }
+
+    private int findFreeDownloadIndex(int exclude) {
+	for (int i=0;i<indices.size();i++) {
+		if (i==exclude) continue;
+		Integer current = (Integer)indices.elementAt(i);
+		if (current.intValue() > -1 && current.intValue() < MAX_TRIES)
+			return i;
+	}
+	return -1;
+    }
     
     private void setIndexFailed(int i) {
     	int current = ((Integer)indices.elementAt(i)).intValue();
 	
 	if (current == -1 || current > MAX_TRIES) {
-		System.err.println("\n\nWARNING - index sequence screwed. report to a dev\n\n");
+		System.err.println("\n\nWARNING - index sequence screwed in setFailed. report to a dev\n\n");
 		return;
 	}
 	
@@ -105,7 +115,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private void setIndexSuccessfull(int i) {
     	int current = ((Integer)indices.elementAt(i)).intValue();
 	if (current == -1 || current > MAX_TRIES) {
-		System.err.println("\n\nWARNING - index sequence screwed. report to a dev\n\n");
+		System.err.println("\n\nWARNING - index sequence screwed in setSuccesful. report to a dev\n\n");
 		return;
 	}
 	
@@ -264,7 +274,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				if (frame1.frostSettings.getBoolValue("hideBadFiles") &&
 					frame1.getEnemies().Get(_sharer)!=null) {
 					target.delete();
-					index++; //don't bother to check the message
+					index=findFreeDownloadIndex(); //don't bother to check the message
 					continue;
 				}
 				
@@ -275,7 +285,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					if (key_index == -1) {
 						System.out.println("file didn't contain public key!");
 						target.delete();
-						index++;
+						index = findFreeDownloadIndex();
 						continue;
 					}
 					
@@ -293,7 +303,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						System.out.println("pubkey " +pubKey.trim());
 						System.out.println("calculated digest "+frame1.getCrypto().digest(pubKey).trim());
 						target.delete();
-						index++;
+						index=findFreeDownloadIndex();
 						continue;
 					}
 					
@@ -318,7 +328,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			} else 
 				if (frame1.frostSettings.getBoolValue("hideAnonFiles")) {
 					target.delete();
-					index++;
+					index=findFreeDownloadIndex();
 					continue; //do not show index.
 				}
                         FileAccess.writeFile(unzipped,target);
@@ -332,7 +342,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         // delete the file and try a re download???
                     }
 
-                    index = findFreeDownloadIndex();
+                    index = findFreeDownloadIndex(index);
                     failures = 0;
                 }
                 else
@@ -342,7 +352,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     target.delete();
 		    setIndexFailed(index);
                     failures++;
-                    index++;
+                    findFreeDownloadIndex(index);
                 }
             }
             if( isInterrupted() ) // check if thread should stop
