@@ -29,6 +29,7 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     private int uploadProgressDoneBlocks = -1;
 
     private String key = null;
+    private String SHA1 = null;
     private FrostBoardObject targetBoard = null;
 
     public FrostUploadItemObject(File file, FrostBoardObject board)
@@ -40,13 +41,14 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         this.state = STATE_IDLE;
         this.lastUploadDate = null;
         this.key = null;
+	this.SHA1 = null;
     }
 
     /**
      * Constructor used by loadUploadTable
      */
     public FrostUploadItemObject(String filename, String filepath, long filesize, FrostBoardObject board,
-                                 int state, String lastUploadDate, String key)
+                                 int state, String lastUploadDate, String key, String SHA1)
     {
         this.fileName = filename;
         this.filePath = filepath;
@@ -55,6 +57,7 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         this.state = state;
         this.lastUploadDate = lastUploadDate;
         this.key = key;
+	this.SHA1 = SHA1;
     }
 
     /**
@@ -117,6 +120,13 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public void setKey( String val )
     {
         key = val;
+    }
+    
+    public String getSHA1() {
+    	return SHA1;
+    }
+    public void setSHA1(String val) {
+    	SHA1 = val;
     }
 
     public FrostBoardObject getTargetBoard()

@@ -2480,6 +2480,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         //////////////////////////////////////////////////
         // Generate CHK's for upload table entries
         //////////////////////////////////////////////////
+	/**  Do not generate CHKs, get SHA1 only!*/
         if( isGeneratingCHK() == false ) // do not start another generate if there is already 1 running
         {
             UploadTableModel ulModel = (UploadTableModel)getUploadTable().getModel();
@@ -2488,7 +2489,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 for( int i = 0; i < ulModel.getRowCount(); i++ )
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
-                    if( ulItem.getKey() == null )
+                    if( ulItem.getSHA1() == null )
                     {
                         setGeneratingCHK( true );
                         ulItem.setKey( "Working..." );
@@ -2518,7 +2519,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
                     if( ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED &&
-                        ulItem.getKey() != null )
+                        ulItem.getSHA1() != null )
                     {
                         ulItem.setState( FrostUploadItemObject.STATE_UPLOADING );
                         ulModel.updateRow( ulItem );

@@ -18,12 +18,16 @@
 */
 
 package frost;
-import java.awt.Component;
 import java.io.*;
-import java.util.*;
 import java.util.zip.*;
-
-import javax.swing.JFileChooser;
+import java.util.*;
+import java.awt.*;
+import java.awt.event.*;
+import javax.swing.*;
+import javax.swing.filechooser.*;
+import javax.swing.table.*;
+import org.w3c.dom.*;
+import org.xml.sax.*;
 
 public class FileAccess
 {
@@ -77,8 +81,80 @@ public class FileAccess
             String size = new String();
             String date = new String();
             String key = new String();
+	    String SHA1 = new String();
+	    String owner = new String();
             int counter = 0;
-
+	    
+	    
+	    //parse the xml file
+	    Document d = XMLTools.parseXmlFile(source.getPath(),false);
+	    
+	    if (d==null) {
+	    	System.out.println("Couldn't parse index file.");
+		return;
+	    }
+	    
+	    Element main = d.getDocumentElement();
+	    ArrayList files = XMLTools.getChildElementsByTagName(main,"File");
+	    
+	    if (files.size() == 0) {
+	    	System.out.println("Index empty!");
+		return;
+	    }
+	    
+	    //now get all the files
+	    Iterator i = files.iterator();
+	    
+	    while (i.hasNext()) {
+	    	Element current = (Element)i.next();
+		KeyClass newKey = new KeyClass();
+		
+		//extract the values
+		newKey.setFilename(XMLTools.getChildElementsTextValue(current, "name"));
+		newKey.setOwner(XMLTools.getChildElementsTextValue(current, "owner"));
+		newKey.setSHA1(XMLTools.getChildElementsTextValue(current, "SHA1"));
+		newKey.setKey(XMLTools.getChildElementsTextValue(current, "key"));
+		newKey.setDate(XMLTools.getChildElementsTextValue(current, "date"));
+		newKey.setSize(XMLTools.getChildElementsTextValue(current, "size"));
+		
+		//validate the key
+		if (!newKey.isValid()) {
+			System.out.println("invalid key found");
+			continue;
+		}
+		
+		//check if we already have such key in the map
+		KeyClass oldKey = (KeyClass)chk.get(newKey.getSHA1());
+		
+		//if we don't just add the new key
+		if (oldKey == null) {
+			if (chk.size() < frame1.frostSettings.getIntValue("maxKeys") ) {
+				chk.put(newKey.getSHA1(),newKey);
+				counter++; //not sure what exactly this counter is for
+			}
+		}
+		else 	
+		if (oldKey.getOwner() == null  ||
+				oldKey.getOwner().compareTo(newKey.getOwner())==0) {
+				//check if the old key was not or is the same owner
+				// and update the fields
+				
+				GregorianCalendar cal = newKey.getCal();
+                                GregorianCalendar keyCal = oldKey.getCal();
+				
+				if (keyCal.before(cal))
+					oldKey.setDate(newKey.getDate());
+				oldKey.setKey(newKey.getKey());
+				oldKey.setOwner(newKey.getOwner()); 
+				// ^^^ this allows for taking ownership of unsigned files.  It is deliberately so
+		}
+			
+			//check if it 
+			
+		}
+	    }
+	    
+		/*
             try
             {
                 f = new BufferedReader(new FileReader(source));
@@ -136,8 +212,8 @@ public class FileAccess
             catch( IOException e )
             {
                 System.out.println("Read Error: " + source);
-            }
-        }
+            }*/
+        
     }
 
     public static void writeKeyFile(Map chk, String destination)
@@ -146,29 +222,72 @@ public class FileAccess
     }
     public static void writeKeyFile(Map chk, File destination)
     {
+    	
+	//TODO: make this go through proper XML methods!!
+	//but those proper xml methods have to be written first ;)
+	//so it just writes out the tags manually
+	
         File tmpFile = new File(destination.getPath() + ".tmp");
         FileWriter f1;
+	StringBuffer text = new StringBuffer();
 
-        try {
-            f1 = new FileWriter(tmpFile);
-            synchronized(chk)
-            {
-                Iterator i = chk.keySet().iterator();
+        
+        
+	text.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+	    
+	//TODO: signing has to be optional, will do later
+	text.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\">");
+	    
+         synchronized(chk)
+         {
+                Iterator i = chk.values().iterator();
                 while( i.hasNext() )
                 {
-                    KeyClass key = (KeyClass)chk.get((String)i.next());
-                    f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
+                    KeyClass current = (KeyClass)i.next();
+		    
+		    //we do not add keys who are not signed by people we marked as GOOD!
+		    //but we add unsigned keys for now; this will probably change soon
+		    if (current.getOwner() != null && 
+		    		frame1.getFriends().Get(current.getOwner()) == null &&
+				current.getOwner().compareTo(frame1.getMyId().getUniqueName()) != 0) {
+			System.out.println("skipping file from BAD user");
+			continue;
+		    }
+		    
+                    //f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
+		    text.append("<File>");
+		    text.append("<name>" + current.getFilename()+"</name>");
+		    text.append("<SHA1>" + current.getSHA1()+"</SHA1>");
+		    text.append("<size>" + current.getSize()+"</size>");
+		    
+		    if (current.getOwner() != null)
+		    	text.append("<owner>" + current.getOwner() + "</owner>");
+		    if (current.getKey() != null)
+		    	text.append("<key>" + current.getKey() + "</key>");
+		    if (current.getDate() != null)
+		    	text.append("<date>" + current.getDate() + "</date>");
+		    
+		    text.append("</File>");
                 }
             }
-            f1.close();
-        }
-        catch( IOException e ) {
+	text.append("</Filelist>");
+        
+	//again, this will eventually be optional.. or maybe not?
+	//String signed = frame1.getCrypto().sign(text.toString(),frame1.getMyId().getPrivKey());
+	
+        try{
+	    f1 = new FileWriter(tmpFile);
+	    f1.write(text.toString());
+	    f1.close();
+        }catch( IOException e ) {
             System.out.println("Write Error: " + destination);
         }
         File oldFile = new File(destination.getPath() + ".old");
         oldFile.delete();
         destination.renameTo(oldFile);
         tmpFile.renameTo(destination);
+	
+	
     }
 
     /**
