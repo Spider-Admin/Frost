@@ -168,6 +168,7 @@ public class FileAccess
         }
         catch( IOException e )
         {
+        	e.printStackTrace(Core.getOut());
             return("Read Error");
         }
         return content.toString();
@@ -358,6 +359,7 @@ public class FileAccess
             f.close();
         }
         catch( IOException e ) {
+        	e.printStackTrace(Core.getOut());
             Core.getOut().println("Read Error: " + path);
         }
         return data;
@@ -389,6 +391,7 @@ public class FileAccess
         }
         catch( IOException e )
         {
+        	e.printStackTrace(Core.getOut());
             Core.getOut().println("Read Error: " + path);
         }
         return stringBuffer.toString();
