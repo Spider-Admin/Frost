@@ -340,6 +340,7 @@ public class TofTree extends JDragTree implements Savable {
 				isDone = true; //cancelled	
 			} else {
 				String boardName = dialog.getBoardName(); 
+				String boardDescription = dialog.getBoardDescription();
 				
 				if (getBoardByName(boardName) != null) {
 					JOptionPane.showMessageDialog(
@@ -350,7 +351,7 @@ public class TofTree extends JDragTree implements Savable {
 							+ "'!\n"
 							+ languageResource.getString("Please choose a new name"));
 				} else {
-					FrostBoardObject newBoard = new FrostBoardObject(boardName);
+					FrostBoardObject newBoard = new FrostBoardObject(boardName, boardDescription);
 					addNodeToTree(newBoard);
 					// maybe this boardfolder already exists, scan for new messages
 					TOF.initialSearchNewMessages(newBoard);
@@ -364,7 +365,7 @@ public class TofTree extends JDragTree implements Savable {
 	/**
 	 * Checks if board is already existent, adds board to board tree.
 	 */
-	public void addNewBoard(String bname, String bpubkey, String bprivkey) {
+	private void addNewBoard(String bname, String bpubkey, String bprivkey, String description) {
 		if (getBoardByName(bname) != null) {
 			int answer =
 				JOptionPane.showConfirmDialog(
@@ -385,21 +386,22 @@ public class TofTree extends JDragTree implements Savable {
 				return; // do not add
 			}
 		}
-		FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey, null);
+		FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey, description);
 		addNodeToTree(newBoard);
 		// maybe this boardfolder already exists, scan for new messages
 		TOF.initialSearchNewMessages(newBoard);
 	}
 
-    /**
-     * Checks if board is already existent, adds board to board tree.
-     */
-    public void addNewBoard(FrostBoardObject fbobj)
-    {
-        addNewBoard( fbobj.getBoardName(),
-                     fbobj.getPublicKey(),
-                     fbobj.getPrivateKey());
-    }
+	/**
+	 * Checks if board is already existent, adds board to board tree.
+	 */
+	public void addNewBoard(FrostBoardObject fbobj) {
+		addNewBoard(
+			fbobj.getBoardName(),
+			fbobj.getPublicKey(),
+			fbobj.getPrivateKey(),
+			fbobj.getDescription());
+	}
     
 	/**
 	 * Opens dialog, gets new name for folder, checks for double names, adds node to tree
