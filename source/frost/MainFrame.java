@@ -26,7 +26,7 @@ import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -46,6 +46,7 @@ import frost.gui.objects.*;
 import frost.gui.preferences.OptionsFrame;
 import frost.identities.Identity;
 import frost.messages.*;
+import frost.storage.StorageException;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
 import frost.util.gui.*;
@@ -2568,7 +2569,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	/**Options | Preferences action performed*/
 	private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
-		frostSettings.save();
+		try {
+			frostSettings.save();
+		} catch (StorageException se) {
+			logger.log(Level.SEVERE, "Error while saving the settings.", se);
+		}
 		OptionsFrame optionsDlg = new OptionsFrame(this, frostSettings, languageResource);
 		boolean okPressed = optionsDlg.runDialog();
 		if (okPressed) {

@@ -725,12 +725,14 @@ public class Core implements Savable {
 	/* (non-Javadoc)
   	 * @see frost.threads.maintenance.Savable#save()
  	 */
-	public boolean save() {
+	public void save() throws StorageException {
 		boolean saveOK;
 		saveOK = saveBatches();
 		saveOK &= saveHashes();
 		saveOK &= saveKnownBoards();
-		return saveOK;		
+		if (!saveOK) {
+			throw new StorageException("Error while saving the core items.");
+		}
 	}
 	/**
 	 * This method returns the language resource to get internationalized messages

@@ -14,6 +14,6 @@ package frost.storage;
  */
 public interface Savable {
 
-	public boolean save();
+	public void save() throws StorageException;
 
 }

@@ -26,6 +26,7 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.storage.*;
 import frost.storage.Savable;
 
 /**
@@ -675,14 +676,16 @@ public class SettingsClass implements Savable {
 	 * 
 	 * (Not thread-safe with addUpdater/removeUpdater)
 	 */
-	public boolean save() {
+	public void save() throws StorageException {
 		if (updaters != null) {
 			Enumeration enumeration = updaters.elements();
 			while (enumeration.hasMoreElements()) {
 				((SettingsUpdater) enumeration.nextElement()).updateSettings();
 			}
 		}
-		return writeSettingsFile(); 
+		if (!writeSettingsFile()) {
+			throw new StorageException("Error while saving the settings.");
+		}
 	}
 
 }

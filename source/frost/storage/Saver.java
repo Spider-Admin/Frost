@@ -8,7 +8,7 @@ package frost.storage;
 
 import java.util.*;
 import java.util.Timer;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import javax.swing.*;
 
@@ -38,7 +38,9 @@ public class Saver extends Timer {
 			super();
 		}
 
-		/* (non-Javadoc)
+		/*
+		 * (non-Javadoc)
+		 * 
 		 * @see java.util.TimerTask#run()
 		 */
 		public void run() {
@@ -46,15 +48,19 @@ public class Saver extends Timer {
 				Enumeration enumeration = autoSavables.elements();
 				while (enumeration.hasMoreElements()) {
 					Savable savable = (Savable) enumeration.nextElement();
-					if (!savable.save()) {
-						JOptionPane.showMessageDialog(parentFrame,
-								languageResource.getString("Saver.AutoTask.message"),
-								languageResource.getString("Saver.AutoTask.title"),
+					try {
+						savable.save();
+					} catch (StorageException se) {
+						logger.log(Level.SEVERE,
+								"Error while saving a resource inside the shutdown hook.", se);
+						JOptionPane.showMessageDialog(parentFrame, 
+								languageResource.getString("Saver.AutoTask.message"), 
+								languageResource.getString("Saver.AutoTask.title"), 
 								JOptionPane.ERROR_MESSAGE);
 						System.exit(3);
 					}
 				}
-			}			
+			}
 		}
 
 	}
@@ -72,7 +78,7 @@ public class Saver extends Timer {
 		public ShutdownThread() {
 		}
 
-		/** 
+		/**
 		 * Called by shutdown hook.
 		 */
 		public void run() {
@@ -82,8 +88,11 @@ public class Saver extends Timer {
 				Enumeration enumeration = exitSavables.elements();
 				while (enumeration.hasMoreElements()) {
 					Savable savable = (Savable) enumeration.nextElement();
-					if (!savable.save()) {
-						logger.severe("Error while saving a resource inside the shutdown hook.");
+					try {
+						savable.save();
+					} catch (StorageException se) {
+						logger.log(Level.SEVERE,
+								"Error while saving a resource inside the shutdown hook.", se);
 					}
 				}
 			}

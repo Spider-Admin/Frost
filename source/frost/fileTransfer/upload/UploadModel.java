@@ -11,7 +11,7 @@ import java.util.*;
 
 import frost.SettingsClass;
 import frost.gui.TableXmlIO;
-import frost.storage.Savable;
+import frost.storage.*;
 import frost.util.model.*;
 
 /**
@@ -139,7 +139,7 @@ public class UploadModel extends OrderedModel implements Savable {
 	/**
 	 * Saves the upload model to disk.
 	 */
-	public boolean save() {
+	public void save() throws StorageException {
 		String filename = settings.getValue("config.dir") + "uploads.xml";
 		File check = new File(filename);
 		if (check.exists()) {
@@ -151,7 +151,9 @@ public class UploadModel extends OrderedModel implements Savable {
 			}
 			check.renameTo(bakFile);
 		}
-		return TableXmlIO.saveUploadModel(this, filename);
+		if (!TableXmlIO.saveUploadModel(this, filename)) {
+			throw new StorageException("Error while saving the uploads model.");
+		}
 	}
 
 	/**

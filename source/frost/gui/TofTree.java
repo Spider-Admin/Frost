@@ -28,7 +28,7 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
-import frost.storage.Savable;
+import frost.storage.*;
 import frost.util.gui.JDragTree;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
@@ -301,7 +301,7 @@ public class TofTree extends JDragTree implements Savable {
      * @param node Save this nodes content
      * @param file The destination file
      */
-    public boolean save()
+    public void save() throws StorageException
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
         String boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml";
@@ -318,7 +318,9 @@ public class TofTree extends JDragTree implements Savable {
             check.renameTo(bakFile);
         }
         // the method scans the toftree
-        return xmlio.saveBoardTree( this, boardIniFilename );
+        if (!xmlio.saveBoardTree( this, boardIniFilename )) {
+        	throw new StorageException("Error while saving the TofTree.");
+        }
     }
 
 	/**
