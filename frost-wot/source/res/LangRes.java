@@ -541,7 +541,7 @@ public class LangRes extends ListResourceBundle {
 	/// DownloadTableFormat
 	///
 	
-	{"Enabled", "Enabled"},
+	{"DownloadTableFormat.Enabled", "Enabled"},
 	{"Blocks", "Blocks"},
 	{"Tries", "Tries"},
 	{"Waiting", "Waiting"},

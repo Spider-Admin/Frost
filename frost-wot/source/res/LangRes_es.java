@@ -370,7 +370,7 @@ static final Object[][] contents = {
 	///
 	/// DownloadTableFormat
 	///
-	{"Enabled", "Activo"},
+	{"DownloadTableFormat.Enabled", "Activa"},
 	{"Blocks", "Bloques"},
 	{"Tries", "Intentos"},
 	{"Waiting","Esperando"},
