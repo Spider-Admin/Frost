@@ -52,7 +52,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private String date;
     private String time;
     private String keypool;
-    private String destination;
     private String privateKey;
     private String publicKey;
     private boolean secure;
@@ -94,7 +93,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     if(debug) System.out.println("signing message");
         text=new String(text +"<key>" + (frame1.getMyId()).getKeyAddress() + "</key>");
         if (encryptSign && recipient !=null) {
-            System.out.println("encrypting message");
+            System.out.println("TOFUP: Encrypting message");
             text=frame1.getCrypto().encryptSign(text,frame1.getMyId().getPrivKey(),recipient.getKey());
             subject = new String("ENCRYPTED MSG FOR : " + recipient.getStrippedName());
             }
@@ -107,7 +106,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     }
 
     /**
-     * Uploads attachments
+     * Uploads attachments.
+     * This inserts the attached files into freenet.
      */
     private void uploadAttachments() {
     Vector attachments = getAttachments();
@@ -116,7 +116,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         String attachment = (String)attachments.elementAt(i);
         String[] result = {"", ""};
 
-        System.out.println("Uploading attachment " + attachment + " with HTL " + frame1.frostSettings.getValue("htlUpload") + ".");
+        System.out.println("TOFUP: Uploading attachment " + attachment + " with HTL " + frame1.frostSettings.getValue("htlUpload") + ".");
 
         while( !result[0].equals("KeyCollision") && !result[0].equals("Success"))
         result = FcpInsert.putFile("CHK@", attachment, frame1.frostSettings.getValue("htlUpload"), true, true,
@@ -152,16 +152,22 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
 
         if( DEBUG ) System.out.println("tofUpload: " + board.toString() + " secure: " + secure);
-        System.out.println("Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl + ".");
+        System.out.println("TOFUP: Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl + ".");
 
         uploadAttachments();
         sign();
 
         String fileSeparator = System.getProperty("file.separator");
-        destination = keypool + board.getBoardFilename() + fileSeparator + DateFun.getDate() + fileSeparator;
+        String destination = new StringBuffer().append(keypool)
+                                               .append(board.getBoardFilename())
+                                               .append(fileSeparator)
+                                               .append(DateFun.getDate())
+                                               .append(fileSeparator).toString();
         File checkDestination = new File(destination);
-        if( !checkDestination.isDirectory() )
+        if( checkDestination.isDirectory() == false )
+        {
             checkDestination.mkdirs();
+        }
 
         // Generate file to upload
         String uploadMe = "unsent" + String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
@@ -179,7 +185,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
         while( retry )
         {
-            // Search empty slut (hehe)
+            // Search empty slot
             boolean success = false;
             int index = 0;
             String output = new String();
@@ -197,52 +203,82 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                         .append(".txt").toString();
                 File testMe = new File(testFilename);
                 if( testMe.length() > 0 )
-                { // already downloaded
+                {
+                    // already on local disk, compare contents
                     String contentOne = (FileAccess.readFile(messageFile)).trim();
                     String contentTwo = (FileAccess.readFile(testMe)).trim();
                     if( DEBUG ) System.out.println(contentOne);
                     if( DEBUG ) System.out.println(contentTwo);
                     if( contentOne.equals(contentTwo) )
                     {
-                        if( DEBUG ) System.out.println("Message has already been uploaded.");
+                        if( DEBUG ) System.out.println("TOFUP: Message has already been uploaded.");
                         success = true;
                     }
                     else
                     {
                         index++;
-                        if( DEBUG ) System.out.println("File exists, increasing index to " + index);
+                        if( DEBUG ) System.out.println("TOFUP: File exists, increasing index to " + index);
                     }
                 }
                 else
-                { // probably empty
+                {
+                    // probably empty, check if other threads currently try to insert to this index
+                    File lockRequestIndex = new File( testMe.getPath() + ".lock" );
+                    boolean lockFileCreated = false;
+                    try { lockFileCreated = lockRequestIndex.createNewFile(); }
+                    catch(IOException ex) {
+                        System.out.println("ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...");
+                        ex.printStackTrace();
+                        notifyThreadFinished(this);
+                        return;
+                    }
+
+                    if( lockFileCreated == false )
+                    {
+                        // another thread tries to insert using this index, try next
+                        index++;
+                        if( DEBUG ) System.out.println("TOFUP: Other thread tries this index, increasing index to " + index);
+                        continue; // while
+                    }
+                    else
+                    {
+                        // we try this index
+                        lockRequestIndex.deleteOnExit();
+                    }
+
+                    // try to insert message
                     String[] result = new String[2];
                     if( secure )
                     {
                         String upKey = new StringBuffer().append(privateKey)
-                                                        .append("/")
-                                                        .append(board.getBoardFilename())
-                                                        .append("/")
-                                                        .append(date)
-                                                        .append("-")
-                                                        .append(index)
-                                                        .append(".txt").toString();
-                        if( DEBUG ) System.out.println(upKey);
-                        result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                                                         .append("/")
+                                                         .append(board.getBoardFilename())
+                                                         .append("/")
+                                                         .append(date)
+                                                         .append("-")
+                                                         .append(index)
+                                                         .append(".txt").toString();
+                        // if( DEBUG ) System.out.println(upKey);
+                        result = FcpInsert.putFile(upKey,
+                                                   destination + uploadMe,
+                                                   messageUploadHtl,
+                                                   false,
+                                                   true,
                                                    board.getBoardFilename());
                     }
                     else
                     {
                         // Temporary hack for wrong name space
                         String upKey = new StringBuffer().append("KSK@sftmeage/")
-                                                        .append(frame1.frostSettings.getValue("messageBase"))
-                                                        .append("/")
-                                                        .append(date)
-                                                        .append("-")
-                                                        .append(board.getBoardFilename())
-                                                        .append("-")
-                                                        .append(index)
-                                                        .append(".txt").toString();
-                        if( DEBUG ) System.out.println(upKey);
+                                                         .append(frame1.frostSettings.getValue("messageBase"))
+                                                         .append("/")
+                                                         .append(date)
+                                                         .append("-")
+                                                         .append(board.getBoardFilename())
+                                                         .append("-")
+                                                         .append(index)
+                                                         .append(".txt").toString();
+                        // if( DEBUG ) System.out.println(upKey);
                         result = FcpInsert.putFile(upKey,
                                                    destination + uploadMe,
                                                    messageUploadHtl,
@@ -254,15 +290,15 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         {
                             /* String */
                             upKey = new StringBuffer().append("KSK@frost/message/")
-                                                    .append(frame1.frostSettings.getValue("messageBase"))
-                                                    .append("/")
-                                                    .append(date)
-                                                    .append("-")
-                                                    .append(board.getBoardFilename())
-                                                    .append("-")
-                                                    .append(index)
-                                                    .append(".txt").toString();
-                            if( DEBUG ) System.out.println(upKey);
+                                                      .append(frame1.frostSettings.getValue("messageBase"))
+                                                      .append("/")
+                                                      .append(date)
+                                                      .append("-")
+                                                      .append(board.getBoardFilename())
+                                                      .append("-")
+                                                      .append(index)
+                                                      .append(".txt").toString();
+                            // if( DEBUG ) System.out.println(upKey);
                             /*result =*/FcpInsert.putFile(upKey,
                                                           destination + uploadMe,
                                                           messageUploadHtl,
@@ -330,18 +366,18 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                 else
                                 {
                                     index++;
-                                    System.out.println("TOF Upload collided, increasing index to " + index);
+                                    System.out.println("TOFUP: Upload collided, increasing index to " + index);
                                 }
                             }
                             else
                             {
                                 index++;
-                                System.out.println("TOF Upload collided, increasing index to " + index);
+                                System.out.println("TOFUP: Upload collided, increasing index to " + index);
                             }
                         }
                         else
                         {
-                            System.out.println("TOF upload failed (" + tries + "), retrying index " + index);
+                            System.out.println("TOFUP: Upload failed (" + tries + "), retrying index " + index);
                             if( tries > 5 )
                             {
                                 success = true;
@@ -365,7 +401,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
             else
             {
-                System.out.println("Error while uploading message.");
+                System.out.println("TOFUP: Error while uploading message.");
 
                 // Uploading of that message failed. Ask the user if Frost
                 // should try to upload the message another time.
@@ -382,14 +418,13 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                   LangRes.getString("Cancel"));
                     faildialog.show();
                     retry = faildialog.getAnswer();
-                    System.out.println("Will try to upload again: " + retry);
+                    System.out.println("TOFUP: Will try to upload again: " + retry);
                     faildialog.dispose();
                 }
                 if( !retry )
                     messageFile.delete();
             }
-
-            System.out.println("TOF Upload Thread finished");
+            System.out.println("TOFUP: Upload Thread finished");
         }
         notifyThreadFinished(this);
     } // end-of: run()
