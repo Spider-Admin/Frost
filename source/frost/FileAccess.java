@@ -20,14 +20,10 @@
 package frost;
 import java.awt.Component;
 import java.io.*;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.nio.charset.Charset;
 import java.util.*;
 import java.util.zip.*;
 
 import javax.swing.JFileChooser;
-
 import org.w3c.dom.*;
 
 public class FileAccess
@@ -39,9 +35,6 @@ public class FileAccess
      * @param lastUsedDirectory The saveDialog starts at this directory
      * @param title The saveDialog gets this title
      */
-     
-     //TODO: perhaps move to utf-16?
-     private static final Charset charset = Charset.forName("UTF-8");
     public static void saveDialog(Component parent, String content, String lastUsedDirectory, String title)
     {
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
@@ -63,201 +56,6 @@ public class FileAccess
                 }
             }
         }
-    }
-
-    /**
-     * Reads a keyfile from disk and adds the keys to a map
-     * @param source keyfile as String or as File
-     * @param chk Map that will be used to add the keys
-     * @param exchange the exchange flag of KeyClass will be set to this value
-     */
-    public static void readKeyFile(String source, Map chk)
-    {
-        readKeyFile(new File(source), chk);
-    }
-    public static void readKeyFile(File source, Map chk)
-    {
-        if( source.isFile() && source.length() > 0 )
-        {
-            BufferedReader f;
-            String line = new String();
-            String filename = new String();
-            String size = new String();
-            String date = new String();
-	    String dateShared = null;
-            String key = null;
-	    String SHA1 = null;
-	    String owner = new String();
-	    String batch = null;
-            int counter = 0;
-	    
-	    
-	    //parse the xml file
-	    Document d = XMLTools.parseXmlFile(source.getPath(),false);
-	    
-	    if (d==null) {
-	    	System.out.println("Couldn't parse index file.");
-		return;
-	    }
-	    
-	    Element main = d.getDocumentElement();
-	    ArrayList files = XMLTools.getChildElementsByTagName(main,"File");
-	    
-	    if (files.size() == 0) {
-	    	System.out.println("Index empty!");
-		return;
-	    }
-	    
-	    //now get all the files
-	    Iterator i = files.iterator();
-	    
-	    while (i.hasNext()) {
-	    	Element current = (Element)i.next();
-		KeyClass newKey = new KeyClass();
-		
-		//extract the values
-		try {
-		newKey.setFilename(XMLTools.getChildElementsCDATAValue(current, "name"));
-		newKey.setSHA1(XMLTools.getChildElementsCDATAValue(current, "SHA1"));
-		}catch (ClassCastException e) {
-			System.out.println("received an index from early beta. grr");
-			newKey.setSHA1(XMLTools.getChildElementsTextValue(current, "SHA1"));
-			newKey.setFilename(XMLTools.getChildElementsTextValue(current, "name"));
-			
-		}
-		newKey.setOwner(XMLTools.getChildElementsTextValue(current, "owner"));
-		
-		newKey.setKey(XMLTools.getChildElementsTextValue(current, "key"));
-		newKey.setDate(XMLTools.getChildElementsTextValue(current, "date"));
-		newKey.setLastSharedDate(XMLTools.getChildElementsTextValue(current, "dateShared"));
-		newKey.setSize(XMLTools.getChildElementsTextValue(current, "size"));
-		newKey.setBatch(XMLTools.getChildElementsTextValue(current, "batch"));
-		
-		//validate the key
-		if (!newKey.isValid()) {
-			System.out.println("invalid key found");
-			continue;
-		}
-		
-		//check if we already have such key in the map
-		KeyClass oldKey = (KeyClass)chk.get(newKey.getSHA1());
-		
-		//if we don't just add the new key
-		if (oldKey == null) {
-			if (chk.size() < frame1.frostSettings.getIntValue("maxKeys") ) {
-				chk.put(newKey.getSHA1(),newKey);
-				counter++; //not sure what exactly this counter is for
-			}
-		}
-		else 	
-		if (oldKey.getOwner() == null  ||
-				oldKey.getOwner().compareTo(newKey.getOwner())==0) {
-				//check if the old key was not or is the same owner
-				// and update the fields
-				GregorianCalendar cal,keyCal;
-				
-				if (newKey.getDate() != null) 
-					cal = newKey.getCal();
-				else
-					cal = null;
-					
-                                if (oldKey.getDate() != null)
-					keyCal = oldKey.getCal();
-				else
-					keyCal = null;
-				
-				if (cal != null && keyCal==null)
-					oldKey.setDate(newKey.getDate());
-				else if (cal != null && keyCal != null && keyCal.before(cal))
-					oldKey.setDate(newKey.getDate());
-				oldKey.setKey(newKey.getKey());
-				oldKey.setOwner(newKey.getOwner()); 
-				// ^^^ this allows for taking ownership of unsigned files.  It is deliberately so
-		}
-			
-			//check if it 
-			
-		}
-	    }
-	    
-        
-    }
-
-    public static void writeKeyFile(Map chk, String destination)
-    {
-        writeKeyFile(chk, new File(destination));
-    }
-    public static void writeKeyFile(Map chk, File destination)
-    {
-    	
-	//TODO: make this go through proper XML methods!!
-	//but those proper xml methods have to be written first ;)
-	//so it just writes out the tags manually
-	
-        File tmpFile = new File(destination.getPath() + ".tmp");
-        FileWriter f1;
-	StringBuffer text = new StringBuffer();
-
-        
-        
-	text.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
-	    
-	
-	if (frame1.frostSettings.getBoolValue("signUploads")) 
-		text.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+
-			"\" pubkey = \""+frame1.getMyId().getKey()+"\">");
-	else
-		text.append("<Filelist>");
-	    
-         synchronized(chk)
-         {
-                Iterator i = chk.values().iterator();
-                while( i.hasNext() )
-                {
-                    KeyClass current = (KeyClass)i.next();
-		    
-		    //we do not add keys who are not signed by people we marked as GOOD!
-		    //but we add unsigned keys for now; this will probably change soon
-		    if (current.getOwner() != null && 
-		    		frame1.getEnemies().Get(current.getOwner()) != null ) {
-			System.out.println("skipping file from BAD user");
-			continue;
-		    }
-		    
-                    //f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
-		    text.append("<File>");
-		    text.append("<name><![CDATA[" + current.getFilename()+"]]></name>");
-		    text.append("<SHA1><![CDATA[" + current.getSHA1()+"]]></SHA1>");
-		    text.append("<size>" + current.getSize()+"</size>");
-		    text.append("<batch>" + current.getBatch() +"</batch>");
-		    
-		    if (current.getOwner() != null)
-		    	text.append("<owner>" + current.getOwner() + "</owner>");
-		    if (current.getKey() != null)
-		    	text.append("<key>" + current.getKey() + "</key>");
-		    if (current.getDate() != null)
-		    	text.append("<date>" + current.getDate() + "</date>");
-		    if (current.getLastSharedDate() != null)
-		    	text.append("<dateShared>"+ current.getLastSharedDate() +"</dateShared>");
-		    
-		    text.append("</File>");
-                }
-            }
-	text.append("</Filelist>");
-        
-        try{
-	    f1 = new FileWriter(tmpFile);
-	    f1.write(text.toString());
-	    f1.close();
-        }catch( IOException e ) {
-            System.out.println("Write Error: " + destination);
-        }
-        File oldFile = new File(destination.getPath() + ".old");
-        oldFile.delete();
-        destination.renameTo(oldFile);
-        tmpFile.renameTo(destination);
-	
-	
     }
 
     /**
@@ -540,34 +338,6 @@ public class FileAccess
         }
         return stringBuffer.toString();
     }
-    
-    /**
-     * Reads a file and returns contents without formatting
-     */
-     public static String readFileRaw(String path) {
-	return readFileRaw(new File(path));
-     }
-     
-     public static String readFileRaw(File file) {
-     	if (!file.exists()) return null;
-	String result;
-	try {
-		FileChannel fc = (new FileInputStream(file)).getChannel();
-		ByteBuffer buf = ByteBuffer.allocate((int)file.length()); 
-		
-		while (buf.remaining() > 0) {
-			fc.read(buf);
-		}
-		
-		fc.close();
-		buf.flip();
-		result = charset.decode(buf).toString();
-	} catch (IOException e) {
-		e.printStackTrace(System.out);
-		return new String();
-	}
-	return result;
-     }
 
     /**
      * Writes a file "file" to "path"
@@ -578,14 +348,10 @@ public class FileAccess
     }
     public static void writeFile(String content, File file)
     {
-        
+        FileWriter f1;
         try {
-	    FileChannel f1 = (new FileOutputStream(file)).getChannel();
-	    ByteBuffer buf = charset.encode(content);
-            
-	    while(buf.remaining()>0)
-	    	f1.write(buf);
-	    
+            f1 = new FileWriter(file);
+            f1.write(content);
             f1.close();
         }
         catch( IOException e ) {
@@ -630,5 +396,264 @@ public class FileAccess
         // The directory is now empty so delete it
         return dir.delete();
     }
+
+
+    /**
+     * Reads a keyfile from disk and adds the keys to a map
+     * @param source keyfile as String or as File
+     * @param chk Map that will be used to add the keys
+     * @param exchange the exchange flag of KeyClass will be set to this value
+     */
+    public static void readKeyFile(String source, Map chk)
+    {
+        readKeyFile(new File(source), chk);
+    }
+    public static void readKeyFile(File source, Map chk)
+    {
+        if (source.isFile() && source.length() > 0)
+        {
+            BufferedReader f;
+            String line = new String();
+            String filename = new String();
+            String size = new String();
+            String date = new String();
+            String dateShared = null;
+            String key = null;
+            String SHA1 = null;
+            String owner = new String();
+            String batch = null;
+            int counter = 0;
+
+            //parse the xml file
+            Document d = XMLTools.parseXmlFile(source.getPath(), false);
+
+            if (d == null)
+            {
+                System.out.println("Couldn't parse index file.");
+                return;
+            }
+
+            Element main = d.getDocumentElement();
+            ArrayList files = XMLTools.getChildElementsByTagName(main, "File");
+
+            if (files.size() == 0)
+            {
+                System.out.println("Index empty!");
+                return;
+            }
+
+            //now get all the files
+            Iterator i = files.iterator();
+
+            while (i.hasNext())
+            {
+                Element current = (Element)i.next();
+                KeyClass newKey = new KeyClass();
+
+                //extract the values
+                try
+                {
+                    newKey.setFilename(
+                        XMLTools.getChildElementsCDATAValue(current, "name"));
+                    newKey.setSHA1(
+                        XMLTools.getChildElementsCDATAValue(current, "SHA1"));
+                }
+                catch (ClassCastException e)
+                {
+                    System.out.println(
+                        "received an index from early beta. grr");
+                    newKey.setSHA1(
+                        XMLTools.getChildElementsTextValue(current, "SHA1"));
+                    newKey.setFilename(
+                        XMLTools.getChildElementsTextValue(current, "name"));
+
+                }
+                newKey.setOwner(
+                    XMLTools.getChildElementsTextValue(current, "owner"));
+
+                newKey.setKey(
+                    XMLTools.getChildElementsTextValue(current, "key"));
+                newKey.setDate(
+                    XMLTools.getChildElementsTextValue(current, "date"));
+                newKey.setLastSharedDate(
+                    XMLTools.getChildElementsTextValue(current, "dateShared"));
+                newKey.setSize(
+                    XMLTools.getChildElementsTextValue(current, "size"));
+                newKey.setBatch(
+                    XMLTools.getChildElementsTextValue(current, "batch"));
+
+                //validate the key
+                if (!newKey.isValid())
+                {
+                    System.out.println("invalid key found");
+                    continue;
+                }
+
+                //check if we already have such key in the map
+                KeyClass oldKey = (KeyClass)chk.get(newKey.getSHA1());
+
+                //if we don't just add the new key
+                if (oldKey == null)
+                {
+                    if (chk.size()
+                        < frame1.frostSettings.getIntValue("maxKeys"))
+                    {
+                        chk.put(newKey.getSHA1(), newKey);
+                        counter++; //not sure what exactly this counter is for
+                    }
+                }
+                else if (
+                    oldKey.getOwner() == null
+                        || oldKey.getOwner().compareTo(newKey.getOwner()) == 0)
+                {
+                    //check if the old key was not or is the same owner
+                    // and update the fields
+                    GregorianCalendar cal, keyCal;
+
+                    if (newKey.getDate() != null)
+                        cal = newKey.getCal();
+                    else
+                        cal = null;
+
+                    if (oldKey.getDate() != null)
+                        keyCal = oldKey.getCal();
+                    else
+                        keyCal = null;
+
+                    if (cal != null && keyCal == null)
+                        oldKey.setDate(newKey.getDate());
+                    else if (
+                        cal != null && keyCal != null && keyCal.before(cal))
+                        oldKey.setDate(newKey.getDate());
+                    oldKey.setKey(newKey.getKey());
+                    oldKey.setOwner(newKey.getOwner());
+                    // ^^^ this allows for taking ownership of unsigned files.  It is deliberately so
+                }
+
+                //check if it 
+
+            }
+        }
+
+    }
+
+    public static void writeKeyFile(Map chk, String destination)
+    {
+        writeKeyFile(chk, new File(destination));
+    }
+    public static void writeKeyFile(Map chk, File destination)
+    {
+
+        //TODO: make this go through proper XML methods!!
+        //but those proper xml methods have to be written first ;)
+        //so it just writes out the tags manually
+
+        File tmpFile = new File(destination.getPath() + ".tmp");
+        FileWriter f1;
+        StringBuffer text = new StringBuffer();
+
+        text.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
+
+        if (frame1.frostSettings.getBoolValue("signUploads"))
+            text.append(
+                "<Filelist sharer = \""
+                    + frame1.getMyId().getUniqueName()
+                    + "\" pubkey = \""
+                    + frame1.getMyId().getKey()
+                    + "\">");
+        else
+            text.append("<Filelist>");
+
+        synchronized (chk)
+        {
+            Iterator i = chk.values().iterator();
+            while (i.hasNext())
+            {
+                KeyClass current = (KeyClass)i.next();
+
+                //we do not add keys who are not signed by people we marked as GOOD!
+                //but we add unsigned keys for now; this will probably change soon
+                if (current.getOwner() != null
+                    && frame1.getEnemies().Get(current.getOwner()) != null)
+                {
+                    System.out.println("skipping file from BAD user");
+                    continue;
+                }
+
+                //f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
+                text.append("<File>");
+                text.append(
+                    "<name><![CDATA[" + current.getFilename() + "]]></name>");
+                text.append(
+                    "<SHA1><![CDATA[" + current.getSHA1() + "]]></SHA1>");
+                text.append("<size>" + current.getSize() + "</size>");
+                text.append("<batch>" + current.getBatch() + "</batch>");
+
+                if (current.getOwner() != null)
+                    text.append("<owner>" + current.getOwner() + "</owner>");
+                if (current.getKey() != null)
+                    text.append("<key>" + current.getKey() + "</key>");
+                if (current.getDate() != null)
+                    text.append("<date>" + current.getDate() + "</date>");
+                if (current.getLastSharedDate() != null)
+                    text.append(
+                        "<dateShared>"
+                            + current.getLastSharedDate()
+                            + "</dateShared>");
+
+                text.append("</File>");
+            }
+        }
+        text.append("</Filelist>");
+
+        try
+        {
+            f1 = new FileWriter(tmpFile);
+            f1.write(text.toString());
+            f1.close();
+        }
+        catch (IOException e)
+        {
+            System.out.println("Write Error: " + destination);
+        }
+        File oldFile = new File(destination.getPath() + ".old");
+        oldFile.delete();
+        destination.renameTo(oldFile);
+        tmpFile.renameTo(destination);
+    }
+
+    public static String readFileRaw(String path)
+    {
+        return readFileRaw(new File(path));
+    }
+
+    public static String readFileRaw(File file)
+    {
+        if (!file.exists())
+            return null;
+        return readFile(file);    
+/*        String result;
+        try
+        {
+            FileChannel fc = (new FileInputStream(file)).getChannel();
+            ByteBuffer buf = ByteBuffer.allocate((int)file.length());
+
+            while (buf.remaining() > 0)
+            {
+                fc.read(buf);
+            }
+
+            fc.close();
+            buf.flip();
+            result = charset.decode(buf).toString();
+        }
+        catch (IOException e)
+        {
+            e.printStackTrace(System.out);
+            return new String();
+        }
+        return result;*/
+    }
+    
 
 }
