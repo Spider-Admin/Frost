@@ -21,6 +21,7 @@ package frost;
 import java.io.*;
 import java.util.*;
 
+import frost.identities.*;
 import org.w3c.dom.*;
 
 import frost.gui.model.DownloadTableModel;
@@ -256,8 +257,8 @@ public class Index
     	add(key,new File(boardDir.getPath()+fileSeparator+"new_files.xml"));
     }
     
-    public static void add(File keyFile, FrostBoardObject board) {
-    	add(keyFile, new File(frame1.keypool + board.getBoardFilename() + fileSeparator+ "files.xml"));
+    public static void add(File keyFile, FrostBoardObject board, Identity owner) {
+    	add(keyFile, new File(frame1.keypool + board.getBoardFilename() + fileSeparator+ "files.xml"),owner);
     }
     public static void add(File keyFile, FrostBoardObject board, String owner) {
     	add(keyFile, new File(frame1.keypool + board.getBoardFilename() + fileSeparator+ "files.xml"), owner);
@@ -303,11 +304,15 @@ public class Index
     }
 
     /**
-     * Adds a keyfile to another
+     * Adds a keyfile to another counts the number of files shared
+     * and establishes the proper trust relationships
      * @param keyfile the keyfile to add to the index
      * @param target file containing index
+     * @param owner the trusted identity of the person sharing the files
      */
-    public static void add(File keyfile, File target)
+    //REDFLAG: this method is called only from UpdateIdThread and that's why
+    //I put the accounting for trustmap here.  Be careful when you change it!!
+    public static void add(File keyfile, File target, Identity owner)
     {
      
         final Map chunk = Collections.synchronizedMap(new HashMap());
@@ -319,11 +324,27 @@ public class Index
 		e.printStackTrace(Core.getOut());
 	}
         FileAccess.readKeyFile(keyfile, chunk);
-
+		Iterator it = chunk.values().iterator();
+		if (!owner.getUniqueName().equals(Core.getMyId().getUniqueName()))
+			while (it.hasNext()) {
+				SharedFileObject current = (SharedFileObject)it.next();
+				if (!current.getOwner().equals(owner.getUniqueName())) 
+					owner.getTrustees().add(current.getOwner());
+				//FIXME: find a way to count the files each person has shared
+				//without counting dublicates
+			}
         
         add(chunk, target);
     }
 
+	/**
+	 * adds the files from an index shared by an untrusted identity.  
+	 * only those files shared directly by the person who inserted the index
+	 * are considered.
+	 * @param keyfile the newly downloaded keyfile
+	 * @param target the already existing keyfile
+	 * @param owner the unique name of the person who shared the file
+	 */
     public static void add(File keyfile, File target, String owner) {
     	   final Map chunk = Collections.synchronizedMap(new HashMap());
 

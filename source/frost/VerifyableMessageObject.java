@@ -232,6 +232,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable
                     frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
                 {
                     System.out.println("TOFDN: *** Message is signed by a FRIEND, set state to GOOD: "+currentMsg.getFrom());
+                    currentId.noMessages++;
                     currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
                 }
                 else // verification FAILED!
