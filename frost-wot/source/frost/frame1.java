@@ -213,6 +213,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem tofTextPopupCancel = null;
 
     JMenuItem msgTablePopupMarkMessageUnread = null;
+    JMenuItem msgTablePopupMarkAllMessagesRead = null;
 
     public static Hashtable getMyBatches() {return Core.getMyBatches();}
     //------------------------------------------------------------------------
@@ -928,6 +929,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         msgTablePopupMarkMessageUnread.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 markSelectedMessageUnread();
+            } });
+        msgTablePopupMarkAllMessagesRead = new JMenuItem("Mark ALL messages read");
+        msgTablePopupMarkAllMessagesRead.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                TOF.setAllMessagesRead(getMessageTable(), getSelectedNode());
             } });
     }
 
@@ -3188,12 +3194,16 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     protected void showMessageTablePopupMenu(MouseEvent e)
     {
+        if( getSelectedNode().isFolder() )
+            return;
+            
         JPopupMenu pmenu = new JPopupMenu();
 
-        if(messageTable.getSelectedRow() < 0)
-            return;
-
-        pmenu.add(msgTablePopupMarkMessageUnread);
+        if(messageTable.getSelectedRow() > -1)
+        {
+            pmenu.add(msgTablePopupMarkMessageUnread);
+        }
+        pmenu.add(msgTablePopupMarkAllMessagesRead);
         pmenu.addSeparator();
         pmenu.add(searchPopupCancel); // ATT: misuse of another menuitem displaying 'Cancel' ;)
         pmenu.show( e.getComponent(), e.getX(), e.getY() );
@@ -3237,12 +3247,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         updateTofTree( getSelectedNode() );
     }
 
-    /**
-     * Marks messages currently in table as read.
-     */
-/*    private void markAllMessagesRead()
-    {
-    }*/
 	/**
 	 * @return
 	 */

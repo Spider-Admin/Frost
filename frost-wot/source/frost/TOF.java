@@ -100,6 +100,68 @@ public class TOF
         return null;
     }
 
+    /**
+     * Resets the NEW state to READ for all messages shown in board table.
+     * 
+     * @param table  the messages table
+     * @param board  the board to reset
+     */
+    public static void setAllMessagesRead(final JTable table, final FrostBoardObject board)
+    {
+        Runnable resetter = new Runnable() {
+            public void run()
+            {
+                DefaultTableModel tableModel = (DefaultTableModel)table.getModel();
+                for(int row=0; row < tableModel.getRowCount(); row++ )
+                {
+                    String index = (String)tableModel.getValueAt(row, 0);
+                    String date = (String)tableModel.getValueAt(row, 4);
+
+                    FrostMessageObject message = (FrostMessageObject)messages.get(index+date);
+                    if( message != null )
+                    {
+                        // Test if lockfile exists, remove it and update the tree display
+                        final File messageLock = new File( message.getFile().getPath() + ".lck" );
+                        if( messageLock.exists() == false )
+                        {
+                            // its a read message, nothing more to do here ...
+                            continue;
+                        }
+
+                        // this is a new message
+                        messageLock.delete();
+                        
+                        board.decNewMessageCount();
+
+                        // here we reset the bold-look from sender column,
+                        // wich was set by MessageObject.getRow()
+                        String from = (String)tableModel.getValueAt(row, 1);
+
+                        if( from.indexOf("<font color=\"blue\">") != -1 )
+                        {
+                            String sbtmp = new StringBuffer()
+                            .append("<html><font color=\"blue\">")
+                            .append(message.getFrom())
+                            .append("</font></html>").toString();
+                            tableModel.setValueAt( sbtmp, row, 1); // Message with attachment
+                        }
+                        else
+                        {
+                            tableModel.setValueAt(message.getFrom(), row, 1);
+                        }
+                    }
+                }
+                // all new messages should be gone now ...
+                SwingUtilities.invokeLater( new Runnable() {
+                    public void run() {
+                        frame1.getInstance().updateMessageCountLabels(board);
+                        frame1.getInstance().updateTofTree(board);
+                    }
+                });                
+            } };
+        new Thread( resetter ).start();
+    }
+    
     // called by non-swing thread
     public static void addNewMessageToTable(File newMsgFile, final FrostBoardObject board)
     {

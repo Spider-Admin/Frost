@@ -28,3 +28,4 @@ Legend:
 - fixed bug within reloading of saved upload items  --bback
 + added check for JAR files on startup of frost  --bback
 + added 'pause' statement to frost.bat, should make life for many windows users easier if errors occur  --bback
++ added 'Mark ALL messages read' to popup menu of message table  --bback
