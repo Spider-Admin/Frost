@@ -379,7 +379,7 @@ public class ModelTable extends AbstractTableModel {
 	public void setColumnVisible(int index, boolean visible) {
 		TableColumnModel columnModel = getTable().getColumnModel();
 		int position = visibleColumns.indexOf(new Integer(index));
-			
+
 		if (visible) {
 			if (position == -1) {
 				visibleColumns.add(new Integer(index));
@@ -388,16 +388,18 @@ public class ModelTable extends AbstractTableModel {
 				columnModel.addColumn(column);
 			}
 		} else {
-			visibleColumns.remove(new Integer(index));
-			columnModel.removeColumn((TableColumn) columns.get(index));
-			//Here we have to decrease the model index of all the columns
-			//that were to the right of the one we have removed.
-			for (int i = 0; i < columnModel.getColumnCount(); i++) {
-				TableColumn column = columnModel.getColumn(i);
-				int modelIndex = column.getModelIndex();
-				if (modelIndex >= position) {
-					column.setModelIndex(modelIndex - 1);
-				}	
+			if (position != -1) {
+				visibleColumns.remove(new Integer(index));
+				columnModel.removeColumn((TableColumn) columns.get(index));
+				//Here we have to decrease the model index of all the columns
+				//that were to the right of the one we have removed.
+				for (int i = 0; i < columnModel.getColumnCount(); i++) {
+					TableColumn column = columnModel.getColumn(i);
+					int modelIndex = column.getModelIndex();
+					if (modelIndex >= position) {
+						column.setModelIndex(modelIndex - 1);
+					}
+				}
 			}
 		}
 	}
