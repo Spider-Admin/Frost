@@ -124,7 +124,8 @@ public class XMLTools
 			// A parsing error occurred; the xml input is not valid
 			logger.log(
 				Level.SEVERE,
-				"Parsing of xml file failed.  Send badfile.xml to a dev for analysis",
+				"Parsing of xml file failed (send badfile.xml to a dev for analysis) - " +
+				"File name: '" + file.getName() + "'",
 				e);
 			file.renameTo(new File("badfile.xml"));
 			throw new IllegalArgumentException();
