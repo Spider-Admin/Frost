@@ -10,10 +10,10 @@ import java.util.*;
 import java.util.logging.Logger;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 
 import frost.*;
-import frost.SettingsClass;
 import frost.gui.*;
 import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.objects.FrostBoardObject;
@@ -189,7 +189,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	/**
 	 * @param e
 	 */
-	private void searchDownloadButton_actionPerformed(ActionEvent e) {
+	private void downloadButton_actionPerformed(ActionEvent e) {
 		searchTable.addSelectedSearchItemsToDownloadTable(downloadTable);
 	}
 
@@ -198,7 +198,12 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	 */
 	private class Listener
 		extends MouseAdapter
-		implements ActionListener, MouseListener, LanguageListener, PropertyChangeListener {
+		implements
+			ActionListener,
+			MouseListener,
+			LanguageListener,
+			PropertyChangeListener,
+			ListSelectionListener {
 
 		/**
 		 * 
@@ -214,8 +219,8 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			if (e.getSource() == searchTextField) {
 				searchTextField_actionPerformed(e);
 			}
-			if (e.getSource() == searchDownloadButton) {
-				searchDownloadButton_actionPerformed(e);
+			if (e.getSource() == downloadButton) {
+				downloadButton_actionPerformed(e);
 			}
 			if (e.getSource() == searchButton) {
 				searchButton_actionPerformed(e);
@@ -271,6 +276,13 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
+		 */
+		public void valueChanged(ListSelectionEvent e) {
+			listSelectionChanged(e);			
+		}
+
 	}
 	
 	private SearchManager searchManager;
@@ -297,7 +309,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	private JTranslatableComboBox searchComboBox = null;
 	private JButton searchButton =
 		new JButton(new ImageIcon(getClass().getResource("/data/search.gif")));
-	private JButton searchDownloadButton =
+	private JButton downloadButton =
 		new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
 	private JLabel searchResultsCountLabel = new JLabel();
 	private JTextField searchTextField = new JTextField(25);
@@ -334,7 +346,8 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			searchComboBox = new JTranslatableComboBox(languageResource, searchComboBoxKeys);
 
 			configureButton(searchButton, "/data/search_rollover.gif");
-			configureButton(searchDownloadButton, "/data/save_rollover.gif");
+			configureButton(downloadButton, "/data/save_rollover.gif");
+			downloadButton.setEnabled(false);
 			searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
 			searchTextField.setMaximumSize(searchTextField.getPreferredSize());
 
@@ -347,7 +360,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			searchTopPanel.add(Box.createRigidArea(blankSpace));
 			searchTopPanel.add(searchButton);
 			searchTopPanel.add(Box.createRigidArea(blankSpace));
-			searchTopPanel.add(searchDownloadButton);
+			searchTopPanel.add(downloadButton);
 			searchTopPanel.add(Box.createRigidArea(blankSpace));
 			searchTopPanel.add(searchAllBoardsCheckBox);
 			searchTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
@@ -364,13 +377,14 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			
 			// listeners
 			searchTextField.addActionListener(listener);
-			searchDownloadButton.addActionListener(listener);
+			downloadButton.addActionListener(listener);
 			searchButton.addActionListener(listener);
 			searchTable.addMouseListener(listener);
 			searchTableScrollPane.addMouseListener(listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
 			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
+			searchTable.getSelectionModel().addListSelectionListener(listener);
 			
 			initialized = true;
 		}
@@ -382,7 +396,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	private void refreshLanguage() {
 		searchAllBoardsCheckBox.setText(languageResource.getString("all boards"));
 		searchButton.setToolTipText(languageResource.getString("Search"));
-		searchDownloadButton.setToolTipText(languageResource.getString("Download selected keys"));
+		downloadButton.setToolTipText(languageResource.getString("Download selected keys"));
 		
 		String results = languageResource.getString("Results");
 		Dimension labelSize = calculateLabelSize(results + " : 00000");
@@ -597,6 +611,16 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	 */
 	public void updateSettings() {
 		settingsClass.setValue(SettingsClass.SEARCH_ALL_BOARDS, allBoardsSelected);	
+	}
+	
+	/**
+ 	 * @param e
+ 	 */
+	private void listSelectionChanged(ListSelectionEvent e) {
+		if (!e.getValueIsAdjusting()) {
+			boolean disabled = searchTable.getSelectionModel().isSelectionEmpty();
+			downloadButton.setEnabled(!disabled);
+		}
 	}
 
 }
