@@ -357,12 +357,7 @@ public class SharedFileObject implements XMLizable
 			 element.appendChild( cdata );
 			 fileelement.appendChild( element );
              
-             //if boardObj is not null, add an emtpy board element
-             
-             if (board!=null) {
-	             element = doc.createElement("indexed");
-    	         fileelement.appendChild(element);
-             }
+
               
 			 element = doc.createElement("size");
 			 Text textnode = doc.createTextNode(""+getSize());
@@ -382,10 +377,17 @@ public class SharedFileObject implements XMLizable
 			 if (getOwner() != null)
 			 {
 				 element = doc.createElement("owner");
-				 textnode = doc.createTextNode(getOwner());
-				 element.appendChild( textnode );
+				 cdata = doc.createCDATASection(getOwner());
+				 element.appendChild( cdata );
 				 fileelement.appendChild( element );
-			 }
+			 } /*else 
+			 if (board!=null) {
+				 element = doc.createElement("owner");
+				 cdata = doc.createCDATASection(mixed.makeFilename(Core.getMyId().getUniqueName()));
+				 element.appendChild( cdata );
+				 fileelement.appendChild( element );
+			 }*/
+			 
 			 if (getKey() != null)
 			 {
 				 element = doc.createElement("key");
@@ -429,7 +431,7 @@ public class SharedFileObject implements XMLizable
 							  XMLTools.getChildElementsTextValue(current, "name"));
 					  }
 					  setOwner(
-						  XMLTools.getChildElementsTextValue(current, "owner"));
+						  XMLTools.getChildElementsCDATAValue(current, "owner"));
 
 					  setKey(
 						  XMLTools.getChildElementsTextValue(current, "key"));
@@ -442,9 +444,7 @@ public class SharedFileObject implements XMLizable
 					  setBatch(
 						  XMLTools.getChildElementsTextValue(current, "batch"));
 						  
-					 //check if file was indexed
-					 if (XMLTools.getChildElementsByTagName(current,"indexed").size() >0)
-					 	setBoard(new FrostBoardObject("","",""));
+					 
     }
     
     
