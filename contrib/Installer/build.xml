@@ -11,6 +11,13 @@
 		(and without typing -D each time it compiles it) -->
 	<property file=".ant.properties" />
 	<property file="${user.home}/.ant.properties" />
+	
+	<!-- This is the file that contains the needed information to sign the jar -->
+	<!-- It shouldn't be uploaded to the CVS and has this syntax:			   -->
+	<!-- signjar.alias=the_alias_to_sign_the_jar_under						   -->
+	<!-- signjar.storepass=the_password_of_the_keystore						   -->
+	<!-- signjar.keypass=the_password_of_the_key							   -->
+	<property file=".ant.signjar.Do-Not-Upload-To-CVS" />
 
 	<!-- Don't use systems CLASSPATH, use only the CLASSPATH set in this build file -->
 	<property name="build.sysclasspath" value="ignore" />
@@ -55,7 +62,7 @@
 	</target>
 
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<!-- Builds the installer and packs it into a jar	    		   	   -->
+	<!-- Builds the installer, packs it into a jar and signs it		   	   -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 
 	<target name="build" depends="startmsg" description="--> builds the installer and packs it.">
@@ -81,6 +88,12 @@
      	 	</fileset>
     	</jar>
     	
+    	<signjar jar="${build.dir}/${jarName}.jar"
+    		alias="${signjar.alias}"
+    		storepass="${signjar.storepass}"
+    		keypass="${signjar.keypass}">    	
+    	</signjar>
+    	
     	<copy todir="${build.dir}">
     		<fileset dir="${html.dir}">
       			<include name="**"/>
@@ -102,7 +115,7 @@
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 	<!-- Main target - runs build by default							   -->
 	<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-	<target name="main" description="--> creates frost installer jar in  ./build">
+	<target name="main" description="--> creates frost installer jar in ./build">
 
 		<record name="${logfilename}" action="start" />
 
