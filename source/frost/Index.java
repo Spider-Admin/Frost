@@ -181,8 +181,8 @@ public class Index
     public static void add(SharedFileObject key, FrostBoardObject board)
     {
         //final String fileSeparator = System.getProperty("file.separator");
-        File boardDir = new File(board.getBoardFilename());
-        // FIXME: why creating a dir /frost/boardname ??? 
+        File boardDir = new File(frame1.keypool+board.getBoardFilename());
+        
         if (!(boardDir.exists() && boardDir.isDirectory()))
             boardDir.mkdir();
         if (key.getKey() != null)
