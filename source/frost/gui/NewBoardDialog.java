@@ -155,9 +155,6 @@ public class NewBoardDialog extends JDialog {
 		constraints.gridx = 2;
 		contentPanel.add(cancelButton, constraints);
 		
-		descriptionTextArea.setText(" Not implemented yet.");	//TODO Remove when descriptions are fully implemented
-		descriptionTextArea.setEnabled(false);				//
-		
 		addButton.setEnabled(false);
 		
 		nameTextField.getDocument().addDocumentListener(listener);
@@ -216,7 +213,7 @@ public class NewBoardDialog extends JDialog {
 	 * @return
 	 */
 	public String getBoardDescription() {
-		return null;	//TODO Replace by "boardDescription" when descriptions are fully implemented
+		return boardDescription;
 	}
 
 	/**
