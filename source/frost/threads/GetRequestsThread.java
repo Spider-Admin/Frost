@@ -248,7 +248,7 @@ public class GetRequestsThread extends Thread
                                                             .STATE_REQUESTED);
                                                 }
                                                 tableModel.updateRow(ulItem);
-                                            }
+                                            } else Core.getOut().println("file was in state uploading/progress");
                                         }
                                         else
                                         {
