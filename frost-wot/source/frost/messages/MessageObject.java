@@ -46,44 +46,44 @@ public class MessageObject implements XMLizable
 		
 		//from
 		current = d.createElement("From");
-		cdata = d.createCDATASection(getFrom());
+		cdata = d.createCDATASection(Mixed.makeSafeXML(getFrom()));
 		current.appendChild(cdata);
 		el.appendChild(current);
 		
 		//subject
 		current = d.createElement("Subject");
-		cdata = d.createCDATASection(getSubject());
+		cdata = d.createCDATASection(Mixed.makeSafeXML(getSubject()));
 		current.appendChild(cdata);
 		el.appendChild(current);
 		
 		//date
 		current = d.createElement("Date");
-		cdata = d.createCDATASection(getDate());
+		cdata = d.createCDATASection(Mixed.makeSafeXML(getDate()));
 		current.appendChild(cdata);
 		el.appendChild(current);
 		
 		 //time
 		 current = d.createElement("Time");
-		 cdata = d.createCDATASection(getTime());
+		 cdata = d.createCDATASection(Mixed.makeSafeXML(getTime()));
 		 current.appendChild(cdata);
 		 el.appendChild(current);
 		 
 		//body
 		current = d.createElement("Body");
-		cdata = d.createCDATASection(getContent());
+		cdata = d.createCDATASection(Mixed.makeSafeXML(getContent()));
 		current.appendChild(cdata);
 		el.appendChild(current);
 		
 		//board
 		current = d.createElement("Board");
-		cdata = d.createCDATASection(getBoard());
+		cdata = d.createCDATASection(Mixed.makeSafeXML(getBoard()));
 		current.appendChild(cdata);
 		el.appendChild(current);
 		
 		//public Key
 		if (publicKey!=null) {
 			current = d.createElement("pubKey");
-			cdata = d.createCDATASection(getPublicKey());
+			cdata = d.createCDATASection(Mixed.makeSafeXML(getPublicKey()));
 			current.appendChild(cdata);
 			el.appendChild(current);
 		}
