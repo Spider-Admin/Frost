@@ -169,7 +169,7 @@ public class Identity implements SafeXMLizable
         if( getKey().equals( NA ) )
             this.uniqueName = nam;
         else
-            this.uniqueName = nam + "@" + frame1.getCrypto().digest( getKey() );
+            this.uniqueName = nam + "@" + Core.getCrypto().digest( getKey() );
     }
 
     //obvious stuff

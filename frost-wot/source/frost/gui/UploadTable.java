@@ -160,9 +160,9 @@ public class UploadTable extends SortedTable
 			newKey.setKey(ulItem.getKey());
 			
 		if (i % maxBatchSize == 0) {
-			while(frame1.getMyBatches().contains(batchId)) 
+			while(Core.getMyBatches().contains(batchId)) 
 	    			batchId=(new Long(r.nextLong())).toString(); //spam this, asshole!
-			frame1.getMyBatches().put(batchId,batchId);
+			Core.getMyBatches().put(batchId,batchId);
 		}
 		logger.fine(batchId);
 		newKey.setBatch(batchId);

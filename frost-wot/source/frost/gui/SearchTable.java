@@ -24,7 +24,7 @@ import java.util.LinkedList;
 import javax.swing.JTable;
 import javax.swing.table.*;
 
-import frost.frame1;
+import frost.Core;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
 import frost.identities.Identity;
@@ -74,15 +74,15 @@ public class SearchTable extends SortedTable
 				(FrostSearchItemObject) searchTableModel.getRow(selectedRows[i]);
 			String owner = srItem.getOwner();
 			//check if null or from myself
-			if (owner == null || owner.compareTo(frame1.getMyId().getUniqueName()) == 0)
+			if (owner == null || owner.compareTo(Core.getMyId().getUniqueName()) == 0)
 				continue;
 
 			//see if already on some list
-			Identity id = frame1.getFriends().Get(owner);
+			Identity id = Core.getFriends().Get(owner);
 			if (id == null)
-				id = frame1.getEnemies().Get(owner);
+				id = Core.getEnemies().Get(owner);
 			if (id == null)
-				id = frost.Core.getNeutral().Get(owner);
+				id = Core.getNeutral().Get(owner);
 			//and if still null, add the string
 			if (id != null)
 				result.add(id);

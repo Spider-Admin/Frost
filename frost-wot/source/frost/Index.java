@@ -126,14 +126,14 @@ public class Index
             SharedFileObject current = (SharedFileObject)i.next();
             if (current.getOwner() != null
                 && //not anonymous
-            frame1.getMyId().getUniqueName().compareTo(
+            Core.getMyId().getUniqueName().compareTo(
                 current.getOwner())
                     != 0
                 && //not myself
             frame1.frostSettings.getBoolValue("helpFriends")
                 && //and helping is enabled
              (
-                    frame1.getFriends().containsKey(
+                    Core.getFriends().containsKey(
                         mixed.makeFilename(
                             current.getOwner())))) //and marked GOOD
             {
@@ -144,7 +144,7 @@ public class Index
             if (current.getOwner() != null
                 && //not anonymous 
             current.getOwner().compareTo(
-                frame1.getMyId().getUniqueName())
+                Core.getMyId().getUniqueName())
                     == 0
                 && //from myself
             current.getLastSharedDate() != null)

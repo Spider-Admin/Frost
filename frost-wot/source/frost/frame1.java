@@ -34,14 +34,13 @@ import javax.swing.tree.*;
 
 import frost.components.BrowserFrame;
 import frost.components.translate.TranslateFrame;
-import frost.crypt.crypt;
 import frost.ext.JSysTrayIcon;
 import frost.gui.*;
 import frost.gui.components.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.translation.*;
-import frost.identities.*;
+import frost.identities.Identity;
 import frost.messages.*;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
@@ -892,40 +891,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 	}
 
-	/**
-	 * @return
-	 */
-	public static Hashtable getBadIds() {
-		return Core.getBadIds();
-	}
-
-	/**
-	 * @return
-	 */
-	public static crypt getCrypto() {
-		return Core.getCrypto();
-	}
-
-	/**
-	 * @return
-	 */
-	public static BuddyList getEnemies() {
-		return Core.getEnemies();
-	}
-
-	/**
-	 * @return
-	 */
-	public static BuddyList getFriends() {
-		return Core.getFriends();
-	}
-
-	/**
-	 * @return
-	 */
-	public static Hashtable getGoodIds() {
-		return Core.getGoodIds();
-	}
 	//------------------------------------------------------------------------
 
 	/*************************
@@ -933,17 +898,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 *************************/
 	public static frame1 getInstance() {
 		return instance;
-	}
-
-	public static Hashtable getMyBatches() {
-		return Core.getMyBatches();
-	}
-
-	/**
-	 * @return
-	 */
-	public static LocalIdentity getMyId() {
-		return Core.getMyId();
 	}
 
 	public static boolean isGeneratingCHK() {
@@ -2426,7 +2380,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	private void notTrustButton_actionPerformed(ActionEvent e) {
 		if (selectedMessage != null) {
-			if (getFriends().containsKey(selectedMessage.getFrom())) {
+			if (Core.getFriends().containsKey(selectedMessage.getFrom())) {
 				if (JOptionPane
 					.showConfirmDialog(
 						getInstance(),
@@ -3192,7 +3146,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	private void trustButton_actionPerformed(ActionEvent e) {
 		if (selectedMessage != null) {
-			if (getEnemies().containsKey(selectedMessage.getFrom())) {
+			if (Core.getEnemies().containsKey(selectedMessage.getFrom())) {
 				if (JOptionPane
 					.showConfirmDialog(
 						getInstance(),
