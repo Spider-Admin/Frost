@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui;
+package frost.boards;
 
 import java.awt.*;
 import java.io.File;
@@ -26,6 +26,7 @@ import javax.swing.*;
 import javax.swing.tree.*;
 
 import frost.*;
+import frost.gui.*;
 import frost.gui.objects.Board;
 import frost.storage.*;
 import frost.util.gui.JDragTree;

@@ -34,6 +34,8 @@ import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.*;
 
+import frost.boards.*;
+import frost.boards.TofTree;
 import frost.components.BrowserFrame;
 import frost.components.translate.TranslateFrame;
 import frost.ext.JSysTrayIcon;

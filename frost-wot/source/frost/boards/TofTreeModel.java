@@ -2,7 +2,7 @@
  * Created on 24-dic-2004
  * 
  */
-package frost.gui;
+package frost.boards;
 
 import java.util.*;
 import java.util.Vector;

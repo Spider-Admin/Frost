@@ -9,7 +9,7 @@ package frost.fileTransfer.upload;
 import java.beans.*;
 
 import frost.*;
-import frost.gui.TofTreeModel;
+import frost.boards.TofTreeModel;
 import frost.identities.LocalIdentity;
 import frost.storage.StorageException;
 

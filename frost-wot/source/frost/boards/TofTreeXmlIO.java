@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui;
+package frost.boards;
 
 import java.util.ArrayList;
 import java.util.logging.*;
@@ -27,7 +27,6 @@ import javax.swing.tree.*;
 import org.w3c.dom.*;
 
 import frost.*;
-import frost.XMLTools;
 import frost.gui.objects.Board;
 
 public class TofTreeXmlIO
