@@ -98,7 +98,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         else
             text=frame1.getCrypto().sign(text,(frame1.getMyId()).getPrivKey());
 
-        from=new String(from + "@" + frame1.getCrypto().digest(frame1.getMyId().getKey()));
+        from = frame1.getMyId().getUniqueName();
         signed=true;
     }
     }
