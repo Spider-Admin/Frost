@@ -200,10 +200,12 @@ public class OrderedModel extends Model {
 	/* (non-Javadoc)
 	 * @see frost.util.Model#removeItems(frost.util.ModelItem)
 	 */
-	public void removeItems(ModelItem[] items) {
+	public boolean removeItems(ModelItem[] items) {
+		//We clear the link to the model of each item
 		for (int i = 0; i < items.length; i++) {
 			items[i].setModel(null);
 		}
+		//We remove the first occurrence of each item from the model
 		int[] removedPositions = new int[items.length];
 		ModelItem[] removedItems = new ModelItem[items.length];
 		int count = 0;
@@ -218,12 +220,17 @@ public class OrderedModel extends Model {
 				}
 			}
 		}
+		//We send an items removed event. Only those items that actually
+		//were in the model and thus were removed are included in the event.
 		if (count != 0) {
 			int[] croppedPositions = new int[count];
 			ModelItem[] croppedItems = new ModelItem[count];
 			System.arraycopy(removedPositions, 0, croppedPositions, 0, count);
 			System.arraycopy(removedItems, 0, croppedItems, 0, count);
 			fireItemsRemoved(croppedPositions, croppedItems);
+			return true;
+		} else {
+			return false;	
 		}
 	}
 
