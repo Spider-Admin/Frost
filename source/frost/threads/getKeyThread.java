@@ -107,7 +107,7 @@ public class getKeyThread extends Thread {
     // Should we really loop here. Freenet tries for us anyhow and if we
     // fail, we'll continue wizh higher htl
 
-    // TODO: FIX: DBG: changed loop for testing purposes
+    // TODO: FIX: DBG: changed loop for testing purposes to 1 try only
 
     while (!success && tries < 1) {
         if (DEBUG) System.out.println("Requesting " + file.getName() + " with HTL " + htl + ". Size is " + checkSize + " bytes.");

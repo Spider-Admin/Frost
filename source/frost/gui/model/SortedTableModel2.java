@@ -133,5 +133,13 @@ public class SortedTableModel2 extends DefaultTableModel
         bWasResized = newValue;
     }
 
+    /**
+     * Indicates that the whole table should be repainted.
+     */
+    public void tableEntriesChanged()
+    {
+        fireTableRowsUpdated(0,getRowCount());
+    }
+
 }
 
