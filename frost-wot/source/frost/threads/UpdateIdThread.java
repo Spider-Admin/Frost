@@ -21,9 +21,11 @@ package frost.threads;
 import java.io.*;
 import java.util.Vector;
 
+import org.w3c.dom.*;
+
 import frost.*;
 import frost.FcpTools.*;
-import frost.crypt.*;
+import frost.crypt.MetaData;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
 
@@ -192,9 +194,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             return false;
     }
 
-// FIXME: rewrite this method
-
-    private void uploadIndexFile()//int i)
+    private void uploadIndexFile()
     {
     	//load the indices for the current date
 	//currentDate = DateFun.getDate();
@@ -210,18 +210,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             byte[] toZip = FileAccess.readByteArray(indexFile);
             byte[] metadata = null;
             
-            if( signUploads )
+            if( signUpload )
             {
-                byte[] sign = Core.getCrypto().detachedSign(toZip, frame1.getMyId().getPrivKey());
-                MetaData md = new MetaData(AAAARGL)                
-                // WHERE TO PUT THE SIGN TO AND HOW TO CREATE THE METADATA XML? 
+                MetaData md = new MetaData(toZip);
+                metadata = md.getRawXmlContent();
             }
-            String tozip =  ?
-	    	frame1.getCrypto().sign(FileAccess.readFileRaw(indexFile),
-	    			frame1.getMyId().getPrivKey()) :
-					FileAccess.readFileRaw(indexFile);
-            FileAccess.writeZipFile(tozip, "entry", indexFile);
-
+            
+            FileAccess.writeZipFile(toZip, "entry", indexFile); // WRITE TO SAME NAME???
+            
             // search empty slot
             int index = findFreeUploadIndex();
             while( !success && tries <= MAX_TRIES )
@@ -230,9 +226,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		           
                 result = FcpInsert.putFile(insertKey + index + ".idx.sha2.zip",
                                            new File(keypool + board.getBoardFilename() + "_upload.txt"),
+                                           metadata,
                                            insertHtl,
-                                           true); // doRedirect
-
+                                           false); // doRedirect
+                                         
                 if( result[0].equals("Success") )
                 {
                     success = true;
@@ -513,20 +510,29 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         commit();
     }
     
+    /**
+     * This method checks if the digest of sharer matches the pubkey,
+     * and adds the NEW identity to list of neutrals.   
+     * @param _sharer
+     * @param _pubkey
+     * @return
+     */
     private Identity addNewSharer(String _sharer, String _pubkey)
     {
         Identity sharer = null;
         
         //check if the digest matches
         String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
-                                                _sharer.length());
-        if( ! given_digest.trim().equals(frame1.getCrypto().digest(_pubkey.trim()).trim()) )
+                                                _sharer.length()).trim();
+        String calculatedDigest = frame1.getCrypto().digest(_pubkey.trim()).trim();
+        calculatedDigest = mixed.makeFilename( calculatedDigest ).trim();
+        
+        if( ! given_digest.equals( calculatedDigest ) )
         {
             Core.getOut().println("pubkey in index file didn't match digest");
-            Core.getOut().println("given digest " + given_digest.trim());
+            Core.getOut().println("given digest " + given_digest);
             Core.getOut().println("pubkey " + _pubkey.trim());
-            Core.getOut().println("calculated digest "
-                    + frame1.getCrypto().digest(_pubkey).trim());
+            Core.getOut().println("calculated digest "+calculatedDigest);
             return null;        
         }
         //create the identity of the sharer

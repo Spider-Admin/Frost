@@ -6,15 +6,14 @@
  */
 package frost.crypt;
 
-import frost.*;
-import frost.identities.*;
-import frost.XMLizable;
-
-import java.util.*;
 import java.io.*;
+import java.util.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.*;
+import frost.identities.Identity;
 
 
 
@@ -59,11 +58,17 @@ public class MetaData implements XMLizable {
 		FileAccess.writeByteArray(metadata,tmp);
 		Document d = XMLTools.parseXmlFile(tmp,false);
 		Element el = d.getDocumentElement();
+        if( el.getTagName().equals("FrostMetaData") == false )
+        {
+            tmp.delete();
+            throw new Exception("This is not FrostMetaData XML file.");
+        }
 		this.plaintext = plaintext;
 		try {
 			loadXMLElement(el);
 		}catch (SAXException e){
 			e.printStackTrace(Core.getOut());
+            tmp.delete();
 			plaintext = null;
             throw e;
 		}
@@ -94,6 +99,8 @@ public class MetaData implements XMLizable {
 		Element el = container.createElement("FrostMetaData");
 		
 		//make sure we don't add sensitive fields in the metadata
+        // FIXME: maybe its better to remove all but the only wanted?
+        // otherwise new fields could come into the xml file
 		Element _sharer = sharer.getXMLElement(container);
 		List privElements = XMLTools.getChildElementsByTagName(_sharer,"privKey");
 		privElements.addAll(XMLTools.getChildElementsByTagName(_sharer,"files"));
@@ -137,5 +144,48 @@ public class MetaData implements XMLizable {
 	public byte[] getSig() {
 		return sig;
 	}
+
+    /**
+     * Creates the metadata xml file and returns the byte[] containing the utf-16 text.
+     * @param targetFilename
+     * @return
+     */    
+    public byte[] getRawXmlContent()
+    {
+        // create a XML file
+        Document doc = XMLTools.createDomDocument();
+        if( doc == null )
+        {
+            Core.getOut().println("Factory did not create a XML document.");
+            return null; 
+        }
+        Element rootElement = doc.createElement("FrostMetaData");
+        Element childs = getXMLElement(doc);
+        rootElement.appendChild( childs );
+        // write to a dummy file
+        File tempFile = null;
+        try
+        {
+            tempFile = File.createTempFile("metadataraw_", ".tmp", new File(frame1.frostSettings.getValue("temp.dir")));
+        }
+        catch( IOException ex )
+        {
+            tempFile = new File("metadataxmltmp-"+System.currentTimeMillis());
+        }
+        
+        boolean writeOK;
+        try {
+            writeOK = XMLTools.writeXmlFile(doc, tempFile.getPath());
+        } catch(Throwable ex) { writeOK = false; }
+            
+        if( writeOK )
+        {
+            byte[] result = FileAccess.readByteArray(tempFile);
+            tempFile.delete();
+            return result;
+        }
+        tempFile.delete();
+        return null;
+    }
 
 }
