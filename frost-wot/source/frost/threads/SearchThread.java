@@ -352,6 +352,11 @@ public class SearchThread extends Thread {
             String searchType)
     {
         this.request = request.toLowerCase();
+        if( this.request.length() == 0 )
+        {
+            // default: search all
+            this.request = "*";
+        }
         this.searchTableModel = (SearchTableModel)frame1.getInstance().getSearchTable().getModel();
         this.keypool = keypool;
         this.searchType = searchType;
