@@ -2260,18 +2260,30 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * 
 	 */
-	private void initializeFont() {
+	private void initializeFonts() {
 		String fontName = frostSettings.getValue("messageBodyFontName");
 		int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
 		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
-		Font tofFont = new Font(fontName, fontStyle, fontSize);
-		if (!tofFont.getFamily().equals(fontName)) {
-			System.out.println("The selected font was not bound in your system");
+		Font font = new Font(fontName, fontStyle, fontSize);
+		if (!font.getFamily().equals(fontName)) {
+			System.out.println("The selected font was not found in your system");
 			System.out.println("That selection will be changed to \"Monospaced\".\n");
 			frostSettings.setValue("messageBodyFontName", "Monospaced");
-			tofFont = new Font("Monospaced", fontStyle, fontSize);
+			font = new Font("Monospaced", fontStyle, fontSize);
 		}
-		tofTextArea.setFont(tofFont);
+		tofTextArea.setFont(font);
+
+		fontName = frostSettings.getValue("messageListFontName");
+		fontStyle = frostSettings.getIntValue("messageListFontStyle");
+		fontSize = frostSettings.getIntValue("messageListFontSize");
+		font = new Font(fontName, fontStyle, fontSize);
+		if (!font.getFamily().equals(fontName)) {
+			System.out.println("The selected font was not found in your system");
+			System.out.println("That selection will be changed to \"SansSerif\".\n");
+			frostSettings.setValue("messageListFontName", "SansSerif");
+			font = new Font("SansSerif", fontStyle, fontSize);
+		}
+		messageTable.setFont(font);
 	}
 
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
@@ -3348,7 +3360,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				tabbedPane.indexOfTab(languageResource.getString("Uploads")),
 				false);
 		}
-		initializeFont();	//In case the fonts were changed
+		initializeFonts();	//In case the fonts were changed
 	}
 	/**
 	 * Fires a nodeChanged (redraw) for all boards.
