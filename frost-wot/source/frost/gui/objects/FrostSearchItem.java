@@ -13,6 +13,8 @@ public interface FrostSearchItem
     public String getOwner();
     
     public String getSHA1();
+    
+    public String getBatch();
 
     public FrostBoardObject getBoard();
 }

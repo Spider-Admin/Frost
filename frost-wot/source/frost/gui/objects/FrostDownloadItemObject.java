@@ -32,6 +32,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private Boolean enableDownload = null;
     private String owner = null;
     private String SHA1 = null;
+    private String batch = null;
 
     private int state = 0;
 
@@ -50,6 +51,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
 	owner = searchItem.getOwner();
         sourceBoard = searchItem.getBoard();
 	SHA1 = searchItem.getSHA1();
+	batch = searchItem.getBatch();
         retries = new Integer(0);
 
         state = STATE_WAITING;
@@ -239,6 +241,12 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public void setRetries( int val )
     {
         retries = new Integer(val);
+    }
+    public String getBatch() {
+    	return batch;
+    }
+    public void setBatch(String batch) {
+    	this.batch = batch;
     }
 
     public void setBlockProgress( int actualBlocks, int requiredBlocks, int allAvailableBlocks )

@@ -31,6 +31,7 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     private String key = null;
     private String SHA1 = null;
     private FrostBoardObject targetBoard = null;
+    private String batch = null;
 
     public FrostUploadItemObject(File file, FrostBoardObject board)
     {
@@ -150,6 +151,12 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public void setState(int v)
     {
         state = v;
+    }
+    public String getBatch() {
+    	return batch;
+    }
+    public void setBatch(String batch) {
+    	this.batch=batch;
     }
     public String getStateString(int state)
     {

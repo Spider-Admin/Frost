@@ -102,4 +102,7 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     public String getSHA1() {
     	return key.getSHA1();
     }
+    public String getBatch() {
+    	return key.getBatch();
+    }
 }
