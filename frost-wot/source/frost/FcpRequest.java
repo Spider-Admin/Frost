@@ -627,8 +627,19 @@ public class FcpRequest {
     return getFile(key, size, target, intHtl, doRedirect);
     }
 
-    public static boolean getFile(String key, String size, File target, int htl, boolean doRedirect) {
-    File tempFile = new File(target + ".tmp");
+    public static boolean getFile(String key, String size, File target, int htl, boolean doRedirect)
+    {
+
+    File tempFile = null;
+    try {
+        tempFile = File.createTempFile("getFile_", ".tmp", new File(frame1.frostSettings.getValue("temp.dir")));
+    }
+    catch(IOException ex)
+    {
+        ex.printStackTrace();
+        return false;
+    }
+
     if( DEBUG )
     {
         String keyPrefix = "";
@@ -662,7 +673,13 @@ public class FcpRequest {
             // If the target file exists, we remove it
             if (target.isFile())
                 target.delete();
-            tempFile.renameTo(target);
+            boolean wasOK = tempFile.renameTo(target);
+            if( wasOK == false )
+            {
+                System.out.println("ERROR: Could not move file '"+tempFile.getPath()+"' to '"+target.getPath()+"'.");
+                System.out.println("May the locations are on different filesystems where a move is not allowed.");
+                System.out.println("Please try change the location of 'temp.dir' in the frost.ini file.");
+            }
             }
             else {
             // remove temporary file if download failed

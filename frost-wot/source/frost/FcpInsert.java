@@ -181,7 +181,9 @@ public class FcpInsert
             }
         }
 
-        File uploadMe = new File(frame1.keypool + String.valueOf(System.currentTimeMillis()) + ".tmp");
+        File uploadMe = new File(frame1.frostSettings.getValue("temp.dir") +
+                                 String.valueOf(System.currentTimeMillis()) +
+                                 ".tmp");
         uploadMe.deleteOnExit();
         FileAccess.writeByteArray(data, uploadMe);
 
@@ -220,7 +222,9 @@ public class FcpInsert
             }
         }
 
-        File uploadMe = new File(frame1.keypool + String.valueOf(System.currentTimeMillis()) + ".tmp");
+        File uploadMe = new File(frame1.frostSettings.getValue("temp.dir") +
+                                 String.valueOf(System.currentTimeMillis()) +
+                                 ".tmp");
         uploadMe.deleteOnExit();
         FileAccess.writeByteArray(lastPart, uploadMe);
 

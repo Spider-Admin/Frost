@@ -19,7 +19,6 @@ public class AltEdit extends Thread {
     private String subjectNew;
     private String text;
     private String textNew;
-    private String keypool;
     private String editor;
     private String editor_pre_file;
     private String editor_post_file;
@@ -59,7 +58,7 @@ public class AltEdit extends Thread {
 
     System.out.println(editContent);
     try{
-        File editFile =  File.createTempFile("nmsg", ".alt", new File(keypool));
+        File editFile =  File.createTempFile("nmsg", ".alt", new File(frostSettings.getValue("temp.dir")));
         try{
         editFile.deleteOnExit();
         FileWriter editWriter = new FileWriter(editFile);
@@ -154,16 +153,15 @@ public class AltEdit extends Thread {
     public AltEdit(FrostBoardObject board,
                    String subject,
                    String text,
-                   String keypool,
                    SettingsClass frostSettings,
                    Frame parentFrame)
     {
         this.parentFrame = parentFrame;
         this.frostSettings = frostSettings;
         this.board = board;
-        this.from = frostSettings.getValue("userName");
         this.subject = subject;
         this.text = text;
+        this.from = frostSettings.getValue("userName");
         this.lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
 
         this.editor_pre_file = "";
@@ -179,7 +177,6 @@ public class AltEdit extends Thread {
         System.out.println("pre_file = " + editor_pre_file);
         System.out.println("post_file = " + editor_post_file);
 
-        this.keypool = frostSettings.getValue("keypool.dir");
         linesep = System.getProperty("line.separator");
     }
 }

@@ -83,9 +83,13 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
         int maxFailures = 3; // increased, skips now up to 3 request indicies (in case if gaps occured)
         while( failures < maxFailures )
         {
-            String val = new StringBuffer().append(destination).append(dirdate).append("-")
-                .append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
-
+            String val = new StringBuffer().append(destination)
+                                           .append(dirdate)
+                                           .append("-")
+                                           .append(board.getBoardFilename())
+                                           .append("-")
+                                           .append(index)
+                                           .append(".req").toString();
             File testMe = new File(val);
             boolean justDownloaded = false;
 
