@@ -113,6 +113,7 @@ public class Index
 				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
 					current.setLastSharedDate(DateFun.getDate());
 					mine.put(current.getSHA1(),current);
+					add(current,new File(board+fileSeparator+"files.xml")); //this can be optimized
 				}
 		}
 			
@@ -373,6 +374,7 @@ public class Index
 			continue;
 		}
 		old.setDate(current.getDate());
+		old.setLastSharedDate(current.getLastSharedDate());
 		old.setKey(current.getKey());
 		//TODO: allow unsigned files to be appropriated
 	}
