@@ -417,9 +417,19 @@ public class FileAccess
 	public static void writeFile(String content, File file, String encoding) {
 		try {
 			FileOutputStream outputStream = new FileOutputStream(file);
-			OutputStreamWriter streamWriter = new OutputStreamWriter(outputStream, encoding);
-			streamWriter.write(content);
-			streamWriter.close();
+			OutputStreamWriter outputWriter = new OutputStreamWriter(outputStream, encoding);
+
+			BufferedReader inputReader = new BufferedReader(new StringReader(content));
+			String lineSeparator = System.getProperty("line.separator");
+			String line = inputReader.readLine();
+			
+			while (line != null) {
+				outputWriter.write(line + lineSeparator);
+				line = inputReader.readLine();
+			}
+			
+			outputWriter.close();
+			inputReader.close();
 		} catch (IOException e) {
 			Core.getOut().println("Write Error: " + file.getPath());
 		}
