@@ -47,14 +47,13 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
-import javax.swing.table.*;
-import javax.swing.*;
-import javax.swing.event.*;
+import java.util.*;
 import java.util.Enumeration;
-import java.awt.event.*;
-import java.awt.*;
-import javax.swing.plaf.*;
-import javax.swing.plaf.basic.*;
+
+import javax.swing.JComponent;
+import javax.swing.plaf.ComponentUI;
+import javax.swing.plaf.basic.BasicTableHeaderUI;
+import javax.swing.table.*;
 
 /**
  * @author    $Author$
@@ -62,6 +61,8 @@ import javax.swing.plaf.basic.*;
  * @version   $Revision$, $Date$
  */
 public class SkinTableHeaderUI extends BasicTableHeaderUI {
+
+  Hashtable previousRenderers = new Hashtable();
 
   TableCellRenderer renderer;
   Skin skin = SkinLookAndFeel.getSkin();
@@ -80,21 +81,27 @@ public class SkinTableHeaderUI extends BasicTableHeaderUI {
    * @param c  Description of Parameter
    */
   public void installUI(JComponent c) {
-    super.installUI(c);
-
-    try {
-      // if JDK1.3 or later
-      header.getClass().getMethod("setDefaultRenderer", new Class[]{TableCellRenderer.class}).invoke(header, new Object[]{renderer});
-    } catch (Exception e) {
-      // else do it the old way
-      Enumeration enumeration = header.getColumnModel().getColumns();
-      while (enumeration.hasMoreElements()) {
-        TableColumn aColumn = (TableColumn) enumeration.nextElement();
-        aColumn.setHeaderRenderer(renderer);
-      }
-    }
-    // end of else
-  }
+	super.installUI(c);
+	try {
+		// if JDK1.3 or later
+		Object cellRenderer = header.getClass().getMethod("getDefaultRenderer", null).invoke(header, null);
+		previousRenderers.put(c, cellRenderer);
+		header.getClass().getMethod("setDefaultRenderer", new Class[] { TableCellRenderer.class }).invoke(header, new Object[] { renderer });
+	} catch (Exception e) {
+		// else only do it the old way
+	}
+	Enumeration enumeration = header.getColumnModel().getColumns();
+	while (enumeration.hasMoreElements()) {
+		TableColumn aColumn = (TableColumn) enumeration.nextElement();
+		TableCellRenderer cellRenderer = aColumn.getHeaderRenderer();
+		if (cellRenderer != null) {
+			previousRenderers.put(aColumn, cellRenderer);
+		} else {
+			previousRenderers.put(aColumn, "null");
+		}
+		aColumn.setHeaderRenderer(renderer);
+	}
+}
 
   /**
    * Description of the Method
@@ -105,6 +112,34 @@ public class SkinTableHeaderUI extends BasicTableHeaderUI {
   public static ComponentUI createUI(JComponent h) {
     return new SkinTableHeaderUI();
   }
+  
+  /* (non-Javadoc)
+	   * @see javax.swing.plaf.ComponentUI#uninstallUI(javax.swing.JComponent)
+	   */
+	  public void uninstallUI(JComponent c) {
+		  try {
+			  // if JDK1.3 or later
+			  if (previousRenderers.containsKey(c)) {
+				  TableCellRenderer cellRenderer = (TableCellRenderer) previousRenderers.remove(c);
+				  header.getClass().getMethod("setDefaultRenderer", new Class[] { TableCellRenderer.class }).invoke(header, new Object[] { cellRenderer });
+			  }
+		  } catch (Exception e) {
+			  // else do it only the old way
+		  }
+		  Enumeration enumeration = header.getColumnModel().getColumns();
+		  while (enumeration.hasMoreElements()) {
+			  TableColumn aColumn = (TableColumn) enumeration.nextElement();
+			  if (previousRenderers.containsKey(aColumn)) {
+				  Object cellRenderer = previousRenderers.remove(aColumn);
+				  if (cellRenderer instanceof TableCellRenderer) {
+					  aColumn.setHeaderRenderer((TableCellRenderer) cellRenderer);
+				  } else {
+					  aColumn.setHeaderRenderer(null);
+				  }
+			  }
+		  }
+		  super.uninstallUI(c);
+	  }
 
 }
 
