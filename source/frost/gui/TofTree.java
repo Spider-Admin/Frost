@@ -34,6 +34,7 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.gui.components.JDragTree;
 import frost.gui.objects.FrostBoardObject;
+import frost.gui.translation.UpdatingLanguageResource;
 
 public class TofTree extends JDragTree {
 	
@@ -171,13 +172,16 @@ public class TofTree extends JDragTree {
 		}
 
 	}
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
     
+	private UpdatingLanguageResource languageResource;
+
 	private static Logger logger = Logger.getLogger(TofTree.class.getName());
 
-    public TofTree(TreeNode root)
+    public TofTree(TreeNode root, UpdatingLanguageResource newLanguageResource)
     {
         super(root);
+
+		languageResource = newLanguageResource;
 
         putClientProperty("JTree.lineStyle", "Angled"); // I like this look
         
@@ -318,59 +322,74 @@ public class TofTree extends JDragTree {
         return xmlio.saveBoardTree( this, boardIniFilename );
     }
 
-    /**
-     * Opens dialog, gets new name for board, checks for double names, adds node to tree
-     */
-    public void createNewBoard(Frame parent)
-    {
-        String nodeName = null;
-        do
-        {
-            Object nodeNameOb = JOptionPane.showInputDialog (parent,
-                                                             LangRes.getString ("New Node Name"),
-                                                             LangRes.getString ("New Node Name"),
-                                                             JOptionPane.QUESTION_MESSAGE, null, null,
-                                                             "newboard");
+	/**
+	 * Opens dialog, gets new name for board, checks for double names, adds node to tree
+	 */
+	public void createNewBoard(Frame parent) {		
+		String nodeName = null;
+		do {
+			Object nodeNameOb =
+				JOptionPane.showInputDialog(
+					parent,
+					languageResource.getString("Please enter a name for the new board") + ":",
+					languageResource.getString("New Node Name"),
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					null,
+					languageResource.getString("newboard"));
 
-            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
+			nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString());
 
-            if( nodeName == null )
-                return; // cancelled
+			if (nodeName == null)
+				return; // cancelled
 
-            if( getBoardByName( nodeName ) != null )
-            {
-                JOptionPane.showMessageDialog(this, "You already have a board with name '"+nodeName+"'!\nPlease choose a new name.");
-                nodeName = ""; // loop again
-            }
-        } while( nodeName.length()==0 );
+			if (getBoardByName(nodeName) != null) {
+				JOptionPane.showMessageDialog(
+					parent,
+					languageResource.getString("You already have a board with name")
+						+ " '"
+						+ nodeName 
+						+ "'!\n"
+						+ languageResource.getString("Please choose a new name"));
+				nodeName = ""; // loop again
+			}
+		} while (nodeName.length() == 0);
 
-        FrostBoardObject newBoard = new FrostBoardObject(nodeName);
-        addNodeToTree( newBoard );
-        // maybe this boardfolder already exists, scan for new messages
-        TOF.initialSearchNewMessages( newBoard );
-    }
+		FrostBoardObject newBoard = new FrostBoardObject(nodeName);
+		addNodeToTree(newBoard);
+		// maybe this boardfolder already exists, scan for new messages
+		TOF.initialSearchNewMessages(newBoard);
+	}
     
-    /**
-     * Checks if board is already existent, adds board to board tree.
-     */
-    public void addNewBoard(String bname, String bpubkey, String bprivkey)
-    {
-        if( getBoardByName( bname ) != null )
-        {
-            int answer = JOptionPane.showConfirmDialog(this, 
-                            "You already have a board with name '"+bname+
-                            "'!\nDo you really want to overwrite it?\n(This will not delete messages)", 
-                            "Warning", JOptionPane.YES_NO_OPTION, JOptionPane.WARNING_MESSAGE );
-            if( answer == JOptionPane.NO_OPTION )
-            {
-                return; // do not add
-            }
-        }
-        FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey);
-        addNodeToTree( newBoard );
-        // maybe this boardfolder already exists, scan for new messages
-        TOF.initialSearchNewMessages( newBoard );
-    }
+	/**
+	 * Checks if board is already existent, adds board to board tree.
+	 */
+	public void addNewBoard(String bname, String bpubkey, String bprivkey) {
+		if (getBoardByName(bname) != null) {
+			int answer =
+				JOptionPane.showConfirmDialog(
+					getTopLevelAncestor(),
+					languageResource.getString("You already have a board with name")
+						+ " '"
+						+ bname
+						+ "'!\n"
+						+ languageResource.getString("Do you really want to overwrite it?")
+						+ ""
+						+ "\n("
+						+ languageResource.getString("This will not delete messages")
+						+ ")",
+					languageResource.getString("Warning"),
+					JOptionPane.YES_NO_OPTION,
+					JOptionPane.WARNING_MESSAGE);
+			if (answer == JOptionPane.NO_OPTION) {
+				return; // do not add
+			}
+		}
+		FrostBoardObject newBoard = new FrostBoardObject(bname, bpubkey, bprivkey);
+		addNodeToTree(newBoard);
+		// maybe this boardfolder already exists, scan for new messages
+		TOF.initialSearchNewMessages(newBoard);
+	}
 
     /**
      * Checks if board is already existent, adds board to board tree.
@@ -382,29 +401,31 @@ public class TofTree extends JDragTree {
                      fbobj.getPrivateKey());
     }
     
-    /**
-     * Opens dialog, gets new name for folder, checks for double names, adds node to tree
-     */
-    public void createNewFolder(Frame parent)
-    {
-        String nodeName = null;
-        do
-        {
-            Object nodeNameOb = JOptionPane.showInputDialog(parent,
-                                                            "Please enter a name for the new folder:",
-                                                            "New Folder Name",
-                                                            JOptionPane.QUESTION_MESSAGE, null, null,
-                                                            "newfolder");
+	/**
+	 * Opens dialog, gets new name for folder, checks for double names, adds node to tree
+	 */
+	public void createNewFolder(Frame parent) {
+		String nodeName = null;
+		do {
+			Object nodeNameOb =
+				JOptionPane.showInputDialog(
+					parent,
+					languageResource.getString("Please enter a name for the new folder") + ":",
+					languageResource.getString("New Folder Name"),
+					JOptionPane.QUESTION_MESSAGE,
+					null,
+					null,
+					languageResource.getString("newfolder"));
 
-            nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
+			nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString());
 
-            if( nodeName == null )
-                return; // cancelled
+			if (nodeName == null)
+				return; // cancelled
 
-        } while( nodeName.length()==0 );
+		} while (nodeName.length() == 0);
 
-        addNodeToTree( new FrostBoardObject(nodeName, true) );
-    }
+		addNodeToTree(new FrostBoardObject(nodeName, true));
+	}
 
     /**
      * Adds a node to tof tree, adds only under folders, begins with selected node.
