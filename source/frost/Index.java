@@ -248,7 +248,7 @@ public class Index
         //	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
         final Map chk = Collections.synchronizedMap(new HashMap());
 
-        if( !target.isDirectory() )
+        if( !target.isDirectory() && !target.getPath().endsWith("xml"))
             target.mkdir();
        // if( split.indexOf(firstLetter) == -1 )
          //   firstLetter = "other";
@@ -302,7 +302,7 @@ public class Index
 	
 	FileAccess.readKeyFile(target,whole);
 	
-        if( !target.isDirectory() )
+        if( !target.isDirectory() && !target.getPath().endsWith("xml"))
             target.mkdir();
 
         Iterator i = chunk.values().iterator();
