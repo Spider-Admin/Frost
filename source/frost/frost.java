@@ -91,39 +91,52 @@ public class frost {
 		System.out.println("This is free software, and you are welcome to");
 		System.out.println("redistribute it under the GPL conditions.");
 		System.out.println("Frost uses code from apache.org (Apache license),");
-		System.out.println(
-			"bouncycastle.org (BSD license), Onion Networks (BSD license)");
-		System.out.println("and L2FProd.com (Apache license).");
+		System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license),");
+		System.out.println("L2FProd.com (Apache license)");
+		System.out.println("and ShiftOne Java Object Cache (LGPL license)");
 		System.out.println();
 		System.out.println();
 
 		// check for needed .jar files by loading a class and catching the error
+		String jarFileName = "";
 		try {
 			// check for xercesImpl.jar
+			jarFileName = "xercesImpl.jar";
 			Class.forName("org.apache.xerces.dom.DocumentImpl");
 			// check for xml-apis.jar
+			jarFileName = "xml-apis.jar";
 			Class.forName("org.w3c.dom.Document");
-			// extra check for OutputFormat
+			// extra check for OutputFormat (xercesImpl.jar)
+			jarFileName = "xercesImpl.jar";
 			Class.forName("org.apache.xml.serialize.OutputFormat");
 			// check for genChkImpl.jar
+			jarFileName = "genChkImpl.jar";
 			Class.forName("freenet.client.ClientKey");
 			// check for fecImpl.jar
+			jarFileName = "fecImpl.jar";
 			Class.forName("fecimpl.FECUtils");
 			// check for skinlf.jar
+			jarFileName = "skinlf.jar";
 			Class.forName("com.l2fprod.gui.SkinApplet");
 			// check for skinlfFix.jar
+			jarFileName = "skinlfFix.jar";
 			Class.forName("com.l2fprod.gui.plaf.skin.SkinlfFixMarkerClass");
 			//REDFLAG, FIXME: I'm not sure about licensing here.  Theoretically we need to
 			//make this optional, but we're linking against so much closed source it probably
 			//doesn't matter anymore.
 			// check for mailapi.jar
+			jarFileName = "mailapi.jar";
 			Class.forName("javax.mail.Address");
 			// check for smtp.jar
+			jarFileName = "smtp.jar";
 			Class.forName("com.sun.mail.smtp.SMTPTransport");
+			// check for jocache.jar
+			jarFileName = "jocache.jar";
+			Class.forName("org.shiftone.cache.CacheConfiguration");
 		} catch (ClassNotFoundException e1) {
 			System.err.println(
-				"ERROR: There are missing jar files. Please start Frost using the provided start scripts "
-					+ "(frost.bat for win32, frost.sh for unix).\n"+
+				"ERROR: The jar file " +  jarFileName + " is missing. Please start Frost using the provided start "
+					+ "scripts (frost.bat for win32, frost.sh for unix).\n"+
 					"  If Frost was working and you updated just frost.jar, try updating with Frost.zip\n");
 			e1.printStackTrace();
 			System.exit(3);
