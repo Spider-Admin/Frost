@@ -42,23 +42,33 @@ public class MessageObject {
     int start = content.indexOf("<attached>");
     int end = content.indexOf("</attached>");
     newContent="";
-    while (start != -1 && end != -1) {
-        newContent += content.substring(pos, start).trim();
+    try {
+        while (start != -1 && end != -1) {
+            newContent += content.substring(pos, start).trim();
 
-        int spaces = content.indexOf(" * ", start);
-        String filename = (content.substring(start + "<attached>".length(), spaces)).trim();
-        String chkKey = (content.substring(spaces + " * ".length(), end)).trim();
-        Vector rows = new Vector();
-        rows.add(filename);
-        rows.add(chkKey);
-        table.add(rows);
-        pos = end + "</attached>".length();
-
-        start = content.indexOf("<attached>", pos);
-        end = content.indexOf("</attached>", pos);
+            int spaces = content.indexOf(" * ", start);
+            if( spaces > 0 )
+            {
+                String filename = (content.substring(start + "<attached>".length(), spaces)).trim();
+                String chkKey = (content.substring(spaces + " * ".length(), end)).trim();
+                if( filename.length() > 0 && chkKey.length() > 0 )
+                {
+                    Vector rows = new Vector();
+                    rows.add(filename);
+                    rows.add(chkKey);
+                    table.add(rows);
+                }
+            }
+            pos = end + "</attached>".length();
+            start = content.indexOf("<attached>", pos);
+            end = content.indexOf("</attached>", pos);
+        }
+        newContent += content.substring(pos, content.length()).trim();
+    } catch(Exception ex)
+    {
+        Core.getOut().println("Exception while reading attachments (catched):");
+        ex.printStackTrace(Core.getOut());
     }
-
-    newContent += content.substring(pos, content.length()).trim();
 
     return table;
     }
@@ -69,25 +79,31 @@ public class MessageObject {
  */
 	public Collection getBoardsAsStrings(){
 		Collection result = new Vector();
-		int start = content.indexOf("<board>");
-		int end = content.lastIndexOf("</board>");
-		if (end==-1) return null;
-		
-		String boardBlock = content.substring(start,end);
-		String[] _boards = boardBlock.split("</board>");
-		
-		for (int i =0;i<_boards.length;i++) {
-			String current = _boards[i].trim();
-			current = current.substring("<board>".length(),current.length());
-			result.add(current.trim());
-		}
-			
+        // always call 1 method that extracts contents savely
+        Vector attboards = getBoards(false);
+        
+        Iterator i = attboards.iterator();
+        while(i.hasNext())
+        {
+            Vector aboard = (Vector)i.next();
+            if(aboard.size() == 3)
+            {
+                StringBuffer sb = new StringBuffer();
+                sb.append( aboard.get(0) + " * " + aboard.get(1) + " * " + aboard.get(2) );
+                result.add( sb.toString() );
+            }
+        }
 		return result;
-		
 	}
+    
+    public Vector getBoards()
+    {
+        return getBoards(true); // default changes msg content and removes boards attachement 
+    }
+    
 // TODO: should return AttachedBoards (to create)
     // newContent is created here and contains whole msg without the found board tags
-    public Vector getBoards()
+    public Vector getBoards(boolean changeContent)
     {
         // TODO: this code does not care if the <board> or </board> appears somewhere in the content
         // if e.g. a <board></board> occurs in message, this throw a NullPointerException
@@ -95,30 +111,32 @@ public class MessageObject {
         int pos = 0;
         int start = content.indexOf("<board>");
         int end = content.indexOf("</board>", start);
-        newContent = "";
+        if( changeContent )
+            newContent = "";
         while (start != -1 && end != -1)
         {
             try
             {
                 int boardPartLength = end - ( start + "<board>".length() );
                 // must be at least 14, 1 char boardnamwe, 2 times " * " and keys="N/A"
-                if (boardPartLength < 14)
+                // mr. spammer: thx for pointing us at this *g*
+                if(boardPartLength >= (1 + (2*3) + (2*3)) )
                 {
-                    continue;
-                }
-                newContent += content.substring(pos, start).trim();
+                    if( changeContent )
+                        newContent += content.substring(pos, start).trim();
                 
-                int spaces = content.indexOf(" * ", start);
-                int spaces2 = content.indexOf(" * ", spaces + 1);
-                //System.out.println("* at " + spaces + " " + spaces2);
-                String boardName = (content.substring(start + "<board>".length(), spaces)).trim();
-                String pubKey = (content.substring(spaces + " * ".length(), spaces2)).trim();
-                String privKey = (content.substring(spaces2 + " * ".length(), end)).trim();
-                Vector rows = new Vector();
-                rows.add(boardName);
-                rows.add(pubKey);
-                rows.add(privKey);
-                table.add(rows);
+                    int spaces = content.indexOf(" * ", start);
+                    int spaces2 = content.indexOf(" * ", spaces + 1);
+                    //System.out.println("* at " + spaces + " " + spaces2);
+                    String boardName = (content.substring(start + "<board>".length(), spaces)).trim();
+                    String pubKey = (content.substring(spaces + " * ".length(), spaces2)).trim();
+                    String privKey = (content.substring(spaces2 + " * ".length(), end)).trim();
+                    Vector rows = new Vector();
+                    rows.add(boardName);
+                    rows.add(pubKey);
+                    rows.add(privKey);
+                    table.add(rows);
+                }
             }
             catch (RuntimeException e) // on wrong format a NullPointerException is thrown
             {
@@ -129,7 +147,9 @@ public class MessageObject {
             start = content.indexOf("<board>", pos);
             end = content.indexOf("</board>", pos);
         }
-        newContent += content.substring(pos, content.length()).trim();
+        if( changeContent )
+            newContent += content.substring(pos, content.length()).trim();
+        
         return table;
     }
 
