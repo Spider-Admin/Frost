@@ -154,9 +154,9 @@ public class ModelTable extends AbstractTableModel {
 	private Listener listener = new Listener();
 
 	private ModelTableFormat tableFormat;	
-	private OrderedModel model;
+	protected OrderedModel model;
 	
-	private JTable table;
+	protected JTable table;
 	private JScrollPane scrollPane;
 
 	/**
