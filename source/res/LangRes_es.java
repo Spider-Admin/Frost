@@ -186,6 +186,7 @@ static final Object[][] contents = {
 {"Paste","Pega"},
 {"Paste board","Pega foro"},
 {"Path","Directorio"},
+{"Pause downloading", "Pausa descarga"},
 {"Please enter the prefix you want to use for your files.","Por favor, introduce el prefijo que quieres usar para tus ficheros."},
 {"Plugins","Plugins"},
 {"Preferences","Preferencias"},
