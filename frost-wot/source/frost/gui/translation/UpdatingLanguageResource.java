@@ -11,21 +11,21 @@ import javax.swing.event.EventListenerList;
 
 public class UpdatingLanguageResource {
 
-	private ResourceBundle languageResource;
+	private ResourceBundle resourceBundle;
 
 	/** A list of event listeners for this component. */
 	protected EventListenerList listenerList = new EventListenerList();
 
-	public UpdatingLanguageResource(ResourceBundle newLanguageResource) {
+	public UpdatingLanguageResource(ResourceBundle newResourceBundle) {
 		super();
-		languageResource = newLanguageResource;
+		resourceBundle = newResourceBundle;
 	}
 
 	/**
 	 * @return
 	 */
-	public ResourceBundle getLanguageResource() {
-		return languageResource;
+	public ResourceBundle getResourceBundle() {
+		return resourceBundle;
 	}
 	
 	/**
@@ -85,8 +85,8 @@ public class UpdatingLanguageResource {
 	/**
 	 * @param newLanguageResource
 	 */
-	public void setLanguageResource(ResourceBundle newLanguageResource) {
-		languageResource = newLanguageResource;
+	public void setLanguageResource(ResourceBundle newResourceBundle) {
+		resourceBundle = newResourceBundle;
 		fireLanguageChanged(new LanguageEvent(this));
 	}
 
@@ -95,7 +95,7 @@ public class UpdatingLanguageResource {
 	 * @return
 	 */
 	public String getString(String key) {
-		return languageResource.getString(key);
+		return resourceBundle.getString(key);
 	}
 
 }
