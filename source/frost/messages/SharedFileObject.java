@@ -430,8 +430,15 @@ public class SharedFileObject implements XMLizable
 						  setFilename(
 							  XMLTools.getChildElementsTextValue(current, "name"));
 					  }
+					  try{
+					  
 					  setOwner(
 						  XMLTools.getChildElementsCDATAValue(current, "owner"));
+						  
+					  }catch (ClassCastException e){
+					  	setOwner(
+					  		XMLTools.getChildElementsTextValue(current,"owner"));
+					  }
 
 					  setKey(
 						  XMLTools.getChildElementsTextValue(current, "key"));
