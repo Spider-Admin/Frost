@@ -193,11 +193,11 @@ public class DateFun
     }
 
     /**
-     * Converts a String with format: DATE.MONTH.YEAR
+     * Converts a String with format: YEAR.MONTH.DATE
      * to a Calendar object.
      * @param text the String to convert to a Calendar object
      */
-    public static Calendar getCalendarFromDate(String date)
+    public static Calendar getCalendarFromDate(String date) throws NumberFormatException
     {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));

@@ -535,52 +535,7 @@ public class FileAccess
                     Core.getOut().println("invalid key found");
                     continue;
                 }
-/*
-                //check if we already have such key in the map
-                SharedFileObject oldKey = (SharedFileObject)chk.get(newKey.getSHA1());
 
-                //if we don't just add the new key
-                if (oldKey == null)
-                {
-                    if (chk.size()
-                        < frame1.frostSettings.getIntValue("maxKeys"))
-                    {
-                        chk.put(newKey.getSHA1(), newKey);
-                        counter++; //not sure what exactly this counter is for
-                    }
-                }
-                else if (
-                    oldKey.getOwner() == null
-                        || ( newKey.getOwner()!= null &&
-                             oldKey.getOwner().compareTo(newKey.getOwner()) == 0)
-                           )  
-                {
-                    //check if the old key was not or is the same owner
-                    // and update the fields
-                    GregorianCalendar cal, keyCal;
-
-                    if (newKey.getDate() != null)
-                        cal = newKey.getCal();
-                    else
-                        cal = null;
-
-                    if (oldKey.getDate() != null)
-                        keyCal = oldKey.getCal();
-                    else
-                        keyCal = null;
-
-                    if (cal != null && keyCal == null)
-                        oldKey.setDate(newKey.getDate());
-                    else if (
-                        cal != null && keyCal != null && keyCal.before(cal))
-                        oldKey.setDate(newKey.getDate());
-                    oldKey.setKey(newKey.getKey());
-                    oldKey.setOwner(newKey.getOwner());
-                    // ^^^ this allows for taking ownership of unsigned files.  It is deliberately so
-                }
-
-                //check if it (??? what ???) 
-*/
             }
         return idx;
         } 

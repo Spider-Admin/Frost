@@ -57,8 +57,8 @@ public class LangRes extends ListResourceBundle {
 	{"Path", "Path"},
 	{"Destination", "Destination"},
 	{"Frost by Jantho", "Frost by Jantho"},
-	{"Reload selected files", "Reload selected files"},
-	{"Reload all files", "Reload all files"},
+	{"Reload selected files", "Upload selected files"},
+	{"Reload all files", "Upload all files"}, //reload????
 	{"Trying", "Trying"},
 	{"Done", "Done"},
 	{"Failed", "Failed"},
@@ -390,7 +390,8 @@ public class LangRes extends ListResourceBundle {
 	{"Generate new keypair","Generate new keypair"},
 	{"Private key","Private key"},
 	{"Public key","Public key"},
-	{"Not available","Not available"}
+	{"Not available","Not available"},
+	{"New Node Name","New Board name"}
 	
     };
 }

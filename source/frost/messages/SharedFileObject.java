@@ -74,57 +74,40 @@ public class SharedFileObject implements XMLizable
     public boolean checkDate()
     {
     	if (date == null) return true;
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        
 	
-        int firstPoint = date.indexOf(".");
-        int secondPoint = date.lastIndexOf(".");
         int maxAge = frame1.frostSettings.getIntValue("maxAge");
-        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
-        {
-            try
-            {
-                int year = Integer.parseInt(date.substring(0, firstPoint));
-                int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
-                int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
-                cal.set(Calendar.YEAR, year);
-                cal.set(Calendar.MONTH, month - 1);
-                cal.set(Calendar.DATE, day + maxAge);
-
-                GregorianCalendar today = new GregorianCalendar();
-                today.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                if( today.after(cal) )
-                {
-                    //if( DEBUG ) 
-		    Core.getOut().println(filename + " is outdated");
-                    return false;
-                }
-
-                today.add(Calendar.DATE, (maxAge + 2)); // Accept one day into future
-                if( cal.after(today) )
-                {
-                    //if( DEBUG ) 
-		    Core.getOut().println("Future date of " + filename + " " + year + month + day);
-                    return false;
-                }
-
-                return true;
-            }
-            catch( NumberFormatException e )
-            {
-                //if( DEBUG ) 
-		System.out.println("Date of " + filename + " is invalid");
-                return false;
-            }
+        String _oldestDate = DateFun.getDate(maxAge);
+        Calendar fileDate=null;
+        Calendar oldestDate=null;
+        Calendar today = DateFun.getCalendarFromDate(DateFun.getDate());
+        try{
+        	fileDate=DateFun.getCalendarFromDate(date);
+        	oldestDate=DateFun.getCalendarFromDate(_oldestDate);
+        }catch (NumberFormatException e){
+        	Core.getOut().println("file "+filename+" has invalid date: "+date);
+        	return false;
         }
-        else
+        
+
+        if( oldestDate.after(fileDate) )
         {
-            //if( DEBUG ) 
-	    System.out.println(filename + " has invalid date");
+		    Core.getOut().println(filename + " is outdated");
             return false;
         }
-    }
+
+        today.add(Calendar.DATE, 2); // Accept one day into future
+        if( fileDate.after(today) )
+        {
+        	Core.getOut().println("Future date of " + filename + " " + date);
+        	return false;
+        }
+
+         return true;
+       }
+        
+        
+    
 
     /**Tests if the filename is valid*/
     public boolean checkFilename()
@@ -136,7 +119,7 @@ public class SharedFileObject implements XMLizable
         {
             if( filename.indexOf(invalidChars[i]) != -1 )
             {
-                if( DEBUG ) System.out.println(filename + " has invalid filename");
+                Core.getOut().println(filename + " has invalid filename");
                 return false;
             }
         }
@@ -168,13 +151,14 @@ public class SharedFileObject implements XMLizable
     	if (key == null) return true;
         if( key.startsWith("CHK@") && key.length() == 58 ) return true;
         //  if (DEBUG) System.out.println("Invalid key in " + filename);
+       Core.getOut().println("invalid key in "+ filename);
         return false;
     }
 
     /**Returns true if key is valid*/
     public boolean isValid()
     {
-        boolean valid = checkDate();
+        boolean valid=true;// = checkDate(); //don't check date here
         valid = valid && checkSize();
         valid = valid && checkFilename();
         valid = valid && checkKey();
@@ -276,6 +260,11 @@ public class SharedFileObject implements XMLizable
     	return lastSharedDate;
     }
     public void setLastSharedDate(String newdate) {
+    	/*if (newdate==null){
+    		Exception e = new Exception("null shareddate");
+    		e.fillInStackTrace();
+    		e.printStackTrace(Core.getOut());
+    	}*/
     	lastSharedDate=newdate;
     }
     
