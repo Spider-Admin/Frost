@@ -18,8 +18,8 @@
 */
 package frost;
 
-import java.awt.Dimension;
-import java.awt.Toolkit;
+import java.awt.*;
+import java.io.*;
 
 import javax.swing.UIManager;
 
@@ -76,8 +76,7 @@ public class frost
         System.out.println();
         System.out.println();
         
-        // check for needed .jar files by loading a class and catching the error
-        
+// check for needed .jar files by loading a class and catching the error
         try
         {
             // check for xercesImpl.jar
@@ -95,13 +94,34 @@ public class frost
         }
         catch (ClassNotFoundException e1)
         {
-            System.out.println("ERROR: There are missing jars files. Please start Frost using the provided start scripts "+
+            System.out.println("ERROR: There are missing jar files. Please start Frost using the provided start scripts "+
                                "(frost.bat for win32, frost.sh for unix).\n");
             e1.printStackTrace();
             System.exit(3);
         }
+        
+// check for running frost (lock file)
+        File runLock = new File(".frost_run_lock");
+        boolean fileCreated = false;
+        try {
+            fileCreated = runLock.createNewFile();
+        } catch(IOException ex) {
+            ex.printStackTrace(System.out);
+        }
 
-
+        if( fileCreated == false )
+        {
+            System.out.println("ERROR: Found frost lock file '.frost_run_lock'.\n" +
+                               "This indicates that another frost instance is already running in "+
+                               "this directory. Running frost concurrently will cause data "+
+                               "loss.\nIf you are REALLY SURE that frost is not already running, "+
+                               "delete the lockfile '"+runLock.getPath()+"'.");
+            System.out.println("\nTERMINATING...\n");
+            System.exit(1);
+        }
+        runLock.deleteOnExit();
+        
+// set l&f
         String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
 
         if( args.length == 1 )
