@@ -125,7 +125,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox uploadDisableRequests = new JCheckBox(LangRes.getString("Disable uploads"));
     JCheckBox downloadDisableDownloads = new JCheckBox(LangRes.getString("Disable downloads"));
 
-    JCheckBox signedOnly = new JCheckBox(LangRes.getString("Show only signed messages"));
+    JCheckBox signedOnly = new JCheckBox( "Hide unsigned messages" );// LangRes.getString("Show only signed messages"));
     JCheckBox hideBadMessages = new JCheckBox(LangRes.getString("Hide messages flagged BAD") + " " + LangRes.getString("(Off)"));
     JCheckBox hideCheckMessages = new JCheckBox(LangRes.getString("Hide messages flagged CHECK") + " " + LangRes.getString("(Off)"));
     JCheckBox hideNAMessages = new JCheckBox("Hide messages flagged N/A (Off)");
@@ -176,14 +176,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             public void stateChanged(ChangeEvent e) {
                 if( e.getSource().equals(miscAltEditCheckBox) )
                     miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
-            } });
-        signedOnly.addChangeListener(new ChangeListener(){
-            public void stateChanged(ChangeEvent e){
-                if (e.getSource().equals(signedOnly)){
-                //goodOnly.setEnabled(signedOnly.isSelected());
-                hideBadMessages.setEnabled(signedOnly.isSelected());
-                hideCheckMessages.setEnabled(signedOnly.isSelected());
-                }
             } });
         block.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent e){
@@ -558,8 +550,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 1;
             tof2Panel.add(hideBadMessages,constr);
             constr.gridy++;
+            constr.gridx = 0;
             tof2Panel.add(hideCheckMessages,constr);
-            constr.gridy++;
+            constr.gridx = 1;
             tof2Panel.add(hideNAMessages,constr);
             constr.gridy++;
             constr.gridx = 0;
@@ -949,11 +942,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         spamTreshold.setEnabled(frostSettings.getBoolValue("doBoardBackoff"));
         sampleInterval.setText(frostSettings.getValue("sampleInterval"));
         spamTreshold.setText(frostSettings.getValue("spamTreshold"));
-        hideBadMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
         hideBadMessages.setSelected(frostSettings.getBoolValue("hideBadMessages"));
-        hideCheckMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
         hideCheckMessages.setSelected(frostSettings.getBoolValue("hideCheckMessages"));
-        hideNAMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
         hideNAMessages.setSelected(frostSettings.getBoolValue("hideNAMessages"));
         block.setSelected(frostSettings.getBoolValue("blockMessageChecked"));
         blockBody.setSelected(frostSettings.getBoolValue("blockMessageBodyChecked"));

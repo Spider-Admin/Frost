@@ -454,6 +454,10 @@ public class MessageFrame extends JFrame
         catch( Exception e ) {
             e.printStackTrace();
         }
+
+        Font tofFont = new Font("Monospaced", Font.PLAIN, (int)frame1.frostSettings.getFloatValue("tofFontSize") );
+        jTextArea1.setFont( tofFont );
+
         pack();
         setLocationRelativeTo(parentFrame);
     }
