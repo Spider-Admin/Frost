@@ -990,7 +990,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			batchSizeTextField.setText(uploadSettings.getValue("uploadBatchSize"));
 			indexFileRedundancyTextField.setText(uploadSettings.getValue("indexFileRedundancy"));
 			splitfileThreadsTextField.setText(uploadSettings.getValue("splitfileUploadThreads"));
-			disableRequestsCheckBox.setSelected(uploadSettings.getBoolValue("disableRequests"));
+			disableRequestsCheckBox.setSelected(uploadSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS));
 
 			setEnabled(!disableRequestsCheckBox.isSelected());
 		}
@@ -1008,7 +1008,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			uploadSettings.setValue("uploadBatchSize", batchSizeTextField.getText());
 			uploadSettings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
 			uploadSettings.setValue("splitfileUploadThreads", splitfileThreadsTextField.getText());
-			uploadSettings.setValue("disableRequests", disableRequestsCheckBox.isSelected());
+			uploadSettings.setValue(SettingsClass.DISABLE_REQUESTS, disableRequestsCheckBox.isSelected());
 			uploadSettings.setValue("signUploads", signUploadsCheckBox.isSelected());
 			uploadSettings.setValue("automaticIndexing", automaticIndexingCheckBox.isSelected());
 			uploadSettings.setValue("shareDownloads", shareDownloadsCheckBox.isSelected());
@@ -2354,7 +2354,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 */
 	private void setDataElements() {
 		// first set some settings to check later if they are changed by user
-		checkDisableRequests = frostSettings.getBoolValue("disableRequests");
+		checkDisableRequests = frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS);
 
 		checkMaxMessageDisplay = frostSettings.getValue("maxMessageDisplay");
 		checkSignedOnly = frostSettings.getBoolValue("signedOnly");
@@ -2435,7 +2435,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		if (checkDisableRequests == true
 			&& // BEFORE: uploads disabled?
 		frostSettings.getBoolValue(
-			"disableRequests")
+			SettingsClass.DISABLE_REQUESTS)
 				== false) // AFTER: uploads enabled?
 			{
 			shouldRemoveDummyReqFiles = true;
