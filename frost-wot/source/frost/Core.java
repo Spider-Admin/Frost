@@ -133,7 +133,11 @@ public class Core {
 							"Frost can't run without an identity.");
 						System.exit(1);
 					}
+					
+					do { //make sure there's no // in the name.
 					mySelf = new LocalIdentity(nick);
+					}while (mySelf.getUniqueName().indexOf("//")==-1);
+					
 					//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
 				} catch (Exception e) {
 					out.println("couldn't create new identitiy");
