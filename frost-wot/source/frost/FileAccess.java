@@ -393,6 +393,30 @@ public class FileAccess
         }
         return stringBuffer.toString();
     }
+    
+	/**
+	 * Reads a file, line by line, and adds a \n after each one.
+	 * You can specify the encoding to use when reading.
+	 * @param path
+	 * @param encoding
+	 * @return the contents of the file
+	 */
+	public static String readFile(String path, String encoding) {
+		String line;
+		StringBuffer stringBuffer = new StringBuffer();
+		try {
+			InputStreamReader iSReader = new InputStreamReader(new FileInputStream(path), encoding);
+			BufferedReader reader = new BufferedReader(iSReader);
+			while ((line = reader.readLine()) != null) {
+				stringBuffer.append(line + "\n");
+			}
+			reader.close();
+		} catch (IOException e) {
+			e.printStackTrace(Core.getOut());
+			Core.getOut().println("Read Error: " + path);
+		}
+		return stringBuffer.toString();
+	}
 
     /**
      * Writes a file "file" to "path"
