@@ -67,6 +67,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		private JMenuItem pasteNodeItem = new JMenuItem(getScaledImage("/data/paste.gif"));
 		private JMenuItem configureBoardItem = new JMenuItem(getScaledImage("/data/configure.gif"));
 		private JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem sortFolderItem = new JMenuItem();
 		
 		private FrostBoardObject selectedTreeNode = null;
 
@@ -86,6 +87,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			addFolderItem.setText(languageResource.getString("Add new folder"));
 			configureBoardItem.setText(languageResource.getString("Configure selected board"));
 			cancelItem.setText(languageResource.getString("Cancel"));
+			sortFolderItem.setText(languageResource.getString("Sort folder"));
 		}
 
 		/**
@@ -104,6 +106,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			cutNodeItem.addActionListener(this);
 			pasteNodeItem.addActionListener(this);
 			configureBoardItem.addActionListener(this);
+			sortFolderItem.addActionListener(this);
 		}
 
 		/* (non-Javadoc)
@@ -135,9 +138,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				add(descriptionItem);
 				addSeparator();
 				add(refreshItem);
+				addSeparator();
 				if (selectedTreeNode.isFolder() == false) {
-					addSeparator();
 					add(configureBoardItem);
+				} else {
+					add(sortFolderItem);	
 				}
 				addSeparator();
 				add(addBoardItem);
@@ -202,6 +207,18 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			if (e.getSource() == configureBoardItem) {
 				configureBoardSelected();
 			}
+			if (e.getSource() == sortFolderItem) {
+				sortFolderSelected();
+			}
+		}
+
+		/**
+		 * 
+		 */
+		private void sortFolderSelected() {
+			selectedTreeNode.sortChildren();
+			DefaultTreeModel tofTreeModel = (DefaultTreeModel) getTofTree().getModel();
+			tofTreeModel.nodeStructureChanged(selectedTreeNode);
 		}
 
 		/**

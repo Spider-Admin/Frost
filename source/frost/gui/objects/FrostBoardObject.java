@@ -19,6 +19,7 @@
 package frost.gui.objects;
 
 import java.io.File;
+import java.util.Collections;
 
 import javax.swing.tree.DefaultMutableTreeNode;
 
@@ -287,6 +288,13 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
     {
         isUpdating = val;
     }
+    
+	/**
+	 * 
+	 */
+	public void sortChildren() {
+		Collections.sort(children);
+	}
 
 
     public boolean isConfigured()
