@@ -192,6 +192,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     JMenuItem uploadPopupAddFilesToBoard = null;
     JMenuItem uploadPopupGenerateChkForSelectedFiles = null;
     JMenuItem uploadPopupCancel = null;
+    JMenu uploadPopupCopyToClipboard = null;
+    JMenuItem uploadPopupCopyChkKeyToClipboard = null;
+    JMenuItem uploadPopupCopyChkKeyAndFilenameToClipboard = null;
 
     JMenuItem downloadPopupRestartSelectedDownloads = null;
     JMenuItem downloadPopupRemoveSelectedDownloads = null;
@@ -1048,7 +1051,47 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupAddFilesToBoard = new JMenuItem(LangRes.getString("Add files to board"));
         uploadPopupGenerateChkForSelectedFiles = new JMenuItem("Start encoding of selected files");
         uploadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+        
+        uploadPopupCopyToClipboard = new JMenu("Copy to clipboard...");
+        uploadPopupCopyChkKeyToClipboard = new JMenuItem("CHK key");
+        uploadPopupCopyChkKeyAndFilenameToClipboard = new JMenuItem("CHK key + filename");
+        
+        uploadPopupCopyToClipboard.add( uploadPopupCopyChkKeyToClipboard );
+        uploadPopupCopyToClipboard.add( uploadPopupCopyChkKeyAndFilenameToClipboard );
+        
 // add action listener
+        // add CHK key to clipboard
+        uploadPopupCopyChkKeyToClipboard.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                UploadTableModel tableModel = (UploadTableModel)getUploadTable().getModel();
+                int selectedRow = getUploadTable().getSelectedRow();
+                if( selectedRow > -1 )
+                {
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRow );
+                    String chkKey = ulItem.getKey();
+                    if( chkKey != null )
+                    {
+                        mixed.setSystemClipboard(chkKey);
+                    }
+                }
+            } });
+        // add CHK key + filename to clipboard    
+        uploadPopupCopyChkKeyAndFilenameToClipboard.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                UploadTableModel tableModel = (UploadTableModel)getUploadTable().getModel();
+                int selectedRow = getUploadTable().getSelectedRow();
+                if( selectedRow > -1 )
+                {
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRow );
+                    String chkKey = ulItem.getKey();
+                    String filename = ulItem.getFileName();
+                    if( chkKey != null && filename != null )
+                    {
+                        mixed.setSystemClipboard( chkKey + "/" + filename );
+                    }
+                }
+            } });
+        
         // Upload / Remove selected files
         uploadPopupRemoveSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -3121,6 +3164,12 @@ public class frame1 extends JFrame implements ClipboardOwner
     protected void showUploadTablePopupMenu(MouseEvent e)
     {
         JPopupMenu pmenu = new JPopupMenu();
+        
+        if( getUploadTable().getSelectedRowCount() == 1 ) // if 1 item is selected
+        {
+            pmenu.add( uploadPopupCopyToClipboard );
+            pmenu.addSeparator();
+        }
 
         JMenu removeSubMenu = new JMenu("Remove ...");
         if (getUploadTable().getSelectedRow() > -1) {
