@@ -32,12 +32,17 @@ import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.BoardAttachment;
 import frost.util.gui.JSkinnablePopupMenu;
+import frost.util.gui.translation.Language;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class KnownBoardsFrame extends JDialog
 {
 	private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
 	
-	private ResourceBundle languageResource;
+	private Language language;
 
     private static ImageIcon boardIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/board.gif"));
     private static ImageIcon writeAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/waboard.jpg"));
@@ -54,10 +59,13 @@ public class KnownBoardsFrame extends JDialog
     
 	private boolean savingNeeded = false;
     
-    public KnownBoardsFrame(JFrame parent, ResourceBundle languageResource)
+    /**
+     * @param parent
+     */
+    public KnownBoardsFrame(JFrame parent)
     {
         super();
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             initialize();
@@ -76,11 +84,11 @@ public class KnownBoardsFrame extends JDialog
     private void initialize()
     {
         setModal(true);
-        setTitle(languageResource.getString("KnownBoardsFrame.List of known boards"));
+        setTitle(language.getString("KnownBoardsFrame.List of known boards"));
         
         this.setResizable(true);
         
-        tableModel = new KnownBoardsTableModel(languageResource);
+        tableModel = new KnownBoardsTableModel();
         // add a special renderer to name column which shows the board icon
         nameColRenderer = new NameColumnRenderer();
         boardsTable = new SortedTable( tableModel ) {
@@ -93,8 +101,8 @@ public class KnownBoardsFrame extends JDialog
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
         
-        Bclose = new JButton(languageResource.getString("KnownBoardsFrame.Close"));
-        BaddBoard = new JButton(languageResource.getString("KnownBoardsFrame.Add board"));
+        Bclose = new JButton(language.getString("KnownBoardsFrame.Close"));
+        BaddBoard = new JButton(language.getString("KnownBoardsFrame.Add board"));
 
         TFlookupBoard = new JTextField(10);
         // force a max size, needed for BoxLayout
@@ -130,7 +138,7 @@ public class KnownBoardsFrame extends JDialog
         
         JPanel buttons = new JPanel(new BorderLayout());
         buttons.setLayout( new BoxLayout( buttons, BoxLayout.X_AXIS ));
-        buttons.add( new JLabel(languageResource.getString("KnownBoardsFrame.Lookup") + ":"));
+        buttons.add( new JLabel(language.getString("KnownBoardsFrame.Lookup") + ":"));
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( TFlookupBoard );
         buttons.add( Box.createHorizontalGlue() );
@@ -150,11 +158,14 @@ public class KnownBoardsFrame extends JDialog
         initPopupMenu();
     }
     
+    /**
+     * 
+     */
     private void initPopupMenu()
     {
         tablePopupMenu = new JSkinnablePopupMenu();
-        JMenuItem addBoardsMenu = new JMenuItem(languageResource.getString("KnownBoardsFrame.Add board"));
-        JMenuItem removeBoardEntry = new JMenuItem(languageResource.getString("KnownBoardsFrame.Remove board"));
+        JMenuItem addBoardsMenu = new JMenuItem(language.getString("KnownBoardsFrame.Add board"));
+        JMenuItem removeBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.Remove board"));
         
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
@@ -171,6 +182,9 @@ public class KnownBoardsFrame extends JDialog
         boardsTable.addMouseListener(new TablePopupMenuMouseListener());        
     }
     
+    /**
+     * 
+     */
     public void startDialog()
     {
         // gets all known boards from Core, and shows all not-doubles in table
@@ -234,6 +248,9 @@ public class KnownBoardsFrame extends JDialog
         }
     }
     
+    /**
+     * @param e
+     */
     private void addBoards_actionPerformed(ActionEvent e)
     {
         int[] selectedRows = boardsTable.getSelectedRows();
@@ -256,6 +273,9 @@ public class KnownBoardsFrame extends JDialog
         }
     }
     
+    /**
+     * @param e
+     */
     private void deleteBoards_actionPerformed(ActionEvent e)
     {
         int[] selectedRows = boardsTable.getSelectedRows();
@@ -280,6 +300,9 @@ public class KnownBoardsFrame extends JDialog
         }
     }
     
+    /**
+     * @param e
+     */
     private void boardsTableListModel_valueChanged(ListSelectionEvent e)
     {
         if( boardsTable.getSelectedRowCount() > 0 )
@@ -301,12 +324,18 @@ public class KnownBoardsFrame extends JDialog
         BoardAttachment boardatt;
         FrostBoardObject frostboard;
 
+        /**
+         * @param ba
+         */
         public KnownBoardsTableMember(BoardAttachment ba)
         {
             this.boardatt = ba;
             this.frostboard = ba.getBoardObj();
         }
 
+		/* (non-Javadoc)
+		 * @see frost.gui.model.TableMember#getValueAt(int)
+		 */
 		public Object getValueAt(int column) {
 			switch (column) {
 				case 0 :
@@ -320,16 +349,28 @@ public class KnownBoardsFrame extends JDialog
 			}
 			return "*ERR*";
 		}
+		
+        /* (non-Javadoc)
+         * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
+         */
         public int compareTo( TableMember anOther, int tableColumIndex )
         {
             String c1 = (String)getValueAt(tableColumIndex);
             String c2 = (String)anOther.getValueAt(tableColumIndex);
             return c1.compareToIgnoreCase( c2 );
         }
+        
+        /**
+         * @return
+         */
         public FrostBoardObject getBoardObject()
         {
             return frostboard;
         }
+        
+        /**
+         * @return
+         */
         public BoardAttachment getBoardAttachment()
         {
             return boardatt;
@@ -374,8 +415,14 @@ public class KnownBoardsFrame extends JDialog
         } catch(Exception ex) {}
     }
     
+    /**
+     * 
+     */
     class NameColumnRenderer extends DefaultTableCellRenderer
     {
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -414,17 +461,43 @@ public class KnownBoardsFrame extends JDialog
         }
     }
     
+    /**
+     * 
+     */
     class TablePopupMenuMouseListener implements MouseListener
     {
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+         */
         public void mouseReleased(MouseEvent event) {
             maybeShowPopup(event);
         }
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+         */
         public void mousePressed(MouseEvent event) {
             maybeShowPopup(event);
         }
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+         */
         public void mouseClicked(MouseEvent event) {}
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+         */
         public void mouseEntered(MouseEvent event) {}
+        
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+         */
         public void mouseExited(MouseEvent event) {}
+        
+        /**
+         * @param e
+         */
         protected void maybeShowPopup(MouseEvent e) {
             if( e.isPopupTrigger() ) {
                 tablePopupMenu.show(boardsTable, e.getX(), e.getY());

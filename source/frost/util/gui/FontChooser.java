@@ -17,7 +17,8 @@ import javax.swing.event.*;
 import frost.util.gui.translation.*;
 
 /**
- * 
+ * @author $Author$
+ * @version $Revision$
  */
 public class FontChooser extends JDialog {
 	/**
@@ -75,7 +76,7 @@ public class FontChooser extends JDialog {
 	
 	private Listener listener = new Listener();
 	
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	
 	private DefaultListModel fontNamesModel = new DefaultListModel();
 	private JList fontNamesList = new JList(fontNamesModel);
@@ -102,24 +103,25 @@ public class FontChooser extends JDialog {
 	
 	private HashMap styles = new HashMap();
 	
-
 	/**
-	 * 
+	 * @param owner
+	 * @param language
 	 */
-	public FontChooser(Frame owner, UpdatingLanguageResource newLanguageResource) {
+	public FontChooser(Frame owner, Language language) {
 		super(owner);
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(listener);
+		this.language = language;
+		language.addLanguageListener(listener);
 		initialize();
 	}
 	
 	/**
-	 * 
+	 * @param owner
+	 * @param language
 	 */
-	public FontChooser(Dialog owner, UpdatingLanguageResource newLanguageResource) {
+	public FontChooser(Dialog owner, Language language) {
 		super(owner);
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(listener);
+		this.language = language;
+		language.addLanguageListener(listener);
 		initialize();
 	}
 
@@ -236,7 +238,7 @@ public class FontChooser extends JDialog {
 			fontSizesModel.addElement(sizes[i]);
 		}
 
-		fontStylesModel = new TranslatableListModel(languageResource);
+		fontStylesModel = new TranslatableListModel(language);
 		fontStylesList.setModel(fontStylesModel);
 		ArrayList styleKeysList = new ArrayList(styles.keySet());
 		Collections.reverse(styleKeysList);	//Because I want "Plain" to be first
@@ -372,10 +374,10 @@ public class FontChooser extends JDialog {
 	 * 
 	 */
 	private void refreshLanguage() {
-		setTitle(languageResource.getString("Choose a Font"));
-		sampleLabel.setText(languageResource.getString("Sample"));
-		okButton.setText(languageResource.getString("OK"));
-		cancelButton.setText(languageResource.getString("Cancel"));
+		setTitle(language.getString("Choose a Font"));
+		sampleLabel.setText(language.getString("Sample"));
+		okButton.setText(language.getString("OK"));
+		cancelButton.setText(language.getString("Cancel"));
 	}
 
 }

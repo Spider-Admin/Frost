@@ -13,21 +13,16 @@ import javax.swing.*;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 public class NewBoardDialog extends JDialog {
 
 	/**
-	 * @author Administrator
-	 *
-	 * To change the template for this generated type comment go to
-	 * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+	 * 
 	 */
 	private class Listener implements DocumentListener, ActionListener {
 
@@ -77,7 +72,7 @@ public class NewBoardDialog extends JDialog {
 	
 	private Listener listener = new Listener();
 	
-	private UpdatingLanguageResource languageResource;
+	private Language language;
 
 	private JPanel contentPanel = new JPanel();
 
@@ -95,11 +90,12 @@ public class NewBoardDialog extends JDialog {
 	private String boardDescription;
 
 	/**
-	 * @throws java.awt.HeadlessException
+	 * @param owner
+	 * @throws HeadlessException
 	 */
-	public NewBoardDialog(Frame owner, UpdatingLanguageResource languageResource) throws HeadlessException {
+	public NewBoardDialog(Frame owner) throws HeadlessException {
 		super(owner);
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		initialize();
 		pack();
 		setLocationRelativeTo(owner);
@@ -166,12 +162,12 @@ public class NewBoardDialog extends JDialog {
 	 * 
 	 */
 	private void refreshLanguage() {
-		setTitle(" " + languageResource.getString("NewBoardDialog.title"));
-		detailsLabel.setText(languageResource.getString("NewBoardDialog.details"));
-		nameLabel.setText(languageResource.getString("NewBoardDialog.name"));
-		descriptionLabel.setText(languageResource.getString("NewBoardDialog.description"));
-		addButton.setText(languageResource.getString("NewBoardDialog.add"));
-		cancelButton.setText(languageResource.getString("Cancel"));
+		setTitle(" " + language.getString("NewBoardDialog.title"));
+		detailsLabel.setText(language.getString("NewBoardDialog.details"));
+		nameLabel.setText(language.getString("NewBoardDialog.name"));
+		descriptionLabel.setText(language.getString("NewBoardDialog.description"));
+		addButton.setText(language.getString("NewBoardDialog.add"));
+		cancelButton.setText(language.getString("Cancel"));
 	}
 	
 	/**

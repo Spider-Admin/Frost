@@ -17,10 +17,8 @@ import frost.util.model.ModelItem;
 import frost.util.model.gui.*;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 public class SearchTableFormat extends SortedTableFormat implements LanguageListener {
 	
@@ -152,6 +150,9 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 			modelTable = newModelTable;
 		}
 
+		/* (non-Javadoc)
+		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+		 */
 		public Component getTableCellRendererComponent(
 			JTable table,
 			Object value,
@@ -187,7 +188,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 		}
 	}
 
-	private UpdatingLanguageResource languageResource;
+	private Language language;
 	
 	private final static int COLUMN_COUNT = 5;
 	
@@ -198,13 +199,13 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 	private String downloaded;
 
 	/**
-	 * @param newLanguageResource
+	 *
 	 */
-	public SearchTableFormat(UpdatingLanguageResource newLanguageResource) {
+	public SearchTableFormat() {
 		super(COLUMN_COUNT);
 		
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(this);
+		language = Language.getInstance();
+		language.addLanguageListener(this);
 		refreshLanguage();
 		
 		setComparator(new FileNameComparator(), 0);
@@ -225,17 +226,17 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 	 * 
 	 */
 	private void refreshLanguage() {
-		setColumnName(0, languageResource.getString("Filename"));
-		setColumnName(1, languageResource.getString("Size"));
-		setColumnName(2, languageResource.getString("Age"));
-		setColumnName(3, languageResource.getString("From"));
-		setColumnName(4, languageResource.getString("Board"));
+		setColumnName(0, language.getString("Filename"));
+		setColumnName(1, language.getString("Size"));
+		setColumnName(2, language.getString("Age"));
+		setColumnName(3, language.getString("From"));
+		setColumnName(4, language.getString("Board"));
 		
-		anonymous = languageResource.getString("FrostSearchItemObject.Anonymous");
-		offline = languageResource.getString("FrostSearchItemObject.Offline");
-		uploading = languageResource.getString("SearchTableFormat.Uploading");
-		downloading = languageResource.getString("SearchTableFormat.Downloading");
-		downloaded = languageResource.getString("SearchTableFormat.Downloaded");
+		anonymous = language.getString("FrostSearchItemObject.Anonymous");
+		offline = language.getString("FrostSearchItemObject.Offline");
+		uploading = language.getString("SearchTableFormat.Uploading");
+		downloading = language.getString("SearchTableFormat.Downloading");
+		downloaded = language.getString("SearchTableFormat.Downloaded");
 		
 		refreshColumnNames();
 	}
@@ -271,8 +272,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 	}
 
 	/**
-	 * @param string
-	 * @param i
+	 * @param date
+	 * @param state
 	 * @return
 	 */
 	private String getAgeString(String date, int state) {

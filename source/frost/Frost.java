@@ -26,8 +26,12 @@ import javax.swing.*;
 import javax.swing.UIManager.LookAndFeelInfo;
 
 import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class Frost {
 
 	private static Logger logger = Logger.getLogger(Frost.class.getName());
@@ -153,7 +157,7 @@ public class Frost {
 	 */
 	public Frost() {
 		Core core = Core.getInstance();
-		if (!initializeLockFile(core.getLanguageResource())) {
+		if (!initializeLockFile(Language.getInstance())) {
 			System.exit(1);
 		}
 
@@ -227,10 +231,10 @@ public class Frost {
 	 * This method checks if the lockfile is present (therefore indicating that another instance
 	 * of Frost is running off the same directory). If it is, it shows a Dialog warning the
 	 * user of the situation and returns false. If not, it creates a lockfile and returns true.
-	 * @param languageResource the language resource to use in case an error message has to be displayed. 
+	 * @param language the language to use in case an error message has to be displayed. 
 	 * @return boolean false if there was a problem while initializing the lockfile. True otherwise.
 	 */
-	private boolean initializeLockFile(UpdatingLanguageResource languageResource) {
+	private boolean initializeLockFile(Language language) {
 		// check for running frost (lock file)
 		File runLock = new File(".frost_run_lock");
 		boolean fileCreated = false;
@@ -242,7 +246,7 @@ public class Frost {
 
 		if (fileCreated == false) {
 			MiscToolkit.getInstance().showMessage(
-				languageResource.getString("Frost.lockFileFound") + "'" + 
+				language.getString("Frost.lockFileFound") + "'" + 
 					runLock.getAbsolutePath() + "'",
 				JOptionPane.ERROR_MESSAGE,
 				"ERROR: Found Frost lock file '.frost_run_lock'.");

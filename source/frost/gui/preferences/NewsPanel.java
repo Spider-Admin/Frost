@@ -14,19 +14,18 @@ import javax.swing.*;
 
 import frost.*;
 import frost.util.gui.*;
-import frost.util.gui.AntialiasedTextArea;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 class NewsPanel extends JPanel {
 		
 	private static Logger logger = Logger.getLogger(NewsPanel.class.getName());
 		
 	private SettingsClass settings = null;
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 		
 	private JLabel uploadHtlLabel = new JLabel();
 	private JLabel downloadHtlLabel = new JLabel();
@@ -44,13 +43,12 @@ class NewsPanel extends JPanel {
 	private AntialiasedTextArea signatureTextArea;
 
 	/**
-	 * @param languageResource the LanguageResource to get localized strings from
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
 	 */
-	protected NewsPanel(UpdatingLanguageResource languageResource, SettingsClass settings) {
+	protected NewsPanel(SettingsClass settings) {
 		super();
 		
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		this.settings = settings;
 		
 		initialize();
@@ -66,11 +64,11 @@ class NewsPanel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		uploadHtlTextField = new JClipboardTextField(8, languageResource);
-		downloadHtlTextField = new JClipboardTextField(8, languageResource);
-		displayDaysTextField = new JClipboardTextField(8, languageResource);
-		downloadDaysTextField = new JClipboardTextField(8, languageResource);
-		messageBaseTextField = new JClipboardTextField(16, languageResource);
+		uploadHtlTextField = new JClipboardTextField(8, language);
+		downloadHtlTextField = new JClipboardTextField(8, language);
+		displayDaysTextField = new JClipboardTextField(8, language);
+		downloadDaysTextField = new JClipboardTextField(8, language);
+		messageBaseTextField = new JClipboardTextField(16, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -166,6 +164,9 @@ class NewsPanel extends JPanel {
 		}
 	}
 		
+	/**
+	 * 
+	 */
 	public void ok() {
 		saveSettings();
 	}
@@ -174,14 +175,14 @@ class NewsPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		uploadHtlLabel.setText(languageResource.getString("Message upload HTL") + " (21)");
-		downloadHtlLabel.setText(languageResource.getString("Message download HTL") + " (23)");
+		uploadHtlLabel.setText(language.getString("Message upload HTL") + " (21)");
+		downloadHtlLabel.setText(language.getString("Message download HTL") + " (23)");
 		displayDaysLabel.setText(
-			languageResource.getString("Number of days to display") + " (10)");
+				language.getString("Number of days to display") + " (10)");
 		downloadDaysLabel.setText(
-			languageResource.getString("Number of days to download backwards") + " (3)");
-		messageBaseLabel.setText(languageResource.getString("Message base") + " (news)");
-		signatureLabel.setText(languageResource.getString("Signature"));
+				language.getString("Number of days to download backwards") + " (3)");
+		messageBaseLabel.setText(language.getString("Message base") + " (news)");
+		signatureLabel.setText(language.getString("Signature"));
 	}
 
 	/**

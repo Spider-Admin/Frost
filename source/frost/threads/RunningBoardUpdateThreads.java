@@ -9,11 +9,12 @@ import frost.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.FrostIdentities;
 import frost.messages.MessageObject;
-import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * This class maintains the message download and upload threads.
  * Listeners for thread started and thread finished are provided.
+ * @author $Author$
+ * @version $Revision$
  */
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
@@ -21,7 +22,6 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	
     private JFrame parentFrame;
     private FrostIdentities identities;
-    private UpdatingLanguageResource languageResource;
     private SettingsClass frostSettings;
 	
     // listeners are notified of each finished thread
@@ -36,14 +36,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * @param parentFrame
      * @param identities
-     * @param languageResource
      * @param frostSettings
      */
-    public RunningBoardUpdateThreads(JFrame parentFrame, FrostIdentities identities,
-            UpdatingLanguageResource languageResource, SettingsClass frostSettings) {
+    public RunningBoardUpdateThreads(JFrame parentFrame, FrostIdentities identities, SettingsClass frostSettings) {
         this.parentFrame = parentFrame;
         this.identities = identities;
-        this.languageResource = languageResource;
         this.frostSettings = frostSettings;
 
         threadListenersForBoard = new Hashtable();
@@ -57,6 +54,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	 * if you specify a listener and the method returns true (thread is started), the listener
 	 * will be notified if THIS thread is finished
 	 * before starting a thread you should check if it is'nt updating already.
+	 * @param board
+	 * @param config
+	 * @param listener
+	 * @return
 	 */
 	public boolean startMessageDownloadToday(
 		FrostBoardObject board,
@@ -87,7 +88,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	/**
 	 * if you specify a listener and the method returns true (thread is started), the listener
 	 * will be notified if THIS thread is finished
-	* before starting a thread you should check if it is'nt updating already.
+	 * before starting a thread you should check if it is'nt updating already.
+	 * @param board
+	 * @param config
+	 * @param listener
+	 * @return
 	 */
 	public boolean startMessageDownloadBack(
 		FrostBoardObject board,
@@ -120,6 +125,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * If you specify a listener and the method returns true (thread is started), the listener
      * will be notified if THIS thread is finished
      * before starting a thread you should check if it is'nt updating already.
+     * @param board
+     * @param config
+     * @param listener
+     * @return
      */
     public boolean startBoardFilesUpload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
@@ -149,6 +158,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 
     /**
      * Starts downloads of files to boards.  Same as above.
+     * @param board
+     * @param config
+     * @param listener
+     * @return
      */
     public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
@@ -194,6 +207,10 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	/**
 	 * if you specify a listener and the method returns true (thread is started), the listener
 	 * will be notified if THIS thread is finished
+	 * @param board
+	 * @param mo
+	 * @param listener
+	 * @return
 	 */
 	public boolean startMessageUpload(
 		FrostBoardObject board,
@@ -202,7 +219,6 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 			
 		MessageUploadThread msgUploadThread =
 			new MessageUploadThread(board, mo, identities, frostSettings);
-		msgUploadThread.setLanguageResource(languageResource);
 		msgUploadThread.setParentFrame(parentFrame);
 		// register listener and this class as listener
 		msgUploadThread.addBoardUpdateThreadListener(this);
@@ -222,6 +238,9 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Gets an Vector from a Hashtable with given key. If key is not contained
      * in Hashtable, an empty Vector will be created and put in the Hashtable.
+     * @param t
+     * @param key
+     * @return
      */
     protected Vector getVectorFromHashtable(Hashtable t, Object key)
     {
@@ -241,6 +260,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Returns the list of current download threads for a given board.
      * Returns an empty list of no thread is running.
+     * @param board
+     * @return
      */
     public Vector getDownloadThreadsForBoard(FrostBoardObject board)
     {
@@ -250,6 +271,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Returns the list of current upload threads for a given board.
      * Returns an empty list of no thread is running.
+     * @param board
+     * @return
      */
     public Vector getUploadThreadsForBoard(FrostBoardObject board)
     {
@@ -260,7 +283,9 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Adds a listener that gets notified if any thread for a given board did update its state.
      * For supported states see BoardUpdateThreadListener methods.
-     **/
+     * @param board
+     * @param listener
+     */
     public void addBoardUpdateThreadListener(FrostBoardObject board, BoardUpdateThreadListener listener)
     {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener); // no doubles allowed
@@ -270,7 +295,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Adds a listener that gets notified if any thread for any board did update its state.
      * For supported states see BoardUpdateThreadListener methods.
-     **/
+     * @param listener
+     */
     public void addBoardUpdateThreadListener(BoardUpdateThreadListener listener)
     {
         threadListenersForAllBoards.remove( listener ); // no doubles allowed
@@ -280,7 +306,9 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * Removes a listener that gets notified if any thread for a given board did update its state.
      * For supported states see BoardUpdateThreadListener methods.
      * Method will do nothing if listener is null or not contained in the list of listeners.
-     **/
+     * @param board
+     * @param listener
+     */
     public void removeBoardUpdateThreadListener(FrostBoardObject board, BoardUpdateThreadListener listener)
     {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener);
@@ -290,7 +318,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * Removes a listener that gets notified if any thread for any board did update its state.
      * For supported states see BoardUpdateThreadListener methods.
      * Method will do nothing if listener is null or not contained in the list of listeners.
-     **/
+     * @param listener
+     */
     public void removeBoardUpdateThreadListener(BoardUpdateThreadListener listener)
     {
         threadListenersForAllBoards.remove( listener );
@@ -299,6 +328,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Implementing the listener for thread finished.
      * Notifies all interested listeners for change of the thread state.
+     * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.threads.BoardUpdateThread)
      */
     public void boardUpdateThreadFinished(BoardUpdateThread thread)
     {
@@ -337,6 +367,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Implementing the listener for thread started.
      * Notifies all interested listeners for change of the thread state.
+     * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
      */
     public void boardUpdateThreadStarted(BoardUpdateThread thread)
     {
@@ -358,6 +389,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 
     /**
      * Returns the count of ALL running download threads (of all boards).
+     * @return
      */
     public int getRunningDownloadThreadCount() // msg_today, msg_back, files_update, update_id
     {
@@ -383,6 +415,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     }
     /**
      * Returns the count of ALL running upload threads (of all boards).
+     * @return
      */
     public int getRunningUploadThreadCount() // msg upload
     {
@@ -409,6 +442,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 
     /**
      * Returns the count of boards that currently have running download threads.
+     * @return
      */
     public int getUpdatingBoardCount()
     {
@@ -434,6 +468,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     }
     /**
      * Returns the count of boards that currently have running upload threads.
+     * @return
      */
     public int getUploadingBoardCount()
     {
@@ -460,6 +495,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 
     /**
      * Returns true if the given board have running download threads.
+     * @param board
+     * @return
      */
     public boolean isUpdating(FrostBoardObject board)
     {
@@ -474,6 +511,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     }
     /**
      * Returns true if the given board have running upload threads.
+     * @param board
+     * @return
      */
     public boolean isUploading(FrostBoardObject board)
     {
@@ -487,6 +526,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         }
     }
 
+    /**
+     * @param board
+     * @param type
+     * @return
+     */
     public boolean isThreadOfTypeRunning(FrostBoardObject board, int type)
     {
         Vector threads = getDownloadThreadsForBoard(board);

@@ -21,8 +21,8 @@ import frost.util.gui.translation.*;
 import frost.util.gui.translation.JTranslatableComboBox;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 class MiscPanel extends JPanel {
 
@@ -53,7 +53,7 @@ class MiscPanel extends JPanel {
 	private static Logger logger = Logger.getLogger(MiscPanel.class.getName());
 	
 	private SettingsClass settings = null;
-	private UpdatingLanguageResource languageResource = null;	
+	private Language language = null;	
 
 	private JCheckBox allowEvilBertCheckBox = new JCheckBox();
 	private JCheckBox altEditCheckBox = new JCheckBox();
@@ -84,13 +84,12 @@ class MiscPanel extends JPanel {
 	private JCheckBox splashScreenCheckBox = new JCheckBox();
 
 	/**
-	 * @param languageResource the LanguageResource to get localized strings from
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
 	 */
-	protected MiscPanel(UpdatingLanguageResource languageResource, SettingsClass settings) {
+	protected MiscPanel(SettingsClass settings) {
 		super();
 		
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		this.settings = settings;
 		
 		initialize();
@@ -104,6 +103,9 @@ class MiscPanel extends JPanel {
 		altEditTextField.setEnabled(altEditCheckBox.isSelected());
 	}
 		
+	/**
+	 * @return
+	 */
 	private JPanel getLoggingPanel() {
 		JPanel subPanel = new JPanel(new GridBagLayout());
 
@@ -128,7 +130,7 @@ class MiscPanel extends JPanel {
 		constraints.gridx = 1;
 		String[] searchComboBoxKeys =
 			{ Logging.VERY_LOW, Logging.LOW, Logging.MEDIUM, Logging.HIGH, Logging.VERY_HIGH };
-		logLevelComboBox = new JTranslatableComboBox(languageResource, searchComboBoxKeys);
+		logLevelComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
 		subPanel.add(logLevelComboBox, constraints);
 			
 		constraints.gridx = 2;
@@ -150,13 +152,13 @@ class MiscPanel extends JPanel {
 		refreshLanguage();
 		
 		// We create the components
-		altEditTextField = new JClipboardTextField(languageResource);
-		autoSaveIntervalTextField = new JClipboardTextField(8, languageResource);
-		availableNodesTextField = new JClipboardTextField(languageResource);
-		keyDownloadHtlTextField = new JClipboardTextField(8, languageResource);
-		keyUploadHtlTextField = new JClipboardTextField(8, languageResource);
-		logFileSizeTextField = new JClipboardTextField(8, languageResource);
-		maxKeysTextField = new JClipboardTextField(8, languageResource);
+		altEditTextField = new JClipboardTextField(language);
+		autoSaveIntervalTextField = new JClipboardTextField(8, language);
+		availableNodesTextField = new JClipboardTextField(language);
+		keyDownloadHtlTextField = new JClipboardTextField(8, language);
+		keyUploadHtlTextField = new JClipboardTextField(8, language);
+		logFileSizeTextField = new JClipboardTextField(8, language);
+		maxKeysTextField = new JClipboardTextField(8, language);
 
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -276,6 +278,9 @@ class MiscPanel extends JPanel {
 		refreshLoggingState();
 	}
 
+	/**
+	 * 
+	 */
 	public void ok() {
 		saveSettings();
 	}
@@ -284,31 +289,31 @@ class MiscPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		keyUploadHtlLabel.setText(languageResource.getString("Keyfile upload HTL") + " (21)");
+		keyUploadHtlLabel.setText(language.getString("Keyfile upload HTL") + " (21)");
 		keyDownloadHtlLabel.setText(
-			languageResource.getString("Keyfile download HTL") + " (24)");
-		availableNodesLabel1.setText(languageResource.getString("list of nodes"));
-		availableNodesLabel2.setText(languageResource.getString("list of nodes 2"));
+				language.getString("Keyfile download HTL") + " (24)");
+		availableNodesLabel1.setText(language.getString("list of nodes"));
+		availableNodesLabel2.setText(language.getString("list of nodes 2"));
 		maxKeysLabel.setText(
-			languageResource.getString("Maximum number of keys to store") + " (100000)");
+				language.getString("Maximum number of keys to store") + " (100000)");
 		autoSaveIntervalLabel.setText(
-			languageResource.getString("Automatic saving interval") + " (15)");
-		splashScreenCheckBox.setText(languageResource.getString("Disable splashscreen"));
-		showSystrayIconCheckBox.setText(languageResource.getString("Show systray icon"));
-		String off = languageResource.getString("Off");
+				language.getString("Automatic saving interval") + " (15)");
+		splashScreenCheckBox.setText(language.getString("Disable splashscreen"));
+		showSystrayIconCheckBox.setText(language.getString("Show systray icon"));
+		String off = language.getString("Off");
 		allowEvilBertCheckBox.setText(
-			languageResource.getString("Allow 2 byte characters") + " (" + off + ")");
+				language.getString("Allow 2 byte characters") + " (" + off + ")");
 		altEditCheckBox.setText(
-			languageResource.getString("Use editor for writing messages") + " (" + off + ")");
-		cleanupCheckBox.setText(languageResource.getString("Clean the keypool"));
+				language.getString("Use editor for writing messages") + " (" + off + ")");
+		cleanupCheckBox.setText(language.getString("Clean the keypool"));
 
-		enableLoggingCheckBox.setText(languageResource.getString("Enable logging"));
+		enableLoggingCheckBox.setText(language.getString("Enable logging"));
 		logLevelLabel.setText(
-			languageResource.getString("Logging level")
+				language.getString("Logging level")
 				+ " ("
-				+ languageResource.getString("Low")
+				+ language.getString("Low")
 				+ ") ");
-		logFileSizeLabel.setText(languageResource.getString("Log file size limit (in KB)"));
+		logFileSizeLabel.setText(language.getString("Log file size limit (in KB)"));
 
 	}
 		

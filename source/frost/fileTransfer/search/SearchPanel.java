@@ -25,9 +25,11 @@ import frost.util.model.*;
 import frost.util.model.gui.SortedModelTable;
 
 /**
- * 
+ * @author $Author$
+ * @version $Revision$
  */
 class SearchPanel extends JPanel implements SettingsUpdater {
+	
 	/**
 	 * 
 	 */
@@ -78,14 +80,14 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		 */
 		private void refreshLanguage() {
 			downloadSelectedKeysItem.setText(
-				languageResource.getString("Download selected keys"));
+					language.getString("Download selected keys"));
 			downloadAllKeysItem.setText(
-				languageResource.getString("Download all keys"));
+					language.getString("Download all keys"));
 			setGoodItem.setText(
-				languageResource.getString("help user (sets to GOOD)"));
+					language.getString("help user (sets to GOOD)"));
 			setBadItem.setText(
-				languageResource.getString("block user (sets to BAD)"));
-			cancelItem.setText(languageResource.getString("Cancel"));
+					language.getString("block user (sets to BAD)"));
+			cancelItem.setText(language.getString("Cancel"));
 		}
 	
 		/* (non-Javadoc)
@@ -346,7 +348,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	private SettingsClass settingsClass = null;
 	private String keypool = null;
 	
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 
 	private JPanel searchTopPanel = new JPanel();
 	private JCheckBox searchAllBoardsCheckBox = new JCheckBox("", true);
@@ -365,13 +367,19 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	private long searchResultsCount = 0;
 
 	/**
-	 * 
+	 * @param settingsClass
+	 * @param searchManager
 	 */
-	public SearchPanel(SettingsClass newSettingsClass, SearchManager newSearchManager) {
+	public SearchPanel(SettingsClass settingsClass, SearchManager searchManager) {
 		super();
-		settingsClass = newSettingsClass;
-		searchManager = newSearchManager;
+		this.settingsClass = settingsClass;
 		settingsClass.addUpdater(this);
+		
+		this.searchManager = searchManager;
+		
+		language = Language.getInstance();
+		language.addLanguageListener(listener);
+		
 		setAllBoardsSelected(settingsClass.getBoolValue(SettingsClass.SEARCH_ALL_BOARDS));
 	}
 
@@ -387,7 +395,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 
 			String[] searchComboBoxKeys =
 				{ "All files", "Audio", "Video", "Images", "Documents", "Executables", "Archives" };
-			searchComboBox = new JTranslatableComboBox(languageResource, searchComboBoxKeys);
+			searchComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
 
 			MiscToolkit toolkit = MiscToolkit.getInstance();
 			toolkit.configureButton(searchButton, "/data/search_rollover.gif");
@@ -413,7 +421,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			searchTopPanel.add(searchResultsCountLabel);
 
 			// create the main search panel
-			SearchTableFormat tableFormat = new SearchTableFormat(languageResource);
+			SearchTableFormat tableFormat = new SearchTableFormat();
 
 			modelTable = new SortedModelTable(model, tableFormat);
 			setLayout(new BorderLayout());
@@ -441,11 +449,11 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	 * 
 	 */
 	private void refreshLanguage() {
-		searchAllBoardsCheckBox.setText(languageResource.getString("all boards"));
-		searchButton.setToolTipText(languageResource.getString("Search"));
-		downloadButton.setToolTipText(languageResource.getString("Download selected keys"));
+		searchAllBoardsCheckBox.setText(language.getString("all boards"));
+		searchButton.setToolTipText(language.getString("Search"));
+		downloadButton.setToolTipText(language.getString("Download selected keys"));
 		
-		String results = languageResource.getString("Results");
+		String results = language.getString("Results");
 		Dimension labelSize = calculateLabelSize(results + " : 00000");
 		searchResultsCountLabel.setPreferredSize(labelSize);
 		searchResultsCountLabel.setMinimumSize(labelSize);
@@ -458,7 +466,10 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		return dummyLabel.getPreferredSize();
 	}
 
-	/**searchButton Action Listener (Search)*/
+	/**
+	 * searchButton Action Listener (Search)
+	 * @param e
+	 */
 	private void searchButton_actionPerformed(ActionEvent e) {
 		searchButton.setEnabled(false);
 		model.clear();
@@ -495,7 +506,10 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		searchThread.start();
 	}
 	
-	/**searchTextField Action Listener (search)*/
+	/**
+	 * searchTextField Action Listener (search)
+	 * @param e
+	 */
 	private void searchTextField_actionPerformed(ActionEvent e) {
 		if (searchButton.isEnabled()) {
 			searchButton_actionPerformed(e);
@@ -515,7 +529,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	 */
 	private void updateSearchResultCountLabel() {
 		searchResultsCount = model.getItemCount();
-		String results = languageResource.getString("Results");
+		String results = language.getString("Results");
 		if (searchResultsCount == 0) {
 			searchResultsCountLabel.setText(results + " : 0");
 		}
@@ -597,25 +611,14 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	public void setKeypool(String newKeypool) {
 		keypool = newKeypool;
 	}
-	
-	/**
-	 * @param bundle
-	 */
-	public void setLanguageResource(UpdatingLanguageResource newLanguageResource) {
-		if (languageResource != null) {
-			languageResource.removeLanguageListener(listener);
-		}
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(listener);
-	}
-	
+		
 	/**
 	 * @return
 	 */
 	private PopupMenuSearch getPopupMenuSearch() {
 		if (popupMenuSearch == null) {
 			popupMenuSearch = new PopupMenuSearch();
-			languageResource.addLanguageListener(popupMenuSearch);
+			language.addLanguageListener(popupMenuSearch);
 		}
 		return popupMenuSearch;
 	}

@@ -19,10 +19,8 @@ import frost.util.model.ModelItem;
 import frost.util.model.gui.*;
 
 /**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ * @author $Author$
+ * @version $Revision$
  */
 class DownloadTableFormat extends SortedTableFormat implements LanguageListener {
 
@@ -48,7 +46,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			return this;
 		}
 
-}
+	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Key"
 	 */
@@ -70,6 +69,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		}
 
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "From"
 	 */
@@ -91,6 +91,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		}
 
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Source"
 	 */
@@ -114,6 +115,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		}
 
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Tries"
 	 */
@@ -129,6 +131,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		}
 
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Blocks"
 	 */
@@ -154,6 +157,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		}
 
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "State"
 	 */
@@ -177,8 +181,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 								item2.getRequiredBlocks());
 			return state1.compareToIgnoreCase(state2);
 		}
-
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Age"
 	 */
@@ -198,8 +202,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			}
 			return age1.compareToIgnoreCase(age2);
 		}
-
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Size"
 	 */
@@ -219,8 +223,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			}	
 			return size1.compareTo(size2);
 		}
-
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Filename"
 	 */
@@ -234,8 +238,8 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
 			return item1.getFileName().compareToIgnoreCase(item2.getFileName());
 		}
-
 	}
+	
 	/**
 	 * This inner class implements the comparator for the column "Enabled"
 	 */
@@ -249,10 +253,9 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			FrostDownloadItem item2 = (FrostDownloadItem) o2;
 			return item1.getEnableDownload().equals(item2.getEnableDownload()) ? 0 : 1 ;
 		}
-
 	}
 		
-	private UpdatingLanguageResource languageResource;
+	private Language language;
 	
 	private final static int COLUMN_COUNT = 10;
 	
@@ -269,13 +272,13 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	String anonymous;
 
 	/**
-	 * @param newLanguageResource
+	 *
 	 */
-	public DownloadTableFormat(UpdatingLanguageResource newLanguageResource) {
+	public DownloadTableFormat() {
 		super(COLUMN_COUNT);
 
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(this);
+		language = Language.getInstance();
+		language.addLanguageListener(this);
 		refreshLanguage();
 
 		setComparator(new EnabledComparator(), 0);
@@ -294,28 +297,28 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	 * 
 	 */
 	private void refreshLanguage() {
-		setColumnName(0, languageResource.getString("DownloadTableFormat.Enabled"));
-		setColumnName(1, languageResource.getString("Filename"));
-		setColumnName(2, languageResource.getString("Size"));
-		setColumnName(3, languageResource.getString("Age"));
-		setColumnName(4, languageResource.getString("State"));
-		setColumnName(5, languageResource.getString("Blocks"));
-		setColumnName(6, languageResource.getString("Tries"));
-		setColumnName(7, languageResource.getString("Source"));
-		setColumnName(8, languageResource.getString("From"));
-		setColumnName(9, languageResource.getString("Key"));
+		setColumnName(0, language.getString("DownloadTableFormat.Enabled"));
+		setColumnName(1, language.getString("Filename"));
+		setColumnName(2, language.getString("Size"));
+		setColumnName(3, language.getString("Age"));
+		setColumnName(4, language.getString("State"));
+		setColumnName(5, language.getString("Blocks"));
+		setColumnName(6, language.getString("Tries"));
+		setColumnName(7, language.getString("Source"));
+		setColumnName(8, language.getString("From"));
+		setColumnName(9, language.getString("Key"));
 		
-		stateWaiting = languageResource.getString("Waiting");
-		stateTrying = languageResource.getString("Trying");
-		stateFailed = languageResource.getString("Failed");
-		stateDone = languageResource.getString("Done");
-		stateRequesting = languageResource.getString("Requesting");
-		stateRequested = languageResource.getString("Requested");
-		stateDecoding = languageResource.getString("Decoding segment") + "...";
+		stateWaiting = language.getString("Waiting");
+		stateTrying = language.getString("Trying");
+		stateFailed = language.getString("Failed");
+		stateDone = language.getString("Done");
+		stateRequesting = language.getString("Requesting");
+		stateRequested = language.getString("Requested");
+		stateDecoding = language.getString("Decoding segment") + "...";
 	
-		offline = languageResource.getString("FrostSearchItemObject.Offline");
-		unknown = languageResource.getString("Unknown");
-		anonymous = languageResource.getString("FrostSearchItemObject.Anonymous");
+		offline = language.getString("FrostSearchItemObject.Offline");
+		unknown = language.getString("Unknown");
+		anonymous = language.getString("FrostSearchItemObject.Anonymous");
 		
 		refreshColumnNames();
 	}
@@ -411,7 +414,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	}
 
 	/**
-	 * @param i
+	 * @param state
+	 * @param totalBlocks
+	 * @param doneBlocks
+	 * @param requiredBlocks
 	 * @return
 	 */
 	private String getStateAsString(int state, int totalBlocks, int doneBlocks, int requiredBlocks) {

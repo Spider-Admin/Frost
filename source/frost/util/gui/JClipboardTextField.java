@@ -13,18 +13,18 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.text.*;
 
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 public class JClipboardTextField extends JTextField 
 								 implements MouseListener, ClipboardOwner, ActionListener {
 
 	private static Logger logger = Logger.getLogger(JClipboardTextField.class.getName());
 	
-	private UpdatingLanguageResource languageResource;
+	private Language language;
 
 	private Clipboard clipboard;
 
@@ -41,40 +41,40 @@ public class JClipboardTextField extends JTextField
 	/**
 	 * @param text
 	 * @param columns
-	 * @param languageResource this language resource must contain these strings:
+	 * @param language this language must contain these strings:
 	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
-	public JClipboardTextField(String text, int columns, UpdatingLanguageResource languageResource) {
+	public JClipboardTextField(String text, int columns, Language language) {
 		super(text, columns);
-		this.languageResource = languageResource;
+		this.language = language;
 
 		addMouseListener(this);
 	}
 
 	/**
-	 * @param languageResource this language resource must contain these strings:
+	 * @param language this language must contain these strings:
 	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
-	public JClipboardTextField(UpdatingLanguageResource languageResource) {
-		this(null, 0, languageResource);
+	public JClipboardTextField(Language language) {
+		this(null, 0, language);
 	}
 
 	/**
 	 * @param columns
-	 * @param languageResource this language resource must contain these strings:
+	 * @param language this language must contain these strings:
 	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
-	public JClipboardTextField(int columns, UpdatingLanguageResource languageResource) {
-		this(null, columns, languageResource);
+	public JClipboardTextField(int columns, Language language) {
+		this(null, columns, language);
 	}
 
 	/**
 	 * @param text
-	 * @param languageResource this language resource must contain these strings:
+	 * @param languageResource this language must contain these strings:
 	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
-	public JClipboardTextField(String text, UpdatingLanguageResource languageResource) {
-		this(text, 0, languageResource);
+	public JClipboardTextField(String text, Language language) {
+		this(text, 0, language);
 	}
 
 	/**
@@ -85,10 +85,10 @@ public class JClipboardTextField extends JTextField
 
 		createPopupMenu();
 
-		cutItem.setText(languageResource.getString("Cut"));
-		copyItem.setText(languageResource.getString("Copy"));
-		pasteItem.setText(languageResource.getString("Paste"));
-		cancelItem.setText(languageResource.getString("Cancel"));
+		cutItem.setText(language.getString("Cut"));
+		copyItem.setText(language.getString("Copy"));
+		pasteItem.setText(language.getString("Paste"));
+		cancelItem.setText(language.getString("Cancel"));
 
 		if (getSelectedText() != null) {
 			cutItem.setEnabled(true);
@@ -143,8 +143,7 @@ public class JClipboardTextField extends JTextField
 		return clipboard;
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
 	 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
 	 */
@@ -163,8 +162,7 @@ public class JClipboardTextField extends JTextField
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
 	 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
 	 */
@@ -174,8 +172,7 @@ public class JClipboardTextField extends JTextField
 		}
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
 	 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
 	 */
@@ -183,8 +180,7 @@ public class JClipboardTextField extends JTextField
 		// Nothing here
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
 	 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
 	 */
@@ -192,8 +188,7 @@ public class JClipboardTextField extends JTextField
 		// Nothing here
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
 	 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard,
 	 *      java.awt.datatransfer.Transferable)
@@ -202,8 +197,7 @@ public class JClipboardTextField extends JTextField
 		// Nothing here
 	}
 
-	/*
-	 * (non-Javadoc)
+	/* (non-Javadoc)
 	 * 
 	 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 	 */

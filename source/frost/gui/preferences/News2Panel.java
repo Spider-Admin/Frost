@@ -14,11 +14,11 @@ import javax.swing.border.EmptyBorder;
 
 import frost.SettingsClass;
 import frost.util.gui.JClipboardTextField;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 class News2Panel extends JPanel {
 		
@@ -47,7 +47,7 @@ class News2Panel extends JPanel {
 	}
 	
 	private SettingsClass settings = null;
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 	
 	private JCheckBox blockBoardCheckBox = new JCheckBox();
 	private JClipboardTextField blockBoardTextField = null;
@@ -71,13 +71,12 @@ class News2Panel extends JPanel {
 	private JLabel tresholdLabel = new JLabel();
 
 	/**
-	 * @param languageResource the LanguageResource to get localized strings from
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
 	 */
-	protected News2Panel(UpdatingLanguageResource languageResource, SettingsClass settings) {
+	protected News2Panel(SettingsClass settings) {
 		super();
 		
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		this.settings = settings;
 		
 		initialize();
@@ -150,11 +149,11 @@ class News2Panel extends JPanel {
 		refreshLanguage();
 			
 		// We create the components
-		blockBoardTextField = new JClipboardTextField(languageResource);
-		blockBodyTextField = new JClipboardTextField(languageResource);
-		blockSubjectTextField = new JClipboardTextField(languageResource);
-		spamTresholdTextField =new JClipboardTextField(8, languageResource);
-		sampleIntervalTextField = new JClipboardTextField(8, languageResource);
+		blockBoardTextField = new JClipboardTextField(language);
+		blockBodyTextField = new JClipboardTextField(language);
+		blockSubjectTextField = new JClipboardTextField(language);
+		spamTresholdTextField =new JClipboardTextField(8, language);
+		sampleIntervalTextField = new JClipboardTextField(8, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -240,6 +239,9 @@ class News2Panel extends JPanel {
 		refreshSpamDetectionState();
 	}
 		
+	/**
+	 * 
+	 */
 	public void ok() {
 		saveSettings();
 	}
@@ -248,32 +250,32 @@ class News2Panel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		String hours = languageResource.getString("hours");
-		String off = languageResource.getString("Off");
+		String hours = language.getString("hours");
+		String off = language.getString("Off");
 
 		intervalLabel.setText(
-			languageResource.getString("Sample interval") + " (" + hours + ")");
-		tresholdLabel.setText(languageResource.getString("Threshold of blocked messages"));
-		signedOnlyCheckBox.setText(languageResource.getString("Hide unsigned messages"));
+				language.getString("Sample interval") + " (" + hours + ")");
+		tresholdLabel.setText(language.getString("Threshold of blocked messages"));
+		signedOnlyCheckBox.setText(language.getString("Hide unsigned messages"));
 		hideBadMessagesCheckBox.setText(
-			languageResource.getString("Hide messages flagged BAD") + " (" + off + ")");
+				language.getString("Hide messages flagged BAD") + " (" + off + ")");
 		hideCheckMessagesCheckBox.setText(
-			languageResource.getString("Hide messages flagged CHECK") + " (" + off + ")");
+				language.getString("Hide messages flagged CHECK") + " (" + off + ")");
 		hideNAMessagesCheckBox.setText(
-			languageResource.getString("Hide messages flagged N/A") + " (" + off + ")");
+				language.getString("Hide messages flagged N/A") + " (" + off + ")");
 		blockSubjectCheckBox.setText(
-			languageResource.getString(
+				language.getString(
 				"Block messages with subject containing (separate by ';' )")
 				+ ": ");
 		blockBodyCheckBox.setText(
-			languageResource.getString(
+				language.getString(
 				"Block messages with body containing (separate by ';' )")
 				+ ": ");
 		blockBoardCheckBox.setText(
-			languageResource.getString(
+				language.getString(
 				"Block messages with these attached boards (separate by ';' )")
 				+ ": ");
-		doBoardBackoffCheckBox.setText(languageResource.getString("Do spam detection"));
+		doBoardBackoffCheckBox.setText(language.getString("Do spam detection"));
 	}
 		
 	/**

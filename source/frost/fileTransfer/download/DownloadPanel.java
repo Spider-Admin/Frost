@@ -20,9 +20,11 @@ import frost.util.model.ModelItem;
 import frost.util.model.gui.SortedModelTable;
 
 /**
- * 
+ * @author $Author$
+ * @version $Revision$
  */
 public class DownloadPanel extends JPanel implements SettingsUpdater {
+	
 	/**
 	 *  
 	 */
@@ -79,30 +81,33 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			invertEnabledSelectedItem.addActionListener(this);
 		}
 
+		/**
+		 * 
+		 */
 		private void refreshLanguage() {
 			restartSelectedDownloadsItem.setText(
-				languageResource.getString("Restart selected downloads"));
+				language.getString("Restart selected downloads"));
 			removeSelectedDownloadsItem.setText(
-				languageResource.getString("Remove selected downloads"));
-			removeAllDownloadsItem.setText(languageResource.getString("Remove all downloads"));
+					language.getString("Remove selected downloads"));
+			removeAllDownloadsItem.setText(language.getString("Remove all downloads"));
 			//downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-			removeFinishedItem.setText(languageResource.getString("Remove finished downloads"));
-			enableAllDownloadsItem.setText(languageResource.getString("Enable all downloads"));
-			disableAllDownloadsItem.setText(languageResource.getString("Disable all downloads"));
+			removeFinishedItem.setText(language.getString("Remove finished downloads"));
+			enableAllDownloadsItem.setText(language.getString("Enable all downloads"));
+			disableAllDownloadsItem.setText(language.getString("Disable all downloads"));
 			enableSelectedDownloadsItem.setText(
-				languageResource.getString("Enable selected downloads"));
+					language.getString("Enable selected downloads"));
 			disableSelectedDownloadsItem.setText(
-				languageResource.getString("Disable selected downloads"));
+					language.getString("Disable selected downloads"));
 			invertEnabledAllItem.setText(
-				languageResource.getString("Invert enabled state for all downloads"));
+					language.getString("Invert enabled state for all downloads"));
 			invertEnabledSelectedItem.setText(
-				languageResource.getString("Invert enabled state for selected downloads"));
-			cancelItem.setText(languageResource.getString("Cancel"));
-			copyChkKeyToClipboardItem.setText(languageResource.getString("CHK key"));
+					language.getString("Invert enabled state for selected downloads"));
+			cancelItem.setText(language.getString("Cancel"));
+			copyChkKeyToClipboardItem.setText(language.getString("CHK key"));
 			copyChkKeyAndFilenameToClipboardItem.setText(
-				languageResource.getString("CHK key + filename"));
+					language.getString("CHK key + filename"));
 
-			copyToClipboardMenu.setText(languageResource.getString("Copy to clipboard") + "...");
+			copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
 		}
 
 		/* (non-Javadoc)
@@ -282,7 +287,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			}
 
 			JMenu enabledSubMenu =
-				new JMenu(languageResource.getString("Enable downloads") + "...");
+				new JMenu(language.getString("Enable downloads") + "...");
 			if (selectedItems.length != 0) {
 				// If at least 1 item is selected
 				enabledSubMenu.add(enableSelectedDownloadsItem);
@@ -295,7 +300,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			enabledSubMenu.add(invertEnabledAllItem);
 			add(enabledSubMenu);
 
-			JMenu removeSubMenu = new JMenu(languageResource.getString("Remove") + "...");
+			JMenu removeSubMenu = new JMenu(language.getString("Remove") + "...");
 			if (selectedItems.length != 0) {
 				// If at least 1 item is selected
 				removeSubMenu.add(removeSelectedDownloadsItem);
@@ -429,7 +434,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	private SettingsClass settingsClass = null;
 
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 
 	private JPanel downloadTopPanel = new JPanel();
 	private JButton downloadActivateButton =
@@ -447,12 +452,15 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private long downloadItemCount = 0;
 
 	/**
-	 * 
+	 * @param settingsClass
 	 */
-	public DownloadPanel(SettingsClass newSettingsClass) {
+	public DownloadPanel(SettingsClass settingsClass) {
 		super();
-		settingsClass = newSettingsClass;
+		this.settingsClass = settingsClass;
 		settingsClass.addUpdater(this);
+		
+		language = Language.getInstance();
+		language.addLanguageListener(listener);
 	}
 
 	/**
@@ -479,7 +487,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadTopPanel.add(downloadItemCountLabel);
 
 			// create the main download panel
-			DownloadTableFormat tableFormat = new DownloadTableFormat(languageResource);
+			DownloadTableFormat tableFormat = new DownloadTableFormat();
 
 			modelTable = new SortedModelTable(model, tableFormat);
 			setLayout(new BorderLayout());
@@ -505,6 +513,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 	}
 
+	/**
+	 * @param text
+	 * @return
+	 */
 	private Dimension calculateLabelSize(String text) {
 		JLabel dummyLabel = new JLabel(text);
 		dummyLabel.doLayout();
@@ -515,10 +527,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * 
 	 */
 	private void refreshLanguage() {
-		downloadActivateButton.setToolTipText(languageResource.getString("Activate downloading"));
-        downloadPauseButton.setToolTipText(languageResource.getString("Pause downloading"));
+		downloadActivateButton.setToolTipText(language.getString("Activate downloading"));
+        downloadPauseButton.setToolTipText(language.getString("Pause downloading"));
 
-		String waiting = languageResource.getString("Waiting");
+		String waiting = language.getString("Waiting");
 		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
 		downloadItemCountLabel.setPreferredSize(labelSize);
 		downloadItemCountLabel.setMinimumSize(labelSize);
@@ -530,17 +542,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 */
 	public void setModel(DownloadModel model) {
 		this.model = model;
-	}
-
-	/**
-	 * @param bundle
-	 */
-	public void setLanguageResource(UpdatingLanguageResource newLanguageResource) {
-		if (languageResource != null) {
-			languageResource.removeLanguageListener(listener);
-		}
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(listener);
 	}
 
 	/**
@@ -634,16 +635,19 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				}
 				JOptionPane.showMessageDialog(
 					this,
-					languageResource.getString("Invalid key.  Key must begin with one of")
+					language.getString("Invalid key.  Key must begin with one of")
 						+ ": "
 						+ keylist,
-					languageResource.getString("Invalid key"),
+					language.getString("Invalid key"),
 					JOptionPane.ERROR_MESSAGE);
 			}
 		}
 	}
 
-	/**Get keyTyped for downloadTable*/
+	/**
+	 * Get keyTyped for downloadTable
+	 * @param e
+	 */
 	private void downloadTable_keyPressed(KeyEvent e) {
 		char key = e.getKeyChar();
 		if (key == KeyEvent.VK_DELETE && !modelTable.getTable().isEditing()) {
@@ -677,7 +681,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		String s =
 			new StringBuffer()
-				.append(languageResource.getString("Waiting"))
+				.append(language.getString("Waiting"))
 				.append(" : ")
 				.append(downloadItemCount)
 				.toString();
@@ -690,11 +694,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private PopupMenuDownload getPopupMenuDownload() {
 		if (popupMenuDownload == null) {
 			popupMenuDownload = new PopupMenuDownload();
-			languageResource.addLanguageListener(popupMenuDownload);
+			language.addLanguageListener(popupMenuDownload);
 		}
 		return popupMenuDownload;
 	}
 
+	/**
+	 * @param e
+	 */
 	private void showDownloadTablePopupMenu(MouseEvent e) {
 		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -723,6 +730,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		setDownloadingActivated(true);
 	}
     
+    /**
+     * @param e
+     */
     private void downloadPauseButtonPressed(ActionEvent e) {
         setDownloadingActivated(false);
     }

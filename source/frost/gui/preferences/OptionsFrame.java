@@ -34,88 +34,96 @@ import javax.swing.event.*;
 
 import frost.SettingsClass;
 import frost.storage.StorageException;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
-/*******************************
+/**
  * TODO: - add thread listeners (listen to all running threads) to change the
  *         updating state (bold text in table row) on demand (from bback)
- *******************************/
-
+ * @author $Author$
+ * @version $Revision$
+ */
 public class OptionsFrame extends JDialog implements ListSelectionListener {
+	
 	/**
 	 * A simple helper class to store JPanels and their name into a JList.
 	 */
 	class ListBoxData {
 		String name;
 		JPanel panel;
+		/**
+		 * @param n
+		 * @param p
+		 */
 		public ListBoxData(String n, JPanel p) {
 			panel = p;
 			name = n;
 		}
+		/**
+		 * @return
+		 */
 		public JPanel getPanel() {
 			return panel;
 		}
+		/* (non-Javadoc)
+		 * @see java.lang.Object#toString()
+		 */
 		public String toString() {
 			return name;
 		}
 	}
 	
 	private static Logger logger = Logger.getLogger(OptionsFrame.class.getName());
-	boolean _hideBad, _hideAnon;
+	
+	private SettingsClass frostSettings;
+	private Language language;
+	
+	private boolean _hideBad, _hideAnon;
 
-	JPanel buttonPanel = null; // OK / Cancel
-	boolean checkBlock;
-	boolean checkBlockBody;
+	private JPanel buttonPanel = null; // OK / Cancel
+	private boolean checkBlock;
+	private boolean checkBlockBody;
 
 	// this vars hold some settings from start of dialog to the end.
 	// then its checked if the settings are changed by user
-	boolean checkDisableRequests;
-	boolean checkHideBadMessages;
+	private boolean checkDisableRequests;
+	private boolean checkHideBadMessages;
 	boolean checkHideCheckMessages;
-	boolean checkHideNAMessages;
-	String checkMaxMessageDisplay;
-	boolean checkSignedOnly;
+	private boolean checkHideNAMessages;
+	private String checkMaxMessageDisplay;
+	private boolean checkSignedOnly;
 
-	//    JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
-
-	JPanel contentAreaPanel = null;
+	private JPanel contentAreaPanel = null;
 	private DisplayPanel displayPanel = null;
 	private DownloadPanel downloadPanel = null;
 
 	boolean exitState;
-	SettingsClass frostSettings;
-	//------------------------------------------------------------------------
-	// Class Vars
-	//------------------------------------------------------------------------
-
-	private UpdatingLanguageResource languageResource = null;
-
-	//------------------------------------------------------------------------
-	// Generate objects
-	//------------------------------------------------------------------------
-	JPanel mainPanel = null;
+	
+	private JPanel mainPanel = null;
 	private MiscPanel miscPanel = null;
 	private NewsPanel newsPanel = null;
 	private News2Panel news2Panel = null;
 	private News3Panel news3Panel = null;
-	JList optionsGroupsList = null;
-	JPanel optionsGroupsPanel = null;
+	private JList optionsGroupsList = null;
+	private JPanel optionsGroupsPanel = null;
 	private SearchPanel searchPanel = null;
 	boolean shouldReloadMessages = false;
-	// the result of this
-	boolean shouldRemoveDummyReqFiles = false;
+
+	private boolean shouldRemoveDummyReqFiles = false;
 	
 	private UploadPanel uploadPanel = null;
 
 	/**
 	 * Constructor, reads init file and inits the gui.
+	 * @param parent
+	 * @param settings
 	 */
-	public OptionsFrame(Frame parent, SettingsClass newSettingsClass, UpdatingLanguageResource newLanguageResource) {
+	public OptionsFrame(Frame parent, SettingsClass settings) {
 		super(parent);
-		languageResource = newLanguageResource;
 		setModal(true);
-
-		frostSettings = newSettingsClass;
+		
+		language = Language.getInstance();
+		
+		frostSettings = settings;
 		setDataElements();
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -150,6 +158,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	/**
 	 * cancelButton Action Listener (Cancel)
+	 * @param e
 	 */
 	private void cancelButton_actionPerformed(ActionEvent e) {
 		cancel();
@@ -159,6 +168,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Computes the maximum width and height of the various options panels.
 	 * Returns Dimension with max. x and y that is needed.
 	 * Gets all panels from the ListModel of the option groups list.
+	 * @param m
+	 * @return
 	 */
 	protected Dimension computeMaxSize(ListModel m) {
 		if (m == null || m.getSize() == 0)
@@ -188,14 +199,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	/**
 	 * Build the button panel.
+	 * @return
 	 */
 	protected JPanel getButtonPanel() {
 		if (buttonPanel == null) {
 			buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
 			// OK / Cancel
 
-			JButton okButton = new JButton(languageResource.getString("OK"));
-			JButton cancelButton = new JButton(languageResource.getString("Cancel"));
+			JButton okButton = new JButton(language.getString("OK"));
+			JButton cancelButton = new JButton(language.getString("Cancel"));
 
 			okButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
@@ -216,66 +228,73 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	/**
 	 * Build the display panel.
+	 * @return
 	 */
 	private DisplayPanel getDisplayPanel() {
 		if (displayPanel == null) {
-			displayPanel = new DisplayPanel(this, languageResource, frostSettings);
+			displayPanel = new DisplayPanel(this, frostSettings);
 		}
 		return displayPanel;
 	}
 	
 	/**
 	 * Build the download panel.
+	 * @return
 	 */
 	private DownloadPanel getDownloadPanel() {
 		if (downloadPanel == null) {
-			downloadPanel = new DownloadPanel(this, languageResource, frostSettings);
+			downloadPanel = new DownloadPanel(this, frostSettings);
 		}
 		return downloadPanel;
 	}
 
 	/**
 	 * Build the misc. panel.
+	 * @return
 	 */
 	private MiscPanel getMiscPanel() {
 		if (miscPanel == null) {
-			miscPanel = new MiscPanel(languageResource, frostSettings);
+			miscPanel = new MiscPanel(frostSettings);
 		}
 		return miscPanel;
 	}
 	
 	/**
 	 * Build the news2 panel (spam options).
+	 * @return
 	 */
 	private News2Panel getNews2Panel() {
 		if (news2Panel == null) {
-			news2Panel = new News2Panel(languageResource, frostSettings);
+			news2Panel = new News2Panel(frostSettings);
 		}
 		return news2Panel;
 	}
 	
 	/**
 	 * Build the news3 panel (update options).
+	 * @return
 	 */
 	private News3Panel getNews3Panel() {
 		if (news3Panel == null) {
-			news3Panel = new News3Panel(languageResource, frostSettings);
+			news3Panel = new News3Panel(frostSettings);
 		}
 		return news3Panel;
 	}
 	
 	/**
 	 * Build the news panel (general options).
+	 * @return
 	 */
 	private NewsPanel getNewsPanel() {
 		if (newsPanel == null) {
-			newsPanel = new NewsPanel(languageResource, frostSettings);
+			newsPanel = new NewsPanel(frostSettings);
 		}
 		return newsPanel;
 	}
 
 	/**
 	 * Build the panel containing the list of option groups.
+	 * @return
 	 */
 	protected JPanel getOptionsGroupsPanel() {
 		if (optionsGroupsPanel == null) {
@@ -283,35 +302,35 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			Vector listData = new Vector();
 			listData.add(
 				new ListBoxData(
-					" " + languageResource.getString("Downloads") + " ",
+					" " + language.getString("Downloads") + " ",
 					getDownloadPanel()));
 			listData.add(
 				new ListBoxData(
-					" " + languageResource.getString("Uploads") + " ",
+					" " + language.getString("Uploads") + " ",
 					getUploadPanel()));
 			listData.add(
 				new ListBoxData(
-					" " + languageResource.getString("News") + " (1) ",
+					" " + language.getString("News") + " (1) ",
 					getNewsPanel()));
 			listData.add(
 				new ListBoxData(
-					" " + languageResource.getString("News") + " (2) ",
+					" " + language.getString("News") + " (2) ",
 					getNews2Panel()));
 			listData.add(
 				new ListBoxData(
-					" " + languageResource.getString("News") + " (3) ",
+					" " + language.getString("News") + " (3) ",
 					getNews3Panel()));
 			listData.add(
 				new ListBoxData(
-					" " + languageResource.getString("Search") + " ",
+					" " + language.getString("Search") + " ",
 					getSearchPanel()));
 			listData.add( 
 			    new ListBoxData( 
-                    " " + languageResource.getString("Display") + " ",
+                    " " + language.getString("Display") + " ",
                     getDisplayPanel()));
 			listData.add(
 				new ListBoxData(
-					" " + languageResource.getString("Miscellaneous") + " ",
+					" " + language.getString("Miscellaneous") + " ",
 					getMiscPanel()));
 			optionsGroupsList = new JList(listData);
 			optionsGroupsList.setSelectionMode(
@@ -338,31 +357,34 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	/**
 	 * Build the search panel
+	 * @return
 	 */
 	private SearchPanel getSearchPanel() {
 		if (searchPanel == null) {
-			searchPanel = new SearchPanel(languageResource, frostSettings);
+			searchPanel = new SearchPanel(frostSettings);
 		}
 		return searchPanel;
 	}
 	
 	/**
 	 * Build the upload panel.
+	 * @return
 	 */
 	private UploadPanel getUploadPanel() {
 		if (uploadPanel == null) {
-			uploadPanel = new UploadPanel(languageResource, frostSettings);
+			uploadPanel = new UploadPanel(frostSettings);
 		}
 		return uploadPanel;
 	}
 	/**
 	 * Build up the whole GUI.
+	 * @throws Exception
 	 */
 	private void Init() throws Exception {
 		//------------------------------------------------------------------------
 		// Configure objects
 		//------------------------------------------------------------------------
-		this.setTitle(languageResource.getString("Options"));
+		this.setTitle(language.getString("Options"));
 		// a program should always give users a chance to change the dialog size if needed
 		this.setResizable(true);
 
@@ -444,6 +466,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	/**
 	 * okButton Action Listener (OK)
+	 * @param e
 	 */
 	private void okButton_actionPerformed(ActionEvent e) {
 		ok();
@@ -451,6 +474,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	/**
 	 * When window is about to close, do same as if CANCEL was pressed.
+	 * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
 	 */
 	protected void processWindowEvent(WindowEvent e) {
 		if (e.getID() == WindowEvent.WINDOW_CLOSING) {
@@ -461,6 +485,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 	/**
 	 * Can be called to run dialog and get its answer (true=OK, false=CANCEL)
+	 * @return
 	 */
 	public boolean runDialog() {
 		exitState = false;
@@ -529,6 +554,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 *  - signedOnly, hideCheck or hideBad where changed by user
 	 *  - a block settings was changed by user
 	 * If it returns true, the messages table should be reloaded.
+	 * @return
 	 */
 	public boolean shouldReloadMessages() {
 		return shouldReloadMessages;
@@ -540,6 +566,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 *  - setting 'disableRequests' is switched from TRUE to FALSE (means uploading is enabled now)
 	 * If it returns true, the dummy request files (created after a key collision)
 	 * of all boards should be removed.
+	 * @return
 	 */
 	public boolean shouldRemoveDummyReqFiles() {
 		return shouldRemoveDummyReqFiles;
@@ -549,6 +576,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Implementing the ListSelectionListener.
 	 * Must change the content of contentAreaPanel to the selected
 	 * panel.
+	 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
 	 */
 	public void valueChanged(ListSelectionEvent e) {
 		if (e.getValueIsAdjusting())

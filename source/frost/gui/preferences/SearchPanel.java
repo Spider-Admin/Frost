@@ -12,16 +12,16 @@ import javax.swing.*;
 
 import frost.SettingsClass;
 import frost.util.gui.JClipboardTextField;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 class SearchPanel extends JPanel {
 		
 	private SettingsClass settings = null;
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 		
 	private JLabel archiveExtensionLabel = new JLabel();
 		
@@ -43,13 +43,12 @@ class SearchPanel extends JPanel {
 	private JClipboardTextField videoExtensionTextField;
 	
 	/**
-	 * @param languageResource the LanguageResource to get localized strings from
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
 	 */
-	protected SearchPanel(UpdatingLanguageResource languageResource, SettingsClass settings) {
+	protected SearchPanel(SettingsClass settings) {
 		super();
 		
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		this.settings = settings;
 		
 		initialize();
@@ -65,14 +64,14 @@ class SearchPanel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		archiveExtensionTextField = new JClipboardTextField(languageResource);
-		audioExtensionTextField = new JClipboardTextField(languageResource);
-		documentExtensionTextField = new JClipboardTextField(languageResource);
-		executableExtensionTextField = new JClipboardTextField(languageResource);
+		archiveExtensionTextField = new JClipboardTextField(language);
+		audioExtensionTextField = new JClipboardTextField(language);
+		documentExtensionTextField = new JClipboardTextField(language);
+		executableExtensionTextField = new JClipboardTextField(language);
 			
-		imageExtensionTextField = new JClipboardTextField(languageResource);
-		maxSearchResultsTextField = new JClipboardTextField(8, languageResource);
-		videoExtensionTextField = new JClipboardTextField(languageResource);
+		imageExtensionTextField = new JClipboardTextField(language);
+		maxSearchResultsTextField = new JClipboardTextField(8, language);
+		videoExtensionTextField = new JClipboardTextField(language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -164,6 +163,9 @@ class SearchPanel extends JPanel {
 		hideAnonFilesCheckBox.setSelected(settings.getBoolValue("hideAnonFiles"));
 	}
 		
+	/**
+	 * 
+	 */
 	public void ok() {
 		saveSettings();
 	}
@@ -172,16 +174,16 @@ class SearchPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		imageExtensionLabel.setText(languageResource.getString("Image Extension"));
-		videoExtensionLabel.setText(languageResource.getString("Video Extension"));
-		archiveExtensionLabel.setText(languageResource.getString("Archive Extension"));
-		documentExtensionLabel.setText(languageResource.getString("Document Extension"));
-		audioExtensionLabel.setText(languageResource.getString("Audio Extension"));
-		executableExtensionLabel.setText(languageResource.getString("Executable Extension"));
-		maxSearchResultsLabel.setText(languageResource.getString("Maximum search results"));
+		imageExtensionLabel.setText(language.getString("Image Extension"));
+		videoExtensionLabel.setText(language.getString("Video Extension"));
+		archiveExtensionLabel.setText(language.getString("Archive Extension"));
+		documentExtensionLabel.setText(language.getString("Document Extension"));
+		audioExtensionLabel.setText(language.getString("Audio Extension"));
+		executableExtensionLabel.setText(language.getString("Executable Extension"));
+		maxSearchResultsLabel.setText(language.getString("Maximum search results"));
 			
-		hideBadFilesCheckBox.setText(languageResource.getString("Hide files from people marked BAD"));
-		hideAnonFilesCheckBox.setText(languageResource.getString("Hide files from anonymous users"));
+		hideBadFilesCheckBox.setText(language.getString("Hide files from people marked BAD"));
+		hideAnonFilesCheckBox.setText(language.getString("Hide files from anonymous users"));
 	}
 		
 	/**

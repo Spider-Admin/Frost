@@ -8,35 +8,72 @@ import java.util.*;
 
 import javax.swing.event.EventListenerList;
 
-public class UpdatingLanguageResource {
+/**
+ * @pattern Singleton
+ * 
+ * @author $Author$
+ * @version $Revision$
+ */
+public class Language {
 
 	private ResourceBundle resourceBundle;
+	
+	private static boolean initialized = false;
+	
+	/**
+	 * The unique instance of this class.
+	 */
+	private static Language instance = null;
 
-	/** A list of event listeners for this component. */
+	/** 
+	 * A list of event listeners for this component. 
+	 */
 	protected EventListenerList listenerList = new EventListenerList();
 
 	/**
-	 * @param newResourceBundle
+	 * Prevent instances of this class from being created.
 	 */
-	public UpdatingLanguageResource(ResourceBundle newResourceBundle) {
+	private Language(ResourceBundle resourceBundle) {
 		super();
-		resourceBundle = newResourceBundle;
+		this.resourceBundle = resourceBundle;
+	}
+	
+	/**
+	 * Return the unique instance of this class.
+	 *
+	 * @return the unique instance of this class
+	 */
+	public static Language getInstance() {
+		return instance;
+	}
+	
+	/**
+	 * This method initializes the Language with the given ResourceBundle.
+	 * If it has already been initialized, this method does nothing.
+	 * @param bundle
+	 */
+	public static void initialize(ResourceBundle bundle) {
+		if (!initialized) {
+			initialized = true;
+			instance = new Language(bundle);
+		}
 	}
 
 	/**
+	 * If it has already been initialized, this method does nothing.
 	 * @param bundleBaseName
 	 */
-	public UpdatingLanguageResource(String bundleBaseName) {
-		this(bundleBaseName, Locale.getDefault());
+	public static void initialize(String bundleBaseName) {
+		initialize(bundleBaseName, Locale.getDefault());
 	}
 
 	/**
+	 * If it has already been initialized, this method does nothing.
 	 * @param bundleBaseName
 	 * @param locale
 	 */
-	public UpdatingLanguageResource(String bundleBaseName, Locale locale) {
-		super();
-		resourceBundle = ResourceBundle.getBundle(bundleBaseName, locale);
+	public static void initialize(String bundleBaseName, Locale locale) {
+		initialize(ResourceBundle.getBundle(bundleBaseName, locale));
 	}
 
 	/**
@@ -47,7 +84,7 @@ public class UpdatingLanguageResource {
 	}
 
 	/**
-	 * Adds an <code>LanguageListener</code> to the UpdatingLanguageResource.
+	 * Adds an <code>LanguageListener</code> to the Language.
 	 * @param listener the <code>LanguageListener</code> to be added
 	 */
 	public void addLanguageListener(LanguageListener listener) {
@@ -56,7 +93,7 @@ public class UpdatingLanguageResource {
 
 	/**
 	 * Returns an array of all the <code>LanguageListener</code>s added
-	 * to this UpdatingLanguageResource with addLanguageListener().
+	 * to this Language with addLanguageListener().
 	 *
 	 * @return all of the <code>LanguageListener</code>s added or an empty
 	 *         array if no listeners have been added
@@ -66,7 +103,7 @@ public class UpdatingLanguageResource {
 	}
 
 	/**
-	 * Removes an <code>LanguageListener</code> from the UpdatingLanguageResource.
+	 * Removes an <code>LanguageListener</code> from the Language.
 	 * @param listener the <code>LanguageListener</code> to be removed
 	 */
 	public void removeLanguageListener(LanguageListener listener) {
@@ -92,7 +129,7 @@ public class UpdatingLanguageResource {
 			if (listeners[i] == LanguageListener.class) {
 				// Lazily create the event:
 				if (e == null) {
-					e = new LanguageEvent(UpdatingLanguageResource.this);
+					e = new LanguageEvent(Language.this);
 				}
 				((LanguageListener) listeners[i + 1]).languageChanged(e);
 			}
@@ -100,10 +137,10 @@ public class UpdatingLanguageResource {
 	}
 
 	/**
-	 * @param newLanguageResource
+	 * @param resourceBundle
 	 */
-	public void setLanguageResource(ResourceBundle newResourceBundle) {
-		resourceBundle = newResourceBundle;
+	public void setLanguageResource(ResourceBundle resourceBundle) {
+		this.resourceBundle = resourceBundle;
 		fireLanguageChanged(new LanguageEvent(this));
 	}
 

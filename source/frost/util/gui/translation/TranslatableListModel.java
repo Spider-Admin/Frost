@@ -9,20 +9,23 @@ package frost.util.gui.translation;
 import javax.swing.DefaultListModel;
 
 /**
- * A translatable list model contains keys to a languageResource. It shows the localized values on screen.
+ * A translatable list model contains keys to a Language. It shows the localized values on screen.
  * Its getElementAt method returns the localized value, while the mehtod getKeyAt returns the key.
+ * 
+ * @author $Author$
+ * @version $Revision$
  */
 public class TranslatableListModel extends DefaultListModel implements LanguageListener {
 
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 
 	/**
-	 * @param newLanguageResource
+	 * @param language
 	 */
-	public TranslatableListModel(UpdatingLanguageResource newLanguageResource) {
+	public TranslatableListModel(Language language) {
 		super();
-		languageResource = newLanguageResource;
-		languageResource.addLanguageListener(this);
+		this.language = language;
+		language.addLanguageListener(this);
 	}
 
 	/* (non-Javadoc)
@@ -34,10 +37,11 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 
 	/** 
 	 * This method returns the internationalized value at a given position
+	 * @see javax.swing.ListModel#getElementAt(int)
 	 */
 	public Object getElementAt(int index) {
 		String key = super.getElementAt(index).toString();
-		return languageResource.getString(key);
+		return language.getString(key);
 	}
 
 	/**
@@ -67,7 +71,7 @@ public class TranslatableListModel extends DefaultListModel implements LanguageL
 	public int indexOf(Object elem) {
 		int position = -1;
 		for (int i = 0; (i < getSize() - 1) || (position != -1);i++) {
-			String localizedValue = languageResource.getString(getKeyAt(i));
+			String localizedValue = language.getString(getKeyAt(i));
 			if (elem.equals(localizedValue)) {
 				position = i;	
 			}

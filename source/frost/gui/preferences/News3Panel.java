@@ -12,14 +12,14 @@ import javax.swing.border.*;
 
 import frost.SettingsClass;
 import frost.util.gui.*;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author $author$
- * @version $revision$
+ * @author $Author$
+ * @version $Revision$
  */
 class News3Panel extends JPanel {
+	
 	/**
 	 * 
 	 */
@@ -43,7 +43,7 @@ class News3Panel extends JPanel {
 	}
 
 	private SettingsClass settings = null;
-	private UpdatingLanguageResource languageResource = null;
+	private Language language = null;
 
 	private JLabel autoUpdateLabel = new JLabel();
 	private JLabel minimumIntervalLabel = new JLabel();
@@ -69,13 +69,12 @@ class News3Panel extends JPanel {
 	private Color notSelectedColor = null;
 
 	/**
-	 * @param languageResource the LanguageResource to get localized strings from
 	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
 	 */
-	protected News3Panel(UpdatingLanguageResource languageResource, SettingsClass settings) {
+	protected News3Panel(SettingsClass settings) {
 		super();
 
-		this.languageResource = languageResource;
+		this.language = Language.getInstance();
 		this.settings = settings;
 
 		initialize();
@@ -179,8 +178,8 @@ class News3Panel extends JPanel {
 		refreshLanguage();
 
 		// We create the components
-		minimumIntervalTextField = new JClipboardTextField(8, languageResource);
-		concurrentUpdatesTextField = new JClipboardTextField(8, languageResource);
+		minimumIntervalTextField = new JClipboardTextField(8, language);
+		concurrentUpdatesTextField = new JClipboardTextField(8, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
@@ -228,6 +227,7 @@ class News3Panel extends JPanel {
 		
 		silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
 	}
+	
 	/**
 	 * 
 	 */
@@ -235,7 +235,7 @@ class News3Panel extends JPanel {
 		Color newCol =
 			JColorChooser.showDialog(
 				getTopLevelAncestor(),
-				languageResource.getString("Choose updating color of NON-SELECTED boards"),
+				language.getString("Choose updating color of NON-SELECTED boards"),
 				notSelectedColor);
 		if (newCol != null) {
 			notSelectedColor = newCol;
@@ -243,6 +243,9 @@ class News3Panel extends JPanel {
 		}
 	}
 	
+	/**
+	 * 
+	 */
 	public void ok() {
 		saveSettings();
 	}
@@ -251,31 +254,31 @@ class News3Panel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		String minutes = languageResource.getString("minutes");
-		String color = languageResource.getString("Color");
-		String on = languageResource.getString("On");
+		String minutes = language.getString("minutes");
+		String color = language.getString("Color");
+		String on = language.getString("On");
 
-		autoUpdateLabel.setText(languageResource.getString("Automatic update options"));
+		autoUpdateLabel.setText(language.getString("Automatic update options"));
 		minimumIntervalLabel.setText(
-			languageResource.getString("Minimum update interval of a board") + " (" + minutes + ") (45)");
+				language.getString("Minimum update interval of a board") + " (" + minutes + ") (45)");
 		concurrentUpdatesLabel.setText(
-			languageResource.getString("Number of concurrently updating boards") + " (6)");
+				language.getString("Number of concurrently updating boards") + " (6)");
 
 		showUpdateCheckBox.setText(
-			languageResource.getString("Show board update visualization") + " (" + on + ")");
+				language.getString("Show board update visualization") + " (" + on + ")");
 		selectedColorTextLabel.setText(
-		
-			languageResource.getString("Background color if updating board is selected"));
+				language.getString("Background color if updating board is selected"));
 		selectedColorLabel.setText("    " + color + "    ");
-		selectedColorButton.setText(languageResource.getString("Choose"));
+		selectedColorButton.setText(language.getString("Choose"));
 		
 		notSelectedColorTextLabel.setText(
-			languageResource.getString("Background color if updating board is not selected"));
+				language.getString("Background color if updating board is not selected"));
 		notSelectedColorLabel.setText("    " + color + "    ");
-		notSelectedColorButton.setText(languageResource.getString("Choose"));
+		notSelectedColorButton.setText(language.getString("Choose"));
 
-		silentlyRetryCheckBox.setText(languageResource.getString("Silently retry failed messages"));
+		silentlyRetryCheckBox.setText(language.getString("Silently retry failed messages"));
 	}
+	
 	/**
 	 * 
 	 */
@@ -297,6 +300,7 @@ class News3Panel extends JPanel {
 		
 		settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
 	}
+	
 	/**
 	 * 
 	 */
@@ -304,7 +308,7 @@ class News3Panel extends JPanel {
 		Color newCol =
 			JColorChooser.showDialog(
 				getTopLevelAncestor(),
-				languageResource.getString("Choose updating color of SELECTED boards"),
+				language.getString("Choose updating color of SELECTED boards"),
 				selectedColor);
 		if (newCol != null) {
 			selectedColor = newCol;

@@ -30,15 +30,16 @@ import frost.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.storage.*;
 import frost.util.gui.JDragTree;
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class TofTree extends JDragTree implements Savable {
 	
 	/**
-	 * @author Administrator
-	 *
-	 * To change the template for this generated type comment go to
-	 * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+	 * 
 	 */
 	private class CellRenderer extends DefaultTreeCellRenderer {
 
@@ -54,6 +55,9 @@ public class TofTree extends JDragTree implements Savable {
 		Font boldFont = null;
 		Font normalFont = null;
 
+		/**
+		 * 
+		 */
 		public CellRenderer() {
 			fileSeparator = System.getProperty("file.separator");
 			boardIcon = new ImageIcon(MainFrame.class.getResource("/data/board.gif"));
@@ -73,6 +77,9 @@ public class TofTree extends JDragTree implements Savable {
 
 		}
 
+		/* (non-Javadoc)
+		 * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent(javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, boolean)
+		 */
 		public Component getTreeCellRendererComponent(
 			JTree tree,
 			Object value,
@@ -169,15 +176,18 @@ public class TofTree extends JDragTree implements Savable {
 
 	}
     
-	private UpdatingLanguageResource languageResource;
+	private Language language;
 
 	private static Logger logger = Logger.getLogger(TofTree.class.getName());
 
-    public TofTree(TreeNode root, UpdatingLanguageResource newLanguageResource)
+    /**
+     * @param root
+     */
+    public TofTree(TreeNode root)
     {
         super(root);
 
-		languageResource = newLanguageResource;
+        language = Language.getInstance();
 
         putClientProperty("JTree.lineStyle", "Angled"); // I like this look
         
@@ -186,6 +196,9 @@ public class TofTree extends JDragTree implements Savable {
 		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
     }
 
+    /**
+     * 
+     */
     public void initialize()
     {
         // load nodes from disk
@@ -197,6 +210,10 @@ public class TofTree extends JDragTree implements Savable {
         }
     }
 
+    /**
+     * @param result
+     * @return
+     */
     public FrostBoardObject cutNode(FrostBoardObject result)
     {
         if( result != null )
@@ -206,6 +223,9 @@ public class TofTree extends JDragTree implements Savable {
         return result;
     }
 
+    /**
+     * @param node
+     */
     public void removeNode(DefaultMutableTreeNode node)
     {
         DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
@@ -223,6 +243,11 @@ public class TofTree extends JDragTree implements Savable {
         }
     }
 
+    /**
+     * @param clipboard
+     * @param node
+     * @return
+     */
     public boolean pasteFromClipboard(FrostBoardObject clipboard, FrostBoardObject node)
     {
         if( node == null || clipboard == null )
@@ -279,8 +304,6 @@ public class TofTree extends JDragTree implements Savable {
 
     /**
      * Loads a tree description file
-     * @param node The content of the file will be added to this node
-     * @param file This file will be read
      */
     public boolean loadTree()
     {
@@ -298,8 +321,6 @@ public class TofTree extends JDragTree implements Savable {
 
     /**
      * Save TOF tree's content to a file
-     * @param node Save this nodes content
-     * @param file The destination file
      */
     public void save() throws StorageException
     {
@@ -325,12 +346,13 @@ public class TofTree extends JDragTree implements Savable {
 
 	/**
 	 * Opens dialog, gets new name for board, checks for double names, adds node to tree
+	 * @param parent
 	 */
 	public void createNewBoard(Frame parent) {
 		boolean isDone = false;
 
 		while (!isDone) {
-			NewBoardDialog dialog = new NewBoardDialog(parent, languageResource);
+			NewBoardDialog dialog = new NewBoardDialog(parent);
 			dialog.setVisible(true);
 
 			if (dialog.getChoice() == NewBoardDialog.CHOICE_CANCEL) {
@@ -342,11 +364,11 @@ public class TofTree extends JDragTree implements Savable {
 				if (getBoardByName(boardName) != null) {
 					JOptionPane.showMessageDialog(
 						parent,
-						languageResource.getString("You already have a board with name")
+						language.getString("You already have a board with name")
 							+ " '"
 							+ boardName
 							+ "'!\n"
-							+ languageResource.getString("Please choose a new name"));
+							+ language.getString("Please choose a new name"));
 				} else {
 					FrostBoardObject newBoard = new FrostBoardObject(boardName, boardDescription);
 					addNodeToTree(newBoard);
@@ -361,22 +383,26 @@ public class TofTree extends JDragTree implements Savable {
     
 	/**
 	 * Checks if board is already existent, adds board to board tree.
+	 * @param bname
+	 * @param bpubkey
+	 * @param bprivkey
+	 * @param description
 	 */
 	private void addNewBoard(String bname, String bpubkey, String bprivkey, String description) {
 		if (getBoardByName(bname) != null) {
 			int answer =
 				JOptionPane.showConfirmDialog(
 					getTopLevelAncestor(),
-					languageResource.getString("You already have a board with name")
+					language.getString("You already have a board with name")
 						+ " '"
 						+ bname
 						+ "'!\n"
-						+ languageResource.getString("Do you really want to overwrite it?")
+						+ language.getString("Do you really want to overwrite it?")
 						+ ""
 						+ "\n("
-						+ languageResource.getString("This will not delete messages")
+						+ language.getString("This will not delete messages")
 						+ ")",
-					languageResource.getString("Warning"),
+						language.getString("Warning"),
 					JOptionPane.YES_NO_OPTION,
 					JOptionPane.WARNING_MESSAGE);
 			if (answer == JOptionPane.NO_OPTION) {
@@ -391,6 +417,7 @@ public class TofTree extends JDragTree implements Savable {
 
 	/**
 	 * Checks if board is already existent, adds board to board tree.
+	 * @param fbobj
 	 */
 	public void addNewBoard(FrostBoardObject fbobj) {
 		addNewBoard(
@@ -402,6 +429,7 @@ public class TofTree extends JDragTree implements Savable {
     
 	/**
 	 * Opens dialog, gets new name for folder, checks for double names, adds node to tree
+	 * @param parent
 	 */
 	public void createNewFolder(Frame parent) {
 		String nodeName = null;
@@ -409,12 +437,12 @@ public class TofTree extends JDragTree implements Savable {
 			Object nodeNameOb =
 				JOptionPane.showInputDialog(
 					parent,
-					languageResource.getString("Please enter a name for the new folder") + ":",
-					languageResource.getString("New Folder Name"),
+					language.getString("Please enter a name for the new folder") + ":",
+					language.getString("New Folder Name"),
 					JOptionPane.QUESTION_MESSAGE,
 					null,
 					null,
-					languageResource.getString("newfolder"));
+					language.getString("newfolder"));
 
 			nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString());
 
@@ -428,6 +456,7 @@ public class TofTree extends JDragTree implements Savable {
 
     /**
      * Adds a node to tof tree, adds only under folders, begins with selected node.
+     * @param newNode
      */
     public void addNodeToTree(FrostBoardObject newNode)
     {
@@ -455,7 +484,11 @@ public class TofTree extends JDragTree implements Savable {
         ((DefaultTreeModel)getModel()).nodesWereInserted( selectedNode, insertedIndex );
     }
 
-// More helpers...
+    /**
+     * @param pathParent
+     * @param nChildIndex
+     * @return
+     */
     private TreePath getChildPath(TreePath pathParent, int nChildIndex)
     {
         TreeModel model =  getModel();

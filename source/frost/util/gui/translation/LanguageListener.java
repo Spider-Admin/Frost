@@ -9,6 +9,10 @@ package frost.util.gui.translation;
 import java.util.EventListener;
 
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public interface LanguageListener extends EventListener {
 
 	/**

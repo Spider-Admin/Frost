@@ -12,21 +12,21 @@ import java.util.logging.Logger;
 
 import javax.swing.*;
 
-import frost.util.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.Language;
 
 /**
- * @author Administrator
- *
  * This a gui related utilities class.
+ * @author $Author$
+ * @version $Revision$
  */
 public class MiscToolkit {
 
 	private static MiscToolkit instance = new MiscToolkit();
 
 	private static Logger logger = Logger.getLogger(MiscToolkit.class.getName());
+	
 	/**
 	 * Return the unique instance of this class.
-	 *
 	 * @return the unique instance of this class
 	 */
 	public static MiscToolkit getInstance() {
@@ -84,15 +84,15 @@ public class MiscToolkit {
 	 * @param button the button to configure
 	 * @param toolTipKey language resource key to extract its tooltip text with
 	 * @param rolloverIcon displayed icon when mouse arrow is over button
-	 * @param languageResource language resource to extract the tooltip text from
+	 * @param language language to extract the tooltip text from
 	 */
 	public void configureButton(
 		JButton button,
 		String toolTipKey,
 		String rolloverIcon,
-		UpdatingLanguageResource languageResource) {
+		Language language) {
 
-		configureButton(button, toolTipKey, rolloverIcon, languageResource.getResourceBundle());
+		configureButton(button, toolTipKey, rolloverIcon, language.getResourceBundle());
 	}
 
 	/**

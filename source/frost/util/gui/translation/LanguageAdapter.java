@@ -7,6 +7,10 @@
 package frost.util.gui.translation;
 
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class LanguageAdapter implements LanguageListener {
 
 	/* (non-Javadoc)
