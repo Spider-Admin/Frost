@@ -162,9 +162,9 @@ public class MiscToolkit {
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
 		frame.setLocation(dimension.width / 2, dimension.height / 2);
 		frame.setUndecorated(true);
-		frame.show();
+		frame.setVisible(true);
 		frame.toFront();
-		optionPane.createDialog(frame, title).show();
+		optionPane.createDialog(frame, title).setVisible(true);
 		frame.dispose();
 	}
 

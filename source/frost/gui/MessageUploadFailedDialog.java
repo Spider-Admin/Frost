@@ -154,7 +154,7 @@ public class MessageUploadFailedDialog extends JDialog {
 		retryButton.requestFocus();
 		timer.start();
 		setModal(true); // paranoia
-		show();
+		setVisible(true);
 		return userAnswer;
 	}
 	

@@ -2063,13 +2063,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		pluginBrowserMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				BrowserFrame browser = new BrowserFrame(true);
-				browser.show();
+				browser.setVisible(true);
 			}
 		});
 		pluginTranslateMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				TranslateFrame translate = new TranslateFrame(true);
-				translate.show();
+				translate.setVisible(true);
 			}
 		});
 		languageDefaultMenuItem.addActionListener(new ActionListener() {
@@ -2148,7 +2148,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		helpHelpMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				HelpFrame dlg = new HelpFrame(getInstance());
-				dlg.show();
+				dlg.setVisible(true);
 			}
 		});
 		helpAboutMenuItem.addActionListener(new ActionListener() {
@@ -2407,7 +2407,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private void helpAboutMenuItem_actionPerformed(ActionEvent e) {
 		AboutBox dlg = new AboutBox(this, languageResource.getResourceBundle());
 		dlg.setModal(true);
-		dlg.show();
+		dlg.setVisible(true);
 	}
 
 	/**
