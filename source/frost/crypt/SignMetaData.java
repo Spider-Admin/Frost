@@ -7,6 +7,7 @@
 package frost.crypt;
 
 import java.io.File;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -31,6 +32,7 @@ import frost.identities.Identity;
  */
 public class SignMetaData extends MetaData {
 
+	private static Logger logger = Logger.getLogger(SignMetaData.class.getName());
 	
 	byte [] plaintext;
 	String sig;
@@ -67,7 +69,7 @@ public class SignMetaData extends MetaData {
 		try {
 			loadXMLElement(el);
 		}catch (SAXException e){
-			e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
             tmp.delete();
 			plaintext = null;
             throw e;
@@ -86,7 +88,7 @@ public class SignMetaData extends MetaData {
 		try{
 			loadXMLElement(el);
 		}catch (SAXException e){
-			e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 			plaintext = null;
             throw e;
 		}

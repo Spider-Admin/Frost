@@ -2,6 +2,7 @@ package frost.gui;
 
 import java.io.File;
 import java.util.Random;
+import java.util.logging.Logger;
 
 import javax.swing.JOptionPane;
 import javax.swing.table.TableModel;
@@ -13,6 +14,8 @@ import frost.messages.SharedFileObject;
 
 public class UploadTable extends SortedTable
 {
+	private static Logger logger = Logger.getLogger(UploadTable.class.getName());
+	
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
     public UploadTable(TableModel m)
@@ -152,7 +155,7 @@ public class UploadTable extends SortedTable
 	    			batchId=(new Long(r.nextLong())).toString(); //spam this, asshole!
 			frame1.getMyBatches().put(batchId,batchId);
 		}
-		System.out.println(batchId);
+		logger.fine(batchId);
 		newKey.setBatch(batchId);
 		ulItem.setBatch(batchId);
                 Index.addMine( newKey, ulItem.getTargetBoard() );

@@ -1,6 +1,7 @@
 package frost.ext;
 
 import java.io.*;
+import java.util.logging.*;
 
 /**
  * Catches an Input Stream from a process
@@ -8,6 +9,8 @@ import java.io.*;
  * @version 010711
  */
 class InputStreamThread extends Thread {
+    
+	private static Logger logger = Logger.getLogger(InputStreamThread.class.getName());
     
     Process p;
     Transit data;
@@ -21,12 +24,12 @@ class InputStreamThread extends Thread {
 	    int result = 0;
 
 	    while((result = dis.read()) != -1) {
-		System.out.print((char)result);
 		output.append((char)result);
 	    }
+		logger.info(output.toString());
 
 	} catch (IOException e) {
-	    System.out.println("Can't get input stream.");
+		logger.log(Level.SEVERE, "Can't get input stream.", e);
 	}
 
 	data.setString(output.toString());

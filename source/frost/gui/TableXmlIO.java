@@ -20,6 +20,7 @@ package frost.gui;
 
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 
@@ -29,6 +30,8 @@ import frost.gui.objects.*;
 
 public class TableXmlIO
 {
+	private static Logger logger = Logger.getLogger(TableXmlIO.class.getName());
+	
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
     /**************************************************
@@ -46,7 +49,7 @@ public class TableXmlIO
 
         if( doc == null )
         {
-            System.out.println("Error - loadUploadTableItems: factory could'nt create XML Document.");
+            logger.severe("Error - loadUploadTableItems: factory could'nt create XML Document.");
             return false;
         }
 
@@ -54,7 +57,7 @@ public class TableXmlIO
 
         if( rootNode.getTagName().equals("FrostUploadTable") == false )
         {
-            System.out.println("Error - uploads.xml invalid: does not contain the root tag 'FrostUploadTable'");
+			logger.severe("Error - uploads.xml invalid: does not contain the root tag 'FrostUploadTable'");
             return false;
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
@@ -76,7 +79,7 @@ public class TableXmlIO
             Element uploadItemElement = (Element)nodelist.get(x);
             appendUploadTableItemToModel( uploadItemElement, model );
         }
-System.out.println("Loaded "+nodelist.size()+" items into upload table.");
+		logger.info("Loaded " + nodelist.size() + " items into upload table.");
         return true;
     }
 
@@ -103,7 +106,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
 // batch is allowed to be null, i think
         if( filename == null || filepath == null || targetboardname == null || state == null )//|| batch==null)
         {
-            System.out.println("UploadTable: Error in XML save file, skipping entry.");
+			logger.warning("UploadTable: Error in XML save file, skipping entry.");
             return null;
         }
 
@@ -147,7 +150,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
 
         if( !uploadFile.isFile() || uploadFile.length() == 0 )
         {
-            System.out.println("UploadTable: file '"+filepath+"' was not found, removing file from table.");
+            logger.warning("UploadTable: file '" + filepath + "' was not found, removing file from table.");
             return null;
         }
 
@@ -155,7 +158,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
         FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( targetboardname );
         if( board == null )
         {
-            System.out.println("UploadTable: target board '"+targetboardname+"' for file '"+filepath+"' was not found, removing file from table.");
+            logger.warning("UploadTable: target board '" + targetboardname + "' for file '" + filepath + "' was not found, removing file from table.");
             return null;
         }
 
@@ -188,7 +191,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
 
         if( rootNode.getTagName().equals("FrostDownloadTable") == false )
         {
-            System.out.println("Error - uploads.xml invalid: does not contain the root tag 'FrostDownloadTable'");
+            logger.severe("Error - uploads.xml invalid: does not contain the root tag 'FrostDownloadTable'");
             return false;
         }
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
@@ -208,7 +211,7 @@ System.out.println("Loaded "+nodelist.size()+" items into upload table.");
             Element downloadItemElement = (Element)nodelist.get(x);
             appendDownloadTableItemToModel( downloadItemElement, model );
         }
-System.out.println("Loaded "+nodelist.size()+" items into download table.");
+		logger.info("Loaded " + nodelist.size() + " items into download table.");
         return true;
     }
 
@@ -240,7 +243,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
         if( filename == null || state == null ||
             ( key == null && SHA1 == null ) ) 
         {
-            System.out.println("DownloadTable: Error in XML save file, skipping entry.");
+            logger.warning("DownloadTable: Error in XML save file, skipping entry.");
             return null;
         }
 
@@ -285,7 +288,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
             board = frame1.getInstance().getTofTree().getBoardByName( sourceboardname );
             if( board == null )
             {
-                System.out.println("DownloadTable: source board '"+sourceboardname+"' for file '"+filename+"' was not found, removing file from table.");
+                logger.warning("DownloadTable: source board '" + sourceboardname + "' for file '" + filename + "' was not found, removing file from table.");
                 return null;
             }
         }
@@ -317,7 +320,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
         {
-            System.out.println("Error - saveUploadTableItems: factory could'nt create XML Document.");
+            logger.severe("Error - saveUploadTableItems: factory could'nt create XML Document.");
             return false;
         }
 
@@ -337,12 +340,11 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, filename);
-System.out.println("Saved "+model.getRowCount()+" items from upload table.");
+			logger.info("Saved " + model.getRowCount() + " items from upload table.");
         } catch(Throwable t)
         {
-            System.out.println("Exception - saveUploadTableItems:");
-            t.printStackTrace(System.out);
-System.out.println("ERROR saving upload table!");
+			logger.log(Level.SEVERE, "Exception - saveUploadTableItems\n" +
+									 "ERROR saving upload table!", t);
         }
         return writeOK;
     }
@@ -413,7 +415,7 @@ System.out.println("ERROR saving upload table!");
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
         {
-            System.out.println("Error - saveDownloadTableItems: factory could'nt create XML Document.");
+            logger.severe("Error - saveDownloadTableItems: factory could'nt create XML Document.");
             return false;
         }
 
@@ -433,12 +435,11 @@ System.out.println("ERROR saving upload table!");
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, filename);
-System.out.println("Saved "+model.getRowCount()+" items from download table.");
+			logger.info("Saved " + model.getRowCount() + " items from download table.");
         } catch(Throwable t)
         {
-            System.out.println("Exception - saveDownloadTableItems:");
-            t.printStackTrace(System.out);
-System.out.println("ERROR saving download table!");
+			logger.log(Level.SEVERE, "Exception - saveDownloadTableItems\n" +
+									 "ERROR saving download table!", t);
         }
 
         return writeOK;

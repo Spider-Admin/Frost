@@ -20,6 +20,7 @@
 package frost;
 import java.io.File;
 import java.util.*;
+import java.util.logging.Logger;
 
 /**
  * @author FillaMent
@@ -27,6 +28,8 @@ import java.util.*;
 public class CleanUp {
 
    private String folder;
+   
+   private static Logger logger = Logger.getLogger(CleanUp.class.getName());
 
    /**
     * @param Folder Folder for cleaning
@@ -60,7 +63,7 @@ public class CleanUp {
       String list[];
       File file = new File(dirItem);
       if (file.isDirectory() && file.listFiles().length > 0) {
-          System.out.println("\n"+file+":");
+          logger.fine(file.toString());
           Vector vd = new Vector();
           Vector vf = new Vector();
           list = file.list();
