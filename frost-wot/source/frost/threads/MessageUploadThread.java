@@ -346,7 +346,10 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         }
                     }
                     // finally delete the index lock file
-                    lockRequestIndex.delete();
+                    if( lockFileCreated == true )
+                    {
+                        lockRequestIndex.delete();
+                    }
                 }
             }
 
