@@ -20,8 +20,8 @@ public class Identity implements XMLizable
     private static ThreadLocal tmpfile;
     
     //some trust map methods
-    protected int noMessages,noFiles;
-    protected List trustees;
+    public int noMessages,noFiles;
+    protected Set trustees;
 
 	//if this was C++ LocalIdentity wouldn't work
 	//fortunately we have virtual construction so loadXMLElement will be called
@@ -110,7 +110,7 @@ public class Identity implements XMLizable
 					trusteesList = (Element) _trusteesList.get(0);
 				if (trusteesList != null) {
 					if (trustees == null)
-						trustees = new LinkedList();
+						trustees = new TreeSet();
 					List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
 					Iterator it = trusteeEntities.iterator();
 					while (it.hasNext()) {
@@ -226,7 +226,8 @@ public class Identity implements XMLizable
 	/**
 	 * @return list of identities this identity trusts
 	 */
-	public List getTrustees() {
+	public Set getTrustees() {
+		if (trustees== null ) trustees= new TreeSet();
 		return trustees;
 	}
 

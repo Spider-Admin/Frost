@@ -372,7 +372,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				if (!frame1.getCrypto().verify(unzipped,sharer.getKey())) {
 					Core.getOut().println("index file failed verification!");
 					target.delete();
-					index++;
+					index = findFreeDownloadIndex();
 					continue;
 				}
 				
@@ -391,7 +391,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				frame1.getFriends().Get(_sharer) == null)
                         	Index.add(target, board, _sharer);  //add only files from that user
 			else 
-				Index.add(target,board);  //add all files
+				Index.add(target,board,sharer);  //add all files
 			target.delete();
                     }
                     catch(Throwable t)
