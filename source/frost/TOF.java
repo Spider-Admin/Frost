@@ -351,6 +351,10 @@ public class TOF
             board.getHideCheck() &&
             (message.getStatus().indexOf("CHECK")!=-1))
             return true;
+        if( board.getShowSignedOnly() &&
+            board.getHideNA() &&
+            (message.getStatus().indexOf("N/A")!=-1))
+            return true;
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
         {

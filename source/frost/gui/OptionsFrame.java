@@ -128,6 +128,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox signedOnly = new JCheckBox(LangRes.getString("Show only signed messages"));
     JCheckBox hideBadMessages = new JCheckBox(LangRes.getString("Hide messages flagged BAD") + " " + LangRes.getString("(Off)"));
     JCheckBox hideCheckMessages = new JCheckBox(LangRes.getString("Hide messages flagged CHECK") + " " + LangRes.getString("(Off)"));
+    JCheckBox hideNAMessages = new JCheckBox("Hide messages flagged N/A (Off)");
     JCheckBox block = new JCheckBox( "Block messages with subject containing (separate by ';' ):" ); // TODO: translate
     JCheckBox blockBody = new JCheckBox( "Block messages with body containing (separate by ';' ):" );
     JCheckBox doBoardBackoff = new JCheckBox(LangRes.getString("Do spam detection") + " (experimental)");
@@ -149,6 +150,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     boolean checkSignedOnly;
     boolean checkHideBadMessages;
     boolean checkHideCheckMessages;
+    boolean checkHideNAMessages;
     boolean checkBlock;
     boolean checkBlockBody;
     // the result of this
@@ -558,6 +560,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             tof2Panel.add(hideCheckMessages,constr);
             constr.gridy++;
+            tof2Panel.add(hideNAMessages,constr);
+            constr.gridy++;
             constr.gridx = 0;
             tof2Panel.add(doBoardBackoff,constr);
             constr.gridy++;
@@ -929,6 +933,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         checkSignedOnly = frostSettings.getBoolValue("signedOnly");
         checkHideBadMessages = frostSettings.getBoolValue("hideBadMessages");
         checkHideCheckMessages = frostSettings.getBoolValue("hideCheckMessages");
+        checkHideNAMessages = frostSettings.getBoolValue("hideNAMessages");
         checkBlock = frostSettings.getBoolValue("blockMessageChecked");
         checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
 
@@ -948,6 +953,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         hideBadMessages.setSelected(frostSettings.getBoolValue("hideBadMessages"));
         hideCheckMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
         hideCheckMessages.setSelected(frostSettings.getBoolValue("hideCheckMessages"));
+        hideNAMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
+        hideNAMessages.setSelected(frostSettings.getBoolValue("hideNAMessages"));
         block.setSelected(frostSettings.getBoolValue("blockMessageChecked"));
         blockBody.setSelected(frostSettings.getBoolValue("blockMessageBodyChecked"));
         miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
@@ -1066,6 +1073,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("signedOnly", signedOnly.isSelected());
         frostSettings.setValue("hideBadMessages", hideBadMessages.isSelected());
         frostSettings.setValue("hideCheckMessages", hideCheckMessages.isSelected());
+        frostSettings.setValue("hideNAMessages", hideNAMessages.isSelected());
         frostSettings.setValue("altEdit", miscAltEditTextField.getText());
         frostSettings.setValue("doCleanUp",cleanUP.isSelected());
         frostSettings.setValue("disableRequests",uploadDisableRequests.isSelected());
@@ -1105,6 +1113,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             checkSignedOnly != frostSettings.getBoolValue("signedOnly") ||
             checkHideBadMessages != frostSettings.getBoolValue("hideBadMessages") ||
             checkHideCheckMessages != frostSettings.getBoolValue("hideCheckMessages") ||
+            checkHideNAMessages != frostSettings.getBoolValue("hideNAMessages") ||
             checkBlock != frostSettings.getBoolValue("blockMessageChecked") ||
             checkBlockBody != frostSettings.getBoolValue("blockMessageBodyChecked") )
         {

@@ -361,6 +361,7 @@ public class SettingsClass
         defaults.put("signedOnly","false");
         defaults.put("hideBadMessages","false");
         defaults.put("hideCheckMessages","false");
+        defaults.put("hideNAMessages","false");
         defaults.put("downloadDirectory", "downloads" + fs);
         defaults.put("downloadThreads", "3");
         defaults.put("downloadingActivated", "true");

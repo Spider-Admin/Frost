@@ -75,6 +75,10 @@ public class BoardSettingsFrame extends JDialog
     JRadioButton hideCheck_true = new JRadioButton("Yes");
     JRadioButton hideCheck_false = new JRadioButton("No");
 
+    JRadioButton hideNA_default = new JRadioButton("Use default");
+    JRadioButton hideNA_true = new JRadioButton("Yes");
+    JRadioButton hideNA_false = new JRadioButton("No");
+
     JRadioButton autoUpdate_true = new JRadioButton("On");
     JRadioButton autoUpdate_false = new JRadioButton("Off");
 
@@ -151,6 +155,7 @@ public class BoardSettingsFrame extends JDialog
 
         keyPanel.add(publicBoardRadioButton, constr);
         constr.gridy++;
+        constr.insets = new Insets(0, 5, 5, 5);
         keyPanel.add(secureBoardRadioButton, constr);
         constr.gridx=1;
         constr.anchor=constr.EAST;
@@ -159,7 +164,7 @@ public class BoardSettingsFrame extends JDialog
         constr.anchor=constr.WEST;
 
         constr.gridy++;
-        constr.insets = new Insets(5, 25, 5, 5);
+        constr.insets = new Insets(0, 25, 5, 5);
         keyPanel.add( new JLabel(LangRes.getString("Private key :")) , constr );
         constr.gridx = 1;
         constr.fill=constr.HORIZONTAL;
@@ -171,24 +176,31 @@ public class BoardSettingsFrame extends JDialog
         constr.gridx = 1;
         constr.fill=constr.HORIZONTAL;
         keyPanel.add( publicKeyTextField , constr );
+
         constr.fill=constr.NONE;
         constr.gridx = 0;
-
+        constr.insets = new Insets(0, 0, 0, 0);
         constr.gridy++;
         constr.gridwidth=2;
         constr.weightx=0.7;
         constr.fill=constr.HORIZONTAL;
         JPanel settings = getSettingsPanel();
+        settings.setBorder( new CompoundBorder( new EmptyBorder(new Insets(5,5,5,5)),
+                                                new CompoundBorder(new EtchedBorder(),
+                                                                   new EmptyBorder(new Insets(5,5,5,5)))
+                                               )
+                            );
         keyPanel.add(settings, constr);
 
         // OK / Cancel buttons
-        JPanel buttonPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 5) );
+        JPanel buttonPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 3) );
         buttonPanel.add(okButton);
         buttonPanel.add(cancelButton);
 
         constr.gridy++;
         constr.gridwidth=2;
         constr.fill=constr.HORIZONTAL;
+        constr.insets = new Insets(0, 0, 4, 0);
         keyPanel.add( buttonPanel, constr );
 
         this.getContentPane().add(keyPanel, BorderLayout.CENTER); // add Main panel
@@ -224,6 +236,10 @@ public class BoardSettingsFrame extends JDialog
         bg5.add(hideCheck_default);
         bg5.add(hideCheck_true);
         bg5.add(hideCheck_false);
+        ButtonGroup bg6 = new ButtonGroup();
+        bg6.add(hideNA_default);
+        bg6.add(hideNA_true);
+        bg6.add(hideNA_false);
 
         final JPanel panel = new JPanel(new GridBagLayout());
         GridBagConstraints constr = new GridBagConstraints();
@@ -236,7 +252,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridy++;
         constr.insets = new Insets(5, 25, 5, 5);
         panel.add(new JLabel("Automatic board update"), constr);
-        constr.insets = new Insets(5, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 5, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=1;
@@ -249,7 +265,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridx=0;
         constr.insets = new Insets(5, 25, 5, 5);
         panel.add(new JLabel("Maximum message display (days)"), constr);
-        constr.insets = new Insets(5, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 5, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -264,7 +280,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridx=0;
         constr.insets = new Insets(5, 25, 5, 5);
         panel.add(new JLabel("Show signed messages only"), constr);
-        constr.insets = new Insets(5, 35, 5, 5);
+        constr.insets = new Insets(0, 35, 5, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -278,8 +294,8 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(5, 25, 5, 5);
-        panel.add(new JLabel("Hide BAD messages"), constr);
-        constr.insets = new Insets(5, 35, 5, 5);
+        panel.add(new JLabel("Hide messages flagged BAD"), constr);
+        constr.insets = new Insets(0, 35, 5, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -293,8 +309,8 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(5, 25, 5, 5);
-        panel.add(new JLabel("Hide CHECK messages"), constr);
-        constr.insets = new Insets(5, 35, 5, 5);
+        panel.add(new JLabel("Hide messages flagged CHECK"), constr);
+        constr.insets = new Insets(0, 35, 5, 5);
         constr.gridwidth=1;
         constr.gridy++;
         constr.gridx=0;
@@ -303,8 +319,23 @@ public class BoardSettingsFrame extends JDialog
         panel.add(hideCheck_true, constr);
         constr.gridx=2;
         panel.add(hideCheck_false, constr);
-        // filler (glue)
         constr.gridy++;
+
+        constr.gridwidth=3;
+        constr.gridx=0;
+        constr.insets = new Insets(5, 25, 5, 5);
+        panel.add(new JLabel("Hide messages flagged N/A"), constr);
+        constr.insets = new Insets(0, 35, 5, 5);
+        constr.gridwidth=1;
+        constr.gridy++;
+        constr.gridx=0;
+        panel.add(hideNA_default, constr);
+        constr.gridx=1;
+        panel.add(hideNA_true, constr);
+        constr.gridx=2;
+        panel.add(hideNA_false, constr);
+
+        // filler (glue)
         constr.gridx = 3;
         constr.gridwidth = 1;
         constr.weightx = 0.7;
@@ -435,6 +466,11 @@ public class BoardSettingsFrame extends JDialog
                 board.setHideCheck( new Boolean( hideCheck_true.isSelected() ) );
             else
                 board.setHideCheck( null );
+
+            if( hideNA_default.isSelected() == false )
+                board.setHideNA( new Boolean( hideNA_true.isSelected() ) );
+            else
+                board.setHideNA( null );
         }
         else
         {
@@ -528,6 +564,13 @@ public class BoardSettingsFrame extends JDialog
             hideCheck_true.setSelected(true);
         else
             hideCheck_false.setSelected(true);
+
+        if( !board.isConfigured() || board.getHideNAObj() == null )
+            hideNA_default.setSelected(true);
+        else if(board.getHideNA())
+            hideNA_true.setSelected(true);
+        else
+            hideNA_false.setSelected(true);
     }
 
     private void setPanelEnabled(JPanel panel, boolean enabled)

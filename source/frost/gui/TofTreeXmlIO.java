@@ -180,6 +180,12 @@ public class TofTreeXmlIO
             board.setHideCheck( null );
         else
             board.setHideCheck( new Boolean(val) );
+
+        val = element.getAttribute("hideNAMessages");
+        if( val.length() == 0 )
+            board.setHideNA( null );
+        else
+            board.setHideNA( new Boolean(val) );
     }
 
     protected void refreshModel(DefaultTreeModel model, FrostBoardObject node)
@@ -371,6 +377,10 @@ public class TofTreeXmlIO
             if( board.getHideCheckObj() != null )
             {
                 element.setAttribute("hideCheckMessages", ""+board.getHideCheck());
+            }
+            if( board.getHideNAObj() != null )
+            {
+                element.setAttribute("hideNAMessages", ""+board.getHideNA());
             }
             rootBoardElement.appendChild( element );
         }
