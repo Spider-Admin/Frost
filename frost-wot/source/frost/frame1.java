@@ -74,8 +74,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     public static FrostMessageObject selectedMessage = new FrostMessageObject();
     public static boolean generateCHK = false;
 
-    private Hashtable boardsThatContainNewMessages = new Hashtable();
-
     public static volatile Object threadCountLock = new Object();
 
     //the identity stuff.  This really shouldn't be here but where else?
@@ -1558,6 +1556,13 @@ public class frame1 extends JFrame implements ClipboardOwner
         System.out.println("Starting update (MSG_BACKLOAD) of " + board.toString());
     }
 
+    public void updateTofTree(FrostBoardObject board)
+    {
+        // fire update for node
+        DefaultTreeModel model = (DefaultTreeModel)getTofTree().getModel();
+        model.nodeChanged( board );
+    }
+
     public void updateTofTree()
     {
         stopTofTreeUpdate = true;
@@ -1886,7 +1891,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**valueChanged messageTable (messageTableListModel / TOF)*/
     public void messageTableListModel_valueChanged(ListSelectionEvent e)
     {
-        selectedMessage = TOF.evalSelection(e, messageTable);
+        FrostBoardObject selectedBoard = getActualNode();
+        selectedMessage = TOF.evalSelection(e, messageTable, selectedBoard);
         if( selectedMessage != null )
         {
             displayNewMessageIcon(false);
@@ -2134,15 +2140,15 @@ public class frame1 extends JFrame implements ClipboardOwner
 
                  .append(LangRes.getString("   TOFUP: "))
                  .append(getRunningBoardUpdateThreads().getUploadingBoardCount() )
-                 .append("b / ")
+                 .append("B / ")
                  .append(getRunningBoardUpdateThreads().getRunningUploadThreadCount() )
-                 .append("t")
+                 .append("T")
 
                  .append(LangRes.getString("   TOFDO: "))
                  .append(getRunningBoardUpdateThreads().getUpdatingBoardCount() )
-                 .append("b / ")
+                 .append("B / ")
                  .append( getRunningBoardUpdateThreads().getRunningDownloadThreadCount() )
-                 .append("t")
+                 .append("T")
 
                  .append(LangRes.getString("   Selected board: ")).append(getActualNode().toString())
                  .toString();
@@ -2762,42 +2768,22 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         }
     }
-//    }
 
     public void lostOwnership(Clipboard clipboard, Transferable contents) {
     //System.out.println("Clipboard contents replaced");
     }
 
-    public void updateMessageCountLabels()
-    {
-        updateMessageCountLabels(false, null);
-    }
-
     // methods that update the Msg and New counts for tof table
-    public void updateMessageCountLabels(boolean updateNewBoardsList, FrostBoardObject board)
+    // expects that the boards messages are shown in table
+    public void updateMessageCountLabels(FrostBoardObject board)
     {
         DefaultTableModel model = (DefaultTableModel)messageTable.getModel();
 
         int allMessages = model.getRowCount();
         allMessagesCountLabel.setText(allMessagesCountPrefix + allMessages);
 
-        int newMessages=0;
-        for(int x=0; x<allMessages; x++)
-        {
-            String sender = (String)model.getValueAt(x, 1);
-            if( sender.startsWith("<html><b>") )
-            {
-                newMessages++;
-            }
-        }
+        int newMessages=board.getNewMessageCount();
         newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
-        if( updateNewBoardsList == true )
-        {
-            if( newMessages == 0 )
-                getBoardsThatContainNewMsg().remove(board.toString());
-            else if( newMessages > 0 )
-                getBoardsThatContainNewMsg().put(board.toString(),board);
-        }
     }
 
     public void updateSearchResultCountLabel()
@@ -2809,11 +2795,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             searchResultsCountLabel.setText(searchResultsCountPrefix + "0");
         }
         searchResultsCountLabel.setText(searchResultsCountPrefix + searchResults);
-    }
-
-    public Hashtable getBoardsThatContainNewMsg()
-    {
-        return boardsThatContainNewMessages;
     }
 
     private void trustButton_actionPerformed(ActionEvent e)
@@ -2887,8 +2868,9 @@ public class frame1 extends JFrame implements ClipboardOwner
                 VerifyableMessageObject mo = new VerifyableMessageObject((File)entries.elementAt(i));
                 if( mo.isValid() )
                 {
+// TODO: find board in tree, if existing -> pass FrostBoardObject
                     getRunningBoardUpdateThreads().startMessageUpload(
-                        new FrostBoardObject(mo.getBoard()), // TODO: pass FrostBoardObject
+                        new FrostBoardObject(mo.getBoard()),
                         mo.getFrom(),
                         mo.getSubject(),
                         mo.getContent(),
