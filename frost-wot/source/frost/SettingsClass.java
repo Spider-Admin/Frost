@@ -437,6 +437,8 @@ public class SettingsClass {
 		defaults.put("messageListFontName", "SansSerif");
 		defaults.put("messageListFontStyle", new Integer(Font.PLAIN).toString());
 		defaults.put("messageListFontSize", "11");
+		
+		defaults.put("messageBodyAA", "false");
 
 		settingsHash.putAll(defaults);
 	}
