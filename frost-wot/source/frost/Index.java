@@ -191,6 +191,9 @@ public class Index
             File file = new File(frame1.keypool + board + "_upload.txt");
             FileAccess.writeFile(keyFile.toString(), file);
         }
+	
+	//clear the new uploads
+	boardNewUploads.delete();
 
         return keyCount;
 	
