@@ -2,7 +2,7 @@ package org.bouncycastle.crypto.params;
 
 import java.math.BigInteger;
 
-public class RSAPrivateCrtKeyParameters
+public final class RSAPrivateCrtKeyParameters
     extends RSAKeyParameters
 {
     private BigInteger  e;

@@ -168,6 +168,7 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
 
  public synchronized String digest(String message) {
         SHA1Digest stomach = new SHA1Digest();
+	stomach.reset();
         byte[] food = message.getBytes();
         stomach.update(food, 0, food.length);
         byte[] poop = new byte[64];

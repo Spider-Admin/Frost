@@ -8,7 +8,7 @@ import org.bouncycastle.crypto.params.*;
 /**
  * this does your basic RSA algorithm.
  */
-public class RSAEngine
+public final class RSAEngine
     implements AsymmetricBlockCipher
 {
     private RSAKeyParameters        key;

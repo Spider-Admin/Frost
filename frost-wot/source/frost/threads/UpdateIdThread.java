@@ -223,6 +223,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				//we have the person
 				if (sharer==null) { //we don't have it, use the provided key
 					int key_index = unzipped.indexOf("pubkey =");
+					
+					if (key_index == -1) {
+						System.out.println("file didn't contain public key!");
+						target.delete();
+						index++;
+						continue;
+					}
+					
 					key_index = unzipped.indexOf("\"",key_index)+1;
 					
 					//get the key
@@ -231,8 +239,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							
 					//check if the digest matches
 					String given_digest = _sharer.substring(_sharer.indexOf("@")+1,_sharer.length());
-					if (given_digest.trim().compareTo(frame1.getCrypto().digest(pubKey).trim()) != 0) {
+					if (given_digest.trim().compareTo(frame1.getCrypto().digest(pubKey.trim()).trim()) != 0) {
 						System.out.println("pubkey in index file didn't match digest");
+						System.out.println("given digest "+ given_digest.trim());
+						System.out.println("pubkey " +pubKey.trim());
+						System.out.println("calculated digest "+frame1.getCrypto().digest(pubKey).trim());
+						target.delete();
+						index++;
 						continue;
 					}
 					
@@ -245,6 +258,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				//verify the archive
 				if (!frame1.getCrypto().verify(unzipped,sharer.getKey())) {
 					System.out.println("index file failed verification!");
+					target.delete();
+					index++;
 					continue;
 				}
 				

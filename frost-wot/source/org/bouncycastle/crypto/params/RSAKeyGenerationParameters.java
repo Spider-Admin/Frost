@@ -5,7 +5,7 @@ import java.security.SecureRandom;
 
 import org.bouncycastle.crypto.KeyGenerationParameters;
 
-public class RSAKeyGenerationParameters
+public final class RSAKeyGenerationParameters
     extends KeyGenerationParameters
 {
 	private BigInteger publicExponent;

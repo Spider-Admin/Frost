@@ -19,12 +19,12 @@ public class RSAKeyParameters
         this.exponent = exponent;
     }   
 
-    public BigInteger getModulus()
+    public final BigInteger getModulus()
     {
         return modulus;
     }
 
-    public BigInteger getExponent()
+    public final BigInteger getExponent()
     {
         return exponent;
     }
