@@ -132,7 +132,7 @@ public class UploadTable extends SortedTable
 	Random r = new Random();
 	String date = DateFun.getDate();
 	String batchId=(new Long(r.nextLong())).toString();
-	int maxBatchSize = 100; //TODO: take this from settings
+	int maxBatchSize = frame1.frostSettings.getIntValue("uploadBatchSize"); 
 	
 	
         UploadTableModel tableModel = (UploadTableModel)getModel();

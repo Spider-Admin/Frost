@@ -135,12 +135,18 @@ public class LangRes extends ListResourceBundle {
     {"Remove finished downloads every 5 minutes.", "Remove finished downloads every 5 minutes."},
 
     {"Upload HTL:", "Upload HTL:"},
+    {"up htl explanation","( bigger is slower but more reliable )"},
     {"Sign shared files", "Sign shared files"},
     {"Hide files from people marked BAD","Hide files from people marked BAD"},
     {"Hide files from anonymous users","Hide files from anonymous users"},
+    {"Upload batch size","Upload batch size"},
+    {"Index file redundancy","Index file redundancy"},
+    {"batch explanation", "( bigger is faster but smaller is spam resistant )"},
+    {"redundancy explanation", "not working yet"},
     {"Help spread files from people marked GOOD","Help spread files from people marked GOOD"},
     {"Number of simultaneous uploads:", "Number of simultaneous uploads:"},
     {"Number of splitfile threads:", "Number of splitfile threads:"},
+    {"splitfile explanation","( bigger is faster but uses more cpu )"},
 
     {"Message upload HTL:", "Message upload HTL:"},
     {"Message download HTL:", "Message download HTL:"},

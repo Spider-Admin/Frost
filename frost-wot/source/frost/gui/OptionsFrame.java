@@ -74,6 +74,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField uploadHtlTextField = new JTextField(5);
     JTextField uploadThreadsTextField = new JTextField(5);
     JTextField uploadSplitfileThreadsTextField = new JTextField(5);
+    JTextField uploadBatchSizeTextField = new JTextField(4);
+    JTextField indexFileRedundancyTextField = new JTextField(1);
     JTextField tofUploadHtlTextField = new JTextField(5);
     JTextField tofDownloadHtlTextField = new JTextField(5);
     JTextField tofDisplayDaysTextField = new JTextField(5);
@@ -405,7 +407,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
             constr.gridy++;
             constr.gridx = 0;
-            downloadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + " (3)"), constr);
+            downloadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + " (30)"), constr);
             constr.gridx = 1;
             downloadPanel.add(downloadSplitfileThreadsTextField, constr);
 
@@ -450,13 +452,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx=0;
 	    uploadPanel.add(signUploads,constr);
-	    constr.gridx=1;
+	    constr.gridx=2;
 	    uploadPanel.add(helpFriends,constr);
 	    constr.gridy++;
 	    constr.gridx=0;
             uploadPanel.add(new JLabel(LangRes.getString("Upload HTL:") + " (8)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadHtlTextField, constr);
+	    constr.gridx++;
+	    uploadPanel.add(new JLabel(LangRes.getString("up htl explanation")),constr);
             constr.gridy++;
             constr.gridx = 0;
             uploadPanel.add(new JLabel(LangRes.getString("Number of simultaneous uploads:") + " (3)"),constr);
@@ -464,10 +468,28 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             uploadPanel.add(uploadThreadsTextField, constr);
             constr.gridy++;
             constr.gridx = 0;
+	    
             constr.insets = new Insets(5,5,5,5);
-            uploadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + " (3)"),constr);
+            uploadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + " (15)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadSplitfileThreadsTextField, constr);
+	    constr.gridx++;
+	    uploadPanel.add(new JLabel(LangRes.getString("splitfile explanation")),constr);
+	    constr.gridy++;
+	    constr.gridx = 0;
+	    uploadPanel.add(new JLabel(LangRes.getString("Upload batch size")),constr);
+	    constr.gridx++;
+	    uploadPanel.add(uploadBatchSizeTextField,constr);
+	    constr.gridx++;
+	    uploadPanel.add(new JLabel(LangRes.getString("batch explanation")),constr);
+	    constr.gridy++;
+	    constr.gridx=0;
+	    uploadPanel.add(new JLabel(LangRes.getString("Index file redundancy")),constr);
+	    constr.gridx++;
+	    uploadPanel.add(indexFileRedundancyTextField,constr);
+	    constr.gridx++;
+	    uploadPanel.add(new JLabel(LangRes.getString("redundancy explanation")),constr);
+	    
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -1002,6 +1024,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         downloadThreadsTextField.setText(frostSettings.getValue("downloadThreads"));
         uploadHtlTextField.setText(frostSettings.getValue("htlUpload"));
         uploadThreadsTextField.setText(frostSettings.getValue("uploadThreads"));
+	uploadBatchSizeTextField.setText(frostSettings.getValue("uploadBatchSize"));
+	indexFileRedundancyTextField.setText(frostSettings.getValue("indexFileRedundancy"));
         tofUploadHtlTextField.setText(frostSettings.getValue("tofUploadHtl"));
         tofDownloadHtlTextField.setText(frostSettings.getValue("tofDownloadHtl"));
         tofDisplayDaysTextField.setText(frostSettings.getValue("maxMessageDisplay"));
@@ -1080,6 +1104,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 //        frostSettings.setValue("htlMax",  downloadMaxHtlTextField.getText());
         frostSettings.setValue("htlUpload",  uploadHtlTextField.getText());
         frostSettings.setValue("uploadThreads",  uploadThreadsTextField.getText());
+	frostSettings.setValue("uploadBatchSize", uploadBatchSizeTextField.getText());
+	frostSettings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
         frostSettings.setValue("downloadThreads",  downloadThreadsTextField.getText());
         frostSettings.setValue("tofUploadHtl",  tofUploadHtlTextField.getText());
         frostSettings.setValue("tofDownloadHtl",  tofDownloadHtlTextField.getText());
