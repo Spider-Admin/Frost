@@ -1,7 +1,7 @@
 package frost.gui.objects;
 
 import frost.gui.model.TableMember;
-
+import frost.Core;
 import java.util.Observable;
 
 public class FrostDownloadItemObject extends Observable implements FrostDownloadItem, TableMember
