@@ -21,20 +21,20 @@ public interface ModelTableFormat {
 	/**
 	 * @return
 	 */
-	public int getFieldCount();
+	public int getColumnCount();
 
 	/**
 	 * @param column
 	 * @return
 	 */
-	public String getFieldName(int column);
+	public String getColumnName(int column);
 
 	/**
 	 * @param item
 	 * @param columnIndex
 	 * @return
 	 */
-	public Object getFieldValue(ModelItem item, int columnIndex);
+	public Object getCellValue(ModelItem item, int columnIndex);
 	
 	/**
 	 * @param table
@@ -42,7 +42,10 @@ public interface ModelTableFormat {
 	public void customizeTable(JTable table);
 	
 	/**
-	 * @param table
+	 * This method returns the number of the column that reflects
+	 * the information of the field passed as a parameter
+	 * 
+	 * @param fieldID the ID of the field
 	 */
 	public int getColumnNumber(int fieldID);
 }
