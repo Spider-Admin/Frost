@@ -31,7 +31,6 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.tree.*;
 
-import frost.FcpTools.*;
 import frost.components.BrowserFrame;
 import frost.crypt.*;
 import frost.ext.Execute;
@@ -51,19 +50,39 @@ import frost.threads.*;
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
+	   
+	    
+	    /**Save settings*/
+	    public void saveSettings()
+	    {
+	        frostSettings.setValue("downloadingActivated", downloadActivateCheckBox.isSelected());
+	        //      frostSettings.setValue("uploadingActivated", uploadActivateCheckBox.isSelected());
+	        frostSettings.setValue("searchAllBoards", searchAllBoardsCheckBox.isSelected());
+	        //      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
+	        frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
+	
+	        // save size and location of window
+	        Dimension actSize = getSize();
+	//        Point actPos = this.getLocationOnScreen();
+	        frostSettings.setValue("lastFrameHeight", ""+(int)actSize.getHeight() );
+	        frostSettings.setValue("lastFrameWidth", ""+(int)actSize.getWidth() );
+	//        frostSettings.setValue("lastFrameLocX", ""+(int)actPos.getX() );
+	//        frostSettings.setValue("lastFrameLocY", ""+(int)actPos.getY() );
+	
+	        frostSettings.writeSettingsFile();
+	        getTofTree().saveTree();
+	        getDownloadTable().save();
+	        getUploadTable().save();
+	    }
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
     private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
+	public static Core core;
     FrostBoardObject clipboard = null;
     long counter = 55;
 
     private static frame1 instance = null; // set in constructor
-    boolean started = false;
-
-    private boolean freenetIsOnline = false;
-    private boolean freenetIsTransient = false;
-
     public static String fileSeparator = System.getProperty("file.separator");
     // "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
     // this is the new way to access this value :)
@@ -81,23 +100,9 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     //the identity stuff.  This really shouldn't be here but where else?
     public static ObjectInputStream id_reader;
-    public ObjectOutputStream id_writer;
-    public static LocalIdentity mySelf;
-    public static BuddyList friends,enemies;
-    public static Hashtable goodIds,badIds,myBatches;
-    public static crypt crypto;
-
     // saved to frost.ini
     public static SettingsClass frostSettings = null;
     public static AltEdit altEdit;
-
-    javax.swing.Timer timer; // Uploads / Downloads
-    java.util.Timer timer2;
-
-    //a shutdown hook
-    public Thread saver;
-    
-    private static CleanUp fileCleaner = new CleanUp("keypool",false);
 
     //------------------------------------------------------------------------
     // Generate objects
@@ -207,18 +212,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     JMenuItem msgTablePopupMarkMessageUnread = null;
 
-    //------------------------------------------------------------------------
-    // end-of: Generate objects
-    //------------------------------------------------------------------------
-
-    // returns the current id,crypt, etc.
-    public static LocalIdentity getMyId() {return mySelf;}
-    public static BuddyList getFriends() {return friends;}
-    public static Hashtable getGoodIds() {return goodIds;}
-    public static Hashtable getMyBatches() {return myBatches;}
-    public static Hashtable getBadIds() {return badIds;}
-    public static crypt getCrypto() {return crypto;}
-    public static BuddyList getEnemies() {return enemies;}
+    public static Hashtable getMyBatches() {return Core.getMyBatches();}
     //------------------------------------------------------------------------
 
     /*************************
@@ -241,12 +235,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     public static boolean isGeneratingCHK() { return isGeneratingCHK; }
     public static void setGeneratingCHK( boolean val ) { isGeneratingCHK = val; }
-
-    public boolean isFreenetOnline() { return freenetIsOnline; }
-    public void setFreenetIsOnline( boolean val ) { freenetIsOnline = val; }
-
-    public boolean isFreenetTransient() { return freenetIsTransient; }
-    public void setFreenetIsTransient( boolean val ) { freenetIsTransient = val; }
 
     public FrostBoardObject getSelectedNode()
     {
@@ -271,118 +259,15 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
+			core = new Core();
             jbInit();
-
-            saver = new Thread() {
-                public void run() {
-                    System.out.println("saving identities");
-                    File identities = new File("identities");
-                    if( identities.exists() )
-                    {
-                        String bakFilename = "identities.bak";
-                        File bakFile = new File(bakFilename);
-                        bakFile.delete();
-                        identities.renameTo(bakFile);
-                        identities = new File("identities");
-                    }
-
-                    try
-                    { //TODO: replace this with a call to XML serializer
-                        FileWriter fout = new FileWriter(identities);
-                        fout.write(mySelf.getName() + "\n");
-                        fout.write(mySelf.getKeyAddress() + "\n");
-                        fout.write(mySelf.getKey() + "\n");
-                        fout.write(mySelf.getPrivKey() + "\n");
-
-                        //now do the friends
-                        fout.write("*****************\n");
-                        Iterator i = friends.values().iterator();
-                        while( i.hasNext() )
-                        {
-                            Identity cur = (Identity)i.next();
-                            fout.write(cur.getName() + "\n");
-                            fout.write(cur.getKeyAddress() + "\n");
-                            fout.write(cur.getKey() + "\n");
-                        }
-                        fout.write("*****************\n");
-			i = goodIds.values().iterator();
-			while (i.hasNext()) {
-				fout.write((String)i.next() + "\n");
-			}
-			fout.write("*****************\n");
-                        i = enemies.values().iterator();
-                        while( i.hasNext() )
-                        {
-                            Identity cur = (Identity)i.next();
-                            fout.write(cur.getName() + "\n");
-                            fout.write(cur.getKeyAddress() + "\n");
-                            fout.write(cur.getKey() + "\n");
-                        }
-                        fout.write("*****************\n");
-			i = badIds.values().iterator();
-			while (i.hasNext()) {
-				fout.write((String)i.next() + "\n");
-			}
-			fout.write("*****************\n");
-                        fout.close();
-                        System.out.println("identities saved successfully.");
-
-                    }
-                    catch( IOException e )
-                    {
-                        System.out.println("ERROR: couldn't save identities:");
-                        e.printStackTrace(System.out);
-                    }
-		    try {
-		    	StringBuffer buf = new StringBuffer();
-			Iterator i = myBatches.keySet().iterator();
-			while (i.hasNext()) 
-				buf.append((String)i.next()).append("_");
-			if (buf.length() > 0)
-				buf.deleteCharAt(buf.length()-1); //remove the _ at the end
-			File batches = new File("batches");
-			FileAccess.writeFile(buf.toString(),batches);
-			
-		    } catch (Throwable t) {
-		    	t.printStackTrace(System.out);
-		    }
-                    saveOnExit();
-                    FileAccess.cleanKeypool(keypool);
-                }
-                };
-            Runtime.getRuntime().addShutdownHook(saver);
-
-            TimerTask cleaner = new TimerTask() {
-                int i = 0;
-                public void run() {
-                    // maybe each 6 hours cleanup files (12 * 30 minutes)
-                    if( i==12 && frostSettings.getBoolValue("doCleanUp") )
-                    {
-                        i=0;
-                        System.out.println("discarding old files");
-                        fileCleaner.doCleanup();
-                    }
-                    System.out.println("freeing memory");
-                    System.gc();
-                    i++;
-                }
-            };
-            timer2.schedule(cleaner,30*60*1000,30*60*1000); // all 30 minutes
-
-            TimerTask autoSaver = new TimerTask() {
-                public void run()
-                {
-                    getTofTree().saveTree();
-                    getDownloadTable().save();
-                    getUploadTable().save();
-                }
-            };
-            int autoSaveIntervalMinutes = frostSettings.getIntValue("autoSaveInterval");
-            timer2.schedule(autoSaver,
-                            autoSaveIntervalMinutes*60*1000,
-                            autoSaveIntervalMinutes*60*1000);
+            core.init();
+            
+	
+            
+                }catch (Throwable t) {
+                	t.printStackTrace(System.out);
         }
-        catch( Exception e ) { e.printStackTrace(System.out); }
     }
 
     /**
@@ -899,7 +784,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 //**********************************************************************************************
     /**Component initialization*/
     private void jbInit() throws Exception  {
-
     setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
     this.setResizable(true);
 
@@ -940,13 +824,9 @@ public class frame1 extends JFrame implements ClipboardOwner
 //**********************************************************************************************
 //**********************************************************************************************
 
-    timer = new javax.swing.Timer(1000, new ActionListener() {
-        public void actionPerformed(ActionEvent evt) {
-            timer_actionPerformed();
-    } });
+    
 
-    timer2 = new java.util.Timer(true);
-    timer2.schedule(new checkForSpam(), 0, frostSettings.getIntValue("sampleInterval")*60*60*1000);
+    
 
     //------------------------------------------------------------------------
 
@@ -960,59 +840,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     notTrustButton.setEnabled(false);
     checkTrustButton.setEnabled(false);
 
-    // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
-    Startup.startupCheck();
-
-    FileAccess.cleanKeypool(keypool);
-
-    // Display the tray icon
-    try {
-        Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTray.exe");
-    }catch(IOException _IoExc) { }
-
-    //check whether the user is running a transient node
-    setFreenetIsTransient(false);
-    setFreenetIsOnline(false);
-
-    FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
-    if( con1 != null )
-    {
-        String[] nodeInfo = con1.getInfo();
-        // freenet is online
-        setFreenetIsOnline(true);
-        for (int ij=0;ij<nodeInfo.length;ij++)
-        {
-            if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
-            {
-                setFreenetIsTransient(true);
-            }
-        }
-    }
-    else
-    {
-        JOptionPane.showMessageDialog(this,
-        "Make sure your node is running and that you have configured frost correctly.\n"+
-        "Nevertheless, to allow you to read messages, Frost will startup now.\n"+
-        "Don't get confused by some error messages ;)\n",
-	"Error - could not establish a connection to freenet node.",
-	JOptionPane.WARNING_MESSAGE);
-        setFreenetIsOnline(false);
-    }
-
-    if( isFreenetTransient() )
-    {
-        JOptionPane.showMessageDialog(this,
-                        "      You are running a TRANSIENT node.  "+
-                        "Better run a PERMANENT freenet node.",
-                        "Transient node detected",
-                        JOptionPane.WARNING_MESSAGE);
-    }
-
-    //create a crypt object
-    crypto = new FrostCrypt();
-
-    //load the identities
-    loadIdentities();
 
     //on with other stuff
 
@@ -1022,7 +849,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     // if a new message is in a folder, this folder is show yellow in tree
     TOF.initialSearchNewMessages();
 
-    if( isFreenetOnline() )
+    if( core.isFreenetOnline() )
     {
         downloadActivateCheckBox.setSelected(frostSettings.getBoolValue("downloadingActivated"));
         tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
@@ -1068,224 +895,9 @@ public class frame1 extends JFrame implements ClipboardOwner
 //        this.setLocation( lastX, lastY );
     }
 
-    // a class that reinserts the pubkey each hour
-    TimerTask KeyReinserter = new TimerTask() {
-        public void run() {
-            if( isFreenetOnline() == false )
-                return;
-            File tempUploadfile = null;
-            try {
-                tempUploadfile = File.createTempFile("pubkey_", null, new File(frame1.frostSettings.getValue("temp.dir")) );
-            }
-            catch(Exception ex)
-            {
-                tempUploadfile = new File(frame1.frostSettings.getValue("temp.dir") + "pubkey_"+System.currentTimeMillis()+".tmp");
-            }
-            FileAccess.writeFile(mySelf.getKey(), tempUploadfile);
-
-            System.out.println("KeyReinserter: Re-uploading public key...");
-            FcpInsert.putFile("CHK@",tempUploadfile,25,false,true,null);
-            System.out.println("KeyReinserter: Finished re-uploading public key.");
-
-            tempUploadfile.deleteOnExit();
-            tempUploadfile.delete();
-        }
-    };
-    timer2.schedule(KeyReinserter,0,60*60*1000); // run each hour
-
-    // Start tofTree
-    if( isFreenetOnline() )
-    {
-        resendFailedMessages();
-    }
-    timer.start();
-    Thread requestsThread = new GetRequestsThread(frostSettings.getIntValue("tofDownloadHtl"),
-    							frostSettings.getValue("keypool.dir"),
-							getUploadTable());
-    requestsThread.start();
-    started = true;
+    
+ 
     } // ************** end-of: jbInit()
-
-    protected void loadIdentities()
-    {
-    	goodIds = new Hashtable();
-	badIds = new Hashtable();
-	myBatches = new Hashtable();
-        File identities = new File("identities");
-	
-        //File contacts = new File("contacts");
-        System.out.println("trying to create/load ids");
-        try {
-            if( identities.length() == 0 )
-                identities.delete();
-            if( identities.createNewFile() )
-            {
-                if( isFreenetOnline() == false )
-                {
-                    JOptionPane.showMessageDialog(this,
-                                                  "Frost could not establish a connection to your freenet node. "+
-                                                  "For first setup of Frost and creating your identity a connection is needed,"+
-                                                  "later you can run Frost without a connection.\n"+
-                                                  "Please ensure that you are online and freenet is running, then restart Frost.",
-                                                  "Connect to Freenet node failed",
-                                                  JOptionPane.ERROR_MESSAGE);
-                    System.exit(2);
-                }
-                //create new identities
-                try {
-                    String nick = null;
-                    do
-                    {
-                        nick = JOptionPane.showInputDialog("Choose an identity name, it doesn't have to be unique\n");
-                        if( !(nick == null || nick.length() == 0) )
-                        {
-                            // check for a '@' in nick, this is strongly forbidden
-                            if( nick.indexOf("@") > -1 )
-                            {
-                                JOptionPane.showMessageDialog(this,
-                                                              "Your name must not contain a '@'!",
-                                                              "Invalid identity name",
-                                                              JOptionPane.ERROR_MESSAGE );
-                                nick="";
-                            }
-                        }
-
-                    } while( nick != null && nick.length() == 0 );
-                    if( nick == null )
-                    {
-                        System.out.println("Frost can't run without an identity.");
-                        System.exit(1);
-                    }
-                    mySelf = new LocalIdentity(nick);
-                    //JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
-                }
-                catch( Exception e ) {
-                    System.out.println("couldn't create new identitiy");
-                    System.out.println(e.toString());
-                }
-                friends = new BuddyList();
-		
-                if( friends.Add(frame1.getMyId()) )
-                {
-                    System.out.println("added myself to list");
-                }
-                enemies = new BuddyList();
-		
-            }
-            else
-            {
-                try {
-                    BufferedReader fin = new BufferedReader(new FileReader(identities));
-                    String name = fin.readLine();
-                    String address = fin.readLine();
-                    String keys[] = new String[2];
-                    keys[1] = fin.readLine();
-                    keys[0] = fin.readLine();
-                    if( address.startsWith("CHK@") == false )
-                    {
-                        // pubkey chk was not successfully computed
-                        byte[] pubkeydata;
-                        try { pubkeydata = keys[1].getBytes("UTF-8"); }
-                        catch(UnsupportedEncodingException ex) { pubkeydata = keys[1].getBytes(); }
-
-                        try {
-                            FcpConnection con = FcpFactory.getFcpConnectionInstance();
-                            if( con != null )
-                            {
-                                String tmp = con.putKeyFromFile("CHK@", pubkeydata, null, 0, false);
-                                address = tmp.substring(tmp.indexOf("CHK@"),tmp.indexOf("CHK@") + 58);
-                                System.out.println("Re-calculated my public key CHK: " + address + "\n");
-                            }
-                        }
-                        catch( IOException e ) {
-                            System.out.println("Couldn't re-calculate my public key CHK: "+e.toString());
-                        }
-                    }
-                    mySelf = new LocalIdentity(name, keys, address);
-                    System.out.println("loaded myself with name " + mySelf.getName());
-                    //System.out.println("and public key" + mySelf.getKey());
-
-                    //take out the ****
-                    fin.readLine();
-
-                    //process the friends
-                    System.out.println("loading friends");
-                    friends = new BuddyList();
-                    boolean stop = false;
-                    String key;
-                    while( !stop )
-                    {
-                        name = fin.readLine();
-                        if( name==null || name.startsWith("***") ) break;
-                        address = fin.readLine();
-                        key = fin.readLine();
-                        friends.Add(new Identity(name, address,key));
-                    }
-                    System.out.println("loaded " + friends.size() + " friends");
-		    
-		    //just the good ids
-		    while (!stop) {
-		        String id = fin.readLine();
-			if (id == null || id.startsWith("***")) break;
-			goodIds.put(id,id);
-		    }
-		    System.out.println("loaded " +goodIds.size() + " good ids");
-
-                    //and the enemies
-                    enemies = new BuddyList();
-                    System.out.println("loading enemies");
-                    while( !stop )
-                    {
-                        name = fin.readLine();
-                        if( name == null || name.startsWith("***") ) break;
-                        address = fin.readLine();
-                        key = fin.readLine();
-                        enemies.Add(new Identity(name, address,key));
-                    }
-                    System.out.println("loaded " + enemies.size() + " enemies");
-		    
-		    //and the bad ids
-		    while (!stop) {
-		    	String id = fin.readLine();
-			if (id == null || id.startsWith("***")) break;
-			badIds.put(id,id);
-		    }
-		    System.out.println("loaded " +badIds.size() + " bad ids");
-		    
-
-                }
-                catch( IOException e ) {
-                    System.out.println("IOException :" + e.toString());
-                    friends = new BuddyList();
-                    enemies = new BuddyList();
-                    friends.Add(mySelf);
-                }
-                catch( Exception e ) {
-                    e.printStackTrace(System.out);
-                }
-            }
-        }
-        catch( IOException e ) {
-            System.out.println("couldn't create identities file");
-        }
-        System.out.println("ME = '"+getMyId().getUniqueName()+"'");
-	
-	File batches = new File("batches");
-	if (batches.exists())
-	try{
-		String allBatches = FileAccess.readFileRaw(batches);
-		String[] _batches = allBatches.split("_"); //dumb.  will fix later
-		
-		for (int i = 0;i<_batches.length;i++)
-			myBatches.put(_batches[i],_batches[i]);
-			
-		System.out.println("loaded "+_batches.length+" batches of shared files");
-	}catch(Throwable e) {
-		System.out.println("couldn't load batches");
-		e.printStackTrace(System.out);
-	}
-
-    }
 
     /**
      * Build ALL popup menus.
@@ -1975,181 +1587,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
-    /**
-     * Thread is invoked if the Trust or NotTrust button is clicked.
-     */
-    private class Truster extends Thread
-    {
-        private Boolean trust;
-        private Identity newIdentity;
-        private VerifyableMessageObject currentMsg;
-
-        public Truster(Boolean what, VerifyableMessageObject msg)
-        {
-            trust=what;
-            currentMsg = msg;
-        }
-
-        public void run()
-        {
-            String from = currentMsg.getFrom();
-            String newState;
-
-            if( trust == null )  newState = "CHECK";
-            else if( trust.booleanValue() == true ) newState = "GOOD";
-            else newState = "BAD";
-
-            System.out.println("Truster: Setting '"+
-                               from+
-                               "' to '"+
-                               newState+
-                               "'.");
-
-            if( trust == null )
-            {
-                // set enemy/friend to CHECK
-                newIdentity = friends.Get(from);
-                if( newIdentity==null )
-                    newIdentity=enemies.Get(from);
-
-                if( newIdentity == null ) // not found -> paranoia
-                {
-                    newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
-                }
-                else
-                {
-                    friends.remove( from );
-                    enemies.remove( from );
-                }
-            }
-            else if( friends.containsKey(from) && trust.booleanValue() == false )
-            {
-                // set friend to bad
-                newIdentity = friends.Get(from);
-                friends.remove( from );
-                enemies.Add( newIdentity );
-            }
-            else if( enemies.containsKey(from) && trust.booleanValue() == true )
-            {
-                // set enemy to good
-                newIdentity = enemies.Get(from);
-                enemies.remove( newIdentity );
-                friends.Add( newIdentity );
-            }
-            else
-            {
-                // new new enemy/friend
-                newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
-                if( trust.booleanValue() )
-                    friends.Add(newIdentity);
-                else
-                    enemies.Add(newIdentity);
-            }
-
-            if( newIdentity == null || Identity.NA.equals( newIdentity.getKey() ) )
-            {
-                System.out.println("Truster - ERROR: could not get public key for '"+currentMsg.getFrom()+"'");
-                System.out.println("Truster: Will stop to set message states!!!");
-                return;
-            }
-
-            // get all .txt files in keypool
-            ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
-                                                       ".txt");
-            System.out.println("Truster: Starting to update messages:");
-
-            for( int ii=0; ii<entries.size(); ii++ )
-            {
-                File msgFile = (File)entries.get(ii);
-                FrostMessageObject tempMsg = new FrostMessageObject( msgFile );
-                if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
-                    (
-                      tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) ||
-                      tempMsg.getStatus().trim().equals(VerifyableMessageObject.VERIFIED) ||
-                      tempMsg.getStatus().trim().equals(VerifyableMessageObject.FAILED)
-                    )
-                  )
-                {
-                    // check if message is correctly signed
-                    if( newIdentity.getKeyAddress().equals( tempMsg.getKeyAddress() ) &&
-                        getCrypto().verify(tempMsg.getContent(), newIdentity.getKey()) )
-                    {
-                        // set new state of message
-                        if( trust == null )
-                            tempMsg.setStatus(VerifyableMessageObject.PENDING);
-                        else if( trust.booleanValue() )
-                            tempMsg.setStatus(VerifyableMessageObject.VERIFIED);
-                        else
-                            tempMsg.setStatus(VerifyableMessageObject.FAILED);
-
-                        System.out.print("."); // progress
-                    }
-                    else
-                    {
-                        System.out.println("\n!Truster: Could not verify message, maybe the message is faked!" +
-                                           " Message state set to N/A for '"+msgFile.getPath()+"'.");
-                        tempMsg.setStatus(VerifyableMessageObject.NA);
-                    }
-                }
-            }
-            // finally step through all board files, count new messages and delete new messages from enemies
-            TOF.initialSearchNewMessages();
-
-            SwingUtilities.invokeLater(new Runnable() {
-                    public void run() {
-                        tofTree_actionPerformed(null);
-                    } });
-            System.out.println("\nTruster: Finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
-                               newState+"'");
-        }
-    }
-
-    private class checkForSpam extends TimerTask
-    {
-        public void run()
-        {
-            if(frostSettings.getBoolValue("doBoardBackoff"))
-            {
-                Iterator iter = getTofTree().getAllBoards().iterator();
-                while (iter.hasNext())
-                {
-                    FrostBoardObject current = (FrostBoardObject)iter.next();
-                    if (current.getBlockedCount() > frostSettings.getIntValue("spamTreshold"))
-                    {
-                        //board is spammed
-                        System.out.println("######### board '"+current.toString()+"' is spammed, update stops for 24h ############");
-                        current.setSpammed(true);
-                        // clear spam status in 24 hours
-                        timer2.schedule(new ClearSpam(current),24*60*60*1000);
-
-                        //now, kill all threads for board
-                        Vector threads = getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
-                        Iterator i = threads.iterator();
-                        while( i.hasNext() )
-                        {
-                            BoardUpdateThread thread = (BoardUpdateThread)i.next();
-                            while( thread.isInterrupted() == false )
-                                thread.interrupt();
-                        }
-                    }
-                    current.resetBlocked();
-                }
-            }
-        }
-    }
-
-    private class ClearSpam extends TimerTask
-    {
-        private FrostBoardObject clearMe;
-
-        public ClearSpam(FrostBoardObject which) { clearMe = which; }
-        public void run()
-        {
-            System.out.println("############ clearing spam status for board '"+clearMe.toString()+"' ###########");
-            clearMe.setSpammed(false);
-        }
-    }
-
     /**TOF Board selected*/
     // TODO:
     // if e == NULL, the method is called by truster or by the reloader after options were changed
@@ -2298,25 +1735,12 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             if( selectedNode.isUpdating() == false )
             {
-                new DeleteWholeDirThread( boardRelDir ).start();
+                core.deleteDir(boardRelDir);
             }
             else
             {
-                System.out.println("WARNING: Although if warned, you tried to delete a board with is updating! Skipped ...");
+                System.out.println("WARNING: Although being warned, you tried to delete a board with is updating! Skipped ...");
             }
-        }
-    }
-
-    private class DeleteWholeDirThread extends Thread
-    {
-        String delDir;
-        public DeleteWholeDirThread(String dirToDelete)
-        {
-            delDir = dirToDelete;
-        }
-        public void run()
-        {
-            FileAccess.deleteDir( new File(delDir) );
         }
     }
 
@@ -2544,7 +1968,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**timer Action Listener (automatic download)*/
-    private void timer_actionPerformed()
+    public void timer_actionPerformed()
     {
         // this method is called by a timer each second, so this counter counts seconds
         counter++;
@@ -3181,40 +2605,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
     }
 
-    //------------------------------------------------------------------------
-    //------------------------------------------------------------------------
-
-    /**Save on exit*/
-    private void saveOnExit()
-    {
-        System.out.println("Saving settings ...");
-        saveSettings();
-        System.out.println("Bye!");
-    }
-
-    /**Save settings*/
-    private void saveSettings()
-    {
-        frostSettings.setValue("downloadingActivated", downloadActivateCheckBox.isSelected());
-        //      frostSettings.setValue("uploadingActivated", uploadActivateCheckBox.isSelected());
-        frostSettings.setValue("searchAllBoards", searchAllBoardsCheckBox.isSelected());
-        //      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
-        frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
-
-        // save size and location of window
-        Dimension actSize = getSize();
-//        Point actPos = this.getLocationOnScreen();
-        frostSettings.setValue("lastFrameHeight", ""+(int)actSize.getHeight() );
-        frostSettings.setValue("lastFrameWidth", ""+(int)actSize.getWidth() );
-//        frostSettings.setValue("lastFrameLocX", ""+(int)actPos.getX() );
-//        frostSettings.setValue("lastFrameLocY", ""+(int)actPos.getY() );
-
-        frostSettings.writeSettingsFile();
-        getTofTree().saveTree();
-        getDownloadTable().save();
-        getUploadTable().save();
-    }
-
     class PopupListener extends MouseAdapter {
     public void mousePressed(MouseEvent e)
     {
@@ -3385,7 +2775,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         if( selectedMessage!=null )
         {
-            if( enemies.containsKey(selectedMessage.getFrom()) )
+            if( getEnemies().containsKey(selectedMessage.getFrom()) )
             {
                 if( JOptionPane.showConfirmDialog(getInstance(),
                               "are you sure you want to grant trust to user " +
@@ -3399,7 +2789,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
             else
             {
-                new Truster(Boolean.valueOf(true), selectedMessage).start();
+                core.startTruster(true,selectedMessage);
             }
         }
         trustButton.setEnabled(false);
@@ -3411,7 +2801,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         if( selectedMessage!=null )
         {
-            if( friends.containsKey(selectedMessage.getFrom()) )
+            if( getFriends().containsKey(selectedMessage.getFrom()) )
             {
                 if( JOptionPane.showConfirmDialog(getInstance(),
                           "Are you sure you want to revoke trust to user " +
@@ -3425,7 +2815,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
             else
             {
-                new Truster(Boolean.valueOf(false), selectedMessage).start();
+                core.startTruster(false, selectedMessage);
             }
         }
         trustButton.setEnabled(false);
@@ -3440,78 +2830,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         checkTrustButton.setEnabled(false);
         if( selectedMessage!=null )
         {
-            new Truster(null, selectedMessage).start();
+            core.startTruster(selectedMessage);
         }
     }
 
-    /**
-     * Tries to send old messages that have not been sent yet
-     */
-    protected void resendFailedMessages()
-    {
-        // start a thread that waits some seconds for gui to appear, then searches for
-        // unsent messages
-        ResendFailedMessagesThread t = new ResendFailedMessagesThread(this);
-        t.start();
-    }
-
-    class ResendFailedMessagesThread extends Thread
-    {
-        Frame frameToLock;
-        public ResendFailedMessagesThread(Frame frameToLock)
-        {
-            this.frameToLock = frameToLock;
-        }
-        public void run()
-        {
-            // give gui a chance to appear ... then start searching for unsent messages
-            try { Thread.sleep(10000); } // wait 10 seconds
-            catch(InterruptedException ex) { ; }
-            if( isInterrupted() )
-                return;
-
-            System.out.println("Starting search for unsent messages ...");
-
-            ArrayList entries = FileAccess.getAllEntries(new File(frostSettings.getValue("unsent.dir")), ".txt");
-
-            for( int i = 0; i < entries.size(); i++ )
-            {
-                File unsentMsgFile = (File)entries.get(i);
-                if( unsentMsgFile.getName().startsWith("unsent") )
-                {
-                    // Resend message
-                    VerifyableMessageObject mo = new VerifyableMessageObject(unsentMsgFile);
-                    if( mo.isValid() )
-                    {
-                        FrostBoardObject board = getTofTree().getBoardByName( mo.getBoard() );
-                        if( board == null )
-                        {
-                            System.out.println("Can't resend Message '"+mo.getSubject()+"', the target board '"+mo.getBoard()+
-                                               "' was not found in your boardlist.");
-                            // TODO: maybe delete msg? or it will always be retried to send
-                            continue;
-                        }
-                        // message will be resigned before send, actual date/time will be used
-                        // no more faking here :)
-                        getRunningBoardUpdateThreads().startMessageUpload(
-                            board,
-                            mo.getFrom(),
-                            mo.getSubject(),
-                            mo.getContent(),
-                            "",
-                            frostSettings,
-                            frameToLock,
-                            null);
-                        System.out.println("Message '" + mo.getSubject() + "' will be resent to board '"+board.toString()+"'.");
-                    }
-                    // check if upload was successful before deleting the file -
-                    // is not needed, the upload thread creates new unsent file
-                    unsentMsgFile.delete();
-                }
-            }
-            System.out.println("Finished search for unsent messages ...");
-        }
-    }
+  
 
     /**
      * Called after the OptionsFrame changed some settings to reflect
@@ -3860,5 +3183,47 @@ public class frame1 extends JFrame implements ClipboardOwner
 /*    private void markAllMessagesRead()
     {
     }*/
+	/**
+	 * @return
+	 */
+	public static Hashtable getBadIds() {
+		return Core.getBadIds();
+	}
+
+	/**
+	 * @return
+	 */
+	public static crypt getCrypto() {
+		return Core.getCrypto();
+	}
+
+	/**
+	 * @return
+	 */
+	public static BuddyList getEnemies() {
+		return Core.getEnemies();
+	}
+
+	/**
+	 * @return
+	 */
+	public static BuddyList getFriends() {
+		return Core.getFriends();
+	}
+
+	/**
+	 * @return
+	 */
+	public static Hashtable getGoodIds() {
+		return Core.getGoodIds();
+	}
+
+	/**
+	 * @return
+	 */
+	public static LocalIdentity getMyId() {
+		return Core.getMyId();
+	}
+
 }
 
