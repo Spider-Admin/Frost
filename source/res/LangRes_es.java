@@ -423,7 +423,7 @@ static final Object[][] contents = {
 	//
 	//  Message upload failed dialog
 	//
-	{"Upload of message failed", "La subida del mensaje falló"},
+	{"Upload of message failed", "La subida del mensaje ha fallado"},
 	{"Frost was not able to upload your message.", "Frost no pudo subir tu mensaje."},
 	{"Retry", "Reintentar"},
 	{"Retry on next startup", "Reintentar en el próximo arranque"},
