@@ -375,8 +375,6 @@ public class LangRes_en extends ListResourceBundle {
 	//{"minutes", "minutes"}, // Defined above
 	{"Number of concurrently updating boards", "Number of concurrently updating boards"},
 	{"Show board update visualization", "Show board update visualization"},
-	{"Choose background color if updating board is selected", "Choose background color if updating board is selected"},
-	{"Choose background color if updating board is not selected", "Choose background color if updating board is not selected"},
 	{"Choose updating color of SELECTED boards", "Choose updating color of SELECTED boards"},
 	{"Choose updating color of NON-SELECTED boards", "Choose updating color of NON-SELECTED boards"},
 
@@ -405,7 +403,6 @@ public class LangRes_en extends ListResourceBundle {
 
     // Display Panel
     {"EnableSkins", "Enable Skins"},
-	{"MessageBodyFont", "Message Body Font"},
 	{"MoreSkinsAt", "You can get more skins at"},
 	{"Preview","Preview"},
 	{"RefreshList","Refresh List"},

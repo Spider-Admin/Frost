@@ -69,8 +69,6 @@ static final Object[][] contents = {
 {"CHK key + filename","CHK-Schlüssel und Dateiname"},
 {"Choose","Auswählen"},
 {"Choose a Font","Schriftart auswählen"},
-{"Choose background color if updating board is not selected","Hintergrundfarbe, falls nichtgewähltes Forum aktualisiert wird"}, //Menü: Optionen -> Einstellungen -> Nachrichten(3)
-{"Choose background color if updating board is selected","Hintergrundfarbe, falls selektiertes Forum aktualisiert wird"},
 {"Choose boards to attach","Forum für Anhang auswählen"},
 {"Choose file(s) / directory(s) to attach","Datei(en)/Verzeichnis(se) als Anhang auswählen"},
 {"Choose updating color of NON-SELECTED boards","Aktualisierungsfarbe für nicht selektierte Foren"},
@@ -206,7 +204,6 @@ static final Object[][] contents = {
 {"Message download HTL","Nachrichten herunterladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Nachrichten(1)
 {"Message List","Nachrichtenliste"},
 {"Message upload HTL","Nachrichten hochladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Nachrichten(1)
-{"MessageBodyFont","Zeichensatz für Nachricht"},
 {"Messages","Nachrichten"},
 {"Messages Today","Heutige Nachrichten"},
 {"Minimize to System Tray","In die Taskleiste minimieren"},
