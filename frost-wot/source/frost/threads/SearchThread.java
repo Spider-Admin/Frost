@@ -214,20 +214,28 @@ public class SearchThread extends Thread {
         {
             allFileCount++;
             KeyClass key = (KeyClass)results.elementAt(i);
-/*
+
             String filename = key.getFilename();
             Long size = key.getSize();
             String date = key.getDate();
             String keyData = key.getKey();
 
-            // Already downloaded files get a nice color outfit
+            int searchItemState = FrostSearchItemObject.STATE_NONE;
+
+            // Already downloaded files get a nice color outfit (see renderer in SearchTable)
             File file = new File(frame1.frostSettings.getValue("downloadDirectory") + mixed.makeFilename(filename));
             if( file.exists() )
-                filename = "<html><font color=\"red\">" + filename + "</font></html>";
-*/
-// TODO: draw existing in red, see old code above this comment
+            {
+                // file is already downloaded -> light_gray
+                searchItemState = FrostSearchItemObject.STATE_DOWNLOADED;
+            }
+            else if( frame1.getInstance().getDownloadTable().containsItemWithKey( keyData ) )
+            {
+                // this file is in download table -> blue
+                searchItemState = FrostSearchItemObject.STATE_DOWNLOADING;
+            }
 
-            final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key);
+            final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key, searchItemState);
 
             if( searchTableModel.getRowCount() < 13000 )
             {

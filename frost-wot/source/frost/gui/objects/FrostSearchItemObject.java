@@ -8,11 +8,17 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
 {
     FrostBoardObject board;
     KeyClass key;
+    int state;
 
-    public FrostSearchItemObject( FrostBoardObject board, KeyClass key )
+    public static final int STATE_NONE        = 1; // set if a search table item is only in search table
+    public static final int STATE_DOWNLOADED  = 2; // set if the item is already downloaded and is found in download folder
+    public static final int STATE_DOWNLOADING = 3; // set if file is not already downloaded, but in download table
+
+    public FrostSearchItemObject( FrostBoardObject board, KeyClass key, int state )
     {
         this.board = board;
         this.key = key;
+        this.state = state;
     }
 
     /**
@@ -67,4 +73,8 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
         return board;
     }
 
+    public int getState()
+    {
+        return state;
+    }
 }
