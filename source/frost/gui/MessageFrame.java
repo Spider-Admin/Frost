@@ -522,18 +522,16 @@ public class MessageFrame extends JFrame
 
         String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime()+"GMT";
         String lineSeparator = System.getProperty("line.separator");
-        if( this.text.length() > 0 )
-        {
-            // on reply to a message
-            this.text += new StringBuffer().append(lineSeparator)
-                                           .append("----- ")
-                                           .append(this.from)
-                                           .append(" ----- ")
-                                           .append(date)
-                                           .append(" -----")
-                                           .append(lineSeparator)
-                                           .append(lineSeparator).toString();
-        }
+        
+        this.text += new StringBuffer().append(lineSeparator)
+                                       .append(lineSeparator)
+                                       .append("----- ")
+                                       .append(this.from)
+                                       .append(" ----- ")
+                                       .append(date)
+                                       .append(" -----")
+                                       .append(lineSeparator)
+                                       .append(lineSeparator).toString();
 
         File signature = new File("signature.txt");
         if( signature.isFile() )
