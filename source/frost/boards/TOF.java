@@ -557,8 +557,7 @@ public class TOF
          */
         public void run()
         {
-        	TofTreeModel model = MainFrame.getInstance().getTofTreeModel();
-            Enumeration e = ((DefaultMutableTreeNode)model.getRoot()).depthFirstEnumeration();
+            Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
             String keypool = MainFrame.keypool;
             while( e.hasMoreElements() )
             {
