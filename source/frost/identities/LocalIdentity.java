@@ -44,6 +44,7 @@ public class LocalIdentity extends Identity implements Serializable
         final byte[] pubkeydata = pubkeydata1;
 
         try {
+
             String tmp = FecTools.generateCHK( pubkeydata ); 
             keyaddress = tmp.substring(tmp.indexOf("CHK@"),tmp.indexOf("CHK@") + 58);
             System.out.println("Calculated my public key CHK: " + keyaddress + "\n");
