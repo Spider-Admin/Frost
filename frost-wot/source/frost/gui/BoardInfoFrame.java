@@ -272,11 +272,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                 SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             boardTableModel.addRow(finalRow);
-                            summaryLabel.setText(LangRes.getString("Boards: ") +
-                                                 finalBoardCount +
-                                                 LangRes.getString("   Messages: ") +
-                                                 finalMessageCount +
-                                                 LangRes.getString("   Files: ") +
+                            summaryLabel.setText(LangRes.getString("Boards") +"   :"+
+                                                 finalBoardCount +"    "+
+                                                 LangRes.getString("Messages") +"  : "+
+                                                 finalMessageCount +"    "+
+                                                 LangRes.getString("Files") + "   :"+
                                                  finalFileCount);
                         }});
             }

@@ -28,7 +28,7 @@ public class BoardInfoTableModel extends SortedTableModel
         LangRes.getString("Board"),
         LangRes.getString("State"),
         LangRes.getString("Messages"),
-        "Messages Today", //LangRes.getString("New messages"),
+        LangRes.getString("Messages Today"), //LangRes.getString("New messages"),
         LangRes.getString("Files")
     };
     protected final static Class columnClasses[] =  {

@@ -376,10 +376,21 @@ public class LangRes extends ListResourceBundle {
 	{"NoSkinsFound","No skins found!"},
 	{"AvailableSkins","Available Skins"},
 
+	//other stuff which people forget to include
 	{"BoardInfoFrame.UpdateSelectedBoardButton","Update Selected Board"},
 	{"Show systray icon","show SysTray icon"},
 	{"Display","Display"},
 	{"Miscellaneous","Miscellaneous"},
+	{"Messages","Messages"},
+	{"Messages Today","Messages Today"},
+	{"Board information","Board information"},
+	{"Boards","Boards"},
+	{"Public board","Public board"},
+	{"Secure board","Secure board"},
+	{"Generate new keypair","Generate new keypair"},
+	{"Private key","Private key"},
+	{"Public key","Public key"},
+	{"Not available","Not available"}
 	
     };
 }

@@ -162,14 +162,14 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridy++;
         constr.insets = new Insets(0, 25, 5, 5);
-        keyPanel.add( new JLabel(LangRes.getString("Private key :")) , constr );
+        keyPanel.add( new JLabel(LangRes.getString("Private key")+"  :") , constr );
         constr.gridx = 1;
         constr.fill=GridBagConstraints.HORIZONTAL;
         keyPanel.add( privateKeyTextField , constr );
         constr.fill=GridBagConstraints.NONE;
         constr.gridx = 0;
         constr.gridy++;
-        keyPanel.add( new JLabel(LangRes.getString("Public key :")) , constr );
+        keyPanel.add( new JLabel(LangRes.getString("Public key")+"  :") , constr );
         constr.gridx = 1;
         constr.fill=GridBagConstraints.HORIZONTAL;
         keyPanel.add( publicKeyTextField , constr );
