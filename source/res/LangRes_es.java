@@ -441,10 +441,15 @@ static final Object[][] contents = {
 	{"KnownBoardsFrame.Remove board","Elimina foro"},
 	{"KnownBoardsTableModel.Boardname","Nombre"},
 	
-	// Popup over message
+	// Popup over message body (main frame)
 	{"Copy","Copia"},
 	{"Save message to disk","Graba mensaje a disco"},
 	//{"Cancel", "Cancel"}, // Defined above
+	
+	// Popup over message body (message frame)
+	{"Cut","Corta"},
+	//{"Copy","Copia"}, // Defined above
+	{"Paste","Pega"},
 	
 	// Saver AutoTask popup
 	{"Saver.AutoTask.title", "Se ha encontrado un problema."},

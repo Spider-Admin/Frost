@@ -169,11 +169,11 @@ public class LangRes extends ListResourceBundle {
 	{"Mark ALL messages read", "Mark ALL messages read"},
 	{"Cancel", "Cancel"},	
 
-	// Popup over message
+	// Popup over message (main frame)
 	{"Copy","Copy"},
 	{"Save message to disk", "Save message to disk"},
 	//{"Cancel", "Cancel"}, // Defined above
-
+	
 	// Popup over attachments table
 	{"Add selected board", "Add selected board"},	
 	{"Download selected attachment", "Download selected attachment"},	
@@ -609,7 +609,12 @@ public class LangRes extends ListResourceBundle {
 	
 	//Saver popup
 	{"Saver.AutoTask.title", "Problem found."},
-	{"Saver.AutoTask.message", "Frost found an error while saving a resource and it will close itself."}
+	{"Saver.AutoTask.message", "Frost found an error while saving a resource and it will close itself."},
+	
+	// Popup over message body (message frame)
+	{"Cut","Cut"},
+	//{"Copy","Copy"}, // Defined above
+	{"Paste","Paste"}
 		
     };
 }
