@@ -22,62 +22,34 @@ public class FcpRequest {
     //private static ThreadLocal toheal = new ThreadLocal();
 
 
-    private static class HealerThread extends Thread {
-
+    private static class HealerThread extends Thread
+    {
         private WorkQueue wq;
-    private String Name;
-        public HealerThread(WorkQueue wq, String Name) {
-        this.Name = Name;
-        this.wq = wq;
-    }
+        private String Name;
+        public HealerThread(WorkQueue wq, String Name)
+        {
+            this.Name = Name;
+            this.wq = wq;
+        }
+        public void run()
+        {
 
-        public void run() {
+            System.out.println("healer starting for " + Name);
+            String [][]results = new String[1][2];
 
-    System.out.println("healer starting for " + Name);
-    String [][]results = new String[1][2];
-
-    while (wq.hasMore()) {
-        File block = (File)wq.next();
-        System.out.println("\ntrying to heal " + Name + " with " + block.getPath());
-
-
-        Thread inserter = new putKeyThread("CHK@",block,5,results,0,true);
-        inserter.run();
-        block.delete();
-    }
-
-    System.out.println("healer ending for " + Name);
+            while( wq.hasMore() )
+            {
+                File block = (File)wq.next();
+                System.out.println("\ntrying to heal " + Name + " with " + block.getPath());
 
 
-
-    /*
-    try {
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
-        try {
-            if(connection.putKeyFromFile("CHK@", block.getPath(), 5, true).indexOf("Success")!=-1)
+                Thread inserter = new putKeyThread("CHK@",block,5,results,0,true);
+                inserter.run();
                 block.delete();
+            }
+            System.out.println("healer ending for " + Name);
         }
-        catch (IOException e) {
-            System.out.println("IOException " + e.toString());
-        }
-        }
-        catch (FcpToolsException e) {
-        System.out.println("FcpToolsException " + e);
-        frame1.displayWarning(e.toString());
-        }
-        catch (UnknownHostException e) {
-        System.out.println("UnknownHostException");
-        frame1.displayWarning(e.toString());
-        }
-        catch (IOException e) {
-        System.out.println("IOException");
-        frame1.displayWarning(e.toString());
-        }
-*/
     }
-    }
-
-
 
     private static int getActiveThreads(Thread[] threads) {
     int count = 0;

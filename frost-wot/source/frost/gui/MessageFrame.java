@@ -32,7 +32,6 @@ import frost.gui.objects.*;
 
 public class MessageFrame extends JFrame
 {
-
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
     //------------------------------------------------------------------------
@@ -374,14 +373,23 @@ public class MessageFrame extends JFrame
             String privKey = board.getPrivateKey();
             if( pubKey == null )
                 pubKey="N/A";
+
             if( privKey == null )
                 privKey="N/A";
-            else if( JOptionPane.showConfirmDialog(this,"You have the private key to " + board.toString() +
-                                                   ".  Are you sure you want it attached?\n If you choose NO, only the public key will be attached.",
-                                                   "include private key?",
-                                                   JOptionPane.YES_NO_OPTION) != 0 )
-                privKey="N/A";
-
+            else
+            {
+                int answer = JOptionPane.showConfirmDialog(this,
+                                                   "You have the private key to " +
+                                                       board.toString() +
+                                                       ".  Are you sure you want it attached?\n "+
+                                                       "If you choose NO, only the public key will be attached.",
+                                                   "Include private board key?",
+                                                   JOptionPane.YES_NO_OPTION);
+                if( answer == JOptionPane.NO_OPTION )
+                {
+                    privKey="N/A";
+                }
+            }
             jTextArea1.append("<board>" + board.toString() +
                               " * " + pubKey +
                               " * " + privKey +
