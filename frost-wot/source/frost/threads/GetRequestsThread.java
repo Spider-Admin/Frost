@@ -49,6 +49,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
     public void run()
     {
         notifyThreadStarted(this);
+        try {
 
         // Wait some random time to speed up the update of the TOF table
         // ... and to not to flood the node
@@ -156,6 +157,13 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             {
                 break;
             }
+        }
+
+        }
+        catch(Throwable t)
+        {
+            System.out.println("Oo. EXCEPTION in GetRequestsThread:");
+            t.printStackTrace();
         }
         notifyThreadFinished(this);
     }

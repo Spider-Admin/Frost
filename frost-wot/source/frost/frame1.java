@@ -1698,8 +1698,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         public void boardUpdateThreadFinished(final BoardUpdateThread thread)
         {
-            int running = getRunningBoardUpdateThreads().getDownloadThreadsForBoard(thread.getTargetBoard()).size()  +
-                getRunningBoardUpdateThreads().getUploadThreadsForBoard(thread.getTargetBoard()).size();
+            int running = getRunningBoardUpdateThreads().getDownloadThreadsForBoard(thread.getTargetBoard()).size();
+                //+ getRunningBoardUpdateThreads().getUploadThreadsForBoard(thread.getTargetBoard()).size();
             if( running == 0 )
             {
                 // remove update state from board

@@ -119,6 +119,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                            " with HTL " +
                            frame1.frostSettings.getValue("htlUpload"));
 
+        // TODO: change this to try max. X times + catch Exceptions
         while( !result[0].equals("KeyCollision") && !result[0].equals("Success"))
         result = FcpInsert.putFile("CHK@", attachment, frame1.frostSettings.getValue("htlUpload"), true, true,
                                    board.getBoardFilename());
@@ -137,6 +138,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     public void run()
     {
         notifyThreadStarted(this);
+        try {
 
         boolean retry = true;
 
@@ -379,6 +381,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
             System.out.println("TOFUP: Upload Thread finished");
         }
+
+        }
+        catch(Throwable t)
+        {
+            System.out.println("Oo. EXCEPTION in MessageUploadThread:");
+            t.printStackTrace();
+        }
+
         notifyThreadFinished(this);
     } // end-of: run()
 
@@ -397,6 +407,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     {
         super(board);
         this.board = board;
+
         this.from = from;
         this.subject = subject;
         this.text = text;

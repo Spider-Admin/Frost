@@ -135,6 +135,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     public void run()
     {
         notifyThreadStarted(this);
+        try {
 
         // Wait some random time to speed up the update of the TOF table
         // ... and to not to flood the node
@@ -215,6 +216,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         else
         {
             if( DEBUG ) System.out.println("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.toString());
+        }
+
+        }
+        catch(Throwable t)
+        {
+            System.out.println("Oo. EXCEPTION in UpdateIdThread:");
+            t.printStackTrace();
         }
 
         notifyThreadFinished( this );

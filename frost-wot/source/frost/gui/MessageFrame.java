@@ -241,7 +241,6 @@ public class MessageFrame extends JFrame
     /**jButton1 Action Listener (Send)*/
     private void jButton1_actionPerformed(ActionEvent e)
     {
-        state = true;
         from = jTextField2.getText();
         subject = jTextField3.getText();
         text = jTextArea1.getText();
@@ -250,49 +249,42 @@ public class MessageFrame extends JFrame
 
         if( subject.equals("No subject") && !encrypt )
         {
-            Object[] options = {LangRes.getString("Yes"), LangRes.getString("No")};
-            int n = JOptionPane.showOptionDialog(this,
-                                                 LangRes.getString("Do you want to enter a subject?"),
-                                                 LangRes.getString("No subject specified!"),
-                                                 JOptionPane.YES_NO_OPTION,
-                                                 JOptionPane.QUESTION_MESSAGE,
-                                                 null,
-                                                 options,
-                                                 options[1]);
-            if( n == 1 )
-                quit = true;
-            else
-                quit = false;
-        }
-
-        if( quit )
-        {
-            if( state )
+            int n = JOptionPane.showConfirmDialog( this,
+                                                   LangRes.getString("Do you want to enter a subject?"),
+                                                   LangRes.getString("No subject specified!"),
+                                                   JOptionPane.YES_NO_OPTION,
+                                                   JOptionPane.QUESTION_MESSAGE);
+            if( n == JOptionPane.YES_OPTION )
             {
-                frostSettings.setValue("userName", from);
-
-                String recpnt = "";
-                if( encrypt && recipient.compareTo(frame1.getMyId().getName()) != 0 )
-                {
-                    recpnt = recipient;
-                }
-
-                frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-                                                      board,
-                                                      from,
-                                                      subject,
-                                                      text,
-                                                      "",
-                                                      "",
-                                                      recpnt,
-                                                      frostSettings,
-                                                      parentFrame,
-                                                      null);
+                return;
             }
-            frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
-            frostSettings.writeSettingsFile();
-            dispose();
         }
+
+        // message is ready to send, exit dialog
+        frostSettings.setValue("userName", from);
+
+        String recpnt = "";
+        if( encrypt && recipient.compareTo(frame1.getMyId().getName()) != 0 )
+        {
+            recpnt = recipient;
+        }
+
+        frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
+                                              board,
+                                              from,
+                                              subject,
+                                              text,
+                                              "",
+                                              "",
+                                              recpnt,
+                                              frostSettings,
+                                              parentFrame,
+                                              null);
+
+        frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
+        frostSettings.writeSettingsFile();
+        state = true; // exit state
+        dispose();
     }
 
     /**jButton2 Action Listener (Cancel)*/
