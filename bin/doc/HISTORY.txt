@@ -17,6 +17,8 @@ Changed: now the sizes of the new message window, the known boards window and th
          relative to the size of the main window.
 Changed: copy to clipboard submenus on both the uploads and downloads tables improved. Now they support multiple 
 		 selections and have an additional option (copy extended info).
+Changed: now the message hashes are stored in XML format (instead of serialized). This will prevent problems 
+		 when migrating to a new version of Java.
 
 Bugfix: obsolete strings in the language resources were causing an exception when trying to open 
         the translation frame.
