@@ -1501,8 +1501,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 	}
 	
-	private DownloadTicker downloadTicker;
-
 	private static Core core;
 
 	private static String fileSeparator = System.getProperty("file.separator");
@@ -2662,8 +2660,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		/////////////////////////////////////////////////
 		String newText =
 			new StringBuffer()
-				.append("   " + language.getString("Down") + ": ")
-				.append(downloadTicker.getThreadCount())
 				.append("   " + language.getString("TOFUP") + ": ")
 				.append(tofTree.getRunningBoardUpdateThreads().getUploadingBoardCount())
 				.append("B / ")
@@ -2873,13 +2869,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	public void setDownloadModel(DownloadModel table) {
 		downloadModel = table;
-	}
-
-	/**
-	 * @param ticker
-	 */
-	public void setDownloadTicker(DownloadTicker ticker) {
-		downloadTicker = ticker;		
 	}
 
 	/**

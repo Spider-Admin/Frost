@@ -23,6 +23,7 @@ public class DownloadManager implements PropertyChangeListener {
 	private DownloadModel model;
 	private DownloadPanel panel;
 	private DownloadTicker ticker;
+	private DownloadStatusPanel statusPanel;
 
 	private boolean freenetIsOnline;
 
@@ -47,12 +48,23 @@ public class DownloadManager implements PropertyChangeListener {
 	 */
 	public void initialize() throws StorageException {
 		mainFrame.addPanel("Downloads", getPanel());
+		mainFrame.addStatusPanel(getStatusPanel(), 0);
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
 		updateDownloadStatus();
 		getModel().initialize();
 		if (freenetIsOnline) {
 			getTicker().start();
 		}
+	}
+	
+	/**
+	 * @return
+	 */
+	private DownloadStatusPanel getStatusPanel() {
+		if (statusPanel == null) {
+			statusPanel = new DownloadStatusPanel(getTicker());
+		}
+		return statusPanel;
 	}
 
 	/**
@@ -88,7 +100,7 @@ public class DownloadManager implements PropertyChangeListener {
 	/**
 	 * @return
 	 */
-	public DownloadTicker getTicker() {
+	private DownloadTicker getTicker() {
 		if (ticker == null) {
 			ticker = new DownloadTicker(settings, getModel(), getPanel());
 		}
