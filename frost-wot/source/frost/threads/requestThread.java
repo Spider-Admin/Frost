@@ -37,6 +37,7 @@ public class requestThread extends Thread
     private String filename;
     private Long size;
     private String key;
+    private String SHA1;
     private DownloadTable downloadTable;
     private FrostBoardObject board;
 
@@ -59,15 +60,43 @@ public class requestThread extends Thread
         File newFile = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
         boolean do_request = false;
 
+	//if we don't have the CHK, means the key was not inserted
+	//request it by SHA1
+	if (key == null) {
+		System.out.println("FILEDN: Requesting " + filename);
+		downloadItem.setState( FrostDownloadItemObject.STATE_REQUESTING );
+                tableModel.updateRow( downloadItem );
+		    
+		//request the file itself
+		try {
+                        request(SHA1.trim(), board);
+                        if( DEBUG ) System.out.println("FILEDN: Uploaded request for " + filename);
+                    }
+               catch(Throwable t) {
+                        System.out.println("FILEDN: Uploading request failed for "+filename);
+			t.printStackTrace();
+		}
+		downloadItem.setState( FrostDownloadItemObject.STATE_REQUESTED );
+		tableModel.updateRow( downloadItem );
+		synchronized(frame1.threadCountLock)
+        	{
+         	   frame1.activeDownloadThreads--;
+       		}
+                return;
+	} 
+	
+	//otherwise, proceed as usual
+	
         System.out.println("FILEDN: Download of '" + filename + "' started.");
 
-        // Download file
+        	// Download file
         boolean success = false;
-
-        try {
+	
+	try {
             success = FcpRequest.getFile(key, size, newFile, 25, true, false, downloadItem);
         }
-        catch(Throwable t) { ; }
+        catch(Throwable t) { t.printStackTrace(); }  //please don't do like this { ; }--zab
+	
 
         // file might be erased from table during download...
         boolean inTable = false;
@@ -80,7 +109,7 @@ public class requestThread extends Thread
                 break;
             }
         }
-
+	
         // download failed
         if( !success )
         {
@@ -171,7 +200,7 @@ public class requestThread extends Thread
     }
 
     // Request a certain CHK from a board
-    private void request(String key, FrostBoardObject board)
+    private void request(String SHA1, FrostBoardObject board)
     {
         String messageUploadHtl = frame1.frostSettings.getValue("tofUploadHtl");
         boolean requested = false;
@@ -223,7 +252,8 @@ public class requestThread extends Thread
             {
                 requestFile = new File( frame1.frostSettings.getValue("temp.dir") + System.currentTimeMillis()+".tmp" );
             }
-            FileAccess.writeFile(key, requestFile); // Write requested key to disk
+	    //TOTHINK: we can also encrypt the request
+            FileAccess.writeFile(SHA1, requestFile); // Write requested key to disk
 
             // Search empty slot
             boolean success = false;
@@ -241,7 +271,7 @@ public class requestThread extends Thread
                                        .append(board.getBoardFilename())
                                        .append("-")
                                        .append(index)
-                                       .append(".req")
+                                       .append(".req.sha")
                                        .toString());
                 if( testMe.length() > 0 )
                 { // already downloaded
@@ -275,6 +305,8 @@ public class requestThread extends Thread
                     }
 
                     // try to insert
+		    //TOTHINK: we could add the ability files from a specific user to be
+		    //requested on separate channels - good protection vs.spam
                     String[] result = new String[2];
                     String upKey = new StringBuffer().append("KSK@frost/request/")
                                    .append(frame1.frostSettings.getValue("messageBase"))
@@ -284,7 +316,7 @@ public class requestThread extends Thread
                                    .append(board.getBoardFilename())
                                    .append("-")
                                    .append(index)
-                                   .append(".req")
+                                   .append(".req.sha")
                                    .toString();
                     if( DEBUG ) System.out.println(upKey);
                     result = FcpInsert.putFile(upKey,
@@ -397,6 +429,8 @@ public class requestThread extends Thread
         this.size = dlItem.getFileSize();
         this.key = dlItem.getKey();
         this.board = dlItem.getSourceBoard();
+	this.SHA1 = dlItem.getSHA1();
+	
 
         this.downloadItem = dlItem;
 

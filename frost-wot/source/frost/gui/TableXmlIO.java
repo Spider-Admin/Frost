@@ -450,6 +450,16 @@ System.out.println("ERROR saving download table!");
         text = doc.createTextNode( String.valueOf(dlItem.getState()) );
         element.appendChild( text );
         itemElement.appendChild( element );
+	//SHA1
+	element = doc.createElement("SHA1");
+        text = doc.createTextNode( String.valueOf(dlItem.getSHA1()) );
+        element.appendChild( text );
+        itemElement.appendChild( element );
+	//owner
+	element = doc.createElement("owner");
+        text = doc.createTextNode( String.valueOf(dlItem.getOwner()) );
+        element.appendChild( text );
+        itemElement.appendChild( element );
         // sourceboard
         if( dlItem.getSourceBoard() != null )
         {
