@@ -4,6 +4,7 @@ Added: if we have an old identities file, it is deleted after being converted to
 Added: saving of both the uploads and downloads models is much more robust now.
 
 Changed: messages are signed by default.
+Changed: now the size of the new message window is relative to the size of the main window.
 
 Bugfix: obsolete strings in the language resources were causing an exception when trying to open 
         the translation frame.
