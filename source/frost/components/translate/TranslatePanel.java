@@ -67,6 +67,10 @@ public class TranslatePanel extends JPanel {
 
 	/**Initialize the panel*/
 	private void init() {
+		
+		// Listening to clicks on the header
+		TranslateTableSorter.addMouseListenerToHeaderInTable(table);
+	
 		//assemble gui objects
 		generateComboBox();
 		comboBox.setMaximumRowCount(25);
@@ -123,6 +127,9 @@ public class TranslatePanel extends JPanel {
 			String row[] = { originalText, newBundle.getString(originalText)};
 			tableModel.addRow(row);
 		}
+		
+		// Sort the table ascending
+		TranslateTableSorter.sortByColumn(table, 0, true);
 	}
 
 	/**
