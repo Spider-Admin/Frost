@@ -28,6 +28,7 @@ import javax.swing.tree.DefaultMutableTreeNode;
 import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
+import frost.messages.*;
 import frost.messages.VerifyableMessageObject;
 
 /**
@@ -517,17 +518,17 @@ public class TOF
 		}
 		// Block by attached boards
 		if (MainFrame.frostSettings.getBoolValue("blockMessageBoardChecked")) {
-			Vector boardsVector = message.getBoardAttachments();
+			List boards = message.getAttachmentList().getAllOfType(Attachment.BOARD);
 			StringTokenizer blockWords =
 				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBoard"), ";");
 			boolean found = false;
 			while (blockWords.hasMoreTokens() && !found) {
 				String blockWord = blockWords.nextToken().trim();
-				Enumeration boardsEnumeration = boardsVector.elements();
-				while (boardsEnumeration.hasMoreElements() && !found) {
-					Vector row = (Vector) boardsEnumeration.nextElement();
-					String attachedBoardName = ((String) row.get(0)).toLowerCase();
-					if ((blockWord.length() > 0) && (attachedBoardName.equals(blockWord))) {
+				Iterator boardsIterator = boards.iterator();
+				while (boardsIterator.hasNext()) {
+					BoardAttachment boardAttachment = (BoardAttachment) boardsIterator.next();
+					Board boardObject = boardAttachment.getBoardObj();
+					if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
 						found = true;
 					}
 				}

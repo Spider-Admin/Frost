@@ -26,6 +26,7 @@ import java.awt.event.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -816,6 +817,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private JSplitPane mainSplitPane = null;
 		private JSplitPane messageSplitPane = null;
 		private JSplitPane attachmentsSplitPane = null;
+		
+		private AttachedFilesTableModel attachedFilesModel;
+		private AttachedBoardTableModel attachedBoardsModel;
 		private JTable filesTable = null;
 		private JTable boardsTable = null;
 		private JScrollPane filesTableScrollPane;
@@ -1097,15 +1101,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
 
 				// build attached files scroll pane
-				AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
-				language.addLanguageListener(attachmentTableModel);
-				filesTable = new JTable(attachmentTableModel);
+				attachedFilesModel = new AttachedFilesTableModel();
+				filesTable = new JTable(attachedFilesModel);
 				filesTableScrollPane = new JScrollPane(filesTable);
 
 				// build attached boards scroll pane
-				AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
-				language.addLanguageListener(boardTableModel);
-				boardsTable = new JTable(boardTableModel);
+				attachedBoardsModel = new AttachedBoardTableModel();
+				boardsTable = new JTable(attachedBoardsModel);
 				boardsTableScrollPane = new JScrollPane(boardsTable);
 
 				fontChanged();
@@ -1239,15 +1241,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				else
 					saveMessageButton.setEnabled(false);
 
-				Vector fileAttachments = selectedMessage.getFileAttachments();
-				Vector boardAttachments = selectedMessage.getBoardAttachments();
+				List fileAttachments = selectedMessage.getAttachmentList().getAllOfType(Attachment.FILE);
+				List boardAttachments = selectedMessage.getAttachmentList().getAllOfType(Attachment.BOARD);
 
 				positionDividers(fileAttachments.size(), boardAttachments.size());
 				
-	            ((DefaultTableModel) filesTable.getModel()).setDataVector(selectedMessage.getFileAttachments(),
-	                    null);
-	            ((DefaultTableModel) boardsTable.getModel()).setDataVector(selectedMessage.getBoardAttachments(),
-	                    null);
+	            attachedFilesModel.setData(fileAttachments);
+	            attachedBoardsModel.setData(boardAttachments);
 				
 			} else {
 				// no msg selected

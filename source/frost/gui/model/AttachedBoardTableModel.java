@@ -1,7 +1,11 @@
 package frost.gui.model;
 
+import java.util.*;
+
 import javax.swing.table.DefaultTableModel;
 
+import frost.gui.objects.Board;
+import frost.messages.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -26,6 +30,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
     public AttachedBoardTableModel() {
 		super();
 		language = Language.getInstance();
+		language.addLanguageListener(this);
 		refreshLanguage();
 	}
 
@@ -53,6 +58,38 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
 		columnNames[2] = language.getString("Description");	
 
 		fireTableStructureChanged();		
+	}
+	
+	/**
+	 * This method fills the table model with the BoardAttachments
+	 * in the list passed as a parameter  
+	 * @param boardAttachments list of BoardAttachments fo fill the model with
+	 */
+	public void setData(List boardAttachments) {
+		setRowCount(0);
+		Iterator boards = boardAttachments.iterator();
+		while (boards.hasNext()) {
+			BoardAttachment attachment = (BoardAttachment) boards.next();
+			Board board = attachment.getBoardObj();
+			Object[] row = new Object[3];
+			// There is no point in showing a board without name
+			if (board.getName() != null) {
+				row[0] = board.getName();
+				if (board.getPublicKey() == null && board.getPrivateKey() == null) {
+					row[1] = "public";
+				} else if (board.getPublicKey() != null && board.getPrivateKey() == null) { 
+					row[1] = "read - only";
+				} else {
+					row[1] = "read / write";
+				}
+				if (board.getDescription() == null) {
+					row[2] = "Not present";
+				} else {
+					row[2] = board.getDescription();
+				}
+				addRow(row);
+			}
+		}
 	}
 
     /* (non-Javadoc)
