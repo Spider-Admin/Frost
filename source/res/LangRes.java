@@ -579,6 +579,8 @@ public class LangRes extends ListResourceBundle {
 	///
 	
 	{"BoardSettingsFrame.description","Description:"},
+	{"BoardSettingsFrame.confirmTitle","Set Board as Public?"},
+	{"BoardSettingsFrame.confirmBody","If you set this board as public, you will lose its keys. Are you sure you want to do that?"},
 	
 	///
 	/// Misc (appear in several classes)
