@@ -44,7 +44,9 @@ class SortedTableHeader extends JTableHeader {
 			TableCellRenderer defaultRenderer = table.getTableHeader().getDefaultRenderer();
 			if (defaultRenderer instanceof JLabel) {
 				JLabel labelRenderer = (JLabel)defaultRenderer;
-				if (sortedTable.getCurrentColumnNumber() == column) {
+				// This translation is done so the real column number is used when the user moves columns around.
+				int modelIndex = table.getColumnModel().getColumn(column).getModelIndex();
+				if (sortedTable.getCurrentColumnNumber() == modelIndex) {
 					if (sortedTable.isAscending()) {
 						labelRenderer.setIcon(ascendingIcon);	
 					} else {
@@ -79,7 +81,9 @@ class SortedTableHeader extends JTableHeader {
 			TableColumnModel columnModel = getTable().getColumnModel();
 			int columnNumber = columnModel.getColumnIndexAtX(e.getX());
 			if (columnNumber != -1) {
-				sortedTable.columnClicked(columnNumber);
+				//This translation is done so the real column number is used when the user moves columns around.
+				int modelIndex = columnModel.getColumn(columnNumber).getModelIndex();
+				sortedTable.columnClicked(modelIndex);
 			}
 		}
 	
