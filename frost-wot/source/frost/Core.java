@@ -39,6 +39,8 @@ import frost.gui.Splashscreen;
 import frost.gui.objects.*;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
+import frost.storage.*;
+import frost.storage.Savable;
 import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.FlexibleObserver;

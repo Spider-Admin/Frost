@@ -10,7 +10,6 @@ import org.w3c.dom.*;
 
 import frost.*;
 import frost.storage.*;
-import frost.threads.maintenance.Savable;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.UpdatingLanguageResource;
 

@@ -11,7 +11,7 @@ import java.util.*;
 
 import frost.SettingsClass;
 import frost.gui.TableXmlIO;
-import frost.threads.maintenance.Savable;
+import frost.storage.Savable;
 import frost.util.model.*;
 
 /**

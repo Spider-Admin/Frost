@@ -28,7 +28,7 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.gui.objects.FrostBoardObject;
-import frost.threads.maintenance.Savable;
+import frost.storage.Savable;
 import frost.util.gui.JDragTree;
 import frost.util.gui.translation.UpdatingLanguageResource;
 
