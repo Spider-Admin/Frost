@@ -6,12 +6,17 @@
  */
 package frost.channels;
 
+import java.util.logging.*;
+
 /**
  * @author zlatinb
  *
  * default index generator - 0,1,2,3...
  */
 public class DefaultIndexGenerator implements IndexGenerator {
+	
+	private static Logger logger = Logger.getLogger(DefaultIndexGenerator.class.getName());
+	
 	String currentIndex_s;
 	int currentIndex;
 
@@ -19,7 +24,7 @@ public class DefaultIndexGenerator implements IndexGenerator {
 		try {
 			setCurrentIndex("0");
 		} catch (InvalidSlotException e) {
-			e.printStackTrace(System.out);
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 		}
 	}
 

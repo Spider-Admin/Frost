@@ -20,6 +20,7 @@ package frost;
 
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
@@ -33,6 +34,8 @@ public class Index
      * @param board The boardsname (in filename type)
      * @return Vector with SharedFileObject objects
      */
+
+	private static Logger logger = Logger.getLogger(Index.class.getName());
 
     private static final String fileSeparator =
         System.getProperty("file.separator");
@@ -52,7 +55,7 @@ public class Index
         //if no such file exists, return null
         if (!keyFile.exists())
         {
-            Core.getOut().println("keyfile didn't exist??");
+            logger.warning("keyfile didn't exist??");
             return null;
         }
 
@@ -85,7 +88,7 @@ public class Index
         FrostIndex totalIdx=null;
         FrostIndex _toUpload = null;
         
-        Core.getOut().println("Index.getUploadKeys(" + board + ")");
+        logger.fine("Index.getUploadKeys(" + board + ")");
         
         //final String fileSeparator = System.getProperty("file.separator");
 
@@ -117,8 +120,7 @@ public class Index
         Iterator i = totalIdx.getFiles().iterator();
         int downloadBack =
             frame1.frostSettings.getIntValue("maxAge");
-        Core.getOut().println(
-            "re-sharing files shared before " + DateFun.getDate(downloadBack));
+        logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
         while (i.hasNext())
         {
             SharedFileObject current = (SharedFileObject)i.next();
@@ -136,7 +138,7 @@ public class Index
                             current.getOwner())))) //and marked GOOD
             {
                 toUpload.put(current.getSHA1(),current);
-                Core.getOut().print("f"); //f means added file from friend
+                logger.fine("f"); //f means added file from friend
             }
             //also add the file if its been shared too long ago
             if (current.getOwner() != null
@@ -158,12 +160,12 @@ public class Index
                 	if (!current.checkDate()) {
                 		current.setDate(null);
                 		current.setKey(null);
-                		Core.getOut().print("o"); //o means assumed fallen off freenet
+                		logger.fine("o"); //o means assumed fallen off freenet
                 		//NOTE: This will not remove the CHK from the upload table. 
                 		//however, when the other side receives the index they will see the file "offline"
                 	}
                     toUpload.put(current.getSHA1(),current);
-                    Core.getOut().print("d");
+                    logger.fine("d");
                     current.setLastSharedDate(DateFun.getDate());
                     reSharing=true;
                     //d means it was shared too long ago
@@ -274,7 +276,7 @@ public class Index
         }
         catch (IOException e)
         {
-            e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in add(SharedFileObject key, File target)", e);
         }
         FrostIndex idx = FileAccess.readKeyFile(indexFile);
         if (idx == null) idx = new FrostIndex(new HashMap());
@@ -305,7 +307,7 @@ public class Index
         }
         catch (IOException e)
         {
-            e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in add(File keyfile, File target, Identity owner)", e);
         }
         FrostIndex chunk = FileAccess.readKeyFile(keyfile);
         Iterator it = chunk.getFiles().iterator();
@@ -339,7 +341,7 @@ public class Index
         }
         catch (IOException e)
         {
-            e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in add(File keyfile, File target, String owner)", e);
         }
         FrostIndex idx = FileAccess.readKeyFile(keyfile);
 
@@ -449,11 +451,11 @@ public class Index
         //this really shouldn't happen
         if (key == null || key.getSHA1() == null)
         {
-            Core.getOut().println("null value in index.updateDownloadTable");
+            logger.warning("null value in index.updateDownloadTable");
             if (key != null)
-                Core.getOut().println("SHA1 null!");
+                logger.warning("SHA1 null!");
             else
-                Core.getOut().println("key null!");
+               logger.warning("key null!");
             return;
         }
 

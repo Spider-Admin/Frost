@@ -23,6 +23,7 @@ import java.awt.*;
 import java.awt.event.ActionEvent;
 import java.io.*;
 import java.util.Vector;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
@@ -32,6 +33,8 @@ import javax.swing.event.*;
  * @author Jantho
  */
 public class Browser extends JPanel {
+
+	private static Logger logger = Logger.getLogger(Browser.class.getName());
 
     // Global Variables
     String[] imageExtensions = {".jpg", ".gif", ".jpeg", ".png", ".bmp"};
@@ -251,7 +254,7 @@ public class Browser extends JPanel {
 	    f.close();
 	} 
 	catch (IOException e){
-	    System.out.println("Read Error: " + path);
+		logger.log(Level.SEVERE, "Read Error: "+ path, e);
 	}
 	return data;
     }
@@ -269,7 +272,7 @@ public class Browser extends JPanel {
 	    f1.write(content);
 	    f1.close();
 	} catch (IOException e) {
-	    System.out.println("Write Error: " + filename);
+		logger.log(Level.SEVERE, "Write Error: "+ filename, e);
 	}
     }
 
