@@ -454,6 +454,7 @@ static final Object[][] contents = {
 	{"Mark ALL messages read", "Marca TODOS los mensajes como leídos"},
 	{"Mark message unread", "Marca el mensaje como no leído"},
 	{"Delete message", "Borra el mensaje"},
+	{"Undelete message", "Recupera el mensaje"},
 	{"Cancel","Cancela"},
 	
 	// Attach Boards Chooser (message frame)
