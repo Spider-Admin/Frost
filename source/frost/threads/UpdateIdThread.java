@@ -327,6 +327,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					Core.getOut().println("received index from "+_sharer);			
 				
 					sharer = frame1.getFriends().Get(_sharer);
+					//also check the neutral list
+					sharer = sharer==null ? Core.getNeutral().Get(_sharer) : sharer;
 				}
 				
 				//check if person is blocked
@@ -370,6 +372,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					sharer = new Identity(_sharer.substring(0,_sharer.indexOf("@")),
 								null,
 								pubKey);
+					//add him to the neutral list
+					Core.getNeutral().Add(sharer);
 				}
 				
 				//verify the archive
