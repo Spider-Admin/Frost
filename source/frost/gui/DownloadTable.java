@@ -28,13 +28,17 @@ public class DownloadTable extends SortedTable
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
+        // default for sort: sort by state ascending
+        sortedColumnIndex = 3;
+        sortedColumnAscending = true;
+        resortTable();
     }
 
     public void removeSelectedRows()
     {
         DownloadTableModel model = (DownloadTableModel)getModel();
         int[] selectedRows = getSelectedRows();
-        for(int x=0; x<selectedRows.length; x++)
+        for(int x=selectedRows.length-1; x>=0; x--)
         {
             model.deleteRow( model.getRow(selectedRows[x]) );
         }

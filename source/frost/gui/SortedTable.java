@@ -19,6 +19,12 @@ public class SortedTable extends JTable
     public SortedTable(TableModel model)
     {
         super(model);
+
+        // model needs to know parent table to invoke sorting after updateRow
+        if( model instanceof SortedTableModel )
+        {
+            ((SortedTableModel)model).setParentTable( this );
+        }
         initSortHeader();
     }
 
@@ -33,6 +39,11 @@ public class SortedTable extends JTable
 
         // sort this column
         model.sortModelColumn( col, ascending );
+    }
+
+    public void resortTable()
+    {
+        sortColumn( sortedColumnIndex, sortedColumnAscending );
     }
 
 
