@@ -200,7 +200,8 @@ public class FileAccess
                     }
                 }
             }
-            if( file.getName().endsWith(extension) )
+            if( extension.length() == 0 ||
+                file.getName().endsWith(extension) )
             {
                 filesLst.add( file );
             }
