@@ -159,6 +159,7 @@ public class LangRes extends ListResourceBundle {
 
 	// Popup over attachments table
 	{"Add selected board", "Add selected board"},	
+	{"Download selected attachment", "Download selected attachment"},	
 	//{"Cancel", "Cancel"}, // Defined above
 	
 	///////////////////////////////////////////////////
@@ -230,7 +231,14 @@ public class LangRes extends ListResourceBundle {
 	// Main Window Board Selection Tree
 	///////////////////////////////////////////////////
     // Popup over Tree
-	{"Refresh folder", "Refresh folder"},
+	{"Refresh", "Refresh"},
+	{"Remove", "Remove"},
+	{"folder", "folder"},
+	{"Folder", "Folder"},
+	{"board", "board"},
+	{"Board", "Board"},
+	{"Cut", "Cut"},
+	{"Paste", "Paste"},
 	{"Add new board", "Add new board"},
 	{"Add new folder", "Add new folder"},
 	{"Configure selected board", "Configure selected board"},
