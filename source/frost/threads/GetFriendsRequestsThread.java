@@ -22,6 +22,7 @@ import java.util.*;
 import java.io.*;
 import frost.*;
 import frost.FcpTools.*;
+import frost.messages.*;
 
 /**
  * @author zlatinb

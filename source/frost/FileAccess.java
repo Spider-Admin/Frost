@@ -26,6 +26,8 @@ import java.util.zip.*;
 import javax.swing.JFileChooser;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.messages.*;
 public class FileAccess
 {
     /**

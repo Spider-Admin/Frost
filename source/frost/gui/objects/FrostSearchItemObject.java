@@ -1,7 +1,7 @@
 package frost.gui.objects;
 
-import frost.SharedFileObject;
 import frost.gui.model.TableMember;
+import frost.messages.SharedFileObject;
 
 
 public class FrostSearchItemObject implements FrostSearchItem, TableMember
