@@ -7,7 +7,6 @@
 package frost;
 
 import java.beans.*;
-import java.io.*;
 import java.io.IOException;
 import java.util.logging.*;
 
@@ -33,9 +32,9 @@ public class Logging {
 		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
-			frostSettings.removePropertyChangeListener(LOG_TO_FILE, listener);
-			frostSettings.removePropertyChangeListener(LOG_FILE_SIZE_LIMIT, listener);
-			frostSettings.removePropertyChangeListener(LOG_LEVEL, listener);
+			frostSettings.removePropertyChangeListener(SettingsClass.LOG_TO_FILE, listener);
+			frostSettings.removePropertyChangeListener(SettingsClass.LOG_FILE_SIZE_LIMIT, listener);
+			frostSettings.removePropertyChangeListener(SettingsClass.LOG_LEVEL, listener);
 			
 			if (fileHandler != null) {
 				rootLogger.removeHandler(fileHandler);
@@ -58,13 +57,13 @@ public class Logging {
 		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
 		 */
 		public void propertyChange(PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals(LOG_TO_FILE)) {
+			if (evt.getPropertyName().equals(SettingsClass.LOG_TO_FILE)) {
 				logToFileSettingChanged();
 			}
-			if (evt.getPropertyName().equals(LOG_FILE_SIZE_LIMIT)) {
+			if (evt.getPropertyName().equals(SettingsClass.LOG_FILE_SIZE_LIMIT)) {
 				logFileSizeSettingChanged();
 			}
-			if (evt.getPropertyName().equals(LOG_LEVEL)) {
+			if (evt.getPropertyName().equals(SettingsClass.LOG_LEVEL)) {
 				logLevelSettingChanged();
 			}
 		}
@@ -77,9 +76,6 @@ public class Logging {
 	public static final String VERY_HIGH = "Very high";	//Finest
 	public static final String DEFAULT = "Low";
 	
-	public static final String LOG_TO_FILE = "logToFile";
-	public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
-	public static final String LOG_LEVEL = "logLevel";
 	private static final String LOG_FILE_NAME = "frost%g.log";
 
 	private SettingsClass frostSettings = null;
@@ -113,19 +109,19 @@ public class Logging {
 
 		logToFileSettingChanged();
 		
-		frostSettings.addPropertyChangeListener(LOG_TO_FILE, listener);
-		frostSettings.addPropertyChangeListener(LOG_FILE_SIZE_LIMIT, listener);
-		frostSettings.addPropertyChangeListener(LOG_LEVEL, listener);
+		frostSettings.addPropertyChangeListener(SettingsClass.LOG_TO_FILE, listener);
+		frostSettings.addPropertyChangeListener(SettingsClass.LOG_FILE_SIZE_LIMIT, listener);
+		frostSettings.addPropertyChangeListener(SettingsClass.LOG_LEVEL, listener);
 	}
 	
 	/**
 	 * 
 	 */
 	private void logLevelSettingChanged() {
-		boolean valueFound = setLevel(frostSettings.getValue(LOG_LEVEL));
+		boolean valueFound = setLevel(frostSettings.getValue(SettingsClass.LOG_LEVEL));
 		if (!valueFound) {
 			//If the value in the settings was not a valid one, we set the default one
-			setLevel(frostSettings.getDefaultValue(LOG_LEVEL));
+			setLevel(frostSettings.getDefaultValue(SettingsClass.LOG_LEVEL));
 		}
 	}
 		
@@ -164,7 +160,7 @@ public class Logging {
 		// We only change the file size if logging is not disabled
 		if (!Level.OFF.equals(rootLogger.getLevel())) {
 			try {
-				int fileSize = frostSettings.getIntValue(LOG_FILE_SIZE_LIMIT);
+				int fileSize = frostSettings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT);
 				if (fileHandler != null) {
 					rootLogger.removeHandler(fileHandler);
 					fileHandler.close();
@@ -186,7 +182,7 @@ public class Logging {
 	private void logToFileSettingChanged() {
 		// We only change the level if logging is not disabled
 		if (!Level.OFF.equals(rootLogger.getLevel())) {
-			if (frostSettings.getBoolValue(LOG_TO_FILE)) {
+			if (frostSettings.getBoolValue(SettingsClass.LOG_TO_FILE)) {
 				rootLogger.setLevel(null);
 				logLevelSettingChanged();
 				logFileSizeSettingChanged();
