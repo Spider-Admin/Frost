@@ -482,7 +482,9 @@ public class FcpInsert
             if (DEBUG) System.out.println("Chunk: " + chunkNo);
 
             while (getActiveThreads(chunkThreads) >= maxThreads)
-            mixed.wait(5000);
+            {
+                mixed.wait(5000);
+            }
 
             chunkThreads[threadCount] = new putKeyThread("CHK@",
                                 currentFileMap[j],
@@ -517,7 +519,9 @@ public class FcpInsert
             if (DEBUG) System.out.println("Check: " + checkNo);
 
             while (getActiveThreads(checkThreads) >= maxThreads)
-            mixed.wait(5000);
+            {
+                mixed.wait(5000);
+            }
 
             checkThreads[threadCount] = new putKeyThread("CHK@",
                                 currentFileMap[j],

@@ -71,40 +71,37 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             makedir.mkdirs();
         }
 
-        int index = 0;
-        int failures = 0;
-        int maxFailures = 2;
-
         if( isInterrupted() )
         {
             notifyThreadFinished(this);
             return;
         }
 
+        int index = 0;
+        int failures = 0;
+        int maxFailures = 3; // increased, skips now up to 3 request indicies (in case if gaps occured)
         while( failures < maxFailures )
         {
             String val = new StringBuffer().append(destination).append(dirdate).append("-")
                 .append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
 
-
-            //File testMe = new File(destination + dirdate + "-" + board + "-" + index + ".req");
             File testMe = new File(val);
-
             boolean justDownloaded = false;
 
-            val = new StringBuffer().append("GetRequestsThread.run, file = ")
-                                    .append(testMe.getName())
-                                    .append(", failures = ")
-                                    .append(failures).toString();
-            System.out.println( val );
-
+            // already downloaded ?
             if( testMe.length() > 0 )
-            { // already downloaded
+            {
                 index++;
                 failures = 0;
             }
             else
             {
+                String tmp = new StringBuffer().append("GetRequestsThread.run, file = ")
+                                        .append(testMe.getName())
+                                        .append(", failures = ")
+                                        .append(failures).toString();
+                System.out.println( tmp );
+
                 FcpRequest.getFile("KSK@frost/request/" +
                                    frame1.frostSettings.getValue("messageBase") + "/" + testMe.getName(),
                                    "Unknown",
@@ -141,7 +138,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                                     {
                                         System.out.println("Request matches row " + i);
                                         ulItem.setState( LangRes.getString("Requested") );
-                                        tableModel.updateRow( ulItem );;
+                                        tableModel.updateRow( ulItem );
                                     }
                                 }
                                 else
@@ -161,6 +158,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             }
             else
             {
+                index++; // this now skips gaps in requests, but gives each download only 1 try
                 failures++;
             }
             if( isInterrupted() )
@@ -180,5 +178,4 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
         this.keypool = kpool;
         this.uploadTable = uploadTable;
     }
-
 }
