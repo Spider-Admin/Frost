@@ -25,8 +25,7 @@ import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.fileTransfer.download.*;
-import frost.gui.*;
-import frost.gui.objects.*;
+import frost.gui.SortedTable;
 import frost.identities.*;
 
 class SearchTable extends SortedTable
@@ -54,22 +53,21 @@ class SearchTable extends SortedTable
 		resortTable();
 	}
 
-    /**
-     * Adds all selected items in searchtable to download table.
-     */
-    public void addSelectedSearchItemsToDownloadTable(DownloadTable dlTable)
-    {
-        SearchTableModel searchTableModel = (SearchTableModel)getModel();
-        int[] selectedRows = getSelectedRows();
+	/**
+	 * Adds all selected items in searchtable to download model.
+	 */
+	public void addSelectedSearchItemsToDownloadModel(DownloadModel dlModel) {
+		SearchTableModel searchTableModel = (SearchTableModel) getModel();
+		int[] selectedRows = getSelectedRows();
 
-        for (int i = 0; i < selectedRows.length; i++)
-        {
-            FrostSearchItem searchItem = (FrostSearchItem)searchTableModel.getRow( selectedRows[i] );
-            FrostDownloadItem dlItem = new FrostDownloadItem(searchItem);
+		for (int i = 0; i < selectedRows.length; i++) {
+			FrostSearchItem searchItem = (FrostSearchItem) searchTableModel.getRow(selectedRows[i]);
+			FrostDownloadItem dlItem = new FrostDownloadItem(searchItem);
 
-            boolean isAdded = dlTable.addDownloadItem( dlItem ); // will not add if item is already in table
-        }
-    }
+			boolean isAdded = dlModel.addDownloadItem(dlItem);
+			// will not add if item is already in table
+		}
+	}
     
 	/**
 	 * returns a list of the identities of the owners of the selected items

@@ -14,7 +14,7 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 
 import frost.*;
-import frost.fileTransfer.download.DownloadTable;
+import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
 import frost.gui.TofTree;
 import frost.gui.components.JSkinnablePopupMenu;
@@ -146,14 +146,14 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		 */
 		private void downloadAllKeys() {
 			searchTable.selectAll();
-			searchTable.addSelectedSearchItemsToDownloadTable(downloadTable);
+			searchTable.addSelectedSearchItemsToDownloadModel(downloadModel);
 		}
 	
 		/**
 		 * 
 		 */
 		private void downloadSelectedKeys() {
-			searchTable.addSelectedSearchItemsToDownloadTable(downloadTable);
+			searchTable.addSelectedSearchItemsToDownloadModel(downloadModel);
 		}
 	
 		/* (non-Javadoc)
@@ -192,7 +192,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	 * @param e
 	 */
 	private void downloadButton_actionPerformed(ActionEvent e) {
-		searchTable.addSelectedSearchItemsToDownloadTable(downloadTable);
+		searchTable.addSelectedSearchItemsToDownloadModel(downloadModel);
 	}
 
 	/**
@@ -299,7 +299,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	
 	private SearchTable searchTable = null;
 	private SearchTableModel searchTableModel = null;
-	private DownloadTable downloadTable = null;
+	private DownloadModel downloadModel = null;
 	private UploadModel uploadModel = null;
 	private TofTree tofTree = null;
 	private SettingsClass settingsClass = null;
@@ -460,6 +460,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 				searchComboBox.getSelectedKey(),
 				searchManager);
 		searchThread.setLanguageResource(languageResource);
+		searchThread.setDownloadModel(downloadModel);
 		searchThread.setUploadModel(uploadModel);
 		searchThread.start();
 	}
@@ -517,7 +518,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	 * @param e 
 	 */
 	private void searchTableDoubleClick(MouseEvent e) {
-		searchTable.addSelectedSearchItemsToDownloadTable(downloadTable);
+		searchTable.addSelectedSearchItemsToDownloadModel(downloadModel);
 	}
 
 
@@ -541,10 +542,10 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	/**
 	 * description
 	 * 
-	 * @param downloadTable description
+	 * @param model description
 	 */
-	public void setDownloadTable(DownloadTable newDownloadTable) {
-		downloadTable = newDownloadTable;
+	public void setDownloadModel(DownloadModel model) {
+		downloadModel = model;
 	}
 	
 	/**

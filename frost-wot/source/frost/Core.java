@@ -551,7 +551,7 @@ public class Core implements Savable {
 		
 		//Until the downloads and uploads are fully separated from frame1:
 		mainFrame.setDownloadTicker(getDownloadManager().getTicker());
-		mainFrame.setDownloadTable(getDownloadManager().getTable());
+		mainFrame.setDownloadModel(getDownloadManager().getModel());
 		mainFrame.setUploadTicker(getUploadManager().getTicker());
 		mainFrame.setUploadPanel(getUploadManager().getPanel());
 		mainFrame.initialize();
@@ -618,7 +618,7 @@ public class Core implements Savable {
 		if (searchManager == null) {
 			searchManager = new SearchManager(languageResource, frostSettings);
 			searchManager.setMainFrame(mainFrame);
-			searchManager.setDownloadTable(getDownloadManager().getTable());
+			searchManager.setDownloadModel(getDownloadManager().getModel());
 			searchManager.setUploadModel(getUploadManager().getModel());
 			searchManager.setTofTree(mainFrame.getTofTree());
 			searchManager.setKeypool(keypool);
@@ -672,12 +672,12 @@ public class Core implements Savable {
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
 		saver.addAutoSavable(frame1.getInstance().getTofTree());
-		saver.addAutoSavable(getDownloadManager().getTable());
+		saver.addAutoSavable(getDownloadManager().getModel());
 		saver.addAutoSavable(getUploadManager().getModel());
 		saver.addExitSavable(this);
 		saver.addExitSavable(getIdentities());
 		saver.addExitSavable(frame1.getInstance().getTofTree());
-		saver.addExitSavable(getDownloadManager().getTable());
+		saver.addExitSavable(getDownloadManager().getModel());
 		saver.addExitSavable(getUploadManager().getModel());
 		saver.addExitSavable(frostSettings);
 					

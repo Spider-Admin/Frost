@@ -28,13 +28,17 @@ import frost.FcpTools.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.SharedFileObject;
 
+/**
+ * @author Administrator
+ *
+ * To change the template for this generated type comment go to
+ * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ */
 public class DownloadThread extends Thread {
+	
 	private SettingsClass settings;
 
 	private DownloadTicker ticker;
-
-	static java.util.ResourceBundle LangRes =
-		java.util.ResourceBundle.getBundle("res.LangRes") /*#BundleType=List*/;
 
 	private static Logger logger = Logger.getLogger(DownloadThread.class.getName());
 
@@ -46,18 +50,14 @@ public class DownloadThread extends Thread {
 	private String SHA1;
 	private String batch;
 	private String owner;
-	private DownloadTable downloadTable;
 	private FrostBoardObject board;
 
 	private FrostDownloadItem downloadItem;
+	private DownloadModel downloadModel;
 
 	public void run() {
-		// increase thread counter
-		ticker.increaseThreadCount();
-
 		try {
 			// some vars
-			final DownloadTableModel tableModel = (DownloadTableModel) downloadTable.getModel();
 			SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
 			Date today = new Date();
 			String date = formatter.format(today);
@@ -69,7 +69,6 @@ public class DownloadThread extends Thread {
 			if (key == null) {
 				logger.info("FILEDN: Requesting " + filename);
 				downloadItem.setState(FrostDownloadItem.STATE_REQUESTING);
-				tableModel.updateRow(downloadItem);
 
 				//request the file itself
 				try {
@@ -79,11 +78,10 @@ public class DownloadThread extends Thread {
 					logger.log(Level.SEVERE, "FILEDN: Uploading request failed for " + filename, t);
 				}
 				downloadItem.setState(FrostDownloadItem.STATE_REQUESTED);
-				tableModel.updateRow(downloadItem);
 
 				downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
 				
-				ticker.decreaseThreadCount();
+				ticker.releaseThread();
 				return;
 			}
 
@@ -107,9 +105,10 @@ public class DownloadThread extends Thread {
 			}
 
 			// file might be erased from table during download...
+			//TODO: refactor this check (possible race condition also)
 			boolean inTable = false;
-			for (int x = 0; x < tableModel.getRowCount(); x++) {
-				FrostDownloadItem actItem = (FrostDownloadItem) tableModel.getRow(x);
+			for (int x = 0; x < downloadModel.getItemCount(); x++) {
+				FrostDownloadItem actItem = (FrostDownloadItem) downloadModel.getItemAt(x);
 				if (actItem.getKey() != null && actItem.getKey().equals(downloadItem.getKey())) {
 					inTable = true;
 					break;
@@ -119,7 +118,6 @@ public class DownloadThread extends Thread {
 			// download failed
 			if (success == null) {
 				downloadItem.setRetries(downloadItem.getRetries() + 1);
-				tableModel.updateRow(downloadItem);
 
 				logger.warning("FILEDN: Download of " + filename + " failed.");
 				if (inTable == true) {
@@ -133,7 +131,6 @@ public class DownloadThread extends Thread {
 						{
 						logger.info("FILEDN: Download failed, uploading request for " + filename);
 						downloadItem.setState(FrostDownloadItem.STATE_REQUESTING);
-						tableModel.updateRow(downloadItem);
 
 						// We may not do the request here due to the synchronize
 						// -> no lock needed, using models
@@ -164,8 +161,6 @@ public class DownloadThread extends Thread {
 					} else {
 						downloadItem.setState(FrostDownloadItem.STATE_WAITING);
 					}
-
-					tableModel.updateRow(downloadItem);
 				}
 			}
 			// download successfull
@@ -184,19 +179,17 @@ public class DownloadThread extends Thread {
 					Index.addMine(newKey, board);
 				}
 
-				downloadItem.setFileSize(newFile.length());
+				downloadItem.setFileSize(new Long(newFile.length()));
 				downloadItem.setState(FrostDownloadItem.STATE_DONE);
 				downloadItem.setEnableDownload(Boolean.valueOf(false));
 
 				logger.info("FILEDN: Download of " + filename + " was successful.");
-
-				tableModel.updateRow(downloadItem);
 			}
 		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Oo. EXCEPTION in requestThread.run", t);
 		}
 
-		ticker.decreaseThreadCount();
+		ticker.releaseThread();
 		downloadItem.setLastDownloadStopTimeMillis(System.currentTimeMillis());
 	}
 
@@ -433,7 +426,7 @@ public class DownloadThread extends Thread {
 	public DownloadThread(
 		DownloadTicker newTicker,
 		FrostDownloadItem item,
-		DownloadTable table,
+		DownloadModel model,
 		SettingsClass frostSettings) {
 
 		settings = frostSettings;
@@ -452,6 +445,6 @@ public class DownloadThread extends Thread {
 
 		ticker = newTicker;
 		downloadItem = item;
-		downloadTable = table;
+		downloadModel = model;
 	}
 }
