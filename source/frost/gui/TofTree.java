@@ -132,60 +132,93 @@ public class TofTree extends JTree
 
 
     // DropTargetListener interface methods
-    public void drop(DropTargetDropEvent e) {
-    try {
-        Transferable trans = e.getTransferable();
+    public void drop(DropTargetDropEvent e)
+    {
+        try
+        {
+            Transferable trans = e.getTransferable();
 
-        //make sure we started the drag
-        if (!trans.isDataFlavorSupported(DataFlavor.stringFlavor /* NODE_FLAVOR */))
-        e.rejectDrop();
+            //make sure we started the drag
+            if( !trans.isDataFlavorSupported(DataFlavor.stringFlavor /* NODE_FLAVOR */) || dragNode == null )
+                e.rejectDrop();
 
-        String childInfo = (String) trans.getTransferData(DataFlavor.stringFlavor /* NODE_FLAVOR */);
-        Point loc = e.getLocation();
-        TreePath destPath = getPathForLocation(loc.x, loc.y);
-        DefaultMutableTreeNode newParent = (DefaultMutableTreeNode)destPath.getLastPathComponent();
-        DefaultMutableTreeNode oldParent = (DefaultMutableTreeNode)getSelectedNode().getParent();
-        //      if (newParent.isRoot()) {
-        //      e.rejectDrop();
-        //      e.getDropTargetContext().dropComplete(false);
-        //      return;
-        //      }
-        // we need to verify that the drag/drop operation is valid
-        try {
-        if (newParent.isLeaf()/* && !newParent.getAllowsChildren()*/) {
-        //dropped on a leaf, insert into leaf's parent before leaf
-        DefaultMutableTreeNode leafParent=(DefaultMutableTreeNode)newParent.getParent();
-        int idx=leafParent.getIndex(newParent);
-        if (idx < 0) {
-        System.out.println("child not found in parent!!!");
-        //throw new Exception;
-        }
-        else {
-        leafParent.insert(dragNode, idx);
-        newParent=leafParent;
-        }
-    }
-        else {
-        //dropped on a folder
-        newParent.add(dragNode);
-        }
-        e.acceptDrop(DnDConstants.ACTION_MOVE);
-        } catch (java.lang.IllegalStateException exc) {
-        e.rejectDrop();
-        }
+            String childInfo = (String) trans.getTransferData(DataFlavor.stringFlavor /* NODE_FLAVOR */);
+            Point loc = e.getLocation();
+            TreePath destPath = getPathForLocation(loc.x, loc.y);
+            DefaultMutableTreeNode newParent = (DefaultMutableTreeNode)destPath.getLastPathComponent();
+            DefaultMutableTreeNode oldParent = (DefaultMutableTreeNode)dragNode.getParent();
+            //      if (newParent.isRoot()) {
+            //      e.rejectDrop();
+            //      e.getDropTargetContext().dropComplete(false);
+            //      return;
+            //      }
+            // we need to verify that the drag/drop operation is valid
+            try
+            {
+                DefaultTreeModel model = (DefaultTreeModel)getModel();
 
-    e.getDropTargetContext().dropComplete(true);
-    DefaultTreeModel model = (DefaultTreeModel) getModel();
-    model.reload(oldParent);
-    model.reload(newParent);
-    } catch(IOException exc) {
-        e.rejectDrop();
-    } catch(UnsupportedFlavorException exc) {
-        e.rejectDrop();
-    } catch(Exception exc) {
-        e.rejectDrop();
-        exc.printStackTrace();
-    }
+                if( newParent.isLeaf()/* && !newParent.getAllowsChildren()*/ )
+                {
+                    //dropped on a leaf, insert into leaf's parent before leaf
+                    DefaultMutableTreeNode leafParent=(DefaultMutableTreeNode)newParent.getParent();
+                    int idx=leafParent.getIndex(newParent);
+                    if( idx < 0 )
+                    {
+                        System.out.println("child not found in parent!!!");
+                        //throw new Exception;
+                    }
+                    else
+                    {
+                        newParent=leafParent;
+                        // remove node from oldParent ...
+                        Object[] removedChilds = { dragNode };
+                        int[] childIndices = { oldParent.getIndex(dragNode) };
+                        dragNode.removeFromParent();
+                        model.nodesWereRemoved( oldParent, childIndices, removedChilds );
+
+                        // ... and insert into newParent
+                        newParent.insert(dragNode, idx);
+                        int insertedIndex[] = { idx };
+                        model.nodesWereInserted( newParent, insertedIndex );
+                    }
+                }
+                else
+                {
+                    //dropped on a folder
+
+                    // remove node from oldParent ...
+                    Object[] removedChilds = { dragNode };
+                    int[] childIndices = { oldParent.getIndex(dragNode) };
+                    dragNode.removeFromParent();
+                    model.nodesWereRemoved( oldParent, childIndices, removedChilds );
+
+                    // ... and add into newParent
+                    newParent.add(dragNode);
+                    int insertedIndex[] = { newParent.getChildCount()-1 };
+                    model.nodesWereInserted( newParent, insertedIndex );
+                }
+                e.acceptDrop(DnDConstants.ACTION_MOVE);
+            }
+            catch( java.lang.IllegalStateException exc )
+            {
+                e.rejectDrop();
+            }
+
+            e.getDropTargetContext().dropComplete(true);
+        }
+        catch( IOException exc )
+        {
+            e.rejectDrop();
+        }
+        catch( UnsupportedFlavorException exc )
+        {
+            e.rejectDrop();
+        }
+        catch( Exception exc )
+        {
+            e.rejectDrop();
+            exc.printStackTrace();
+        }
 
     }
 
