@@ -1,2 +1,2 @@
 #!/bin/sh
-java -ea -jar frost.jar "$@"
+java -Djava.library.path=lib/ -ea -jar frost.jar "$@"
