@@ -9,7 +9,7 @@ Legend:
 
 - fixed 'Minimize to tray and never come up again' bug on Windows systems --bback
 + added new systray support that could also be used on different platforms, currently win32 supported;
-  there is now a new icon for frost ...
+  there is now a new icon for frost (icon by jantho)  --bback
 * changed file transfer methods to 'bleeding edge' :   --zab
 	*  Reworked the indexing scheme, serialized in object format in "indices-date" format
 	*  There is only one request thread, each batch of files has its own request channel
