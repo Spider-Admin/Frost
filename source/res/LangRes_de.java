@@ -89,8 +89,8 @@ static final Object[][] contents = {
 {"Core.loadIdentities.InvalidNameBody","Der Name darf keine '@'-Zeichen enthalten!"},
 {"Core.loadIdentities.InvalidNameTitle","Üngültige Name der Identität"},
 {"Create message","Erstelle Nachricht"},
-{"Cut","Entferne (nicht mehr abonnieren)"}, // Board -> Kontext
-{"Cut board","Forum entfernen (nicht mehr abonnieren)"}, // Symbolleiste: Scheresymbol
+{"Cut","Ausschneiden (nicht mehr abonnieren)"}, // Board -> Kontext
+{"Cut board","Forum ausschneiden (nicht mehr abonnieren)"}, // Symbolleiste: Scheresymbol
 {"Date","Datum"},
 {"Decode each segment immediately after its download","Segmente sofort nach dem Download dekodieren"},
 {"Decoding segment","Dekodiere Segment"},
@@ -172,7 +172,7 @@ static final Object[][] contents = {
 {"Index","Index"},
 {"Index file redundancy","Indexdatei-Redundanz"},
 {"Indexed attachments","Indizierte Anhänge"},
-{"Initializing Mainframe","Initialisiere das Hauptfenster"}, //sicher daß damit das Hauptfenster und nicht der Großrechner gemeint ist?
+{"Initializing Mainframe","Initialisiere das Mainframe"}, //sicher daß damit das Hauptfenster und nicht der Großrechner gemeint ist?
 {"Invert enabled state for all downloads","Enable-Status für alle Downloads invertieren"},
 {"Invert enabled state for selected downloads","Enable-Status für gewählte Downloads invertieren"},
 {"Italian","Italienisch"},
@@ -240,10 +240,10 @@ static final Object[][] contents = {
 {"Open Source Project (GPL license)","Open-Source-Projekt (GPL-Lizenz)"},
 {"Options","Optionen"},
 {"Override default settings","Override default settings"},
-{"Paste","Paste"},
+{"Paste","Einfügen"},
 {"Paste board","Forum einfügen"},
 {"Path","Pfad"},
-{"Pause downloading","Herunterladen angehalten"},
+{"Pause downloading","Herunterladen anhalten"},
 {"Plain","Standard"},
 {"Please choose a new name","Einen neuen Namen aussuchen"},
 {"Please enter a name for the new board","Namen für das Forum eingeben"},
@@ -346,7 +346,7 @@ static final Object[][] contents = {
 {"Very high","Sehr hoch"}, //?
 {"Very low","Sehr niedrig"}, //?
 {"Video","Video"},
-{"Video Extension","Video Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
+{"Video Extension","Video-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Waiting","Warte"},
 {"Waittime after each try","Wartezeit nach jedem Versuch"},
 {"Warning","Warnung"}, //?
