@@ -30,7 +30,7 @@ public class AboutBox extends JDialog implements ActionListener
     private final static String product = "Frost";
 
     // because a growing amount of users use CVS version:
-    private final static String version = "frost-103003-dev";
+    private final static String version = "frost-110103-dev";
 
     private final static String copyright = "Copyright (c) 2003 Jan-Thomas Czornack";
     private final static String comments1 = "Open Source Project (GPL license)";
