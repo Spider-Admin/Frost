@@ -97,7 +97,7 @@ public final class FrostCrypt implements crypt {
 		return result;
 	}
 
-	public synchronized String sign(String message, String key) {
+	public synchronized byte [] sign(byte [] message, String key) {
 
 		//extract the key
 		StringBuffer signedMessage =
@@ -118,7 +118,7 @@ public final class FrostCrypt implements crypt {
 		//initialize the signer
 
 		signer.init(true, privKey);
-		signer.update(message.getBytes(), 0, message.length());
+		signer.update(message, 0, message.length);
 
 		//and sign
 		try {
@@ -134,7 +134,7 @@ public final class FrostCrypt implements crypt {
 		//reset the signer
 		signer.reset();
 
-		return signedMessage.toString();
+		return signedMessage.toString().getBytes();
 	}
 
 	public synchronized boolean verify(String message, String key) {
@@ -283,8 +283,8 @@ public final class FrostCrypt implements crypt {
 		return null;
 	}
 
-	public synchronized String encryptSign(
-		String what,
+	public synchronized byte [] encryptSign(
+		byte [] what,
 		String myKey,
 		String otherKey) {
 
@@ -310,12 +310,12 @@ public final class FrostCrypt implements crypt {
 
 		//put the message in the encryptor
 
-		int noRuns = what.length() / size;
-		if (what.length() % size != 0)
+		int noRuns = what.length / size;
+		if (what.length % size != 0)
 			noRuns++;
 		byte[] tmp = new byte[noRuns * 128];
 		byte[] str = new byte[noRuns * size];
-		System.arraycopy(what.getBytes(), 0, str, 0, what.length());
+		System.arraycopy(what, 0, str, 0, what.length);
 
 		//determine how many blocks we need
 		//int noRuns =what.length() / size;
@@ -342,17 +342,13 @@ public final class FrostCrypt implements crypt {
 					+ "==== End Of Frost SE Message ====");
 
 		//rsa.reset();
-		return result;
+		return result.getBytes();
 
 		//return null;
 	}
 
-	public synchronized String decrypt(String what, String otherKey) {
+	public synchronized byte [] decrypt(byte [] what, String otherKey) {
 
-		what =
-			what.substring(
-				crypt.ENC_HEADER_SIZE,
-				what.indexOf("==== End Of Frost SE Message ===="));
 		//frost.Core.getOut().println("stripped what: " +what);
 		//if (what.length() % 172 == 0) frost.Core.getOut().println("good size");
 
@@ -375,7 +371,7 @@ public final class FrostCrypt implements crypt {
 		int outSize = rsa.getOutputBlockSize();
 
 		//decode the text
-		byte[] cipherText = Base64.decode(what.getBytes());
+		byte[] cipherText = Base64.decode(what);
 		byte[] plainText = new byte[cipherText.length * 128 / size];
 
 		//String result = new String();
@@ -389,9 +385,8 @@ public final class FrostCrypt implements crypt {
 				outSize);
 		}
 
-		String result = new String(plainText);
 
-		return result;
+		return plainText;
 
 	}
 
