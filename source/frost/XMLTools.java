@@ -52,12 +52,14 @@ public class XMLTools
     throws Throwable
     {
         try {
-            OutputFormat format = new OutputFormat(doc);
+            //OutputFormat format = new OutputFormat(doc);
+            OutputFormat format = new OutputFormat(doc, "UTF-16", false);
             format.setLineSeparator(LineSeparator.Windows);
-            format.setIndenting(true);
+            //format.setIndenting(true);
             format.setLineWidth(0);
             format.setPreserveSpace(true);
-            XMLSerializer serializer = new XMLSerializer (new FileWriter(filename), format);
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-16");
+            XMLSerializer serializer = new XMLSerializer (writer, format);
             serializer.asDOMSerializer();
             serializer.serialize(doc);
             return true;
@@ -78,7 +80,10 @@ public class XMLTools
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.newDocument();
             return doc;
-        } catch (ParserConfigurationException e) { ; }
+        } catch (ParserConfigurationException e)
+        {
+            e.printStackTrace();
+        }
         return null;
     }
 

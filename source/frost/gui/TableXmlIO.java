@@ -31,7 +31,10 @@ public class TableXmlIO
         } catch(Exception ex) { ; } // xml format error
 
         if( doc == null )
+        {
+            System.out.println("Error - loadUploadTableItems: factory could'nt create XML Document.");
             return false;
+        }
 
         Element rootNode = doc.getDocumentElement();
 
@@ -43,7 +46,9 @@ public class TableXmlIO
         // check if rootnode contains only a single boardEntry wich must be a folder (root folder)
         ArrayList nodelist = XMLTools.getChildElementsByTagName(rootNode, "FrostUploadTableItemList");
         if( nodelist.size() != 1 )
+        {
             return false;
+        }
 
         Element itemListRootNode = (Element)nodelist.get(0);
 
@@ -57,6 +62,7 @@ public class TableXmlIO
             Element uploadItemElement = (Element)nodelist.get(x);
             appendUploadTableItemToModel( uploadItemElement, model );
         }
+System.out.println("Loaded "+nodelist.size()+" items into upload table.");
         return true;
     }
 
@@ -177,6 +183,7 @@ public class TableXmlIO
             Element downloadItemElement = (Element)nodelist.get(x);
             appendDownloadTableItemToModel( downloadItemElement, model );
         }
+System.out.println("Loaded "+nodelist.size()+" items into download table.");
         return true;
     }
 
@@ -273,7 +280,10 @@ public class TableXmlIO
     {
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
+        {
+            System.out.println("Error - saveUploadTableItems: factory could'nt create XML Document.");
             return false;
+        }
 
         Element rootElement = doc.createElement("FrostUploadTable");
         doc.appendChild(rootElement);
@@ -291,8 +301,13 @@ public class TableXmlIO
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, filename);
-        } catch(Throwable t) { ; }
-
+System.out.println("Saved "+model.getRowCount()+" items from upload table.");
+        } catch(Throwable t)
+        {
+            System.out.println("Exception - saveUploadTableItems:");
+            t.printStackTrace();
+System.out.println("ERROR saving upload table!");
+        }
         return writeOK;
     }
 
@@ -348,7 +363,10 @@ public class TableXmlIO
     {
         Document doc = XMLTools.createDomDocument();
         if( doc == null )
+        {
+            System.out.println("Error - saveDownloadTableItems: factory could'nt create XML Document.");
             return false;
+        }
 
         Element rootElement = doc.createElement("FrostDownloadTable");
         doc.appendChild(rootElement);
@@ -366,7 +384,13 @@ public class TableXmlIO
         boolean writeOK = false;
         try {
             writeOK = XMLTools.writeXmlFile(doc, filename);
-        } catch(Throwable t) { ; }
+System.out.println("Saved "+model.getRowCount()+" items from download table.");
+        } catch(Throwable t)
+        {
+            System.out.println("Exception - saveDownloadTableItems:");
+            t.printStackTrace();
+System.out.println("ERROR saving download table!");
+        }
 
         return writeOK;
     }
