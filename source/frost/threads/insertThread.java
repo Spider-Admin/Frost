@@ -91,7 +91,7 @@ public class insertThread extends Thread
 	    KeyClass current = Index.getKey(uploadItem.getSHA1(),board);
 	    current.setKey(result[1]);
 	    current.setDate(lastUploadDate);
-	    Index.add(current,board);
+	    Index.addMine(current,board);
 	}
         else
         {
@@ -116,7 +116,7 @@ public class insertThread extends Thread
 	    uploadItem.setLastUploadDate(null);
 	    
 	    //add to index
-            Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+            Index.addMine(newKey, board);
 	    
 	    frame1.setGeneratingCHK( false );
 	    
