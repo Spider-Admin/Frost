@@ -339,7 +339,16 @@ static final Object[][] contents = {
 	{"UploadsUnderway.title","Subidas en curso"},
 	{"UploadsUnderway.body","Si sales ahora, algunos de los mensajes\n"
 							 + "que estás subiendo pueden aparecer duplicados.\n"
-							 + "¿Quieres salir de todas maneras?"}
-
+							 + "¿Quieres salir de todas maneras?"},
+							 
+	//Logging (misc preferences panel)
+	{"Enable logging", "Activa logeado"},
+	{"Logging level", "Nivel de logeado"},
+	{"Log file size limit (in KB)", "Tamaño límite del fichero de log (en KB)"},
+	{"Very high", "Muy alto"},
+	{"High", "Alto"},
+	{"Medium", "Medio"},
+	{"Low", "Bajo"},
+	{"Very low", "Muy bajo"}
 };
 }
