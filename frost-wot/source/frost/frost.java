@@ -83,10 +83,16 @@ public class frost
                 System.out.println("frost [-lf]");
                 System.out.println();
                 System.out.println("-lf     Allows to set the used 'Look and Feel'.");
-                System.out.println("        javax.swing.plaf.metal.MetalLookAndFeel");
+                /*System.out.println("        javax.swing.plaf.metal.MetalLookAndFeel");
                 System.out.println("        com.sun.java.swing.plaf.windows.WindowsLookAndFeel");
                 System.out.println("        com.sun.java.swing.plaf.motif.MotifLookAndFeel");
-                System.out.println("        javax.swing.plaf.mac.MacLookAndFeel");
+                System.out.println("        javax.swing.plaf.mac.MacLookAndFeel");*/
+		UIManager.LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
+		for (int i =0;i<feels.length;i++)
+			System.out.println("           "+feels[i].getClassName());
+		System.out.println("\n default is " +lookAndFeel);
+
+
 
                 System.exit(0);
             }
@@ -104,7 +110,8 @@ public class frost
             UIManager.setLookAndFeel(lookAndFeel);
         }
         catch( Exception e ) {
-            System.out.println("The selected Look and Feel was not found. I'm using default now.");
+	    System.out.println(e.getMessage());
+	    System.out.println("using the default");
         }
         new frost();
     }
