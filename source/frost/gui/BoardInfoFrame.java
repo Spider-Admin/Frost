@@ -38,12 +38,6 @@ public class BoardInfoFrame extends JFrame
     static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
 
     //------------------------------------------------------------------------
-    // Class Vars
-    //------------------------------------------------------------------------
-
-    Vector boards;
-
-    //------------------------------------------------------------------------
     // Generate objects
     //------------------------------------------------------------------------
     JPanel mainPanel = new JPanel(new BorderLayout());
@@ -260,7 +254,7 @@ public class BoardInfoFrame extends JFrame
             int messageCount = 0;
             int fileCount = 0;
             int boardCount = 0;
-            boards = parent.getTofTree().getAllBoards();
+            Vector boards = parent.getTofTree().getAllBoards();
             for( int i = 0; i < boards.size(); i++ )
             {
                 FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
@@ -293,12 +287,23 @@ public class BoardInfoFrame extends JFrame
         }
     }
 
-    // simple hack, but does the thing
+    /**
+     * Tries to start update for all allowed boards.
+     * Gets list of board from tofTree, because the board table could be
+     * not yet finished to load.
+     */
     private void updateAllBoardsButton_actionPerformed(ActionEvent e)
     {
-        // TODO: select all from tofTree
-        boardTable.selectAll();
-        updateSelectedBoardButton_actionPerformed(e);
+        Vector boards = parent.getTofTree().getAllBoards();
+        for( int i = 0; i < boards.size(); i++ )
+        {
+            FrostBoardObject board = (FrostBoardObject)boards.elementAt(i);
+            if( parent.isUpdateAllowed(board) == true ) // is update allowed for this board?
+            {
+                parent.updateBoard(board);
+            }
+            boardTableModel.fireTableDataChanged();
+        }
     }
 
     private void updateSelectedBoardButton_actionPerformed(ActionEvent e)

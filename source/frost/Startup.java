@@ -97,6 +97,14 @@ public class Startup
             System.out.println("Creating exec directory");
             execDirectory.mkdir();
         }
+
+        File unsentDirectory = new File(frame1.frostSettings.getValue("unsent.dir"));
+        if( !unsentDirectory.isDirectory() )
+        {
+            System.out.println("Creating unsent directory");
+            unsentDirectory.mkdir();
+        }
+
     }
 
     private static void deleteLockFiles()
