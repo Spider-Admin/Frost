@@ -110,6 +110,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				LanguageListener,
 				KeyListener
 				{
+			
+			//smooth doubleclick
+			int dClkRes = 300;    // double-click speed in ms
+			long timeMouseDown=0; // last mouse down time
+			int lastX=0,lastY=0;  //  last x and y
 
 			/**
 			 * 
@@ -168,10 +173,27 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					if (e.getComponent() == filesTable) {
 						showAttachedFilesPopupMenu(e);
 					}
-				}else if(SwingUtilities.isLeftMouseButton(e) &&
-						e.getClickCount() == 2 &&
-						e.getID() == MouseEvent.MOUSE_PRESSED)
-					showCurrentMessagePopupWindow();
+					
+				}else{
+					if(e.getID() == MouseEvent.MOUSE_PRESSED){
+						long currentTime = e.getWhen();
+						if( ( lastX==e.getX() && ( lastY==e.getY() )) && 
+								((currentTime - timeMouseDown) < dClkRes) &&
+								SwingUtilities.isLeftMouseButton(e)
+								){
+							showCurrentMessagePopupWindow();
+//							System.out.println("currtime: " + currentTime + ", lasttime: " + timeMouseDown + ", difference: " + (currentTime - timeMouseDown));
+//							System.out.println("lastX: " + lastX + ", lastY: " + lastY + ", currentX" + e.getX() + ", currentY " + e.getY() + "\n");
+						}else{
+//							System.out.println("currtime: " + currentTime + ", lasttime: " + timeMouseDown + ", difference: " + (currentTime - timeMouseDown));
+//							System.out.println("lastX: " + lastX + ", lastY: " + lastY + ", currentX" + e.getX() + ", currentY " + e.getY() + "\n");
+							//single click, updating values 
+							timeMouseDown = currentTime;
+							lastX = e.getX();
+							lastY = e.getY();
+						}
+					}
+				}
 			}
 
 			/* (non-Javadoc)
