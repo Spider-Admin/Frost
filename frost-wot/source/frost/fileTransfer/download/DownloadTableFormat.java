@@ -512,7 +512,7 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		
 		// Sets the relative widths of the columns
 		TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-		int[] widths = { 30, 170, 80, 70, 80, 85, 25, 60, 60, 30 };
+		int[] widths = { 30, 170, 80, 70, 75, 80, 25, 60, 60, 30 };
 		for (int i = 0; i < widths.length; i++) { // col 0 default width
 			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}
