@@ -90,6 +90,14 @@ public class FrostIndex implements XMLizable {
 
 	}
 
+	public FrostIndex(Element e) {
+		try {
+			loadXMLElement(e);
+		} catch (SAXException ex){
+			ex.printStackTrace(Core.getOut());
+		}
+	}
+
 	public FrostIndex(Set files) {
 		this.files = files;
 		if (Core.frostSettings.getBoolValue("signUploads"))

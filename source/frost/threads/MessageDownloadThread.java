@@ -270,10 +270,12 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         }
                         catch(Throwable t)
                         {
-                            // TODO: xml metadata reading failed, skip
+                        	//TODO: metadata failed, do something
+                            t.printStackTrace(Core.getOut());
+                            //please, please, PLEASE don't just catch them and do nothing!
                         }
                         
-                        //TODO: check if encrypted somehow
+                        
                         
                         //check if we have the owner already on the lists
                         String _owner = metaData.getSharer().getUniqueName();
