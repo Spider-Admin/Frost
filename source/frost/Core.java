@@ -298,8 +298,10 @@ public class Core {
 	    frame1.getInstance().saveSettings();
 	    System.out.println("Bye!");
 	}
-	 java.util.Timer timer; // Uploads / Downloads
-	 java.util.Timer timer2;
+    
+	java.util.Timer timer; // Uploads / Downloads
+	java.util.Timer timer2; 
+    
 	private class checkForSpam extends TimerTask
 	{
 	    public void run()
@@ -629,24 +631,12 @@ public class Core {
 									autoSaveIntervalMinutes*60*1000);
 				
 				
-	timer2.schedule(new TimerTask() {
-			public void run() {
-				//TODO: refactor this method here. lots of work :)
-				frame1.getInstance().timer_actionPerformed();
-		} },
-		1000,
-		1000);
 		
 		// CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
 		Startup.startupCheck();
 
 		FileAccess.cleanKeypool(frame1.keypool);
 
-		// Display the tray icon
-		try {
-			Process process = Runtime.getRuntime().exec("exec" + frame1.fileSeparator + "SystemTray.exe");
-		}catch(IOException _IoExc) { }
-		
 		if (!isFreenetIsOnline()){
 			JOptionPane.showMessageDialog(frame1.getInstance(),
 			"Make sure your node is running and that you have configured frost correctly.\n"+

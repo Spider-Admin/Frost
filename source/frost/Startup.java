@@ -26,8 +26,8 @@ import java.io.*;
 public class Startup
 {
     /**
-     * The Main method
-     * @param parentFrame needed for warning messages
+     * The Main method, check if allowed to run
+     * and starts the other startup work.
      */
     public static void startupCheck()
     {
@@ -58,7 +58,7 @@ public class Startup
         deleteObsoleteFiles();
     }
 
-    // Copy some files from the jar file, if they don't exists
+    // Copy some files from the jar file, if they don't exist
     private static void copyFiles()
     {
         String fileSeparator = System.getProperty("file.separator");
@@ -71,12 +71,12 @@ public class Startup
         catch( IOException e ) { ; }
 
         try {
-            File tray1file = new File("exec" + fileSeparator + "SystemTray.exe");
+            File tray1file = new File("JSysTray.dll"); // lib needs to be in .
             if( !tray1file.isFile() )
-                mixed.copyFromResource("/data/SystemTray.exe", tray1file);
+                mixed.copyFromResource("/data/JSysTray.dll", tray1file);
         }
         catch( IOException e ) { ; }
-
+/*
         try {
             File tray2file = new File("exec" + fileSeparator + "SystemTrayHide.exe");
             if( !tray2file.isFile() )
@@ -90,6 +90,7 @@ public class Startup
                 mixed.copyFromResource("/data/SystemTrayKill.exe", tray3file);
         }
         catch( IOException e ) { ; }
+*/        
     }
 
     private static void checkDirectories()

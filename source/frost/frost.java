@@ -19,8 +19,8 @@
 package frost;
 
 import java.awt.*;
-
 import javax.swing.UIManager;
+import frost.ext.JSysTrayIcon;
 
 public class frost
 {
@@ -41,6 +41,12 @@ public class frost
         }
         frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
         frame.show();
+        
+        // Display the tray icon
+        if( JSysTrayIcon.createInstance(0, "Frost", "Frost") == false )
+        {
+            System.out.println("Could not create systray icon.");
+        }
 
         // this really obscuring stuff is needed to change the divider size
         // after the frame is shown. The goal is to see the blank message view
@@ -58,8 +64,8 @@ public class frost
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
-	System.out.println("Frost uses code from bouncycastle.org (BSD license) and");
-	System.out.println("apache.org (Apache license)");
+	    System.out.println("Frost uses code from bouncycastle.org (BSD license) and");
+	    System.out.println("apache.org (Apache license)");
         System.out.println();
         System.out.println();
 

@@ -33,6 +33,7 @@ import javax.swing.tree.*;
 
 import frost.components.BrowserFrame;
 import frost.crypt.*;
+import frost.ext.*;
 import frost.ext.Execute;
 import frost.gui.*;
 import frost.gui.model.*;
@@ -95,6 +96,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     private static boolean isGeneratingCHK = false;
 
     public static volatile Object threadCountLock = new Object();
+
+    java.util.Timer guiUpdateTimer = null; 
 
     //the identity stuff.  This really shouldn't be here but where else?
     public static ObjectInputStream id_reader;
@@ -253,18 +256,22 @@ public class frame1 extends JFrame implements ClipboardOwner
         frostSettings = new SettingsClass();
         keypool = frostSettings.getValue("keypool.dir");
 
-        runningBoardUpdateThreads = new RunningBoardUpdateThreads();
-
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+        // enable the machine ;)
         try {
 			core = new Core();
             jbInit();
             core.init();
+            runningBoardUpdateThreads = new RunningBoardUpdateThreads();
+            this.guiUpdateTimer = new java.util.Timer();
+            this.guiUpdateTimer.schedule(new TimerTask() {
+                public void run() {
+                    //TODO: refactor this method in Core. lots of work :)
+                    timer_actionPerformed();
+            } }, 1000, 1000);
             
-	
-            
-                }catch (Throwable t) {
-                	t.printStackTrace(System.out);
+        }catch (Throwable t) {
+        	t.printStackTrace(System.out);
         }
     }
 
@@ -365,7 +372,11 @@ public class frame1 extends JFrame implements ClipboardOwner
         systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
             try { // Hide the Frost window
-                Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayHide.exe");
+                if( JSysTrayIcon.getInstance() != null )
+                {
+                    JSysTrayIcon.getInstance().showWindow(JSysTrayIcon.SHOW_CMD_HIDE);
+                }
+                //Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayHide.exe");
             }catch(IOException _IoExc) { }
             } });
         boardInfoButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2487,9 +2498,10 @@ public class frame1 extends JFrame implements ClipboardOwner
     /**File | Exit action performed*/
     private void fileExitMenuItem_actionPerformed(ActionEvent e) {
     // Remove the tray icon
-    try {
+    // - not needed any longer, JSysTray unloads itself via ShutdownHook
+/*    try {
         Process process = Runtime.getRuntime().exec("exec" + fileSeparator + "SystemTrayKill.exe");
-    }catch(IOException _IoExc) { }
+    }catch(IOException _IoExc) { }*/
 
     System.exit(0);
     }
