@@ -51,6 +51,7 @@ public class ResendFailedMessagesThread extends Thread
                 } catch(Exception ex)
                 {
                     Core.getOut().println("Could'nt read the message file, will not send message.");
+                    ex.printStackTrace();
                 }
                 
                 if( mo != null && mo.isValid() )

@@ -36,6 +36,10 @@ public class AttachmentList extends LinkedList implements XMLizable {
 	}
 	
 	public Element getXMLElement(Document d){
+        if( size() == 0 )
+        {
+            return null;
+        }
 		Element el = d.createElement("AttachmentList");
 		Iterator i = iterator();
 		while (i.hasNext()) {

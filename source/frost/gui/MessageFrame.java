@@ -181,6 +181,7 @@ public class MessageFrame extends JFrame
         panelButtons.add(BattachFile); 
         panelButtons.add(BattachBoard); 
         panelButtons.add(sign);
+        panelButtons.add(this.addAttachedFilesToUploadTable);
 
         JPanel dummyPanel = new JPanel(new BorderLayout());
         dummyPanel.add(panelLabels, BorderLayout.WEST);
@@ -247,6 +248,10 @@ public class MessageFrame extends JFrame
         mo.setFrom(from);
         mo.setSubject(subject);
         mo.setContent(text);
+        if( sign.isSelected() )
+        {
+            mo.setPublicKey(frame1.getMyId().getKey());
+        }
         // MessageUploadThread will set date + time !
         
         // attach all files and boards the user chosed
@@ -405,6 +410,12 @@ public class MessageFrame extends JFrame
         button.setFocusPainted(false);
     }
     
+    protected void updateAttachmentsPanel()
+    {
+        this.attachmentsPanel.invalidate();
+        this.getContentPane().validate();
+    }
+    
     protected void showAttachedBoardsTable(boolean show)
     {
         if( show )
@@ -425,7 +436,7 @@ public class MessageFrame extends JFrame
         {
             this.attachmentsPanel.remove( this.attBoardsScroller );
         }
-        this.attachmentsPanel.doLayout();
+        updateAttachmentsPanel();
     }
     
     protected void showAttachedFilesTable(boolean show)
@@ -448,7 +459,7 @@ public class MessageFrame extends JFrame
         {
             this.attachmentsPanel.remove( this.attFilesScroller );
         }
-        this.attachmentsPanel.doLayout();
+        updateAttachmentsPanel();
     }
 
     protected void processWindowEvent(WindowEvent e)
