@@ -757,7 +757,7 @@ public class MessageFrame extends JFrame
 	 * @param e
 	 */
 	private void attachBoards_actionPerformed(ActionEvent e) {
-		Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
+		Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
 		if (allBoards.size() == 0)
 			return;
 		Collections.sort(allBoards);

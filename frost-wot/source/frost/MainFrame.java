@@ -925,7 +925,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				String name = fbo.getName();
 
 				// search board in exising boards list
-				Board board = getTofTree().getBoardByName(name);
+				Board board = getTofTreeModel().getBoardByName(name);
 
 				//ask if we already have the board
 				if (board != null) {
@@ -948,7 +948,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					}
 				} else {
 					// its a new board
-					getTofTree().addNodeToTree(fbo);
+					getTofTreeModel().addNodeToTree(fbo);
 				}
 			}
 		}
@@ -1779,7 +1779,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
-			Iterator i = getTofTree().getAllBoards().iterator();
+			Iterator i = getTofTreeModel().getAllBoards().iterator();
 
 			while (i.hasNext()) {
 				Board board = (Board) i.next();
@@ -2888,7 +2888,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				return; // cancel
 			if (selected.isFolder() == false
 				&& // double folder names are ok
-			getTofTree().getBoardByName(newname) != null) {
+			getTofTreeModel().getBoardByName(newname) != null) {
 				JOptionPane.showMessageDialog(
 					this,
 					"You already have a board with name '"
@@ -3028,7 +3028,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				.isSelected()
 			&& getRunningBoardUpdateThreads().getUpdatingBoardCount()
 				< frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")) {
-			Vector boards = getTofTree().getAllBoards();
+			Vector boards = getTofTreeModel().getAllBoards();
 			if (boards.size() > 0) {
 				Board actualBoard = selectNextBoard(boards);
 				if (actualBoard != null) {

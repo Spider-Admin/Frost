@@ -189,7 +189,7 @@ public class KnownBoardsFrame extends JDialog
     public void startDialog()
     {
         // gets all known boards from Core, and shows all not-doubles in table
-        Vector frostboards = MainFrame.getInstance().getTofTree().getAllBoards();
+        Vector frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         
         synchronized(Core.getKnownBoards())
         {

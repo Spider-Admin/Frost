@@ -330,7 +330,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             int messageCount = 0;
             int fileCount = 0;
             int boardCount = 0;
-            Vector boards = parent.getTofTree().getAllBoards();
+            Vector boards = parent.getTofTreeModel().getAllBoards();
             for( int i = 0; i < boards.size(); i++ )
             {
                 Board board = (Board)boards.elementAt(i);
@@ -371,7 +371,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      */
     private void updateAllBoardsButton_actionPerformed(ActionEvent e)
     {
-        Vector boards = parent.getTofTree().getAllBoards();
+        Vector boards = parent.getTofTreeModel().getAllBoards();
         for( int i = 0; i < boards.size(); i++ )
         {
             Board board = (Board)boards.elementAt(i);

@@ -15,7 +15,7 @@ import javax.swing.event.*;
 import frost.*;
 import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
-import frost.gui.TofTree;
+import frost.gui.TofTreeModel;
 import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.threads.maintenance.Truster;
@@ -344,7 +344,7 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	private SearchModel model = null;
 	private DownloadModel downloadModel = null;
 	private UploadModel uploadModel = null;
-	private TofTree tofTree = null;
+	private TofTreeModel tofTreeModel = null;
 	private SettingsClass settingsClass = null;
 	private String keypool = null;
 	
@@ -476,15 +476,15 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		Vector boardsToSearch;
 		if (searchAllBoardsCheckBox.isSelected()) {
 			// search in all boards
-			boardsToSearch = tofTree.getAllBoards();
+			boardsToSearch = tofTreeModel.getAllBoards();
 		} else {
-			if (tofTree.getSelectedNode().isFolder() == false) {
+			if (tofTreeModel.getSelectedNode().isFolder() == false) {
 				// search in selected board
 				boardsToSearch = new Vector();
-				boardsToSearch.add(tofTree.getSelectedNode());
+				boardsToSearch.add(tofTreeModel.getSelectedNode());
 			} else {
 				// search in all boards below the selected folder
-				Enumeration enu = tofTree.getSelectedNode().depthFirstEnumeration();
+				Enumeration enu = tofTreeModel.getSelectedNode().depthFirstEnumeration();
 				boardsToSearch = new Vector();
 				while (enu.hasMoreElements()) {
 					Board b = (Board) enu.nextElement();
@@ -599,10 +599,10 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	}
 	
 	/**
-	 * @param newTree
+	 * @param tofTreeModel
 	 */
-	public void setTofTree(TofTree newTree) {
-		tofTree = newTree;
+	public void setTofTreeModel(TofTreeModel tofTreeModel) {
+		this.tofTreeModel = tofTreeModel;
 	}
 	
 	/**

@@ -9,7 +9,7 @@ package frost.fileTransfer.upload;
 import java.beans.*;
 
 import frost.*;
-import frost.gui.TofTree;
+import frost.gui.TofTreeModel;
 import frost.identities.LocalIdentity;
 import frost.storage.StorageException;
 
@@ -20,7 +20,7 @@ import frost.storage.StorageException;
 public class UploadManager implements PropertyChangeListener {
 
 	private LocalIdentity myID;
-	private TofTree tofTree;
+	private TofTreeModel tofTreeModel;
 	private MainFrame mainFrame; 
 	private SettingsClass settings;
 	
@@ -52,10 +52,10 @@ public class UploadManager implements PropertyChangeListener {
 	}
 	
 	/**
-	 * @param tree
+	 * @param tofTreeModel
 	 */
-	public void setTofTree(TofTree newTofTree) {
-		tofTree = newTofTree;
+	public void setTofTreeModel(TofTreeModel tofTreeModel) {
+		this.tofTreeModel = tofTreeModel;
 	}
 	
 	/**
@@ -81,7 +81,7 @@ public class UploadManager implements PropertyChangeListener {
 		if (panel == null) {
 			panel = new UploadPanel(settings);
 			panel.setModel(getModel());
-			panel.setTofTree(tofTree);
+			panel.setTofTreeModel(tofTreeModel);
 			panel.initialize();
 		}
 		return panel;

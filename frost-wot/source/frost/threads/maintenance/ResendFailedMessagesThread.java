@@ -56,7 +56,7 @@ public class ResendFailedMessagesThread extends Thread
                 
                 if( mo != null && mo.isValid() )
                 {
-                    Board board = MainFrame.getInstance().getTofTree().getBoardByName( mo.getBoard() );
+                    Board board = MainFrame.getInstance().getTofTreeModel().getBoardByName( mo.getBoard() );
                     if( board == null )
                     {
                         logger.warning("Can't resend Message '" + mo.getSubject() + "', the target board '" + mo.getBoard() +

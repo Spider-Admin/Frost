@@ -107,7 +107,7 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 
 		Board board = null;
 		if (sourceboardname != null) {
-			board = MainFrame.getInstance().getTofTree().getBoardByName(sourceboardname);
+			board = MainFrame.getInstance().getTofTreeModel().getBoardByName(sourceboardname);
 			if (board == null) {
 				logger.warning("Download item found (" + filename + ") whose source board (" +
 						sourceboardname + ") does not exist. Removed.");

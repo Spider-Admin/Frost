@@ -156,8 +156,7 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 		}
 
 		// check if target board exists in board tree
-		Board board = MainFrame.getInstance().getTofTree().getBoardByName(
-				targetboardname);
+		Board board = MainFrame.getInstance().getTofTreeModel().getBoardByName(targetboardname);
 		if (board == null) {
 			logger.warning("Upload item found (" + filepath + ") whose target board (" +
 								targetboardname + ") does not exist. Removed.");

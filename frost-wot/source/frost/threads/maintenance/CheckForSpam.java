@@ -30,7 +30,7 @@ public class CheckForSpam extends TimerTask
     {
         if(Core.frostSettings.getBoolValue("doBoardBackoff"))
         {
-            Iterator iter = MainFrame.getInstance().getTofTree().getAllBoards().iterator();
+            Iterator iter = MainFrame.getInstance().getTofTreeModel().getAllBoards().iterator();
             while (iter.hasNext())
             {
                 Board current = (Board)iter.next();

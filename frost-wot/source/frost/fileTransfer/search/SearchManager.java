@@ -11,7 +11,7 @@ import java.beans.*;
 import frost.*;
 import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
-import frost.gui.TofTree;
+import frost.gui.TofTreeModel;
 import frost.identities.FrostIdentities;
 
 /**
@@ -20,7 +20,7 @@ import frost.identities.FrostIdentities;
  */
 public class SearchManager implements PropertyChangeListener {
 
-	private TofTree tofTree;
+	private TofTreeModel tofTreeModel;
 	private DownloadModel downloadModel;
 	private UploadModel uploadModel;
 	private String keypool;
@@ -77,10 +77,10 @@ public class SearchManager implements PropertyChangeListener {
 	}
 
 	/**
-	 * @param tree
+	 * @param tofTreeModel
 	 */
-	public void setTofTree(TofTree tofTree) {
-		this.tofTree = tofTree;
+	public void setTofTreeModel(TofTreeModel tofTreeModel) {
+		this.tofTreeModel = tofTreeModel;
 	}
 
 	/**
@@ -92,7 +92,7 @@ public class SearchManager implements PropertyChangeListener {
 			panel.setModel(getModel());
 			panel.setDownloadModel(downloadModel);
 			panel.setUploadModel(uploadModel);
-			panel.setTofTree(tofTree);
+			panel.setTofTreeModel(tofTreeModel);
 			panel.setKeypool(keypool);
 			panel.setIdentities(identities);
 			panel.initialize();
