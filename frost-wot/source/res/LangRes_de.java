@@ -154,11 +154,16 @@ public class LangRes_de extends ListResourceBundle {
     {"Executable Extension:", "Executable-Endung:"},
     {"Use editor for writing messages: ", "Verwende Editor für neue Nachrichten: "},
 
+	//	Preferences. Display panel		//TODO: Translate
+	{"EnableSkins", "Enable Skins"}, 	
+	{"MessageBodyFont", "Message Body Font"}, 
+
     // Preferences / Tabbed Pane
     {"Downloads", "Herunterladen"},
     {"Uploads", "Hochladen"},
     {"Miscellaneous", "Verschiedenes"},
     {"Skins", "Texturen"},
+	{"Display", "Display"},		//TODO: Translate
 
     // Search table
     {"Filename", "Dateiname"},
@@ -243,6 +248,11 @@ public class LangRes_de extends ListResourceBundle {
     // New node dialog window
     {"New Node Name","Name des neuen Forums"},
     {"New Folder","Neues Forum"},
+    
+	//	Skin chooser				//TODO: Translate
+	{"AvailableSkins", "Available Skins"},
+	{"Preview", "Preview"},
+	{"RefreshList", "Refresh List"},
 
     // Other
     {"Frost by Jantho", "Frost von Jantho"},

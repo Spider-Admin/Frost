@@ -121,12 +121,17 @@ public class LangRes_nl extends ListResourceBundle {
 
     {"Use skins, please restart Frost after changing this.(off)", "Gebruik skins, start Frost opnieuw op als dit veranderd is.(uit)"},
 
+	//	Preferences. Display panel		//TODO: Translate
+	{"EnableSkins", "Enable Skins"}, 	
+	{"MessageBodyFont", "Message Body Font"}, 
+
     // Preferences / Tabbed Pane
     {"Downloads", "Downloads"},
     {"Uploads", "Uploads"},
     {"Miscellaneous", "Divers"},
     {"Skins", "Skins"},
     {"News", "Nieuws"},
+	{"Display", "Display"},		//TODO: Translate
 
     // Search table
     {"Filename", "Bestandsnaam"},
@@ -200,6 +205,11 @@ public class LangRes_nl extends ListResourceBundle {
     {"   Results: ", "   Resultaten: "},
     {"   Files: ", "   Bestanden: "},
     {"   Selected board: ", "   Geselecteerde forum: "},
+
+	//	Skin chooser				//TODO: Translate
+	{"AvailableSkins", "Available Skins"},
+	{"Preview", "Preview"},
+	{"RefreshList", "Refresh List"},
 
     // Other
     {"Frost by Jantho", "Frost door Jantho"},
