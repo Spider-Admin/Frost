@@ -42,6 +42,7 @@ public class Core {
 	private static Set messageSet = new HashSet(); // set of message digests
 	private static final SortedSet knownBoards = new TreeSet(); //list of known boards
 	private static Core self = null;
+    
 	public Core() {
 		out = System.out; //when we want to redirect to file just change this.
 		
@@ -89,12 +90,11 @@ public class Core {
 			e.printStackTrace(out);
 		}
 	}
+    
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	private boolean freenetIsOnline = false;
 	private boolean freenetIsTransient = false;
 	public ObjectOutputStream id_writer;
-	//a shutdown hook
-	public Thread saver;
 	boolean started = false;
 	public boolean isFreenetOnline() {
 		return freenetIsOnline;
@@ -104,7 +104,8 @@ public class Core {
 	}
 	
 	
-	protected void loadIdentities() {
+	private void loadIdentities() 
+    {
 		goodIds = new Hashtable();
 		badIds = new Hashtable();
 		myBatches = new Hashtable();
@@ -173,9 +174,7 @@ public class Core {
 					}
 					//enemies = new BuddyList();
 		} else
-		
 		//first try with the new format
-		
 		if (identitiesxml.exists()){
 			//friends = new BuddyList();
 			//enemies = new BuddyList();
@@ -303,37 +302,158 @@ public class Core {
 			e.printStackTrace(Core.getOut());
 		}
 		out.println("ME = '" + getMyId().getUniqueName() + "'");
+	}
+    
+    public void saveIdentities()
+    {
+        Core.getOut().println("saving identities.xml");
+        File identities = new File("identities.xml");
+        if (identities.exists())
+        {
+            String bakFilename = "identities.xml.bak";
+            File bakFile = new File(bakFilename);
+            bakFile.delete();
+            identities.renameTo(bakFile);
+            identities = new File("identities.xml");
+        }
+        try
+        {
+            Document d = XMLTools.createDomDocument();
+            Element rootElement = d.createElement("FrostIdentities");
+            //first save myself
+            rootElement.appendChild(Core.getMyId().getXMLElement(d));
+            //then friends
+            Element friends = Core.getFriends().getXMLElement(d);
+            friends.setAttribute("type", "friends");
+            rootElement.appendChild(friends);
+            //then enemies 
+            Element enemies = Core.getEnemies().getXMLElement(d);
+            enemies.setAttribute("type", "enemies");
+            rootElement.appendChild(enemies);
+            //then everybody else
+            Element neutral = Core.getNeutral().getXMLElement(d);
+            neutral.setAttribute("type", "neutral");
+            rootElement.appendChild(neutral);
+        
+            d.appendChild(rootElement);
+        
+            //save to file
+            XMLTools.writeXmlFile(d, "identities.xml");
+        }
+        catch (Throwable e)
+        {
+            e.printStackTrace(Core.getOut());
+        }
+        
+        /*
+                Core.getOut().println("saving identities");
+                File identities = new File("identities");
+                if( identities.exists() )
+                {
+                    String bakFilename = "identities.bak";
+                    File bakFile = new File(bakFilename);
+                    bakFile.delete();
+                    identities.renameTo(bakFile);
+                    identities = new File("identities");
+                }
 
-		//load the batches
-		File batches = new File("batches");
-		if (batches.exists() && batches.length() > 0) //fix previous version bug
-			try {
-				String allBatches = FileAccess.readFileRaw(batches);
-				String[] _batches = allBatches.split("_");
-				//dumb.  will fix later
+                try
+                { //TODO: replace this with a call to XML serializer
+                    FileWriter fout = new FileWriter(identities);
+                    fout.write(Core.mySelf.getName() + "\n");
+                    fout.write(Core.mySelf.getKeyAddress() + "\n");
+                    fout.write(Core.mySelf.getKey() + "\n");
+                    fout.write(Core.mySelf.getPrivKey() + "\n");
 
-				for (int i = 0; i < _batches.length; i++)
-					myBatches.put(_batches[i], _batches[i]);
+                    //now do the friends
+                    fout.write("*****************\n");
+                    Iterator i = Core.friends.values().iterator();
+                    while( i.hasNext() )
+                    {
+                        Identity cur = (Identity)i.next();
+                        fout.write(cur.getName() + "\n");
+                        fout.write(cur.getKeyAddress() + "\n");
+                        fout.write(cur.getKey() + "\n");
+                    }
+                    fout.write("*****************\n");
+        i = Core.getGoodIds().values().iterator();
+        while (i.hasNext()) {
+            fout.write((String)i.next() + "\n");
+        }
+        fout.write("*****************\n");
+                    i = Core.getEnemies().values().iterator();
+                    while( i.hasNext() )
+                    {
+                        Identity cur = (Identity)i.next();
+                        fout.write(cur.getName() + "\n");
+                        fout.write(cur.getKeyAddress() + "\n");
+                        fout.write(cur.getKey() + "\n");
+                    }
+                    fout.write("*****************\n");
+        i = Core.getBadIds().values().iterator();
+        while (i.hasNext()) {
+            fout.write((String)i.next() + "\n");
+        }
+        fout.write("*****************\n");
+                    fout.close();
+                    Core.getOut().println("identities saved successfully.");
 
-				out.println(
-					"loaded " + _batches.length + " batches of shared files");
-			} catch (Throwable e) {
-				out.println("couldn't load batches");
-				e.printStackTrace(out);
-			}
-			
+                }
+                catch( IOException e )
+                {
+                    Core.getOut().println("ERROR: couldn't save identities:");
+                    e.printStackTrace(Core.getOut());
+                }*/
+    }
+    
+    
+    private void loadHashes()
+    {
+        File hashes = new File("hashes");
+        if (hashes.exists())
+        	try{
+        		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(hashes));
+        		messageSet = (HashSet)ois.readObject();
+        		getOut().println("loaded "+messageSet.size() +" message hashes");	
+        		ois.close();
+        	} catch(Throwable t){
+        		t.printStackTrace(getOut());
+        	}
+    }
+    
+    public void saveHashes()
+    {
+        try {
+            synchronized( getMessageSet() )
+            {
+                File hashes = new File("hashes");
+                ObjectOutputStream oos =
+                    new ObjectOutputStream(new FileOutputStream(hashes));
+                oos.writeObject(Core.getMessageSet());
+            }
+        }
+        catch (Throwable t)
+        {
+            t.printStackTrace(Core.getOut());
+        }
+    }
+    
+    private void loadKnownBoards()
+    {
 		//and load the known boards
 		//don't really need xml here, its just a flat list
 		File boards = new File("boards");
 		if (boards.exists())
 			try {
-// FIXME: !!! we should explicitely load/save this file in UTF-16, because it contains
-//            user visible strings                
+                // FIXME: !!! we should explicitely load/save this file in UTF-16, because it contains
+                //            user visible strings
+                // FIXME: a boardname (user visible format) can contain the ':' !!! better convert and use
+                //        a  newline separated format!                 
 				String allBoards = FileAccess.readFile(boards);
 				String []_boards = allBoards.split(":");
 				for (int i=0;i<_boards.length;i++)
                 {
-//System.out.println("DBG-loadedBoard: '"+_boards[i].trim()+"'");
+                    //System.out.println("DBG-loadedBoard: '"+_boards[i].trim()+"'");
                     knownBoards.add(_boards[i].trim());
                 }
 				out.println("loaded "+ _boards.length +" known boards");
@@ -341,27 +461,88 @@ public class Core {
 				out.println("couldn't load known boards");
 				t.printStackTrace(out);
 			}
-		
-		File hashes = new File("hashes");
-		if (hashes.exists())
-			try{
-				ObjectInputStream ois = new ObjectInputStream(new FileInputStream(hashes));
-				messageSet = (HashSet)ois.readObject();
-				getOut().println("loaded "+messageSet.size() +" message hashes");	
-				ois.close();
-			} catch(Throwable t){
-				t.printStackTrace(getOut());
-			}
-	}
+    }
+    
+    public void saveKnownBoards()
+    {
+        try {
+            StringBuffer buf = new StringBuffer();
+            synchronized( getKnownBoards() )
+            {
+                Iterator i = getKnownBoards().iterator();
+                while (i.hasNext())
+                {
+                    String current = (String)i.next();
+                    buf.append(current);
+                    if( i.hasNext() )
+                    {
+                        buf.append(":");
+                    }
+                }
+            }
+            File boards = new File("boards");
+            FileAccess.writeFile(buf.toString(), boards);
+        }
+        catch (Throwable t) {
+            t.printStackTrace(Core.getOut());
+        }
+    }
+    
+    private void loadBatches()
+    {
+        //load the batches
+        File batches = new File("batches");
+        if (batches.exists() && batches.length() > 0) //fix previous version bug
+        	try {
+        		String allBatches = FileAccess.readFileRaw(batches);
+        		String[] _batches = allBatches.split("_");
+        		//dumb.  will fix later
+        
+        		for (int i = 0; i < _batches.length; i++)
+        			myBatches.put(_batches[i], _batches[i]);
+        
+        		out.println(
+        			"loaded " + _batches.length + " batches of shared files");
+        	} catch (Throwable e) {
+        		out.println("couldn't load batches");
+        		e.printStackTrace(out);
+        	}
+    }
+    
+    public void saveBatches()
+    {
+        try {
+            StringBuffer buf = new StringBuffer();
+            synchronized( getMyBatches() )
+            {
+                Iterator i = getMyBatches().keySet().iterator();
+                while (i.hasNext())
+                {
+                    String current = (String)i.next();
+                    if (current.length() > 0)
+                    {
+                        buf.append(current);
+                        if( i.hasNext() )
+                        {
+                            buf.append("_");
+                        }
+                    }
+                    else
+                    {
+                        i.remove(); //make sure no empty batches are saved
+                    }
+                }
+            }
+            File batches = new File("batches");
+            FileAccess.writeFile(buf.toString(), batches);
+        }
+        catch (Throwable t) {
+            t.printStackTrace(Core.getOut());
+        }
+    }
+    
 	//------------------------------------------------------------------------
 	//------------------------------------------------------------------------
-
-	/**Save on exit*/
-	public void saveOnExit() {
-		out.println("Saving settings ...");
-		frame1.getInstance().saveSettings();
-		out.println("Bye!");
-	}
 
 	java.util.Timer timer; // Uploads / Downloads
 	java.util.Timer timer2;
@@ -415,7 +596,9 @@ public class Core {
 			new checkForSpam(this),
 			0,
 			frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
-		saver = new Saver(this);
+            
+        // the saver
+		final Saver saver = new Saver(this);
 		Runtime.getRuntime().addShutdownHook(saver);
 
 		TimerTask cleaner = new TimerTask() {
@@ -437,9 +620,7 @@ public class Core {
 
 		TimerTask autoSaver = new TimerTask() {
 			public void run() {
-				frame1.getInstance().getTofTree().saveTree();
-				frame1.getInstance().getDownloadTable().save();
-				frame1.getInstance().getUploadTable().save();
+                saver.autoSave();
 			}
 		};
 		int autoSaveIntervalMinutes =
@@ -479,10 +660,13 @@ public class Core {
 		//create a crypt object
 		crypto = new FrostCrypt();
 
-		//load the identities
+		//load vital data
 		loadIdentities();
-
-		//		a class that reinserts the pubkey each hour
+        loadBatches();
+        loadKnownBoards();
+        loadHashes();
+        
+		// a class that reinserts the pubkey each hour
 		TimerTask KeyReinserter = new TimerTask() {
 			public void run() {
 				if (isFreenetOnline() == false)
