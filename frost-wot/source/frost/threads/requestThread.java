@@ -218,7 +218,8 @@ public class requestThread extends Thread
             else
             {
                 // do NOT add manually downloaded files (file have no SHA1, no owner, no board)
-                if (board != null && board.isFolder() == false && this.SHA1 != null )
+                if (board != null && board.isFolder() == false && this.SHA1 != null 
+                		&& Core.frostSettings.getBoolValue("shareDownloads"))
                 {
                     // Add successful downloaded key to database
                     SharedFileObject newKey = new SharedFileObject(key);
@@ -226,8 +227,7 @@ public class requestThread extends Thread
                     newKey.setSize(newFile.length());
                     newKey.setSHA1(SHA1);
                     newKey.setDate(date);
-                    if (Core.frostSettings.getBoolValue("shareDownloads"))
-                    	Index.addMine(newKey, board);
+                   	Index.addMine(newKey, board);
                 }
 
                 downloadItem.setFileSize(newFile.length());

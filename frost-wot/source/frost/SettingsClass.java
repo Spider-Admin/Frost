@@ -441,6 +441,7 @@ public class SettingsClass
 	defaults.put("indexFileRedundancy","1");
         defaults.put("uploadingActivated", "true");
         defaults.put("automaticIndexing","true");
+        defaults.put("shareDownloads","true");
 	defaults.put("signUploads","true");
 	defaults.put("helpFriends","true");
 	defaults.put("hideBadFiles","true");
