@@ -115,9 +115,9 @@ public class FcpInsert
     /**
      * Updates the 'state' column for a file that is in table.
      */
-    private static FrostUploadItemObject getUploadItemForFile(File file, boolean mode)
+    private static FrostUploadItemObject getUploadItemForFile(File file, boolean genKeysOnly)
     {
-        if( mode == false ) // uploading mode?
+        if( genKeysOnly == false ) // uploading mode?
         {
             // no, generate key mode
             return null;
@@ -142,7 +142,7 @@ public class FcpInsert
     }
 
     public static String[] putFECSplitFile(String boardfilename, String uri, File file,
-                                           int htl, boolean mode)
+                                           int htl, boolean genKeysOnly)
     {
         FcpFECUtils fecutils = null;
         Vector segmentHeaders = null;
@@ -152,7 +152,7 @@ public class FcpInsert
         Vector checkKeyMaps = new Vector();
         long fileLength = file.length();
 
-        FrostUploadItemObject ulItem = getUploadItemForFile(file, mode);
+        FrostUploadItemObject ulItem = getUploadItemForFile(file, genKeysOnly);
 
         String output = new String();
         int maxThreads = frame1.frostSettings.getIntValue("splitfileUploadThreads");
@@ -365,7 +365,7 @@ public class FcpInsert
                                                                  htl,
                                                                  chunkResults,
                                                                  threadCount,
-                                                                 mode,
+                                                                 genKeysOnly,
                                                                  ulItem);
                     chunkThreads[threadCount].start();
                     threadCount++;
@@ -407,7 +407,7 @@ public class FcpInsert
                                                                  htl,
                                                                  checkResults,
                                                                  threadCount,
-                                                                 mode,
+                                                                 genKeysOnly,
                                                                  ulItem);
                     checkThreads[threadCount].start();
                     threadCount++;
@@ -491,7 +491,7 @@ public class FcpInsert
             {
                 FcpConnection connection = FcpFactory.getFcpConnectionInstance();
                 if( connection != null )
-                    output = connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, mode);
+                    output = connection.putKeyFromFile(uri, null, redirect.getBytes(), htl, genKeysOnly);
             }
             catch( UnknownHostException e )
             {
@@ -510,7 +510,7 @@ public class FcpInsert
         }
 
 
-        if( (result[0].equals("Success") || result[0].equals("KeyCollision")) && mode )
+        if( (result[0].equals("Success") || result[0].equals("KeyCollision")) && genKeysOnly )
         {
             System.out.println("Redirect successfully uploaded.");
             try
