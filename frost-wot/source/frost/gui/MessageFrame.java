@@ -27,7 +27,6 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.border.*;
 import javax.swing.event.*;
-import javax.swing.table.TableModel;
 import javax.swing.text.BadLocationException;
 
 import frost.*;
@@ -745,7 +744,7 @@ public class MessageFrame extends JFrame
 
     private class MFAttachedBoardsTable extends SortedTable
     {
-        public MFAttachedBoardsTable(TableModel m)
+        public MFAttachedBoardsTable(MFAttachedBoardsTableModel m)
         {
             super(m);
 
@@ -764,7 +763,7 @@ public class MessageFrame extends JFrame
     }
     private class MFAttachedFilesTable extends SortedTable
     {
-        public MFAttachedFilesTable(TableModel m)
+        public MFAttachedFilesTable(MFAttachedFilesTableModel m)
         {
             super(m);
 
