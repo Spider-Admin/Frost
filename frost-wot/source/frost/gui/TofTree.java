@@ -183,39 +183,46 @@ public class TofTree extends JDragTree implements Savable {
 	private static Logger logger = Logger.getLogger(TofTree.class.getName());
 
     /**
-     * @param root
-     */
-    public TofTree(TreeNode root)
-    {
-        super(root);
+	 * @param root
+	 */
+	public TofTree(TreeNode root) {
+		super(root);
+		initialize();
+	}
+	
+    /**
+	 * @param root
+	 */
+	public TofTree(TofTreeModel model) {
+		super(model);
+		initialize();
+	}
 
-        language = Language.getInstance();
+    /**
+	 *  
+	 */
+	public void initialize() {
 
-        putClientProperty("JTree.lineStyle", "Angled"); // I like this look
-        
+		language = Language.getInstance();
+
+		putClientProperty("JTree.lineStyle", "Angled"); // I like this look
+
 		setRootVisible(true);
 		setCellRenderer(new CellRenderer());
 		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
-    }
+
+		// load nodes from disk
+		if (loadTree() == false) {
+			Board newRoot = new Board("Frost Message System", true);
+			DefaultTreeModel model = new DefaultTreeModel(newRoot);
+			setModel(model);
+		}
+	}
 
     /**
-     * 
-     */
-    public void initialize()
-    {
-        // load nodes from disk
-        if( loadTree() == false )
-        {
-            Board newRoot = new Board("Frost Message System", true);
-            DefaultTreeModel model = new DefaultTreeModel(newRoot);
-            setModel( model );
-        }
-    }
-
-    /**
-     * @param result
-     * @return
-     */
+	 * @param result
+	 * @return
+	 */
     public Board cutNode(Board result)
     {
         if( result != null )
@@ -307,7 +314,7 @@ public class TofTree extends JDragTree implements Savable {
     /**
      * Loads a tree description file
      */
-    public boolean loadTree()
+    private boolean loadTree()
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
         String boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml";
