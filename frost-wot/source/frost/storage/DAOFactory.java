@@ -4,6 +4,7 @@
  */
 package frost.storage;
 
+import frost.SettingsClass;
 import frost.identities.IdentitiesDAO;
 
 /**
@@ -23,6 +24,8 @@ public abstract class DAOFactory {
 	
 	private static XmlDAOFactory xmlDAOFactory = null;
 	private static HsqldbDAOFactory hsqldbDAOFactory = null;
+	
+	private static SettingsClass settings;
 	
 	/**
 	 * This method returns the concrete DAOFactory implementation
@@ -48,7 +51,7 @@ public abstract class DAOFactory {
 	 */
 	private static HsqldbDAOFactory getHsqldbDAOFactory() {
 		if (hsqldbDAOFactory == null) {
-			hsqldbDAOFactory = new HsqldbDAOFactory();
+			hsqldbDAOFactory = new HsqldbDAOFactory(settings);
 		}
 		return hsqldbDAOFactory;	
 	}
@@ -59,7 +62,7 @@ public abstract class DAOFactory {
 	 */
 	private static XmlDAOFactory getXmlDAOFactory() {
 		if (xmlDAOFactory == null) {
-			xmlDAOFactory = new XmlDAOFactory();
+			xmlDAOFactory = new XmlDAOFactory(settings);
 		}	
 		return xmlDAOFactory;
 	}
@@ -70,5 +73,13 @@ public abstract class DAOFactory {
 	 * @return a IdentitiesDAO for the FrostIdentities business object.
 	 */
 	public abstract IdentitiesDAO getIdentitiesDAO();
+
+	/**
+	 * This method initializes the DAOFactory with the given SettingsClass.
+	 * @param frostSettings
+	 */
+	public static void initialize(SettingsClass frostSettings) {
+		settings = frostSettings;		
+	}
 	
 }

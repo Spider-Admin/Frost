@@ -545,7 +545,7 @@ public class Core implements Savable {
 	public void initialize() throws Exception {
 		Splashscreen splashscreen = new Splashscreen();
 		splashscreen.setVisible(true);
-
+		
 		keypool = frostSettings.getValue("keypool.dir");
 		
 		splashscreen.setText(language.getString("Initializing Mainframe"));
@@ -554,6 +554,9 @@ public class Core implements Savable {
 		//Initializes the logging and skins
 		new Logging(frostSettings);
 		initializeSkins();
+		
+		//Initializes storage
+		DAOFactory.initialize(frostSettings);
 
 		splashscreen.setText(language.getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(50);
