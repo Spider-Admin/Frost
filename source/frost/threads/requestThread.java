@@ -176,7 +176,7 @@ public class requestThread extends Thread
                 newKey.setSize(newFile.length());
                 newKey.setDate(date);
                 newKey.setExchange(false);
-                Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+                Index.add(newKey, board);
             }
 
             downloadItem.setFileSize( newFile.length() );
