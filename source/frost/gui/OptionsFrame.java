@@ -48,6 +48,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 		private SkinChooser skinChooser = null;
 		private BorderLayout displayPanelBorderLayout = null;
+		private JLabel moreSkinsLabel = null;
 
 		/**
 		 * Constructor
@@ -64,6 +65,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			setName("DisplayPanel");
 			setLayout(getDisplayPanelBorderLayout());
 			add(getSkinChooser(), "Center");
+			add(getMoreSkinsLabel(), "South");
 		}
 
 		public void ok() {
@@ -98,6 +100,19 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				skinChooser.setName("SkinChooser");
 			}
 			return skinChooser;
+		}
+		
+		/**
+		 * Return the SkinChooser property value.
+		 * @return pruebasSkins.SkinChooser
+		 */
+		private JLabel getMoreSkinsLabel() {
+			if (moreSkinsLabel == null) {
+				LangRes.getString("MoreSkinsAt");
+				moreSkinsLabel = new JLabel(LangRes.getString("MoreSkinsAt") + " http://www.javootoo.com/");
+				moreSkinsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
+			}
+			return moreSkinsLabel;
 		}
 
 		/** 
@@ -475,7 +490,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				new ListBoxData(
 					" " + LangRes.getString("Search") + " ",
 					getSearchPanel()));
-			//listData.add( new ListBoxData( " "+LangRes.getString("Display")+" ",       getDisplayPanel() ) );
+			listData.add( 
+			    new ListBoxData( 
+                    " " + LangRes.getString("Display") + " ",
+                    getDisplayPanel()));
 			listData.add(
 				new ListBoxData(
 					" " + LangRes.getString("Miscellaneous") + " ",
