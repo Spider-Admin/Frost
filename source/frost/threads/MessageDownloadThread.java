@@ -555,7 +555,7 @@ public class MessageDownloadThread
                         .iterator();
                 while (it.hasNext())
                 {
-                    SharedFileObject current = (SharedFileObject)it.next();
+                    SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
                     if (current.getSHA1() != null
                         && current.getSHA1().length() > 0)
                         Index.add(current, board);
