@@ -22,6 +22,7 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
+import java.util.ResourceBundle;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -36,7 +37,7 @@ public class BoardSettingsFrame extends JDialog
     // Class Vars
     //------------------------------------------------------------------------
 
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    private ResourceBundle languageResource = null;
     public boolean exitState;
     public String returnValue;
     public FrostBoardObject board;
@@ -45,46 +46,55 @@ public class BoardSettingsFrame extends JDialog
     // Generate objects
     //------------------------------------------------------------------------
 
-    JRadioButton publicBoardRadioButton = new JRadioButton(LangRes.getString("Public board"));
-    JRadioButton secureBoardRadioButton = new JRadioButton(LangRes.getString("Secure board"));
+    JRadioButton publicBoardRadioButton = new JRadioButton();
+    JRadioButton secureBoardRadioButton = new JRadioButton();
 
-    JButton okButton = new JButton(LangRes.getString("OK"));
-    JButton cancelButton = new JButton(LangRes.getString("Cancel"));
-    JButton generateKeyButton = new JButton(LangRes.getString("Generate new keypair"));
+    JButton okButton = new JButton();
+    JButton cancelButton = new JButton();
+    JButton generateKeyButton = new JButton();
 
     JTextField privateKeyTextField = new JTextField(32);
     JTextField publicKeyTextField = new JTextField(32);
 
-    JCheckBox overrideSettings = new JCheckBox("Override default settings");
+    JCheckBox overrideSettings = new JCheckBox();
 
-    JRadioButton maxMsg_default = new JRadioButton("Use default");
-    JRadioButton maxMsg_set = new JRadioButton("Set to:");
+    JRadioButton maxMsg_default = new JRadioButton();
+    JRadioButton maxMsg_set = new JRadioButton();
     JTextField maxMsg_value = new JTextField(6);
 
-    JRadioButton signedOnly_default = new JRadioButton("Use default");
-    JRadioButton signedOnly_true = new JRadioButton("Yes");
-    JRadioButton signedOnly_false = new JRadioButton("No");
+    JRadioButton signedOnly_default = new JRadioButton();
+    JRadioButton signedOnly_true = new JRadioButton();
+    JRadioButton signedOnly_false = new JRadioButton();
 
-    JRadioButton hideBad_default = new JRadioButton("Use default");
-    JRadioButton hideBad_true = new JRadioButton("Yes");
-    JRadioButton hideBad_false = new JRadioButton("No");
+    JRadioButton hideBad_default = new JRadioButton();
+    JRadioButton hideBad_true = new JRadioButton();
+    JRadioButton hideBad_false = new JRadioButton();
 
-    JRadioButton hideCheck_default = new JRadioButton("Use default");
-    JRadioButton hideCheck_true = new JRadioButton("Yes");
-    JRadioButton hideCheck_false = new JRadioButton("No");
+    JRadioButton hideCheck_default = new JRadioButton();
+    JRadioButton hideCheck_true = new JRadioButton();
+    JRadioButton hideCheck_false = new JRadioButton();
 
-    JRadioButton hideNA_default = new JRadioButton("Use default");
-    JRadioButton hideNA_true = new JRadioButton("Yes");
-    JRadioButton hideNA_false = new JRadioButton("No");
+    JRadioButton hideNA_default = new JRadioButton();
+    JRadioButton hideNA_true = new JRadioButton();
+    JRadioButton hideNA_false = new JRadioButton();
 
-    JCheckBox autoUpdateEnabled = new JCheckBox("Enable automatic board update");
+    JCheckBox autoUpdateEnabled = new JCheckBox();
+    
+    private JLabel publicKeyLabel = new JLabel();
+	private JLabel privateKeyLabel = new JLabel();
+	private JLabel messageDisplayDaysLabel = new JLabel();
+	private JLabel hideUnsignedMessagesLabel = new JLabel();
+	private JLabel hideBadMessagesLabel = new JLabel();
+	private JLabel hideCheckMessagesLabel = new JLabel();
+	private JLabel hideNaMessagesLabel = new JLabel();
 
     /**Constructor*/
-    public BoardSettingsFrame(Frame parent, FrostBoardObject board)
+    public BoardSettingsFrame(Frame parent, FrostBoardObject newBoard, ResourceBundle newLanguageResource)
     {
         super(parent);
+		board = newBoard;
+		languageResource = newLanguageResource;
         setModal(true);
-        this.board = board;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             Init(parent);
@@ -103,8 +113,8 @@ public class BoardSettingsFrame extends JDialog
 
     private void Init(Frame parent) throws Exception
     {
-        this.setTitle("Settings for board '" + board + "'");
-        this.setResizable(false);
+    	refreshLanguage();
+        setResizable(false);
 
         //------------------------------------------------------------------------
         // Actionlistener
@@ -162,14 +172,14 @@ public class BoardSettingsFrame extends JDialog
 
         constr.gridy++;
         constr.insets = new Insets(0, 25, 5, 5);
-        keyPanel.add( new JLabel(LangRes.getString("Private key")+"  :") , constr );
+        keyPanel.add(privateKeyLabel, constr);
         constr.gridx = 1;
         constr.fill=GridBagConstraints.HORIZONTAL;
         keyPanel.add( privateKeyTextField , constr );
         constr.fill=GridBagConstraints.NONE;
         constr.gridx = 0;
         constr.gridy++;
-        keyPanel.add( new JLabel(LangRes.getString("Public key")+"  :") , constr );
+        keyPanel.add(publicKeyLabel, constr);
         constr.gridx = 1;
         constr.fill=GridBagConstraints.HORIZONTAL;
         keyPanel.add( publicKeyTextField , constr );
@@ -213,7 +223,46 @@ public class BoardSettingsFrame extends JDialog
         setLocationRelativeTo(parent);
     }
 
-    private JPanel getSettingsPanel()
+	/**
+	 * 
+	 */
+	private void refreshLanguage() {
+		setTitle(languageResource.getString("Settings for board") + " '" + board + "'");
+
+		publicBoardRadioButton.setText(languageResource.getString("Public board"));
+		secureBoardRadioButton.setText(languageResource.getString("Secure board"));
+		okButton.setText(languageResource.getString("OK"));
+		cancelButton.setText(languageResource.getString("Cancel"));
+		generateKeyButton.setText(languageResource.getString("Generate new keypair"));
+
+		overrideSettings.setText(languageResource.getString("Override default settings"));
+		maxMsg_default.setText(languageResource.getString("Use default"));
+		maxMsg_set.setText(languageResource.getString("Set to") + ":");
+		signedOnly_default.setText(languageResource.getString("Use default"));
+		signedOnly_true.setText(languageResource.getString("Yes"));
+		signedOnly_false.setText(languageResource.getString("No"));
+		hideBad_default.setText(languageResource.getString("Use default"));
+		hideBad_true.setText(languageResource.getString("Yes"));
+		hideBad_false.setText(languageResource.getString("No"));
+		hideCheck_default.setText(languageResource.getString("Use default"));
+		hideCheck_true.setText(languageResource.getString("Yes"));
+		hideCheck_false.setText(languageResource.getString("No"));
+		hideNA_default.setText(languageResource.getString("Use default"));
+		hideNA_true.setText(languageResource.getString("Yes"));
+		hideNA_false.setText(languageResource.getString("No"));
+		autoUpdateEnabled.setText(languageResource.getString("Enable automatic board update"));
+
+		publicKeyLabel.setText(languageResource.getString("Public key") + " :");
+		privateKeyLabel.setText(languageResource.getString("Private key") + " :");
+		messageDisplayDaysLabel.setText(
+			languageResource.getString("Maximum message display (days)"));
+		hideUnsignedMessagesLabel.setText(languageResource.getString("Hide unsigned messages"));
+		hideBadMessagesLabel.setText(languageResource.getString("Hide messages flagged BAD"));
+		hideCheckMessagesLabel.setText(languageResource.getString("Hide messages flagged CHECK"));
+		hideNaMessagesLabel.setText(languageResource.getString("Hide messages flagged N/A"));
+	}
+
+	private JPanel getSettingsPanel()
     {
         ButtonGroup bg2 = new ButtonGroup();
         bg2.add(maxMsg_default);
@@ -251,7 +300,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(3, 25, 0, 5);
-        panel.add(new JLabel("Maximum message display (days)"), constr);
+        panel.add(messageDisplayDaysLabel, constr);
         constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
@@ -266,7 +315,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(3, 25, 0, 5);
-        panel.add(new JLabel("Hide unsigned messages"), constr);
+        panel.add(hideUnsignedMessagesLabel, constr);
         constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
@@ -281,7 +330,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(3, 25, 0, 5);
-        panel.add(new JLabel("Hide messages flagged BAD"), constr);
+        panel.add(hideBadMessagesLabel, constr);
         constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
@@ -296,7 +345,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(3, 25, 0, 5);
-        panel.add(new JLabel("Hide messages flagged CHECK"), constr);
+        panel.add(hideCheckMessagesLabel, constr);
         constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
@@ -311,7 +360,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(3, 25, 0, 5);
-        panel.add(new JLabel("Hide messages flagged N/A"), constr);
+        panel.add(hideNaMessagesLabel, constr);
         constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;
@@ -338,7 +387,7 @@ public class BoardSettingsFrame extends JDialog
 
         setPanelEnabled( panel, board.isConfigured() );
 
-        return panel;
+        return panel; 
     }
 
     //------------------------------------------------------------------------
@@ -379,7 +428,7 @@ public class BoardSettingsFrame extends JDialog
         {
             JOptionPane.showMessageDialog(frame1.getInstance(), 
                  ex.toString(), // message
-                 "Warning", 
+                 languageResource.getString("Warning"),
                  JOptionPane.WARNING_MESSAGE);
         }
     }
@@ -476,12 +525,12 @@ public class BoardSettingsFrame extends JDialog
         if( privateKey != null )
             privateKeyTextField.setText(privateKey);
         else
-            privateKeyTextField.setText(LangRes.getString("Not available"));
+            privateKeyTextField.setText(languageResource.getString("Not available"));
 
         if( publicKey != null )
             publicKeyTextField.setText(publicKey);
         else
-            publicKeyTextField.setText(LangRes.getString("Not available"));
+            publicKeyTextField.setText(languageResource.getString("Not available"));
 
 
         if( board.isWriteAccessBoard() || board.isReadAccessBoard() )
