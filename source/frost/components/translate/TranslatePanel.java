@@ -110,12 +110,17 @@ public class TranslatePanel extends JPanel {
 		java.util.ResourceBundle bundle =
 			java.util.ResourceBundle.getBundle(
 				"res.LangRes",
+				new Locale("en"));
+
+		java.util.ResourceBundle newBundle =
+			java.util.ResourceBundle.getBundle(
+				"res.LangRes",
 				new Locale(getSelectedLanguageCode()));
 
 		tableModel.setRowCount(0);
 		for (Enumeration e = bundle.getKeys(); e.hasMoreElements();) {
 			String originalText = (String) e.nextElement();
-			String row[] = { originalText, bundle.getString(originalText)};
+			String row[] = { originalText, newBundle.getString(originalText)};
 			tableModel.addRow(row);
 		}
 	}
