@@ -1030,48 +1030,23 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	private Listener listener = new Listener();
 
+	private boolean alreadyShown = false;
+
 	/**Construct the frame*/
-	public frame1(SettingsClass newSettings, String locale, Splashscreen splashscreen) {
+	public frame1(SettingsClass newSettings, UpdatingLanguageResource newLanguageResource) {
 
 		instance = this;
+		core = Core.getInstance();
 		frostSettings = newSettings;
-
-		//Initializes the language
-		if (!locale.equals("default")) {
-			languageResource = new UpdatingLanguageResource("res.LangRes", new Locale(locale));
-		} else {
-			String language = frostSettings.getValue("locale");
-			if (!language.equals("default")) {
-				languageResource =
-					new UpdatingLanguageResource("res.LangRes", new Locale(language));
-			} else {
-				languageResource = new UpdatingLanguageResource("res.LangRes");
-			}
-		}
-
-		splashscreen.setText(languageResource.getString("Initializing Mainframe"));
-		splashscreen.setProgress(20);
+		languageResource = newLanguageResource;
 
 		keypool = frostSettings.getValue("keypool.dir");
 		setDefaultCloseOperation(WindowConstants.DO_NOTHING_ON_CLOSE);
 
-		splashscreen.setText(languageResource.getString("Hypercube fluctuating!"));
-		splashscreen.setProgress(50);
-
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		// enable the machine ;)
 		try {
-			core = new Core(languageResource.getResourceBundle());
-			splashscreen.setText(languageResource.getString("Sending IP address to NSA"));
-			splashscreen.setProgress(60);
 			jbInit();
-			splashscreen.setText(languageResource.getString("Wasting more time"));
-			splashscreen.setProgress(70);
-			core.init();
-
-			splashscreen.setText(languageResource.getString("Reaching ridiculous speed..."));
-			splashscreen.setProgress(80);
-
 			runningBoardUpdateThreads = new RunningBoardUpdateThreads();
 			this.guiUpdateTimer = new java.util.Timer();
 			//note: changed this from timertask so that I can give it a name --zab
@@ -1082,17 +1057,12 @@ public class frame1 extends JFrame implements ClipboardOwner {
 						//TODO: refactor this method in Core. lots of work :)
 						timer_actionPerformed();
 					}
-
 				}
 			};
 			tickerThread.start();
 		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Exception thrown in the constructor", t);
 		}
-
-		//Close the splashscreen
-		splashscreen.closeMe();
-
 	}
 	private JToolBar buildButtonPanel() {
 		timeLabel = new JLabel("");
@@ -3345,6 +3315,22 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		if (board == getSelectedNode()) // is the board actually shown?
 			{
 			updateButtons(board);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setVisible(boolean)
+	 */
+	public void setVisible(boolean b) {
+		super.setVisible(b);
+		if (!alreadyShown && b) {
+			alreadyShown = true;
+			// this really obscuring stuff is needed to change the divider size
+			// after the frame is shown. The goal is to see the blank message view
+			// without any attachment table after startup
+			resetMessageViewSplitPanes();
+			mixed.wait(500);
+			resetMessageViewSplitPanes();
 		}
 	}
 
