@@ -52,8 +52,6 @@ public class requestThread extends Thread
             frame1.activeDownloadThreads++;
         }
 
-        downloadItem.setLastDownloadStartTimeMillis( System.currentTimeMillis() );
-
         try {
         // some vars
         final DownloadTableModel tableModel = (DownloadTableModel)downloadTable.getModel();
@@ -120,20 +118,21 @@ public class requestThread extends Thread
                 }
 
                 // set new state -> failed or waiting for another try
-                if( frame1.frostSettings.getBoolValue("downloadRestartFailedDownloads" ) )
+                if( downloadItem.getRetries() > frame1.frostSettings.getIntValue("downloadMaxRetries") )
                 {
-                    if( downloadItem.getRetries() > frame1.frostSettings.getIntValue("downloadMaxRetries") )
+                    if( frame1.frostSettings.getBoolValue("downloadRestartFailedDownloads" ) )
                     {
-                        downloadItem.setState( downloadItem.STATE_FAILED );
+                        downloadItem.setState( downloadItem.STATE_WAITING );
+                        downloadItem.setRetries( 0 );
                     }
                     else
                     {
-                        downloadItem.setState( downloadItem.STATE_WAITING );
+                        downloadItem.setState( downloadItem.STATE_FAILED );
                     }
                 }
                 else
                 {
-                    downloadItem.setState( downloadItem.STATE_FAILED );
+                    downloadItem.setState( downloadItem.STATE_WAITING );
                 }
 
                 tableModel.updateRow( downloadItem );
