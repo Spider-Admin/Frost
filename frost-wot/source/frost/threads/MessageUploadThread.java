@@ -130,7 +130,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     // not successful, will not track this upload, but continue uploading
                     tmpFile.delete();
                 }
-                return true;
+                //return true;
             }
             else
             {

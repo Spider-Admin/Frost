@@ -70,7 +70,7 @@ public class MessageFrame extends JFrame
     JButton BattachBoard= new JButton(new ImageIcon(frame1.class.getResource("/data/attachmentBoard.gif")));
 
     JCheckBox sign = new JCheckBox("Sign");
-    JCheckBox addAttachedFilesToUploadTable = new JCheckBox("Public attachments");
+    JCheckBox addAttachedFilesToUploadTable = new JCheckBox("Indexed attachments");
 
     JTextField TFboard = new JTextField(); // Board (To)
     JTextField TFfrom = new JTextField(); // From
