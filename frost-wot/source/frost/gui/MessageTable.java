@@ -28,10 +28,11 @@ import frost.gui.objects.FrostMessageObject;
 
 public class MessageTable extends SortedTable
 {
+	private CellRenderer cellRenderer = new CellRenderer();
+	
 	public MessageTable(TableModel m) {
 		super(m);
 
-		CellRenderer cellRenderer = new CellRenderer();
 		setDefaultRenderer(Object.class, cellRenderer);
 
 		// default for messages: sort by date descending
@@ -51,8 +52,9 @@ public class MessageTable extends SortedTable
         
         public CellRenderer()
         {
-            normalFont = new JTable().getFont();
-            boldFont = normalFont.deriveFont(Font.BOLD);
+        	Font baseFont = MessageTable.this.getFont();
+            normalFont = baseFont.deriveFont(Font.PLAIN);
+            boldFont = baseFont.deriveFont(Font.BOLD);
         }
         
         public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
@@ -91,6 +93,15 @@ public class MessageTable extends SortedTable
             }
             return this;
         }
+		/* (non-Javadoc)
+		 * @see java.awt.Component#setFont(java.awt.Font)
+		 */
+		public void setFont(Font font) {
+			super.setFont(font);
+			normalFont = font.deriveFont(Font.PLAIN);
+			boldFont = font.deriveFont(Font.BOLD);
+		}
+
     }
 	/* (non-Javadoc)
 	 * @see javax.swing.JTable#createDefaultColumnsFromModel()
@@ -102,6 +113,16 @@ public class MessageTable extends SortedTable
 		int[] widths = { 30, 150, 250, 50, 150 };
 		for (int i = 0; i < widths.length; i++) {
 			getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
+		}
+	}
+
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setFont(java.awt.Font)
+	 */
+	public void setFont(Font font) {
+		super.setFont(font);
+		if (cellRenderer != null) {
+			cellRenderer.setFont(font);
 		}
 	}
 
