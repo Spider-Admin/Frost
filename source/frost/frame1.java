@@ -1084,43 +1084,43 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		systemTrayButton = new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
 		configureButton(
 			newBoardButton,
-			languageResource.getString("New board"),
+			"New board",
 			"/data/newboard_rollover.gif");
 		configureButton(
 			newFolderButton,
-			languageResource.getString("New folder"),
+			"New folder",
 			"/data/newfolder_rollover.gif");
 		configureButton(
 			removeBoardButton,
-			languageResource.getString("Remove board"),
+			"Remove board",
 			"/data/remove_rollover.gif");
 		configureButton(
 			renameBoardButton,
-			languageResource.getString("Rename folder"),
+			"Rename folder",
 			"/data/rename_rollover.gif");
 		configureButton(
 			configBoardButton,
-			languageResource.getString("Configure board"),
+			"Configure board",
 			"/data/configure_rollover.gif");
 		configureButton(
 			cutBoardButton,
-			languageResource.getString("Cut board"),
+			"Cut board",
 			"/data/cut_rollover.gif");
 		configureButton(
 			pasteBoardButton,
-			languageResource.getString("Paste board"),
+			"Paste board",
 			"/data/paste_rollover.gif");
 		configureButton(
 			boardInfoButton,
-			languageResource.getString("Board Information Window"),
+			"Board Information Window",
 			"/data/info_rollover.gif");
 		configureButton(
 			systemTrayButton,
-			languageResource.getString("Minimize to System Tray"),
+			"Minimize to System Tray",
 			"/data/tray_rollover.gif");
 		configureButton(
 			knownBoardsButton,
-			languageResource.getString("Display list of known boards"),
+			"Display list of known boards",
 			"/data/knownboards_rollover.gif");
 
 		// add action listener
@@ -1465,36 +1465,39 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		configureButton(
 			tofNewMessageButton,
-			languageResource.getString("New message"),
+			"New message",
 			"/data/newmessage_rollover.gif");
 		configureButton(
 			tofUpdateButton,
-			languageResource.getString("Update"),
+			"Update",
 			"/data/update_rollover.gif");
 		configureButton(
 			tofReplyButton,
-			languageResource.getString("Reply"),
+			"Reply",
 			"/data/reply_rollover.gif");
 		configureButton(
 			downloadAttachmentsButton,
-			languageResource.getString("Download attachment(s)"),
+			"Download attachment(s)",
 			"/data/attachment_rollover.gif");
 		configureButton(
 			downloadBoardsButton,
-			languageResource.getString("Add Board(s)"),
+			"Add Board(s)",
 			"/data/attachmentBoard_rollover.gif");
 		configureButton(
 			saveMessageButton,
-			languageResource.getString("Save message"),
+			"Save message",
 			"/data/save_rollover.gif");
-		configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
+		configureButton(
+			trustButton, 
+			"Trust", 
+			"/data/trust_rollover.gif");
 		configureButton(
 			notTrustButton,
-			languageResource.getString("Do not trust"),
+			"Do not trust",
 			"/data/nottrust_rollover.gif");
 		configureButton(
 			checkTrustButton,
-			languageResource.getString("Set to CHECK"),
+			"Set to CHECK",
 			"/data/check_rollover.gif");
 
 		// add action listener to buttons
