@@ -324,7 +324,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         // Is this a valid message?
                         if( currentMsg.isValid() )
                         {
-                            if( TOF.blocked(currentMsg) && testMe.length() > 0 )
+                            if( TOF.blocked(currentMsg,board) && testMe.length() > 0 )
                             {
                                 board.incBlocked();
                                 System.out.println("\nTOFDN: ########### blocked message for board '"+board.toString()+"' #########\n");
