@@ -71,7 +71,7 @@ public class Startup
         catch( IOException e ) { ; }
 
         try {
-            File tray1file = new File("JSysTray.dll"); // lib needs to be in .
+            File tray1file = new File("exec" + fileSeparator + "JSysTray.dll");
             if( !tray1file.isFile() )
                 mixed.copyFromResource("/data/JSysTray.dll", tray1file);
         }
