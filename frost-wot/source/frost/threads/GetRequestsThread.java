@@ -154,6 +154,8 @@ public class GetRequestsThread extends Thread
 		    else SHA1=SHA1.trim();
                     if( SHA1.equals(content) )
                     {
+                        // FIXME: 1st: there is never such a file written (using SHA1 in name)
+                        //        2nd: is'nt it possible to use uploadItem.getLastUploadData for this? 
                         File requestLock = new File(destination + SHA1 + ".lck");
                         if( !requestLock.exists() )
                         {
@@ -161,7 +163,7 @@ public class GetRequestsThread extends Thread
                             // and the next state should be REQUESTED.
                             // maybe we need to set the REQUESTED as next state in insertThread ...
                             
-                            // change of state ENCODING_REQUESTED to REQUESTED is ok!
+                            // changing state ENCODING_REQUESTED to REQUESTED is ok!
                             if( ulItem.getState() != FrostUploadItemObject.STATE_UPLOADING &&
                                 ulItem.getState() != FrostUploadItemObject.STATE_PROGRESS &&
 				                ulItem.getBatch().equals(currentBatch)) //TOTHINK: this is optional
