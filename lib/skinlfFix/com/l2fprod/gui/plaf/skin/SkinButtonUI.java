@@ -1,8 +1,8 @@
 /* ====================================================================
  *
- * Skin Look And Feel 1.2.5 License.
+ * Skin Look And Feel 1.2.8 License.
  *
- * Copyright (c) 2000-2003 L2FProd.com.  All rights reserved.
+ * Copyright (c) 2000-2004 L2FProd.com.  All rights reserved.
  *
  * Redistribution and use in source and binary forms, with or without
  * modification, are permitted provided that the following conditions
@@ -47,12 +47,12 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
-import java.awt.*;
-
-import javax.swing.*;
-import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.*;
+import javax.swing.plaf.*;
+import javax.swing.*;
 import javax.swing.text.View;
+
+import java.awt.*;
 
 /**
  * @author    $Author$
@@ -211,6 +211,11 @@ public class SkinButtonUI extends BasicButtonUI {
       defaults_initialized = true;
     }
 
+    b.setBorderPainted(false);
+    b.setFocusPainted(true);
+    b.setOpaque(false);
+    b.setRolloverEnabled(true);
+
     skin.getButton().installSkin(b);
 
   }
@@ -223,6 +228,9 @@ public class SkinButtonUI extends BasicButtonUI {
   protected void uninstallDefaults(AbstractButton b) {
     super.uninstallDefaults(b);
     defaults_initialized = false;
+    b.setBorderPainted(true);
+    b.setFocusPainted(true);
+    b.setOpaque(true);
   }
 
   /**
