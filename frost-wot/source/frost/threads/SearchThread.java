@@ -309,13 +309,6 @@ public class SearchThread extends Thread {
                         
                     }
 		    
-		    File lastUploads = new File(keypoolDir+fileSeparator+"new_files.xml");
-		    if (lastUploads.exists()) {
-		    	chk.clear();
-			FileAccess.readKeyFile(lastUploads,chk);
-			getSearchResults();
-			if( DEBUG ) System.out.println(lastUploads.getName() + " - " + chk.size() + ";");
-		    }
 		    
                 }
                 chk.clear();
