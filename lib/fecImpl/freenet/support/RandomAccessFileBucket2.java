@@ -10,7 +10,8 @@ import java.util.Vector;
  *
  **/
 public class RandomAccessFileBucket2 implements Bucket {
-RandomAccessFile raf = null;
+    RandomAccessFile raf = null;
+    
     public RandomAccessFileBucket2(File file, long offset, long len, boolean readOnly, RandomAccessFile r)
         throws IOException {
         if (!(file.exists() && file.canRead())) {
