@@ -2078,12 +2078,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		});
 		newBoardButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewBoard(MainFrame.getInstance());
+				getTofTree().createNewBoard(MainFrame.this);
 			}
 		});
 		newFolderButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewFolder(MainFrame.getInstance());
+				getTofTree().createNewFolder(MainFrame.this);
 			}
 		});
 		renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2303,7 +2303,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		});
 		helpHelpMenuItem.addActionListener(new ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				HelpFrame dlg = new HelpFrame(getInstance());
+				HelpFrame dlg = new HelpFrame(MainFrame.this);
 				dlg.setVisible(true);
 			}
 		});
@@ -2565,7 +2565,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	public TofTree getTofTree() {
+	TofTree getTofTree() {
 		if (tofTree == null) {
 			tofTree = new TofTree(getTofTreeModel());
 		}
@@ -3110,8 +3110,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 * @param e
 	 */
 	private void tofDisplayKnownBoardsMenuItem_actionPerformed(ActionEvent e) {
-		KnownBoardsFrame knownBoards =
-			new KnownBoardsFrame(this);
+		KnownBoardsFrame knownBoards = new KnownBoardsFrame(this, getTofTree());
 		knownBoards.startDialog();
 	}
 
