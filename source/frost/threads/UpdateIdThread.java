@@ -312,7 +312,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						new File(MainFrame.frostSettings.getValue("temp.dir"))); 
 
 				logger.info(
-					"FILEDN: Requesting index " + index + " for board " + board.getBoardName() + " for date " + date);
+					"FILEDN: Requesting index " + index + " for board " + board.getName() + " for date " + date);
 
 				// Download the keyfile
 

@@ -421,7 +421,7 @@ public class TofTree extends JDragTree implements Savable {
 	 */
 	public void addNewBoard(Board fbobj) {
 		addNewBoard(
-			fbobj.getBoardName(),
+			fbobj.getName(),
 			fbobj.getPublicKey(),
 			fbobj.getPrivateKey(),
 			fbobj.getDescription());

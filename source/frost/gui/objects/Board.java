@@ -169,7 +169,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	/**
 	 * @return
 	 */
-	public String getBoardName() {
+	public String getName() {
 		return boardName;
 	}
 	
@@ -420,21 +420,21 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	}
 
 	/**
-	 * @param newname
+	 * @param name
 	 */
-	public void setBoardName(String newname) {
-		boardName = newname;
+	public void setName(String name) {
+		boardName = name;
 		boardFileName = Mixed.makeFilename(boardName.toLowerCase());
 
-		if (Mixed.containsForeign(newname))
-			b64FileName = Core.getCrypto().encode64(newname);
+		if (Mixed.containsForeign(name))
+			b64FileName = Core.getCrypto().encode64(name);
 		else
 			b64FileName = null;
 
 		File boardFile = new File(MainFrame.keypool + boardFileName);
 		if (!boardFile.exists()
 			|| !boardFile.isDirectory()) //if it doesn't exist already, strip foreign chars
-			boardFileName = Core.getCrypto().encode64(newname);
+			boardFileName = Core.getCrypto().encode64(name);
 	}
 	
 	/**

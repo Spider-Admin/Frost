@@ -106,10 +106,10 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 			String name1 = "";
 			String name2 = "";
 			if (source1 != null) {
-				name1 = source1.getBoardName();
+				name1 = source1.getName();
 			}
 			if (source2 != null) {
-				name2 = source2.getBoardName();
+				name2 = source2.getName();
 			}
 			return name1.compareToIgnoreCase(name2);
 		}

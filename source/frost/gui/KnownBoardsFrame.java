@@ -198,7 +198,7 @@ public class KnownBoardsFrame extends JDialog
             {
                 BoardAttachment ba = (BoardAttachment)i.next();
                 
-                String bname = ba.getBoardObj().getBoardName();
+                String bname = ba.getBoardObj().getName();
                 String bprivkey = ba.getBoardObj().getPrivateKey();
                 String bpubkey = ba.getBoardObj().getPublicKey();
 
@@ -208,7 +208,7 @@ public class KnownBoardsFrame extends JDialog
                 while(j.hasNext())
                 {
                     Board board = (Board)j.next();
-                    if( board.getBoardName().equalsIgnoreCase(bname) &&
+                    if( board.getName().equalsIgnoreCase(bname) &&
                         ( 
                           ( board.getPrivateKey() == null &&
                             bprivkey == null 
@@ -339,7 +339,7 @@ public class KnownBoardsFrame extends JDialog
 		public Object getValueAt(int column) {
 			switch (column) {
 				case 0 :
-					return frostboard.getBoardName();
+					return frostboard.getName();
 				case 1 :
 					return ((frostboard.getPublicKey() == null) ? "" : frostboard.getPublicKey());
 				case 2 :
@@ -389,7 +389,7 @@ public class KnownBoardsFrame extends JDialog
             for( int row=0; row < tableModel.getRowCount(); row++ )
             {
                 KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-                if( memb.getBoardObject().getBoardName().toLowerCase().startsWith(txt.toLowerCase()) )
+                if( memb.getBoardObject().getName().toLowerCase().startsWith(txt.toLowerCase()) )
                 {
                     boardsTable.getSelectionModel().setSelectionInterval(row, row);
                     // now scroll to selected row, try to show it on top of table

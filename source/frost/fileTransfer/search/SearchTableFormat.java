@@ -80,8 +80,8 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 		 * @see freenet.support.Comparator#compare(java.lang.Object, java.lang.Object)
 		 */
 		public int compare(Object o1, Object o2) {
-			String boardName1 = ((FrostSearchItem) o1).getBoard().getBoardName();
-			String boardName2 = ((FrostSearchItem) o2).getBoard().getBoardName();
+			String boardName1 = ((FrostSearchItem) o1).getBoard().getName();
+			String boardName2 = ((FrostSearchItem) o2).getBoard().getName();
 			return boardName1.compareToIgnoreCase(boardName2);
 		}
 	}

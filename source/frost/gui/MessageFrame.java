@@ -392,7 +392,7 @@ public class MessageFrame extends JFrame
 		public Object getValueAt(int column) {
 			switch (column) {
 				case 0 :
-					return aBoard.getBoardName();
+					return aBoard.getName();
 				case 1 :
 					return (aBoard.getPublicKey() == null) ? "N/A" : aBoard.getPublicKey();
 				case 2 :
@@ -760,7 +760,7 @@ public class MessageFrame extends JFrame
 			}
 			// build a new board because maybe privKey should'nt be uploaded
 			Board aNewBoard =
-				new Board(board.getBoardName(), board.getPublicKey(), privKey, board.getDescription());
+				new Board(board.getName(), board.getPublicKey(), privKey, board.getDescription());
 			MFAttachedBoard ab = new MFAttachedBoard(aNewBoard);
 			boardsTableModel.addRow(ab);
 		}
@@ -1265,7 +1265,7 @@ public class MessageFrame extends JFrame
         
         // create new MessageObject to upload
         MessageObject mo = new MessageObject();
-        mo.setBoard(board.getBoardName());
+        mo.setBoard(board.getName());
         mo.setFrom(from);
         mo.setSubject(subject);
         mo.setContent(text);

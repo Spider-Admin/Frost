@@ -131,7 +131,7 @@ public class MessageObject implements XMLizable
 			Board aBoard = ba.getBoardObj();
 
 			Vector rows = new Vector();
-			rows.add(aBoard.getBoardName());
+			rows.add(aBoard.getName());
 			if (aBoard.getPublicKey() == null && aBoard.getPrivateKey() == null) {
 				rows.add("public");
 			} else if (aBoard.getPublicKey() != null && aBoard.getPrivateKey() == null) { 
