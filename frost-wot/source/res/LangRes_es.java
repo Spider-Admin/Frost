@@ -305,7 +305,18 @@ static final Object[][] contents = {
   {"Core.loadIdentities.ConnectionNotEstablishedTitle","Conexión al nodo Freenet fallida"},
   {"Core.loadIdentities.ChooseName","Escoge un nombre para tu identidad. No tiene porqué ser único.\n"},
   {"Core.loadIdentities.InvalidNameBody","Tu nombre no puede contener una '@'!"},
-  {"Core.loadIdentities.InvalidNameTitle","Nombre de identidad no válido"}
+  {"Core.loadIdentities.InvalidNameTitle","Nombre de identidad no válido"},
+
+	//
+	//	Display Panel (preferences)
+	//
+
+	{"Plain","Plana"},
+	{"Italic","Cursiva"},
+	{"Bold","Negrita"},
+	{"Bold Italic","Negrita Cursiva"},
+	{"Sample","Muestra"},
+	{"Choose a Font","Escoge un Tipo de Letra"}
 
 };
 }
