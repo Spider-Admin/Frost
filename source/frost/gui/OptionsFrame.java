@@ -45,25 +45,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
  	 */
 	private class DisplayPanel extends JPanel {
 
-		/**
-		 * Inner class to handle all the events
-		 */ 
-		public class EventHandler implements ActionListener {
-
-			/**
-			 * Method called when an actionEvent is fired
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
-			public void actionPerformed(ActionEvent event) {
-				if (event.getSource() == DisplayPanel.this.getEnableSkinsCheckBox())
-					enableSkinsPressed();
-			}
-			
-		}
-		
-		EventHandler eventHandler = new EventHandler();
-
-		private JCheckBox enableSkinsCheckBox = null;
 		private SkinChooser skinChooser = null;
 		private BorderLayout displayPanelBorderLayout = null;
 
@@ -80,35 +61,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 		 */
 		private void initialize() {
 			setName("DisplayPanel");
-			//setBorder(new EmptyBorder(10, 10, 10, 10));
 			setLayout(getDisplayPanelBorderLayout());
-			//setSize(763, 538);
 			add(getSkinChooser(), "Center");
-			add(getEnableSkinsCheckBox(), "North");
-			initConnections();
 		}
 		
-		/**
-		 *	This method is executed when the state of the enableSkins checkBox changes
-		 */
-		private void enableSkinsPressed() {
-			boolean enabled = getEnableSkinsCheckBox().isSelected();
-			getSkinChooser().setEnabled(enabled);
-			if (enabled) {
-				getSkinChooser().enableSkins();
-			} else {
-				getSkinChooser().disableSkins();
-			}
+		public void ok() {
+			getSkinChooser().commitChanges();
+			saveSettings(frostSettings);
 		}
 		
-		/**
-		 * Initializes connections
-		 */
-		/* WARNING: THIS METHOD WILL BE REGENERATED. */
-		private void initConnections() {
-			getEnableSkinsCheckBox().addActionListener(eventHandler);
+		public void cancel() {
+			getSkinChooser().cancelChanges();
 		}
-
 		
 		/**
 		 * Return the DisplayPanelBorderLayout property value.
@@ -135,47 +99,22 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 			return skinChooser;
 		}
 		
-		/**
-		 * Return the EnableSkinsCheckBox property value.
-		 * @return javax.swing.JCheckBox
-		 */
-		private JCheckBox getEnableSkinsCheckBox() {
-			if (enableSkinsCheckBox == null) {
-				enableSkinsCheckBox = new javax.swing.JCheckBox();
-				enableSkinsCheckBox.setName("EnableSkinsCheckBox");
-				enableSkinsCheckBox.setText("EnableSkins");
-				enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
-				enableSkinsCheckBox.setSelected(true);
-			}
-			return enableSkinsCheckBox;
-		}
-
-
-
-		/**
-		 *	Restores the state of the LookAndFeel to the one when this Panel was created
-		 */
-		public void revertLookAndFeel() {
-			getSkinChooser().undoPreview();
-		} 
-		
-		/**
+		/** 
 		 * Save the settings of this panel
 		 * @param displaySettings class where the settings will be stored
 		 */
-		public void saveSettings(SettingsClass displaySettings) {
-			boolean skinsEnabled = getEnableSkinsCheckBox().isSelected();
+		private void saveSettings(SettingsClass displaySettings) {
+			boolean skinsEnabled = getSkinChooser().isSkinsEnabled();
 			displaySettings.setValue("skinsEnabled", skinsEnabled);
-			String selectedSkin = getSkinChooser().getSelectedSkinPath();
+			
+			String selectedSkin = getSkinChooser().getSelectedSkin();
 			if (selectedSkin == null) {
-				displaySettings.setValue("selectedSkin", "");
+				displaySettings.setValue("selectedSkin", "none");
 			} else {
-				if (skinsEnabled) {
-					getSkinChooser().previewButtonPressed();
-				}
 				displaySettings.setValue("selectedSkin", selectedSkin);
 			}
 		}
+		
 		
 		/**
 		 * Load the settings of this panel
@@ -183,14 +122,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 		 */
 		public void loadSettings(SettingsClass displaySettings) {
 			boolean skinsEnabled = displaySettings.getBoolValue("skinsEnabled");
-			getEnableSkinsCheckBox().setSelected(skinsEnabled);
-			if (!skinsEnabled) {
-				getSkinChooser().setEnabled(false);
-			}
-			
+			getSkinChooser().setSkinsEnabled(skinsEnabled);
 			String selectedSkinPath = displaySettings.getValue("selectedSkin");
-			getSkinChooser().selectSkin(selectedSkinPath);
-		}
+			getSkinChooser().setSelectedSkin(selectedSkinPath);
+		}                         
 
 	}
     //------------------------------------------------------------------------
@@ -1349,11 +1284,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     	frostSettings.setValue("helpFriends",helpFriends.isSelected());
     	frostSettings.setValue("hideBadFiles",hideBadFiles.isSelected());
     	frostSettings.setValue("hideAnonFiles",hideAnonFiles.isSelected());
-    	
-    	if (displayPanel != null) {	//Only save the display settings if that panel has been used
-    		displayPanel.saveSettings(frostSettings);
-    	}
-    	
+    	    	
         frostSettings.writeSettingsFile();
 
         // now check if some settings changed
@@ -1375,16 +1306,20 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         }
     }
 
-    /**
-     * Close window and save settings
-     */
-    private void ok()
-    {
-        exitState = true;
-        saveSettings();
-        saveSignature();
-        dispose();
-    }
+	/**
+	 * Close window and save settings
+	 */
+	private void ok() {
+		exitState = true;
+
+		if (displayPanel != null) { //If the display panel has been used, commit its changes
+			displayPanel.ok();
+		}
+
+		saveSettings();
+		saveSignature();
+		dispose();
+	}
 
     /**
      * Close window and do not save settings
@@ -1394,7 +1329,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         exitState = false;
         
         if (displayPanel != null) {	//If the display panel has been used, undo any possible skin preview
-        	displayPanel.revertLookAndFeel();
+        	displayPanel.cancel();
         }
         
         dispose();
