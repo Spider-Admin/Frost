@@ -25,14 +25,16 @@ import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
+import javax.swing.event.*;
 import javax.swing.table.TableModel;
+import javax.swing.text.BadLocationException;
 
 import frost.*;
+import frost.FcpTools.FcpInsert;
 import frost.gui.components.*;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.*;
-import frost.FcpTools.FcpInsert;
 
 public class MessageFrame extends JFrame
 {
@@ -44,7 +46,6 @@ public class MessageFrame extends JFrame
     FrostBoardObject board;
     String from;
     String subject;
-    String text;
     String lastUsedDirectory;
     String keypool;
     boolean state;
@@ -76,10 +77,12 @@ public class MessageFrame extends JFrame
     JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
 
     JTextField TFboard = new JTextField(); // Board (To)
-    JTextField TFfrom = new JTextField(); // From
+    private JTextField fromTextField = new JTextField(); // From
     JTextField TFsubject = new JTextField(); // Subject
 
-    MessageTextArea messageTextArea = new MessageTextArea(); // Text
+    private MessageTextArea messageTextArea = new MessageTextArea(); // Text
+    private ImmutableArea headerArea = null;
+    private String oldSender = null;
 
 	private void Init() throws Exception {
 		if (!initialized) {
@@ -113,15 +116,15 @@ public class MessageFrame extends JFrame
 
 			TFboard.setEditable(false);
 			TFboard.setText(board.toString());
-			TFfrom.setText(from);
+			fromTextField.setText(from);
 
 			TFsubject.setText(subject);
 			messageTextArea.setLineWrap(true);
 			messageTextArea.setWrapStyleWord(true);
-			messageTextArea.setText(text);
+			
 			// check if last msg was signed and set it to remembered state
 			if (from.equals(frame1.getMyId().getUniqueName())) {
-				TFfrom.setEditable(false);
+				fromTextField.setEditable(false);
 				sign.setSelected(true);
 			}
 
@@ -154,13 +157,18 @@ public class MessageFrame extends JFrame
 			});
 			sign.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					if (sign.isSelected()) {
-						TFfrom.setText(frame1.getMyId().getUniqueName());
-						TFfrom.setEditable(false);
-					} else {
-						TFfrom.setText("Anonymous");
-						TFfrom.setEditable(true);
-					}
+					sign_ActionPerformed(e);
+				}
+			});
+			fromTextField.getDocument().addDocumentListener(new DocumentListener() {
+				public void changedUpdate(DocumentEvent e) {
+					updateHeaderArea();
+				}
+				public void insertUpdate(DocumentEvent e) {
+					updateHeaderArea();
+				}
+				public void removeUpdate(DocumentEvent e) {
+					updateHeaderArea();
 				}
 			});
 			//------------------------------------------------------------------------
@@ -184,7 +192,7 @@ public class MessageFrame extends JFrame
 			panelLabels.add(Lsubject, BorderLayout.SOUTH);
 
 			panelTextfields.add(TFboard, BorderLayout.NORTH);
-			panelTextfields.add(TFfrom, BorderLayout.CENTER);
+			panelTextfields.add(fromTextField, BorderLayout.CENTER);
 			panelTextfields.add(TFsubject, BorderLayout.SOUTH);
 
 			panelButtons.add(Bsend);
@@ -250,11 +258,11 @@ public class MessageFrame extends JFrame
     /**jButton1 Action Listener (Send)*/
     private void send_actionPerformed(ActionEvent e)
     {
-        from = TFfrom.getText().trim();
-        TFfrom.setText(from);
+        from = fromTextField.getText().trim();
+		fromTextField.setText(from);
         subject = TFsubject.getText().trim();
         TFsubject.setText(subject); // if a pbl occurs show the subject we checked
-        text = messageTextArea.getText().trim();
+        String text = messageTextArea.getText().trim();
 
         boolean quit = true;
 
@@ -349,8 +357,41 @@ public class MessageFrame extends JFrame
         
         dispose();
     }
+    
+	/**
+	 * @param e
+	 */
+	private void sign_ActionPerformed(ActionEvent e) {
+		String sender;
+		if (sign.isSelected()) {
+			sender = frame1.getMyId().getUniqueName();
+			fromTextField.setEditable(false);
+		} else {
+			sender = "Anonymous";
+			fromTextField.setEditable(true);
+		}
+		fromTextField.setText(sender);
+	}
 
-    /**jButton2 Action Listener (Cancel)*/
+	/**
+	 * 
+	 */
+	private void updateHeaderArea() {
+		headerArea.setEnabled(false);
+		String sender = fromTextField.getText();
+		try {
+			messageTextArea.getDocument().remove(headerArea.getStartPos() + 6, oldSender.length());
+			messageTextArea.getDocument().insertString(headerArea.getStartPos() + 6, sender, null);
+			oldSender = sender;
+			headerArea.setEnabled(true);
+		} catch (BadLocationException exception) {
+			System.out.println(
+				"Error while updating the message header: \n" + exception.getMessage());
+			exception.printStackTrace();
+		}
+	}
+
+	/**jButton2 Action Listener (Cancel)*/
     private void cancel_actionPerformed(ActionEvent e)
     {
         state = false;
@@ -500,19 +541,23 @@ public class MessageFrame extends JFrame
 		String newSubject,
 		String newText,
 		boolean isReply) {
+			
+		headerArea.setEnabled(false);	
 		board = newBoard;
 		from = newFrom;
 		subject = newSubject;
-		text = newText;
+		String text = newText;
 
 		String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
 
 		if (isReply) {
-			text += "\n\n----- " + from + " ----- " + date + " -----\n\n";
-		} else {
-			text += "----- " + from + " ----- " + date + " -----\n\n";
+			text += "\n\n";
 		}
-
+		int headerAreaStart = text.length();//Beginning of non-modifiable area
+		text += "----- " + from + " ----- " + date + " -----\n\n";
+		int headerAreaEnd = text.length() - 2; //End of non-modifiable area
+		oldSender = from;
+		
 		int caretPos = text.length();
 
 		File signatureFile = new File("signature.txt");
@@ -531,6 +576,10 @@ public class MessageFrame extends JFrame
 			e.printStackTrace();
 		}
 
+		messageTextArea.setText(text);
+		headerArea.setStartPos(headerAreaStart);
+		headerArea.setEndPos(headerAreaEnd);
+		headerArea.setEnabled(true);
 		show();
 
 		// reset the splitpanes (java bug)        
@@ -615,6 +664,10 @@ public class MessageFrame extends JFrame
 		}
 		messageTextArea.setFont(tofFont);
 		messageTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+		MessageDocument messageDocument = new MessageDocument();
+		headerArea = new ImmutableArea(messageDocument);
+		messageDocument.addImmutableArea(headerArea);	//So that the user can't modify the header of the message
+		messageTextArea.setDocument(messageDocument);
 
 		setSize(600, 460);
 		setLocationRelativeTo(parentFrame);
