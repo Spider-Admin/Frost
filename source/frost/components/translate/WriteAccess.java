@@ -22,22 +22,17 @@ package frost.components.translate;
 import java.io.*;
 
 public class WriteAccess {
-
     /**
      * Writes a file "file" to "path"
      */
     public static void writeFile(String content, File file) {
-	writeFile(content, file.getPath());
-    }
-    public static void writeFile(String content, String file) {
-	FileWriter f1;
 	try {
-	    f1 = new FileWriter(file);
-	    f1.write(content);
-	    f1.close();
+	    FileOutputStream fos = new FileOutputStream(file);
+	    Writer out = new OutputStreamWriter(fos, "UTF8");
+	    out.write(content);
+	    out.close();
 	} catch (IOException e) {
-	    System.out.println("Write Error: " + file);
+	    e.printStackTrace();
 	}
     }
-
 }

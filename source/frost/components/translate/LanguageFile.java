@@ -73,7 +73,7 @@ public class LanguageFile {
     }
 
     private static StringBuffer replaceSpecialCharacters(StringBuffer content) {
-
+	
  	while (content.indexOf("\n") != -1) {
   	    int index = content.indexOf("\n");
   	    content.replace(index,index + 1, "\\n");
@@ -83,19 +83,22 @@ public class LanguageFile {
  	    content.replace(index,index + 1, "\\r");
   	}
 	
-	
-	StringBuffer newContent = new StringBuffer();
-	for (int i = 0; i < content.length(); i++) {
-	    char thisChar = content.charAt(i);
-	    newContent.append("\\u" + UnicodeFormatter.charToHex(thisChar));
-	}
+	/*
+	  StringBuffer newContent = new StringBuffer();
+	  for (int i = 0; i < content.length(); i++) {
+	  char thisChar = content.charAt(i);
+	  newContent.append("\\u" + UnicodeFormatter.charToHex(thisChar));
+	  }
 
-	return newContent;
+	  return newContent;
+	*/
+
+	return content;
     }
 
     /**
      * Reads a language file and returns the contents in
-     * a DefaultTableModel.
+     * a TranslateTableModel.
      * @param tableModel Empty table
      * @param locale Language locale, normaly two letters (for example de for german)
      * @return TranslateTableModel with content from language file
@@ -119,8 +122,8 @@ public class LanguageFile {
 		positions[1] != -1 &&
 		positions[2] != -1 &&
 		positions[3] != -1) {
-		String row[] = {content.substring(positions[0] + 1, positions[1]), 
-				content.substring(positions[2] + 1, positions[3])};
+		String row[] = {new String(content.substring(positions[0] + 1, positions[1])), 
+				new String(content.substring(positions[2] + 1, positions[3]))};
 		tableModel.addRow(row);
 		System.out.println(row[0] + " --- " + row[1]);
 	    }
