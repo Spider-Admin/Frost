@@ -139,7 +139,7 @@ public class TOF
         {
             final FrostMessageObject message;
             try {
-                message = new FrostMessageObject(newMsgFile);
+                message = FrostMessageFactory.createFrostMessageObject(newMsgFile);
             }
             catch(Exception ex)
             {
@@ -317,7 +317,7 @@ public class TOF
                             {
                                 FrostMessageObject message;
                                 try {
-                                    message = new FrostMessageObject(filePointers[j]);
+                                    message = FrostMessageFactory.createFrostMessageObject(filePointers[j]);
                                 }
                                 catch(Exception ex)
                                 {
@@ -574,7 +574,7 @@ public class TOF
                             }
                             FrostMessageObject message;
                             try {
-                                message = new FrostMessageObject(filePointers[k]);
+                                message = FrostMessageFactory.createFrostMessageObject(filePointers[k]);
                             }
                             catch(Exception ex)
                             {
