@@ -19,24 +19,385 @@
 package frost.boards;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.io.File;
+import java.util.Enumeration;
 import java.util.logging.Logger;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.gui.*;
+import frost.gui.NewBoardDialog;
 import frost.gui.objects.Board;
 import frost.storage.*;
-import frost.util.gui.JDragTree;
-import frost.util.gui.translation.Language;
+import frost.threads.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 /**
  * @author $Author$
  * @version $Revision$
  */
 public class TofTree extends JDragTree implements Savable {
+	
+	/**
+	 * 
+	 */
+	private class PopupMenuTofTree
+		extends JSkinnablePopupMenu
+		implements LanguageListener, ActionListener {
+		
+		private JMenuItem addBoardItem = new JMenuItem();
+		private JMenuItem addFolderItem = new JMenuItem();
+		private JMenuItem cancelItem = new JMenuItem();
+		private JMenuItem configureBoardItem = new JMenuItem();
+		private JMenuItem cutNodeItem = new JMenuItem();
+	
+		private JMenuItem descriptionItem = new JMenuItem();
+		private JMenuItem pasteNodeItem = new JMenuItem();
+		private JMenuItem refreshItem = new JMenuItem();
+		private JMenuItem removeNodeItem = new JMenuItem();
+	
+		private Board selectedTreeNode = null;
+		private JMenuItem sortFolderItem = new JMenuItem();
+	
+		/**
+		 * 
+		 */
+		public PopupMenuTofTree() {
+			super();
+			initialize();
+		}
+	
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			final Object source = e.getSource();
+	
+			SwingWorker worker = new SwingWorker(this) {
+				
+				protected void doNonUILogic() throws RuntimeException {
+					if (source == refreshItem) {
+						refreshSelected();
+					} else if (source == addBoardItem) {
+						addBoardSelected();
+					} else if (source == addFolderItem) {
+						addFolderSelected();
+					} else if (source == removeNodeItem) {
+						removeNodeSelected();
+					} else if (source == cutNodeItem) {
+						cutNodeSelected();
+					} else if (source == pasteNodeItem) {
+						pasteNodeSelected();
+					} else if (source == configureBoardItem) {
+						configureBoardSelected();
+					} else if (source == sortFolderItem) {
+						sortFolderSelected();
+					}
+				}
+	
+				protected void doUIUpdateLogic() throws RuntimeException {
+					//Nothing here
+				}
+	
+			};
+			worker.start();
+		}
+	
+		/**
+		 * 
+		 */
+		private void addBoardSelected() {
+			createNewBoard(mainFrame);
+		}
+	
+		/**
+		 * 
+		 */
+		private void addFolderSelected() {
+			createNewFolder(mainFrame);
+		}
+	
+		/**
+		 * 
+		 */
+		private void configureBoardSelected() {
+			configureBoard(selectedTreeNode);
+		}
+	
+		/**
+		 * 
+		 */
+		private void cutNodeSelected() {
+			cutNode(selectedTreeNode);
+		}
+	
+		/**
+		 * 
+		 */
+		private void initialize() {
+			refreshLanguage();
+	
+			MiscToolkit miscToolkit = MiscToolkit.getInstance();
+			addBoardItem.setIcon(miscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
+			addFolderItem.setIcon(miscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
+			configureBoardItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
+			cutNodeItem.setIcon(miscToolkit.getScaledImage("/data/cut.gif", 16, 16));
+			pasteNodeItem.setIcon(miscToolkit.getScaledImage("/data/paste.gif", 16, 16));
+			refreshItem.setIcon(miscToolkit.getScaledImage("/data/update.gif", 16, 16));
+			removeNodeItem.setIcon(miscToolkit.getScaledImage("/data/remove.gif", 16, 16));
+			sortFolderItem.setIcon(miscToolkit.getScaledImage("/data/sort.gif", 16, 16));
+			
+			descriptionItem.setEnabled(false);
+	
+			// add listeners
+			refreshItem.addActionListener(this);
+			addBoardItem.addActionListener(this);
+			addFolderItem.addActionListener(this);
+			removeNodeItem.addActionListener(this);
+			cutNodeItem.addActionListener(this);
+			pasteNodeItem.addActionListener(this);
+			configureBoardItem.addActionListener(this);
+			sortFolderItem.addActionListener(this);
+		}
+	
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();
+		}
+	
+		/**
+		 * 
+		 */
+		private void pasteNodeSelected() {
+			if (clipboard != null) {
+				pasteNode(selectedTreeNode);
+			}
+		}
+	
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			addBoardItem.setText(language.getString("Add new board"));
+			addFolderItem.setText(language.getString("Add new folder"));
+			configureBoardItem.setText(language.getString("Configure selected board"));
+			cancelItem.setText(language.getString("Cancel"));
+			sortFolderItem.setText(language.getString("Sort folder"));
+		}
+		
+		
+	
+		/**
+		 * 
+		 */
+		private void refreshSelected() {
+			refreshNode(selectedTreeNode);
+		}
+	
+		/**
+		 * 
+		 */
+		private void removeNodeSelected() {
+			removeNode(selectedTreeNode);
+		}
+	
+		/* (non-Javadoc)
+		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
+		 */
+		public void show(Component invoker, int x, int y) {
+			int selRow = getRowForLocation(x, y);
+	
+			if (selRow != -1) { // only if a node is selected
+				removeAll();
+	
+				TreePath selPath = getPathForLocation(x, y);
+				selectedTreeNode = (Board) selPath.getLastPathComponent();
+	
+				String folderOrBoard1 =
+					((selectedTreeNode.isFolder())
+						? language.getString("Folder")
+						: language.getString("Board"));
+				String folderOrBoard2 =
+					((selectedTreeNode.isFolder())
+						? language.getString("folder")
+						: language.getString("board"));
+	
+				descriptionItem.setText(folderOrBoard1 + " : " + selectedTreeNode.getName());
+				refreshItem.setText(language.getString("Refresh") + " " + folderOrBoard2);
+				removeNodeItem.setText(language.getString("Remove") + " " + folderOrBoard2);
+				cutNodeItem.setText(language.getString("Cut") + " " + folderOrBoard2);
+	
+				add(descriptionItem);
+				addSeparator();
+				add(refreshItem);
+				addSeparator();
+				if (selectedTreeNode.isFolder() == false) {
+					add(configureBoardItem);
+				} else {
+					add(sortFolderItem);
+				}
+				addSeparator();
+				add(addBoardItem);
+				add(addFolderItem);
+				if (selectedTreeNode.isRoot() == false) {
+					add(removeNodeItem);
+				}
+				addSeparator();
+				if (selectedTreeNode.isRoot() == false) {
+					add(cutNodeItem);
+				}
+				if (clipboard != null && selectedTreeNode.isFolder()) {
+					String folderOrBoard3 =
+						((clipboard.isFolder())
+							? language.getString("folder")
+							: language.getString("board"));
+					pasteNodeItem.setText(
+							language.getString("Paste")
+							+ " "
+							+ folderOrBoard3
+							+ " '"
+							+ clipboard.getName()
+							+ "'");
+					add(pasteNodeItem);
+				}
+				addSeparator();
+				add(cancelItem);
+	
+				super.show(invoker, x, y);
+			}
+		}
+	
+		/**
+		 * 
+		 */
+		private void sortFolderSelected() {
+			selectedTreeNode.sortChildren();
+			model.nodeStructureChanged(selectedTreeNode);
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private class Listener extends MouseAdapter implements LanguageListener, ActionListener,
+								KeyListener, TreeSelectionListener, BoardUpdateThreadListener  {
+		
+		/* (non-Javadoc)
+		 * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();			
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+		 */
+		public void actionPerformed(ActionEvent e) {
+			if (e.getSource() == cutBoardButton) {
+				cutNode(model.getSelectedNode());
+			}
+			if (e.getSource() == pasteBoardButton) {
+				pasteNode(model.getSelectedNode());
+			}	
+			if (e.getSource() == configBoardButton) {
+				configureBoard(model.getSelectedNode());
+			}
+			if (e.getSource() == configBoardMenuItem) {
+				configureBoard(model.getSelectedNode());
+			}
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
+		 */
+		public void keyPressed(KeyEvent e) {
+			char key = e.getKeyChar();
+			pressedKey(key);			
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
+		 */
+		public void keyTyped(KeyEvent e) {
+			// Nothing here			
+		}
+
+		/* (non-Javadoc)
+		 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
+		 */
+		public void keyReleased(KeyEvent e) {
+			// Nothing here			
+		}		
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+		 */
+		public void mousePressed(MouseEvent e) {
+			if (e.isPopupTrigger()) {
+				if (e.getSource() == TofTree.this) {
+					showTofTreePopupMenu(e);
+				}
+			}
+		}
+		
+		/* (non-Javadoc)
+		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+		 */
+		public void mouseReleased(MouseEvent e) {
+			if (e.isPopupTrigger()) {
+				if (e.getSource() == TofTree.this) {
+					showTofTreePopupMenu(e);
+				}
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see javax.swing.event.TreeSelectionListener#valueChanged(javax.swing.event.TreeSelectionEvent)
+		 */
+		public void valueChanged(TreeSelectionEvent e) {
+			if (e.getSource() == TofTree.this) {
+				selectionChanged();
+			}			
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadFinished(frost.threads.BoardUpdateThread)
+		 */
+		public void boardUpdateThreadFinished(final BoardUpdateThread thread) {
+			int running =
+				getRunningBoardUpdateThreads()
+					.getDownloadThreadsForBoard(thread.getTargetBoard())
+					.size();
+			//+ getRunningBoardUpdateThreads().getUploadThreadsForBoard(thread.getTargetBoard()).size();
+			if (running == 0) {
+				// remove update state from board
+				thread.getTargetBoard().setUpdating(false);
+				SwingUtilities.invokeLater(new Runnable() {
+					public void run() {
+						mainFrame.updateTofTree(thread.getTargetBoard());
+					}
+				});
+			}
+		}
+
+		/* (non-Javadoc)
+		 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
+		 */
+		public void boardUpdateThreadStarted(final BoardUpdateThread thread) {
+			thread.getTargetBoard().setUpdating(true);
+			SwingUtilities.invokeLater(new Runnable() {
+				public void run() {
+					mainFrame.updateTofTree(thread.getTargetBoard());
+				}
+			});
+		}
+	}
 	
 	/**
 	 * 
@@ -131,14 +492,12 @@ public class TofTree extends JDragTree implements Savable {
 				&& board.isUpdating() == true) {
 				// set special updating colors
 				Color c;
-				c =
-					(Color) MainFrame.frostSettings.getObjectValue(
-						"boardUpdatingNonSelectedBackgroundColor");
+				c =	(Color) MainFrame.frostSettings.getObjectValue(
+										"boardUpdatingNonSelectedBackgroundColor");
 				setBackgroundNonSelectionColor(c);
 
-				c =
-					(Color) MainFrame.frostSettings.getObjectValue(
-						"boardUpdatingSelectedBackgroundColor");
+				c =	(Color) MainFrame.frostSettings.getObjectValue(
+										"boardUpdatingSelectedBackgroundColor");
 				setBackgroundSelectionColor(c);
 
 			} else {
@@ -179,10 +538,27 @@ public class TofTree extends JDragTree implements Savable {
 	}
     
 	private Language language;
+	private SettingsClass settings;
+	private Core core;
+	private MainFrame mainFrame;
+	
+	private Listener listener = new Listener();
+	
+	private PopupMenuTofTree popupMenuTofTree;
 
 	private static Logger logger = Logger.getLogger(TofTree.class.getName());
 	
 	private TofTreeModel model;
+	
+	private JButton cutBoardButton = new JButton();
+	private JButton pasteBoardButton = new JButton();
+	private JButton configBoardButton = new JButton();
+	
+	private JMenuItem configBoardMenuItem = new JMenuItem();
+	
+	private Board clipboard = null;
+	
+	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
     /**
 	 * @param root
@@ -190,16 +566,39 @@ public class TofTree extends JDragTree implements Savable {
 	public TofTree(TofTreeModel model) {
 		super(model);
 		this.model = model;
-		initialize();
 	}
 
-    /**
+	/**
+	 * @return
+	 */
+	private PopupMenuTofTree getPopupMenuTofTree() {
+		if (popupMenuTofTree == null) {
+			popupMenuTofTree = new PopupMenuTofTree();
+			language.addLanguageListener(popupMenuTofTree);
+		}
+		return popupMenuTofTree;
+	}
+	
+	/**
 	 *  
 	 */
 	public void initialize() {
 
 		language = Language.getInstance();
+		language.addLanguageListener(listener);
+		
+		MiscToolkit toolkit = MiscToolkit.getInstance();
+		cutBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/cut.gif")));
+		pasteBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/paste.gif")));
+		configBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/configure.gif")));
+		toolkit.configureButton(cutBoardButton, "/data/cut_rollover.gif");
+		toolkit.configureButton(pasteBoardButton, "/data/paste_rollover.gif");
+		toolkit.configureButton(configBoardButton, "/data/configure_rollover.gif");
+		configBoardMenuItem.setIcon(toolkit.getScaledImage("/data/configure.gif", 16, 16));
+		refreshLanguage();
 
+		pasteBoardButton.setEnabled(false);
+		
 		putClientProperty("JTree.lineStyle", "Angled"); // I like this look
 
 		setRootVisible(true);
@@ -207,68 +606,82 @@ public class TofTree extends JDragTree implements Savable {
 		setSelectionModel(model.getSelectionModel()); 
 		getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 
+		// Add listeners
+		addTreeSelectionListener(listener);
+		addKeyListener(listener);
+		addMouseListener(listener);
+		cutBoardButton.addActionListener(listener);
+		pasteBoardButton.addActionListener(listener);
+		configBoardButton.addActionListener(listener);
+		configBoardMenuItem.addActionListener(listener);
+		
 		// load nodes from disk
-		if (loadTree() == false) {
-			Board newRoot = new Board("Frost Message System", true);
-			DefaultTreeModel model = new DefaultTreeModel(newRoot);
-			setModel(model);
+		loadTree();
+		
+		// enable the machine ;)
+		runningBoardUpdateThreads = new RunningBoardUpdateThreads(mainFrame, core.getIdentities(), settings);
+	}
+
+   	/**
+	 * @param cuttedNode
+	 */
+	public void cutNode(Board node) {
+		if (node != null) {
+			model.removeNode(node);
+			clipboard = node;
+			pasteBoardButton.setEnabled(true);
 		}
 	}
 
     /**
-	 * @param result
+	 * @param position
 	 * @return
 	 */
-    public Board cutNode(Board result)
-    {
-        if( result != null )
-        {
-            removeNode(result);
-        }
-        return result;
-    }
+	public void pasteNode(Board position) {
+		if (clipboard == null) {
+			pasteBoardButton.setEnabled(false);
+			return;
+		}
+		if (position == null || !position.isFolder()) {
+			return; // We only allow pasting under folders
+		}
 
+		position.add(clipboard);
+		clipboard = null;
+		pasteBoardButton.setEnabled(false);
+
+		int insertedIndex[] = { position.getChildCount() - 1 }; // last in list is the newly added
+		model.nodesWereInserted(position, insertedIndex);
+	}
+    
     /**
-     * @param node
-     */
-    public void removeNode(DefaultMutableTreeNode node)
-    {
-        DefaultMutableTreeNode parent = (DefaultMutableTreeNode)node.getParent();
-        if( node != null && parent != null )
-        {
-            int[] childIndices = { parent.getIndex(node)};
-            Object[] removedChilds = { node };
+	 *  
+	 */
+	private void refreshLanguage() {
+		cutBoardButton.setToolTipText(language.getString("Cut board"));
+		pasteBoardButton.setToolTipText(language.getString("Paste board"));
+		configBoardButton.setToolTipText(language.getString("Configure board"));
+		configBoardMenuItem.setText(language.getString("Configure selected board"));
+	}
 
-            node.removeFromParent();
-
-            DefaultTreeModel model = (DefaultTreeModel)getModel();
-            TreePath pathToParent = new TreePath(model.getPathToRoot( parent ));
-            model.nodesWereRemoved( parent, childIndices, removedChilds );
-            setSelectionPath(pathToParent);
-        }
-    }
-
-    /**
-     * @param clipboard
-     * @param node
-     * @return
-     */
-    public boolean pasteFromClipboard(Board clipboard, Board node)
-    {
-        if( node == null || clipboard == null )
-            return false;
-        if( node.isFolder() == false ) // dont allow to add to boards
-            return false;
-
-        node.add( clipboard );
-
-        int insertedIndex[] = { node.getChildCount()-1 }; // last in list is the newly added
-        ((DefaultTreeModel)getModel()).nodesWereInserted( node, insertedIndex );
-
-        return true;
-    }
-
-    /**
+	/**
+	 * Get keyTyped for tofTree
+	 * @param e
+	 */
+	public void pressedKey(char key ) {
+		if (!isEditing()) {
+			if (key == KeyEvent.VK_DELETE)
+				removeNode(model.getSelectedNode());
+			if (key == KeyEvent.VK_N)
+				createNewBoard(MainFrame.getInstance());
+			if (key == KeyEvent.VK_X)
+				cutNode(model.getSelectedNode());
+			if (key == KeyEvent.VK_V)
+				pasteNode(model.getSelectedNode());
+		}
+	}
+	
+	/**
      * Loads a tree description file
      */
     private boolean loadTree()
@@ -420,4 +833,270 @@ public class TofTree extends JDragTree implements Savable {
 		model.addNodeToTree(new Board(nodeName, true));
 	}
 
+	/**
+	 * Removes the given tree node, asks before deleting.
+	 * @param node
+	 */
+	public void removeNode(Board node) {
+		String txt;
+		if (node.isFolder()) {
+			txt =
+				"Do you really want to delete folder '"
+					+ node.getName()
+					+ "' ???"
+					+ "\nNOTE: Removing it will also remove all boards/folders inside this folder!!!";
+		} else {
+			txt = "Do you really want to delete board '" + node.getName() + "' ???";
+		}
+	
+		int answer =
+			JOptionPane.showConfirmDialog(
+				this,
+				txt,
+				"Delete '" + node.getName() + "'?",
+				JOptionPane.YES_NO_OPTION);
+		if (answer == JOptionPane.NO_OPTION) {
+			return;
+		}
+	
+		// ask user if to delete board directory also
+		boolean deleteDirectory = false;
+		String boardRelDir = settings.getValue("keypool.dir") + node.getBoardFilename();
+		if (node.isFolder() == false) {
+			txt =
+				"Do you want to delete also the board directory '"
+					+ boardRelDir
+					+ "' ?\n"
+					+ "This directory contains all received messages and file lists for this board.\n"
+					+ "(NOTE: The board MUST not updating to delete it!\n"
+					+ "Currently there is no way to stop the updating of a board,\n"
+					+ "so please ensure this board is'nt updating right now,\n"
+					+ "or you have to live with the consequences ;) )\n\n"
+					+ "You can also delete the directory by yourself after shutdown of Frost.";
+			answer =
+				JOptionPane.showConfirmDialog(
+					this,
+					txt,
+					"Delete directory of '" + node.getName() + "'?",
+					JOptionPane.YES_NO_CANCEL_OPTION);
+			if (answer == JOptionPane.YES_OPTION) {
+				deleteDirectory = true;
+			} else if (answer == JOptionPane.CANCEL_OPTION) {
+				return;
+			}
+		}
+	
+		// delete node from tree
+		model.removeNode(node);
+	
+		// maybe delete board dir (in a thread, do not block gui)
+		if (deleteDirectory) {
+			if (node.isUpdating() == false) {
+				core.deleteDir(boardRelDir);
+			} else {
+				logger.warning(
+					"WARNING: Although being warned, you tried to delete a board with is updating! Skipped ...");
+			}
+		}
+	}
+
+	/**
+	 * @param settings
+	 */
+	public void setSettings(SettingsClass settings) {
+		this.settings = settings;		
+	}
+
+	/**
+	 * @param core
+	 */
+	public void setCore(Core core) {
+		this.core = core;		
+	}
+	
+	/**
+	 * @param parentFrame
+	 */
+	public void setMainFrame(MainFrame mainFrame) {
+		this.mainFrame = mainFrame;		
+	}
+
+	/**
+	 * @param e
+	 */
+	private void showTofTreePopupMenu(MouseEvent e) {
+		getPopupMenuTofTree().show(e.getComponent(), e.getX(), e.getY());
+	}
+
+	/**
+	 * starts update for the selected board, or for all childs (and their childs) of a folder
+	 * @param node
+	 */
+	private void refreshNode(Board node) {
+		if (node == null)
+			return;
+	
+		if (node.isFolder() == false) {
+			if (isUpdateAllowed(node)) {
+				updateBoard(node);
+			}
+		} else {
+			// update all childs recursiv
+			Enumeration leafs = node.children();
+			while (leafs.hasMoreElements())
+				refreshNode((Board) leafs.nextElement());
+		}
+	}
+
+	/**
+	 * Returns true if board is allowed to be updated.
+	 * Does NOT check if board update is already running.
+	 * @param board
+	 * @return
+	 */
+	public boolean isUpdateAllowed(Board board) {
+		if (board == null)
+			return false;
+		// Do not allow folders to update
+		if (board.isFolder())
+			return false;
+	
+		if (board.isSpammed())
+			return false;
+	
+		return true;
+	}
+	
+	/**
+	 * @return
+	 */
+	public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
+		return runningBoardUpdateThreads;
+	}
+
+	/**
+	 *  
+	 */
+	private void selectionChanged() {
+		Board node = (Board) getLastSelectedPathComponent();
+		if (node != null) {
+			if (node.isFolder() == false) {
+				// Node is a board
+				configBoardButton.setEnabled(true);
+			} else {
+				// Node is a folder
+				configBoardButton.setEnabled(false);
+				if (node.isRoot()) {
+					cutBoardButton.setEnabled(false);
+				} else {
+					cutBoardButton.setEnabled(true);
+				}	
+			}
+		}
+	}
+
+	/**
+	 * News | Configure Board action performed
+	 * @param board
+	 */
+	private void configureBoard(Board board) {
+		if (board == null || board.isFolder())
+			return;
+	
+		BoardSettingsFrame newFrame =
+			new BoardSettingsFrame(mainFrame, board);
+		if (newFrame.runDialog() == true) // OK pressed?
+			{
+			mainFrame.updateTofTree(board);
+			// update the new msg. count for board
+			TOF.initialSearchNewMessages(board);
+	
+			if (board == model.getSelectedNode()) {
+				// reload all messages if board is shown
+				mainFrame.tofTree_actionPerformed(null);
+			}
+		}
+	}
+
+	/**
+	 * Starts the board update threads, getRequest thread and update id thread.
+	 * Checks for each type of thread if its already running, and starts allowed
+	 * not-running threads for this board.
+	 * @param board
+	 */
+	public void updateBoard(Board board) {
+		if (board == null || board.isFolder())
+			return;
+	
+		boolean threadStarted = false;
+	
+		// first download the messages of today
+		if (getRunningBoardUpdateThreads()
+			.isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_TODAY)
+			== false) {
+			getRunningBoardUpdateThreads().startMessageDownloadToday(
+				board,
+				settings,
+				listener);
+			logger.info("Starting update (MSG_TODAY) of " + board.getName());
+			threadStarted = true;
+		}
+	
+		// maybe get the files list
+		if (!settings.getBoolValue(SettingsClass.DISABLE_REQUESTS)
+			&& !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
+				board,
+				BoardUpdateThread.BOARD_FILE_UPLOAD)) {
+			getRunningBoardUpdateThreads().startBoardFilesUpload(board, settings, listener);
+			logger.info("Starting update (BOARD_UPLOAD) of " + board.getName());
+			threadStarted = true;
+		}
+	
+		if (!settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS)
+			&& !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
+				board,
+				BoardUpdateThread.BOARD_FILE_DNLOAD)) {
+			getRunningBoardUpdateThreads().startBoardFilesDownload(board, settings, listener);
+			logger.info("Starting update (BOARD_DOWNLOAD) of " + board.getName());
+			threadStarted = true;
+		}
+	
+		// finally get the older messages
+		if (getRunningBoardUpdateThreads()
+			.isThreadOfTypeRunning(board, BoardUpdateThread.MSG_DNLOAD_BACK)
+			== false) {
+			getRunningBoardUpdateThreads().startMessageDownloadBack(board, settings, listener);
+			logger.info("Starting update (MSG_BACKLOAD) of " + board.getName());
+			threadStarted = true;
+		}
+	
+		// if there was a new thread started, update the lastUpdateStartTimeMillis
+		if (threadStarted == true) {
+			board.setLastUpdateStartMillis(System.currentTimeMillis());
+		}
+	}
+
+	/**
+	 * Fires a nodeChanged (redraw) for all boards.
+	 * ONLY used to redraw tree after run of OptionsFrame.
+	 */
+	public void updateTree() {
+		// fire update for node
+		Enumeration e = ((Board) model.getRoot()).depthFirstEnumeration();
+		while (e.hasMoreElements()) {
+			model.nodeChanged(((Board) e.nextElement()));
+		}
+	}
+	protected JButton getConfigBoardButton() {
+		return configBoardButton;
+	}
+	protected JMenuItem getConfigBoardMenuItem() {
+		return configBoardMenuItem;
+	}
+	protected JButton getCutBoardButton() {
+		return cutBoardButton;
+	}
+	protected JButton getPasteBoardButton() {
+		return pasteBoardButton;
+	}
 }

@@ -32,6 +32,7 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import frost.*;
+import frost.boards.TofTree;
 import frost.fcp.FcpInsert;
 import frost.gui.model.*;
 import frost.gui.objects.Board;
@@ -715,6 +716,8 @@ public class MessageFrame extends JFrame
     private ImmutableArea headerArea = null;
     private String oldSender = null;
     
+    private TofTree tofTree;
+    
 	/**
 	 * @param newSettings
 	 * @param parentWindow
@@ -1337,7 +1340,7 @@ public class MessageFrame extends JFrame
         }
 
         // start upload thread which also saves the file, uploads attachments+signs if choosed
-        MainFrame.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
+        tofTree.getRunningBoardUpdateThreads().startMessageUpload(
                                               board,
                                               mo,
                                               null);
@@ -1384,5 +1387,12 @@ public class MessageFrame extends JFrame
 		} catch (BadLocationException exception) {
 			logger.log(Level.SEVERE, "Error while updating the message header", exception);
 		}
+	}
+	
+	/**
+	 * @param tofTree
+	 */
+	public void setTofTree(TofTree tofTree) {
+		this.tofTree = tofTree;
 	}
 }
