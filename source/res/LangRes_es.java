@@ -18,7 +18,6 @@ public Object[][] getContents() {
 }
 
 static final Object[][] contents = {
-{"About","Acerca de"},
 {"Activate downloading","Activa descarga"},
 {"Add attachment(s)","Añade adjunto(s)"},
 {"Add Board(s)","Añade Foro(s)"},
@@ -174,9 +173,7 @@ static final Object[][] contents = {
 {"Number of simultaneous uploads","Número de subidas simultáneas"},
 {"Number of splitfile threads","Número de hilos de splitfile"},
 {"Off","Apagado"},
-{"OK","De acuerdo"},
 {"On","Encendido"},
-{"Open Source Project (GPL license)", "Proyecto de Código Abierto (Licencia GPL)"},
 {"Options","Opciones"},
 {"Paste","Pega"},
 {"Paste board","Pega foro"},
@@ -259,7 +256,6 @@ static final Object[][] contents = {
 {"Upload selected files","Sube ficheros seleccionados"},
 {"Uploads","Subidas"},
 {"Use editor for writing messages","Usa editor para escribir mensajes"},
-{"Version", "Versión"},
 {"Video","Vídeo"},
 {"Video Extension","Extensiones de Vídeo"},
 {"Waittime after each try","Tiempo de espera tras cada intento"},
@@ -469,7 +465,21 @@ static final Object[][] contents = {
 	{"UploadStatusPanel.Uploading", "Subiendo:"}, 
 	{"StatusPanel.file", "fichero"},
     {"StatusPanel.files", "ficheros"},
-	{"DownloadStatusPanel.Downloading", "Descargando:"}
+	{"DownloadStatusPanel.Downloading", "Descargando:"},
+    
+    // About dialog
+    {"About","Acerca de"},
+	{"Version", "Versión"},
+	{"Open Source Project (GPL license)", "Proyecto de Código Abierto (Licencia GPL)"},
+	{"OK","De acuerdo"},
+	{"More", "Más"},
+	{"Less", "Menos"},
+	{"Development:", "Desarrollo:"},
+	{"Windows Installer:", "Instalador de Windows:"},
+	{"System Tray Executables:", "Ejecutables para Bandeja del Sistema:"},
+	{"Translation Support:", "Soporte a la Traducción:"},
+	{"Splash Screen Logo:", "Logo para Pantalla de Splash:"},
+	{"Misc code contributions:", "Contribuciones Variadas de Código:"}
 	
 	};
 }
