@@ -31,6 +31,8 @@ import frost.messages.*;
 
 class UploadThread extends Thread
 {
+	private SettingsClass settings;
+	
     private UploadTicker ticker;
 
 	private LocalIdentity myId;
@@ -133,26 +135,32 @@ class UploadThread extends Thread
 
 		if (result[0].equals("Success") || result[0].equals("KeyCollision")) {
 			success = true;
-			logger.info("Upload of " + file + " was successful.");
 			uploadItem.setKey(result[1]);
 			lastUploadDate = currentDate;
-		} else {
+		} 
+
+		if (success == false) {
+			// Upload failed
 			logger.warning("Upload of " + file + " was NOT successful.");
-		}
-
-		// item uploaded (maybe)
-		// REDFLAG: but this also resets upload date of yesterday, ... !
-		if (lastUploadDate != null)
-			uploadItem.setLastUploadDate(lastUploadDate);
-		// if NULL then upload failed -> shows NEVER in table
-
-		uploadItem.setState(this.nextState);
-
-		//now update the files.xml with the CHK
-		// REDFLAG: was this really intented to run even if upload failed?
-		//what was it before?
-		if (success == true) {
+			
+			uploadItem.setRetries(uploadItem.getRetries() + 1);
+			if (uploadItem.getRetries() > settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
+				if (settings.getBoolValue(SettingsClass.RESTART_FAILED_UPLOADS)) {
+					uploadItem.setState(FrostUploadItem.STATE_WAITING);
+					uploadItem.setRetries(0);
+				} else {
+					uploadItem.setState(this.nextState);
+				}
+			} else {
+				uploadItem.setState(FrostUploadItem.STATE_WAITING);
+			}
+		} else {
+			// Upload succeeded
+			logger.info("Upload of " + file + " was successful.");
 			SharedFileObject current;
+			
+			uploadItem.setState(nextState);
+			uploadItem.setLastUploadDate(lastUploadDate);
 
 			if (uploadItem.getFileSize().longValue() > FcpInsert.smallestChunk) {
 				logger.fine("attaching redirect to file " + file.getName());
@@ -184,6 +192,7 @@ class UploadThread extends Thread
 			Index.addMine(current, board);
 			Index.add(current, board);
 		}
+		uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
 	}
     
 	/**
@@ -280,14 +289,14 @@ class UploadThread extends Thread
 	}
 
     /**Constructor*/
-    public UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, SettingsClass config, int mode, LocalIdentity newMyId)
+    public UploadThread(UploadTicker newTicker, FrostUploadItem ulItem, SettingsClass settings, int mode, LocalIdentity newMyId)
     {
-        this(newTicker, ulItem, config, mode, -1, newMyId);
+        this(newTicker, ulItem, settings, mode, -1, newMyId);
     }
 	public UploadThread(
 		UploadTicker newTicker,
 		FrostUploadItem ulItem,
-		SettingsClass config,
+		SettingsClass settings,
 		int newMode,
 		int newNextState,
 		LocalIdentity newMyId) {
@@ -299,7 +308,8 @@ class UploadThread extends Thread
 		ticker = newTicker;
 		uploadItem = ulItem;
 
-		htl = config.getIntValue("htlUpload");
+		this.settings = settings;
+		htl = settings.getIntValue("htlUpload");
 		board = ulItem.getTargetBoard();
 		mode = newMode; // true=upload file false=generate chk (do not upload)
 		nextState = newNextState;
