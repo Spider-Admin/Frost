@@ -18,7 +18,7 @@
 */
 package frost;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import frost.gui.objects.*;
 
@@ -149,7 +149,7 @@ public class Index
 	int keyCount = 0;
 	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\""+
-			" pubkey = \""+frame1.getMyId()+"\">\n");
+			" pubkey = \""+frame1.getMyId().getKey()+"\">\n");
 				
         synchronized(mine)
         {
@@ -206,7 +206,9 @@ public class Index
     
     public static void addMine(KeyClass key, FrostBoardObject board) {
         final String fileSeparator = System.getProperty("file.separator");
-    	add(key,new File(frame1.keypool + board.getBoardFilename()+fileSeparator+"new_files.xml"));
+	File boardDir = new File(frame1.keypool + board.getBoardFilename());
+	if (!boardDir.exists()) boardDir.mkdir();
+    	add(key,new File(boardDir.getPath()+fileSeparator+"new_files.xml"));
     }
     /**
      * Adds a key object to an index located at target dir.
@@ -231,8 +233,13 @@ public class Index
        // if( split.indexOf(firstLetter) == -1 )
          //   firstLetter = "other";
 
-        File indexFile = new File(target.getPath()  + fileSeparator + "files.xml");
-
+       // File indexFile = new File(target.getPath()  + fileSeparator + "files.xml");
+	File indexFile = target;
+	try {
+		if (!indexFile.exists()) indexFile.createNewFile();
+	}catch(IOException e) {
+		e.printStackTrace();
+	}
         FileAccess.readKeyFile(indexFile, chk);
         if (chk.get(hash) != null)
 		chk.remove(hash);
