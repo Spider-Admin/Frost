@@ -584,7 +584,12 @@ public class LangRes extends ListResourceBundle {
 	/// Misc (appear in several classes)
 	///
 	
-	{"Description","Description"}
+	{"Description","Description"},
+	
+	//	Frost startup error messages
+	{"Frost.lockFileFound", "This indicates that another Frost instance is already running in this directory.\n" +
+	  					  	"Running Frost concurrently will cause data loss.\n"+
+							"If you are REALLY SURE that Frost is not already running, delete the lockfile:\n"}
 		
     };
 }
