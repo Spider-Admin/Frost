@@ -16,11 +16,16 @@ You should have received a copy of the GNU General Public License
 along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.messages;
 
 import java.util.*;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
+
+import frost.Core;
+import frost.XMLTools;
+import frost.XMLizable;
+import frost.frame1;
 
 
 //Renamed this class to SharedFileObject.

@@ -26,6 +26,7 @@ import javax.swing.SwingUtilities;
 import frost.*;
 import frost.gui.model.SearchTableModel;
 import frost.gui.objects.*;
+import frost.messages.*;
 
 public class SearchThread extends Thread {
     private static boolean DEBUG = false;

@@ -26,6 +26,7 @@ import frost.*;
 import frost.gui.DownloadTable;
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
+import frost.messages.*;
 import frost.FcpTools.*;
 
 public class requestThread extends Thread
