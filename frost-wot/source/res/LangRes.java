@@ -427,7 +427,7 @@ public class LangRes extends ListResourceBundle {
 	{"Disable splashscreen", "Disable splashscreen"}, 
 	{"Enable logging", "Enable logging"},
 	{"Logging level", "Logging level"},
-	{"Log file size limit (in KB)", "Log file size limit (in KB)"},
+	{"Log file size limit (in KB)", "Log files size limit  (in KB)"},
 	{"Very high", "Very high"},
 	{"High", "High"},
 	{"Medium", "Medium"},
