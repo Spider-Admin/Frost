@@ -40,7 +40,7 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.translation.*;
 import frost.identities.*;
-import frost.messages.VerifyableMessageObject;
+import frost.messages.*;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
 
@@ -1592,7 +1592,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		AttachedFilesTableModel attachmentTableModel =
 			new AttachedFilesTableModel();
+		
 		this.attachmentTable = new JTable(attachmentTableModel);
+		
 		JScrollPane attachmentTableScrollPane =
 			new JScrollPane(attachmentTable);
 
@@ -1991,21 +1993,21 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		int[] selectedRows = attachmentTable.getSelectedRows();
 
 		// If no rows are selected, add all attachments to download table
-		if (selectedRows.length == 0) {
-			for (int i = 0;
-				i < getAttachmentTable().getModel().getRowCount();
-				i++) {
-				String filename =
-					(String) getAttachmentTable().getModel().getValueAt(i, 0);
-				String key =
-					(String) getAttachmentTable().getModel().getValueAt(i, 1);
+		if (selectedRows.length == 0) { 
+			Iterator it = selectedMessage.getAttachmentList()
+				.getAllOfType(Attachment.FILE)
+				.iterator();
+			while(it.hasNext()){
+				FileAttachment fa = (FileAttachment)it.next();
+				SharedFileObject sfo = fa.getFileObj();
+				FrostSearchItemObject fsio = new FrostSearchItemObject(getSelectedNode(),
+							sfo,
+							FrostSearchItemObject.STATE_NONE); //FIXME: <-does this matter?
 				FrostDownloadItemObject dlItem =
-					new FrostDownloadItemObject(
-						filename,
-						key,
-						getSelectedNode());
+					new FrostDownloadItemObject(fsio);
 				boolean added = getDownloadTable().addDownloadItem(dlItem);
 			}
+			
 		} else {
 			for (int i = 0; i < selectedRows.length; i++) {
 				String filename =

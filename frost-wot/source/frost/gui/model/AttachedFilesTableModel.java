@@ -21,17 +21,18 @@ package frost.gui.model;
 
 import javax.swing.table.DefaultTableModel;
 
+
 public class AttachedFilesTableModel extends DefaultTableModel
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
     protected final static String columnNames[] = {
         LangRes.getString("Filename"),
-        LangRes.getString("Key")
+        LangRes.getString("Size")
     };
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
-        String.class //LangRes.getString("Key")
+        String.class //LangRes.getString("Size")
     };
 
     public AttachedFilesTableModel()
