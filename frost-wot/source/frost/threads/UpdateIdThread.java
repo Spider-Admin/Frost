@@ -209,6 +209,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             boolean signUpload = frame1.frostSettings.getBoolValue("signUploads");
             byte[] toZip = FileAccess.readByteArray(indexFile);
             byte[] metadata = null;
+            // TODO: first zip, then sign the zipped file
             
             if( signUpload )
             {
@@ -331,8 +332,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     // Add it to the index
                     try
                     {
-                        // maybe the file is corrupted ... so try
-                        byte[] unzippedXml = FileAccess.readZipFileBinary(target);
+                        // first check if received ZIP file is correctly signed
+                        byte[] zippedXml = FileAccess.readByteArray(target);
+                        
                         
                         Identity sharer = null;
                         
@@ -341,7 +343,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         {
                             MetaData md; 
                             try {
-                                md = new MetaData(unzippedXml, fcpresults.getRawMetadata());
+                                md = new MetaData(zippedXml, fcpresults.getRawMetadata());
                             }
                             catch(Throwable t)
                             {
@@ -367,7 +369,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         
                             //verify! :)
                             boolean valid = Core.getCrypto().detachedVerify(
-                                                unzippedXml,
+                                                zippedXml,
                                                 _pubkey,
                                                 md.getSig());
                                                 
@@ -426,7 +428,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             continue; //do not show index.
                         }
                         
-                        // write unzipped xml to file
+                        // now unzip and write unzipped xml to file
+                        byte[] unzippedXml = FileAccess.readZipFileBinary(target);
                         FileAccess.writeByteArray(unzippedXml, target);
 
                         if( sharer == null ||
