@@ -223,9 +223,6 @@ public class FileAccess
             }
 	text.append("</Filelist>");
         
-	//again, this will eventually be optional.. or maybe not?
-	//String signed = frame1.getCrypto().sign(text.toString(),frame1.getMyId().getPrivKey());
-	
         try{
 	    f1 = new FileWriter(tmpFile);
 	    f1.write(text.toString());
