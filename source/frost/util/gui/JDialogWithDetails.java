@@ -103,6 +103,7 @@ public class JDialogWithDetails extends JDialog {
 			morePanel = new JPanel(new BorderLayout());
 			morePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 			
+			new TextComponentClipboardMenu(moreTextArea, language);
 			moreTextArea.setEditable(false);
 			moreTextArea.setColumns(10);
 			moreTextArea.setMargin(new Insets(0, 3, 0, 3));

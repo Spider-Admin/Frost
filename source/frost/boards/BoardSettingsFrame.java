@@ -29,6 +29,7 @@ import javax.swing.border.*;
 
 import frost.fcp.*;
 import frost.gui.objects.Board;
+import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
 /**
@@ -326,6 +327,11 @@ public class BoardSettingsFrame extends JDialog {
 		refreshLanguage();
 
 		// Adds all of the components
+		new TextComponentClipboardMenu(maxMsg_value, language);
+		new TextComponentClipboardMenu(privateKeyTextField, language);
+		new TextComponentClipboardMenu(publicKeyTextField, language);
+		new TextComponentClipboardMenu(descriptionTextArea, language);
+		
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.BOTH;
 		constraints.insets = new Insets(5, 5, 5, 5);

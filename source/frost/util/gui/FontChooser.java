@@ -132,6 +132,11 @@ public class FontChooser extends JDialog {
 		refreshLanguage();
 		setSize(400, 350);
 		setLocationRelativeTo(getOwner());
+		
+		new TextComponentClipboardMenu(selectedNameTextField, language);
+		new TextComponentClipboardMenu(selectedStyleTextField, language);
+		new TextComponentClipboardMenu(selectedSizeTextField, language);
+		new TextComponentClipboardMenu(sampleTextField, language);
 
 		JPanel contentPane = new JPanel();
 		contentPane.setBorder(new EmptyBorder(10, 10, 10, 10));
@@ -177,7 +182,6 @@ public class FontChooser extends JDialog {
 		contentPane.add(selectedSizeTextField, constraints);
 
 		//Adds the sample label and textField
-		
 		constraints.gridx = 0;
 		constraints.gridy = 3;
 		contentPane.add(sampleLabel, constraints);
