@@ -2502,7 +2502,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	 */
 	private void helpAboutMenuItem_actionPerformed(ActionEvent e) {
 		AboutBox dlg = new AboutBox(this);
-		dlg.setModal(true);
 		dlg.setVisible(true);
 	}
 

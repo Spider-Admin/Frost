@@ -58,15 +58,12 @@ public class AboutBox extends JDialogWithDetails {
 	public AboutBox(Frame parent) {
 		super(parent);
 		initialize();
-		setLocationRelativeTo(parent);
 	}
 
 	/**
 	 * Component initialization
 	 */
-	protected void initialize() {
-		super.initialize();
-		
+	private void initialize() {		
 		imageLabel.setIcon(frostImage);
 		setTitle(language.getString("About"));
 		setResizable(false);
@@ -96,8 +93,6 @@ public class AboutBox extends JDialogWithDetails {
 		getUserPanel().add(messagesPanel, BorderLayout.CENTER);
 				
 		fillDetailsArea();
-		
-		pack();
 	}
 
 	/**
