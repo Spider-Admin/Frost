@@ -24,12 +24,13 @@ import java.util.logging.*;
 
 import frost.fileTransfer.download.*;
 import frost.gui.objects.FrostBoardObject;
-import frost.identities.Identity;
+import frost.identities.*;
 import frost.messages.*;
 
 public class Index {
 
 	private static final String fileSeparator = System.getProperty("file.separator");
+	
 	/** 
 	 * Calculates keys that should be uploaded to the keyindex
 	 * @param board The boardsname (in filename type)
@@ -297,22 +298,17 @@ public class Index {
 
 		logger.fine("Index.getUploadKeys(" + board + ")");
 
-		//final String fileSeparator = System.getProperty("file.separator");
-
 		// Abort if boardDir does not exist
-		File boardNewUploads =
-			new File(MainFrame.keypool + board + fileSeparator + "new_files.xml");
+		File boardNewUploads = new File(MainFrame.keypool + board + fileSeparator + "new_files.xml");
 		// if( !boardNewUploads.exists() )
 		//   return 0;
 
 		File boardFiles = new File(MainFrame.keypool + board + fileSeparator + "files.xml");
 
 		totalIdx = FileAccess.readKeyFile(boardFiles);
-
 		_toUpload = FileAccess.readKeyFile(boardNewUploads);
 
 		if (boardNewUploads.exists()) {
-
 			newFiles = true;
 			boardNewUploads.delete();
 		}
@@ -323,38 +319,25 @@ public class Index {
 		// TODO:  add a limit
 
 		Iterator i = totalIdx.getFiles().iterator();
+		String myUniqueName = Core.getInstance().getIdentities().getMyId().getUniqueName();
+		BuddyList friends = Core.getInstance().getIdentities().getFriends();
 		int downloadBack = MainFrame.frostSettings.getIntValue("maxAge");
 		logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
+		
 		while (i.hasNext()) {
 			SharedFileObject current = (SharedFileObject) i.next();
-			if (current.getOwner() != null
-				&& //not anonymous
-			Core
-				.getInstance()
-				.getIdentities()
-				.getMyId()
-				.getUniqueName()
-				.compareTo(
-				current.getOwner())
-					!= 0
-				&& //not myself
-			MainFrame.frostSettings.getBoolValue("helpFriends")
-				&& //and helping is enabled
-			 (
-					Core.getInstance().getIdentities().getFriends().containsKey(
-						Mixed.makeFilename(current.getOwner())))) //and marked GOOD
-				{
+			if ((current.getOwner() != null) && //not anonymous
+					(myUniqueName.compareTo(current.getOwner()) != 0) && //not myself
+					MainFrame.frostSettings.getBoolValue("helpFriends")	&& //and helping is enabled
+			 		(friends.containsKey(Mixed.makeFilename(current.getOwner())))) {//and marked GOOD
+					
 				toUpload.put(current.getSHA1(), current);
 				logger.fine("f"); //f means added file from friend
 			}
 			//also add the file if its been shared too long ago
-			if (current.getOwner() != null
-				&& //not anonymous 
-			current.getOwner().compareTo(
-				Core.getInstance().getIdentities().getMyId().getUniqueName())
-					== 0
-				&& //from myself
-			current.getLastSharedDate() != null) { //not from the old format
+			if ((current.getOwner() != null) && //not anonymous 
+					(current.getOwner().compareTo(myUniqueName) == 0) && //from myself
+					(current.getLastSharedDate() != null)) { //not from the old format
 
 				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
 					//if the file has been uploaded too long ago, 
@@ -376,23 +359,23 @@ public class Index {
 		}
 
 		//update the lastSharedDate of the shared files
-		if (reSharing)
+		if (reSharing) {
 			FileAccess.writeKeyFile(totalIdx, boardFiles);
+		}
 
 		//return anything only if we either re-shared old files or
 		//have new files to upload.
 		if (reSharing || newFiles) {
-
 			//update the last shared date
 			Iterator it2 = toUpload.values().iterator();
 			while (it2.hasNext()) {
 				SharedFileObject obj = (SharedFileObject) it2.next();
 				obj.setLastSharedDate(DateFun.getDate());
 			}
-
 			return toUpload;
-		} else
+		} else {
 			return null;
+		}
 	}
 
 	/**
