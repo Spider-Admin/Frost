@@ -538,7 +538,15 @@ public class LangRes extends ListResourceBundle {
 	{"You already have a board with name","You already have a board with name"},
 	{"Please choose a new name","Please choose a new name"},
 	{"Do you really want to overwrite it?","Do you really want to overwrite it?"},
-	{"This will not delete messages","This will not delete messages"}
+	{"This will not delete messages","This will not delete messages"},
+		
+	///
+	///	FrostSearchItemObject
+	///
+	
+	{"FrostSearchItemObject.Offline","Offline"},
+	{"FrostSearchItemObject.Anonymous","Anonymous"},
+	{"FrostSearchItemObject.*ERROR*","*ERROR*"}
 		
     };
 }
