@@ -4,6 +4,9 @@ Added: if we have an old identities file, it is deleted after being converted to
 
 Changed: messages are signed by default.
 
+Bugfix: obsolete strings in the language resources were causing an exception when trying to open 
+        the translation frame.
+
 **************************************************************************************************
 
 Changes since version 22-Nov-2004 dev:
