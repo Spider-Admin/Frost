@@ -90,14 +90,15 @@ public class Index
          //   return 0;
 	
 	File boardFiles = new File (frame1.keypool + board + fileSeparator +"files.xml");
-	if (boardFiles.exists()) 
-		FileAccess.readKeyFile(boardFiles,total);
+	if (boardFiles.exists())
+    { 
+        FileAccess.readKeyFile(boardFiles,total);
+    }
 
 	FileAccess.readKeyFile(boardNewUploads,mine);
 	
-	
 	//add friends's files 
-	//TODO:  add a limit
+	// TODO:  add a limit
 	Iterator i = total.values().iterator(); 
 	int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
 	Core.getOut().println("re-sharing files shared before "+DateFun.getDate(downloadBack));
@@ -124,7 +125,6 @@ public class Index
 					updated.put(current.getSHA1(),current);
 				}
 		}
-			
 	}
         
 	add(updated, new File(frame1.keypool+board+fileSeparator+"files.xml"));
@@ -166,15 +166,18 @@ public class Index
             
             Element element = current.getXMLElement(doc);
             
-            if( current.getOwner() != null  &&
-                !(my && !signUploads) )
+            if( current.getOwner() != null && my && !signUploads )
             {
-                // remove owner
+                // remove owner, we don't want to sign ...
                 ArrayList lst = XMLTools.getChildElementsByTagName(element, "owner");
                 if( lst.size() > 0 )
                 {
-                    Element r = (Element)lst.get(0);                
+                    Element r = (Element)lst.get(0);          
                     element.removeChild(r);
+                }
+                else
+                {
+                    System.out.println("ERROR - getUploadKeys: Could not locate the 'owner' tag in XML tree!");
                 }
             }
             rootElement.appendChild( element );
