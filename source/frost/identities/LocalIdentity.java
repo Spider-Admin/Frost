@@ -7,7 +7,7 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.fcp.FcpFactory;
+import frost.fcp.*;
 import frost.gui.objects.Board;
 import frost.messages.BoardAttachment;
 
@@ -76,13 +76,13 @@ public class LocalIdentity extends Identity
 	public LocalIdentity(String name) {
 		this(name, Core.getCrypto().generateKeys());
 
-		con = FcpFactory.getFcpConnectionInstance();
-		if (con == null) {
+		FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+		if (connection == null) {
 			this.key = NA;
 			return;
 		}
 		try {
-			String[] svk = con.getKeyPair();
+			String[] svk = connection.getKeyPair();
 			board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
 
 		} catch (IOException ex) {
