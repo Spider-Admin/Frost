@@ -19,7 +19,6 @@
 
 package frost.gui.model;
 
-import frost.gui.translation.*;
 import frost.util.gui.translation.*;
 
 
