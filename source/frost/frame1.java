@@ -46,6 +46,9 @@ import frost.identities.*;
 
 //++++ TODO: count running downloads+waiting
 //++++ TODO: rework identities stuff + save to xml
+//             - save identities together (not separated friends,enemies)
+//             - each identity have 3 states: GOOD, BAD, NEUTRAL
+//             - filter out enemies on read
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
