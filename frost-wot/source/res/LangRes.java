@@ -541,7 +541,7 @@ public class LangRes extends ListResourceBundle {
 	{"FrostSearchItemObject.*ERROR*","*ERROR*"},
 		
 	///
-	/// FrostDownloadItemObject
+	/// FrostDownloadItem
 	///
 	
 	{"Waiting", "Waiting"},
