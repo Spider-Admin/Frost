@@ -26,7 +26,7 @@ public class InstallingPanel extends JPanel {
 	
 	private InstallerApplet applet;
 	private URL jnlpRemoteLocation = null;
-	private URL dtdLocation = null;
+	private URL dtdURL = null;
 	private File jnlpLocalDirectory = null;
 
 	private javax.swing.JPanel topPanel = null;
@@ -207,7 +207,7 @@ public class InstallingPanel extends JPanel {
 		getOutputFolderLabel().setText("Output folder: " + jnlpLocalDirectory.toString());
 		JnlpFile jnlpFile = new JnlpFile();
 		jnlpFile.setRemoteLocation(jnlpRemoteLocation);
-		jnlpFile.setDtdLocation(dtdLocation);
+		jnlpFile.setDtdURL(dtdURL);
 		try {
 			getMessagesTextArea().append("Downloading jnlp file... ");
 			getJProgressBar().setValue(10);
@@ -279,10 +279,10 @@ public class InstallingPanel extends JPanel {
 	}
 
 	/**
-	 * @param url
+	 * @param newURL
 	 */
-	void setDtdLocation(URL url) {
-		dtdLocation = url;
+	void setDtdURL(URL newURL) {
+		dtdURL = newURL;
 	}
 
 	/**

@@ -93,7 +93,7 @@ public class JnlpFile {
 		"<!DOCTYPE jnlp PUBLIC \"-//Sun Microsystems,Inc//DTD JNLP Descriptor 1.0//EN\"";
 
 	private URL remoteLocation = null;
-	private URL dtdLocation = null;
+	private URL dtdURL = null;
 
 	private StringBuffer content = null;
 	private Document document = null;
@@ -216,17 +216,17 @@ public class JnlpFile {
 		if (markerPosition == -1) {
 			return false;
 		} else {
-			String doctype = DOCTYPE_HEADER_PREFIX + " \"" + dtdLocation.toString() + "\">";
+			String doctype = DOCTYPE_HEADER_PREFIX + " \"" + dtdURL.toString() + "\">";
 			content.replace(markerPosition, markerPosition + DOCTYPE_MARKER.length(), doctype);
 			return true;
 		}
 	}
 
 	/**
-	 * @param url
+	 * @param newURL
 	 */
-	public void setDtdLocation(URL url) {
-		dtdLocation = url;
+	public void setDtdURL(URL newURL) {
+		dtdURL = newURL;
 	}
 
 	/**
