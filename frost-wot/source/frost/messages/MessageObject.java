@@ -21,15 +21,100 @@ package frost.messages;
 import java.io.File;
 import java.util.*;
 
-import frost.Core;
-import frost.FileAccess;
-import frost.SettingsFun;
+import frost.*;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
 
-public class MessageObject {
+public class MessageObject implements XMLizable {
 
-    char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
+
+	AttachmentList attachments;
+	
+	public Element getXMLElement(Document d){
+		return messageObjectPopulateElement(d);
+	}
+	
+	protected Element messageObjectPopulateElement(Document d){
+		Element el = d.createElement("FrostMessage");
+		
+		CDATASection cdata;
+		Element current;
+		
+		//from
+		current = d.createElement("From");
+		cdata = d.createCDATASection(getFrom());
+		current.appendChild(cdata);
+		el.appendChild(current);
+		
+		//subject
+		current = d.createElement("Subject");
+		cdata = d.createCDATASection(getSubject());
+		current.appendChild(cdata);
+		el.appendChild(current);
+		
+		//date
+		current = d.createElement("Date");
+		cdata = d.createCDATASection(getDate());
+		current.appendChild(cdata);
+		el.appendChild(current);
+		
+		 //time
+		 current = d.createElement("Time");
+		 cdata = d.createCDATASection(getTime());
+		 current.appendChild(cdata);
+		 el.appendChild(current);
+		 
+		//body
+		current = d.createElement("Body");
+		cdata = d.createCDATASection(getContent());
+		current.appendChild(cdata);
+		el.appendChild(current);
+		
+		//board
+		current = d.createElement("Board");
+		cdata = d.createCDATASection(getBoard());
+		current.appendChild(cdata);
+		el.appendChild(current);
+		
+		//public Key
+		if (publicKey!=null) {
+			current = d.createElement("pubKey");
+			cdata = d.createCDATASection(getDate());
+			current.appendChild(cdata);
+			el.appendChild(current);
+		}
+	
+		//attachments
+		el.appendChild(attachments.getXMLElement(d));
+		
+		return el;
+	}
+	
+	public void loadXMLElement(Element e) throws SAXException {
+		messageObjectPopulateFromElement(e);
+	}
+	
+	protected void messageObjectPopulateFromElement(Element e)
+		throws SAXException {
+			
+			from = XMLTools.getChildElementsCDATAValue(e,"From");
+			date = XMLTools.getChildElementsCDATAValue(e,"Date");
+			subject = XMLTools.getChildElementsCDATAValue(e,"Subject");
+			time = XMLTools.getChildElementsCDATAValue(e,"Time");
+			publicKey = XMLTools.getChildElementsCDATAValue(e,"pubKey");
+			board = XMLTools.getChildElementsCDATAValue(e,"Board");
+			content = XMLTools.getChildElementsCDATAValue(e,"Body");
+			
+			Element _attachments = (Element)XMLTools.getChildElementsByTagName(e,"AttachmentList").iterator().next();
+			attachments = new AttachmentList();
+			attachments.loadXMLElement(_attachments);
+	}
+		
+
+    static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
 			//FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     String board, content, from, subject, date, time, index, publicKey, newContent;
+    
     File file;
 
     /**Get*/
