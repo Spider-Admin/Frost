@@ -13,7 +13,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.boards.*;
 import frost.gui.objects.Board;
-import frost.messages.VerifyableMessageObject;
+import frost.messages.MessageObject;
 
 
 /**
@@ -59,9 +59,9 @@ public class ResendFailedMessagesThread extends Thread
             if( unsentMsgFile.getName().startsWith("unsent") )
             {
                 // Resend message
-                VerifyableMessageObject mo = null;
+                MessageObject mo = null;
                 try {
-                    mo = new VerifyableMessageObject(unsentMsgFile);
+                    mo = new MessageObject(unsentMsgFile);
                 } catch(Exception ex)
                 {
 					logger.log(Level.SEVERE, "Couldn't read the message file, will not send message.", ex);
