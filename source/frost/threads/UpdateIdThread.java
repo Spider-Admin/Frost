@@ -206,7 +206,17 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
         if( indexFile.length() > 0 && indexFile.isFile() )
         {
-            String tozip = frame1.frostSettings.getBoolValue("signUploads") ?
+            boolean signUpload = frame1.frostSettings.getBoolValue("signUploads");
+            byte[] toZip = FileAccess.readByteArray(indexFile);
+            byte[] metadata = null;
+            
+            if( signUploads )
+            {
+                byte[] sign = Core.getCrypto().detachedSign(toZip, frame1.getMyId().getPrivKey());
+                MetaData md = new MetaData(AAAARGL)                
+                // WHERE TO PUT THE SIGN TO AND HOW TO CREATE THE METADATA XML? 
+            }
+            String tozip =  ?
 	    	frame1.getCrypto().sign(FileAccess.readFileRaw(indexFile),
 	    			frame1.getMyId().getPrivKey()) :
 					FileAccess.readFileRaw(indexFile);
