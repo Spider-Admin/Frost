@@ -869,30 +869,30 @@ public class frame1 extends JFrame implements ClipboardOwner
     try {
             con1 = new FcpConnection(frostSettings.getValue("nodeAddress"),
                                     frostSettings.getValue("nodePort"));
-	    nodeInfo = con1.getInfo();
+        nodeInfo = con1.getInfo();
     }catch(Exception e) {
-    	System.out.println("Error - could not establish a connection to freenet node.");
-	System.out.println("make sure your node is running and that you have configured frost correctly");
-	return;
+        System.out.println("Error - could not establish a connection to freenet node.");
+    System.out.println("make sure your node is running and that you have configured frost correctly");
+    return;
     }
     boolean TransientNode = false;
-    for (int ij=0;ij<nodeInfo.length;ij++) 
-    	if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
-		TransientNode=true;
-    
+    for (int ij=0;ij<nodeInfo.length;ij++)
+        if (nodeInfo[ij].startsWith("IsTransient") && nodeInfo[ij].indexOf("true") != -1)
+        TransientNode=true;
+
    if (TransientNode)
-   	JOptionPane.showMessageDialog(this,
-					"      You are running a TRANSIENT node.  "+
-					"Filesharing will be disabled!\n"+
-					"If you want to be able to download/upload files,"+
-					"run a PERMANENT node.",
-					"Transient node detected",
-					JOptionPane.WARNING_MESSAGE);
-					
-   
-   
+    JOptionPane.showMessageDialog(this,
+                    "      You are running a TRANSIENT node.  "+
+                    "Filesharing will be disabled!\n"+
+                    "If you want to be able to download/upload files,"+
+                    "run a PERMANENT node.",
+                    "Transient node detected",
+                    JOptionPane.WARNING_MESSAGE);
+
+
+
    con1=null;nodeInfo=null;
-   
+
     //create a crypt object
     crypto = new FrostCrypt();
     //load the identities
@@ -2513,8 +2513,11 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e)
     {
-        BoardInfoFrame boardInfo = new BoardInfoFrame(this);
-        boardInfo.show();
+        if( BoardInfoFrame.isDialogShowing() == false )
+        {
+            BoardInfoFrame boardInfo = new BoardInfoFrame(this);
+            boardInfo.startDialog();
+        }
     }
 
     //------------------------------------------------------------------------

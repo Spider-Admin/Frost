@@ -35,6 +35,7 @@ public class BoardInfoFrame extends JFrame
 {
     frame1 parent = null;
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+    static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
 
     //------------------------------------------------------------------------
     // Class Vars
@@ -308,6 +309,7 @@ public class BoardInfoFrame extends JFrame
     {
         if( e.getID() == WindowEvent.WINDOW_CLOSING )
         {
+            setDialogShowing( false );
             closeDialog();
         }
         super.processWindowEvent(e);
@@ -501,5 +503,20 @@ public class BoardInfoFrame extends JFrame
         {
             newmsg = new Integer(i);
         }
+    }
+
+    public static boolean isDialogShowing()
+    {
+        return isShowing;
+    }
+    public static void setDialogShowing( boolean val )
+    {
+        isShowing = val;
+    }
+
+    public void startDialog()
+    {
+        setDialogShowing( true );
+        show();
     }
 }
