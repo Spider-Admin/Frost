@@ -30,6 +30,7 @@
 !define STR_FREENETNOTFOUND "Frost benötigt zur Ausführung Freenet. Bitte installieren Sie es zuerst."
 
 # Link strings
+!define LNK_FROSTCONSOLE "Frost (console)"
 !define LNK_HOMEPAGE "Homepage"
 !define LNK_UNINSTALL "Uninstall"
 

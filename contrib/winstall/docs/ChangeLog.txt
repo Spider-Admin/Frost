@@ -1,3 +1,8 @@
+2001-11-15  Benoit Laniel <nels@pgroupe.net>
+
+    * Added a 'Frost (console)' shortcut (thanks to Morbid)
+    * Added a 'TranslationsTodo.txt' for new/modified strings
+
 2001-11-11  Benoit Laniel <nels@pgroupe.net>
 
     * Changed the source tree
@@ -7,3 +12,5 @@
     * Renamed versions.nsh to config.nsh (I think I will use this to store some
       configuration options later)
     * Added a Frost icon to the installer
+    * 'downloads' and 'keypool' directories are now created at installation
+    * Now deletes registry entries at uninstall

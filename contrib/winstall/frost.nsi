@@ -17,6 +17,7 @@
 # Used strings:
 # $1 : javaw.exe path
 # $2 : Installed flag ('Yes' if Frost was already installed, otherwise 'No')
+# $3 : java.exe path
 
 Name "Frost ${VERSION}"
 OutFile "${LANG}.exe"
@@ -49,6 +50,8 @@ Section
 DoUpdate:
   DetailPrint "${DET_COPYING}"
   SetOutPath "$INSTDIR"
+  CreateDirectory "$INSTDIR\downloads"
+  CreateDirectory "$INSTDIR\keypool"
   CopyFiles "$EXEDIR\frost\*.*" "$INSTDIR"
 
   # Register installpath
@@ -74,6 +77,7 @@ Section "${SEC_ICONS}"
 
   CreateDirectory "$SMPROGRAMS\Frost"
   CreateShortCut "$SMPROGRAMS\Frost\Frost.lnk" "$1" "-cp .;classes;data frost" "$INSTDIR\jtc.ico" 0
+  CreateShortCut "$SMPROGRAMS\Frost\${LNK_FROSTCONSOLE}.lnk" "$3" "-cp .;classes;data frost" "$INSTDIR\jtc.ico" 0
   CreateShortCut "$SMPROGRAMS\Frost\${LNK_UNINSTALL}.lnk" "$INSTDIR\Uninstall-Frost.exe" "" "$INSTDIR\Uninstall-Frost.exe" 0
   WriteINIStr "$SMPROGRAMS\Frost\${LNK_HOMEPAGE}.url" "InternetShortcut" "URL" "http://jtcfrost.sourceforge.net"
 SectionEnd
@@ -84,6 +88,9 @@ Section "Uninstall"
   RMDir /r "$INSTDIR"
   Delete "$DESKTOP\Frost.lnk"
   RMDir /r "$SMPROGRAMS\Frost"
+
+  DeleteRegKey HKEY_LOCAL_MACHINE "Software\Microsoft\Windows\CurrentVersion\Uninstall\Frost"
+  DeleteRegKey HKEY_LOCAL_MACHINE "Software\Frost"
 SectionEnd
 
 ;-----------------------------------------------------------------------------------
@@ -99,7 +106,8 @@ NoFreenet:
   Abort
 
 End:
-  # Yes, then get the javaw path ;)
+  # Yes, then get the java path ;)
+  ReadINIStr $3 "$0\FLaunch.ini" "Freenet Launcher" "java"
   ReadINIStr $1 "$0\FLaunch.ini" "Freenet Launcher" "javaw"
 FunctionEnd
 
