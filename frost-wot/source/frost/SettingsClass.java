@@ -284,6 +284,7 @@ public class SettingsClass
         defaults.put("downloadThreads", "3");
         defaults.put("downloadingActivated", "true");
         defaults.put("disableRequests", "false");
+	defaults.put("disableDownloads","false");
         defaults.put("htl", "5");
         defaults.put("htlMax", "30");
         defaults.put("htlUpload", "21");

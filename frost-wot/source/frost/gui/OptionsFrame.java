@@ -113,8 +113,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField spamTreshold = new JTextField(5);
     JTextField tofBlockMessageBodyTextField = new JTextField(32);
 
-    JCheckBox CBdisableRequests = new JCheckBox("Disable downloads");
-
+    JCheckBox CBdisableRequests = new JCheckBox("Disable uploads");
+    JCheckBox CBdisableDownloads = new JCheckBox("Disable downloads");
+    
     JCheckBox signedOnly = new JCheckBox("Show only signed messages (off)");
     JCheckBox goodOnly = new JCheckBox("Show only GOOD messages (off)");
     JCheckBox block = new JCheckBox("Block message from/subject containing:");
@@ -335,10 +336,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             downloadPanel.add(downloadSplitfileThreadsTextField, constr);
 	    //constr.gridx = 1;
 	    constr.gridy++;
-	    //downloadPanel.add(new JLabel("Disable downloads"), constr);
+	    
             
             constr.gridx = 0;
-            downloadPanel.add(CBdisableRequests, constr);
+            downloadPanel.add(CBdisableDownloads, constr);
             
             constr.gridy++;
             constr.gridx = 0;
@@ -386,6 +387,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             uploadPanel.add(new JLabel(LangRes.getString("Number of splitfile threads:") + "(3)"),constr);
             constr.gridx = 1;
             uploadPanel.add(uploadSplitfileThreadsTextField, constr);
+	    constr.gridy++;
+	    constr.gridx=0;
+	    uploadPanel.add(CBdisableRequests,constr);
             // filler (glue)
             constr.gridy++;
             constr.gridx = 1;
@@ -855,7 +859,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         searchArchiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
         cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
         CBdisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
-
+	CBdisableDownloads.setSelected(frostSettings.getBoolValue("disableDownloads"));
+	
         TFautomaticUpdate_concurrentBoardUpdates.setText(
             frostSettings.getValue("automaticUpdate.concurrentBoardUpdates") );
         TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
@@ -921,7 +926,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("altEdit", miscAltEditTextField.getText());
         frostSettings.setValue("doCleanUp",cleanUP.isSelected());
         frostSettings.setValue("disableRequests",CBdisableRequests.isSelected());
-
+	frostSettings.setValue("disableDownloads",CBdisableDownloads.isSelected());
+	
         frostSettings.setValue("automaticUpdate.concurrentBoardUpdates",
                                TFautomaticUpdate_concurrentBoardUpdates.getText());
         frostSettings.setValue("automaticUpdate.boardsMinimumUpdateInterval",

@@ -92,7 +92,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * will be notified if THIS thread is finished
      * before starting a thread you should check if it is'nt updating already.
      */
-    public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
+    public boolean startBoardFilesUpload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
         GetRequestsThread grt = new GetRequestsThread(
@@ -101,26 +101,40 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
            config.getValue("keypool.dir"),
            frame1.getInstance().getUploadTable()
          );
-        UpdateIdThread uit = new UpdateIdThread(board);
-        uit.addBoardUpdateThreadListener( this );
+        
         // register listener and this class as listener
         grt.addBoardUpdateThreadListener( this );
         if( listener != null )
         {
             grt.addBoardUpdateThreadListener( listener );
-            uit.addBoardUpdateThreadListener( listener );
         }
 
         // store thread in threads list
         getVectorFromHashtable( runningDownloadThreads, board ).add(grt);
-        getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
+        
         // start thread
         grt.start();
-        uit.start();
+        
 
         return true;
     }
-
+    
+    /**
+     * starts udownloads of files to boards.  Same as above
+     */
+    public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
+                                           BoardUpdateThreadListener listener)
+    {
+    	UpdateIdThread uit = new UpdateIdThread(board);
+        uit.addBoardUpdateThreadListener( this );
+	if( listener != null )
+        {
+            uit.addBoardUpdateThreadListener( listener );
+        }
+	getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
+	uit.start();
+	return true;
+    }
     /**
      * if you specify a listener and the method returns true (thread is started), the listener
      * will be notified if THIS thread is finished
