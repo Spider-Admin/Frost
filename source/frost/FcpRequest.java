@@ -204,15 +204,15 @@ public class FcpRequest
                 }
                 else
                 {
-                    File chunkFile = new File( new StringBuffer()
+                    File checkFile = new File( new StringBuffer()
                                                .append(frame1.keypool)
                                                .append(target.getName())
-                                               .append("-chunk-")
+                                               .append("-check-")
                                                .append((j + checkBase + 1)).toString() );
                     boolean chunkOK = getKeyThread.checkKey(
                                              SettingsFun.getValue(target.getPath(),
-                                                "SplitFile.Block." + Integer.toHexString(j+chunkBase+1)),
-                                             chunkFile,
+                                                "SplitFile.Block." + Integer.toHexString(j+checkBase+1)),
+                                             checkFile,
                                              checkBlockSize );
                     if( chunkOK )
                     {
