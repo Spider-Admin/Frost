@@ -573,27 +573,35 @@ public class frame1 extends JFrame implements ClipboardOwner
                checkTrustButton_actionPerformed(e);
            } });
 // build buttons panel
-        JPanel tofTopPanel = new JPanel();
-        BoxLayout dummyLayout = new BoxLayout(tofTopPanel, BoxLayout.X_AXIS);
-        tofTopPanel.setLayout(dummyLayout);
+        JToolBar tofTopPanel = new JToolBar();
+        tofTopPanel.setRollover( true );
+        tofTopPanel.setFloatable( false );
+        Dimension blankSpace = new Dimension(3,3);
 
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
         tofTopPanel.add(saveMessageButton); // TOF/ Save Message
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
+        tofTopPanel.addSeparator();
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
         tofTopPanel.add(tofNewMessageButton); // TOF/ New Message
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add(tofReplyButton); // TOF/ Reply
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
+        tofTopPanel.addSeparator();
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
         tofTopPanel.add(tofUpdateButton); // TOF/ Update
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
+        tofTopPanel.addSeparator();
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
         tofTopPanel.add(downloadAttachmentsButton); // TOF/ Download Attachments
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add(downloadBoardsButton); // TOF/ Download Boards
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
+        tofTopPanel.addSeparator();
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
         tofTopPanel.add(trustButton); //TOF /trust
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add(checkTrustButton); //TOF /check trust
-        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add(notTrustButton); //TOF /do not trust
+
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add( Box.createHorizontalGlue() );
         JLabel dummyLabel = new JLabel(allMessagesCountPrefix + "00000");
         dummyLabel.doLayout();
@@ -605,6 +613,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTopPanel.add(allMessagesCountLabel);
         tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add(newMessagesCountLabel);
+        tofTopPanel.add( Box.createRigidArea( blankSpace ) );
 // build panel wich shows the message list + message
         MessageTableModel messageTableModel = new MessageTableModel();
         this.messageTable = new MessageTable(messageTableModel);
