@@ -13,11 +13,11 @@ import java.net.URL;
 
 import javax.swing.*;
 
-
 /**
  * 
  */
 public class LicensePanel extends JPanel {
+	
 	private InstallerApplet applet;
 	private URL licenseURL = null;
 	private javax.swing.JPanel topPanel = null;
@@ -30,6 +30,7 @@ public class LicensePanel extends JPanel {
 	private javax.swing.JTextArea jTextArea = null;
 	private javax.swing.JScrollPane jScrollPane = null;
 	private javax.swing.JTextArea licenseTextArea = null;
+	
 	/**
 	 * 
 	 */
@@ -37,6 +38,7 @@ public class LicensePanel extends JPanel {
 		super();
 		this.applet = applet;
 	}	
+	
 	/**
 	 * This method initializes this
 	 * 
@@ -65,6 +67,7 @@ public class LicensePanel extends JPanel {
         this.setPreferredSize(new java.awt.Dimension(500,340));
         this.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.gray,1));	
 	}
+	
 	/**
 	 * This method initializes topPanel
 	 * 
@@ -92,6 +95,7 @@ public class LicensePanel extends JPanel {
 		}
 		return topPanel;
 	}
+	
 	/**
 	 * This method initializes bottomPanel
 	 * 
@@ -145,6 +149,7 @@ public class LicensePanel extends JPanel {
 		}
 		return bottomPanel;
 	}
+	
 	/**
 	 * This method initializes jLabel1
 	 * 
@@ -157,6 +162,7 @@ public class LicensePanel extends JPanel {
 		}
 		return jLabel1;
 	}
+	
 	/**
 	 * This method initializes jLabel2
 	 * 
@@ -170,6 +176,7 @@ public class LicensePanel extends JPanel {
 		}
 		return jLabel2;
 	}
+	
 	/**
 	 * This method initializes backButton
 	 * 
@@ -188,6 +195,7 @@ public class LicensePanel extends JPanel {
 		}
 		return backButton;
 	}
+	
 	/**
 	 * This method initializes agreeButton
 	 * 
@@ -206,6 +214,7 @@ public class LicensePanel extends JPanel {
 		}
 		return agreeButton;
 	}
+	
 	/**
 	 * This method initializes jLabel3
 	 * 
@@ -219,6 +228,7 @@ public class LicensePanel extends JPanel {
 		}
 		return jLabel3;
 	}
+	
 	/**
 	 * This method initializes jTextArea
 	 * 
@@ -234,6 +244,7 @@ public class LicensePanel extends JPanel {
 		}
 		return jTextArea;
 	}
+	
 	/**
 	 * This method initializes jScrollPane
 	 * 
@@ -246,6 +257,7 @@ public class LicensePanel extends JPanel {
 		}
 		return jScrollPane;
 	}
+	
 	/**
 	 * This method initializes licenseTextArea
 	 * 
@@ -280,6 +292,7 @@ public class LicensePanel extends JPanel {
 		}
 		return licenseTextArea;
 	}
+	
 	/**
 	 * @param url
 	 */

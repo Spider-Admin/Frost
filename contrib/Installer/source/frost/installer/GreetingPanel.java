@@ -12,11 +12,11 @@ import java.net.URL;
 
 import javax.swing.*;
 
-
 /**
  * 
  */
 public class GreetingPanel extends JPanel {
+	
 	private InstallerApplet applet;
 	private URL logoURL = null;
 	private javax.swing.JPanel topPanel = null;
@@ -26,6 +26,7 @@ public class GreetingPanel extends JPanel {
 	private javax.swing.JTextArea jTextArea = null;
 	private javax.swing.JTextArea jTextArea1 = null;
 	private javax.swing.JPanel textPanel = null;
+	
 	/**
 	 * 
 	 */
@@ -33,6 +34,7 @@ public class GreetingPanel extends JPanel {
 		super();
 		this.applet = applet;
 	}	
+	
 	/**
 	 * This method initializes this
 	 * 
@@ -65,6 +67,7 @@ public class GreetingPanel extends JPanel {
         this.setPreferredSize(new java.awt.Dimension(500,340));		
         this.setBorder(javax.swing.BorderFactory.createLineBorder(java.awt.Color.gray,1));
 	}
+	
 	/**
 	 * This method initializes topPanel
 	 * 
@@ -91,6 +94,7 @@ public class GreetingPanel extends JPanel {
 		}
 		return topPanel;
 	}
+	
 	/**
 	 * This method initializes bottomPanel
 	 * 
@@ -110,6 +114,7 @@ public class GreetingPanel extends JPanel {
 		}
 		return bottomPanel;
 	}
+	
 	/**
 	 * This method initializes nextButton
 	 * 
@@ -128,6 +133,7 @@ public class GreetingPanel extends JPanel {
 		}
 		return nextButton;
 	}
+	
 	/**
 	 * This method initializes logoLabel
 	 * 
@@ -144,6 +150,7 @@ public class GreetingPanel extends JPanel {
 		}
 		return logoLabel;
 	}
+	
 	/**
 	 * This method initializes jTextArea
 	 * 
@@ -161,6 +168,7 @@ public class GreetingPanel extends JPanel {
 		}
 		return jTextArea;
 	}
+	
 	/**
 	 * This method initializes jTextArea1
 	 * 
@@ -178,6 +186,7 @@ public class GreetingPanel extends JPanel {
 		}
 		return jTextArea1;
 	}
+	
 	/**
 	 * This method initializes textPanel
 	 * 
@@ -208,6 +217,7 @@ public class GreetingPanel extends JPanel {
 		}
 		return textPanel;
 	}
+	
 	/**
 	 * @param url
 	 */
