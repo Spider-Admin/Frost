@@ -21,7 +21,7 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.Vector;
+import java.util.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -48,6 +48,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     JLabel summaryLabel = new JLabel();
 
     JButton updateButton = new JButton(LangRes.getString("Update"));
+    JButton addMoreButton = new JButton(LangRes.getString("Add more boards"));
     JButton updateSelectedBoardButton = new JButton(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
     JButton updateAllBoardsButton = new JButton("Update all boards");
     JButton Bclose = new JButton("Close");
@@ -110,6 +111,18 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                     } };
         updateButton.addActionListener(al);
         MIupdate.addActionListener(al);
+        
+        // more boards button
+        al = new java.awt.event.ActionListener(){
+        		public void actionPerformed(ActionEvent e){
+        			//show the known boards frame
+					KnownBoardsFrame knownBoards = new KnownBoardsFrame(BoardInfoFrame.this);
+					knownBoards.startDialog();
+        		}
+        };
+        addMoreButton.addActionListener(al);
+		MIupdate.addActionListener(al);
+		
 
         // updateSelectedBoardButton
         al = new java.awt.event.ActionListener() {
@@ -148,6 +161,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         summaryPanel.add(summaryLabel);
         summaryPanel.add(Box.createRigidArea(new Dimension(15,3))); // ensure minimum glue size
         summaryPanel.add(Box.createHorizontalGlue());
+        summaryPanel.add(addMoreButton);
         summaryPanel.add(updateButton);
 
         boardTablePanel.add(summaryPanel, BorderLayout.SOUTH);
@@ -389,25 +403,10 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      */
     public int getLineCount(File file)
     {
-        BufferedReader f;
-        int count = 0;
-      //  try {
-            //f = new BufferedReader(new FileReader(file));
-	    String current = FileAccess.readFile(file);
-	    int index =0;
-	    //boolean stop = false;
-            while (true) {
-	    	if (current.indexOf("<File>",index)==-1) break;
-		index=current.indexOf("<File>",index)+6;
-		count++;
-	    }
-            //f.close();
-       /* }
-        catch( IOException e )
-        {
-            System.out.println("getLineCount() - Read Error: " + file);
-        }*/
-        return count;
+       Map current = new HashMap();
+       FileAccess.readKeyFile(file,current);
+	    
+        return current.size();
     }
 
     public static boolean isDialogShowing()

@@ -227,6 +227,7 @@ public class LangRes extends ListResourceBundle {
     {"Boards: ", "Boards: "},
     {"   Messages: ", "   Messages: "},
     {"   Files: ", "   Files: "},
+    {"Add more boards","Add more boards"},
 
     // Board settings frame
     {"Generate new keypair", "Generate new keypair"},
