@@ -54,6 +54,7 @@ public class SettingsClass {
 	public static final String MESSAGE_LIST_FONT_NAME = "messageListFontName";
 	public static final String MESSAGE_LIST_FONT_SIZE = "messageListFontSize";
 	public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
+	public static final String SEARCH_ALL_BOARDS = "searchAllBoards";
 	
 	//Constructors
 	public SettingsClass() {
@@ -597,7 +598,7 @@ public class SettingsClass {
 		defaults.put("showSystrayIcon", "true");
 		defaults.put("removeFinishedDownloads", "false");
 		defaults.put("reducedBlockCheck", "false");
-		defaults.put("searchAllBoards", "true");
+		defaults.put(SEARCH_ALL_BOARDS, "true");
 		defaults.put("maxSearchResults", "10000");
 		defaults.put("splitfileDownloadThreads", "30");
 		defaults.put("splitfileUploadThreads", "15");
