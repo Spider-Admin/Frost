@@ -5,6 +5,7 @@
 package frost.storage;
 
 import frost.SettingsClass;
+import frost.fileTransfer.upload.*;
 import frost.identities.*;
 
 /**
@@ -27,5 +28,12 @@ public class XmlDAOFactory extends DAOFactory {
 	 */
 	public IdentitiesDAO getIdentitiesDAO() {
 		return new IdentitiesXmlDAO();
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.storage.DAOFactory#getUploadModelDAO()
+	 */
+	public UploadModelDAO getUploadModelDAO() {
+		return new UploadModelXmlDAO(settings);
 	}
 }
