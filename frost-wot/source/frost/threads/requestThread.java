@@ -92,11 +92,11 @@ public class requestThread extends Thread
                 if( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl") )
                 {
                     if( DEBUG ) System.out.println("Download failed, uploading request for " + filename);
+                    downloadItem.setState( "Requesting" ); // TODO: translate
                     SwingUtilities.invokeLater(new Runnable()
                            {
                                public void run()
                                {
-                                   downloadItem.setState( "Requesting" ); // TODO: translate
                                    tableModel.updateRow( downloadItem );
                                }
                            });

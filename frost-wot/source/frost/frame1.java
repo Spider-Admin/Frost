@@ -2687,17 +2687,34 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**Options | Preferences action performed*/
-    private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e) {
-    saveSettings();
-    OptionsFrame newFrame = new OptionsFrame(this);
-    newFrame.setModal(true); // lock main window
-    newFrame.show();
-    if (newFrame.getExitState()) {
-        frostSettings.readSettingsFile();
-        updateOptionsAffectedComponents();
-    }
-    oldMessageHeader = "";
-    timeLabel.setText("");
+    private void optionsPreferencesMenuItem_actionPerformed(ActionEvent e)
+    {
+        saveSettings();
+        // get some settings to check if they changed
+        // ...
+
+        OptionsFrame newFrame = new OptionsFrame(this);
+        newFrame.setModal(true); // lock main window
+        newFrame.show();
+        if( newFrame.getExitState() )
+        {
+            // read new settings
+            frostSettings.readSettingsFile();
+
+            // now check if settings changed and maybe update something
+
+// TODO:
+            // 1. if we switched from disableRequests=true to =false (requests now enabled),
+            //    search through .req files of this day in all boards and remove the
+            //     dummy .req files that are created on key collosions
+
+            // 2. check if singned only+hideCheck+hideBad settings changed, if yes update tof tree
+
+            // update gui parts
+            //timeLabel.setText(""); // ?
+            updateOptionsAffectedComponents();
+        }
+        oldMessageHeader = "";
     }
 
     /**Help | About action performed*/
