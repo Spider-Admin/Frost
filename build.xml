@@ -123,6 +123,7 @@ Build log  : ${logfilename}</echo>
            deprecation="${deprecation}"
            optimize="${optimize}">
           <classpath> 
+              <pathelement location="${build.classes}"/>
               <pathelement location="${src.dir.skinlfFixLib}"/>
               <pathelement location="${lib.dir}/skinlf.jar"/>
           </classpath>
