@@ -186,7 +186,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 if( DEBUG ) System.out.println("FILEDN: Requesting index " + index);
                 // Download the keyfile
                 FcpRequest.getFile(requestKey + index + ".idx.zip",
-                                   "Unknown",
+                                   null,
                                    target,
                                    requestHtl,
                                    true);

@@ -22,6 +22,10 @@ public class DownloadTable extends SortedTable
     public DownloadTable(TableModel m)
     {
         super(m);
+
+        CellRenderer cellRenderer = new CellRenderer();
+        getColumnModel().getColumn(1).setCellRenderer(cellRenderer);
+
         // set column sizes
         int[] widths = {250, 90, 90, 80, 40, 50, 60};
         for (int i = 0; i < widths.length; i++)
@@ -32,6 +36,9 @@ public class DownloadTable extends SortedTable
         sortedColumnIndex = 3;
         sortedColumnAscending = true;
         resortTable();
+
+//        setIntercellSpacing( new Dimension( 4, 0 ) );
+
     }
 
     public void removeSelectedRows()
@@ -286,5 +293,21 @@ public class DownloadTable extends SortedTable
         }
         return false;
     }
+
+    /**
+     * This renderer renders the size column (=1) with right alignment
+     */
+    private class CellRenderer extends DefaultTableCellRenderer
+    {
+        public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int column)
+        {
+            super.getTableCellRendererComponent(table,value,isSelected,hasFocus,row,column);
+            setHorizontalAlignment( SwingConstants.RIGHT );
+            // col is right aligned, give some space to next column
+            setBorder( new javax.swing.border.EmptyBorder(0, 0, 0, 3) );
+            return this;
+        }
+    }
+
 }
 

@@ -36,7 +36,7 @@ public class DownloadTableModel extends SortedTableModel
     };
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
-        Long.class,   //LangRes.getString("Size"),
+        String.class,//Long.class,   //LangRes.getString("Size"),
         String.class, //LangRes.getString("Age"),
         String.class, //LangRes.getString("State"),
         Integer.class,//LangRes.getString("Retries"),

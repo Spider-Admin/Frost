@@ -223,7 +223,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                                                 .append(".txt").toString();
                 }
 
-                try { FcpRequest.getFile(downKey, "Unknown", testMe, downloadHtl, false); }
+                try { FcpRequest.getFile(downKey, null, testMe, downloadHtl, false); }
                 catch(Throwable t)
                 {
                     System.out.println("TOFDN - Error in run()/FcpRequest.getFile:");
