@@ -99,6 +99,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             {
                 index++;
                 failures = 0;
+		continue;
             }
             else
             {
@@ -130,7 +131,9 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                 for( int i = 0; i < rowCount; i++ )
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow(i);
-                    String SHA1 = ulItem.getSHA1().trim();
+                    String SHA1 = ulItem.getSHA1();
+		    if (SHA1==null) continue;
+		    else SHA1=SHA1.trim();
                     if( SHA1.equals(content) )
                     {
                         File requestLock = new File(destination + SHA1 + ".lck");
