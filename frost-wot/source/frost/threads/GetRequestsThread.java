@@ -30,8 +30,8 @@ import frost.FcpTools.*;
 /**
  * Downloads file requests
  */
- //TODO: VERY IMPORTANT:  this channel is very easily spammable.  We need a solution
- //SOLUTION: it will always run in the background, so I'm removing the accounting stuff
+ 
+ 
 public class GetRequestsThread extends Thread
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
@@ -88,6 +88,8 @@ public class GetRequestsThread extends Thread
 	//start the request loop
 	while (true) {
 	dirdate = DateFun.getDate();
+	mixed.wait(15*60*1000);
+	if (Core.getMyBatches().isEmpty()) continue; //do not start requesting until the user has shared something
 	try{
 	Iterator it = frame1.getMyBatches().keySet().iterator();
 	while (it.hasNext()) {
@@ -185,7 +187,7 @@ public class GetRequestsThread extends Thread
         }
 
         }
-	mixed.wait(5*60*1000);
+	
 	
 	}catch(ConcurrentModificationException e) {
 		continue;
