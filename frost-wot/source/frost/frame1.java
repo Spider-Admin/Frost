@@ -2558,7 +2558,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         searchButton.setEnabled(false);
         getSearchTable().clearSelection();
-        TableFun.removeAllRows(getSearchTable());
+        ((SearchTableModel)getSearchTable().getModel()).clearDataModel();
         Vector boardsToSearch;
         if( searchAllBoardsCheckBox.isSelected() )
         {
