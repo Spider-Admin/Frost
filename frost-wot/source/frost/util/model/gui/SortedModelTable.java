@@ -19,86 +19,6 @@ import frost.util.model.*;
  * 
  */
 public class SortedModelTable extends ModelTable {
-	/**
-	 * Helper class to be able to safely get the selection fron any thread
-	 */
-	private class SortedSelectionGetter implements Runnable {
-	
-		private final int MODE_SINGLE = 0;
-		private final int MODE_MULTIPLE = 1;
-	
-		int mode = 0;
-	
-		ModelItem[] selectedItems;
-		ModelItem selectedItem;
-	
-		/**
-		 * 
-		 */
-		public ModelItem[] getSelectedItems() {
-			mode = MODE_MULTIPLE;
-			if (SwingUtilities.isEventDispatchThread()) {
-				run();
-			} else {
-				try {
-					SwingUtilities.invokeAndWait(this);
-				} catch (InterruptedException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
-				} catch (InvocationTargetException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
-				}
-			}
-			return selectedItems;
-		}
-	
-		/**
-		 * 
-		 */
-		public ModelItem getSelectedItem() {
-			mode = MODE_SINGLE;
-			if (SwingUtilities.isEventDispatchThread()) {
-				run();
-			} else {
-				try {
-					SwingUtilities.invokeAndWait(this);
-				} catch (InterruptedException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
-				} catch (InvocationTargetException e) {
-					logger.log(Level.WARNING, "Exception thrown in SelectionGetter.run()", e);
-				}
-			}
-			return selectedItem;
-		}
-	
-		/* (non-Javadoc)
-		 * @see java.lang.Runnable#run()
-		 */
-		public void run() {
-			synchronized (sortedModel) {
-				switch (mode) {
-					case MODE_MULTIPLE :
-						int selectionCount = table.getSelectedRowCount();
-						selectedItems = new ModelItem[selectionCount];
-						int[] selectedRows = table.getSelectedRows();
-						for (int i = 0; i < selectedRows.length; i++) {
-							selectedItems[i] = sortedModel.getItemAt(selectedRows[i]);
-						}
-						break;
-
-					case MODE_SINGLE :
-						int selectedRow = table.getSelectedRow();
-						if (selectedRow != -1) {
-							selectedItem = sortedModel.getItemAt(selectedRow);
-
-							break;
-						}
-				}
-			}
-		}
-	}
-	
-	private SortedModel sortedModel;
-
 	private static Logger logger = Logger.getLogger(SortedModelTable.class.getName());
 	
 	private int currentColumnNumber = -1;
@@ -114,7 +34,7 @@ public class SortedModelTable extends ModelTable {
 			
 		super(newTableFormat);
 		
-		sortedModel = new SortedModel(newModel, newTableFormat);
+		SortedModel sortedModel = new SortedModel(newModel, newTableFormat);
 		setModel(sortedModel);
 		initialize();
 		
@@ -136,7 +56,7 @@ public class SortedModelTable extends ModelTable {
 		SwingWorker worker = new SwingWorker(table) {
 
 			protected void doNonUILogic() throws RuntimeException {
-				sortedModel.sort(columnNumberFinal, ascending);
+				((SortedModel) model).sort(columnNumberFinal, ascending);
 			}
 
 			protected void doUIUpdateLogic() throws RuntimeException {
@@ -148,22 +68,6 @@ public class SortedModelTable extends ModelTable {
 		worker.start();
 	}
 	
-	/**
-	 * @return
-	 */
-	public ModelItem getSelectedItem() {
-		return new SortedSelectionGetter().getSelectedItem();
-	}
-	
-
-	/**
-	 * @return
-	 */
-	public ModelItem[] getSelectedItems() {
-		return new SortedSelectionGetter().getSelectedItems();
-	}
-	
-		
 	/**
 	 * This method returns the number of the column the
 	 * table is currently sorted by (or -1 if none)
@@ -182,13 +86,6 @@ public class SortedModelTable extends ModelTable {
 		return ascending;
 	}
 	
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#getValueAt(int, int)
-	 */
-	public Object getValueAt(int rowIndex, int columnIndex) {
-		return tableFormat.getCellValue(sortedModel.getItemAt(rowIndex), columnIndex);
-	}
-
 	/**
 	 * This method returns the model item that is represented on a particular
 	 * row of the table
@@ -196,7 +93,7 @@ public class SortedModelTable extends ModelTable {
 	 * @return the model item (may be null)
 	 */
 	public ModelItem getItemAt(int rowIndex) {
-		return sortedModel.getItemAt(rowIndex);
+		return model.getItemAt(rowIndex);
 	}
 
 }
