@@ -20,7 +20,7 @@
 
 package frost;
 
-import java.awt.Color;
+import java.awt.*;
 import java.io.*;
 import java.util.*;
 
@@ -431,6 +431,10 @@ public class SettingsClass {
 		defaults.put("lastFramePosX", "50");
 		defaults.put("lastFramePosY", "50");
 		defaults.put("lastFrameMaximized", "false");
+		
+		defaults.put("messageBodyFontName", "Monospaced");
+		defaults.put("messageBodyFontStyle", new Integer(Font.PLAIN).toString());
+		defaults.put("messageBodyFontSize", "12");
 
 		settingsHash.putAll(defaults);
 	}
