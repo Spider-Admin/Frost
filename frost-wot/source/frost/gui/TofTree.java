@@ -105,22 +105,24 @@ public class TofTree extends JDragTree implements Savable {
 				return this;
 			}
 
-			boolean containsNewMessage = board.containsNewMessage();
+			boolean containsNewMessage = board.containsNewMessages();
 
 			if (board.isFolder()) {
 				// if this is a folder, check board for new messages
-				if (board.containsFolderNewMessages()) {
+				setText(board.getName());
+				if (containsNewMessage) {
 					setFont(boldFont);
 				} else {
 					setFont(normalFont);
 				}
 			} else {
-				// set the sdpecial text (board name + if new msg. a ' (2)' is appended and bold)
-				setText(board.getVisibleText());
+				// set the special text (board name + if new msg. a ' (2)' is appended and bold)
 				if (containsNewMessage) {
 					setFont(boldFont);
+					setText(board.getName() + " (" + board.getNewMessageCount() + ")");
 				} else {
 					setFont(normalFont);
+					setText(board.getName());
 				}
 			}
 
