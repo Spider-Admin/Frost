@@ -7,6 +7,7 @@
 package frost.messages;
 
 import java.util.*;
+import java.util.logging.Logger;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -20,6 +21,8 @@ import frost.*;
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
 public class AttachmentList extends LinkedList implements XMLizable {
+	
+	private static Logger logger = Logger.getLogger(AttachmentList.class.getName());
 	
 	/**
 	 * traverses the list for attachment of given type
@@ -69,6 +72,6 @@ public class AttachmentList extends LinkedList implements XMLizable {
 		}
 		
 		if (size()==0)
-			Core.getOut().println("empty attachment list upon creation");
+			logger.info("empty attachment list upon creation");
 	}
 }

@@ -6,11 +6,12 @@
  */
 package frost.messages;
 
-import frost.XMLizable;
-import frost.Core;
+import java.util.logging.*;
 
-import org.w3c.dom.*;
+import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+
+import frost.XMLizable;
 
 /**
  * @author zlatinb
@@ -22,6 +23,8 @@ public abstract class Attachment implements XMLizable {
 	public static final int FILE=0;
 	public static final int BOARD=1;
 	public static final int PERSON=2;
+	
+	private static Logger logger = Logger.getLogger(Attachment.class.getName());
 	
 	
 	/**
@@ -49,7 +52,7 @@ public abstract class Attachment implements XMLizable {
 				return new PersonAttachment(e);
 		}
 		catch(SAXException ex){
-			ex.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in getInstance(Element e)", ex);
 			return null;
 		}
 	}

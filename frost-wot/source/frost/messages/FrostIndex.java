@@ -7,6 +7,7 @@
 package frost.messages;
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -21,6 +22,8 @@ import frost.identities.Identity;
 public class FrostIndex implements XMLizable {
 	Identity sharer;
 	Map filesMap;
+	
+	private static Logger logger = Logger.getLogger(FrostIndex.class.getName());
 
 	/* (non-Javadoc)
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
@@ -88,7 +91,7 @@ public class FrostIndex implements XMLizable {
 		try {
 			loadXMLElement(e);
 		} catch (SAXException ex){
-			ex.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
 		}
 	}
 
