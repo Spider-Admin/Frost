@@ -216,8 +216,8 @@ public class FileAccess
     	if (content.length==0) {
     		Exception e = new Exception();
     		e.fillInStackTrace();
-    		Core.getOut().println("tried to zip an empty file!  Send this output to a dev"+
-    									" and describe what you were doing");
+    		Core.getOut().println("Tried to zip an empty file!  Send this output to a dev"+
+    									" and describe what you were doing.");
     		e.printStackTrace(Core.getOut());
     		return;
     	}
@@ -230,6 +230,7 @@ public class FileAccess
             zos.write(content);
             zos.closeEntry();
             zos.close();
+            fos.close();
         }
         catch( IOException e ) {
             Core.getOut().println("files.writeZipFile: " + e);
