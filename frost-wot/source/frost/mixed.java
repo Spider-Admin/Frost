@@ -74,6 +74,12 @@ public class mixed
      */
     public static String makeFilename(String text)
     {
+        if( text == null )
+        {
+            System.out.println("ERROR: mixed.makeFilename() was called with NULL!");
+            return null;
+        }
+        
         StringBuffer newText = new StringBuffer();
         //text = text.toLowerCase();
 
