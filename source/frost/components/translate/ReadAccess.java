@@ -49,6 +49,7 @@ public class ReadAccess {
 	    {
 		System.out.println("Read Error: " + path);
 	    }
+
         return stringBuffer.toString();
     }
 }
