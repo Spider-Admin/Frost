@@ -94,18 +94,6 @@ public class frost {
 		//Main frame		
 		final frame1 frame = new frame1(frostSettings, locale, splashscreen);
 		frame.validate();
-
-		Dimension frameSize = frame.getSize();
-		if (frameSize.height > screenSize.height) {
-			frameSize.height = screenSize.height;
-		}
-		if (frameSize.width > screenSize.width) {
-			frameSize.width = screenSize.width;
-		}
-		frame.setLocation(
-			(screenSize.width - frameSize.width) / 2,
-			(screenSize.height - frameSize.height) / 2);
-
 		frame.show();
 
 		// Display the tray icon
