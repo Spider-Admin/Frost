@@ -928,8 +928,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     setFreenetIsTransient(false);
     setFreenetIsOnline(false);
 
-    FcpConnection con1 = new FcpConnection(frostSettings.getValue("nodeAddress"),
-                                           frostSettings.getValue("nodePort"));
+    FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
     if( con1 != null )
     {
         String[] nodeInfo = con1.getInfo();

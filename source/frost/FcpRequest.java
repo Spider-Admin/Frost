@@ -861,22 +861,35 @@ Document
         FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         if( connection != null )
         {
-            try
+            int tries = 0;
+            int maxtries = 3;
+            while( tries < maxtries )
             {
-                results = connection.getKeyToFile(key, target.getPath(), htl);
-            }
-            catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException
-            {
-                // do nothing, data not found is usual ...
-                if( DEBUG ) System.out.println("FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
-            }
-            catch( FcpToolsException e )
-            {
-                if( DEBUG ) System.out.println("FcpRequest.getKey(1): FcpToolsException " + e);
-            }
-            catch( IOException e )
-            {
-                if( DEBUG ) System.out.println("FcpRequest.getKey(1): IOException " + e);
+                try
+                {
+                    results = connection.getKeyToFile(key, target.getPath(), htl);
+                }
+                catch( java.net.ConnectException e )
+                {
+                    tries++;
+                    continue;
+                }
+                catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException
+                {
+                    // do nothing, data not found is usual ...
+                    if( DEBUG ) System.out.println("FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
+                    break;
+                }
+                catch( FcpToolsException e )
+                {
+                    if( DEBUG ) System.out.println("FcpRequest.getKey(1): FcpToolsException " + e);
+                    break;
+                }
+                catch( IOException e )
+                {
+                    if( DEBUG ) System.out.println("FcpRequest.getKey(1): IOException " + e);
+                    break;
+                }
             }
         }
 
