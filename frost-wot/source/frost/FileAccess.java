@@ -213,6 +213,14 @@ public class FileAccess
      */
     public static void writeZipFile(byte[] content, String entry, File file)
     {
+    	if (content.length==0) {
+    		Exception e = new Exception();
+    		e.fillInStackTrace();
+    		Core.getOut().println("tried to zip an empty file!  Send this output to a dev"+
+    									" and describe what you were doing");
+    		e.printStackTrace(Core.getOut());
+    		return;
+    	}
         try {
             FileOutputStream fos = new FileOutputStream(file);
             ZipOutputStream zos = new ZipOutputStream(fos);
