@@ -48,7 +48,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     JLabel summaryLabel = new JLabel();
 
     JButton updateButton = new JButton(LangRes.getString("Update"));
-    JButton addMoreButton = new JButton(LangRes.getString("Add more boards"));
+//    JButton addMoreButton = new JButton(LangRes.getString("Add more boards"));
     JButton updateSelectedBoardButton = new JButton(LangRes.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
     JButton updateAllBoardsButton = new JButton("Update all boards");
     JButton Bclose = new JButton("Close");
@@ -113,16 +113,14 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         MIupdate.addActionListener(al);
         
         // more boards button
-        al = new java.awt.event.ActionListener(){
+/*        al = new java.awt.event.ActionListener(){
         		public void actionPerformed(ActionEvent e){
         			//show the known boards frame
 					KnownBoardsFrame knownBoards = new KnownBoardsFrame(BoardInfoFrame.this);
 					knownBoards.startDialog();
         		}
         };
-        addMoreButton.addActionListener(al);
-		MIupdate.addActionListener(al);
-		
+        addMoreButton.addActionListener(al);*/
 
         // updateSelectedBoardButton
         al = new java.awt.event.ActionListener() {
@@ -161,7 +159,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         summaryPanel.add(summaryLabel);
         summaryPanel.add(Box.createRigidArea(new Dimension(15,3))); // ensure minimum glue size
         summaryPanel.add(Box.createHorizontalGlue());
-        summaryPanel.add(addMoreButton);
+//        summaryPanel.add(addMoreButton);
         summaryPanel.add(updateButton);
 
         boardTablePanel.add(summaryPanel, BorderLayout.SOUTH);
