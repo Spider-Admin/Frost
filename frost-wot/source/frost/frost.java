@@ -20,6 +20,7 @@ package frost;
 
 import java.awt.*;
 import java.io.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
@@ -29,39 +30,9 @@ import frost.ext.JSysTrayIcon;
 import frost.gui.Splashscreen;
 
 public class frost {
-	/**
-	 * Initializes the skins system
-	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
-	 * @param frame the root JFrame to update its UI when skins are activated
-	 */
-	private void initializeSkins(SettingsClass frostSettings) {
-		String skinsEnabled = frostSettings.getValue("skinsEnabled");
-		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
-			String selectedSkinPath = frostSettings.getValue("selectedSkin");
-			if ((selectedSkinPath != null)
-				&& (!selectedSkinPath.equals("none"))) {
-				try {
-					Skin selectedSkin =
-						SkinLookAndFeel.loadThemePack(selectedSkinPath);
-					SkinLookAndFeel.setSkin(selectedSkin);
-					SkinLookAndFeel.enable();
-				} catch (UnsupportedLookAndFeelException exception) {
-					System.out.println(
-						"The selected skin is not supported by your system");
-					System.out.println(
-						"Skins will be disabled until you choose another one\n");
-					frostSettings.setValue("skinsEnabled", false);
-				} catch (Exception exception) {
-					System.out.println(
-						"There was an error while loading the selected skin");
-					System.out.println(
-						"Skins will be disabled until you choose another one\n");
-					frostSettings.setValue("skinsEnabled", false);
-				}
-			}
-		}
-	}
-
+	
+	private static Logger logger = Logger.getLogger(frost.class.getName());
+	
 	private static String locale = "default";
 
 	public frost() {
@@ -88,7 +59,8 @@ public class frost {
 				
 		SettingsClass frostSettings = new SettingsClass();
 		
-		// Initializes the skins
+		// Initializes the logging and skins
+		new Logging(frostSettings);
 		initializeSkins(frostSettings);
 
 		//Main frame		
@@ -99,7 +71,7 @@ public class frost {
 		// Display the tray icon
 		if (frame1.frostSettings.getBoolValue("showSystrayIcon") == true) {
 			if (JSysTrayIcon.createInstance(0, "Frost", "Frost") == false) {
-				System.out.println("Could not create systray icon.");
+				logger.severe("Could not create systray icon.");
 			}
 		}
 
@@ -223,5 +195,31 @@ public class frost {
 			System.out.println("using the default");
 		}
 		new frost();
+	}
+	
+	/**
+	 * Initializes the skins system
+	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
+	 */
+	private void initializeSkins(SettingsClass frostSettings) {
+		String skinsEnabled = frostSettings.getValue("skinsEnabled");
+		if ((skinsEnabled != null) && (skinsEnabled.equals("true"))) {
+			String selectedSkinPath = frostSettings.getValue("selectedSkin");
+			if ((selectedSkinPath != null) && (!selectedSkinPath.equals("none"))) {
+				try {
+					Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedSkinPath);
+					SkinLookAndFeel.setSkin(selectedSkin);
+					SkinLookAndFeel.enable();
+				} catch (UnsupportedLookAndFeelException exception) {
+					logger.severe("The selected skin is not supported by your system\n" +
+								  "Skins will be disabled until you choose another one");
+					frostSettings.setValue("skinsEnabled", false);
+				} catch (Exception exception) {
+					logger.severe("There was an error while loading the selected skin\n" +
+								  "Skins will be disabled until you choose another one");
+					frostSettings.setValue("skinsEnabled", false);
+				}
+			}
+		}
 	}
 }
