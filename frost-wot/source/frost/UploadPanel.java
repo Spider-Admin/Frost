@@ -5,6 +5,7 @@ package frost;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.io.File;
 import java.util.*;
 import java.util.logging.Logger;
@@ -374,7 +375,8 @@ public class UploadPanel extends JPanel {
 	 * 
 	 */
 	private class Listener
-		implements LanguageListener, KeyListener, ActionListener, MouseListener {
+		extends MouseAdapter
+		implements LanguageListener, KeyListener, ActionListener, MouseListener, PropertyChangeListener {
 
 		/**
 		 * 
@@ -423,27 +425,6 @@ public class UploadPanel extends JPanel {
 		}
 
 		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-		 */
-		public void mouseClicked(MouseEvent e) {
-			// Nothing here			
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-		 */
-		public void mouseEntered(MouseEvent e) {
-			// Nothing here
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-		 */
-		public void mouseExited(MouseEvent e) {
-			// Nothing here
-		}
-
-		/* (non-Javadoc)
 		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
 		 */
 		public void mousePressed(MouseEvent e) {
@@ -470,6 +451,22 @@ public class UploadPanel extends JPanel {
 
 			}
 		}
+		
+		/* (non-Javadoc)
+		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+		 */
+		public void propertyChange(PropertyChangeEvent evt) {
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_NAME)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_SIZE)) {
+				fontChanged();
+			}
+			if (evt.getPropertyName().equals(SettingsClass.FILE_LIST_FONT_STYLE)) {
+				fontChanged();
+			}
+		}
+		
 	}
 
 	private PopupMenuUpload popupMenuUpload = null;
@@ -494,8 +491,9 @@ public class UploadPanel extends JPanel {
 	/**
 	 * 
 	 */
-	public UploadPanel() {
+	public UploadPanel(SettingsClass newSettingsClass) {
 		super();
+		settingsClass = newSettingsClass;
 	}
 
 	/**
@@ -515,10 +513,14 @@ public class UploadPanel extends JPanel {
 			setLayout(new BorderLayout());
 			add(uploadTopPanel, BorderLayout.NORTH);
 			add(uploadTableScrollPane, BorderLayout.CENTER);
+			fontChanged();
 
 			// listeners
 			uploadAddFilesButton.addActionListener(listener);
 			uploadTableScrollPane.addMouseListener(listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_NAME, listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_SIZE, listener);
+			settingsClass.addPropertyChangeListener(SettingsClass.FILE_LIST_FONT_STYLE, listener);
 
 			initialized = true;
 		}
@@ -657,13 +659,6 @@ public class UploadPanel extends JPanel {
 	}
 
 	/**
-	 * @param class1
-	 */
-	public void setSettingsClass(SettingsClass newSettingsClass) {
-		settingsClass = newSettingsClass;
-	}
-
-	/**
 	 * @param e
 	 */
 	private void uploadTableDoubleClick(MouseEvent e) {
@@ -675,6 +670,23 @@ public class UploadPanel extends JPanel {
 		if (file.exists()) {
 			Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
 		}
+	}
+	
+	/**
+	 * 
+	 */
+	private void fontChanged() {
+		String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+		int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+		int fontSize = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+		Font font = new Font(fontName, fontStyle, fontSize);
+		if (!font.getFamily().equals(fontName)) {
+			logger.severe("The selected font was not found in your system\n" +
+						   "That selection will be changed to \"SansSerif\".");
+			settingsClass.setValue(SettingsClass.FILE_LIST_FONT_NAME, "SansSerif");
+			font = new Font("SansSerif", fontStyle, fontSize);
+		}
+		uploadTable.setFont(font);
 	}
 
 }
