@@ -2426,7 +2426,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			"boardUpdatingNonSelectedBackgroundColor",
 			boardUpdNonSelectedBackgroundColor);
 
-		frostSettings.writeSettingsFile();
+		frostSettings.save();
 
 		// now check if some settings changed
 		if (checkDisableRequests == true
