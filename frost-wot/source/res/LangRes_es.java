@@ -238,6 +238,7 @@ static final Object[][] contents = {
 {"Size","Tamaño"},
 {"Source","Origen"},
 {"Spanish","Español"},
+{"set to neutral (CHECK)","marca como neutral (COMPROBAR)"},
 {"splitfile explanation","(cuanto mayor más rápido pero consume más CPU)"},
 {"Start encoding of selected files","Inicia la codificación de los ficheros seleccionados"},
 {"State","Estado"},
