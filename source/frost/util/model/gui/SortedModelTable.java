@@ -493,4 +493,26 @@ public class SortedModelTable extends ModelTable {
 		}
 	}
 
+	/**
+	 * This method returns the model item that is represented on a particular
+	 * row of the table
+	 * @param rowIndex the index of the row the model is represented on
+	 * @return the model item (may be null)
+	 */
+	public ModelItem getItemAt(int rowIndex) {
+		if (sorted) {
+			try {
+				return model.getItemAt(sortingArray[rowIndex]);
+			} catch (Exception exception) {
+				logger.log(
+					Level.FINE,
+					"Race condition in SortedModelTable.getItemAt()",
+					exception);
+				return null;
+			}
+		} else {
+			return model.getItemAt(rowIndex);
+		}
+	}
+
 }
