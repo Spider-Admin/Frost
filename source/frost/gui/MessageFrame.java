@@ -561,7 +561,7 @@ public class MessageFrame extends JFrame
 		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
 		Font tofFont = new Font(fontName, fontStyle, fontSize);
 		if (tofFont.getFamily() != fontName) {
-			System.out.println("The selected font was not bound in your system");
+			System.out.println("The selected font was not found in your system");
 			System.out.println("That selection will be changed to \"Monospaced\".\n");
 			frostSettings.setValue("messageBodyFontName", "Monospaced");
 			tofFont = new Font("Monospaced", fontStyle, fontSize);
