@@ -16,3 +16,8 @@ System Tray Executables
 -----------------------
 Jeeva S <vavjeeva@yahoo.com> (Free code from http://www.codeproject.com)
 http://www.codeproject.com/useritems/System_Tray_In_Java.asp
+
+
+German Translation Support
+--------------------------
+Rudolf Krist <rudi666 -AT+ users.sourceforge.net>
