@@ -291,9 +291,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.setValue("altEdit", altEditTextField.getText());
 			frostSettings.setValue("doCleanUp", cleanupCheckBox.isSelected());
 			frostSettings.setValue("autoSaveInterval", autoSaveIntervalTextField.getText());
-			frostSettings.setValue(Logging.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
-			frostSettings.setValue(Logging.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
-			frostSettings.setValue(Logging.LOG_LEVEL, logLevelComboBox.getSelectedKey());
+			frostSettings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
+			frostSettings.setValue(SettingsClass.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
+			frostSettings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());
 
 			// Save splashchk
 			try {
@@ -343,12 +343,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			cleanupCheckBox.setSelected(frostSettings.getBoolValue("doCleanUp"));
 			autoSaveIntervalTextField.setText(
 				Integer.toString(frostSettings.getIntValue("autoSaveInterval")));
-			enableLoggingCheckBox.setSelected(frostSettings.getBoolValue(Logging.LOG_TO_FILE));
+			enableLoggingCheckBox.setSelected(frostSettings.getBoolValue(SettingsClass.LOG_TO_FILE));
 			logFileSizeTextField.setText(
-				Integer.toString(frostSettings.getIntValue(Logging.LOG_FILE_SIZE_LIMIT)));
+				Integer.toString(frostSettings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
 
-			logLevelComboBox.setSelectedKey(frostSettings.getDefaultValue(Logging.LOG_LEVEL));
-			logLevelComboBox.setSelectedKey(frostSettings.getValue(Logging.LOG_LEVEL));
+			logLevelComboBox.setSelectedKey(frostSettings.getDefaultValue(SettingsClass.LOG_LEVEL));
+			logLevelComboBox.setSelectedKey(frostSettings.getValue(SettingsClass.LOG_LEVEL));
 
 			// "Load" splashchk
 			File splashchk = new File("nosplash.chk");
@@ -1187,14 +1187,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 * 
 		 */
 		public class Listener implements ActionListener {
-
 			/**
 			 * 
 			 */
 			public Listener() {
 				super();
 			}
-
 			/* (non-Javadoc)
 			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
 			 */
@@ -1205,10 +1203,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				if (e.getSource() == messageListButton) {
 					messageListButtonPressed();	
 				}	
+				if (e.getSource() == fileListButton) {
+					fileListButtonPressed();	
+				}
 			}
-
-
-
 		}
 		
 		private Listener listener = new Listener();
@@ -1225,10 +1223,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private JButton messageListButton = new JButton();
 		private JLabel selectedMessageListFontLabel = new JLabel();
 		
+		private JLabel fileListLabel = new JLabel();
+		private JButton fileListButton = new JButton();
+		private JLabel selectedFileListFontLabel = new JLabel();
+		
 		private JCheckBox messageBodyAACheckBox = new JCheckBox();
 		
 		private Font selectedBodyFont = null;
-		private Font selectedListFont = null;
+		private Font selectedMessageListFont = null;
+		private Font selectedFileListFont = null;
 
 		/**
 		 * Constructor
@@ -1282,6 +1285,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			//Add listeners
 			messageBodyButton.addActionListener(listener);
 			messageListButton.addActionListener(listener);
+			fileListButton.addActionListener(listener);
 		}
 		
 		private JPanel getFontsPanel() {
@@ -1325,6 +1329,22 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			constraints.weightx = 1;
 			fontsPanel.add(selectedMessageListFontLabel, constraints);
 			
+			constraints.insets = inset1515;
+			constraints.gridx = 0;
+			constraints.gridy = 2;
+			constraints.weightx = 0.8;
+			fontsPanel.add(fileListLabel, constraints);
+			constraints.insets = inset1519;
+			constraints.gridx = 1;
+			constraints.gridy = 2;
+			constraints.weightx = 0.1;
+			fontsPanel.add(fileListButton, constraints);
+			constraints.insets = inset1515;
+			constraints.gridx = 2;
+			constraints.gridy = 2;
+			constraints.weightx = 1;
+			fontsPanel.add(selectedFileListFontLabel, constraints);
+			
 			return fontsPanel;
 		}
 
@@ -1339,7 +1359,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
 			messageListLabel.setText(languageResource.getString("Message List"));
 			messageListButton.setText(languageResource.getString("Choose"));
-			selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));
+			selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
+			fileListLabel.setText(languageResource.getString("File List"));
+			fileListButton.setText(languageResource.getString("Choose"));
+			selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 			messageBodyAACheckBox.setText(languageResource.getString("EnableMessageBodyAA"));
 		}
 
@@ -1388,14 +1411,19 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				displaySettings.setValue("selectedSkin", selectedSkin);
 			}
 			if (selectedBodyFont != null) {
-				displaySettings.setValue("messageBodyFontName", selectedBodyFont.getFamily());
-				displaySettings.setValue("messageBodyFontStyle", selectedBodyFont.getStyle());
-				displaySettings.setValue("messageBodyFontSize", selectedBodyFont.getSize());
+				displaySettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, selectedBodyFont.getFamily());
+				displaySettings.setValue(SettingsClass.MESSAGE_BODY_FONT_STYLE, selectedBodyFont.getStyle());
+				displaySettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, selectedBodyFont.getSize());
 			}
-			if (selectedListFont != null) {
-				displaySettings.setValue("messageListFontName", selectedListFont.getFamily());
-				displaySettings.setValue("messageListFontStyle", selectedListFont.getStyle());
-				displaySettings.setValue("messageListFontSize", selectedListFont.getSize());
+			if (selectedMessageListFont != null) {
+				displaySettings.setValue(SettingsClass.MESSAGE_LIST_FONT_NAME, selectedMessageListFont.getFamily());
+				displaySettings.setValue(SettingsClass.MESSAGE_LIST_FONT_STYLE, selectedMessageListFont.getStyle());
+				displaySettings.setValue(SettingsClass.MESSAGE_LIST_FONT_SIZE, selectedMessageListFont.getSize());
+			}
+			if (selectedFileListFont != null) {
+				displaySettings.setValue(SettingsClass.FILE_LIST_FONT_NAME, selectedFileListFont.getFamily());
+				displaySettings.setValue(SettingsClass.FILE_LIST_FONT_STYLE, selectedFileListFont.getStyle());
+				displaySettings.setValue(SettingsClass.FILE_LIST_FONT_SIZE, selectedFileListFont.getSize());
 			}
 			displaySettings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
 		}
@@ -1410,17 +1438,23 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			String selectedSkinPath = displaySettings.getValue("selectedSkin");
 			skinChooser.setSelectedSkin(selectedSkinPath);
 			
-			String fontName = displaySettings.getValue("messageBodyFontName");
-			int fontSize = displaySettings.getIntValue("messageBodyFontSize");
-			int fontStyle = displaySettings.getIntValue("messageBodyFontStyle");
+			String fontName = displaySettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+			int fontSize = displaySettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+			int fontStyle = displaySettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
 			selectedBodyFont = new Font(fontName, fontStyle, fontSize); 
 			selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));	
 			
-			fontName = displaySettings.getValue("messageListFontName");
-			fontSize = displaySettings.getIntValue("messageListFontSize");
-			fontStyle = displaySettings.getIntValue("messageListFontStyle");
-			selectedListFont = new Font(fontName, fontStyle, fontSize); 
-			selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));
+			fontName = displaySettings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
+			fontSize = displaySettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
+			fontStyle = displaySettings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
+			selectedMessageListFont = new Font(fontName, fontStyle, fontSize); 
+			selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
+			
+			fontName = displaySettings.getValue(SettingsClass.FILE_LIST_FONT_NAME);
+			fontSize = displaySettings.getIntValue(SettingsClass.FILE_LIST_FONT_SIZE);
+			fontStyle = displaySettings.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
+			selectedFileListFont = new Font(fontName, fontStyle, fontSize); 
+			selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 			
 			messageBodyAACheckBox.setSelected(displaySettings.getBoolValue("messageBodyAA"));	
 		}
@@ -1446,12 +1480,27 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private void messageListButtonPressed() {
 			FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
 			fontChooser.setModal(true);
-			fontChooser.setSelectedFont(selectedListFont);
+			fontChooser.setSelectedFont(selectedMessageListFont);
 			fontChooser.show();
 			Font selectedFontTemp = fontChooser.getSelectedFont();
 			if (selectedFontTemp != null) {
-				selectedListFont = selectedFontTemp;
-				selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));
+				selectedMessageListFont = selectedFontTemp;
+				selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private void fileListButtonPressed() {
+			FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
+			fontChooser.setModal(true);
+			fontChooser.setSelectedFont(selectedFileListFont);
+			fontChooser.show();
+			Font selectedFontTemp = fontChooser.getSelectedFont();
+			if (selectedFontTemp != null) {
+				selectedFileListFont = selectedFontTemp;
+				selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 			}
 		}
 
@@ -1755,14 +1804,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	protected JPanel getTofPanel() {
 		if (tofPanel == null) {
 			// Initialize AA and fot fot the tofTextArea
-			String fontName = frostSettings.getValue("messageBodyFontName");
-			int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
-			int fontSize = frostSettings.getIntValue("messageBodyFontSize");
+			String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+			int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+			int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
 			Font tofFont = new Font(fontName, fontStyle, fontSize);
 			if (!tofFont.getFamily().equals(fontName)) {
 				logger.severe("The selected font was not found in your system\n" +
 							  "That selection will be changed to \"Monospaced\".");
-				frostSettings.setValue("messageBodyFontName", "Monospaced");
+				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
 				tofFont = new Font("Monospaced", fontStyle, fontSize);
 			}
 			tofTextArea.setFont(tofFont);
