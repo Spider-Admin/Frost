@@ -44,7 +44,257 @@ import frost.gui.translation.*;
  *******************************/
 
 public class OptionsFrame extends JDialog implements ListSelectionListener {
+	
+	/**
+	 * 
+	 */
+	private class News2Panel extends JPanel {
+		
+		/**
+		 * 
+		 */
+		private class Listener implements ActionListener {
 
+			/* (non-Javadoc) 
+			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
+			 */
+			public void actionPerformed(ActionEvent e) {
+				if (e.getSource() == blockCheckBox) {
+					blockSubjectPressed();
+				}
+				if (e.getSource() == blockBodyCheckBox) {
+					blockBodyPressed();
+				}
+				if (e.getSource() == doBoardBackoffCheckBox) {
+					doSpamDetectionPressed();
+				}
+			}
+		}
+		
+		private Listener listener = new Listener();
+		
+		private JLabel tresholdLabel = new JLabel();
+		private JLabel intervalLabel = new JLabel();
+		
+		private JTextField sampleIntervalTextField = new JTextField(8);
+		private JTextField spamTresholdTextField = new JTextField(8);
+		private JTextField blockMessageBodyTextField = new JTextField();
+		private JTextField blockMessageTextField = new JTextField();
+		
+		private JCheckBox signedOnlyCheckBox = new JCheckBox();
+		private JCheckBox doBoardBackoffCheckBox = new JCheckBox();
+		private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
+		private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
+		private JCheckBox hideNAMessagesCheckBox = new JCheckBox();
+		private JCheckBox blockCheckBox = new JCheckBox();
+		private JCheckBox blockBodyCheckBox = new JCheckBox();
+
+		/**
+		 * 
+		 */
+		public News2Panel() {
+			super();
+			initialize();
+		}
+		
+		/**
+		 * 
+		 */
+		private void initialize() {
+			setName("News2Panel");
+			setLayout(new GridBagLayout());
+			refreshLanguage();
+			
+			// Adds all of the components
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			Insets insets5555 = new Insets(5, 5, 5, 5);
+			Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
+			constraints.insets = insets5555;
+			constraints.weighty = 1;
+			constraints.weightx = 1;
+			constraints.gridwidth = 2;
+
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			add(blockCheckBox, constraints);
+			constraints.insets = insets5_30_5_5;
+			constraints.gridy = 1;
+			add(blockMessageTextField, constraints);
+			
+			constraints.insets = insets5555;
+			constraints.gridy = 2;
+			add(blockBodyCheckBox, constraints);
+			constraints.insets = insets5_30_5_5;
+			constraints.gridy = 3;
+			add(blockMessageBodyTextField, constraints);
+						
+			constraints.insets = insets5555;
+			constraints.gridwidth = 1;
+			constraints.gridx = 0;
+			constraints.gridy = 4;
+			add(signedOnlyCheckBox, constraints);
+			constraints.gridx = 1;
+			add(hideBadMessagesCheckBox, constraints);
+			constraints.gridx = 0;
+			constraints.gridy = 5;
+			add(hideCheckMessagesCheckBox, constraints);
+			constraints.gridx = 1;
+			add(hideNAMessagesCheckBox, constraints);
+						
+			constraints.gridwidth = 2;
+			constraints.gridx = 0;
+			constraints.gridy = 6;
+			add(doBoardBackoffCheckBox, constraints);
+			constraints.gridy = 7;
+			constraints.weighty = 0;
+			add(getSpamPanel(), constraints);
+						
+			// Add listeners
+			blockCheckBox.addActionListener(listener);
+			blockBodyCheckBox.addActionListener(listener);
+			doBoardBackoffCheckBox.addActionListener(listener);						
+		}
+		
+		/**
+		 * @return
+		 */
+		private JPanel getSpamPanel() {
+			JPanel spamPanel = new JPanel(new GridBagLayout());
+			spamPanel.setBorder(new EmptyBorder(5, 30, 5, 5));
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.insets = new Insets(5, 5, 5, 5);
+			constraints.weighty = 1; 
+			constraints.weightx = 1;
+			constraints.anchor = GridBagConstraints.NORTHWEST;
+
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			constraints.weightx = 0.5;
+			spamPanel.add(intervalLabel, constraints);
+			constraints.fill = GridBagConstraints.NONE;
+			constraints.gridx = 1;
+			constraints.weightx = 1;
+			spamPanel.add(sampleIntervalTextField, constraints);
+			
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			constraints.weightx = 0.5;
+			spamPanel.add(tresholdLabel, constraints);
+			constraints.fill = GridBagConstraints.NONE;
+			constraints.gridx = 1;
+			constraints.weightx = 1;
+			spamPanel.add(spamTresholdTextField, constraints);
+
+			return spamPanel;
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			String hours = languageResource.getString("hours");
+			String off = languageResource.getString("Off");
+
+			intervalLabel.setText(
+				languageResource.getString("Sample interval") + " (" + hours + ")");
+			tresholdLabel.setText(languageResource.getString("Threshold of blocked messages"));
+			signedOnlyCheckBox.setText(languageResource.getString("Hide unsigned messages"));
+			hideBadMessagesCheckBox.setText(
+				languageResource.getString("Hide messages flagged BAD") + " (" + off + ")");
+			hideCheckMessagesCheckBox.setText(
+				languageResource.getString("Hide messages flagged CHECK") + " (" + off + ")");
+			hideNAMessagesCheckBox.setText(
+				languageResource.getString("Hide messages flagged N/A") + " (" + off + ")");
+			blockCheckBox.setText(
+				languageResource.getString(
+					"Block messages with subject containing (separate by ';' )")
+					+ ": ");
+			blockBodyCheckBox.setText(
+				languageResource.getString(
+					"Block messages with body containing (separate by ';' )")
+					+ ": ");
+			doBoardBackoffCheckBox.setText(languageResource.getString("Do spam detection"));
+		}
+		
+		/**
+		 * Load the settings of this panel
+		 * @param news2Settings class the settings will be loaded from
+		 */
+		public void loadSettings(SettingsClass news2Settings) {
+			signedOnlyCheckBox.setSelected(news2Settings.getBoolValue("signedOnly"));
+			doBoardBackoffCheckBox.setSelected(news2Settings.getBoolValue("doBoardBackoff"));
+			intervalLabel.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
+			tresholdLabel.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
+			sampleIntervalTextField.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
+			spamTresholdTextField.setEnabled(news2Settings.getBoolValue("doBoardBackoff"));
+			sampleIntervalTextField.setText(news2Settings.getValue("sampleInterval"));
+			spamTresholdTextField.setText(news2Settings.getValue("spamTreshold"));
+			hideBadMessagesCheckBox.setSelected(news2Settings.getBoolValue("hideBadMessages"));
+			hideCheckMessagesCheckBox.setSelected(news2Settings.getBoolValue("hideCheckMessages"));
+			hideNAMessagesCheckBox.setSelected(news2Settings.getBoolValue("hideNAMessages"));
+			blockCheckBox.setSelected(news2Settings.getBoolValue("blockMessageChecked"));
+			blockBodyCheckBox.setSelected(news2Settings.getBoolValue("blockMessageBodyChecked"));
+			blockMessageTextField.setText(news2Settings.getValue("blockMessage"));
+			blockMessageTextField.setEnabled(news2Settings.getBoolValue("blockMessageChecked"));
+			blockMessageBodyTextField.setText(news2Settings.getValue("blockMessageBody"));
+			blockMessageBodyTextField.setEnabled(
+				news2Settings.getBoolValue("blockMessageBodyChecked"));
+		}
+		
+		/**
+		 * @param news2Settings
+		 */
+		private void saveSettings(SettingsClass news2Settings) {
+			news2Settings.setValue(
+				"blockMessage",
+				((blockMessageTextField.getText()).trim()).toLowerCase());
+			news2Settings.setValue("blockMessageChecked", blockCheckBox.isSelected());
+			news2Settings.setValue(
+				"blockMessageBody",
+				((blockMessageBodyTextField.getText()).trim()).toLowerCase());
+			news2Settings.setValue("blockMessageBodyChecked", blockBodyCheckBox.isSelected());
+			news2Settings.setValue("doBoardBackoff", doBoardBackoffCheckBox.isSelected());
+			news2Settings.setValue("spamTreshold", spamTresholdTextField.getText());
+			news2Settings.setValue("sampleInterval", sampleIntervalTextField.getText());
+			news2Settings.setValue("signedOnly", signedOnlyCheckBox.isSelected());
+			news2Settings.setValue("hideBadMessages", hideBadMessagesCheckBox.isSelected());
+			news2Settings.setValue("hideCheckMessages", hideCheckMessagesCheckBox.isSelected());
+			news2Settings.setValue("hideNAMessages", hideNAMessagesCheckBox.isSelected());
+		}
+		
+		public void ok() {
+			saveSettings(frostSettings);
+		}
+		
+
+		/**
+		 * 
+		 */
+		private void doSpamDetectionPressed() {
+			sampleIntervalTextField.setEnabled(doBoardBackoffCheckBox.isSelected());
+			spamTresholdTextField.setEnabled(doBoardBackoffCheckBox.isSelected());
+			tresholdLabel.setEnabled(doBoardBackoffCheckBox.isSelected());
+			intervalLabel.setEnabled(doBoardBackoffCheckBox.isSelected());		
+		}
+
+		/**
+		 * 
+		 */
+		private void blockBodyPressed() {
+			blockMessageBodyTextField.setEnabled(blockBodyCheckBox.isSelected());				
+		}
+
+		/**
+		 * 
+		 */
+		private void blockSubjectPressed() {
+			blockMessageTextField.setEnabled(blockCheckBox.isSelected());	
+		}		
+	}
+	
 	/**
 	 * 
 	 */
@@ -278,22 +528,24 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 
 		/**
-		 * @param frostSettings
+		 * @param miscSettings
 		 */
-		private void saveSettings(SettingsClass frostSettings) {
-			frostSettings.setValue("keyUploadHtl", keyUploadHtlTextField.getText());
-			frostSettings.setValue("keyDownloadHtl", keyDownloadHtlTextField.getText());
-			frostSettings.setValue("availableNodes", availableNodesTextField.getText());
-			frostSettings.setValue("maxKeys", maxKeysTextField.getText());
-			frostSettings.setValue("showSystrayIcon", showSystrayIconCheckBox.isSelected());
-			frostSettings.setValue("allowEvilBert", allowEvilBertCheckBox.isSelected());
-			frostSettings.setValue("useAltEdit", altEditCheckBox.isSelected());
-			frostSettings.setValue("altEdit", altEditTextField.getText());
-			frostSettings.setValue("doCleanUp", cleanupCheckBox.isSelected());
-			frostSettings.setValue("autoSaveInterval", autoSaveIntervalTextField.getText());
-			frostSettings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
-			frostSettings.setValue(SettingsClass.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
-			frostSettings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());
+		private void saveSettings(SettingsClass miscSettings) {
+			miscSettings.setValue("keyUploadHtl", keyUploadHtlTextField.getText());
+			miscSettings.setValue("keyDownloadHtl", keyDownloadHtlTextField.getText());
+			miscSettings.setValue("availableNodes", availableNodesTextField.getText());
+			miscSettings.setValue("maxKeys", maxKeysTextField.getText());
+			miscSettings.setValue("showSystrayIcon", showSystrayIconCheckBox.isSelected());
+			miscSettings.setValue("allowEvilBert", allowEvilBertCheckBox.isSelected());
+			miscSettings.setValue("useAltEdit", altEditCheckBox.isSelected());
+			miscSettings.setValue("altEdit", altEditTextField.getText());
+			miscSettings.setValue("doCleanUp", cleanupCheckBox.isSelected());
+			miscSettings.setValue("autoSaveInterval", autoSaveIntervalTextField.getText());
+			miscSettings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
+			miscSettings.setValue(
+				SettingsClass.LOG_FILE_SIZE_LIMIT,
+				logFileSizeTextField.getText());
+			miscSettings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());
 
 			// Save splashchk
 			try {
@@ -331,24 +583,24 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 * @param miscSettings class the settings will be loaded from
 		 */
 		public void loadSettings(SettingsClass miscSettings) {
-			allowEvilBertCheckBox.setSelected(frostSettings.getBoolValue("allowEvilBert"));
-			altEditCheckBox.setSelected(frostSettings.getBoolValue("useAltEdit"));
+			allowEvilBertCheckBox.setSelected(miscSettings.getBoolValue("allowEvilBert"));
+			altEditCheckBox.setSelected(miscSettings.getBoolValue("useAltEdit"));
 			altEditTextField.setEnabled(altEditCheckBox.isSelected());
-			keyUploadHtlTextField.setText(frostSettings.getValue("keyUploadHtl"));
-			keyDownloadHtlTextField.setText(frostSettings.getValue("keyDownloadHtl"));
-			showSystrayIconCheckBox.setSelected(frostSettings.getBoolValue("showSystrayIcon"));
-			availableNodesTextField.setText(frostSettings.getValue("availableNodes"));
-			altEditTextField.setText(frostSettings.getValue("altEdit"));
-			maxKeysTextField.setText(frostSettings.getValue("maxKeys"));
-			cleanupCheckBox.setSelected(frostSettings.getBoolValue("doCleanUp"));
+			keyUploadHtlTextField.setText(miscSettings.getValue("keyUploadHtl"));
+			keyDownloadHtlTextField.setText(miscSettings.getValue("keyDownloadHtl"));
+			showSystrayIconCheckBox.setSelected(miscSettings.getBoolValue("showSystrayIcon"));
+			availableNodesTextField.setText(miscSettings.getValue("availableNodes"));
+			altEditTextField.setText(miscSettings.getValue("altEdit"));
+			maxKeysTextField.setText(miscSettings.getValue("maxKeys"));
+			cleanupCheckBox.setSelected(miscSettings.getBoolValue("doCleanUp"));
 			autoSaveIntervalTextField.setText(
-				Integer.toString(frostSettings.getIntValue("autoSaveInterval")));
-			enableLoggingCheckBox.setSelected(frostSettings.getBoolValue(SettingsClass.LOG_TO_FILE));
+				Integer.toString(miscSettings.getIntValue("autoSaveInterval")));
+			enableLoggingCheckBox.setSelected(miscSettings.getBoolValue(SettingsClass.LOG_TO_FILE));
 			logFileSizeTextField.setText(
-				Integer.toString(frostSettings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
+				Integer.toString(miscSettings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
 
-			logLevelComboBox.setSelectedKey(frostSettings.getDefaultValue(SettingsClass.LOG_LEVEL));
-			logLevelComboBox.setSelectedKey(frostSettings.getValue(SettingsClass.LOG_LEVEL));
+			logLevelComboBox.setSelectedKey(miscSettings.getDefaultValue(SettingsClass.LOG_LEVEL));
+			logLevelComboBox.setSelectedKey(miscSettings.getValue(SettingsClass.LOG_LEVEL));
 
 			// "Load" splashchk
 			File splashchk = new File("nosplash.chk");
@@ -500,31 +752,31 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		
 		/**
-		 * @param frostSettings
+		 * @param searchSettings
 		 */
-		private void saveSettings(SettingsClass frostSettings) {
-			frostSettings.setValue(
+		private void saveSettings(SettingsClass searchSettings) {
+			searchSettings.setValue(
 				"audioExtension",
 				audioExtensionTextField.getText().toLowerCase());
-			frostSettings.setValue(
+			searchSettings.setValue(
 				"imageExtension",
 				imageExtensionTextField.getText().toLowerCase());
-			frostSettings.setValue(
+			searchSettings.setValue(
 				"videoExtension",
 				videoExtensionTextField.getText().toLowerCase());
-			frostSettings.setValue(
+			searchSettings.setValue(
 				"documentExtension",
 				documentExtensionTextField.getText().toLowerCase());
-			frostSettings.setValue(
+			searchSettings.setValue(
 				"executableExtension",
 				executableExtensionTextField.getText().toLowerCase());
-			frostSettings.setValue(
+			searchSettings.setValue(
 				"archiveExtension",
 				archiveExtensionTextField.getText().toLowerCase());
-			frostSettings.setValue("maxSearchResults", maxSearchResultsTextField.getText());
-			
-			frostSettings.setValue("hideBadFiles", hideBadFilesCheckBox.isSelected());
-			frostSettings.setValue("hideAnonFiles", hideAnonFilesCheckBox.isSelected());
+			searchSettings.setValue("maxSearchResults", maxSearchResultsTextField.getText());
+
+			searchSettings.setValue("hideBadFiles", hideBadFilesCheckBox.isSelected());
+			searchSettings.setValue("hideAnonFiles", hideAnonFilesCheckBox.isSelected());
 		}
 		
 		/**
@@ -532,16 +784,16 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 * @param searchSettings class the settings will be loaded from
 		 */
 		public void loadSettings(SettingsClass searchSettings) {
-			audioExtensionTextField.setText(frostSettings.getValue("audioExtension"));
-			imageExtensionTextField.setText(frostSettings.getValue("imageExtension"));
-			videoExtensionTextField.setText(frostSettings.getValue("videoExtension"));
-			documentExtensionTextField.setText(frostSettings.getValue("documentExtension"));
-			executableExtensionTextField.setText(frostSettings.getValue("executableExtension"));
-			archiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
+			audioExtensionTextField.setText(searchSettings.getValue("audioExtension"));
+			imageExtensionTextField.setText(searchSettings.getValue("imageExtension"));
+			videoExtensionTextField.setText(searchSettings.getValue("videoExtension"));
+			documentExtensionTextField.setText(searchSettings.getValue("documentExtension"));
+			executableExtensionTextField.setText(searchSettings.getValue("executableExtension"));
+			archiveExtensionTextField.setText(searchSettings.getValue("archiveExtension"));
 			maxSearchResultsTextField.setText(
-				Integer.toString(frostSettings.getIntValue("maxSearchResults")));
-			hideBadFilesCheckBox.setSelected(frostSettings.getBoolValue("hideBadFiles"));
-			hideAnonFilesCheckBox.setSelected(frostSettings.getBoolValue("hideAnonFiles"));
+				Integer.toString(searchSettings.getIntValue("maxSearchResults")));
+			hideBadFilesCheckBox.setSelected(searchSettings.getBoolValue("hideBadFiles"));
+			hideAnonFilesCheckBox.setSelected(searchSettings.getBoolValue("hideAnonFiles"));
 		}
 		
 	}
@@ -699,17 +951,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 * @param uploadSettings class the settings will be loaded from
 		 */
 		public void loadSettings(SettingsClass uploadSettings) {
-			signUploadsCheckBox.setSelected(frostSettings.getBoolValue("signUploads"));
-			helpFriendsCheckBox.setSelected(frostSettings.getBoolValue("helpFriends"));
-			automaticIndexingCheckBox.setSelected(frostSettings.getBoolValue("automaticIndexing"));
-			shareDownloadsCheckBox.setSelected(frostSettings.getBoolValue("shareDownloads"));
-			htlTextField.setText(frostSettings.getValue("htlUpload"));
-			threadsTextField.setText(frostSettings.getValue("uploadThreads"));
-			batchSizeTextField.setText(frostSettings.getValue("uploadBatchSize"));
-			indexFileRedundancyTextField.setText(frostSettings.getValue("indexFileRedundancy"));
-			splitfileThreadsTextField.setText(frostSettings.getValue("splitfileUploadThreads"));
-			disableRequestsCheckBox.setSelected(frostSettings.getBoolValue("disableRequests"));
-			
+			signUploadsCheckBox.setSelected(uploadSettings.getBoolValue("signUploads"));
+			helpFriendsCheckBox.setSelected(uploadSettings.getBoolValue("helpFriends"));
+			automaticIndexingCheckBox.setSelected(uploadSettings.getBoolValue("automaticIndexing"));
+			shareDownloadsCheckBox.setSelected(uploadSettings.getBoolValue("shareDownloads"));
+			htlTextField.setText(uploadSettings.getValue("htlUpload"));
+			threadsTextField.setText(uploadSettings.getValue("uploadThreads"));
+			batchSizeTextField.setText(uploadSettings.getValue("uploadBatchSize"));
+			indexFileRedundancyTextField.setText(uploadSettings.getValue("indexFileRedundancy"));
+			splitfileThreadsTextField.setText(uploadSettings.getValue("splitfileUploadThreads"));
+			disableRequestsCheckBox.setSelected(uploadSettings.getBoolValue("disableRequests"));
+
 			setEnabled(!disableRequestsCheckBox.isSelected());
 		}
 		
@@ -718,19 +970,19 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		
 		/**
-		 * @param frostSettings
+		 * @param uploadSettings
 		 */
-		private void saveSettings(SettingsClass frostSettings) {
-			frostSettings.setValue("htlUpload", htlTextField.getText());
-			frostSettings.setValue("uploadThreads", threadsTextField.getText());
-			frostSettings.setValue("uploadBatchSize", batchSizeTextField.getText());
-			frostSettings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
-			frostSettings.setValue("splitfileUploadThreads", splitfileThreadsTextField.getText());
-			frostSettings.setValue("disableRequests", disableRequestsCheckBox.isSelected());
-			frostSettings.setValue("signUploads", signUploadsCheckBox.isSelected());
-			frostSettings.setValue("automaticIndexing", automaticIndexingCheckBox.isSelected());
-			frostSettings.setValue("shareDownloads", shareDownloadsCheckBox.isSelected());
-			frostSettings.setValue("helpFriends", helpFriendsCheckBox.isSelected());
+		private void saveSettings(SettingsClass uploadSettings) {
+			uploadSettings.setValue("htlUpload", htlTextField.getText());
+			uploadSettings.setValue("uploadThreads", threadsTextField.getText());
+			uploadSettings.setValue("uploadBatchSize", batchSizeTextField.getText());
+			uploadSettings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
+			uploadSettings.setValue("splitfileUploadThreads", splitfileThreadsTextField.getText());
+			uploadSettings.setValue("disableRequests", disableRequestsCheckBox.isSelected());
+			uploadSettings.setValue("signUploads", signUploadsCheckBox.isSelected());
+			uploadSettings.setValue("automaticIndexing", automaticIndexingCheckBox.isSelected());
+			uploadSettings.setValue("shareDownloads", shareDownloadsCheckBox.isSelected());
+			uploadSettings.setValue("helpFriends", helpFriendsCheckBox.isSelected());
 		}
 		
 		/* (non-Javadoc)
@@ -1057,38 +1309,42 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		
 		/**
-		 * @param frostSettings
+		 * @param downloadSettings
 		 */
-		private void saveSettings(SettingsClass frostSettings) {
+		private void saveSettings(SettingsClass downloadSettings) {
 			String downlDirTxt = directoryTextField.getText();
 			String filesep = System.getProperty("file.separator");
 			// always append a fileseparator to the end of string
 			if ((!(downlDirTxt.lastIndexOf(filesep) == (downlDirTxt.length() - 1)))
 				|| downlDirTxt.lastIndexOf(filesep) < 0) {
-				frostSettings.setValue("downloadDirectory", downlDirTxt + filesep);
+				downloadSettings.setValue("downloadDirectory", downlDirTxt + filesep);
 			} else {
-				frostSettings.setValue("downloadDirectory", downlDirTxt);
+				downloadSettings.setValue("downloadDirectory", downlDirTxt);
 			}
-			frostSettings.setValue("downloadThreads", threadsTextField.getText());
-			frostSettings.setValue(
+			downloadSettings.setValue("downloadThreads", threadsTextField.getText());
+			downloadSettings.setValue(
 				"removeFinishedDownloads",
 				removeFinishedDownloadsCheckBox.isSelected());
 
-			frostSettings.setValue("splitfileDownloadThreads", splitfileThreadsTextField.getText());
-			frostSettings.setValue("disableDownloads", disableDownloadsCheckBox.isSelected());
-			frostSettings.setValue(
+			downloadSettings.setValue(
+				"splitfileDownloadThreads",
+				splitfileThreadsTextField.getText());
+			downloadSettings.setValue("disableDownloads", disableDownloadsCheckBox.isSelected());
+			downloadSettings.setValue(
 				"downloadRestartFailedDownloads",
 				restartFailedDownloadsCheckBox.isSelected());
-			frostSettings.setValue(
+			downloadSettings.setValue(
 				"downloadEnableRequesting",
 				enableRequestingCheckBox.isSelected());
-			frostSettings.setValue(
+			downloadSettings.setValue(
 				"downloadRequestAfterTries",
 				requestAfterTriesTextField.getText());
-			frostSettings.setValue("downloadMaxRetries", maxRetriesTextField.getText());
-			frostSettings.setValue("downloadWaittime", waitTimeTextField.getText());
-			frostSettings.setValue("downloadTryAllSegments", tryAllSegmentsCheckBox.isSelected());
-			frostSettings.setValue(
+			downloadSettings.setValue("downloadMaxRetries", maxRetriesTextField.getText());
+			downloadSettings.setValue("downloadWaittime", waitTimeTextField.getText());
+			downloadSettings.setValue(
+				"downloadTryAllSegments",
+				tryAllSegmentsCheckBox.isSelected());
+			downloadSettings.setValue(
 				"downloadDecodeAfterEachSegment",
 				decodeAfterEachSegmentCheckBox.isSelected());
 		}
@@ -1099,23 +1355,24 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		 */
 		public void loadSettings(SettingsClass downloadSettings) {
 			removeFinishedDownloadsCheckBox.setSelected(
-						frostSettings.getBoolValue("removeFinishedDownloads"));
-			directoryTextField.setText(frostSettings.getValue("downloadDirectory"));
-			threadsTextField.setText(frostSettings.getValue("downloadThreads"));
-			splitfileThreadsTextField.setText(frostSettings.getValue("splitfileDownloadThreads"));
-			disableDownloadsCheckBox.setSelected(frostSettings.getBoolValue("disableDownloads"));
+				downloadSettings.getBoolValue("removeFinishedDownloads"));
+			directoryTextField.setText(downloadSettings.getValue("downloadDirectory"));
+			threadsTextField.setText(downloadSettings.getValue("downloadThreads"));
+			splitfileThreadsTextField.setText(
+				downloadSettings.getValue("splitfileDownloadThreads"));
+			disableDownloadsCheckBox.setSelected(downloadSettings.getBoolValue("disableDownloads"));
 			restartFailedDownloadsCheckBox.setSelected(
-				frostSettings.getBoolValue("downloadRestartFailedDownloads"));
+				downloadSettings.getBoolValue("downloadRestartFailedDownloads"));
 			enableRequestingCheckBox.setSelected(
-				frostSettings.getBoolValue("downloadEnableRequesting"));
+				downloadSettings.getBoolValue("downloadEnableRequesting"));
 			requestAfterTriesTextField.setText(
-				"" + frostSettings.getIntValue("downloadRequestAfterTries"));
-			maxRetriesTextField.setText("" + frostSettings.getIntValue("downloadMaxRetries"));
-			waitTimeTextField.setText("" + frostSettings.getIntValue("downloadWaittime"));
+				"" + downloadSettings.getIntValue("downloadRequestAfterTries"));
+			maxRetriesTextField.setText("" + downloadSettings.getIntValue("downloadMaxRetries"));
+			waitTimeTextField.setText("" + downloadSettings.getIntValue("downloadWaittime"));
 			tryAllSegmentsCheckBox.setSelected(
-				frostSettings.getBoolValue("downloadTryAllSegments"));
+				downloadSettings.getBoolValue("downloadTryAllSegments"));
 			decodeAfterEachSegmentCheckBox.setSelected(
-				frostSettings.getBoolValue("downloadDecodeAfterEachSegment"));
+				downloadSettings.getBoolValue("downloadDecodeAfterEachSegment"));
 
 			refreshComponentsState();
 		}
@@ -1288,6 +1545,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			fileListButton.addActionListener(listener);
 		}
 		
+		/**
+		 * @return
+		 */
 		private JPanel getFontsPanel() {
 			JPanel fontsPanel = new JPanel(new GridBagLayout());
 			fontsPanel.setBorder(new EmptyBorder(5, 80, 5, 5));
@@ -1298,7 +1558,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			Insets inset1519 = new Insets(1, 5, 1, 9);
 
 			constraints.insets = inset1515;
-			constraints.gridx = 0;
+			constraints.gridx = 0; 
 			constraints.gridy = 0;
 			constraints.weightx = 0.8;
 			fontsPanel.add(messageBodyLabel, constraints);
@@ -1524,7 +1784,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private DownloadPanel downloadPanel = null;
 	private UploadPanel uploadPanel = null;
 	JPanel tofPanel = null;
-	JPanel tof2Panel = null;
+	private News2Panel news2Panel = null;
 	JPanel tof3Panel = null;
 	private DisplayPanel displayPanel = null;
 	private MiscPanel miscPanel = null;
@@ -1539,29 +1799,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JTextField tofDisplayDaysTextField = new JTextField(5);
 	JTextField tofDownloadDaysTextField = new JTextField(5);
 	JTextField tofMessageBaseTextField = new JTextField(8);
-	JTextField tofBlockMessageTextField = new JTextField(42);
-	JTextField tofBlockMessageBodyTextField = new JTextField(42);
 	JTextField TFautomaticUpdate_boardsMinimumUpdateInterval =
 		new JTextField(5);
 	JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
 	JCheckBox tofBoardUpdateVisualization = new JCheckBox();
 	JList optionsGroupsList = null;
 
-	// new options in WOT:
-	// TODO: translation
-	JTextField sampleInterval = new JTextField(5);
-	JTextField spamTreshold = new JTextField(5);
-
-	JCheckBox signedOnly = new JCheckBox();
-	JCheckBox hideBadMessages = new JCheckBox();
-	JCheckBox hideCheckMessages = new JCheckBox();
-	JCheckBox hideNAMessages = new JCheckBox();
-	JCheckBox block = new JCheckBox();
-	// TODO: translate
-	JCheckBox blockBody = new JCheckBox();
-	JCheckBox doBoardBackoff = new JCheckBox();
-	JLabel interval = new JLabel();
-	JLabel treshold = new JLabel();
 	//    JLabel startRequestingAfterHtlLabel = new JLabel(LangRes.getString("Insert request if HTL tops:") + " (10)");
 
 	JButton chooseBoardUpdSelectedBackgroundColor = new JButton("   ");
@@ -1597,39 +1840,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				+ " ("
 				+ languageResource.getString("On")
 				+ ")");
-		signedOnly.setText(languageResource.getString("Hide unsigned messages"));
-		hideBadMessages.setText(
-			languageResource.getString("Hide messages flagged BAD")
-				+ " ("
-				+ languageResource.getString("Off")
-				+ ")");
-		hideCheckMessages.setText(
-			languageResource.getString("Hide messages flagged CHECK")
-				+ " ("
-				+ languageResource.getString("Off")
-				+ ")");
-		hideNAMessages.setText(
-			languageResource.getString("Hide messages flagged N/A")
-				+ " ("
-				+ languageResource.getString("Off")
-				+ ")");
-		block.setText(
-			languageResource.getString("Block messages with subject containing (separate by ';' )")
-				+ ": ");
-		blockBody.setText(
-			languageResource.getString("Block messages with body containing (separate by ';' )")
-				+ ": ");
-		doBoardBackoff.setText(languageResource.getString("Do spam detection"));
 	}
-	private void translateLabel() {
-		interval.setText(
-			languageResource.getString("Sample interval")
-				+ " ("
-				+ languageResource.getString("hours")
-				+ ")");
-		treshold.setText(languageResource.getString("Threshold of blocked messages"));
-	}
-
 	/**
 	 * Build up the whole GUI.
 	 */
@@ -1640,34 +1851,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		this.setTitle(languageResource.getString("Options"));
 		// a program should always give users a chance to change the dialog size if needed
 		this.setResizable(true);
-
-		//------------------------------------------------------------------------
-		// ChangeListener
-		//------------------------------------------------------------------------
-		block.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				if (e.getSource().equals(block))
-					tofBlockMessageTextField.setEnabled(block.isSelected());
-			}
-		});
-		blockBody.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				if (e.getSource().equals(blockBody))
-					tofBlockMessageBodyTextField.setEnabled(
-						blockBody.isSelected());
-			}
-		});
-		doBoardBackoff.addChangeListener(new ChangeListener() {
-			public void stateChanged(ChangeEvent e) {
-				if (e.getSource().equals(doBoardBackoff)) {
-					sampleInterval.setEnabled(doBoardBackoff.isSelected());
-					spamTreshold.setEnabled(doBoardBackoff.isSelected());
-					treshold.setEnabled(doBoardBackoff.isSelected());
-					interval.setEnabled(doBoardBackoff.isSelected());
-				}
-			}
-		});
-		//------------------------------------------------------------------------
 
 		mainPanel = new JPanel(new BorderLayout());
 		this.getContentPane().add(mainPanel, null); // add Main panel
@@ -1747,7 +1930,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			listData.add(
 				new ListBoxData(
 					" " + languageResource.getString("News") + " (2) ",
-					getTof2Panel()));
+					getNews2Panel()));
 			listData.add(
 				new ListBoxData(
 					" " + languageResource.getString("News") + " (3) ",
@@ -1885,70 +2068,18 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		return tofPanel;
 	}
-
+	
 	/**
-	 * Build the tof2 panel (spam options).
+	 * Build the news2 panel (spam options).
 	 */
-	protected JPanel getTof2Panel() {
-		if (tof2Panel == null) {
-			tof2Panel = new JPanel(new GridBagLayout());
-			GridBagConstraints constr = new GridBagConstraints();
-			constr.anchor = GridBagConstraints.WEST;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			constr.gridy = 0;
-			constr.gridwidth = 2;
-			tof2Panel.add(block, constr);
-			constr.gridy++;
-			constr.insets = new Insets(0, 25, 5, 5);
-			tof2Panel.add(tofBlockMessageTextField, constr);
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridy++;
-			tof2Panel.add(blockBody, constr);
-			constr.gridy++;
-			constr.insets = new Insets(0, 25, 5, 5);
-			tof2Panel.add(tofBlockMessageBodyTextField, constr);
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridwidth = 1;
-			constr.gridy++;
-			constr.gridx = 0;
-			tof2Panel.add(signedOnly, constr);
-			constr.gridx = 1;
-			tof2Panel.add(hideBadMessages, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			tof2Panel.add(hideCheckMessages, constr);
-			constr.gridx = 1;
-			tof2Panel.add(hideNAMessages, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			tof2Panel.add(doBoardBackoff, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(0, 25, 5, 5);
-			tof2Panel.add(interval, constr);
-			constr.gridx = 1;
-			constr.insets = new Insets(5, 0, 5, 5);
-			tof2Panel.add(sampleInterval, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.insets = new Insets(0, 25, 5, 5);
-			tof2Panel.add(treshold, constr);
-			constr.gridx = 1;
-			constr.insets = new Insets(5, 0, 5, 5);
-			tof2Panel.add(spamTreshold, constr);
-			// filler (glue)
-			constr.gridy++;
-			constr.gridx = 1;
-			constr.weightx = 0.7;
-			constr.weighty = 0.7;
-			constr.insets = new Insets(0, 0, 0, 0);
-			constr.fill = GridBagConstraints.BOTH;
-			tof2Panel.add(new JLabel(" "), constr);
+	private News2Panel getNews2Panel() {
+		if (news2Panel == null) {
+			news2Panel = new News2Panel();
+			news2Panel.loadSettings(frostSettings);
 		}
-		return tof2Panel;
+		return news2Panel;
 	}
-
+	
 	/**
 	 * Build the tof3 panel (automatic update options).
 	 */
@@ -2202,24 +2333,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
 
 		// now load
-		signedOnly.setSelected(frostSettings.getBoolValue("signedOnly"));
-		doBoardBackoff.setSelected(
-			frostSettings.getBoolValue("doBoardBackoff"));
-		interval.setEnabled(frostSettings.getBoolValue("doBoardBackoff"));
-		treshold.setEnabled(frostSettings.getBoolValue("doBoardBackoff"));
-		sampleInterval.setEnabled(frostSettings.getBoolValue("doBoardBackoff"));
-		spamTreshold.setEnabled(frostSettings.getBoolValue("doBoardBackoff"));
-		sampleInterval.setText(frostSettings.getValue("sampleInterval"));
-		spamTreshold.setText(frostSettings.getValue("spamTreshold"));
-		hideBadMessages.setSelected(
-			frostSettings.getBoolValue("hideBadMessages"));
-		hideCheckMessages.setSelected(
-			frostSettings.getBoolValue("hideCheckMessages"));
-		hideNAMessages.setSelected(
-			frostSettings.getBoolValue("hideNAMessages"));
-		block.setSelected(frostSettings.getBoolValue("blockMessageChecked"));
-		blockBody.setSelected(
-			frostSettings.getBoolValue("blockMessageBodyChecked"));
 		tofUploadHtlTextField.setText(frostSettings.getValue("tofUploadHtl"));
 		tofDownloadHtlTextField.setText(
 			frostSettings.getValue("tofDownloadHtl"));
@@ -2228,14 +2341,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		tofDownloadDaysTextField.setText(
 			frostSettings.getValue("maxMessageDownload"));
 		tofMessageBaseTextField.setText(frostSettings.getValue("messageBase"));
-		tofBlockMessageTextField.setText(
-			frostSettings.getValue("blockMessage"));
-		tofBlockMessageTextField.setEnabled(
-			frostSettings.getBoolValue("blockMessageChecked"));
-		tofBlockMessageBodyTextField.setText(
-			frostSettings.getValue("blockMessageBody"));
-		tofBlockMessageBodyTextField.setEnabled(
-			frostSettings.getBoolValue("blockMessageBodyChecked"));
 		TFautomaticUpdate_concurrentBoardUpdates.setText(
 			frostSettings.getValue("automaticUpdate.concurrentBoardUpdates"));
 		TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
@@ -2273,27 +2378,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"messageBase",
 			((tofMessageBaseTextField.getText()).trim()).toLowerCase());
-
-		frostSettings.setValue(
-			"blockMessage",
-			((tofBlockMessageTextField.getText()).trim()).toLowerCase());
-		frostSettings.setValue("blockMessageChecked", block.isSelected());
-		frostSettings.setValue(
-			"blockMessageBody",
-			((tofBlockMessageBodyTextField.getText()).trim()).toLowerCase());
-		frostSettings.setValue(
-			"blockMessageBodyChecked",
-			blockBody.isSelected());
-		frostSettings.setValue("doBoardBackoff", doBoardBackoff.isSelected());
-		frostSettings.setValue("spamTreshold", spamTreshold.getText());
-		frostSettings.setValue("sampleInterval", sampleInterval.getText());
-
-		frostSettings.setValue("signedOnly", signedOnly.isSelected());
-		frostSettings.setValue("hideBadMessages", hideBadMessages.isSelected());
-		frostSettings.setValue(
-			"hideCheckMessages",
-			hideCheckMessages.isSelected());
-		frostSettings.setValue("hideNAMessages", hideNAMessages.isSelected());
 
 		frostSettings.setValue(
 			"automaticUpdate.concurrentBoardUpdates",
@@ -2367,8 +2451,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		
 		if (miscPanel != null) {
-			//If the upload panel has been used, commit its changes
+			//If the misc panel has been used, commit its changes
 			miscPanel.ok();
+		}
+		
+		if (news2Panel != null) {
+			//If the news 2 panel has been used, commit its changes
+			news2Panel.ok();
 		}
 
 		saveSettings();
@@ -2457,7 +2546,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		languageResource = newLanguageResource;
 		setModal(true);
 		translateCheckBox();
-		translateLabel();
 
 		frostSettings = newSettingsClass;
 		setDataElements();
