@@ -41,6 +41,8 @@ public class JClipboardTextField extends JTextField
 	/**
 	 * @param text
 	 * @param columns
+	 * @param languageResource this language resource must contain these strings:
+	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
 	public JClipboardTextField(String text, int columns, UpdatingLanguageResource languageResource) {
 		super(text, columns);
@@ -50,7 +52,8 @@ public class JClipboardTextField extends JTextField
 	}
 
 	/**
-	 *  
+	 * @param languageResource this language resource must contain these strings:
+	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
 	public JClipboardTextField(UpdatingLanguageResource languageResource) {
 		this(null, 0, languageResource);
@@ -58,6 +61,8 @@ public class JClipboardTextField extends JTextField
 
 	/**
 	 * @param columns
+	 * @param languageResource this language resource must contain these strings:
+	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
 	public JClipboardTextField(int columns, UpdatingLanguageResource languageResource) {
 		this(null, columns, languageResource);
@@ -65,6 +70,8 @@ public class JClipboardTextField extends JTextField
 
 	/**
 	 * @param text
+	 * @param languageResource this language resource must contain these strings:
+	 * 				"Cut", "Copy", "Paste" and "Cancel"
 	 */
 	public JClipboardTextField(String text, UpdatingLanguageResource languageResource) {
 		this(text, 0, languageResource);
