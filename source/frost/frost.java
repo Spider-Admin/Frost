@@ -151,6 +151,8 @@ public class frost {
 			Class.forName("fecimpl.FECUtils");
 			// check for skinlf.jar
 			Class.forName("com.l2fprod.gui.SkinApplet");
+			// check for skinlfFix.jar
+			Class.forName("com.l2fprod.gui.plaf.skin.SkinlfFixMarkerClass");
 		} catch (ClassNotFoundException e1) {
 			System.out.println(
 				"ERROR: There are missing jar files. Please start Frost using the provided start scripts "
