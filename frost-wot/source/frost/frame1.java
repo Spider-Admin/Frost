@@ -1308,6 +1308,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         this.tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem(LangRes.getString("Automatic message update"), true);
         JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Increase Font Size"));
         JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem (LangRes.getString ("Decrease Font Size"));
+        JMenuItem tofDisplayKnownBoards = new JMenuItem("Display known boards");
 
         JMenu optionsMenu = new JMenu(LangRes.getString("Options"));
         JMenuItem optionsPreferencesMenuItem = new JMenuItem(LangRes.getString("Preferences"));
@@ -1351,6 +1352,10 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void actionPerformed(ActionEvent e) {
                 tofDisplayBoardInfoMenuItem_actionPerformed(e);
             } });
+        tofDisplayKnownBoards.addActionListener(new ActionListener()  {
+            public void actionPerformed(ActionEvent e) {
+                tofDisplayKnownBoardsMenuItem_actionPerformed(e);
+            } });
         pluginBrowserMenuItem.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 BrowserFrame browser = new BrowserFrame(true);
@@ -1378,6 +1383,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofMenu.add(tofConfigureBoardMenuItem);
         tofMenu.addSeparator();
         tofMenu.add(tofDisplayBoardInfoMenuItem);
+        tofMenu.add(tofDisplayKnownBoards);
         // Options Menu
         optionsMenu.add(optionsPreferencesMenuItem);
         // Plugin Menu
@@ -2565,6 +2571,12 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
+    private void tofDisplayKnownBoardsMenuItem_actionPerformed(ActionEvent e)
+    {
+        KnownBoardsFrame knownBoards = new KnownBoardsFrame(this);
+        knownBoards.startDialog();
+    }
+    
     //------------------------------------------------------------------------
 
     private void uploadAddFilesButton_actionPerformed(ActionEvent e)
