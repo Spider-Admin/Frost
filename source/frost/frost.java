@@ -68,6 +68,9 @@ public class frost
 	    System.out.println("bouncycastle.org (BSD license) and Onion Networks (BSD license).");
         System.out.println();
         System.out.println();
+        
+        // FIXME: check for needed .jar files by instanciating a class and catching the error
+        //        or do it much more gently using reflection ;)  
 
         String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
 
