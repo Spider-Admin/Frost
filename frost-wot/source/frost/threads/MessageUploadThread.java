@@ -22,27 +22,27 @@ package frost.threads;
 import java.awt.Frame;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.JOptionPane;
 
 import org.w3c.dom.Document;
 
 import frost.*;
-import frost.FcpTools.FcpInsert;
+import frost.FcpTools.*;
 import frost.crypt.SignMetaData;
-import frost.gui.*;
+import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.*;
 import frost.messages.*;
-
-import frost.FcpTools.*;
 
 /**
  * Uploads a message to a certain message board
  */
 public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
-    final static boolean DEBUG = true;
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+    
+	private static Logger logger = Logger.getLogger(MessageUploadThread.class.getName());
 
     private Frame frameToLock;
     private FrostBoardObject board;
@@ -79,7 +79,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	    
             String[] result = {"", ""};
             int uploadHtl = frame1.frostSettings.getIntValue("htlUpload");
-            Core.getOut().println("TOFUP: Uploading attachment " +
+            logger.info("TOFUP: Uploading attachment " +
                                sfo.getFile().getPath() +
                                " with HTL " + uploadHtl);
             
@@ -106,14 +106,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             if( result[0].equals("KeyCollision") ||
                 result[0].equals("Success") )
             {
-                Core.getOut().println("TOFUP: Upload of attachment '"+sfo.getFile().getPath()+"' was successful.");
+                logger.info("TOFUP: Upload of attachment '" + sfo.getFile().getPath() + "' was successful.");
                 String chk = result[1];
                 sfo.setKey(chk);
                 sfo.setFilename( sfo.getFile().getName()); // remove path from filename
                 
                 
                 if (sfo instanceof FECRedirectFileObject){
-					Core.getOut().println("attaching redirect to file "+sfo.getFile().getName());
+					logger.fine("attaching redirect to file " + sfo.getFile().getName());
 
 						FecSplitfile splitFile = new FecSplitfile(sfo.getFile());
 						if (!splitFile.uploadInit()) 
@@ -123,7 +123,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 								new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
 						splitFile.finishUpload(true);
                 } else
-                	Core.getOut().println("not attaching redirect");
+                	logger.fine("not attaching redirect");
                 
 				sfo.setFile(null); // why ? -> because we never want to give out a real pathname, this is paranoia
                 // BBACKFLAG: serialize the xml file to disk to save the uploading state
@@ -136,7 +136,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 }
                 catch(Throwable ex)
                 {
-                    ex.printStackTrace(Core.getOut());
+					logger.log(Level.SEVERE, "Exception thrown in uploadAttachments()", ex);
                 }
                 if( wasOK && tmpFile.length() > 0 )
                 {
@@ -152,7 +152,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
             else
             {
-                System.out.println("TOFUP: Upload of attachment '"+sfo.getFile().getPath()+"' was NOT successful.");
+                logger.warning("TOFUP: Upload of attachment '" + sfo.getFile().getPath() + "' was NOT successful.");
                 return false;
             }
         }
@@ -178,7 +178,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             secure = false;
         }
 
-        System.out.println("TOFUP: Uploading message to board '" + board.toString() + "' with HTL " + messageUploadHtl);
+        logger.info("TOFUP: Uploading message to board '" + board.toString() + "' with HTL " + messageUploadHtl);
         
         // first save msg to be able to resend on crash        
         boolean wasOK = false; 
@@ -189,13 +189,13 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
         catch(Throwable ex)
         {
-            ex.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in run()", ex);
         }
         if( !wasOK || messageFile.length() == 0)
         {
             // now we really have a problem:
             //  writing of file was not successful, so this msg will be lost!
-            Core.getOut().println("This was a HARD error and the file to upload is lost, please report to a dev!");
+            logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
             notifyThreadFinished(this);
             return;
         }
@@ -224,13 +224,13 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
         catch(Throwable ex)
         {
-            ex.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in run()", ex);
         }
         if( !wasOK || messageFile.length() == 0)
         {
             // now we really have a problem:
             //  writing of file was not successful, so this msg will be lost!
-            Core.getOut().println("This was a HARD error and the file to upload is lost, please report to a dev!");
+            logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
             notifyThreadFinished(this);
             return;
         }
@@ -315,8 +315,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     boolean lockFileCreated = false;
                     try { lockFileCreated = lockRequestIndex.createNewFile(); }
                     catch(IOException ex) {
-                        System.out.println("ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...");
-                        ex.printStackTrace(System.out);
+						logger.log(Level.SEVERE, 
+									"ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...", ex);
                         notifyThreadFinished(this);
                         return;
                     }
@@ -325,7 +325,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     {
                         // another thread tries to insert using this index, try next
                         index++;
-                        if( DEBUG ) System.out.println("TOFUP: Other thread tries this index, increasing index to " + index);
+                        logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
                         continue; // while
                     }
                     else
@@ -369,8 +369,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                    false); // doRedirect
                     } catch(Throwable t)
                     {
-                        System.out.println("TOFUP - Error in run()/FcpInsert.putFile:");
-                        t.printStackTrace(System.out);
+						logger.log(Level.SEVERE, "TOFUP - Error in run()/FcpInsert.putFile", t);
                     }
 
                     if( result[0] == null || result[1] == null )
@@ -388,7 +387,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         if( result[0].equals("KeyCollision") )
                         {
                             index++;
-                            System.out.println("TOFUP: Upload collided, increasing index to " + index);
+                            logger.fine("TOFUP: Upload collided, increasing index to " + index);
                         }
                         else
                         {
@@ -399,7 +398,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                             }
                             else
                             {
-                                System.out.println("TOFUP: Upload failed (try no. "+tries+" of "+maxTries+"), retrying index " + index);
+                                logger.info("TOFUP: Upload failed (try no. "+tries+" of "+maxTries+"), retrying index " + index);
                                 tries++;
                             }
                         }
@@ -418,14 +417,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 messageFile.delete();
                 uploadZipFile.delete();
 
-                System.out.println("*********************************************************************");
-                System.out.println("Message successfuly uploaded to board '" + board.toString() + "'.");
-                System.out.println("*********************************************************************");
+                logger.info("*********************************************************************\n" +
+                			"Message successfuly uploaded to board '" + board.toString() + "'.\n" +
+                			"*********************************************************************");
                 retry = false;
             }
             else
             {
-                System.out.println("TOFUP: Error while uploading message.");
+                logger.warning("TOFUP: Error while uploading message.");
 
                 // Uploading of that message failed. Ask the user if Frost
                 // should try to upload the message another time.
@@ -441,13 +440,13 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 if( answer == 1 ) // Retry now - pressed
                 {
                     retry = true;
-                    System.out.println("TOFUP: Will try to upload again.");
+                    logger.info("TOFUP: Will try to upload again.");
                 }
                 else if( answer == 2 ) // retry on next startup - pressed
                 {
                     uploadZipFile.delete();
                     retry = false; // dont delete msg. file, will be found+upload on next startup
-                    System.out.println("TOFUP: Will try to upload again on next startup.");
+					logger.info("TOFUP: Will try to upload again on next startup.");
                 }
                 else if( answer == 3 ) // cancel - pressed
                 {
@@ -456,23 +455,22 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     uploadZipFile.delete();
                     messageFile.delete(); 
 
-                    System.out.println("TOFUP: Will NOT try to upload message again.");
+					logger.warning("TOFUP: Will NOT try to upload message again.");
                 }
                 else  // paranoia
                 {
                     retry = true;
-                    System.out.println("TOFUP: Paranoia - will try to upload message again.");
+                    logger.warning("TOFUP: Paranoia - will try to upload message again.");
                 }
                 faildialog.dispose();
             }
-            System.out.println("TOFUP: Upload Thread finished");
+            logger.info("TOFUP: Upload Thread finished");
         }
 
         }
         catch(Throwable t)
         {
-            System.out.println("Oo. EXCEPTION in MessageUploadThread:");
-            t.printStackTrace(System.out);
+			logger.log(Level.SEVERE, "Oo. EXCEPTION in MessageUploadThread", t);
         }
 
         notifyThreadFinished(this);
