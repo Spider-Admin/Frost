@@ -59,15 +59,16 @@ public class Truster extends Thread
             if( newIdentity==null )
                 newIdentity=Core.enemies.Get(from);
 
-            if( newIdentity == null ) // not found -> paranoia
-            {
-                newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
-            }
-            else
-            {
+          //  if( newIdentity == null ) // not found -> paranoia
+          //  {
+          //      newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
+          //  }
+          //  else
+          //  {
                 Core.friends.remove( from );
                 Core.enemies.remove( from );
-            }
+                Core.getNeutral().Add(newIdentity);
+          //  }
         }
         else if( Core.friends.containsKey(from) && trust.booleanValue() == false )
         {
@@ -86,7 +87,8 @@ public class Truster extends Thread
         else
         {
             // new new enemy/friend
-            newIdentity = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
+            newIdentity = Core.getNeutral().Get(from);
+            Core.getNeutral().remove(newIdentity);
             if( trust.booleanValue() )
                 Core.friends.Add(newIdentity);
             else
@@ -108,8 +110,13 @@ public class Truster extends Thread
         for( int ii=0; ii<entries.size(); ii++ )
         {
             File msgFile = (File)entries.get(ii);
-            FrostMessageObject tempMsg = new FrostMessageObject( msgFile );
-            if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
+            FrostMessageObject tempMsg = null;
+            try {
+            tempMsg = new FrostMessageObject( msgFile );
+            }catch (Exception e){
+            	e.printStackTrace(Core.getOut());
+            }
+            if( tempMsg != null && tempMsg.getFrom().equals(currentMsg.getFrom()) &&
                 (
                   tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) ||
                   tempMsg.getStatus().trim().equals(VerifyableMessageObject.VERIFIED) ||
@@ -118,7 +125,7 @@ public class Truster extends Thread
               )
             {
                 // check if message is correctly signed
-                if( newIdentity.getKeyAddress().equals( tempMsg.getKeyAddress() ) &&
+                if( newIdentity.getUniqueName().equals( tempMsg.getFrom() ) && //uniqueName and CHK are hashes
                     Core.getCrypto().verify(tempMsg.getContent(), newIdentity.getKey()) )
                 {
                     // set new state of message
