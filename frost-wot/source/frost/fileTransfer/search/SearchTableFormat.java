@@ -136,17 +136,18 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 	}
 	
 	/**
-	 * This renderer renders rows in different colors, depending on state of search item.
+	 * This renderer renders the column "FileName" in different colors, 
+	 * depending on state of search item.
 	 * States are: NONE, DOWNLOADED, DOWNLOADING, UPLOADING
 	 */
-	private class CellRenderer extends DefaultTableCellRenderer {
+	private class FileNameRenderer extends DefaultTableCellRenderer {
 		
 		private SortedModelTable modelTable;
 		
 		/**
 		 * 
 		 */
-		public CellRenderer(SortedModelTable newModelTable) {
+		public FileNameRenderer(SortedModelTable newModelTable) {
 			super();
 			modelTable = newModelTable;
 		}
@@ -328,7 +329,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 		}
 
 		// Column FileName
-		CellRenderer cellRenderer = new CellRenderer((SortedModelTable) modelTable);
+		FileNameRenderer cellRenderer = new FileNameRenderer((SortedModelTable) modelTable);
 		columnModel.getColumn(0).setCellRenderer(cellRenderer);
 		
 		// Column "Size"
