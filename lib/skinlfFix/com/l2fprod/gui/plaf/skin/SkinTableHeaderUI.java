@@ -47,14 +47,10 @@
  */
 package com.l2fprod.gui.plaf.skin;
 
-import java.beans.*;
-import java.util.*;
-
 import javax.swing.JComponent;
-import javax.swing.event.*;
 import javax.swing.plaf.ComponentUI;
 import javax.swing.plaf.basic.BasicTableHeaderUI;
-import javax.swing.table.*;
+import javax.swing.table.TableCellRenderer;
 
 /**
  * @author    $Author$
@@ -63,77 +59,12 @@ import javax.swing.table.*;
  */
 public class SkinTableHeaderUI extends BasicTableHeaderUI {
 
-	/** 
-	 * 
-	 */
-	private class Listener implements TableColumnModelListener, PropertyChangeListener {
-		/* (non-Javadoc)
-		 * @see javax.swing.event.TableColumnModelListener#columnAdded(javax.swing.event.TableColumnModelEvent)
-		 */
-		public void columnAdded(TableColumnModelEvent e) {
-			TableColumn aColumn = columnModel.getColumn(e.getToIndex());
-			installColumnRenderer(aColumn);
-			columns.add(aColumn);
-		}
-		/* (non-Javadoc)
-		 * @see javax.swing.event.TableColumnModelListener#columnMarginChanged(javax.swing.event.ChangeEvent)
-		 */
-		public void columnMarginChanged(ChangeEvent e) {
-			// Nothing here		
-		}
-		/* (non-Javadoc)
-		 * @see javax.swing.event.TableColumnModelListener#columnMoved(javax.swing.event.TableColumnModelEvent)
-		 */
-		public void columnMoved(TableColumnModelEvent e) {
-			int fromIndex = e.getFromIndex();
-			int toIndex = e.getToIndex();
-			if (fromIndex != toIndex) {
-				TableColumn aColumn = (TableColumn) columns.remove(fromIndex);
-				columns.insertElementAt(aColumn, toIndex);
-			}
-		}
-		/* (non-Javadoc)
-		 * @see javax.swing.event.TableColumnModelListener#columnRemoved(javax.swing.event.TableColumnModelEvent)
-		 */
-		public void columnRemoved(TableColumnModelEvent e) {
-			int columnIndex = e.getFromIndex();
-			TableColumn aColumn = (TableColumn) columns.remove(columnIndex);
-			uninstallColumnRenderer(aColumn);
-		}
-		/* (non-Javadoc)
-		 * @see javax.swing.event.TableColumnModelListener#columnSelectionChanged(javax.swing.event.ListSelectionEvent)
-		 */
-		public void columnSelectionChanged(ListSelectionEvent e) {
-			// Nothing here		
-		}
 
-		/**
-		 * 
-		 */
-		public Listener() {
-			super();
-		}
-		/* (non-Javadoc)
-		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-		 */
-		public void propertyChange(PropertyChangeEvent evt) {
-			uninstallColumnRenderers();
-			columnModel = header.getColumnModel();
-			installColumnRenderers();
-		}
-
-	}
-
-	Listener listener = new Listener();
-
-	Hashtable previousRenderers = new Hashtable();
+	private TableCellRenderer previousRenderer;
 
 	TableCellRenderer renderer;
 	Skin skin = SkinLookAndFeel.getSkin();
-
-	TableColumnModel columnModel = null;
-	Vector columns = new Vector();
-
+	
 	/**
 	 * Constructor for the SkinTableHeaderUI object
 	 */
@@ -143,121 +74,42 @@ public class SkinTableHeaderUI extends BasicTableHeaderUI {
 	}
 
 	/**
-	 * Description of the Method
+	 * This method installs the UI. It stores the previous default
+	 * renderer of the JTableHeader and installs the new one.
+	 * 
+	 * Note: this method should never touch the renderers of the headers
+	 * of the columns of the table, as the ArrowRenderers of the sorted
+	 * tables depend on them.
 	 *
 	 * @param c  Description of Parameter
 	 */
 	public void installUI(JComponent c) {
 		super.installUI(c);
 
-		//First we install the default renderer of the header
-		Object cellRenderer = header.getDefaultRenderer();
-		previousRenderers.put(c, cellRenderer);
+		//We install the default renderer of the header
+		previousRenderer = header.getDefaultRenderer();
 		header.setDefaultRenderer(renderer);
-
-		//And then we install the default renderers of each column
-		installColumnRenderers();
 	}
 
 	/**
-	 * 
+	 * Description of the Method
+	 *
+	 * @param h  Description of Parameter
+	 * @return   Description of the Returned Value
 	 */
-	private void installColumnRenderers() {
-		Enumeration enumeration = columnModel.getColumns();
-		while (enumeration.hasMoreElements()) {
-			TableColumn aColumn = (TableColumn) enumeration.nextElement();
-			installColumnRenderer(aColumn);
-			columns.add(aColumn);
-		}
-	}
-
-	/**
-	 * 
-	 */
-	private void installColumnRenderer(TableColumn aColumn) {
-		TableCellRenderer cellRenderer = aColumn.getHeaderRenderer();
-		if (cellRenderer != null) {
-			previousRenderers.put(aColumn, cellRenderer);
-		} else {
-			previousRenderers.put(aColumn, "null");
-		}
-		aColumn.setHeaderRenderer(renderer);
-	}
-
-	/**
-	   * Description of the Method
-	   *
-	   * @param h  Description of Parameter
-	   * @return   Description of the Returned Value
-	   */
 	public static ComponentUI createUI(JComponent h) {
 		return new SkinTableHeaderUI();
 	}
 
 	/* (non-Javadoc)
-		   * @see javax.swing.plaf.ComponentUI#uninstallUI(javax.swing.JComponent)
-		   */
+	 * @see javax.swing.plaf.ComponentUI#uninstallUI(javax.swing.JComponent)
+	 */
 	public void uninstallUI(JComponent c) {
 
-		// First we uninstall the default renderer of the header
-		if (previousRenderers.containsKey(c)) {
-			TableCellRenderer cellRenderer = (TableCellRenderer) previousRenderers.remove(c);
-			header.setDefaultRenderer(cellRenderer);
-		}
-
-		// Then we uninstall the default renderers of each column
-		uninstallColumnRenderers();
+		// We uninstall the default renderer of the header
+		header.setDefaultRenderer(previousRenderer);
 
 		super.uninstallUI(c);
 	}
-
-	/**
-	 * 
-	 */
-	private void uninstallColumnRenderers() {
-		Enumeration enumeration = columnModel.getColumns();
-		while (enumeration.hasMoreElements()) {
-			TableColumn aColumn = (TableColumn) enumeration.nextElement();
-			uninstallColumnRenderer(aColumn);
-			columns.remove(aColumn);
-		}
-	}
-
-	/**
-	 * 
-	 */
-	private void uninstallColumnRenderer(TableColumn aColumn) {
-		if (previousRenderers.containsKey(aColumn)) {
-			Object cellRenderer = previousRenderers.remove(aColumn);
-			if (cellRenderer instanceof TableCellRenderer) {
-				aColumn.setHeaderRenderer((TableCellRenderer) cellRenderer);
-			} else {
-				aColumn.setHeaderRenderer(null);
-			}
-		}
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.plaf.basic.BasicTableHeaderUI#installListeners()
-	 */
-	protected void installListeners() {
-		super.installListeners();
-
-		columnModel = header.getColumnModel();
-		header.addPropertyChangeListener("columnModel", listener);
-		columnModel.addColumnModelListener(listener);
-	}
-
-	/* (non-Javadoc)
-	 * @see javax.swing.plaf.basic.BasicTableHeaderUI#uninstallListeners()
-	 */
-	protected void uninstallListeners() {
-		super.uninstallListeners();
-
-		header.removePropertyChangeListener("columnModel", listener);
-		columnModel.removeColumnModelListener(listener);
-		columnModel = null;
-	}
-
 }
 
