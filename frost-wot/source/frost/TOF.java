@@ -348,20 +348,17 @@ public class TOF
             return true;
         }
 
-        if( frame1.frostSettings.getBoolValue("signedOnly") &&
+        if( board.getShowSignedOnly() &&
             !message.isVerifyable() )
             return true;
-        if( board.getShowSignedOnly() &&
-            board.getHideBad() &&
-            (message.getStatus().indexOf("BAD")!=-1))
+        if( board.getHideBad() &&
+            (message.getStatus().indexOf("BAD")>-1))
             return true;
-        if( board.getShowSignedOnly() &&
-            board.getHideCheck() &&
-            (message.getStatus().indexOf("CHECK")!=-1))
+        if( board.getHideCheck() &&
+            (message.getStatus().indexOf("CHECK")>-1))
             return true;
-        if( board.getShowSignedOnly() &&
-            board.getHideNA() &&
-            (message.getStatus().indexOf("N/A")!=-1))
+        if( board.getHideNA() &&
+            (message.getStatus().indexOf("N/A")>-1))
             return true;
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )

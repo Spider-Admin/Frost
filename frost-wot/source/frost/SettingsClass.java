@@ -59,6 +59,19 @@ public class SettingsClass
         settingsHash.put("unsent.dir", "localdata"+fs+"unsent"+fs);
     }
 
+    private String setSystemsFileSeparator(String origPath)
+    {
+        if( fs.equals("\\") )
+        {
+            origPath = origPath.replace( '/', File.separatorChar );
+        }
+        else if( fs.equals("/") )
+        {
+            origPath = origPath.replace( '\\', File.separatorChar );
+        }
+        return origPath;
+    }
+
     public String getDefaultValue(String key)
     {
         String val = (String)defaults.get(key);
@@ -134,6 +147,14 @@ public class SettingsClass
                             {
                                 objValue = null; // dont insert in settings, use default instead
                             }
+                        }
+                        // scan all path config values and set correct system file separator
+                        else if( key.equals("unsent.dir") ||
+                                 key.equals("temp.dir") ||
+                                 key.equals("keypool.dir") )
+                        {
+                            value = setSystemsFileSeparator( value );
+                            objValue = value;
                         }
                         else
                         {
@@ -343,9 +364,11 @@ public class SettingsClass
         defaults = new Hashtable();
         File fn = File.listRoots()[0];
 
-        defaults.put("keypool.dir", frame1.keypool);
+        // DIRECTORIES
+        defaults.put("keypool.dir", "keypool"+fs);
         defaults.put("unsent.dir", "localdata"+fs+"unsent"+fs);
         defaults.put("temp.dir", "localdata"+fs+"temp"+fs);
+
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put("automaticUpdate", "true");

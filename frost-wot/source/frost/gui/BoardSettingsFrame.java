@@ -279,7 +279,7 @@ public class BoardSettingsFrame extends JDialog
         constr.gridwidth=3;
         constr.gridx=0;
         constr.insets = new Insets(3, 25, 0, 5);
-        panel.add(new JLabel("Show signed messages only"), constr);
+        panel.add(new JLabel("Hide unsigned messages"), constr);
         constr.insets = new Insets(0, 35, 0, 5);
         constr.gridwidth=1;
         constr.gridy++;

@@ -72,7 +72,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     // "keypool.dir" is the corresponding key in frostSettings,
     // set in defaults of SettingsClass.java
     // this is the new way to access this value :)
-    public static String keypool = "keypool" + fileSeparator;
+    public static String keypool = null;
     public static String newMessageHeader = new String("");
     public static String oldMessageHeader = new String("");
     public static int activeUploadThreads = 0;
@@ -92,7 +92,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     public static crypt crypto;
 
     // saved to frost.ini
-    public static SettingsClass frostSettings = new SettingsClass();
+    public static SettingsClass frostSettings = null;
     public static AltEdit altEdit;
 
     javax.swing.Timer timer; // Uploads / Downloads
@@ -250,6 +250,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     public frame1()
     {
         instance = this;
+        frostSettings = new SettingsClass();
+        keypool = frostSettings.getValue("keypool.dir");
 
         runningBoardUpdateThreads = new RunningBoardUpdateThreads();
 
