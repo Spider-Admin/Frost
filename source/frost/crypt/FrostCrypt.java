@@ -3,6 +3,9 @@ package frost.crypt;
 import java.math.BigInteger;
 import java.security.SecureRandom;
 import java.util.StringTokenizer;
+import java.nio.channels.*;
+import java.nio.*;
+import java.io.*;
 
 import org.bouncycastle.crypto.*;
 import org.bouncycastle.crypto.digests.SHA1Digest;
@@ -171,6 +174,37 @@ BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),n
         stomach.doFinal(poop,0);
         return (new String(Base64.encode(poop))).substring(0,27);
     }
+    
+ public synchronized String digest(File file) {
+ 	SHA1Digest stomach = new SHA1Digest();
+	byte[] poop = new byte[64];
+	FileChannel chan = null;
+	try {
+		chan = (new FileInputStream(file)).getChannel();
+	}catch(IOException e) {
+		e.printStackTrace();
+	}
+	byte []temp = new byte[1024*1024];
+	ByteBuffer _temp = ByteBuffer.wrap(temp);
+	long x = 0;
+	long y = 0;
+	try {
+		while(true) {
+			//if (y >= file.length()) break;
+			//if (y > file.length()) y = file.length();
+			int pos = _temp.position();
+			int read = chan.read(_temp);
+			if (read==-1) break;
+			stomach.update(temp,pos,read);
+			if (_temp.remaining() == 0) _temp.position(0);
+		}
+		chan.close();
+	}catch (IOException e) {
+		e.printStackTrace();
+	}
+	stomach.doFinal(poop,0);
+        return (new String(Base64.encode(poop))).substring(0,27);
+ }
 
  public synchronized String simEncrypt(String what, String key){/*
  //initialize

@@ -84,8 +84,10 @@ public class insertThread extends Thread
             }
 	    } else { //generate SHA1
 	    	success=true;
-		result[1] = frame1.getCrypto().digest(FileAccess.read(file.getPath()));
-		System.out.println("digest generated " + result[1]);
+		long now = System.currentTimeMillis();
+		result[1] = frame1.getCrypto().digest(file);
+		System.out.println("digest generated in "+(System.currentTimeMillis()-now) +
+				 "  " + result[1]);
 	    }
 	    
 	    
