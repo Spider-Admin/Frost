@@ -427,7 +427,6 @@ public class LangRes extends ListResourceBundle {
 
     // Display Panel
     {"EnableSkins", "Enable Skins"}, 	
-	{"MessageBodyFont", "Message Body Font"}, 
 	{"MoreSkinsAt", "You can get more skins at"},
 	{"Preview","Preview"},
 	{"RefreshList","Refresh List"},
@@ -441,6 +440,7 @@ public class LangRes extends ListResourceBundle {
 	{"Choose a Font","Choose a Font"},
 	{"Fonts","Fonts"},
 	{"Message Body","Message Body"},
+	{"Message List","Message List"},
 	{"Choose","Choose"},
 
 	///////////////////////////////////////////////////
