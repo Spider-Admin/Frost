@@ -79,8 +79,7 @@ public class BoardSettingsFrame extends JDialog
     JRadioButton hideNA_true = new JRadioButton("Yes");
     JRadioButton hideNA_false = new JRadioButton("No");
 
-    JRadioButton autoUpdate_true = new JRadioButton("On");
-    JRadioButton autoUpdate_false = new JRadioButton("Off");
+    JCheckBox autoUpdateEnabled = new JCheckBox("Enable automatic board update");
 
     /**Constructor*/
     public BoardSettingsFrame(Frame parent, FrostBoardObject board)
@@ -218,9 +217,6 @@ public class BoardSettingsFrame extends JDialog
 
     private JPanel getSettingsPanel()
     {
-        ButtonGroup bg1 = new ButtonGroup();
-        bg1.add(autoUpdate_false);
-        bg1.add(autoUpdate_true);
         ButtonGroup bg2 = new ButtonGroup();
         bg2.add(maxMsg_default);
         bg2.add(maxMsg_set);
@@ -251,14 +247,7 @@ public class BoardSettingsFrame extends JDialog
         panel.add(overrideSettings, constr);
         constr.gridy++;
         constr.insets = new Insets(5, 25, 0, 5);
-        panel.add(new JLabel("Automatic board update"), constr);
-        constr.insets = new Insets(0, 35, 0, 5);
-        constr.gridwidth=1;
-        constr.gridy++;
-        constr.gridx=1;
-        panel.add(autoUpdate_true, constr);
-        constr.gridx=2;
-        panel.add(autoUpdate_false, constr);
+        panel.add( autoUpdateEnabled, constr );
         constr.gridy++;
 
         constr.gridwidth=3;
@@ -446,7 +435,7 @@ public class BoardSettingsFrame extends JDialog
         if( overrideSettings.isSelected() )
         {
             board.setConfigured(true);
-            board.setAutoUpdateEnabled( autoUpdate_true.isSelected() );
+            board.setAutoUpdateEnabled( autoUpdateEnabled.isSelected() );
             if( maxMsg_default.isSelected() == false )
                 board.setMaxMessageDays( new Integer( maxMsg_value.getText() ) );
             else
@@ -535,11 +524,11 @@ public class BoardSettingsFrame extends JDialog
         }
 
         if( !board.isConfigured() )
-            autoUpdate_true.setSelected(true); // default
+            autoUpdateEnabled.setSelected(true); // default
         else if( board.getAutoUpdateEnabled() )
-            autoUpdate_true.setSelected(true);
+            autoUpdateEnabled.setSelected(true);
         else
-            autoUpdate_false.setSelected(true);
+            autoUpdateEnabled.setSelected(false);
 
         if( !board.isConfigured() || board.getShowSignedOnlyObj() == null )
             signedOnly_default.setSelected(true);
