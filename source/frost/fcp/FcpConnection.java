@@ -562,88 +562,87 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         return result;
     }
 
-    /**
-     * Inserts the specified key with the data from the file
-     * specified.
-     *
-     * @param key  the key to be inserted
-     * @param data  the bytearray with the data to be inserted
-     * @param htl the HTL to use for this insert
-     * @return the results filled with metadata and the CHK used to
-     * insert the data
-     */
-    public String putKeyFromArray(String key,
-                 byte[] data,
-                 byte[] metadata,
-                 int htl) throws IOException {
+	/**
+	 * Inserts the specified key with the data from the file
+	 * specified.
+	 *
+	 * @param key  the key to be inserted
+	 * @param data  the bytearray with the data to be inserted
+	 * @param htl the HTL to use for this insert
+	 * @return the results filled with metadata and the CHK used to
+	 * insert the data
+	 */
+	public String putKeyFromArray(String key, byte[] data, byte[] metadata, int htl)
+		throws IOException {
 
-    key = FcpDisconnect(key);
+		key = FcpDisconnect(key);
 
-    fcpSock = new Socket(host, port);
-    fcpSock.setSoTimeout(TIMEOUT);
-    fcpOut = new PrintStream(fcpSock.getOutputStream());
-    DataOutputStream dOut =new DataOutputStream(fcpSock.getOutputStream()); 
-    fcpIn = new BufferedInputStream(fcpSock.getInputStream());
+		fcpSock = new Socket(host, port);
+		fcpSock.setSoTimeout(TIMEOUT);
+		fcpOut = new PrintStream(fcpSock.getOutputStream());
+		DataOutputStream dOut = new DataOutputStream(fcpSock.getOutputStream());
+		fcpIn = new BufferedInputStream(fcpSock.getInputStream());
 
-    fcpOut.write(header, 0, header.length);
+		fcpOut.write(header, 0, header.length);
 
-    fcpOut.println("ClientPut");
-    fcpOut.println("RemoveLocalKey=true");
-    fcpOut.println("HopsToLive=" + htl);
-    fcpOut.println("URI=" + key);
+		fcpOut.println("ClientPut");
+		fcpOut.println("RemoveLocalKey=true");
+		fcpOut.println("HopsToLive=" + htl);
+		fcpOut.println("URI=" + key);
 
-    int dataLength = 0;
-    int metadataLength = 0;
-    if (data != null) dataLength = data.length;
-    if (metadata != null) metadataLength = metadata.length;
+		int dataLength = 0;
+		int metadataLength = 0;
+		if (data != null) {
+			dataLength = data.length;
+		}
+		if (metadata != null) {
+			metadataLength = metadata.length;
+		}
 
-    fcpOut.println("DataLength=" + Integer.toHexString(dataLength + metadataLength));
+		fcpOut.println("DataLength=" + Integer.toHexString(dataLength + metadataLength));
 
-    if (metadata != null)
-        fcpOut.println("MetadataLength=" + Integer.toHexString(metadataLength));
+		if (metadata != null) {
+			fcpOut.println("MetadataLength=" + Integer.toHexString(metadataLength));
+		}
 
-    fcpOut.println("Data");
-    fcpOut.flush();
+		fcpOut.println("Data");
+		fcpOut.flush();
 
-    if (metadata != null)
-    {
-        dOut.write(metadata);
-    }
+		if (metadata != null) {
+			dOut.write(metadata);
+		}
 
-    if (data != null)
-    {
-        dOut.write(data);
-    }
-    dOut.flush();
+		if (data != null) {
+			dOut.write(data);
+		}
+		dOut.flush();
 
-    int c;
-    StringBuffer output = new StringBuffer();
-    //nio doesn't always close the connection.  workaround:
-    while( (c = fcpIn.read()) != -1 )
-    {
-        output.append((char)c);
-        if( output.toString().indexOf("EndMessage") !=-1 )
-        {
-            output.append('\0');
-            if( output.indexOf("Pending") !=-1 ||
-                output.indexOf("Restarted") !=-1 )
-            {
-                output = new StringBuffer();
-                continue;
-            }
-            break;
-        }
-    }
+		int c;
+		StringBuffer output = new StringBuffer();
+		//nio doesn't always close the connection.  workaround:
+		while ((c = fcpIn.read()) != -1) {
+			output.append((char) c);
+			if (output.toString().indexOf("EndMessage") != -1) {
+				output.append('\0');
+				if (output.indexOf("Pending") != -1 || output.indexOf("Restarted") != -1) {
+					output = new StringBuffer();
+					continue;
+				}
+				break;
+			}
+		}
 
-//    fcpSock.close();
-    dOut.close();
-    fcpOut.close();
-    fcpIn.close();
-    fcpSock.close();
-    //debug
-   //frost.Core.getOut().println(output.toString());
-    return output.toString();
-    }
+		String result = output.toString();
+
+		logger.fine("putKeyFromArray: Key='" + key + "', Output='" + result + "'");
+
+		//    fcpSock.close();
+		dOut.close();
+		fcpOut.close();
+		fcpIn.close();
+		fcpSock.close();
+		return result;
+	}
 
     /**
      * Inserts the specified key with the data from the file
