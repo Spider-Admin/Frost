@@ -107,7 +107,9 @@ public class Identity implements SafeXMLizable
 		}
 		
 		//add the safe board attachment
-		el.appendChild(board.getSafeXMLElement(doc));
+		//TODO: make it backwards compatible...
+		if (board!=null)
+			el.appendChild(board.getSafeXMLElement(doc));
 		return el;
 	}
 	

@@ -128,6 +128,7 @@ public class insertThread extends Thread
                     current.setBatch(uploadItem.getBatch());
                     current.setSize(uploadItem.getFileSize().longValue());
                     current.setDate(lastUploadDate);
+                    current.setLastSharedDate(lastUploadDate);
                     Index.addMine(current, board);
                     Index.add(current, board);
                 }

@@ -119,7 +119,7 @@ public class Index
         
         Iterator i = totalIdx.getFiles().iterator();
         int downloadBack =
-            frame1.frostSettings.getIntValue("maxMessageDownload");
+            frame1.frostSettings.getIntValue("maxAge");
         Core.getOut().println(
             "re-sharing files shared before " + DateFun.getDate(downloadBack));
         while (i.hasNext())
@@ -156,16 +156,18 @@ public class Index
                     .compareTo(current.getLastSharedDate())
                     > 0)
                 {
-                    current.setLastSharedDate(DateFun.getDate());
 		    //if the file has been uploaded too long ago, 
 		    //set it to offline again
-		    if (current.getDate().compareTo(DateFun.getDate(downloadBack)) < 0) {
-		    	current.setDate(null);
-			current.setKey(null);
-			Core.getOut().print("o"); //o means assumed fallen off freenet
-		    }
+                	if (!current.checkDate()) {
+                		current.setDate(null);
+                		current.setKey(null);
+                		Core.getOut().print("o"); //o means assumed fallen off freenet
+                		//NOTE: This will not remove the CHK from the upload table. 
+                		//however, when the other side receives the index they will see the file "offline"
+                	}
                     toUpload.put(current.getSHA1(),current);
                     Core.getOut().print("d");
+                    current.setLastSharedDate(DateFun.getDate());
                     reSharing=true;
                     //d means it was shared too long ago
                 }
@@ -179,8 +181,17 @@ public class Index
 
 		//return anything only if we either re-shared old files or
 		//have new files to upload.
-        if (reSharing || newFiles)
+        if (reSharing || newFiles) {
+        	
+        	//update the last shared date
+        	Iterator it2 = toUpload.values().iterator();
+        	while(it2.hasNext()) {
+        		SharedFileObject obj = (SharedFileObject)it2.next();
+        		obj.setLastSharedDate(DateFun.getDate());
+        	}
+        	
             return toUpload;
+        }
         else
             return null;
     }
