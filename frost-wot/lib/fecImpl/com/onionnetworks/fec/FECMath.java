@@ -96,7 +96,6 @@ public class FECMath {
     }
 
     public FECMath(int gfBits) {
-System.out.println("gen for bits: "+gfBits);
         this.gfBits = gfBits;
         this.gfSize = ((1 << gfBits) - 1);
 
@@ -259,7 +258,7 @@ System.out.println("gen for bits: "+gfBits);
             char[] gf_mulc = gf_mul_table[c];
 
             // Not sure if loop unrolling has any real benefit in Java, but
-            // what the hey. -> not benefit, but overhead
+            // what the hey.
 //            for (;i < lim && (lim-i) > unroll; i += unroll, j += unroll) {
             for (;i < lim; i++, j++) {
                 // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
@@ -318,10 +317,11 @@ System.out.println("gen for bits: "+gfBits);
 // but the AMD XP cpu seems not to like it, this cpu is faster without unrolling it
 // tested with sun java 1.4.2
 
-        int unroll = 16; // unroll the loop 16 times.
+        final int unroll = 16; // unroll the loop 16 times.
         int i = dstPos;
         int j = srcPos;
-        int lim = dstPos + len;
+        final int lim = dstPos + len;
+        final int unrolledLoopEnd = lim - (len % unroll);
 
         // use our multiplication table.
         // Instead of doing gf_mul_table[c,x] for multiply, we'll save
@@ -331,8 +331,9 @@ System.out.println("gen for bits: "+gfBits);
 
         // Not sure if loop unrolling has any real benefit in Java, but
         // what the hey.
-        for (;i < lim && (lim-i) > unroll; ){//i += unroll, j += unroll) {
+//        for (;i < lim && (lim-i) > unroll; ){//i += unroll, j += unroll) {
 //        for (;i < lim;){// i++, j++) {
+        for (;i < unrolledLoopEnd;) {
             // dst ^= gf_mulc[x] is equal to mult then add (xor == add)
 
             dst[i] ^= gf_mulc[ src[j] & 0xff ];
