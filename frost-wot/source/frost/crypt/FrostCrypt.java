@@ -395,10 +395,13 @@ public final class FrostCrypt implements crypt {
 
 	}
 
+	public synchronized byte [] detachedSign(String message, String key){
+		return detachedSign(message.getBytes(), key);
+	}
 	/* (non-Javadoc)
 	 * @see frost.crypt.crypt#detachedSign(java.lang.String, java.lang.String)
 	 */
-	public synchronized byte[] detachedSign(String message, String key) {
+	public synchronized byte[] detachedSign(byte [] message, String key) {
 
 		StringTokenizer keycutter = new StringTokenizer(key, ":");
 		RSAPrivateCrtKeyParameters privKey =
@@ -415,7 +418,7 @@ public final class FrostCrypt implements crypt {
 		//initialize the signer
 
 		signer.init(true, privKey);
-		signer.update(message.getBytes(), 0, message.length());
+		signer.update(message, 0, message.length);
 		byte[] signature = null;
 		try {
 			signature = signer.generateSignature();
@@ -427,10 +430,13 @@ public final class FrostCrypt implements crypt {
 		return signature;
 	}
 
+	public synchronized boolean detachedVerify(String message, String key, byte[] sig){
+		return detachedVerify(message.getBytes(),key,sig);
+	}
 	/* (non-Javadoc)
 	 * @see frost.crypt.crypt#detachedVerify(java.lang.String, java.lang.String, byte[])
 	 */
-	public boolean detachedVerify(String message, String key, byte[] sig) {
+	public synchronized boolean detachedVerify(byte [] message, String key, byte[] sig) {
 
 		StringTokenizer keycutter = new StringTokenizer(key, ":");
 		BigInteger Exponent =
@@ -439,7 +445,7 @@ public final class FrostCrypt implements crypt {
 			new BigInteger(Base64.decode(keycutter.nextToken()));
 		signer.init(false, new RSAKeyParameters(true, Modulus, Exponent));
 
-		signer.update(message.getBytes(), 0, message.length());
+		signer.update(message, 0, message.length);
 		boolean result = signer.verifySignature(sig);
 		signer.reset();
 		return result;
