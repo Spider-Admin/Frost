@@ -155,7 +155,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * @param e
 			 */
 			private void maybeShowPopup(MouseEvent e) {
-				
 				if (e.isPopupTrigger()) {
 					if (e.getComponent() == messageTextArea) {
 						showTofTextAreaPopupMenu(e);
@@ -169,7 +168,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					if (e.getComponent() == filesTable) {
 						showAttachedFilesPopupMenu(e);
 					}
-				}
+				}else if(SwingUtilities.isLeftMouseButton(e) &&
+						e.getClickCount() == 2 &&
+						e.getID() == MouseEvent.MOUSE_PRESSED)
+					showCurrentMessagePopupWindow();
 			}
 
 			/* (non-Javadoc)
@@ -1381,6 +1383,21 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 		
 		/**
+		 * 
+		 */
+		private void showCurrentMessagePopupWindow(){
+			if  (!isCorrectlySelectedMessage() )
+				return;
+			getMessageWindow(selectedMessage, this.getSize()).setVisible(true);
+			
+		}
+		
+		private MessageWindow getMessageWindow(MessageObject message,Dimension size){
+			MessageWindow messagewindow = new MessageWindow(message, size);
+			return messagewindow;
+		}
+		
+		/**
 		 * @param e
 		 */
 		private void trustButton_actionPerformed(ActionEvent e) {
@@ -1483,14 +1500,25 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 		
 		/**
-		 * 
+		 * returns true if message was correctly selected 
+		 * @return
 		 */
-		private void deleteSelectedMessage() {
+		private boolean isCorrectlySelectedMessage(){
 			int row = messageTable.getSelectedRow();
 			if (row < 0
 				|| selectedMessage == null
 				|| getSelectedNode() == null
 				|| getSelectedNode().isFolder() == true)
+				return false;
+			
+			return true;
+		}
+		
+		/**
+		 * 
+		 */
+		private void deleteSelectedMessage() {
+			if(! isCorrectlySelectedMessage() )
 				return;
 
 			final FrostMessageObject targetMessage = selectedMessage;
@@ -1515,12 +1543,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 		
 		private void undeleteSelectedMessage(){
-			int row = messageTable.getSelectedRow();
-			if (row < 0
-					|| selectedMessage == null
-					|| getSelectedNode() == null
-					|| getSelectedNode().isFolder() == true)
+			if(! isCorrectlySelectedMessage() )
 					return;
+			
 			final FrostMessageObject targetMessage = selectedMessage;
 			targetMessage.setDeleted(false);
 			this.repaint();
