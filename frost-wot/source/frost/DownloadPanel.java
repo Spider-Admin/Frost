@@ -317,8 +317,8 @@ public class DownloadPanel extends JPanel {
 	private class Listener
 		implements LanguageListener, ActionListener, KeyListener, MouseListener, ItemListener {
 		/**
-			 * 
-			 */
+		 * 
+		 */
 		public Listener() {
 			super();
 		}
@@ -478,12 +478,6 @@ public class DownloadPanel extends JPanel {
 			downloadTopPanel.add(downloadShowHealingInfo);
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			downloadTopPanel.add(Box.createHorizontalGlue());
-
-			String waiting = languageResource.getString("Waiting");
-			Dimension labelSize = calculateLabelSize(waiting + " : 00000");
-			downloadItemCountLabel.setPreferredSize(labelSize);
-			downloadItemCountLabel.setMinimumSize(labelSize);
-			downloadItemCountLabel.setText(waiting + " : 0");
 			downloadTopPanel.add(downloadItemCountLabel);
 
 			// create the main download panel
@@ -519,9 +513,7 @@ public class DownloadPanel extends JPanel {
 		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
 		downloadItemCountLabel.setPreferredSize(labelSize);
 		downloadItemCountLabel.setMinimumSize(labelSize);
-		String s =
-			new StringBuffer().append(waiting).append(" : ").append(downloadItemCount).toString();
-		downloadItemCountLabel.setText(s);
+		downloadItemCountLabel.setText(waiting + " : " + downloadItemCount);
 	}
 
 	/**
