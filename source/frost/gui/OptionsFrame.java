@@ -699,14 +699,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridy++;
             constr.gridx = 0;
             constr.insets = new Insets(5, 25, 5, 5);
-            tof3Panel.add(new JLabel(LangRes.getString("Minimum update interval of a board (minutes) :") + " (5)"), constr);
+            tof3Panel.add(new JLabel(LangRes.getString("Minimum update interval of a board (minutes) :") + " (45)"), constr);
             constr.gridx = 1;
             constr.insets = new Insets(5, 5, 5, 5);
             tof3Panel.add(TFautomaticUpdate_boardsMinimumUpdateInterval, constr);
             constr.gridy++;
             constr.gridx = 0;
             constr.insets = new Insets(5, 25, 5, 5);
-            tof3Panel.add(new JLabel(LangRes.getString("Number of concurrently updating boards:") + " (5)"), constr);
+            tof3Panel.add(new JLabel(LangRes.getString("Number of concurrently updating boards:") + " (6)"), constr);
             constr.gridx = 1;
             constr.insets = new Insets(5, 5, 5, 5);
             tof3Panel.add(TFautomaticUpdate_concurrentBoardUpdates, constr);

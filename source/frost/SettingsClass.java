@@ -380,8 +380,8 @@ public class SettingsClass
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put("automaticUpdate", "true");
-        defaults.put("automaticUpdate.concurrentBoardUpdates", "5"); // no. of concurrent updating boards in auto update
-        defaults.put("automaticUpdate.boardsMinimumUpdateInterval", "5"); // time in min to wait between start of updates for 1 board
+        defaults.put("automaticUpdate.concurrentBoardUpdates", "6"); // no. of concurrent updating boards in auto update
+        defaults.put("automaticUpdate.boardsMinimumUpdateInterval", "45"); // time in min to wait between start of updates for 1 board
         defaults.put("boardUpdateVisualization", "true");
         defaults.put("doBoardBackoff","false");
         defaults.put("spamTreshold","5");
