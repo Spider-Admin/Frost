@@ -50,7 +50,7 @@ public class Startup
                                "This indicates that another frost instance is already running in "+
                                "this directory. Running frost concurrently will cause data "+
                                "loss.\nIf you are REALLY SURE that frost is not already running, "+
-                               "delete the lockfile.");
+                               "delete the lockfile '"+runLock.getPath()+"'.");
             System.out.println("\nTERMINATING...\n");
             System.exit(1);
         }
