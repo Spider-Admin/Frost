@@ -24,7 +24,7 @@ import java.util.ArrayList;
 import java.util.logging.Logger;
 
 import javax.swing.*;
-import javax.swing.table.*;
+import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.frame1;
 import frost.gui.model.DownloadTableModel;
@@ -38,7 +38,7 @@ public class DownloadTable extends SortedTable
 	
 	private CellRenderer cellRenderer = new CellRenderer();
 
-	public DownloadTable(TableModel m) {
+	public DownloadTable(DownloadTableModel m) {
 		super(m);
 		
 		// default for sort: sort by state ascending
