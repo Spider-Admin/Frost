@@ -539,7 +539,6 @@ public class MessageDownloadThread
             }
             else
             {
-                frame1.displayNewMessageIcon(true);
                 // write the NEW message indicator file
                 if( markAsNew )
                 {                                

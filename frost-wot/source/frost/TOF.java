@@ -188,8 +188,11 @@ public class TOF
             {
                 final String[] sMessage = message.getVRow();
 
-                if(markNew) 
+                if(markNew)
+                {
+                    frame1.displayNewMessageIcon(true);
                     board.incNewMessageCount();
+                }
 
                 SwingUtilities.invokeLater( new Runnable() {
                         public void run() {
