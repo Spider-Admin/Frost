@@ -169,7 +169,8 @@ public class MessageObject implements XMLizable
             if (aBoard.getPublicKey() ==null &&
             	aBoard.getPrivateKey()==null)
             	rows.add("public");
-            else if (aBoard.getPublicKey() != null)
+            else if (aBoard.getPublicKey() != null &&
+	    	aBoard.getPrivateKey()==null)
             	rows.add("read-only");
             else
             	rows.add("write access");
