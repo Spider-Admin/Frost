@@ -41,18 +41,19 @@ public class SettingsClass {
 	
 	private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
 	
-	public static final String MESSAGE_BODY_FONT_NAME = "messageBodyFontName";
-	public static final String MESSAGE_BODY_FONT_STYLE = "messageBodyFontStyle";
-	public static final String MESSAGE_BODY_FONT_SIZE = "messageBodyFontSize";
-	public static final String MESSAGE_LIST_FONT_NAME = "messageListFontName";
-	public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
-	public static final String MESSAGE_LIST_FONT_SIZE = "messageListFontSize";
-	public static final String FILE_LIST_FONT_NAME = "fileListFontName";
-	public static final String FILE_LIST_FONT_STYLE = "fileListFontStyle";
-	public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
-	public static final String LOG_TO_FILE = "logToFile";
+	public static final String DISABLE_DOWNLOADS = "disableDownloads";
 	public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
 	public static final String LOG_LEVEL = "logLevel";
+	public static final String LOG_TO_FILE = "logToFile";
+	public static final String FILE_LIST_FONT_NAME = "fileListFontName";
+	public static final String FILE_LIST_FONT_SIZE = "fileListFontSize";
+	public static final String FILE_LIST_FONT_STYLE = "fileListFontStyle";
+	public static final String MESSAGE_BODY_FONT_NAME = "messageBodyFontName";
+	public static final String MESSAGE_BODY_FONT_SIZE = "messageBodyFontSize";
+	public static final String MESSAGE_BODY_FONT_STYLE = "messageBodyFontStyle";
+	public static final String MESSAGE_LIST_FONT_NAME = "messageListFontName";
+	public static final String MESSAGE_LIST_FONT_SIZE = "messageListFontSize";
+	public static final String MESSAGE_LIST_FONT_STYLE = "messageListFontStyle";
 	
 	//Constructors
 	public SettingsClass() {
@@ -579,7 +580,7 @@ public class SettingsClass {
 		defaults.put("downloadTryAllSegments", "true");
 
 		defaults.put("disableRequests", "false");
-		defaults.put("disableDownloads", "false");
+		defaults.put(DISABLE_DOWNLOADS, "false");
 		//        defaults.put("htl", "5");
 		//        defaults.put("htlMax", "30");
 		defaults.put("htlUpload", "21");
