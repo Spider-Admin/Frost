@@ -1980,6 +1980,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		//Language Menu
 		JMenu languageMenu = new JMenu(languageResource.getString("Language"));
+		JMenuItem languageDefaultMenuItem = new JMenuItem(languageResource.getString("Default"));
 		JMenuItem languageDutchMenuItem = new JMenuItem(languageResource.getString("Dutch"));
 		JMenuItem languageEnglishMenuItem = new JMenuItem(languageResource.getString("English"));
 		JMenuItem languageFrenchMenuItem = new JMenuItem(languageResource.getString("French"));
@@ -2048,6 +2049,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			public void actionPerformed(ActionEvent e) {
 				TranslateFrame translate = new TranslateFrame(true);
 				translate.show();
+			}
+		});
+		languageDefaultMenuItem.addActionListener(new ActionListener() {
+			public void actionPerformed(ActionEvent e) {
+				java.util.ResourceBundle bundle =
+					java.util.ResourceBundle.getBundle(
+						"res.LangRes");
+				setLanguageResource(bundle);
 			}
 		});
 		languageGermanMenuItem.addActionListener(new ActionListener() {
@@ -2153,6 +2162,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		pluginMenu.add(pluginBrowserMenuItem);
 		pluginMenu.add(pluginTranslateMenuItem);
 		// Language Menu
+		languageMenu.add(languageDefaultMenuItem);
+		languageMenu.addSeparator();
 		languageMenu.add(languageDutchMenuItem);
 		languageMenu.add(languageEnglishMenuItem);
 		languageMenu.add(languageFrenchMenuItem);
