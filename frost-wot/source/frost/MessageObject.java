@@ -208,8 +208,10 @@ public class MessageObject {
         return false;
     if (date.length() > 22)
         return false;
+    // FIXME: this could be larger, or not?     
+        /*
     if (content.length() > 32000)
-        return false;
+        return false;*/
 
     return true;
     }
