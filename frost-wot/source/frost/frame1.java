@@ -1042,8 +1042,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private SearchPanel searchPanel = null;
 	private SearchTable searchTable = null;
 
-	private Splashscreen splashscreen;
-
 	// labels that are updated later
 	JLabel statusLabel = null;
 	JLabel statusMessageLabel = null;
@@ -1080,7 +1078,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	/**Construct the frame*/
 	public frame1(SettingsClass newSettings, String locale, Splashscreen splashscreen) {
-		this.splashscreen = splashscreen;
 
 		instance = this;
 		frostSettings = newSettings;
