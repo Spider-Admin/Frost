@@ -89,12 +89,33 @@ public class JTranslatableComboBox extends JComboBox implements LanguageListener
 		removeItem(dummy);	
 	}
 	
-	public String getSelectedKey() {
+	/**
+	 * @return
+	 */
+	public String getSelectedKey() { 
 		Object selectedItem = getSelectedItem();
 		if ((selectedItem != null) && (selectedItem instanceof CheckBoxItem)) {
 			return ((CheckBoxItem) selectedItem).getKey();
 		} else {
 			return null;
+		}
+	}
+	
+	/**
+	 * If no item contains that key, the selection remains unchanged.
+	 * 
+	 * @param key the key of the item to select
+	 */
+	public void setSelectedKey(String aKey) {
+		boolean found = false;
+		for (int i = 0;(i < getItemCount()) && !found; i++) {
+			Object item = getItemAt(i);
+			if (item instanceof CheckBoxItem) {
+				if (((CheckBoxItem) item).getKey().equals(aKey)) {
+					setSelectedIndex(i);
+					found = true;
+				}
+			}
 		}
 	}
 
