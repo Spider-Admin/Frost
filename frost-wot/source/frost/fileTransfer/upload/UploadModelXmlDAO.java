@@ -113,11 +113,18 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 		String SHA1 = XMLTools.getChildElementsCDATAValue(element, "SHA1");
 		String batch = XMLTools.getChildElementsTextValue(element, "batch");
 		String enabled = element.getAttribute("enabled");
+		String retries = XMLTools.getChildElementsTextValue(element, "retries");
 
 		// batch is allowed to be null, I think
 		if (filename == null || filepath == null || targetboardname == null || state == null) {//|| batch==null)
 			logger.warning("Invalid upload item found. Removed.");
 			return null;
+		}
+		
+		// retries may be null if we are upgrading from an earlier version of Frost
+		int retriesInt = 0;
+		if (retries != null) {
+			retriesInt = Integer.parseInt(retries);
 		}
 
 		int iState = -1;
@@ -175,6 +182,7 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 														board, iState, lastUploadDate, key, SHA1);
 		ulItem.setBatch(batch);
 		ulItem.setEnabled(new Boolean(uploadEnabled));
+		ulItem.setRetries(retriesInt);
 		return ulItem;
 	}
 
@@ -311,6 +319,12 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 			enabled = uploadItem.isEnabled().toString();
 		}
 		itemElement.setAttribute("enabled", enabled);
+		// retries
+		element = document.createElement("retries");
+		text = document.createTextNode(String.valueOf(uploadItem.getRetries()));
+		element.appendChild(text);
+		itemElement.appendChild(element);
+		
 		return itemElement;
 	}
 

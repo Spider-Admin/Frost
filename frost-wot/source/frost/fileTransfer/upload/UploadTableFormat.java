@@ -118,6 +118,21 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 	}
 	
 	/**
+	 * This inner class implements the comparator for the column "Tries"
+	 */
+	private class TriesComparator implements Comparator {
+
+		/* (non-Javadoc)
+		 * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
+		 */
+		public int compare(Object o1, Object o2) {
+			int retries1 = ((FrostUploadItem) o1).getRetries();
+			int retries2 = ((FrostUploadItem) o2).getRetries();
+			return new Integer(retries1).compareTo(new Integer(retries2));
+		}
+	}
+	
+	/**
 	 * This inner class implements the comparator for the column "Path"
 	 */
 	private class PathComparator implements Comparator {
@@ -200,7 +215,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 
 	private Language language;
 
-	private final static int COLUMN_COUNT = 7;
+	private final static int COLUMN_COUNT = 8;
 	
 	private String stateUploadedNever;
 	private String stateRequested;
@@ -225,8 +240,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		setComparator(new FileSizeComparator(), 2);
 		setComparator(new StateComparator(), 3);
 		setComparator(new PathComparator(), 4);
-		setComparator(new DestinationComparator(), 5);
-		setComparator(new KeyComparator(), 6);
+		setComparator(new TriesComparator(), 5);
+		setComparator(new DestinationComparator(), 6);
+		setComparator(new KeyComparator(), 7);
 	}
 
 	/**
@@ -238,8 +254,9 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		setColumnName(2, language.getString("Size"));
 		setColumnName(3, language.getString("Last upload"));
 		setColumnName(4, language.getString("Path"));
-		setColumnName(5, language.getString("Destination"));
-		setColumnName(6, language.getString("Key"));
+		setColumnName(5, language.getString("Tries"));
+		setColumnName(6, language.getString("Destination"));
+		setColumnName(7, language.getString("Key"));
 		
 		stateUploadedNever = language.getString("Never");
 		stateRequested = language.getString("Requested");
@@ -290,10 +307,13 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 			case 4 :	//Path
 				return uploadItem.getFilePath();
 				
-			case 5 :	//Destination
+			case 5 :	//Tries
+				return new Integer(uploadItem.getRetries());
+				
+			case 6 :	//Destination
 				return uploadItem.getTargetBoard().getName();
 				
-			case 6 :	//Key
+			case 7 :	//Key
 				if (uploadItem.getKey() == null) {
 					return unknown;
 				} else {
@@ -359,7 +379,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 		
 		//Sets the relative widths of the columns
 		TableColumnModel columnModel = modelTable.getTable().getColumnModel();
-		int[] widths = { 30, 250, 80, 80, 80, 80 };
+		int[] widths = { 25, 250, 80, 80, 60, 25, 70, 40 };
 		for (int i = 0; i < widths.length; i++) {
 			columnModel.getColumn(i).setPreferredWidth(widths[i]);
 		}
@@ -394,7 +414,7 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 				return new int[] {2};	//Size
 			
 			case FrostUploadItem.FIELD_ID_KEY :
-				return new int[] {6};	//Key
+				return new int[] {7};	//Key
 				
 			case FrostUploadItem.FIELD_ID_LAST_UPLOAD_DATE :
 				return new int[] {3};	//Last upload
@@ -406,13 +426,16 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 				return new int[] {3};	//Last upload
 				
 			case FrostUploadItem.FIELD_ID_TARGET_BOARD :
-				return new int[] {5};	//Destination
+				return new int[] {6};	//Destination
 				
 			case FrostUploadItem.FIELD_ID_TOTAL_BLOCKS :
 				return new int[] {3};	//Last upload
 			
 			case FrostUploadItem.FIELD_ID_ENABLED :
 				return new int[] {0};	//Enabled
+			
+			case FrostUploadItem.FIELD_ID_RETRIES :
+				return new int[] {5};	//Source
 				
 			default :	
 				return new int[] {};
