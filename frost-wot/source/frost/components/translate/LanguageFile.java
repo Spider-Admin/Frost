@@ -73,6 +73,17 @@ public class LanguageFile {
     }
 
     private static StringBuffer replaceSpecialCharacters(StringBuffer content) {
+
+ 	while (content.indexOf("\n") != -1) {
+  	    int index = content.indexOf("\n");
+  	    content.replace(index,index + 1, "\\n");
+ 	}
+  	while (content.indexOf("\r") != -1) {
+  	    int index = content.indexOf("\r");
+ 	    content.replace(index,index + 1, "\\r");
+  	}
+	
+	
 	StringBuffer newContent = new StringBuffer();
 	for (int i = 0; i < content.length(); i++) {
 	    char thisChar = content.charAt(i);
