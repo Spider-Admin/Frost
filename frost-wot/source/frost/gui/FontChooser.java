@@ -321,11 +321,36 @@ public class FontChooser extends JDialog {
 	 */
 	public void setSelectedFont(Font font) {
 		selectedFont = font;
+		//Name
+		String familyName = font.getFamily();
+		if (fontNamesModel.contains(familyName)) {
+			fontNamesList.setSelectedValue(familyName, true);
+		}
+		//Size
+		selectedSize = new Integer(font.getSize());
+		if (fontSizesModel.contains(selectedSize)) {
+			fontSizesList.setSelectedValue(selectedSize, true);
+		} else {
+			selectedSizeTextField.setText(selectedSize.toString());
+			//SetText doesn't launch an event, so we simulate it from here:
+			sizeTyped();
+		}
+		//Style
+		int stylePos = -1;
+		Integer style = new Integer(font.getStyle());
+		Iterator styleEntries = styles.entrySet().iterator();
+		while (styleEntries.hasNext() && stylePos == -1) {
+			Map.Entry entry = (Map.Entry) styleEntries.next();	
+			if (entry.getValue().equals(style)) {
+				stylePos = fontStylesModel.indexOfKey(entry.getKey());	
+			}
+		}
+		fontStylesList.setSelectedIndex(stylePos);
 	}
 	
 	/**
-		 * 
-		 */
+	 * 
+	 */
 		private void sizeTyped() {
 			String size = selectedSizeTextField.getText();
 			try {
