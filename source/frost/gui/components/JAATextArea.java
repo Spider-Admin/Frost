@@ -15,9 +15,13 @@ import javax.swing.text.Document;
 /**
  * @author Administrator
  *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
+ *	This a subclass of JTextArea that lets the programmer specify whether to use 
+ *	antialising when rendering the text or not.
+ *
  */
+
+//TODO: Bug: if the text contains arabic characters, antialias will be disabled
+
 public class JAATextArea extends JTextArea {
 
 	private boolean antiAliasEnabled = false;
@@ -27,7 +31,6 @@ public class JAATextArea extends JTextArea {
 	 */
 	public JAATextArea() {
 		super();
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -36,7 +39,6 @@ public class JAATextArea extends JTextArea {
 	 */
 	public JAATextArea(int rows, int columns) {
 		super(rows, columns);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -44,7 +46,6 @@ public class JAATextArea extends JTextArea {
 	 */
 	public JAATextArea(String text) {
 		super(text);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -54,7 +55,6 @@ public class JAATextArea extends JTextArea {
 	 */
 	public JAATextArea(String text, int rows, int columns) {
 		super(text, rows, columns);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -62,7 +62,6 @@ public class JAATextArea extends JTextArea {
 	 */
 	public JAATextArea(Document doc) {
 		super(doc);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
@@ -73,7 +72,6 @@ public class JAATextArea extends JTextArea {
 	 */
 	public JAATextArea(Document doc, String text, int rows, int columns) {
 		super(doc, text, rows, columns);
-		// TODO Auto-generated constructor stub
 	}
 
 	/**
