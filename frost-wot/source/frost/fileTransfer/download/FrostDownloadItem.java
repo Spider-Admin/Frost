@@ -1,7 +1,7 @@
 package frost.fileTransfer.download;
 
+import frost.fileTransfer.search.FrostSearchItem;
 import frost.gui.objects.FrostBoardObject;
-import frost.search.FrostSearchItem;
 import frost.util.model.ModelItem;
 
 public class FrostDownloadItem extends ModelItem {
