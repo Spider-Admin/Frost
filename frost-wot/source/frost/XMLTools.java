@@ -50,7 +50,7 @@ public static Document parseXmlFile(String filename, boolean validating)
         if( res.toLowerCase().equals("true") == true )
             return true;
         else
-            return true;
+            return false;
      }
 
      /**
