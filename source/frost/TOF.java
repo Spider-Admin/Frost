@@ -57,8 +57,7 @@ public class TOF
                 if( message != null )
                 {
                     boolean newMessage = false;
-                    // Test if lockfile exists, remove it and
-                    // update the tree display
+                    // Test if lockfile exists, remove it and update the tree display
                     File messageLock = new File( (message.getFile()).getPath() + ".lck");
                     if( messageLock.isFile() )
                     {
@@ -259,18 +258,7 @@ public class TOF
                     {
                         String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ )
-                        {/*
-                            if( filePointers[j].getName().endsWith(".txt.lck") )
-                            {
-                                // update the node that contains new messages
-                                newMsgCount++;
-                                board.setNewMessageCount(newMsgCount);
-                                SwingUtilities.invokeLater( new Runnable() {
-                                    public void run() {
-                                        frame1.getInstance().updateTofTree(board);
-                                    } });
-                            }
-                            else */
+                        {
                             if( (filePointers[j].getName()).endsWith(".txt") &&
                                  filePointers[j].length() > 0 &&
                                  filePointers[j].length() < 32000 &&
@@ -324,8 +312,6 @@ public class TOF
                 cal.add(Calendar.DATE, -1);
             }
 
-//            board.setNewMessageCount( newMsgCount );
-
             SwingUtilities.invokeLater( new Runnable() {
                     public void run()
                     {
@@ -354,15 +340,14 @@ public class TOF
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
             !message.isVerifyable() )
             return true;
-
         if( frame1.frostSettings.getBoolValue("signedOnly") &&
             frame1.frostSettings.getBoolValue("hideBadMessages") &&
             (message.getStatus().indexOf("BAD")!=-1))
             return true;
-	if( frame1.frostSettings.getBoolValue("signedOnly") &&
-	    frame1.frostSettings.getBoolValue("hideCheckMessages") &&
-	    (message.getStatus().indexOf("CHECK")!=-1))
-	    return true;
+        if( frame1.frostSettings.getBoolValue("signedOnly") &&
+            frame1.frostSettings.getBoolValue("hideCheckMessages") &&
+            (message.getStatus().indexOf("CHECK")!=-1))
+            return true;
 
         if( frame1.frostSettings.getBoolValue("blockMessageChecked") )
         {
@@ -385,10 +370,8 @@ public class TOF
                 String block = (frame1.frostSettings.getValue("blockMessage").substring(index, frame1.frostSettings.getValue("blockMessage").length())).trim();
                 if( header.indexOf(block) != -1 && block.length() > 0 )
                     return true;
-                //      System.out.println("'" + block + "'");
             }
         }
-
         //same with body
         if( frame1.frostSettings.getBoolValue("blockMessageBodyChecked") )
         {
@@ -397,7 +380,7 @@ public class TOF
                 String block = (frame1.frostSettings.getValue("blockMessageBody").substring(pos, index)).trim();
                 if( message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0 )
                     return true;
-                //      System.out.println("'" + block + "'");
+
                 pos = index + 1;
                 index = frame1.frostSettings.getValue("blockMessageBody").indexOf(";", pos);
             }
@@ -411,7 +394,6 @@ public class TOF
                 String block = (frame1.frostSettings.getValue("blockMessageBody").substring(index, frame1.frostSettings.getValue("blockMessageBody").length())).trim();
                 if( message.getContent().toLowerCase().indexOf(block) != -1 && block.length() > 0 )
                     return true;
-                //      System.out.println("'" + block + "'");
             }
         }
         return false;
@@ -477,7 +459,7 @@ public class TOF
                                         break;
                                     }
                                 }
-                                if( found == false )
+                                if( found == false ) // messagefile for lockfile not found (paranoia)
                                 {
                                     filePointers[j].delete();
                                     continue;  // next .lck file
@@ -497,7 +479,7 @@ public class TOF
                                 }
                                 else
                                 {
-                                    // message is blocked
+                                    // message is blocked, delete newmessage indicator file
                                     filePointers[j].delete();
                                 }
                             }
@@ -505,9 +487,8 @@ public class TOF
                     }
                 }
                 counter++;
-                cal.add(Calendar.DATE, -1);
+                cal.add(Calendar.DATE, -1); // process previous day
             }
         }
     }
-
 }

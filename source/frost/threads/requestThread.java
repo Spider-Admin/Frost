@@ -92,14 +92,9 @@ public class requestThread extends Thread
                 if( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl") )
                 {
                     if( DEBUG ) System.out.println("Download failed, uploading request for " + filename);
-                    downloadItem.setState( "Requesting" ); // TODO: translate
-                    SwingUtilities.invokeLater(new Runnable()
-                           {
-                               public void run()
-                               {
-                                   tableModel.updateRow( downloadItem );
-                               }
-                           });
+                    downloadItem.setState( downloadItem.STATE_REQUESTING );
+                    tableModel.updateRow( downloadItem );
+
                     // We may not do the request here due to the synchronize
                     // -> no lock needed, using models
                     // doing it after this , the table states Waiting and there are threads running,
@@ -122,18 +117,14 @@ public class requestThread extends Thread
                 {
                     columnDataHtl += 1;
                     downloadItem.setHtl( columnDataHtl );
-                    downloadItem.setState( LangRes.getString("Waiting") );
+                    downloadItem.setState( downloadItem.STATE_WAITING );
                 }
                 else
                 {
-                    downloadItem.setState( LangRes.getString("Failed") ); // max htl reached, no more updating
+                    downloadItem.setState( downloadItem.STATE_FAILED ); // max htl reached, no more updating
                 }
-                SwingUtilities.invokeLater(new Runnable()
-                       {
-                           public void run()
-                           {
-                               tableModel.updateRow( downloadItem );
-                           } });
+
+                tableModel.updateRow( downloadItem );
             }
         }
         // download successfull
@@ -147,15 +138,10 @@ public class requestThread extends Thread
             newKey.setExchange(false);
             Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
 
-            SwingUtilities.invokeLater( new Runnable()
-                    {
-                        public void run()
-                        {
-                            downloadItem.setState( LangRes.getString("Done") );
-                            tableModel.updateRow( downloadItem );
-                            frame1.updateDownloads = true;
-                        }
-                    });
+            downloadItem.setState( downloadItem.STATE_DONE );
+
+            tableModel.updateRow( downloadItem );
+            frame1.updateDownloads = true;
         }
         }
         catch(Throwable t)

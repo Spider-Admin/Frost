@@ -72,26 +72,16 @@ public class DownloadTable extends SortedTable
     public void removeFinishedDownloads()
     {
         // Need to synchronize with other places where the table is changed
-        synchronized(this)
+        DownloadTableModel tableModel = (DownloadTableModel)getModel();
+        for( int i = tableModel.getRowCount()  - 1; i >= 0; i-- )
         {
-            // Does an exception prevent release of the lock, better catch them
-            try {
-                DownloadTableModel tableModel = (DownloadTableModel)getModel();
-                for( int i = tableModel.getRowCount()  - 1; i >= 0; i-- )
-                {
-                    FrostDownloadItemObject dlItem = (FrostDownloadItemObject)tableModel.getRow( i );
-                    if( dlItem.getState().equals(LangRes.getString("Done")) )
-                    {
-                        tableModel.deleteRow( dlItem );
-                    }
-                }
-            }
-            catch( Exception e ) {
-                System.out.println("finished download - NOT GOOD " + e.toString());
+            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)tableModel.getRow( i );
+            if( dlItem.getState() == dlItem.STATE_DONE )
+            {
+                tableModel.deleteRow( dlItem );
             }
         }
     }
-
 
     /**
      * Load downloadlist from file.
@@ -150,8 +140,8 @@ public class DownloadTable extends SortedTable
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)tableModel.getRow( i );
             // Download / bytes read
-            if( dlItem.getState().equals(LangRes.getString("Trying")) ||
-                dlItem.getState().indexOf(" Kb") > -1 )
+            if( dlItem.getState() == dlItem.STATE_TRYING ||
+                dlItem.getState() == dlItem.STATE_PROGRESS )
             {
                 File newFile = new File(downloadDirectory + fileSeparator + dlItem.getFileName() + ".tmp");
                 if( newFile.exists() )
@@ -167,7 +157,9 @@ public class DownloadTable extends SortedTable
                                 downloaded += chunkList[j].length();
                         }
                     }
-                    dlItem.setState( downloaded/1024 + " Kb" );
+                    dlItem.setDownloadProgress( downloaded );
+                    dlItem.setState( dlItem.STATE_PROGRESS );
+                    //dlItem.setState( downloaded/1024 + " Kb" );
                 }
             }
             tableModel.updateRow( dlItem ); // finally tell model that row was updated

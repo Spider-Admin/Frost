@@ -96,20 +96,13 @@ public class UploadTable extends SortedTable
         {
             UploadTableModel tableModel = (UploadTableModel)getModel();
             // We need to synchronize accesses to the table
-            synchronized(this)
+            int[] selectedRows = getSelectedRows();
+            for( int i = 0; i < selectedRows.length; i++ )
             {
-                // Does an exception prevent release of the lock, better catch them
-                try {
-                    int[] selectedRows = getSelectedRows();
-                    for( int i = 0; i < selectedRows.length; i++ )
-                    {
-                        FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRows[i] );
-                        String newName = prefix + ulItem.getFileName();
-                        ulItem.setFileName( newName );
-                        tableModel.updateRow( ulItem );
-                    }
-                }
-                catch( Exception e ) { ; }
+                FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRows[i] );
+                String newName = prefix + ulItem.getFileName();
+                ulItem.setFileName( newName );
+                tableModel.updateRow( ulItem );
             }
         }
     }
@@ -119,23 +112,14 @@ public class UploadTable extends SortedTable
      */
     public void removeNotExistingFiles()
     {
-        // We need to synchronize accesses to the table
-        synchronized(this) {
-            // Does an exception prevent release of the lock, better catch them
-            try {
-                UploadTableModel tableModel = (UploadTableModel)getModel();
-                for( int i = tableModel.getRowCount() - 1; i >= 0; i-- )
-                {
-                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( i );
-                    File checkMe = new File( ulItem.getFilePath() );
-                    if( !checkMe.exists() )
-                    {
-                        tableModel.deleteRow( ulItem );
-                    }
-                }
-            }
-            catch( Exception e ) {
-                System.out.println("uploadtablefun.update NOT GOOD "+e.toString());
+        UploadTableModel tableModel = (UploadTableModel)getModel();
+        for( int i = tableModel.getRowCount() - 1; i >= 0; i-- )
+        {
+            FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( i );
+            File checkMe = new File( ulItem.getFilePath() );
+            if( !checkMe.exists() )
+            {
+                tableModel.deleteRow( ulItem );
             }
         }
     }

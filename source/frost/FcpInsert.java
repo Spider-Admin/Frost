@@ -108,31 +108,38 @@ public class FcpInsert
     }
 
     /**
-     * Updates the 'state' column for a file that is in table
+     * Updates the 'state' column for a file that is in table.
      */
     private static void updateUploadTable(File file, int progress, boolean mode)
     {
-        final int finalProgress = progress;
+        if( mode == false ) // uploading mode?
+        {
+            // no, generate key mode
+            return;
+        }
+
+        // TODO: do not search for item in table, but give the item to this method directly
         final String filePath = file.getPath();
         final UploadTableModel model = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
 
-        if( mode )
+        // find the item in table by filepath
+        FrostUploadItemObject ulItem = null;
+        for( int i = 0; i < model.getRowCount(); i++ )
         {
-            SwingUtilities.invokeLater( new Runnable() {
-                public void run()
-                {
-                    String text = (finalProgress/1024) + " Kb";
-                    for( int i = 0; i < model.getRowCount(); i++ )
-                    {
-                        FrostUploadItemObject ulItem = (FrostUploadItemObject)model.getRow(i);
-                        if( filePath.equals(ulItem.getFilePath()) )
-                        {
-                            ulItem.setState( text );
-                            model.updateRow( ulItem );
-                            break;
-                        }
-                    }
-                } });
+            ulItem = (FrostUploadItemObject)model.getRow(i);
+            if( filePath.equals(ulItem.getFilePath()) )
+            {
+                break;
+            }
+        }
+        // if found, update item
+        if( ulItem != null )
+        {
+            // item found
+            ulItem.setUploadProgress( progress );
+            ulItem.setState( ulItem.STATE_PROGRESS );
+
+            model.updateRow( ulItem );
         }
     }
 

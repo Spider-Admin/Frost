@@ -56,29 +56,35 @@ public class insertThread extends Thread
 
         try {
 
-        String status = LangRes.getString("Never");
+        String lastUploadDate = null; // NEVER uploaded
         boolean success = false;
         String[] result = {"Error", "Error"};
 
         if( file.length() > 0 && file.isFile() )
         {
 
-            result = FcpInsert.putFile("CHK@", file, htl, true, mode,board.getBoardFilename());
+            result = FcpInsert.putFile("CHK@",
+                                       file,
+                                       htl,
+                                       true,
+                                       mode,
+                                       board.getBoardFilename());
 
             if( result[0].equals("Success") )
             {
                 success = true;
                 System.out.println("Upload of " + file + " successfull.");
             }
-            if( result[0].equals("KeyCollision") )
+            else if( result[0].equals("KeyCollision") )
             {
+                // collided means file is already in freenet
                 success = true;
                 System.out.println("Upload of " + file + " collided.");
             }
 
             if( success )
             {
-                status = date;
+                lastUploadDate = date;
                 KeyClass newKey = new KeyClass(result[1]);
                 newKey.setFilename(destination);
                 newKey.setSize(file.length());
@@ -86,21 +92,22 @@ public class insertThread extends Thread
                 Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
             }
 
-            final String finalStatus = status;
-            final String finalKey = result[1];
-            SwingUtilities.invokeLater( new Runnable() {
-                public void run() {
-                    UploadTableModel tableModel = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
-                    if( mode )
-                    {
-                        uploadItem.setState( finalStatus );
-                    }
-                    else
-                    {
-                        uploadItem.setKey( finalKey );
-                    }
-                    tableModel.updateRow( uploadItem );
-                } });
+            // update table item
+            if( mode )
+            {
+                // item uploaded (maybe)
+                uploadItem.setLastUploadDate( lastUploadDate ); // if NULL then upload failed -> shows NEVER in table
+            }
+            else
+            {
+                // key was computed
+                String newKey = result[1];
+                uploadItem.setKey( newKey );
+            }
+            uploadItem.setState( uploadItem.STATE_IDLE );
+
+            UploadTableModel tableModel = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
+            tableModel.updateRow( uploadItem );
         }
         }
         catch(Throwable t)

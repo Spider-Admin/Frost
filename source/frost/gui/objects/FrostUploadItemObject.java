@@ -9,13 +9,26 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
-    String fileName = null;
-    String filePath = null;
-    Long fileSize = null;
-    String state = null; // is the lastUploadDate
+    // the constants representing upload states
+    public final static int STATE_IDLE       = 1; // shows either last date uploaded or Never
+    public final static int STATE_REQUESTED  = 2;
+    public final static int STATE_UPLOADING  = 3;
+    public final static int STATE_PROGRESS   = 4; // upload runs, shows "... kb"
+    // the strings that are shown in table for the states
+    private final static String STATE_UPLOADED_NEVER_STR = LangRes.getString("Never");
+    private final static String STATE_REQUESTED_STR      = LangRes.getString("Requested");
+    private final static String STATE_UPLOADING_STR      = LangRes.getString("Uploading");
+    private final static String STATE_PROGRESS_STR       = " kb";
 
-    String key = null;
-    FrostBoardObject targetBoard = null;
+    private String fileName = null;
+    private String filePath = null;
+    private Long fileSize = null;
+    private int state = 0;
+    private String lastUploadDate = null; // is null as long as NEVER uploaded
+    private long uploadProgress = 0;
+
+    private String key = null;
+    private FrostBoardObject targetBoard = null;
 
     public FrostUploadItemObject(File file, FrostBoardObject board)
     {
@@ -23,21 +36,23 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         this.filePath = file.getPath();
         this.fileSize = new Long( file.length() );
         this.targetBoard = board;
-        this.state = LangRes.getString("Never");
-        this.key = LangRes.getString("Unknown");
+        this.state = STATE_IDLE;
+        this.lastUploadDate = null;
+        this.key = null;
     }
 
     /**
      * Constructor used by loadUploadTable
      */
     public FrostUploadItemObject(String filename, String filepath, long filesize, FrostBoardObject board,
-                                 String state, String key)
+                                 int state, String lastUploadDate, String key)
     {
         this.fileName = filename;
         this.filePath = filepath;
         this.fileSize = new Long( filesize );
         this.targetBoard = board;
         this.state = state;
+        this.lastUploadDate = lastUploadDate;
         this.key = key;
     }
 
@@ -50,14 +65,14 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
     public Object getValueAt(int column)
     {
         switch(column) {
-            case 0: return fileName;           //LangRes.getString("Filename"),
-            case 1: return fileSize;           //LangRes.getString("Size"),
-            case 2: return state;              //LangRes.getString("Last upload"),
-            case 3: return filePath;           //LangRes.getString("Path"),
-            case 4: return targetBoard.toString();   //LangRes.getString("Destination"),
-            case 5: return key;                //LangRes.getString("Key")
-            default: return "*ERR*";
+            case 0: return fileName;               //LangRes.getString("Filename"),
+            case 1: return fileSize;               //LangRes.getString("Size"),
+            case 2: return getStateString(state);  //LangRes.getString("Last upload"),
+            case 3: return filePath;               //LangRes.getString("Path"),
+            case 4: return targetBoard.toString(); //LangRes.getString("Destination"),
+            case 5: return ((key==null) ? LangRes.getString("Unknown") : key); //LangRes.getString("Key")
         }
+        return "*ERR*";
     }
 
     public int compareTo( TableMember anOther, int tableColumIndex )
@@ -65,15 +80,6 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         Comparable c1 = (Comparable)getValueAt(tableColumIndex);
         Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
         return c1.compareTo( c2 );
-    }
-
-    public String getState()
-    {
-        return state;
-    }
-    public void setState(String val)
-    {
-        state = val;
     }
 
     public String getFileName()
@@ -121,4 +127,46 @@ public class FrostUploadItemObject implements FrostUploadItem, TableMember
         targetBoard = val;
     }
 
+    public int getState()
+    {
+        return state;
+    }
+    public void setState(int v)
+    {
+        state = v;
+    }
+    public String getStateString(int state)
+    {
+        String statestr = "*ERR*";
+        switch( state )
+        {
+        case STATE_REQUESTED:   statestr = STATE_REQUESTED_STR; break;
+        case STATE_UPLOADING:   statestr = STATE_UPLOADING_STR; break;
+        case STATE_PROGRESS:    statestr = (uploadProgress/1024) + STATE_PROGRESS_STR; break;
+        case STATE_IDLE:        statestr = ( (lastUploadDate==null) ? STATE_UPLOADED_NEVER_STR : lastUploadDate );
+        }
+        return statestr;
+    }
+
+
+    public long getUploadProgress()
+    {
+        return uploadProgress;
+    }
+    public void setUploadProgress( long val )
+    {
+        uploadProgress = val;
+    }
+
+
+    public String getLastUploadDate()
+    {
+        return lastUploadDate;
+    }
+    public void setLastUploadDate( String val )
+    {
+        lastUploadDate = val;
+    }
+
 }
+
