@@ -21,19 +21,22 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
 
 import frost.*;
-import frost.gui.components.*;
+import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.model.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.BoardAttachment;
 
 public class KnownBoardsFrame extends JDialog
 {
+	private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
+	
 	static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
     static ImageIcon boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
@@ -60,7 +63,7 @@ public class KnownBoardsFrame extends JDialog
             init();
         }
         catch( Exception e ) {
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
         pack();

@@ -21,6 +21,7 @@ package frost.gui;
 import java.awt.Component;
 import java.io.File;
 import java.util.ArrayList;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 import javax.swing.table.*;
@@ -32,6 +33,8 @@ import frost.gui.objects.FrostDownloadItemObject;
 public class DownloadTable extends SortedTable
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
+    
+	private static Logger logger = Logger.getLogger(DownloadTable.class.getName());
 
 	public DownloadTable(TableModel m) {
 		super(m);
@@ -201,7 +204,7 @@ public class DownloadTable extends SortedTable
     public void removeSelectedChunks()
     {
         // start a Thread for this, this method is called from Swing thread and should not block swing
-        System.out.println("Removing chunks");
+        logger.info("Removing chunks");
 
         DownloadTableModel tableModel = (DownloadTableModel)getModel();
         int[] selectedRows = getSelectedRows();
@@ -241,7 +244,7 @@ public class DownloadTable extends SortedTable
                         files[j].getName().equals( filename + ".redirect" ) ||
                         files[j].getName().equals( filename + ".checkblocks" ) )
                     {
-                        System.out.println("Removing " + files[j].getName());
+                        logger.info("Removing " + files[j].getName());
                         files[j].delete();
                     }
                 }

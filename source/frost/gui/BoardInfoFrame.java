@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.Vector;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -105,6 +106,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 	static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
     private UpdatingLanguageResource languageResource = null;
     private Listener listener = new Listener();
+    
+	private static Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
 
     //------------------------------------------------------------------------
     // Generate objects
@@ -155,7 +158,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             Init();
         }
         catch( Exception e ) {
-            e.printStackTrace();
+        	logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
         pack();
         setLocationRelativeTo( parent );

@@ -22,12 +22,16 @@ package frost.gui;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
+import java.util.logging.*;
 
 import javax.swing.*;
 
 import frost.*;
 
 public class HelpFrame extends JFrame {
+	
+	private static Logger logger = Logger.getLogger(HelpFrame.class.getName());
+	
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
     //------------------------------------------------------------------------
@@ -103,7 +107,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResour
         Init();
     }
     catch(Exception e) {
-        e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
     }
     pack();
     setLocationRelativeTo(parent);
