@@ -80,6 +80,9 @@ public class GtkTableHeaderRenderer
     setOpaque(false);
     this.itemSelected = itemSelected;
     this.itemUnselected = itemUnselected;
+    
+	setHorizontalTextPosition(LEFT);
+	setHorizontalAlignment(CENTER);
   }
 
   /**
