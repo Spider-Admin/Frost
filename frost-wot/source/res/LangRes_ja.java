@@ -180,6 +180,7 @@ public class LangRes_ja extends ListResourceBundle {
 	{"AvailableSkins", "Available Skins"},
 	{"Preview", "Preview"},
 	{"RefreshList", "Refresh List"},
+	{"NoSkinsFound", "No Skins Found"},
  
 	// Other 
 	{"Anonymous", "\u540d\u7121\u3057\u3055\u3093"},
