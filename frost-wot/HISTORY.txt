@@ -40,3 +40,4 @@ Legend:
 - fixed a bug with trusted people's shared files --zab
 - fixed an infinite requests bug --zab
 - fixed bug of names containing //, try to workaround it --zab
++ added 'Known boards' GUI dialog  --bback
