@@ -8,6 +8,7 @@ Legend:
 * Changes since upd6 (next planned release: upd7)
 
 - fixed 'Minimize to tray and never come up again' bug on Windows systems --bback
++ added new systray support that could also be used on different platforms, currently win32 supported
 * changed file transfer methods to 'bleeding edge' : 
 	*  Reworked the indexing scheme, serialized in object format in "indices-date" format
 	*  There is only one request thread, each batch of files has its own request channel
@@ -16,3 +17,10 @@ Legend:
 	--zab
 + made the FileAccess methods explicitly define the encoding and use nio --zab
 * added some short comments explaining what the different options do in the gui --zab
++ added rewritten FEC insert and request code:  --bback
+  - uses java classes, not freenet node
+  - native encoding plugins supported (same as for freenet)
+  - stores temp files in data,checkblocks sand redirect file, not longer 1 file for each block
+  - reliable handling of uploads and downloads
+- fixed bug within reloading of saved upload items  --bback
++ added check for JAR files on startup of frost  --bback
