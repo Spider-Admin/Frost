@@ -282,12 +282,14 @@ public class MessageObject implements XMLizable
 
     public boolean isValid() {
 
+	if (subject == null) subject = new String();
+	if (content == null) content = new String();
     if (date.equals(""))
         return false;
     if (time.equals(""))
         return false;
-    if (subject.equals(""))
-        return false;
+   // if (subject.equals(""))
+    //    return false;
     if (board.equals(""))
         return false;
     if (from.equals(""))
@@ -295,7 +297,7 @@ public class MessageObject implements XMLizable
 
     if (from.length() > 256)
         return false;
-    if (subject.length() > 256)
+    if (subject!=null && subject.length() > 256)
         return false;
     if (board.length() > 256)
         return false;
@@ -316,10 +318,12 @@ public class MessageObject implements XMLizable
         String filename = file.getName();
         this.index = (filename.substring(filename.lastIndexOf("-") + 1, filename.lastIndexOf(".xml"))).trim();
         // ensure all needed fields are properly filled
-        if( from == null || date == null || subject == null || time == null ||
-            board == null || content == null ||
-            !isValid() )
+        if( from == null || date == null ||  time == null ||
+            board == null || !isValid() )
         {
+        	Core.getOut().println("Analyze file failed.  File saved as \"badMessage\", send to a dev.  Reason:");
+        	if (!isValid()) Core.getOut().println("isValid failed");
+        	if (content==null) Core.getOut().println("content null");
         	file.renameTo(new File("badMessage"));
             throw new Exception("Message have invalid or missing fields.");
             
