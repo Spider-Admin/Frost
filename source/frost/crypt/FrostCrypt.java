@@ -452,5 +452,13 @@ public final class FrostCrypt implements crypt {
 		return result;
 
 	}
+	
+	public String decode64(String what){
+		return new String(Base64.decode(what.getBytes()));
+	}
+	
+	public String encode64(String what){
+			return new String(Base64.encode(what.getBytes()));
+	}
 
 }

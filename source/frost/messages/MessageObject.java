@@ -320,7 +320,9 @@ public class MessageObject implements XMLizable
             board == null || content == null ||
             !isValid() )
         {
+        	file.renameTo(new File("badMessage"));
             throw new Exception("Message have invalid or missing fields.");
+            
         }
         // replace evil chars
         for( int i = 0; i < evilChars.length; i++ )

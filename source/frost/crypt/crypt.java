@@ -71,4 +71,8 @@ import java.io.File;
 	 * decrypt and verify, returns null if failed
 	 */
 	public String decrypt(String what, String myKey);
+	
+	public String encode64(String what);
+	
+	public String decode64(String what);
  }
