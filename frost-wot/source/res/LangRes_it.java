@@ -9,7 +9,7 @@ public class LangRes_it extends ListResourceBundle {
     static final Object[][] contents = {
 
     // Welcome message
-    {"Welcome message", "Per favore leggi!\n\nPer usare Frost, devi prima selezionare un soggetto dalla finestra informazioni board. Puoi aprire questa finestra tramite il tasto 'I' sopra. Puoi inviare messaggi e files a persone usando la stessa board. Probabilmente ci vorr‡ un po' di tempo prima di vedere i messaggi (premi il tasto aggiorna)."},
+    {"Welcome message", "Per favore leggi!\n\nPer usare Frost, devi prima selezionare un soggetto dalla finestra informazioni board. Puoi aprire questa finestra tramite il tasto 'I' sopra. Puoi inviare messaggi e files a persone usando la stessa board. Probabilmente ci vorr√† un po' di tempo prima di vedere i messaggi (premi il tasto aggiorna)."},
 
     // Tabbed pane
     {"Search", "Cerca"},
@@ -44,7 +44,7 @@ public class LangRes_it extends ListResourceBundle {
     {"New message", "Nuovo messaggio"},
     {"Reply", "Rispondi"},
     {"Update", "Aggiorna"},
-    {"No spam mode", "Modalit‡ antispam"},
+    {"No spam mode", "Modalit√† antispam"},
     {"New board", "Nuova board"},
     {"Rename folder", "Rinomina cartella"},
     {"Remove board", "Elimina board"},
@@ -120,7 +120,7 @@ public class LangRes_it extends ListResourceBundle {
     {"Block message from/subject containing:", "Blocca messaggi il cui mittente o oggetto contiene:"},
     {"Do spam detection", "Abilita rilevamento spam"},
     {"Sample interval (hours)", "Intervallo campionatura (ore)"},
-    {"Threshold of blocked messages", "Sensibilit‡ filtro messaggi"},
+    {"Threshold of blocked messages", "Sensibilit√† filtro messaggi"},
     {"Insert request if HTL tops:", "Invia richiesta se HTL supera:"},
     {"Clean the keypool", "Tieni pulita la keypool"},
 
@@ -160,8 +160,8 @@ public class LangRes_it extends ListResourceBundle {
     {"Use editor for writing messages: ", "Usa editor per scrivere messaggi: "},
 
 	//	Preferences. Display panel		//TODO: Translate
-	{"EnableSkins", "Enable Skins"}, 	
-	{"MessageBodyFont", "Message Body Font"}, 
+	{"EnableSkins", "Enable Skins"},
+	{"MessageBodyFont", "Message Body Font"},
 	{"MoreSkinsAt", "You can get more skins at"},
 
     // Preferences / Tabbed Pane
@@ -240,7 +240,7 @@ public class LangRes_it extends ListResourceBundle {
     {"Choose file(s) / directory(s) to attach", "Scegli il file o la cartella da allegare"},
     {"Do you want to enter a subject?", "Vuoi inserire l'oggetto?"},
     {"No subject specified!", "Oggetto mancante!"},
-    {"Yes", "SÏ"},
+    {"Yes", "S√¨"},
     {"No", "No"},
     {"Add public key to this message", "Aggiungi la chiave pubblica a questo messaggio"},
 
@@ -256,7 +256,7 @@ public class LangRes_it extends ListResourceBundle {
     // New node dialog window
     {"New Node Name","Nuovo nome board"},
     {"New Folder","Nuova cartella"},
-    
+
 	//	Skin chooser				//TODO: Translate
 	{"AvailableSkins", "Available Skins"},
 	{"Preview", "Preview"},
@@ -270,7 +270,7 @@ public class LangRes_it extends ListResourceBundle {
     {"Please enter the prefix you want to use for your files.", "Prego inserisci il prefisso da dare ai tuoi files."},
     {"Retry", "Riprova"},
     {"I was not able to upload your message.", "Non sono riuscito a caricare il tuo messaggio"},
-    {"Upload of message failed", "L'upload del messaggio Ë fallito."},
+    {"Upload of message failed", "L'upload del messaggio √® fallito."},
     {"Invalid key.  Key must begin with one of", "Chiave non valida. Deve iniziare con"},
     {"Invalid key", "Chiave non valida"},
     {"Name","Nome"},
@@ -278,7 +278,7 @@ public class LangRes_it extends ListResourceBundle {
     {"Do not trust","Non fidarti"},
 
     {"Do you want to add this board to the public boardlist?\n\n","Vuoi aggiungere questa board alla lista pubblica?\n\n"},
-    {"ATTENTION: If you choose yes EVERY Frost user will\n","ATTENZIONE: Se scegli sÏ TUTTI gli utenti di Frost ne saranno\n"},
+    {"ATTENTION: If you choose yes EVERY Frost user will\n","ATTENZIONE: Se scegli s√¨ TUTTI gli utenti di Frost ne saranno\n"},
     {"know about this board AND he will be able to read and\n","a conoscenza E potranno leggere e\n"},
     {"write messages on this board.","scrivere i messaggi su questa board."},
     {" announcement."," annuncia."},

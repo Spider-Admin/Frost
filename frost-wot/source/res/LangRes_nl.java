@@ -42,7 +42,7 @@ public class LangRes_nl extends ListResourceBundle {
     {"Rename folder", "Naam folder wijzigen"},
     {"Remove board", "Verwijder forum"},
     {"Cut board", "Forum knippen"},
-    {"Copy board", "Forum kopieëren"},
+    {"Copy board", "Forum kopieÃ«ren"},
     {"Paste board", "Forum plakken"},
     {"Configure board", "Forum instellen"},
     {"Save message", "Bericht opslaan"},
@@ -57,7 +57,7 @@ public class LangRes_nl extends ListResourceBundle {
     // Popup Menues
     {"Download selected keys", "Download geselecteerde sleutels"},
     {"Download all keys", "Download alle sleutels"},
-    {"Copy as attachment to clipboard", "Kopieër als bijlage naar forum"},
+    {"Copy as attachment to clipboard", "KopieÃ«r als bijlage naar forum"},
     {"Cancel", "Annuleren"},
 
     {"Remove selected downloads", "Verwijder geselecteerde downloads"},
@@ -82,7 +82,7 @@ public class LangRes_nl extends ListResourceBundle {
 
     {"Add new board / folder", "Voeg nieuw forum/map toe"},
     {"Remove selected board / folder", "Verwijder geselecteerde forum/map"},
-    {"Copy selected board / folder", "Kopieër geselecteerde forum/map"},
+    {"Copy selected board / folder", "KopieÃ«r geselecteerde forum/map"},
     {"Cut selected board / folder", "Knip geselecteerde forum/map"},
     {"Paste board / folder", "Plak forum/map"},
     {"Configure selected board", "Stel selecteerde forum in"},
@@ -122,8 +122,8 @@ public class LangRes_nl extends ListResourceBundle {
     {"Use skins, please restart Frost after changing this.(off)", "Gebruik skins, start Frost opnieuw op als dit veranderd is.(uit)"},
 
 	//	Preferences. Display panel		//TODO: Translate
-	{"EnableSkins", "Enable Skins"}, 	
-	{"MessageBodyFont", "Message Body Font"}, 
+	{"EnableSkins", "Enable Skins"},
+	{"MessageBodyFont", "Message Body Font"},
 	{"MoreSkinsAt", "You can get more skins at"},
 
     // Preferences / Tabbed Pane
@@ -181,7 +181,7 @@ public class LangRes_nl extends ListResourceBundle {
     {"Public board", "Publiek forum"},
     {"Secure board", "Beveiligd forum"},
     {"Board settings for ", "Forum instelling voor "},
-    {"Private key :", "Privé sleutel:"},
+    {"Private key :", "PrivÃ© sleutel:"},
     {"Public key :", "Public key :"},
     {"Not available", "Niet beschikbaar"},
 
