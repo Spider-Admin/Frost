@@ -50,7 +50,7 @@ public class Index
         //final String fileSeparator = System.getProperty("file.separator");
 
         File keyFile =
-            new File(frame1.keypool + board + fileSeparator + "files.xml");
+            new File(MainFrame.keypool + board + fileSeparator + "files.xml");
 
         //if no such file exists, return null
         if (!keyFile.exists())
@@ -66,7 +66,7 @@ public class Index
 //		then try the recently uploaded files
 		keyFile =
 			  new File(
-				  frame1.keypool + board + fileSeparator + "new_files.xml");
+				  MainFrame.keypool + board + fileSeparator + "new_files.xml");
 		idx = FileAccess.readKeyFile(keyFile);
 		if (idx.getFilesMap().containsKey(SHA1))
 				return (SharedFileObject)idx.getFilesMap().get(SHA1);
@@ -94,12 +94,12 @@ public class Index
 
         // Abort if boardDir does not exist
         File boardNewUploads =
-            new File(frame1.keypool + board + fileSeparator + "new_files.xml");
+            new File(MainFrame.keypool + board + fileSeparator + "new_files.xml");
         // if( !boardNewUploads.exists() )
         //   return 0;
 
         File boardFiles =
-            new File(frame1.keypool + board + fileSeparator + "files.xml");
+            new File(MainFrame.keypool + board + fileSeparator + "files.xml");
     
         totalIdx = FileAccess.readKeyFile(boardFiles);
         
@@ -119,7 +119,7 @@ public class Index
         
         Iterator i = totalIdx.getFiles().iterator();
         int downloadBack =
-            frame1.frostSettings.getIntValue("maxAge");
+            MainFrame.frostSettings.getIntValue("maxAge");
         logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
         while (i.hasNext())
         {
@@ -130,11 +130,11 @@ public class Index
                 current.getOwner())
                     != 0
                 && //not myself
-            frame1.frostSettings.getBoolValue("helpFriends")
+            MainFrame.frostSettings.getBoolValue("helpFriends")
                 && //and helping is enabled
              (
 				Core.getInstance().getIdentities().getFriends().containsKey(
-                        mixed.makeFilename(
+                        Mixed.makeFilename(
                             current.getOwner())))) //and marked GOOD
             {
                 toUpload.put(current.getSHA1(),current);
@@ -198,7 +198,7 @@ public class Index
     public static void add(SharedFileObject key, FrostBoardObject board)
     {
         //final String fileSeparator = System.getProperty("file.separator");
-        File boardDir = new File(frame1.keypool+board.getBoardFilename());
+        File boardDir = new File(MainFrame.keypool+board.getBoardFilename());
         
         if (!(boardDir.exists() && boardDir.isDirectory()))
             boardDir.mkdir();
@@ -207,7 +207,7 @@ public class Index
         add(
             key,
             new File(
-                frame1.keypool
+                MainFrame.keypool
                     + board.getBoardFilename()
                     + fileSeparator
                     + "files.xml"));
@@ -216,7 +216,7 @@ public class Index
     public static void addMine(SharedFileObject key, FrostBoardObject board)
     {
         //final String fileSeparator = System.getProperty("file.separator");
-        File boardDir = new File(frame1.keypool + board.getBoardFilename());
+        File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
          
         if (!(boardDir.exists() && boardDir.isDirectory()))
             boardDir.mkdir();
@@ -233,7 +233,7 @@ public class Index
         add(
             keyFile,
             new File(
-                frame1.keypool
+                MainFrame.keypool
                     + board.getBoardFilename()
                     + fileSeparator
                     + "files.xml"),
@@ -244,7 +244,7 @@ public class Index
         add(
             keyFile,
             new File(
-                frame1.keypool
+                MainFrame.keypool
                     + board.getBoardFilename()
                     + fileSeparator
                     + "files.xml"),
@@ -396,7 +396,7 @@ public class Index
     }
 
 	public static void add(FrostIndex a, FrostBoardObject b, String owner){
-		add(a.getFilesMap(),new File(frame1.keypool+b.getBoardFilename()+File.separator+"files.xml"),owner);
+		add(a.getFilesMap(),new File(MainFrame.keypool+b.getBoardFilename()+File.separator+"files.xml"),owner);
 	}
 	public static void add(FrostIndex a, File b, String owner){
 		add(a.getFilesMap(),b,owner);
@@ -460,7 +460,7 @@ public class Index
         }
 
         DownloadModel dlModel =
-            (DownloadModel)frame1
+            (DownloadModel)MainFrame
                 .getInstance()
                 .getDownloadModel();
         for (int i = 0; i < dlModel.getItemCount(); i++)

@@ -80,7 +80,7 @@ public class MessageDownloadThread
             // ... and to not to flood the node
             int waitTime = (int) (Math.random() * 5000);
             // wait a max. of 5 seconds between start of threads
-            mixed.wait(waitTime);
+            Mixed.wait(waitTime);
 
 			logger.info("TOFDN: " + tofType + " Thread started for board " + board.toString());
 
@@ -254,7 +254,7 @@ public class MessageDownloadThread
                             new StringBuffer()
                                 .append("KSK@frost/message/")
                                 .append(
-                                    frame1.frostSettings.getValue(
+                                    MainFrame.frostSettings.getValue(
                                         "messageBase"))
                                 .append("/")
                                 .append(dirdate)
@@ -284,7 +284,7 @@ public class MessageDownloadThread
                         else
                             metadata = res.getRawMetadata();
                         // TODO: if metadata==null, not signed message
-                        mixed.wait(111);
+                        Mixed.wait(111);
                         // wait some time to not to hurt the node on next retry
                     }
                     catch (Throwable t)
@@ -441,11 +441,11 @@ public class MessageDownloadThread
                             //make sure the pubkey and from fields in the xml file are the same
                             //as those in the metadata
                             String metaDataHash =
-                                mixed.makeFilename(
+                                Mixed.makeFilename(
                                     Core.getCrypto().digest(
                                         metaData.getPerson().getKey()));
                             String messageHash =
-                                mixed.makeFilename(
+                                Mixed.makeFilename(
                                     currentMsg.getFrom().substring(
                                         currentMsg.getFrom().indexOf("@") + 1,
                                         currentMsg.getFrom().length()));

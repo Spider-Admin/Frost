@@ -23,7 +23,7 @@ public class UploadManager implements PropertyChangeListener {
 
 	private LocalIdentity myID;
 	private TofTree tofTree;
-	private frame1 mainFrame; 
+	private MainFrame mainFrame; 
 	private SettingsClass settings;
 	private UpdatingLanguageResource languageResource;
 	
@@ -64,7 +64,7 @@ public class UploadManager implements PropertyChangeListener {
 	/**
 	 * @param mainFrame
 	 */
-	public void setMainFrame(frame1 newMainFrame) {
+	public void setMainFrame(MainFrame newMainFrame) {
 		mainFrame = newMainFrame;	
 	}
 	

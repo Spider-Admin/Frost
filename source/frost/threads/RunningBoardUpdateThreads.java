@@ -137,7 +137,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
-    	final int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
+    	final int downloadBack=MainFrame.frostSettings.getIntValue("maxMessageDownload");
    
 	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
 	for (int i =0;i<downloadBack;i++) 

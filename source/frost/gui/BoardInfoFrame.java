@@ -102,7 +102,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
 	}
 	
-    frame1 parent = null;
+    MainFrame parent = null;
 	static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
     private UpdatingLanguageResource languageResource = null;
     private Listener listener = new Listener();
@@ -147,7 +147,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 	}
 
     /**Constructor*/
-    public BoardInfoFrame(frame1 p, UpdatingLanguageResource newLanguageResource)
+    public BoardInfoFrame(MainFrame p, UpdatingLanguageResource newLanguageResource)
     {
         super();
 		languageResource = newLanguageResource;
@@ -173,7 +173,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         // Configure objects
         //------------------------------------------------------------------------
 
-        this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+        this.setIconImage(Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
         this.setSize(new Dimension(300, 200));
         this.setResizable(true);
 
@@ -398,7 +398,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         int countFiles = 0;
 
         String date = DateFun.getDate();
-        File boardDir = new File(frame1.keypool + board.getBoardFilename());
+        File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
 
         if( boardDir.isDirectory() )
         {
@@ -455,7 +455,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     }
 
 	public void startDialog() {
-		frame1.getInstance().getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
+		MainFrame.getInstance().getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
 		languageResource.addLanguageListener(listener);
 		languageResource.addLanguageListener(boardTableModel);
 		setDialogShowing(true);
@@ -463,7 +463,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 	}
 
 	protected void closeDialog() {
-		frame1.getInstance().getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
+		MainFrame.getInstance().getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
 		languageResource.removeLanguageListener(listener);
 		languageResource.removeLanguageListener(boardTableModel);
 		setDialogShowing(false);

@@ -62,9 +62,9 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
     {
         super();
         boardName = name;
-        boardFileName = mixed.makeFilename( boardName.toLowerCase() );
+        boardFileName = Mixed.makeFilename( boardName.toLowerCase() );
         
-        if (mixed.containsForeign(name))
+        if (Mixed.containsForeign(name))
         	b64FileName = Core.getCrypto().encode64(name);
     }
     /**
@@ -89,14 +89,14 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
     public void setBoardName(String newname)
     {
         boardName = newname;
-		boardFileName = mixed.makeFilename( boardName.toLowerCase() );
+		boardFileName = Mixed.makeFilename( boardName.toLowerCase() );
 		
-		if (mixed.containsForeign(newname))
+		if (Mixed.containsForeign(newname))
 					b64FileName = Core.getCrypto().encode64(newname);
 		else
 			b64FileName=null;
 		
-		File boardFile = new File(frame1.keypool+boardFileName);
+		File boardFile = new File(MainFrame.keypool+boardFileName);
 		if (!boardFile.exists() || !boardFile.isDirectory()) //if it doesn't exist already, strip foreign chars
 			boardFileName = Core.getCrypto().encode64(newname);
         
@@ -325,7 +325,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
         if( !isConfigured() || maxMessageDisplay == null )
         {
             // return default
-            return frame1.frostSettings.getIntValue("maxMessageDisplay");
+            return MainFrame.frostSettings.getIntValue("maxMessageDisplay");
         }
         return maxMessageDisplay.intValue();
     }
@@ -343,7 +343,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
         if( !isConfigured() || showSignedOnly == null )
         {
             // return default
-            return frame1.frostSettings.getBoolValue("signedOnly");
+            return MainFrame.frostSettings.getBoolValue("signedOnly");
         }
         return showSignedOnly.booleanValue();
     }
@@ -361,7 +361,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
         if( !isConfigured() || hideBad == null )
         {
             // return default
-            return frame1.frostSettings.getBoolValue("hideBadMessages");
+            return MainFrame.frostSettings.getBoolValue("hideBadMessages");
         }
         return hideBad.booleanValue();
     }
@@ -379,7 +379,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
         if( !isConfigured() || hideCheck == null )
         {
             // return default
-            return frame1.frostSettings.getBoolValue("hideCheckMessages");
+            return MainFrame.frostSettings.getBoolValue("hideCheckMessages");
         }
         return hideCheck.booleanValue();
     }
@@ -397,7 +397,7 @@ public class FrostBoardObject extends DefaultMutableTreeNode implements Comparab
         if( !isConfigured() || hideNA == null )
         {
             // return default
-            return frame1.frostSettings.getBoolValue("hideNAMessages");
+            return MainFrame.frostSettings.getBoolValue("hideNAMessages");
         }
         return hideNA.booleanValue();
     }

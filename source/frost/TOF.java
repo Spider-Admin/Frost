@@ -69,8 +69,8 @@ public class TOF
 
                     board.decNewMessageCount();
 
-                    frame1.getInstance().updateMessageCountLabels(board);
-                    frame1.getInstance().updateTofTree(board);
+                    MainFrame.getInstance().updateMessageCountLabels(board);
+                    MainFrame.getInstance().updateTofTree(board);
 
                     return message;
                 }
@@ -118,8 +118,8 @@ public class TOF
                 // all new messages should be gone now ...
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
-                        frame1.getInstance().updateMessageCountLabels(board);
-                        frame1.getInstance().updateTofTree(board);
+                        MainFrame.getInstance().updateMessageCountLabels(board);
+                        MainFrame.getInstance().updateTofTree(board);
                     }
                 });                
             } };
@@ -129,7 +129,7 @@ public class TOF
     // called by non-swing thread
     public static void addNewMessageToTable(File newMsgFile, final FrostBoardObject board, boolean markNew)
     {
-        JTable table = frame1.getInstance().getMessageTable();
+        JTable table = MainFrame.getInstance().getMessageTable();
         final SortedTableModel tableModel = (SortedTableModel)table.getModel();
 
         if( (newMsgFile.getName()).endsWith(".xml") &&
@@ -152,18 +152,18 @@ public class TOF
                 if(markNew)
                 {
                     message.setMessageNew(true);
-                    frame1.displayNewMessageIcon(true);
+                    MainFrame.displayNewMessageIcon(true);
                     board.incNewMessageCount();
                 }
 
                 SwingUtilities.invokeLater( new Runnable() {
                         public void run() {
                             // check if tof table shows this board
-                            frame1.getInstance().updateTofTree(board);
-                            if( frame1.getInstance().getSelectedNode().toString().equals( board.toString() ) )
+                            MainFrame.getInstance().updateTofTree(board);
+                            if( MainFrame.getInstance().getSelectedNode().toString().equals( board.toString() ) )
                             {
                                 tableModel.addRow(message);
-                                frame1.getInstance().updateMessageCountLabels(board);
+                                MainFrame.getInstance().updateMessageCountLabels(board);
                             }
                         } });
             }
@@ -184,7 +184,7 @@ public class TOF
     {
         int daysToRead = board.getMaxMessageDisplay();
         // changed to not block the swing thread
-        JTable table = frame1.getInstance().getMessageTable();
+        JTable table = MainFrame.getInstance().getMessageTable();
 
         if( updateThread != null )
         {
@@ -243,7 +243,7 @@ public class TOF
             while( updateThread != null )
             {
                 // wait for running thread to finish
-                mixed.wait(250);
+                Mixed.wait(250);
                 if( nextUpdateThread != this )
                 {
                     // leave, there is a newer thread than we waiting
@@ -268,11 +268,11 @@ public class TOF
                     public void run()
                     {
                         // check if tof table shows this board
-                        if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
+                        if( MainFrame.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                         {
                             MessageTableModel model = (MessageTableModel)table.getModel();
                             model.clearDataModel();
-                            frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
+                            MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }
                 });
@@ -342,13 +342,13 @@ public class TOF
                                         public void run()
                                         {
                                             // check if tof table shows this board
-                                            if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
+                                            if( MainFrame.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                                             {
                                                 tableModel.addRow(finalMessage);
                                                 if(updateMessagesCountLabels)
                                                 {
-                                                    frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
-                                                    frame1.getInstance().updateTofTree(innerTargetBoard);
+                                                    MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
+                                                    MainFrame.getInstance().updateTofTree(innerTargetBoard);
                                                 }
                                             }
                                         }
@@ -375,10 +375,10 @@ public class TOF
             SwingUtilities.invokeLater( new Runnable() {
                     public void run()
                     {
-                        frame1.getInstance().updateTofTree(innerTargetBoard);
-                        if( frame1.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
+                        MainFrame.getInstance().updateTofTree(innerTargetBoard);
+                        if( MainFrame.getInstance().getSelectedNode().toString().equals( innerTargetBoard.toString() ) )
                         {
-                            frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
+                            MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }
                 });
@@ -410,11 +410,11 @@ public class TOF
 			return true;
 
 		// Block by subject (and rest of the header)
-		if (frame1.frostSettings.getBoolValue("blockMessageChecked")) {
+		if (MainFrame.frostSettings.getBoolValue("blockMessageChecked")) {
 			String header =
 				(message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
 			StringTokenizer blockWords =
-				new StringTokenizer(frame1.frostSettings.getValue("blockMessage"), ";");
+				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessage"), ";");
 			boolean found = false;
 			while (blockWords.hasMoreTokens() && !found) {
 				String blockWord = blockWords.nextToken().trim();
@@ -427,10 +427,10 @@ public class TOF
 			}
 		}
 		// Block by body
-		if (frame1.frostSettings.getBoolValue("blockMessageBodyChecked")) {
+		if (MainFrame.frostSettings.getBoolValue("blockMessageBodyChecked")) {
 			String content = message.getContent().toLowerCase();
 			StringTokenizer blockWords =
-				new StringTokenizer(frame1.frostSettings.getValue("blockMessageBody"), ";");
+				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBody"), ";");
 			boolean found = false;
 			while (blockWords.hasMoreTokens() && !found) {
 				String blockWord = blockWords.nextToken().trim();
@@ -443,10 +443,10 @@ public class TOF
 			}
 		}
 		// Block by attached boards
-		if (frame1.frostSettings.getBoolValue("blockMessageBoardChecked")) {
+		if (MainFrame.frostSettings.getBoolValue("blockMessageBoardChecked")) {
 			Vector boardsVector = message.getBoardAttachments();
 			StringTokenizer blockWords =
-				new StringTokenizer(frame1.frostSettings.getValue("blockMessageBoard"), ";");
+				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBoard"), ";");
 			boolean found = false;
 			while (blockWords.hasMoreTokens() && !found) {
 				String blockWord = blockWords.nextToken().trim();
@@ -475,10 +475,10 @@ public class TOF
     {
         public void run()
         {
-            JTree tree = frame1.getInstance().getTofTree();
+            JTree tree = MainFrame.getInstance().getTofTree();
             DefaultTreeModel model = (DefaultTreeModel)tree.getModel();
             Enumeration e = ((DefaultMutableTreeNode)model.getRoot()).depthFirstEnumeration();
-            String keypool = frame1.keypool;
+            String keypool = MainFrame.keypool;
             while( e.hasMoreElements() )
             {
                 FrostBoardObject board = (FrostBoardObject)e.nextElement();
@@ -501,13 +501,13 @@ public class TOF
         }
         public void run()
         {
-            searchNewMessages( frame1.getInstance().getTofTree(), board );
+            searchNewMessages( MainFrame.getInstance().getTofTree(), board );
         }
     }
 
     private static void searchNewMessages(JTree tree, final FrostBoardObject board)
     {
-        String keypool = frame1.keypool;
+        String keypool = MainFrame.keypool;
         int daysToRead = board.getMaxMessageDisplay();
 
         int beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
@@ -606,7 +606,7 @@ public class TOF
         SwingUtilities.invokeLater( new Runnable() {
                public void run()
                {
-                   frame1.getInstance().updateTofTree(board);
+                   MainFrame.getInstance().updateTofTree(board);
                }
            });
     }

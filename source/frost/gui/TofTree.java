@@ -61,16 +61,16 @@ public class TofTree extends JDragTree implements Savable {
 
 		public CellRenderer() {
 			fileSeparator = System.getProperty("file.separator");
-			boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
-			boardNewIcon = new ImageIcon(frame1.class.getResource("/data/boardnew.gif"));
-			boardSpammedIcon = new ImageIcon(frame1.class.getResource("/data/boardspam.gif"));
-			writeAccessIcon = new ImageIcon(frame1.class.getResource("/data/waboard.jpg"));
-			writeAccessNewIcon = new ImageIcon(frame1.class.getResource("/data/waboardnew.jpg"));
-			readAccessIcon = new ImageIcon(frame1.class.getResource("/data/raboard.jpg"));
-			readAccessNewIcon = new ImageIcon(frame1.class.getResource("/data/raboardnew.jpg"));
-			this.setLeafIcon(new ImageIcon(frame1.class.getResource("/data/board.gif")));
-			this.setClosedIcon(new ImageIcon(frame1.class.getResource("/data/closed.gif")));
-			this.setOpenIcon(new ImageIcon(frame1.class.getResource("/data/open.gif")));
+			boardIcon = new ImageIcon(MainFrame.class.getResource("/data/board.gif"));
+			boardNewIcon = new ImageIcon(MainFrame.class.getResource("/data/boardnew.gif"));
+			boardSpammedIcon = new ImageIcon(MainFrame.class.getResource("/data/boardspam.gif"));
+			writeAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/waboard.jpg"));
+			writeAccessNewIcon = new ImageIcon(MainFrame.class.getResource("/data/waboardnew.jpg"));
+			readAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/raboard.jpg"));
+			readAccessNewIcon = new ImageIcon(MainFrame.class.getResource("/data/raboardnew.jpg"));
+			this.setLeafIcon(new ImageIcon(MainFrame.class.getResource("/data/board.gif")));
+			this.setClosedIcon(new ImageIcon(MainFrame.class.getResource("/data/closed.gif")));
+			this.setOpenIcon(new ImageIcon(MainFrame.class.getResource("/data/open.gif")));
 
 			JTable dummyTable = new JTable();
 			normalFont = dummyTable.getFont();
@@ -123,17 +123,17 @@ public class TofTree extends JDragTree implements Savable {
 			}
 
 			// maybe update visualization
-			if (frame1.frostSettings.getBoolValue("boardUpdateVisualization")
+			if (MainFrame.frostSettings.getBoolValue("boardUpdateVisualization")
 				&& board.isUpdating() == true) {
 				// set special updating colors
 				Color c;
 				c =
-					(Color) frame1.frostSettings.getObjectValue(
+					(Color) MainFrame.frostSettings.getObjectValue(
 						"boardUpdatingNonSelectedBackgroundColor");
 				setBackgroundNonSelectionColor(c);
 
 				c =
-					(Color) frame1.frostSettings.getObjectValue(
+					(Color) MainFrame.frostSettings.getObjectValue(
 						"boardUpdatingSelectedBackgroundColor");
 				setBackgroundSelectionColor(c);
 
@@ -287,13 +287,13 @@ public class TofTree extends JDragTree implements Savable {
     public boolean loadTree()
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        String boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml";
+        String boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml";
         // the call changes the toftree and loads nodes into it
         File iniFile = new File(boardIniFilename);
         if( iniFile.exists() == false )
         {
             logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
-            boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml.default";
+            boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml.default";
         }
         return xmlio.loadBoardTree( this, boardIniFilename );
     }
@@ -306,12 +306,12 @@ public class TofTree extends JDragTree implements Savable {
     public boolean save()
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
-        String boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml";
+        String boardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml";
         File check = new File( boardIniFilename );
         if( check.exists() )
         {
             // rename old file to .bak, overwrite older .bak
-            String bakBoardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml.bak";
+            String bakBoardIniFilename = MainFrame.frostSettings.getValue("config.dir") + "boards.xml.bak";
             File bakFile = new File(bakBoardIniFilename);
             if( bakFile.exists() )
             {

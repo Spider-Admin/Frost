@@ -56,7 +56,7 @@ public class HelpFrame extends JFrame {
     // Configure objects
     //------------------------------------------------------------------------
 
-this.setIconImage(Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+this.setIconImage(Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
     this.setTitle("Help frame");
     this.setSize(new Dimension(600, 500));
     this.setResizable(true);

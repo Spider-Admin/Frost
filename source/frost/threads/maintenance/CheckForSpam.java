@@ -14,15 +14,15 @@ import frost.gui.objects.FrostBoardObject;
 import frost.threads.BoardUpdateThread;
 
 
-public class checkForSpam extends TimerTask
+public class CheckForSpam extends TimerTask
 {
-	private static Logger logger = Logger.getLogger(checkForSpam.class.getName());
+	private static Logger logger = Logger.getLogger(CheckForSpam.class.getName());
 	
 	private final Core core;
 	/**
 	 * @param Core
 	 */
-	public checkForSpam(Core core) {
+	public CheckForSpam(Core core) {
 		this.core = core;
 		// TODO Auto-generated constructor stub
 	}
@@ -30,7 +30,7 @@ public class checkForSpam extends TimerTask
     {
         if(Core.frostSettings.getBoolValue("doBoardBackoff"))
         {
-            Iterator iter = frame1.getInstance().getTofTree().getAllBoards().iterator();
+            Iterator iter = MainFrame.getInstance().getTofTree().getAllBoards().iterator();
             while (iter.hasNext())
             {
                 FrostBoardObject current = (FrostBoardObject)iter.next();
@@ -43,7 +43,7 @@ public class checkForSpam extends TimerTask
                     Core.schedule(new ClearSpam(core, current),24*60*60*1000);
 
                     //now, kill all threads for board
-                    Vector threads = frame1.getInstance().getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
+                    Vector threads = MainFrame.getInstance().getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
                     Iterator i = threads.iterator();
                     while( i.hasNext() )
                     {

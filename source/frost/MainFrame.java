@@ -57,7 +57,7 @@ import frost.util.gui.translation.*;
 // after removing a board, let actual board selected (currently if you delete another than selected board
 //   the tofTree is updated) 
 
-public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
+public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater {
 	/**
 	 * This listener changes the 'updating' state of a board if a thread starts/finishes.
 	 * It also launches popup menus
@@ -1258,7 +1258,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			MessageFrame newMessageFrame =
 				new MessageFrame(
 					frostSettings,
-					frame1.this,
+					MainFrame.this,
 					languageResource.getResourceBundle(),
 					core.getIdentities().getMyId());
 			newMessageFrame.composeReply(
@@ -1459,14 +1459,14 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		 * 
 		 */
 		private void addBoardSelected() {
-			getTofTree().createNewBoard(frame1.this);
+			getTofTree().createNewBoard(MainFrame.this);
 		}
 
 		/**
 		 * 
 		 */
 		private void addFolderSelected() {
-			getTofTree().createNewFolder(frame1.this);
+			getTofTree().createNewFolder(MainFrame.this);
 		}
 
 		/**
@@ -1632,7 +1632,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 				String destination =
 					new StringBuffer()
-						.append(frame1.keypool)
+						.append(MainFrame.keypool)
 						.append(board.getBoardFilename())
 						.append(fileSeparator)
 						.append(DateFun.getDate())
@@ -1668,7 +1668,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	//the identity stuff.  This really shouldn't be here but where else?
 	public static ObjectInputStream id_reader;
 
-	private static frame1 instance = null; // set in constructor
+	private static MainFrame instance = null; // set in constructor
 	// "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
 	// this is the new way to access this value :)
 	public static String keypool = null;
@@ -1689,7 +1689,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		}
 	};
 
-	private static Logger logger = Logger.getLogger(frame1.class.getName());
+	private static Logger logger = Logger.getLogger(MainFrame.class.getName());
 	static ImageIcon[] newMessage = new ImageIcon[2];
 
 	public static FrostMessageObject selectedMessage = new FrostMessageObject();
@@ -1698,11 +1698,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	/**Selects message icon in lower right corner*/
 	public static void displayNewMessageIcon(boolean showNewMessageIcon) {
-		frame1 frame1inst = frame1.getInstance();
+		MainFrame frame1inst = MainFrame.getInstance();
 		if (showNewMessageIcon) {
 			frame1inst.setIconImage(
 				Toolkit.getDefaultToolkit().createImage(
-					frame1.class.getResource("/data/newmessage.gif")));
+					MainFrame.class.getResource("/data/newmessage.gif")));
 			frame1inst.statusMessageLabel.setIcon(newMessage[0]);
 			// The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
 			if ((System.getProperty("os.name").startsWith("Windows")) == false) {
@@ -1710,7 +1710,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			}
 		} else {
 			frame1inst.setIconImage(
-				Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+				Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
 			frame1inst.statusMessageLabel.setIcon(newMessage[1]);
 			// The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
 			if ((System.getProperty("os.name").startsWith("Windows")) == false) {
@@ -1724,7 +1724,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	/*************************
 	 * GETTER + SETTER       *
 	 *************************/
-	public static frame1 getInstance() {
+	public static MainFrame getInstance() {
 		return instance;
 	}
 
@@ -1825,7 +1825,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	private UploadPanel uploadPanel = null;
 
 	/**Construct the frame*/
-	public frame1(SettingsClass newSettings, UpdatingLanguageResource newLanguageResource) {
+	public MainFrame(SettingsClass newSettings, UpdatingLanguageResource newLanguageResource) {
 
 		instance = this;
 		core = Core.getInstance();
@@ -1840,7 +1840,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 
 		setIconImage(
-			Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+			Toolkit.getDefaultToolkit().createImage(MainFrame.class.getResource("/data/jtc.jpg")));
 		setResizable(true);
 
 		setTitle("Frost");
@@ -1877,22 +1877,22 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		timeLabel = new JLabel("");
 		// configure buttons
 		this.pasteBoardButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/paste.gif")));
+			new JButton(new ImageIcon(MainFrame.class.getResource("/data/paste.gif")));
 		this.configBoardButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/configure.gif")));
+			new JButton(new ImageIcon(MainFrame.class.getResource("/data/configure.gif")));
 
 		knownBoardsButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/knownboards.gif")));
-		newBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newboard.gif")));
+			new JButton(new ImageIcon(MainFrame.class.getResource("/data/knownboards.gif")));
+		newBoardButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/newboard.gif")));
 		newFolderButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/newfolder.gif")));
+			new JButton(new ImageIcon(MainFrame.class.getResource("/data/newfolder.gif")));
 		removeBoardButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/remove.gif")));
+			new JButton(new ImageIcon(MainFrame.class.getResource("/data/remove.gif")));
 		renameBoardButton =
-			new JButton(new ImageIcon(frame1.class.getResource("/data/rename.gif")));
-		cutBoardButton = new JButton(new ImageIcon(frame1.class.getResource("/data/cut.gif")));
-		boardInfoButton = new JButton(new ImageIcon(frame1.class.getResource("/data/info.gif")));
-		systemTrayButton = new JButton(new ImageIcon(frame1.class.getResource("/data/tray.gif")));
+			new JButton(new ImageIcon(MainFrame.class.getResource("/data/rename.gif")));
+		cutBoardButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/cut.gif")));
+		boardInfoButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/info.gif")));
+		systemTrayButton = new JButton(new ImageIcon(MainFrame.class.getResource("/data/tray.gif")));
 		configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif");
 		configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif");
 		configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif");
@@ -1915,12 +1915,12 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		});
 		newBoardButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewBoard(frame1.getInstance());
+				getTofTree().createNewBoard(MainFrame.getInstance());
 			}
 		});
 		newFolderButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
-				getTofTree().createNewFolder(frame1.getInstance());
+				getTofTree().createNewFolder(MainFrame.getInstance());
 			}
 		});
 		renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2227,8 +2227,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		statusLabel = new JLabel(languageResource.getString("Frost by Jantho"));
 		statusMessageLabel = new JLabel();
 
-		newMessage[0] = new ImageIcon(frame1.class.getResource("/data/messagebright.gif"));
-		newMessage[1] = new ImageIcon(frame1.class.getResource("/data/messagedark.gif"));
+		newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
+		newMessage[1] = new ImageIcon(MainFrame.class.getResource("/data/messagedark.gif"));
 		statusMessageLabel.setIcon(newMessage[1]);
 
 		JPanel statusPanel = new JPanel(new BorderLayout());
@@ -2286,7 +2286,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		}
 		button.setToolTipText(text);
 
-		button.setRolloverIcon(new ImageIcon(frame1.class.getResource(rolloverIcon)));
+		button.setRolloverIcon(new ImageIcon(MainFrame.class.getResource(rolloverIcon)));
 		button.setMargin(new Insets(0, 0, 0, 0));
 		button.setBorderPainted(false);
 		button.setFocusPainted(false);
@@ -2376,7 +2376,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	}
 
 	private ImageIcon getScaledImage(String imgPath) {
-		ImageIcon icon = new ImageIcon(frame1.class.getResource(imgPath));
+		ImageIcon icon = new ImageIcon(MainFrame.class.getResource(imgPath));
 		icon = new ImageIcon(icon.getImage().getScaledInstance(16, 16, Image.SCALE_SMOOTH));
 		return icon;
 	}
@@ -2501,7 +2501,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		Thread tickerThread = new Thread("tick tack") {
 			public void run() {
 				while (true) {
-					mixed.wait(1000);
+					Mixed.wait(1000);
 					//TODO: refactor this method in Core. lots of work :)
 					timer_actionPerformed();
 				}
@@ -2968,7 +2968,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			if (key == KeyEvent.VK_DELETE)
 				removeNode(getSelectedNode());
 			if (key == KeyEvent.VK_N)
-				getTofTree().createNewBoard(frame1.getInstance());
+				getTofTree().createNewBoard(MainFrame.getInstance());
 			if (key == KeyEvent.VK_X)
 				cutNode(getSelectedNode());
 			if (key == KeyEvent.VK_V)

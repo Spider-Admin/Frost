@@ -190,7 +190,7 @@ public class Identity implements SafeXMLizable
 
     public String getUniqueName()
     {
-        return mixed.makeFilename(uniqueName);
+        return Mixed.makeFilename(uniqueName);
     }
 	/**
 	 * @return list of identities this identity trusts

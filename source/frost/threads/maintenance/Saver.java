@@ -75,7 +75,7 @@ public class Saver extends Timer {
 					((Savable) enum.nextElement()).save();
 				}
 			}
-			FileAccess.cleanKeypool(frame1.keypool);
+			FileAccess.cleanKeypool(MainFrame.keypool);
 
 			logger.info("Bye!");
 		}

@@ -28,7 +28,7 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import frost.frame1;
+import frost.MainFrame;
 import frost.fcpTools.*;
 import frost.gui.objects.FrostBoardObject;
 
@@ -429,7 +429,7 @@ public class BoardSettingsFrame extends JDialog
         }
         catch( IOException ex )
         {
-            JOptionPane.showMessageDialog(frame1.getInstance(), 
+            JOptionPane.showMessageDialog(MainFrame.getInstance(), 
                  ex.toString(), // message
                  languageResource.getString("Warning"),
                  JOptionPane.WARNING_MESSAGE);

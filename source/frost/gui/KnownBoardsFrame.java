@@ -39,9 +39,9 @@ public class KnownBoardsFrame extends JDialog
 	
 	static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
-    static ImageIcon boardIcon = new ImageIcon(frame1.class.getResource("/data/board.gif"));
-    static ImageIcon writeAccessIcon = new ImageIcon(frame1.class.getResource("/data/waboard.jpg"));
-    static ImageIcon readAccessIcon = new ImageIcon(frame1.class.getResource("/data/raboard.jpg"));
+    static ImageIcon boardIcon = new ImageIcon(MainFrame.class.getResource("/data/board.gif"));
+    static ImageIcon writeAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/waboard.jpg"));
+    static ImageIcon readAccessIcon = new ImageIcon(MainFrame.class.getResource("/data/raboard.jpg"));
     
     JButton Bclose;
     JButton BaddBoard;
@@ -174,7 +174,7 @@ public class KnownBoardsFrame extends JDialog
     public void startDialog()
     {
         // gets all known boards from Core, and shows all not-doubles in table
-        Vector frostboards = frame1.getInstance().getTofTree().getAllBoards();
+        Vector frostboards = MainFrame.getInstance().getTofTree().getAllBoards();
         
         synchronized(Core.getKnownBoards())
         {
@@ -249,7 +249,7 @@ public class KnownBoardsFrame extends JDialog
 
                 // add the board(s) to board tree and remove it from table
                 KnownBoardsTableMember row = (KnownBoardsTableMember)tableModel.getRow(rowIx);
-                frame1.getInstance().getTofTree().addNewBoard(row.getBoardObject());
+                MainFrame.getInstance().getTofTree().addNewBoard(row.getBoardObject());
                 tableModel.deleteRow(row);
             }
             boardsTable.clearSelection();

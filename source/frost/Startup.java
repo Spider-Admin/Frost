@@ -48,14 +48,14 @@ public class Startup
         try {
             File execfile = new File("exec.bat");
             if( !execfile.isFile() )
-                mixed.copyFromResource("/data/exec.bat", execfile);
+                Mixed.copyFromResource("/data/exec.bat", execfile);
         }
         catch( IOException e ) { ; }
 
         try {
             File tray1file = new File("exec" + fileSeparator + "JSysTray.dll");
             if( !tray1file.isFile() )
-                mixed.copyFromResource("/data/JSysTray.dll", tray1file);
+                Mixed.copyFromResource("/data/JSysTray.dll", tray1file);
         }
         catch( IOException e ) { ; }
 /*

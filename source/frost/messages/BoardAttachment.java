@@ -59,13 +59,13 @@ public class BoardAttachment extends Attachment implements Comparable, SafeXMLiz
 		
 		Element name = container.createElement("Name");
 		CDATASection cdata = container.createCDATASection(
-					mixed.makeSafeXML(boardObj.getBoardName()));
+					Mixed.makeSafeXML(boardObj.getBoardName()));
 		name.appendChild(cdata);
 		el.appendChild(name);
 		
 		Element pubkey = container.createElement("pubKey");
 		cdata = container.createCDATASection(
-			mixed.makeSafeXML(boardObj.getPublicKey()));
+			Mixed.makeSafeXML(boardObj.getPublicKey()));
 		pubkey.appendChild(cdata);
 		el.appendChild(pubkey);
 
