@@ -108,6 +108,7 @@ public class Index
 		
         //add friends's files 
         // TODO:  add a limit
+        if (totalIdx==null) totalIdx = new FrostIndex(new HashMap());
         Iterator i = totalIdx.getFiles().iterator();
         int downloadBack =
             frame1.frostSettings.getIntValue("maxMessageDownload");
