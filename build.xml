@@ -7,8 +7,8 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <project name="frost" default="main" basedir=".">
 
-  <!-- Name of the distribution zip file to create -->
-  <property name="zipName" value="frost-wot-082903.zip"/>
+  <!-- Prefix of the name of the distribution zip file to create -->
+  <property name="zipNamePrefix" value="frost-wot_"/>
 
   <!-- Give user a chance to override without editing this file
        (and without typing -D each time it compiles it) -->
@@ -132,7 +132,7 @@ Build log  : ${logfilename}</echo>
            encoding="UTF8">
       <classpath refid="classpath" />
     </javac>
-    
+        
     <javac srcdir="${src.dir.skinlfFixLib}"
            destdir="${build.classes.skinlfFixLib}"
            debug="${debug}"
@@ -157,9 +157,16 @@ Build log  : ${logfilename}</echo>
     <delete quiet="true" file="${dist.dir}/${jarName}"/>
     <mkdir dir="${dist.dir}"/>
 
+	<!--  Modify the version and copy the manifest -->
+	<filter token="VERSION_FROM_ANT" value="${NOW.DATE} dev"/>
+	<copy 
+		file="${src.dir}/frost.manifest" 
+		todir="${dist.dir}"
+		filtering="true"/>
+
     <!--  Build the jar file.  -->
     <jar jarfile="${dist.dir}/${jarName}"
-         manifest="${src.dir}/frost.manifest">
+         manifest="${dist.dir}/frost.manifest">
       <fileset dir="${build.classes}">
         <include name="**/*.class"/>
       </fileset>
@@ -215,7 +222,7 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${dist.dir}/downloads"/>
     <mkdir dir="${dist.dir}/exec"/>
 
-    <zip basedir="${dist.dir}" destfile="${build.dir}/${zipName}"/>
+    <zip basedir="${dist.dir}" destfile="${build.dir}/${zipNamePrefix}${NOW.DATE}.zip"/>
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -235,12 +242,16 @@ Build log  : ${logfilename}</echo>
 
     <record name="${logfilename}" action="start"/>
 
+	<tstamp>
+		<format property="NOW.DATE" pattern="dd-MMM-yyyy" locale="en"/>
+		<format property="NOW.TIME" pattern="HH:mm:ss" locale="en" />
+	</tstamp>
+
     <antcall target="distro"/>
 
-    <tstamp/>
     <echo>Finished build of ${Name}
-Date       : ${DSTAMP}
-Time       : ${TSTAMP}</echo>
+			Date : ${NOW.DATE}
+			Time : ${NOW.TIME}</echo>
 
     <record name="${logfilename}" action="stop"/>
 

@@ -30,7 +30,8 @@ public class AboutBox extends JDialog implements ActionListener
     private final static String product = "Frost";
 
     // because a growing amount of users use CVS version:
-    private final static String version = "frost-112503-dev";
+    //private final static String version = "frost-112503-dev";
+	private static String version = null;
 
     private final static String copyright = "Copyright (c) 2003 Jan-Thomas Czornack";
     private final static String comments1 = "Open Source Project (GPL license)";
@@ -78,7 +79,7 @@ public class AboutBox extends JDialog implements ActionListener
         gridLayout1.setRows(5);
         gridLayout1.setColumns(1);
         label1.setText(product);
-        label2.setText(version);
+        label2.setText(getVersion());
         label3.setText(copyright);
         label4.setText(comments1);
         label5.setText(comments2);
@@ -108,6 +109,13 @@ public class AboutBox extends JDialog implements ActionListener
             cancel();
         }
         super.processWindowEvent(e);
+    }
+    
+    private String getVersion() {
+    	if (version == null) {
+    		version = "Version: " + getClass().getPackage().getSpecificationVersion();
+    	}
+    	return version;	
     }
 
     /**Close the dialog*/
