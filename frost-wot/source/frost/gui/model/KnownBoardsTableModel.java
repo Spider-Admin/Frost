@@ -18,27 +18,36 @@
 */
 package frost.gui.model;
 
+import java.util.ResourceBundle;
+
 public class KnownBoardsTableModel extends SortedTableModel
 {
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+	private ResourceBundle languageResource = null;
 
-    protected final static String columnNames[] =  {
-        "Boardname",
-        "Public Key",
-        "Private Key"
-    };
+	protected final static String columnNames[] = new String[3];
+
     protected final static Class columnClasses[] =  {
         String.class,
         String.class,
         String.class
     };
 
-    public KnownBoardsTableModel()
-    {
-        super();
-    }
+	public KnownBoardsTableModel(ResourceBundle newLanguageResource) {
+		super();
+		languageResource = newLanguageResource;
+		refreshLanguage();
+	}
 
-    public boolean isCellEditable(int row, int col)
+    /**
+	 * 
+	 */
+	private void refreshLanguage() {
+		columnNames[0] = languageResource.getString("KnownBoardsTableModel.Boardname");
+		columnNames[1] = languageResource.getString("Public key");
+		columnNames[2] = languageResource.getString("Private key");		
+	}
+
+	public boolean isCellEditable(int row, int col)
     {
         return false;
     }

@@ -152,6 +152,7 @@ static final Object[][] contents = {
 {"KnownBoardsFrame.List of known boards","Lista de foros conocidos"},
 {"KnownBoardsFrame.Lookup","Busca"},
 {"KnownBoardsFrame.Remove board","Elimina foro"},
+{"KnownBoardsTableModel.Boardname","Nombre"},
 {"Language","Idioma"},
 {"Last upload","Última subida"},
 {"list of nodes","Lista separada por comas de nodos a los que tienes acceso por FCP"},

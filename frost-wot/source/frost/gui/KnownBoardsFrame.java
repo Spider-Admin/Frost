@@ -77,7 +77,7 @@ public class KnownBoardsFrame extends JDialog
         
         this.setResizable(true);
         
-        tableModel = new KnownBoardsTableModel();
+        tableModel = new KnownBoardsTableModel(LangRes);
         // add a special renderer to name column which shows the board icon
         nameColRenderer = new NameColumnRenderer();
         boardsTable = new SortedTable( tableModel ) {

@@ -468,6 +468,7 @@ public class LangRes extends ListResourceBundle {
 	{"KnownBoardsFrame.Lookup","Lookup"},
 	{"KnownBoardsFrame.Add board","Add board"},
 	{"KnownBoardsFrame.Remove board","Remove board"},
+	{"KnownBoardsTableModel.Boardname","Boardname"},
 	
 	///////////////////////////////////////////////////
 	// Core start messages
