@@ -403,7 +403,7 @@ public class requestThread extends Thread
                             .append("/")
                             .append(owner)
                             .append("-")
-                            .append(batch)
+                            .append(batch.trim())
                             .append("-")
                             .append(date)
                             .append("-")
