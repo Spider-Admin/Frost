@@ -2584,14 +2584,16 @@ public class frame1 extends JFrame implements ClipboardOwner
 
             // Add boards to changeDestinationBoard submenu
             Vector boards = getTofTree().getAllBoards();
+            Collections.sort(boards);
             uploadPopupChangeDestinationBoard.removeAll();
             for (int i = 0; i < boards.size(); i++)
             {
-                JMenuItem boardMenuItem = new JMenuItem((String)boards.elementAt(i));
+                final FrostBoardObject aBoard = (FrostBoardObject)boards.elementAt(i);
+                JMenuItem boardMenuItem = new JMenuItem(aBoard.toString());
                 uploadPopupChangeDestinationBoard.add(boardMenuItem);
                 boardMenuItem.addActionListener(new ActionListener()  {
                     public void actionPerformed(ActionEvent e) {
-                        TableFun.setSelectedRowsColumnValue(uploadTable, 4, mixed.makeFilename(e.getActionCommand()));
+                        TableFun.setSelectedRowsColumnValue(uploadTable, 4, aBoard.getBoardFilename());
                     }
                     });
             }
