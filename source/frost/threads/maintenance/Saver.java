@@ -41,9 +41,9 @@ public class Saver extends Timer {
 		 */
 		public void run() {
 			if (autoSavables != null) {
-				Enumeration enum = autoSavables.elements();
-				while (enum.hasMoreElements()) {
-					((Savable) enum.nextElement()).save();
+				Enumeration enumeration = autoSavables.elements();
+				while (enumeration.hasMoreElements()) {
+					((Savable) enumeration.nextElement()).save();
 				}
 			}			
 		}
@@ -70,9 +70,9 @@ public class Saver extends Timer {
 			logger.info("Saving settings ...");
 
 			if (exitSavables != null) {
-				Enumeration enum = exitSavables.elements();
-				while (enum.hasMoreElements()) {
-					((Savable) enum.nextElement()).save();
+				Enumeration enumeration = exitSavables.elements();
+				while (enumeration.hasMoreElements()) {
+					((Savable) enumeration.nextElement()).save();
 				}
 			}
 			FileAccess.cleanKeypool(MainFrame.keypool);

@@ -674,9 +674,9 @@ public class SettingsClass implements Savable {
 	 */
 	public boolean save() {
 		if (updaters != null) {
-			Enumeration enum = updaters.elements();
-			while (enum.hasMoreElements()) {
-				((SettingsUpdater) enum.nextElement()).updateSettings();
+			Enumeration enumeration = updaters.elements();
+			while (enumeration.hasMoreElements()) {
+				((SettingsUpdater) enumeration.nextElement()).updateSettings();
 			}
 		}
 		return writeSettingsFile(); 
