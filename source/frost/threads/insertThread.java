@@ -45,6 +45,7 @@ public class insertThread extends Thread
         boolean success = false;
         String[] result = {"Error", "Error"};
 	String currentDate = DateFun.getExtendedDate();
+	boolean sign = frame1.frostSettings.getBoolValue("signUploads");
     	
         if( mode ) {  //real upload
 	    System.out.println("Upload of " + file + " with HTL " + htl + " started.");
@@ -82,6 +83,7 @@ public class insertThread extends Thread
 	    
 	    //now update the files.xml with the CHK
 	    KeyClass current = new KeyClass(result[1]);
+	    if(sign)
 	    current.setOwner(frame1.getMyId().getUniqueName());
 	    current.setFilename(uploadItem.getFileName());
 	    current.setSHA1(uploadItem.getSHA1());
@@ -105,6 +107,7 @@ public class insertThread extends Thread
 	    newKey.setSHA1(SHA1);  
             newKey.setFilename(destination);
             newKey.setSize(file.length());
+	    if (sign)
 	    newKey.setOwner(frame1.getMyId().getUniqueName());
 	    
 	    //update the gui

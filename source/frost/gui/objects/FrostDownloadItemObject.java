@@ -138,7 +138,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
             case 5: return blocks;                  //LangRes.getString("Blocks"),
             case 6: return retries;                 //LangRes.getString("Retries"),
             case 7: return board;                   //LangRes.getString("Source"),
-            case 8: return owner;                     //LangRes.getString("Key")
+            case 8: return owner==null ? "anonymous" : owner;                     //LangRes.getString("Key")
             default: return "*ERR*";
         }
     }

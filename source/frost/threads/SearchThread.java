@@ -158,6 +158,7 @@ public class SearchThread extends Thread {
         GregorianCalendar today = new GregorianCalendar();
         today.setTimeZone(TimeZone.getTimeZone("GMT"));
 
+	
         for (int i = results.size() - 1; i >= 0; i--) {
         	KeyClass key = (KeyClass)results.elementAt(i);
 		GregorianCalendar keyCal=null;
@@ -171,6 +172,28 @@ public class SearchThread extends Thread {
         		}
 		}
         }
+    }
+    
+    
+    boolean hideAnon = frame1.frostSettings.getBoolValue("hideAnonFiles");
+    boolean hideBad = frame1.frostSettings.getBoolValue("hideBadFiles");
+    //check if file anonymous
+     Iterator it = results.iterator();
+     while (it.hasNext()) {
+     	KeyClass key = (KeyClass)it.next();
+	if (key.getOwner() == null || 
+		(key.getOwner()!=null && key.getOwner().compareToIgnoreCase("anonymous")==0) &&
+		hideAnon) {
+		it.remove();
+		continue;
+	}
+	//check if file from someone bad
+	if (key.getOwner() != null &&
+		frame1.getEnemies().Get(key.getOwner()) != null &&
+			hideBad) {
+		it.remove();
+		continue;
+	}	
     }
 
     if (request.indexOf("*-") != -1) {
