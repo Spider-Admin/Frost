@@ -572,6 +572,7 @@ public class MessageFrame extends JFrame
 		.start();
 
 		// Properly positions the caret (AKA cursor)
+		TAcontent.requestFocusInWindow();
 		TAcontent.getCaret().setDot(caretPos);
 		TAcontent.getCaret().setVisible(true);
 	}
