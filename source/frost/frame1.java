@@ -46,7 +46,7 @@ import frost.threads.maintenance.Truster;
 
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)
-//             - each identity have 3 states: GOOD, BAD, NEUTRAL
+//           - each identity have 3 states: GOOD, BAD, NEUTRAL
 //             - filter out enemies on read of messages
 
 // after removing a board, let actual board selected (currently if you delete another than selected board
@@ -478,172 +478,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private PopupMenuTofText popupMenuTofText = null;
 
 	/**
-	 * 
-	 */
-	private class PopupMenuSearch
-		extends JPopupMenu
-		implements ActionListener, LanguageListener {
-
-		JMenuItem cancelItem = new JMenuItem();
-		JMenuItem downloadAllKeysItem = new JMenuItem();
-		JMenuItem downloadSelectedKeysItem = new JMenuItem();
-		JMenuItem setBadItem = new JMenuItem();
-		JMenuItem setGoodItem = new JMenuItem();
-
-		/**
-		 * 
-		 */
-		public PopupMenuSearch() {
-			super();
-			initialize();
-		}
-
-		/**
-		 * 
-		 */
-		private void initialize() {
-			refreshLanguage();
-
-			downloadSelectedKeysItem.addActionListener(this);
-			downloadAllKeysItem.addActionListener(this);
-			setGoodItem.addActionListener(this);
-			setBadItem.addActionListener(this);
-
-			/*		copyAttachmentItem.addActionListener(new ActionListener() {
-						 public void actionPerformed(ActionEvent e) {
-							 String srcData =
-								 getSearchTable()
-									 .getSelectedSearchItemsAsAttachmentsString();
-							 Clipboard clipboard = getToolkit().getSystemClipboard();
-							 StringSelection contents = new StringSelection(srcData);
-							 clipboard.setContents(contents, frame1.this);
-						 }
-					 });
-			*/
-		}
-
-		/**
-		 * 
-		 */
-		private void refreshLanguage() {
-			downloadSelectedKeysItem.setText(
-				languageResource.getString("Download selected keys"));
-			downloadAllKeysItem.setText(
-				languageResource.getString("Download all keys"));
-			setGoodItem.setText(
-				languageResource.getString("help user (sets to GOOD)"));
-			setBadItem.setText(
-				languageResource.getString("block user (sets to BAD)"));
-			cancelItem.setText(languageResource.getString("Cancel"));
-		}
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
-		public void actionPerformed(ActionEvent e) {
-			if (e.getSource() == downloadSelectedKeysItem) {
-				downloadSelectedKeys();
-			}
-			if (e.getSource() == downloadAllKeysItem) {
-				downloadAllKeys();
-			}
-			if (e.getSource() == setGoodItem) {
-				setGood();
-			}
-			if (e.getSource() == setBadItem) {
-				setBad();
-			}
-		}
-
-		/**
-		 * 
-		 */
-		private void setBad() {
-			java.util.List l = getSearchTable().getSelectedItemsOwners();
-			Iterator i = l.iterator();
-			while (i.hasNext()) {
-				Identity owner_id = (Identity) i.next();
-
-				Truster truster =
-					new Truster(
-						Core.getInstance(),
-						new Boolean(false),
-						owner_id.getUniqueName());
-				truster.start();
-			}
-		}
-
-		/**
-		 * 
-		 */
-		private void setGood() {
-			java.util.List l = getSearchTable().getSelectedItemsOwners();
-			Iterator i = l.iterator();
-			while (i.hasNext()) {
-				Identity owner_id = (Identity) i.next();
-
-				Truster truster =
-					new Truster(
-						Core.getInstance(),
-						new Boolean(true),
-						owner_id.getUniqueName());
-				truster.start();
-			}
-		}
-
-		/**
-		 * 
-		 */
-		private void downloadAllKeys() {
-			searchTable.selectAll();
-			getSearchTable().addSelectedSearchItemsToDownloadTable(
-				getDownloadTable());
-		}
-
-		/**
-		 * 
-		 */
-		private void downloadSelectedKeys() {
-			getSearchTable().addSelectedSearchItemsToDownloadTable(
-				getDownloadTable());
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();
-		}
-
-		/* (non-Javadoc)
-		 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-		 */
-		public void show(Component invoker, int x, int y) {
-			removeAll();
-
-			if (searchTable.getSelectedRow() > -1) {
-				add(downloadSelectedKeysItem);
-				addSeparator();
-			}
-			add(downloadAllKeysItem);
-			addSeparator();
-			if (searchTable.getSelectedRow() > -1) {
-				//	add(copyAttachmentItem);
-				//	addSeparator();
-				add(setGoodItem);
-				add(setBadItem);
-				addSeparator();
-			}
-			add(cancelItem);
-
-			super.show(invoker, x, y);
-		}
-
-	}
-
-	private PopupMenuSearch popupMenuSearch = null;
-
-	/**
 	 * Getter for the language resource bundle
 	 */
 	public ResourceBundle getLanguageResource() {
@@ -658,18 +492,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		translateMainMenu();
 		translateTabbedPane();
 		translateButtons();
-		translateCheckBox();
 	}
 
-	/**
-	 * We really have to use ONE single point to configure all translateable 
-	 * objecs. This way we can change the resourceBundle and change
-	 * Frost's language on runtime.
-	 */
-	private void translateCheckBox() {
-		searchAllBoardsCheckBox.setText(
-			languageResource.getString("all boards"));
-	}
 	private void translateTabbedPane() {
 		tabbedPane.setTitleAt(0, languageResource.getString("News"));
 		tabbedPane.setTitleAt(1, languageResource.getString("Search"));
@@ -678,8 +502,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 	private void translateButtons() {
 		newBoardButton.setToolTipText(languageResource.getString("New board"));
-		searchDownloadButton.setToolTipText(
-			languageResource.getString("Download selected keys"));
 		systemTrayButton.setToolTipText(
 			languageResource.getString("Minimize to System Tray"));
 		knownBoardsButton.setToolTipText(
@@ -712,7 +534,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		checkTrustButton.setToolTipText(
 			languageResource.getString("Set to CHECK"));
 		tofUpdateButton.setToolTipText(languageResource.getString("Update"));
-		searchButton.setToolTipText(languageResource.getString("Search"));
 	}
 	private void translateMainMenu() {
 		fileMenu.setText(languageResource.getString("File"));
@@ -758,24 +579,16 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	/**Save settings*/
 	public void saveSettings() {
-		frostSettings.setValue(
-			"downloadingActivated",
-			getDownloadPanel().isDownloadingActivated());
+		frostSettings.setValue("downloadingActivated", getDownloadPanel().isDownloadingActivated());
 		//      frostSettings.setValue("uploadingActivated", uploadActivateCheckBox.isSelected());
-		frostSettings.setValue(
-			"searchAllBoards",
-			searchAllBoardsCheckBox.isSelected());
+		frostSettings.setValue("searchAllBoards", getSearchPanel().isAllBoardsSelected());
 		//      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
-		frostSettings.setValue(
-			"automaticUpdate",
-			tofAutomaticUpdateMenuItem.isSelected());
+		frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
 
 		// save size and location of window
 		Dimension actSize = getSize();
 		//        Point actPos = this.getLocationOnScreen();
-		frostSettings.setValue(
-			"lastFrameHeight",
-			"" + (int) actSize.getHeight());
+		frostSettings.setValue("lastFrameHeight", "" + (int) actSize.getHeight());
 		frostSettings.setValue("lastFrameWidth", "" + (int) actSize.getWidth());
 		//        frostSettings.setValue("lastFrameLocX", ""+(int)actPos.getX() );
 		//        frostSettings.setValue("lastFrameLocY", ""+(int)actPos.getY() );
@@ -868,7 +681,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	// buttons that are enabled/disabled later
 	JButton newBoardButton = null;
-	JButton searchDownloadButton = null;
 	JButton systemTrayButton = null;
 	JButton knownBoardsButton = null;
 	JButton boardInfoButton = null;
@@ -889,18 +701,13 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JButton checkTrustButton = null;
 	JButton tofUpdateButton = null;
 
-	JButton searchButton = null;
-
 	// labels that are updated later
 	JLabel statusLabel = null;
 	JLabel statusMessageLabel = null;
 	static ImageIcon[] newMessage = new ImageIcon[2];
 	JLabel timeLabel = null;
 
-	JCheckBox searchAllBoardsCheckBox = null;
 	JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
-
-	JComboBox searchComboBox = null;
 
 	JTabbedPane tabbedPane = null;
 
@@ -911,9 +718,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	final String newMessagesCountPrefix = "New: ";
 	JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 	JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
-
-	private String searchResultsCountPrefix = null;
-	JLabel searchResultsCountLabel = new JLabel();
 
 	TofTree tofTree = null;
 
@@ -926,11 +730,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	private HealingTable healingTable = null;
 
 	private JTextArea tofTextArea = null;
-	private JTextField searchTextField = null;
-
 	//Panels
 	private DownloadPanel downloadPanel = null;
 	private UploadPanel uploadPanel = null;
+	private SearchPanel searchPanel = null;
 
 	public static Hashtable getMyBatches() {
 		return Core.getMyBatches();
@@ -972,7 +775,29 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		return messageTable;
 	}
 	public SearchTable getSearchTable() {
+		if (searchTable == null) {
+			SearchTableModel searchTableModel = new SearchTableModel(languageResource);
+			searchTable = new SearchTable(searchTableModel);
+			languageResource.addLanguageListener(searchTableModel);
+			searchTableModel.addTableModelListener(searchTable);
+		}
 		return searchTable;
+	}
+	
+	/**
+		 * @return
+		 */
+	private SearchPanel getSearchPanel() {
+		if (searchPanel == null) {
+			searchPanel = new SearchPanel();
+			searchPanel.setSearchTable(getSearchTable());
+			searchPanel.setDownloadTable(getDownloadTable());
+			searchPanel.setTofTree(getTofTree());
+			searchPanel.setKeypool(keypool);
+			searchPanel.setLanguageResource(languageResource);
+			searchPanel.initialize();
+		}
+		return searchPanel;		
 	}
 	public DownloadTable getDownloadTable() {
 		if (downloadTable == null) {
@@ -1013,9 +838,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			tofTree = new TofTree(dummyRootNode);
 		}
 		return tofTree;
-	}
-	public JButton getSearchButton() {
-		return searchButton;
 	}
 	public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
 		return runningBoardUpdateThreads;
@@ -1320,7 +1142,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		this.tabbedPane = new JTabbedPane();
 		//add a tab for buddies perhaps?
 		tabbedPane.add(languageResource.getString("News"), buildMessagePane());
-		tabbedPane.add(languageResource.getString("Search"), buildSearchPane());
+		tabbedPane.add(languageResource.getString("Search"), getSearchPanel());
 		tabbedPane.add(
 			languageResource.getString("Downloads"),
 			getDownloadPanel());
@@ -1605,97 +1427,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				"Select a message to view its content."));
 	}
 
-	private JPanel buildSearchPane() {
-		// create objects for button toolbar
-		this.searchAllBoardsCheckBox =
-			new JCheckBox(languageResource.getString("all boards"), true);
-		searchDownloadButton =
-			new JButton(
-				new ImageIcon(frame1.class.getResource("/data/save.gif")));
-		this.searchButton =
-			new JButton(
-				new ImageIcon(frame1.class.getResource("/data/search.gif")));
-
-		this.searchTextField = new JTextField(25);
-		String[] searchComboBoxItems =
-			{
-				"All files",
-				"Audio",
-				"Video",
-				"Images",
-				"Documents",
-				"Executables",
-				"Archives" };
-		this.searchComboBox = new JComboBox(searchComboBoxItems);
-		// configure buttons
-		configureButton(
-			searchButton,
-			languageResource.getString("Search"),
-			"/data/search_rollover.gif");
-		configureButton(
-			searchDownloadButton,
-			languageResource.getString("Download selected keys"),
-			"/data/save_rollover.gif");
-		// build button toolbar panel
-		JPanel searchTopPanel = new JPanel();
-		BoxLayout dummyLayout = new BoxLayout(searchTopPanel, BoxLayout.X_AXIS);
-		searchTopPanel.setLayout(dummyLayout);
-
-		searchTextField.setMaximumSize(searchTextField.getPreferredSize());
-		searchTopPanel.add(searchTextField); // Search / text
-		searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		searchComboBox.setMaximumSize(searchComboBox.getPreferredSize());
-		searchTopPanel.add(searchComboBox);
-		searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		searchTopPanel.add(searchButton); // Search / Search button
-		searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		searchTopPanel.add(searchDownloadButton);
-		// Search / Download selected files
-		searchTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
-		searchTopPanel.add(searchAllBoardsCheckBox);
-		searchTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
-		searchTopPanel.add(Box.createHorizontalGlue());
-
-		searchResultsCountPrefix =
-			"   " + languageResource.getString("Results") + ": ";
-		JLabel dummyLabel = new JLabel(searchResultsCountPrefix + "00000");
-		dummyLabel.doLayout();
-		Dimension labelSize = dummyLabel.getPreferredSize();
-		searchResultsCountLabel.setPreferredSize(labelSize);
-		searchResultsCountLabel.setMinimumSize(labelSize);
-		searchResultsCountLabel.setText(searchResultsCountPrefix + "0");
-		searchTopPanel.add(searchResultsCountLabel);
-		// build table
-		SearchTableModel searchTableModel = new SearchTableModel();
-		this.searchTable = new SearchTable(searchTableModel);
-		JScrollPane searchTableScrollPane = new JScrollPane(searchTable);
-		// add action listener
-		searchTextField.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				searchTextField_actionPerformed(e);
-			}
-		});
-		searchDownloadButton
-			.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				getSearchTable().addSelectedSearchItemsToDownloadTable(
-					getDownloadTable());
-			}
-		});
-		searchButton.addActionListener(new java.awt.event.ActionListener() {
-			public void actionPerformed(ActionEvent e) {
-				searchButton_actionPerformed(e);
-			}
-		});
-		// build panel
-		JPanel searchMainPanel = new JPanel(new BorderLayout());
-		searchMainPanel.add(searchTopPanel, BorderLayout.NORTH);
-		// Search / Buttons
-		searchMainPanel.add(searchTableScrollPane, BorderLayout.CENTER);
-		// Search / Results
-		return searchMainPanel;
-	}
-
 	//**********************************************************************************************
 	//**********************************************************************************************
 	//**********************************************************************************************
@@ -1705,64 +1436,61 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			Toolkit.getDefaultToolkit().createImage(
 				frame1.class.getResource("/data/jtc.jpg")));
 		this.setResizable(true);
-
+	
 		this.setTitle("Frost");
-
+	
 		JPanel contentPanel = (JPanel) this.getContentPane();
 		contentPanel.setLayout(new BorderLayout());
-
+	
 		contentPanel.add(buildButtonPanel(), BorderLayout.NORTH);
 		// buttons toolbar
 		contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
 		// tree / tabbed pane
 		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH); // Statusbar
-
+	
 		buildMenuBar();
-
+	
 		//**********************************************************************************************
 		//**********************************************************************************************
 		//**********************************************************************************************
-
+	
 		/*configureCheckBox(searchAllBoardsCheckBox,
 		             "Search all boards",
 		             "data/allboards_rollover.gif",
 		             "data/allboards_selected.gif",
 		             "data/allboards_selected_rollover.gif");*/
-
+	
 		// Add Popup listeners
 		MouseListener popupListener = new PopupListener();
-		getSearchTable().addMouseListener(popupListener);
-		getUploadTable().addMouseListener(popupListener);
 		tofTextArea.addMouseListener(popupListener);
 		getTofTree().addMouseListener(popupListener);
 		getAttachmentTable().addMouseListener(popupListener);
 		getAttachedBoardsTable().addMouseListener(popupListener);
 		messageTable.addMouseListener(popupListener);
-
+	
 		//**********************************************************************************************
 		//**********************************************************************************************
 		//**********************************************************************************************
-
+	
 		//------------------------------------------------------------------------
-
+	
 		tofReplyButton.setEnabled(false);
 		downloadAttachmentsButton.setEnabled(false);
 		downloadBoardsButton.setEnabled(false);
 		saveMessageButton.setEnabled(false);
 		pasteBoardButton.setEnabled(false);
-		searchAllBoardsCheckBox.setSelected(true);
 		trustButton.setEnabled(false);
 		notTrustButton.setEnabled(false);
 		checkTrustButton.setEnabled(false);
-
+	
 		//on with other stuff
-
+	
 		getTofTree().initialize();
-
+	
 		// step through all messages on disk up to maxMessageDisplay and check if there are new messages
 		// if a new message is in a folder, this folder is show yellow in tree
 		TOF.initialSearchNewMessages();
-
+	
 		if (core.isFreenetOnline()) {
 			getDownloadPanel().setDownloadingActivated(
 				frostSettings.getBoolValue("downloadingActivated"));
@@ -1772,20 +1500,19 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			getDownloadPanel().setDownloadingActivated(false);
 			tofAutomaticUpdateMenuItem.setSelected(false);
 		}
-		searchAllBoardsCheckBox.setSelected(
-			frostSettings.getBoolValue("searchAllBoards"));
+		getSearchPanel().setAllBoardsSelected(frostSettings.getBoolValue("searchAllBoards"));
 		//      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
 		//      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
-
+	
 		if (getTofTree().getRowCount()
 			> frostSettings.getIntValue("tofTreeSelectedRow"))
 			getTofTree().setSelectionRow(
 				frostSettings.getIntValue("tofTreeSelectedRow"));
-
+	
 		// make sure the font size isn't too small to see
 		if (frostSettings.getFloatValue("tofFontSize") < 6.0f)
 			frostSettings.setValue("tofFontSize", 6.0f);
-
+	
 		// always use monospaced font for tof text
 		Font tofFont =
 			new Font(
@@ -1793,17 +1520,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				Font.PLAIN,
 				(int) frostSettings.getFloatValue("tofFontSize"));
 		tofTextArea.setFont(tofFont);
-
+	
 		// Load table settings
 		getDownloadTable().load();
 		getUploadTable().load();
-
+	
 		// load size and location of window
 		int lastHeight = frostSettings.getIntValue("lastFrameHeight");
 		int lastWidth = frostSettings.getIntValue("lastFrameWidth");
 		//    int lastX = frostSettings.getIntValue("lastFrameLocX" );
 		//    int lastY = frostSettings.getIntValue("lastFrameLocY" );
-
+	
 		if (lastWidth < 100 || lastHeight < 100) {
 			// set default size
 			this.setSize(new Dimension(790, 580));
@@ -1811,7 +1538,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			this.setSize(lastWidth, lastHeight);
 			//        this.setLocation( lastX, lastY );
 		}
-
+	
 	} // ************** end-of: jbInit()
 
 	private ImageIcon getScaledImage(String imgPath) {
@@ -3039,49 +2766,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		}
 	};
 
-	/**searchTextField Action Listener (search)*/
-	private void searchTextField_actionPerformed(ActionEvent e) {
-		if (searchButton.isEnabled()) {
-			searchButton_actionPerformed(e);
-		}
-	}
-
-	/**searchButton Action Listener (Search)*/
-	private void searchButton_actionPerformed(ActionEvent e) {
-		searchButton.setEnabled(false);
-		getSearchTable().clearSelection();
-		((SearchTableModel) getSearchTable().getModel()).clearDataModel();
-		Vector boardsToSearch;
-		if (searchAllBoardsCheckBox.isSelected()) {
-			// search in all boards
-			boardsToSearch = getTofTree().getAllBoards();
-		} else {
-			if (getSelectedNode().isFolder() == false) {
-				// search in selected board
-				boardsToSearch = new Vector();
-				boardsToSearch.add(getSelectedNode());
-			} else {
-				// search in all boards below the selected folder
-				Enumeration enu = getSelectedNode().depthFirstEnumeration();
-				boardsToSearch = new Vector();
-				while (enu.hasMoreElements()) {
-					FrostBoardObject b = (FrostBoardObject) enu.nextElement();
-					if (b.isFolder() == false) {
-						boardsToSearch.add(b);
-					}
-				}
-			}
-		}
-
-		SearchThread searchThread =
-			new SearchThread(
-				searchTextField.getText(),
-				boardsToSearch,
-				keypool,
-				(String) searchComboBox.getSelectedItem());
-		searchThread.start();
-	}
-
 	/**tofNewMessageButton Action Listener (tof/ New Message)*/
 	private void tofNewMessageButton_actionPerformed(ActionEvent e) {
 		/*
@@ -3302,13 +2986,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 						Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
 					}
 				}
-
-				// Add search result to download table
-				if (e.getComponent().equals(searchTable)) {
-					getSearchTable().addSelectedSearchItemsToDownloadTable(
-						getDownloadTable());
-				}
-
 			} else {
 				maybeShowPopup(e);
 			}
@@ -3321,8 +2998,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		private void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger() == false) {
 				return;
-			} else if (e.getComponent().equals(searchTable)) { // Search Popup
-				showSearchTablePopupMenu(e);
 			} else if (
 				e.getComponent().equals(tofTextArea)) { // TOF text popup
 				showTofTextAreaPopupMenu(e);
@@ -3364,20 +3039,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			int newMessages = board.getNewMessageCount();
 			newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
 		}
-	}
-
-	/**
-	 * Updates the search result count.
-	 * Called by search thread.
-	 */
-	public void updateSearchResultCountLabel() {
-		DefaultTableModel model = (DefaultTableModel) searchTable.getModel();
-		int searchResults = model.getRowCount();
-		if (searchResults == 0) {
-			searchResultsCountLabel.setText(searchResultsCountPrefix + "0");
-		}
-		searchResultsCountLabel.setText(
-			searchResultsCountPrefix + searchResults);
 	}
 
 	/**
@@ -3649,10 +3310,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
 	}
 
-	protected void showSearchTablePopupMenu(MouseEvent e) {
-		getPopupMenuSearch().show(e.getComponent(), e.getX(), e.getY());
-	}
-
 	protected void showMessageTablePopupMenu(MouseEvent e) {
 		getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -3725,17 +3382,6 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	 */
 	public static LocalIdentity getMyId() {
 		return Core.getMyId();
-	}
-
-	/**
-	 * @return
-	 */
-	private PopupMenuSearch getPopupMenuSearch() {
-		if (popupMenuSearch == null) {
-			popupMenuSearch = new PopupMenuSearch();
-			languageResource.addLanguageListener(popupMenuSearch);
-		}
-		return popupMenuSearch;
 	}
 
 	/**
