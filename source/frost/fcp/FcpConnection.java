@@ -171,7 +171,7 @@ public class FcpConnection
         fcpOut.write(header, 0, header.length);
         fcpOut.println("ClientGet");
         fcpOut.println("URI=" + key);
-        fcpOut.println("HopsToLive=" + htl);
+        fcpOut.println("HopsToLive=" + Integer.toHexString(htl));
         fcpOut.println("EndMessage");
 
         FcpKeyword kw;
@@ -380,7 +380,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpOut.write(header, 0, header.length);
         fcpOut.println("ClientGet");
         fcpOut.println("URI=" + key);
-        fcpOut.println("HopsToLive=" + htl);
+        fcpOut.println("HopsToLive=" + Integer.toHexString(htl));
         fcpOut.println("EndMessage");
 
         FcpKeyword kw;
@@ -587,7 +587,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
 		fcpOut.println("ClientPut");
 		fcpOut.println("RemoveLocalKey=true");
-		fcpOut.println("HopsToLive=" + htl);
+		fcpOut.println("HopsToLive=" + Integer.toHexString(htl));
 		fcpOut.println("URI=" + key);
 
 		int dataLength = 0;

@@ -16,6 +16,7 @@ Bugfix: when the text in the "Name" column of the uploads table is written in bo
 Bugfix: The message upload failed dialog works now. Some strings were missing from the language resource.
 		(thanks to SSY)
 Bugfix: From Freenet 5099 on, keywords may be longer than 64 characters. Thanks to mxbee for reporting it.
+Bugfix: The HopsToLive parameter must be in hexadecimal. Thanks to mxbee.
 		
 **************************************************************************************************
 
