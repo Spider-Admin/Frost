@@ -99,6 +99,7 @@ public class LangRes_fr extends ListResourceBundle {
 	//	Preferences. Display panel		//TODO: Translate
 	{"EnableSkins", "Enable Skins"}, 	
 	{"MessageBodyFont", "Message Body Font"}, 
+	{"MoreSkinsAt", "You can get more skins at"},
 
 	// Preferences / Tabbed Pane
 	{"Downloads", "Téléchargements"},

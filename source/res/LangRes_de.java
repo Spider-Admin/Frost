@@ -269,5 +269,6 @@ static final Object[][] contents = {
 {"Dutch","Holländisch"},
 {"Japanese","Japanisch"},
 {"Language","Sprache"},
+{"MoreSkinsAt", "You can get more skins at"},
 };
 }

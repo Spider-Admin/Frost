@@ -211,7 +211,8 @@ public class LangRes extends ListResourceBundle {
     //Preferences. Display panel
     {"EnableSkins", "Enable Skins"}, 	
 	{"MessageBodyFont", "Message Body Font"}, 
-
+	{"MoreSkinsAt", "You can get more skins at"},
+	
     // Preferences / Tabbed Pane
     {"Downloads", "Downloads"},
     {"Uploads", "Uploads"},
