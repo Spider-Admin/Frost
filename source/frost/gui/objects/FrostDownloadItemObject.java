@@ -29,6 +29,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private Integer retries = null;
     private Boolean enableDownload = null;
     private String owner = null;
+    private String SHA1 = null;
 
     private int state = 0;
 
@@ -46,6 +47,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         key = searchItem.getKey();
 	owner = searchItem.getOwner();
         sourceBoard = searchItem.getBoard();
+	SHA1 = searchItem.getSHA1();
         retries = new Integer(0);
 
         state = STATE_WAITING;
@@ -69,6 +71,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
                                     String key,
                                     String tries,
 				    String from,
+				    String SHA1,
                                     int state,
                                     boolean isDownloadEnabled,
                                     FrostBoardObject board )
@@ -254,6 +257,14 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     
     public void setOwner(String owner) {
     	this.owner = owner;
+    }
+    
+    public String getSHA1() {
+    	return SHA1;
+    }
+    
+    public void setSHA1(String sha1) {
+    	SHA1 = sha1;
     }
 
 }

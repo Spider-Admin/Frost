@@ -98,4 +98,8 @@ public class FrostSearchItemObject implements FrostSearchItem, TableMember
     public String getOwner() {
     	return key.getOwner();
     }
+    
+    public String getSHA1() {
+    	return key.getSHA1();
+    }
 }

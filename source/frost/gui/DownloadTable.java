@@ -284,8 +284,8 @@ public class DownloadTable extends SortedTable
         for( int x=0; x<model.getRowCount(); x++ )
         {
             FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
-            if( dlItem.getKey() != null &&
-                dlItem.getKey().equals( key ) )
+            if( dlItem.getSHA1() != null &&
+                dlItem.getSHA1().equals( key ) )
             {
                 return true;
             }
