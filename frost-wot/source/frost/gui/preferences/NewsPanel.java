@@ -178,9 +178,9 @@ class NewsPanel extends JPanel {
 		uploadHtlLabel.setText(language.getString("Message upload HTL") + " (21)");
 		downloadHtlLabel.setText(language.getString("Message download HTL") + " (23)");
 		displayDaysLabel.setText(
-				language.getString("Number of days to display") + " (10)");
+				language.getString("Number of days to display") + " (15)");
 		downloadDaysLabel.setText(
-				language.getString("Number of days to download backwards") + " (3)");
+				language.getString("Number of days to download backwards") + " (5)");
 		messageBaseLabel.setText(language.getString("Message base") + " (news)");
 		signatureLabel.setText(language.getString("Signature"));
 	}
