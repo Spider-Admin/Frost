@@ -307,8 +307,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			}
 			
                         FileAccess.writeFile(unzipped,target);
-                        Index.add(target, 
-				new File(frame1.keypool+board.getBoardFilename()+fileSeparator+"files.xml"));
+                        Index.add(target, board);
 			target.delete();
                     }
                     catch(Throwable t)

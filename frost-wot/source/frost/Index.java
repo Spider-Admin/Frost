@@ -30,14 +30,15 @@ public class Index
      * @param board The boardsname (in filename type)
      * @return Vector with KeyClass objects
      */
-     
+ 
+    private static final String fileSeparator = System.getProperty("file.separator");
     public static KeyClass getKey(String SHA1,FrostBoardObject board) {
     	return getKey(SHA1,board.getBoardFilename());
     }
     
     public static KeyClass getKey(String SHA1,String board) {
     	final Map keys = Collections.synchronizedMap(new HashMap());
-	final String fileSeparator = System.getProperty("file.separator");
+	//final String fileSeparator = System.getProperty("file.separator");
 	
 	File keyFile = new File(frame1.keypool + board + fileSeparator + "files.xml");
 	
@@ -73,7 +74,7 @@ public class Index
 	final Map total = Collections.synchronizedMap(new HashMap());
         System.out.println("Index.getUploadKeys(" + board + ")");
         Vector keys = new Vector();
-        final String fileSeparator = System.getProperty("file.separator");
+        //final String fileSeparator = System.getProperty("file.separator");
 
         // Abort if boardDir does not exist
         File boardNewUploads = new File(frame1.keypool + board+fileSeparator+"new_files.xml");
@@ -215,17 +216,23 @@ public class Index
     }
 
     public static void add(KeyClass key, FrostBoardObject board) {
-        final String fileSeparator = System.getProperty("file.separator");
+        //final String fileSeparator = System.getProperty("file.separator");
+	File boardDir = new File(board.getBoardFilename());
+	if (!(boardDir.exists() && boardDir.isDirectory())) boardDir.mkdir();
 	if (key.getKey() != null)
 		updateDownloadTable(key);
     	add(key,new File(frame1.keypool + board.getBoardFilename()+fileSeparator+"files.xml"));
     }
     
     public static void addMine(KeyClass key, FrostBoardObject board) {
-        final String fileSeparator = System.getProperty("file.separator");
+        //final String fileSeparator = System.getProperty("file.separator");
 	File boardDir = new File(frame1.keypool + board.getBoardFilename());
-	if (!boardDir.exists()) boardDir.mkdir();
+	if (!(boardDir.exists() && boardDir.isDirectory())) boardDir.mkdir();
     	add(key,new File(boardDir.getPath()+fileSeparator+"new_files.xml"));
+    }
+    
+    public static void add(File keyFile, FrostBoardObject board) {
+    	add(keyFile, new File(frame1.keypool + board.getBoardFilename() + fileSeparator+ "files.xml"));
     }
     /**
      * Adds a key object to an index located at target dir.
@@ -236,7 +243,7 @@ public class Index
     public static void add(KeyClass key, File target)
     {
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
-        final String fileSeparator = System.getProperty("file.separator");
+        //final String fileSeparator = System.getProperty("file.separator");
         final String hash = key.getSHA1();
 	
 	if (key.getKey() != null)
@@ -248,8 +255,8 @@ public class Index
         //	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
         final Map chk = Collections.synchronizedMap(new HashMap());
 
-        if( !target.isDirectory() && !target.getPath().endsWith("xml"))
-            target.mkdir();
+        //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
+          //  target.mkdir();
        // if( split.indexOf(firstLetter) == -1 )
          //   firstLetter = "other";
 
@@ -268,19 +275,21 @@ public class Index
     }
 
     /**
-     * Adds a keyfile to an index located at target dir.
-     * Target dir will be created if it does not exist
+     * Adds a keyfile to another
      * @param keyfile the keyfile to add to the index
-     * @param target directory containing index
+     * @param target file containing index
      */
     public static void add(File keyfile, File target)
     {
      
         final Map chunk = Collections.synchronizedMap(new HashMap());
 
-        if( !target.isDirectory() )
-            target.mkdir();
-
+	try {
+        if( !target.exists() )
+            target.createNewFile();
+	}catch(IOException e) {
+		e.printStackTrace();
+	}
         FileAccess.readKeyFile(keyfile, chunk);
 
         
@@ -297,13 +306,13 @@ public class Index
     protected static void add(Map chunk, File target)
     {
         //final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
-        final String fileSeparator = System.getProperty("file.separator");
+//        final String fileSeparator = System.getProperty("file.separator");
 	final Map whole = Collections.synchronizedMap(new HashMap());
 	
 	FileAccess.readKeyFile(target,whole);
 	
-        if( !target.isDirectory() && !target.getPath().endsWith("xml"))
-            target.mkdir();
+        //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
+          //  target.mkdir();
 
         Iterator i = chunk.values().iterator();
 	while (i.hasNext()) {
