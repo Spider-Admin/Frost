@@ -139,8 +139,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
         if( indexFile.length() > 0 && indexFile.isFile() )
         {
-            String tozip = frame1.getCrypto().sign(FileAccess.readFileRaw(indexFile),
-	    			frame1.getMyId().getPrivKey());
+            String tozip = frame1.frostSettings.getBoolValue("signUploads") ?
+	    	frame1.getCrypto().sign(FileAccess.readFileRaw(indexFile),
+	    			frame1.getMyId().getPrivKey()) :
+					FileAccess.readFileRaw(indexFile);
             FileAccess.writeZipFile(tozip, "entry", indexFile);
 
             // search empty slot
@@ -187,18 +189,18 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     // to work with large numbers of keys because they are
     // no longer kept in memory, but on disk.
     private void adjustMaxAge(int count) {/*  //this is not used
-    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: old value = " + frame1.frostSettings.getValue("maxAge"));
+    //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: old value = " + frame1.frame1.frostSettings.getValue("maxAge"));
 
     int lowerLimit = 10 * maxKeys / 100;
     int upperLimit = 90 * maxKeys / 100;
-    int maxAge = frame1.frostSettings.getIntValue("maxAge");
+    int maxAge = frame1.frame1.frame1.frostSettings.getIntValue("maxAge");
 
     if (count < lowerLimit && maxAge < 21)
         maxAge++;
     if (count > upperLimit && maxAge > 1)
         maxAge--;
 
-    frame1.frostSettings.setValue("maxAge", maxAge);
+    frame1.frame1.frame1.frostSettings.setValue("maxAge", maxAge);
     //if (DEBUG) System.out.println("FILEDN: AdjustMaxAge: new value = " + maxAge);*/
     }
 
@@ -258,6 +260,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					sharer = frame1.getFriends().Get(_sharer);
 				}
 				
+				//check if person is blocked
+				if (frame1.frostSettings.getBoolValue("hideBadFiles") &&
+					frame1.getEnemies().Get(_sharer)!=null) {
+					target.delete();
+					index++; //don't bother to check the message
+					continue;
+				}
+				
 				//we have the person
 				if (sharer==null) { //we don't have it, use the provided key
 					int key_index = unzipped.indexOf("pubkey =");
@@ -301,11 +311,16 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					continue;
 				}
 				
+				
 				//strip the sig
 				unzipped = unzipped.substring(frame1.getCrypto().MSG_HEADER_SIZE,
 							unzipped.lastIndexOf("\n=== Frost message signature: ===\n"));
-			}
-			
+			} else 
+				if (frame1.frostSettings.getBoolValue("hideAnonFiles")) {
+					target.delete();
+					index++;
+					continue; //do not show index.
+				}
                         FileAccess.writeFile(unzipped,target);
                         Index.add(target, board);
 			target.delete();
