@@ -39,7 +39,7 @@ import javax.swing.*;
  * be nice to find out why the JProgressBar is causing that trouble.
  * 
  * Update: the suggested workaround didn't work. It threw another strage Swing exception later, when the main frame 
- * was about to be shown, so I assupe it may be a problem with the gfx card drivers or a bug with the JVM itself 
+ * was about to be shown, so I assume it may be a problem with the gfx card drivers or a bug with the JVM itself 
  * (probably the first).
  * 
  * Update: it seems the problem lies on the com.sun.java.swing.plaf.windows.WindowsLookAndFeel. If the user chooses
@@ -49,8 +49,11 @@ public class Splashscreen extends JDialog {
 
 	private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
 
+	private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
+	private static String NO_SPLASH_FILENAME = "nosplash.chk";
+
 	//Splashscreen size depends on this image. 
-	private ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource("/data/logo.png"));
+	private ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource(SPLASH_LOGO_FILENAME));
 
 	//GUI Objects
 	JPanel mainPanel = new JPanel(new BorderLayout());
@@ -63,7 +66,7 @@ public class Splashscreen extends JDialog {
 	 * 
 	 */
 	public Splashscreen() {
-		File splashchk = new File("nosplash.chk");
+		File splashchk = new File(NO_SPLASH_FILENAME);
 		if (splashchk.exists()) {
 			noSplash = true;
 		} else {
