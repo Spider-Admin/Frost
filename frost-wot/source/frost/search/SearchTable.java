@@ -77,8 +77,8 @@ class SearchTable extends SortedTable
 		int[] selectedRows = getSelectedRows();
 		java.util.List result = new LinkedList();
 		for (int i = 0; i < selectedRows.length; i++) {
-			FrostSearchItemObject srItem =
-				(FrostSearchItemObject) searchTableModel.getRow(selectedRows[i]);
+			FrostSearchItem srItem =
+				(FrostSearchItem) searchTableModel.getRow(selectedRows[i]);
 			String owner = srItem.getOwner();
 			//check if null or from myself
 			if (owner == null || owner.compareTo(identities.getMyId().getUniqueName()) == 0)
@@ -141,21 +141,21 @@ class SearchTable extends SortedTable
             if( !isSelected )
             {
                 SearchTableModel model = (SearchTableModel)getModel();
-                FrostSearchItemObject sItem = (FrostSearchItemObject)model.getRow(row);
+                FrostSearchItem sItem = (FrostSearchItem)model.getRow(row);
 
-                if( sItem.getState() == FrostSearchItemObject.STATE_DOWNLOADED )
+                if( sItem.getState() == FrostSearchItem.STATE_DOWNLOADED )
                 {
                     setForeground( Color.LIGHT_GRAY );
                 }
-                else if( sItem.getState() == FrostSearchItemObject.STATE_DOWNLOADING )
+                else if( sItem.getState() == FrostSearchItem.STATE_DOWNLOADING )
                 {
                     setForeground( Color.BLUE );
                 }
-                else if(sItem.getState() == FrostSearchItemObject.STATE_UPLOADING )
+                else if(sItem.getState() == FrostSearchItem.STATE_UPLOADING )
                 {
                     setForeground( Color.MAGENTA );
                 }
-                else if(sItem.getState() == FrostSearchItemObject.STATE_OFFLINE )
+                else if(sItem.getState() == FrostSearchItem.STATE_OFFLINE )
                 {
                     setForeground( Color.GRAY );
                 }

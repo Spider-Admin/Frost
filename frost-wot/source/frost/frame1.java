@@ -45,7 +45,7 @@ import frost.gui.objects.*;
 import frost.gui.translation.*;
 import frost.identities.Identity;
 import frost.messages.*;
-import frost.search.FrostSearchItemObject;
+import frost.search.FrostSearchItem;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
 
@@ -782,12 +782,12 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				while (it.hasNext()) {
 					FileAttachment fa = (FileAttachment) it.next();
 					SharedFileObject sfo = fa.getFileObj();
-					FrostSearchItemObject fsio =
-						new FrostSearchItemObject(
+					FrostSearchItem fsio =
+						new FrostSearchItem(
 							languageResource,
 							getSelectedNode(),
 							sfo,
-							FrostSearchItemObject.STATE_NONE);
+							FrostSearchItem.STATE_NONE);
 					//FIXME: <-does this matter?
 					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
 					boolean added = getDownloadModel().addDownloadItem(dlItem);
@@ -799,12 +799,12 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				for (int i = 0; i < selectedRows.length; i++) {
 					FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
 					SharedFileObject sfo = fo.getFileObj();
-					FrostSearchItemObject fsio =
-						new FrostSearchItemObject(
+					FrostSearchItem fsio =
+						new FrostSearchItem(
 							languageResource,
 							getSelectedNode(),
 							sfo,
-							FrostSearchItemObject.STATE_NONE);
+							FrostSearchItem.STATE_NONE);
 					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
 					boolean added = getDownloadModel().addDownloadItem(dlItem);
 				}
