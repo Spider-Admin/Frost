@@ -264,7 +264,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         //verify the zipped message
                         
                         byte [] plaintext = FileAccess.readByteArray(testMe);
-                        MetaData metaData; 
+                        MetaData metaData = null; 
                         try {
                             metaData = new MetaData(plaintext,metadata);
                         }
@@ -307,7 +307,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         FileAccess.writeFile(unzipped,testMe);
                         
                         //create object
-                        VerifyableMessageObject vmo;
+                        VerifyableMessageObject vmo = null;
                         try { 
                             vmo = new VerifyableMessageObject(testMe);
                         }
