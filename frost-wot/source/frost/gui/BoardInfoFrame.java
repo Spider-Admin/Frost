@@ -365,14 +365,14 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                             }
                         }
                     }
-                    else if( entries[i].getName().endsWith(".exc") )
+                    else if( entries[i].getName().endsWith("files.xml") )
                     {
                         countFiles += getLineCount(entries[i]);
                     }
                 }
             }
         }
-        countFiles /= 4;
+        //countFiles /= 4;
         row.setAllMessageCount(countAllMessages);
         row.setNewMessageCount(countNewMessages);
         row.setFilesCount(countFiles);
@@ -391,18 +391,22 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     {
         BufferedReader f;
         int count = 0;
-        try {
-            f = new BufferedReader(new FileReader(file));
-            while( (f.readLine()) != null )
-            {
-                count++;
-            }
-            f.close();
-        }
+      //  try {
+            //f = new BufferedReader(new FileReader(file));
+	    String current = FileAccess.readFile(file);
+	    int index =0;
+	    //boolean stop = false;
+            while (true) {
+	    	if (current.indexOf("<File>",index)==-1) break;
+		index=current.indexOf("<File>",index)+6;
+		count++;
+	    }
+            //f.close();
+       /* }
         catch( IOException e )
         {
             System.out.println("getLineCount() - Read Error: " + file);
-        }
+        }*/
         return count;
     }
 
