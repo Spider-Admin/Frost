@@ -7,6 +7,9 @@
 package frost.messages;
 
 import frost.*;
+
+import java.io.File;
+
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
@@ -41,6 +44,17 @@ public class FileAttachment implements Attachment {
 		Element el = container.createElement("Attachment");
 		el.setAttribute("type","file");
 		el.appendChild(fileObj.getXMLElement(container));
+		
+		//if file is ofline and it has a File obj associated with it 
+		//(i.e. if it is a file we're sharing),
+		//add a <path> element to this element
+		
+		if (!fileObj.isOnline() && fileObj.getFile() != null) {
+			CDATASection cdata = container.createCDATASection(fileObj.getFile().getPath());
+			Element path = container.createElement("path");
+			path.appendChild(cdata);
+			el.appendChild(path);
+		}
 		return el;
 	}
 
@@ -51,6 +65,12 @@ public class FileAttachment implements Attachment {
 		Element _file = (Element)XMLTools.getChildElementsByTagName(e,"File").iterator().next();
 		fileObj = new SharedFileObject();
 		fileObj.loadXMLElement(_file);
+		
+		
+		
+		if (XMLTools.getChildElementsByTagName(e,"path").size() > 0) 
+			fileObj.setFile(new File(XMLTools.getChildElementsCDATAValue(e,"path")));
+		
 
 	}
 	

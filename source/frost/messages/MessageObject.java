@@ -388,4 +388,21 @@ public class MessageObject implements XMLizable {
     this.content = "";
     this.publicKey = "";
     }
+    
+    public List getOfflineFiles() {
+    	if (attachments == null) return null;
+    	
+    	List result = new LinkedList();
+    	
+    	List fileAttachments = attachments.getAllOfType(Attachment.FILE);
+    	Iterator it = fileAttachments.iterator();
+    	while (it.hasNext()) {
+    		SharedFileObject sfo = ((FileAttachment)it.next()).getFileObj();
+    		if (!sfo.isOnline())
+    			result.add(sfo);
+    	}
+    		
+    	return result;
+    	
+    }
 }

@@ -19,13 +19,12 @@ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 package frost.messages;
 
 import java.util.*;
+import java.io.File;
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
-import frost.Core;
-import frost.XMLTools;
-import frost.XMLizable;
-import frost.frame1;
+import frost.*;
+import frost.gui.objects.*;
 
 
 //Renamed this class to SharedFileObject.
@@ -48,7 +47,9 @@ public class SharedFileObject implements XMLizable
     String owner = null;  //person that uploaded the file
     Long size = new Long(0); // Filesize
     String filename = new String();
+    File file = null; //the file itself
     String batch = null;
+    FrostBoardObject board;
     boolean exchange;
 
     public GregorianCalendar getCal()
@@ -299,6 +300,44 @@ public class SharedFileObject implements XMLizable
     	exchange=true;
     }
     
+    /**
+     * Creates a sharedFileObject to be uploaded.
+     * it can be used both from the uploadTable and from attachments.
+     * @param file the file to be uploaded
+     * @param board the board to which index to add the file.  If null, the file will
+     * not be added to any index and won't participate in the request system.
+     */
+    public SharedFileObject(File file, FrostBoardObject board) {
+    	SHA1 = Core.getCrypto().digest(file);
+    	size = new Long(file.length());
+    	filename = file.getName();
+    	date = DateFun.getDate();
+    	
+    	this.file = file;
+    	//if key == null means file is offline.
+    	//when uploading file as attachment, key will change to CHK
+    	//when the file is uploaded.
+    	key = null;
+    	
+    	
+    	this.board = board;
+    	if (board == null)
+    		batch = null;
+    	else { //this file will be added to index, assign  a batch
+    		Iterator it = Core.getMyBatches().entrySet().iterator();
+    		
+    		while (it.hasNext()){
+    			String current = (String)it.next();
+    			int size = ((Integer)Core.getMyBatches().get(current)).intValue();
+    			if (size < Core.frostSettings.getIntValue("batchSize")) {
+    				batch=current;
+    				break;
+    			} 
+    		}
+    		
+    	} 
+    }
+    
     public Element getXMLElement(Document doc)  {
 
 			 //we do not add keys who are not signed by people we marked as GOOD!
@@ -396,4 +435,33 @@ public class SharedFileObject implements XMLizable
     }
     
     
+	/**
+	 * @return the board this file will be uploaded to, if any
+	 */
+	public FrostBoardObject getBoard() {
+		return board;
+	}
+	
+	/**
+	 * 
+	 * @return true if the file has been inserted in freenet.
+	 */
+	public boolean isOnline() {
+		return key != null;
+	}
+
+	/**
+	 * @return the File object if such exists
+	 */
+	public File getFile() {
+		return file;
+	}
+
+	/**
+	 * @param file
+	 */
+	public void setFile(File file) {
+		this.file = file;
+	}
+
 }
