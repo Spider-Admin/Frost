@@ -20,6 +20,8 @@ import frost.util.gui.translation.Language;
  * be filled with additional details about the main message and that JTextArea can 
  * be shown or hidden just by pressing a button.
  * 
+ * By default it is modal and its position is relative to the parent frame.
+ * 
  * @author $Author$
  * @version $Revision$
  */
@@ -68,8 +70,20 @@ public class JDialogWithDetails extends JDialog {
 	 * @param parent the parent Frame
 	 */
 	public JDialogWithDetails(Frame parent) {
+		this(parent, "");
+	}
+	
+	/**
+	 * This method creates a new instance of JDialogWithDetails with
+	 * the given title
+	 * @param parent the parent Frame
+	 * @param title the title of the new JDialogWithDetails
+	 */
+	public JDialogWithDetails(Frame parent, String title) {
 		super(parent);
 		language = Language.getInstance();
+		setTitle(title);
+		initialize();
 	}
 	
 	/**
@@ -87,10 +101,11 @@ public class JDialogWithDetails extends JDialog {
 	private JPanel getMorePanel() {
 		if (morePanel == null) {
 			morePanel = new JPanel(new BorderLayout());
-			morePanel.setBorder(new EmptyBorder(10,10,10,10));
+			morePanel.setBorder(new EmptyBorder(10, 10, 10, 10));
 			
 			moreTextArea.setEditable(false);
-			moreTextArea.setMargin(new Insets(5,5,5,5));
+			moreTextArea.setColumns(10);
+			moreTextArea.setMargin(new Insets(0, 3, 0, 3));
 						
 			moreTextArea.setRows(10);
 			morePanel.add(moreScrollPane, BorderLayout.CENTER);
@@ -101,7 +116,9 @@ public class JDialogWithDetails extends JDialog {
 	/**
 	 * This method initializes the JDialogWithDetails
 	 */
-	protected void initialize() {
+	private void initialize() {
+		setModal(true);
+		
 		moreButton.setText(language.getString("More") + " >>");
 		okButton.setText(language.getString("OK"));
 
@@ -143,7 +160,7 @@ public class JDialogWithDetails extends JDialog {
 	 * This method is used to fill the details text area.
 	 * @param details the message to fill the details text area with.
 	 */
-	protected void setDetailsText(String details) {
+	public void setDetailsText(String details) {
 		moreTextArea.setText(details);
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
@@ -161,11 +178,79 @@ public class JDialogWithDetails extends JDialog {
 	}
 	
 	/**
-	 * This methods returns the panel client classes may fill what 
+	 * This methods returns the panel client classes may fill with 
 	 * whatever they want (messages, icons, etc...) 
 	 * @return the panel client classes may freely use
 	 */
-	protected JPanel getUserPanel() {
+	public JPanel getUserPanel() {
 		return userPanel;
+	}
+	
+	/* (non-Javadoc)
+	 * @see java.awt.Component#setVisible(boolean)
+	 */
+	public void setVisible(boolean b) {
+		if (b) {
+			pack();
+			setLocationRelativeTo(getParent());
+		}
+		super.setVisible(b);
+	}
+	
+	/**
+	 * This method shows a warning dialog with the given title, 
+	 * main message and details.
+	 * @param parent the parent frame of the new dialog.
+	 * @param title the title of the new warning dialog.
+	 * @param mainMessage the message the warning dialog will display.
+	 * @param details the details for the details area of the new dialog.
+	 */
+	public static void showWarningDialog(Frame parent, String title, String message, String details) {
+		Icon icon = UIManager.getIcon("OptionPane.warningIcon");
+		showDialog(parent, icon, title, message, details);
+	}
+	
+	/**
+	 * This method shows an error dialog with the given title, 
+	 * main message and details.
+	 * @param parent the parent frame of the new dialog.
+	 * @param title the title of the new warning dialog.
+	 * @param mainMessage the message the warning dialog will display.
+	 * @param details the details for the details area of the new dialog.
+	 */
+	public static void showErrorDialog(Frame parent, String title, String message, String details) {
+		Icon icon = UIManager.getIcon("OptionPane.errorIcon");
+		showDialog(parent, icon, title, message, details);
+	}
+	
+	/**
+	 * This method shows a dialog with the given title, icon,  
+	 * main message and details.
+	 * @param parent the parent frame of the new dialog.
+	 * @param icon the icon for the left side of the dialog.
+	 * @param title the title of the new warning dialog.
+	 * @param mainMessage the message the warning dialog will display.
+	 * @param details the details for the details area of the new dialog.
+	 */
+	public static void showDialog(Frame parent, Icon icon, String title, String message, String details) {
+		JDialogWithDetails dialog = new JDialogWithDetails(parent, title);
+		
+		JPanel imagePanel = new JPanel();
+		JLabel imageLabel = new JLabel();
+		imagePanel.setBorder(BorderFactory.createEmptyBorder(10, 20, 10, 10));
+		imageLabel.setIcon(icon);
+		imagePanel.add(imageLabel);
+		
+		JPanel messagePanel = new JPanel();
+		messagePanel.setLayout(new BorderLayout());
+		messagePanel.setBorder(new EmptyBorder(10, 10, 10, 20));
+		messagePanel.add(new JLabel(message), BorderLayout.CENTER);
+		
+		dialog.getUserPanel().setLayout(new BorderLayout());
+		dialog.getUserPanel().add(imagePanel, BorderLayout.WEST);
+		dialog.getUserPanel().add(messagePanel, BorderLayout.CENTER);
+		
+		dialog.setDetailsText(details);
+		dialog.setVisible(true);
 	}
 }
