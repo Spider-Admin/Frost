@@ -97,7 +97,7 @@ public class SharedFileObject implements XMLizable
                 if( today.after(cal) )
                 {
                     //if( DEBUG ) 
-		    System.out.println(filename + " is outdated");
+		    Core.getOut().println(filename + " is outdated");
                     return false;
                 }
 
@@ -105,7 +105,7 @@ public class SharedFileObject implements XMLizable
                 if( cal.after(today) )
                 {
                     //if( DEBUG ) 
-		    System.out.println("Future date of " + filename + " " + year + month + day);
+		    Core.getOut().println("Future date of " + filename + " " + year + month + day);
                     return false;
                 }
 
