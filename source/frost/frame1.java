@@ -3207,7 +3207,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		}
 
 		// maybe get the files list
-		if (!frostSettings.getBoolValue("disableRequests")
+		if (!frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS)
 			&& !getRunningBoardUpdateThreads().isThreadOfTypeRunning(
 				board,
 				BoardUpdateThread.BOARD_FILE_UPLOAD)) {
@@ -3272,7 +3272,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	 * the new settings in the GUI.
 	 */
 	protected void updateOptionsAffectedComponents() {
-		if (frostSettings.getBoolValue("disableRequests") == false) {
+		if (frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == false) {
 			// uploads enabled
 			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Uploads"), true);
 		} else {
