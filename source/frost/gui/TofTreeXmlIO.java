@@ -81,15 +81,14 @@ public class TofTreeXmlIO
         }
 
         // add root node + set expanded state
-        String name = getNameFromFrostBoardTreeEntry( boardRootNode );
+        String name = getName( boardRootNode );
 
-        boolean isFolder = getIsFolderFromFrostBoardTreeEntry( boardRootNode );
+        boolean isFolder = isFolder( boardRootNode );
         if( isFolder == false )
         {
 			logger.severe("Error - boards.xml invalid: first element must be a folder (the root folder)");
             return false;
         }
-        boolean isExpanded = getIsExpandedFromFrostBoardTreeEntry( boardRootNode );
 
         Board treeRootNode = new Board(name, true);
         DefaultTreeModel model = new DefaultTreeModel(treeRootNode);
@@ -125,16 +124,16 @@ public class TofTreeXmlIO
 
 			Element child = (Element) list.get(x);
 			// get name
-			nodename = getNameFromFrostBoardTreeEntry(child);
+			nodename = getName(child);
 			if (nodename == null)
 				continue;
 			// get isFolder
-			isFolder = getIsFolderFromFrostBoardTreeEntry(child);
+			isFolder = isFolder(child);
 			// add the child
 			if (isFolder == false) {
-				String publicKey = getPublicKeyFromFrostBoardTreeEntry(child);
-				String privateKey = getPrivateKeyFromFrostBoardTreeEntry(child);
-				String description = getDescriptionFromFrostBoardTreeEntry(child);
+				String publicKey = getPublicKey(child);
+				String privateKey = getPrivateKey(child);
+				String description = getDescription(child);
 
 				// now if the child is a board, add it
 				Board fbobj = new Board(nodename, publicKey, privateKey, description);
@@ -161,7 +160,7 @@ public class TofTreeXmlIO
 
 				treeFolder.add(fbobj);
 			} else {
-				boolean isExpanded = getIsExpandedFromFrostBoardTreeEntry(child);
+				boolean isExpanded = isExpanded(child);
 
 				// if the child is a folder, add it+maybe expand and dive into it
 				Board fbobj = new Board(nodename, true);
@@ -179,7 +178,7 @@ public class TofTreeXmlIO
 		}
 	}
 
-    protected void getBoardConfiguration( Element element, Board board )
+    private void getBoardConfiguration( Element element, Board board )
     {
         ArrayList list = XMLTools.getChildElementsByTagName(element, "config");
         if( list.size() == 0 )
@@ -225,7 +224,7 @@ public class TofTreeXmlIO
             board.setHideNA( Boolean.valueOf(val) );
     }
 
-    protected void refreshModel(DefaultTreeModel model, Board node)
+    private void refreshModel(DefaultTreeModel model, Board node)
     {
         // all childs are new, send a nodesWhereInserted to model
         int childIndicies[] = new int[node.getChildCount()];
@@ -237,7 +236,7 @@ public class TofTreeXmlIO
         model.nodesWereInserted(node, childIndicies);
     }
 
-    protected boolean getIsFolderFromFrostBoardTreeEntry(Element treeEntry)
+    private boolean isFolder(Element treeEntry)
     {
         String isFolder = treeEntry.getAttribute("isfolder");
         if( isFolder == null || isFolder.toLowerCase().equals("true") == false )
@@ -247,7 +246,7 @@ public class TofTreeXmlIO
         return true;
     }
 
-    protected boolean getIsExpandedFromFrostBoardTreeEntry(Element treeEntry)
+    private boolean isExpanded(Element treeEntry)
     {
         String isExpanded = treeEntry.getAttribute("isexpanded");
         if( isExpanded == null || isExpanded.toLowerCase().equals("true") == false )
@@ -257,7 +256,7 @@ public class TofTreeXmlIO
         return true;
     }
 
-    protected String getNameFromFrostBoardTreeEntry(Element treeEntry)
+    private String getName(Element treeEntry)
     {
         ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "name");
         if( list.size() != 1 )
@@ -271,7 +270,7 @@ public class TofTreeXmlIO
         return txtname.getData().trim();
     }
 
-    protected String getPublicKeyFromFrostBoardTreeEntry(Element treeEntry)
+    private String getPublicKey(Element treeEntry)
     {
         ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "publicKey");
         if( list.size() > 1 )
@@ -293,7 +292,7 @@ public class TofTreeXmlIO
 	 * @param treeEntry
 	 * @return
 	 */
-	protected String getDescriptionFromFrostBoardTreeEntry(Element treeEntry) {
+	private String getDescription(Element treeEntry) {
 		ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "description");
 		if (list.size() > 1) {
 			logger.severe(
@@ -309,7 +308,7 @@ public class TofTreeXmlIO
 		return txtname.getData().trim();
 	}
 
-    protected String getPrivateKeyFromFrostBoardTreeEntry(Element treeEntry)
+	private String getPrivateKey(Element treeEntry)
     {
         ArrayList list = XMLTools.getChildElementsByTagName(treeEntry, "privateKey");
         if( list.size() > 1 )
@@ -373,7 +372,7 @@ public class TofTreeXmlIO
         return writeOK;
     }
 
-    protected void saveProcessFolder(Element parentElement, Board treeNode, Document doc,
+    private void saveProcessFolder(Element parentElement, Board treeNode, Document doc,
                                      DefaultTreeModel model, JTree tree)
     {
         // parentElement = element to append to
@@ -384,18 +383,18 @@ public class TofTreeXmlIO
             if( boardObject.isFolder() == false )
             {
                 // its a board
-                appendBoardToDomTree(parentElement, boardObject, doc);
+                appendBoard(parentElement, boardObject, doc);
             }
             else
             {
                 // its a folder
-                Element newFolder = appendFolderToDomTree(parentElement, boardObject, doc, model, tree);
+                Element newFolder = appendFolder(parentElement, boardObject, doc, model, tree);
                 saveProcessFolder(newFolder, boardObject, doc, model, tree);
             }
         }
     }
 
-    protected void appendBoardToDomTree(Element parent, Board board, Document doc)
+    private void appendBoard(Element parent, Board board, Document doc)
     {
         Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
         Element element;
@@ -472,7 +471,7 @@ public class TofTreeXmlIO
         parent.appendChild( rootBoardElement );
     }
 
-    protected Element appendFolderToDomTree(Element parent, Board board, Document doc,
+    private Element appendFolder(Element parent, Board board, Document doc,
                                             DefaultTreeModel model, JTree tree)
     {
         Element rootBoardElement = doc.createElement("FrostBoardTreeEntry");
