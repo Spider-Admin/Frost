@@ -33,6 +33,7 @@ import frost.FcpTools.*;
 import frost.crypt.*;
 import frost.ext.JSysTrayIcon;
 import frost.fileTransfer.download.DownloadManager;
+import frost.fileTransfer.upload.UploadManager;
 import frost.gui.Splashscreen;
 import frost.gui.components.MiscToolkit;
 import frost.gui.objects.*;
@@ -75,6 +76,7 @@ public class Core implements Savable {
 	private frame1 mainFrame;
 	private SearchManager searchManager;
 	private DownloadManager downloadManager;
+	private UploadManager uploadManager;
 	
 	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	
@@ -534,28 +536,31 @@ public class Core implements Savable {
 			System.exit(1);
 		}
 
+		// CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
+		Startup.startupCheck(frostSettings, keypool);
+		FileAccess.cleanKeypool(keypool);
+
 		splashscreen.setText(languageResource.getString("Sending IP address to NSA"));
 		splashscreen.setProgress(60);
 
 		//Main frame		
 		mainFrame = new frame1(frostSettings, languageResource);
 		getDownloadManager().initialize();
+		getUploadManager().initialize();
 		getSearchManager().initialize();
 		
-		//Until the downloads are fully separated from frame1:
+		//Until the downloads and uploads are fully separated from frame1:
 		mainFrame.setDownloadTicker(getDownloadManager().getTicker());
 		mainFrame.setDownloadTable(getDownloadManager().getTable());
+		mainFrame.setUploadTicker(getUploadManager().getTicker());
+		mainFrame.setUploadTable(getUploadManager().getTable());
+		mainFrame.setUploadPanel(getUploadManager().getPanel());
 		mainFrame.initialize();
 
 		splashscreen.setText(languageResource.getString("Wasting more time"));
 		splashscreen.setProgress(70);
 
-		// CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
-		Startup.startupCheck(frostSettings, keypool);
-		FileAccess.cleanKeypool(keypool);
-
 		//load vital data
-		getIdentities().load(freenetIsOnline);
 		loadBatches();
 		loadKnownBoards();
 		loadHashes();
@@ -591,6 +596,20 @@ public class Core implements Savable {
 				logger.severe("Could not create systray icon.");
 			}
 		}
+	}
+
+	/**
+	 * 
+	 */
+	private UploadManager getUploadManager() {
+		if (uploadManager == null) {
+			uploadManager = new UploadManager(languageResource, frostSettings);
+			uploadManager.setMainFrame(mainFrame);
+			uploadManager.setTofTree(mainFrame.getTofTree());
+			uploadManager.setFreenetIsOnline(isFreenetOnline());
+			uploadManager.setMyID(getIdentities().getMyId());
+		}
+		return uploadManager;
 	}
 
 	/**
@@ -722,6 +741,7 @@ public class Core implements Savable {
 	public FrostIdentities getIdentities() {
 		if (identities == null) {
 			identities = new FrostIdentities(languageResource);
+			identities.load(freenetIsOnline);
 		}
 		return identities;
 	}
