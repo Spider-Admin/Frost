@@ -38,8 +38,8 @@ public class LangRes_es extends ListResourceBundle {
 	{"Path", "Directorio"},
 	{"Destination", "Destino"},
 	{"Frost by Jantho", "Frost por Jantho"},
-	{"Reload selected files", "Recarga los ficheros seleccionados"},
-	{"Reload all files", "Recarga todos los ficheros"},
+	{"Reload selected files", "Sube los ficheros seleccionados"},
+	{"Reload all files", "Sube todos los ficheros"}, //reload????
 	{"Trying", "Intentando"},
 	{"Done", "Hecho"},
 	{"Failed", "Falló"},
@@ -371,7 +371,8 @@ public class LangRes_es extends ListResourceBundle {
 	{"Generate new keypair", "Genera nueva pareja de claves"},
 	{"Private key", "Clave privada"},
 	{"Public key", "Clave pública"},
-	{"Not available", "No disponible"}
+	{"Not available", "No disponible"},
+	{"New Node Name", "Nombre del Nuevo Foro"}
 
     };
 }
