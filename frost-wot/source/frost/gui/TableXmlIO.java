@@ -206,7 +206,7 @@ System.out.println("Loaded "+nodelist.size()+" items into download table.");
         String enableDownload = dlItemElement.getAttribute("enableDownload");
 	String SHA1 = XMLTools.getChildElementsTextValue(dlItemElement, "SHA1");
 
-        if( filename == null || key == null || state == null )
+        if( filename == null || SHA1 == null || state == null )
         {
             System.out.println("DownloadTable: Error in XML save file, skipping entry.");
             return null;
