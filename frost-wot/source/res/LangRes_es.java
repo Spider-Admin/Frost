@@ -234,7 +234,7 @@ static final Object[][] contents = {
 {"Sort folder", "Ordena carpeta"},
 {"Source","Origen"},
 {"Spanish","Español"},
-{"Sending IP address to NSA","Enviando dirección IP a la NSA"},
+{"Sending IP address to NSA","Enviando dirección IP al CNI"},
 {"set to neutral (CHECK)","marca como neutral (COMPROBAR)"},
 {"splitfile explanation","(cuanto mayor más rápido pero consume más CPU)"},
 {"Start encoding of selected files","Inicia la codificación de los ficheros seleccionados"},
