@@ -54,6 +54,8 @@ public class insertThread extends Thread
         else
             frame1.generateCHK = true;
 
+        try {
+
         String status = LangRes.getString("Never");
         boolean success = false;
         String[] result = {"Error", "Error"};
@@ -99,6 +101,12 @@ public class insertThread extends Thread
                     }
                     tableModel.updateRow( uploadItem );
                 } });
+        }
+        }
+        catch(Throwable t)
+        {
+            System.out.println("Oo. EXCEPTION in insertThread.run:");
+            t.printStackTrace();
         }
 
         if( mode )
