@@ -4,6 +4,7 @@ Jan-Thomas Czornack <jantho@users.sourceforge.net>
 Thomas Mueller <thm2001@users.sourceforge.net>
 Jim Hunziker <landtuna@users.sourceforge.net>
 Stefan Majewski <e9926279@stud3.tuwien.ac.at>
+Jose Manuel Arnesto <jarnesto@computer.org>
 
 
 Windows Installer
