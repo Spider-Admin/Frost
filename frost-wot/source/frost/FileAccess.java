@@ -544,6 +544,7 @@ public class FileAccess
     {
         if( chk.size() == 0 )
         {
+            // no items to write
             return;
         }
         
@@ -564,6 +565,7 @@ public class FileAccess
         }
         doc.appendChild(rootElement);
 
+        int itemsAppended = 0;
         synchronized (chk)
         {
             Iterator i = chk.values().iterator();
@@ -576,9 +578,15 @@ public class FileAccess
 								Core.getOut().println("skipping file from BAD user");
 								continue;
 							}
-                
                 rootElement.appendChild( current.getXMLElement(doc) );
+                itemsAppended++;
             }
+        }
+        
+        if( itemsAppended == 0 )
+        {
+            // don't write file
+            return;
         }
         
         // xml tree created, now save
