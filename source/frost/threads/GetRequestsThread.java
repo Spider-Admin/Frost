@@ -24,6 +24,7 @@ import javax.swing.table.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.gui.objects.*;
 
 /**
  * Downloads file requests
@@ -32,11 +33,10 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
-    public String board;
+    public FrostBoardObject board;
     private String downloadHtl;
     private String keypool;
     private String destination;
-    final String[] block = {"_boardlist", "frost_message_system"};
     private String fileSeparator = System.getProperty("file.separator");
     private JTable uploadTable;
 
@@ -53,11 +53,10 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 
         String dirdate = DateFun.getDate();
-        //new StringBuffer().append(cal.get(Calendar.YEAR)).append(".")
-                         //.append(cal.get(Calendar.MONTH) + 1).append(".").append(cal.get(Calendar.DATE)).toString();
 
-        destination = new StringBuffer().append(keypool).append(board).append(fileSeparator)
-                      .append(dirdate).append(fileSeparator).toString();
+        destination = new StringBuffer().append(keypool)
+                        .append(board.getBoardFilename()).append(fileSeparator)
+                        .append(dirdate).append(fileSeparator).toString();
 
         File makedir = new File(destination);
         if( !makedir.exists() )
@@ -79,7 +78,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
         while( failures < maxFailures )
         {
             String val = new StringBuffer().append(destination).append(dirdate).append("-")
-                .append(board).append("-").append(index).append(".req").toString();
+                .append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
 
 
             //File testMe = new File(destination + dirdate + "-" + board + "-" + index + ".req");
@@ -113,43 +112,40 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
             if( testMe.length() > 0 /* && justDownloaded */ )
             {
                 System.out.println("Received request " + testMe.getName());
-                // Normal boards or _boardlist?
-                if( !mixed.isElementOf(board, block) )
+
+                String content = (FileAccess.readFile(testMe)).trim();
+                System.out.println("Request content is " + content);
+                DefaultTableModel tableModel = (DefaultTableModel)uploadTable.getModel();
+                synchronized (uploadTable)
                 {
-                    String content = (FileAccess.readFile(testMe)).trim();
-                    System.out.println("Request content is " + content);
-                    DefaultTableModel tableModel = (DefaultTableModel)uploadTable.getModel();
-                    synchronized (uploadTable)
+                    try
                     {
-                        try
+                        int rowCount = tableModel.getRowCount();
+                        for( int i = 0; i < rowCount; i++ )
                         {
-                            int rowCount = tableModel.getRowCount();
-                            for( int i = 0; i < rowCount; i++ )
+                            String chk = ((String)tableModel.getValueAt(i, 5)).trim();
+                            if( chk.equals(content) )
                             {
-                                String chk = ((String)tableModel.getValueAt(i, 5)).trim();
-                                if( chk.equals(content) )
+                                File requestLock = new File(destination + chk + ".lck");
+                                if( !requestLock.exists() )
                                 {
-                                    File requestLock = new File(destination + chk + ".lck");
-                                    if( !requestLock.exists() )
+                                    String state = (String)tableModel.getValueAt(i, 2);
+                                    if( !state.equals(LangRes.getString("Uploading")) && (state.indexOf("Kb") == -1) )
                                     {
-                                        String state = (String)tableModel.getValueAt(i, 2);
-                                        if( !state.equals(LangRes.getString("Uploading")) && (state.indexOf("Kb") == -1) )
-                                        {
-                                            System.out.println("Request matches row " + i);
-                                            tableModel.setValueAt(LangRes.getString("Requested"), i, 2);
-                                        }
+                                        System.out.println("Request matches row " + i);
+                                        tableModel.setValueAt(LangRes.getString("Requested"), i, 2);
                                     }
-                                    else
-                                    {
-                                        System.out.println("File with key " + chk + " was requested, but already uploaded today");
-                                    }
+                                }
+                                else
+                                {
+                                    System.out.println("File with key " + chk + " was requested, but already uploaded today");
                                 }
                             }
                         }
-                        catch( Exception e )
-                        {
-                            System.out.println("getRequestsThread.run NOT GOOD "+e.toString());
-                        }
+                    }
+                    catch( Exception e )
+                    {
+                        System.out.println("getRequestsThread.run NOT GOOD "+e.toString());
                     }
                 }
                 index++;
@@ -168,7 +164,7 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
     }
 
     /**Constructor*/
-    public GetRequestsThread(String boa, String dlHtl, String kpool, JTable uploadTable)
+    public GetRequestsThread(FrostBoardObject boa, String dlHtl, String kpool, JTable uploadTable)
     {
         super(boa);
         this.board = boa;

@@ -34,7 +34,7 @@ import frost.gui.objects.*;
  */
 public class MessageDownloadThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
-    public String board;
+    public FrostBoardObject board;
     private String downloadHtl;
     private String keypool;
     private int maxMessageDownload;
@@ -44,8 +44,6 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     private boolean flagNew;
     private VerifyableMessageObject currentMsg;
     private Identity currentId;
-
-    final String[] block = {"_boardlist", "frost_message_system"};
 
     public int getThreadType()
     {
@@ -74,10 +72,10 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         int waitTime = waitTime = (int)(Math.random() * 5000); // wait a max. of 5 seconds between start of threads
         mixed.wait(waitTime);
 
-        System.out.println(tofType + " Thread started for board "+board);
+        System.out.println(tofType + " Thread started for board "+board.toString());
 
         UpdateIdThread uit=null;
-        if( flagNew && !mixed.isElementOf(board, block) )
+        if( flagNew )
         {
             uit= new UpdateIdThread(board);
             uit.start();
@@ -91,7 +89,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         }
 
         // switch public / secure board
-        String val = new StringBuffer().append(frame1.keypool).append(board).append(".key").toString();
+        String val = new StringBuffer().append(frame1.keypool).append(board.getBoardFilename())
+                      .append(".key").toString();
         String state = SettingsFun.getValue(val, "state");
         if( state.equals("writeAccess") || state.equals("readAccess") )
         {
@@ -134,7 +133,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 downloadDate(cal);
             }
         }
-        System.out.println(tofType + " Thread stopped for board "+board);
+        System.out.println(tofType + " Thread stopped for board "+board.toString());
 
         notifyThreadFinished(this);
     }
@@ -149,8 +148,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             for( int i = 0; i < fileList.length; i++ )
             {
                 if( ! fileList[i].equals(file) &&
-                    fileList[i].getName().indexOf(board) != -1 &&
-                    file.getName().indexOf(board) != -1 )
+                    fileList[i].getName().indexOf(board.getBoardFilename()) != -1 &&
+                    file.getName().indexOf(board.getBoardFilename()) != -1 )
                 {
                     String one = FileAccess.readFile(file);
                     String two = FileAccess.readFile(fileList[i]);
@@ -222,7 +221,8 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
         String dirdate = DateFun.getDateOfCalendar(calDL);
         String fileSeparator = System.getProperty("file.separator");
 
-        destination = new StringBuffer().append(keypool).append(board).append(fileSeparator)
+        destination = new StringBuffer().append(keypool).append(board.getBoardFilename())
+            .append(fileSeparator)
             .append(dirdate).append(fileSeparator).toString();
 
         File makedir = new File(destination);
@@ -243,7 +243,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             String val = new StringBuffer().append(destination).append(System.currentTimeMillis())
                 .append(".txt.msg").toString();
             File testMe = new File(val);
-            val = new StringBuffer().append(destination).append(dirdate).append("-").append(board)
+            val = new StringBuffer().append(destination).append(dirdate).append("-").append(board.getBoardFilename())
                   .append("-").append(index).append(".txt").toString();
             File testMe2 = new File(val);
             if( testMe2.length() > 0 ) // already downloaded
@@ -256,7 +256,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 if( secure )
                 {
                     val=new StringBuffer().append(publicKey).append("/")
-                        .append(board).append("/").append(dirdate)
+                        .append(board.getBoardFilename()).append("/").append(dirdate)
                         .append("-").append(index).append(".txt").toString();
                     String downKey = val;
                     FcpRequest.getFile(downKey, "Unknown", testMe, downloadHtl, false);
@@ -265,7 +265,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 {
                     val=new StringBuffer().append(frame1.frostSettings.getValue("messageBase"))
                         .append("/").append(dirdate)
-                        .append("-").append(board)
+                        .append("-").append(board.getBoardFilename())
                         .append("-").append(index).append(".txt").toString();
 
                     FcpRequest.getFile("KSK@sftmeage/"+val, "Unknown", testMe, downloadHtl, false);
@@ -310,41 +310,35 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                         verify();
                         File sig = new File(testMe.getPath() + ".sig");
 
-                        frame1.incSuccess(board);
-                        // Normal boards or _boardlist?
-                        if( !mixed.isElementOf(board, block) )
+                        // Is this a valid message?
+                        if( currentMsg.isValid() )
                         {
-                            // Is this a valid message?
-                            if( currentMsg.isValid() )
+                            if( TOF.blocked(currentMsg) && testMe.length() > 0 )
                             {
-                                if( TOF.blocked(currentMsg) && testMe.length() > 0 )
-                                {
-                                    ((BoardStat)frame1.boardStats.get(currentMsg.getBoard())).incBlocked();
-                                    System.out.println("\n########### blocked message #########\n");
-                                }
-                                else
-                                    //if( flagNew ) // always show if new msg arrived
-                                {
-                                    frame1.displayNewMessageIcon(true);
-                                    String[] header = {SettingsFun.getValue(testMe, "board"),
-                                        SettingsFun.getValue(testMe, "from"),
-                                        SettingsFun.getValue(testMe, "subject"),
-                                        SettingsFun.getValue(testMe, "date") + " " +
-                                        SettingsFun.getValue(testMe, "time")};
-                                    if( header.length == 4 )
-                                        frame1.newMessageHeader = new StringBuffer().append("   ")
-                                            .append(header[0]).append(" : ").append(header[1]).append(" - ")
-                                            .append(header[2]).append(" (").append(header[3]).append(")").toString();
-                                    FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
-
-                                    // add new message or notify of arrival
-                                    TOF.addNewMessageToTable(testMe, board);
-                                }
+                                board.incBlocked();
+                                System.out.println("\n########### blocked message #########\n");
                             }
                             else
                             {
-                                FileAccess.writeFile("Empty", testMe);
+                                frame1.displayNewMessageIcon(true);
+                                String[] header = {SettingsFun.getValue(testMe, "board"),
+                                    SettingsFun.getValue(testMe, "from"),
+                                    SettingsFun.getValue(testMe, "subject"),
+                                    SettingsFun.getValue(testMe, "date") + " " +
+                                    SettingsFun.getValue(testMe, "time")};
+                                if( header.length == 4 )
+                                    frame1.newMessageHeader = new StringBuffer().append("   ")
+                                        .append(header[0]).append(" : ").append(header[1]).append(" - ")
+                                        .append(header[2]).append(" (").append(header[3]).append(")").toString();
+                                FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
+
+                                // add new message or notify of arrival
+                                TOF.addNewMessageToTable(testMe, board);
                             }
+                        }
+                        else
+                        {
+                            FileAccess.writeFile("Empty", testMe);
                         }
                     }
                     else
@@ -377,7 +371,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
     }
 
     /**Constructor*/ //
-    public MessageDownloadThread(boolean fn, String boa, String dlHtl, String kpool, String maxmsg)
+    public MessageDownloadThread(boolean fn, FrostBoardObject boa, String dlHtl, String kpool, String maxmsg)
     {
         super(boa);
         this.flagNew = fn;

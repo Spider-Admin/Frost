@@ -212,12 +212,13 @@ public class SearchThread extends Thread {
     /**
      * Displays search results in search table
      */
-    private void displaySearchResults()
+    private void displaySearchResults(FrostBoardObject board)
     {
         for( int i = 0; i < results.size(); i++ )
         {
             allFileCount++;
             KeyClass key = (KeyClass)results.elementAt(i);
+/*
             String filename = key.getFilename();
             Long size = key.getSize();
             String date = key.getDate();
@@ -227,6 +228,8 @@ public class SearchThread extends Thread {
             File file = new File(frame1.frostSettings.getValue("downloadDirectory") + mixed.makeFilename(filename));
             if( file.exists() )
                 filename = "<html><font color=\"red\">" + filename + "</font></html>";
+*/
+// TODO: draw existing in red, see old code above this comment
 
             final FrostSearchItemObject searchItem = new FrostSearchItemObject(board, key);
 
@@ -280,7 +283,8 @@ public class SearchThread extends Thread {
 
             for( int j = 0; j < boardCount; j++ )
             {
-                board = mixed.makeFilename((String)boards.elementAt(j));
+                FrostBoardObject frostBoard = (FrostBoardObject)boards.elementAt(j);
+                String board = frostBoard.getBoardFilename();
 
                 if( DEBUG ) System.out.println("Search for '" + request + "' on " + board + " started.");
                 File keypoolDir = new File(keypool + board);
@@ -304,7 +308,7 @@ public class SearchThread extends Thread {
                 chk.clear();
 
                 filterSearchResults();
-                displaySearchResults();
+                displaySearchResults(frostBoard);
                 results.clear();
             }
         }

@@ -1,25 +1,28 @@
 package frost.threads;
 
 import java.util.*;
+
+import frost.gui.objects.*;
+
 /**
  * This class implements most methods needed by the BoardUpdateThread interface.
  * A thread have to extend this class and to implement BoardUpdateThread.
  */
 public class BoardUpdateThreadObject extends Thread
 {
-    String targetBoard = null;
+    FrostBoardObject targetBoard = null;
     long startTimeMillis = -1;
     boolean isFinished = false;
     Vector registeredListeners = null;
 
-    public BoardUpdateThreadObject(String board)
+    public BoardUpdateThreadObject(FrostBoardObject board)
     {
         this.targetBoard = board;
         this.registeredListeners = new Vector();
     }
 
     // FrostBoard getTargetBoard()
-    public String getTargetBoard()
+    public FrostBoardObject getTargetBoard()
     {
         return targetBoard;
     }

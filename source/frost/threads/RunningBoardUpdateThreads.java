@@ -4,6 +4,7 @@ import java.util.*;
 import java.awt.*;
 
 import frost.*;
+import frost.gui.objects.*;
 
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
@@ -30,7 +31,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * will be notified if THIS thread is finished
      * before starting a thread you should check if it is'nt updating already.
      */
-    public boolean startMessageDownloadToday(String board, SettingsClass config,
+    public boolean startMessageDownloadToday(FrostBoardObject board, SettingsClass config,
                                              BoardUpdateThreadListener listener)
     {
         MessageDownloadThread tofd = new MessageDownloadThread(
@@ -58,7 +59,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * will be notified if THIS thread is finished
     * before starting a thread you should check if it is'nt updating already.
      */
-    public boolean startMessageDownloadBack(String board, SettingsClass config,
+    public boolean startMessageDownloadBack(FrostBoardObject board, SettingsClass config,
                                             BoardUpdateThreadListener listener)
     {
         MessageDownloadThread backload = new MessageDownloadThread(
@@ -87,7 +88,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * will be notified if THIS thread is finished
     * before starting a thread you should check if it is'nt updating already.
      */
-    public boolean startBoardFilesDownload(String board, SettingsClass config,
+    public boolean startBoardFilesDownload(FrostBoardObject board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
         GetRequestsThread grt = new GetRequestsThread(
@@ -117,7 +118,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * if you specify a listener and the method returns true (thread is started), the listener
      * will be notified if THIS thread is finished
      */
-    public boolean startMessageUpload(String board,
+    public boolean startMessageUpload(FrostBoardObject board,
                                       String from,
                                       String subject,
                                       String content,
@@ -176,7 +177,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * Returns the list of current download threads for a given board.
      * Returns an empty list of no thread is running.
      */
-    public Vector getDownloadThreadsForBoard(String board)
+    public Vector getDownloadThreadsForBoard(FrostBoardObject board)
     {
         return getVectorFromHashtable( runningDownloadThreads, board );
     }
@@ -185,7 +186,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * Returns the list of current upload threads for a given board.
      * Returns an empty list of no thread is running.
      */
-    public Vector getUploadThreadsForBoard(String board)
+    public Vector getUploadThreadsForBoard(FrostBoardObject board)
     {
         return getVectorFromHashtable( runningUploadThreads, board );
     }
@@ -195,7 +196,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * Adds a listener that gets notified if any thread for a given board did update its state.
      * For supported states see BoardUpdateThreadListener methods.
      **/
-    public void addBoardUpdateThreadListener(String board, BoardUpdateThreadListener listener)
+    public void addBoardUpdateThreadListener(FrostBoardObject board, BoardUpdateThreadListener listener)
     {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener); // no doubles allowed
         getVectorFromHashtable(threadListenersForBoard, board).add(listener);
@@ -215,7 +216,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
      * For supported states see BoardUpdateThreadListener methods.
      * Method will do nothing if listener is null or not contained in the list of listeners.
      **/
-    public void removeBoardUpdateThreadListener(String board, BoardUpdateThreadListener listener)
+    public void removeBoardUpdateThreadListener(FrostBoardObject board, BoardUpdateThreadListener listener)
     {
         getVectorFromHashtable(threadListenersForBoard, board).remove(listener);
     }
@@ -377,7 +378,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Returns true if the given board have running download threads.
      */
-    public boolean isUpdating(String board)
+    public boolean isUpdating(FrostBoardObject board)
     {
         if( getVectorFromHashtable(runningDownloadThreads, board).size() > 0 )
         {
@@ -391,7 +392,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     /**
      * Returns true if the given board have running upload threads.
      */
-    public boolean isUploading(String board)
+    public boolean isUploading(FrostBoardObject board)
     {
         if( getVectorFromHashtable(runningUploadThreads, board).size() > 0 )
         {

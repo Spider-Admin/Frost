@@ -30,6 +30,7 @@ import java.awt.event.*;
 import frost.crypt.*;
 import frost.*;
 import frost.gui.*;
+import frost.gui.objects.*;
 
 /**
  * Uploads a message to a certain message board
@@ -41,7 +42,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     final static boolean DEBUG = false;
 
     private Frame frameToLock;
-    private String board;
+    private FrostBoardObject board;
     private String from;
     private String subject;
     private String text;
@@ -137,24 +138,24 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     boolean retry = true;
 
     // switch public / secure board
-    String state = SettingsFun.getValue(frame1.keypool + board + ".key", "state");
+    String state = SettingsFun.getValue(frame1.keypool + board.getBoardFilename() + ".key", "state");
     if (state.equals("writeAccess")) {
-        privateKey = SettingsFun.getValue(frame1.keypool + board + ".key", "privateKey");
-        publicKey = SettingsFun.getValue(frame1.keypool + board + ".key", "publicKey");
+        privateKey = SettingsFun.getValue(frame1.keypool + board.getBoardFilename() + ".key", "privateKey");
+        publicKey = SettingsFun.getValue(frame1.keypool + board.getBoardFilename() + ".key", "publicKey");
         secure = true;
     }
     else {
         secure = false;
     }
 
-    if (DEBUG) System.out.println("tofUpload: " + board + " secure: " + privateKey);
-    System.out.println("Uploading message to '" + board + "' board with HTL " + messageUploadHtl + ".");
+    if (DEBUG) System.out.println("tofUpload: " + board.toString() + " secure: " + privateKey);
+    System.out.println("Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl + ".");
 
     uploadAttachments();
     sign();
 
     String fileSeparator = System.getProperty("file.separator");
-    destination = keypool + board + fileSeparator + DateFun.getDate() + fileSeparator;
+    destination = keypool + board.getBoardFilename() + fileSeparator + DateFun.getDate() + fileSeparator;
     File checkDestination = new File(destination);
     if (!checkDestination.isDirectory())
         checkDestination.mkdirs();
@@ -193,7 +194,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     // Generate file to upload
     String uploadMe = "unsent" + String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
     String content = new String();
-    content += "board=" + board + "\r\n";
+    content += "board=" + board.toString() + "\r\n";
     content += "from=" + from + "\r\n";
     content += "subject=" + subject + "\r\n";
     content += "date=" + date + "\r\n";
@@ -213,7 +214,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         boolean error = false;
         while (!success) {
         // Does this index already exist?
-        File testMe = new File(destination + date + "-" + board + "-" + index + ".txt");
+        File testMe = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
         if (testMe.length() > 0) { // already downloaded
             String contentOne = (FileAccess.readFile(messageFile)).trim();
             String contentTwo = (FileAccess.readFile(testMe)).trim();
@@ -232,18 +233,18 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             String[] result = new String[2];
             if (secure) {
 
-            String upKey = privateKey + "/" + board + "/" + date + "-" + index + ".txt";
+            String upKey = privateKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
             if (DEBUG) System.out.println(upKey);
             result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
             }
             else {
             // Temporary hack for wrong name space
-            String upKey = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
+            String upKey = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
             if (DEBUG) System.out.println(upKey);
             result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
             // END Temporary hack for wrong name space
             if (result[0].equals("Success")){
-                /* String */ upKey = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
+                /* String */ upKey = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
                 if (DEBUG) System.out.println(upKey);
                 /*result =*/ FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
             }
@@ -262,9 +263,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 // ************* Temporary freenet bug workaround ******************
                 String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
 //              String requestMe = "KSK@frost/message/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
-                String requestMe = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board + "-" + index + ".txt";
+                String requestMe = "KSK@sftmeage/" + frame1.frostSettings.getValue("messageBase") + "/" + date + "-" + board.getBoardFilename() + "-" + index + ".txt";
                 if (secure && publicKey.startsWith("SSK@")) {
-                requestMe = publicKey + "/" + board + "/" + date + "-" + index + ".txt";
+                requestMe = publicKey + "/" + board.getBoardFilename() + "/" + date + "-" + index + ".txt";
                 }
 
                 if (FcpRequest.getFile(requestMe,
@@ -306,14 +307,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         if (!error) {
 
         File killMe = new File(destination + uploadMe);
-        File newMessage = new File(destination + date + "-" + board + "-" + index + ".txt");
+        File newMessage = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".txt");
         if (signed)
             FileAccess.writeFile("GOOD", newMessage.getPath() + ".sig");
         killMe.renameTo(newMessage);
 
         frame1.updateTof = true;
         System.out.println("*********************************************************************");
-        System.out.println("Message successfuly uploaded to the '" + board + "' board.");
+        System.out.println("Message successfuly uploaded to the '" + board.toString() + "' board.");
         System.out.println("*********************************************************************");
         retry = false;
 
@@ -324,7 +325,13 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         // Uploading of that message failed. Ask the user if Frost
         // should try to upload the message another time.
         if (!silent) {
-            MessageUploadFailedDialog faildialog = new MessageUploadFailedDialog(frameToLock, 10, LangRes.getString("Upload of message failed"), LangRes.getString("I was not able to upload your message."), LangRes.getString("Retry"), LangRes.getString("Cancel"));
+            MessageUploadFailedDialog faildialog =
+                new MessageUploadFailedDialog(frameToLock,
+                                              10,
+                                              LangRes.getString("Upload of message failed"),
+                                              LangRes.getString("I was not able to upload your message."),
+                                              LangRes.getString("Retry"),
+                                              LangRes.getString("Cancel"));
             faildialog.show();
             retry = faildialog.getAnswer();
             System.out.println("Will try to upload again: " + retry);
@@ -341,7 +348,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     }
 
     /**Constructor*/
-    public MessageUploadThread(String board,
+    public MessageUploadThread(FrostBoardObject board,
                                String from,
                                String subject,
                                String text ,

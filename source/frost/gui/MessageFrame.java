@@ -27,6 +27,7 @@ import java.io.*;
 import frost.*;
 import frost.FcpTools.*;
 import frost.threads.*;
+import frost.gui.objects.*;
 
 public class MessageFrame extends JFrame {
 
@@ -291,7 +292,7 @@ this.setIconImage(Toolkit.getDefaultToolkit().createImage(this.getClass().getRes
         }
 
         frame1.getInstance().getRunningBoardUpdateThreads().startMessageUpload(
-            mixed.makeFilename(board),
+            new FrostBoardObject(board), // TODO: pass FrostBoardObject
             from,
             subject,
             text,

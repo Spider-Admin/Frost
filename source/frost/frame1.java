@@ -50,21 +50,13 @@ public class frame1 extends JFrame implements ClipboardOwner
     private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
     String clipboard = new String();
-    int counter = 55;
-    int idleTime = 0;
+    long counter = 55;
 
     private static frame1 instance = null; // set in constructor
     boolean started = false;
     boolean stopTofTreeUpdate = false;
     public static boolean updateDownloads = true;
-/*
-    public static Vector activeTofThreads = new Vector();
-    public static Vector TOFThreads = new Vector();
-    public static Vector GRTThreads = new Vector();
 
-    public static int tofUploadThreads = 0;
-    public static int tofDownloadThreads = 0;
-*/
     public static boolean updateTof = false;
     public static boolean updateTree = false;
     public static String fileSeparator = System.getProperty("file.separator");
@@ -77,10 +69,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     public static int activeUploadThreads = 0;
     public static int activeDownloadThreads = 0;
     private String lastSelectedMessage;
-    private String lastUsedBoard = "Frost";
-    public static int tofUpdateSpeed = 6; // Default at least 6!
-    public static int tofUpdateInterleave = 60; // Default 60
-    public static Map boardStats = Collections.synchronizedMap(new TreeMap());
+
+//    public static Map boardStats = Collections.synchronizedMap(new TreeMap());
     public static FrostMessageObject selectedMessage = new FrostMessageObject();
     public static boolean generateCHK = false;
 
@@ -242,10 +232,20 @@ public class frame1 extends JFrame implements ClipboardOwner
     public String           getTofTextAreaText() { return tofTextArea.getText(); }
     public void             setTofTextAreaText(String txt) { tofTextArea.setText(txt); }
     public TofTree          getTofTree() { return tofTree; }
-    public String           getLastUsedBoard() { return lastUsedBoard; }
-    public void             setLastUsedBoard(String v) { lastUsedBoard=v; }
     public JButton          getSearchButton() { return searchButton; }
 
+
+    public FrostBoardObject getActualNode()
+    {
+        FrostBoardObject node = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
+        if( node == null )
+        {
+            // nothing selected? unbelievable ! so select the root ...
+            getTofTree().setSelectionRow(0);
+            node = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
+        }
+        return node;
+    }
 
     public RunningBoardUpdateThreads getRunningBoardUpdateThreads()
     {
@@ -271,14 +271,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 
                     try
                     { //TODO: complete this
-                        /*    id_writer = new ObjectOutputStream(new FileOutputStream(identities));
-                        //System.out.println("myself: " + frame1.getMyId().toString());
-                        //id_writer.writeObject(frame1.getMyId());
-                        System.out.println("friends: " + frame1.getFriends().toString());
-                        id_writer.writeObject(frame1.getFriends());
-                        System.out.println("enemies: " + frame1.getEnemies().toString());
-                        id_writer.writeObject(frame1.getEnemies());
-                        id_writer.close();*/
                         FileWriter fout = new FileWriter(identities);
                         fout.write(mySelf.getName() + "\n");
                         fout.write(mySelf.getKeyAddress() + "\n");
@@ -369,7 +361,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         checkBox.setFocusPainted(false);
     }
 
-    private JPanel buildButtonPanel(MouseListener idleStopper) //OK
+    private JPanel buildButtonPanel() //OK
     {
         timeLabel = new JLabel("");
 // configure buttons
@@ -460,12 +452,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         buttonPanelConstr.weightx = 1;
         buttonPanel.add(timeLabel,buttonPanelConstr);
 
-        buttonPanel.addMouseListener(idleStopper);
-
         return buttonPanel;
     }
 
-    private JPanel buildStatusPanel(MouseListener idleStopper) //OK
+    private JPanel buildStatusPanel() //OK
     {
         statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
         statusMessageLabel = new JLabel();
@@ -473,11 +463,10 @@ public class frame1 extends JFrame implements ClipboardOwner
         JPanel statusPanel = new JPanel(new BorderLayout());
         statusPanel.add(statusLabel, BorderLayout.CENTER); // Statusbar
         statusPanel.add(statusMessageLabel, BorderLayout.EAST); // Statusbar / new Message
-        statusPanel.addMouseListener(idleStopper);
         return statusPanel;
     }
 
-    private JPanel buildTofMainPanel(MouseListener idleStopper) //OK
+    private JPanel buildTofMainPanel() //OK
     {
         JTabbedPane tabbedPane = new JTabbedPane();
         //add a tab for buddies perhaps?
@@ -486,7 +475,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tabbedPane.add(LangRes.getString("Downloads"), buildDownloadPane());
         tabbedPane.add(LangRes.getString("Uploads"), buildUploadPane());
 
-        DefaultMutableTreeNode tofTreeNode = new DefaultMutableTreeNode("Frost Message System");
+        FrostBoardObject tofTreeNode = new FrostBoardObject("Frost Message System", true); // is a folder
         tofTree = new TofTree(tofTreeNode);
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
         tofTree.setRootVisible(true);
@@ -537,7 +526,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener to buttons
         tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { // Update selected board
-                if (doUpdate(getLastUsedBoard()))  {  updateBoard(getLastUsedBoard());  }
+                if (doUpdate(getActualNode()))  {  updateBoard(getActualNode());  }
             } });
         tofNewMessageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -804,16 +793,12 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     this.setTitle("Frost");
 
-    MouseListener idleStopper = new IdleStopper();
-
     JPanel contentPanel = (JPanel)this.getContentPane();
     contentPanel.setLayout(new BorderLayout());
 
-    contentPanel.add( buildButtonPanel(idleStopper), BorderLayout.NORTH); // buttons toolbar
-    contentPanel.add( buildTofMainPanel(idleStopper), BorderLayout.CENTER); // tree / tabbed pane
-    contentPanel.add( buildStatusPanel(idleStopper), BorderLayout.SOUTH); // Statusbar
-
-    contentPanel.addMouseListener(idleStopper);
+    contentPanel.add( buildButtonPanel(), BorderLayout.NORTH); // buttons toolbar
+    contentPanel.add( buildTofMainPanel(), BorderLayout.CENTER); // tree / tabbed pane
+    contentPanel.add( buildStatusPanel(), BorderLayout.SOUTH); // Statusbar
 
     buildMenuBar();
     buildPopupMenus();
@@ -821,13 +806,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 //**********************************************************************************************
 //**********************************************************************************************
 //**********************************************************************************************
-    // Add IdleStoppers to some components
-    getDownloadTable().addMouseListener(idleStopper);
-    getSearchTable().addMouseListener(idleStopper);
-    getMessageTable().addMouseListener(idleStopper);
-    getUploadTable().addMouseListener(idleStopper);
-    getTofTree().addMouseListener(idleStopper);
-    tofTextArea.addMouseListener(idleStopper);
 
     /*configureCheckBox(searchAllBoardsCheckBox,
                  "Search all boards",
@@ -857,19 +835,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     timer2 = new java.util.Timer(true);
     timer2.schedule(new checkForSpam(), 0, frostSettings.getIntValue("sampleInterval")*60*60*1000);
 
-/*
-    //TODO:*** remove, its debug only
-    TimerTask printer = new TimerTask() {
-        public void run() {
-            Iterator iter = frame1.activeTofThreads.iterator();
-            while(iter.hasNext())
-                System.out.println((String)iter.next());
-        }
-    };
-    timer2.schedule(printer,0, 60*1000);
-    //END of remove
-*/
-
     //------------------------------------------------------------------------
 
     newMessage[0] = new ImageIcon(frame1.class.getResource("/data/messagebright.gif"));
@@ -885,8 +850,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     notTrustButton.setEnabled(false);
 
     //finally start something maybe time for thread?
-
-    File boardsfile = new File("boards.txt");
 
     //create a crypt object
     crypto = new FrostCrypt();
@@ -976,6 +939,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     timer2.schedule(KeyReinserter,0,60*60*1000);
 
     //on with other stuff
+    File boardsfile = new File("boards.txt");
+
     getTofTree().loadTree(boardsfile);
     getTofTree().readTreeState(new File("toftree.txt"));
     TOF.initialSearchNewMessages(getTofTree(), frostSettings.getIntValue("maxMessageDisplay"));
@@ -998,12 +963,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         frostSettings.setValue("tofFontSize",  6.0f);
 
     tofTextArea.setFont(tofTextArea.getFont ().deriveFont (frostSettings.getFloatValue("tofFontSize")));
-    // Load table settings
-    /*
-    synchronized(initLock) {
-        while(!loaded_tables) try{initLock.wait(100);}catch(InterruptedException e){};
-    }*/
 
+    // Load table settings
     DownloadTableFun.load(downloadTable);
     UploadTableFun.load(uploadTable);
 
@@ -1281,8 +1242,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             } });
         tofTreePopupRefresh.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                DefaultMutableTreeNode node = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
-                refreshNode(node);
+                refreshNode( getActualNode() );
             } });
         tofTreePopupRemoveNode.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -1442,7 +1402,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         key,
                         frostSettings.getIntValue("htl"),
                         downloadTable,
-                        getLastUsedBoard());
+                        getActualNode().toString()); // TODO: pass FrostBoardObject
         }
     }
     else {
@@ -1455,7 +1415,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         key,
                         frostSettings.getIntValue("htl"),
                         downloadTable,
-                        getLastUsedBoard());
+                        getActualNode().toString()); // TODO: pass FrostBoardObject
         }
     }
     }
@@ -1481,7 +1441,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                                                       "are you sure you want to download this one over it?","board exists",
                                                       JOptionPane.YES_NO_OPTION) !=0 ) continue;
 
-                    //create the key file
+                //create the key file
                 try
                 {
                     newBoard.createNewFile();
@@ -1502,7 +1462,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 else content = content + "state=writeAccess";
 
                 FileAccess.writeFile(content,newBoard);
-                addNodeTree(name);
+                addNodeTree( new FrostBoardObject(name) );
             }
         else
             for( int i = 0; i < selectedRows.length; i++ )
@@ -1542,58 +1502,60 @@ public class frame1 extends JFrame implements ClipboardOwner
                 else content = content + "state=writeAccess";
 
                 FileAccess.writeFile(content,newBoard);
-                addNodeTree(name);
+                addNodeTree( new FrostBoardObject(name) );
             }
     }
 
     // Test if board should be updated
-    public boolean doUpdate(String board) {
-
-    // Do not allow root node as board
-    if (board.equals("frost_message_system"))
-        return false;
-
-    if (board.length()==0)
-        return false;
-
-    if (boardStats.containsKey(board))
-        return !((BoardStat)boardStats.get(board)).spammed();
-
-    if( isUpdating(board) )
+    public boolean doUpdate(FrostBoardObject board)
     {
-        return false;
-    }
-    return true;
+        if( board == null )
+            return false;
+        // Do not allow folders to update
+        if(board.isFolder())
+            return false;
+
+        if (board.isSpammed())
+            return false;
+
+        if( isUpdating(board) )
+            return false;
+
+        return true;
     }
 
-    public boolean isUpdating(String board)
+    public boolean isUpdating(FrostBoardObject board)
     {
-        return runningBoardUpdateThreads.isUpdating(board);
+        return getRunningBoardUpdateThreads().isUpdating(board);
     }
 
     /**tof / Update*/
     /**
      * Should only be called if this board is not already updating.
      */
-    public void updateBoard(String board)
+    public void updateBoard(FrostBoardObject board)
     {
-        resetAccess(board);
+        if( board == null || board.isFolder() )
+            return;
 
-//        String[] args = {board, frostSettings.getValue("tofDownloadHtl"), keypool};
+        // this is the only place where message downloads are started
+        board.setLastUpdateStartMillis( System.currentTimeMillis() );
+
         // first download the messages of today
-        runningBoardUpdateThreads.startMessageDownloadToday(board, frostSettings, null);
+        getRunningBoardUpdateThreads().startMessageDownloadToday(board, frostSettings, null);
+        System.out.println("Starting update (MSG_TODAY) of " + board.toString());
 
-        System.out.println("Default update of " + board);
         // maybe get the files list
         if( !frostSettings.getBoolValue("disableRequests") )
         {
-            runningBoardUpdateThreads.startBoardFilesDownload(board, frostSettings, null);
+            getRunningBoardUpdateThreads().startBoardFilesDownload(board, frostSettings, null);
+            System.out.println("Starting update (BOARD_FILES) of " + board.toString());
+
         }
 
         // finally get the older messages
-        runningBoardUpdateThreads.startMessageDownloadBack(board, frostSettings, null);
-
-        System.out.println("Backload update of " + board);
+        getRunningBoardUpdateThreads().startMessageDownloadBack(board, frostSettings, null);
+        System.out.println("Starting update (MSG_BACKLOAD) of " + board.toString());
     }
 
     public void updateTofTree()
@@ -1613,7 +1575,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private void updateButtons()
     {
-        String state = SettingsFun.getValue(keypool + getLastUsedBoard() + ".key", "state");
+        String state = SettingsFun.getValue(keypool + getActualNode().getBoardFilename() + ".key", "state");
         if( state.equals("readAccess") )
         {
             tofNewMessageButton.setEnabled(false);
@@ -1704,24 +1666,22 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         public void run()
         {
-            //get an iterator
-            Iterator iter = boardStats.values().iterator();
-            BoardStat current;
-            //walk through them
             if(frostSettings.getBoolValue("doBoardBackoff"))
             {
+                Iterator iter = getTofTree().getAllBoards().iterator();
                 while (iter.hasNext())
                 {
-                    current = (BoardStat)iter.next();
-                    if (current.getNumberBlocked() > frostSettings.getIntValue("spamTreshold"))
+                    FrostBoardObject current = (FrostBoardObject)iter.next();
+                    if (current.getBlockedCount() > frostSettings.getIntValue("spamTreshold"))
                     {
                         //board is spammed
                         System.out.println("#########setting spam status############");
-                        current.spam();
+                        current.setSpammed(true);
+                        // clear spam status in 24 hours
                         timer2.schedule(new ClearSpam(current),24*60*60*1000);
 
                         //now, kill all threads for board
-                        Vector threads = runningBoardUpdateThreads.getDownloadThreadsForBoard(current.getBoard());
+                        Vector threads = getRunningBoardUpdateThreads().getDownloadThreadsForBoard(current);
                         Iterator i = threads.iterator();
                         while( i.hasNext() )
                         {
@@ -1738,11 +1698,13 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private class ClearSpam extends TimerTask
     {
-        private BoardStat cleared;
-        public ClearSpam(BoardStat which) {cleared = which;}
-        public void run() {
-        System.out.println("############clearing spam status###########");
-        cleared.unspam();
+        private FrostBoardObject clearMe;
+
+        public ClearSpam(FrostBoardObject which) { clearMe = which; }
+        public void run()
+        {
+            System.out.println("############clearing spam status for board "+clearMe.toString()+" ###########");
+            clearMe.setSpammed(false);
         }
     }
 
@@ -1760,41 +1722,33 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             selectedTreePath = e.getNewLeadSelectionPath();
         }
-        if (selectedTreePath == null)
-            getTofTree().setSelectedTof(null);
-        else
-            getTofTree().setSelectedTof((DefaultMutableTreeNode)selectedTreePath.getLastPathComponent());
 
         if(stopTofTreeUpdate)
         {
             return;
         }
 
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
+        FrostBoardObject node = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
 
         resetMessageViewSplitPanes(); // clear message view
 
         if(node != null)
         {
-            if(node.isLeaf())
+            if(node.isFolder()==false)
             {
                 // node is a board
-                setLastUsedBoard(mixed.makeFilename((String)node.getUserObject()));
                 saveMessageButton.setEnabled(false);
                 configBoardButton.setEnabled(true);
 
                 updateButtons();
-                if ((boardStats != null) && boardStats.containsKey(getLastUsedBoard()))
-                {
-                    System.out.println(getLastUsedBoard() + " blocked count: " +
-                                       ((BoardStat)boardStats.get(getLastUsedBoard())).getNumberBlocked());
-                }
+
+                System.out.println( "Board "+node.toString()+" blocked count: "+node.getBlockedCount() );
+
                 tofReplyButton.setEnabled(false);
                 downloadAttachmentsButton.setEnabled(false);
                 downloadBoardsButton.setEnabled(false);
 
-                TOF.updateTofTable(getLastUsedBoard(), keypool, frostSettings.getIntValue("maxMessageDisplay"));
-
+                TOF.updateTofTable(node, keypool, frostSettings.getIntValue("maxMessageDisplay"));
                 messageTable.clearSelection();
             }
             else
@@ -1810,105 +1764,75 @@ public class frame1 extends JFrame implements ClipboardOwner
 */
     }
 
-    public void addNodeToTree() {
-    Object nodeNameOb = JOptionPane.showInputDialog ((Component)this,
-                             LangRes.getString ("New Node Name"),
-                             LangRes.getString ("New Node Name"),
-                             JOptionPane.QUESTION_MESSAGE, null, null,
-                             LangRes.getString ("New Folder"));
-
-    String nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
-
-    if (nodeName == null || nodeName.length () == 0)
-        return;
-
-    DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
-    if (selectedNode != null)
+    public void addNodeToTree()
     {
-        selectedNode.add(new DefaultMutableTreeNode(nodeName));
-    }
-    else
-    {
-        // add to root node
-        selectedNode = (DefaultMutableTreeNode)getTofTree().getModel().getRoot();
-        selectedNode.add(new DefaultMutableTreeNode(nodeName));
-    }
-    int insertedIndex[] = { selectedNode.getChildCount()-1 }; // last in list is the newly added
-    ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( selectedNode, insertedIndex );
-    }
+        Object nodeNameOb = JOptionPane.showInputDialog ((Component)this,
+                                                         LangRes.getString ("New Node Name"),
+                                                         LangRes.getString ("New Node Name"),
+                                                         JOptionPane.QUESTION_MESSAGE, null, null,
+                                                         LangRes.getString ("New Folder"));
 
-    public void addNodeTree(String name) {
-    DefaultMutableTreeNode current = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
-    current = (DefaultMutableTreeNode)current.getRoot();
-    current.add(new DefaultMutableTreeNode(name));
+        String nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString ());
 
-    int insertedIndex[] = { current.getChildCount()-1 }; // last in list is the newly added
-    ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( current, insertedIndex );
-    }
+        if( nodeName == null || nodeName.length () == 0 )
+            return;
 
-    private void refreshNode(DefaultMutableTreeNode node) {
-
-    if (node!=null)
-    if (node.isLeaf()) { //TODO: refresh current board
-        setLastUsedBoard( mixed.makeFilename((String)node.getUserObject()) );
-        if( doUpdate( getLastUsedBoard() ) )
+        DefaultMutableTreeNode selectedNode = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
+        if( selectedNode != null )
         {
-            updateBoard(getLastUsedBoard());
+            selectedNode.add(new DefaultMutableTreeNode(nodeName));
         }
-    }
-    else {
-        Enumeration leafs = node.children();
-        while(leafs.hasMoreElements()) refreshNode((DefaultMutableTreeNode)leafs.nextElement());
-    }
+        else
+        {
+            // add to root node
+            selectedNode = (DefaultMutableTreeNode)getTofTree().getModel().getRoot();
+            selectedNode.add(new DefaultMutableTreeNode(nodeName));
+        }
+        int insertedIndex[] = { selectedNode.getChildCount()-1}; // last in list is the newly added
+        ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( selectedNode, insertedIndex );
     }
 
-    public void removeSelectedNode() {
+    public void addNodeTree(FrostBoardObject name)
+    {
+        FrostBoardObject current = (FrostBoardObject)getTofTree().getLastSelectedPathComponent();
+        current = (FrostBoardObject)current.getRoot();
+        current.add(name);
+
+        int insertedIndex[] = { current.getChildCount()-1}; // last in list is the newly added
+        ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( current, insertedIndex );
+    }
+
+    private void refreshNode(FrostBoardObject node)
+    {
+        if( node!=null )
+            if( node.isLeaf() )
+            { //TODO: refresh current board
+                if( doUpdate( node ) )
+                {
+                    updateBoard(node);
+                }
+            }
+            else
+            {
+                Enumeration leafs = node.children();
+                while( leafs.hasMoreElements() ) refreshNode((FrostBoardObject)leafs.nextElement());
+            }
+    }
+
+    public void removeSelectedNode()
+    {
         getTofTree().removeSelectedNode();
     }
 
-    public void renameSelectedNode() {
-    getTofTree().startEditingAtPath(getTofTree().getSelectionPath());
+    public void renameSelectedNode()
+    {
+        getTofTree().startEditingAtPath(getTofTree().getSelectionPath());
     }
 
     public void pasteFromClipboard()
     {
-        DefaultMutableTreeNode node = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
-        if( node != null && !clipboard.equals("") )
+        if( getTofTree().pasteFromClipboard(clipboard) == true )
         {
-            DefaultMutableTreeNode actualNode = node;
-
-            Vector lines = new Vector();
-            clipboard = clipboard.trim();
-            while( clipboard.indexOf("\r\n") != -1 )
-            {
-                lines.add(clipboard.substring(0, clipboard.indexOf("\r\n")));
-                clipboard = clipboard.substring(clipboard.indexOf("\r\n") + 2, clipboard.length());
-            }
-            for( int i = 0; i < lines.size(); i++ )
-            {
-                String line = ((String)lines.elementAt(i)).trim();
-                String name = line.substring(1, line.length());
-
-                if( line.startsWith("=") )
-                {
-                    actualNode.add(new DefaultMutableTreeNode(name));
-                    int insertedIndex[] = { actualNode.getChildCount()-1 }; // last in list is the newly added
-                    ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( actualNode, insertedIndex );
-                }
-                else if( line.startsWith(">") )
-                {
-                    DefaultMutableTreeNode newNode = new DefaultMutableTreeNode(name);
-                    actualNode.add(newNode);
-                    int insertedIndex[] = { actualNode.getChildCount()-1 }; // last in list is the newly added
-                    ((DefaultTreeModel)getTofTree().getModel()).nodesWereInserted( actualNode, insertedIndex );
-
-                    actualNode = newNode;
-                }
-                else if( line.startsWith("<") )
-                {
-                    actualNode = (DefaultMutableTreeNode)actualNode.getParent();
-                }
-            }
             clipboard = "";
             pasteBoardButton.setEnabled(false);
         }
@@ -1970,7 +1894,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             downloadBoardsButton.setEnabled(false);
 
             lastSelectedMessage = selectedMessage.getSubject();
-            String state = SettingsFun.getValue(keypool + getLastUsedBoard() + ".key", "state");
+            String state = SettingsFun.getValue(keypool + getActualNode().getBoardFilename() + ".key", "state");
             if( !state.equals("readAccess") )
                 tofReplyButton.setEnabled(true);
 
@@ -2087,439 +2011,444 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
     }
 
-    public static void incTries(String board) {
-    BoardStat boardStat = (BoardStat)boardStats.get(board);
-    if (boardStat != null)
-        boardStat.incTries();
-    }
-    public static void incSuccess(String board) {
-    BoardStat boardStat = (BoardStat)boardStats.get(board);
-    if (boardStat != null)
-        boardStat.incSuccess();
-    }
-    public static void incAccess(String board) {
-    BoardStat boardStat = (BoardStat)boardStats.get(board);
-    if (boardStat != null)
-        boardStat.incAccess();
-    }
-    public static void resetAccess(String board) {
-    BoardStat boardStat = (BoardStat)boardStats.get(board);
-    if (boardStat != null)
-        boardStat.resetAccess();
-    }
 
-    static final Comparator statCmp = new Comparator() {
+    static final Comparator lastUpdateStartMillisCmp = new Comparator() {
         public int compare(Object o1, Object o2) {
-        int value1 = ((BoardStat)o1).getCp();
-        int value2 = ((BoardStat)o2).getCp();
-        if (value1 < value2)
+        FrostBoardObject value1 = (FrostBoardObject)o1;
+        FrostBoardObject value2 = (FrostBoardObject)o2;
+        if( value1.getLastUpdateStartMillis() > value2.getLastUpdateStartMillis() )
             return 1;
         else
             return -1;
         }
     };
 
-    static final Comparator successCmp = new Comparator() {
-        public int compare(Object o1, Object o2) {
-        int value1 = ((BoardStat)o1).getSuccess();
-        int value2 = ((BoardStat)o2).getSuccess();
-        if (value1 < value2)
-            return 1;
-        else
-            return -1;
-        }
-    };
-
-    public String selectNextBoard(Vector boards, int boardCount) {
-    Random rand = new Random(System.currentTimeMillis());
-    String board = new String();
-    BoardStat[] statArray = new BoardStat[boardCount];
-
-    // Copy all board statistics into one array, statArray
-    // and increase the access counter
-    int minValue = Integer.MAX_VALUE;
-    int maxValue = Integer.MIN_VALUE;
-    for (int i = 0; i < boards.size(); i++) {
-        String tmp = (String)boards.elementAt(i);
-        statArray[i] = (BoardStat)boardStats.get(tmp);
-        statArray[i].incAccess();
-    }
-
-    // Sort by succes value
-    Arrays.sort(statArray, successCmp);
-
-    // Minimize success values
-    for (int i = 0; i < statArray.length; i++)
-        statArray[i].setSuccess(statArray.length - i);
-
-    // Sort by CP
-    Arrays.sort(statArray, statCmp);
-
-    System.out.println("*****************************************");
-    System.out.println("CP**AC**RV**Board************************");
-    for (int i = 0; i < statArray.length; i++)
+    /**
+     * Chooses the next FrostBoard to update.
+     * First sorts by lastUpdateStarted time, then chooses first board
+     * that is allowed to update.
+     * Used only for automatic updating.
+     * Returns NULL if no board to update is found.
+     */
+    public FrostBoardObject selectNextBoard(Vector boards)
     {
-        // 50% chance to take the first board
-        int randomValue = Math.abs(rand.nextInt())%2;
+        Collections.sort(boards, lastUpdateStartMillisCmp);
+        // now first board in list should be the one with latest update of all
 
-        String outLine = new StringBuffer()
-                            .append(statArray[i].getCp()).append(" | ")
-                            .append(statArray[i].getLastAccess()).append(" | ")
-                            .append(randomValue).append(" | ")
-                            .append(statArray[i].getBoard()).toString();
+        FrostBoardObject board;
+        FrostBoardObject nextBoard = null;
 
-        System.out.println(outLine);
-        String tmp = statArray[i].getBoard();
-        if (doUpdate(tmp) && board.equals("") && randomValue == 0)
+        long curTime = System.currentTimeMillis();
+        // get in minutes
+        int minUpdateInterval = frostSettings.getIntValue("automaticUpdate.boardsMinimumUpdateInterval");
+        // min -> ms
+        long minUpdateIntervalMillis = minUpdateInterval * 60 * 1000;
+
+        for (int i = 0; i < boards.size(); i++)
         {
-            System.out.println("-----------------------------------------");
-            board = tmp;
+            board = (FrostBoardObject)boards.get(i);
+//            System.out.println( "lastUpdate= "+board.getLastUpdateStartMillis()+" ; Board = "+board.toString() );
+            if( nextBoard == null &&
+                doUpdate(board) &&  // update allowed, already updating, ...?
+                (curTime - minUpdateIntervalMillis) > board.getLastUpdateStartMillis() // minInterval
+              )
+            {
+                nextBoard = board;
+                break;
+            }
         }
-    }
-    System.out.println("*****************************************");
-
-    if (board.equals(""))
-        board = statArray[boardCount - 1].getBoard();
-
-    return board;
+        System.out.println("*****************************************");
+        if( nextBoard != null )
+            System.out.println("Automatic board update - starting update for: "+nextBoard.toString());
+        else
+            System.out.println("Automatic board update - no board to update");
+        System.out.println("*****************************************");
+        return nextBoard;
     }
 
     /**timer Action Listener (automatic download)*/
-    private void timer_actionPerformed() {
-    counter++;
-    idleTime++;
+    private void timer_actionPerformed()
+    {
+        counter++;
 
-    // Display welcome message if no boards are available
-    if( ((TreeNode)getTofTree().getModel().getRoot()).getChildCount() == 0 ) {
-        attachmentSplitPane.setDividerSize(0);
-        attachmentSplitPane.setDividerLocation(1.0);
-        setTofTextAreaText(LangRes.getString("Welcome message"));
-    }
-
-    if (idleTime > 900) { // 15 minutes
-        tofUpdateInterleave = 300; // 5 minutes
-    }
-    if (idleTime > 3600) { // 1 hour
-        tofUpdateInterleave = 900; // 15 minutes
-    }
-    if (idleTime > 10800) { // 3 hours
-        tofUpdateInterleave = 1800; // 30 minutes
-    }
-
-//  System.out.println("UMS: " + idleTime + " - " + tofUpdateInterleave);
-
-    if (counter%180 == 0) // Check uploadTable every 3 minutes
-        UploadTableFun.update(uploadTable);
-
-    if (counter%300 == 0 && frostSettings.getBoolValue("removeFinishedDownloads"))
-        DownloadTableFun.removeFinishedDownloads(downloadTable);
-
-    String newText = new StringBuffer()
-                .append(LangRes.getString("Up: ")).append(activeUploadThreads)
-                .append(LangRes.getString("   Down: ")).append(activeDownloadThreads)
-                .append(LangRes.getString("   TOFUP: ")).append(runningBoardUpdateThreads.getRunningUploadThreadCount() )
-                .append(LangRes.getString("   TOFDO: ")).append( runningBoardUpdateThreads.getRunningDownloadThreadCount() )
-                .append(LangRes.getString("   Selected board: ")).append(getLastUsedBoard()).toString();
-
-    statusLabel.setText(newText);
-
-    if (updateDownloads || counter%10 == 0) {
-        DownloadTableFun.update(downloadTable, frostSettings.getIntValue("htlMax"), new File(keypool), new File(frostSettings.getValue("downloadDirectory")));
-        updateDownloads = false;
-
-        // Sometimes it seems that download table entries do not get reset to "Failed"
-        // I did not find the bug yet, but if there is no download thread active
-        // all unfinished downloads are set to "Waiting"
-        if (activeDownloadThreads == 0 && downloadActivateCheckBox.isSelected())
-        for (int i = 0; i < getDownloadTable().getModel().getRowCount(); i++)
-            if (!getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Done")))
-            getDownloadTable().getModel().setValueAt(LangRes.getString("Waiting"), i, 3);
-    }
-
-    // automatic TOF update
-    if (counter%tofUpdateInterleave == 0 &&
-        runningBoardUpdateThreads.getRunningDownloadThreadCount() < tofUpdateSpeed &&
-        tofAutomaticUpdateMenuItem.isSelected()) {
-
-        Vector boards = getTofTree().getAllBoards();
-        //boards.insertElementAt("_boardlist", 0);
-        int itemCount = boards.size();
-
-        // Update boardStats
-        for (int i = 0; i < boards.size(); i++) {
-        String boardname = (String)boards.elementAt(i);
-        if (!boardStats.containsKey(boardname)) {
-            boardStats.put(boardname, new BoardStat(boardname));
-        }
+        // Display welcome message if no boards are available
+        if( ((TreeNode)getTofTree().getModel().getRoot()).getChildCount() == 0 )
+        {
+            attachmentSplitPane.setDividerSize(0);
+            attachmentSplitPane.setDividerLocation(1.0);
+            setTofTextAreaText(LangRes.getString("Welcome message"));
         }
 
-        if (itemCount > 0) {
-        String actualBoard = selectNextBoard(boards, itemCount);
-        incTries(actualBoard);
-        resetAccess(actualBoard);
-        if (doUpdate(actualBoard)) {
-            System.out.println("Updating: " + actualBoard);
-            updateBoard(actualBoard);
+        if( counter%180 == 0 ) // Check uploadTable every 3 minutes
+            UploadTableFun.update(uploadTable);
+
+        if( counter%300 == 0 && frostSettings.getBoolValue("removeFinishedDownloads") )
+            DownloadTableFun.removeFinishedDownloads(downloadTable);
+
+        if( updateDownloads || counter%10 == 0 )
+        {
+            DownloadTableFun.update(downloadTable, frostSettings.getIntValue("htlMax"), new File(keypool), new File(frostSettings.getValue("downloadDirectory")));
+            updateDownloads = false;
+
+            // Sometimes it seems that download table entries do not get reset to "Failed"
+            // I did not find the bug yet, but if there is no download thread active
+            // all unfinished downloads are set to "Waiting"
+            if( activeDownloadThreads == 0 && downloadActivateCheckBox.isSelected() )
+                for( int i = 0; i < getDownloadTable().getModel().getRowCount(); i++ )
+                    if( !getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Done")) )
+                        getDownloadTable().getModel().setValueAt(LangRes.getString("Waiting"), i, 3);
         }
-        }
-    }
 
-    // Display time in button bar
-
-    timeLabel.setText( new StringBuffer().append(DateFun.getExtendedDate())
-                      .append(" - ").append(DateFun.getFullExtendedTime()).append(" GMT").toString());
-
-    // Generate CHK's for upload table entries
-    if (!generateCHK) {
-        if (getUploadTable().getModel().getRowCount() > 0) {
-        for (int i = 0; i < getUploadTable().getModel().getRowCount(); i++) {
-            String file = null;
-            String target = null;
-            String destination = null;
-            boolean isUnknown = false;
-            synchronized (getUploadTable()){
-                try{
-                String state = (String)getUploadTable().getModel().getValueAt(i, 5);
-                if (state.equals(LangRes.getString("Unknown"))) {
-                file = (String)getUploadTable().getModel().getValueAt(i, 3);
-                target = (String)getUploadTable().getModel().getValueAt(i, 4);
-                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
-                getUploadTable().getModel().setValueAt("Working...", i, 5);
-                isUnknown = true;
+        //////////////////////////////////////////////////
+        //   Automatic TOF update
+        //////////////////////////////////////////////////
+        if( counter % 3 == 0 && // check all 3 seconds if a board update could be started
+            tofAutomaticUpdateMenuItem.isSelected() &&
+            getRunningBoardUpdateThreads().getUpdatingBoardCount() <
+                    frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")
+          )
+        {
+            Vector boards = getTofTree().getAllBoards();
+            if( boards.size() > 0 )
+            {
+                FrostBoardObject actualBoard = selectNextBoard(boards);
+                if( actualBoard != null )
+                {
+                    updateBoard(actualBoard);
                 }
             }
-            catch (Exception e) {System.out.println("generating chk NOT GOOD " +e.toString());}
-            }
-            if (isUnknown){
-            insertThread newInsert = new insertThread(destination,
-                                  new File(file),
-                                  frostSettings.getValue("htlUpload"),
-                                  target,
-                                  false);
-            newInsert.start();
-            break;
-            }
         }
-        }
-    }
 
-    // Start upload thread
-    int activeUthreads = 0;
-    synchronized(threadCountLock) {
-        activeUthreads=activeUploadThreads;
-    }
-    if (activeUthreads < frostSettings.getIntValue("uploadThreads")) {
-        if (getUploadTable().getModel().getRowCount() > 0) {
-        for (int i = 0; i < getUploadTable().getModel().getRowCount(); i++) {
-            String file = null;
-            String target = null;
-            String destination = null;
-            boolean isRequested = false;
-            synchronized (getUploadTable()){
-                try{
-                String state = (String)getUploadTable().getModel().getValueAt(i, 2);
-                String key = (String)getUploadTable().getModel().getValueAt(i, 5);
-                if (state.equals(LangRes.getString("Requested")) && key.startsWith("CHK@")) {
-                file = (String)getUploadTable().getModel().getValueAt(i, 3);
-                target = (String)getUploadTable().getModel().getValueAt(i, 4);
-                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
-                getUploadTable().getModel().setValueAt(LangRes.getString("Uploading"), i, 2);
-                isRequested = true;
+        //////////////////////////////////////////////////
+        //   Display time in button bar
+        //////////////////////////////////////////////////
+        timeLabel.setText( new StringBuffer().append(DateFun.getExtendedDate())
+                           .append(" - ").append(DateFun.getFullExtendedTime()).append(" GMT").toString());
+
+        /////////////////////////////////////////////////
+        //   Update status bar
+        /////////////////////////////////////////////////
+        String newText = new StringBuffer()
+                 .append(LangRes.getString("Up: ")).append(activeUploadThreads)
+                 .append(LangRes.getString("   Down: ")).append(activeDownloadThreads)
+
+                 .append(LangRes.getString("   TOFUP: "))
+                 .append(getRunningBoardUpdateThreads().getUploadingBoardCount() )
+                 .append("b / ")
+                 .append(getRunningBoardUpdateThreads().getRunningUploadThreadCount() )
+                 .append("t")
+
+                 .append(LangRes.getString("   TOFDO: "))
+                 .append(getRunningBoardUpdateThreads().getUpdatingBoardCount() )
+                 .append("b / ")
+                 .append( getRunningBoardUpdateThreads().getRunningDownloadThreadCount() )
+                 .append("t")
+
+                 .append(LangRes.getString("   Selected board: ")).append(getActualNode().toString())
+                 .toString();
+        statusLabel.setText(newText);
+
+        //////////////////////////////////////////////////
+        // Generate CHK's for upload table entries
+        //////////////////////////////////////////////////
+        if( !generateCHK )
+        {
+            if( getUploadTable().getModel().getRowCount() > 0 )
+            {
+                for( int i = 0; i < getUploadTable().getModel().getRowCount(); i++ )
+                {
+                    String file = null;
+                    String target = null;
+                    String destination = null;
+                    boolean isUnknown = false;
+                    synchronized (getUploadTable())
+                    {
+                        try
+                        {
+                            String state = (String)getUploadTable().getModel().getValueAt(i, 5);
+                            if( state.equals(LangRes.getString("Unknown")) )
+                            {
+                                file = (String)getUploadTable().getModel().getValueAt(i, 3);
+                                target = (String)getUploadTable().getModel().getValueAt(i, 4);
+                                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
+                                getUploadTable().getModel().setValueAt("Working...", i, 5);
+                                isUnknown = true;
+                            }
+                        }
+                        catch( Exception e )
+                        {
+                            System.out.println("generating chk NOT GOOD " +e.toString());
+                        }
+                    }
+                    if( isUnknown )
+                    {
+                        insertThread newInsert = new insertThread(destination,
+                                                                  new File(file),
+                                                                  frostSettings.getValue("htlUpload"),
+                                                                  target,
+                                                                  false);
+                        newInsert.start();
+                        break;
+                    }
                 }
             }
-            catch (Exception e) {System.out.println("uploading NOT GOOD " +e.toString());}
-            }
-            if (isRequested){
-            insertThread newInsert = new insertThread(destination,
-                                  new File(file),
-                                  frostSettings.getValue("htlUpload"),
-                                  target,
-                                  true);
-            newInsert.start();
-            break;
-            }
         }
-        }
-    }
 
-    // Start download thread
-    int activeDthreads = 0;
-    synchronized(threadCountLock) {
-        activeDthreads=activeDownloadThreads;
-    }
-    if (activeDthreads < frostSettings.getIntValue("downloadThreads") && downloadActivateCheckBox.isSelected()) {
-        for (int i = 0; i < getDownloadTable().getModel().getRowCount(); i++) {
-        if (getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Waiting"))) {
-            String filename = null;
-            String size = null;
-            String htl = null;
-            String source = null;
-            String key = null;
-            boolean isWaiting = false;
-            synchronized (downloadTable){
-                try{
-                filename = (String)getDownloadTable().getModel().getValueAt(i,0);
-                size = (String)getDownloadTable().getModel().getValueAt(i,1);
-                htl = (String)getDownloadTable().getModel().getValueAt(i,4);
-                key = (String)getDownloadTable().getModel().getValueAt(i,6);
-                source = (String)getDownloadTable().getModel().getValueAt(i,5);
-                getDownloadTable().getModel().setValueAt(LangRes.getString("Trying"), i, 3);
-                isWaiting = true;
-            }
-            catch (Exception e) {System.out.println("download NOT GOOD " +e.toString());}
-            }
-            if (isWaiting){
-            requestThread newRequest = new requestThread(filename, size, getDownloadTable(),
-                                                         getUploadTable(), htl, key, source);
-            newRequest.start();
-            break;
+        // Start upload thread
+        int activeUthreads = 0;
+        synchronized(threadCountLock)
+        {
+            activeUthreads=activeUploadThreads;
+        }
+        if( activeUthreads < frostSettings.getIntValue("uploadThreads") )
+        {
+            if( getUploadTable().getModel().getRowCount() > 0 )
+            {
+                for( int i = 0; i < getUploadTable().getModel().getRowCount(); i++ )
+                {
+                    String file = null;
+                    String target = null;
+                    String destination = null;
+                    boolean isRequested = false;
+                    synchronized (getUploadTable())
+                    {
+                        try
+                        {
+                            String state = (String)getUploadTable().getModel().getValueAt(i, 2);
+                            String key = (String)getUploadTable().getModel().getValueAt(i, 5);
+                            if( state.equals(LangRes.getString("Requested")) && key.startsWith("CHK@") )
+                            {
+                                file = (String)getUploadTable().getModel().getValueAt(i, 3);
+                                target = (String)getUploadTable().getModel().getValueAt(i, 4);
+                                destination = (String)getUploadTable().getModel().getValueAt(i, 0);
+                                getUploadTable().getModel().setValueAt(LangRes.getString("Uploading"), i, 2);
+                                isRequested = true;
+                            }
+                        }
+                        catch( Exception e )
+                        {
+                            System.out.println("uploading NOT GOOD " +e.toString());
+                        }
+                    }
+                    if( isRequested )
+                    {
+                        insertThread newInsert = new insertThread(destination,
+                                                                  new File(file),
+                                                                  frostSettings.getValue("htlUpload"),
+                                                                  target,
+                                                                  true);
+                        newInsert.start();
+                        break;
+                    }
+                }
             }
         }
+
+        // Start download thread
+        int activeDthreads = 0;
+        synchronized(threadCountLock) {
+            activeDthreads=activeDownloadThreads;
         }
-    }
+        if( activeDthreads < frostSettings.getIntValue("downloadThreads") && downloadActivateCheckBox.isSelected() )
+        {
+            for( int i = 0; i < getDownloadTable().getModel().getRowCount(); i++ )
+            {
+                if( getDownloadTable().getModel().getValueAt(i, 3).equals(LangRes.getString("Waiting")) )
+                {
+                    String filename = null;
+                    String size = null;
+                    String htl = null;
+                    String source = null;
+                    String key = null;
+                    boolean isWaiting = false;
+                    synchronized (downloadTable) {
+                        try {
+                            filename = (String)getDownloadTable().getModel().getValueAt(i,0);
+                            size = (String)getDownloadTable().getModel().getValueAt(i,1);
+                            htl = (String)getDownloadTable().getModel().getValueAt(i,4);
+                            key = (String)getDownloadTable().getModel().getValueAt(i,6);
+                            source = (String)getDownloadTable().getModel().getValueAt(i,5);
+                            getDownloadTable().getModel().setValueAt(LangRes.getString("Trying"), i, 3);
+                            isWaiting = true;
+                        }
+                        catch( Exception e ) {
+                            System.out.println("download NOT GOOD " +e.toString());
+                        }
+                    }
+                    if( isWaiting )
+                    {
+                        requestThread newRequest = new requestThread(filename, size, getDownloadTable(),
+                                                                     getUploadTable(), htl, key, new FrostBoardObject(source)); // TODO: pass FrostBoardObject
+                        newRequest.start();
+                        break;
+                    }
+                }
+            }
+        }
     }
 
     /**searchTextField Action Listener (search)*/
-    private void searchTextField_actionPerformed(ActionEvent e) {
-    if (searchButton.isEnabled())
-        searchButton_actionPerformed(e);
+    private void searchTextField_actionPerformed(ActionEvent e)
+    {
+        if( searchButton.isEnabled() )
+            searchButton_actionPerformed(e);
     }
 
     /**downloadTextField Action Listener (Download/Quickload)*/
-    private void downloadTextField_actionPerformed(ActionEvent e) {
-    String key = (downloadTextField.getText()).trim();
-    if (key.length() > 0) {
-        // strip the 'freenet:' prefix
-        if(key.indexOf("freenet:") == 0){
-        key = key.substring(8);
-        }
+    private void downloadTextField_actionPerformed(ActionEvent e)
+    {
+        String key = (downloadTextField.getText()).trim();
+        if( key.length() > 0 )
+        {
+            // strip the 'freenet:' prefix
+            if( key.indexOf("freenet:") == 0 )
+            {
+                key = key.substring(8);
+            }
 
-        String validkeys[]={"SSK@", "CHK@", "KSK@"};
-        boolean valid=false;
+            String validkeys[]={"SSK@", "CHK@", "KSK@"};
+            boolean valid=false;
 
-        for (int i = 0; i < validkeys.length; i++) {
-        if (key.substring(0, validkeys[i].length()).equals(validkeys[i]))
-            valid=true;
-        }
+            for( int i = 0; i < validkeys.length; i++ )
+            {
+                if( key.substring(0, validkeys[i].length()).equals(validkeys[i]) )
+                    valid=true;
+            }
 
-        if (valid) {
-        // added a way to specify a file name. The filename is preceeded by a colon.
-        String fileName;
+            if( valid )
+            {
+                // added a way to specify a file name. The filename is preceeded by a colon.
+                String fileName;
 
-        int sepIndex = key.lastIndexOf(":");
+                int sepIndex = key.lastIndexOf(":");
 
-        if (sepIndex != -1){
-            fileName = key.substring(sepIndex + 1);
-            key = key.substring(0, sepIndex);
+                if( sepIndex != -1 )
+                {
+                    fileName = key.substring(sepIndex + 1);
+                    key = key.substring(0, sepIndex);
+                }
+                // take the filename from the last part the SSK or KSK
+                else if( -1 != (sepIndex = key.lastIndexOf("/")) )
+                {
+                    fileName = key.substring(sepIndex + 1);
+                }
+                else
+                {
+                    fileName = key.substring(4);
+                }
+                // add valid key to download table
+                DownloadTableFun.insertDownload(mixed.makeFilename(fileName),
+                                                "Unknown",
+                                                "Unknown",
+                                                key,
+                                                frostSettings.getIntValue("htl"),
+                                                downloadTable,
+                                                getActualNode().getBoardFilename());
+            }
+            else
+            {
+                // show messagebox that key is invalid
+                String keylist = "";
+                for( int i=0; i < validkeys.length; i++ )
+                {
+                    if( i > 0 )
+                        keylist += ", ";
+                    keylist += validkeys[i];
+                }
+                JOptionPane.showMessageDialog(this,
+                                              LangRes.getString("Invalid key.  Key must begin with one of") + ": "  + keylist,
+                                              LangRes.getString("Invalid key"),
+                                              JOptionPane.ERROR_MESSAGE);
+            }
         }
-        // take the filename from the last part the SSK or KSK
-        else if (-1 != (sepIndex = key.lastIndexOf("/"))){
-            fileName = key.substring(sepIndex + 1);
-        }
-        else {
-            fileName = key.substring(4);
-        }
-        // add valid key to download table
-        DownloadTableFun.insertDownload(mixed.makeFilename(fileName),
-                                        "Unknown",
-                                        "Unknown",
-                                        key,
-                                        frostSettings.getIntValue("htl"),
-                                        downloadTable,
-                                        getLastUsedBoard());
-        }
-        else {
-        // show messagebox that key is invalid
-        String keylist = "";
-        for (int i=0; i < validkeys.length; i++) {
-            if (i > 0)
-            keylist += ", ";
-            keylist += validkeys[i];
-        }
-        JOptionPane.showMessageDialog(this,
-                          LangRes.getString("Invalid key.  Key must begin with one of") + ": "  + keylist,
-                          LangRes.getString("Invalid key"),
-                          JOptionPane.ERROR_MESSAGE);
-        }
-    }
     }
 
     /**searchButton Action Listener (Search)*/
-    private void searchButton_actionPerformed(ActionEvent e) {
-    searchButton.setEnabled(false);
-    getSearchTable().clearSelection();
-    TableFun.removeAllRows(getSearchTable());
-    Vector boardsToSearch;
-    if( searchAllBoardsCheckBox.isSelected() )
+    private void searchButton_actionPerformed(ActionEvent e)
     {
-        // search in all boards
-        boardsToSearch = getTofTree().getAllBoards();
-    }
-    else
-    {
-        boardsToSearch = new Vector();
-        boardsToSearch.add( getLastUsedBoard() );
-    }
+        searchButton.setEnabled(false);
+        getSearchTable().clearSelection();
+        TableFun.removeAllRows(getSearchTable());
+        Vector boardsToSearch;
+        if( searchAllBoardsCheckBox.isSelected() )
+        {
+            // search in all boards
+            boardsToSearch = getTofTree().getAllBoards();
+        }
+        else
+        {
+            boardsToSearch = new Vector();
+            boardsToSearch.add( getActualNode() );
+        }
 
-    SearchThread searchThread = new SearchThread(searchTextField.getText(),
-                             boardsToSearch,
-                             keypool,
-                             (String)searchComboBox.getSelectedItem(),
-                             frostSettings
-                             );
-    searchThread.start();
+        SearchThread searchThread = new SearchThread(searchTextField.getText(),
+                                                     boardsToSearch,
+                                                     keypool,
+                                                     (String)searchComboBox.getSelectedItem(),
+                                                     frostSettings
+                                                    );
+        searchThread.start();
     }
 
     /**tofNewMessageButton Action Listener (tof/ New Message)*/
-    private void tofNewMessageButton_actionPerformed(ActionEvent e) {
-    String[] args = {getLastUsedBoard(),
-             frostSettings.getValue("userName"),
-             "No subject", "",
-             frostSettings.getValue("lastUsedDirectory")
-    };
+    private void tofNewMessageButton_actionPerformed(ActionEvent e)
+    {
+        String[] args = {getActualNode().toString(), // TODO: pass FrostBoardObject
+            frostSettings.getValue("userName"),
+            "No subject", "",
+            frostSettings.getValue("lastUsedDirectory")
+        };
 
-    if(frostSettings.getBoolValue("useAltEdit")){
-        altEdit = new AltEdit(getLastUsedBoard(),"No subject", "", keypool, frostSettings, this);
-        altEdit.start();
-    }
-    else{
-        MessageFrame newMessage = new MessageFrame(args, keypool, frostSettings, this);
-        newMessage.show();
-    }
+        if( frostSettings.getBoolValue("useAltEdit") )
+        {
+            // TODO: pass FrostBoardObject
+            altEdit = new AltEdit(getActualNode().toString(),"No subject", "", keypool, frostSettings, this);
+            altEdit.start();
+        }
+        else
+        {
+            MessageFrame newMessage = new MessageFrame(args, keypool, frostSettings, this);
+            newMessage.show();
+        }
     }
 
     /**tofReplyButton Action Listener (tof/Reply)*/
-    private void tofReplyButton_actionPerformed(ActionEvent e) {
-    String subject = "No subject";
-    int selectedRow = messageTable.getSelectedRow();
-    String[] args = {getLastUsedBoard(),
-             frostSettings.getValue("userName"),
-             lastSelectedMessage,
-             getTofTextAreaText(),
-             frostSettings.getValue("lastUsedDirectory")};
-    if (!args[2].startsWith("Re:"))
-        args[2] = "Re: " + args[2];
+    private void tofReplyButton_actionPerformed(ActionEvent e)
+    {
+        String subject = "No subject";
+        int selectedRow = messageTable.getSelectedRow();
+        String[] args = {getActualNode().toString(), // TODO: pass FrostBoardObject
+            frostSettings.getValue("userName"),
+            lastSelectedMessage,
+            getTofTextAreaText(),
+            frostSettings.getValue("lastUsedDirectory")};
+        if( !args[2].startsWith("Re:") )
+            args[2] = "Re: " + args[2];
 
-    if(frostSettings.getBoolValue("useAltEdit")){
-        altEdit = new AltEdit(getLastUsedBoard(), args[2], args[3], keypool, frostSettings, this);
-        altEdit.start();
-    }
-    else{
-        MessageFrame newMessage = new MessageFrame(args, keypool, frostSettings , this);
-        newMessage.show();
-    }
+        if( frostSettings.getBoolValue("useAltEdit") )
+        {
+            // TODO: pass FrostBoardObject
+            altEdit = new AltEdit(getActualNode().toString(), args[2], args[3], keypool, frostSettings, this);
+            altEdit.start();
+        }
+        else
+        {
+            MessageFrame newMessage = new MessageFrame(args, keypool, frostSettings , this);
+            newMessage.show();
+        }
     }
 
-    private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e) {
-    BoardInfoFrame boardInfo = new BoardInfoFrame(this);
-    boardInfo.show();
+    private void tofDisplayBoardInfoMenuItem_actionPerformed(ActionEvent e)
+    {
+        BoardInfoFrame boardInfo = new BoardInfoFrame(this);
+        boardInfo.show();
     }
 
     //------------------------------------------------------------------------
 
     private void uploadAddFilesButton_actionPerformed(ActionEvent e) {
     final JFileChooser fc = new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
-    fc.setDialogTitle("Select files you want to upload to the " + getLastUsedBoard() + " board.");
+    fc.setDialogTitle("Select files you want to upload to the " + getActualNode().toString() + " board.");
     fc.setFileHidingEnabled(true);
     fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
     fc.setMultiSelectionEnabled(true);
@@ -2538,7 +2467,8 @@ public class frame1 extends JFrame implements ClipboardOwner
             for (int j = 0; j < allFiles.size(); j++) {
             File newFile = (File)allFiles.elementAt(j);
             if (newFile.isFile()) {
-                UploadTableFun.add(uploadTable, newFile, selectedFiles[i], getLastUsedBoard());
+                // TODO: pass FrostBoardObject
+                UploadTableFun.add(uploadTable, newFile, selectedFiles[i], getActualNode().toString());
             }
             }
         }
@@ -2559,7 +2489,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     /**News | Configure Board action performed*/
     private void tofConfigureBoardMenuItem_actionPerformed(ActionEvent e) {
-    BoardSettingsFrame newFrame = new BoardSettingsFrame(this, getLastUsedBoard());
+    BoardSettingsFrame newFrame = new BoardSettingsFrame(this, getActualNode().toString());  // TODO: pass FrostBoardObject
     newFrame.setModal(true); // lock main window
     newFrame.show();
     if (newFrame.getExitState()) {
@@ -2628,35 +2558,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         searchAllBoardsCheckBox.setSelected(frostSettings.getBoolValue("searchAllBoards"));
         //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
         tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
-    }
-
-    class IdleStopper extends MouseAdapter {
-
-    public void mousePressed(MouseEvent e) {
-        doThisPlease(e);
-    }
-
-    public void mouseReleased(MouseEvent e) {
-        doThisPlease(e);
-    }
-
-    public void mouseEntered(MouseEvent e) {
-        doThisPlease(e);
-    }
-
-    public void mouseExited(MouseEvent e) {
-        doThisPlease(e);
-    }
-
-    public void mouseClicked(MouseEvent e) {
-        doThisPlease(e);
-    }
-
-    void doThisPlease(MouseEvent e) {
-        idleTime = 0;
-        tofUpdateInterleave = 60;
-    }
-
     }
 
     class PopupListener extends MouseAdapter {
@@ -2867,8 +2768,9 @@ public class frame1 extends JFrame implements ClipboardOwner
     {
         updateMessageCountLabels(false, null);
     }
+
     // methods that update the Msg and New counts for tof table
-    public void updateMessageCountLabels(boolean updateNewBoardsList, String board)
+    public void updateMessageCountLabels(boolean updateNewBoardsList, FrostBoardObject board)
     {
         DefaultTableModel model = (DefaultTableModel)messageTable.getModel();
 
@@ -2888,9 +2790,9 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( updateNewBoardsList == true )
         {
             if( newMessages == 0 )
-                getBoardsThatContainNewMsg().remove(board);
+                getBoardsThatContainNewMsg().remove(board.toString());
             else if( newMessages > 0 )
-                getBoardsThatContainNewMsg().put(board,board);
+                getBoardsThatContainNewMsg().put(board.toString(),board);
         }
     }
 
@@ -2981,8 +2883,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                 VerifyableMessageObject mo = new VerifyableMessageObject((File)entries.elementAt(i));
                 if( mo.isValid() )
                 {
-                    runningBoardUpdateThreads.startMessageUpload(
-                        mo.getBoard(),
+                    getRunningBoardUpdateThreads().startMessageUpload(
+                        new FrostBoardObject(mo.getBoard()), // TODO: pass FrostBoardObject
                         mo.getFrom(),
                         mo.getSubject(),
                         mo.getContent(),
@@ -2999,7 +2901,6 @@ public class frame1 extends JFrame implements ClipboardOwner
             }
         }
     }
-
 
 }
 
