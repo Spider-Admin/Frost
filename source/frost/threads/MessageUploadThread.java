@@ -36,15 +36,16 @@ import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.FrostIdentities;
 import frost.messages.*;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * Uploads a message to a certain message board
  */
-public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread
-{
-    private static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
+public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread {
     
 	private static Logger logger = Logger.getLogger(MessageUploadThread.class.getName());
+	
+	private UpdatingLanguageResource languageResource;
 	
     private FrostBoardObject board;
     
@@ -68,10 +69,12 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	public MessageUploadThread(
 		FrostBoardObject board,
 		MessageObject mo,
-		FrostIdentities newIdentities) {
+		FrostIdentities newIdentities,
+		UpdatingLanguageResource languageResource) {
 		super(board, newIdentities);
 		this.board = board;
 		this.message = mo;
+		this.languageResource = languageResource;
 
 		// we only set the date&time if they are not already set
 		// (in case the uploading was pending from before)
@@ -597,28 +600,23 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 			MessageUploadFailedDialog faildialog =
 				new MessageUploadFailedDialog(
 					frameToLock,
-					10,
-					LangRes.getString("Upload of message failed"),		//TODO: fix this. This string is not in the language files
-					LangRes.getString("I was not able to upload your message."),
-					LangRes.getString("Retry"),
-					"Retry on next startup",
-					"Discard message");
+					languageResource);
 			int answer = faildialog.startDialog();
-			if (answer == 1) { // Retry now - pressed
+			if (answer == MessageUploadFailedDialog.RETRY_VALUE) {
 				logger.info("TOFUP: Will try to upload again.");
 				tryAgain = true;
-			} else if (answer == 2) { // retry on next startup - pressed
+			} else if (answer == MessageUploadFailedDialog.RETRY_NEXT_STARTUP_VALUE) {
 				zipFile.delete();
 				logger.info("TOFUP: Will try to upload again on next startup.");
 				tryAgain = false;
-			} else if (answer == 3) { // cancel - pressed
+			} else if (answer == MessageUploadFailedDialog.DISCARD_VALUE) {
 				zipFile.delete();
 				messageFile.delete();
 				logger.warning("TOFUP: Will NOT try to upload message again.");
 				tryAgain = false;
 			} else { // paranoia
 				logger.warning("TOFUP: Paranoia - will try to upload message again.");
-				tryAgain = false;
+				tryAgain = true;
 			}
 			faildialog.dispose();
 		}
