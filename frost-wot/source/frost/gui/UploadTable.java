@@ -125,9 +125,10 @@ public class UploadTable extends SortedTable
      */
     public void addFilesToBoardIndex()
     {
-        SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
-        Date today = new Date();
-        String date = formatter.format(today);
+        /*SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
+        Date today = new Date();*/
+        //String date = formatter.format(today);
+	String date = DateFun.getDate();
 
         UploadTableModel tableModel = (UploadTableModel)getModel();
         for( int i = 0; i < tableModel.getRowCount(); i++ )
@@ -138,7 +139,8 @@ public class UploadTable extends SortedTable
                 KeyClass newKey = new KeyClass();
                 newKey.setFilename( ulItem.getFileName() );
                 newKey.setSize( ulItem.getFileSize().toString() ); // TODO: pass object, not string
-                newKey.setDate( date );
+                //newKey.setDate( date );
+		newKey.setLastSharedDate(date);
                 newKey.setExchange(false);
 		if (ulItem.getKey() !=null)
 			newKey.setKey(ulItem.getKey());

@@ -67,6 +67,10 @@ public class Index
     
  
     
+    //this method transports stuff from new_files.xml and files.xml to
+    //boardname_upload.txt
+    //it does not use xml serialization because there are some fields
+    //that we don't want to upload, like last shared date, etc.
     public static int getUploadKeys(String board)
     {
     
@@ -78,8 +82,8 @@ public class Index
 
         // Abort if boardDir does not exist
         File boardNewUploads = new File(frame1.keypool + board+fileSeparator+"new_files.xml");
-        if( !boardNewUploads.exists() )
-            return 0;
+       // if( !boardNewUploads.exists() )
+         //   return 0;
 	
 	File boardFiles = new File (frame1.keypool + board + fileSeparator +"files.xml");
 	if (boardFiles.exists()) 
@@ -89,7 +93,7 @@ public class Index
 	
 	
 	//add friends's files 
-	//TODO: make this configurable, or add a limit
+	//TODO:  add a limit
 	Iterator i = total.values().iterator(); 
 	
 	while (i.hasNext()) {
@@ -99,6 +103,14 @@ public class Index
 				frame1.getGoodIds().contains(current.getOwner())) &&
 				frame1.frostSettings.getBoolValue("helpFriends"))
 			mine.put(current.getSHA1(),current);
+		//also add the file if its been shared too long ago
+		if (current.getLastSharedDate() != null) {
+			int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
+			if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
+				current.setLastSharedDate(DateFun.getDate());
+				mine.put(current.getSHA1(),current);
+			}
+		}
 			
 	}
         // Create boards tempDir if it does not exists
@@ -166,6 +178,7 @@ public class Index
 	StringBuffer keyFile = new StringBuffer();
 	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
 	int keyCount = 0;
+	
 	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
 	keyFile.append("<Filelist ");
 	//only add personal info if we chose to sign
@@ -374,7 +387,8 @@ public class Index
         Iterator i = chunk.values().iterator();
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass)i.next();
-		if (!current.getOwner().equals(owner)) continue;
+		if (current.getOwner() != null &&
+			!current.getOwner().equals(owner)) continue;
 		//update the download table
 		if (current.getKey() !=null)
 			updateDownloadTable(current);

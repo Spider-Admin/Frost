@@ -27,6 +27,7 @@ public class KeyClass
 
     String key = null; // Name of this key
     String date = null; // Last access
+    String lastSharedDate = null; //date the file was shared last
     String SHA1 = null;  //SHA1 of the file
     String owner = null;  //person that uploaded the file
     Long size = new Long(0); // Filesize
@@ -249,6 +250,14 @@ public class KeyClass
     {
         this.exchange = exchange;
     }
+    
+    public String getLastSharedDate() {
+    	return lastSharedDate;
+    }
+    public void setLastSharedDate(String newdate) {
+    	lastSharedDate=newdate;
+    }
+    
 
     /** Constructor*/
     public KeyClass(String key)
