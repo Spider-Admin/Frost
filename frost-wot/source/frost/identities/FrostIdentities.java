@@ -91,7 +91,7 @@ public class FrostIdentities {
 				}
 				//friends = new BuddyList();
 
-				if (friends.Add(mySelf)) {
+				if (friends.add(mySelf)) {
 					logger.info("added myself to list");
 				}
 				//enemies = new BuddyList();
@@ -133,7 +133,7 @@ public class FrostIdentities {
 							+ " enemies and "
 							+ neutrals.size()
 							+ " neutrals.");
-					if (friends.Add(mySelf))
+					if (friends.add(mySelf))
 						logger.info("added myself to list");
 
 				} else {
@@ -177,7 +177,7 @@ public class FrostIdentities {
 								break;
 							address = fin.readLine();
 							key = fin.readLine();
-							friends.Add(new Identity(name, key));
+							friends.add(new Identity(name, key));
 						}
 						logger.info("loaded " + friends.size() + " friends");
 
@@ -199,7 +199,7 @@ public class FrostIdentities {
 								break;
 							address = fin.readLine();
 							key = fin.readLine();
-							enemies.Add(new Identity(name, key));
+							enemies.add(new Identity(name, key));
 						}
 						logger.info("loaded " + enemies.size() + " enemies");
 
@@ -216,7 +216,7 @@ public class FrostIdentities {
 						logger.severe("IOException :" + e.toString());
 						friends = new BuddyList();
 						enemies = new BuddyList();
-						friends.Add(mySelf);
+						friends.add(mySelf);
 					} catch (Exception e) {
 						logger.log(Level.SEVERE, "Exception thrown in loadIdentities()", e);
 					}

@@ -619,7 +619,7 @@ public class FileAccess
             {
                 SharedFileObject current = (SharedFileObject)i.next();
 				if (current.getOwner() != null
-						&& Core.getInstance().getIdentities().getEnemies().Get(current.getOwner()) != null)
+						&& Core.getInstance().getIdentities().getEnemies().get(current.getOwner()) != null)
 							{
 								//Core.getOut().println("removing file from BAD user");
 								//FIXME: this has been happening too often.  Debug properly

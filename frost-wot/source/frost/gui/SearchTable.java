@@ -83,11 +83,11 @@ public class SearchTable extends SortedTable
 				continue;
 
 			//see if already on some list
-			Identity id = identities.getFriends().Get(owner);
+			Identity id = identities.getFriends().get(owner);
 			if (id == null)
-				id = identities.getEnemies().Get(owner);
+				id = identities.getEnemies().get(owner);
 			if (id == null)
-				id = identities.getNeutrals().Get(owner);
+				id = identities.getNeutrals().get(owner);
 			//and if still null, add the string
 			if (id != null)
 				result.add(id);
