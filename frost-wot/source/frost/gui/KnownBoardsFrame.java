@@ -39,6 +39,7 @@ public class KnownBoardsFrame extends JDialog
 {
     JButton Bclose;
     JButton BaddBoard;
+    JTextField TFlookupBoard;
     SortedTable boardsTable;
     KnownBoardsTableModel tableModel;
     
@@ -74,7 +75,22 @@ public class KnownBoardsFrame extends JDialog
         
         Bclose = new JButton("Close");
         BaddBoard = new JButton("Add board");
+
+        TFlookupBoard = new JTextField(10);
+        // force a max size, needed for BoxLayout
+        TFlookupBoard.setMaximumSize(TFlookupBoard.getPreferredSize());
         
+        TFlookupBoard.getDocument().addDocumentListener(new DocumentListener() {
+                public void changedUpdate(DocumentEvent e) {
+                    lookupContentChanged(); 
+                }
+                public void insertUpdate(DocumentEvent e) { 
+                    lookupContentChanged(); 
+                }
+                public void removeUpdate(DocumentEvent e) { 
+                    lookupContentChanged(); 
+                }
+            });        
         
         boardsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
                      public void valueChanged(ListSelectionEvent e) {
@@ -94,6 +110,9 @@ public class KnownBoardsFrame extends JDialog
         
         JPanel buttons = new JPanel(new BorderLayout());
         buttons.setLayout( new BoxLayout( buttons, BoxLayout.X_AXIS ));
+        buttons.add( new JLabel("Lookup:"));
+        buttons.add(Box.createRigidArea(new Dimension(5,3)));
+        buttons.add( TFlookupBoard );
         buttons.add( Box.createHorizontalGlue() );
         buttons.add( BaddBoard );
         buttons.add(Box.createRigidArea(new Dimension(15,3)));
@@ -252,5 +271,43 @@ public class KnownBoardsFrame extends JDialog
         }
     }
     
+    /**
+     * Called whenever the content of the lookup text field changes
+     */
+    private void lookupContentChanged()
+    {
+        try {
+            String txt = TFlookupBoard.getDocument().getText(0, TFlookupBoard.getDocument().getLength());
+            // now try to find the first board name that starts with this txt (case insensitiv),
+            // if we found one set selection to it, else leave selection untouched
+            for( int row=0; row < tableModel.getRowCount(); row++ )
+            {
+                KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
+                if( memb.getBoardName().toLowerCase().startsWith(txt.toLowerCase()) )
+                {
+                    boardsTable.getSelectionModel().setSelectionInterval(row, row);
+                    // now scroll to selected row, try to show it on top of table
+                    
+                    // determine the count of showed rows
+                    int visibleRows = (int)(boardsTable.getVisibleRect().getHeight() / boardsTable.getCellRect(row,0,true).getHeight());
+                    int scrollToRow;
+                    if( row + visibleRows > tableModel.getRowCount() )
+                    {
+                        scrollToRow = tableModel.getRowCount()-1;
+                    }
+                    else
+                    {
+                        scrollToRow = row + visibleRows - 1;
+                    }
+                    if( scrollToRow > row ) scrollToRow--;
+                    // scroll 2 times to make sure row is displayed                    
+                    boardsTable.scrollRectToVisible(boardsTable.getCellRect(row,0,true));
+                    boardsTable.scrollRectToVisible(boardsTable.getCellRect(scrollToRow,0,true));
+                    break;
+                }
+            }
+        } catch(Exception ex) {}
+    }
+
     
 }
