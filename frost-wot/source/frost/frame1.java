@@ -1657,9 +1657,9 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		}
 	}
 	private DownloadTicker downloadTicker;
+	private UploadTicker uploadTicker;
 	//	public static String newMessageHeader = new String("");
 	//	public static String oldMessageHeader = new String("");
-	public static int activeUploadThreads = 0;
 	public static AltEdit altEdit;
 
 	public static Core core;
@@ -1672,7 +1672,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	public static ObjectInputStream id_reader;
 
 	private static frame1 instance = null; // set in constructor
-	private static boolean isGeneratingCHK = false;
 	// "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
 	// this is the new way to access this value :)
 	public static String keypool = null;
@@ -1730,13 +1729,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	 *************************/
 	public static frame1 getInstance() {
 		return instance;
-	}
-
-	public static boolean isGeneratingCHK() {
-		return isGeneratingCHK;
-	}
-	public static void setGeneratingCHK(boolean val) {
-		isGeneratingCHK = val;
 	}
 
 	final String allMessagesCountPrefix = "Msg: ";
@@ -2255,9 +2247,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		tabbedPane = new JTranslatableTabbedPane(languageResource);
 		//add a tab for buddies perhaps?
 		tabbedPane.add("News", getMessagePanel());
-		tabbedPane.add("Uploads", getUploadPanel());
-
-		updateOptionsAffectedComponents();
 
 		JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
 		// tofTree selection listener
@@ -2425,24 +2414,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		return tofTree;
 	}
 
-	/**
-	 * @return
-	 */
-	private UploadPanel getUploadPanel() {
-		if (uploadPanel == null) {
-			uploadPanel = new UploadPanel(frostSettings);
-			uploadPanel.setUploadTable(getUploadTable());
-			uploadPanel.setTofTree(getTofTree());
-			uploadPanel.setLanguageResource(languageResource);
-			uploadPanel.initialize();
-		}
-		return uploadPanel;
-	}
 	public UploadTable getUploadTable() {
-		if (uploadTable == null) {
-			UploadTableModel uploadTableModel = new UploadTableModel(languageResource);
-			uploadTable = new UploadTable(uploadTableModel);
-		}
 		return uploadTable;
 	}
 
@@ -2494,9 +2466,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		// make sure the font size isn't too small to see
 		if (frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE) < 6)
 			frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, 6);
-
-		// Load table settings
-		getUploadTable().load();
 
 		// load size, location and state of window
 		int lastHeight = frostSettings.getIntValue("lastFrameHeight");
@@ -2611,9 +2580,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			if (optionsDlg.shouldRemoveDummyReqFiles()) {
 				new RemoveDummyRequestFiles().start();
 			}
-
-			// update gui parts
-			updateOptionsAffectedComponents();
 		}
 	}
 
@@ -2627,28 +2593,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			clipboard = null;
 			pasteBoardButton.setEnabled(false);
 		}
-	}
-
-	public void prepareUploadHashes() {
-		UploadTableModel ulModel = (UploadTableModel) getUploadTable().getModel();
-		if (ulModel.getRowCount() > 0)
-			for (int i = 0; i < ulModel.getRowCount(); i++) {
-				FrostUploadItemObject ulItem = (FrostUploadItemObject) ulModel.getRow(i);
-				if (ulItem.getSHA1() == null) {
-					setGeneratingCHK(true);
-					ulItem.setKey("Working...");
-					ulModel.updateRow(ulItem);
-					UploadThread newInsert =
-						new UploadThread(
-							ulItem,
-							frostSettings,
-							UploadThread.MODE_GENERATE_SHA1,
-							core.getIdentities().getMyId());
-					newInsert.start();
-					break; //start only one thread/second
-				}
-			}
-
 	}
 
 	/**
@@ -2876,14 +2820,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		counter++;
 
 		//////////////////////////////////////////////////
-		//   Misc. stuff
-		//////////////////////////////////////////////////
-		if (counter % 180 == 0) // Check uploadTable every 3 minutes
-			{
-			getUploadTable().removeNotExistingFiles();
-		}
-
-		//////////////////////////////////////////////////
 		//   Automatic TOF update
 		//////////////////////////////////////////////////
 		if (counter % 15 == 0
@@ -2918,7 +2854,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		String newText =
 			new StringBuffer()
 				.append(languageResource.getString("Up") + ": ")
-				.append(activeUploadThreads)
+				.append(uploadTicker.getUploadingThreadCount())
 				.append("   " + languageResource.getString("Down") + ": ")
 				.append(downloadTicker.getThreadCount())
 				.append("   " + languageResource.getString("TOFUP") + ": ")
@@ -2935,87 +2871,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				.append(getSelectedNode().toString())
 				.toString();
 		statusLabel.setText(newText);
-
-		//////////////////////////////////////////////////
-		// Generate CHK's for upload table entries
-		//////////////////////////////////////////////////
-		/**  Do not generate CHKs, get SHA1 only! */
-		//do this only if the automatic index handling is set
-		/**  and generate CHK if requested ... */
-		boolean automaticIndexing = frostSettings.getBoolValue("automaticIndexing");
-		if (isGeneratingCHK() == false)
-			// do not start another generate if there is already 1 running
-			{
-			if (automaticIndexing)
-				prepareUploadHashes();
-			UploadTableModel ulModel = (UploadTableModel) getUploadTable().getModel();
-			if (ulModel.getRowCount() > 0) {
-				for (int i = 0; i < ulModel.getRowCount(); i++) {
-					FrostUploadItemObject ulItem = (FrostUploadItemObject) ulModel.getRow(i);
-					if (ulItem.getState() == FrostUploadItemObject.STATE_ENCODING_REQUESTED
-						|| (ulItem.getKey() == null
-							&& ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED)) {
-						setGeneratingCHK(true);
-						UploadThread newInsert = null;
-						if (ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED) {
-							// set next state for item to REQUESTED, default is IDLE
-							// needed to keep the REQUESTED state for real uploading
-							newInsert =
-								new UploadThread(
-									ulItem,
-									frostSettings,
-									UploadThread.MODE_GENERATE_CHK,
-									FrostUploadItemObject.STATE_REQUESTED,
-									core.getIdentities().getMyId());
-						} else {
-							// next state will be IDLE (=default)
-							newInsert =
-								new UploadThread(
-									ulItem,
-									frostSettings,
-									UploadThread.MODE_GENERATE_CHK,
-									core.getIdentities().getMyId());
-						}
-						ulItem.setState(FrostUploadItemObject.STATE_ENCODING);
-						ulModel.updateRow(ulItem);
-						newInsert.start();
-						break; // start only 1 thread per loop (=second)
-					}
-				}
-			}
-		}
-
-		//////////////////////////////////////////////////
-		// Start upload thread
-		//////////////////////////////////////////////////
-		int activeUthreads = 0;
-		synchronized (threadCountLock) {
-			activeUthreads = activeUploadThreads;
-		}
-		if (activeUthreads < frostSettings.getIntValue("uploadThreads")) {
-			UploadTableModel ulModel = (UploadTableModel) getUploadTable().getModel();
-			if (ulModel.getRowCount() > 0) {
-				for (int i = 0; i < ulModel.getRowCount(); i++) {
-					FrostUploadItemObject ulItem = (FrostUploadItemObject) ulModel.getRow(i);
-					if (ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED
-						&& ulItem.getSHA1() != null
-						&& ulItem.getKey() != null)
-						// file have key after encoding
-						{
-						ulItem.setState(FrostUploadItemObject.STATE_UPLOADING);
-						ulModel.updateRow(ulItem);
-						UploadThread newInsert =
-							new UploadThread(
-								ulItem,
-								frostSettings,
-								UploadThread.MODE_UPLOAD,
-								core.getIdentities().getMyId());
-						newInsert.start();
-						break; // start only 1 thread per loop (=second)
-					}
-				}
-			}
-		}
 	}
 
 	/**News | Configure Board action performed*/
@@ -3097,7 +2952,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				logger.info(
 					"Board " + node.toString() + " blocked count: " + node.getBlockedCount());
 
-				getUploadPanel().setAddFilesButtonEnabled(true);
+				uploadPanel.setAddFilesButtonEnabled(true);
 				renameBoardButton.setEnabled(false);
 
 				// read all messages for this board into message table
@@ -3109,7 +2964,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				model.clearDataModel();
 				updateMessageCountLabels(node);
 
-				getUploadPanel().setAddFilesButtonEnabled(false);
+				uploadPanel.setAddFilesButtonEnabled(false);
 				renameBoardButton.setEnabled(true);
 				configBoardButton.setEnabled(false);
 				if (node.isRoot()) {
@@ -3242,9 +3097,9 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 	private void updateButtons(FrostBoardObject board) {
 		if (board.isReadAccessBoard()) {
-			getUploadPanel().setAddFilesButtonEnabled(false);
+			uploadPanel.setAddFilesButtonEnabled(false);
 		} else {
-			getUploadPanel().setAddFilesButtonEnabled(true);
+			uploadPanel.setAddFilesButtonEnabled(true);
 		}
 	}
 
@@ -3264,20 +3119,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 
 			int newMessages = board.getNewMessageCount();
 			newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
-		}
-	}
-
-	/**
-	 * Called after the OptionsFrame changed some settings to reflect
-	 * the new settings in the GUI.
-	 */
-	protected void updateOptionsAffectedComponents() {
-		if (frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == false) {
-			// uploads enabled
-			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Uploads"), true);
-		} else {
-			// uploads disabled
-			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Uploads"), false);
 		}
 	}
 
@@ -3332,6 +3173,27 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	 */
 	public void setDownloadTicker(DownloadTicker ticker) {
 		downloadTicker = ticker;		
+	}
+
+	/**
+	 * @param panel
+	 */
+	public void setUploadPanel(UploadPanel panel) {
+		uploadPanel = panel;
+	}
+
+	/**
+	 * @param table
+	 */
+	public void setUploadTable(UploadTable table) {
+		uploadTable = table;
+	}
+
+	/**
+	 * @param ticker
+	 */
+	public void setUploadTicker(UploadTicker ticker) {
+		uploadTicker = ticker;		
 	}
 
 }
