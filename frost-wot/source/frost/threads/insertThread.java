@@ -195,7 +195,7 @@ public class insertThread extends Thread
                 }
                 // yes, this destroys any upload progress, but we come only here if 
                 // chkKey == null, so the file should'nt be uploaded until now 
-                splitfile.finishUpload();
+                splitfile.createRedirectFile(false); // gen normal redirect file for CHK generation
                 String chkkey = FecTools.generateCHK(splitfile.getRedirectFile(), splitfile.getRedirectFile().length());
                 if( chkkey != null )
                 {
