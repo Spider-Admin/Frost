@@ -6,13 +6,14 @@
  */
 package frost.storage;
 
+import java.io.*;
 import java.util.*;
-import java.util.Timer;
 import java.util.logging.*;
 
-import javax.swing.*;
+import javax.swing.JFrame;
 
 import frost.*;
+import frost.util.gui.JDialogWithDetails;
 import frost.util.gui.translation.Language;
 
 /**
@@ -45,11 +46,13 @@ public class Saver extends Timer {
 						savable.save();
 					} catch (StorageException se) {
 						logger.log(Level.SEVERE,
-								"Error while saving a resource inside the shutdown hook.", se);
-						JOptionPane.showMessageDialog(parentFrame, 
-								language.getString("Saver.AutoTask.message"), 
-								language.getString("Saver.AutoTask.title"), 
-								JOptionPane.ERROR_MESSAGE);
+								"Error while saving a resource inside the timer.", se);
+						StringWriter stringWriter = new StringWriter();
+						se.printStackTrace(new PrintWriter(stringWriter));
+						JDialogWithDetails.showErrorDialog(parentFrame, 
+														language.getString("Saver.AutoTask.title"),
+														language.getString("Saver.AutoTask.message"),
+														stringWriter.toString());
 						System.exit(3);
 					}
 				}

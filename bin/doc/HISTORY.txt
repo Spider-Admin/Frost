@@ -9,6 +9,8 @@ Added: option to see again those messages that have been deleted (they appear cr
 Added: messagepopup menu option to undelete deleted messages
 Added: del key deletes selected message
 Added: new message window by double click on a message, ESC closes it
+Added: details to the dialog that pops up when there is an error while automatically saving a resource.
+
 Changed: messages are signed by default.
 Changed: now the sizes of the new message window, the known boards window and the boards info window are
          relative to the size of the main window.
