@@ -551,7 +551,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * 
 			 */
 			private void markAllMessagesRead() {
-				TOF.getInstance().setAllMessagesRead(getMessageTable(), getSelectedNode());
+				TOF.getInstance().setAllMessagesRead(getMessageTable(), tofTreeModel.getSelectedNode());
 			}
 
 			/**
@@ -600,7 +600,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
 			 */
 			public void show(Component invoker, int x, int y) {
-				if (!getSelectedNode().isFolder()) {
+				if (!tofTreeModel.getSelectedNode().isFolder()) {
 					removeAll();
 
 					if (messageTable.getSelectedRow() > -1) {
@@ -614,6 +614,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					setGoodItem.setEnabled(false);
 					setCheckItem.setEnabled(false);
 					setBadItem.setEnabled(false);
+					
 					if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
 						//fscking html on all these..
 						if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.VERIFIED)
@@ -640,7 +641,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					add(undeleteItem);
 					deleteItem.setEnabled(false);
 					undeleteItem.setEnabled(false);
-					
+										
 					if(selectedMessage.isDeleted()){
 						undeleteItem.setEnabled(true);
 					}else{
@@ -856,7 +857,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					SharedFileObject sfo = fa.getFileObj();
 					FrostSearchItem fsio =
 						new FrostSearchItem(
-							getSelectedNode(),
+							tofTreeModel.getSelectedNode(),
 							sfo,
 							FrostSearchItem.STATE_NONE);
 					//FIXME: <-does this matter?
@@ -872,7 +873,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					SharedFileObject sfo = fo.getFileObj();
 					FrostSearchItem fsio =
 						new FrostSearchItem(
-							getSelectedNode(),
+							tofTreeModel.getSelectedNode(),
 							sfo,
 							FrostSearchItem.STATE_NONE);
 					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
@@ -1191,7 +1192,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @param e
 		 */
 		private void messageTable_itemSelected(ListSelectionEvent e) {
-			Board selectedBoard = getSelectedNode();
+			Board selectedBoard = tofTreeModel.getSelectedNode();
 			if (selectedBoard.isFolder())
 				return;
 			selectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
@@ -1349,7 +1350,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			MessageFrame newMessageFrame = new MessageFrame(settings, MainFrame.this,
 												identities.getMyId());
 			newMessageFrame.setTofTree(tofTree);
-			newMessageFrame.composeReply(getSelectedNode(), settings.getValue("userName"),
+			newMessageFrame.composeReply(tofTreeModel.getSelectedNode(), settings.getValue("userName"),
 												subject, messageTextArea.getText());
 		}
 
@@ -1440,8 +1441,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void updateButton_actionPerformed(ActionEvent e) {
 			// restarts all finished threads if there are some long running threads
-			if (tofTree.isUpdateAllowed(getSelectedNode())) {
-				tofTree.updateBoard(getSelectedNode());
+			if (tofTree.isUpdateAllowed(tofTreeModel.getSelectedNode())) {
+				tofTree.updateBoard(tofTreeModel.getSelectedNode());
 			}
 		}
 
@@ -1493,7 +1494,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			Object[] path = e.getPath();
 			Board board = (Board) path[path.length - 1];
 
-			if (board == getSelectedNode()) { // is the board actually shown?
+			if (board == tofTreeModel.getSelectedNode()) { // is the board actually shown?
 				if (board.isReadAccessBoard()) {
 					newMessageButton.setEnabled(false);
 				} else {
@@ -1517,8 +1518,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			int row = messageTable.getSelectedRow();
 			if (row < 0
 				|| selectedMessage == null
-				|| getSelectedNode() == null
-				|| getSelectedNode().isFolder() == true)
+				|| tofTreeModel.getSelectedNode() == null
+				|| tofTreeModel.getSelectedNode().isFolder() == true)
 				return false;
 			
 			return true;
@@ -1536,7 +1537,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			//if we show deleted messages we don't need to remove them from the table
 			if ( ! settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
 				messageTableModel.deleteRow(selectedMessage);
-				updateMessageCountLabels(getSelectedNode());
+				updateMessageCountLabels(tofTreeModel.getSelectedNode());
 			}
 			
 			targetMessage.setDeleted(true);
@@ -2022,12 +2023,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			});
 			renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					renameNode(getSelectedNode());
+					renameNode(tofTreeModel.getSelectedNode());
 				}
 			});
 			removeBoardButton.addActionListener(new java.awt.event.ActionListener() {
 				public void actionPerformed(ActionEvent e) {
-					tofTree.removeNode(getSelectedNode());
+					tofTree.removeNode(tofTreeModel.getSelectedNode());
 				}
 			});
 			systemTrayButton.addActionListener(new java.awt.event.ActionListener() {
@@ -2423,19 +2424,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	/**
 	 * @return
 	 */
-	public Board getSelectedNode() { //TODO: move this method to TofTree
-		Board node = (Board) tofTree.getLastSelectedPathComponent();
-		if (node == null) {
-			// nothing selected? unbelievable ! so select the root ...
-			tofTree.setSelectionRow(0);
-			node = (Board) tofTreeModel.getRoot();
-		}
-		return node;
-	}
-	
-	/**
-	 * @return
-	 */
 	public TofTreeModel getTofTreeModel() {
 		return tofTreeModel;
 	}
@@ -2558,8 +2546,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		int row = messageTable.getSelectedRow();
 		if (row < 0
 			|| selectedMessage == null
-			|| getSelectedNode() == null
-			|| getSelectedNode().isFolder() == true)
+			|| tofTreeModel.getSelectedNode() == null
+			|| tofTreeModel.getSelectedNode().isFolder() == true)
 			return;
 
 		FrostMessageObject targetMessage = selectedMessage;
@@ -2571,10 +2559,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		MessageTableModel model = (MessageTableModel) getMessageTable().getModel();
 		model.updateRow(targetMessage);
 
-		getSelectedNode().incNewMessageCount();
+		tofTreeModel.getSelectedNode().incNewMessageCount();
 
-		updateMessageCountLabels(getSelectedNode());
-		updateTofTree(getSelectedNode());
+		updateMessageCountLabels(tofTreeModel.getSelectedNode());
+		updateTofTree(tofTreeModel.getSelectedNode());
 	}
 
 	/**
@@ -2811,7 +2799,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				.append(tofTree.getRunningBoardUpdateThreads().getRunningDownloadThreadCount())
 				.append("T")
 				.append("   " + language.getString("Selected board") + ": ")
-				.append(getSelectedNode().getName())
+				.append(tofTreeModel.getSelectedNode().getName())
 				.toString();
 		statusLabel.setText(newText);
 	}
@@ -2848,7 +2836,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 												frostSettings, this, 
 												core.getIdentities().getMyId());
 		newMessageFrame.setTofTree(tofTree);
-		newMessageFrame.composeNewMessage(getSelectedNode(), frostSettings.getValue("userName"), 
+		newMessageFrame.composeNewMessage(tofTreeModel.getSelectedNode(), frostSettings.getValue("userName"), 
 											"No subject", "");
 	}
 
@@ -2998,7 +2986,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			parentFolder = parentFolder.getParent();
 		}
 
-		if (board == getSelectedNode()) // is the board actually shown?
+		if (board == tofTreeModel.getSelectedNode()) // is the board actually shown?
 			{
 			updateButtons(board);
 		}
