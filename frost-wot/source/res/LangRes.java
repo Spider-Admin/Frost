@@ -46,6 +46,7 @@ public class LangRes extends ListResourceBundle {
     {"Update", "Update"},
     {"No spam mode", "No spam mode"},
     {"New board", "New board"},
+    {"New folder", "New folder"},
     {"Rename folder", "Rename folder"},
     {"Remove board", "Remove board"},
     {"Cut board", "Cut board"},
@@ -54,6 +55,11 @@ public class LangRes extends ListResourceBundle {
     {"Board Information Window", "Board Information Window"},
     {"Configure board", "Configure board"},
     {"Save message", "Save message"},
+    {"Set to CHECK", "Set to CHECK"},
+    {"all boards", "all boards"},
+    {"Show healing information", "Show healing information"},
+    {"Display list of known boards", "Display list of known boards"},
+    {"Display known boards", "Display known boards"},
     {"Search all boards", "Search all boards"},
     {"Minimize to System Tray", "Minimize to System Tray"},
 
@@ -245,7 +251,9 @@ public class LangRes extends ListResourceBundle {
     {"Public key :", "Public key :"},
     {"Not available", "Not available"},
 
-    // Message frame
+    /**
+     * Message frame
+     */
     {"Send message", "Send message"},
     {"Add attachment(s)", "Add attachment(s)"},
     {"Board: ", "Board: "},
@@ -257,6 +265,10 @@ public class LangRes extends ListResourceBundle {
     {"No subject specified!", "No subject specified!"},
     {"Yes", "Yes"},
     {"No", "No"},
+    {"Sign", "Sign"},
+    {"Remove", "Remove"},
+    {"Choose boards to attach", "Choose boards to attach"},
+    {"Indexed attachments", "Indexed attachments"},
     {"Add public key to this message", "Add public key to this message"},
 
     // Status bar

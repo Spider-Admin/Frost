@@ -54,6 +54,21 @@ import frost.threads.maintenance.*;
 //   the tofTree is updated)
 
 public class frame1 extends JFrame implements ClipboardOwner {
+
+    /**
+     * Getter for the language resource bundle
+     */
+    public ResourceBundle getLanguageResource() {
+	return LangRes;
+    }
+
+    /**
+     * Setter for thelanguage resource bundle
+     */
+    public void setLanguageResource(ResourceBundle LangRes) {
+	this.LangRes = LangRes;
+    }
+
 	/**
 	 * Initializes the skins system
 	 * @param frostSettings the SettingsClass that has the preferences to initialize the skins
@@ -108,8 +123,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		frostSettings.writeSettingsFile();
         // all other stuff is saved in class Saver
 	}
-	static java.util.ResourceBundle LangRes =
-		java.util.ResourceBundle.getBundle("res.LangRes");
+    
+	static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
 	private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
 
@@ -328,7 +343,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	}
 
 	/**Construct the frame*/
-	public frame1() {
+	public frame1(String locale) {
+	    if (!locale.equals("default"))
+		LangRes = java.util.ResourceBundle.getBundle("res.LangRes", new Locale(locale));
 		instance = this;
 		frostSettings = new SettingsClass();
 		keypool = frostSettings.getValue("keypool.dir");
@@ -457,36 +474,39 @@ public class frame1 extends JFrame implements ClipboardOwner {
 			"/data/newboard_rollover.gif");
 		configureButton(
 			newFolderButton,
-			"New folder",
+			LangRes.getString("New folder"),
 			"/data/newfolder_rollover.gif");
 		configureButton(
 			removeBoardButton,
-			"Remove board",
+			LangRes.getString("Remove board"),
 			"/data/remove_rollover.gif");
 		configureButton(
 			renameBoardButton,
-			"Rename folder",
+			LangRes.getString("Rename folder"),
 			"/data/rename_rollover.gif");
 		configureButton(
 			configBoardButton,
-			"Configure board",
+			LangRes.getString("Configure board"),
 			"/data/configure_rollover.gif");
-		configureButton(cutBoardButton, "Cut board", "/data/cut_rollover.gif");
+		configureButton(
+				cutBoardButton, 
+				LangRes.getString("Cut board"), 
+				"/data/cut_rollover.gif");
 		configureButton(
 			pasteBoardButton,
-			"Paste board",
+			LangRes.getString("Paste board"),
 			"/data/paste_rollover.gif");
 		configureButton(
 			boardInfoButton,
-			"Board Information Window",
+			LangRes.getString("Board Information Window"),
 			"/data/info_rollover.gif");
 		configureButton(
 			systemTrayButton,
-			"Minimize to System Tray",
+			LangRes.getString("Minimize to System Tray"),
 			"/data/tray_rollover.gif");
 		configureButton(
 			knownBoardsButton,
-			"Display list of known boards",
+			LangRes.getString("Display list of known boards"),
 			"/data/knownboards_rollover.gif");
 
 		// add action listener
@@ -695,30 +715,30 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		configureButton(
 			tofNewMessageButton,
-			"New message",
+			LangRes.getString("New message"),
 			"/data/newmessage_rollover.gif");
-		configureButton(tofUpdateButton, "Update", "/data/update_rollover.gif");
-		configureButton(tofReplyButton, "Reply", "/data/reply_rollover.gif");
+		configureButton(tofUpdateButton, LangRes.getString("Update"), "/data/update_rollover.gif");
+		configureButton(tofReplyButton, LangRes.getString("Reply"), "/data/reply_rollover.gif");
 		configureButton(
 			downloadAttachmentsButton,
-			"Download attachment(s)",
+			LangRes.getString("Download attachment(s)"),
 			"/data/attachment_rollover.gif");
 		configureButton(
 			downloadBoardsButton,
-			"Add Board(s)",
+			LangRes.getString("Add Board(s)"),
 			"/data/attachmentBoard_rollover.gif");
 		configureButton(
 			saveMessageButton,
-			"Save message",
+			LangRes.getString("Save message"),
 			"/data/save_rollover.gif");
 		configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
 		configureButton(
 			notTrustButton,
-			"Do not trust",
+			LangRes.getString("Do not trust"),
 			"/data/nottrust_rollover.gif");
 		configureButton(
 			checkTrustButton,
-			"Set to CHECK",
+			LangRes.getString("Set to CHECK"),
 			"/data/check_rollover.gif");
 
 		// add action listener to buttons
@@ -895,7 +915,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	private JPanel buildSearchPane() {
 		// create objects for button toolbar
-		this.searchAllBoardsCheckBox = new JCheckBox("all boards", true);
+		this.searchAllBoardsCheckBox = new JCheckBox(LangRes.getString("all boards"), true);
 		JButton searchDownloadButton =
 			new JButton(
 				new ImageIcon(frame1.class.getResource("/data/save.gif")));
@@ -915,10 +935,10 @@ public class frame1 extends JFrame implements ClipboardOwner {
 				"Archives" };
 		this.searchComboBox = new JComboBox(searchComboBoxItems);
 		// configure buttons
-		configureButton(searchButton, "Search", "/data/search_rollover.gif");
+		configureButton(searchButton, LangRes.getString("Search"), "/data/search_rollover.gif");
 		configureButton(
 			searchDownloadButton,
-			"Download selected keys",
+			LangRes.getString("Download selected keys"),
 			"/data/save_rollover.gif");
 		// build button toolbar panel
 		JPanel searchTopPanel = new JPanel();
@@ -1005,7 +1025,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					frame1.class.getResource("/data/healinginfo.gif")));
 		configureButton(
 			this.downloadShowHealingInfo,
-			"Show healing information",
+			LangRes.getString("Show healing information"),
 			"/data/healinginfo_rollover.gif");
 		// disabled until implemented ;)
 		this.downloadShowHealingInfo.setEnabled(false);
@@ -1762,7 +1782,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		JMenuItem tofDecreaseFontSizeMenuItem =
 			new JMenuItem(LangRes.getString("Decrease Font Size"));
 
-		JMenuItem tofDisplayKnownBoards = new JMenuItem("Display known boards");
+		JMenuItem tofDisplayKnownBoards = new JMenuItem(LangRes.getString("Display known boards"));
 		tofDisplayKnownBoards.setIcon(getScaledImage("/data/knownboards.gif"));
 
 		JMenu optionsMenu = new JMenu(LangRes.getString("Options"));
@@ -3031,7 +3051,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					frostSettings.getValue("userName"),
                     "No subject", // subject
 	                "", // content empty for new msg 
-                    frostSettings, this);
+                    frostSettings, this, LangRes);
 		//}
 	}
 
@@ -3052,7 +3072,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 					frostSettings.getValue("userName"),
 					subject,
 	                getTofTextAreaText(), 
-                    frostSettings, this);
+                    frostSettings, this, LangRes);
 //		}
 	}
 

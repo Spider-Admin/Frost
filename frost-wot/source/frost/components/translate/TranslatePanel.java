@@ -160,7 +160,7 @@ public class TranslatePanel extends JPanel {
     }
     
     private void loadLanguageFile() {
-        final JFileChooser fc = new JFileChooser();
+        final JFileChooser fc = new JFileChooser(new File("."));
         fc.setDialogTitle("Select " + getSelectedLanguageCode() + " language file");
         fc.setFileHidingEnabled(true);
         fc.setFileSelectionMode(JFileChooser.FILES_ONLY);
