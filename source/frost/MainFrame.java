@@ -218,11 +218,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					if (e.getComponent() == messageTable) {
 						showMessageTablePopupMenu(e);
 					}
-					if (e.getComponent() == boardTable) {
-						showAttachmentBoardPopupMenu(e);
+					if (e.getComponent() == boardsTable) {
+						showAttachedBoardsPopupMenu(e);
 					}
-					if (e.getComponent() == attachmentTable) {
-						showAttachmentTablePopupMenu(e);
+					if (e.getComponent() == filesTable) {
+						showAttachedFilesPopupMenu(e);
 					}
 				}
 			}
@@ -380,7 +380,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			public void show(Component invoker, int x, int y) {
 				removeAll();
 
-				if (boardTable.getSelectedRow() == -1) {
+				if (boardsTable.getSelectedRow() == -1) {
 					add(saveBoardsItem);
 				} else {
 					add(saveBoardItem);
@@ -464,7 +464,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			public void show(Component invoker, int x, int y) {
 				removeAll();
 
-				if (attachmentTable.getSelectedRow() == -1) {
+				if (filesTable.getSelectedRow() == -1) {
 					add(saveAttachmentsItem);
 				} else {
 					add(saveAttachmentItem);
@@ -743,10 +743,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
 
 		private AntialiasedTextArea messageTextArea = null;
-		private JSplitPane attachmentSplitPane = null;
-		private JSplitPane boardSplitPane = null;
-		private JTable attachmentTable = null;
-		private JTable boardTable = null;
+		private JSplitPane mainSplitPane = null;
+		private JSplitPane messageSplitPane = null;
+		private JSplitPane attachmentsSplitPane = null;
+		private JTable filesTable = null;
+		private JTable boardsTable = null;
+		private JScrollPane filesTableScrollPane;
+		private JScrollPane boardsTableScrollPane;
 
 		/**
 		 * 
@@ -774,7 +777,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * Adds either the selected or all files from the attachmentTable to downloads table.
 		 */
 		public void downloadAttachments() {
-			int[] selectedRows = attachmentTable.getSelectedRows();
+			int[] selectedRows = filesTable.getSelectedRows();
 
 			// If no rows are selected, add all attachments to download table
 			if (selectedRows.length == 0) {
@@ -814,12 +817,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void downloadBoards() {
 			logger.info("adding boards");
-			int[] selectedRows = boardTable.getSelectedRows();
+			int[] selectedRows = boardsTable.getSelectedRows();
 
 			if (selectedRows.length == 0) {
 				// add all rows
-				boardTable.selectAll();
-				selectedRows = boardTable.getSelectedRows();
+				boardsTable.selectAll();
+				selectedRows = boardsTable.getSelectedRows();
 				if (selectedRows.length == 0)
 					return;
 			}
@@ -993,52 +996,58 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				refreshLanguage();
 				languageResource.addLanguageListener(listener);
 
-				// build messages list
+				// build messages list scroll pane
 				MessageTableModel messageTableModel = new MessageTableModel(languageResource);
 				languageResource.addLanguageListener(messageTableModel);
 				messageTable = new MessageTable(messageTableModel);
 				messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
 				messageTable.getSelectionModel().addListSelectionListener(listener);
-				JScrollPane messageTableScrollPane = new JScrollPane(messageTable);
+				JScrollPane messageListScrollPane = new JScrollPane(messageTable);
 
-				// build message content area (text, attached files and attached boards)
+				// build message body scroll pane
 				messageTextArea = new AntialiasedTextArea();
 				messageTextArea.setEditable(false);
 				messageTextArea.setLineWrap(true);
 				messageTextArea.setWrapStyleWord(true);
 				messageTextArea.setAntiAliasEnabled(settingsClass.getBoolValue("messageBodyAA"));
-				JScrollPane textAreaScrollPane = new JScrollPane(messageTextArea);
+				JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
 
+				// build attached files scroll pane
 				AttachedFilesTableModel attachmentTableModel = new AttachedFilesTableModel();
-				attachmentTable = new JTable(attachmentTableModel);
-				JScrollPane attachmentTableScrollPane = new JScrollPane(attachmentTable);
-				attachmentSplitPane =
-					new JSplitPane(
-						JSplitPane.VERTICAL_SPLIT,
-						textAreaScrollPane,
-						attachmentTableScrollPane);
-				attachmentSplitPane.setDividerSize(0);
-				attachmentSplitPane.setDividerLocation(10000);
+				filesTable = new JTable(attachmentTableModel);
+				filesTableScrollPane = new JScrollPane(filesTable);
 
+				// build attached boards scroll pane
 				AttachedBoardTableModel boardTableModel = new AttachedBoardTableModel();
-				boardTable = new JTable(boardTableModel);
-				JScrollPane boardTableScrollPane = new JScrollPane(boardTable);
-				boardSplitPane =
-					new JSplitPane(
-						JSplitPane.VERTICAL_SPLIT,
-						attachmentSplitPane,
-						boardTableScrollPane);
-				boardSplitPane.setDividerSize(0);
-				boardSplitPane.setDividerLocation(10000);
+				boardsTable = new JTable(boardTableModel);
+				boardsTableScrollPane = new JScrollPane(boardsTable);
 
 				fontChanged();
 
-				// build main split pane
+				//Put everything together
+				attachmentsSplitPane =
+					new JSplitPane(
+						JSplitPane.VERTICAL_SPLIT,
+						filesTableScrollPane,
+						boardsTableScrollPane);
+				attachmentsSplitPane.setResizeWeight(0.5);
+				attachmentsSplitPane.setDividerSize(3);
+				attachmentsSplitPane.setDividerLocation(0.5);
+				
+				messageSplitPane =
+					new JSplitPane(
+						JSplitPane.VERTICAL_SPLIT,
+						messageBodyScrollPane,
+						attachmentsSplitPane);
+				messageSplitPane.setDividerSize(0);
+				messageSplitPane.setDividerLocation(1.0);
+				messageSplitPane.setResizeWeight(1.0);
+				
 				JSplitPane mainSplitPane =
 					new JSplitPane(
 						JSplitPane.VERTICAL_SPLIT,
-						messageTableScrollPane,
-						boardSplitPane);
+						messageListScrollPane,
+						messageSplitPane);
 				mainSplitPane.setDividerSize(10);
 				mainSplitPane.setDividerLocation(160);
 				mainSplitPane.setResizeWeight(0.5d);
@@ -1051,8 +1060,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				//listeners
 				messageTextArea.addMouseListener(listener);
-				attachmentTable.addMouseListener(listener);
-				boardTable.addMouseListener(listener);
+				filesTable.addMouseListener(listener);
+				boardsTable.addMouseListener(listener);
 				messageTable.addMouseListener(listener);
 
 				//other listeners
@@ -1146,50 +1155,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				Vector fileAttachments = selectedMessage.getFileAttachments();
 				Vector boardAttachments = selectedMessage.getBoardAttachments();
 
-				if (fileAttachments.size() == 0 && boardAttachments.size() == 0) {
-					// Move divider to 100% and make it invisible
-					attachmentSplitPane.setDividerSize(0);
-					attachmentSplitPane.setDividerLocation(1.0);
-					boardSplitPane.setDividerSize(0);
-					boardSplitPane.setDividerLocation(1.0);
-				} else {
-					// Attachment available
-					if (fileAttachments.size() > 0) {
-						// Add attachments to table
-						((DefaultTableModel) attachmentTable.getModel()).setDataVector(
-							selectedMessage.getFileAttachments(),
-							null);
-
-						if (boardAttachments.size() == 0) {
-							boardSplitPane.setDividerSize(0);
-							boardSplitPane.setDividerLocation(1.0);
-						} 
-						attachmentSplitPane.setDividerLocation(0.75);
-						attachmentSplitPane.setDividerSize(3);
-
-						downloadAttachmentsButton.setEnabled(true);
-					}
-					// Board Available
-					if (boardAttachments.size() > 0) {
-						// Add attachments to table
-						((DefaultTableModel) boardTable.getModel()).setDataVector(
-							selectedMessage.getBoardAttachments(),
-							null);
-
-						//only a board, no attachments.
-						if (fileAttachments.size() == 0) {
-							attachmentSplitPane.setDividerSize(0);
-							attachmentSplitPane.setDividerLocation(1.0);
-							boardSplitPane.setDividerLocation(0.75);
-						} else {
-							boardSplitPane.setDividerLocation(0.87);
-						}
-						boardSplitPane.setDividerSize(3);
-
-						downloadBoardsButton.setEnabled(true);
-						//TODO: downloadBoardsButton
-					}
-				}
+				positionDividers(fileAttachments.size(), boardAttachments.size());
+				
+	            ((DefaultTableModel) filesTable.getModel()).setDataVector(selectedMessage.getFileAttachments(),
+	                    null);
+	            ((DefaultTableModel) boardsTable.getModel()).setDataVector(selectedMessage.getBoardAttachments(),
+	                    null);
+				
 			} else {
 				// no msg selected
 				messageTextArea.setText(
@@ -1201,6 +1173,37 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		}
 		/**
+         * @param i
+         * @param j
+         */
+        private void positionDividers(int attachedFiles, int attachedBoards) {
+            if (attachedFiles == 0 && attachedBoards == 0) {
+                // Neither files nor boards
+                messageSplitPane.setBottomComponent(null);
+                messageSplitPane.setDividerSize(0);
+                return;
+            }
+            messageSplitPane.setDividerSize(3);
+            messageSplitPane.setDividerLocation(0.75);
+            if (attachedFiles != 0 && attachedBoards == 0) {
+                //Only files
+                messageSplitPane.setBottomComponent(filesTableScrollPane);
+                return;
+            }
+            if (attachedFiles == 0 && attachedBoards != 0) {
+                //Only boards
+                messageSplitPane.setBottomComponent(boardsTableScrollPane);
+                return;
+            }
+            if (attachedFiles != 0 && attachedBoards != 0) {
+                //Both files and boards
+                messageSplitPane.setBottomComponent(attachmentsSplitPane);
+                attachmentsSplitPane.setTopComponent(filesTableScrollPane);
+                attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
+            }
+        }
+        
+        /**
 		 * @param e
 		 */
 		private void newMessageButton_actionPerformed(ActionEvent e) {
@@ -1282,11 +1285,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				frostSettings.getValue("lastUsedDirectory"),
 				languageResource.getString("Save message to disk"));
 		}
-		private void showAttachmentBoardPopupMenu(MouseEvent e) {
+		private void showAttachedBoardsPopupMenu(MouseEvent e) {
 			getPopupMenuAttachmentBoard().show(e.getComponent(), e.getX(), e.getY());
 		}
 
-		private void showAttachmentTablePopupMenu(MouseEvent e) {
+		private void showAttachedFilesPopupMenu(MouseEvent e) {
 			getPopupMenuAttachmentTable().show(e.getComponent(), e.getX(), e.getY());
 		}
 
@@ -1336,15 +1339,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 */
 		private void boardsTree_actionPerformed(TreeSelectionEvent e) {
 
-			attachmentSplitPane.setDividerSize(0);
-			attachmentSplitPane.setDividerLocation(10000);
-			boardSplitPane.setDividerSize(0);
-			boardSplitPane.setDividerLocation(10000);
+		    messageSplitPane.setBottomComponent(null);
+            messageSplitPane.setDividerSize(0);
 
 			if (((TreeNode) getTofTree().getModel().getRoot()).getChildCount() == 0) {
 				//There are no boards. //TODO: check if there are really no boards (folders count as children)
-				attachmentSplitPane.setDividerSize(0);
-				attachmentSplitPane.setDividerLocation(10000);
 				messageTextArea.setText(languageResource.getString("Welcome message"));
 			} else {
 				//There are boards.
