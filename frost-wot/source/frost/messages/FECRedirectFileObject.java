@@ -6,12 +6,15 @@
  */
 package frost.messages;
 
+import java.io.File;
+
 import org.w3c.dom.CDATASection;
 import org.w3c.dom.Document;
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
 
 import frost.XMLTools;
+import frost.gui.objects.FrostBoardObject;
 
 /**
  * @author zlatinb
@@ -60,6 +63,22 @@ public class FECRedirectFileObject extends RedirectFileObject {
 	 */
 	public void setRedirect(String redirect) {
 		this.redirect = redirect;
+	}
+
+	/**
+	 * @param file
+	 * @param board
+	 */
+	public FECRedirectFileObject(File file, FrostBoardObject board) {
+		super(file, board);
+		redirect = null;
+	}
+	
+	
+
+	public FECRedirectFileObject() {
+		super();
+		redirect = null;
 	}
 
 }

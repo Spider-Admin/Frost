@@ -6,8 +6,12 @@
  */
 package frost.messages;
 
+import java.io.File;
+
 import org.w3c.dom.Element;
 import org.xml.sax.SAXException;
+
+import frost.gui.objects.FrostBoardObject;
 
 
 /**
@@ -30,6 +34,21 @@ public abstract class RedirectFileObject extends SharedFileObject {
 		else
 			throw new SAXException("redirect attribute not found");
 		
+	}
+
+	/**
+	 * @param file
+	 * @param board
+	 */
+	public RedirectFileObject(File file, FrostBoardObject board) {
+		super(file, board);
+	}
+
+	/**
+	 * 
+	 */
+	public RedirectFileObject() {
+		super();
 	}
 
 }
