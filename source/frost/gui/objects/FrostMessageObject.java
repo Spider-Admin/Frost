@@ -6,7 +6,7 @@ import frost.FileAccess;
 import frost.gui.model.TableMember;
 import frost.messages.*;
 
-public class FrostMessageObject extends VerifyableMessageObject implements FrostMessage, TableMember
+public class FrostMessageObject extends VerifyableMessageObject implements TableMember
 {
 	
 	protected String dateAndTime = null;
