@@ -9,6 +9,7 @@ Added:  popup menu to the message body of the new message frame (cut, copy and p
 
 Changed: when an unsigned message is received with the @ character in the from field, it is automatically
          blocked.
+Changed: skinlf updated to 1.2.10
          
 Bugfix: some information was being saved duplicated on the identities.xml file.
 Bugfix: with Java 1.5 Frost was failing to start from time to time (deadlock when showing the main frame).
