@@ -31,6 +31,7 @@ import org.w3c.dom.Document;
 import frost.*;
 import frost.FcpTools.*;
 import frost.crypt.SignMetaData;
+import frost.fileTransfer.upload.*;
 import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.*;
 import frost.identities.FrostIdentities;

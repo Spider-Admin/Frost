@@ -14,6 +14,7 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableModel;
 
 import frost.*;
+import frost.fileTransfer.download.*;
 import frost.gui.*;
 import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.objects.FrostBoardObject;

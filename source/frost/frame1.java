@@ -36,6 +36,8 @@ import javax.swing.tree.*;
 import frost.components.BrowserFrame;
 import frost.components.translate.TranslateFrame;
 import frost.ext.JSysTrayIcon;
+import frost.fileTransfer.download.*;
+import frost.fileTransfer.upload.*;
 import frost.gui.*;
 import frost.gui.components.*;
 import frost.gui.model.*;
@@ -1645,7 +1647,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 						File entry = entries[x];
 
 						if (entry.getName().endsWith(".req.sha")
-							&& FileAccess.readFileRaw(entry).indexOf(requestThread.KEYCOLL_INDICATOR)
+							&& FileAccess.readFileRaw(entry).indexOf(DownloadThread.KEYCOLL_INDICATOR)
 								> -1) {
 							entry.delete();
 						}
@@ -2697,11 +2699,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 					setGeneratingCHK(true);
 					ulItem.setKey("Working...");
 					ulModel.updateRow(ulItem);
-					insertThread newInsert =
-						new insertThread(
+					UploadThread newInsert =
+						new UploadThread(
 							ulItem,
 							frostSettings,
-							insertThread.MODE_GENERATE_SHA1,
+							UploadThread.MODE_GENERATE_SHA1,
 							core.getIdentities().getMyId());
 					newInsert.start();
 					break; //start only one thread/second
@@ -3061,24 +3063,24 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 						|| (ulItem.getKey() == null
 							&& ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED)) {
 						setGeneratingCHK(true);
-						insertThread newInsert = null;
+						UploadThread newInsert = null;
 						if (ulItem.getState() == FrostUploadItemObject.STATE_REQUESTED) {
 							// set next state for item to REQUESTED, default is IDLE
 							// needed to keep the REQUESTED state for real uploading
 							newInsert =
-								new insertThread(
+								new UploadThread(
 									ulItem,
 									frostSettings,
-									insertThread.MODE_GENERATE_CHK,
+									UploadThread.MODE_GENERATE_CHK,
 									FrostUploadItemObject.STATE_REQUESTED,
 									core.getIdentities().getMyId());
 						} else {
 							// next state will be IDLE (=default)
 							newInsert =
-								new insertThread(
+								new UploadThread(
 									ulItem,
 									frostSettings,
-									insertThread.MODE_GENERATE_CHK,
+									UploadThread.MODE_GENERATE_CHK,
 									core.getIdentities().getMyId());
 						}
 						ulItem.setState(FrostUploadItemObject.STATE_ENCODING);
@@ -3109,11 +3111,11 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 						{
 						ulItem.setState(FrostUploadItemObject.STATE_UPLOADING);
 						ulModel.updateRow(ulItem);
-						insertThread newInsert =
-							new insertThread(
+						UploadThread newInsert =
+							new UploadThread(
 								ulItem,
 								frostSettings,
-								insertThread.MODE_UPLOAD,
+								UploadThread.MODE_UPLOAD,
 								core.getIdentities().getMyId());
 						newInsert.start();
 						break; // start only 1 thread per loop (=second)
@@ -3142,7 +3144,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				dlItem.setState(FrostDownloadItemObject.STATE_TRYING);
 				dlModel.updateRow(dlItem);
 
-				requestThread newRequest = new requestThread(dlItem, getDownloadTable());
+				DownloadThread newRequest = new DownloadThread(dlItem, getDownloadTable());
 				newRequest.start();
 			}
 		}
