@@ -2266,9 +2266,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		updateOptionsAffectedComponents();
 
 		JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
-		getTofTree().setRootVisible(true);
-		tofTree.setCellRenderer(new TofTreeCellRenderer());
-		tofTree.getSelectionModel().setSelectionMode(TreeSelectionModel.SINGLE_TREE_SELECTION);
 		// tofTree selection listener
 		tofTree.addTreeSelectionListener(new TreeSelectionListener() {
 			public void valueChanged(TreeSelectionEvent e) {
