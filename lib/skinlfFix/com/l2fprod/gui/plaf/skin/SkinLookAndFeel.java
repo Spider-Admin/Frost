@@ -971,9 +971,9 @@ public class SkinLookAndFeel extends BasicLookAndFeel {
 		UIManager.put("ScrollBar.alternateLayout", Boolean.FALSE);
 		UIManager.put("JSplitPane.alternateUI", Boolean.FALSE);
 
-		Enumeration enum = element.enumerateChildren();
-		while (enum.hasMoreElements()) {
-			element = (XMLElement) enum.nextElement();
+		Enumeration enumeration = element.enumerateChildren();
+		while (enumeration.hasMoreElements()) {
+			element = (XMLElement) enumeration.nextElement();
 			String tagName = element.getTagName().toLowerCase();
 			if ("skin".equals(tagName)) {
 				skin = buildSkin(url, element);
