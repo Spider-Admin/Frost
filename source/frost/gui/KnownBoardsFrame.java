@@ -145,7 +145,7 @@ public class KnownBoardsFrame extends JDialog
         Iterator i = knownboards.iterator();
         while(i.hasNext())
         {
-            String aboardstr = (String)i.next(); // format: "name * pubkey * privkey"
+            String aboardstr = (String)i.next(); // format: "name * pubkey or N/A * privkey or N/A"
             if( aboardstr.length() < 13 || aboardstr.indexOf("*") < 3 ||
                 ! ( aboardstr.indexOf("*") < aboardstr.lastIndexOf("*") ) )
             {

@@ -216,6 +216,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	JMenuItem downloadPopupDisableSelectedDownloads = null;
 	JMenuItem downloadPopupInvertEnabledAll = null;
 	JMenuItem downloadPopupInvertEnabledSelected = null;
+    JMenu downloadPopupCopyToClipboard = null;
+    JMenuItem downloadPopupCopyChkKeyToClipboard = null;
+    JMenuItem downloadPopupCopyChkKeyAndFilenameToClipboard = null;
 
 	JMenuItem tofTextPopupSaveMessage = null;
 	JMenuItem tofTextPopupSaveAttachments = null;
@@ -250,6 +253,9 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	public DownloadTable getDownloadTable() {
 		return downloadTable;
 	}
+    public HealingTable getHealingTable() {
+        return healingTable;
+    }
 	public JTable getAttachmentTable() {
 		return attachmentTable;
 	}
@@ -994,6 +1000,11 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		DownloadTableModel downloadTableModel = new DownloadTableModel();
 		this.downloadTable = new DownloadTable(downloadTableModel);
 		JScrollPane downloadTableScrollPane = new JScrollPane(downloadTable);
+        
+        // create healing table, is not contained in downloadPanel, but belongs to here
+        HealingTableModel htModel = new HealingTableModel();
+        this.healingTable = new HealingTable( htModel );
+        
 		//Downloads / KeyEvent
 		downloadTable.addKeyListener(new KeyListener() {
 			public void keyTyped(KeyEvent e) {
@@ -1541,6 +1552,52 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		// TODO: implement cancel of downloading
 		downloadPopupCancel = new JMenuItem(LangRes.getString("Cancel"));
+
+        downloadPopupCopyToClipboard = new JMenu("Copy to clipboard...");
+        downloadPopupCopyChkKeyToClipboard = new JMenuItem("CHK key");
+        downloadPopupCopyChkKeyAndFilenameToClipboard =
+            new JMenuItem("CHK key + filename");
+
+        downloadPopupCopyToClipboard.add(downloadPopupCopyChkKeyToClipboard);
+        downloadPopupCopyToClipboard.add(
+            downloadPopupCopyChkKeyAndFilenameToClipboard);
+
+        // add action listener
+        // add CHK key to clipboard
+        downloadPopupCopyChkKeyToClipboard
+            .addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                DownloadTableModel tableModel =
+                    (DownloadTableModel) getDownloadTable().getModel();
+                int selectedRow = getDownloadTable().getSelectedRow();
+                if (selectedRow > -1) {
+                    FrostDownloadItemObject dlItem =
+                        (FrostDownloadItemObject) tableModel.getRow(selectedRow);
+                    String chkKey = dlItem.getKey();
+                    if (chkKey != null) {
+                        mixed.setSystemClipboard(chkKey);
+                    }
+                }
+            }
+        });
+        // add CHK key + filename to clipboard    
+        downloadPopupCopyChkKeyAndFilenameToClipboard
+            .addActionListener(new ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                DownloadTableModel tableModel =
+                    (DownloadTableModel) getDownloadTable().getModel();
+                int selectedRow = getDownloadTable().getSelectedRow();
+                if (selectedRow > -1) {
+                    FrostDownloadItemObject dlItem =
+                        (FrostDownloadItemObject) tableModel.getRow(selectedRow);
+                    String chkKey = dlItem.getKey();
+                    String filename = dlItem.getFileName();
+                    if (chkKey != null && filename != null) {
+                        mixed.setSystemClipboard(chkKey + "/" + filename);
+                    }
+                }
+            }
+        });
 
 		// add action listener
 		downloadPopupRestartSelectedDownloads
@@ -3562,6 +3619,20 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 	protected void showDownloadTablePopupMenu(MouseEvent e) {
 		JPopupMenu pmenu = new JPopupMenu();
+        
+        if (getDownloadTable().getSelectedRowCount() == 1)
+        {
+            // if 1 item is selected
+            FrostDownloadItemObject dlItem = (FrostDownloadItemObject)
+                ((DownloadTableModel)getDownloadTable().getModel())
+                .getRow(getDownloadTable().getSelectedRow());
+            if( dlItem.getKey() != null )
+            {    
+                pmenu.add(downloadPopupCopyToClipboard);
+                pmenu.addSeparator();
+            }
+        }
+        
 		if (getDownloadTable().getSelectedRow() > -1) {
 			pmenu.add(downloadPopupRestartSelectedDownloads);
 			pmenu.addSeparator();
@@ -3597,11 +3668,17 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		JPopupMenu pmenu = new JPopupMenu();
 
 		if (getUploadTable().getSelectedRowCount() == 1)
-			// if 1 item is selected
-			{
-			pmenu.add(uploadPopupCopyToClipboard);
-			pmenu.addSeparator();
-		}
+        {
+            // if 1 item is selected
+            FrostUploadItemObject ulItem = (FrostUploadItemObject)
+                ((UploadTableModel)getUploadTable().getModel())
+                .getRow(getUploadTable().getSelectedRow());
+            if( ulItem.getKey() != null )
+            {    
+                pmenu.add(uploadPopupCopyToClipboard);
+                pmenu.addSeparator();
+            }
+        }
 
 		JMenu removeSubMenu = new JMenu("Remove ...");
 		if (getUploadTable().getSelectedRow() > -1) {
