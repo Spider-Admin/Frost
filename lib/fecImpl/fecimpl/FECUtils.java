@@ -40,7 +40,7 @@ public class FECUtils {
         Properties systemProps = System.getProperties();
         systemProps.setProperty("com.onionnetworks.fec.keys","pure8,pure16");
         System.setProperties(systemProps);
-        System.err.println("Native code off. Using Java FEC implementaion.");
+        System.out.println("Native code off. Using Java FEC implementaion.");
     }
 
     // package scope on purpose.
@@ -89,7 +89,7 @@ public class FECUtils {
             // any of the buckets.
             dumpBlock(repair[i], checkBlocks[i]);
         }
-        System.err.println("Made " + index.length + " " + BLOCK_SIZE + " byte check blocks in "
+        System.out.println("Made " + index.length + " " + BLOCK_SIZE + " byte check blocks in "
                            + (System.currentTimeMillis() - start ) + "ms ("+
                            (end2-start2)+"ms for computing).");
 
@@ -202,7 +202,7 @@ public class FECUtils {
             list += " " + indices[j];
         }
 
-        System.err.println("Decoding from packets: " + list.trim());
+        System.out.println("Decoding from packets: " + list.trim());
 
         // Make a copy because FECCode.decode() reorders
         // the elements of its arguments.
@@ -218,7 +218,7 @@ public class FECUtils {
 
         //System.err.println("Decoded into packets: " + list.trim());
 
-        System.err.println("FEC decode took " + (System.currentTimeMillis() - start ) + "ms.");
+        System.out.println("FEC decode took " + (System.currentTimeMillis() - start ) + "ms.");
 
         for (int i = 0; i < decodeIndices.length; i++) {
             // Nothing to clean up on exception
