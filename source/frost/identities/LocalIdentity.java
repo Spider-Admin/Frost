@@ -1,8 +1,9 @@
 package frost.identities;
 
 import java.io.*;
-
-import frost.frame1;
+import org.w3c.dom.*;
+import org.xml.sax.SAXException;
+import frost.*;
 import frost.FcpTools.*;
 
 /**
@@ -11,6 +12,30 @@ import frost.FcpTools.*;
 public class LocalIdentity extends Identity implements Serializable
 {
     private String privKey;
+
+	protected Element localIdentityPopulateElement(Element el, Document doc){
+		el = baseIdentityPopulateElement(el,doc);
+		Element element = doc.createElement("privKey");
+		CDATASection cdata = doc.createCDATASection(privKey);
+		element.appendChild(cdata);
+		el.appendChild(element);
+		return el;
+	}
+
+	public Element getXMLElement(Document doc) {
+		Element el = doc.createElement("MyIdentity");
+		el = localIdentityPopulateElement(el,doc);
+		return el;
+	}
+	
+	protected void localIdentityPopulateFromElement(Element el ) throws SAXException {
+		baseIdentityPopulateFromElement(el);
+		privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
+	}
+	
+	public void loadXMLElement(Element el) throws SAXException {
+		localIdentityPopulateFromElement(el);
+	}
 
     /**
      * a constructor that assumes that the user has inserted the
