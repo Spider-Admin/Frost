@@ -67,7 +67,7 @@ public final class FcpKeyword
     private String keyword;
     private long longVal;
     private int kwId;
-
+    
     /**
      * Returns the keyword/value pair.
      *
@@ -260,25 +260,23 @@ public final class FcpKeyword
         return null;
     }
 
-    /**
-     * Return a new keyword from the input stream.  This should only be
-     * called when the input stream is expected to start with a keyword.
-     *
-     * @param in InputStream from which to read
-     * @return new FcpKeyword
-     */
-    public static FcpKeyword getFcpKeyword(InputStream in) throws IOException
-    {
-    int b;
-    byte [] bytes = new byte[64];
-    int count = 0;
-    while ((b = in.read()) != '\n' && b != -1 && count < 64 && (b!='\0'))
-    {
-        bytes[count] = (byte) b;
-        count++;
-    }
-    return new FcpKeyword((new String(bytes)).trim());
-    }
+	/**
+	 * Return a new keyword from the input stream.  This should only be
+	 * called when the input stream is expected to start with a keyword.
+	 *
+	 * @param in InputStream from which to read
+	 * @return new FcpKeyword
+	 */
+	public static FcpKeyword getFcpKeyword(InputStream in) throws IOException {
+		int b;
+		byte[] bytes = new byte[256];
+		int count = 0;
+		while ((b = in.read()) != '\n' && b != -1 && count < 256 && (b != '\0')) {
+			bytes[count] = (byte) b;
+			count++;
+		}
+		return new FcpKeyword(new String(bytes, 0, count));
+	}
 
     /**
      * Return the value associated with this keyword as a long.
