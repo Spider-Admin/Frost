@@ -91,8 +91,8 @@ public class NewBoardDialog extends JDialog {
 	private JScrollPane descriptionScrollPane;
 	
 	private int choice = CHOICE_CANCEL;
-	private String name;
-	private String description;
+	private String boardName;
+	private String boardDescription;
 
 	/**
 	 * @throws java.awt.HeadlessException
@@ -150,11 +150,15 @@ public class NewBoardDialog extends JDialog {
 		constraints.insets = insets10_555;
 		constraints.gridx = 1;
 		constraints.gridy = 5;
-		addButton.setEnabled(false);
 		contentPanel.add(addButton, constraints);
 		constraints.weightx = 0;
 		constraints.gridx = 2;
 		contentPanel.add(cancelButton, constraints);
+		
+		descriptionTextArea.setText(" Not implemented yet.");	//TODO Remove when descriptions are fully implemented
+		descriptionTextArea.setEnabled(false);				//
+		
+		addButton.setEnabled(false);
 		
 		nameTextField.getDocument().addDocumentListener(listener);
 		addButton.addActionListener(listener);
@@ -189,8 +193,8 @@ public class NewBoardDialog extends JDialog {
 	 */
 	private void addButton_actionPerformed() {
 		choice = CHOICE_ADD;
-		name = nameTextField.getText();
-		description = descriptionTextArea.getText();
+		boardName = nameTextField.getText();
+		boardDescription = descriptionTextArea.getText();
 		dispose();
 	}
 	
@@ -211,15 +215,15 @@ public class NewBoardDialog extends JDialog {
 	/**
 	 * @return
 	 */
-	public String getDescription() {
-		return description;
+	public String getBoardDescription() {
+		return boardDescription;
 	}
 
 	/**
 	 * @return
 	 */
-	public String getName() {
-		return name;
+	public String getBoardName() {
+		return boardName;
 	}
 
 }
