@@ -513,21 +513,22 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         
                         //TODO: rework the Index.java methods to use FrostIndex object
                         //for now just rename the file and use old methods
-                        unzippedTarget.renameTo(target);
+                        //unzippedTarget.renameTo(target);
 
 						//if the user is not on the GOOD list..
                         if( sharer == null ||
                             Core.getFriends().containsKey(sharer.getUniqueName()) == false )
                         {
                             // add only files from that user                            
-                            Index.add( target, board, sharer.getUniqueName() );
+                            Index.add( receivedIndex, board, sharer.getUniqueName() );
                         }
                         else
                         {
                             // if user is, add all files
-                            Index.add(target, board, sharer);
+                            Index.add(unzippedTarget, board, sharer);
                         }
                         target.delete();
+                        unzippedTarget.delete();
                     }
                     catch (Throwable t)
                     {
@@ -566,20 +567,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             FrostIndex frostIndex = makeIndexFile();
             if (frostIndex!=null)
             {
-                //if (frame1.isGeneratingCHK() == false) //FIXME: why not uploading while genKey runs?
-                														//no idea.. don't even know who wrote this
-                                                       // when will it be tried the 2nd time?
-                                                       //when we stop uploading.. that's bad.  I'm removing the entire thing 
-                 
-             //   {
+          
                     if (DEBUG)
                         Core.getOut().println(
                             "FILEDN: Starting upload of index file to board '"
                                 + board.toString());
-/*                                + "'; uploadFiles = "
-                                + keyCount);*/ // who sets the keyCount? or not needed?
                     uploadIndexFile(frostIndex);
-    //            }
+    
             }
             else
             {
