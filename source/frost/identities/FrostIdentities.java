@@ -10,8 +10,8 @@ import org.w3c.dom.*;
 
 import frost.*;
 import frost.fcpTools.FecTools;
-import frost.gui.translation.UpdatingLanguageResource;
 import frost.threads.maintenance.Savable;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * A class that maintains identity stuff.

@@ -37,6 +37,7 @@ import javax.swing.event.*;
 import frost.*;
 import frost.gui.translation.*;
 import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 /*******************************
  * TODO: - add thread listeners (listen to all running threads) to change the

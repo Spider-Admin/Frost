@@ -2,7 +2,7 @@
  * Created on Nov 9, 2003
  *
  */
-package frost.gui.translation;
+package frost.util.gui.translation;
 
 import java.util.*;
 
@@ -15,15 +15,25 @@ public class UpdatingLanguageResource {
 	/** A list of event listeners for this component. */
 	protected EventListenerList listenerList = new EventListenerList();
 
+	/**
+	 * @param newResourceBundle
+	 */
 	public UpdatingLanguageResource(ResourceBundle newResourceBundle) {
 		super();
 		resourceBundle = newResourceBundle;
 	}
 
+	/**
+	 * @param bundleBaseName
+	 */
 	public UpdatingLanguageResource(String bundleBaseName) {
 		this(bundleBaseName, Locale.getDefault());
 	}
 
+	/**
+	 * @param bundleBaseName
+	 * @param locale
+	 */
 	public UpdatingLanguageResource(String bundleBaseName, Locale locale) {
 		super();
 		resourceBundle = ResourceBundle.getBundle(bundleBaseName, locale);
@@ -64,14 +74,14 @@ public class UpdatingLanguageResource {
 	}
 
 	/**
-		 * Notifies all listeners that have registered interest for
-		 * notification on this event type.  The event instance 
-		 * is lazily created using the <code>event</code> 
-		 * parameter.
-		 *
-		 * @param event  the <code>LanguageEvent</code> object
-		 * @see EventListenerList
-		 */
+	 * Notifies all listeners that have registered interest for
+	 * notification on this event type.  The event instance 
+	 * is lazily created using the <code>event</code> 
+	 * parameter.
+	 *
+	 * @param event  the <code>LanguageEvent</code> object
+	 * @see EventListenerList
+	 */
 	protected void fireLanguageChanged(LanguageEvent event) {
 		// Guaranteed to return a non-null array
 		Object[] listeners = listenerList.getListenerList();

@@ -9,7 +9,7 @@ package frost.fileTransfer.download;
 import java.beans.*;
 
 import frost.*;
-import frost.gui.translation.UpdatingLanguageResource;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * @author Administrator

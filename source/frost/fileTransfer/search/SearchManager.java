@@ -12,8 +12,8 @@ import frost.*;
 import frost.fileTransfer.download.DownloadModel;
 import frost.fileTransfer.upload.UploadModel;
 import frost.gui.TofTree;
-import frost.gui.translation.UpdatingLanguageResource;
 import frost.identities.FrostIdentities;
+import frost.util.gui.translation.UpdatingLanguageResource;
 
 /**
  * @author Administrator

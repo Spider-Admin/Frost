@@ -1,7 +1,7 @@
 /*
  * Created on Nov 19, 2003
  */
-package frost.gui.translation;
+package frost.util.gui.translation;
 
 import javax.swing.JComboBox;
 
@@ -53,7 +53,8 @@ public class JTranslatableComboBox extends JComboBox implements LanguageListener
 	private String[] keys;
 
 	/**
-	 * 
+	 * @param newLanguageResource
+	 * @param newKeys
 	 */
 	public JTranslatableComboBox(UpdatingLanguageResource newLanguageResource, String[] newKeys) {
 		super();

@@ -48,6 +48,7 @@ import frost.messages.*;
 import frost.threads.*;
 import frost.threads.maintenance.Truster;
 import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)

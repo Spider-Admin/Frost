@@ -15,6 +15,7 @@ import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
 
 import frost.gui.translation.*;
+import frost.util.gui.translation.*;
 
 /**
  * 

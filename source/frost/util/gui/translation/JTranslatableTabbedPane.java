@@ -4,7 +4,7 @@
  * To change the template for this generated file go to
  * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
  */
-package frost.gui.translation;
+package frost.util.gui.translation;
 
 import java.awt.Component;
 
@@ -23,7 +23,7 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 	private UpdatingLanguageResource languageResource;
 
 	/**
-	 * 
+	 * @param newLanguageResource
 	 */
 	public JTranslatableTabbedPane(UpdatingLanguageResource newLanguageResource) {
 		super();
