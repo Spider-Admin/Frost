@@ -305,6 +305,10 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			
 			//verify the file 
 			if (unzipped.startsWith("===")) {
+// FIXME: FILELIST PBL:
+// now all up to signature is XML code (UTF-16)
+// extract the utf-16 code, and parse it using dom parser
+                
 				int name_index = unzipped.indexOf("sharer = \"");
 				name_index = unzipped.indexOf("\"",name_index)+1;
 				//get the unique name of the person sharing the files
