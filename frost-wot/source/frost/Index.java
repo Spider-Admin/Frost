@@ -132,10 +132,10 @@ public class Index
 	int keyCount = 0;
 	
 	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	keyFile.append("<Filelist ");
+	keyFile.append("<Filelist");
 	//only add personal info if we chose to sign
 	if (signUploads)
-		keyFile.append("sharer = \""+frame1.getMyId().getUniqueName()+"\""+
+		keyFile.append(" sharer = \""+frame1.getMyId().getUniqueName()+"\""+
 			" pubkey = \""+frame1.getMyId().getKey()+"\"");
 	keyFile.append(">\n");
 				
