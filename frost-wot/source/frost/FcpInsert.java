@@ -201,7 +201,7 @@ public class FcpInsert
         threads[threadCount].start();
         threadCount++;
         updateUploadTable(file, i, mode);
-        mixed.wait(1000);
+        mixed.wait(3000);
         }
 
         // read chunkSize bytes
@@ -248,7 +248,7 @@ public class FcpInsert
         // wait until all threads are done
         while (getActiveThreads(threads) > 0) {
         if (DEBUG) System.out.println("Active Splitfile inserts remaining: " + getActiveThreads(threads));
-        mixed.wait(3000);
+        mixed.wait(8000);
         }
 
         fileIn.close();
@@ -507,13 +507,13 @@ public class FcpInsert
             threadCount++;
             uploadedBytes += currentFileMap[j].length();
             updateUploadTable(file, uploadedBytes, mode);
-            mixed.wait(1000);
+            mixed.wait(3000);
             chunkNo++;
         }
         // wait until all chunk upload threads are done
         while (getActiveThreads(chunkThreads) > 0) {
             if (DEBUG) System.out.println("Active Splitfile inserts remaining: " + getActiveThreads(chunkThreads));
-            mixed.wait(3000);
+            mixed.wait(8000);
         }
         segmentKeyMaps.add(chunkResults);
         }
@@ -544,13 +544,13 @@ public class FcpInsert
             threadCount++;
             uploadedBytes += currentFileMap[j].length();
             updateUploadTable(file, uploadedBytes, mode);
-            mixed.wait(1000);
+            mixed.wait(3000);
             checkNo++;
         }
         // wait until all threads are done
         while (getActiveThreads(checkThreads) > 0) {
             if (DEBUG) System.out.println("Active Checkblock inserts remaining: " + getActiveThreads(checkThreads));
-            mixed.wait(3000);
+            mixed.wait(8000);
         }
         checkKeyMaps.add(checkResults);
         }
