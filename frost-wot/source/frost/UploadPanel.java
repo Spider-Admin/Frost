@@ -309,7 +309,7 @@ public class UploadPanel extends JPanel {
 			//the options that operate on all files (not only selected) are removed for now
 			//because making them check whether the file has been indexed or not is a pain
 			//feel free to implement ;)
-			if (!Core.frostSettings.getBoolValue("automaticIndexing")) {
+			if (!settingsClass.getBoolValue("automaticIndexing")) {
 				UploadTableModel ulModel = (UploadTableModel) uploadTable.getModel();
 				boolean shouldEnable = true;
 				int[] selectedRows = uploadTable.getSelectedRows();
