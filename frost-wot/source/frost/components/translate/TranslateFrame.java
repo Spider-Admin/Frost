@@ -65,6 +65,11 @@ public class TranslateFrame extends JFrame {
 	}
 	pack();
     }
+	/**Main method*/
+	public static void main(String[] args) {
+		new TranslateFrame(false).setVisible(true);
+	}
+
 }
 
 
