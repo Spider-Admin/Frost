@@ -27,7 +27,7 @@ public class DownloadTable extends SortedTable
         getColumnModel().getColumn(1).setCellRenderer(cellRenderer);
 
         // set column sizes
-        int[] widths = {250, 90, 90, 80, 40, 50, 60};
+        int[] widths = {200, 90, 70, 80, 70, 35, 60, 60};
         for (int i = 0; i < widths.length; i++)
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);

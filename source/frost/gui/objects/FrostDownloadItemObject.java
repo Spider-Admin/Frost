@@ -34,6 +34,8 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private int state = 0;
     private long downloadProgress = 0; // the count of downloaded bytes
 
+    private String blockProgress = null;
+
     private long lastDownloadStartTimeMillis = 0; // used for one by one update mode
     private long lastDownloadStopTimeMillis = 0; // time when download try finished, used for pause between tries
 
@@ -99,14 +101,18 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         else
             aFileSize = fileSize;
 
+        String blocks = ( (blockProgress==null) ? "" : blockProgress );
+
+
         switch(column) {
             case 0: return fileName;                //LangRes.getString("Filename"),
             case 1: return aFileSize;               //LangRes.getString("Size"),
             case 2: return aFileAge;                //LangRes.getString("Age"),
             case 3: return getStateString( state ); //LangRes.getString("State"),
-            case 4: return retries;                 //LangRes.getString("Retries"),
-            case 5: return sourceBoard.toString();  //LangRes.getString("Source"),
-            case 6: return key;                     //LangRes.getString("Key")
+            case 4: return blocks;                  //LangRes.getString("Blocks"),
+            case 5: return retries;                 //LangRes.getString("Retries"),
+            case 6: return sourceBoard.toString();  //LangRes.getString("Source"),
+            case 7: return key;                     //LangRes.getString("Key")
             default: return "*ERR*";
         }
     }
@@ -212,6 +218,11 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public void setRetries( int val )
     {
         retries = new Integer(val);
+    }
+
+    public void setBlockProgress( int actualBlocks, int requiredBlocks, int allAvailableBlocks )
+    {
+        blockProgress = actualBlocks + " / " +requiredBlocks + " ("+allAvailableBlocks+")";
     }
 
 }
