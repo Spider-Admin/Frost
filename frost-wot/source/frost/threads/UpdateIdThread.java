@@ -21,11 +21,16 @@ package frost.threads;
 import java.io.*;
 import java.util.Vector;
 
+import org.xml.sax.*;
+import org.xml.sax.helpers.*;
+import javax.xml.parsers.*;
+
 import frost.*;
 import frost.crypt.crypt;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
 import frost.FcpTools.*;
+
 
 public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
 {
@@ -53,6 +58,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private String insertKey;
     private String boardState;
     private final static String fileSeparator = System.getProperty("file.separator");
+    
+    //these pertain to the currently received index
+	Identity sharer = null;
+	String _sharer = null;
+	String pubkey = null;
 
     public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
@@ -265,6 +275,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     public void run()
     {
         notifyThreadStarted(this);
+        
         try {
 
         // Wait some random time to speed up the update of the TOF table
@@ -277,10 +288,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
         while( failures < maxFailures )
         {
-                if (index==-1) {  //something happened
-			notifyThreadFinished(this);
-			return;
-		}
+			sharer=null;
+			_sharer=null;
+			pubkey=null;
+			
+            if (index==-1) {  //something happened
+				notifyThreadFinished(this);
+				return;
+			}
 		File target = File.createTempFile("frost-index-"+index,board.getBoardFilename(),
 					new File(frame1.frostSettings.getValue("temp.dir")));
                 if( DEBUG ) Core.getOut().println("FILEDN: Requesting index " + index + " for board "+board.getBoardName() +
@@ -296,8 +311,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                 {
 			//mark it as successful
 			setIndexSuccessfull(index);
-		    Identity sharer = null;
-		    String _sharer = null;
+		    
                     // Add it to the index
                     try {
                         // maybe the file is corrupted ... so try
@@ -305,17 +319,34 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			
 			//verify the file 
 			if (unzipped.startsWith("===")) {
+				
 // FIXME: FILELIST PBL:
 // now all up to signature is XML code (UTF-16)
 // extract the utf-16 code, and parse it using dom parser
-                
-				int name_index = unzipped.indexOf("sharer = \"");
-				name_index = unzipped.indexOf("\"",name_index)+1;
-				//get the unique name of the person sharing the files
-				_sharer = unzipped.substring(name_index,
-							unzipped.indexOf("\"",name_index));
-				_sharer = _sharer.trim();
-				sharer = null;
+// FIXED: use a SAX parser at the end of this file
+                String stripped = new String(
+                				unzipped.substring(
+                					crypt.MSG_HEADER_SIZE,
+									unzipped.lastIndexOf("\n=== Frost message signature: ===\n")));
+				SimpleParser sp = new SimpleParser();
+				try{
+				ByteArrayInputStream bis = new ByteArrayInputStream(stripped.getBytes());
+				
+				SAXParserFactory factory = SAXParserFactory.newInstance();
+				factory.setValidating(false);
+    
+								// Create the builder and parse the file
+					factory.newSAXParser().parse(bis, sp);
+					_sharer = sp.sharer;
+					pubkey = sp.pubkey;
+				} catch (SAXException e) {
+								// A parsing error occurred; the xml input is not valid
+					e.printStackTrace(Core.getOut());
+				} catch (ParserConfigurationException e) {
+				} catch (IOException e) {
+					e.printStackTrace(Core.getOut());
+				}
+				
 				if (frame1.getMyId().getUniqueName().trim().compareTo(_sharer)==0) {
 				
 					Core.getOut().println("received index from myself");
@@ -339,30 +370,16 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					continue;
 				}
 				
-				//we have the person
-				if (sharer==null) { //we don't have it, use the provided key
-					int key_index = unzipped.indexOf("pubkey =");
-					
-				if (key_index == -1) {
-					Core.getOut().println("file didn't contain public key!");
-					target.delete();
-					index = findFreeDownloadIndex();
-					continue;
-				}
-					
-					key_index = unzipped.indexOf("\"",key_index)+1;
-					
-					//get the key
-					String pubKey = unzipped.substring(key_index,
-							unzipped.indexOf("\"",key_index));
+				//we have the person at this point
+				if (sharer==null) { //its a new contact, use the provided key
 							
 					//check if the digest matches
 					String given_digest = _sharer.substring(_sharer.indexOf("@")+1,_sharer.length());
-					if (given_digest.trim().compareTo(frame1.getCrypto().digest(pubKey.trim()).trim()) != 0) {
+					if (given_digest.trim().compareTo(frame1.getCrypto().digest(pubkey.trim()).trim()) != 0) {
 						Core.getOut().println("pubkey in index file didn't match digest");
 						Core.getOut().println("given digest "+ given_digest.trim());
-						Core.getOut().println("pubkey " +pubKey.trim());
-						Core.getOut().println("calculated digest "+frame1.getCrypto().digest(pubKey).trim());
+						Core.getOut().println("pubkey " +pubkey.trim());
+						Core.getOut().println("calculated digest "+frame1.getCrypto().digest(pubkey).trim());
 						target.delete();
 						index=findFreeDownloadIndex();
 						continue;
@@ -371,7 +388,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					//create the identity of the sharer
 					sharer = new Identity(_sharer.substring(0,_sharer.indexOf("@")),
 								null,
-								pubKey);
+								pubkey);
 					//add him to the neutral list
 					Core.getNeutral().Add(sharer);
 				}
@@ -418,7 +435,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     // files left, we better remove them now.
 		    //Core.getOut().println("FILEDN:failed getting index "+index
                     target.delete();
-		    setIndexFailed(index);
+		    		setIndexFailed(index);
                     failures++;
                     index = findFreeDownloadIndex(index);
                 }
@@ -499,5 +516,23 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             insertKey = new StringBuffer().append("KSK@frost/index/").append(board.getBoardFilename())
                         .append("/").append(currentDate).append("/").toString();
     }
+    
+    private class SimpleParser extends DefaultHandler {
+    	public String pubkey,sharer;
+    	public SimpleParser() {
+    		pubkey = null;
+    		sharer=null;
+    	}
+		public void startElement(String namespaceURI, String localName,
+										 String qName, Attributes atts)  {
+				//what's the difference between qName and localName?
+				if (localName.equals("Filelist") || qName.equals("Filelist")) {
+					pubkey = atts.getValue("pubkey");
+					sharer = atts.getValue("sharer");			
+	
+				}
+		}
+    }
+    
 }
 
