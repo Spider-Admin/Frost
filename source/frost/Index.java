@@ -21,6 +21,8 @@ package frost;
 import java.io.*;
 import java.util.*;
 
+import org.w3c.dom.*;
+
 import frost.gui.model.DownloadTableModel;
 import frost.gui.objects.*;
 
@@ -131,15 +133,54 @@ public class Index
 	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
 	int keyCount = 0;
 	
-	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	keyFile.append("<Filelist");
-	//only add personal info if we chose to sign
-	if (signUploads)
-		keyFile.append(" sharer = \""+frame1.getMyId().getUniqueName()+"\""+
-			" pubkey = \""+frame1.getMyId().getKey()+"\"");
-	keyFile.append(">\n");
-				
-        synchronized(mine)
+    // FIXME: TEST XML code, especially the removing of "owner"
+    Document doc = XMLTools.createDomDocument();
+    if( doc == null )
+    {
+        System.out.println("Error - getUploadKeys: factory could'nt create XML Document.");
+        return 0;
+    }
+
+    Element rootElement = doc.createElement("Filelist");
+    //only add personal info if we chose to sign
+    if (signUploads)
+    {
+        rootElement.setAttribute("sharer", frame1.getMyId().getUniqueName());
+        rootElement.setAttribute("pubkey", frame1.getMyId().getKey());
+    }
+    doc.appendChild(rootElement);
+    
+    synchronized( mine )
+    {
+        Iterator j = mine.values().iterator();
+        while( j.hasNext() )
+        {
+            SharedFileObject current = (SharedFileObject)j.next();
+            boolean my = current.getOwner()!= null &&
+                         frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0;
+                         
+            if( my )
+            {
+                keyCount++;
+            }
+            
+            Element element = current.getXMLElement(doc);
+            
+            if( current.getOwner() != null  &&
+                !(my && !signUploads) )
+            {
+                // remove owner
+                ArrayList lst = XMLTools.getChildElementsByTagName(element, "owner");
+                if( lst.size() > 0 )
+                {
+                    Element r = (Element)lst.get(0);                
+                    element.removeChild(r);
+                }
+            }
+            rootElement.appendChild( element );
+        }
+    }
+/*        synchronized(mine)
         {
              Iterator j = mine.values().iterator();
              while( j.hasNext() )
@@ -174,20 +215,25 @@ public class Index
         
         //keyFile.append("<redundancy>_redNo</redundancy>"); //this will be replaced with redundancy #
 	keyFile.append("</Filelist>");
-	
+*/	
 	//String signed = frame1.getCrypto().sign(keyFile.toString(),frame1.getMyId().getPrivKey());
         // Make keyfile
         if( keyCount > 0 )
         {
-            File file = new File(frame1.keypool + board + "_upload.txt");
-            FileAccess.writeFile(keyFile.toString(), file);
+            boolean writeOK = false;
+            try {
+                writeOK = XMLTools.writeXmlFile(doc, frame1.keypool + board + "_upload.txt");
+            } catch(Throwable t)
+            {
+                System.out.println("Exception - getUploadKeys:");
+                t.printStackTrace(System.out);
+            }
         }
 	
-	//clear the new uploads
-	boardNewUploads.delete();
+    	//clear the new uploads
+    	boardNewUploads.delete();
 
         return keyCount;
-	
     }
 
     public static void add(SharedFileObject key, FrostBoardObject board) {
