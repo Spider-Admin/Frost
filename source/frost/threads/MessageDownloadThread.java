@@ -192,7 +192,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
             long ONE_DAY = (1000 * 60 * 60 * 24);
             int diffDays = (int)((dirMillis - msgMillis) / ONE_DAY);
             // now compare dirDate and msgDate using above rules
-            if( Math.abs(diffDays) < 1 )
+            if( Math.abs(diffDays) <= 1 )
             {
                 // message is of this day (less than 1 day difference)
                 // msg is OK, do nothing here
