@@ -109,7 +109,22 @@ public class TOF
             if( message.isValid() && !blocked(message) )
             {
                 final String[] sMessage = message.getVRow();
-                messages.put( message.getIndex() + sMessage[4], message);
+                // bback: sometimes a NullPointerException occurs in following line
+                // i dont know why, so here is a trap:
+                try {
+                    messages.put( message.getIndex() + sMessage[4], message);
+                }
+                catch(Exception ex)
+                {
+                    System.out.println("\nDEBUG-TRAP TOF.addNewMessageToTable:");
+                    System.out.println("Please report this to bback!");
+                    System.out.println("messages="+messages);
+                    System.out.println("message="+message);
+                    if( message != null )
+                        System.out.println("message.getIndex()="+message.getIndex());
+                    System.out.println("sMessage[4]="+sMessage[4]);
+                    ex.printStackTrace();
+                }
 
                 board.incNewMessageCount();
 
