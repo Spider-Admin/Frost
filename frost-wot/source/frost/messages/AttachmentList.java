@@ -58,13 +58,8 @@ public class AttachmentList extends LinkedList implements XMLizable {
 		while (i.hasNext()){
 			Attachment attachment;
 			Element current = (Element)i.next();
-			if (current.getAttribute("type").equals("file")) {
-				if (current.getAttribute("FEC") !=null &&
-						current.getAttribute("FEC").equals("true"))
-					attachment = new RedirectAttachment(current);
-				else
-					attachment = new FileAttachment(current);
-			}
+			if (current.getAttribute("type").equals("file")) 		
+				attachment = new FileAttachment(current);
 			else if (current.getAttribute("type").equals("board"))
 				attachment = new BoardAttachment(current);
 			else 
