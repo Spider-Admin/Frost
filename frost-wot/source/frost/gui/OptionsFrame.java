@@ -43,11 +43,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 	/**
  	 * Display Panel. Contains appearace options: skins and more in the future
  	 */
-	public class DisplayPanel extends JPanel {
+	private class DisplayPanel extends JPanel {
 
 		/**
 		 * Inner class to handle all the events
-		 */
+		 */ 
 		public class EventHandler implements ActionListener {
 
 			/**
@@ -138,6 +138,42 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
 
 
+		/**
+		 *	Restores the state of the LookAndFeel to the one when this Panel was created
+		 */
+		public void revertLookAndFeel() {
+			getSkinChooser().undoPreview();
+		} 
+		
+		/**
+		 * Save the settings of this panel
+		 * @param displaySettings class where the settings will be stored
+		 */
+		public void saveSettings(SettingsClass displaySettings) {
+			displaySettings.setValue("skinsEnabled", getEnableSkinsCheckBox().isSelected());
+			String selectedSkin = getSkinChooser().getSelectedSkinPath();
+			if (selectedSkin == null) {
+				displaySettings.setValue("selectedSkin", "");
+			} else {
+				displaySettings.setValue("selectedSkin", selectedSkin);
+			}
+		}
+			
+		/**
+		 * Load the settings of this panel
+		 * @param displaySettings class the settings will be loaded from
+		 */
+		public void loadSettings(SettingsClass displaySettings) {
+			boolean skinsEnabled = displaySettings.getBoolValue("skinsEnabled");
+			getEnableSkinsCheckBox().setSelected(skinsEnabled);
+			if (!skinsEnabled) {
+				getSkinChooser().setEnabled(false);
+			}
+			
+			String selectedSkinPath = displaySettings.getValue("selectedSkin");
+			getSkinChooser().selectSkin(selectedSkinPath);
+		}
+
 	}
     //------------------------------------------------------------------------
     // Class Vars
@@ -158,7 +194,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JPanel tofPanel = null;
     JPanel tof2Panel = null;
     JPanel tof3Panel = null;
-    JPanel displayPanel = null;
+    DisplayPanel displayPanel = null;
     JPanel miscPanel = null;
     JPanel searchPanel = null;
     JPanel contentAreaPanel = null;
@@ -1295,6 +1331,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     	frostSettings.setValue("helpFriends",helpFriends.isSelected());
     	frostSettings.setValue("hideBadFiles",hideBadFiles.isSelected());
     	frostSettings.setValue("hideAnonFiles",hideAnonFiles.isSelected());
+    	
+    	if (displayPanel != null) {	//Only save the display settings if that panel has been used
+    		displayPanel.saveSettings(frostSettings);
+    	}
+    	
         frostSettings.writeSettingsFile();
 
         // now check if some settings changed
@@ -1333,6 +1374,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     private void cancel()
     {
         exitState = false;
+        
+        if (displayPanel != null) {	//If the display panel has been used, undo any possible skin preview
+        	displayPanel.revertLookAndFeel();
+        }
+        
         dispose();
     }
 
@@ -1446,6 +1492,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 	protected JPanel getDisplayPanel() {
 		if (displayPanel == null) {
 			displayPanel = new DisplayPanel();
+			displayPanel.loadSettings(frostSettings);
 		}
 		return displayPanel;
 	}
