@@ -7,17 +7,14 @@
 package frost.gui;
 
 import java.awt.*;
-import java.awt.GraphicsEnvironment;
 import java.awt.event.*;
-import java.awt.event.ActionListener;
 import java.util.*;
-import java.util.ResourceBundle;
 
 import javax.swing.*;
-import javax.swing.JDialog;
 import javax.swing.border.EmptyBorder;
 import javax.swing.event.*;
-import javax.swing.event.ListSelectionListener;
+
+import frost.gui.translation.*;
 
 /**
  * 
@@ -26,7 +23,7 @@ public class FontChooser extends JDialog {
 	/**
 	 * 
 	 */
-	private class Listener implements ActionListener, ListSelectionListener {
+	private class Listener implements ActionListener, ListSelectionListener, LanguageListener {
 
 		/**
 		 * 
@@ -65,18 +62,25 @@ public class FontChooser extends JDialog {
 			}
 		}
 
+		/* (non-Javadoc)
+		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+		 */
+		public void languageChanged(LanguageEvent event) {
+			refreshLanguage();			
+		}
+
 	}
 	
 	private Listener listener = new Listener();
 	
-	private ResourceBundle languageBundle = null;
+	private UpdatingLanguageResource languageResource = null;
 	
 	private DefaultListModel fontNamesModel = new DefaultListModel();
 	private JList fontNamesList = new JList(fontNamesModel);
 	private JTextField selectedNameTextField = new JTextField();
 	
-	private DefaultListModel fontStylesModel = new DefaultListModel();
-	private JList fontStylesList = new JList(fontStylesModel);
+	private TranslatableListModel fontStylesModel = null;
+	private JList fontStylesList = new JList();
 	private JTextField selectedStyleTextField = new JTextField();
 	
 	private DefaultListModel fontSizesModel = new DefaultListModel();
@@ -100,18 +104,20 @@ public class FontChooser extends JDialog {
 	/**
 	 * 
 	 */
-	public FontChooser(Frame owner, ResourceBundle bundle) {
+	public FontChooser(Frame owner, UpdatingLanguageResource newLanguageResource) {
 		super(owner);
-		languageBundle = bundle;
+		languageResource = newLanguageResource;
+		languageResource.addLanguageListener(listener);
 		initialize();
 	}
 	
 	/**
 	 * 
 	 */
-	public FontChooser(Dialog owner, ResourceBundle bundle) {
+	public FontChooser(Dialog owner, UpdatingLanguageResource newLanguageResource) {
 		super(owner);
-		languageBundle = bundle;
+		languageResource = newLanguageResource;
+		languageResource.addLanguageListener(listener);
 		initialize();
 	}
 
@@ -119,7 +125,7 @@ public class FontChooser extends JDialog {
 	 * 
 	 */
 	private void initialize() {
-		setTitle("Choose a Font");
+		refreshLanguage();
 		setSize(400, 350);
 		setLocationRelativeTo(getOwner());
 
@@ -170,7 +176,6 @@ public class FontChooser extends JDialog {
 		
 		constraints.gridx = 0;
 		constraints.gridy = 3;
-		sampleLabel.setText("Sample");
 		contentPane.add(sampleLabel, constraints);
 		
 		constraints.gridx = 0;
@@ -190,13 +195,11 @@ public class FontChooser extends JDialog {
 		panelConstraints.gridx = 0;
 		panelConstraints.gridy = 0;
 		panelConstraints.weightx = 1;
-		okButton.setText("Ok");
 		buttonsPanel.add(okButton, panelConstraints);
 
 		panelConstraints.gridx = 1;
 		panelConstraints.gridy = 0;
 		panelConstraints.weightx = 0;
-		cancelButton.setText("Cancel");
 		buttonsPanel.add(cancelButton, panelConstraints);
 
 		constraints.gridx = 0;
@@ -231,6 +234,8 @@ public class FontChooser extends JDialog {
 			fontSizesModel.addElement(sizes[i]);
 		}
 
+		fontStylesModel = new TranslatableListModel(languageResource);
+		fontStylesList.setModel(fontStylesModel);
 		ArrayList styleKeysList = new ArrayList(styles.keySet());
 		Collections.reverse(styleKeysList);	//Because I want "Plain" to be first
 		Iterator styleKeys = styleKeysList.iterator();
@@ -283,10 +288,13 @@ public class FontChooser extends JDialog {
 	 * 
 	 */
 	private void fontStyleValueChanged() {
-		if (fontStylesList.getSelectedIndex() != -1) {
-			String styleString = fontStylesList.getSelectedValue().toString();
+		int selectedIndex = fontStylesList.getSelectedIndex();
+		if (selectedIndex != -1) {
+			String styleString = fontStylesModel.getElementAt(selectedIndex).toString();
+			String styleKey = fontStylesModel.getKeyAt(selectedIndex);
+			
 			selectedStyleTextField.setText(styleString);
-			selectedStyle = (Integer) styles.get(styleString);
+			selectedStyle = (Integer) styles.get(styleKey);
 			refreshFont();
 		}
 	}
@@ -332,5 +340,15 @@ public class FontChooser extends JDialog {
 				//Nothing, just ignore the typed value
 			}
 		}
+		
+	/**
+	 * 
+	 */
+	private void refreshLanguage() {
+		setTitle(languageResource.getString("Choose a Font"));
+		sampleLabel.setText(languageResource.getString("Sample"));
+		okButton.setText(languageResource.getString("OK"));
+		cancelButton.setText(languageResource.getString("Cancel"));
+	}
 
 }
