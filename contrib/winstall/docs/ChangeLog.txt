@@ -1,3 +1,7 @@
+2001-12-04  Benoit Laniel <nels@pgroupe.net>
+
+    * Now finds java.exe/javaw.exe paths
+
 2001-11-24  Benoit Laniel <nels@pgroupe.net>
 
     * Removed a bug in the java.exe path detection
