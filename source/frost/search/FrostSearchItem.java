@@ -1,4 +1,6 @@
-package frost.gui.objects;
+package frost.search;
+
+import frost.gui.objects.FrostBoardObject;
 
 public interface FrostSearchItem
 {

@@ -1,6 +1,7 @@
 package frost.gui.objects;
 
 import frost.gui.model.TableMember;
+import frost.search.*;
 import frost.Core;
 import java.util.Observable;
 

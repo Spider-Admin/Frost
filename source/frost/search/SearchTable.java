@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui;
+package frost.search;
 
 import java.awt.*;
 import java.util.LinkedList;
@@ -24,9 +24,10 @@ import java.util.LinkedList;
 import javax.swing.JTable;
 import javax.swing.table.DefaultTableCellRenderer;
 
-import frost.gui.model.SearchTableModel;
+import frost.gui.*;
 import frost.gui.objects.*;
 import frost.identities.*;
+import frost.search.*;
 
 public class SearchTable extends SortedTable
 {

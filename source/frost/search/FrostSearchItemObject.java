@@ -1,7 +1,9 @@
-package frost.gui.objects;
+package frost.search;
 
 import frost.gui.model.TableMember;
+import frost.gui.objects.FrostBoardObject;
 import frost.messages.*;
+import frost.search.*;
 
 
 public class FrostSearchItemObject implements FrostSearchItem, TableMember
