@@ -102,4 +102,18 @@ public class MetaData implements XMLizable {
 		sig = XMLTools.getChildElementsCDATAValue(e,"sig").getBytes();
 	}
 
+	/**
+	 * @return
+	 */
+	public Identity getSharer() {
+		return sharer;
+	}
+
+	/**
+	 * @return
+	 */
+	public byte[] getSig() {
+		return sig;
+	}
+
 }
