@@ -18,18 +18,20 @@
 */
 package frost;
 
-import frost.FcpTools.*;
+import java.io.*;
 import java.util.*;
 
-import frost.crypt.*;
-import frost.identities.*;
-import frost.gui.objects.*;
-import frost.threads.*;
-import frost.threads.maintenance.*;
+import javax.swing.JOptionPane;
+
 import org.w3c.dom.*;
 
-import java.io.*;
-import javax.swing.*;
+import frost.FcpTools.*;
+import frost.crypt.*;
+import frost.gui.objects.*;
+import frost.identities.*;
+import frost.messages.*;
+import frost.threads.*;
+import frost.threads.maintenance.*;
 
 /**
  * Class hold the more non-gui parts of frame1.java.
@@ -440,32 +442,132 @@ public class Core {
     
     private void loadKnownBoards()
     {
-		//and load the known boards
-		//don't really need xml here, its just a flat list
+		// load the known boards
+		// just a flat list in xml
 		File boards = new File("boards");
-		if (boards.exists())
-			try {
-                // FIXME: !!! we should explicitely load/save this file in UTF-16, because it contains
-                //            user visible strings
-                // FIXME: a boardname (user visible format) can contain the ':' !!! better convert and use
-                //        a  newline separated format!                 
-				String allBoards = FileAccess.readFile(boards);
-				String []_boards = allBoards.split(":");
-				for (int i=0;i<_boards.length;i++)
+		if(boards.exists()) // old style file, 1 time conversion
+        {
+            loadOLDKnownBoards(boards);
+            // save converted list
+            saveKnownBoards();
+            return;
+        }
+        boards = new File("knownboards.xml");
+        if( boards.exists() )
+        {
+            Document doc = null; 
+            try {
+                doc = XMLTools.parseXmlFile(boards, false);
+            }
+            catch(Exception ex)
+            {
+                getOut().println("Error reading knownboards.xml:");
+                getOut().println( ex.getMessage() );
+                return;
+            }
+            Element rootNode = doc.getDocumentElement();
+            if( rootNode.getTagName().equals("FrostKnownBoards") == false )
+            {
+                getOut().println("Error - invalid knownboards.xml: does not contain the root tag 'FrostKnownBoards'");
+                return;
+            }
+            // pass this as an 'AttachmentList' to xml read method and get
+            // all board attachments
+            AttachmentList al = new AttachmentList();
+            try { al.loadXMLElement(rootNode); }
+            catch(Exception ex)
+            {
+                getOut().println("Error - knownboards.xml: contains unexpected content.");
+                return;
+            }
+            List lst = al.getAllOfType(Attachment.BOARD);
+            knownBoards.addAll(lst);
+            getOut().println("Loaded "+knownBoards.size()+" known boards.");
+        }
+    }
+    
+    private void loadOLDKnownBoards(File boards)
+    {
+        try {
+            ArrayList tmpList = new ArrayList();
+            String allBoards = FileAccess.readFile(boards);
+            String []_boards = allBoards.split(":");
+            for (int i=0;i<_boards.length;i++)
+            {
+                String aboardstr = _boards[i].trim();
+                if( aboardstr.length() < 13 || aboardstr.indexOf("*") < 3 ||
+                    ! ( aboardstr.indexOf("*") < aboardstr.lastIndexOf("*") ) )
                 {
-                    //System.out.println("DBG-loadedBoard: '"+_boards[i].trim()+"'");
-                    knownBoards.add(_boards[i].trim());
+                    continue;
                 }
-				out.println("loaded "+ _boards.length +" known boards");
-			}catch (Throwable t){
-				out.println("couldn't load known boards");
-				t.printStackTrace(out);
-			}
+                String bname, bpubkey, bprivkey;
+                int pos = aboardstr.indexOf("*");
+                bname = aboardstr.substring(0, pos).trim();
+                int pos2 = aboardstr.indexOf("*", pos+1);
+                bpubkey = aboardstr.substring(pos+1, pos2).trim();
+                bprivkey = aboardstr.substring(pos2+1).trim();
+                if( bpubkey.length() < 10 )  bpubkey = null;
+                if( bprivkey.length() < 10 )  bprivkey = null;
+                
+                // create BoardAttachment objects and pass them to add method
+                // which checks for doubles
+                FrostBoardObject bo = new FrostBoardObject(bname, bpubkey, bprivkey);
+                BoardAttachment ba = new BoardAttachment(bo);
+                tmpList.add( ba );
+            }
+            out.println("Loaded "+ _boards.length +" OLD known boards (converting).");
+            addNewKnownBoards(tmpList);
+        }catch (Throwable t){
+            out.println("couldn't load/convert OLD known boards");
+            t.printStackTrace(out);
+        }
+        
+        if( boards.renameTo(new File( "boards.old")) == false )
+        {
+            boards.delete(); // paranoia
+        }
     }
     
     public void saveKnownBoards()
     {
+        Document doc = XMLTools.createDomDocument();
+        if( doc == null )
+        {
+            Core.getOut().println("Error - saveBoardTree: factory could'nt create XML Document.");
+            return;
+        }
+        
+        Element rootElement = doc.createElement("FrostKnownBoards");
+        doc.appendChild(rootElement);
+        
+        synchronized( getKnownBoards() )
+        {
+            Iterator i = getKnownBoards().iterator();
+            while(i.hasNext())
+            {
+                BoardAttachment current = (BoardAttachment)i.next();
+                Element anAttachment = current.getXMLElement(doc);
+                rootElement.appendChild(anAttachment);
+            }
+        }
+        
+        boolean writeOK = false;
         try {
+            writeOK = XMLTools.writeXmlFile(doc, "knownboards.xml");
+        }
+        catch(Throwable ex) {
+            Core.getOut().println("Exception while writing knownboards.xml: "+ex.getMessage());
+        }
+        if( !writeOK )
+        {
+            Core.getOut().println("Error while writing knownboards.xml, file was not saved");
+        }
+        else
+        {
+            Core.getOut().println("Saved "+getKnownBoards().size()+" known boards.");
+        }            
+        
+/*        try {
             StringBuffer buf = new StringBuffer();
             synchronized( getKnownBoards() )
             {
@@ -486,6 +588,7 @@ public class Core {
         catch (Throwable t) {
             t.printStackTrace(Core.getOut());
         }
+*/        
     }
     
     private void loadBatches()
@@ -809,6 +912,63 @@ public class Core {
 	public static SortedSet getKnownBoards() {
 		return knownBoards;
 	}
+    
+    /**
+     * Called with a list of BoardAttachments, should add all boards
+     * that are not contained already
+     */
+    public static void addNewKnownBoards( List lst )
+    {
+        if( lst == null || lst.size() == 0 )
+            return;
+            
+        Iterator i = lst.iterator();
+        while(i.hasNext())
+        {
+            BoardAttachment newba = (BoardAttachment)i.next();
+            
+            String bname = newba.getBoardObj().getBoardName();
+            String bprivkey = newba.getBoardObj().getPrivateKey();
+            String bpubkey = newba.getBoardObj().getPublicKey();
+            
+            boolean addMe = true;
+            synchronized(getKnownBoards())
+            {
+                Iterator j = getKnownBoards().iterator();
+                while(j.hasNext())
+                {
+                    BoardAttachment board = (BoardAttachment)j.next();
+                    if( board.getBoardObj().getBoardName().equalsIgnoreCase(bname) &&
+                        ( 
+                          ( board.getBoardObj().getPrivateKey() == null &&
+                            bprivkey == null 
+                          ) ||
+                          ( board.getBoardObj().getPrivateKey() != null &&
+                            board.getBoardObj().getPrivateKey().equals(bprivkey)
+                          )
+                        ) &&
+                        ( 
+                          ( board.getBoardObj().getPublicKey() == null &&
+                            bpubkey == null 
+                          ) ||
+                          ( board.getBoardObj().getPublicKey() != null &&
+                            board.getBoardObj().getPublicKey().equals(bpubkey)
+                          )
+                        )
+                      )
+                      {
+                          // same boards, dont add
+                          addMe = false;
+                          break; 
+                      }
+                }     
+            }
+            if( addMe ) 
+            {
+                getKnownBoards().add(newba);
+            }
+        }
+    }
 	
 	/**
 	 * 

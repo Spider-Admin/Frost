@@ -150,34 +150,6 @@ public class MessageObject implements XMLizable
     }
 
     /**
-     * Creates raw string for each attached board in format
-     * boardname * pubkey|"N/A" * privkey|"N/A"
-     *  
-     * @return list of the attached boards as raw strings
-     */
-	public Collection getBoardsAsStrings(){
-		Collection result = new Vector();
-        AttachmentList boards = attachments.getAllOfType(Attachment.BOARD);
-        Iterator i = boards.iterator();
-        while(i.hasNext())
-        {
-            BoardAttachment ba = (BoardAttachment)i.next();
-            StringBuffer sb = new StringBuffer();
-            FrostBoardObject aBoard = ba.getBoardObj();
-            String pubkey = (aBoard.getPublicKey()==null)?"N/A":aBoard.getPublicKey();
-            String privkey = (aBoard.getPrivateKey()==null)?"N/A":aBoard.getPrivateKey();
-            sb.append(aBoard.getBoardName())
-              .append(" * ")
-              .append(pubkey)
-              .append(" * ")
-              .append(privkey);
-              
-            result.add( sb.toString() );
-        }
-		return result;
-	}
-
-    /**
      * Creates a Vector of Vectors which contains data for the
      * attached boards table.
      */    

@@ -34,8 +34,8 @@ public class AttachmentList extends LinkedList implements XMLizable {
 		}
 		return result;
 	}
-	
-	public Element getXMLElement(Document d){
+    
+	synchronized public Element getXMLElement(Document d){
         if( size() == 0 )
         {
             return null;
