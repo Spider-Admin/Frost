@@ -47,7 +47,6 @@ public class MessageFrame extends JFrame
     String text;
     String lastUsedDirectory;
     String keypool;
-    String fileSeparator = System.getProperty("file.separator");
     boolean state;
     Frame parentFrame;
     SettingsClass frostSettings;
@@ -606,11 +605,11 @@ public class MessageFrame extends JFrame
 		int fontStyle = frostSettings.getIntValue("messageBodyFontStyle");
 		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
 		Font tofFont = new Font(fontName, fontStyle, fontSize);
-		if (tofFont.getFamily() != fontName) {
+		if (!tofFont.getFamily().equals(fontName)) {
 			System.out.println("The selected font was not found in your system");
 			System.out.println("That selection will be changed to \"Monospaced\".\n");
 			frostSettings.setValue("messageBodyFontName", "Monospaced");
-			tofFont = new Font("Monospaced", fontStyle, fontSize);	//TODO: problem here!
+			tofFont = new Font("Monospaced", fontStyle, fontSize);
 		}
 		TAcontent.setFont(tofFont);
 		TAcontent.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
