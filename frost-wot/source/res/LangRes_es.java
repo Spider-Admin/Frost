@@ -323,8 +323,10 @@ public class LangRes_es extends ListResourceBundle {
 	//{"minutes", "minutes"}, // Defined above
 	{"Number of concurrently updating boards", "Número de foros refrescándose a la vez"},
 	{"Show board update visualization", "Muestra visualmente el refresco de los foros"},
-	{"Choose background color if updating board is selected", "Escoge el color de fondo para los foros seleccioados que se están refrescando"},
-	{"Choose background color if updating board is not selected", "Escoge el color de fondo para los foros no seleccioados que se están refrescando"},
+	{"Choose background color if updating board is selected", "Escoge el color de fondo para los foros seleccionados que se están refrescando"},
+	{"Choose background color if updating board is not selected", "Escoge el color de fondo para los foros no seleccionados que se están refrescando"},
+	{"Choose updating color of SELECTED boards", "Escoge el color de refresco de los foros SELECCIONADOS"},
+	{"Choose updating color of NON-SELECTED boards", "Escoge el color de refresco de los foros NO SELECCIONADOS"},
 	
     // Search Panel
 	{"Image Extension", "Extensiones de Imagen"},
