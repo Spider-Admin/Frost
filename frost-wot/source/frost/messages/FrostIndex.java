@@ -29,7 +29,7 @@ public class FrostIndex implements XMLizable {
 		Element el = container.createElement("FrostIndex");
 		
 		//if user signs uploads, remove the sensitive fields and append element
-		if (Core.frostSettings.getBoolValue("signUploads")) {
+		if (Core.frostSettings.getBoolValue("signUploads") && sharer!=null) {
 			Element _sharer = sharer.getSafeXMLElement(container);
 			
 			el.appendChild(_sharer);
