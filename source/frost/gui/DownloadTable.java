@@ -63,10 +63,11 @@ public class DownloadTable extends SortedTable
                 tableItem.getSourceBoard().toString().equals( dlItem.getSourceBoard().toString() )
               )
             {
-                // already in model (compared by ?)
+                // already in model (compared by SHA1)
                 return false;
             }
-            if( tableItem.getKey().equals(dlItem.getKey()) )
+            if( dlItem.getKey() != null && tableItem.getKey()!=null &&
+            			tableItem.getKey().equals(dlItem.getKey()) )
             {
                 // already in model (compared by key)
                 return false;
