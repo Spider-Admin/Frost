@@ -205,7 +205,20 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				//get the unique name of the person sharing the files
 				String _sharer = unzipped.substring(name_index,
 							unzipped.indexOf("\"",name_index));
-				Identity sharer = frame1.getFriends().Get(_sharer);
+				_sharer = _sharer.trim();
+				Identity sharer = null;
+				if (frame1.getMyId().getUniqueName().trim().compareTo(_sharer)==0) {
+				
+					System.out.println("received index from myself");
+					
+					sharer = frame1.getMyId();
+					
+				} else {
+					
+					System.out.println("received index from "+_sharer);			
+				
+					sharer = frame1.getFriends().Get(_sharer);
+				}
 				
 				//we have the person
 				if (sharer==null) { //we don't have it, use the provided key
@@ -218,7 +231,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							
 					//check if the digest matches
 					String given_digest = _sharer.substring(_sharer.indexOf("@")+1,_sharer.length());
-					if (given_digest.compareTo(frame1.getCrypto().digest(pubKey)) != 0) {
+					if (given_digest.trim().compareTo(frame1.getCrypto().digest(pubKey).trim()) != 0) {
 						System.out.println("pubkey in index file didn't match digest");
 						continue;
 					}
