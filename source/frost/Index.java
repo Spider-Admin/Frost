@@ -138,7 +138,7 @@ public class Index
     if( doc == null )
     {
         System.out.println("Error - getUploadKeys: factory could'nt create XML Document.");
-        return 0;
+        return -1;
     }
 
     Element rootElement = doc.createElement("Filelist");
@@ -230,6 +230,7 @@ public class Index
             {
                 System.out.println("Exception - getUploadKeys:");
                 t.printStackTrace(System.out);
+                return -1; // keep newUploads file
             }
         }
 	
