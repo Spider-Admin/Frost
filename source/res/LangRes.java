@@ -222,6 +222,7 @@ public class LangRes extends ListResourceBundle {
 	{"Restore default filenames for selected files", "Restore default filenames for selected files"},
 	{"Restore default filenames for all files", "Restore default filenames for all files"},
 	{"Change destination board", "Change destination board"},
+	{"Please enter the prefix you want to use for your files.", "Please enter the prefix you want to use for your files."}, 
 	//{"Cancel", "Cancel"}, // Defined above    
     
 	///////////////////////////////////////////////////
