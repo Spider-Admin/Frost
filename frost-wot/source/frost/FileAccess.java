@@ -201,8 +201,11 @@ public class FileAccess
 	text.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>");
 	    
 	//TODO: signing has to be optional, will do later
-	text.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+
+	if (frame1.frostSettings.getBoolValue("signUploads")) 
+		text.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+
 			"\" pubkey = \""+frame1.getMyId().getKey()+"\">");
+	else
+		text.append("<Filelist>");
 	    
          synchronized(chk)
          {

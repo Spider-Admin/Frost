@@ -95,7 +95,8 @@ public class Index
 	while (i.hasNext()) {
 		KeyClass current = (KeyClass) i.next();
 		if (current.getOwner() != null &&
-			frame1.getFriends().Get(current.getOwner()) != null)
+			frame1.getFriends().Get(current.getOwner()) != null &&
+				frame1.frostSettings.getBoolValue("helpFriends"))
 			mine.put(current.getSHA1(),current);
 			
 	}
@@ -162,10 +163,15 @@ public class Index
                 // Add keys that are still getExchange() == true to the
                 // keys Vector*/
 	StringBuffer keyFile = new StringBuffer();
+	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
 	int keyCount = 0;
 	keyFile.append("<?xml version=\"1.0\" encoding=\"UTF-8\"?>\n");
-	keyFile.append("<Filelist sharer = \""+frame1.getMyId().getUniqueName()+"\""+
-			" pubkey = \""+frame1.getMyId().getKey()+"\">\n");
+	keyFile.append("<Filelist ");
+	//only add personal info if we chose to sign
+	if (signUploads)
+		keyFile.append("sharer = \""+frame1.getMyId().getUniqueName()+"\""+
+			" pubkey = \""+frame1.getMyId().getKey()+"\"");
+	keyFile.append(">\n");
 				
         synchronized(mine)
         {
@@ -173,10 +179,10 @@ public class Index
              while( j.hasNext() )
              {
                   KeyClass current = (KeyClass)j.next();
-		  
+		  boolean my = current.getOwner()!= null &&
+		  	frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0;
 		  //make an update only if the user has inserted at least one file
-                  if(current.getOwner()!= null &&
-		  	frame1.getMyId().getUniqueName().compareTo(current.getOwner())==0)                 
+                  if(my)                 
                         keyCount++;
 			
                   keyFile.append("<File>\n");
@@ -184,7 +190,8 @@ public class Index
 		  keyFile.append("<SHA1><![CDATA[" + current.getSHA1()+"]]></SHA1>\n");
 		  keyFile.append("<size>" + current.getSize()+"</size>\n");
 		    
-		  if (current.getOwner() != null)
+		  if (current.getOwner() != null  &&
+		  	!(my && !signUploads))
 		    	keyFile.append("<owner>" + current.getOwner() + "</owner>\n");
 		  if (current.getKey() != null)
 		    	keyFile.append("<key>" + current.getKey() + "</key>\n");
