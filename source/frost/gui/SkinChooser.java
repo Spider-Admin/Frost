@@ -28,12 +28,16 @@ import javax.swing.JPanel;
 import javax.swing.JScrollPane;
 import javax.swing.SwingConstants;
 import javax.swing.SwingUtilities;
+import javax.swing.UnsupportedLookAndFeelException;
 import javax.swing.event.ListSelectionEvent;
 import javax.swing.event.ListSelectionListener;
 
 import com.l2fprod.gui.plaf.skin.Skin;
 import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
 
+/**
+ * Swing component to choose among the available Skins
+ */
 public class SkinChooser extends JPanel {
 
 	private static final String THEMES_DIR = "themes"; //Directory where themes are stored
@@ -100,7 +104,7 @@ public class SkinChooser extends JPanel {
 	 * Return the LanguageBundle property value.
 	 * @return java.util.ResourceBundle
 	 */
-	private ResourceBundle getResourceBundle() {
+	private ResourceBundle getLanguageBundle() {
 		if (languageBundle == null) {
 			languageBundle = ResourceBundle.getBundle(BUNDLE_CLASS);
 		}
@@ -123,6 +127,7 @@ public class SkinChooser extends JPanel {
 		add(getLabelPanel(), "West");
 
 		initConnections();
+		refreshSkinsList();
 	}
 	
 	/**
@@ -160,8 +165,10 @@ public class SkinChooser extends JPanel {
 				SkinLookAndFeel.setSkin(selectedSkin);
 				SkinLookAndFeel.enable();
 				SwingUtilities.updateComponentTreeUI(rootComponent);
+			} catch (UnsupportedLookAndFeelException exception) {
+				System.out.println("Exception while activating the skin: \n" + exception.getMessage() + "\n");
 			} catch (Exception exception) {
-				//TODO: add proper treatment to this exception
+				System.out.println("Exception while loading the skin: \n" + exception.getMessage() + "\n");
 			}
 		}
 	}
@@ -209,11 +216,14 @@ public class SkinChooser extends JPanel {
 	 */
 	private void refreshSkinsList() {
 		LinkedList skinsListData = new LinkedList();
-		
-		buildSkinsList(skinsListData, new File(THEMES_DIR));
-		
-		Collections.sort(skinsListData);
-		getSkinsList().setListData(skinsListData.toArray());
+		try {
+			buildSkinsList(skinsListData, new File(THEMES_DIR));
+
+			Collections.sort(skinsListData);
+			getSkinsList().setListData(skinsListData.toArray());
+		} catch (IOException exception) {
+			System.out.println(exception.getMessage() + "\n");
+		}
 	}
 	
 	/**
@@ -223,7 +233,7 @@ public class SkinChooser extends JPanel {
 	 * @param collection collection to store skin list
 	 * @param directory  the directory to list for skin files
 	 */
-	private void buildSkinsList(Collection collection, File directory) {
+	private void buildSkinsList(Collection collection, File directory) throws IOException {
 		if (!directory.isDirectory() || !directory.exists()) {
 			return;
 		}
@@ -236,8 +246,8 @@ public class SkinChooser extends JPanel {
 			} else if (accept(file)) {
 				try {
 					collection.add(file.getCanonicalPath());
-				} catch (IOException e) {
-					//TODO: add proper treatment to this exception
+				} catch (IOException exception) {
+					throw new IOException("Exception while building the skins list: \n" + exception.getMessage());
 				}
 			}
 		}
@@ -334,10 +344,10 @@ public class SkinChooser extends JPanel {
 		if (availableSkinsLabel == null) {
 			availableSkinsLabel = new JLabel();
 			availableSkinsLabel.setName("AvailableSkinsLabel");
-			availableSkinsLabel.setText("AvailableSkinsLabel");
+			availableSkinsLabel.setText(getLanguageBundle().getString("AvailableSkins"));
 			availableSkinsLabel.setMaximumSize(new Dimension(200, 30));
 			availableSkinsLabel.setHorizontalTextPosition(SwingConstants.CENTER);
-			availableSkinsLabel.setPreferredSize(new Dimension(150, 30));
+			availableSkinsLabel.setPreferredSize(new Dimension(120, 30));
 			availableSkinsLabel.setMinimumSize(new Dimension(90, 30));
 			availableSkinsLabel.setHorizontalAlignment(SwingConstants.CENTER);
 		}
@@ -352,7 +362,7 @@ public class SkinChooser extends JPanel {
 		if (previewButton == null) {
 			previewButton = new JButton();
 			previewButton.setName("PreviewButton");
-			previewButton.setText("PreviewButton");
+			previewButton.setText(getLanguageBundle().getString("Preview"));
 			previewButton.setEnabled(false);
 		}
 		return previewButton;
@@ -366,9 +376,25 @@ public class SkinChooser extends JPanel {
 		if (refreshButton == null) {
 			refreshButton = new JButton();
 			refreshButton.setName("RefreshButton");
-			refreshButton.setText("RefreshButton");
+			refreshButton.setText(getLanguageBundle().getString("RefreshList"));
 		}
 		return refreshButton;
+	}
+
+	/** 
+	 * Overriden to enable/disable all of the components of the SkinChooser
+	 * @see java.awt.Component#setEnabled(boolean)
+	 */
+	public void setEnabled(boolean enabled) {
+		super.setEnabled(enabled);
+		getSkinsList().setEnabled(enabled);
+		getRefreshButton().setEnabled(enabled);
+		
+		if (enabled && (getSkinsList().getSelectedIndex() != -1)) {	//Only enable the preview button if there is a selected skin
+			getPreviewButton().setEnabled(true);
+		} else {
+			getPreviewButton().setEnabled(false);
+		}
 	}
 
 }
