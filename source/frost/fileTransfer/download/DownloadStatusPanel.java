@@ -1,8 +1,8 @@
 /*
- * Created on 04-ene-2005
+ * Created on 07-ene-2005
  * 
  */
-package frost.fileTransfer.upload;
+package frost.fileTransfer.download;
 
 import java.awt.FlowLayout;
 
@@ -14,24 +14,17 @@ import frost.util.gui.translation.*;
  * @author $Author$
  * @version $Revision$
  */
-public class UploadStatusPanel extends JPanel {
+public class DownloadStatusPanel extends JPanel {
 
 	/**
 	 * 
 	 */
-	private class Listener implements UploadTickerListener, LanguageListener {
+	private class Listener implements DownloadTickerListener, LanguageListener {
 		/* (non-Javadoc)
-		 * @see frost.fileTransfer.upload.UploadTickerListener#uploadingCountChanged()
+		 * @see frost.fileTransfer.download.DownloadTickerListener#threadCountChanged()
 		 */
-		public void uploadingCountChanged() {
+		public void threadCountChanged() {
 			numberChanged();
-		}
-
-		/* (non-Javadoc)
-		 * @see frost.fileTransfer.upload.UploadTickerListener#generatingCountChanged()
-		 */
-		public void generatingCountChanged() {
-			numberChanged();			
 		}
 
 		/* (non-Javadoc)
@@ -42,10 +35,10 @@ public class UploadStatusPanel extends JPanel {
 		}
 	}
 	
-	private UploadTicker ticker;
+	private DownloadTicker ticker;
 	private Language language;
 	
-	private JLabel uploadingLabel = new JLabel();
+	private JLabel downloadingLabel = new JLabel();
 	private JLabel countLabel = new JLabel();
 	private JLabel filesLabel = new JLabel();
 	
@@ -56,7 +49,7 @@ public class UploadStatusPanel extends JPanel {
 	/**
 	 * 
 	 */
-	public UploadStatusPanel(UploadTicker ticker) {
+	public DownloadStatusPanel(DownloadTicker ticker) {
 		super();
 		this.ticker = ticker;
 		language = Language.getInstance();
@@ -71,16 +64,16 @@ public class UploadStatusPanel extends JPanel {
 		setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
 		
 		// Init count
-		count = ticker.getRunningUploadingThreads();
+		count = ticker.getRunningThreads();
 		countLabel.setText("" + count);
 		
 		// Add components
-		add(uploadingLabel);
+		add(downloadingLabel);
 		add(countLabel);
 		add(filesLabel);
 		
 		// Add listeners
-		ticker.addUploadTickerListener(listener);
+		ticker.addDownloadTickerListener(listener);
 		language.addLanguageListener(listener);
 	}
 	
@@ -88,7 +81,7 @@ public class UploadStatusPanel extends JPanel {
 	 * 
 	 */
 	private void refreshLanguage() {
-		uploadingLabel.setText(language.getString("UploadStatusPanel.Uploading"));
+		downloadingLabel.setText(language.getString("DownloadStatusPanel.Downloading"));
 		if (count == 1) {
 			filesLabel.setText(language.getString("StatusPanel.file"));
 		} else {
@@ -100,7 +93,7 @@ public class UploadStatusPanel extends JPanel {
 	 * 
 	 */
 	private void numberChanged() {
-		count = ticker.getRunningUploadingThreads();
+		count = ticker.getRunningThreads();
 		countLabel.setText("" + count);
 		refreshLanguage();
 	}

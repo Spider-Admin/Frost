@@ -463,7 +463,13 @@ static final Object[][] contents = {
 	{"MessageFrame.ConfirmBody1", "Tienes la clave privada del foro '"},
 	{"MessageFrame.ConfirmBody2", "'.  ¿Estás seguro de que quieres adjuntarla?\n" +
 								  "Si escoges NO, sólo se adjuntará la clave pública.",},
-	{"MessageFrame.ConfirmTitle", "¿Incluir clave privada del foro?"}
+	{"MessageFrame.ConfirmTitle", "¿Incluir clave privada del foro?"},
+	  
+	// Status bar
+	{"UploadStatusPanel.Uploading", "Subiendo:"}, 
+	{"StatusPanel.file", "fichero"},
+    {"StatusPanel.files", "ficheros"},
+	{"DownloadStatusPanel.Downloading", "Descargando:"}
 	
 	};
 }
