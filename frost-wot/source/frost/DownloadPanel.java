@@ -476,13 +476,11 @@ public class DownloadPanel extends JPanel {
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(80, 0)));
 			downloadTopPanel.add(Box.createHorizontalGlue());
 
-			String downloadCountPrefix = languageResource.getString("Waiting");
-			JLabel dummyLabel = new JLabel(downloadCountPrefix + " : 00000000");
-			dummyLabel.doLayout();
-			Dimension labelSize = dummyLabel.getPreferredSize();
+			String waiting = languageResource.getString("Waiting");
+			Dimension labelSize = calculateLabelSize(waiting + " : 00000");
 			downloadItemCountLabel.setPreferredSize(labelSize);
 			downloadItemCountLabel.setMinimumSize(labelSize);
-			downloadItemCountLabel.setText(downloadCountPrefix + " : 0");
+			downloadItemCountLabel.setText(waiting + " : 0");
 			downloadTopPanel.add(downloadItemCountLabel);
 
 			// create the main download panel
@@ -499,6 +497,12 @@ public class DownloadPanel extends JPanel {
 			initialized = true;
 		}
 	}
+	
+	private Dimension calculateLabelSize(String text) {
+		JLabel dummyLabel = new JLabel(text);
+		dummyLabel.doLayout();
+		return dummyLabel.getPreferredSize();
+	}
 
 	/**
 	 * 
@@ -507,9 +511,14 @@ public class DownloadPanel extends JPanel {
 		downloadActivateCheckBox.setToolTipText(languageResource.getString("Activate downloading"));
 		downloadShowHealingInfo.setToolTipText(
 			languageResource.getString("Show healing information"));
+			
+		String waiting = languageResource.getString("Waiting");
+		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
+		downloadItemCountLabel.setPreferredSize(labelSize);
+		downloadItemCountLabel.setMinimumSize(labelSize);
 		String s =
 			new StringBuffer()
-				.append(languageResource.getString("Waiting"))
+				.append(waiting)
 				.append(" : ")
 				.append(downloadItemCount)
 				.toString();
