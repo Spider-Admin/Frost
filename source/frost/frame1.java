@@ -927,9 +927,11 @@ public class frame1 extends JFrame implements ClipboardOwner
     //check whether the user is running a transient node
     setFreenetIsTransient(false);
     setFreenetIsOnline(false);
-    try {
-        FcpConnection con1 = new FcpConnection(frostSettings.getValue("nodeAddress"),
-                                               frostSettings.getValue("nodePort"));
+
+    FcpConnection con1 = new FcpConnection(frostSettings.getValue("nodeAddress"),
+                                           frostSettings.getValue("nodePort"));
+    if( con1 != null )
+    {
         String[] nodeInfo = con1.getInfo();
         // freenet is online
         setFreenetIsOnline(true);
@@ -940,14 +942,15 @@ public class frame1 extends JFrame implements ClipboardOwner
                 setFreenetIsTransient(true);
             }
         }
-    }catch(Exception e) {
+    }
+    else
+    {
         System.out.println("Error - could not establish a connection to freenet node.");
         System.out.println("Make sure your node is running and that you have configured frost correctly.");
         System.out.println("Nevertheless, to allow you to read messages, Frost will startup now.");
         System.out.println("Don't get confusing by some error messages ;)");
         setFreenetIsOnline(false);
     }
-
 
     if( isFreenetTransient() )
     {
