@@ -23,6 +23,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.IOException;
 import java.util.ResourceBundle;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -36,6 +37,8 @@ public class BoardSettingsFrame extends JDialog
     //------------------------------------------------------------------------
     // Class Vars
     //------------------------------------------------------------------------
+
+	private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
 
     private ResourceBundle languageResource = null;
     public boolean exitState;
@@ -100,7 +103,7 @@ public class BoardSettingsFrame extends JDialog
             Init(parent);
         }
         catch( Exception e ) {
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
     }
 

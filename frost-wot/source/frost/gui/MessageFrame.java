@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -38,6 +39,8 @@ import frost.messages.*;
 
 public class MessageFrame extends JFrame
 {
+	private static Logger logger = Logger.getLogger(MessageFrame.class.getName());
+	
     static java.util.ResourceBundle LangRes;
 
     //------------------------------------------------------------------------
@@ -385,9 +388,7 @@ public class MessageFrame extends JFrame
 			oldSender = sender;
 			headerArea.setEnabled(true);
 		} catch (BadLocationException exception) {
-			System.out.println(
-				"Error while updating the message header: \n" + exception.getMessage());
-			exception.printStackTrace();
+			logger.log(Level.SEVERE, "Error while updating the message header", exception);
 		}
 	}
 
@@ -431,7 +432,7 @@ public class MessageFrame extends JFrame
         }
         else
         {
-            System.out.println("Open command cancelled by user.");
+            logger.fine("Open command cancelled by user.");
         }
         
         updateAttachmentSplitPanes();
@@ -573,7 +574,7 @@ public class MessageFrame extends JFrame
 		try {
 			Init();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in composeMessage(...)", e);
 		}
 
 		messageTextArea.setText(text);
@@ -657,8 +658,8 @@ public class MessageFrame extends JFrame
 		int fontSize = frostSettings.getIntValue("messageBodyFontSize");
 		Font tofFont = new Font(fontName, fontStyle, fontSize);
 		if (!tofFont.getFamily().equals(fontName)) {
-			System.out.println("The selected font was not found in your system");
-			System.out.println("That selection will be changed to \"Monospaced\".\n");
+			logger.severe("The selected font was not found in your system\n" + 
+						  "That selection will be changed to \"Monospaced\".");
 			frostSettings.setValue("messageBodyFontName", "Monospaced");
 			tofFont = new Font("Monospaced", fontStyle, fontSize);
 		}
