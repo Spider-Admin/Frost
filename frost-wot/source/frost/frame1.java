@@ -1868,24 +1868,30 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		frostSettings.addUpdater(this);
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-		// enable the machine ;)
-		try {
-			jbInit();
-			runningBoardUpdateThreads = new RunningBoardUpdateThreads(core);
-			//note: changed this from timertask so that I can give it a name --zab
-			Thread tickerThread = new Thread("tick tack") {
-				public void run() {
-					while (true) {
-						mixed.wait(1000);
-						//TODO: refactor this method in Core. lots of work :)
-						timer_actionPerformed();
-					}
-				}
-			};
-			tickerThread.start();
-		} catch (Throwable t) {
-			logger.log(Level.SEVERE, "Exception thrown in the constructor", t);
-		}
+
+		setIconImage(
+			Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
+		setResizable(true);
+
+		setTitle("Frost");
+
+		addWindowListener(listener);
+
+		JPanel contentPanel = (JPanel) getContentPane();
+		contentPanel.setLayout(new BorderLayout());
+
+		contentPanel.add(buildButtonPanel(), BorderLayout.NORTH);
+		// buttons toolbar
+		contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
+		// tree / tabbed pane
+		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH); // Statusbar
+
+		buildMenuBar();
+		
+		pasteBoardButton.setEnabled(false);
+
+		// Add Popup listeners
+		getTofTree().addMouseListener(listener);
 	}
 
 	/**
@@ -2264,7 +2270,6 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		tabbedPane = new JTranslatableTabbedPane(languageResource);
 		//add a tab for buddies perhaps?
 		tabbedPane.add("News", getMessagePanel());
-		tabbedPane.add("Downloads", getDownloadPanel());
 		tabbedPane.add("Uploads", getUploadPanel());
 
 		updateOptionsAffectedComponents();
@@ -2363,24 +2368,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			System.exit(0);
 		}
 	}
-	/**
-	 * @return
-	 */
-	private DownloadPanel getDownloadPanel() {
-		if (downloadPanel == null) {
-			downloadPanel = new DownloadPanel(frostSettings);
-			downloadPanel.setDownloadTable(getDownloadTable());
-			downloadPanel.setHealingTable(getHealingTable());
-			downloadPanel.setLanguageResource(languageResource);
-			downloadPanel.initialize();
-		}
-		return downloadPanel;
-	}
 	public DownloadTable getDownloadTable() {
-		if (downloadTable == null) {
-			DownloadTableModel downloadTableModel = new DownloadTableModel(languageResource);
-			downloadTable = new DownloadTable(downloadTableModel);
-		}
 		return downloadTable;
 	}
 	private HealingTable getHealingTable() {
@@ -2500,50 +2488,9 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	//**********************************************************************************************
 	//**********************************************************************************************
 	//**********************************************************************************************
-	/**Component initialization*/
-	private void jbInit() throws Exception {
-		setIconImage(
-			Toolkit.getDefaultToolkit().createImage(frame1.class.getResource("/data/jtc.jpg")));
-		setResizable(true);
-
-		setTitle("Frost");
-
-		addWindowListener(listener);
-
-		JPanel contentPanel = (JPanel) getContentPane();
-		contentPanel.setLayout(new BorderLayout());
-
-		contentPanel.add(buildButtonPanel(), BorderLayout.NORTH);
-		// buttons toolbar
-		contentPanel.add(buildTofMainPanel(), BorderLayout.CENTER);
-		// tree / tabbed pane
-		contentPanel.add(buildStatusPanel(), BorderLayout.SOUTH); // Statusbar
-
-		buildMenuBar();
-
-		//**********************************************************************************************
-		//**********************************************************************************************
-		//**********************************************************************************************
-
-		/*configureCheckBox(searchAllBoardsCheckBox,
-		             "Search all boards",
-		             "data/allboards_rollover.gif",
-		             "data/allboards_selected.gif",
-		             "data/allboards_selected_rollover.gif");*/
-
-		// Add Popup listeners
-		getTofTree().addMouseListener(listener);
-
-		//**********************************************************************************************
-		//**********************************************************************************************
-		//**********************************************************************************************
-
-		//------------------------------------------------------------------------
-
-		pasteBoardButton.setEnabled(false);
-
-		//on with other stuff
-
+	/**initialization*/
+	public void initialize() {
+		
 		getTofTree().initialize();
 
 		// step through all messages on disk up to maxMessageDisplay and check if there are new messages
@@ -2551,11 +2498,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		TOF.initialSearchNewMessages();
 
 		if (core.isFreenetOnline()) {
-			getDownloadPanel().setDownloadingActivated(
-				frostSettings.getBoolValue("downloadingActivated"));
 			tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
 		} else {
-			getDownloadPanel().setDownloadingActivated(false);
 			tofAutomaticUpdateMenuItem.setSelected(false);
 		}
 		//      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
@@ -2617,7 +2561,22 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
 		}
 
-	} // ************** end-of: jbInit()
+		// enable the machine ;)
+		runningBoardUpdateThreads = new RunningBoardUpdateThreads(core);
+		//note: changed this from timertask so that I can give it a name --zab
+		Thread tickerThread = new Thread("tick tack") {
+			public void run() {
+				while (true) {
+					mixed.wait(1000);
+					//TODO: refactor this method in Core. lots of work :)
+					timer_actionPerformed();
+				}
+			}
+		};
+		tickerThread.start();
+		
+		validate();
+	}
 
 	public void lostOwnership(Clipboard clipboard, Transferable contents) {
 		//Core.getOut().println("Clipboard contents replaced");
@@ -3133,7 +3092,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			&& // check all 3 seconds if a download could be started
 		activeDthreads
 				< frostSettings.getIntValue("downloadThreads")
-			&& getDownloadPanel().isDownloadingActivated()) {
+			&& downloadPanel.isDownloadingActivated() && core.isFreenetOnline()) {
 			// choose first item
 			FrostDownloadItemObject dlItem = selectNextDownloadItem();
 			if (dlItem != null) {
@@ -3394,7 +3353,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				waitingItems++;
 			}
 		}
-		getDownloadPanel().setDownloadItemCount(waitingItems);
+		downloadPanel.setDownloadItemCount(waitingItems);
 	}
 
 	/**
@@ -3419,19 +3378,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 	/**
 	 * Called after the OptionsFrame changed some settings to reflect
 	 * the new settings in the GUI.
-	 *
-	 * E.g. if downloads are disabled, it removes the tabbed panes
-	 * 'Search' and 'Downloads'
 	 */
 	protected void updateOptionsAffectedComponents() {
-		if (frostSettings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS) == false) {
-			// downloads enabled
-			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Downloads"), true);
-		} else {
-			// downloads disabled 
-			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Downloads"), false);
-		}
-
 		if (frostSettings.getBoolValue("disableRequests") == false) {
 			// uploads enabled
 			tabbedPane.setEnabledAt(tabbedPane.indexOfTab("Uploads"), true);
@@ -3478,6 +3426,20 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			{
 			updateButtons(board);
 		}
+	}
+
+	/**
+	 * @param panel
+	 */
+	public void setDownloadPanel(DownloadPanel panel) {
+		downloadPanel = panel;
+	}
+
+	/**
+	 * @param table
+	 */
+	public void setDownloadTable(DownloadTable table) {
+		downloadTable = table;
 	}
 
 }
