@@ -458,6 +458,9 @@ public class Core {
 				frostSettings.getValue("keypool.dir"),
 				frame1.getInstance().getUploadTable());
 		requestsThread.start();
+		if(frostSettings.getBoolValue("helpFriends"))
+			timer2.schedule(new GetFriendsRequestsThread(), 2*60*1000, 3*60*60*1000);
+		
 		started = true;
 	} //end of init()
 
