@@ -1,0 +1,17 @@
+Frost
+-----
+Jan-Thomas Czornack <jantho@users.sourceforge.net>
+Thomas Mueller <thm2001@users.sourceforge.net>
+Jim Hunziker <landtuna@users.sourceforge.net>
+Stefan Majewski <e9926279@stud3.tuwien.ac.at>
+
+
+Windows Installer
+-----------------
+Benoit Laniel <nels@pgroupe.net>
+
+
+System Tray Executables
+-----------------------
+Jeeva S <vavjeeva@yahoo.com> (Free code from http://www.codeproject.com)
+http://www.codeproject.com/useritems/System_Tray_In_Java.asp
