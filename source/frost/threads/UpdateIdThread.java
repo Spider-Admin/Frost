@@ -92,6 +92,18 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		e.printStackTrace();
 	}
     }
+    
+    /**
+     * resets all indices that were tried MAX_TRIES times to 0
+     * for the next run of the thread
+     */
+    private void resetIndices() {
+    	for (int i=0;i<indices.size();i++) {
+		Integer current = (Integer)indices.elementAt(i);
+		if (current.intValue() >= MAX_TRIES)
+			indices.setElementAt(new Integer(0),i);
+	}
+    }
     private int findFreeUploadIndex() {
     	for (int i = 0;i<indices.size();i++){
 		Integer current = (Integer)indices.elementAt(i);
@@ -434,6 +446,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         }
 
         notifyThreadFinished( this );
+	resetIndices();
 	commit();
     }
 
