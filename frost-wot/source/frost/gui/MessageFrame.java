@@ -111,7 +111,7 @@ public class MessageFrame extends JFrame
 			sign.setText(LangRes.getString("Sign"));
 			addAttachedFilesToUploadTable.setText(LangRes.getString("Indexed attachments"));
 
-			TFboard.setEnabled(false);
+			TFboard.setEditable(false);
 			TFboard.setText(board.toString());
 			TFfrom.setText(from);
 
@@ -121,7 +121,7 @@ public class MessageFrame extends JFrame
 			TAcontent.setText(text);
 			// check if last msg was signed and set it to remembered state
 			if (from.equals(frame1.getMyId().getUniqueName())) {
-				TFfrom.setEnabled(false);
+				TFfrom.setEditable(false);
 				sign.setSelected(true);
 			}
 
@@ -156,10 +156,10 @@ public class MessageFrame extends JFrame
 				public void actionPerformed(ActionEvent e) {
 					if (sign.isSelected()) {
 						TFfrom.setText(frame1.getMyId().getUniqueName());
-						TFfrom.setEnabled(false);
+						TFfrom.setEditable(false);
 					} else {
 						TFfrom.setText("Anonymous");
-						TFfrom.setEnabled(true);
+						TFfrom.setEditable(true);
 					}
 				}
 			});
