@@ -33,7 +33,6 @@ public class SkinManager extends JFrame {
 	//------------------------------------------------------------------------
 	// Objects
 	//------------------------------------------------------------------------
-
 	static DefaultMutableTreeNode rootNode =
 		new DefaultMutableTreeNode("Root Frame");
 	TreeCellRenderer treeCellRenderer = new TreeCellRenderer();
@@ -75,7 +74,8 @@ public class SkinManager extends JFrame {
 		objectTree.setRootVisible(true);
 		objectTree.setCellRenderer(treeCellRenderer);
 
-		columnHeader.add("Attribute");
+		columnHeader.add("Command");
+		columnHeader.add("Description");
 		columnHeader.add("Value");
 		tableModel.setColumnIdentifiers(columnHeader);
 
@@ -270,18 +270,214 @@ public class SkinManager extends JFrame {
 
 		rowData.clear();
 		rowData.add("ToolTipText");
+		rowData.add("Tooltip text (String)");
 		rowData.add(button.getToolTipText());
-		tableModel.addRow((Vector)rowData.clone());
+		tableModel.addRow((Vector) rowData.clone());
 
 		rowData.clear();
 		rowData.add("Text");
+		rowData.add("Button Label (String)");
 		rowData.add(button.getText());
-		tableModel.addRow((Vector)rowData.clone());
+		tableModel.addRow((Vector) rowData.clone());
 
 		rowData.clear();
-		rowData.add("Default Icon");
-		rowData.add(button.getIcon().toString());
-		tableModel.addRow((Vector)rowData.clone());
+		rowData.add("IconTextGap");
+		rowData.add("Gap between Icon and Text (Pixel)");
+		rowData.add(String.valueOf(button.getIconTextGap()));
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("Icon");
+		rowData.add("Default icon (path from Frost's root directory)");
+		try {
+			rowData.add(button.getIcon().toString());
+		} catch (NullPointerException e) {
+			rowData.add("");
+		}
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("PressedIcon");
+		rowData.add("Pressed icon (path from Frost's root directory)");
+		try {
+			rowData.add(button.getPressedIcon().toString());
+		} catch (NullPointerException e) {
+			rowData.add("");
+		}
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("DisabledIcon");
+		rowData.add("Disabled icon (path from Frost's root directory)");
+		try {
+			rowData.add(button.getDisabledIcon().toString());
+		} catch (NullPointerException e) {
+			rowData.add("");
+		}
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("DisabledSelectedIcon");
+		rowData.add(
+			"Disabled selected icon (path from Frost's root directory)");
+		try {
+			rowData.add(button.getDisabledSelectedIcon().toString());
+		} catch (NullPointerException e) {
+			rowData.add("");
+		}
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("RolloverIcon");
+		rowData.add("Rollover icon (path from Frost's root directory)");
+		try {
+			rowData.add(button.getRolloverIcon().toString());
+		} catch (NullPointerException e) {
+			rowData.add("");
+		}
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("RolloverSelectedIcon");
+		rowData.add(
+			"Rollover selected icon (path from Frost's root directory)");
+		try {
+			rowData.add(button.getRolloverSelectedIcon().toString());
+		} catch (NullPointerException e) {
+			rowData.add("");
+		}
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("SelectedIcon");
+		rowData.add("Selected icon (path from Frost's root directory)");
+		try {
+			rowData.add(button.getSelectedIcon().toString());
+		} catch (NullPointerException e) {
+			rowData.add("");
+		}
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("Margin");
+		rowData.add("The margin around the button (top left bottom right)");
+		rowData.add(
+			String.valueOf(button.getMargin().top)
+				+ " "
+				+ String.valueOf(button.getMargin().left)
+				+ " "
+				+ String.valueOf(button.getMargin().bottom)
+				+ " "
+				+ String.valueOf(button.getMargin().right));
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("Mnemonic");
+		rowData.add("Keyboard shortcut (Keycode)");
+		rowData.add(String.valueOf(button.getMnemonic()));
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("VerticalAlignment");
+		rowData.add("of text and icon (CENTER, TOP or BOTTOM)");
+		if (button.getVerticalAlignment() == SwingConstants.CENTER)
+			rowData.add("CENTER");
+		if (button.getVerticalAlignment() == SwingConstants.TOP)
+			rowData.add("TOP");
+		if (button.getVerticalAlignment() == SwingConstants.BOTTOM)
+			rowData.add("BOTTOM");
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("HorizontalAlignment");
+		rowData.add(
+			"of text and icon (RIGHT, LEFT, CENTER, LEADING, TRAILING)");
+		if (button.getHorizontalAlignment() == SwingConstants.CENTER)
+			rowData.add("CENTER");
+		if (button.getHorizontalAlignment() == SwingConstants.LEFT)
+			rowData.add("LEFT");
+		if (button.getHorizontalAlignment() == SwingConstants.RIGHT)
+			rowData.add("RIGHT");
+		if (button.getHorizontalAlignment() == SwingConstants.LEADING)
+			rowData.add("LEADING");
+		if (button.getHorizontalAlignment() == SwingConstants.TRAILING)
+			rowData.add("TRAILING");
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("HorizontalTextPosition");
+		rowData.add(
+			"of text relativ to icon (RIGHT, LEFT, CENTER, LEADING, TRAILING)");
+		if (button.getHorizontalTextPosition() == SwingConstants.CENTER)
+			rowData.add("CENTER");
+		if (button.getHorizontalTextPosition() == SwingConstants.LEFT)
+			rowData.add("LEFT");
+		if (button.getHorizontalTextPosition() == SwingConstants.RIGHT)
+			rowData.add("RIGHT");
+		if (button.getHorizontalTextPosition() == SwingConstants.LEADING)
+			rowData.add("LEADING");
+		if (button.getHorizontalTextPosition() == SwingConstants.TRAILING)
+			rowData.add("TRAILING");
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("VerticalTextPosition");
+		rowData.add("of text relativ to icon (CENTER, TOP or BOTTOM)");
+		if (button.getVerticalTextPosition() == SwingConstants.CENTER)
+			rowData.add("CENTER");
+		if (button.getVerticalTextPosition() == SwingConstants.TOP)
+			rowData.add("TOP");
+		if (button.getVerticalTextPosition() == SwingConstants.BOTTOM)
+			rowData.add("BOTTOM");
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("BorderPainted");
+		rowData.add("True or false");
+		rowData.add(String.valueOf(button.isBorderPainted()));
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("ContentAreaFilled");
+		rowData.add("True or false");
+		rowData.add(String.valueOf(button.isContentAreaFilled()));
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("FocusPainted");
+		rowData.add("True or false");
+		rowData.add(String.valueOf(button.isFocusPainted()));
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("RolloverEnabled");
+		rowData.add("True or false");
+		rowData.add(String.valueOf(button.isRolloverEnabled()));
+		tableModel.addRow((Vector) rowData.clone());
+
+		rowData.clear();
+		rowData.add("Background");
+		rowData.add("Red, green, blue (0 - 255)");
+		{
+			Color color = button.getBackground();
+			int red = color.getRed();
+			int green = color.getGreen();
+			int blue = color.getBlue();
+			rowData.add(red + " " + green + " " + blue);
+			tableModel.addRow((Vector) rowData.clone());
+		}
+
+		rowData.clear();
+		rowData.add("Foreground");
+		rowData.add("Red, green, blue (0 - 255)");
+		{
+			Color color = button.getForeground();
+			int red = color.getRed();
+			int green = color.getGreen();
+			int blue = color.getBlue();
+			rowData.add(red + " " + green + " " + blue);
+			tableModel.addRow((Vector) rowData.clone());
+		}
 	}
 
 	//     public static void main (String agrs[]) {
