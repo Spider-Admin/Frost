@@ -45,8 +45,11 @@ public class frost {
 		splashscreen.setLocation(
 			(screenSize.width - splashscreenSize.width) / 2,
 			(screenSize.height - splashscreenSize.height) / 2);
-		splashscreen.show();
-
+		
+		File splashchk = new File("nosplash.chk");
+		if (!splashchk.exists()) {
+			splashscreen.show();
+		}
 
 		//Main frame		
 		final frame1 frame = new frame1(locale, splashscreen);

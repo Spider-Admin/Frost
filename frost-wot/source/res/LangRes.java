@@ -212,6 +212,9 @@ public class LangRes extends ListResourceBundle {
     {"EnableSkins", "Enable Skins"}, 	
 	{"MessageBodyFont", "Message Body Font"}, 
 	{"MoreSkinsAt", "You can get more skins at"},
+
+	//Preferences Misc Panel
+	{"Disable splashscreen", "Disable splashscreen"}, 	
 	
     // Preferences / Tabbed Pane
     {"Downloads", "Downloads"},
@@ -220,6 +223,8 @@ public class LangRes extends ListResourceBundle {
     {"Skins", "Skins"},
     {"News", "News"},
 	{"Display", "Display"},
+
+
 
     // Search table
     {"Filename", "Filename"},
