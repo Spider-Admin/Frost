@@ -34,7 +34,6 @@ public class insertThread extends Thread
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
     private String destination;
-    private String date;
     private File file;
     private String htl;
     private FrostBoardObject board;
@@ -62,6 +61,7 @@ public class insertThread extends Thread
 
         if( file.length() > 0 && file.isFile() )
         {
+            String oldLastUploadDate = uploadItem.getLastUploadDate();
 
             result = FcpInsert.putFile("CHK@",
                                        file,
@@ -84,12 +84,17 @@ public class insertThread extends Thread
 
             if( success )
             {
+                String date = DateFun.getExtendedDate();
                 lastUploadDate = date;
                 KeyClass newKey = new KeyClass(result[1]);
                 newKey.setFilename(destination);
                 newKey.setSize(file.length());
                 newKey.setDate(date);
                 Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
+            }
+            else
+            {
+                lastUploadDate = oldLastUploadDate; // NEVER uploaded
             }
 
             // update table item
@@ -98,9 +103,9 @@ public class insertThread extends Thread
                 // item uploaded (maybe)
                 uploadItem.setLastUploadDate( lastUploadDate ); // if NULL then upload failed -> shows NEVER in table
             }
-            else
+            else if( success )
             {
-                // key was computed
+                // key was computed?
                 String newKey = result[1];
                 uploadItem.setKey( newKey );
             }
@@ -139,7 +144,6 @@ public class insertThread extends Thread
 
         this.htl = config.getValue("htlUpload");
         this.board = ulItem.getTargetBoard();
-        this.date = DateFun.getExtendedDate();
         this.mode = mode; // true=upload file false=generate chk (do not upload)
     }
 }
