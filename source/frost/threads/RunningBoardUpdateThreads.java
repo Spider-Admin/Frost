@@ -125,22 +125,29 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
                                            BoardUpdateThreadListener listener)
     {
     	final int downloadBack=frame1.frostSettings.getIntValue("maxMessageDownload");
+   
 	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
 	for (int i =0;i<downloadBack;i++) 
 		threads[i] = new UpdateIdThread(board,DateFun.getDate(i));
         
-	//add listener only to the last thread
-	UpdateIdThread uit = threads[downloadBack-1];
+	//NOTE: since we now do deep requests, it takes a lot of time for
+	//all these threads to finish.  So I'll notify the gui that the message downlaod thread is done updating
+	//after the indices for the current date are finished requesting and leave the 
+	//threads that are downloading the previous day's indices running.
+	//IMPORTANT: I think its ok to start new update set on a board even if nota all
+	//threads have finished - the node's failure table will take care of it.
+	UpdateIdThread uit = threads[0];
         uit.addBoardUpdateThreadListener( this );
         if( listener != null )
         {
             uit.addBoardUpdateThreadListener( listener );
         }
-        getVectorFromHashtable( runningDownloadThreads, board ).add(uit);
+		getVectorFromHashtable( runningDownloadThreads, board).add(uit);
 	//now start the threads one after another
 	Thread starter = new Thread() {
 		public void run() {
 			for (int j = 0;j<downloadBack;j++) {
+				//getVectorFromHashtable( runningDownloadThreads, board).add(threads[j]); //add to vector
 				threads[j].start();
 				try{
 				threads[j].join();
