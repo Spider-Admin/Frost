@@ -46,32 +46,28 @@ public class Startup
     {
         String fileSeparator = System.getProperty("file.separator");
 
-        try
-        {
+        try {
             File execfile = new File("exec.bat");
             if( !execfile.isFile() )
                 mixed.copyFromResource("/data/exec.bat", execfile);
         }
         catch( IOException e ) { ; }
 
-        try
-        {
+        try {
             File tray1file = new File("exec" + fileSeparator + "SystemTray.exe");
             if( !tray1file.isFile() )
                 mixed.copyFromResource("/data/SystemTray.exe", tray1file);
         }
         catch( IOException e ) { ; }
 
-        try
-        {
+        try {
             File tray2file = new File("exec" + fileSeparator + "SystemTrayHide.exe");
             if( !tray2file.isFile() )
                 mixed.copyFromResource("/data/SystemTrayHide.exe", tray2file);
         }
         catch( IOException e ) { ; }
 
-        try
-        {
+        try {
             File tray3file = new File("exec" + fileSeparator + "SystemTrayKill.exe");
             if( !tray3file.isFile() )
                 mixed.copyFromResource("/data/SystemTrayKill.exe", tray3file);

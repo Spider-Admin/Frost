@@ -17,6 +17,7 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost;
+
 import java.io.*;
 import java.util.zip.*;
 import java.util.*;
@@ -25,103 +26,116 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.filechooser.*;
 
-public class Index {
-
+public class Index
+{
     /**
      * Calculates keys that should be uploaded to the keyindex
      * @param board The boardsname (in filename type)
      * @return Vector with KeyClass objects
      */
-    public static int getUploadKeys(String board) {	
-	System.out.println("Index.getUploadKeys(" + board + ")");
-	Vector keys = new Vector();
-	String fileSeparator = System.getProperty("file.separator");
+    public static int getUploadKeys(String board)
+    {
+        System.out.println("Index.getUploadKeys(" + board + ")");
+        Vector keys = new Vector();
+        final String fileSeparator = System.getProperty("file.separator");
 
-	// Abort if boardDir does not exist
-	File boardDir = new File(frame1.keypool + board);
-	if (!boardDir.isDirectory())
-	    return 0;
+        // Abort if boardDir does not exist
+        File boardDir = new File(frame1.keypool + board);
+        if( !boardDir.isDirectory() )
+            return 0;
 
-	// Create boards tempDir if it does not exists
-	File tempDir = new File(boardDir + fileSeparator + "temp");
-	if (!tempDir.isDirectory())
-	    tempDir.mkdir();
+        // Create boards tempDir if it does not exists
+        File tempDir = new File(boardDir + fileSeparator + "temp");
+        if( !tempDir.isDirectory() )
+            tempDir.mkdir();
 
-	// Get a list of this boards index files
-	// Abort if there are none
-	File[] index = boardDir.listFiles();
-	if (index == null) 
-	    return 0;
-	
-	// Generate temporary index from keyfiles
-	File[] keypoolFiles = (new File(frame1.keypool)).listFiles();
-	if (keypoolFiles != null) {
-	    for (int i = 0; i < keypoolFiles.length; i++) {
-		if (keypoolFiles[i].getName().indexOf("-" + board + "-") != -1 &&
-		    keypoolFiles[i].getName().endsWith(".idx")) {
-		    File lockfile = new File(keypoolFiles[i].getPath() + ".loc");
-		    if (!lockfile.exists()) {
-			// Clear the tempIndex if we add keyfile #0
-			// This way we only have to do this fuckin slow
-			// add once per board / day. 
-			if (keypoolFiles[i].getName().endsWith("-" + board + "-0.idx")) {
+        // Get a list of this boards index files
+        // Abort if there are none
+        File[] index = boardDir.listFiles();
+        if( index == null )
+            return 0;
 
-			    // Get a list of this boards temp files
-			    // and remove existing files in the tempDir
-			    File[] tempFiles = tempDir.listFiles();
-			    if (tempFiles != null) {
-				for (int j = 0; j < tempFiles.length; j++)
-				    tempFiles[j].delete();
-			    }
-			    
-			}
-			// create tempIndex
-			add(keypoolFiles[i], tempDir);
-			FileAccess.writeFile("Locked", lockfile);
-		    }
-		}
-	    }
-	}
-	
-	// Now we compare each file of the original index
-	// with it's tempIndex counterpart
-	// Maps are funny and fast, we better use one here.
-	Map chk = Collections.synchronizedMap(new TreeMap());
-	StringBuffer keyFile = new StringBuffer();
-	File[] tempFiles = tempDir.listFiles();
-	int keyCount = 0;
-	for (int i = 0; i < index.length; i++) {
-	    if (index[i].getName().endsWith(".exc")) {
-		chk.clear();
-		FileAccess.readKeyFile(index[i], chk, true);
-		FileAccess.readKeyFile(tempDir.getPath() + fileSeparator + index[i].getName(), chk, false);
+        // Generate temporary index from keyfiles
+        File[] keypoolFiles = (new File(frame1.keypool)).listFiles();
+        if( keypoolFiles != null )
+        {
+            for( int i = 0; i < keypoolFiles.length; i++ )
+            {
+                if( keypoolFiles[i].getName().indexOf("-" + board + "-") != -1 &&
+                    keypoolFiles[i].getName().endsWith(".idx") )
+                {
+                    File lockfile = new File(keypoolFiles[i].getPath() + ".loc");
+                    if( !lockfile.exists() )
+                    {
+                        // Clear the tempIndex if we add keyfile #0
+                        // This way we only have to do this fuckin slow
+                        // add once per board / day.
+                        if( keypoolFiles[i].getName().endsWith("-" + board + "-0.idx") )
+                        {
 
-		// Add keys that are still getExchange() == true to the 
-		// keys Vector
-		synchronized(chk) {
-		    Iterator j = chk.keySet().iterator();
-		    while (j.hasNext()) {
-			KeyClass key = (KeyClass)chk.get((String)j.next());
-			if (key.getExchange()) {
-			    keyCount++;
-			    keyFile.append(key.getFilename() + "\r\n");
-			    keyFile.append(key.getSize() + "\r\n");
-			    keyFile.append(key.getDate() + "\r\n");
-			    keyFile.append(key.getKey() + "\r\n");
-			}
-		    }
-		}
-	    }
-	}
-	chk.clear();
+                            // Get a list of this boards temp files
+                            // and remove existing files in the tempDir
+                            File[] tempFiles = tempDir.listFiles();
+                            if( tempFiles != null )
+                            {
+                                for( int j = 0; j < tempFiles.length; j++ )
+                                    tempFiles[j].delete();
+                            }
 
-	// Make keyfile
-	if (keyCount > 0) {
-	    File file = new File(frame1.keypool + board + "_upload.txt");
-	    FileAccess.writeFile(keyFile.toString(), file);
-	}
+                        }
+                        // create tempIndex
+                        add(keypoolFiles[i], tempDir);
+                        FileAccess.writeFile("Locked", lockfile);
+                    }
+                }
+            }
+        }
 
-	return keyCount;
+        // Now we compare each file of the original index
+        // with it's tempIndex counterpart
+        // Maps are funny and fast, we better use one here.
+        final Map chk = Collections.synchronizedMap(new TreeMap());
+        StringBuffer keyFile = new StringBuffer();
+        File[] tempFiles = tempDir.listFiles();
+        int keyCount = 0;
+        for( int i = 0; i < index.length; i++ )
+        {
+            if( index[i].getName().endsWith(".exc") )
+            {
+                chk.clear();
+                FileAccess.readKeyFile(index[i], chk, true);
+                FileAccess.readKeyFile(tempDir.getPath() + fileSeparator + index[i].getName(), chk, false);
+
+                // Add keys that are still getExchange() == true to the
+                // keys Vector
+                synchronized(chk)
+                {
+                    Iterator j = chk.keySet().iterator();
+                    while( j.hasNext() )
+                    {
+                        KeyClass key = (KeyClass)chk.get((String)j.next());
+                        if( key.getExchange() )
+                        {
+                            keyCount++;
+                            keyFile.append(key.getFilename() + "\r\n");
+                            keyFile.append(key.getSize() + "\r\n");
+                            keyFile.append(key.getDate() + "\r\n");
+                            keyFile.append(key.getKey() + "\r\n");
+                        }
+                    }
+                }
+            }
+        }
+        chk.clear();
+
+        // Make keyfile
+        if( keyCount > 0 )
+        {
+            File file = new File(frame1.keypool + board + "_upload.txt");
+            FileAccess.writeFile(keyFile.toString(), file);
+        }
+
+        return keyCount;
     }
 
     /**
@@ -130,23 +144,24 @@ public class Index {
      * @param key the key to add to the index
      * @param target directory containing index
      */
-    public static void add(KeyClass key, File target) {
-	String split = "abcdefghijklmnopqrstuvwxyz1234567890";
-	String fileSeparator = System.getProperty("file.separator");
-	String hash = key.getKey();
-	String firstLetter = (hash.substring(4, 5)).toLowerCase();
-	Map chk = Collections.synchronizedMap(new TreeMap());
-	
-	if (!target.isDirectory())
-	    target.mkdir();
-	if (split.indexOf(firstLetter) == -1)
-	    firstLetter = "other";
+    public static void add(KeyClass key, File target)
+    {
+        final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
+        final String fileSeparator = System.getProperty("file.separator");
+        final String hash = key.getKey();
+        String firstLetter = (hash.substring(4, 5)).toLowerCase();
+        final Map chk = Collections.synchronizedMap(new TreeMap());
 
-	File indexFile = new File(target.getPath()  + fileSeparator + firstLetter + ".exc");
-	
-	FileAccess.readKeyFile(indexFile, chk, true);
-	chk.put(hash, key);
-	FileAccess.writeKeyFile(chk, indexFile);
+        if( !target.isDirectory() )
+            target.mkdir();
+        if( split.indexOf(firstLetter) == -1 )
+            firstLetter = "other";
+
+        File indexFile = new File(target.getPath()  + fileSeparator + firstLetter + ".exc");
+
+        FileAccess.readKeyFile(indexFile, chk, true);
+        chk.put(hash, key);
+        FileAccess.writeKeyFile(chk, indexFile);
     }
 
     /**
@@ -155,36 +170,41 @@ public class Index {
      * @param keyfile the keyfile to add to the index
      * @param target directory containing index
      */
-    public static void add(File keyfile, File target) {
-	String oldFirstLetter = "";
-	Map chk = Collections.synchronizedMap(new TreeMap());
-	Map chunk = Collections.synchronizedMap(new TreeMap());
+    public static void add(File keyfile, File target)
+    {
+        String oldFirstLetter = "";
+        final Map chk = Collections.synchronizedMap(new TreeMap());
+        final Map chunk = Collections.synchronizedMap(new TreeMap());
 
-	if (!target.isDirectory())
-	    target.mkdir();
+        if( !target.isDirectory() )
+            target.mkdir();
 
-	FileAccess.readKeyFile(keyfile, chk, true);
+        FileAccess.readKeyFile(keyfile, chk, true);
 
-	synchronized(chk) {
-	    Iterator i = chk.keySet().iterator();
-	    while (i.hasNext()) {
-		KeyClass key = (KeyClass)chk.get((String)i.next());
-		String hash = key.getKey();
-		String firstLetter = (hash.substring(4, 5)).toLowerCase();
-		if (!firstLetter.equals(oldFirstLetter)) {
-		    System.out.print(".");
-		    if (chunk.size() > 0) {
-			add(chunk, target, oldFirstLetter);
-			chunk.clear();
-		    }
-		    oldFirstLetter = firstLetter;
-		}
-		chunk.put(hash, key);
-	    }
-	}
-	add(chunk, target, oldFirstLetter);
+        synchronized(chk)
+        {
+            Iterator i = chk.keySet().iterator();
+            while( i.hasNext() )
+            {
+                KeyClass key = (KeyClass)chk.get((String)i.next());
+                String hash = key.getKey();
+                String firstLetter = (hash.substring(4, 5)).toLowerCase();
+                if( !firstLetter.equals(oldFirstLetter) )
+                {
+                    System.out.print(".");
+                    if( chunk.size() > 0 )
+                    {
+                        add(chunk, target, oldFirstLetter);
+                        chunk.clear();
+                    }
+                    oldFirstLetter = firstLetter;
+                }
+                chunk.put(hash, key);
+            }
+        }
+        add(chunk, target, oldFirstLetter);
     }
-    
+
     /**
      * Adds a Map to an index located at target dir.
      * Target dir will be created if it does not exist
@@ -192,19 +212,21 @@ public class Index {
      * @param target directory containing index
      * @param firstLetter identifier for the keyfile
      */
-    protected static void add(Map chunk, File target, String firstLetter) {
-	String split = "abcdefghijklmnopqrstuvwxyz1234567890";
-	String fileSeparator = System.getProperty("file.separator");
+    protected static void add(Map chunk, File target, String firstLetter)
+    {
+        final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
+        final String fileSeparator = System.getProperty("file.separator");
 
-	if (!target.isDirectory())
-	    target.mkdir();
+        if( !target.isDirectory() )
+            target.mkdir();
 
-	if (chunk.size() > 0) {
-	    if (split.indexOf(firstLetter) == -1)
-		firstLetter = "other";
-	    FileAccess.readKeyFile(new File(target.getPath() + fileSeparator + firstLetter + ".exc"), chunk, false);
-	    FileAccess.writeKeyFile(chunk, new File(target.getPath() + fileSeparator + firstLetter + ".exc"));
-	    chunk.clear();
-	}
+        if( chunk.size() > 0 )
+        {
+            if( split.indexOf(firstLetter) == -1 )
+                firstLetter = "other";
+            FileAccess.readKeyFile(new File(target.getPath() + fileSeparator + firstLetter + ".exc"), chunk, false);
+            FileAccess.writeKeyFile(chunk, new File(target.getPath() + fileSeparator + firstLetter + ".exc"));
+            chunk.clear();
+        }
     }
 }
