@@ -26,12 +26,14 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.threads.maintenance.Savable;
+
 /**
  * Read settings from frost.ini and store them.
  *
  * TODO: why handle all in strings and convert between types? FIX!
  */
-public class SettingsClass {
+public class SettingsClass implements Savable {
 	private File settingsFile;
 	private Hashtable settingsHash;
 	private Hashtable defaults = null;
@@ -41,6 +43,7 @@ public class SettingsClass {
 	
 	private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
 	
+	public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
 	public static final String DISABLE_DOWNLOADS = "disableDownloads";
 	public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
 	public static final String LOG_LEVEL = "logLevel";
@@ -625,7 +628,7 @@ public class SettingsClass {
 		defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
 		defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
 		defaults.put("doCleanUp", "false");
-		defaults.put("autoSaveInterval", "15");
+		defaults.put(AUTO_SAVE_INTERVAL, "15");
 
 		defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233, 233, 233));
 		//"type.color(233,233,233)"
@@ -667,14 +670,14 @@ public class SettingsClass {
 	 * 
 	 * (Not thread-safe with addUpdater/removeUpdater)
 	 */
-	public void save() {
+	public boolean save() {
 		if (updaters != null) {
 			Enumeration enum = updaters.elements();
 			while (enum.hasMoreElements()) {
 				((SettingsUpdater) enum.nextElement()).updateSettings();
 			}
 		}
-		writeSettingsFile(); 
+		return writeSettingsFile(); 
 	}
 
 }
