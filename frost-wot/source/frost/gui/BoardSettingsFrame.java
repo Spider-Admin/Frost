@@ -442,22 +442,22 @@ public class BoardSettingsFrame extends JDialog
                 board.setMaxMessageDays( null );
 
             if( signedOnly_default.isSelected() == false )
-                board.setShowSignedOnly( new Boolean( signedOnly_true.isSelected() ) );
+                board.setShowSignedOnly( Boolean.valueOf( signedOnly_true.isSelected() ) );
             else
                 board.setShowSignedOnly( null );
 
             if( hideBad_default.isSelected() == false )
-                board.setHideBad( new Boolean( hideBad_true.isSelected() ) );
+                board.setHideBad( Boolean.valueOf( hideBad_true.isSelected() ) );
             else
                 board.setHideBad( null );
 
             if( hideCheck_default.isSelected() == false )
-                board.setHideCheck( new Boolean( hideCheck_true.isSelected() ) );
+                board.setHideCheck( Boolean.valueOf( hideCheck_true.isSelected() ) );
             else
                 board.setHideCheck( null );
 
             if( hideNA_default.isSelected() == false )
-                board.setHideNA( new Boolean( hideNA_true.isSelected() ) );
+                board.setHideNA( Boolean.valueOf( hideNA_true.isSelected() ) );
             else
                 board.setHideNA( null );
         }

@@ -23,22 +23,25 @@ public class DownloadTable extends SortedTable
     {
         super(m);
 
+        // size column
         CellRenderer cellRenderer = new CellRenderer();
-        getColumnModel().getColumn(1).setCellRenderer(cellRenderer);
+        getColumnModel().getColumn(2).setCellRenderer(cellRenderer);
 
         // set column sizes
-        int[] widths = {200, 90, 70, 80, 70, 35, 60, 60};
-        for (int i = 0; i < widths.length; i++)
+        int[] widths = {0, 200, 90, 70, 80, 70, 35, 60, 60};
+        for (int i = 0; i < widths.length; i++) // col 0 default
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
+        // enableDownload column
+        getColumnModel().getColumn(0).setResizable(false);
+
         // default for sort: sort by state ascending
-        sortedColumnIndex = 3;
+        sortedColumnIndex = 4;
         sortedColumnAscending = true;
         resortTable();
 
 //        setIntercellSpacing( new Dimension( 4, 0 ) );
-
     }
 
     public void removeSelectedRows()
@@ -292,6 +295,49 @@ public class DownloadTable extends SortedTable
             }
         }
         return false;
+    }
+
+    public void setDownloadEnabled(int mode, boolean allItems)
+    {
+        // mode 0=disable items ; 1=enable items ; 2=invert state
+        // allItems=true for ALL, else SELECTED
+        DownloadTableModel model = (DownloadTableModel)getModel();
+        if( allItems == true )
+        {
+            for( int x=0; x<model.getRowCount(); x++ )
+            {
+                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)model.getRow(x);
+                setDownloadEnabled( mode, dlItem );
+                model.updateRow( dlItem );
+            }
+        }
+        else // selected items
+        {
+            DownloadTableModel dlModel = (DownloadTableModel)getModel();
+            int[] selectedRows = getSelectedRows();
+            for( int x=selectedRows.length-1; x>=0; x-- )
+            {
+                FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
+                setDownloadEnabled( mode, dlItem );
+                model.updateRow( dlItem );
+            }
+        }
+    }
+
+    private void setDownloadEnabled(int mode, FrostDownloadItemObject dlItem)
+    {
+        if( mode == 0 )
+            dlItem.setEnableDownload( Boolean.valueOf(false) );
+        else if( mode == 1 )
+            dlItem.setEnableDownload( Boolean.valueOf(true) );
+        else if( mode == 2 )
+        {
+            boolean val;
+            if( dlItem.getEnableDownload() == null || dlItem.getEnableDownload().booleanValue() == true )
+                dlItem.setEnableDownload( Boolean.valueOf( false ) );
+            else
+                dlItem.setEnableDownload( Boolean.valueOf( true ) );
+        }
     }
 
     /**

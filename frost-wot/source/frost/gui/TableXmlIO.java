@@ -138,7 +138,6 @@ public class TableXmlIO
                                                                   iState,
                                                                   lastUploadDate,
                                                                   key);
-
         return ulItem;
     }
 
@@ -198,6 +197,7 @@ public class TableXmlIO
         String retries = XMLTools.getChildElementsTextValue(dlItemElement, "retries");
         String state = XMLTools.getChildElementsTextValue(dlItemElement, "state");
         String sourceboardname = XMLTools.getChildElementsTextValue(dlItemElement, "sourceboard");
+        String enableDownload = dlItemElement.getAttribute("enableDownload");
 
         if( filename == null || key == null || state == null )
         {
@@ -230,6 +230,12 @@ public class TableXmlIO
             }
         }
 
+        boolean isDownloadEnabled = false;
+        if( enableDownload == null || enableDownload.toLowerCase().equals("true") )
+        {
+            isDownloadEnabled = true; // default is true
+        }
+
         // check if target board exists in board tree
 
         FrostBoardObject board = null;
@@ -250,6 +256,7 @@ public class TableXmlIO
                                                                      key,
                                                                      retries,
                                                                      iState,
+                                                                     isDownloadEnabled,
                                                                      board);
         return dlItem;
     }
@@ -365,6 +372,12 @@ public class TableXmlIO
     protected static void appendDownloadItemToDomTree( Element parent, FrostDownloadItemObject dlItem, Document doc )
     {
         Element itemElement = doc.createElement("FrostDownloadTableItem");
+        String isDownloadEnabled;
+        if( dlItem.getEnableDownload() != null )
+        {
+            itemElement.setAttribute("enableDownload", dlItem.getEnableDownload().toString() );
+        }
+
         Element element;
         Text text;
         CDATASection cdata;

@@ -20,12 +20,14 @@
 package frost.gui.model;
 
 import javax.swing.table.*;
+import frost.gui.objects.*;
 
 public class DownloadTableModel extends SortedTableModel
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
     protected final static String columnNames[] = {
+        " ",
         LangRes.getString("Filename"),
         LangRes.getString("Size"),
         LangRes.getString("Age"),
@@ -36,6 +38,7 @@ public class DownloadTableModel extends SortedTableModel
         LangRes.getString("Key")
     };
     protected final static Class columnClasses[] = {
+        Boolean.class, //LangRes.getString("on"),
         String.class, //LangRes.getString("Filename"),
         String.class,//Long.class,   //LangRes.getString("Size"),
         String.class, //LangRes.getString("Age"),
@@ -53,6 +56,8 @@ public class DownloadTableModel extends SortedTableModel
 
     public boolean isCellEditable(int row, int col)
     {
+        if( col == 0 )
+            return true;
         return false;
     }
 
@@ -72,4 +77,11 @@ public class DownloadTableModel extends SortedTableModel
             return columnClasses[column];
         return null;
     }
+
+    public void setValueAt(Object aValue, int row, int column)
+    {
+        FrostDownloadItemObject dlItem = (FrostDownloadItemObject)getRow(row);
+        dlItem.setEnableDownload( (Boolean)aValue );
+    }
+
 }
