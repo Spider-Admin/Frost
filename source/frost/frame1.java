@@ -3171,6 +3171,8 @@ public class frame1 extends JFrame implements ClipboardOwner
                             // TODO: maybe delete msg? or it will always be retried to send
                             continue;
                         }
+                        // message will be resigned before send, actual date/time will be used
+                        // no more faking here :)
                         getRunningBoardUpdateThreads().startMessageUpload(
                             board,
                             mo.getFrom(),
