@@ -44,7 +44,6 @@ import frost.util.gui.translation.*;
  *******************************/
 
 public class OptionsFrame extends JDialog implements ListSelectionListener {
-	
 	/**
 	 * Display Panel. Contains appearace options: skins and more in the future
 	 */
@@ -1401,6 +1400,176 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			news2Settings.setValue("hideNAMessages", hideNAMessagesCheckBox.isSelected());
 		}
 	}
+	
+	/**
+	 * 
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	private class NewsPanel extends JPanel {
+		
+		private JLabel uploadHtlLabel = new JLabel();
+		private JLabel downloadHtlLabel = new JLabel();
+		private JLabel displayDaysLabel = new JLabel();
+		private JLabel downloadDaysLabel = new JLabel();
+		private JLabel messageBaseLabel = new JLabel();
+		private JLabel signatureLabel = new JLabel();
+		
+		private JTextField uploadHtlTextField = new JTextField(8);
+		private JTextField downloadHtlTextField = new JTextField(8);
+		private JTextField displayDaysTextField = new JTextField(8);
+		private JTextField downloadDaysTextField = new JTextField(8);
+		private JTextField messageBaseTextField = new JTextField(16);
+		
+		private AntialiasedTextArea signatureTextArea;
+
+		/**
+		 * 
+		 */
+		public NewsPanel() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			setName("NewsPanel");
+			setLayout(new GridBagLayout());
+			refreshLanguage();
+
+			// Adds all of the components
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.NONE;
+			constraints.anchor = GridBagConstraints.WEST;
+			Insets insets5555 = new Insets(5, 5, 5, 5);
+			constraints.weighty = 1;
+			constraints.weightx = 0;		
+			
+			constraints.insets = insets5555;
+			constraints.weightx = 0.4;	
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			add(uploadHtlLabel, constraints);	
+			constraints.weightx = 0.6;		
+			constraints.gridx = 1;
+			add(uploadHtlTextField, constraints);
+			
+			constraints.gridx = 0;
+			constraints.gridy = 1;
+			add(downloadHtlLabel, constraints);		
+			constraints.gridx = 1;
+			add(downloadHtlTextField, constraints);
+						
+			constraints.gridx = 0;
+			constraints.gridy = 2;
+			add(displayDaysLabel, constraints);		
+			constraints.gridx = 1;
+			add(displayDaysTextField, constraints);
+			
+			constraints.gridx = 0;
+			constraints.gridy = 3;
+			add(downloadDaysLabel, constraints);		
+			constraints.gridx = 1;
+			add(downloadDaysTextField, constraints);
+			
+			constraints.gridx = 0;
+			constraints.gridy = 4;
+			add(messageBaseLabel, constraints);		
+			constraints.gridx = 1;
+			add(messageBaseTextField, constraints);
+			
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.gridwidth = 2;	
+			constraints.weightx = 1;
+			constraints.weighty = 0;
+			constraints.gridx = 0;
+			constraints.gridy = 5;
+			add(signatureLabel, constraints);
+			constraints.gridy = 6;
+			JScrollPane signatureScrollPane = new JScrollPane(getSignatureTextArea());
+			add(signatureScrollPane, constraints);
+		}
+
+		/**
+		 * @return
+		 */
+		private AntialiasedTextArea getSignatureTextArea() {
+			if (signatureTextArea == null) {
+				signatureTextArea = new AntialiasedTextArea(4, 50);
+
+				String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+				int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+				int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+				Font tofFont = new Font(fontName, fontStyle, fontSize);
+				if (!tofFont.getFamily().equals(fontName)) {
+					logger.severe(
+						"The selected font was not found in your system\n"
+							+ "That selection will be changed to \"Monospaced\".");
+					frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
+					tofFont = new Font("Monospaced", fontStyle, fontSize);
+				}
+				signatureTextArea.setFont(tofFont);
+				signatureTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
+			}
+			return signatureTextArea;
+		}
+
+		/**
+		 * Load the settings of this panel
+		 * @param newsSettings class the settings will be loaded from
+		 */
+		public void loadSettings(SettingsClass newsSettings) {
+			uploadHtlTextField.setText(frostSettings.getValue("tofUploadHtl"));
+			downloadHtlTextField.setText(frostSettings.getValue("tofDownloadHtl"));
+			displayDaysTextField.setText(frostSettings.getValue("maxMessageDisplay"));
+			downloadDaysTextField.setText(frostSettings.getValue("maxMessageDownload"));
+			messageBaseTextField.setText(frostSettings.getValue("messageBase"));
+			
+			//Load signature
+			File signature = new File("signature.txt");
+			if (signature.isFile()) {
+				getSignatureTextArea().setText(FileAccess.readFile("signature.txt", "UTF-8"));
+			}
+		}
+		
+		public void ok() {
+			saveSettings(frostSettings);
+		}
+		
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			uploadHtlLabel.setText(languageResource.getString("Message upload HTL") + " (21)");
+			downloadHtlLabel.setText(languageResource.getString("Message download HTL") + " (23)");
+			displayDaysLabel.setText(
+				languageResource.getString("Number of days to display") + " (10)");
+			downloadDaysLabel.setText(
+				languageResource.getString("Number of days to download backwards") + " (3)");
+			messageBaseLabel.setText(languageResource.getString("Message base") + " (news)");
+			signatureLabel.setText(languageResource.getString("Signature"));
+		}
+
+		/**
+		 * @param frostSettings
+		 */
+		private void saveSettings(SettingsClass frostSettings) {
+			frostSettings.setValue("tofUploadHtl", uploadHtlTextField.getText());
+			frostSettings.setValue("tofDownloadHtl", downloadHtlTextField.getText());
+			frostSettings.setValue("maxMessageDisplay", displayDaysTextField.getText());
+			frostSettings.setValue("maxMessageDownload", downloadDaysTextField.getText());
+			frostSettings.setValue(
+				"messageBase",
+				messageBaseTextField.getText().trim().toLowerCase());
+				
+			//Save signature
+			FileAccess.writeFile(getSignatureTextArea().getText(), "signature.txt", "UTF-8");
+		}
+
+	}
+	
 	/**
 	 * 
 	 */
@@ -1857,6 +2026,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel mainPanel = null;
 	private MiscPanel miscPanel = null;
 	private News2Panel news2Panel = null;
+	private NewsPanel newsPanel = null;
 	JList optionsGroupsList = null;
 	JPanel optionsGroupsPanel = null;
 	private SearchPanel searchPanel = null;
@@ -1868,15 +2038,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
 	JPanel tof3Panel = null;
 	JCheckBox tofBoardUpdateVisualization = new JCheckBox();
-	JTextField tofDisplayDaysTextField = new JTextField(5);
-	JTextField tofDownloadDaysTextField = new JTextField(5);
-	JTextField tofDownloadHtlTextField = new JTextField(5);
-	JTextField tofMessageBaseTextField = new JTextField(8);
-	JPanel tofPanel = null;
-
-	AntialiasedTextArea tofTextArea = new AntialiasedTextArea(4, 50);
-
-	JTextField tofUploadHtlTextField = new JTextField(5);
+	
 	private UploadPanel uploadPanel = null;
 
 	/**
@@ -1890,7 +2052,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
 		frostSettings = newSettingsClass;
 		setDataElements();
-		loadSignature();
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
 		try {
@@ -2031,6 +2192,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		return news2Panel;
 	}
+	
+	/**
+	 * Build the news panel (general options).
+	 */
+	private NewsPanel getNewsPanel() {
+		if (newsPanel == null) {
+			newsPanel = new NewsPanel();
+			newsPanel.loadSettings(frostSettings);
+		}
+		return newsPanel;
+	}
 
 	/**
 	 * Build the panel containing the list of option groups.
@@ -2050,7 +2222,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			listData.add(
 				new ListBoxData(
 					" " + languageResource.getString("News") + " (1) ",
-					getTofPanel()));
+					getNewsPanel()));
 			listData.add(
 				new ListBoxData(
 					" " + languageResource.getString("News") + " (2) ",
@@ -2222,94 +2394,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	}
 
 	/**
-	 * Build the tof panel.
-	 */
-	protected JPanel getTofPanel() {
-		if (tofPanel == null) {
-			// Initialize AA and fot fot the tofTextArea
-			String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-			int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-			int fontSize = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-			Font tofFont = new Font(fontName, fontStyle, fontSize);
-			if (!tofFont.getFamily().equals(fontName)) {
-				logger.severe("The selected font was not found in your system\n" +
-							  "That selection will be changed to \"Monospaced\".");
-				frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
-				tofFont = new Font("Monospaced", fontStyle, fontSize);
-			}
-			tofTextArea.setFont(tofFont);
-			tofTextArea.setAntiAliasEnabled(frostSettings.getBoolValue("messageBodyAA"));
-			
-			//Build the panel
-			tofPanel = new JPanel(new GridBagLayout());
-			GridBagConstraints constr = new GridBagConstraints();
-			constr.anchor = GridBagConstraints.WEST;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			constr.gridy = 0;
-			tofPanel.add(
-				new JLabel(languageResource.getString("Message upload HTL") + " (21)"),
-				constr);
-			constr.gridx = 1;
-			tofPanel.add(tofUploadHtlTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			tofPanel.add(
-				new JLabel(
-			languageResource.getString("Message download HTL") + " (23)"),
-				constr);
-			constr.gridx = 1;
-			tofPanel.add(tofDownloadHtlTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			tofPanel.add(
-				new JLabel(
-			languageResource.getString("Number of days to display") + " (10)"),
-				constr);
-			constr.gridx = 1;
-			tofPanel.add(tofDisplayDaysTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			tofPanel.add(
-				new JLabel(
-			languageResource.getString("Number of days to download backwards")
-						+ " (3)"),
-				constr);
-			constr.gridx = 1;
-			tofPanel.add(tofDownloadDaysTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			tofPanel.add(
-				new JLabel(languageResource.getString("Message base") + " (news)"),
-				constr);
-			constr.gridx = 1;
-			tofPanel.add(tofMessageBaseTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-
-			tofPanel.add(new JLabel(languageResource.getString("Signature")), constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			constr.gridwidth = 2;
-			constr.weightx = 0.7;
-			constr.fill = GridBagConstraints.HORIZONTAL;
-			constr.insets = new Insets(0, 5, 5, 5);
-			JScrollPane tofSignatureScrollPane = new JScrollPane();
-			tofSignatureScrollPane.getViewport().add(tofTextArea);
-			tofPanel.add(tofSignatureScrollPane, constr);
-			// filler (glue)
-			constr.gridy++;
-			constr.gridx = 1;
-			constr.weightx = 0.7;
-			constr.weighty = 0.7;
-			constr.insets = new Insets(0, 0, 0, 0);
-			constr.fill = GridBagConstraints.BOTH;
-			tofPanel.add(new JLabel(" "), constr);
-		}
-		return tofPanel;
-	}
-
-	/**
 	 * Build the upload panel.
 	 */
 	private UploadPanel getUploadPanel() {
@@ -2356,16 +2440,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	}
 
 	/**
-	 * Loads signature.txt into tofTextArea
-	 */
-	private void loadSignature() {
-		File signature = new File("signature.txt");
-		if (signature.isFile()) {
-			tofTextArea.setText(FileAccess.readFile("signature.txt", "UTF-8"));
-		}
-	}
-
-	/**
 	 * Close window and save settings
 	 */
 	private void ok() {
@@ -2396,13 +2470,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			miscPanel.ok();
 		}
 		
+		if (newsPanel != null) {
+			//If the news panel has been used, commit its changes
+			newsPanel.ok();
+		}
+		
 		if (news2Panel != null) {
 			//If the news 2 panel has been used, commit its changes
 			news2Panel.ok();
 		}
 
 		saveSettings();
-		saveSignature();
 
 		dispose();
 	}
@@ -2437,20 +2515,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	 * Save settings
 	 */
 	private void saveSettings() {
-		frostSettings.setValue("tofUploadHtl", tofUploadHtlTextField.getText());
-		frostSettings.setValue(
-			"tofDownloadHtl",
-			tofDownloadHtlTextField.getText());
-		frostSettings.setValue(
-			"maxMessageDisplay",
-			tofDisplayDaysTextField.getText());
-		frostSettings.setValue(
-			"maxMessageDownload",
-			tofDownloadDaysTextField.getText());
-		frostSettings.setValue(
-			"messageBase",
-			((tofMessageBaseTextField.getText()).trim()).toLowerCase());
-
 		frostSettings.setValue(
 			"automaticUpdate.concurrentBoardUpdates",
 			TFautomaticUpdate_concurrentBoardUpdates.getText());
@@ -2496,13 +2560,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 	}
 
-	/**
-	 * Saves signature.txt to disk
-	 */
-	private void saveSignature() {
-		FileAccess.writeFile(tofTextArea.getText(), "signature.txt", "UTF-8");
-	}
-
 	//------------------------------------------------------------------------
 
 	/**
@@ -2522,14 +2579,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
 
 		// now load
-		tofUploadHtlTextField.setText(frostSettings.getValue("tofUploadHtl"));
-		tofDownloadHtlTextField.setText(
-			frostSettings.getValue("tofDownloadHtl"));
-		tofDisplayDaysTextField.setText(
-			frostSettings.getValue("maxMessageDisplay"));
-		tofDownloadDaysTextField.setText(
-			frostSettings.getValue("maxMessageDownload"));
-		tofMessageBaseTextField.setText(frostSettings.getValue("messageBase"));
 		TFautomaticUpdate_concurrentBoardUpdates.setText(
 			frostSettings.getValue("automaticUpdate.concurrentBoardUpdates"));
 		TFautomaticUpdate_boardsMinimumUpdateInterval.setText(
