@@ -7,6 +7,7 @@ import java.io.*;
 import java.io.IOException;
 import java.net.*;
 import java.net.URL;
+import java.util.*;
 import java.util.Enumeration;
 
 import javax.swing.*;
@@ -35,12 +36,17 @@ public class InstallerApplet extends JApplet {
 	//TODO: Put the final location here:
 	private static final String JNLP_REMOTE_LOCATION = "http://jarnesto.free.fr/frost/frost.jnlp";
 	
+	private static final String LOGO_LOCATION = "/res/logo.png";
+	private static final String LICENSE_LOCATION = "/res/gpl.txt";
+	private static final String DTD_LOCATION = "/res/jnlp_1_0.dtd";
+	
 	private URL jnlpRemoteLocation = null;
 	private JPanel jPanel = null;
 	private GreetingPanel greetingPanel = null;
 	private LicensePanel licensePanel = null;
 	private LocationPanel locationPanel = null;
 	private InstallingPanel installingPanel = null;
+	private ErrorPanel errorPanel = null;
 	
 	/**
 	 * Returns information about this applet.
@@ -65,11 +71,8 @@ public class InstallerApplet extends JApplet {
 		try {
 			jnlpRemoteLocation = new URL(JNLP_REMOTE_LOCATION);
 			getJPanel().add(getGreetingPanel());
-		} catch (MalformedURLException exception) {
-			getJPanel().add(
-				new JLabel(
-					"<html>The remote location of the jnlp file is invalid:<br>"
-						+ JNLP_REMOTE_LOCATION));
+		} catch (Exception exception) {
+			showErrorPanel(exception);
 		}
 	}
 
@@ -77,61 +80,100 @@ public class InstallerApplet extends JApplet {
 	 * 
 	 */
 	void greetingNextButtonPressed() {
-		getJPanel().remove(getGreetingPanel());
-		getJPanel().add(getLicensePanel());
-		getJPanel().revalidate();
-		getJPanel().repaint();
+		try {
+			getJPanel().remove(getGreetingPanel());
+			getJPanel().add(getLicensePanel(), BorderLayout.CENTER);
+			getJPanel().revalidate();
+			getJPanel().repaint();
+		} catch (Exception exception) {
+			showErrorPanel(exception);
+		}
 	} 
+
+	/**
+	 * @param exception
+	 */
+	private void showErrorPanel(Exception exception) {
+		getJPanel().removeAll();
+		getJPanel().add(getErrorPanel(), BorderLayout.CENTER);
+		getJPanel().revalidate();
+		getJPanel().repaint();		
+		getErrorPanel().setException(exception);
+	}
 
 	/**
 	 * 
 	 */
 	void licenseBackButtonPressed() {
-		getJPanel().remove(getLicensePanel());
-		getJPanel().add(getGreetingPanel());
-		getJPanel().repaint();
+		try {
+			getJPanel().remove(getLicensePanel());
+			getJPanel().add(getGreetingPanel());
+			getJPanel().repaint();
+		} catch (Exception exception) {
+			showErrorPanel(exception);
+		}
 	}
 	
 	/**
 	 * 
 	 */
 	void locationBackButtonPressed() {
-		getJPanel().remove(getLocationPanel());
-		getJPanel().add(getLicensePanel());
-		getJPanel().repaint();
+		try {
+			getJPanel().remove(getLocationPanel());
+			getJPanel().add(getLicensePanel());
+			getJPanel().repaint();
+		} catch (Exception exception) {
+			showErrorPanel(exception);
+		}
 	}
 	
 	/**
 	 * 
 	 */
 	void installingBackButtonPressed() {
-		getJPanel().remove(getInstallingPanel());
-		getJPanel().add(getLocationPanel());
-		getJPanel().repaint();
+		try {
+			getJPanel().remove(getInstallingPanel());
+			getJPanel().add(getLocationPanel());
+			getJPanel().repaint();
+		} catch (Exception exception) {
+			showErrorPanel(exception);
+		}
 	}
 	
 	/**
 	 * 
 	 */
 	void locationInstallButtonPressed() {
-		getJPanel().remove(getLocationPanel());
-		getJPanel().add(getInstallingPanel());
-		getJPanel().revalidate();
-		getJPanel().repaint();
-		
-		String installationPath = getLocationPanel().getPath();
-		getInstallingPanel().setJnlpLocalDirectory(new File(installationPath));
-		getInstallingPanel().installApplication();
+		try {
+			getJPanel().remove(getLocationPanel());
+			getJPanel().add(getInstallingPanel());
+			getJPanel().revalidate();
+			getJPanel().repaint();
+			new Thread() {
+				public void run() {
+					String installationPath = getLocationPanel().getPath();
+					getInstallingPanel().setJnlpLocalDirectory(new File(installationPath));
+					getInstallingPanel().installApplication();
+				}
+			}
+			.start();
+		} catch (Exception exception) {
+			showErrorPanel(exception);
+		}
 	}
 
 	/**
 	 * 
 	 */
 	void licenseAgreeButtonPressed() {
-		getJPanel().remove(getLicensePanel());
-		getJPanel().add(getLocationPanel());
-		getJPanel().revalidate();
-		getJPanel().repaint();
+		try {
+			getJPanel().remove(getLicensePanel());
+			getJPanel().add(getLocationPanel());
+			getJPanel().revalidate();
+			getJPanel().repaint();
+		} catch (Exception exception) {
+			showErrorPanel(exception);
+		}
 	}
 
 	/**
@@ -142,6 +184,7 @@ public class InstallerApplet extends JApplet {
 	private JPanel getJPanel() {
 		if(jPanel == null) {
 			jPanel = new JPanel();
+			jPanel.setLayout(new BorderLayout());
 		}
 		return jPanel;
 	}
@@ -151,10 +194,21 @@ public class InstallerApplet extends JApplet {
 	private GreetingPanel getGreetingPanel() {
 		if (greetingPanel == null) {
 			greetingPanel = new GreetingPanel(this);	
-			greetingPanel.setLogoURL(getClass().getResource("/res/logo.png"));
+			greetingPanel.setLogoURL(getClass().getResource(LOGO_LOCATION));
 			greetingPanel.initialize();
 		}
 		return greetingPanel;
+	}
+	
+	/**
+	 * @return
+	 */
+	private ErrorPanel getErrorPanel() {
+		if (errorPanel == null) { 
+			errorPanel = new ErrorPanel(this);
+			errorPanel.initialize();
+		}
+		return errorPanel;
 	}
 
 	/**
@@ -163,7 +217,7 @@ public class InstallerApplet extends JApplet {
 	private LicensePanel getLicensePanel() {
 		if (licensePanel == null) {
 			licensePanel = new LicensePanel(this);
-			licensePanel.setLicenseURL(getClass().getResource("/res/gpl.txt"));
+			licensePanel.setLicenseURL(getClass().getResource(LICENSE_LOCATION));
 			licensePanel.initialize();
 		}
 		return licensePanel;
@@ -195,6 +249,7 @@ public class InstallerApplet extends JApplet {
 		if (installingPanel == null) {
 			installingPanel = new InstallingPanel(this);
 			installingPanel.setJnlpRemoteLocation(jnlpRemoteLocation);
+			installingPanel.setDtdLocation(getClass().getResource(DTD_LOCATION));
 			installingPanel.initialize();
 		}
 		return installingPanel;
