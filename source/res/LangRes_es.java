@@ -418,7 +418,16 @@ static final Object[][] contents = {
 	//	Frost startup error messages
 	{"Frost.lockFileFound", "Esto indica que otra instancia de Frost ya se está ejecutando en este directorio.\n" +
 							"Ejecutar Frost concurrentemente va a provocar la pérdida de datos.\n"+
-							"Si estás TOTALMENTE SEGURO de que Frost no se está ejecutando ya, borra el fichero de bloqueo:\n"}
+							"Si estás TOTALMENTE SEGURO de que Frost no se está ejecutando ya, borra el fichero de bloqueo:\n"},
+							
+	//
+	//  Message upload failed dialog
+	//
+	{"Upload of message failed", "La subida del mensaje falló"},
+	{"Frost was not able to upload your message.", "Frost no pudo subir tu mensaje."},
+	{"Retry", "Reintentar"},
+	{"Retry on next startup", "Reintentar en el próximo arranque"},
+	{"Discard message", "Descartar mensaje"}
 	
 	};
 }
