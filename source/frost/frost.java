@@ -28,6 +28,7 @@ import com.l2fprod.gui.plaf.skin.*;
 
 import frost.ext.JSysTrayIcon;
 import frost.gui.Splashscreen;
+import frost.gui.components.MiscToolkit;
 
 public class frost {
 	
@@ -134,11 +135,11 @@ public class frost {
 			jarFileName = "jocache.jar";
 			Class.forName("org.shiftone.cache.CacheConfiguration");
 		} catch (ClassNotFoundException e1) {
-			System.err.println(
-				"ERROR: The jar file " +  jarFileName + " is missing. Please start Frost using the provided start "
-					+ "scripts (frost.bat for win32, frost.sh for unix).\n"+
-					"  If Frost was working and you updated just frost.jar, try updating with Frost.zip\n");
-			e1.printStackTrace();
+			MiscToolkit.getInstance().showMessage(
+					"Please start Frost using the provided start " +
+					"scripts (frost.bat for Windows, frost.sh for Unix).\n" +
+					"If Frost was working and you updated just frost.jar, try updating with frost.zip",
+					JOptionPane.ERROR_MESSAGE, "ERROR: The jar file " +  jarFileName + " is missing.");
 			System.exit(3);
 		}
 
@@ -152,15 +153,13 @@ public class frost {
 		}
 
 		if (fileCreated == false) {
-			System.out.println(
-				"ERROR: Found frost lock file '.frost_run_lock'.\n"
-					+ "This indicates that another frost instance is already running in "
-					+ "this directory. Running frost concurrently will cause data "
-					+ "loss.\nIf you are REALLY SURE that frost is not already running, "
-					+ "delete the lockfile '"
-					+ runLock.getPath()
-					+ "'.");
-			System.out.println("\nTERMINATING...\n");
+			MiscToolkit.getInstance().showMessage(
+					"This indicates that another Frost instance is already running in " +
+					"this directory.\nRunning Frost concurrently will cause data loss.\n" +
+					"If you are REALLY SURE that Frost is not already running, " +
+					"delete the lockfile:\n'" +
+					runLock.getAbsolutePath() + "'",
+					JOptionPane.ERROR_MESSAGE, "ERROR: Found Frost lock file '.frost_run_lock'.\n");
 			System.exit(1);
 		}
 		runLock.deleteOnExit();
