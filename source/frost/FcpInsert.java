@@ -87,15 +87,15 @@ public class FcpInsert {
     private static void updateUploadTable(File file, int progress, boolean mode) {
     if (mode) {
         // Need to synchronize table accesses
-        synchronized (frame1.uploadTable){
+        synchronized (frame1.getInstance().getUploadTable()){
         // Does an exception prevent release of the lock, better catch them
         try{
-            int rows = frame1.uploadTableModel.getRowCount();
+            int rows = frame1.getInstance().getUploadTable().getModel().getRowCount();
             progress = progress/1024;
             String text = progress + "Kb";
             for (int i = 0; i < rows; i++) {
-            if (file.getPath().equals(frame1.uploadTableModel.getValueAt(i, 3)))
-                frame1.uploadTableModel.setValueAt(text, i, 2);
+            if (file.getPath().equals(frame1.getInstance().getUploadTable().getModel().getValueAt(i, 3)))
+                frame1.getInstance().getUploadTable().getModel().setValueAt(text, i, 2);
             }
         }
         catch (Exception e){}
@@ -106,13 +106,13 @@ public class FcpInsert {
     private static String getBoard(File file) {
     String result = null;
     // Need to synchronize table accesses
-    synchronized (frame1.uploadTable){
+    synchronized (frame1.getInstance().getUploadTable()){
         // Does an exception prevent release of the lock, better catch them
         try{
-        int rows = frame1.uploadTableModel.getRowCount();
+        int rows = frame1.getInstance().getUploadTable().getModel().getRowCount();
         for (int i = 0; i < rows; i++) {
-            if (file.getPath().equals(frame1.uploadTableModel.getValueAt(i, 3)))
-            result = (String)frame1.uploadTableModel.getValueAt(i, 4);
+            if (file.getPath().equals(frame1.getInstance().getUploadTable().getModel().getValueAt(i, 3)))
+            result = (String)frame1.getInstance().getUploadTable().getModel().getValueAt(i, 4);
         }
         }
         catch (Exception e){}

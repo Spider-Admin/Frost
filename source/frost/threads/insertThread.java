@@ -72,14 +72,14 @@ public class insertThread extends Thread {
         Index.add(newKey, new File(frame1.keypool + board));
         }
 
-        synchronized (frame1.uploadTable){
+        synchronized (frame1.getInstance().getUploadTable()) {
             try {
             int row = getTableEntry();
             if (row != -1) {
             if (mode)
-                frame1.uploadTableModel.setValueAt(status, row, 2);
+                frame1.getInstance().getUploadTable().getModel().setValueAt(status, row, 2);
             else
-                frame1.uploadTableModel.setValueAt(result[1], row, 5);
+                frame1.getInstance().getUploadTable().getModel().setValueAt(result[1], row, 5);
             }
             }
         catch (Exception e) {System.out.println("insertThread NOT GOOD "+e.toString());}
@@ -96,8 +96,8 @@ public class insertThread extends Thread {
     }
 
     public int getTableEntry() {
-    for (int i = 0; i < frame1.uploadTableModel.getRowCount(); i++)
-        if ((file.getPath()).equals(frame1.uploadTableModel.getValueAt(i, 3)))
+    for (int i = 0; i < frame1.getInstance().getUploadTable().getModel().getRowCount(); i++)
+        if ((file.getPath()).equals(frame1.getInstance().getUploadTable().getModel().getValueAt(i, 3)))
         return i;
     return -1;
     }

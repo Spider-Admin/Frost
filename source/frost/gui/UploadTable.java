@@ -11,14 +11,13 @@ import javax.swing.tree.*;
 
 import frost.gui.model.*;
 
-public class SearchTable extends SortedTable
+public class UploadTable extends JTable
 {
-    public SearchTable(TableModel m)
+    public UploadTable(TableModel m)
     {
         super(m);
-
         // set column sizes
-        int[] widths = {250, 80, 80, 80, 80};
+        int[] widths = {250, 80, 80, 80, 80, 80};
         for (int i = 0; i < widths.length; i++)
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
