@@ -228,7 +228,7 @@ public class BoardInfoFrame extends JFrame
         if( updateBoardInfoTableThread != null )
             return;
 
-        ((SortedTableModel2)boardTable.getModel()).clearDataModel();
+        ((SortedTableModel)boardTable.getModel()).clearDataModel();
 
         updateBoardInfoTableThread = new UpdateBoardInfoTableThread();
         updateBoardInfoTableThread.start();

@@ -326,7 +326,7 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
      * @param node Save this nodes content
      * @param file The destination file
      */
-    public void saveTree()
+    public boolean saveTree()
     {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
         String boardIniFilename = frame1.frostSettings.getValue("config.dir") + "boards.xml";
@@ -343,10 +343,6 @@ implements DragGestureListener, DropTargetListener, DragSourceListener
             check.renameTo(bakFile);
         }
         // the method scans the toftree
-        if( xmlio.saveBoardTree( this, boardIniFilename ) == false ) // save OK?
-        {
-            // TODO: write new config file, rename old
-            return;
-        }
+        return xmlio.saveBoardTree( this, boardIniFilename );
     }
 }

@@ -105,26 +105,10 @@ public class TOF
              newMsgFile.length() < 32000
           )
         {
-            FrostMessageObject message = new FrostMessageObject(newMsgFile);
+            final FrostMessageObject message = new FrostMessageObject(newMsgFile);
             if( message.isValid() && !blocked(message) )
             {
                 final String[] sMessage = message.getVRow();
-                // bback: sometimes a NullPointerException occurs in following line
-                // i dont know why, so here is a trap:
-                try {
-                    messages.put( message.getIndex() + sMessage[4], message);
-                }
-                catch(Exception ex)
-                {
-                    System.out.println("\nDEBUG-TRAP TOF.addNewMessageToTable:");
-                    System.out.println("Please report this to bback!");
-                    System.out.println("messages="+messages);
-                    System.out.println("message="+message);
-                    if( message != null )
-                        System.out.println("message.getIndex()="+message.getIndex());
-                    System.out.println("sMessage[4]="+sMessage[4]);
-                    ex.printStackTrace();
-                }
 
                 board.incNewMessageCount();
 
@@ -134,6 +118,8 @@ public class TOF
                             frame1.getInstance().updateTofTree(board);
                             if( frame1.getInstance().getActualNode().toString().equals( board.toString() ) )
                             {
+                                messages.put( message.getIndex() + sMessage[4], message);
+
                                 tableModel.addRow(sMessage);
                                 frame1.getInstance().updateMessageCountLabels(board);
                             }
@@ -241,7 +227,8 @@ public class TOF
                         // check if tof table shows this board
                         if( frame1.getInstance().getActualNode().toString().equals( innerTargetBoard.toString() ) )
                         {
-                            TableFun.removeAllRows(table);
+                            DefaultTableModel model = (DefaultTableModel)table.getModel();
+                            model.setRowCount( 0 );
                             frame1.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }

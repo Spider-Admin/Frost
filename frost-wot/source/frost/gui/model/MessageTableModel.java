@@ -21,7 +21,7 @@ package frost.gui.model;
 
 import javax.swing.table.*;
 
-public class MessageTableModel extends SortedTableModel
+public class MessageTableModel extends SortedTableModel2
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 

@@ -2,15 +2,20 @@ package frost;
 import java.io.*;
 import java.net.*;
 import java.util.*;
+import javax.swing.*;
 
 import frost.FcpTools.*;
 import frost.threads.*;
+
+import frost.gui.objects.*;
+import frost.gui.model.*;
 
 /**
  * Requests a CHK key from freenet
  * @author <a href=mailto:jantho@users.sourceforge.net>Jan-Thomas Czornack</a>
  */
-public class FcpInsert {
+public class FcpInsert
+{
     final static boolean DEBUG = true;
     final static int smallestChunk = 262144;
 
@@ -84,23 +89,33 @@ public class FcpInsert {
     }
     }
 
-    private static void updateUploadTable(File file, int progress, boolean mode) {
-    if (mode) {
-        // Need to synchronize table accesses
-        synchronized (frame1.getInstance().getUploadTable()){
-        // Does an exception prevent release of the lock, better catch them
-        try{
-            int rows = frame1.getInstance().getUploadTable().getModel().getRowCount();
-            progress = progress/1024;
-            String text = progress + "Kb";
-            for (int i = 0; i < rows; i++) {
-            if (file.getPath().equals(frame1.getInstance().getUploadTable().getModel().getValueAt(i, 3)))
-                frame1.getInstance().getUploadTable().getModel().setValueAt(text, i, 2);
-            }
+    /**
+     * Updates the 'state' column for a file that is in table
+     */
+    private static void updateUploadTable(File file, int progress, boolean mode)
+    {
+        final int finalProgress = progress;
+        final String filePath = file.getPath();
+        final UploadTableModel model = (UploadTableModel)frame1.getInstance().getUploadTable().getModel();
+
+        if( mode )
+        {
+            SwingUtilities.invokeLater( new Runnable() {
+                public void run()
+                {
+                    String text = (finalProgress/1024) + " Kb";
+                    for( int i = 0; i < model.getRowCount(); i++ )
+                    {
+                        FrostUploadItemObject ulItem = (FrostUploadItemObject)model.getRow(i);
+                        if( filePath.equals(ulItem.getFilePath()) )
+                        {
+                            ulItem.setState( text );
+                            model.updateRow( ulItem );
+                            break;
+                        }
+                    }
+                } });
         }
-        catch (Exception e){}
-        }
-    }
     }
 
     private static String getBoard(File file) {

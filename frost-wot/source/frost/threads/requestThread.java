@@ -25,19 +25,22 @@ import javax.swing.table.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.gui.*;
 import frost.gui.objects.*;
+import frost.gui.model.*;
 
 public class requestThread extends Thread {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
 
     final boolean DEBUG = true;
     private String filename;
-    private String size;
+    private Long size;
     private String key;
-    private String htl;
-    private JTable downloadTable;
-    private JTable uploadTable;
+    private Integer htl;
+    private DownloadTable downloadTable;
     private FrostBoardObject board;
+
+    private FrostDownloadItemObject downloadItem;
 
     public void run() {
 
@@ -47,37 +50,47 @@ public class requestThread extends Thread {
     }
 
     // some vars
-    DefaultTableModel tableModel = (DefaultTableModel)downloadTable.getModel();
+    final DownloadTableModel tableModel = (DownloadTableModel)downloadTable.getModel();
     SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
     Date today = new Date();
     String date = formatter.format(today);
     File newFile = new File(frame1.frostSettings.getValue("downloadDirectory") + filename);
     boolean do_request = false;
 
-    System.out.println("Download of " + filename + " with HTL " + htl + " started.");
+    System.out.println("Download of " + filename + " with HTL " + htl.toString() + " started.");
 
     // Download file
-    boolean success = FcpRequest.getFile(key, size, newFile, htl, true);
+    boolean success = FcpRequest.getFile(key, size.toString(), newFile, htl.toString(), true);
 
     // We need to synchronize accesses to the table
     synchronized (downloadTable){
         // Does an exception prevent release of the lock, better catch them
         try{
         // file might be erased from table during download...
-        int row = getTableEntry(tableModel);
+        boolean inTable = false;
+        for( int x=0; x<tableModel.getRowCount(); x++ )
+        {
+            FrostDownloadItemObject actItem = (FrostDownloadItemObject)tableModel.getRow(x);
+            if( actItem.getKey().equals( downloadItem.getKey() ) )
+            {
+                inTable = true;
+                break;
+            }
+        }
 
         // download failed
         if (!success) {
             System.out.println("Download of " + filename + " failed.");
-            if (row != -1) {
-            frame1.getInstance().getDownloadTable().getModel().setValueAt(LangRes.getString("Failed"), row, 3);
+            SwingUtilities.invokeLater(new Runnable() {
+                    public void run()
+                    {
+                        downloadItem.setState(LangRes.getString("Failed"));
+                        tableModel.updateRow( downloadItem );
+                    } });
 
+            if (inTable == true) {
             // Upload request to request stack
-            int intHtl = 15;
-            try {
-                intHtl = Integer.parseInt(htl);
-            }
-            catch (NumberFormatException e) {}
+            int intHtl = htl.intValue();
 
             if ( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl")) {
                 if (DEBUG) System.out.println("Download failed, uploading request for " + filename);
@@ -91,7 +104,6 @@ public class requestThread extends Thread {
         }
         // download successfull
         else {
-
             // Add successful downloaded key to database
             KeyClass newKey = new KeyClass(key);
             newKey.setFilename(filename);
@@ -100,17 +112,13 @@ public class requestThread extends Thread {
             newKey.setExchange(false);
             Index.add(newKey, new File(frame1.keypool + board.getBoardFilename()));
 
-            // Add this file to the upload table (so that it can be requested again)
-            File file = new File(System.getProperty("user.dir") +
-                     System.getProperty("file.separator") +
-                     newFile.getPath());
-
-    //      UploadTableFun.add(uploadTable, file, new File(""), board);
-
-            if (row != -1) {// Entry was not deleted from download table
-            tableModel.setValueAt(LangRes.getString("Done"), row, 3);
-            frame1.updateDownloads = true;
-            }
+            SwingUtilities.invokeLater( new Runnable() {
+                    public void run()
+                    {
+                        downloadItem.setState( LangRes.getString("Done") );
+                        tableModel.updateRow( downloadItem );
+                        frame1.updateDownloads = true;
+                    } });
         }
         }
         catch (Exception e){
@@ -118,29 +126,24 @@ public class requestThread extends Thread {
         }
     }
     if (do_request)
-        request(key.trim(), board.getBoardFilename()); // TODO: pass FrostBoardObject
+    {
+        request(key.trim(), board);
+    }
     synchronized(frame1.threadCountLock) {
     frame1.activeDownloadThreads--;
     }
     }
 
-    public int getTableEntry(DefaultTableModel tableModel) {
-    for (int i = 0; i < tableModel.getRowCount(); i++)
-        if (key.equals(tableModel.getValueAt(i,6)))
-        return i;
-    return -1;
-    }
-
     // Request a certain CHK from a board
-    private void request(String key, String board) {
+    private void request(String key, FrostBoardObject board) {
 
     String messageUploadHtl = frame1.frostSettings.getValue("tofUploadHtl");
     boolean requested = false;
 
-    if (DEBUG) System.out.println("Uploading request of " + key + " from " + board);
+    if (DEBUG) System.out.println("Uploading request of " + key + " from " + board.toString());
 
     String fileSeparator = System.getProperty("file.separator");
-    String destination = frame1.keypool + board + fileSeparator + DateFun.getDate() + fileSeparator;
+    String destination = frame1.keypool + board.getBoardFilename() + fileSeparator + DateFun.getDate() + fileSeparator;
 
     File checkDestination = new File(destination);
     if (!checkDestination.isDirectory())
@@ -158,36 +161,7 @@ public class requestThread extends Thread {
 
     if (!requested) {
         String date = DateFun.getDate();
-/*
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        String date = cal.get(Calendar.YEAR) + ".";
-        int month = cal.get(Calendar.MONTH) + 1;
-        date += month + ".";
-        int day = cal.get(Calendar.DATE);
-        date += day;
-*/
         String time = DateFun.getFullExtendedTime() + "GMT";
-/*
-        int hour = cal.get(Calendar.HOUR_OF_DAY);
-        if (hour < 10) {
-        time +=  "0" + hour + ":";
-        } else {
-        time +=  hour + ":";
-        }
-        int minute = cal.get(Calendar.MINUTE);
-        if (minute < 10) {
-        time +=  "0" + minute + ":";
-        } else {
-        time +=  minute + ":";
-        }
-        int second = cal.get(Calendar.SECOND);
-        if (second < 10) {
-        time +=  "0" + second + "GMT";
-        } else {
-        time +=  second + "GMT";
-        }
-*/
 
         // Generate file to upload
         String uploadMe = String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
@@ -204,7 +178,7 @@ public class requestThread extends Thread {
         while (!success) {
         // Does this index already exist?
         File testMe = new File(new StringBuffer().append(destination).append(date).append("-")
-                               .append(board).append("-").append(index).append(".req").toString());
+                               .append(board.getBoardFilename()).append("-").append(index).append(".req").toString());
         if (testMe.length() > 0) { // already downloaded
             index++;
             if (DEBUG) System.out.println("File exists, increasing index to " + index);
@@ -214,7 +188,7 @@ public class requestThread extends Thread {
             String upKey = new StringBuffer().append("KSK@frost/request/")
                                              .append(frame1.frostSettings.getValue("messageBase"))
                                              .append("/").append(date).append("-")
-                                             .append(board).append("-").append(index).append(".req").toString();
+                                             .append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
             if (DEBUG) System.out.println(upKey);
             result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
             System.out.println("FcpInsert result[0] = " + result[0] + " result[1] = " + result[1]);
@@ -233,12 +207,12 @@ public class requestThread extends Thread {
                 String compareMe = String.valueOf(System.currentTimeMillis()) + ".txt";
                 String requestMe = new StringBuffer().append("KSK@frost/request/")
                     .append(frame1.frostSettings.getValue("messageBase")).append("/")
-                    .append(date).append("-").append(board).append("-").append(index).append(".req").toString();
+                    .append(date).append("-").append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
 
                 if (FcpRequest.getFile(requestMe,
                            "Unknown",
                            frame1.keypool + compareMe,
-                           htl,
+                           htl.toString(),
                            false)) {
 
                 File numberOne = new File(frame1.keypool + compareMe);
@@ -274,11 +248,10 @@ public class requestThread extends Thread {
         if (!error) {
 
         File killMe = new File(destination + uploadMe);
-        File newMessage = new File(destination + date + "-" + board + "-" + index + ".req");
+        File newMessage = new File(destination + date + "-" + board.getBoardFilename() + "-" + index + ".req");
         killMe.renameTo(newMessage);
 
-        //frame1.updateTof = true;
-        TOF.addNewMessageToTable( newMessage, this.board );
+        TOF.addNewMessageToTable( newMessage, board );
 
         System.out.println("*********************************************************************");
         System.out.println("Request successfuly uploaded to the '" + board + "' board.");
@@ -288,26 +261,22 @@ public class requestThread extends Thread {
         System.out.println("Error while uploading message.");
         messageFile.delete();
         }
-
         System.out.println("Request Upload Thread finished");
     }
     }
 
     /**Constructor*/
-    public requestThread(String filename,
-             String size,
-             JTable downloadTable,
-             JTable uploadTable,
-             String htl,
-             String key,
-             FrostBoardObject board) {
-    this.filename = filename;
-    this.size = size;
-    this.downloadTable = downloadTable;
-    this.uploadTable = uploadTable;
-    this.htl = htl;
-    this.key = key;
-    this.board = board;
+    public requestThread( FrostDownloadItemObject dlItem, DownloadTable downloadTable )
+    {
+        this.filename = dlItem.getFileName();
+        this.size = dlItem.getFileSize();
+        this.htl = dlItem.getHtl();
+        this.key = dlItem.getKey();
+        this.board = dlItem.getSourceBoard();
+
+        this.downloadItem = dlItem;
+
+        this.downloadTable = downloadTable;
     }
 }
 

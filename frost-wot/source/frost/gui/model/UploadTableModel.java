@@ -21,7 +21,7 @@ package frost.gui.model;
 
 import javax.swing.table.*;
 
-public class UploadTableModel extends DefaultTableModel
+public class UploadTableModel extends SortedTableModel
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
@@ -39,12 +39,13 @@ public class UploadTableModel extends DefaultTableModel
         String.class, //LangRes.getString("Last upload"),
         String.class, //LangRes.getString("Path"),
         String.class, //LangRes.getString("Destination"),
-        String.class //LangRes.getString("Key")
+        String.class  //LangRes.getString("Key")
     };
 
     public UploadTableModel()
     {
         super();
+        sortModelColumn(0, true); // default: sort column 0 ascending
     }
 
     public boolean isCellEditable(int row, int col)
