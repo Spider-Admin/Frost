@@ -31,11 +31,11 @@ package frost.ext;
 import java.io.*;
 import java.util.*;
 
-
 /**
  * This class wraps the functionality of the external 
  * system depended libraries that maintain the SysTray
  * support for several environments.
+ * The original class was enhanced + better documented. (bback)
  * 
  * Currently there is support for:
  *  - win32 (JSysTray.dll)
@@ -54,7 +54,6 @@ public class JSysTrayIcon
   private static int ERR_WINDOW_NOT_FOUND    = 2;
   private static int ERR_ICON_NOT_FOUND      = 3;
 
-
   public static int SHOW_CMD_HIDE            = 1;
   public static int SHOW_CMD_SHOW            = 2;
 
@@ -65,7 +64,8 @@ public class JSysTrayIcon
   private String  windowTitle = null;
 
   /**
-   * Creates a new Systray icon
+   * Creates a new Systray icon.
+   * Must contain code for any supported platform, see comments.
    *
    * @param iconIndex - the index of the icon to display (starting at 0)
    * @param tooltipText - the tooltip text
@@ -76,6 +76,7 @@ public class JSysTrayIcon
     if(!libLoaded)
     {
       // load the native library
+      // ADD YOUR PLATFORM CODE HERE
       if( System.getProperty("os.name").startsWith("Windows") )
       {
           try {
@@ -109,7 +110,9 @@ public class JSysTrayIcon
   }
 
   /**
-   * Sets the icon of the icon
+   * Sets the index of the icon to show.
+   * index starts at 0, this represents the 1st icon stored in the library.
+   * The source pictures are enumerated, this order is expected here.
    *
    * @param iconIndex - the new index of the icon to display (starting at 0)
    */
@@ -131,7 +134,7 @@ public class JSysTrayIcon
   }
 
   /**
-   * Sets the tooltip text of the icon
+   * Sets the tooltip text of the icon.
    *
    * @param tooltipText - the new tooltip text
    */
@@ -151,7 +154,7 @@ public class JSysTrayIcon
   }
 
   /**
-   * Sets the window title
+   * Sets the window title that is used to find the window.
    *
    * @param windowTitle - the new window title
    */
@@ -172,7 +175,7 @@ public class JSysTrayIcon
   }
 
   /**
-   * Deletes the icon from the systray
+   * Deletes the icon from the systray.
    */
   public void delete() throws IOException
   {
@@ -196,6 +199,8 @@ public class JSysTrayIcon
 
   /**
    * Sends a show command to the window identified by the window title of the icon
+   * - SHOW_CMD_HIDE
+   * - SHOW_CMD_SHOW
    *
    * @param showCMD - one of the SHOW_CMD_xx values
    */
@@ -216,6 +221,9 @@ public class JSysTrayIcon
       throw(new IOException("The Window state has not been changed. rc="+rc));
   }
 
+  /**
+   * A shutdown hook to remove the systray icon on exit.
+   */
   class ShutdownHook extends Thread
   {
     public void run()
@@ -234,10 +242,23 @@ public class JSysTrayIcon
   }
   
   /***********************************
-   * Additional wrapper methods
+   * Additional wrapper methods, maintain 1 systray icon.
+   * If you need additional icons, instanciate this class
+   * directly. 
    ***********************************/
   private static JSysTrayIcon sysTrayIcon = null;
   
+  /**
+   * Creates a single instance of a systray icon.
+   * The instance can be aquired by caalling getInstance().
+   * For multiple systray icons instanciate the class
+   * directly.
+   *  
+   * @param iconIndex - the index of the icon to display (starting at 0)
+   * @param tooltipText - the tooltip text
+   * @param windowTitle - the window title
+   * @return true if instance was successfully created, false otherwise
+   */
   public static boolean createInstance(int iconIndex,String tooltipText,String windowTitle)
   {
       try {
@@ -249,10 +270,13 @@ public class JSysTrayIcon
       }
       return true;
   }
-  
+  /**
+   * Returns the created instance of the systray icon.
+   * 
+   * @return the instance or null if not created
+   */
   public static JSysTrayIcon getInstance()
   {
       return JSysTrayIcon.sysTrayIcon;
   }
-
 }
