@@ -173,35 +173,40 @@ public class Node
 
     public void print()
     {
-        print(System.out, 0);
+        LOG.info(composePrint(0));
     }
 
 
     /**
-        * Method print
-        */
-    private void print(PrintStream out, int indentLevel)
+     * Method print
+     */
+    private String composePrint(int indentLevel)
     {
 
+		StringBuffer output = new StringBuffer();
         Collection children = getChildren();
 
         if (children.size() == 0)
         {
-            out.println(bufferString(indentLevel, '\t') + "<" + getKey() + " value=\"" + getValue() + "\"/>");
+        	output.append(bufferString(indentLevel, '\t') + "<" + getKey() + " value=\"" + getValue() + "\"/>" + "\n");
+            //out.println(bufferString(indentLevel, '\t') + "<" + getKey() + " value=\"" + getValue() + "\"/>");
         }
         else
         {
-            out.println(bufferString(indentLevel, '\t') + "<" + getKey() + " value=\"" + getValue() + "\">");
+			output.append(bufferString(indentLevel, '\t') + "<" + getKey() + " value=\"" + getValue() + "\">" + "\n");
+            //out.println(bufferString(indentLevel, '\t') + "<" + getKey() + " value=\"" + getValue() + "\">");
 
             Iterator i = children.iterator();
 
             while (i.hasNext())
             {
-                ((Node) i.next()).print(out, indentLevel + 1);
+				output.append(((Node) i.next()).composePrint(indentLevel + 1));
             }
 
-            out.println(bufferString(indentLevel, '\t') + "</" + getKey() + ">");
+			output.append(bufferString(indentLevel, '\t') + "</" + getKey() + ">" + "\n");
+            //out.println(bufferString(indentLevel, '\t') + "</" + getKey() + ">");
         }
+        return output.toString();
     }
 
 
