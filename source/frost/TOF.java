@@ -26,9 +26,9 @@ import javax.swing.tree.*;
 
 import frost.gui.*;
 
-public class TOF {
-
-    private static Hashtable messages;
+public class TOF
+{
+    private static Hashtable messages = null;
     private static UpdateTofFilesThread updateThread = null;
     private static UpdateTofFilesThread nextUpdateThread = null;
 

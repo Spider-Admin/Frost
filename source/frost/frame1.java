@@ -19,6 +19,7 @@
 */
 
 package frost;
+
 import java.awt.*;
 import java.awt.event.*;
 import javax.swing.*;
@@ -30,8 +31,6 @@ import javax.swing.text.html.*;
 import javax.swing.filechooser.*;
 import java.io.*;
 import javax.swing.tree.*;
-import javax.swing.tree.DefaultTreeCellEditor;
-import javax.swing.tree.DefaultTreeCellRenderer;
 import java.awt.datatransfer.*;
 
 import frost.FcpTools.*;
@@ -235,6 +234,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void             setTofTextAreaText(String txt) { tofTextArea.setText(txt); }
     public TofTree          getTofTree() { return tofTree; }
     public String           getLastUsedBoard() { return lastUsedBoard; }
+    public void             setLastUsedBoard(String v) { lastUsedBoard=v; }
     public JButton          getSearchButton() { return searchButton; }
 
     /**Construct the frame*/
@@ -352,7 +352,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         checkBox.setFocusPainted(false);
     }
 
-    private JPanel createButtonPanel(MouseListener idleStopper) //OK
+    private JPanel buildButtonPanel(MouseListener idleStopper) //OK
     {
         timeLabel = new JLabel("");
 // configure buttons
@@ -448,7 +448,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         return buttonPanel;
     }
 
-    private JPanel createStatusPanel(MouseListener idleStopper) //OK
+    private JPanel buildStatusPanel(MouseListener idleStopper) //OK
     {
         statusLabel = new JLabel(LangRes.getString("Frost by Jantho"));
         statusMessageLabel = new JLabel();
@@ -460,14 +460,14 @@ public class frame1 extends JFrame implements ClipboardOwner
         return statusPanel;
     }
 
-    private JPanel createTofMainPanel(MouseListener idleStopper) //OK
+    private JPanel buildTofMainPanel(MouseListener idleStopper) //OK
     {
         JTabbedPane tabbedPane = new JTabbedPane();
         //add a tab for buddies perhaps?
-        tabbedPane.add(LangRes.getString("News"), getMessagePane());
-        tabbedPane.add(LangRes.getString("Search"), getSearchPane());
-        tabbedPane.add(LangRes.getString("Downloads"), getDownloadPane());
-        tabbedPane.add(LangRes.getString("Uploads"), getUploadPane());
+        tabbedPane.add(LangRes.getString("News"), buildMessagePane());
+        tabbedPane.add(LangRes.getString("Search"), buildSearchPane());
+        tabbedPane.add(LangRes.getString("Downloads"), buildDownloadPane());
+        tabbedPane.add(LangRes.getString("Uploads"), buildUploadPane());
 
         DefaultMutableTreeNode tofTreeNode = new DefaultMutableTreeNode("Frost Message System");
         tofTree = new TofTree(tofTreeNode);
@@ -480,17 +480,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {
                 tofTree_actionPerformed(e);
-                int i[] = getTofTree().getSelectionRows();
-                if (i != null)
-                {
-                    if (i.length > 0)
-                        frostSettings.setValue("tofTreeSelectedRow", i[0]);
-                }
-                TreePath selectedTreePath = e.getNewLeadSelectionPath();
-                if (selectedTreePath == null)
-                    getTofTree().setSelectedTof(null);
-                else
-                    getTofTree().setSelectedTof((DefaultMutableTreeNode)selectedTreePath.getLastPathComponent());
         } });
         //tofTree / KeyEvent
         tofTree.addKeyListener(new KeyListener() {
@@ -499,18 +488,15 @@ public class frame1 extends JFrame implements ClipboardOwner
             public void keyReleased(KeyEvent e) {}
         });
 
-        // was tofSplitPane2
         JSplitPane treeAndTabbedPane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, tabbedPane);
         treeAndTabbedPane.setDividerLocation(160); // Vertical Board Tree / MessagePane Divider
 
         JPanel tofMainPanel = new JPanel(new BorderLayout());
-//        tofMainPanel.add(tofTopPanel, BorderLayout.NORTH); // TOF/Buttons
         tofMainPanel.add(treeAndTabbedPane, BorderLayout.CENTER); // TOF/Text
-
         return tofMainPanel;
     }
 
-    private JPanel getMessagePane() // OK
+    private JPanel buildMessagePane()
     {
 // configure buttons
         this.tofNewMessageButton = new JButton(new ImageIcon(frame1.class.getResource("/data/newmessage.gif")));
@@ -534,7 +520,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener to buttons
         tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) { // Update selected board
-                if (doUpdate(lastUsedBoard))  {  updateBoard(lastUsedBoard);  }
+                if (doUpdate(getLastUsedBoard()))  {  updateBoard(getLastUsedBoard());  }
             } });
         tofNewMessageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -554,7 +540,7 @@ public class frame1 extends JFrame implements ClipboardOwner
            } });
        saveMessageButton.addActionListener(new java.awt.event.ActionListener() {
            public void actionPerformed(ActionEvent e) {
-               FileAccess.saveDialog(getInstance(), tofTextArea.getText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
+               FileAccess.saveDialog(getInstance(), getTofTextAreaText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
            } });
         trustButton.addActionListener(new java.awt.event.ActionListener() {
            public void actionPerformed(ActionEvent e) {
@@ -607,6 +593,9 @@ public class frame1 extends JFrame implements ClipboardOwner
 
         this.tofTextArea = new JTextArea();
         JScrollPane tofTextAreaScrollPane = new JScrollPane(tofTextArea);
+        tofTextArea.setEditable(false);
+        tofTextArea.setLineWrap(true);
+        tofTextArea.setWrapStyleWord(true);
 
         AttachmentTableModel attachmentTableModel = new AttachmentTableModel();
         this.attachmentTable = new JTable(attachmentTableModel);
@@ -616,21 +605,19 @@ public class frame1 extends JFrame implements ClipboardOwner
         this.boardTable = new JTable(boardTableModel);
         JScrollPane boardTableScrollPane = new JScrollPane(boardTable);
 
-        JSplitPane tofSplitPane; //, tofSplitPane1, tofSplitPane2, tofSplitPane3;
-        attachmentSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, tofTextAreaScrollPane, attachmentTableScrollPane);
-        boardSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, attachmentSplitPane, boardTableScrollPane);
+        this.attachmentSplitPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT,
+                                                   tofTextAreaScrollPane,
+                                                   attachmentTableScrollPane );
+        this.boardSplitPane = new JSplitPane( JSplitPane.VERTICAL_SPLIT,
+                                              attachmentSplitPane,
+                                              boardTableScrollPane );
 
-        tofSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageTableScrollPane, boardSplitPane);
-
+        JSplitPane tofSplitPane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageTableScrollPane, boardSplitPane);
         tofSplitPane.setDividerSize(10);
         tofSplitPane.setDividerLocation(160);
         tofSplitPane.setResizeWeight(0.5d);
         tofSplitPane.setMinimumSize(new Dimension(50, 20));
 
-        tofTextArea.setText(LangRes.getString("Select a message to view its content."));
-        tofTextArea.setEditable(false);
-        tofTextArea.setLineWrap(true);
-        tofTextArea.setWrapStyleWord(true);
 // build panel
         JPanel messageTablePanel = new JPanel(new BorderLayout());
         messageTablePanel.add(tofTopPanel, BorderLayout.NORTH);
@@ -638,7 +625,22 @@ public class frame1 extends JFrame implements ClipboardOwner
         return messageTablePanel;
     }
 
-    private JPanel getSearchPane() //OK
+    /**
+     * Called by frost after call of show().
+     * Sets the initial states of the message splitpanes.
+     * Must be called AFTER frame is shown.
+     **/
+    public void resetMessageViewSplitPanes()
+    {
+        // initially hide the attachment tables
+        attachmentSplitPane.setDividerSize( 0 );
+        attachmentSplitPane.setDividerLocation(1.0);
+        boardSplitPane.setDividerSize( 0 );
+        boardSplitPane.setDividerLocation(1.0);
+        setTofTextAreaText( LangRes.getString("Select a message to view its content.") );
+    }
+
+    private JPanel buildSearchPane()
     {
 // create objects for button toolbar
         this.searchAllBoardsCheckBox= new JCheckBox("all boards",true);
@@ -704,7 +706,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         return searchMainPanel;
     }
 
-    private JPanel getDownloadPane() //OK
+    private JPanel buildDownloadPane()
     {
 // create objects for buttons toolbar panel
         this.downloadActivateCheckBox = new JCheckBox(new ImageIcon(frame1.class.getResource("/data/down.gif")), true);
@@ -740,7 +742,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         return downloadMainPanel;
     }
 
-    private JPanel getUploadPane() //OK
+    private JPanel buildUploadPane()
     {
 // create upload table
         UploadTableModel uploadTableModel = new UploadTableModel();
@@ -790,14 +792,14 @@ public class frame1 extends JFrame implements ClipboardOwner
     JPanel contentPanel = (JPanel)this.getContentPane();
     contentPanel.setLayout(new BorderLayout());
 
-    contentPanel.add( createButtonPanel(idleStopper), BorderLayout.NORTH); // buttons toolbar
-    contentPanel.add( createTofMainPanel(idleStopper), BorderLayout.CENTER); // tree / tabbed pane
-    contentPanel.add( createStatusPanel(idleStopper), BorderLayout.SOUTH); // Statusbar
+    contentPanel.add( buildButtonPanel(idleStopper), BorderLayout.NORTH); // buttons toolbar
+    contentPanel.add( buildTofMainPanel(idleStopper), BorderLayout.CENTER); // tree / tabbed pane
+    contentPanel.add( buildStatusPanel(idleStopper), BorderLayout.SOUTH); // Statusbar
 
     contentPanel.addMouseListener(idleStopper);
 
-    createMenuBar();
-    createPopupMenus();
+    buildMenuBar();
+    buildPopupMenus();
 
 //**********************************************************************************************
 //**********************************************************************************************
@@ -995,16 +997,16 @@ public class frame1 extends JFrame implements ClipboardOwner
     started = true;
     } // ************** end-of: jbInit()
 
-    private void createPopupMenus()
+    private void buildPopupMenus()
     {
-        createPopupMenuSearch();
-        createPopupMenuUpload();
-        createPopupMenuDownload();
-        createPopupMenuTofText();
-        createPopupMenuTofTree();
+        buildPopupMenuSearch();
+        buildPopupMenuUpload();
+        buildPopupMenuDownload();
+        buildPopupMenuTofText();
+        buildPopupMenuTofTree();
     }
 
-    private void createPopupMenuSearch()
+    private void buildPopupMenuSearch()
     {
 // create objects
         searchPopupMenu = new JPopupMenu();
@@ -1039,7 +1041,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         searchPopupMenu.add(searchPopupCancel);
     }
 
-    private void createPopupMenuUpload()
+    private void buildPopupMenuUpload()
     {
 // create objects
         uploadPopupMenu = new JPopupMenu();
@@ -1154,7 +1156,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupMenu.add(uploadPopupCancel);
 
     }
-    private void createPopupMenuDownload()
+    private void buildPopupMenuDownload()
     {
 // construct objects
         downloadPopupMenu = new JPopupMenu(); // Downloads popup
@@ -1201,7 +1203,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         downloadPopupMenu.add(downloadPopupCancel);
 
     }
-    private void createPopupMenuTofText()
+    private void buildPopupMenuTofText()
     {
 // create objects
         tofTextPopupMenu = new JPopupMenu(); // TOF text popup
@@ -1214,7 +1216,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 // add action listener
         tofTextPopupSaveMessage.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
-                FileAccess.saveDialog(getInstance(), tofTextArea.getText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
+                FileAccess.saveDialog(getInstance(), getTofTextAreaText(), frostSettings.getValue("lastUsedDirectory"), LangRes.getString("Save message to disk"));
             } });
         tofTextPopupSaveAttachments.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
@@ -1244,7 +1246,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTextPopupMenu.add(tofTextPopupCancel);
 
     }
-    private void createPopupMenuTofTree()
+    private void buildPopupMenuTofTree()
     {
 // create objects
         tofTreePopupMenu = new JPopupMenu(); // TOF tree popup
@@ -1302,7 +1304,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTreePopupMenu.add(tofTreePopupCancel);
     }
 
-    private void createMenuBar()
+    private void buildMenuBar()
     {
 // create objects
         JMenuBar menuBar = new JMenuBar();
@@ -1424,7 +1426,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         key,
                         frostSettings.getIntValue("htl"),
                         downloadTable,
-                        lastUsedBoard);
+                        getLastUsedBoard());
         }
     }
     else {
@@ -1437,7 +1439,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         key,
                         frostSettings.getIntValue("htl"),
                         downloadTable,
-                        lastUsedBoard);
+                        getLastUsedBoard());
         }
     }
     }
@@ -1629,7 +1631,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private void updateButtons()
     {
-        String state = SettingsFun.getValue(keypool + lastUsedBoard + ".key", "state");
+        String state = SettingsFun.getValue(keypool + getLastUsedBoard() + ".key", "state");
         if( state.equals("readAccess") )
         {
             tofNewMessageButton.setEnabled(false);
@@ -1781,35 +1783,63 @@ public class frame1 extends JFrame implements ClipboardOwner
     }
 
     /**TOF Board selected*/
-    public void tofTree_actionPerformed(TreeSelectionEvent e) {
-    if (!stopTofTreeUpdate) {
+    public void tofTree_actionPerformed(TreeSelectionEvent e)
+    {
+        int i[] = getTofTree().getSelectionRows();
+        if (i != null)
+        {
+            if (i.length > 0)
+                frostSettings.setValue("tofTreeSelectedRow", i[0]);
+        }
+        TreePath selectedTreePath = e.getNewLeadSelectionPath();
+        if (selectedTreePath == null)
+            getTofTree().setSelectedTof(null);
+        else
+            getTofTree().setSelectedTof((DefaultMutableTreeNode)selectedTreePath.getLastPathComponent());
+
+        if(stopTofTreeUpdate)
+        {
+            return;
+        }
+
         DefaultMutableTreeNode node = (DefaultMutableTreeNode)getTofTree().getLastSelectedPathComponent();
 
-        if (node != null) {
-        if (node.isLeaf()) {
-            lastUsedBoard = mixed.makeFilename((String)node.getUserObject());
-            saveMessageButton.setEnabled(false);
-            configBoardButton.setEnabled(true);
+        resetMessageViewSplitPanes(); // clear message view
 
-            updateButtons();
-            if ((boardStats != null) && boardStats.containsKey(lastUsedBoard))
-            System.out.println(lastUsedBoard + " blocked count: " + ((BoardStat)boardStats.get(lastUsedBoard)).getNumberBlocked());
-            tofReplyButton.setEnabled(false);
-            downloadAttachmentsButton.setEnabled(false);
-            downloadBoardsButton.setEnabled(false);
-            tofTextArea.setText("");
+        if(node != null)
+        {
+            if(node.isLeaf())
+            {
+                // node is a board
+                setLastUsedBoard(mixed.makeFilename((String)node.getUserObject()));
+                saveMessageButton.setEnabled(false);
+                configBoardButton.setEnabled(true);
 
-            TOF.updateTofTable(lastUsedBoard,
-                          keypool,
-                          frostSettings.getIntValue("maxMessageDisplay"));
+                updateButtons();
+                if ((boardStats != null) && boardStats.containsKey(getLastUsedBoard()))
+                {
+                    System.out.println(getLastUsedBoard() + " blocked count: " +
+                                       ((BoardStat)boardStats.get(getLastUsedBoard())).getNumberBlocked());
+                }
+                tofReplyButton.setEnabled(false);
+                downloadAttachmentsButton.setEnabled(false);
+                downloadBoardsButton.setEnabled(false);
 
-            messageTable.clearSelection();
+                TOF.updateTofTable(getLastUsedBoard(), keypool, frostSettings.getIntValue("maxMessageDisplay"));
+
+                messageTable.clearSelection();
+            }
+            else
+            {
+                // node is a folder
+                configBoardButton.setEnabled(false);
+            }
         }
-        else {
-            configBoardButton.setEnabled(false);
+/*        else
+        {
+            // no node selected
         }
-        }
-    }
+*/
     }
 
     public void addNodeToTree() {
@@ -1852,10 +1882,10 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     if (node!=null)
     if (node.isLeaf()) { //TODO: refresh current board
-        lastUsedBoard = mixed.makeFilename((String)node.getUserObject());
-        if( doUpdate( lastUsedBoard ) )
+        setLastUsedBoard( mixed.makeFilename((String)node.getUserObject()) );
+        if( doUpdate( getLastUsedBoard() ) )
         {
-            updateBoard(lastUsedBoard);
+            updateBoard(getLastUsedBoard());
         }
     }
     else {
@@ -1972,7 +2002,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             downloadBoardsButton.setEnabled(false);
 
             lastSelectedMessage = selectedMessage.getSubject();
-            String state = SettingsFun.getValue(keypool + lastUsedBoard + ".key", "state");
+            String state = SettingsFun.getValue(keypool + getLastUsedBoard() + ".key", "state");
             if( !state.equals("readAccess") )
                 tofReplyButton.setEnabled(true);
 
@@ -2004,7 +2034,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             int end = content.indexOf("</attached>");
             int bstart = content.indexOf("<board>");
             int bend = content.indexOf("</board>");
-            int boardPartLength = bend - bstart; // must be at least 14, 1 char boardnamwe, 2 times " * " and keys="N/A"
+            int boardPartLength = bend - bstart; // must be at least 14, 1 char boardname, 2 times " * " and keys="N/A"
 
 // TODO: check for validness of found , e.g. format for boards is:
 //  "<board>mp3ogg * SSK@PJONkPZC6a4EuhHE~dP0nYyWK-oPAgM * N/A</board>"
@@ -2017,7 +2047,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 boardSplitPane.setDividerSize(0);
                 boardSplitPane.setDividerLocation(1.0);
 
-                tofTextArea.setText(selectedMessage.getPlaintext());
+                setTofTextAreaText(selectedMessage.getPlaintext());
             }
             else
             {
@@ -2038,7 +2068,6 @@ public class frame1 extends JFrame implements ClipboardOwner
                     setTofTextAreaText(selectedMessage.getPlaintext());  //was getNewContent()
                     downloadAttachmentsButton.setEnabled(true);
                 }
-
                 // Board Available
                 if( bstart != -1 && bend != -1 )
                 {
@@ -2065,6 +2094,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         }
         else
         {
+            // no msg selected
+            resetMessageViewSplitPanes(); // clear message view
             tofReplyButton.setEnabled(false);
             saveMessageButton.setEnabled(false);
             downloadAttachmentsButton.setEnabled(false);
@@ -2219,7 +2250,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 .append(LangRes.getString("   Down: ")).append(activeDownloadThreads)
                 .append(LangRes.getString("   TOFUP: ")).append(tofUploadThreads)
                 .append(LangRes.getString("   TOFDO: ")).append(tofDownloadThreads)
-                .append(LangRes.getString("   Selected board: ")).append(lastUsedBoard).toString();
+                .append(LangRes.getString("   Selected board: ")).append(getLastUsedBoard()).toString();
 
     statusLabel.setText(newText);
 
@@ -2421,7 +2452,13 @@ public class frame1 extends JFrame implements ClipboardOwner
             fileName = key.substring(4);
         }
         // add valid key to download table
-        DownloadTableFun.insertDownload(mixed.makeFilename(fileName), "Unknown", "Unknown", key, frostSettings.getIntValue("htl"), downloadTable, lastUsedBoard);
+        DownloadTableFun.insertDownload(mixed.makeFilename(fileName),
+                                        "Unknown",
+                                        "Unknown",
+                                        key,
+                                        frostSettings.getIntValue("htl"),
+                                        downloadTable,
+                                        getLastUsedBoard());
         }
         else {
         // show messagebox that key is invalid
@@ -2453,7 +2490,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     else
     {
         boardsToSearch = new Vector();
-        boardsToSearch.add( lastUsedBoard );
+        boardsToSearch.add( getLastUsedBoard() );
     }
 
     SearchThread searchThread = new SearchThread(searchTextField.getText(),
@@ -2467,14 +2504,14 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     /**tofNewMessageButton Action Listener (tof/ New Message)*/
     private void tofNewMessageButton_actionPerformed(ActionEvent e) {
-    String[] args = {lastUsedBoard,
+    String[] args = {getLastUsedBoard(),
              frostSettings.getValue("userName"),
              "No subject", "",
              frostSettings.getValue("lastUsedDirectory")
     };
 
     if(frostSettings.getBoolValue("useAltEdit")){
-        altEdit = new AltEdit(lastUsedBoard,"No subject", "", keypool, frostSettings, this);
+        altEdit = new AltEdit(getLastUsedBoard(),"No subject", "", keypool, frostSettings, this);
         altEdit.start();
     }
     else{
@@ -2487,16 +2524,16 @@ public class frame1 extends JFrame implements ClipboardOwner
     private void tofReplyButton_actionPerformed(ActionEvent e) {
     String subject = "No subject";
     int selectedRow = messageTable.getSelectedRow();
-    String[] args = {lastUsedBoard,
+    String[] args = {getLastUsedBoard(),
              frostSettings.getValue("userName"),
              lastSelectedMessage,
-             tofTextArea.getText(),
+             getTofTextAreaText(),
              frostSettings.getValue("lastUsedDirectory")};
     if (!args[2].startsWith("Re:"))
         args[2] = "Re: " + args[2];
 
     if(frostSettings.getBoolValue("useAltEdit")){
-        altEdit = new AltEdit(lastUsedBoard, args[2], args[3], keypool, frostSettings, this);
+        altEdit = new AltEdit(getLastUsedBoard(), args[2], args[3], keypool, frostSettings, this);
         altEdit.start();
     }
     else{
@@ -2514,7 +2551,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private void uploadAddFilesButton_actionPerformed(ActionEvent e) {
     final JFileChooser fc = new JFileChooser(frostSettings.getValue("lastUsedDirectory"));
-    fc.setDialogTitle("Select files you want to upload to the " + lastUsedBoard + " board.");
+    fc.setDialogTitle("Select files you want to upload to the " + getLastUsedBoard() + " board.");
     fc.setFileHidingEnabled(true);
     fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
     fc.setMultiSelectionEnabled(true);
@@ -2533,7 +2570,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             for (int j = 0; j < allFiles.size(); j++) {
             File newFile = (File)allFiles.elementAt(j);
             if (newFile.isFile()) {
-                UploadTableFun.add(uploadTable, newFile, selectedFiles[i], lastUsedBoard);
+                UploadTableFun.add(uploadTable, newFile, selectedFiles[i], getLastUsedBoard());
             }
             }
         }
@@ -2554,7 +2591,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     /**News | Configure Board action performed*/
     private void tofConfigureBoardMenuItem_actionPerformed(ActionEvent e) {
-    BoardSettingsFrame newFrame = new BoardSettingsFrame(this, lastUsedBoard);
+    BoardSettingsFrame newFrame = new BoardSettingsFrame(this, getLastUsedBoard());
     newFrame.setModal(true); // lock main window
     newFrame.show();
     if (newFrame.getExitState()) {
@@ -2594,32 +2631,35 @@ public class frame1 extends JFrame implements ClipboardOwner
     //------------------------------------------------------------------------
 
     /**Save on exit*/
-    private void saveOnExit() {
-    saveSettings();
-    TableFun.saveTable(downloadTable, new File("download.txt"));
-    TableFun.saveTable(uploadTable, new File("upload.txt"));
-    System.out.println("Bye...");
+    private void saveOnExit()
+    {
+        saveSettings();
+        TableFun.saveTable(downloadTable, new File("download.txt"));
+        TableFun.saveTable(uploadTable, new File("upload.txt"));
+        System.out.println("Bye...");
     }
 
     /**Save settings*/
-    private void saveSettings() {
-    frostSettings.setValue("downloadingActivated", downloadActivateCheckBox.isSelected());
-//      frostSettings.setValue("uploadingActivated", uploadActivateCheckBox.isSelected());
-    frostSettings.setValue("searchAllBoards", searchAllBoardsCheckBox.isSelected());
-//      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
-    frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
-    frostSettings.writeSettingsFile();
-    getTofTree().saveTree(new File("boards.txt"));
-    getTofTree().writeTreeState(new File("toftree.txt"));
+    private void saveSettings()
+    {
+        frostSettings.setValue("downloadingActivated", downloadActivateCheckBox.isSelected());
+        //      frostSettings.setValue("uploadingActivated", uploadActivateCheckBox.isSelected());
+        frostSettings.setValue("searchAllBoards", searchAllBoardsCheckBox.isSelected());
+        //      frostSettings.setValue("reducedBlockCheck", reducedBlockCheckCheckBox.isSelected());
+        frostSettings.setValue("automaticUpdate", tofAutomaticUpdateMenuItem.isSelected());
+        frostSettings.writeSettingsFile();
+        getTofTree().saveTree(new File("boards.txt"));
+        getTofTree().writeTreeState(new File("toftree.txt"));
     }
 
     /**Load Settings*/
-    private void loadSettings() {
-    downloadActivateCheckBox.setSelected(frostSettings.getBoolValue("downloadingActivated"));
-//      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
-    searchAllBoardsCheckBox.setSelected(frostSettings.getBoolValue("searchAllBoards"));
-//      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
-    tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
+    private void loadSettings()
+    {
+        downloadActivateCheckBox.setSelected(frostSettings.getBoolValue("downloadingActivated"));
+        //      uploadActivateCheckBox.setSelected(frostSettings.getBoolValue("uploadingActivated"));
+        searchAllBoardsCheckBox.setSelected(frostSettings.getBoolValue("searchAllBoards"));
+        //      reducedBlockCheckCheckBox.setSelected(frostSettings.getBoolValue("reducedBlockCheck"));
+        tofAutomaticUpdateMenuItem.setSelected(frostSettings.getBoolValue("automaticUpdate"));
     }
 
     class IdleStopper extends MouseAdapter {
