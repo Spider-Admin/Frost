@@ -272,7 +272,7 @@ public class requestThread extends Thread
             new StringBuffer()
                 .append("requests")
                 .append(fileSeparator)
-                .append(mixed.makeFilename(owner))
+                .append(owner)
                 .append("-")
                 .append(batch)
                 .append("-")
@@ -391,8 +391,7 @@ public class requestThread extends Thread
                     }
 
                     // try to insert
-                    //TOTHINK: we could add the ability files from a specific user to be
-                    //requested on separate channels - good protection vs.spam
+                    
                     String[] result = new String[2];
                     String upKey =
                         new StringBuffer()
@@ -564,7 +563,7 @@ public class requestThread extends Thread
         this.board = dlItem.getSourceBoard();
         this.SHA1 = dlItem.getSHA1();
         this.batch = dlItem.getBatch();
-        this.owner = dlItem.getOwner();
+        this.owner = mixed.makeFilename(dlItem.getOwner());
 
         this.downloadItem = dlItem;
 
