@@ -20,8 +20,12 @@
 package frost.components.translate;
 
 import java.io.*;
+import java.util.logging.*;
 
 public class ReadAccess {
+	
+	private static Logger logger = Logger.getLogger(ReadAccess.class.getName());
+	
     /**
      * Reads a file and returns its contents in a String
      */
@@ -39,7 +43,7 @@ public class ReadAccess {
 	    in.close();
 	    return buffer.toString();
 	} catch (IOException e) {
-	    e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in readFile(File file)", e);
 	    return null;
 	}
     }

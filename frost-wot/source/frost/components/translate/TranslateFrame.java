@@ -21,10 +21,14 @@ package frost.components.translate;
 
 import java.awt.*;
 import java.awt.event.WindowEvent;
+import java.util.logging.*;
 
 import javax.swing.JFrame;
 
 public class TranslateFrame extends JFrame {    
+	
+	private static Logger logger = Logger.getLogger(TranslateFrame.class.getName());
+	
     boolean plugin;
 
     TranslatePanel translatePanel = new TranslatePanel(this);
@@ -61,7 +65,7 @@ public class TranslateFrame extends JFrame {
 	    Init();
 	}
 	catch(Exception e) {
-	    e.printStackTrace();
+		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 	}
 	pack();
     }

@@ -20,12 +20,15 @@
 package frost.components.translate;
 
 import java.io.File;
+import java.util.logging.Logger;
 
 /**
  * Reads and generates Frost language resource files.
  * @author Jantho
  */
 public class LanguageFile {
+	
+	private static Logger logger = Logger.getLogger(LanguageFile.class.getName());
 
 	/**
 	 * Generates the complete class file with comments
@@ -140,7 +143,7 @@ public class LanguageFile {
 						new String(
 							content.substring(positions[2] + 1, positions[3]))};
 				tableModel.addRow(row);
-				System.out.println(row[0] + " --- " + row[1]);
+				logger.info(row[0] + " --- " + row[1]);
 			}
 		}
 

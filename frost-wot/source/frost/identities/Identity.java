@@ -2,6 +2,7 @@ package frost.identities;
 
 
 import java.util.*;
+import java.util.logging.*;
 
 import org.w3c.dom.*;
 import org.xml.sax.SAXException;
@@ -20,6 +21,8 @@ public class Identity implements SafeXMLizable
     protected String key;
     protected BoardAttachment board;
     
+	private static Logger logger = Logger.getLogger(Identity.class.getName());
+    
     protected transient FcpConnection con;
     public static final String NA = "NA";
     private static ThreadLocal tmpfile;
@@ -35,7 +38,7 @@ public class Identity implements SafeXMLizable
 		try {
 			loadXMLElement(el);
 		} catch (SAXException e) {
-			e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 		}
 	}
 
@@ -117,7 +120,7 @@ public class Identity implements SafeXMLizable
 				String _files = XMLTools.getChildElementsTextValue(e,"files");
 				noFiles = _files == null ? 0 : Integer.parseInt(_files);
 			}catch (Exception npe) {
-				Core.getOut().println("no data about # of messages found for identity " + uniqueName);
+				logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
 			}
 				
 			//see if board is attached
@@ -126,7 +129,7 @@ public class Identity implements SafeXMLizable
 				try{
 					board = (BoardAttachment)Attachment.getInstance((Element)(_board.get(0)));
 				}catch(ClassCastException ex){
-					ex.printStackTrace(Core.getOut());
+					logger.log(Level.SEVERE, "Exception thrown in loadXMLElement(Element e)", ex);
 					board =null;
 				}	
 				

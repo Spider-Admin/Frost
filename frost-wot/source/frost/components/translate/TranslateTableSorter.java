@@ -20,6 +20,7 @@ package frost.components.translate;
 
 import java.awt.event.*;
 import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.JTable;
 import javax.swing.table.*;
@@ -29,6 +30,8 @@ import javax.swing.table.*;
  * @author Jan-Thomas Czornack
  */
 public class TranslateTableSorter {
+	
+	private static Logger logger = Logger.getLogger(TranslateTableSorter.class.getName());
 
 	public static int selectedColumn = 0;
 	public static String columnName = "";
@@ -44,8 +47,7 @@ public class TranslateTableSorter {
 			try {
 				((DefaultTableModel) table.getModel()).getDataVector().clear();
 			} catch (Exception e) {
-				System.out.println(
-					"tableFun.removeAllRows NOT GOOD " + e.toString());
+				logger.log(Level.SEVERE, "tableFun.removeAllRows NOT GOOD", e);
 			}
 		}
 		table.updateUI();
@@ -105,7 +107,7 @@ public class TranslateTableSorter {
 		DefaultTableModel tableModel = (DefaultTableModel) jTable.getModel();
 		int rowCount = tableModel.getRowCount();
 		columnName = tableModel.getColumnName(column);
-		System.out.println("Sorting the " + columnName + " column.");
+		logger.fine("Sorting the " + columnName + " column.");
 		if (rowCount > 1) {
 			int columnCount = tableModel.getColumnCount();
 			selectedColumn = column;
