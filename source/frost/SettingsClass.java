@@ -598,8 +598,8 @@ public class SettingsClass implements Savable {
 		defaults.put("lastUsedDirectory", "." + fs);
 		defaults.put("maxAge", "5");
 		defaults.put("maxKeys", "500000");
-		defaults.put("maxMessageDisplay", "10");
-		defaults.put("maxMessageDownload", "3");
+		defaults.put("maxMessageDisplay", "15");
+		defaults.put("maxMessageDownload", "5");
 		defaults.put("messageBase", "news");
 		defaults.put("nodeAddress", "127.0.0.1");
 		defaults.put("nodePort", "8481");
