@@ -6,7 +6,6 @@
  */
 package frost.util.model.gui;
 
-import java.awt.Robot;
 import java.lang.reflect.InvocationTargetException;
 import java.util.logging.*;
 
@@ -180,7 +179,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getColumnCount()
 	 */
 	public int getColumnCount() {
-		return tableFormat.getFieldCount();
+		return tableFormat.getColumnCount();
 	}
 
 	/* (non-Javadoc)
@@ -194,7 +193,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getValueAt(int, int)
 	 */
 	public Object getValueAt(int rowIndex, int columnIndex) {
-		return tableFormat.getFieldValue(model.getItemAt(rowIndex), columnIndex);
+		return tableFormat.getCellValue(model.getItemAt(rowIndex), columnIndex);
 	}
 	
 	/**
@@ -229,7 +228,7 @@ public class ModelTable extends AbstractTableModel {
 	 * @see javax.swing.table.TableModel#getColumnName(int)
 	 */
 	public String getColumnName(int column) {
-		return tableFormat.getFieldName(column);
+		return tableFormat.getColumnName(column);
 	}
 
 	/**
