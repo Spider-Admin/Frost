@@ -996,6 +996,8 @@ public class MessageFrame extends JFrame
 			TFboard.setText(board.getName());
 			fromTextField.setText(from);
 
+			new TextComponentClipboardMenu(TFboard, language);
+			new TextComponentClipboardMenu(fromTextField, language);
 			new TextComponentClipboardMenu(subjectTextField, language);
 			subjectTextField.setText(subject);
 			messageTextArea.setLineWrap(true);
