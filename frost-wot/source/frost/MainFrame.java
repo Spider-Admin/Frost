@@ -2335,7 +2335,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					languageResource.getString("UploadsUnderway.body"),
 					languageResource.getString("UploadsUnderway.title"),
 					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE);
+					JOptionPane.QUESTION_MESSAGE);
 			if (result == JOptionPane.YES_OPTION) {
 				System.exit(0);
 			}
