@@ -67,7 +67,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				if (e.getSource() == messageBodyButton) {
 					messageBodyButtonPressed();	
 				}
-				
+				if (e.getSource() == messageListButton) {
+					messageListButtonPressed();	
+				}	
 			}
 
 
@@ -78,11 +80,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private SkinChooser skinChooser = null;
 		private JLabel moreSkinsLabel = new JLabel();
 		private JLabel fontsLabel = new JLabel();
+		
 		private JLabel messageBodyLabel = new JLabel();
 		private JButton messageBodyButton = new JButton();
 		private JLabel selectedMessageBodyFontLabel = new JLabel();
 		
-		private Font selectedFont = null;
+		private JLabel messageListLabel = new JLabel();
+		private JButton messageListButton = new JButton();
+		private JLabel selectedMessageListFontLabel = new JLabel();
+		
+		private Font selectedBodyFont = null;
+		private Font selectedListFont = null;
 
 		/**
 		 * Constructor
@@ -99,61 +107,76 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			setName("DisplayPanel");
 			setLayout(new GridBagLayout());
 			refreshLanguage();
-			
+
 			//Adds all of the components			
 			GridBagConstraints constraints = new GridBagConstraints();
-			constraints.fill = GridBagConstraints.HORIZONTAL;	
-			Insets inset1111 = new Insets(1,1,1,1);
-			Insets inset5511 = new Insets(5,5,1,1);
-			Insets inset1515 = new Insets(1,5,1,5);
-			
-			constraints.insets = inset1111;	
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			Insets inset1111 = new Insets(1, 1, 1, 1);
+			Insets inset5511 = new Insets(5, 5, 1, 1);
+			Insets inset1515 = new Insets(1, 5, 1, 5);
+
+			constraints.insets = inset1111;
 			constraints.gridx = 0;
-			constraints.gridy = 0;		
+			constraints.gridy = 0;
 			skinChooser = new SkinChooser(languageResource.getResourceBundle());
 			add(skinChooser, constraints);
-			
-			constraints.insets = inset1111;	
+
+			constraints.insets = inset1111;
 			constraints.gridx = 0;
-			constraints.gridy = 1;	
+			constraints.gridy = 1;
 			moreSkinsLabel.setHorizontalAlignment(SwingConstants.RIGHT);
 			add(moreSkinsLabel, constraints);
-			
-			constraints.insets = inset5511;	
+
+			constraints.insets = inset5511;
 			constraints.gridx = 0;
-			constraints.gridy = 3;	
+			constraints.gridy = 3;
 			add(fontsLabel, constraints);
-			
+
 			//Fonts panel
 			JPanel fontsPanel = new JPanel(new GridBagLayout());
-			fontsPanel.setBorder(new EmptyBorder(5,80,5,5));
+			fontsPanel.setBorder(new EmptyBorder(5, 80, 5, 5));
 			GridBagConstraints fontsConstraints = new GridBagConstraints();
-			fontsConstraints.fill = GridBagConstraints.HORIZONTAL;	
-			
-			fontsConstraints.insets = inset1515;	
+			fontsConstraints.fill = GridBagConstraints.HORIZONTAL;
+
+			fontsConstraints.insets = inset1515;
 			fontsConstraints.gridx = 0;
-			fontsConstraints.gridy = 0;	
+			fontsConstraints.gridy = 0;
 			fontsConstraints.weightx = 0.8;
 			fontsPanel.add(messageBodyLabel, fontsConstraints);
-			
-			fontsConstraints.insets = inset1515;	
+			fontsConstraints.insets = inset1515;
 			fontsConstraints.gridx = 1;
-			fontsConstraints.gridy = 0;	
+			fontsConstraints.gridy = 0;
 			fontsConstraints.weightx = 0;
 			fontsPanel.add(messageBodyButton, fontsConstraints);
-			
-			fontsConstraints.insets = inset1515;	
+			fontsConstraints.insets = inset1515;
 			fontsConstraints.gridx = 2;
-			fontsConstraints.gridy = 0;	
-			fontsConstraints.weightx = 1;	
-			fontsPanel.add(selectedMessageBodyFontLabel, fontsConstraints);			
-			
+			fontsConstraints.gridy = 0;
+			fontsConstraints.weightx = 1;
+			fontsPanel.add(selectedMessageBodyFontLabel, fontsConstraints);
+
+			fontsConstraints.insets = inset1515;
+			fontsConstraints.gridx = 0;
+			fontsConstraints.gridy = 1;
+			fontsConstraints.weightx = 0.8;
+			fontsPanel.add(messageListLabel, fontsConstraints);
+			fontsConstraints.insets = inset1515;
+			fontsConstraints.gridx = 1;
+			fontsConstraints.gridy = 1;
+			fontsConstraints.weightx = 0;
+			fontsPanel.add(messageListButton, fontsConstraints);
+			fontsConstraints.insets = inset1515;
+			fontsConstraints.gridx = 2;
+			fontsConstraints.gridy = 1;
+			fontsConstraints.weightx = 1;
+			fontsPanel.add(selectedMessageListFontLabel, fontsConstraints);
+
 			constraints.gridx = 0;
-			constraints.gridy = 4;	
+			constraints.gridy = 4;
 			add(fontsPanel, constraints);
-			
+
 			//Add listeners
 			messageBodyButton.addActionListener(listener);
+			messageListButton.addActionListener(listener);
 		}
 
 		/**
@@ -164,7 +187,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			fontsLabel.setText(languageResource.getString("Fonts"));
 			messageBodyLabel.setText(languageResource.getString("Message Body"));
 			messageBodyButton.setText(languageResource.getString("Choose"));
-			selectedMessageBodyFontLabel.setText(getFontLabel(selectedFont));
+			selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
+			messageListLabel.setText(languageResource.getString("Message List"));
+			messageListButton.setText(languageResource.getString("Choose"));
+			selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));
 		}
 
 		/**
@@ -211,10 +237,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			} else {
 				displaySettings.setValue("selectedSkin", selectedSkin);
 			}
-			if (selectedFont != null) {
-				displaySettings.setValue("messageBodyFontName", selectedFont.getFamily());
-				displaySettings.setValue("messageBodyFontStyle", selectedFont.getStyle());
-				displaySettings.setValue("messageBodyFontSize", selectedFont.getSize());
+			if (selectedBodyFont != null) {
+				displaySettings.setValue("messageBodyFontName", selectedBodyFont.getFamily());
+				displaySettings.setValue("messageBodyFontStyle", selectedBodyFont.getStyle());
+				displaySettings.setValue("messageBodyFontSize", selectedBodyFont.getSize());
+			}
+			if (selectedListFont != null) {
+				displaySettings.setValue("messageListFontName", selectedListFont.getFamily());
+				displaySettings.setValue("messageListFontStyle", selectedListFont.getStyle());
+				displaySettings.setValue("messageListFontSize", selectedListFont.getSize());
 			}
 		}
 
@@ -231,8 +262,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			String fontName = displaySettings.getValue("messageBodyFontName");
 			int fontSize = displaySettings.getIntValue("messageBodyFontSize");
 			int fontStyle = displaySettings.getIntValue("messageBodyFontStyle");
-			selectedFont = new Font(fontName, fontStyle, fontSize); 
-			selectedMessageBodyFontLabel.setText(getFontLabel(selectedFont));			
+			selectedBodyFont = new Font(fontName, fontStyle, fontSize); 
+			selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));	
+			
+			fontName = displaySettings.getValue("messageListFontName");
+			fontSize = displaySettings.getIntValue("messageListFontSize");
+			fontStyle = displaySettings.getIntValue("messageListFontStyle");
+			selectedListFont = new Font(fontName, fontStyle, fontSize); 
+			selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));			
 		}
 		
 		/**
@@ -241,12 +278,27 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		private void messageBodyButtonPressed() {
 			FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
 			fontChooser.setModal(true);
-			fontChooser.setSelectedFont(selectedFont);
+			fontChooser.setSelectedFont(selectedBodyFont);
 			fontChooser.show();
 			Font selectedFontTemp = fontChooser.getSelectedFont();
 			if (selectedFontTemp != null) {
-				selectedFont = selectedFontTemp;
-				selectedMessageBodyFontLabel.setText(getFontLabel(selectedFont));	
+				selectedBodyFont = selectedFontTemp;
+				selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));	
+			}
+		}
+		
+		/**
+		 * 
+		 */
+		private void messageListButtonPressed() {
+			FontChooser fontChooser = new FontChooser(OptionsFrame.this, languageResource);
+			fontChooser.setModal(true);
+			fontChooser.setSelectedFont(selectedListFont);
+			fontChooser.show();
+			Font selectedFontTemp = fontChooser.getSelectedFont();
+			if (selectedFontTemp != null) {
+				selectedListFont = selectedFontTemp;
+				selectedMessageListFontLabel.setText(getFontLabel(selectedListFont));
 			}
 		}
 
