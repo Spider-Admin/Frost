@@ -29,13 +29,17 @@ public class UploadTable extends SortedTable
         {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }
+        // default for sort: sort by ... ?
+        sortedColumnIndex = 0;
+        sortedColumnAscending = true;
+        resortTable();
     }
 
     public void removeSelectedRows()
     {
         UploadTableModel model = (UploadTableModel)getModel();
         int[] selectedRows = getSelectedRows();
-        for(int x=0; x<selectedRows.length; x++)
+        for(int x=selectedRows.length-1; x>=0; x--)
         {
             model.deleteRow( model.getRow(selectedRows[x]) );
         }

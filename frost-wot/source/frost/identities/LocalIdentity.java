@@ -1,9 +1,10 @@
-package frost;
+package frost.identities;
 
 import java.util.*;
 import java.io.*;
 import javax.swing.*;
 
+import frost.*;
 import frost.FcpTools.*;
 import frost.crypt.*;
 
@@ -66,11 +67,9 @@ public class LocalIdentity extends Identity implements Serializable
             public void run()
             {
                 String ret=null;
-                //String nick = JOptionPane.showInputDialog("key upload htl? choose something between 15 and 20\n");
-                //int htl = (new Integer (nick)).intValue();
                 System.out.println("trying to upload public key");
                 try {
-                    ret =con.putKeyFromFile("CHK@", "pubkey.txt",25, true);
+                    ret = con.putKeyFromFile("CHK@", "pubkey.txt", 25, true);
                 }
                 catch( IOException e ) {
                     System.out.println("couldn't upload public key");
@@ -80,8 +79,6 @@ public class LocalIdentity extends Identity implements Serializable
             }
         };
         keyUploader.start();
-        // String set= con.putKeyFromFile(keyaddress, "pubkey.txt",15, true);
-        // System.out.println("set is " +set);
     }
 
     public String getPrivKey()

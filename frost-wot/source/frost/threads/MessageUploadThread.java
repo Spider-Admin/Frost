@@ -29,6 +29,7 @@ import java.awt.event.*;
 
 import frost.crypt.*;
 import frost.*;
+import frost.identities.*;
 import frost.gui.*;
 import frost.gui.objects.*;
 

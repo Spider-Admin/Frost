@@ -42,6 +42,7 @@ import frost.ext.*;
 import frost.components.*;
 import frost.crypt.*;
 import frost.threads.*;
+import frost.identities.*;
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
@@ -219,11 +220,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     /*************************
      * GETTER + SETTER       *
      *************************/
-    public static frame1 getInstance()
-    {
-        return instance;
-    }
-
+    public static frame1    getInstance() { return instance; }
     public UploadTable      getUploadTable() { return uploadTable; }
     public MessageTable     getMessageTable() { return messageTable; }
     public SearchTable      getSearchTable() { return searchTable; }
@@ -234,7 +231,6 @@ public class frame1 extends JFrame implements ClipboardOwner
     public void             setTofTextAreaText(String txt) { tofTextArea.setText(txt); }
     public TofTree          getTofTree() { return tofTree; }
     public JButton          getSearchButton() { return searchButton; }
-
 
     public FrostBoardObject getActualNode()
     {
@@ -914,82 +910,9 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     //create a crypt object
     crypto = new FrostCrypt();
+
     //load the identities
-
-    File identities = new File("identities");
-    //File contacts = new File("contacts");
-    System.out.println("trying to create/load ids");
-    try {
-        if(identities.createNewFile()) {//create new identities
-
-            try {
-                String nick = null;
-                do {
-                    nick = JOptionPane.showInputDialog("Choose an identity name, it doesn't have to be unique\n");
-                } while(nick == null || nick.length() == 0 );
-                mySelf = new LocalIdentity(nick);
-//JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
-            }
-            catch(Exception e) {
-                System.out.println("couldn't create new identitiy");
-                System.out.println(e.toString());
-            }
-            friends = new BuddyList();
-            if (friends.Add(frame1.getMyId()))
-                System.out.println("added myself to list");
-            enemies = new BuddyList();
-        } else try {
-        BufferedReader fin = new BufferedReader(new FileReader(identities));
-        String name = fin.readLine();
-        String address = fin.readLine();
-        String keys[] = new String[2];
-        keys[1] = fin.readLine();
-        keys[0] = fin.readLine();
-        mySelf = new LocalIdentity(name, keys, address);
-        System.out.println("loaded myself with name " + mySelf.getName());
-                System.out.println("and public key" + mySelf.getKey());
-
-        //take out the ****
-        fin.readLine();
-
-        //process the friends
-        System.out.println("loading friends");
-        friends = new BuddyList();
-            boolean stop = false;
-            String key;
-            while (!stop) {
-            name = fin.readLine();
-            if (name.startsWith("***")) break;
-            address = fin.readLine();
-            key = fin.readLine();
-            friends.Add(new Identity(name, address,key));
-        }
-        System.out.println("loaded " + friends.size() + " friends");
-
-        //and the enemies
-        enemies = new BuddyList();
-        System.out.println("loading enemies");
-        while (!stop) {
-            name = fin.readLine();
-            if (name.startsWith("***")) break;
-            address = fin.readLine();
-            key = fin.readLine();
-            enemies.Add(new Identity(name, address,key));
-        }
-        System.out.println("loaded " + enemies.size() + " enemies");
-
-        }
-        catch(IOException e) {
-        System.out.println("IOException :" + e.toString());
-        friends = new BuddyList();
-        enemies = new BuddyList();
-        friends.Add(mySelf);
-    }
-        catch(Exception e) {System.out.println(e.toString());}
-
-
-        }
-    catch(IOException e) {System.out.println("couldn't create identities file");}
+    loadIdentities();
 
     TimerTask KeyReinserter = new TimerTask() {
         public void run() {
@@ -1037,6 +960,96 @@ public class frame1 extends JFrame implements ClipboardOwner
     timer.start();
     started = true;
     } // ************** end-of: jbInit()
+
+    protected void loadIdentities()
+    {
+        File identities = new File("identities");
+        //File contacts = new File("contacts");
+        System.out.println("trying to create/load ids");
+        try {
+            if( identities.createNewFile() )
+            {
+                //create new identities
+                try {
+                    String nick = null;
+                    do
+                    {
+                        nick = JOptionPane.showInputDialog("Choose an identity name, it doesn't have to be unique\n");
+                    } while( nick == null || nick.length() == 0 );
+                    mySelf = new LocalIdentity(nick);
+                    //JOptionPane.showMessageDialog(this,new String("the following is your key ID, others may ask you for it : \n" + crypto.digest(mySelf.getKey())));
+                }
+                catch( Exception e ) {
+                    System.out.println("couldn't create new identitiy");
+                    System.out.println(e.toString());
+                }
+                friends = new BuddyList();
+                if( friends.Add(frame1.getMyId()) )
+                {
+                    System.out.println("added myself to list");
+                }
+                enemies = new BuddyList();
+            }
+            else
+            {
+                try {
+                    BufferedReader fin = new BufferedReader(new FileReader(identities));
+                    String name = fin.readLine();
+                    String address = fin.readLine();
+                    String keys[] = new String[2];
+                    keys[1] = fin.readLine();
+                    keys[0] = fin.readLine();
+                    mySelf = new LocalIdentity(name, keys, address);
+                    System.out.println("loaded myself with name " + mySelf.getName());
+                    System.out.println("and public key" + mySelf.getKey());
+
+                    //take out the ****
+                    fin.readLine();
+
+                    //process the friends
+                    System.out.println("loading friends");
+                    friends = new BuddyList();
+                    boolean stop = false;
+                    String key;
+                    while( !stop )
+                    {
+                        name = fin.readLine();
+                        if( name.startsWith("***") ) break;
+                        address = fin.readLine();
+                        key = fin.readLine();
+                        friends.Add(new Identity(name, address,key));
+                    }
+                    System.out.println("loaded " + friends.size() + " friends");
+
+                    //and the enemies
+                    enemies = new BuddyList();
+                    System.out.println("loading enemies");
+                    while( !stop )
+                    {
+                        name = fin.readLine();
+                        if( name.startsWith("***") ) break;
+                        address = fin.readLine();
+                        key = fin.readLine();
+                        enemies.Add(new Identity(name, address,key));
+                    }
+                    System.out.println("loaded " + enemies.size() + " enemies");
+
+                }
+                catch( IOException e ) {
+                    System.out.println("IOException :" + e.toString());
+                    friends = new BuddyList();
+                    enemies = new BuddyList();
+                    friends.Add(mySelf);
+                }
+                catch( Exception e ) {
+                    System.out.println(e.toString());
+                }
+            }
+        }
+        catch( IOException e ) {
+            System.out.println("couldn't create identities file");
+        }
+    }
 
     /**
      * Build ALL popup menus.

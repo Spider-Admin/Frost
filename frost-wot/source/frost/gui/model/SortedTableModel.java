@@ -4,10 +4,13 @@ import java.util.*;
 import javax.swing.*;
 import javax.swing.table.*;
 
+import frost.gui.SortedTable;
+
 public class SortedTableModel extends DefaultTableModel
 {
     private boolean bWasResized = false;
     private ArrayList rows = null;
+    private SortedTable parentTable = null;
 
     // we always need to hold the actual sorting comparator to allow sorted insertion
     private ColumnComparator colComparator  = new ColumnComparator(0, true); // default
@@ -16,6 +19,11 @@ public class SortedTableModel extends DefaultTableModel
     {
         super();
         rows = new ArrayList();
+    }
+
+    public void setParentTable(SortedTable t)
+    {
+        this.parentTable = t;
     }
 
     public boolean isSortable(int col)
@@ -137,7 +145,20 @@ public class SortedTableModel extends DefaultTableModel
         if (obj!=null)
         {
             int i = rows.indexOf(obj);
-            if (i!=-1) fireTableRowsUpdated(i,i);
+            if (i!=-1)
+            {
+                fireTableRowsUpdated(i,i);
+                resortTable();
+            }
+
+        }
+    }
+
+    private void resortTable()
+    {
+        if( parentTable != null )
+        {
+            parentTable.resortTable();
         }
     }
 

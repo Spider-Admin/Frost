@@ -1,4 +1,4 @@
-package frost;
+package frost.identities;
 
 import java.util.HashMap;
 import java.io.*;

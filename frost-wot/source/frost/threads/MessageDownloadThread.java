@@ -27,6 +27,7 @@ import javax.swing.*;
 import java.awt.*;
 
 import frost.*;
+import frost.identities.*;
 import frost.gui.objects.*;
 
 /**
@@ -176,7 +177,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 currentId = frame1.getFriends().Get(currentMsg.getFrom());
                 //check if the key addreses are the same, verify
                 if( (currentId.getKeyAddress().compareTo(currentMsg.getKeyAddress()) == 0) &&
-                    frame1.getCrypto().verify(currentMsg.getContent(),currentId.getKey()) )
+                    frame1.getCrypto().verify(currentMsg.getContent(), currentId.getKey()) )
                     currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
                 else // verification FAILED!
                     currentMsg.setStatus(VerifyableMessageObject.FAILED);

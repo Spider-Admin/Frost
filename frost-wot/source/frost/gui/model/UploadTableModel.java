@@ -45,7 +45,6 @@ public class UploadTableModel extends SortedTableModel
     public UploadTableModel()
     {
         super();
-        sortModelColumn(0, true); // default: sort column 0 ascending
     }
 
     public boolean isCellEditable(int row, int col)

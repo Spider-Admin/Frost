@@ -1,7 +1,9 @@
-package frost;
+package frost.identities;
 
 import java.lang.*;
 import java.io.*;
+
+import frost.*;
 import frost.FcpTools.*;
 
 /**
@@ -34,7 +36,8 @@ public class Identity implements Serializable
         this.name=name;
         this.keyaddress = keyaddress;
         try {
-            con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+            con = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
+                                    frame1.frostSettings.getValue("nodePort"));
         }
         catch( FcpToolsException e ) {
             System.out.println("fcptools exception");this.key=NA;
