@@ -238,7 +238,8 @@ public class requestThread extends Thread
                                    .append("/").append(date).append("-")
                                    .append(board.getBoardFilename()).append("-").append(index).append(".req").toString();
                     if( DEBUG ) System.out.println(upKey);
-                    result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true);
+                    result = FcpInsert.putFile(upKey, destination + uploadMe, messageUploadHtl, false, true,
+                                               board.getBoardFilename());
                     System.out.println("FcpInsert result[0] = " + result[0] + " result[1] = " + result[1]);
 
                     if( result[0] == null || result[1] == null )

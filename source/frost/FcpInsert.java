@@ -45,48 +45,66 @@ public class FcpInsert
     return result;
     }
 
-    public static String[] putFile(String uri, String filename, String htl, boolean doRedirect, boolean mode) {
-    return putFile(uri, new File(filename), Integer.parseInt(htl), doRedirect, mode);
+    public static String[] putFile(String uri, String filename, String htl, boolean doRedirect, boolean mode,
+                                   String boardfilename)
+    {
+        return putFile(uri, new File(filename), Integer.parseInt(htl), doRedirect, mode, boardfilename);
     }
 
-    public static String[] putFile(String uri, File file, String htl, boolean doRedirect, boolean mode) {
-    return putFile(uri, file, Integer.parseInt(htl), doRedirect, mode);
+    public static String[] putFile(String uri, File file, String htl, boolean doRedirect, boolean mode,
+                                   String boardfilename)
+    {
+        return putFile(uri, file, Integer.parseInt(htl), doRedirect, mode, boardfilename);
     }
 
-    public static String[] putFile(String uri, File file, int htl, boolean doRedirect, boolean mode) {
-    if (file.length() > 32000 && uri.startsWith("KSK@")) {
-        if (doRedirect)
-        return putFECSplitFile(uri, file, htl, mode);
-        else {
-        String errorString[] = {"Error", "Error"};
-        return errorString;
+    /**
+     * boardfilename is needed for FEC puts, e.g. for pubkey.txt set it to null.
+     */
+    public static String[] putFile(String uri, File file, int htl, boolean doRedirect, boolean mode,
+                                   String boardfilename)
+    {
+        if( file.length() > 32000 && uri.startsWith("KSK@") )
+        {
+            if( doRedirect )
+                return putFECSplitFile(boardfilename, uri, file, htl, mode);
+            else
+            {
+                String errorString[] = {"Error", "Error"};
+                return errorString;
+            }
         }
-    }
-    else {
-        if (file.length() <= smallestChunk) {
-        try {
-            FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
-            String output = connection.putKeyFromFile(uri, file.getPath(), htl, mode);
-            return result(output);
+        else
+        {
+            if( file.length() <= smallestChunk )
+            {
+                try
+                {
+                    FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+                    String output = connection.putKeyFromFile(uri, file.getPath(), htl, mode);
+                    return result(output);
+                }
+                catch( FcpToolsException e )
+                {
+                    if( DEBUG ) System.out.println("FcpToolsException " + e);
+                    frame1.displayWarning(e.toString());
+                }
+                catch( UnknownHostException e )
+                {
+                    if( DEBUG ) System.out.println("UnknownHostException");
+                    frame1.displayWarning(e.toString());
+                }
+                catch( IOException e )
+                {
+                    if( DEBUG ) System.out.println("IOException");
+                    frame1.displayWarning(e.toString());
+                }
+                return result("");
+            }
+            else
+            {
+                return putFECSplitFile(boardfilename, uri, file, htl, mode);
+            }
         }
-        catch (FcpToolsException e) {
-            if (DEBUG) System.out.println("FcpToolsException " + e);
-            frame1.displayWarning(e.toString());
-        }
-        catch (UnknownHostException e) {
-            if (DEBUG) System.out.println("UnknownHostException");
-            frame1.displayWarning(e.toString());
-        }
-        catch (IOException e) {
-            if (DEBUG) System.out.println("IOException");
-            frame1.displayWarning(e.toString());
-        }
-        return result("");
-        }
-        else {
-        return putFECSplitFile(uri, file, htl, mode);
-        }
-    }
     }
 
     /**
@@ -116,23 +134,6 @@ public class FcpInsert
                     }
                 } });
         }
-    }
-
-    private static String getBoard(File file) {
-    String result = null;
-    // Need to synchronize table accesses
-    synchronized (frame1.getInstance().getUploadTable()){
-        // Does an exception prevent release of the lock, better catch them
-        try{
-        int rows = frame1.getInstance().getUploadTable().getModel().getRowCount();
-        for (int i = 0; i < rows; i++) {
-            if (file.getPath().equals(frame1.getInstance().getUploadTable().getModel().getValueAt(i, 3)))
-            result = (String)frame1.getInstance().getUploadTable().getModel().getValueAt(i, 4);
-        }
-        }
-        catch (Exception e){}
-    }
-    return result;
     }
 
     public static String[] putSplitFile(String uri, File file, int htl, boolean mode) {
@@ -316,7 +317,8 @@ public class FcpInsert
     return result(output);
     }
 
-    public static String[] putFECSplitFile(String uri, File file, int htl, boolean mode) {
+    public static String[] putFECSplitFile(String boardfilename, String uri, File file,
+                                           int htl, boolean mode) {
         FcpFECUtils fecutils = null;
     Vector segmentHeaders = null;
     Vector segmentFileMaps = new Vector();
@@ -332,10 +334,10 @@ public class FcpInsert
     Thread[] checkThreads = null;
     String[][] checkResults = null;
     int threadCount = 0;
-    String board = getBoard(file);
 
     {
-        fecutils = new FcpFECUtils(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getIntValue("nodePort"));
+        fecutils = new FcpFECUtils(frame1.frostSettings.getValue("nodeAddress"),
+                                   frame1.frostSettings.getIntValue("nodePort"));
         synchronized (fecutils.getClass()) {
         // Does an exception prevent release of the lock, better catch them
         try{
@@ -356,7 +358,8 @@ public class FcpInsert
             // Send data to FEC encoder
             int blockCount = (int)((FcpFECUtilsSegmentHeader)segmentHeaders.get(i)).BlockCount;
             int blockNo = 0;    // This counts splitfile chunks within the segment
-            fcpSock = new Socket(InetAddress.getByName(frame1.frostSettings.getValue("nodeAddress")), frame1.frostSettings.getIntValue("nodePort"));
+            fcpSock = new Socket(InetAddress.getByName(frame1.frostSettings.getValue("nodeAddress")),
+                                 frame1.frostSettings.getIntValue("nodePort"));
             fcpSock.setSoTimeout(1800000);
             fcpOut = new PrintStream(fcpSock.getOutputStream());
             fcpIn = new BufferedInputStream(fcpSock.getInputStream());
@@ -389,7 +392,9 @@ public class FcpInsert
                 if (inbytes > segLength - count)
                     inbytes = (int)(segLength - count);
                 fcpOut.write(buffer);
-                File uploadMe = new File(frame1.keypool + String.valueOf(System.currentTimeMillis()) + "-" + chunkCnt + ".tmp");
+                File uploadMe = new File(frame1.keypool +
+                                         String.valueOf(System.currentTimeMillis()) +
+                                         "-" + chunkCnt + ".tmp");
                 chunkFiles[blockNo] = uploadMe;
                 uploadMe.deleteOnExit();
                 FileOutputStream fileOut = new FileOutputStream(uploadMe);
@@ -429,7 +434,9 @@ public class FcpInsert
                     int currentRead;
                     byte[] buffer = new byte[(int)length];
                     if (uploadMe == null){
-                    uploadMe = new File(frame1.keypool + String.valueOf(System.currentTimeMillis()) + "-chk-" + checkCnt + ".tmp");
+                    uploadMe = new File(frame1.keypool +
+                                        String.valueOf(System.currentTimeMillis()) +
+                                        "-chk-" + checkCnt + ".tmp");
                     uploadMe.deleteOnExit();
                     outFile = new FileOutputStream(uploadMe);
                     }
@@ -616,8 +623,9 @@ public class FcpInsert
         dirdate += cal.get(Calendar.DATE);
 
         String fileSeparator = System.getProperty("file.separator");
-        String destination = frame1.keypool + board + fileSeparator + dirdate + fileSeparator;
-        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"), frame1.frostSettings.getValue("nodePort"));
+        String destination = frame1.keypool + boardfilename + fileSeparator + dirdate + fileSeparator;
+        FcpConnection connection = new FcpConnection(frame1.frostSettings.getValue("nodeAddress"),
+                                                     frame1.frostSettings.getValue("nodePort"));
         // That's not yet clean. Original frost code requires to start the insert funktion
         // to generate the key, and here we process the results. Direct key generation
         // should replace that, then we can also remove the result method

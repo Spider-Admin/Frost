@@ -920,7 +920,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     TimerTask KeyReinserter = new TimerTask() {
         public void run() {
             System.out.println("re-uploading public key");
-            FcpInsert.putFile("CHK@",new File("pubkey.txt"),25,false,true);
+            FcpInsert.putFile("CHK@",new File("pubkey.txt"),25,false,true,null);
             System.out.println("finished re-uploading public key");
         }
     };
