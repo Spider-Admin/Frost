@@ -11,6 +11,7 @@ import com.sun.mail.smtp.*;
 
 import frost.*;
 import frost.fileTransfer.download.FrostDownloadItemObject;
+import frost.util.FlexibleObserver;
 
 /**
  * @author zlatinb
@@ -18,7 +19,7 @@ import frost.fileTransfer.download.FrostDownloadItemObject;
  * This thread does very simple email notifications for completed files. I
  * deliberately do not want to make it too powerful of customizable.
  */
-public class NotifyByEmailThread extends Thread implements Observer {
+public class NotifyByEmailThread extends Thread implements FlexibleObserver {
 
 	private static String template; 
 	private static final String nameTag = "<filename>";
@@ -149,7 +150,7 @@ public class NotifyByEmailThread extends Thread implements Observer {
 		}
 	}
 
-	public void update(Observable o, Object arg) {
+	public void update(Object o, Object arg) {
 
 		assert o instanceof FrostDownloadItemObject
 			&& arg instanceof String : "incorrect parameters at email notifier";
