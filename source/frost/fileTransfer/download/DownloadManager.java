@@ -19,9 +19,14 @@ import frost.gui.translation.UpdatingLanguageResource;
  */
 public class DownloadManager implements PropertyChangeListener {
 
-	private frame1 mainFrame;
+	private frame1 mainFrame; 
 	private SettingsClass settings;
 	private UpdatingLanguageResource languageResource;
+	
+	private DownloadTable table;
+	private DownloadPanel panel;
+
+	private boolean freenetIsOnline;
 
 	/**
 	 * 
@@ -46,7 +51,7 @@ public class DownloadManager implements PropertyChangeListener {
 	 * 
 	 */
 	public void initialize() {
-		//mainFrame.addPanel("Download", getPanel());	
+		mainFrame.addPanel("Downloads", getPanel());	
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);	
 		updateDownloadStatus();
 	}
@@ -56,7 +61,31 @@ public class DownloadManager implements PropertyChangeListener {
 	 */
 	private void updateDownloadStatus() {
 		boolean disableDownloads = settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS);
-		//mainFrame.setPanelEnabled("Download", !disableDownloads);
+		mainFrame.setPanelEnabled("Downloads", !disableDownloads && freenetIsOnline);
+	}
+	
+	/**
+	 * @return
+	 */
+	public DownloadPanel getPanel() {
+		if (panel == null) {
+			panel = new DownloadPanel(settings);
+			panel.setDownloadTable(getTable());
+			panel.setLanguageResource(languageResource);
+			panel.initialize();
+		}
+		return panel;
+	}
+	
+	/**
+	 * @return
+	 */
+	public DownloadTable getTable() {
+		if (table == null) {
+			DownloadTableModel downloadTableModel = new DownloadTableModel(languageResource);
+			table = new DownloadTable(downloadTableModel);
+		}
+		return table;
 	}
 
 	/* (non-Javadoc)
@@ -68,4 +97,12 @@ public class DownloadManager implements PropertyChangeListener {
 		}
 	}
 
+	/**
+	 * description
+	 * 
+	 * @param freenetIsOnline description
+	 */
+	public void setFreenetIsOnline(boolean freenetIsOnline) {
+		this.freenetIsOnline = freenetIsOnline;
+	}
 }

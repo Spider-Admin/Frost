@@ -539,9 +539,13 @@ public class Core implements Savable {
 
 		//Main frame		
 		mainFrame = new frame1(frostSettings, languageResource);
-		mainFrame.validate();
-		getSearchManager().initialize();
 		getDownloadManager().initialize();
+		getSearchManager().initialize();
+		
+		//Until the downloads are fully separated from frame1:
+		mainFrame.setDownloadPanel(getDownloadManager().getPanel());
+		mainFrame.setDownloadTable(getDownloadManager().getTable());
+		mainFrame.initialize();
 
 		splashscreen.setText(languageResource.getString("Wasting more time"));
 		splashscreen.setProgress(70);
@@ -596,7 +600,7 @@ public class Core implements Savable {
 		if (searchManager == null) {
 			searchManager = new SearchManager(languageResource, frostSettings);
 			searchManager.setMainFrame(mainFrame);
-			searchManager.setDownloadTable(mainFrame.getDownloadTable());
+			searchManager.setDownloadTable(getDownloadManager().getTable());
 			searchManager.setTofTree(mainFrame.getTofTree());
 			searchManager.setKeypool(keypool);
 			searchManager.setIdentities(getIdentities());
@@ -611,6 +615,7 @@ public class Core implements Savable {
 		if (downloadManager == null) {
 			downloadManager = new DownloadManager(languageResource, frostSettings);
 			downloadManager.setMainFrame(mainFrame);
+			downloadManager.setFreenetIsOnline(isFreenetOnline());
 		}
 		return downloadManager;
 	}
