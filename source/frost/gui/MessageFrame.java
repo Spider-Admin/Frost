@@ -67,8 +67,8 @@ public class MessageFrame extends JFrame
 					boolean isSelected, boolean cellHasFocus) {
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				if (value != null) {
-					BoardAttachment board = (BoardAttachment) value;
-					setText(board.getBoardObj().getName());
+					Board board = (Board) value;
+					setText(board.getName());
 				}	
 				return this;
 			}
@@ -757,9 +757,12 @@ public class MessageFrame extends JFrame
 	 * @param e
 	 */
 	private void attachBoards_actionPerformed(ActionEvent e) {
-		List knownBoards = Core.getKnownBoards();
+		Vector allBoards = MainFrame.getInstance().getTofTree().getAllBoards();
+		if (allBoards.size() == 0)
+			return;
+		Collections.sort(allBoards);
 
-		AttachBoardsChooser chooser = new AttachBoardsChooser(knownBoards);
+		AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
 		chooser.setLocationRelativeTo(this);
 		Vector chosenBoards = chooser.runDialog();
 		if (chosenBoards == null || chosenBoards.size() == 0) // nothing chosed or cancelled
@@ -768,7 +771,7 @@ public class MessageFrame extends JFrame
 		}
 
 		for (int i = 0; i < chosenBoards.size(); i++) {
-			Board board = ((BoardAttachment) chosenBoards.get(i)).getBoardObj();
+			Board board = (Board) chosenBoards.get(i);
 
 			String privKey = board.getPrivateKey();
 

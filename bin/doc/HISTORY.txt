@@ -6,8 +6,6 @@ Added: some internationalization improvements.
 
 Changed: messages are signed by default.
 Changed: now the size of the new message window is relative to the size of the main window.
-Changed: now, when you are writing a new message and you want to attach a board to it, you can choose 
-         among all the known boards, instead of among the ones you are subscribed to.
 
 Bugfix: obsolete strings in the language resources were causing an exception when trying to open 
         the translation frame.
