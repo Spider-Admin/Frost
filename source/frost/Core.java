@@ -20,6 +20,7 @@ package frost;
 
 import java.io.*;
 import java.util.*;
+import java.util.Timer;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -61,40 +62,33 @@ public class Core {
 	private boolean freenetIsOnline = false;
 	private boolean freenetIsTransient = false;
 	
+	private Timer timer = new Timer(true);
+	private Saver saver = new Saver(this);
+
+	public static LocalIdentity mySelf;
+
+	public static BuddyList friends, enemies, neutral;
+	public static SettingsClass frostSettings = null;
+	static Hashtable goodIds;
+	static Hashtable badIds;
+	static Hashtable myBatches;
+
+	private static crypt crypto = new FrostCrypt();
+	
+	private static CleanUp fileCleaner = new CleanUp("keypool", false);
+	
 	private Core() {
 		
 	}
 	
-	/**
-	 *	This method checks whether the user is running a transient node or not.
-	 */
-	private void checkTransient() {
-		try {
-			FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
-			if (con1 != null) {
-				String[] nodeInfo = con1.getInfo();
-				// freenet is online
-				freenetIsOnline = true;
-				for (int ij = 0; ij < nodeInfo.length; ij++) {
-					if (nodeInfo[ij].startsWith("IsTransient")
-						&& nodeInfo[ij].indexOf("true") != -1) {
-						freenetIsTransient = true;
-					}
-				}
-			}
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Exception thrown in checkTransient", e);
-		}		
-	}
-
 	/**
 	 * This methods parses the list of available nodes (and converts it if it is in
 	 * the old format). If there are no available nodes, it shows a Dialog warning the
 	 * user of the situation and returns false.
 	 * @return boolean false if no nodes are available. True otherwise.
 	 */
-	private boolean initializeNodes() {
-		//parse the list of available nodes
+	private boolean initializeConnectivity() {
+		// First of all we parse the list of available nodes
 		String nodesUnparsed = frostSettings.getValue("availableNodes");
 
 		if (nodesUnparsed == null) { //old format
@@ -112,12 +106,47 @@ public class Core {
 		}
 		if (nodes.size() == 0) {
 			MiscToolkit.getInstance().showMessage(
-							"Not a single Freenet node configured. You need at least one.",
-							JOptionPane.ERROR_MESSAGE,
-							"ERROR: No Freenet nodes are available");
+				"Not a single Freenet node configured. You need at least one.",
+				JOptionPane.ERROR_MESSAGE,
+				"ERROR: No Freenet nodes are available");
 			return false;
 		}
 		logger.info("Frost will use " + nodes.size() + " Freenet nodes");
+
+		// Then we check if the user is running a transient node or not
+		try {
+			FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
+			if (con1 != null) {
+				String[] nodeInfo = con1.getInfo();
+				// freenet is online
+				freenetIsOnline = true;
+				for (int ij = 0; ij < nodeInfo.length; ij++) {
+					if (nodeInfo[ij].startsWith("IsTransient")
+						&& nodeInfo[ij].indexOf("true") != -1) {
+						freenetIsTransient = true;
+					}
+				}
+			}
+		} catch (Exception e) {
+			logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
+		}
+
+		// We warn the user if there aren't any running nodes
+		if (!freenetIsOnline) {
+			MiscToolkit.getInstance().showMessage(
+				languageResource.getString("Core.init.NodeNotRunningBody"),
+				JOptionPane.WARNING_MESSAGE,
+				languageResource.getString("Core.init.NodeNotRunningTitle"));
+		}
+
+		// We warn the user if the only node that is running is transient
+		if (isFreenetTransient() && nodes.size() == 1) {
+			MiscToolkit.getInstance().showMessage(
+				languageResource.getString("Core.init.TransientNodeBody"),
+				JOptionPane.WARNING_MESSAGE,
+				languageResource.getString("Core.init.TransientNodeTitle"));
+		}
+
 		return true;
 	}
 
@@ -140,9 +169,6 @@ public class Core {
 		}
 	}
 
-	private static CleanUp fileCleaner = new CleanUp("keypool", false);
-	public ObjectOutputStream id_writer;
-	
 	public boolean isFreenetOnline() {
 		return freenetIsOnline;
 	}
@@ -648,28 +674,6 @@ public class Core {
         }
     }
     
-	//------------------------------------------------------------------------
-	//------------------------------------------------------------------------
-
-	java.util.Timer timer; // Uploads / Downloads
-	java.util.Timer timer2;
-
-	public static LocalIdentity mySelf;
-	//------------------------------------------------------------------------
-	// end-of: Generate objects
-	//------------------------------------------------------------------------
-
-	// returns the current id,crypt, etc.
-
-	public static BuddyList friends, enemies, neutral;
-	// saved to frost.ini
-	public static SettingsClass frostSettings = null;
-	static Hashtable goodIds;
-	static Hashtable badIds;
-	static Hashtable myBatches;
-
-	public static crypt crypto;
-
 	public static Hashtable getBadIds() {
 		return badIds;
 	}
@@ -695,94 +699,6 @@ public class Core {
 	public static Hashtable getMyBatches() {
 		return myBatches;
 	}
-
-	private void initialize2() {
-		timer2 = new java.util.Timer(true);
-		timer2.schedule(
-			new checkForSpam(this),
-			0,
-			frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
-
-		// the saver
-		final Saver saver = new Saver(this);
-		Runtime.getRuntime().addShutdownHook(saver);
-
-		TimerTask cleaner = new TimerTask() {
-			int i = 0;
-			public void run() {
-				// maybe each 6 hours cleanup files (12 * 30 minutes)
-				if (i == 12 && frostSettings.getBoolValue("doCleanUp")) {
-					i = 0;
-					logger.info("discarding old files");
-					fileCleaner.doCleanup();
-				}
-				logger.info("freeing memory");
-				System.gc();
-				i++;
-			}
-		};
-		timer2.schedule(cleaner, 30 * 60 * 1000, 30 * 60 * 1000);
-		// all 30 minutes
-
-		TimerTask autoSaver = new TimerTask() {
-			public void run() {
-				saver.autoSave();
-			}
-		};
-		int autoSaveIntervalMinutes = frostSettings.getIntValue("autoSaveInterval");
-		timer2.schedule(
-			autoSaver,
-			autoSaveIntervalMinutes * 60 * 1000,
-			autoSaveIntervalMinutes * 60 * 1000);
-
-		// CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
-		Startup.startupCheck();
-
-		FileAccess.cleanKeypool(frame1.keypool);
-
-		if (!freenetIsOnline) {
-			MiscToolkit.getInstance().showMessage(
-				languageResource.getString("Core.init.NodeNotRunningBody"),
-				JOptionPane.WARNING_MESSAGE,
-				languageResource.getString("Core.init.NodeNotRunningTitle"));
-			freenetIsOnline = false;
-		}
-
-		// show a warning if freenet=transient AND only 1 node is used
-		if (isFreenetTransient() && nodes.size() == 1) {
-			MiscToolkit.getInstance().showMessage(
-				languageResource.getString("Core.init.TransientNodeBody"),
-				JOptionPane.WARNING_MESSAGE,
-				languageResource.getString("Core.init.TransientNodeTitle"));
-		}
-
-		//create a crypt object
-		crypto = new FrostCrypt();
-
-		//load vital data
-		loadIdentities();
-		loadBatches();
-		loadKnownBoards();
-		loadHashes();
-
-		// Start tofTree
-		if (isFreenetOnline()) {
-			resendFailedMessages();
-		}
-
-		//TODO: check if email notification is on and instantiate the emailNotifier
-		//of course it needs to be added as a setting first ;-p
-		
-		Thread requestsThread =
-			new GetRequestsThread(
-				frostSettings.getIntValue("tofDownloadHtl"),
-				frostSettings.getValue("keypool.dir"),
-				frame1.getInstance().getUploadTable());
-		requestsThread.start();
-		if (frostSettings.getBoolValue("helpFriends"))
-			timer2.schedule(new GetFriendsRequestsThread(), 5 * 60 * 1000, 3 * 60 * 60 * 1000);
-
-	} //end of init()
 
 	/**
 	   * Tries to send old messages that have not been sent yet
@@ -811,7 +727,7 @@ public class Core {
 	 * @param delay
 	 */
 	public static void schedule(TimerTask task, long delay) {
-		getInstance().timer2.schedule(task, delay);
+		getInstance().timer.schedule(task, delay);
 	}
 
 	/**
@@ -820,7 +736,7 @@ public class Core {
 	 * @param period
 	 */
 	public static void schedule(TimerTask task, long delay, long period) {
-		getInstance().timer2.schedule(task, delay, period);
+		getInstance().timer.schedule(task, delay, period);
 	}
 	/**
 	 * @return list of nodes Frost is using
@@ -913,7 +829,7 @@ public class Core {
 		splashscreen.setVisible(true);
 
 		frostSettings = new SettingsClass();
-		
+
 		// Initializes the language
 		initializeLanguage();
 
@@ -923,32 +839,56 @@ public class Core {
 		//Initializes the logging and skins
 		new Logging(frostSettings);
 		initializeSkins();
-		
+
 		splashscreen.setText(languageResource.getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(50);
 
-		if (!initializeNodes()) {
+		if (!initializeConnectivity()) {
 			System.exit(1);
 		}
-		checkTransient();
-		
+
 		splashscreen.setText(languageResource.getString("Sending IP address to NSA"));
 		splashscreen.setProgress(60);
 
 		//Main frame		
 		frame1 frame = new frame1(frostSettings, languageResource);
 		frame.validate();
-		
+
 		splashscreen.setText(languageResource.getString("Wasting more time"));
 		splashscreen.setProgress(70);
+
+		// CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
+		Startup.startupCheck();
+		FileAccess.cleanKeypool(frame1.keypool);
+
+		//load vital data
+		loadIdentities();
+		loadBatches();
+		loadKnownBoards();
+		loadHashes();
+
+		// Start tofTree
+		if (isFreenetOnline()) {
+			resendFailedMessages();
+		}
+
+		//TODO: check if email notification is on and instantiate the emailNotifier
+		//of course it needs to be added as a setting first ;-p
+
+		Thread requestsThread =
+			new GetRequestsThread(
+				frostSettings.getIntValue("tofDownloadHtl"),
+				frostSettings.getValue("keypool.dir"),
+				frame1.getInstance().getUploadTable());
+		requestsThread.start();
 		
-		initialize2();	//TODO: interim name (old constructor)
-		
+		initializeTasks();
+
 		splashscreen.setText(languageResource.getString("Reaching ridiculous speed..."));
 		splashscreen.setProgress(80);
-		
+
 		frame.setVisible(true);
-		
+
 		splashscreen.closeMe();
 
 		// Display the tray icon
@@ -956,7 +896,51 @@ public class Core {
 			if (JSysTrayIcon.createInstance(0, "Frost", "Frost") == false) {
 				logger.severe("Could not create systray icon.");
 			}
-		}		
+		}
+	}
+
+	/**
+	 * 
+	 */
+	private void initializeTasks() {
+		//We initialize the task that checks for spam
+		timer.schedule(
+			new checkForSpam(this),
+			0,
+			frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
+
+		//We initialize the tash that discards old files and frees memory
+		TimerTask cleaner = new TimerTask() {
+			int i = 0;
+			public void run() {
+				// maybe each 6 hours cleanup files (12 * 30 minutes)
+				if (i == 12 && frostSettings.getBoolValue("doCleanUp")) {
+					i = 0;
+					logger.info("discarding old files");
+					fileCleaner.doCleanup();
+				}
+				logger.info("freeing memory");
+				System.gc();
+				i++;
+			}
+		};
+		timer.schedule(cleaner, 30 * 60 * 1000, 30 * 60 * 1000);	//30 minutes
+
+		//We initialize the task that saves data
+		TimerTask autoSaver = new TimerTask() {
+			public void run() {
+				saver.autoSave();
+			}
+		};
+		int autoSaveIntervalMinutes = frostSettings.getIntValue("autoSaveInterval");
+		timer.schedule(
+			autoSaver,
+			autoSaveIntervalMinutes * 60 * 1000,
+			autoSaveIntervalMinutes * 60 * 1000);
+			
+		// We initialize the task that helps requests of friends
+		if (frostSettings.getBoolValue("helpFriends"))
+			timer.schedule(new GetFriendsRequestsThread(), 5 * 60 * 1000, 3 * 60 * 60 * 1000);
 	}
 
 	/**
