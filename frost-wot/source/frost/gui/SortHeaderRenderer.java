@@ -81,36 +81,54 @@ public class SortHeaderRenderer extends DefaultTableCellRenderer
         setHorizontalAlignment(CENTER);
     }
 
-    public Component getTableCellRendererComponent(
-                      JTable table, Object value, boolean isSelected,
-                      boolean hasFocus, int row, int col)
-    {
-        int index = -1;
-        int modelIndex = -1;
-        boolean ascending = true;
-        if( table instanceof SortedTable )
-        {
-            SortedTable sortTable = (SortedTable)table;
-            index = sortTable.getSortedColumnIndex();
-            ascending = sortTable.isSortedColumnAscending();
-            TableColumnModel colModel = table.getColumnModel();
-            modelIndex = colModel.getColumn(col).getModelIndex();
-        }
-        if( table != null )
-        {
-            JTableHeader header = table.getTableHeader();
-            if( header != null )
-            {
-                setForeground(header.getForeground());
-                setBackground(header.getBackground());
-                setFont(header.getFont());
-            }
-        }
-        Icon icon = ascending ? ASCENDING : DECENDING;
-        setIcon(modelIndex == index ? icon : NONSORTED);
-        setText((value == null) ? "" : value.toString());
-        setBorder(UIManager.getBorder("TableHeader.cellBorder"));
-        return this;
-    }
+	/** 
+	 * This method assumes that this is the renderer of the header of a column. If the defaultRenderer of the JTableHeader is an
+	 * instance of JLabel (like DefaultTableCellRenderer), it checks if the table is Sorted and paints an arrow if necessary. Then,
+	 * it calls the defaultRenderer so that it finishes the job. 
+	 * 
+	 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+	 */
+	public Component getTableCellRendererComponent(JTable table, Object value, boolean isSelected, boolean hasFocus, int row, int col) {
+		TableCellRenderer defaultRenderer = table.getTableHeader().getDefaultRenderer();
+		
+		if (defaultRenderer == null) {
+			//No default renderer is set for the JTableHeader. We are on our own.	
+			if (table instanceof SortedTable) {
+				Icon icon = getArrow((SortedTable)table, col);
+				setIcon(icon);
+			}
+			setText((value == null) ? "" : value.toString());
+			setBorder(UIManager.getBorder("TableHeader.cellBorder"));
+			return this;
+			
+		} else if (defaultRenderer instanceof JLabel) {
+			// There is a default renderer set for the JTableHeader and it is a JLabel.	
+			if (table instanceof SortedTable) {
+				Icon icon = getArrow((SortedTable)table, col);
+				((JLabel) defaultRenderer).setIcon(icon);
+			}			
+		} 
+		return defaultRenderer.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, col);
+	}
+	
+	
+	/**
+	 * @param table
+	 * @param col
+	 * @return
+	 */
+	private Icon getArrow(SortedTable table, int col) {
+		int index = -1;
+		int modelIndex = -1;
+		boolean ascending = true;
+
+		index = table.getSortedColumnIndex();
+		ascending = table.isSortedColumnAscending();
+		TableColumnModel colModel = table.getColumnModel();
+		modelIndex = colModel.getColumn(col).getModelIndex();
+
+		Icon icon = ascending ? ASCENDING : DECENDING;
+		return modelIndex == index ? icon : NONSORTED;
+	}
 }
 
