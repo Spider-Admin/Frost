@@ -7,12 +7,13 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.File;
 import java.util.*;
+import java.util.logging.Logger;
 
 import javax.swing.*;
 
 import frost.ext.Execute;
 import frost.gui.*;
-import frost.gui.components.*;
+import frost.gui.components.JSkinnablePopupMenu;
 import frost.gui.model.UploadTableModel;
 import frost.gui.objects.*;
 import frost.gui.translation.*;
@@ -474,6 +475,8 @@ public class UploadPanel extends JPanel {
 	private PopupMenuUpload popupMenuUpload = null;
 
 	private Listener listener = new Listener();
+	
+	private static Logger logger = Logger.getLogger(UploadPanel.class.getName());
 
 	private UploadTable uploadTable = null;
 	private TofTree tofTree = null;
@@ -668,7 +671,7 @@ public class UploadPanel extends JPanel {
 		FrostUploadItemObject ulItem =
 			(FrostUploadItemObject) ulModel.getRow(uploadTable.getSelectedRow());
 		File file = new File(ulItem.getFilePath());
-		Core.getOut().println("Executing: " + file.getPath());
+		logger.info("Executing: " + file.getPath());
 		if (file.exists()) {
 			Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
 		}

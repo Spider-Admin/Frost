@@ -24,6 +24,7 @@ import java.awt.*;
 import java.beans.*;
 import java.io.*;
 import java.util.*;
+import java.util.logging.*;
 
 /**
  * Read settings from frost.ini and store them.
@@ -36,6 +37,8 @@ public class SettingsClass {
 	private Hashtable defaults = null;
 	private final String fs = System.getProperty("file.separator");
 	private PropertyChangeSupport changeSupport = null;
+	
+	private static Logger logger = Logger.getLogger(SettingsClass.class.getName());
 
 	//Constructors
 	public SettingsClass() {
@@ -95,7 +98,7 @@ public class SettingsClass {
 		try {
 			settingsReader = new LineNumberReader(new FileReader(settingsFile));
 		} catch (Exception e) {
-			System.out.println(settingsFile.getName() + " does not exist, will create it");
+			logger.warning(settingsFile.getName() + " does not exist, will create it");
 			return false;
 		}
 		try {
@@ -151,13 +154,13 @@ public class SettingsClass {
 				}
 			}
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
 		}
 
 		try {
 			settingsReader.close();
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
 		}
 
 		if (this.getValue("messageBase").equals("")) {
@@ -165,7 +168,7 @@ public class SettingsClass {
 			//System.out.println("!!! set messageBase to default 'news' !!!");
 		}
 
-		System.out.println("Read user configuration");
+		logger.info("Read user configuration");
 		return true;
 	}
 
@@ -182,7 +185,7 @@ public class SettingsClass {
 				}
 				settingsWriter = new PrintWriter(new FileWriter(settingsFile));
 			} catch (IOException exception2) {
-				exception2.printStackTrace();
+				logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile()", exception2);
 				return false;
 			}
 		}
@@ -217,10 +220,10 @@ public class SettingsClass {
 
 		try {
 			settingsWriter.close();
-			System.out.println("Wrote configuration");
+			logger.info("Wrote configuration");
 			return true;
 		} catch (Exception e) {
-			e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in writeSettingsFile", e);
 		}
 		return false;
 	}

@@ -21,9 +21,11 @@ package frost;
 import java.awt.Toolkit;
 import java.awt.datatransfer.*;
 import java.io.*;
+import java.util.logging.Logger;
 
 public final class mixed
 {
+	private static Logger logger = Logger.getLogger(mixed.class.getName());
 
     /**
      * Copys a file from the jar file to disk
@@ -88,7 +90,7 @@ public static String makeSafeXML(String text) {
     {
         if( text == null )
         {
-            System.out.println("ERROR: mixed.makeFilename() was called with NULL!");
+            logger.severe("ERROR: mixed.makeFilename() was called with NULL!");
             return null;
         }
         

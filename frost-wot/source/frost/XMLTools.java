@@ -20,6 +20,7 @@ package frost;
 
 import java.io.*;
 import java.util.ArrayList;
+import java.util.logging.*;
 
 import javax.xml.parsers.*;
 
@@ -32,6 +33,9 @@ import org.xml.sax.SAXException;
  */
 public class XMLTools
 {
+	
+	private static Logger logger = Logger.getLogger(XMLTools.class.getName());
+	
 	/**
 	 * creates a document containing a single element - the one 
 	 * returned by getXMLElement of the argument
@@ -63,7 +67,7 @@ public class XMLTools
     		result = FileAccess.readByteArray(tmp);
     		tmp.delete();
 		} catch (Throwable t) {
-			t.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in getRawXMLDocument(XMLizable element)", t);
 		}
 		return result;
 	}
@@ -104,18 +108,17 @@ public class XMLTools
         catch( SAXException e )
         {
             // A parsing error occurred; the xml input is not valid
-	    Core.getOut().println("parsing of xml file failed.  Send badfile.xml to a dev for analysis");
-	    e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Parsing of xml file failed.  Send badfile.xml to a dev for analysis", e);
 	    	file.renameTo(new File("badfile.xml"));
             throw new IllegalArgumentException();
         }
         catch( ParserConfigurationException e )
         {
-		e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in parseXmlFile(File file, boolean validating)", e);
         }
         catch( IOException e )
         {
-		e.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in parseXmlFile(File file, boolean validating)", e);
         }
         return null;
     }
@@ -142,7 +145,7 @@ public class XMLTools
         }
         catch(Exception ex)
         {
-            ex.printStackTrace(Core.getOut());
+			logger.log(Level.SEVERE, "Exception thrown in writeXmlFile(Document doc, String filename)", ex);
         }
         return false;
     }
@@ -158,7 +161,7 @@ public class XMLTools
             return doc;
         } catch (ParserConfigurationException e)
         {
-            e.printStackTrace();
+			logger.log(Level.SEVERE, "Exception thrown in createDomDocument()", e);
         }
         return null;
     }

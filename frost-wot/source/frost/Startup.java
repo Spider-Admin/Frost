@@ -19,12 +19,15 @@
 package frost;
 
 import java.io.*;
+import java.util.logging.Logger;
 
 /**
  * Does some things that have to be done when starting Frost
  */
 public class Startup
 {
+	private static Logger logger = Logger.getLogger(Startup.class.getName());
+	
     /**
      * The Main method, check if allowed to run
      * and starts the other startup work.
@@ -77,35 +80,35 @@ public class Startup
         File downloadDirectory = new File(frame1.frostSettings.getValue("downloadDirectory"));
         if( !downloadDirectory.isDirectory() )
         {
-            System.out.println("Creating download directory");
+            logger.warning("Creating download directory");
             downloadDirectory.mkdirs();
         }
 
         File keypoolDirectory = new File(frame1.keypool);
         if( !keypoolDirectory.isDirectory() )
         {
-            System.out.println("Creating keypool directory");
+			logger.warning("Creating keypool directory");
             keypoolDirectory.mkdirs();
         }
 
         File execDirectory = new File("exec");
         if( !execDirectory.isDirectory() )
         {
-            System.out.println("Creating exec directory");
+			logger.warning("Creating exec directory");
             execDirectory.mkdirs();
         }
 
         File unsentDirectory = new File(frame1.frostSettings.getValue("unsent.dir"));
         if( !unsentDirectory.isDirectory() )
         {
-            System.out.println("Creating unsent directory");
+			logger.warning("Creating unsent directory");
             unsentDirectory.mkdirs();
         }
 
         File tempDirectory = new File(frame1.frostSettings.getValue("temp.dir"));
         if( !tempDirectory.isDirectory() )
         {
-            System.out.println("Creating temp directory");
+			logger.warning("Creating temp directory");
             tempDirectory.mkdirs();
         }
     }
