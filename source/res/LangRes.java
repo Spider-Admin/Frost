@@ -160,6 +160,7 @@ public class LangRes extends ListResourceBundle {
     {"Keyfile download HTL:", "Keyfile download HTL:"},
     {"Node address:", "Node address:"},
     {"Node port:", "Node port:"},
+    {"list of nodes","Comma-separated list of nodes you have FCP access to:"},
     {"Maximum number of keys to store:", "Maximum number of keys to store:"},
     {"Allow 2 byte characters", "Allow 2 byte characters"},
 

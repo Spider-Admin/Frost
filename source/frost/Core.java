@@ -22,16 +22,40 @@ import javax.swing.*;
 public class Core {
 	
 	private static PrintStream out = System.out; //default is System.out
-
+	private static final Set nodes = new HashSet(); //list of available nodes
+	
 	public Core() {
 		
 		out = System.out; //when we want to redirect to file just change this.
+		
+		frostSettings = frame1.frostSettings;
+		//parse the list of available nodes
+		String nodesUnparsed = frostSettings.getValue("availableNodes");
+		
+		if (nodesUnparsed == null) { //old format
+			String converted = new String(frostSettings.getValue("nodeAddress")+":"+
+							frostSettings.getValue("nodePort"));
+			nodes.add(converted.trim());
+			frostSettings.setValue("availableNodes",converted.trim());
+		} else { // new format
+			String []_nodes = nodesUnparsed.split(",");
+			for (int i=0;i<_nodes.length;i++)
+				nodes.add(_nodes[i]);	
+		}
+		
+		if (nodes.size() == 0) {
+			getOut().println("not a single Freenet node configured!  You need at least one");
+			System.exit(1);
+		}
+		
+		getOut().println("Frost will use "+nodes.size() +" Freenet nodes");
+		
 		
 		//		check whether the user is running a transient node
 		setFreenetIsTransient(false);
 		setFreenetIsOnline(false);
 		try {
-			frostSettings = frame1.frostSettings;
+			
 			FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
 			if (con1 != null) {
 				String[] nodeInfo = con1.getInfo();
@@ -489,6 +513,13 @@ public class Core {
 	 */
 	public static PrintStream getOut() {
 		return out;
+	}
+
+	/**
+	 * @return
+	 */
+	public static Set getNodes() {
+		return nodes;
 	}
 
 }
