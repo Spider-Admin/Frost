@@ -90,7 +90,7 @@ public class insertThread extends Thread
                 }
                 else
                 {
-                    System.out.println("Upload of " + file + " was successful.");
+                    System.out.println("Upload of " + file + " was NOT successful.");
                 }
 
                 // item uploaded (maybe)
