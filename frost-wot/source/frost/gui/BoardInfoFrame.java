@@ -164,7 +164,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         catch( Exception e ) {
         	logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
-        pack();
+		setSize((int) (parent.getWidth() * 0.75), 
+				(int) (parent.getHeight() * 0.75));
         setLocationRelativeTo( parent );
     }
 

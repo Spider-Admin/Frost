@@ -74,7 +74,8 @@ public class KnownBoardsFrame extends JDialog
 			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-        pack();
+		setSize((int) (parent.getWidth() * 0.75), 
+				(int) (parent.getHeight() * 0.75));
         setLocationRelativeTo( parent );
     }
     
