@@ -312,7 +312,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             + " for date "
                             + date);
                 // Download the keyfile
-                FcpRequest
+                
+                FcpResults fcpresults = FcpRequest
                     .getFile(
                         requestKey + index + ".idx.sha2.zip",
                         null,
@@ -321,7 +322,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             + ((Integer)indices.elementAt(index)).intValue(),
                         //^^^ this way we bypass the failure table
                         true);
-                if (target.length() > 0)
+                        
+                if( fcpresults != null && target.length() > 0)
                 {
                     //mark it as successful
                     setIndexSuccessfull(index);
@@ -330,66 +332,17 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                     try
                     {
                         // maybe the file is corrupted ... so try
-                        byte[] unzipbin = FileAccess.readZipFileBinary(target);
-                        byte[] stripped = null;
-                        if( mixed.binaryCompare(unzipbin, 0, "===Frost signed message===") )
-                        {
-                            // skip header
-                            int headerLen = "===Frost signed message===".length();
-                            while( unzipbin[headerLen] == 0x0d ||
-                                   unzipbin[headerLen] == 0x0a )
-                            {
-                                headerLen++;       
-                            }
-                            // remove all 0x0d and 0x0a
-                            int bytesToRemove = 0;
-                            for(int x=headerLen; x<unzipbin.length;x++)
-                            {
-                                // count bytes to remove
-                                if( unzipbin[x] == 0x0a )
-                                {
-                                    bytesToRemove++;
-                                }
-                            }
-                            // extract utf-16 content
-                            byte[] newb = new byte[unzipbin.length - headerLen - bytesToRemove];
-                            int actOffset = 0;
-                            for(int x=headerLen; x<unzipbin.length; x++)
-                            {
-                                if( unzipbin[x] != 0x0a && actOffset < newb.length)
-                                {
-                                    newb[actOffset] = unzipbin[x];
-                                    actOffset++;
-                                }
-                            }
-                            //System.arraycopy(unzipbin, headerLen, newb, 0, newb.length);
-                            stripped = newb;
-                        }
+                        byte[] unzippedXml = FileAccess.readZipFileBinary(target);
                         
-                        String unzipped = new String(unzipbin); 
-                        //FileAccess.readZipFile(target);
-
                         //verify the file 
-                        if( stripped != null ) //(unzipped.startsWith("==="))
+                        if( fcpresults.getMetadata() != null ) 
                         {
-//System.out.println("STRIPPED='"+new String(stripped)+"'");                            
-                            // FIXME: FILELIST PBL:
-                            // now all up to signature is XML code (UTF-16)
-                            // extract the utf-16 code, and parse it using dom parser
-                            // FIXED: use a SAX parser at the end of this file
-                         /*   String stripped =
-                                new String(
-                                    unzipped.substring(
-                                        crypt.MSG_HEADER_SIZE,
-                                        unzipped.lastIndexOf(
-                                            "\n=== Frost message signature: ===\n")));
-							*/
+// FIXME: work in progress here                            
 							SimpleParser sp = new SimpleParser();
                             try
                             {
                                 ByteArrayInputStream bis = 
-                                    new ByteArrayInputStream(
-                                        stripped );
+                                    new ByteArrayInputStream(unzippedXml);
 
                                 SAXParserFactory factory =
                                     SAXParserFactory.newInstance();
@@ -400,7 +353,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                 XMLReader xmlreader = sparser.getXMLReader();
                                 xmlreader.setFeature("http://apache.org/xml/features/allow-java-encodings", 
                                                       true);
-
                                 sparser.parse(bis, sp);
                                 _sharer = sp.sharer;
                                 pubkey = sp.pubkey;
