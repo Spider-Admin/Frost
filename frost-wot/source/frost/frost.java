@@ -18,7 +18,9 @@
 */
 package frost;
 
-import java.awt.*;
+import java.awt.Dimension;
+import java.awt.Toolkit;
+
 import javax.swing.UIManager;
 
 import frost.ext.JSysTrayIcon;
@@ -69,7 +71,8 @@ public class frost
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
 	    System.out.println("Frost uses code from apache.org (Apache license),");
-	    System.out.println("bouncycastle.org (BSD license) and Onion Networks (BSD license).");
+	    System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license)");
+		System.out.println("and L2FProd.com (Apache license).");
         System.out.println();
         System.out.println();
         
@@ -87,6 +90,8 @@ public class frost
             Class.forName("freenet.client.ClientKey");
             // check for fecImpl.jar
             Class.forName("fecimpl.FECUtils");
+			// check for skinlf.jar
+			Class.forName("com.l2fprod.gui.SkinApplet");
         }
         catch (ClassNotFoundException e1)
         {
