@@ -68,6 +68,7 @@ public final class mixed
      * @return the string with ]]> converted to ___
      */
 public static String makeSafeXML(String text) {
+	if (text == null) return null;
 	int index;
 	while((index = text.indexOf("]]>")) !=-1) 
 		text = text.substring(0,index) + "___"+text.substring(index+3,text.length());
