@@ -47,6 +47,189 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * 
 	 */
+	private class SearchPanel extends JPanel {
+		
+		private JLabel archiveExtensionLabel = new JLabel();
+		private JLabel audioExtensionLabel = new JLabel();
+		private JLabel documentExtensionLabel = new JLabel();
+		private JLabel executableExtensionLabel = new JLabel();
+		private JLabel imageExtensionLabel = new JLabel();
+		private JLabel videoExtensionLabel = new JLabel();
+		private JLabel maxSearchResultsLabel = new JLabel();
+		
+		private JTextField archiveExtensionTextField = new JTextField();
+		private JTextField audioExtensionTextField = new JTextField();
+		private JTextField documentExtensionTextField = new JTextField();
+		private JTextField executableExtensionTextField = new JTextField();
+		private JTextField imageExtensionTextField = new JTextField();
+		private JTextField videoExtensionTextField = new JTextField();
+		private JTextField maxSearchResultsTextField = new JTextField(6);
+		
+		private JCheckBox hideAnonFilesCheckBox = new JCheckBox();
+		private JCheckBox hideBadFilesCheckBox = new JCheckBox();
+
+
+		
+		/**
+		 * 
+		 */
+		public SearchPanel() {
+			super();
+			initialize();
+		}
+
+		/**
+		 * 
+		 */
+		private void initialize() {
+			setName("SearchPanel");
+			setLayout(new GridBagLayout());
+			refreshLanguage();
+
+			GridBagConstraints constraints = new GridBagConstraints();
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.insets = new Insets(5, 5, 5, 5);
+			constraints.weighty = 1;
+			constraints.gridwidth = 1;
+			
+			constraints.weightx = 0;
+			constraints.gridx = 0;
+			constraints.gridy = 0;
+			add(imageExtensionLabel, constraints);
+			constraints.weightx = 1;
+			constraints.gridx = 1;
+			add(imageExtensionTextField, constraints);
+			
+			constraints.weightx = 0;
+			constraints.gridy = 1;
+			constraints.gridx = 0;
+			add(videoExtensionLabel, constraints);
+			constraints.weightx = 1;
+			constraints.gridx = 1;
+			add(videoExtensionTextField, constraints);
+			
+			constraints.weightx = 0;
+			constraints.gridy = 2;
+			constraints.gridx = 0;
+			add(archiveExtensionLabel, constraints);
+			constraints.weightx = 1;
+			constraints.gridx = 1;
+			add(archiveExtensionTextField, constraints);
+			
+			constraints.weightx = 0;
+			constraints.gridy = 3;
+			constraints.gridx = 0;
+			add(documentExtensionLabel, constraints);
+			constraints.weightx = 1;
+			constraints.gridx = 1;
+			add(documentExtensionTextField, constraints);
+			
+			constraints.weightx = 0;
+			constraints.gridy = 4;
+			constraints.gridx = 0;
+			add(audioExtensionLabel, constraints);
+			constraints.weightx = 1;
+			constraints.gridx = 1;
+			add(audioExtensionTextField, constraints);
+			
+			constraints.weightx = 0;
+			constraints.gridy = 5;
+			constraints.gridx = 0;
+			add(executableExtensionLabel, constraints);
+			constraints.weightx = 1;
+			constraints.gridx = 1;
+			add(executableExtensionTextField, constraints);
+			
+			constraints.weightx = 0;
+			constraints.gridy = 6;
+			constraints.gridx = 0;
+			add(maxSearchResultsLabel, constraints);
+			constraints.fill = GridBagConstraints.NONE;
+			constraints.anchor = GridBagConstraints.WEST;
+			constraints.gridx = 1;
+			add(maxSearchResultsTextField, constraints);
+			
+			constraints.fill = GridBagConstraints.HORIZONTAL;
+			constraints.anchor = GridBagConstraints.CENTER;
+			constraints.gridwidth = 2;
+			constraints.gridy = 7;
+			constraints.gridx = 0;
+			add(hideBadFilesCheckBox, constraints);
+			constraints.gridy = 8;
+			add(hideAnonFilesCheckBox, constraints);
+
+		}
+
+		/**
+		 * 
+		 */
+		private void refreshLanguage() {
+			imageExtensionLabel.setText(languageResource.getString("Image Extension"));
+			videoExtensionLabel.setText(languageResource.getString("Video Extension"));
+			archiveExtensionLabel.setText(languageResource.getString("Archive Extension"));
+			documentExtensionLabel.setText(languageResource.getString("Document Extension"));
+			audioExtensionLabel.setText(languageResource.getString("Audio Extension"));
+			executableExtensionLabel.setText(languageResource.getString("Executable Extension"));
+			maxSearchResultsLabel.setText(languageResource.getString("Maximum search results"));
+			
+			hideBadFilesCheckBox.setText(languageResource.getString("Hide files from people marked BAD"));
+			hideAnonFilesCheckBox.setText(languageResource.getString("Hide files from anonymous users"));
+		}
+		
+		public void ok() {
+			saveSettings(frostSettings);
+		}
+		
+		/**
+		 * @param frostSettings
+		 */
+		private void saveSettings(SettingsClass frostSettings) {
+			frostSettings.setValue(
+				"audioExtension",
+				audioExtensionTextField.getText().toLowerCase());
+			frostSettings.setValue(
+				"imageExtension",
+				imageExtensionTextField.getText().toLowerCase());
+			frostSettings.setValue(
+				"videoExtension",
+				videoExtensionTextField.getText().toLowerCase());
+			frostSettings.setValue(
+				"documentExtension",
+				documentExtensionTextField.getText().toLowerCase());
+			frostSettings.setValue(
+				"executableExtension",
+				executableExtensionTextField.getText().toLowerCase());
+			frostSettings.setValue(
+				"archiveExtension",
+				archiveExtensionTextField.getText().toLowerCase());
+			frostSettings.setValue("maxSearchResults", maxSearchResultsTextField.getText());
+			
+			frostSettings.setValue("hideBadFiles", hideBadFilesCheckBox.isSelected());
+			frostSettings.setValue("hideAnonFiles", hideAnonFilesCheckBox.isSelected());
+		}
+		
+		/**
+		 * Load the settings of this panel
+		 * @param searchSettings class the settings will be loaded from
+		 */
+		public void loadSettings(SettingsClass searchSettings) {
+			audioExtensionTextField.setText(frostSettings.getValue("audioExtension"));
+			imageExtensionTextField.setText(frostSettings.getValue("imageExtension"));
+			videoExtensionTextField.setText(frostSettings.getValue("videoExtension"));
+			documentExtensionTextField.setText(frostSettings.getValue("documentExtension"));
+			executableExtensionTextField.setText(frostSettings.getValue("executableExtension"));
+			archiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
+			maxSearchResultsTextField.setText(
+				Integer.toString(frostSettings.getIntValue("maxSearchResults")));
+			hideBadFilesCheckBox.setSelected(frostSettings.getBoolValue("hideBadFiles"));
+			hideAnonFilesCheckBox.setSelected(frostSettings.getBoolValue("hideAnonFiles"));
+		}
+		
+	}
+	
+	/**
+	 * 
+	 */
 	private class UploadPanel extends JPanel {
 
 		/**
@@ -977,7 +1160,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JPanel tof3Panel = null;
 	private DisplayPanel displayPanel = null;
 	JPanel miscPanel = null;
-	JPanel searchPanel = null;
+	private SearchPanel searchPanel = null;
 	JPanel contentAreaPanel = null;
 	JPanel optionsGroupsPanel = null;
 
@@ -998,14 +1181,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JTextField miscAltEditTextField = new JTextField(30);
 	JTextField miscAutoSaveInterval = new JTextField(5);
 	JCheckBox miscShowSystrayIcon = new JCheckBox();
-	JTextField searchAudioExtensionTextField = new JTextField(30);
-	JTextField searchVideoExtensionTextField = new JTextField(30);
-	JTextField searchDocumentExtensionTextField = new JTextField(30);
-	JTextField searchExecutableExtensionTextField = new JTextField(30);
-	JTextField searchImageExtensionTextField = new JTextField(30);
-	JTextField searchArchiveExtensionTextField = new JTextField(30);
-	JTextField searchMaxSearchResults = new JTextField(8);
-
 	JTextField TFautomaticUpdate_boardsMinimumUpdateInterval =
 		new JTextField(5);
 	JTextField TFautomaticUpdate_concurrentBoardUpdates = new JTextField(5);
@@ -1013,8 +1188,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	JCheckBox allowEvilBertCheckBox = new JCheckBox();
 	JCheckBox miscAltEditCheckBox = new JCheckBox();
 	JCheckBox miscSplashscreenCheckBox = new JCheckBox();
-	JCheckBox hideBadFiles = new JCheckBox();
-	JCheckBox hideAnonFiles = new JCheckBox();
 	JList optionsGroupsList = null;
 
 	// new options in WOT:
@@ -1080,8 +1253,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 				+ " ("
 				+ languageResource.getString("Off")
 				+ ")");
-		hideBadFiles.setText(languageResource.getString("Hide files from people marked BAD"));
-		hideAnonFiles.setText(languageResource.getString("Hide files from anonymous users"));
 		signedOnly.setText(languageResource.getString("Hide unsigned messages"));
 		hideBadMessages.setText(
 			languageResource.getString("Hide messages flagged BAD")
@@ -1660,75 +1831,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	/**
 	 * Build the search panel
 	 */
-	protected JPanel getSearchPanel() {
+	private SearchPanel getSearchPanel() {
 		if (searchPanel == null) {
-			searchPanel = new JPanel(new GridBagLayout());
-			GridBagConstraints constr = new GridBagConstraints();
-			constr.anchor = GridBagConstraints.WEST;
-			constr.insets = new Insets(5, 5, 5, 5);
-			constr.gridx = 0;
-			constr.gridy = 0;
-			searchPanel.add(
-				new JLabel(languageResource.getString("Image Extension")),
-				constr);
-			constr.gridx = 1;
-			searchPanel.add(searchImageExtensionTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			searchPanel.add(
-				new JLabel(languageResource.getString("Video Extension")),
-				constr);
-			constr.gridx = 1;
-			searchPanel.add(searchVideoExtensionTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			searchPanel.add(
-				new JLabel(languageResource.getString("Archive Extension")),
-				constr);
-			constr.gridx = 1;
-			searchPanel.add(searchArchiveExtensionTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			searchPanel.add(
-				new JLabel(languageResource.getString("Document Extension")),
-				constr);
-			constr.gridx = 1;
-			searchPanel.add(searchDocumentExtensionTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			searchPanel.add(
-				new JLabel(languageResource.getString("Audio Extension")),
-				constr);
-			constr.gridx = 1;
-			searchPanel.add(searchAudioExtensionTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			searchPanel.add(
-				new JLabel(languageResource.getString("Executable Extension")),
-				constr);
-			constr.gridx = 1;
-			searchPanel.add(searchExecutableExtensionTextField, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			searchPanel.add(
-				new JLabel(languageResource.getString("Maximum search results")),
-				constr);
-			constr.gridx = 1;
-			searchPanel.add(searchMaxSearchResults, constr);
-			constr.gridy++;
-			constr.gridx = 0;
-			searchPanel.add(hideBadFiles, constr);
-			constr.gridx = 1;
-			searchPanel.add(hideAnonFiles, constr);
-
-			// filler (glue)
-			constr.gridy++;
-			constr.gridx = 1;
-			constr.weightx = 0.7;
-			constr.weighty = 0.7;
-			constr.insets = new Insets(0, 0, 0, 0);
-			constr.fill = GridBagConstraints.BOTH;
-			searchPanel.add(new JLabel(" "), constr);
+			searchPanel = new SearchPanel();
+			searchPanel.loadSettings(frostSettings);
 		}
 		return searchPanel;
 	}
@@ -1841,12 +1947,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkHideNAMessages = frostSettings.getBoolValue("hideNAMessages");
 		checkBlock = frostSettings.getBoolValue("blockMessageChecked");
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
-		_hideBad = frostSettings.getBoolValue("hideBadFiles");
-		_hideAnon = frostSettings.getBoolValue("hideAnonFiles");
 
 		// now load
-		hideBadFiles.setSelected(_hideBad);
-		hideAnonFiles.setSelected(_hideAnon);
 		allowEvilBertCheckBox.setSelected(
 			frostSettings.getBoolValue("allowEvilBert"));
 		miscAltEditCheckBox.setSelected(
@@ -1897,20 +1999,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.getValue("blockMessageBody"));
 		tofBlockMessageBodyTextField.setEnabled(
 			frostSettings.getBoolValue("blockMessageBodyChecked"));
-		searchMaxSearchResults.setText(
-			"" + frostSettings.getIntValue("maxSearchResults"));
-		searchAudioExtensionTextField.setText(
-			frostSettings.getValue("audioExtension"));
-		searchImageExtensionTextField.setText(
-			frostSettings.getValue("imageExtension"));
-		searchVideoExtensionTextField.setText(
-			frostSettings.getValue("videoExtension"));
-		searchDocumentExtensionTextField.setText(
-			frostSettings.getValue("documentExtension"));
-		searchExecutableExtensionTextField.setText(
-			frostSettings.getValue("executableExtension"));
-		searchArchiveExtensionTextField.setText(
-			frostSettings.getValue("archiveExtension"));
 		cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
 		TFautomaticUpdate_concurrentBoardUpdates.setText(
 			frostSettings.getValue("automaticUpdate.concurrentBoardUpdates"));
@@ -1985,27 +2073,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"allowEvilBert",
 			allowEvilBertCheckBox.isSelected());
-		frostSettings.setValue(
-			"maxSearchResults",
-			searchMaxSearchResults.getText());
-		frostSettings.setValue(
-			"audioExtension",
-			searchAudioExtensionTextField.getText().toLowerCase());
-		frostSettings.setValue(
-			"imageExtension",
-			searchImageExtensionTextField.getText().toLowerCase());
-		frostSettings.setValue(
-			"videoExtension",
-			searchVideoExtensionTextField.getText().toLowerCase());
-		frostSettings.setValue(
-			"documentExtension",
-			searchDocumentExtensionTextField.getText().toLowerCase());
-		frostSettings.setValue(
-			"executableExtension",
-			searchExecutableExtensionTextField.getText().toLowerCase());
-		frostSettings.setValue(
-			"archiveExtension",
-			searchArchiveExtensionTextField.getText().toLowerCase());
 		frostSettings.setValue("useAltEdit", miscAltEditCheckBox.isSelected());
 		frostSettings.setValue("signedOnly", signedOnly.isSelected());
 		frostSettings.setValue("hideBadMessages", hideBadMessages.isSelected());
@@ -2036,8 +2103,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		frostSettings.setValue(
 			"autoSaveInterval",
 			miscAutoSaveInterval.getText());
-		frostSettings.setValue("hideBadFiles", hideBadFiles.isSelected());
-		frostSettings.setValue("hideAnonFiles", hideAnonFiles.isSelected());
 
 		frostSettings.writeSettingsFile();
 
@@ -2079,12 +2144,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		
 		if (downloadPanel != null) {
-			//If the display panel has been used, commit its changes
+			//If the download panel has been used, commit its changes
 			downloadPanel.ok();
 		}
 		
+		if (searchPanel != null) {
+			//If the search panel has been used, commit its changes
+			searchPanel.ok();
+		}
+		
 		if (uploadPanel != null) {
-			//If the display panel has been used, commit its changes
+			//If the upload panel has been used, commit its changes
 			uploadPanel.ok();
 		}
 
