@@ -179,13 +179,13 @@ public class MiscToolkit {
 	}
 
 	/**
-	 * This method shows a message in a JDialog
+	 * This method shows a message in a JDialog. It creates a dummy frame 
+	 * so that when the dialog pops up, something appears on the task bar too.
 	 * @param message the message to show
 	 * @param type the type of JDialog
 	 * @param title the title of the JDialog
 	 */
 	public void showMessage(String message, int type, String title) {
-		JOptionPane optionPane = new JOptionPane(message, type);
 		JFrame frame = new JFrame();
 		frame.setTitle("Frost");
 		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
@@ -193,8 +193,28 @@ public class MiscToolkit {
 		frame.setUndecorated(true);
 		frame.setVisible(true);
 		frame.toFront();
-		optionPane.createDialog(frame, title).setVisible(true);
+		JOptionPane.showMessageDialog(frame, message, title, type);
 		frame.dispose();
+	}
+	
+	/**
+	 * This method shows a dialog requesting input from the user. It creates
+	 * a dummy frame so that when the dialog pops up, something appears on
+	 * the task bar too.
+	 * @param message the message to show
+	 * @return the text the user has input
+	 */
+	public String showInputDialog(Object message) {
+		JFrame frame = new JFrame();
+		frame.setTitle("Frost");
+		Dimension dimension = Toolkit.getDefaultToolkit().getScreenSize();
+		frame.setLocation(dimension.width / 2, dimension.height / 2);
+		frame.setUndecorated(true);
+		frame.setVisible(true);
+		frame.toFront();
+		String returnValue = JOptionPane.showInputDialog(frame, message);
+		frame.dispose();
+		return returnValue;
 	}
 
 }
