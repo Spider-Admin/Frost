@@ -16,12 +16,15 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.threads;
+
 import java.io.*;
 import java.text.SimpleDateFormat;
 import java.util.*;
 import javax.swing.table.*;
 import javax.swing.*;
+
+import frost.*;
 
 public class requestThread extends Thread {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;

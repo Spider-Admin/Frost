@@ -19,11 +19,15 @@
 
 //TODO: implement listener for threadStopped, ...
 
-package frost;
+package frost.threads;
+
 import java.io.*;
 import java.util.*;
 import javax.swing.*;
 import java.awt.*;
+
+import frost.*;
+
 /**
  * Downloads messages
  */

@@ -26,6 +26,7 @@ import java.io.*;
 
 import frost.*;
 import frost.FcpTools.*;
+import frost.threads.*;
 
 public class MessageFrame extends JFrame {
 

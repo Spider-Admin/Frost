@@ -23,6 +23,8 @@ import java.io.*;
 import javax.swing.*;
 import java.awt.*;
 
+import frost.threads.*;
+
 /**
  * Does some things that have to be done when starting Frost
  */

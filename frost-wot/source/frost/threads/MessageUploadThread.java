@@ -17,7 +17,8 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost;
+package frost.threads;
+
 import java.io.*;
 import java.util.*;
 import java.text.SimpleDateFormat;
@@ -25,8 +26,10 @@ import javax.swing.*;
 import javax.swing.table.*;
 import java.awt.*;
 import java.awt.event.*;
-import frost.crypt.*;
 
+import frost.crypt.*;
+import frost.*;
+import frost.gui.*;
 
 /**
  * Uploads a message to a certain message board

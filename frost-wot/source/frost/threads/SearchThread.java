@@ -16,7 +16,8 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.threads;
+
 import java.io.*;
 import java.awt.*;
 import java.util.*;
@@ -24,6 +25,8 @@ import javax.swing.*;
 import java.awt.event.*;
 import javax.swing.table.*;
 import javax.swing.event.*;
+
+import frost.*;
 
 public class SearchThread extends Thread {
     private static boolean DEBUG = false;
