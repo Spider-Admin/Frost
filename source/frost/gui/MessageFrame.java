@@ -78,7 +78,7 @@ public class MessageFrame extends JFrame
     JTextField TFfrom = new JTextField(); // From
     JTextField TFsubject = new JTextField(); // Subject
 
-    JTextArea TAcontent = new JTextArea(); // Text
+    JAATextArea TAcontent = new JAATextArea(); // Text
 
     private void Init() throws Exception {
         //------------------------------------------------------------------------
@@ -568,6 +568,7 @@ public class MessageFrame extends JFrame
 			tofFont = new Font("Monospaced", fontStyle, fontSize);
 		}
 		TAcontent.setFont(tofFont);
+		TAcontent.setAntiAliasEnabled(config.getBoolValue("messageBodyAA"));
 
         setSize(600, 460);
         setLocationRelativeTo(parentFrame);
