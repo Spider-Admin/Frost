@@ -45,6 +45,7 @@ public class SettingsClass implements Savable {
 	
 	public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
 	public static final String DISABLE_DOWNLOADS = "disableDownloads";
+	public static final String DISABLE_REQUESTS = "disableRequests";
 	public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
 	public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
 	public static final String LOG_LEVEL = "logLevel";
@@ -584,7 +585,7 @@ public class SettingsClass implements Savable {
 		defaults.put("downloadDecodeAfterEachSegment", "true");
 		defaults.put("downloadTryAllSegments", "true");
 
-		defaults.put("disableRequests", "false");
+		defaults.put(DISABLE_REQUESTS, "false");
 		defaults.put(DISABLE_DOWNLOADS, "false");
 		//        defaults.put("htl", "5");
 		//        defaults.put("htlMax", "30");
