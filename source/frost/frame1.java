@@ -1004,6 +1004,14 @@ public class frame1 extends JFrame implements ClipboardOwner {
 		tofTextArea.setText(txt);
 	}
 	public TofTree getTofTree() {
+		if (tofTree == null) {
+			// this rootnode is discarded later, but if we create the tree without parameters,
+			// a new Model is created wich contains some sample data by default (swing)
+			// this confuses our renderer wich only expects FrostBoardObjects in the tree
+			FrostBoardObject dummyRootNode =
+				new FrostBoardObject("Frost Message System", true);
+			tofTree = new TofTree(dummyRootNode);
+		}
 		return tofTree;
 	}
 	public JButton getSearchButton() {
@@ -1320,14 +1328,8 @@ public class frame1 extends JFrame implements ClipboardOwner {
 
 		updateOptionsAffectedComponents();
 
-		// this rootnode is discarded later, but if we create the tree without parameters,
-		// a new Model is created wich contains some sample data by default (swing)
-		// this confuses our renderer wich only expects FrostBoardObjects in the tree
-		FrostBoardObject dummyRootNode =
-			new FrostBoardObject("Frost Message System", true);
-		tofTree = new TofTree(dummyRootNode);
 		JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
-		tofTree.setRootVisible(true);
+		getTofTree().setRootVisible(true);
 		tofTree.setCellRenderer(new TofTreeCellRenderer());
 		tofTree.getSelectionModel().setSelectionMode(
 			TreeSelectionModel.SINGLE_TREE_SELECTION);
