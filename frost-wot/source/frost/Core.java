@@ -140,6 +140,7 @@ public class Core {
 							pubkeydata = keys[1].getBytes();
 						}
 
+
                         String tmp = FecTools.generateCHK(pubkeydata);
 						address =
 							tmp.substring(
@@ -149,6 +150,7 @@ public class Core {
 							"Re-calculated my public key CHK: "
 								+ address
 								+ "\n");
+
 					}
 					mySelf = new LocalIdentity(name, keys, address);
 					out.println(
