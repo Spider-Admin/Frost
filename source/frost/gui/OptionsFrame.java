@@ -164,12 +164,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 		 * @param displaySettings class where the settings will be stored
 		 */
 		public void saveSettings(SettingsClass displaySettings) {
-			displaySettings.setValue("skinsEnabled", getEnableSkinsCheckBox().isSelected());
+			boolean skinsEnabled = getEnableSkinsCheckBox().isSelected();
+			displaySettings.setValue("skinsEnabled", skinsEnabled);
 			String selectedSkin = getSkinChooser().getSelectedSkinPath();
 			if (selectedSkin == null) {
 				displaySettings.setValue("selectedSkin", "");
 			} else {
-				getSkinChooser().previewButtonPressed();
+				if (skinsEnabled) {
+					getSkinChooser().previewButtonPressed();
+				}
 				displaySettings.setValue("selectedSkin", selectedSkin);
 			}
 		}
