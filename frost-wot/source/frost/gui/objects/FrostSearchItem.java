@@ -9,6 +9,8 @@ public interface FrostSearchItem
     public String getDate();
 
     public String getKey();
+    
+    public String getOwner();
 
     public FrostBoardObject getBoard();
 }

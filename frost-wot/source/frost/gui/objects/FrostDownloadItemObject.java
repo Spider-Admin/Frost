@@ -28,6 +28,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     private FrostBoardObject sourceBoard = null;
     private Integer retries = null;
     private Boolean enableDownload = null;
+    private String owner = null;
 
     private int state = 0;
 
@@ -43,6 +44,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         fileSize = searchItem.getSize();
         fileAge = searchItem.getDate();
         key = searchItem.getKey();
+	owner = searchItem.getOwner();
         sourceBoard = searchItem.getBoard();
         retries = new Integer(0);
 
@@ -66,6 +68,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
                                     String fileAge,
                                     String key,
                                     String tries,
+				    String from,
                                     int state,
                                     boolean isDownloadEnabled,
                                     FrostBoardObject board )
@@ -84,6 +87,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         this.sourceBoard = board;
         this.state = state;
         this.enableDownload = Boolean.valueOf(isDownloadEnabled);
+	owner = from;
     }
 
     /**
@@ -128,7 +132,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
             case 5: return blocks;                  //LangRes.getString("Blocks"),
             case 6: return retries;                 //LangRes.getString("Retries"),
             case 7: return board;                   //LangRes.getString("Source"),
-            case 8: return key;                     //LangRes.getString("Key")
+            case 8: return owner;                     //LangRes.getString("Key")
             default: return "*ERR*";
         }
     }
@@ -242,6 +246,14 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
     public void setEnableDownload( Boolean val )
     {
         enableDownload = val;
+    }
+    
+    public String getOwner() {
+    	return owner;
+    }
+    
+    public void setOwner(String owner) {
+    	this.owner = owner;
     }
 
 }
