@@ -24,6 +24,8 @@ import javax.swing.*; // JTable
 import javax.swing.table.*; // DefaultTableModel
 import javax.swing.tree.*;
 
+import frost.gui.*;
+
 public class TOF {
 
     private static Hashtable messages;

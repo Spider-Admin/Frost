@@ -17,7 +17,7 @@ along with this program; if not, write to the Free Software
 Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 
-package frost;
+package frost.gui;
 import javax.swing.JTree;
 import javax.swing.tree.DefaultMutableTreeNode;
 import javax.swing.event.TreeSelectionListener;
@@ -31,7 +31,9 @@ import java.awt.event.*;
 import java.io.*;
 import java.util.*;
 
-class TofTreeCellRenderer extends DefaultTreeCellRenderer
+import frost.*;
+
+public class TofTreeCellRenderer extends DefaultTreeCellRenderer
 {
     ImageIcon writeAccessIcon;
     ImageIcon writeAccessNewIcon;

@@ -26,7 +26,7 @@
   03/27/2003 - bback
     - changed layout from tabbed pane to a mozilla-like look
 */
-package frost;
+package frost.gui;
 import javax.swing.*;
 import java.awt.Dimension;
 import java.awt.*;
@@ -36,6 +36,8 @@ import javax.swing.event.*;
 import javax.swing.border.*;
 import java.io.*;
 import java.util.*;
+
+import frost.*;
 
 public class OptionsFrame extends JDialog implements ListSelectionListener
 {

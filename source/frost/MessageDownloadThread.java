@@ -69,6 +69,9 @@ public class MessageDownloadThread extends Thread
             mixed.wait(5000);
         }
 
+        if( isInterrupted() )
+            return;
+
         // switch public / secure board
         String val = new StringBuffer().append(frame1.keypool).append(board).append(".key").toString();
         String state = SettingsFun.getValue(val, "state");
@@ -106,7 +109,7 @@ public class MessageDownloadThread extends Thread
             firstDate.set(Calendar.MONTH, 5);
             firstDate.set(Calendar.DATE, 11);
             int counter=0;
-            while( cal.after(firstDate) && counter < maxMessageDownload )
+            while( !isInterrupted() && cal.after(firstDate) && counter < maxMessageDownload )
             {
                 counter++;
                 cal.add(Calendar.DATE, -1); // Yesterday
@@ -350,7 +353,13 @@ public class MessageDownloadThread extends Thread
                     index++;
                 }
             }
-        }
+
+            if( isInterrupted() )
+                return;
+
+        } // end-of: while
+
+
         /*if (!flagNew) {
             String text = String.valueOf(index - 2);
             FileAccess.writeFile(text, destination + "locked.lck");
