@@ -49,6 +49,7 @@ public class SearchThread extends Thread {
     private static String fileSeparator = System.getProperty("file.separator");
     int allFileCount;
     int maxSearchResults;
+    private SearchPanel searchPanel = null;
 
     /**
      * Splits a String into single parts
@@ -315,13 +316,13 @@ public class SearchThread extends Thread {
                         searchTableModel.addRow(searchItem);
                         if( updateLabel )
                         {
-                            frame1.getInstance().updateSearchResultCountLabel();
+                            searchPanel.updateSearchResultCountLabel();
                         }
                     } });
         }
         SwingUtilities.invokeLater( new Runnable() {
                 public void run() {
-                    frame1.getInstance().updateSearchResultCountLabel();
+					searchPanel.updateSearchResultCountLabel();
                 } });
     }
     
@@ -365,33 +366,36 @@ public class SearchThread extends Thread {
                 results.clear();
             }
         }
-        frame1.getInstance().getSearchButton().setEnabled(true);
+		searchPanel.setSearchEnabled(true);
     }
 
     /**Constructor*/
-    public SearchThread(String request,
-            Vector boards, // a Vector containing all boards to search in
-            String keypool,
-            String searchType)
+    public SearchThread(String newRequest,
+            Vector newBoards, // a Vector containing all boards to search in
+            String newKeypool,
+            String newSearchType,
+            SearchPanel newSearchPanel)
     {
-        this.request = request.toLowerCase();
-        if( this.request.length() == 0 )
+        request = newRequest.toLowerCase();
+        if( request.length() == 0 )
         {
             // default: search all
-            this.request = "*";
+            request = "*";
         }
-        this.searchTableModel = (SearchTableModel)frame1.getInstance().getSearchTable().getModel();
-        this.keypool = keypool;
-        this.searchType = searchType;
-        this.audioExtension = frame1.frostSettings.getArrayValue("audioExtension");
-        this.videoExtension = frame1.frostSettings.getArrayValue("videoExtension");
-        this.documentExtension = frame1.frostSettings.getArrayValue("documentExtension");
-        this.executableExtension = frame1.frostSettings.getArrayValue("executableExtension");
-        this.archiveExtension = frame1.frostSettings.getArrayValue("archiveExtension");
-        this.imageExtension = frame1.frostSettings.getArrayValue("imageExtension");
-        this.boards = boards;
-        this.maxSearchResults = frame1.frostSettings.getIntValue("maxSearchResults");
-        if( this.maxSearchResults <= 0 )
+        searchTableModel = (SearchTableModel)frame1.getInstance().getSearchTable().getModel();
+        keypool = newKeypool;
+        searchType = newSearchType;
+        audioExtension = frame1.frostSettings.getArrayValue("audioExtension");
+        videoExtension = frame1.frostSettings.getArrayValue("videoExtension");
+        documentExtension = frame1.frostSettings.getArrayValue("documentExtension");
+        executableExtension = frame1.frostSettings.getArrayValue("executableExtension");
+        archiveExtension = frame1.frostSettings.getArrayValue("archiveExtension");
+        imageExtension = frame1.frostSettings.getArrayValue("imageExtension");
+        boards = newBoards;
+        maxSearchResults = frame1.frostSettings.getIntValue("maxSearchResults");
+        if( maxSearchResults <= 0 ) {
             maxSearchResults = 10000; // default
+        }
+        searchPanel = newSearchPanel;
     }
 }
