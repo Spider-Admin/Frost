@@ -18,7 +18,7 @@ public interface Attachment extends XMLizable {
 	public static final int FILE=0;
 	public static final int BOARD=1;
 	public static final int PERSON=2;
-	public static final int FEC_REDIRECT=3;
+	
 	
 	/**
 	 * 
