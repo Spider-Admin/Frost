@@ -28,7 +28,7 @@ public class Splashscreen extends JDialog {
 	private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
 
 	//Splashscreen size depends on this image. 
-	private static final ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource("/data/logo.png"));
+	private ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource("/data/logo.png"));
 
 	//GUI Objects
 	JPanel mainPanel = new JPanel(new BorderLayout());
