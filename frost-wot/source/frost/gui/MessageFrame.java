@@ -710,7 +710,7 @@ public class MessageFrame extends JFrame
     private JLabel Lsubject = new JLabel();    
     private JTextField TFboard = new JTextField(); // Board (To)
     private JTextField fromTextField = new JTextField(); // From
-    private JTextField subjectTextField = new JTextField(); // Subject
+    private JClipboardTextField subjectTextField; // Subject
 
     private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
@@ -996,6 +996,7 @@ public class MessageFrame extends JFrame
 			TFboard.setText(board.getName());
 			fromTextField.setText(from);
 
+			subjectTextField = new JClipboardTextField(language);
 			subjectTextField.setText(subject);
 			messageTextArea.setLineWrap(true);
 			messageTextArea.setWrapStyleWord(true);
