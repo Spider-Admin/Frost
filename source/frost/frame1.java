@@ -56,7 +56,7 @@ public class frame1 extends JFrame implements ClipboardOwner {
 	/**
 	 * 
 	 */
-	private class PopupMenuTofTree extends JPopupMenu implements LanguageListener, ActionListener {
+	private class PopupMenuTofTree extends JSkinnablePopupMenu implements LanguageListener, ActionListener {
 
 		private JMenuItem descriptionItem = new JMenuItem();
 		private JMenuItem refreshItem = new JMenuItem(getScaledImage("/data/update.gif"));
