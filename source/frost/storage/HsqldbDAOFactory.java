@@ -5,6 +5,7 @@
 package frost.storage;
 
 import frost.SettingsClass;
+import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.identities.*;
 
@@ -35,5 +36,12 @@ public class HsqldbDAOFactory extends DAOFactory {
 	 */
 	public UploadModelDAO getUploadModelDAO() {
 		return new UploadModelHsqldbDAO();
+	}
+
+	/* (non-Javadoc)
+	 * @see frost.storage.DAOFactory#getDownloadModelDAO()
+	 */
+	public DownloadModelDAO getDownloadModelDAO() {
+		return new DownloadModelHsqldbDAO();
 	}
 }
