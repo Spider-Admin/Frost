@@ -136,6 +136,8 @@ public class Identity implements XMLizable
      	this.name = name;
      	if (name.indexOf("@")!=-1)
      		this.uniqueName = name;
+     	else 
+     		setName(name);
     }
 
     /**
