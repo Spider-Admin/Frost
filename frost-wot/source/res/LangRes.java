@@ -204,17 +204,21 @@ public class LangRes extends ListResourceBundle {
     // Popup over download table
 	{"Restart selected downloads", "Restart selected downloads"},
 	{"Enable downloads", "Enable downloads"},
-		{"Enable selected downloads", "Enable selected downloads"},
-		{"Disable selected downloads", "Disable selected downloads"},
-		{"Invert enabled state for selected downloads", "Invert enabled state for selected downloads"},
-		{"Enable all downloads", "Enable all downloads"},
-		{"Disable all downloads", "Disable all downloads"},
-		{"Invert enabled state for all downloads", "Invert enabled state for all downloads"},
+	{"Enable selected downloads", "Enable selected downloads"},
+	{"Disable selected downloads", "Disable selected downloads"},
+	{"Invert enabled state for selected downloads", "Invert enabled state for selected downloads"},
+	{"Enable all downloads", "Enable all downloads"},
+	{"Disable all downloads", "Disable all downloads"},
+	{"Invert enabled state for all downloads", "Invert enabled state for all downloads"},
 	{"Remove", "Remove"},
-		{"Remove selected downloads", "Remove selected downloads"},
-		{"Remove all downloads", "Remove all downloads"},
+	{"Remove selected downloads", "Remove selected downloads"},
+	{"Remove all downloads", "Remove all downloads"},
 	{"Remove finished downloads", "Remove finished downloads"},
 	//{"Cancel", "Cancel"}, // Defined above
+	
+	//Download table
+	{"Blocks", "Blocks"},
+	{"Tries", "Tries"},
         
 	///////////////////////////////////////////////////
     // Main Window Uploads Tab

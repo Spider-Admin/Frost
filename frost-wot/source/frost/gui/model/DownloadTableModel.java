@@ -31,11 +31,11 @@ public class DownloadTableModel extends SortedTableModel
         LangRes.getString("Size"),
         LangRes.getString("Age"),
         LangRes.getString("State"),
-        "Blocks",
-        "Tries",
+        LangRes.getString("Blocks"),
+        LangRes.getString("Tries"),
         LangRes.getString("Source"),
         LangRes.getString("From"),
-        "Key"
+        LangRes.getString("Key")
     };
     protected final static Class columnClasses[] = {
         Boolean.class, //LangRes.getString("on"),
