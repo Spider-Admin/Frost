@@ -186,6 +186,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
         System.out.println("TOFUP: Uploading message to board '" + board.toString() + "' with HTL " + messageUploadHtl);
 
+// BBACKFLAG: ask user if uploading of X files is allowed!
         boolean uploadOK = uploadAttachments();
         if( uploadOK == false )
         {
