@@ -79,7 +79,7 @@ public class requestThread extends Thread {
             }
             catch (NumberFormatException e) {}
 
-            if ( intHtl > 10) {
+            if ( intHtl > frame1.frostSettings.getIntValue("startRequestingAfterHtl")) {
                 if (DEBUG) System.out.println("Download failed, uploading request for " + filename);
                 // We may not do the request here due to the synchronize
                 do_request = true;

@@ -112,6 +112,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JTextField sampleInterval = new JTextField(5);
     JTextField spamTreshold = new JTextField(5);
     JTextField tofBlockMessageBodyTextField = new JTextField(32);
+    JTextField startRequestingAfterHtlTextField = new JTextField(5);
 
     JCheckBox uploadDisableRequests = new JCheckBox("Disable uploads");
     JCheckBox downloadDisableDownloads = new JCheckBox("Disable downloads");
@@ -123,6 +124,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     JCheckBox doBoardBackoff = new JCheckBox("Do spam detection (experimental)");
     JLabel interval = new JLabel("Sample interval (hours)");
     JLabel treshold = new JLabel("Treshold of blocked messages");
+    JLabel startRequestingAfterHtlLabel = new JLabel("Insert request if HTL tops: (10) ");
     JCheckBox cleanUP = new JCheckBox("Clean the keypool");
 
     /**
@@ -334,6 +336,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             downloadPanel.add(new JLabel(LangRes.getString("Maximum HTL:") + "(30)"),constr);
             constr.gridx = 3;
             downloadPanel.add(downloadMaxHtlTextField, constr);
+
+	    constr.gridy++;
+	    constr.gridx = 0;
+	    downloadPanel.add(startRequestingAfterHtlLabel, constr);
+	    constr.gridx = 1;
+	    downloadPanel.add(startRequestingAfterHtlTextField, constr);
 
             constr.gridy++;
             constr.gridx = 0;
@@ -917,6 +925,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         searchDocumentExtensionTextField.setText(frostSettings.getValue("documentExtension"));
         searchExecutableExtensionTextField.setText(frostSettings.getValue("executableExtension"));
         searchArchiveExtensionTextField.setText(frostSettings.getValue("archiveExtension"));
+	startRequestingAfterHtlTextField.setText(frostSettings.getValue("startRequestingAfterHtl"));
         cleanUP.setSelected(frostSettings.getBoolValue("doCleanUp"));
         uploadDisableRequests.setSelected(frostSettings.getBoolValue("disableRequests"));
         downloadDisableDownloads.setSelected(frostSettings.getBoolValue("disableDownloads"));
@@ -960,6 +969,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("removeFinishedDownloads", removeFinishedDownloadsCheckBox.isSelected());
         frostSettings.setValue("splitfileUploadThreads", uploadSplitfileThreadsTextField.getText());
         frostSettings.setValue("splitfileDownloadThreads", downloadSplitfileThreadsTextField.getText());
+	frostSettings.setValue("startRequestingAfterHtl", startRequestingAfterHtlTextField.getText());
         frostSettings.setValue("nodeAddress", miscNodeAddressTextField.getText());
         frostSettings.setValue("nodePort", miscNodePortTextField.getText());
         frostSettings.setValue("maxKeys", miscMaxKeysTextField.getText());
