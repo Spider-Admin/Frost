@@ -46,7 +46,7 @@ public class Index
 
     public static SharedFileObject getKey(String SHA1, String board)
     {
-        final Map keys = Collections.synchronizedMap(new HashMap());
+        
         //final String fileSeparator = System.getProperty("file.separator");
 
         File keyFile =
@@ -59,24 +59,28 @@ public class Index
             return null;
         }
 
-        FileAccess.readKeyFile(keyFile, keys);
-        SharedFileObject result = (SharedFileObject)keys.get(SHA1);
-        if (result == null)
-        {
-            //try the recently uploaded files
-            keyFile =
-                new File(
-                    frame1.keypool + board + fileSeparator + "new_files.xml");
-            if (!keyFile.exists())
-            {
-                Core.getOut().println(keyFile.getPath() + " didn't exist");
-                return null;
-            }
-            keys.clear();
-            FileAccess.readKeyFile(keyFile, keys);
+        FrostIndex idx = FileAccess.readKeyFile(keyFile);
+        Iterator it = idx.getFiles().iterator();
+        while (it.hasNext()) {
+        	SharedFileObject current = (SharedFileObject)it.next();
+        	if (current.getSHA1().equals(SHA1))
+        		return current;
         }
-        return (SharedFileObject)keys.get(SHA1);
-
+        
+//		then try the recently uploaded files
+		keyFile =
+			  new File(
+				  frame1.keypool + board + fileSeparator + "new_files.xml");
+		idx = FileAccess.readKeyFile(keyFile);
+		it = idx.getFiles().iterator();
+		while (it.hasNext()) {
+			SharedFileObject current = (SharedFileObject)it.next();
+			if (current.getSHA1().equals(SHA1))
+				return current;
+		}
+		
+        return null;
+       
     }
 
     //this method puts the SharedFileObjects into the target set and 
@@ -84,11 +88,16 @@ public class Index
     public static Set getUploadKeys(String board)
     {
 
-        final Map mine = Collections.synchronizedMap(new HashMap());
-        final Map total = Collections.synchronizedMap(new HashMap());
-        final Map updated = Collections.synchronizedMap(new HashMap());
+        //final Map mine = Collections.synchronizedMap(new HashMap());
+        //final Map total = Collections.synchronizedMap(new HashMap());
+        //final Map updated = Collections.synchronizedMap(new HashMap());
+        final Set toUpload = Collections.synchronizedSet(new HashSet());
+        
+        
+        FrostIndex totalIdx;
+        
         Core.getOut().println("Index.getUploadKeys(" + board + ")");
-        Vector keys = new Vector();
+        
         //final String fileSeparator = System.getProperty("file.separator");
 
         // Abort if boardDir does not exist
@@ -101,14 +110,14 @@ public class Index
             new File(frame1.keypool + board + fileSeparator + "files.xml");
         if (boardFiles.exists())
         {
-            FileAccess.readKeyFile(boardFiles, total);
+            totalIdx = FileAccess.readKeyFile(boardFiles);
         }
 
-        FileAccess.readKeyFile(boardNewUploads, mine);
-
+        toUpload = FileAccess.readKeyFile(boardNewUploads).getFiles();
+		
         //add friends's files 
         // TODO:  add a limit
-        Iterator i = total.values().iterator();
+        Iterator i = totalIdx.getFiles().iterator();
         int downloadBack =
             frame1.frostSettings.getIntValue("maxMessageDownload");
         Core.getOut().println(
@@ -129,7 +138,7 @@ public class Index
                         mixed.makeFilename(
                             current.getOwner())))) //and marked GOOD
             {
-                mine.put(current.getSHA1(), current);
+                toUpload.add(current);
                 Core.getOut().print("f"); //f means added file from friend
             }
             //also add the file if its been shared too long ago
@@ -148,18 +157,18 @@ public class Index
                     > 0)
                 {
                     current.setLastSharedDate(DateFun.getDate());
-                    mine.put(current.getSHA1(), current);
+                    toUpload.add(current);
                     Core.getOut().print("d");
                     //d means it was shared too long ago
-                    updated.put(current.getSHA1(), current);
                 }
             }
         }
 
-        //update the lastSharedDate of the shared files    
-        add(
-            updated,
-            new File(frame1.keypool + board + fileSeparator + "files.xml"));
+        //update the lastSharedDate of the shared files
+        FileAccess.writeKeyFile(totalIdx, board);
+        
+        
+        
 
         //StringBuffer keyFile = new StringBuffer();
         //	boolean signUploads = frame1.frostSettings.getBoolValue("signUploads");
@@ -343,17 +352,8 @@ public class Index
 
         if (key.getKey() != null)
             updateDownloadTable(key);
-
-        //I'm removing the entire first letter thing.  
-        //String firstLetter = ")";
-        //if (key.getKey() != null)
-        //	firstLetter = (key.getKey().substring(4, 5)).toLowerCase();
+            
         final Map chk = Collections.synchronizedMap(new HashMap());
-
-        //if( !target.isDirectory() && !target.getPath().endsWith("xml"))
-        //  target.mkdir();
-        // if( split.indexOf(firstLetter) == -1 )
-        //   firstLetter = "other";
 
         // File indexFile = new File(target.getPath()  + fileSeparator + "files.xml");
         File indexFile = target;
@@ -366,7 +366,7 @@ public class Index
         {
             e.printStackTrace(Core.getOut());
         }
-        FileAccess.readKeyFile(indexFile, chk);
+        FileIndex idx = FileAccess.readKeyFile(indexFile);
         if (chk.get(hash) != null)
             chk.remove(hash);
         chk.put(hash, key);

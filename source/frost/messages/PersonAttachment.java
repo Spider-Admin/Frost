@@ -42,7 +42,7 @@ public class PersonAttachment implements Attachment {
 	public Element getXMLElement(Document container) {
 		Element el = container.createElement("Attachment");
 		el.setAttribute("type","person");
-		el.appendChild(person.getXMLElement(container));
+		el.appendChild(person.getSafeXMLElement(container));
 		return el;
 	}
 
