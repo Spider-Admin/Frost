@@ -425,14 +425,16 @@ public class SettingsClass
         defaults.put("reducedBlockCheck", "false");
         defaults.put("searchAllBoards", "true");
         defaults.put("maxSearchResults", "10000");
-        defaults.put("splitfileDownloadThreads", "3");
-        defaults.put("splitfileUploadThreads", "3");
+        defaults.put("splitfileDownloadThreads", "30");
+        defaults.put("splitfileUploadThreads", "15");
 //        defaults.put("startRequestingAfterHtl", "10");
         defaults.put("tofDownloadHtl", "23");
         defaults.put("tofFontSize", "12.0");
         defaults.put("tofTreeSelectedRow", "0");
         defaults.put("tofUploadHtl", "21");
         defaults.put("uploadThreads", "3");
+	defaults.put("uploadBatchSize","100");
+	defaults.put("indexFileRedundancy","1");
         defaults.put("uploadingActivated", "true");
 	defaults.put("signUploads","true");
 	defaults.put("helpFriends","true");

@@ -224,7 +224,7 @@ public class Index
                 
             
         
-        
+        //keyFile.append("<redundancy>_redNo</redundancy>"); //this will be replaced with redundancy #
 	keyFile.append("</Filelist>");
 	
 	//String signed = frame1.getCrypto().sign(keyFile.toString(),frame1.getMyId().getPrivKey());

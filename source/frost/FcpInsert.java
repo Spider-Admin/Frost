@@ -442,6 +442,7 @@ public class FcpInsert
                 catch( Exception e )
                 {
                     System.out.println("putFECSplitFile NOT GOOD "+e.toString());
+		    e.printStackTrace();
                 }
             }
             String[] sortedRedirect = redirect.split("\n");
