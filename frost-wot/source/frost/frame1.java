@@ -47,9 +47,8 @@ import frost.identities.*;
 //++++ TODO: rework identities stuff + save to xml
 //             - save identities together (not separated friends,enemies)
 //             - each identity have 3 states: GOOD, BAD, NEUTRAL
-//             - filter out enemies on read
-//++++ TODO: save unsent in folder unsent
-
+//             - filter out enemies on read of messages
+//++++ TODO: save unsent to folder "unsent.dir"
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
@@ -68,8 +67,8 @@ public class frame1 extends JFrame implements ClipboardOwner
     public static boolean updateTree = false;
     public static String fileSeparator = System.getProperty("file.separator");
     // "keypool.dir" is the corresponding key in frostSettings,
-    // set in constructor of SettingsClass to this val.
-    // this is the new way to access this value.
+    // set in defaults of SettingsClass.java
+    // this is the new way to access this value :)
     public static String keypool = "keypool" + fileSeparator;
     public static String newMessageHeader = new String("");
     public static String oldMessageHeader = new String("");

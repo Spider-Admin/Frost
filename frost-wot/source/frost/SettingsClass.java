@@ -268,7 +268,7 @@ public class SettingsClass
 
         defaults.put("keypool.dir", frame1.keypool);
         defaults.put("config.dir", "config"+fs);
-
+        defaults.put("unsent.dir", frame1.keypool+"unsent"+fs);
 
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
