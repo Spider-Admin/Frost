@@ -224,7 +224,7 @@ class UploadPanel extends JPanel {
 		shareDownloadsCheckBox.setText(language.getString("Share Downloads"));
 		helpFriendsCheckBox.setText(
 				language.getString("Help spread files from people marked GOOD"));
-		htlLabel.setText(language.getString("Upload HTL") + " (8)");
+		htlLabel.setText(language.getString("Upload HTL") + " (21)");
 		htlExplanationLabel.setText(language.getString("up htl explanation"));
 		threadsLabel.setText(
 				language.getString("Number of simultaneous uploads") + " (3)");
