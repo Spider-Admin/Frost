@@ -312,8 +312,8 @@ public class requestThread extends Thread
                             String contentOne = (FileAccess.readFile(numberOne)).trim();
                             String contentTwo = (FileAccess.readFile(numberTwo)).trim();
 
-                            if( DEBUG ) System.out.println(contentOne);
-                            if( DEBUG ) System.out.println(contentTwo);
+                            //if( DEBUG ) System.out.println(contentOne);
+                            //if( DEBUG ) System.out.println(contentTwo);
 
                             if( contentOne.equals(contentTwo) )
                             {
