@@ -593,9 +593,9 @@ public class SettingsClass {
 		
 		defaults.put("messageBodyAA", "false");
 		
-		defaults.put("logToFile", "true");
-		defaults.put("logLevel", "Low");
-		defaults.put("logFileSizeLimit", "1000");
+		defaults.put(Logging.LOG_TO_FILE, "true");
+		defaults.put(Logging.LOG_LEVEL, Logging.DEFAULT);
+		defaults.put(Logging.LOG_FILE_SIZE_LIMIT, "1000");
 
 		settingsHash.putAll(defaults);
 	}

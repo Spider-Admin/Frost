@@ -226,7 +226,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			subPanel.add(logLevelLabel, constraints);
 			constraints.gridx = 1;
 			String[] searchComboBoxKeys =
-				{ "Very low", "Low", "Medium", "High", "Very high" };
+				{ Logging.VERY_LOW, Logging.LOW, Logging.MEDIUM, Logging.HIGH, Logging.VERY_HIGH };
 			logLevelComboBox = new JTranslatableComboBox(languageResource, searchComboBoxKeys);
 			subPanel.add(logLevelComboBox, constraints);
 			
@@ -290,10 +290,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			frostSettings.setValue("altEdit", altEditTextField.getText());
 			frostSettings.setValue("doCleanUp", cleanupCheckBox.isSelected());
 			frostSettings.setValue("autoSaveInterval", autoSaveIntervalTextField.getText());
-			frostSettings.setValue("logToFile", enableLoggingCheckBox.isSelected());
-			frostSettings.setValue("logFileSizeLimit", logFileSizeTextField.getText());
-			frostSettings.setValue("logLevel", logLevelComboBox.getSelectedKey());
-			
+			frostSettings.setValue(Logging.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
+			frostSettings.setValue(Logging.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
+			frostSettings.setValue(Logging.LOG_LEVEL, logLevelComboBox.getSelectedKey());
+
 			// Save splashchk
 			try {
 				File splashFile = new File("nosplash.chk");
@@ -342,12 +342,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			cleanupCheckBox.setSelected(frostSettings.getBoolValue("doCleanUp"));
 			autoSaveIntervalTextField.setText(
 				Integer.toString(frostSettings.getIntValue("autoSaveInterval")));
-			enableLoggingCheckBox.setSelected(frostSettings.getBoolValue("logToFile"));
+			enableLoggingCheckBox.setSelected(frostSettings.getBoolValue(Logging.LOG_TO_FILE));
 			logFileSizeTextField.setText(
-				Integer.toString(frostSettings.getIntValue("logFileSizeLimit")));
-				
-			logLevelComboBox.setSelectedKey(frostSettings.getDefaultValue("logLevel"));
-			logLevelComboBox.setSelectedKey(frostSettings.getValue("logLevel"));
+				Integer.toString(frostSettings.getIntValue(Logging.LOG_FILE_SIZE_LIMIT)));
+
+			logLevelComboBox.setSelectedKey(frostSettings.getDefaultValue(Logging.LOG_LEVEL));
+			logLevelComboBox.setSelectedKey(frostSettings.getValue(Logging.LOG_LEVEL));
 
 			// "Load" splashchk
 			File splashchk = new File("nosplash.chk");
