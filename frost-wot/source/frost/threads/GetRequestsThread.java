@@ -119,38 +119,29 @@ public class GetRequestsThread extends BoardUpdateThreadObject implements BoardU
                 String content = (FileAccess.readFile(testMe)).trim();
                 System.out.println("Request content is " + content);
                 UploadTableModel tableModel = (UploadTableModel)uploadTable.getModel();
-                synchronized (uploadTable)
+                int rowCount = tableModel.getRowCount();
+
+                for( int i = 0; i < rowCount; i++ )
                 {
-                    try
+                    FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow(i);
+                    String chk = ulItem.getKey().trim();
+                    if( chk.equals(content) )
                     {
-                        int rowCount = tableModel.getRowCount();
-                        for( int i = 0; i < rowCount; i++ )
+                        File requestLock = new File(destination + chk + ".lck");
+                        if( !requestLock.exists() )
                         {
-                            FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow(i);
-                            String chk = ulItem.getKey().trim();
-                            if( chk.equals(content) )
+                            if( ulItem.getState() != ulItem.STATE_UPLOADING &&
+                                ulItem.getState() != ulItem.STATE_PROGRESS )
                             {
-                                File requestLock = new File(destination + chk + ".lck");
-                                if( !requestLock.exists() )
-                                {
-                                    String state = ulItem.getState();
-                                    if( !state.equals(LangRes.getString("Uploading")) && (state.indexOf("Kb") == -1) )
-                                    {
-                                        System.out.println("Request matches row " + i);
-                                        ulItem.setState( LangRes.getString("Requested") );
-                                        tableModel.updateRow( ulItem );
-                                    }
-                                }
-                                else
-                                {
-                                    System.out.println("File with key " + chk + " was requested, but already uploaded today");
-                                }
+                                System.out.println("Request matches row " + i);
+                                ulItem.setState( ulItem.STATE_REQUESTED );
+                                tableModel.updateRow( ulItem );
                             }
                         }
-                    }
-                    catch( Exception e )
-                    {
-                        System.out.println("getRequestsThread.run NOT GOOD "+e.toString());
+                        else
+                        {
+                            System.out.println("File with key " + chk + " was requested, but already uploaded today");
+                        }
                     }
                 }
                 index++;

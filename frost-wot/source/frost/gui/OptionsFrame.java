@@ -130,8 +130,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
 
     JCheckBox signedOnly = new JCheckBox(LangRes.getString("Show only signed messages"));
     JCheckBox hideBadMessages = new JCheckBox(LangRes.getString("Hide messages flagged BAD") + " " + LangRes.getString("(Off)"));
-    JCheckBox hideCheckMessages = new JCheckBox(LangRes.getString("Hide messages flagged CHECK") + " " + LangRes.getString("(Off)")); 
-    //JCheckBox goodOnly = new JCheckBox(LangRes.getString("Show only GOOD messages") + " " + LangRes.getString("(Off)"));
+    JCheckBox hideCheckMessages = new JCheckBox(LangRes.getString("Hide messages flagged CHECK") + " " + LangRes.getString("(Off)"));
     JCheckBox block = new JCheckBox(LangRes.getString("Block message from/subject containing:"));
     JCheckBox blockBody = new JCheckBox(LangRes.getString("Block message body containing:"));
     JCheckBox doBoardBackoff = new JCheckBox(LangRes.getString("Do spam detection") + " (experimental)");
@@ -159,33 +158,25 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             public void stateChanged(ChangeEvent e) {
                 if( e.getSource().equals(miscAltEditCheckBox) )
                     miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
-                }
-            }
-        );
+            } });
         signedOnly.addChangeListener(new ChangeListener(){
-		public void stateChanged(ChangeEvent e){
-		    if (e.getSource().equals(signedOnly)){
-			//goodOnly.setEnabled(signedOnly.isSelected());
-			hideBadMessages.setEnabled(signedOnly.isSelected());
-			hideCheckMessages.setEnabled(signedOnly.isSelected());
-		    }
-		}
-            }
-	);
+            public void stateChanged(ChangeEvent e){
+                if (e.getSource().equals(signedOnly)){
+                //goodOnly.setEnabled(signedOnly.isSelected());
+                hideBadMessages.setEnabled(signedOnly.isSelected());
+                hideCheckMessages.setEnabled(signedOnly.isSelected());
+                }
+            } });
         block.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent e){
                 if (e.getSource().equals(block))
                     tofBlockMessageTextField.setEnabled(block.isSelected());
-                }
-            }
-        );
+            } });
         blockBody.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent e){
                 if (e.getSource().equals(blockBody))
                     tofBlockMessageBodyTextField.setEnabled(blockBody.isSelected());
-                }
-            }
-        );
+            } });
         doBoardBackoff.addChangeListener(new ChangeListener(){
             public void stateChanged(ChangeEvent e){
                 if (e.getSource().equals(doBoardBackoff)) {
@@ -194,8 +185,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
                     treshold.setEnabled(doBoardBackoff.isSelected());
                     interval.setEnabled(doBoardBackoff.isSelected());
                 }
-            }
-        });
+            } });
         //------------------------------------------------------------------------
 
         mainPanel = new JPanel(new BorderLayout());
@@ -306,13 +296,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0; constr.gridy = 0;
 
-            downloadDisableDownloads.addActionListener(new java.awt.event.ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        downloadDisableDownloads_actionPerformed(e);
-                    }
-                });
+            downloadDisableDownloads.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    downloadDisableDownloads_actionPerformed(e);
+                } });
             downloadPanel.add(downloadDisableDownloads, constr);
 
             constr.gridy++;
@@ -324,13 +311,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             downloadPanel.add(downloadDirectoryTextField, constr);
 
             JButton browseDownloadDirectoryButton = new JButton(LangRes.getString("Browse..."));
-            browseDownloadDirectoryButton.addActionListener(new java.awt.event.ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        browseDownloadDirectoryButton_actionPerformed(e);
-                    }
-                });
+            browseDownloadDirectoryButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    browseDownloadDirectoryButton_actionPerformed(e);
+                } });
 
             constr.gridx = 1;
             constr.gridy++;
@@ -428,13 +412,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.insets = new Insets(5, 5, 5, 5);
             constr.gridx = 0;
             constr.gridy = 0;
-            uploadDisableRequests.addActionListener(new java.awt.event.ActionListener()
-                {
-                    public void actionPerformed(ActionEvent e)
-                    {
-                        uploadDisableRequests_actionPerformed(e);
-                    }
-                });
+            uploadDisableRequests.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    uploadDisableRequests_actionPerformed(e);
+                } });
             uploadPanel.add(uploadDisableRequests,constr);
             constr.gridy++;
             constr.gridx=0;
@@ -555,10 +536,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             constr.gridx = 0;
             tof2Panel.add(signedOnly,constr);
             constr.gridx = 1;
-            //tof2Panel.add(goodOnly,constr);
-	    tof2Panel.add(hideBadMessages,constr);
-	    constr.gridy++;
-	    tof2Panel.add(hideCheckMessages,constr);
+            tof2Panel.add(hideBadMessages,constr);
+            constr.gridy++;
+            tof2Panel.add(hideCheckMessages,constr);
             constr.gridy++;
             constr.gridx = 0;
             tof2Panel.add(doBoardBackoff,constr);
@@ -757,21 +737,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
             JButton okButton = new JButton(LangRes.getString("OK"));
             JButton cancelButton = new JButton(LangRes.getString("Cancel"));
 
-            okButton.addActionListener(new java.awt.event.ActionListener()
-                {
-                   public void actionPerformed(ActionEvent e)
-                   {
-                       okButton_actionPerformed(e);
-                   }
-                });
-            cancelButton.addActionListener(new java.awt.event.ActionListener()
-                {
-                   public void actionPerformed(ActionEvent e)
-                   {
-                       cancelButton_actionPerformed(e);
-                   }
-                });
-
+            okButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                okButton_actionPerformed(e);
+                } });
+            cancelButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                   cancelButton_actionPerformed(e);
+                } });
             buttonPanel.add(okButton);
             buttonPanel.add(cancelButton);
         }
@@ -912,14 +885,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     //------------------------------------------------------------------------
 
     /**
-     * Return exitState
-     */
-    public boolean getExitState()
-    {
-        return exitState;
-    }
-
-    /**
      * Load settings
      */
     private void setDataElements()
@@ -935,12 +900,10 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         spamTreshold.setEnabled(frostSettings.getBoolValue("doBoardBackoff"));
         sampleInterval.setText(frostSettings.getValue("sampleInterval"));
         spamTreshold.setText(frostSettings.getValue("spamTreshold"));
-        //goodOnly.setEnabled(frostSettings.getBoolValue("signedOnly"));
-        //goodOnly.setSelected(frostSettings.getBoolValue("goodOnly"));
-	hideBadMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
-	hideBadMessages.setSelected(frostSettings.getBoolValue("hideBadMessages"));
-	hideCheckMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
-	hideCheckMessages.setSelected(frostSettings.getBoolValue("hideCheckMessages"));
+        hideBadMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
+        hideBadMessages.setSelected(frostSettings.getBoolValue("hideBadMessages"));
+        hideCheckMessages.setEnabled(frostSettings.getBoolValue("signedOnly"));
+        hideCheckMessages.setSelected(frostSettings.getBoolValue("hideCheckMessages"));
         block.setSelected(frostSettings.getBoolValue("blockMessageChecked"));
         blockBody.setSelected(frostSettings.getBoolValue("blockMessageBodyChecked"));
         miscAltEditTextField.setEditable(miscAltEditCheckBox.isSelected());
@@ -1051,9 +1014,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
         frostSettings.setValue("archiveExtension", searchArchiveExtensionTextField.getText().toLowerCase());
         frostSettings.setValue("useAltEdit", miscAltEditCheckBox.isSelected());
         frostSettings.setValue("signedOnly", signedOnly.isSelected());
-        //frostSettings.setValue("goodOnly", goodOnly.isSelected());
-	frostSettings.setValue("hideBadMessages", hideBadMessages.isSelected());
-	frostSettings.setValue("hideCheckMessages", hideCheckMessages.isSelected());
+        frostSettings.setValue("hideBadMessages", hideBadMessages.isSelected());
+        frostSettings.setValue("hideCheckMessages", hideCheckMessages.isSelected());
         frostSettings.setValue("altEdit", miscAltEditTextField.getText());
         frostSettings.setValue("doCleanUp",cleanUP.isSelected());
         frostSettings.setValue("disableRequests",uploadDisableRequests.isSelected());
@@ -1106,7 +1068,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     {
         File signature = new File("signature.txt");
         if( signature.isFile() )
+        {
             tofTextArea.setText(FileAccess.readFile("signature.txt"));
+        }
     }
 
     /**
@@ -1118,13 +1082,12 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     }
 
     /**
-     * Can be called to run dialog and get its answer (OK, CANCEL)
-     * A (IMHO) better (and clearer) alternative to show() and getExitState().
-     * - bback
+     * Can be called to run dialog and get its answer (true=OK, false=CANCEL)
      */
     public boolean runDialog()
     {
-        show();
+        this.exitState = false;
+        show(); // run dialog
         return this.exitState;
     }
 
@@ -1146,6 +1109,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener
     public OptionsFrame(Frame parent)
     {
         super(parent);
+        setModal(true);
 
         frostSettings = new SettingsClass();
         setDataElements();

@@ -5,18 +5,33 @@ import frost.gui.model.*;
 public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
 {
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
-    private final static String STATE_WAITING = LangRes.getString("Waiting");
 
-    String fileName = null;
-    Long fileSize = null;
-    String fileAge = null;
-    String key = null;
-    FrostBoardObject sourceBoard = null;
-    Integer htl = null;
+    // the constants representing download states
+    public final static int STATE_WAITING    = 1;
+    public final static int STATE_TRYING     = 2;
+    public final static int STATE_DONE       = 3;
+    public final static int STATE_FAILED     = 4;
+    public final static int STATE_REQUESTING = 5;
+    public final static int STATE_PROGRESS   = 6; // download runs
+    // the strings that are shown in table for the states
+    private final static String STATE_WAITING_STR    = LangRes.getString("Waiting");
+    private final static String STATE_TRYING_STR     = LangRes.getString("Trying");
+    private final static String STATE_DONE_STR       = LangRes.getString("Done");
+    private final static String STATE_FAILED_STR     = LangRes.getString("Failed");
+    private final static String STATE_REQUESTING_STR = "Requesting";
+    private final static String STATE_PROGRESS_STR   = " kb";
 
-    String state = null;
+    private String fileName = null;
+    private Long fileSize = null;
+    private String fileAge = null;
+    private String key = null;
+    private FrostBoardObject sourceBoard = null;
+    private Integer htl = null;
 
-    long lastDownloadStartTimeMillis = 0; // used for one by one update mode
+    private int state = 0;
+    private long downloadProgress = 0; // the count of downloaded bytes
+
+    private long lastDownloadStartTimeMillis = 0; // used for one by one update mode
 
     public FrostDownloadItemObject( FrostSearchItem searchItem, int initialHtl )
     {
@@ -47,7 +62,7 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
                                     String fileAge,
                                     String key,
                                     String htl,
-                                    String state,
+                                    int state,
                                     FrostBoardObject board )
     {
         this.fileName = fileName;
@@ -71,13 +86,13 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         Long aFileSize =  ( (fileSize==null) ? new Long(-1) : fileSize );
 
         switch(column) {
-            case 0: return fileName;               //LangRes.getString("Filename"),
-            case 1: return aFileSize;              //LangRes.getString("Size"),
-            case 2: return aFileAge;               //LangRes.getString("Age"),
-            case 3: return state;                  //LangRes.getString("State"),
-            case 4: return htl;                    //LangRes.getString("HTL"),
-            case 5: return sourceBoard.toString(); //LangRes.getString("Source"),
-            case 6: return key;                    //LangRes.getString("Key")
+            case 0: return fileName;                //LangRes.getString("Filename"),
+            case 1: return aFileSize;               //LangRes.getString("Size"),
+            case 2: return aFileAge;                //LangRes.getString("Age"),
+            case 3: return getStateString( state ); //LangRes.getString("State"),
+            case 4: return htl;                     //LangRes.getString("HTL"),
+            case 5: return sourceBoard.toString();  //LangRes.getString("Source"),
+            case 6: return key;                     //LangRes.getString("Key")
             default: return "*ERR*";
         }
     }
@@ -118,15 +133,28 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         return sourceBoard;
     }
 
-    public String getState()
+    public int getState()
     {
         return state;
     }
-    public void setState(String v)
+    public void setState(int v)
     {
         state = v;
     }
-
+    public String getStateString(int state)
+    {
+        String statestr = "*ERR*";
+        switch( state )
+        {
+        case STATE_WAITING:     statestr = STATE_WAITING_STR; break;
+        case STATE_TRYING:      statestr = STATE_TRYING_STR; break;
+        case STATE_FAILED:      statestr = STATE_FAILED_STR; break;
+        case STATE_DONE:        statestr = STATE_DONE_STR; break;
+        case STATE_REQUESTING:  statestr = STATE_REQUESTING_STR; break;
+        case STATE_PROGRESS:    statestr = (downloadProgress/1024) + STATE_PROGRESS_STR; break;
+        }
+        return statestr;
+    }
 
     public long getLastDownloadStartTimeMillis()
     {
@@ -137,4 +165,12 @@ public class FrostDownloadItemObject implements FrostDownloadItem, TableMember
         lastDownloadStartTimeMillis = val;
     }
 
+    public long getDownloadProgress()
+    {
+        return downloadProgress;
+    }
+    public void setDownloadProgress( long val )
+    {
+        downloadProgress = val;
+    }
 }

@@ -23,9 +23,9 @@
   <property name="jarName" value="frost.jar"/>
 
   <!--  javac compiler options -->
-  <property name="debug" value="false" />
-  <property name="deprecation" value="false" />
-  <property name="optimize" value="true" />
+  <property name="debug" value="true" /> <!-- Enabled to see the line number of an exception in stack trace -->
+  <property name="deprecation" value="true" />
+  <property name="optimize" value="false" /> <!-- Enabled to see the line number of an exception in stack trace -->
 
   <!--  Set the properties related to the source tree -->
   <property name="src.dir" value="source"/>

@@ -74,22 +74,44 @@ public class TableXmlIO
         String filepath = XMLTools.getChildElementsCDATAValue(ulItemElement, "filepath");
         String targetboardname = XMLTools.getChildElementsTextValue(ulItemElement, "targetboard");
         String state = XMLTools.getChildElementsTextValue(ulItemElement, "state");
+        String lastUploadDate = XMLTools.getChildElementsTextValue(ulItemElement, "lastuploaddate");
         String key = XMLTools.getChildElementsCDATAValue(ulItemElement, "key");
 
-        if( filename == null || filepath == null || targetboardname == null || state == null || key == null )
+        if( filename == null || filepath == null || targetboardname == null || state == null )
         {
             System.out.println("UploadTable: Error in XML save file, skipping entry.");
             return null;
         }
 
-        if( state.indexOf("Kb") != -1 || state.equals(LangRes.getString("Uploading")) )
+        int iState = -1;
+        try { iState = Integer.parseInt( state ); }
+        catch(NumberFormatException ex)
         {
-            state = LangRes.getString("Requested");
+            // string is no number -> old format
+            iState = -1;
         }
 
-        if( key.startsWith("CHK@") == false )
+        if( iState < 0 )
         {
-            key = LangRes.getString("Unknown");
+            // old format: states are saved in XML as LangRes Strings
+            if( state.indexOf("Kb") != -1 || state.equals(LangRes.getString("Uploading")) )
+            {
+                iState = FrostUploadItemObject.STATE_REQUESTED;
+            }
+        }
+        else
+        {
+            // new format: states are saved in XML as numbers
+            if( iState == FrostUploadItemObject.STATE_PROGRESS ||
+                iState == FrostUploadItemObject.STATE_UPLOADING )
+            {
+                iState = FrostUploadItemObject.STATE_REQUESTED;
+            }
+        }
+
+        if( key != null && key.startsWith("CHK@") == false )
+        {
+            key = null;
         }
 
         File uploadFile = new File(filepath);
@@ -113,7 +135,8 @@ public class TableXmlIO
                                                                   filepath,
                                                                   uploadFile.length(),
                                                                   board,
-                                                                  state,
+                                                                  iState,
+                                                                  lastUploadDate,
                                                                   key);
 
         return ulItem;
@@ -183,12 +206,32 @@ public class TableXmlIO
             return null;
         }
 
-        if( state.equals(LangRes.getString("Done")) == false )
+        int iState = -1;
+        try { iState = Integer.parseInt( state ); }
+        catch(NumberFormatException ex)
         {
-            state = LangRes.getString("Waiting");
+            // string is no number -> old format
+            iState = -1;
         }
 
-        // check if targat board exists in board tree
+        if( iState < 0 )
+        {
+            // old format: states are saved in XML as LangRes Strings
+            if( state.equals(LangRes.getString("Done")) == false )
+            {
+                iState = FrostDownloadItemObject.STATE_WAITING;
+            }
+        }
+        else
+        {
+            // new format: states are saved in XML as numbers
+            if( iState != FrostDownloadItemObject.STATE_DONE )
+            {
+                iState = FrostDownloadItemObject.STATE_WAITING;
+            }
+        }
+
+        // check if target board exists in board tree
         FrostBoardObject board = frame1.getInstance().getTofTree().getBoardByName( sourceboardname );
         if( board == null )
         {
@@ -202,7 +245,7 @@ public class TableXmlIO
                                                                      fileage,
                                                                      key,
                                                                      htl,
-                                                                     state,
+                                                                     iState,
                                                                      board);
         return dlItem;
     }
@@ -263,14 +306,25 @@ public class TableXmlIO
         itemElement.appendChild( element );
         // state
         element = doc.createElement("state");
-        text = doc.createTextNode( ulItem.getState() );
+        text = doc.createTextNode( String.valueOf(ulItem.getState()) );
         element.appendChild( text );
         itemElement.appendChild( element );
         // key
-        element = doc.createElement("key");
-        cdata = doc.createCDATASection( ulItem.getKey() );
-        element.appendChild( cdata );
-        itemElement.appendChild( element );
+        if( ulItem.getKey() != null )
+        {
+            element = doc.createElement("key");
+            cdata = doc.createCDATASection( ulItem.getKey() );
+            element.appendChild( cdata );
+            itemElement.appendChild( element );
+        }
+        // lastUploadDate
+        if( ulItem.getLastUploadDate() != null )
+        {
+            element = doc.createElement("lastuploaddate");
+            text = doc.createTextNode( ulItem.getLastUploadDate() );
+            element.appendChild( text );
+            itemElement.appendChild( element );
+        }
 
         parent.appendChild( itemElement );
     }
@@ -337,7 +391,7 @@ public class TableXmlIO
         itemElement.appendChild( element );
         // state
         element = doc.createElement("state");
-        text = doc.createTextNode( dlItem.getState() );
+        text = doc.createTextNode( String.valueOf(dlItem.getState()) );
         element.appendChild( text );
         itemElement.appendChild( element );
         // sourceboard

@@ -45,7 +45,10 @@ import frost.threads.*;
 import frost.identities.*;
 
 //++++ TODO: count running downloads+waiting
-//++++ TODO: encapsulate up/download thread state, use listeners in thread
+//++++ TODO: use listeners in upload/download threads
+//++++ TODO: rework identities stuff + save to xml
+//++++ TODO: if a person is set to BAD, clean all new-message indicators (.lck files) in all boards for this person
+//             -> like done in TOF.initialSearchNewMessages on startup
 
 public class frame1 extends JFrame implements ClipboardOwner
 {
@@ -1138,33 +1141,33 @@ public class frame1 extends JFrame implements ClipboardOwner
         uploadPopupReloadSelectedFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 UploadTableModel tableModel = (UploadTableModel)getUploadTable().getModel();
-                synchronized (getUploadTable()) { try {
                 int[] selectedRows = getUploadTable().getSelectedRows();
                 for (int i = 0; i < selectedRows.length; i++){
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( selectedRows[i] );
                     // Since it is difficult to identify the states where we are allowed to
                     // start an upload we decide based on the states in which we are not allowed
-                    if( !ulItem.getState().equals(LangRes.getString("Uploading")) &&
-                        ulItem.getState().indexOf("Kb") == -1 )
+                    if( ulItem.getState() != ulItem.STATE_UPLOADING &&
+                        ulItem.getState() != ulItem.STATE_PROGRESS )
                     {
-                        ulItem.setState(LangRes.getString("Requested"));
+                        ulItem.setState( ulItem.STATE_REQUESTED );
                         tableModel.updateRow(ulItem);
                     }
-                }
-                }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
                 }
             } });
         // Upload / Reload all files
         uploadPopupReloadAllFiles.addActionListener(new ActionListener()  {
             public void actionPerformed(ActionEvent e) {
                 UploadTableModel tableModel = (UploadTableModel)getUploadTable().getModel();
-                synchronized (getUploadTable()) { try {
                 for (int i = 0; i < tableModel.getRowCount(); i++){
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)tableModel.getRow( i );
-                    ulItem.setState(LangRes.getString("Requested"));
-                    tableModel.updateRow(ulItem);
-                }
-                }catch (Exception ex) {System.out.println("reload files NOT GOOD " +ex.toString());}
+                    // Since it is difficult to identify the states where we are allowed to
+                    // start an upload we decide based on the states in which we are not allowed
+                    if( ulItem.getState() != ulItem.STATE_UPLOADING &&
+                        ulItem.getState() != ulItem.STATE_PROGRESS )
+                    {
+                        ulItem.setState( ulItem.STATE_REQUESTED );
+                        tableModel.updateRow(ulItem);
+                    }
                 }
             } });
         // Upload / Set Prefix for selected files
@@ -1251,7 +1254,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 {
                     FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( selectedRows[x] );
                     dlItem.setHtl( frostSettings.getIntValue("htl"));
-                    dlItem.setState(LangRes.getString("Waiting"));
+                    dlItem.setState( dlItem.STATE_WAITING );
                     dlModel.updateRow( dlItem );
                 }
             } });
@@ -2208,25 +2211,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             getDownloadTable().update( frostSettings );
             updateDownloads = false;
-
-            // Sometimes it seems that download table entries do not get reset to "Failed"
-            // I did not find the bug yet, but if there is no download thread active
-            // all unfinished downloads are set to "Waiting"
-/*
-            if( activeDownloadThreads == 0 && downloadActivateCheckBox.isSelected() )
-            {
-                DownloadTableModel dlModel = (DownloadTableModel)getDownloadTable().getModel();
-                for( int i = 0; i < dlModel.getRowCount(); i++ )
-                {
-                    FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-                    if( dlItem.getState().equals(LangRes.getString("Done")) == false )
-                    {
-                        dlItem.setState(LangRes.getString("Waiting"));
-                        dlModel.updateRow( dlItem );
-                    }
-                }
-            }
-*/
         }
 
         //////////////////////////////////////////////////
@@ -2289,7 +2273,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 for( int i = 0; i < ulModel.getRowCount(); i++ )
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
-                    if( ulItem.getKey() == null || ulItem.getKey().equals(LangRes.getString("Unknown")) )
+                    if( ulItem.getKey() == null )
                     {
                         ulItem.setKey( "Working..." );
                         ulModel.updateRow( ulItem );
@@ -2317,11 +2301,10 @@ public class frame1 extends JFrame implements ClipboardOwner
                 for( int i = 0; i < ulModel.getRowCount(); i++ )
                 {
                     FrostUploadItemObject ulItem = (FrostUploadItemObject)ulModel.getRow( i );
-                    if( ulItem.getState().equals(LangRes.getString("Requested")) &&
-                        ulItem.getKey().startsWith("CHK@")
-                      )
+                    if( ulItem.getState() == ulItem.STATE_REQUESTED &&
+                        ulItem.getKey() != null )
                     {
-                        ulItem.setState( LangRes.getString("Uploading") );
+                        ulItem.setState( ulItem.STATE_UPLOADING );
                         ulModel.updateRow( ulItem );
                         insertThread newInsert = new insertThread(ulItem, frostSettings, true);
                         newInsert.start();
@@ -2348,7 +2331,7 @@ public class frame1 extends JFrame implements ClipboardOwner
             for( int i = 0; i < dlModel.getRowCount(); i++ )
             {
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)dlModel.getRow( i );
-                if( dlItem.getState().equals(LangRes.getString("Waiting")) )
+                if( dlItem.getState() == dlItem.STATE_WAITING )
                 {
                     if( dlItem.getHtl().intValue() <= frostSettings.getIntValue("htlMax") )
                     {
@@ -2357,17 +2340,17 @@ public class frame1 extends JFrame implements ClipboardOwner
                     else
                     {
                         // set item to failed state
-                        dlItem.setState( LangRes.getString("Failed") );
+                        dlItem.setState( dlItem.STATE_FAILED );
                         dlModel.updateRow( dlItem );
                     }
                 }
-                else if( dlItem.getState().equals(LangRes.getString("Failed")) )
+                else if( dlItem.getState() == dlItem.STATE_FAILED )
                 {
                     if( frostSettings.getBoolValue("downloadRestartFailedDownloads") &&
                         dlItem.getHtl().intValue() == frostSettings.getIntValue("htlMax") )
                     {
                         // prepare item for restart in next loop
-                        dlItem.setState( LangRes.getString("Waiting") );
+                        dlItem.setState( dlItem.STATE_WAITING );
                         dlItem.setHtl( frostSettings.getIntValue("htl") );
                         dlModel.updateRow( dlItem );
                     }
@@ -2413,7 +2396,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                 }
                 // choose first item
                 FrostDownloadItemObject dlItem = (FrostDownloadItemObject)waitingItems.get(0);
-                dlItem.setState( LangRes.getString("Trying") );
+                dlItem.setState( dlItem.STATE_TRYING );
                 dlModel.updateRow( dlItem );
 
                 dlItem.setLastDownloadStartTimeMillis( System.currentTimeMillis() );
@@ -2693,10 +2676,9 @@ public class frame1 extends JFrame implements ClipboardOwner
         // get some settings to check if they changed
         // ...
 
-        OptionsFrame newFrame = new OptionsFrame(this);
-        newFrame.setModal(true); // lock main window
-        newFrame.show();
-        if( newFrame.getExitState() )
+        OptionsFrame optionsDlg = new OptionsFrame(this);
+        boolean okPressed = optionsDlg.runDialog();
+        if( okPressed )
         {
             // read new settings
             frostSettings.readSettingsFile();

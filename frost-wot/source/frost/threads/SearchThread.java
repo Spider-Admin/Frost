@@ -151,12 +151,8 @@ public class SearchThread extends Thread {
         nextSpacePos = request.length();
 
         int age = 1;
-        try{
-        age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos));
-        }
-        catch (NumberFormatException e) {
-        if (DEBUG) System.out.println("Did not recognice age, using default 1");
-        }
+        try { age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos)); }
+        catch (NumberFormatException e) { if (DEBUG) System.out.println("Did not recognice age, using default 1"); }
 
         if (DEBUG) System.out.println("AGE = " + age);
 
