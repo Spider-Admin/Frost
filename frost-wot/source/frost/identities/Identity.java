@@ -56,11 +56,20 @@ public class Identity implements Serializable
         System.out.println("Identity: Starting to request CHK for '" + name +"'");
         String targetFile = frame1.frostSettings.getValue("temp.dir") + name + ".key.tmp";
 
+        // try two times to get identity, its too important to not try it ;)
+        // will lower the amount of N/A messages because of non found keys
         boolean wasOK = false;
-        try {
-            wasOK = FcpRequest.getFile(keyaddress, "unknown", targetFile, "25", false);
+        int maxTries = 2;
+        int tries = 0;
+        while( wasOK == false && tries < maxTries )
+        {
+            try {
+                wasOK = FcpRequest.getFile(keyaddress, "unknown", targetFile, "25", false);
+            }
+            catch(Exception e) { ; }
+            mixed.wait(1000);
+            tries++;
         }
-        catch(Exception e) { ; }
 
         if( wasOK )
         {
