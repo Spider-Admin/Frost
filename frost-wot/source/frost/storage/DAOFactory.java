@@ -8,6 +8,7 @@ import frost.SettingsClass;
 import frost.fileTransfer.download.DownloadModelDAO;
 import frost.fileTransfer.upload.UploadModelDAO;
 import frost.identities.IdentitiesDAO;
+import frost.messaging.MessageHashesDAO;
 
 /**
  * This class implements the Abstract Factory pattern. It is used by the business objects
@@ -89,6 +90,13 @@ public abstract class DAOFactory {
 	 * @return a UploadModelDAO for the UploadModel business object.
 	 */
 	public abstract UploadModelDAO getUploadModelDAO();
+	
+	/**
+	 * This method returns a data access object for the MessageHashes
+	 * business object.
+	 * @return a MessageHashesDAO for the MessageHashes business object.
+	 */
+	public abstract MessageHashesDAO getMessageHashesDAO();
 
 	/**
 	 * This method initializes the DAOFactory with the given SettingsClass.
