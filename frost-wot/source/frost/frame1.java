@@ -161,7 +161,8 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 				ListSelectionListener,
 				PropertyChangeListener,
 				TreeSelectionListener,
-				TreeModelListener {
+				TreeModelListener,
+				LanguageListener {
 
 			/**
 			 * 
@@ -295,6 +296,13 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 			 */
 			public void treeStructureChanged(TreeModelEvent e) {
 				//Nothing here						
+			}
+
+			/* (non-Javadoc)
+			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+			 */
+			public void languageChanged(LanguageEvent event) {
+				refreshLanguage();				
 			}
 
 		}
@@ -977,6 +985,7 @@ public class frame1 extends JFrame implements ClipboardOwner, SettingsUpdater {
 		public void initialize() {
 			if (!initialized) {
 				refreshLanguage();
+				languageResource.addLanguageListener(listener);
 
 				// build messages list
 				MessageTableModel messageTableModel = new MessageTableModel(languageResource);
