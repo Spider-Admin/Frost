@@ -143,7 +143,7 @@ public class SearchTable extends SortedTable
                 {
                     setForeground( Color.GREEN );
                 }
-                else if(sItem.isOffline() == true )
+                else if(sItem.getState() == FrostSearchItemObject.STATE_OFFLINE )
                 {
                     setForeground( Color.GRAY );
                 }
