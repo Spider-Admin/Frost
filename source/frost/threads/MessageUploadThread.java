@@ -154,7 +154,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             secure = false;
         }
 
-        System.out.println("TOFUP: Uploading message to '" + board.toString() + "' board with HTL " + messageUploadHtl);
+        System.out.println("TOFUP: Uploading message to board '" + board.toString() + "' with HTL " + messageUploadHtl);
 
         uploadAttachments();
         sign();
@@ -166,23 +166,28 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                .append(DateFun.getDate())
                                                .append(fileSeparator).toString();
         File checkDestination = new File(destination);
-        if( checkDestination.isDirectory() == false )
+        if( !checkDestination.isDirectory() )
         {
             checkDestination.mkdirs();
         }
 
         // Generate file to upload
-        String uploadMe = "unsent" + String.valueOf(System.currentTimeMillis()) + ".txt"; // new filename
-        String content = new String();
-        content += "board=" + board.toString() + "\r\n";
-        content += "from=" + from + "\r\n";
-        content += "subject=" + subject + "\r\n";
-        content += "date=" + date + "\r\n";
-        content += "time=" + time + "\r\n";
-        content += "--- message ---\r\n";
-        content += text;
+        String uploadMe = new StringBuffer()
+                           .append(frame1.frostSettings.getValue("unsent.dir"))
+                           .append("unsent")
+                           .append(String.valueOf(System.currentTimeMillis()))
+                           .append(".txt").toString();
 
-        File messageFile = new File(destination + uploadMe);
+        String content = new StringBuffer()
+                        .append("board=").append(board.toString()).append("\r\n")
+                        .append("from=").append(from).append("\r\n")
+                        .append("subject=").append(subject).append("\r\n")
+                        .append("date=").append(date).append("\r\n")
+                        .append("time=").append(time).append("\r\n")
+                        .append("--- message ---\r\n")
+                        .append(text).toString();
+
+        File messageFile = new File(uploadMe);
         FileAccess.writeFile(content, messageFile); // Write to disk
 
         while( retry )
@@ -331,7 +336,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 messageFile.delete();
 
                 System.out.println("*********************************************************************");
-                System.out.println("Message successfuly uploaded to the '" + board.toString() + "' board.");
+                System.out.println("Message successfuly uploaded to board '" + board.toString() + "'.");
                 System.out.println("*********************************************************************");
                 retry = false;
             }
@@ -350,7 +355,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                                   LangRes.getString("I was not able to upload your message."),
                                                   LangRes.getString("Retry"),
                                                   "Retry on next startup", // TODO: translate
-                                                  LangRes.getString("Cancel"));
+                                                  "Discard message");
                     int answer = faildialog.startDialog();
                     if( answer == 1 ) // Retry now - pressed
                     {

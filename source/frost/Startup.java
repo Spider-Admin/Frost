@@ -59,7 +59,7 @@ public class Startup
 
         checkDirectories();
         copyFiles();
-        deleteLockFiles();
+        cleanTempDir();
     }
 
     // Copy some files from the jar file, if they don't exists
@@ -125,30 +125,25 @@ public class Startup
             System.out.println("Creating unsent directory");
             unsentDirectory.mkdirs();
         }
+
+        File tempDirectory = new File(frame1.frostSettings.getValue("temp.dir"));
+        if( !tempDirectory.isDirectory() )
+        {
+            System.out.println("Creating temp directory");
+            tempDirectory.mkdirs();
+        }
     }
 
-    private static void deleteLockFiles()
+    private static void cleanTempDir()
     {
-        System.out.println("StartUp: Deleting obsolete '.lock' and '.tmp' files from keypool.");
-        ArrayList entries = FileAccess.getAllEntries(new File(frame1.frostSettings.getValue("keypool.dir")),
-                                                  "");
-        int filesDeleted=0;
-        for( int i = 0; i < entries.size(); i++ )
+        File[] entries = new File(frame1.frostSettings.getValue("temp.dir")).listFiles();
+        for( int i = 0; i < entries.length; i++ )
         {
-            File entry = (File)entries.get(i);
-            // delete lock files
-            if( entry.getName().endsWith(".lock") )
+            File entry = entries[i];
+            if( entry.isDirectory() == false )
             {
                 entry.delete();
-                filesDeleted++;
-            }
-            // delete .tmp files
-            else if( entry.getName().endsWith(".tmp") )
-            {
-                entry.delete();
-                filesDeleted++;
             }
         }
-        System.out.println("StartUp: Deleted "+filesDeleted+" obsolete files.");
     }
 }

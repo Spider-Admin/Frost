@@ -2531,7 +2531,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         {
             // TODO: pass FrostBoardObject
             altEdit = new AltEdit(getActualNode(),
-                                  frostSettings.getValue("userName"),
                                   subject, // subject
                                   "", // new msg
                                   frostSettings,
@@ -2561,7 +2560,6 @@ public class frame1 extends JFrame implements ClipboardOwner
         if( frostSettings.getBoolValue("useAltEdit") )
         {
             altEdit = new AltEdit(getActualNode(),
-                                  frostSettings.getValue("userName"),
                                   subject, // subject
                                   getTofTextAreaText(),
                                   frostSettings,
@@ -2992,7 +2990,7 @@ public class frame1 extends JFrame implements ClipboardOwner
 
             System.out.println("Starting search for unsent messages ...");
 
-            ArrayList entries = FileAccess.getAllEntries(new File(frostSettings.getValue("keypool.dir")), ".txt");
+            ArrayList entries = FileAccess.getAllEntries(new File(frostSettings.getValue("unsent.dir")), ".txt");
 
             for( int i = 0; i < entries.size(); i++ )
             {

@@ -345,6 +345,8 @@ public class SettingsClass
         defaults.put("config.dir", "config"+fs);
         defaults.put("unsent.dir", "localdata"+System.getProperty("file.separator")+
                                    "unsent"+System.getProperty("file.separator"));
+        defaults.put("temp.dir", "localdata"+System.getProperty("file.separator")+
+                                   "temp"+System.getProperty("file.separator"));
         defaults.put("allowEvilBert", "false");
         defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
         defaults.put("automaticUpdate", "true");
