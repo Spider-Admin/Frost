@@ -8,7 +8,6 @@ import org.w3c.dom.*;
 import org.xml.sax.SAXException;
 
 import frost.*;
-import frost.fcp.FcpConnection;
 import frost.messages.*;
 
 /**
@@ -23,9 +22,7 @@ public class Identity implements SafeXMLizable
     
 	private static Logger logger = Logger.getLogger(Identity.class.getName());
     
-    protected transient FcpConnection con;
     public static final String NA = "NA";
-    private static ThreadLocal tmpfile;
     
     //some trust map methods
     public int noMessages,noFiles;
