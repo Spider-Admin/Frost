@@ -27,107 +27,124 @@ import java.io.*;
  */
 public class LanguageFile {
 
-    /**
-     * Generates the complete class file with comments
-     * that can directly be compiled with frost.
-     */
-    public static String generateFile(TranslateTableModel tableModel, String languageCode) {
-	StringBuffer content = new StringBuffer();
-	int rowCount = tableModel.getRowCount();
-	
-	content.append("/**\n");
-	content.append(" * Language file for Frost\n");
-	content.append(" *\n");
-	content.append(" * This file has been created automatically.\n");
-	content.append(" * Do NOT edit unless you REALLY know what you're doing!\n");
-	content.append(" *\n");
-	content.append(" * Language: " + languageCode + "\n");
-	content.append(" */\n\n");
-	
-	content.append("package res;\n\n");
-	content.append("import java.util.ListResourceBundle;\n\n");
-	
-	if (languageCode.equals("en"))
-	    content.append("public class LangRes extends ListResourceBundle {\n\n");
-	else
-	    content.append("public class LangRes_" + languageCode + " extends ListResourceBundle {\n\n");
+	/**
+	 * Generates the complete class file with comments
+	 * that can directly be compiled with frost.
+	 */
+	public static String generateFile(
+		TranslateTableModel tableModel,
+		String languageCode) {
+		StringBuffer content = new StringBuffer();
+		int rowCount = tableModel.getRowCount();
 
-	content.append("public Object[][] getContents() {\n");
-	content.append("    return contents;\n");
-	content.append("}\n\n");
+		content.append("/**\n");
+		content.append(" * Language file for Frost\n");
+		content.append(" *\n");
+		content.append(" * This file has been created automatically.\n");
+		content.append(
+			" * Do NOT edit unless you REALLY know what you're doing!\n");
+		content.append(" *\n");
+		content.append(" * Language: " + languageCode + "\n");
+		content.append(" */\n\n");
 
-	content.append("static final Object[][] contents = {\n");
+		content.append("package res;\n\n");
+		content.append("import java.util.ListResourceBundle;\n\n");
 
-	for (int i = 0; i < rowCount; i++) {
-	    content.append("{\"" + replaceSpecialCharacters(new StringBuffer((String)tableModel.getValueAt(i, 0))) + "\",");
-	    content.append("\"" + replaceSpecialCharacters(new StringBuffer((String)tableModel.getValueAt(i, 1))) + "\"},");
-	    content.append("\n");
+		if (languageCode.equals("en"))
+			content.append(
+				"public class LangRes extends ListResourceBundle {\n\n");
+		else
+			content.append(
+				"public class LangRes_"
+					+ languageCode
+					+ " extends ListResourceBundle {\n\n");
+
+		content.append("public Object[][] getContents() {\n");
+		content.append("    return contents;\n");
+		content.append("}\n\n");
+
+		content.append("static final Object[][] contents = {\n");
+
+		for (int i = 0; i < rowCount; i++) {
+			content.append(
+				"{\""
+					+ replaceSpecialCharacters(
+						new StringBuffer((String) tableModel.getValueAt(i, 0)))
+					+ "\",");
+			content.append(
+				"\""
+					+ replaceSpecialCharacters(
+						new StringBuffer((String) tableModel.getValueAt(i, 1)))
+					+ "\"},");
+			content.append("\n");
+		}
+
+		content.append("};\n");
+		content.append("}\n");
+
+		return content.toString();
 	}
 
-	content.append("};\n");
-	content.append("}\n");
+	/**
+	 * There are some problems with linefeed and return characters.
+	 * To prevent that these characters are executed on saving (instead
+	 * of being saved as character) they had to be exchanged.
+	 */
+	private static StringBuffer replaceSpecialCharacters(StringBuffer content) {
 
-	return content.toString();
-    }
+		while (content.indexOf("\n") != -1) {
+			int index = content.indexOf("\n");
+			content.replace(index, index + 1, "\\n");
+		}
+		while (content.indexOf("\r") != -1) {
+			int index = content.indexOf("\r");
+			content.replace(index, index + 1, "\\r");
+		}
 
-    private static StringBuffer replaceSpecialCharacters(StringBuffer content) {
-	
- 	while (content.indexOf("\n") != -1) {
-  	    int index = content.indexOf("\n");
-  	    content.replace(index,index + 1, "\\n");
- 	}
-  	while (content.indexOf("\r") != -1) {
-  	    int index = content.indexOf("\r");
- 	    content.replace(index,index + 1, "\\r");
-  	}
-	
-	/*
-	  StringBuffer newContent = new StringBuffer();
-	  for (int i = 0; i < content.length(); i++) {
-	  char thisChar = content.charAt(i);
-	  newContent.append("\\u" + UnicodeFormatter.charToHex(thisChar));
-	  }
-
-	  return newContent;
-	*/
-
-	return content;
-    }
-
-    /**
-     * Reads a language file and returns the contents in
-     * a TranslateTableModel.
-     * @param tableModel Empty table
-     * @param locale Language locale, normaly two letters (for example de for german)
-     * @return TranslateTableModel with content from language file
-     */
-    public static TranslateTableModel readLanguageFile(TranslateTableModel tableModel, File file) {	
-	String content = ReadAccess.readFile(file);
-	String originalText = new String();
-	String translatedText = new String();
-	int cursor = 0;
-	int positions[] ={0, 0, 0, 0};
-	tableModel.setRowCount(0);
-
-	while (cursor != -1) {
-	    for (int i = 0; i < 4; i++) {
-		positions[i] = content.indexOf("\"", cursor + 1);
-		cursor = positions[i];
-		if (cursor == -1) break;
-	    }
-	    
-	    if (positions[0] != -1 &&
-		positions[1] != -1 &&
-		positions[2] != -1 &&
-		positions[3] != -1) {
-		String row[] = {new String(content.substring(positions[0] + 1, positions[1])), 
-				new String(content.substring(positions[2] + 1, positions[3]))};
-		tableModel.addRow(row);
-		System.out.println(row[0] + " --- " + row[1]);
-	    }
+		return content;
 	}
 
-	return tableModel;
-    }
+	/**
+	 * Reads a language file and returns the contents in
+	 * a TranslateTableModel.
+	 * @param tableModel Empty table
+	 * @param locale Language locale, normaly two letters (for example de for german)
+	 * @return TranslateTableModel with content from language file
+	 */
+	public static TranslateTableModel readLanguageFile(
+		TranslateTableModel tableModel,
+		File file) {
+		String content = ReadAccess.readFile(file);
+		String originalText = new String();
+		String translatedText = new String();
+		int cursor = 0;
+		int positions[] = { 0, 0, 0, 0 };
+		tableModel.setRowCount(0);
+
+		while (cursor != -1) {
+			for (int i = 0; i < 4; i++) {
+				positions[i] = content.indexOf("\"", cursor + 1);
+				cursor = positions[i];
+				if (cursor == -1)
+					break;
+			}
+
+			if (positions[0] != -1
+				&& positions[1] != -1
+				&& positions[2] != -1
+				&& positions[3] != -1) {
+				String row[] =
+					{
+						new String(
+							content.substring(positions[0] + 1, positions[1])),
+						new String(
+							content.substring(positions[2] + 1, positions[3]))};
+				tableModel.addRow(row);
+				System.out.println(row[0] + " --- " + row[1]);
+			}
+		}
+
+		return tableModel;
+	}
 
 }
