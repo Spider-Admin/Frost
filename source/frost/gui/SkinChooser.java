@@ -6,34 +6,16 @@
  */
 package frost.gui;
 
-import java.awt.BorderLayout;
-import java.awt.Component;
-import java.awt.Dimension;
-import java.awt.GridBagConstraints;
-import java.awt.GridBagLayout;
-import java.awt.Insets;
-import java.awt.event.ActionEvent;
-import java.awt.event.ActionListener;
-import java.io.File;
-import java.io.IOException;
-import java.util.Collection;
-import java.util.Collections;
-import java.util.LinkedList;
-import java.util.ResourceBundle;
+import java.awt.*;
+import java.awt.Window;
+import java.awt.event.*;
+import java.io.*;
+import java.util.*;
 
-import javax.swing.JButton;
-import javax.swing.JLabel;
-import javax.swing.JList;
-import javax.swing.JPanel;
-import javax.swing.JScrollPane;
-import javax.swing.SwingConstants;
-import javax.swing.SwingUtilities;
-import javax.swing.UnsupportedLookAndFeelException;
-import javax.swing.event.ListSelectionEvent;
-import javax.swing.event.ListSelectionListener;
+import javax.swing.*;
+import javax.swing.event.*;
 
-import com.l2fprod.gui.plaf.skin.Skin;
-import com.l2fprod.gui.plaf.skin.SkinLookAndFeel;
+import com.l2fprod.gui.plaf.skin.*;
 
 /**
  * Swing component to choose among the available Skins
@@ -44,7 +26,7 @@ public class SkinChooser extends JPanel {
 	private static final String BUNDLE_CLASS = "res.LangRes"; //Class that has messages in the currently selected language
 
 	/**
-	 * Inner class to handle all the events
+	 * Inner class to handle all the events 
 	 */
 	public class EventHandler implements ActionListener, ListSelectionListener {
 
@@ -72,9 +54,6 @@ public class SkinChooser extends JPanel {
 
 	EventHandler eventHandler = new EventHandler();
 
-	private Component rootComponent = null;
-	private ResourceBundle languageBundle = null;
-
 	private JPanel buttonsPanel = null;
 	private JButton previewButton = null;
 	private JButton refreshButton = null;
@@ -82,9 +61,10 @@ public class SkinChooser extends JPanel {
 	private JLabel availableSkinsLabel = null;
 	private JScrollPane listScrollPane = null;
 	private JList skinsList = null;
-
-	private Component localRootComponent = null;
+	
+	private ResourceBundle languageBundle = null;
 	private boolean noSkinsFound = true;
+	private LookAndFeel initialLookAndFeel = null;
 
 	/**
 	 * 	Constructor
@@ -94,15 +74,6 @@ public class SkinChooser extends JPanel {
 		initialize();
 	}
 
-	/**
-	 * This method must be called before using the component. The root component is the component
-	 * that is used to update the whole UI when the user wants to preview the skin he has selected
-	 * 
-	 * @param rootComponent root component to update when the user wants to preview the skin
-	 */
-	public void setRootComponent(Component rootComponent) {
-		this.rootComponent = rootComponent;
-	}
 	/**
 	 * Return the LanguageBundle property value.
 	 * @return java.util.ResourceBundle
@@ -130,8 +101,18 @@ public class SkinChooser extends JPanel {
 		add(getLabelPanel(), "West");
 
 		initConnections();
+		storeLookAndFeelState();
 		refreshSkinsList();
 	}
+	
+	/**
+	 * Stores the state of the Look And Feel system
+	 */
+	private void storeLookAndFeelState() {
+		initialLookAndFeel = UIManager.getLookAndFeel();
+		//TODO: Incomplete. Must store more information (the skin if the previous l&f was already skinlf)
+	}
+	
 
 	/**
 	 * Return the SkinsList property value.
@@ -145,7 +126,27 @@ public class SkinChooser extends JPanel {
 		}
 		return skinsList;
 	}
-
+	
+	/**
+	 * Return the full path of the selected skin. 
+	 * @return java.lang.String the path of the skin, or null if no skin was selected
+	 */
+	public String getSelectedSkinPath() {
+		if (getSkinsList().getSelectedIndex() == -1) {
+			return null; //No selection
+		} else {
+			return getSkinsList().getSelectedValue().toString();
+		}
+	}
+	
+	/**
+	 * Selects a skin from the list. If the skin passed as parameter is not on the list,
+	 * this request is simply ignored
+	 * @param skinPath the absolute path of the skin to select
+	 */
+	public void selectSkin(String skinPath) {
+		getSkinsList().setSelectedValue(skinPath, true);
+	}
 	/**
 	 * Initializes event connections
 	 */
@@ -166,11 +167,15 @@ public class SkinChooser extends JPanel {
 				Skin selectedSkin = SkinLookAndFeel.loadThemePack(selectedItem);
 				SkinLookAndFeel.setSkin(selectedSkin);
 				SkinLookAndFeel.enable();
-				SwingUtilities.updateComponentTreeUI(rootComponent);
-				//The following is done because if the rootComponent is a frame and the SkinChooser is in a dialog 
-				//(as is the case in frost) an update of the frame UI tree will not update that dialog.
-				if (getLocalRootComponent() != rootComponent) {
-					SwingUtilities.updateComponentTreeUI(getLocalRootComponent());
+				Frame[] appFrames = Frame.getFrames();
+				for (int i = 0; i < appFrames.length; i++) {	//Loop to update all the frames
+					SwingUtilities.updateComponentTreeUI(appFrames[i]);
+					Window[] ownedWindows = appFrames[i].getOwnedWindows();
+					for (int j = 0; j < ownedWindows.length; j++) {	//Loop to update the dialogs
+						if (ownedWindows[j] instanceof Dialog) {
+							SwingUtilities.updateComponentTreeUI(ownedWindows[j]); 
+						}
+					}
 				}
 			} catch (UnsupportedLookAndFeelException exception) {
 				System.out.println("Exception while activating the skin: \n" + exception.getMessage() + "\n");
@@ -192,7 +197,6 @@ public class SkinChooser extends JPanel {
 			javax.swing.JFrame frame = new javax.swing.JFrame();
 			SkinChooser aSkinChooser;
 			aSkinChooser = new SkinChooser();
-			aSkinChooser.setRootComponent(frame);
 			frame.setContentPane(aSkinChooser);
 			frame.setSize(600, 200);
 			frame.addWindowListener(new java.awt.event.WindowAdapter() {
@@ -221,7 +225,7 @@ public class SkinChooser extends JPanel {
 	/**
 	 *	Refreshes the list of available skins
 	 */
-	private void refreshSkinsList() {
+	public void refreshSkinsList() {
 		LinkedList skinsListData = new LinkedList();
 		try {
 			buildSkinsList(skinsListData, new File(THEMES_DIR));
@@ -420,24 +424,27 @@ public class SkinChooser extends JPanel {
 			getPreviewButton().setEnabled(false);
 		}
 	}
-
+	
 	/**
-	 * Obtains the root component of the current component
-	 * 
-	 * @return description the root component of this panel
+	 * Reverts the L&F state to the one when this component was created
 	 */
-	private Component getLocalRootComponent() {
-		if (localRootComponent == null) {
-			localRootComponent = SwingUtilities.getRoot(this);
+	public void undoPreview() {
+		try {
+			UIManager.setLookAndFeel(initialLookAndFeel);
+//			TODO: Incomplete. Must restore more information (the skin if the previous l&f was already skinlf)
+			Frame[] appFrames = Frame.getFrames();
+			for (int i = 0; i < appFrames.length; i++) { //Loop to update all the frames
+				SwingUtilities.updateComponentTreeUI(appFrames[i]);
+				Window[] ownedWindows = appFrames[i].getOwnedWindows();
+				for (int j = 0; j < ownedWindows.length; j++) { //Loop to update the dialogs
+					if (ownedWindows[j] instanceof Dialog) {
+						SwingUtilities.updateComponentTreeUI(ownedWindows[j]);
+					}
+				}
+			}
+		} catch (UnsupportedLookAndFeelException exception) { //This exception will never be throwed, but just in case...
+			System.out.println("There was an exception when restoring the state of the Look and Feel: \n" + exception.getMessage());
 		}
-		return localRootComponent;
 	}
-	/**
-	 * description
-	 * 
-	 * @param localRootComponent description
-	 */
-	private void setLocalRootComponent(Component localRootComponent) {
-		this.localRootComponent = localRootComponent;
-	}
+
 }
