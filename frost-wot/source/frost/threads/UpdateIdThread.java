@@ -175,17 +175,15 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                                 .append(index)
                                                 .append(".idx").toString();
             File target = new File(filename);
-            if( DEBUG ) System.out.println("FILEDN: Requesting index " + index);
-
             // First look if this keyfile has already been downloaded
             // and increase the index until we found the last index
             if( target.isFile() && target.length() > 0 )
             {
-                if( DEBUG ) System.out.println("FILEDN: Keyfile " + index + " existed, skipping download");
                 index++;
             }
             else
             {
+                if( DEBUG ) System.out.println("FILEDN: Requesting index " + index);
                 // Download the keyfile
                 FcpRequest.getFile(requestKey + index + ".idx.zip",
                                    "Unknown",

@@ -118,6 +118,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     JButton saveMessageButton= null;
     JButton trustButton= null;
     JButton notTrustButton= null;
+    JButton checkTrustButton = null;
     JButton tofUpdateButton = null;
 
     JButton uploadAddFilesButton = null;
@@ -521,6 +522,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         this.saveMessageButton= new JButton(new ImageIcon(frame1.class.getResource("/data/save.gif")));
         this.trustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/trust.gif")));
         this.notTrustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/nottrust.gif")));
+        this.checkTrustButton= new JButton(new ImageIcon(frame1.class.getResource("/data/search.gif")));
 
         configureButton(tofNewMessageButton, "New message", "/data/newmessage_rollover.gif");
         configureButton(tofUpdateButton, "Update", "/data/update_rollover.gif");
@@ -530,6 +532,7 @@ public class frame1 extends JFrame implements ClipboardOwner
         configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif");
         configureButton(trustButton, "Trust", "/data/trust_rollover.gif");
         configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif");
+        configureButton(checkTrustButton, "Observe / CHECK", "/data/search_rollover.gif");
 
 // add action listener to buttons
         tofUpdateButton.addActionListener(new java.awt.event.ActionListener() {
@@ -565,6 +568,10 @@ public class frame1 extends JFrame implements ClipboardOwner
            public void actionPerformed(ActionEvent e) {
                notTrustButton_actionPerformed(e);
            } });
+       checkTrustButton.addActionListener(new java.awt.event.ActionListener() {
+           public void actionPerformed(ActionEvent e) {
+               checkTrustButton_actionPerformed(e);
+           } });
 // build buttons panel
         JPanel tofTopPanel = new JPanel();
         BoxLayout dummyLayout = new BoxLayout(tofTopPanel, BoxLayout.X_AXIS);
@@ -583,6 +590,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         tofTopPanel.add(downloadBoardsButton); // TOF/ Download Boards
         tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add(trustButton); //TOF /trust
+        tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
+        tofTopPanel.add(checkTrustButton); //TOF /check trust
         tofTopPanel.add( Box.createRigidArea(new Dimension(8,0)));
         tofTopPanel.add(notTrustButton); //TOF /do not trust
         tofTopPanel.add( Box.createHorizontalGlue() );
@@ -867,6 +876,7 @@ public class frame1 extends JFrame implements ClipboardOwner
     searchAllBoardsCheckBox.setSelected(true);
     trustButton.setEnabled(false);
     notTrustButton.setEnabled(false);
+    checkTrustButton.setEnabled(false);
 
     //check whether the user is running a transient node
     FcpConnection con1 = null;
@@ -1647,31 +1657,60 @@ public class frame1 extends JFrame implements ClipboardOwner
      */
     private class Truster extends Thread
     {
-        private boolean trust;
+        private Boolean trust;
         private Identity newFriend;
         private VerifyableMessageObject currentMsg;
 
-        public Truster(boolean what)
+        public Truster(Boolean what, VerifyableMessageObject msg)
         {
             trust=what;
-            try {
-                currentMsg= selectedMessage.copy();
-            }
-            catch( Exception e ) {
-                System.out.println(e.toString());
-            }
+            currentMsg = msg;
         }
 
         public void run()
         {
-            System.out.println("Truster: starting to update messages, setting '"+currentMsg.getFrom()+"' to '"+
-                               ((trust==true)?"GOOD":"BAD")+"'");
+            String from = currentMsg.getFrom();
+            String newState;
 
-            newFriend = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
-            if( trust )
-                friends.Add(newFriend);
+            if( trust == null )  newState = "CHECK";
+            else if( trust.booleanValue() == true ) newState = "GOOD";
+            else newState = "BAD";
+
+            System.out.println("Truster: starting to update messages, setting '"+
+                               from+
+                               "' to '"+
+                               newState);
+
+
+            if( trust == null )
+            {
+                // set enemy/friend to CHECK
+                friends.remove( from );
+                enemies.remove( from );
+            }
+            else if( friends.containsKey(from) && trust.booleanValue() == false )
+            {
+                // set friend to bad
+                Identity o = friends.Get(from);
+                friends.remove( from );
+                enemies.Add( o );
+            }
+            else if( enemies.containsKey(from) && trust.booleanValue() == true )
+            {
+                // set enemy to good
+                Identity o = enemies.Get(from);
+                enemies.remove( o );
+                friends.Add( o );
+            }
             else
-                enemies.Add(newFriend);
+            {
+                // new new enemy/friend
+                newFriend = new Identity(currentMsg.getFrom(), currentMsg.getKeyAddress());
+                if( trust.booleanValue() )
+                    friends.Add(newFriend);
+                else
+                    enemies.Add(newFriend);
+            }
 
             // get all .txt files in keypool
             ArrayList entries = FileAccess.getAllEntries( new File(frame1.frostSettings.getValue("keypool.dir")),
@@ -1680,9 +1719,16 @@ public class frame1 extends JFrame implements ClipboardOwner
             {
                 FrostMessageObject tempMsg = new FrostMessageObject( (File)entries.get(ii) );
                 if( tempMsg.getFrom().equals(currentMsg.getFrom()) &&
-                    tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
+                    (
+                      tempMsg.getStatus().trim().equals(VerifyableMessageObject.PENDING) ||
+                      tempMsg.getStatus().trim().equals(VerifyableMessageObject.VERIFIED) ||
+                      tempMsg.getStatus().trim().equals(VerifyableMessageObject.FAILED)
+                    )
+                  )
                 {
-                    if( trust )
+                    if( trust == null )
+                        tempMsg.setStatus(VerifyableMessageObject.PENDING);
+                    else if( trust.booleanValue() )
                         tempMsg.setStatus(VerifyableMessageObject.VERIFIED);
                     else
                         tempMsg.setStatus(VerifyableMessageObject.FAILED);
@@ -1697,7 +1743,7 @@ public class frame1 extends JFrame implements ClipboardOwner
                         tofTree_actionPerformed(null);
                     } });
             System.out.println("Truster: finished to update messages, set '"+currentMsg.getFrom()+"' to '"+
-                               ((trust==true)?"GOOD":"BAD")+"'");
+                               newState+"'");
         }
     }
 
@@ -1960,26 +2006,29 @@ public class frame1 extends JFrame implements ClipboardOwner
                 tofReplyButton.setEnabled(true);
             }
 
-            if( selectedMessage.getStatus().trim().compareTo(VerifyableMessageObject.PENDING) == 0 )
+            if( selectedMessage.getStatus().trim().equals(VerifyableMessageObject.PENDING) )
             {
                 trustButton.setEnabled(true);
                 notTrustButton.setEnabled(true);
+                checkTrustButton.setEnabled(false);
             }
-            else if( selectedMessage.getStatus().trim().compareTo(VerifyableMessageObject.VERIFIED) ==0 )
+            else if( selectedMessage.getStatus().trim().equals(VerifyableMessageObject.VERIFIED) )
             {
                 trustButton.setEnabled(false);
                 notTrustButton.setEnabled(true);
+                checkTrustButton.setEnabled(true);
             }
-            else if( selectedMessage.getStatus().trim().compareTo(VerifyableMessageObject.VERIFIED) ==0
-                     && enemies.containsKey(selectedMessage.getFrom()) )
+            else if( selectedMessage.getStatus().trim().equals(VerifyableMessageObject.FAILED) )
             {
                 trustButton.setEnabled(true);
                 notTrustButton.setEnabled(false);
+                checkTrustButton.setEnabled(true);
             }
             else
             {
                 trustButton.setEnabled(false);
                 notTrustButton.setEnabled(false);
+                checkTrustButton.setEnabled(false);
             }
 
             String content = selectedMessage.getContent();
@@ -2908,8 +2957,6 @@ public class frame1 extends JFrame implements ClipboardOwner
 
     private void trustButton_actionPerformed(ActionEvent e)
     {
-        trustButton.setEnabled(false);
-        notTrustButton.setEnabled(false);
         if( selectedMessage!=null )
         {
             if( enemies.containsKey(selectedMessage.getFrom()) )
@@ -2919,25 +2966,23 @@ public class frame1 extends JFrame implements ClipboardOwner
                               selectedMessage.getFrom().substring(0,selectedMessage.getFrom().indexOf("@")) +
                               " ? \n If you choose yes, future messages from this user will be marked GOOD",
                               "re-grant trust",
-                              JOptionPane.YES_NO_OPTION) ==0 )
+                              JOptionPane.YES_NO_OPTION) != 0 )
                 {
-                    Identity x = enemies.Get(selectedMessage.getFrom());
-                    enemies.remove(selectedMessage.getFrom());
-                    friends.Add(x);
+                    return;
                 }
             }
             else
             {
-                Truster truster = new Truster(true);
-                truster.start();
+                new Truster(new Boolean(true), selectedMessage).start();
             }
         }
+        trustButton.setEnabled(false);
+        notTrustButton.setEnabled(false);
+        checkTrustButton.setEnabled(false);
     }
 
     private void notTrustButton_actionPerformed(ActionEvent e)
     {
-        trustButton.setEnabled(false);
-        notTrustButton.setEnabled(false);
         if( selectedMessage!=null )
         {
             if( friends.containsKey(selectedMessage.getFrom()) )
@@ -2947,18 +2992,29 @@ public class frame1 extends JFrame implements ClipboardOwner
                           selectedMessage.getFrom().substring(0,selectedMessage.getFrom().indexOf("@")) +
                           " ? \n If you choose yes, future messages from this user will be marked BAD",
                           "revoke trust",
-                          JOptionPane.YES_NO_OPTION) ==0 )
+                          JOptionPane.YES_NO_OPTION) != 0 )
                 {
-                    Identity x = friends.Get(selectedMessage.getFrom());
-                    friends.remove(selectedMessage.getFrom());
-                    enemies.Add(x);
+                    return;
                 }
             }
             else
             {
-                Truster truster = new Truster(false);
-                truster.start();
+                new Truster(new Boolean(false), selectedMessage).start();
             }
+        }
+        trustButton.setEnabled(false);
+        notTrustButton.setEnabled(false);
+        checkTrustButton.setEnabled(false);
+    }
+
+    private void checkTrustButton_actionPerformed(ActionEvent e)
+    {
+        trustButton.setEnabled(false);
+        notTrustButton.setEnabled(false);
+        checkTrustButton.setEnabled(false);
+        if( selectedMessage!=null )
+        {
+            new Truster(null, selectedMessage).start();
         }
     }
 

@@ -60,6 +60,7 @@ public class Startup
         checkDirectories();
         copyFiles();
         cleanTempDir();
+        deleteObsoleteFiles();
     }
 
     // Copy some files from the jar file, if they don't exists
@@ -145,5 +146,22 @@ public class Startup
                 entry.delete();
             }
         }
+    }
+
+    /**
+     * - delete all .key files in frost dir (not recursive)
+     */
+    private static void deleteObsoleteFiles()
+    {
+        File[] entries = new File(".").listFiles();
+        for( int i = 0; i < entries.length; i++ )
+        {
+            File entry = entries[i];
+            if( entry.isDirectory() == false && entry.getName().endsWith(".key") )
+            {
+                entry.delete();
+            }
+        }
+
     }
 }

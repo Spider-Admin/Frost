@@ -12,12 +12,6 @@ import javax.swing.tree.*;
 import frost.*;
 import frost.gui.objects.*;
 
-// +++ settings per board: <config maxmessagedays="5" showsignedonly="true"
-//                                                    hidebad="true"
-//                                                    hidecheck="false"
-//                                                    autoupdate="true"
-//                         />
-//
 public class TofTreeXmlIO
 {
     /**************************************************
