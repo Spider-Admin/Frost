@@ -64,7 +64,7 @@ public class Core implements Savable {
 	
 	private static Set nodes = new HashSet(); //list of available nodes
 	private static Set messageSet = new HashSet(); // set of message digests
-	private static SortedSet knownBoards = new TreeSet(); //list of known boards
+	private static List knownBoards = new ArrayList(); //list of known boards
 	private static NotifyByEmailThread emailNotifier = null;
 	private Language language = null;
 	
@@ -469,7 +469,7 @@ public class Core implements Savable {
 	/**
 	 * @return list of known boards
 	 */
-	public static SortedSet getKnownBoards() {
+	public static List getKnownBoards() {
 		return knownBoards;
 	}
     
