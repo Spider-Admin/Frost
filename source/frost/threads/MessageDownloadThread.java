@@ -22,9 +22,11 @@ package frost.threads;
 import java.io.File;
 import java.util.*;
 
+import org.w3c.dom.Element;
+
 import frost.*;
 import frost.FcpTools.*;
-import frost.crypt.MetaData;
+import frost.crypt.*;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
 import frost.messages.*;
@@ -352,10 +354,14 @@ public class MessageDownloadThread
 
                             //verify the zipped message
                             byte[] plaintext = FileAccess.readByteArray(testMe);
-                            MetaData metaData = null;
+                            MetaData _metaData = null;
                             try
                             {
-                                metaData = new MetaData(plaintext, metadata);
+                            	File tempMeta = new File("tempMeta");
+                            	FileAccess.writeByteArray(metadata,tempMeta);
+                            	Element el = XMLTools.parseXmlFile(tempMeta,false).getDocumentElement();
+                            	tempMeta.delete();
+                                _metaData = MetaData.getInstance(plaintext, el);
                             }
                             catch (Throwable t)
                             {
@@ -372,10 +378,15 @@ public class MessageDownloadThread
                                 failures = 0;
                                 continue;
                             }
-
+                            	
+                            //TODO: at this point branch and process encryption metadata
+                            //differently
+                            SignMetaData metaData=null;
+                            if (_metaData.getType() == MetaData.SIGN)
+                            	metaData= (SignMetaData)_metaData;
                             //check if we have the owner already on the lists
                             String _owner =
-                                metaData.getSharer().getUniqueName();
+                                metaData.getPerson().getUniqueName();
 
                             Identity owner;
                             //check friends
@@ -389,7 +400,7 @@ public class MessageDownloadThread
                             //if still not, use the parsed id
                             if (owner == null)
                             {
-                                owner = metaData.getSharer();
+                                owner = metaData.getPerson();
                                 owner.noFiles = 0;
                                 owner.noMessages = 1;
                                 Core.getNeutral().Add(owner);
@@ -439,7 +450,7 @@ public class MessageDownloadThread
                             String metaDataHash =
                                 mixed.makeFilename(
                                     Core.getCrypto().digest(
-                                        metaData.getSharer().getKey()));
+                                        metaData.getPerson().getKey()));
                             String messageHash =
                                 mixed.makeFilename(
                                     currentMsg.getFrom().substring(

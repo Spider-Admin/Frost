@@ -29,7 +29,7 @@ import org.w3c.dom.Document;
 
 import frost.*;
 import frost.FcpTools.FcpInsert;
-import frost.crypt.MetaData;
+import frost.crypt.SignMetaData;
 import frost.gui.MessageUploadFailedDialog;
 import frost.gui.objects.FrostBoardObject;
 import frost.messages.*;
@@ -244,7 +244,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
          || message.getFrom().equals(mixed.makeFilename(Core.getMyId().getUniqueName())))  //serialization may have changed it
         {
             byte[] zipped = FileAccess.readByteArray(uploadZipFile);
-            MetaData md = new MetaData(zipped);
+            SignMetaData md = new SignMetaData(zipped);
             this.metadata = XMLTools.getRawXMLDocument(md);
         }
 

@@ -23,7 +23,7 @@ import java.util.*;
 
 import frost.*;
 import frost.FcpTools.*;
-import frost.crypt.MetaData;
+import frost.crypt.SignMetaData;
 import frost.gui.objects.FrostBoardObject;
 import frost.identities.Identity;
 import frost.messages.FrostIndex;
@@ -213,7 +213,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             if( signUpload )
             {
                 byte[] zipped = FileAccess.readByteArray(indexFile);
-                MetaData md = new MetaData(zipped);
+                SignMetaData md = new SignMetaData(zipped);
                 metadata = XMLTools.getRawXMLDocument(md);
             }
             
@@ -378,9 +378,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                         // verify the file if it is signed
                         if( fcpresults.getRawMetadata() != null ) 
                         {
-                            MetaData md; 
+                            SignMetaData md; 
                             try {
-                                md = new MetaData(zippedXml, fcpresults.getRawMetadata());
+                                md = new SignMetaData(zippedXml, fcpresults.getRawMetadata());
                             }
                             catch(Throwable t)
                             {
@@ -404,9 +404,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                             
                             String _owner = null;
                             String _pubkey =null;
-                            if (md.getSharer() != null ){
-                            	_owner = mixed.makeFilename(md.getSharer().getUniqueName());
-                            	_pubkey = md.getSharer().getKey();
+                            if (md.getPerson() != null ){
+                            	_owner = mixed.makeFilename(md.getPerson().getUniqueName());
+                            	_pubkey = md.getPerson().getKey();
                             }
                             
                             //check if metadata is proper
