@@ -30,15 +30,15 @@ public class UploadTableModel extends SortedTableModel
         LangRes.getString("Last upload"),
         LangRes.getString("Path"),
         LangRes.getString("Destination"),
-        //LangRes.getString("Key")
+        LangRes.getString("Key")
     };
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
         String.class, //LangRes.getString("Size"),
         String.class, //LangRes.getString("Last upload"),
         String.class, //LangRes.getString("Path"),
-        String.class //LangRes.getString("Destination"),
-       // String.class  //LangRes.getString("Key")
+        String.class, //LangRes.getString("Destination"),
+        String.class  //LangRes.getString("Key")
     };
 
     public UploadTableModel()
