@@ -2425,7 +2425,8 @@ public class frame1 extends JFrame implements ClipboardOwner
         synchronized(threadCountLock) {
             activeDthreads=activeDownloadThreads;
         }
-        if( activeDthreads < frostSettings.getIntValue("downloadThreads") &&
+        if( counter % 3 == 0 && // check all 3 seconds if a download could be started
+            activeDthreads < frostSettings.getIntValue("downloadThreads") &&
             downloadActivateCheckBox.isSelected() )
         {
             // choose first item

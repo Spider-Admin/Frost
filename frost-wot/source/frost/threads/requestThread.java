@@ -122,7 +122,7 @@ public class requestThread extends Thread
                 }
                 else
                 {
-                    if( DEBUG ) System.out.println("FILEDN: Download failed, but htl is too low to request it.");
+                    if( DEBUG ) System.out.println("FILEDN: Download failed (file is NOT requested).");
                 }
 
                 // set new state -> failed or waiting for another try
