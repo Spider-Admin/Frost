@@ -569,7 +569,7 @@ public class LangRes extends ListResourceBundle {
 	///
 	
 	{"NewBoardDialog.title", "Add a new board"},
-	{"NewBoardDialog.details", "Please enter the details of the new board"},
+	{"NewBoardDialog.details", "Please enter the details of the new board:"},
 	{"NewBoardDialog.name","Name:"},
 	{"NewBoardDialog.description","Description (optional):"},
 	{"NewBoardDialog.add","Add Board"}
