@@ -45,6 +45,7 @@ public class SettingsClass implements Savable {
 	
 	public static final String AUTO_SAVE_INTERVAL = "autoSaveInterval";
 	public static final String DISABLE_DOWNLOADS = "disableDownloads";
+	public static final String DOWNLOADING_ACTIVATED = "downloadingActivated";
 	public static final String LOG_FILE_SIZE_LIMIT = "logFileSizeLimit";
 	public static final String LOG_LEVEL = "logLevel";
 	public static final String LOG_TO_FILE = "logToFile";
@@ -570,7 +571,7 @@ public class SettingsClass implements Savable {
 		defaults.put("hideNAMessages", "false");
 		defaults.put("downloadDirectory", "downloads" + fs);
 		defaults.put("downloadThreads", "3");
-		defaults.put("downloadingActivated", "true");
+		defaults.put(DOWNLOADING_ACTIVATED, "true");
 		//        defaults.put("downloadMethodLeastHtl", "false");
 		//        defaults.put("downloadMethodOneByOne", "true");
 		defaults.put("downloadRestartFailedDownloads", "true");
