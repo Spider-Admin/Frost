@@ -83,8 +83,8 @@ public class insertThread extends Thread
                 result =
                     FcpInsert.putFile(
                         "CHK@",
-                        // !!! byte[] metadata !!!
                         file,
+                        null,// metadata
                         htl,
                         true, // doRedirect
                         uploadItem); // provide the uploadItem to indicate that this upload is contained in table
