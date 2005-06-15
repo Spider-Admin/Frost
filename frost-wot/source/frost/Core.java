@@ -31,6 +31,7 @@ import com.l2fprod.gui.plaf.skin.*;
 
 import frost.boards.BoardsManager;
 import frost.crypt.*;
+import frost.events.*;
 import frost.ext.JSysTrayIcon;
 import frost.fcp.*;
 import frost.fileTransfer.download.DownloadManager;
@@ -45,6 +46,7 @@ import frost.storage.*;
 import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.FlexibleObserver;
+import frost.util.gui.*;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 
@@ -56,27 +58,70 @@ import frost.util.gui.translation.Language;
  * @author $Author$
  * @version $Revision$
  */
-public class Core implements Savable {
+public class Core implements Savable, FrostEventDispatcher  {
 	
 	private static Logger logger = Logger.getLogger(Core.class.getName());
-
+	
+	private static CleanUp fileCleaner = new CleanUp("keypool", false);
+	
+	static Hashtable myBatches = new Hashtable();
+	
 	private static Core instance = new Core();
 	private static Locale locale = null;
 	
 	private static Set nodes = new HashSet(); //list of available nodes
 	private static List knownBoards = new ArrayList(); //list of known boards
 	private static NotifyByEmailThread emailNotifier = null;
+	
+	public static SettingsClass frostSettings;
+	
+	private static Crypt crypto = new FrostCrypt();
+	
+	/**
+	 * @author $Author$
+	 * @version $Revision$
+	 */
+	private class EventDispatcher {
+
+		/**
+		 * @param frostEvent
+		 */
+		public void dispatchEvent(FrostEvent frostEvent) {
+			switch(frostEvent.getId()) {
+				case FrostEvent.STORAGE_ERROR_EVENT_ID:
+					dispatchStorageErrorEvent((StorageErrorEvent) frostEvent);
+					break;
+				default:
+					logger.severe("Unknown FrostEvent received. Id: '" + frostEvent.getId() + "'");
+			}
+		}
+		
+		/**
+		 * @param errorEvent
+		 */
+		public void dispatchStorageErrorEvent(StorageErrorEvent errorEvent) {
+			StringWriter stringWriter = new StringWriter();
+			errorEvent.getException().printStackTrace(new PrintWriter(stringWriter));
+
+			if (mainFrame != null) {
+				JDialogWithDetails.showErrorDialog(mainFrame, 
+									language.getString("Saver.AutoTask.title"), 
+									errorEvent.getMessage(),
+									stringWriter.toString());
+			}
+			System.exit(3);
+		}
+				
+	}
+	
+	
+	private EventDispatcher dispatcher = new EventDispatcher();
 	private Language language = null;
 	
 	private boolean freenetIsOnline = false;
 	private boolean freenetIsTransient = false;
 	
 	private Timer timer = new Timer(true);
-
-	public static SettingsClass frostSettings;
-	static Hashtable myBatches = new Hashtable();
-
-	private static Crypt crypto = new FrostCrypt();
 	
 	private MainFrame mainFrame;
 	private BoardsManager boardsManager;
@@ -84,8 +129,6 @@ public class Core implements Savable {
 	private DownloadManager downloadManager;
 	private UploadManager uploadManager;
 	private MessagingManager messagingManager;
-	
-	private static CleanUp fileCleaner = new CleanUp("keypool", false);
 	
 	private FrostIdentities identities;
 	private String keypool;
@@ -680,7 +723,7 @@ public class Core implements Savable {
 
 		//We initialize the task that saves data
 		
-		Saver saver = new Saver(frostSettings, parentFrame);
+		StorageManager saver = new StorageManager(frostSettings, this);
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
 		saver.addAutoSavable(getMessagingManager().getMessageHashes());
@@ -782,5 +825,13 @@ public class Core implements Savable {
 			}
 			language = Language.getInstance();
 		}
+
+	/* (non-Javadoc)
+	 * @see frost.events.FrostEventDispatcher#dispatchEvent(frost.events.FrostEvent)
+	 */
+	public void dispatchEvent(FrostEvent frostEvent) {
+		dispatcher.dispatchEvent(frostEvent);
+		
 	}
+}
 
