@@ -575,7 +575,7 @@ public class MessageDownloadThread
                 {
                     SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
                     if (current.getOwner() != null) 
-                        	Index.add(current, board);
+                        	Index.getInstance().add(current, board);
                 }
                 //add all boards to the list of known boards
                 Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));

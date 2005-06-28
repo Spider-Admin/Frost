@@ -872,7 +872,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 							FrostSearchItem.STATE_NONE);
 					//FIXME: <-does this matter?
 					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-					boolean added = getDownloadModel().addDownloadItem(dlItem);
+					boolean added = downloadModel.addDownloadItem(dlItem);
 				}
 
 			} else {
@@ -886,7 +886,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 							sfo,
 							FrostSearchItem.STATE_NONE);
 					FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-					boolean added = getDownloadModel().addDownloadItem(dlItem);
+					boolean added = downloadModel.addDownloadItem(dlItem);
 				}
 			}
 		}
@@ -2460,13 +2460,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 	}
 
-	/**
-	 * @return
-	 */
-	public DownloadModel getDownloadModel() {
-		return downloadModel;
-	}
-	
 	/**
 	 * @return
 	 */

@@ -194,7 +194,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		logger.info("FILEDN: UpdateIdThread.makeIndexFile for " + board.getName());
 
         // Calculate the keys to be uploaded
-        Map files = Index.getUploadKeys(board.getBoardFilename());
+        Map files = Index.getInstance().getUploadKeys(board.getBoardFilename());
         
 		if (files == null)
 			return null;
@@ -490,11 +490,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							// add only files from that user     
 							String _sharer = sharer == null ? "Anonymous" : sharer.getUniqueName();
 							logger.info("adding only files from " + _sharer);
-							Index.add(receivedIndex, board, _sharer);
+							Index.getInstance().add(receivedIndex, board, _sharer);
 						} else {
 							// if user is, add all files
 							logger.info("adding all files from " + sharer.getUniqueName());
-							Index.add(unzippedTarget, board, sharer);
+							Index.getInstance().add(unzippedTarget, board, sharer);
 						}
 						target.delete();
 						unzippedTarget.delete();

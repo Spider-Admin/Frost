@@ -178,7 +178,7 @@ public class DownloadThread extends Thread {
 					newKey.setSize(newFile.length());
 					newKey.setSHA1(SHA1);
 					newKey.setDate(date);
-					Index.addMine(newKey, board);
+					Index.getInstance().addMine(newKey, board);
 				}
 
 				downloadItem.setFileSize(new Long(newFile.length()));
