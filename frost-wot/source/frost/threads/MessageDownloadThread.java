@@ -27,11 +27,11 @@ import org.w3c.dom.Element;
 
 import frost.*;
 import frost.fcp.*;
+import frost.fileTransfer.Index;
 import frost.boards.TOF;
 import frost.crypt.*;
 import frost.gui.objects.Board;
 import frost.identities.*;
-import frost.identities.Identity;
 import frost.messages.*;
 import frost.messaging.MessageHashes;
 

@@ -16,12 +16,13 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost;
+package frost.fileTransfer;
 
 import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
 import frost.fileTransfer.download.*;
 import frost.gui.objects.Board;
 import frost.identities.*;
