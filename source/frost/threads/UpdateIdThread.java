@@ -24,10 +24,10 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
+import frost.fileTransfer.Index;
 import frost.crypt.SignMetaData;
 import frost.gui.objects.Board;
 import frost.identities.*;
-import frost.identities.Identity;
 import frost.messages.FrostIndex;
 import frost.messaging.MessageHashes;
 

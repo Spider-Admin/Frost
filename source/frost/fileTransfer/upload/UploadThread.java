@@ -25,6 +25,7 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
+import frost.fileTransfer.Index;
 import frost.gui.objects.Board;
 import frost.identities.LocalIdentity;
 import frost.messages.*;

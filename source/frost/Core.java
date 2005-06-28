@@ -34,9 +34,7 @@ import frost.crypt.*;
 import frost.events.*;
 import frost.ext.JSysTrayIcon;
 import frost.fcp.*;
-import frost.fileTransfer.download.DownloadManager;
-import frost.fileTransfer.search.SearchManager;
-import frost.fileTransfer.upload.UploadManager;
+import frost.fileTransfer.FileTransferManager;
 import frost.gui.Splashscreen;
 import frost.gui.objects.Board;
 import frost.identities.FrostIdentities;
@@ -47,7 +45,6 @@ import frost.threads.*;
 import frost.threads.maintenance.*;
 import frost.util.FlexibleObserver;
 import frost.util.gui.*;
-import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 
 /**
@@ -125,9 +122,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 	
 	private MainFrame mainFrame;
 	private BoardsManager boardsManager;
-	private SearchManager searchManager;
-	private DownloadManager downloadManager;
-	private UploadManager uploadManager;
+	private FileTransferManager fileTransferManager;
 	private MessagingManager messagingManager;
 	
 	private FrostIdentities identities;
@@ -574,13 +569,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 		mainFrame = new MainFrame(frostSettings);
 		getMessagingManager().initialize();
 		getBoardsManager().initialize();
-		getDownloadManager().initialize();
-		getUploadManager().initialize();
-		getSearchManager().initialize();
-		
-		//Until the downloads and uploads are fully separated from frame1:
-		mainFrame.setDownloadModel(getDownloadManager().getModel());
-		mainFrame.setUploadPanel(getUploadManager().getPanel());
+		getFileTransferManager().initialize();
 		mainFrame.initialize();
 
 		splashscreen.setText(language.getString("Wasting more time"));
@@ -597,14 +586,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 
 		//TODO: check if email notification is on and instantiate the emailNotifier
 		//of course it needs to be added as a setting first ;-p
-
-		Thread requestsThread =
-			new GetRequestsThread(
-				frostSettings.getIntValue("tofDownloadHtl"),
-				frostSettings.getValue("keypool.dir"),
-				getUploadManager().getModel(),
-				getIdentities());
-		requestsThread.start();
 		
 		initializeTasks(mainFrame);
 
@@ -628,33 +609,18 @@ public class Core implements Savable, FrostEventDispatcher  {
 	}
 
 	/**
-	 * 
+	 * @return
 	 */
-	private UploadManager getUploadManager() {
-		if (uploadManager == null) {
-			uploadManager = new UploadManager(frostSettings);
-			uploadManager.setMainFrame(mainFrame);
-			uploadManager.setTofTreeModel(getBoardsManager().getTofTreeModel());
-			uploadManager.setFreenetIsOnline(isFreenetOnline());
-			uploadManager.setMyID(getIdentities().getMyId());
+	private FileTransferManager getFileTransferManager() {
+		if (fileTransferManager == null) {
+			fileTransferManager = new FileTransferManager(frostSettings);
+			fileTransferManager.setMainFrame(mainFrame);
+			fileTransferManager.setTofTreeModel(getBoardsManager().getTofTreeModel());
+			fileTransferManager.setFreenetIsOnline(isFreenetOnline());
+			fileTransferManager.setIdentities(getIdentities());
+			fileTransferManager.setKeypool(keypool);
 		}
-		return uploadManager;
-	}
-
-	/**
-	 * 
-	 */
-	private SearchManager getSearchManager() {
-		if (searchManager == null) {
-			searchManager = new SearchManager(frostSettings);
-			searchManager.setMainFrame(mainFrame);
-			searchManager.setDownloadModel(getDownloadManager().getModel());
-			searchManager.setUploadModel(getUploadManager().getModel());
-			searchManager.setTofTreeModel(getBoardsManager().getTofTreeModel());
-			searchManager.setKeypool(keypool);
-			searchManager.setIdentities(getIdentities());
-		}
-		return searchManager;
+		return fileTransferManager;
 	}
 	
 	/**
@@ -680,18 +646,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return boardsManager;
 	}
 	
-	/**
-	 * 
-	 */
-	private DownloadManager getDownloadManager() {
-		if (downloadManager == null) {
-			downloadManager = new DownloadManager(frostSettings);
-			downloadManager.setMainFrame(mainFrame);
-			downloadManager.setFreenetIsOnline(isFreenetOnline());
-		}
-		return downloadManager;
-	}
-
 	/**
 	 * @param parentFrame the frame that will be the parent of any
 	 * 			dialog that has to be shown in case an error happens
@@ -728,14 +682,12 @@ public class Core implements Savable, FrostEventDispatcher  {
 		saver.addAutoSavable(getIdentities());
 		saver.addAutoSavable(getMessagingManager().getMessageHashes());
 		saver.addAutoSavable(getBoardsManager().getTofTree());
-		saver.addAutoSavable(getDownloadManager().getModel());
-		saver.addAutoSavable(getUploadManager().getModel());
+		saver.addAutoSavable(getFileTransferManager());
 		saver.addExitSavable(this);
 		saver.addExitSavable(getIdentities());
 		saver.addExitSavable(getMessagingManager().getMessageHashes());
 		saver.addExitSavable(getBoardsManager().getTofTree());
-		saver.addExitSavable(getDownloadManager().getModel());
-		saver.addExitSavable(getUploadManager().getModel());
+		saver.addExitSavable(getFileTransferManager());
 		saver.addExitSavable(frostSettings);
 					
 		// We initialize the task that helps requests of friends
