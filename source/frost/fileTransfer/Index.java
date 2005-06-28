@@ -28,17 +28,52 @@ import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.messages.*;
 
+/**
+ * @author $Author$
+ * @version $Revision$
+ */
 public class Index {
-
+	
+	private static Logger logger = Logger.getLogger(Index.class.getName());
+	
 	private static final String fileSeparator = System.getProperty("file.separator");
 	
-	/** 
-	 * Calculates keys that should be uploaded to the keyindex
-	 * @param board The boardsname (in filename type)
-	 * @return Vector with SharedFileObject objects
+	private static boolean initialized = false;
+	
+	private DownloadModel downloadModel;
+	
+	/**
+	 * The unique instance of this class.
 	 */
+	private static Index instance = null;
+	
+	/**
+	 * Return the unique instance of this class.
+	 *
+	 * @return the unique instance of this class
+	 */
+	public static Index getInstance() {
+		return instance;
+	}
 
-	private static Logger logger = Logger.getLogger(Index.class.getName());
+	/**
+	 * Prevent instances of this class from being created from the outside.
+	 */
+	private Index(DownloadModel downloadModel) {
+		super();
+		this.downloadModel = downloadModel;
+	}
+	
+	/**
+	 * This method initializes the Index.
+	 * If it has already been initialized, this method does nothing.
+	 */
+	public static void initialize(DownloadModel downloadModel) {
+		if (!initialized) {
+			initialized = true;
+			instance = new Index(downloadModel);
+		}
+	}
 
 	/**
 	 * Adds a keyfile to another counts the number of files shared
@@ -49,7 +84,7 @@ public class Index {
 	 */
 	//REDFLAG: this method is called only from UpdateIdThread and that's why
 	//I put the accounting for trustmap here.  Be careful when you change it!!
-	private static void add(File keyfile, File target, Identity owner) {
+	private void add(File keyfile, File target, Identity owner) {
 		try {
 			if (!target.exists())
 				target.createNewFile();
@@ -83,7 +118,7 @@ public class Index {
 	 * @param target the already existing keyfile
 	 * @param owner the unique name of the person who shared the file
 	 */
-	private static void add(File keyfile, File target, String owner) {
+	private void add(File keyfile, File target, String owner) {
 		try {
 			if (!target.exists())
 				target.createNewFile();
@@ -103,7 +138,7 @@ public class Index {
 	 * @param board
 	 * @param owner
 	 */
-	public static void add(File keyFile, Board board, Identity owner) {
+	public void add(File keyFile, Board board, Identity owner) {
 		add(
 			keyFile,
 			new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "files.xml"),
@@ -114,7 +149,7 @@ public class Index {
 	 * @param a
 	 * @param b
 	 */
-	private static void add(FrostIndex a, File b) {
+	private void add(FrostIndex a, File b) {
 		add(a.getFilesMap(), b);
 	}
 	/**
@@ -122,7 +157,7 @@ public class Index {
 	 * @param b
 	 * @param owner
 	 */
-	private static void add(FrostIndex a, File b, String owner) {
+	private void add(FrostIndex a, File b, String owner) {
 		add(a.getFilesMap(), b, owner);
 	}
 
@@ -131,7 +166,7 @@ public class Index {
 	 * @param b
 	 * @param owner
 	 */
-	public static void add(FrostIndex a, Board b, String owner) {
+	public void add(FrostIndex a, Board b, String owner) {
 		add(
 			a.getFilesMap(),
 			new File(MainFrame.keypool + b.getBoardFilename() + File.separator + "files.xml"),
@@ -144,7 +179,7 @@ public class Index {
 	 * @param target directory containing index
 	 * @param firstLetter identifier for the keyfile
 	 */
-	private static void add(Map chunk, File target) {
+	private void add(Map chunk, File target) {
 		//final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
 		//        final String fileSeparator = System.getProperty("file.separator");
 		//final Map whole = Collections.synchronizedMap(new HashMap());
@@ -182,7 +217,7 @@ public class Index {
 	 * @param target
 	 * @param owner
 	 */
-	private static void add(Map chunk, File target, String owner) {
+	private void add(Map chunk, File target, String owner) {
 
 		if (owner == null)
 			owner = "Anonymous";
@@ -224,7 +259,7 @@ public class Index {
 	 * @param key the key to add to the index
 	 * @param target directory containing index
 	 */
-	private static void add(SharedFileObject key, File target) {
+	private void add(SharedFileObject key, File target) {
 		//final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
 		//final String fileSeparator = System.getProperty("file.separator");
 		final String hash = key.getSHA1();
@@ -258,7 +293,7 @@ public class Index {
 	 * @param key
 	 * @param board
 	 */
-	public static void add(SharedFileObject key, Board board) {
+	public void add(SharedFileObject key, Board board) {
 		//final String fileSeparator = System.getProperty("file.separator");
 		File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
 
@@ -275,7 +310,7 @@ public class Index {
 	 * @param key
 	 * @param board
 	 */
-	public static void addMine(SharedFileObject key, Board board) {
+	public void addMine(SharedFileObject key, Board board) {
 		//final String fileSeparator = System.getProperty("file.separator");
 		File boardDir = new File(MainFrame.keypool + board.getBoardFilename());
 
@@ -289,7 +324,7 @@ public class Index {
 	 * @param board
 	 * @return
 	 */
-	public static Map getUploadKeys(String board) {
+	public Map getUploadKeys(String board) {
 
 		boolean reSharing = false;
 		boolean newFiles = false;
@@ -382,7 +417,7 @@ public class Index {
 	/**
 	 * @param key
 	 */
-	private static void updateDownloadTable(SharedFileObject key) {
+	private void updateDownloadTable(SharedFileObject key) {
 		//this really shouldn't happen
 		if (key == null || key.getSHA1() == null) {
 			logger.warning("null value in index.updateDownloadTable");
@@ -393,9 +428,8 @@ public class Index {
 			return;
 		}
 
-		DownloadModel dlModel = (DownloadModel) MainFrame.getInstance().getDownloadModel();
-		for (int i = 0; i < dlModel.getItemCount(); i++) {
-			FrostDownloadItem dlItem = (FrostDownloadItem) dlModel.getItemAt(i);
+		for (int i = 0; i < downloadModel.getItemCount(); i++) {
+			FrostDownloadItem dlItem = (FrostDownloadItem) downloadModel.getItemAt(i);
 			if (dlItem.getState() == FrostDownloadItem.STATE_REQUESTED
 				&& dlItem.getSHA1() != null
 				&& dlItem.getSHA1().compareTo(key.getSHA1()) == 0) {
