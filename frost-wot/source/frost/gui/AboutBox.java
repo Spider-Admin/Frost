@@ -105,12 +105,13 @@ public class AboutBox extends JDialogWithDetails {
 		details.append("   Thomas Mueller\n");
 		details.append("   Jim Hunziker\n");
 		details.append("   Stefan Majewski\n");
+        details.append("   Karsten Graul\n");
 		details.append("   José Manuel Arnesto\n");
 		details.append("   Roman Glebov\n\n");
 		details.append(language.getString("Windows Installer:") + "\n");
 		details.append("   Benoit Laniel\n\n");
 		details.append(language.getString("System Tray Executables:") + "\n");
-		details.append("   Jeeva S\n\n");
+		details.append("   Ingo Franzki\n\n");
 		details.append(language.getString("Translation Support:") + "\n");
 		details.append("   Rudolf Krist\n");
 		details.append("   RapHHfr\n\n");
@@ -119,7 +120,6 @@ public class AboutBox extends JDialogWithDetails {
 		details.append(language.getString("Misc code contributions:") + "\n");
 		details.append("   SuperSlut Yoda");
 		setDetailsText(details.toString());
-		
 	}
 
 	/**
