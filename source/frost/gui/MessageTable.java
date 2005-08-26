@@ -20,11 +20,11 @@ package frost.gui;
 
 import java.awt.*;
 
-import javax.swing.JTable;
-import javax.swing.table.DefaultTableCellRenderer;
+import javax.swing.*;
+import javax.swing.table.*;
 
-import frost.gui.model.MessageTableModel;
-import frost.gui.objects.FrostMessageObject;
+import frost.gui.model.*;
+import frost.gui.objects.*;
 
 public class MessageTable extends SortedTable
 {
@@ -88,6 +88,10 @@ public class MessageTable extends SortedTable
 
 			MessageTableModel model = (MessageTableModel) getModel();
 			FrostMessageObject msg = (FrostMessageObject) model.getRow(row);
+            
+            // get the original model column index (maybe columns were reordered by user) 
+            TableColumn tableColumn = getColumnModel().getColumn(column);
+            column = tableColumn.getModelIndex();
 
 			// do nice things for FROM column only
 			if (column != 1) {
@@ -115,10 +119,9 @@ public class MessageTable extends SortedTable
 			
 			setDeleted(msg.isDeleted());
 			
-			
-			
 			return this;
 		}
+
 		/* (non-Javadoc)
 		 * @see java.awt.Component#setFont(java.awt.Font)
 		 */
