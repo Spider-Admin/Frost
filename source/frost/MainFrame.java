@@ -31,6 +31,7 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.table.*;
 import javax.swing.table.DefaultTableModel;
 import javax.swing.text.JTextComponent;
 import javax.swing.tree.TreeNode;
@@ -43,6 +44,7 @@ import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.FrostSearchItem;
 import frost.fileTransfer.upload.UploadPanel;
 import frost.gui.*;
+import frost.gui.KnownBoardsFrame.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.preferences.OptionsFrame;
@@ -1105,7 +1107,45 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				// build attached boards scroll pane
 				attachedBoardsModel = new AttachedBoardTableModel();
-				boardsTable = new JTable(attachedBoardsModel);
+				boardsTable = new JTable(attachedBoardsModel) {
+                    DescColumnRenderer descColRenderer = new DescColumnRenderer();
+                    public TableCellRenderer getCellRenderer(int row, int column) {
+                        if( column == 2 ) {
+                            return descColRenderer;
+                        }
+                        return super.getCellRenderer(row, column);
+                    }
+                    // renderer that show a tooltip text, used for the description column
+                    class DescColumnRenderer extends DefaultTableCellRenderer
+                    {
+                        public Component getTableCellRendererComponent(
+                            JTable table,
+                            Object value,
+                            boolean isSelected,
+                            boolean hasFocus,
+                            int row,
+                            int column)
+                        {
+                            super.getTableCellRendererComponent(
+                                table,
+                                value,
+                                isSelected,
+                                hasFocus,
+                                row,
+                                column);
+
+                            String sval = (String)value;
+                            if( sval != null && 
+                                sval.length() > 0 )
+                            {
+                                setToolTipText(sval);
+                            } else {
+                                setToolTipText(null);
+                            }
+                            return this;    
+                        }
+                    }
+                };
 				boardsTableScrollPane = new JScrollPane(boardsTable);
 
 				fontChanged();

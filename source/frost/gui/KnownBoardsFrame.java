@@ -57,6 +57,7 @@ public class KnownBoardsFrame extends JDialog
     private SortedTable boardsTable;
     private KnownBoardsTableModel tableModel;
     private NameColumnRenderer nameColRenderer;
+    private DescColumnRenderer descColRenderer;
     
     private JSkinnablePopupMenu tablePopupMenu;
     
@@ -96,11 +97,14 @@ public class KnownBoardsFrame extends JDialog
         tableModel = new KnownBoardsTableModel();
         // add a special renderer to name column which shows the board icon
         nameColRenderer = new NameColumnRenderer();
+        descColRenderer = new DescColumnRenderer();
         boardsTable = new SortedTable( tableModel ) {
                 public TableCellRenderer getCellRenderer(int row, int column) {
-                    if( column == 0 ) 
+                    if( column == 0 ) { 
                         return nameColRenderer;
-                        
+                    } else if( column == 3 ) {
+                        return descColRenderer;
+                    }
                     return super.getCellRenderer(row, column);
             }};
         boardsTable.setRowSelectionAllowed(true);
@@ -466,7 +470,41 @@ public class KnownBoardsFrame extends JDialog
             return this;    
         }
     }
-    
+
+    class DescColumnRenderer extends DefaultTableCellRenderer
+    {
+        /* (non-Javadoc)
+         * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
+         */
+        public Component getTableCellRendererComponent(
+            JTable table,
+            Object value,
+            boolean isSelected,
+            boolean hasFocus,
+            int row,
+            int column)
+        {
+            super.getTableCellRendererComponent(
+                table,
+                value,
+                isSelected,
+                hasFocus,
+                row,
+                column);
+                
+            KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
+            if( memb.getBoardObject().getDescription() != null && 
+                memb.getBoardObject().getDescription().length() > 0 )
+            {
+                setToolTipText(memb.getBoardObject().getDescription());
+            } else {
+                setToolTipText(null);
+            }
+            
+            return this;    
+        }
+    }
+
     /**
      * 
      */
