@@ -1,5 +1,5 @@
 /*
-  frame1.java / Frost
+  MainFrame.java / Frost
   Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
   Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
 
@@ -62,8 +62,6 @@ import frost.util.gui.translation.*;
   *       - filter out enemies on read of messages
   *       - after removing a board, let actual board selected (currently if you 
   *          delete another than selected board the tofTree is updated) 
-  * @author $Author$
-  * @version $Revision$
   */
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater {
 	/**

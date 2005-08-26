@@ -39,8 +39,6 @@ import frost.util.gui.translation.Language;
 /**
  * TODO: - add thread listeners (listen to all running threads) to change the
  *         updating state (bold text in table row) on demand (from bback)
- * @author $Author$
- * @version $Revision$
  */
 public class OptionsFrame extends JDialog implements ListSelectionListener {
 	
@@ -77,7 +75,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private SettingsClass frostSettings;
 	private Language language;
 	
-	private boolean _hideBad, _hideAnon;
+//	private boolean _hideBad, _hideAnon;
 
 	private JPanel buttonPanel = null; // OK / Cancel
 	private boolean checkBlock;

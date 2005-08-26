@@ -1,5 +1,5 @@
 /*
-  mixed.java / Frost
+  Mixed.java / Frost
   Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
 
   This program is free software; you can redistribute it and/or

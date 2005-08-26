@@ -35,10 +35,6 @@ import frost.messages.BoardAttachment;
 import frost.util.gui.*;
 import frost.util.gui.translation.Language;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class KnownBoardsFrame extends JDialog
 {
 	private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());

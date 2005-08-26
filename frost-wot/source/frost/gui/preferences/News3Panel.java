@@ -1,7 +1,21 @@
 /*
- * Created on Nov 17, 2004
- * 
- */
+  News3Panel.java / Frost
+  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.gui.preferences;
 
 import java.awt.*;
@@ -14,10 +28,6 @@ import frost.SettingsClass;
 import frost.util.gui.*;
 import frost.util.gui.translation.Language;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 class News3Panel extends JPanel {
 	
 	/**
@@ -39,7 +49,6 @@ class News3Panel extends JPanel {
 				notSelectedColorPressed();
 			}
 		}
-
 	}
 
 	private SettingsClass settings = null;
@@ -307,7 +316,6 @@ class News3Panel extends JPanel {
 		
 		settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
 		settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
-		
 	}
 	
 	/**
