@@ -487,6 +487,7 @@ public class LangRes extends ListResourceBundle {
 
 	{"Core.init.NodeNotRunningBody","Make sure your node is running and that you have configured Freenet correctly.\n"
 									+ "Nevertheless, to allow you to read messages, Frost will startup now.\n"
+                                    + "Please note that automatic board updates were disabled (Menu 'News')"
 									+ "Don't get confused by some error messages ;)\n"},	
 	{"Core.init.NodeNotRunningTitle","Error - could not establish a connection to freenet node."},
 	{"Core.init.TransientNodeBody","You are running a TRANSIENT node. Better run a PERMANENT freenet node."},
