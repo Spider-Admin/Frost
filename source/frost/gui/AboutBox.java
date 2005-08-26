@@ -110,7 +110,7 @@ public class AboutBox extends JDialogWithDetails {
 		details.append("   Roman Glebov\n\n");
 		details.append(language.getString("Windows Installer:") + "\n");
 		details.append("   Benoit Laniel\n\n");
-		details.append(language.getString("System Tray Executables:") + "\n");
+		details.append(language.getString("JSysTray (Windows System Tray):") + "\n");
 		details.append("   Ingo Franzki\n\n");
 		details.append(language.getString("Translation Support:") + "\n");
 		details.append("   Rudolf Krist\n");
