@@ -445,9 +445,9 @@ public class TOF
             SwingUtilities.invokeLater( new Runnable() {
                     public void run()
                     {
-                        MainFrame.getInstance().updateTofTree(innerTargetBoard);
                         if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                         {
+                            MainFrame.getInstance().updateTofTree(innerTargetBoard);
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
                     }
@@ -559,7 +559,6 @@ public class TOF
         public void run()
         {
             Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
-            String keypool = MainFrame.keypool;
             while( e.hasMoreElements() )
             {
                 Board board = (Board)e.nextElement();
