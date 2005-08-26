@@ -109,7 +109,7 @@ public class BoardSettingsFrame extends JDialog {
 
 	private JLabel publicKeyLabel = new JLabel();
 	private JTextField publicKeyTextField = new JTextField();
-	private String returnValue;
+
 	private JRadioButton secureBoardRadioButton = new JRadioButton();
 
 	private JRadioButton signedOnly_default = new JRadioButton();

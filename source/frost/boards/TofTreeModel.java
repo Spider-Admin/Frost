@@ -85,7 +85,6 @@ public class TofTreeModel extends DefaultTreeModel {
 	 */
 	public Board getBoardByName(String boardName) {
 		Board node = (Board) getRoot();
-		Vector boards = new Vector();
 		Enumeration e = node.depthFirstEnumeration();
 		while (e.hasMoreElements()) {
 			Board child = (Board) e.nextElement();
