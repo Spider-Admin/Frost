@@ -42,10 +42,6 @@ import frost.storage.StorageException;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class MessageFrame extends JFrame
 {
 

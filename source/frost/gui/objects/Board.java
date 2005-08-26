@@ -1,5 +1,5 @@
 /*
-  FrostBoardObject.java / Frost
+  Board.java / Frost
   Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
 
   This program is free software; you can redistribute it and/or

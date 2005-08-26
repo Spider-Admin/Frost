@@ -1,5 +1,5 @@
 /*
-  AttachmentTableModel.java / Frost
+  AttachedFilesTableModel.java / Frost
   Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -26,11 +26,6 @@ import javax.swing.table.DefaultTableModel;
 import frost.messages.*;
 import frost.util.gui.translation.*;
 
-
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener
 {
 	private Language language = null;

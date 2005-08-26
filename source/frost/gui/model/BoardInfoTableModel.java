@@ -21,11 +21,6 @@ package frost.gui.model;
 
 import frost.util.gui.translation.*;
 
-
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class BoardInfoTableModel extends SortedTableModel implements LanguageListener
 {
 	private Language language = null;

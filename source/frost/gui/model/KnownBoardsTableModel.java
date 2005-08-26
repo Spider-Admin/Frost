@@ -20,10 +20,6 @@ package frost.gui.model;
 
 import frost.util.gui.translation.Language;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class KnownBoardsTableModel extends SortedTableModel
 {
 	private Language language = null;
