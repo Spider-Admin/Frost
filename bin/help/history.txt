@@ -1,3 +1,5 @@
+This is the OLD history file. Meanwhile much more was changed in Frost.
+
 2003.05.12
 - many gui fixes, new table sorters (sorted insertion)
 - redesign of source code started
