@@ -161,7 +161,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		remoteFile.delete(); // just in case it already exists
 		remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
 
-		FcpResults res = FcpRequest.getFile(key, null, remoteFile, messageUploadHtl, false, false);
+		FcpRequest.getFile(key, null, remoteFile, messageUploadHtl, false, false);
 		if (remoteFile.length() > 0) {
 			byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
 			FileAccess.writeByteArray(unzippedXml, remoteFile);
@@ -495,6 +495,61 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
 		return success;
 	}
+    
+    private String composeMsgFilename(int index) {
+        
+        return new StringBuffer().append(getDestinationBase()).append(message.getDate())
+        .append("-").append(board.getBoardFilename()).append("-").append(index).append(".xml")
+        .toString();
+    }
+    
+    /**
+     * Finds the next free index slot, starting at startIndex.
+     * If a free slot is found (no xml message exists for this index in keypool)
+     * the method reads some indicies ahead to check if it found a gap only.
+     * The final firstEmptyIndex is returned.
+     * 
+     * @param startIndex
+     * @return
+     * @throws MessageAlreadyUploadedException
+     */
+    private int findNextFreeIndex(int startIndex) throws MessageAlreadyUploadedException {
+
+        final int maxGap = 3;
+        int tryIndex = startIndex;
+        int firstEmptyIndex = -1;
+
+        logger.fine("TOFUP: Searching free index in board "+board.getBoardFilename()+", starting at index " + startIndex);
+
+        while(true) {
+
+            String testFilename = composeMsgFilename(tryIndex);
+
+            File testMe = new File(testFilename);
+            if (testMe.exists() && testMe.length() > 0) {
+                // check each existing message in board if this is the msg we want to send
+                if (checkLocalMessage(testMe)) {
+                    throw new MessageAlreadyUploadedException();
+                } else {
+                    tryIndex++;
+                    firstEmptyIndex = -1;
+                }
+            } else {
+                // a message file with this index does not exist
+                // check if there is a gap between the next existing index
+                if( firstEmptyIndex >= 0 ) {
+                    if( (tryIndex - firstEmptyIndex) > maxGap ) {
+                        break;
+                    }
+                } else {
+                    firstEmptyIndex = tryIndex;
+                }
+                tryIndex++;
+            }
+        }
+        logger.fine("TOFUP: Found free index in board "+board.getBoardFilename()+" at " + firstEmptyIndex);
+        return firstEmptyIndex;
+    }
 	
     /**
      * @return
@@ -509,77 +564,65 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         boolean error = false;
         boolean tryAgain;
         while (!success) {
-            // Does this index already exist?
-            String testFilename = new StringBuffer().append(getDestinationBase()).append(message.getDate())
-                    .append("-").append(board.getBoardFilename()).append("-").append(index).append(".xml")
-                    .toString();
-            File testMe = new File(testFilename);
-            if (testMe.exists() && testMe.length() > 0) {
-                if (checkLocalMessage(testMe)) {
-                    throw new MessageAlreadyUploadedException();
-                } else {
-                    index++;
-                }
+            // find first free index slot
+            index = findNextFreeIndex(index);
+            
+            // probably empty, check if other threads currently try to insert to this index
+            File lockRequestIndex = new File(composeMsgFilename(index) + ".lock");
+            boolean lockFileCreated = false;
+            lockFileCreated = lockRequestIndex.createNewFile();
+
+            if (lockFileCreated == false) {
+                // another thread tries to insert using this index, try next
+                index++;
+                logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
+                continue; // while
             } else {
-                // probably empty, check if other threads currently try to
-                // insert to this index
-                File lockRequestIndex = new File(testMe.getPath() + ".lock");
-                boolean lockFileCreated = false;
-                lockFileCreated = lockRequestIndex.createNewFile();
+                // we try this index
+                lockRequestIndex.deleteOnExit();
+            }
 
-                if (lockFileCreated == false) {
-                    // another thread tries to insert using this index, try next
-                    index++;
-                    logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
-                    continue; // while
-                } else {
-                    // we try this index
-                    lockRequestIndex.deleteOnExit();
-                }
+            // try to insert message
+            String[] result = new String[2];
+            String upKey = composeUpKey(index);
+            String downKey = composeDownKey(index);
 
-                // try to insert message
-                String[] result = new String[2];
-                String upKey = composeUpKey(index);
-                String downKey = composeDownKey(index);
+            try {
+                // signMetadata is null for unsigned upload. Do not do redirect (false)
+                result = FcpInsert.putFile(upKey, zipFile, signMetadata, messageUploadHtl, false);
+            } catch (Throwable t) {
+                logger.log(Level.SEVERE, "TOFUP: Error in run()/FcpInsert.putFile", t);
+            }
 
-                try {
-                    //signMetadata is null for unsigned upload. Do not do
-                    // redirect (false)
-                    result = FcpInsert.putFile(upKey, zipFile, signMetadata, messageUploadHtl, false);
-                } catch (Throwable t) {
-                    logger.log(Level.SEVERE, "TOFUP - Error in run()/FcpInsert.putFile", t);
-                }
+            if (result[0] == null || result[1] == null) {
+                result[0] = "Error";
+                result[1] = "Error";
+            }
 
-                if (result[0] == null || result[1] == null) {
-                    result[0] = "Error";
-                    result[1] = "Error";
-                }
-
-                if (result[0].equals("Success")) {
-                    success = true;
-                } else {
-                    if (result[0].equals("KeyCollision")) {
-                        if (checkRemoteFile(downKey)) {
-                            throw new MessageAlreadyUploadedException();
-                        } else {
-                            index++;
-                            logger.fine("TOFUP: Upload collided, increasing index to " + index);
-                        }
+            if (result[0].equals("Success")) {
+                success = true;
+            } else {
+                if (result[0].equals("KeyCollision")) {
+                    if (checkRemoteFile(downKey)) {
+                        throw new MessageAlreadyUploadedException();
                     } else {
-                        if (tries > maxTries) {
-                            success = true;
-                            error = true;
-                        } else {
-                            logger.info("TOFUP: Upload failed (try no. " + tries + " of " + maxTries
-                                    + "), retrying index " + index);
-                            tries++;
-                        }
+                        index++;
+                        logger.fine("TOFUP: Upload collided, increasing index to " + index);
+                    }
+                } else {
+                    if (tries > maxTries) {
+                        success = true;
+                        error = true;
+                    } else {
+                        logger.info("TOFUP: Upload failed (try no. " + tries + " of " + maxTries
+                                + "), retrying index " + index);
+                        tries++;
                     }
                 }
-                // finally delete the index lock file
-                if (lockFileCreated == true) {
-                    lockRequestIndex.delete();
-                }
+            }
+            // finally delete the index lock file
+            if (lockFileCreated == true) {
+                lockRequestIndex.delete();
             }
         }
 
