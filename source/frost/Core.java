@@ -74,10 +74,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 	
 	private static Crypt crypto = new FrostCrypt();
 	
-	/**
-	 * @author $Author$
-	 * @version $Revision$
-	 */
 	private class EventDispatcher {
 
 		/**
@@ -663,7 +659,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 			int i = 0;
 			public void run() {
 				// maybe each 6 hours cleanup files (12 * 30 minutes)
-				if (i == 12 && frostSettings.getBoolValue("doCleanUp")) {
+				if (i >= 12 && frostSettings.getBoolValue("doCleanUp")) {
 					i = 0;
 					logger.info("discarding old files");
 					fileCleaner.doCleanup();
