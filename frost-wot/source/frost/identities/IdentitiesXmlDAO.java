@@ -88,81 +88,81 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 	 * @param identities
 	 */
 	private void loadOldFormat(FrostIdentities identities, File oldFile) throws IOException {
-		BufferedReader fin = new BufferedReader(new FileReader(oldFile));
-		String name = fin.readLine();
-		String address = fin.readLine();
-		String keys[] = new String[2];
-		keys[1] = fin.readLine();
-		keys[0] = fin.readLine();
-		if (address.startsWith("CHK@") == false) {
-			// pubkey chk was not successfully computed
-			byte[] pubkeydata;
-			try {
-				pubkeydata = keys[1].getBytes("UTF-8");
-			} catch (UnsupportedEncodingException ex) {
-				pubkeydata = keys[1].getBytes();
-			}
-
-			String tmp = FecTools.generateCHK(pubkeydata);
-			address = tmp.substring(tmp.indexOf("CHK@"), tmp.indexOf("CHK@") + 58);
-			logger.info("Re-calculated my public key CHK: " + address + "\n");
-
-		}
-		LocalIdentity myId = new LocalIdentity(name, keys);
-		identities.setMyId(myId);
-		logger.info("Loaded myself with name " + myId.getName());
-
-		//take out the ****
-		fin.readLine();
-		
-		//process the friends
-		BuddyList friends = identities.getFriends();
-		boolean stop = false;
-		String key;
-		while (!stop) {
-			name = fin.readLine();
-			if (name == null || name.startsWith("***"))
-				break;
-			address = fin.readLine();
-			key = fin.readLine();
-			friends.add(new Identity(name, key));
-		}
-		logger.info("Loaded " + friends.size() + " friends");
-
-		//just the good ids
-		Hashtable goodIds = identities.getGoodIds();
-		while (!stop) {
-			String id = fin.readLine();
-			if (id == null || id.startsWith("***"))
-				break;
-			goodIds.put(id, id);
-		}
-		logger.info("Loaded " + goodIds.size() + " good ids");
-
-		//and the enemies
-		BuddyList enemies = identities.getEnemies();
-		while (!stop) {
-			name = fin.readLine();
-			if (name == null || name.startsWith("***"))
-				break;
-			address = fin.readLine();
-			key = fin.readLine();
-			enemies.add(new Identity(name, key));
-		}
-		logger.info("Loaded " + enemies.size() + " enemies");
-
-		//and the bad ids
-		Hashtable badIds = identities.getBadIds();
-		while (!stop) {
-			String id = fin.readLine();
-			if (id == null || id.startsWith("***"))
-				break;
-			badIds.put(id, id);
-		}
-		logger.info("Loaded " + badIds.size() + " bad ids");
-		if (friends.add(myId)) {
-			logger.info("Added myself to the friends list");
-		}
+//		BufferedReader fin = new BufferedReader(new FileReader(oldFile));
+//		String name = fin.readLine();
+//		String address = fin.readLine();
+//		String keys[] = new String[2];
+//		keys[1] = fin.readLine();
+//		keys[0] = fin.readLine();
+//		if (address.startsWith("CHK@") == false) {
+//			// pubkey chk was not successfully computed
+//			byte[] pubkeydata;
+//			try {
+//				pubkeydata = keys[1].getBytes("UTF-8");
+//			} catch (UnsupportedEncodingException ex) {
+//				pubkeydata = keys[1].getBytes();
+//			}
+//
+//			String tmp = FecTools.generateCHK(pubkeydata);
+//			address = tmp.substring(tmp.indexOf("CHK@"), tmp.indexOf("CHK@") + 58);
+//			logger.info("Re-calculated my public key CHK: " + address + "\n");
+//
+//		}
+//		LocalIdentity myId = new LocalIdentity(name, keys);
+//		identities.setMyId(myId);
+//		logger.info("Loaded myself with name " + myId.getName());
+//
+//		//take out the ****
+//		fin.readLine();
+//		
+//		//process the friends
+//		BuddyList friends = identities.getFriends();
+//		boolean stop = false;
+//		String key;
+//		while (!stop) {
+//			name = fin.readLine();
+//			if (name == null || name.startsWith("***"))
+//				break;
+//			address = fin.readLine();
+//			key = fin.readLine();
+//			friends.add(new Identity(name, key));
+//		}
+//		logger.info("Loaded " + friends.size() + " friends");
+//
+//		//just the good ids
+//		Hashtable goodIds = identities.getGoodIds();
+//		while (!stop) {
+//			String id = fin.readLine();
+//			if (id == null || id.startsWith("***"))
+//				break;
+//			goodIds.put(id, id);
+//		}
+//		logger.info("Loaded " + goodIds.size() + " good ids");
+//
+//		//and the enemies
+//		BuddyList enemies = identities.getEnemies();
+//		while (!stop) {
+//			name = fin.readLine();
+//			if (name == null || name.startsWith("***"))
+//				break;
+//			address = fin.readLine();
+//			key = fin.readLine();
+//			enemies.add(new Identity(name, key));
+//		}
+//		logger.info("Loaded " + enemies.size() + " enemies");
+//
+//		//and the bad ids
+//		Hashtable badIds = identities.getBadIds();
+//		while (!stop) {
+//			String id = fin.readLine();
+//			if (id == null || id.startsWith("***"))
+//				break;
+//			badIds.put(id, id);
+//		}
+//		logger.info("Loaded " + badIds.size() + " bad ids");
+//		if (friends.add(myId)) {
+//			logger.info("Added myself to the friends list");
+//		}
 	}
 	
 	/*

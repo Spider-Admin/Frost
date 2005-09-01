@@ -54,30 +54,25 @@ public class MessageDownloadThread
 	private static Logger logger = Logger.getLogger(MessageDownloadThread.class.getName());
 	private MessageHashes messageHashes;
 
-    public int getThreadType()
-    {
-        if (flagNew)
-        {
+    public int getThreadType() {
+        if (flagNew) {
             return BoardUpdateThread.MSG_DNLOAD_TODAY;
-        }
-        else
-        {
+        } else {
             return BoardUpdateThread.MSG_DNLOAD_BACK;
         }
     }
 
-    public void run()
-    {
+    public void run() {
+
         notifyThreadStarted(this);
 
-        try
-        {
-
+        try {
             String tofType;
-            if (flagNew)
+            if (flagNew) {
                 tofType = "TOF Download";
-            else
+            } else {
                 tofType = "TOF Download Back";
+            }
 
             // Wait some random time to speed up the update of the TOF table
             // ... and to not to flood the node
@@ -87,33 +82,26 @@ public class MessageDownloadThread
 
 			logger.info("TOFDN: " + tofType + " Thread started for board " + board.getName());
 
-            if (isInterrupted())
-            {
+            if (isInterrupted()) {
                 notifyThreadFinished(this);
                 return;
             }
 
             // switch public / secure board
-            if (board.isPublicBoard() == false)
-            {
+            if (board.isPublicBoard() == false) {
                 publicKey = board.getPublicKey();
                 secure = true;
-            }
-            else // public board
-                {
+            } else { // public board
                 secure = false;
             }
 
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-            if (this.flagNew)
-            {
-                // download only actual date
+            if (this.flagNew) {
+                // download only current date
                 downloadDate(cal);
-            }
-            else
-            {
+            } else {
                 // download up to maxMessages days to the past
                 GregorianCalendar firstDate = new GregorianCalendar();
                 firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
@@ -121,9 +109,9 @@ public class MessageDownloadThread
                 firstDate.set(Calendar.MONTH, 5);
                 firstDate.set(Calendar.DATE, 11);
                 int counter = 0;
-                while (!isInterrupted()
-                    && cal.after(firstDate)
-                    && counter < maxMessageDownload)
+                while (!isInterrupted() &&
+                       cal.after(firstDate) &&
+                       counter < maxMessageDownload)
                 {
                     counter++;
                     cal.add(Calendar.DATE, -1); // Yesterday
@@ -131,15 +119,15 @@ public class MessageDownloadThread
                 }
             }
 			logger.info("TOFDN: " + tofType + " Thread stopped for board " + board.getName());
-        }
-        catch (Throwable t)
-        {
+        } catch (Throwable t) {
         	logger.log(Level.SEVERE, Thread.currentThread().getName() + ": Oo. Exception in MessageDownloadThread:", t);
         }
         notifyThreadFinished(this);
     }
 
     /**Returns true if message is duplicate*/
+    // TODO:  FIXME:  the 'delete message' feature changes the XML file!
+    // hence this check will fail and the use of message hashes is'nt possible any longer!
     private boolean exists(File file)
     {
         File[] fileList = (file.getParentFile()).listFiles();
@@ -149,21 +137,16 @@ public class MessageDownloadThread
         {
             for (int i = 0; i < fileList.length; i++)
             {
-                if (!fileList[i].equals(file)
-                    && fileList[i].getName().endsWith(".sig") == false
-                    && // dont check .sig files
-                fileList[i].getName().indexOf(
-                    board.getBoardFilename())
-                        != -1
-                    && file.getName().indexOf(board.getBoardFilename()) != -1)
+                if (!fileList[i].equals(file) &&
+                    fileList[i].getName().endsWith(".sig") == false && // dont check .sig files
+                    fileList[i].getName().indexOf(board.getBoardFilename()) != -1 && 
+                    file.getName().indexOf(board.getBoardFilename()) != -1 )
                 {
-                    if (one == null) // load new file only 1 time
-                    {
+                    if (one == null) { // load new file only 1 time
                         one = FileAccess.readFile(file);
                     }
                     String two = FileAccess.readFile(fileList[i]);
-                    if (one.equals(two))
-                    {
+                    if (one.equals(two)) {
                         return true;
                     }
                 }
@@ -188,8 +171,7 @@ public class MessageDownloadThread
                 .toString();
 
         File makedir = new File(destination);
-        if (!makedir.exists())
-        {
+        if (!makedir.exists()) {
             makedir.mkdirs();
         }
 
@@ -197,12 +179,10 @@ public class MessageDownloadThread
         int index = 0;
         int failures = 0;
         int maxFailures;
-        if (flagNew)
-        {
+
+        if (flagNew) {
             maxFailures = 3; // skip a maximum of 2 empty slots for today
-        }
-        else
-        {
+        } else {
             maxFailures = 2; // skip a maximum of 1 empty slot for backload
         }
 
@@ -229,16 +209,12 @@ public class MessageDownloadThread
                         .append(".xml")
                         .toString();
                 File testMe2 = new File(val);
-                if (testMe2.length() > 0) // already downloaded
-                {
+                if (testMe2.length() > 0) { // already downloaded
                     index++;
                     failures = 0;
-                }
-                else
-                {
+                } else {
                     String downKey = null;
-                    if (secure)
-                    {
+                    if (secure) {
                         downKey =
                             new StringBuffer()
                                 .append(publicKey)
@@ -250,9 +226,7 @@ public class MessageDownloadThread
                                 .append(index)
                                 .append(".xml")
                                 .toString();
-                    }
-                    else
-                    {
+                    } else {
                         downKey =
                             new StringBuffer()
                                 .append("KSK@frost/message/")
@@ -269,8 +243,7 @@ public class MessageDownloadThread
                                 .toString();
                     }
 
-                    try
-                    {
+                    try {
                         boolean fastDownload = !flagNew;
                         // for backload use fast download, deep for today
 
@@ -282,16 +255,13 @@ public class MessageDownloadThread
                                 downloadHtl,
                                 false,
                                 fastDownload);
-                        if (res == null)
-                            metadata = null;
-                        else
+                        if (res == null) {
+                            metadata = null; // if metadata==null its NOT a signed message
+                        } else {
                             metadata = res.getRawMetadata();
-                        // TODO: if metadata==null, not signed message
-                        Mixed.wait(111);
-                        // wait some time to not to hurt the node on next retry
-                    }
-                    catch (Throwable t)
-                    {
+                        }
+                        Mixed.wait(111); // wait some time to not to hurt the node on next retry
+                    } catch (Throwable t) {
 						logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", t);
                     }
 
@@ -305,29 +275,19 @@ public class MessageDownloadThread
                         String messageId = Core.getCrypto().digest(testMe);
 
                         // Does a duplicate message exist?
-                        if (!exists(testMe)
-                            && !messageHashes.contains(messageId))
+                        if (!exists(testMe) && !messageHashes.contains(messageId))
                         {
-
                         	messageHashes.add(messageId);
 
                             //if no metadata, message wasn't signed
                             if (metadata == null)
                             {
-                                //unzip
-                                byte[] unzippedXml =
-                                    FileAccess.readZipFileBinary(testMe);
-                              //  System.out.println("flen="+testMe.length());
-                               // System.out.println("DBG='"+new String(FileAccess.readByteArray(testMe))+"'");                                
+                                byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
                                 FileAccess.writeByteArray(unzippedXml, testMe);
 
-                                try
-                                {
-                                    currentMsg =
-                                        new VerifyableMessageObject(testMe);
-                                }
-                                catch (Exception ex)
-                                {
+                                try {
+                                    currentMsg = new VerifyableMessageObject(testMe);
+                                } catch (Exception ex) {
 									logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
                                     // TODO: file could not be read, mark it invalid not to confuse gui
                                     index++;
@@ -335,8 +295,7 @@ public class MessageDownloadThread
                                 }
 
                                 //set to unsigned
-                                currentMsg.setStatus(
-                                    VerifyableMessageObject.OLD);
+                                currentMsg.setStatus(VerifyableMessageObject.OLD);
                                     
                                 // check and maybe add msg to gui
                                 addMessageToGui(currentMsg, testMe, true);
@@ -348,30 +307,24 @@ public class MessageDownloadThread
                             //verify the zipped message
                             byte[] plaintext = FileAccess.readByteArray(testMe);
                             MetaData _metaData = null;
-                            try
-                            {
+                            try {
                             	File tempMeta = new File("tempMeta");
                             	FileAccess.writeByteArray(metadata,tempMeta);
                             	Element el = XMLTools.parseXmlFile(tempMeta,false).getDocumentElement();
                             	tempMeta.delete();
                                 _metaData = MetaData.getInstance(plaintext, el);
-                            }
-                            catch (Throwable t)
-                            {
+                            } catch (Throwable t) {
                                 //TODO: metadata failed, do something
 								logger.log(Level.SEVERE, "metadata couldn't be read. " +
                                         		"Offending file saved as badmetadata.xml - send to a dev for analysis", t);
                                 File badmetadata = new File("badmetadata.xml");
-                                FileAccess.writeByteArray(
-                                    metadata,
-                                    badmetadata);
+                                FileAccess.writeByteArray(metadata, badmetadata);
                                 index++;
                                 failures = 0;
                                 continue;
                             }
                             	
-                            //TODO: at this point branch and process encryption metadata
-                            //differently
+                            //TODO: at this point branch and process encryption metadata differently
                             
                             assert _metaData.getType() == MetaData.SIGN ||
                             	_metaData.getType() == MetaData.ENCRYPT :
@@ -379,118 +332,101 @@ public class MessageDownloadThread
                             
                             //start of signed message processing
                             if (_metaData.getType() == MetaData.SIGN) {
-							SignMetaData metaData=null;
-                            	metaData= (SignMetaData)_metaData;
-                            //check if we have the owner already on the lists
-                            String _owner =
-                                metaData.getPerson().getUniqueName();
-
-                            Identity owner;
-                            //check friends
-                            owner = identities.getFriends().get(_owner);
-                            //if not, check neutral
-                            if (owner == null)
-                                owner = identities.getNeutrals().get(_owner);
-                            //if not, check enemies
-                            if (owner == null)
-                                owner = identities.getEnemies().get(_owner);
-                            //if still not, use the parsed id
-                            if (owner == null)
-                            {
-                                owner = metaData.getPerson();
-                                owner.noFiles = 0;
-                                owner.noMessages = 1;
-								identities.getNeutrals().add(owner);
-                            }
-
-                            //verify! :)
-                            boolean valid =
-                                Core.getCrypto().detachedVerify(
-                                    plaintext,
-                                    owner.getKey(),
-                                    metaData.getSig());
-
-                            //unzip
-
-                            byte[] unzippedXml =
-                                FileAccess.readZipFileBinary(testMe);
-                            FileAccess.writeByteArray(unzippedXml, testMe);
-
-                            //create object
-                            try
-                            {
-                                currentMsg =
-                                    new VerifyableMessageObject(testMe);
-                            }
-                            catch (Exception ex)
-                            {
-								logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
-                                // TODO: file could not be read, mark it invalid not to confuse gui
-                                index++;
-                                continue;
-                            }
-
-                            //then check if the signature was ok
-                            if (!valid)
-                            {
-                                currentMsg.setStatus(
-                                    VerifyableMessageObject.TAMPERED);
-                                logger.warning("TOFDN: message failed verification");
-                                addMessageToGui(currentMsg, testMe, false);    
-                                index++;
-                                continue;
-                            }
-
-                            //make sure the pubkey and from fields in the xml file are the same
-                            //as those in the metadata
-                            String metaDataHash =
-                                Mixed.makeFilename(
-                                    Core.getCrypto().digest(
-                                        metaData.getPerson().getKey()));
-                            String messageHash =
-                                Mixed.makeFilename(
-                                    currentMsg.getFrom().substring(
-                                        currentMsg.getFrom().indexOf("@") + 1,
-                                        currentMsg.getFrom().length()));
-
-                            if (!metaDataHash.equals(messageHash))
-                            {
-                                logger.warning("hash in metadata doesn't match hash in message!\n" +
-                                			   "metadata : " + metaDataHash + 
-											   " , message: " + messageHash);
-                                currentMsg.setStatus(
-                                    VerifyableMessageObject.TAMPERED);
+    							SignMetaData metaData = (SignMetaData)_metaData;
+                                //check if we have the owner already on the lists
+                                String _owner = metaData.getPerson().getUniqueName();
+    
+                                Identity owner;
+                                //check friends
+                                owner = identities.getFriends().get(_owner);
+                                //if not, check neutral
+                                if (owner == null) {
+                                    owner = identities.getNeutrals().get(_owner);
+                                }
+                                //if not, check enemies
+                                if (owner == null) {
+                                    owner = identities.getEnemies().get(_owner);
+                                }
+                                //if still not, use the parsed id
+                                if (owner == null) {
+                                    owner = metaData.getPerson();
+                                    owner.noFiles = 0;
+                                    owner.noMessages = 1;
+    								identities.getNeutrals().add(owner);
+                                }
+    
+                                //verify! :)
+                                boolean valid =
+                                    Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
+    
+                                //unzip
+                                byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
+                                FileAccess.writeByteArray(unzippedXml, testMe);
+    
+                                //create object
+                                try {
+                                    currentMsg = new VerifyableMessageObject(testMe);
+                                } catch (Exception ex) {
+    								logger.log(Level.SEVERE, "Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
+                                    // TODO: file could not be read, mark it invalid not to confuse gui
+                                    index++;
+                                    continue;
+                                }
+    
+                                //then check if the signature was ok
+                                if (!valid)
+                                {
+                                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
+                                    logger.warning("TOFDN: message failed verification");
+                                    addMessageToGui(currentMsg, testMe, false);    
+                                    index++;
+                                    continue;
+                                }
+    
+                                //make sure the pubkey and from fields in the xml file are the same
+                                //as those in the metadata
+                                String metaDataHash = Mixed.makeFilename(
+                                        Core.getCrypto().digest(metaData.getPerson().getKey()));
+                                String messageHash = Mixed.makeFilename(
+                                        currentMsg.getFrom().substring(
+                                            currentMsg.getFrom().indexOf("@") + 1,
+                                            currentMsg.getFrom().length()));
+    
+                                if (!metaDataHash.equals(messageHash))
+                                {
+                                    logger.warning("hash in metadata doesn't match hash in message!\n" +
+                                    			   "metadata : " + metaDataHash + 
+    											   " , message: " + messageHash);
+                                    currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
+                                        
+                                    addMessageToGui(currentMsg, testMe, false);
                                     
-                                addMessageToGui(currentMsg, testMe, false);
-                                
-                                index++;
-                                continue;
-                            }
-
-                            //if it is, we have the user either on the good, bad or neutral lists
-                            if (identities.getFriends().containsKey(_owner))
-                                currentMsg.setStatus(
-                                    VerifyableMessageObject.VERIFIED);
-                            else if (identities.getEnemies().containsKey(_owner))
-                                currentMsg.setStatus(
-                                    VerifyableMessageObject.FAILED);
-                            else
-                                currentMsg.setStatus(
-                                    VerifyableMessageObject.PENDING);
-
-                            /*        Encryption will be done+handled using private boards
-                            */
-                            // verify the message date and time
-                            if (currentMsg.isValidFormat(calDL) == false)
-                            {
-                                // TODO: file contains invalid data or time, skip and
-                                //        mark it to not try it again(?) 
-                            }
-
-                            //File sig = new File(testMe.getPath() + ".sig");
-
-                            // Is this a valid message?
-                            addMessageToGui(currentMsg, testMe, true);
+                                    index++;
+                                    continue;
+                                }
+    
+                                //if it is, we have the user either on the good, bad or neutral lists
+                                if (identities.getFriends().containsKey(_owner)) {
+                                    currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
+                                } else if (identities.getEnemies().containsKey(_owner)) {
+                                    currentMsg.setStatus(VerifyableMessageObject.FAILED);
+                                } else {
+                                    currentMsg.setStatus(VerifyableMessageObject.PENDING);
+                                }
+                                /*        Encryption will be done+handled using private boards
+                                */
+                                // verify the message date and time
+                                // needed because some spammer did already insert messages with wrong dates!
+                                if (currentMsg.isValidFormat(calDL) == false)
+                                {
+                                    // TODO: file contains invalid data or time, skip and
+                                    //        mark it to not try it again(?) 
+                                }
+    
+                                //File sig = new File(testMe.getPath() + ".sig");
+    
+                                // Is this a valid message?
+                                addMessageToGui(currentMsg, testMe, true);
                             }  //endif signed message
                             //start encrypted message processing
                             else if (_metaData.getType() == MetaData.ENCRYPT){
@@ -502,7 +438,7 @@ public class MessageDownloadThread
                             		
 									index++;
 									failures = 0;
-									 continue;
+									continue;
                             	}
                             	
                             	//2. if yes, decrypt
@@ -554,35 +490,28 @@ public class MessageDownloadThread
             {
                 board.incBlocked();
                 logger.info("TOFDN: ########### blocked message for board '" +
-                        		board.getName() +
-                        		"' #########\n");
+                        		board.getName() + "' #########\n");
             }
             else
             {
                 // write the NEW message indicator file
-                if( markAsNew )
-                {                                
-                    FileAccess.writeFile(
-                        "This message is new!",
-                        testMe.getPath() + ".lck");
+                if( markAsNew ) {                                
+                    FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
                 }
                 // add new message or notify of arrival
                 TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
                 //add all files indexed files
-                Iterator it =
-                    currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
-                while (it.hasNext())
-                {
+                Iterator it = currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
+                while (it.hasNext()) {
                     SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
-                    if (current.getOwner() != null) 
-                        	Index.getInstance().add(current, board);
+                    if (current.getOwner() != null) {
+                        Index.getInstance().add(current, board);
+                    }
                 }
                 //add all boards to the list of known boards
                 Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
             }
-        }
-        else
-        {
+        } else {
             FileAccess.writeFile("Empty", testMe);
         }
     }
