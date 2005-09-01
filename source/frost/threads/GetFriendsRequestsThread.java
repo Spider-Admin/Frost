@@ -88,8 +88,8 @@ public class GetFriendsRequestsThread extends TimerTask {
 			 		(
 						//Core.getFriends().Get(current.getOwner().substring(0,current.getOwner().indexOf("@"))) != null
 						identities.getFriends().containsKey(Mixed.makeFilename(current.getOwner()))
-							|| //marked GOOD
-						identities.getGoodIds().contains(current.getOwner())
+//							|| //marked GOOD
+//						identities.getGoodIds().contains(current.getOwner())
 					) //marked to be helped
 			) {
 				String newPrefix = new String("KSK@frost/request/"

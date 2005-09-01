@@ -19,8 +19,8 @@ public class FrostIdentities implements Savable {
 	
 	private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 	
-	private Hashtable badIds = new Hashtable();
-	private Hashtable goodIds = new Hashtable();
+//	private Hashtable badIds = new Hashtable();
+//	private Hashtable goodIds = new Hashtable();
 	private BuddyList enemies = new BuddyList();
 	private BuddyList friends = new BuddyList();	
 	private BuddyList neutrals = new BuddyList();
@@ -100,12 +100,13 @@ public class FrostIdentities implements Savable {
 		identitiesDAO.save(this);
 	}
 
-	/**
-	 * @return
-	 */
-	public Hashtable getBadIds() {
-		return badIds;
-	}
+//	/**
+//	 * @return
+//	 */
+//	public Hashtable getBadIds() {
+//        System.out.println("GET_BAD_IDS:"+badIds.size());
+//		return badIds;
+//	}
 
 	/**
 	 * @return
@@ -121,12 +122,13 @@ public class FrostIdentities implements Savable {
 		return friends;
 	}
 
-	/**
-	 * @return
-	 */
-	public Hashtable getGoodIds() {
-		return goodIds;
-	}
+//	/**
+//	 * @return
+//	 */
+//	public Hashtable getGoodIds() {
+//        System.out.println("GET_GOOD_IDS:"+goodIds.size());
+//		return goodIds;
+//	}
 
 	/**
 	 * @return

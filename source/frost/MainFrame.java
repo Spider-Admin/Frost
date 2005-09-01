@@ -1590,6 +1590,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			
 			Thread saver = new Thread() {
 				public void run() {
+                    // save message, we must save the changed deleted state into the xml file 
 					targetMessage.save();
 				};
 			};
@@ -1604,9 +1605,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			targetMessage.setDeleted(false);
 			this.repaint();
 			
-			//FIXME: is this needed???not shure what it is doing
 			Thread saver = new Thread() {
 				public void run() {
+                    // save message, we must save the changed deleted state into the xml file 
 					targetMessage.save();
 				};
 			};
