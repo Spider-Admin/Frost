@@ -12,6 +12,7 @@ import frost.storage.*;
 /**
  * This class contains the hashes of all the messages. It is used to check
  * if a message is a duplicate of those we already have a local copy of.
+ * Each digest has a timestamp, when digests are saved we don't save expired digests.
  * @author $Author$
  * @version $Revision$
  */
@@ -19,7 +20,8 @@ public class MessageHashes implements Savable {
 
 	private static Logger logger = Logger.getLogger(MessageHashes.class.getName());
 
-	private Set hashesSet = new HashSet(); // set of message digests
+    // key is digest, value is a Long with timestamp of this digest (when it was added)
+    private Hashtable hashesTable = new Hashtable();
 
 	/**
 	 * This method initializes the instance of MessageHashes and reads its contents
@@ -44,7 +46,7 @@ public class MessageHashes implements Savable {
 	 */
 	public void save() throws StorageException {
 		MessageHashesDAO hashesDAO = DAOFactory.getFactory(DAOFactory.XML).getMessageHashesDAO();
-		synchronized (hashesSet) {
+		synchronized (hashesTable) {
 			hashesDAO.save(this);
 		}
 	}
@@ -53,16 +55,31 @@ public class MessageHashes implements Savable {
 	 * This method adds the given digest to the set of message hashes. Its
 	 * implementation is thread safe.
 	 * @param digest the new digest to add to the set of message hashes.
+     * @param timestamp the timestamp of the digest.
 	 * @return true if this set did not already contain the specified digest.
 	 */
-	public boolean add(String digest) {
-		boolean result;
-		synchronized (hashesSet) {
-			result = hashesSet.add(digest);
-		}
-		return result;
+	public boolean add(String digest, long timeStamp) {
+
+        boolean wasNotAlreadyContained;
+        if( hashesTable.put(digest, new Long(timeStamp)) == null ) {
+            wasNotAlreadyContained = true;
+        } else {
+            wasNotAlreadyContained = false;
+        }
+		return wasNotAlreadyContained;
 	}
-	
+
+    /**
+     * This method adds the given digest to the set of message hashes. Its
+     * implementation is thread safe.
+     * The timestamp of the new digest is set to current time.
+     * @param digest the new digest to add to the set of message hashes.
+     * @return true if this set did not already contain the specified digest.
+     */
+    public boolean add(String digest) {
+        return add(digest, System.currentTimeMillis());
+    }
+
 	/**
 	 * This method returns true if the set of message hashes contains the 
 	 * digest given as a paremeter. Its implementation is thread safe.
@@ -71,17 +88,32 @@ public class MessageHashes implements Savable {
 	 */
 	public boolean contains(String digest) {
 		boolean result;
-		synchronized (hashesSet) {
-			result = hashesSet.contains(digest);
-		}
+        if( hashesTable.get(digest) != null ) {
+            result = true;
+        } else {
+            result = false;
+        }
 		return result;
 	}
 	/**
 	 * This method returns an Iterator with all of the message
 	 * hashes. Not thread-safe.
-	 * @return an Interator with all of the message hashes.
+	 * @return an Iterator with all of the message hashes.
 	 */
 	protected Iterator getHashes() {
-		return hashesSet.iterator();
+		return hashesTable.keySet().iterator();
 	}
+	/**
+     * Returns the timestamp for the provided digest. 
+     * @param digest  the digest to find the timestamp for
+     * @return  the timestamp of this digest or 0
+	 */
+    protected long getTimestampForDigest(String digest) {
+        Long value = (Long)hashesTable.get(digest);
+        if( value == null ) {
+            return 0; 
+        } else {
+            return value.longValue();
+        }
+    }
 }

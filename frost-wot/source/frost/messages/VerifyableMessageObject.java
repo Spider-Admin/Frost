@@ -74,6 +74,13 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 		this.status = status;
 		FileAccess.writeFile(status, file.getPath() + ".sig");
 	}
+    
+    /**
+     * Removes the status, deletes .sig file.
+     */
+    public void removeStatus() {
+        new File(file.getPath() + ".sig").delete();
+    }
 
     /**
      * @param file

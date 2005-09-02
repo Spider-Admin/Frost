@@ -22,7 +22,7 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 	
 	private static Logger logger = Logger.getLogger(MessageHashesXmlDAO.class.getName());
 	
-	private static final String OLD_FILENAME = "hashes";
+//	private static final String OLD_FILENAME = "hashes";
 	private static final String XML_FILENAME = "hashes.xml";
 	private static final String TMP_FILENAME = "hashes.xml.tmp";
 	private static final String BAK_FILENAME = "hashes.xml.bak";
@@ -31,15 +31,15 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 	 * @see frost.messaging.MessageHashesDAO#exists()
 	 */
 	public boolean exists() {
-		File oldFile = new File(OLD_FILENAME);
+//		File oldFile = new File(OLD_FILENAME);
 		File xmlFile = new File(XML_FILENAME);
-		if (oldFile.length() == 0) {
-			oldFile.delete();
-		}
+//		if (oldFile.length() == 0) {
+//			oldFile.delete();
+//		}
 		if (xmlFile.length() == 0) {
 			xmlFile.delete();
 		}
-		if (oldFile.exists() || xmlFile.exists()) {
+		if (/*oldFile.exists() ||*/ xmlFile.exists()) {
 			return true;
 		} else {
 			return false;
@@ -50,39 +50,40 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 	 * @see frost.messaging.MessageHashesDAO#load(frost.messaging.MessageHashes)
 	 */
 	public void load(MessageHashes messageHashes) throws StorageException {
-		File oldFile = new File(OLD_FILENAME);
+//		File oldFile = new File(OLD_FILENAME);
 		File xmlFile = new File(XML_FILENAME);
 		
 		if (xmlFile.exists()) {
 			try {
 				loadNewFormat(messageHashes);
-				oldFile.delete();		//In case we have an old file hanging around, we delete it.
+//				oldFile.delete();		//In case we have an old file hanging around, we delete it.
 			} catch (Exception e) {
 				throw new StorageException("Exception while loading the new message hashes format.", e);
 			}
-		} else {
-			try {
-				loadOldFormat(messageHashes, oldFile);
-			} catch (Exception ioe) {
-				throw new StorageException("Exception while loading the old message hashes format.", ioe);
-			}
-		}		
+		} 
+//        else {
+//			try {
+//				loadOldFormat(messageHashes, oldFile);
+//			} catch (Exception ioe) {
+//				throw new StorageException("Exception while loading the old message hashes format.", ioe);
+//			}
+//		}		
 	}
 
 	/**
 	 * @param messageHashes
 	 * @param oldFile
 	 */
-	private void loadOldFormat(MessageHashes messageHashes, File oldFile) throws IOException, ClassNotFoundException {
-		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(oldFile));
-		HashSet hashesSet = (HashSet) ois.readObject();
-		ois.close();
-		Iterator hashes = hashesSet.iterator();
-		while (hashes.hasNext()) {
-			messageHashes.add(hashes.next().toString());
-		}
-		logger.info("loaded " + hashesSet.size() + " message hashes");
-	}
+//	private void loadOldFormat(MessageHashes messageHashes, File oldFile) throws IOException, ClassNotFoundException {
+//		ObjectInputStream ois = new ObjectInputStream(new FileInputStream(oldFile));
+//		HashSet hashesSet = (HashSet) ois.readObject();
+//		ois.close();
+//		Iterator hashes = hashesSet.iterator();
+//		while (hashes.hasNext()) {
+//			messageHashes.add(hashes.next().toString());
+//		}
+//		logger.info("loaded " + hashesSet.size() + " message hashes");
+//	}
 
 	/**
 	 * @param messageHashes
@@ -96,6 +97,7 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 			throw new StorageException(
 				"The message hashes XML file is invalid: does not contain the root tag MessageHashes.");
 		}
+        
 		// check if rootnode contains only a single entry wich must be MessageHashesList
 		ArrayList nodelist =
 			XMLTools.getChildElementsByTagName(rootNode, "MessageHashesList");
@@ -103,17 +105,29 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 			throw new StorageException(
 				"The message hashes XML file is invalid: MessageHashesList not found or duplicated.");
 		}
-		
+
+        // try to load OLD hashes with have no timestamp, convert them to new hashes
+        // we write ONLY new hashes, so this is a one time conversion
 		Element hashesListRootNode = (Element) nodelist.get(0);
 		nodelist = XMLTools.getChildElementsByTagName(hashesListRootNode, "MessageHash");
 		if (nodelist.size() == 0) {
 			logger.info("The message hashes XML file has no hashes.");	
 		} else {
+            long defaultTimestamp = System.currentTimeMillis();
+            
 			for (int x = 0; x < nodelist.size(); x++) {
 				Element element = (Element) nodelist.get(x);
 				String value = element.getAttribute("value");
-				messageHashes.add(value);
+                String timestamp = element.getAttribute("timestamp");
+                if( timestamp != null && (timestamp=timestamp.trim()).length() > 0 ) {
+                    long timestampval = Long.parseLong(timestamp); 
+                    messageHashes.add(value, timestampval);
+                } else {
+                    // OLD format, no timestamp
+                    messageHashes.add(value, defaultTimestamp);
+                }
 			}
+            logger.info("Loaded "+nodelist.size()+" hashes.");  
 		}
 	}
 
@@ -150,11 +164,24 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 		rootElement.appendChild(listRoot);
 		
 		// now add all hashes to listRoot
+        // DON'T save hashes older than X days, this auto-cleans the hashes file
+        // TODO: maybe make maxDaysToKeepHash configurable?
+        long maxDaysToKeepHash = 33; // reasonable value
+        
+        long maxDaysToKeepHashInMillis = maxDaysToKeepHash * 24 * 60 * 60 * 1000; // days to millis
+        long minTimestamp = System.currentTimeMillis() - maxDaysToKeepHashInMillis; 
+        
 		Iterator hashes = messageHashes.getHashes();
 		while (hashes.hasNext()) {
 			String hash = hashes.next().toString();
+            long timestampval = messageHashes.getTimestampForDigest(hash);
+            if( timestampval < minTimestamp ) {
+                // don't save this old hash
+                continue;
+            }
 			Element element = doc.createElement("MessageHash");
 			element.setAttribute("value", hash);
+            element.setAttribute("timestamp", Long.toString(timestampval));
 			listRoot.appendChild(element);
 		}		
 		

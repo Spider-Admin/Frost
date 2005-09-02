@@ -70,9 +70,10 @@ public class MessageObject implements XMLizable
         	throw new MessageCreationException(
         					"Invalid input file '" + file.getName() + "' received for MessageObject. It doesn't exist.");
         } else if (file.length() < 20) { // prolog+needed tags are always > 20, but we need to filter 
-        								 // out the messages containing "Empty" (encrypted for someone else)
+        								 // out the messages containing "Empty", "Invalid", "Double", "Broken"
+                                         // (encrypted for someone else OR completely invalid)
         	throw new MessageCreationException(
-        					"Invalid input file '" + file.getName() + "' received for MessageObject.", true);
+        					"Invalid/Double/Broken input file '" + file.getName() + "' received for MessageObject.", true);
         }
         this.file = file;
         try {
