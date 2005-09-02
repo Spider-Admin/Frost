@@ -1,3 +1,21 @@
+/*
+  BuddyList.java / Frost
+  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.identities;
 
 import java.util.*;
@@ -10,7 +28,6 @@ import frost.*;
 /**
  * contains the people the local user trusts
  */
-
 public class BuddyList implements XMLizable {
 
 	private HashMap hashMap = null;
@@ -25,10 +42,11 @@ public class BuddyList implements XMLizable {
 	 * returns false if the user exists
 	 */
 	public synchronized boolean add(Identity user) {
-		if (containsKey(Mixed.makeFilename(user.getUniqueName()))) {
+        String str = Mixed.makeFilename(user.getUniqueName());
+		if (containsKey(str)) {
 			return false;
 		} else {
-			hashMap.put(Mixed.makeFilename(user.getUniqueName()), user);
+			hashMap.put(str, user);
 			return true;
 		}
 	}
@@ -45,8 +63,9 @@ public class BuddyList implements XMLizable {
 	 * returns the user in the list, null if not in
 	 */
 	public synchronized Identity get(String name) {
-		if (containsKey(Mixed.makeFilename(name))) {
-			return (Identity) hashMap.get(Mixed.makeFilename(name));
+        String str = Mixed.makeFilename(name);
+		if (containsKey(str)) {
+			return (Identity) hashMap.get(str);
 		} else {
 			return null;
 		}
@@ -67,13 +86,14 @@ public class BuddyList implements XMLizable {
 	}
 
 	public void loadXMLElement(Element el) throws SAXException {
-		if (el == null)
+		if (el == null) {
 			return;
+        }
 		List l = XMLTools.getChildElementsByTagName(el, "Identity");
 		Iterator it = l.iterator();
-		while (it.hasNext())
+		while (it.hasNext()) {
 			add(new Identity((Element) it.next()));
-
+        }
 	}
 
 	/**
@@ -84,13 +104,10 @@ public class BuddyList implements XMLizable {
 		return hashMap.remove(Mixed.makeFilename(key));
 	}
 	
-	/**
-	 * @param key
-	 * @return
-	 */
-	public Object remove(Identity key) {
-		return hashMap.remove(key);
-	}
+// does NOT work
+//	public Object remove(Identity key) {
+//		return hashMap.remove(key);
+//	}
 
 	/**
 	 * @return
@@ -98,5 +115,8 @@ public class BuddyList implements XMLizable {
 	public int size() {
 		return hashMap.size();
 	}
-
+    
+    public Set repairGetKeys() {
+        return hashMap.keySet();
+    }
 }

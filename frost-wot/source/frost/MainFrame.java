@@ -621,23 +621,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					
 					if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
 						//fscking html on all these..
-						if (selectedMessage.getStatus().indexOf(VerifyableMessageObject.VERIFIED)
-							> -1) {
+						if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
 							setCheckItem.setEnabled(true);
 							setBadItem.setEnabled(true);
-						} else if (
-							selectedMessage.getStatus().indexOf(VerifyableMessageObject.PENDING)
-								> -1) {
+						} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
 							setGoodItem.setEnabled(true);
 							setBadItem.setEnabled(true);
-						} else if (
-							selectedMessage.getStatus().indexOf(VerifyableMessageObject.FAILED)
-								> -1) {
+						} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xBAD) {
 							setGoodItem.setEnabled(true);
 							setCheckItem.setEnabled(true);
-						} else
-							logger.warning(
-								"invalid message state : " + selectedMessage.getStatus());
+                        } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xOLD) {
+                            // keep all buttons disabled
+                        } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xTAMPERED) {
+                            // keep all buttons disabled
+						} else {
+							logger.warning("invalid message state : " + selectedMessage.getMsgStatus());
+                        }
 					}
 	
 					if (selectedMessage != null) {
@@ -646,9 +645,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						add(undeleteItem);
 						deleteItem.setEnabled(false);
 						undeleteItem.setEnabled(false);
-						if(selectedMessage.isDeleted()){
+						if(selectedMessage.isDeleted()) {
 							undeleteItem.setEnabled(true);
-						}else{
+						} else {
 							deleteItem.setEnabled(true);
 						}
 					}
@@ -659,7 +658,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					super.show(invoker, x, y);
 				}
 			}
-
 		}
 
 		/**
@@ -1251,17 +1249,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					replyButton.setEnabled(true);
 				}
 
-				if (selectedMessage.getStatus().trim().equals(VerifyableMessageObject.PENDING)) {
+				if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
 					trustButton.setEnabled(true);
 					notTrustButton.setEnabled(true);
 					checkTrustButton.setEnabled(false);
-				} else if (
-					selectedMessage.getStatus().trim().equals(VerifyableMessageObject.VERIFIED)) {
+				} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
 					trustButton.setEnabled(false);
 					notTrustButton.setEnabled(true);
 					checkTrustButton.setEnabled(true);
-				} else if (
-					selectedMessage.getStatus().trim().equals(VerifyableMessageObject.FAILED)) {
+				} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xBAD) {
 					trustButton.setEnabled(true);
 					notTrustButton.setEnabled(false);
 					checkTrustButton.setEnabled(true);
@@ -1676,33 +1672,27 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			if (row < 0 || selectedMessage == null)
 				return;
 		
-			String status = selectedMessage.getStatus();
+			int status = selectedMessage.getMsgStatus();
 		
-			if (status.indexOf(VerifyableMessageObject.PENDING) > -1) {
+			if (status == VerifyableMessageObject.xCHECK) {
 				Identity owner = identities.getNeutrals().get(selectedMessage.getFrom());
 				if (owner == null) {
 					logger.warning("message was CHECK but not found in Neutral list");
 					return;
 				}
-			}
-		
-			if (status.indexOf(VerifyableMessageObject.FAILED) > -1) {
+			} else if (status == VerifyableMessageObject.xBAD) {
 				Identity owner = identities.getEnemies().get(selectedMessage.getFrom());
 				if (owner == null) {
 					logger.warning("message was BAD but not found in BAD list");
 					return;
 				}
-		
-			}
-		
-			if (status.indexOf(VerifyableMessageObject.VERIFIED) > -1) {
+			} else if (status == VerifyableMessageObject.xGOOD) {
 				Identity owner = identities.getFriends().get(selectedMessage.getFrom());
 				if (owner == null) {
 					logger.warning("message was GOOD but not found in GOOD list");
 					return;
 				}
 			}
-		
 			Truster truster = new Truster(identities, what, selectedMessage.getFrom());
 			truster.start();
 		}

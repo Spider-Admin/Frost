@@ -19,37 +19,70 @@
 
 package frost.messages;
 
-import java.io.File;
-import java.text.SimpleDateFormat;
+import java.io.*;
+import java.text.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.FileAccess;
+import frost.*;
+import frost.identities.*;
 
-
-
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class VerifyableMessageObject extends MessageObject implements Cloneable {
 
 	private static Logger logger = Logger.getLogger(VerifyableMessageObject.class.getName());
-	
-    public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
-    public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
-    public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
-    public static final String NA       = "N/A";
-    public static final String OLD      = "NONE";
-    public static final String TAMPERED = "FAKE :(";
     
-    /**
-     *  FAKE :( = signature tampered
-     *  N/A = couldn't retrieve key (will be obsoleted by xml messages)
-     */
+//    public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
+//    public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
+//    public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
+//    public static final String NA       = "N/A";
+//    public static final String OLD      = "NONE";
+//    public static final String TAMPERED = "FAKE :(";
+    	
+    public static final int xGOOD     = 1;
+    public static final int xCHECK    = 2;
+    public static final int xBAD      = 3;
+    public static final int xTAMPERED = 4;
+    public static final int xOLD      = 5;
 
-    private String status;
-
+    public int getMsgStatus() {
+        if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_VERIFIED ) {
+            // get state of user (GOOD/CHECK/BAD)
+            FrostIdentities identities = Core.getInstance().getIdentities();
+            String testfrom = getFrom();
+            if( identities.getFriends().containsKey(testfrom) ) {
+                return xGOOD;
+            } else if( identities.getNeutrals().containsKey(testfrom) ) {
+                return xCHECK;
+            } else if( identities.getEnemies().containsKey(testfrom) ) {
+                return xBAD;
+            }
+        } else if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_OLD ) {
+            // no signature
+            return xOLD;
+        } else if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_TAMPERED ) {
+            // invalid signature
+            return xTAMPERED;
+        } 
+        // signature status unset
+        return xOLD;
+    }
+    
+    public String getMsgStatusString() {
+        int status = getMsgStatus();
+        if( status == xGOOD ) {
+            return "<html><b><font color=\"green\">GOOD</font></b></html>";
+        } else if( status == xCHECK ) {
+            return "<html><b><font color=#FFCC00>CHECK</font></b></html>";
+        } else if( status == xBAD ) {
+            return "<html><b><font color=\"red\">BAD</font></b></html>";
+        } else if( status == xOLD ) {
+            return "NONE";
+        } else if( status == xTAMPERED ) {
+            return "FAKE";
+        }
+        return "*err*"; // never come here
+    }
+    
     /**
      * @return
      * @throws CloneNotSupportedException
@@ -58,29 +91,29 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 		return (VerifyableMessageObject) this.clone();
 	}
 
-    /** 
-     * gets the status of the message
-     * @return
-     */
-    public String getStatus() {
-		return status;
-	}
-
-    /**
-	 * set the status
-	 * @param status
-	 */
-	public void setStatus(String status) {
-		this.status = status;
-		FileAccess.writeFile(status, file.getPath() + ".sig");
-	}
+//    /** 
+//     * gets the status of the message
+//     * @return
+//     */
+//    public String getStatus2() {
+//		return status;
+//	}
+//
+//    /**
+//	 * set the status
+//	 * @param status
+//	 */
+//	public void setStatus(String status) {
+//		this.status = status;
+//		FileAccess.writeFile(status, file.getPath() + ".sig");
+//	}
     
-    /**
-     * Removes the status, deletes .sig file.
-     */
-    public void removeStatus() {
-        new File(file.getPath() + ".sig").delete();
-    }
+//    /**
+//     * Removes the status, deletes .sig file.
+//     */
+//    public void removeStatus() {
+//        new File(file.getPath() + ".sig").delete();
+//    }
 
     /**
      * @param file
@@ -88,12 +121,12 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
      */
     public VerifyableMessageObject(File file) throws MessageCreationException {
 		super(file); // throws exception if loading failed
-		File sigFile = new File(file.getPath() + ".sig");
-		if (!sigFile.exists()) {
-			status = NA;
-		} else {
-			status = FileAccess.readFileRaw(sigFile);
-		}
+//		File sigFile = new File(file.getPath() + ".sig");
+//		if (!sigFile.exists()) {
+//			status = NA;
+//		} else {
+//			status = FileAccess.readFileRaw(sigFile);
+//		}
 	}
 
     /**

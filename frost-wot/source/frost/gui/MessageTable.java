@@ -84,6 +84,7 @@ public class MessageTable extends SortedTable
 			boolean hasFocus,
 			int row,
 			int column) {
+            
 			super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
 			MessageTableModel model = (MessageTableModel) getModel();
