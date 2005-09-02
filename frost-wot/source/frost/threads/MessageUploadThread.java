@@ -82,7 +82,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
 		// we only set the date&time if they are not already set
 		// (in case the uploading was pending from before)
-		if (mo.getDate() == "") {
+        // _OR_ if the date of the message differs from current date, because
+        //      we don't want to insert messages with another date into keyspace of today
+        // this also allows to do a date check when we receive a file, 
+        // see VerifyableMessageObject.verifyDate 
+		if (mo.getDate() == "" || mo.getDate().equals(DateFun.getDate()) == false) {
 			mo.setTime(DateFun.getFullExtendedTime() + "GMT");
 			mo.setDate(DateFun.getDate());
 		}
