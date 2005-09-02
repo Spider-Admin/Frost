@@ -279,9 +279,9 @@ public class MessageDownloadThread
                     try {
                         currentMsg = new VerifyableMessageObject(testMe);
                         //set to unsigned
-                        currentMsg.setStatus(VerifyableMessageObject.OLD);
+//                        currentMsg.setStatus(VerifyableMessageObject.OLD);
                         // check and maybe add msg to gui
-                        addMessageToGui(currentMsg, testMe, true, calDL);
+                        addMessageToGui(currentMsg, testMe, true, calDL, MessageObject.SIGNATURESTATUS_OLD);
 
                     } catch (Exception ex) {
 						logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
@@ -361,9 +361,9 @@ public class MessageDownloadThread
                     //then check if the signature was ok
                     if (!sigIsValid) {
                         // TODO: should'nt we drop this msg instead of adding it to the gui?
-                        currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
+//                        currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
                         logger.warning("TOFDN: message failed verification, status set to TAMPERED.");
-                        addMessageToGui(currentMsg, testMe, false, calDL);    
+                        addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);    
                         continue;
                     }
 
@@ -379,23 +379,23 @@ public class MessageDownloadThread
                         logger.warning("TOFDN: Hash in metadata doesn't match hash in message!\n" +
                         			   "metadata : "+metaDataHash+" , message: " + messageHash+
                                        ". Message failed verification, status set to TAMPERED.");
-                        currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-                        addMessageToGui(currentMsg, testMe, false, calDL);
+//                        currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
+                        addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);
                         continue;
                     }
 
-                    //if it is, we have the user either on the good, bad or neutral lists
-                    if (identities.getFriends().containsKey(_owner)) {
-                        currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
-                    } else if (identities.getEnemies().containsKey(_owner)) {
-                        currentMsg.setStatus(VerifyableMessageObject.FAILED);
-                    } else {
-                        currentMsg.setStatus(VerifyableMessageObject.PENDING);
-                    }
+//                    //if it is, we have the user either on the good, bad or neutral lists
+//                    if (identities.getFriends().containsKey(_owner)) {
+//                        currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
+//                    } else if (identities.getEnemies().containsKey(_owner)) {
+//                        currentMsg.setStatus(VerifyableMessageObject.FAILED);
+//                    } else {
+//                        currentMsg.setStatus(VerifyableMessageObject.PENDING);
+//                    }
                     /*        Encryption will be done+handled using private boards
                     */
 
-                    addMessageToGui(currentMsg, testMe, true, calDL);
+                    addMessageToGui(currentMsg, testMe, true, calDL, MessageObject.SIGNATURESTATUS_VERIFIED);
                 }  //endif signed message
                 
                 //start encrypted message processing
@@ -428,14 +428,21 @@ public class MessageDownloadThread
      * @param testMe      message file in keypool
      * @param markAsNew   new message?
      * @param calDL       Calendar with date of download to check for valid date in message
+     * @param signatureStatus   a status from MessageObject that should be set IF the message is added
      */
     private void addMessageToGui(
         VerifyableMessageObject currentMsg,
         File testMe,
         boolean markAsNew,
-        GregorianCalendar calDL)
+        GregorianCalendar calDL,
+        int signatureStatus)
     {
         if (currentMsg.isValid() && currentMsg.isValidFormat(calDL)) {
+
+            currentMsg.setSignatureStatus(signatureStatus);
+            if( currentMsg.save() == false ) {
+                logger.log(Level.SEVERE, "TOFDN: Could not save the XML file after setting the signatureState! signatureState keeps UNSET.");
+            }
             
             if (TOF.getInstance().blocked(currentMsg, board) && testMe.length() > 0) {
                 board.incBlocked();
@@ -459,8 +466,8 @@ public class MessageDownloadThread
                 Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
             }
         } else {
-            // validation failed
-            currentMsg.removeStatus(); // delete .sig file
+            // format validation failed
+//            currentMsg.removeStatus(); // delete .sig file
             FileAccess.writeFile("Invalid", testMe);
             logger.warning("TOFDN: Message "+testMe.getName()+" was dropped, format validation failed.");
         }

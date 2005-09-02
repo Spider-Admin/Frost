@@ -33,6 +33,15 @@ public class MessageObject implements XMLizable
 
 	//FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
+    
+    public static final int SIGNATURESTATUS_UNSET    = 0; // status not set
+    public static final int SIGNATURESTATUS_TAMPERED = 1; // wrong signature
+    public static final int SIGNATURESTATUS_OLD      = 2; // no signature
+    public static final int SIGNATURESTATUS_VERIFIED = 3; // signature was OK
+
+    private static final String SIGNATURESTATUS_TAMPERED_STR = "TAMPERED"; // wrong signature
+    private static final String SIGNATURESTATUS_OLD_STR      = "OLD"; // no signature
+    private static final String SIGNATURESTATUS_VERIFIED_STR = "VERIFIED"; // signature was OK
 
 	private AttachmentList attachments;
     private String board = "";
@@ -44,6 +53,7 @@ public class MessageObject implements XMLizable
     private String index = "";
     private String publicKey  = "";
     private boolean deleted = false;
+    private int signatureStatus = SIGNATURESTATUS_UNSET;
     
     protected File file;
 
@@ -105,8 +115,7 @@ public class MessageObject implements XMLizable
             
         }
         // replace evil chars
-        for( int i = 0; i < evilChars.length; i++ )
-        {
+        for( int i = 0; i < evilChars.length; i++ ) {
             this.from = this.from.replace(evilChars[i], '_');
             this.subject = this.subject.replace(evilChars[i], '_');
             this.date = this.date.replace(evilChars[i], '_');
@@ -295,6 +304,20 @@ public class MessageObject implements XMLizable
 			current = d.createElement("Deleted");
 			el.appendChild(current);
 		}
+        
+        // signature status
+        if( signatureStatus != SIGNATURESTATUS_UNSET ) {
+            current = d.createElement("signatureStatus");
+            if( signatureStatus == SIGNATURESTATUS_TAMPERED ) {
+                cdata = d.createCDATASection(SIGNATURESTATUS_TAMPERED_STR);
+            } else if( signatureStatus == SIGNATURESTATUS_OLD ) {
+                cdata = d.createCDATASection(SIGNATURESTATUS_OLD_STR);
+            } else if( signatureStatus == SIGNATURESTATUS_VERIFIED ) {
+                cdata = d.createCDATASection(SIGNATURESTATUS_VERIFIED_STR);
+            }
+            current.appendChild(cdata);
+            el.appendChild(current);
+        }
 
 		//attachments
 		if ((attachments != null) && (attachments.size() > 0)) {
@@ -320,6 +343,7 @@ public class MessageObject implements XMLizable
 			subject = new String();
 		if (content == null)
 			content = new String();
+
 		if (date.equals(""))
 			return false;
 		if (time.equals(""))
@@ -396,7 +420,21 @@ public class MessageObject implements XMLizable
 
 		if (!XMLTools.getChildElementsByTagName(e, "Deleted").isEmpty()) {
 			deleted = true;
-		}
+		} else {
+		    deleted = false;
+        }
+        
+        String sigstat = XMLTools.getChildElementsCDATAValue(e, "signatureStatus");
+        signatureStatus = SIGNATURESTATUS_UNSET; // default
+        if( sigstat != null && (sigstat=sigstat.trim()).length() > 0 ) {
+            if( sigstat.equalsIgnoreCase(SIGNATURESTATUS_TAMPERED_STR) ) {
+                signatureStatus = SIGNATURESTATUS_TAMPERED;
+            } else if( sigstat.equalsIgnoreCase(SIGNATURESTATUS_OLD_STR) ) {
+                signatureStatus = SIGNATURESTATUS_OLD;
+            } else if( sigstat.equalsIgnoreCase(SIGNATURESTATUS_VERIFIED_STR) ) {
+                signatureStatus = SIGNATURESTATUS_VERIFIED;
+            }
+        }
 
 		List l = XMLTools.getChildElementsByTagName(e, "AttachmentList");
 		if (l.size() > 0) {
@@ -407,9 +445,9 @@ public class MessageObject implements XMLizable
 	}
 	
 	/**
-	 *  
+	 * Save the message.
 	 */
-	public void save() {
+	public boolean save() {
 		File tmpFile = new File(file.getPath() + ".tmp");
 		boolean success = false;
 		try {
@@ -424,9 +462,10 @@ public class MessageObject implements XMLizable
 			tmpFile.renameTo(file);
 		} else {
 			tmpFile.delete();
-		}		
+		}
+        return success;
 	}
-
+    
 	/**
 	 * @param board
 	 */
@@ -497,4 +536,12 @@ public class MessageObject implements XMLizable
 	public void addAttachment(Attachment attachment) {
 		getAttachmentList().add(attachment);
 	}
+
+    public int getSignatureStatus() {
+        return signatureStatus;
+    }
+
+    public void setSignatureStatus(int signatureStatus) {
+        this.signatureStatus = signatureStatus;
+    }
 }

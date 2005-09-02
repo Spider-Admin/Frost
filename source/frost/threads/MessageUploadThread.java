@@ -371,7 +371,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     }	
 	
 	/**
-	 * This method saves a message to disk in XML format 
+	 * This method saves a message to disk in XML format (using a new name)
 	 * @param msg the MessageObject to save
 	 * @param file the file whose path will be used to save the message
 	 * @return true if successful. False otherwise.

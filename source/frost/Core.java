@@ -29,23 +29,23 @@ import org.w3c.dom.*;
 
 import com.l2fprod.gui.plaf.skin.*;
 
-import frost.boards.BoardsManager;
+import frost.boards.*;
 import frost.crypt.*;
 import frost.events.*;
-import frost.ext.JSysTrayIcon;
+import frost.ext.*;
 import frost.fcp.*;
-import frost.fileTransfer.FileTransferManager;
-import frost.gui.Splashscreen;
-import frost.gui.objects.Board;
-import frost.identities.FrostIdentities;
+import frost.fileTransfer.*;
+import frost.gui.*;
+import frost.gui.objects.*;
+import frost.identities.*;
 import frost.messages.*;
-import frost.messaging.MessagingManager;
+import frost.messaging.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.threads.maintenance.*;
-import frost.util.FlexibleObserver;
+import frost.util.*;
 import frost.util.gui.*;
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 /**
  * Class hold the more non-gui parts of frame1.java.
@@ -526,6 +526,50 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return instance;
 	}
 
+    private void convertSigIntoXml() {
+        // get all .sig files in keypool
+      ArrayList entries = FileAccess.getAllEntries( new File(frostSettings.getValue("keypool.dir")), ".sig");
+      logger.info("convertSigIntoXml: Starting to convert "+entries.size()+" .sig files.");
+
+      for( int ii=0; ii<entries.size(); ii++ )
+      {
+          File sigFile = (File)entries.get(ii);
+          File msgFile = new File(sigFile.getPath().substring(0, sigFile.getPath().length() - 4)); // .xml.sig -> .xml
+          if (msgFile.getName().equals("files.xml")) continue;
+          if (msgFile.getName().equals("new_files.xml")) continue;
+          FrostMessageObject tempMsg = null;
+          try {
+              tempMsg = FrostMessageFactory.createFrostMessageObject(msgFile);
+          } catch (MessageCreationException mce){
+              if (mce.isEmpty()) {
+                  logger.log(Level.INFO, "A message could not be created. It is empty.", mce);
+              } else {
+                  logger.log(Level.WARNING, "A message could not be created.", mce);
+              }
+              // TODO: remove .sig
+              continue;
+          }
+          String oldStatus = FileAccess.readFile(sigFile);
+          if( oldStatus.indexOf("GOOD") >= 0 ||
+              oldStatus.indexOf("CHECK") >= 0 ||
+              oldStatus.indexOf("BAD") >= 0 )
+          {
+              // msg was signed
+              tempMsg.setSignatureStatus(MessageObject.SIGNATURESTATUS_VERIFIED);
+          } else if( oldStatus.indexOf("NONE") >= 0 ||
+                     oldStatus.indexOf("N/A") >= 0 )
+          {
+              // set to OLD
+              tempMsg.setSignatureStatus(MessageObject.SIGNATURESTATUS_OLD);
+          } else {
+              // set to tampered
+              tempMsg.setSignatureStatus(MessageObject.SIGNATURESTATUS_TAMPERED);
+          }
+          tempMsg.save();
+          sigFile.delete();
+      }
+    }
+    
 	/**
 	 * @throws Exception
 	 */
@@ -560,6 +604,40 @@ public class Core implements Savable, FrostEventDispatcher  {
 		
 		splashscreen.setText(language.getString("Sending IP address to NSA"));
 		splashscreen.setProgress(60);
+        
+        // TODO: one time convert, remove later (added: 2005-09-02)
+        if( frostSettings.getBoolValue("oneTimeUpdate.convertSigs.didRun") == false ) {
+            splashscreen.setText("Convert from old format");
+            
+            // convert .sig files into xml files
+            //  - find all existing .sig files
+            //  - find xml file for .sig
+            //  - open XML file 
+            //  - read .sig file and set:
+            //     - xml to VERIFIED if .sig contains ...GOOD... or BAD or CHECK
+            //     - xml to TAMPERED if FAKE 
+            //     - xml to OLD if NONE or N/A
+//          public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
+//          public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
+//          public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
+//          public static final String NA       = "N/A";
+//          public static final String OLD      = "NONE";
+//          public static final String TAMPERED = "FAKE :(";
+
+            //
+            String txt = "<html>Frost must now convert your existing messages.<br>"+
+                         "The .sig files are not longer needed and will be deleted<br>"+
+                         "after successful converting them into the xml file.<br>"+
+                         "<br>Please be patient...</html>";
+            JOptionPane.showMessageDialog(splashscreen, txt, "About to start convert process",  
+                    JOptionPane.INFORMATION_MESSAGE);
+            
+            Truster.repairIdentities(getIdentities());
+            convertSigIntoXml();
+            
+            frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
+        }
+        splashscreen.setText(language.getString("Sending IP address to NSA"));
 
 		//Main frame		
 		mainFrame = new MainFrame(frostSettings);

@@ -307,25 +307,19 @@ public class TOF
         /* (non-Javadoc)
          * @see java.lang.Runnable#run()
          */
-        public void run()
-        {
-            while( updateThread != null )
-            {
+        public void run() {
+            while( updateThread != null ) {
                 // wait for running thread to finish
                 Mixed.wait(250);
-                if( nextUpdateThread != this )
-                {
+                if( nextUpdateThread != this ) {
                     // leave, there is a newer thread than we waiting
                     return;
                 }
             }
             // paranoia: are WE the next thread
-            if( nextUpdateThread != this )
-            {
+            if( nextUpdateThread != this ) {
                 return;
-            }
-            else
-            {
+            } else {
                 updateThread = this;
             }
 
@@ -334,11 +328,9 @@ public class TOF
             // Clear tofTable
             final Board innerTargetBoard = board;
             SwingUtilities.invokeLater( new Runnable() {
-                    public void run()
-                    {
+                    public void run() {
                         // check if tof table shows this board
-                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
-                        {
+                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
                             tableModel.clearDataModel();
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
@@ -365,8 +357,7 @@ public class TOF
                 String filename = new StringBuffer().append(keypool).append(targetBoard).append(fileSeparator).append(date).toString();
                 File loadDir = new File(filename);
 
-                if( loadDir.isDirectory() )
-                {
+                if( loadDir.isDirectory() ) {
                     File[] filePointers = loadDir.listFiles(new FilenameFilter() {
                             public boolean accept(File dir, String name) {
                                 if( name.endsWith(".xml") )
@@ -376,8 +367,7 @@ public class TOF
                     if( filePointers != null )
                     {
                         String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
-                        for( int j = 0; j < filePointers.length; j++ )
-                        {
+                        for( int j = 0; j < filePointers.length; j++ ) {
                             if( filePointers[j].length() > 0 &&
                                 //filePointers[j].length() < 32000 &&
                                 filePointers[j].getName().startsWith(sdate)
@@ -400,21 +390,17 @@ public class TOF
                                     //messages.put( message.getIndex() + message.getDateAndTime(), message);
                                     // also update labels each 10 messages (or at end, see below)
                                     boolean updateMessagesCountLabels2 = false;
-                                    if(msgcount > 9 && msgcount%10==0)
-                                    {
+                                    if(msgcount > 9 && msgcount%10==0) {
                                         updateMessagesCountLabels2 = true;
                                     }
                                     final boolean updateMessagesCountLabels = updateMessagesCountLabels2;
                                     final FrostMessageObject finalMessage = message;
                                     SwingUtilities.invokeLater( new Runnable() {
-                                        public void run()
-                                        {
+                                        public void run() {
                                             // check if tof table shows this board
-                                            if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
-                                            {
+                                            if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
                                                 tableModel.addRow(finalMessage);
-                                                if(updateMessagesCountLabels)
-                                                {
+                                                if(updateMessagesCountLabels) {
                                                     MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                                                     MainFrame.getInstance().updateTofTree(innerTargetBoard);
                                                 }
@@ -423,16 +409,14 @@ public class TOF
                                         });
                                 }
                             }
-                            if( isCancel() )
-                            {
+                            if( isCancel() ) {
                                 updateThread = null;
                                 return;
                             }
                         }
                     }
                 }
-                if( isCancel() )
-                {
+                if( isCancel() ) {
                     updateThread = null;
                     return;
                 }
@@ -441,10 +425,8 @@ public class TOF
             }
 
             SwingUtilities.invokeLater( new Runnable() {
-                    public void run()
-                    {
-                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
-                        {
+                    public void run() {
+                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
                             MainFrame.getInstance().updateTofTree(innerTargetBoard);
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
@@ -462,25 +444,31 @@ public class TOF
 	public boolean blocked(VerifyableMessageObject message, Board board) {
 		// TODO: remove this later, is already check on incoming message.
 		// this is needed as long such messages are in keypool to block these
-		//  and of course its needed if you change the setting Hide unsigned 
-		if (message.verifyTime() == false) {
-			return true;
-		}
+		//  and of course its needed if you change the setting Hide unsigned
+
+        // Done on message arrival!
+//		if (message.verifyTime() == false) {
+//			return true;
+//		}
 
 		if (board.getShowSignedOnly()
-			&& (message.getStatus().indexOf("NONE") > -1 || message.getStatus().indexOf("FAKE") > -1))
+			&& (message.getMsgStatus() == VerifyableMessageObject.xOLD || 
+                message.getMsgStatus() == VerifyableMessageObject.xTAMPERED) )
 			return true;
-		if (board.getHideBad() && (message.getStatus().indexOf("BAD") > -1))
+		if (board.getHideBad() && (message.getMsgStatus() == VerifyableMessageObject.xBAD))
 			return true;
-		if (board.getHideCheck() && (message.getStatus().indexOf("CHECK") > -1))
+		if (board.getHideCheck() && (message.getMsgStatus() == VerifyableMessageObject.xCHECK))
 			return true;
-		if (board.getHideNA() && (message.getStatus().indexOf("N/A") > -1))
+        // TODO: maybe NA is'nt needed any longer
+		if (board.getHideNA() && (message.getMsgStatus() == VerifyableMessageObject.xOLD))
 			return true;
 		//If the message is not signed and contains a @ character in the from field, we block it.
-		if (message.getStatus().indexOf("NONE") != -1 && message.getFrom().indexOf('@') != -1) {
+		if (message.getMsgStatus() == VerifyableMessageObject.xOLD && message.getFrom().indexOf('@') != -1) {
 			return true;
 		}
 
+        // TODO: maybe allow regexp here?!
+        
 		// Block by subject (and rest of the header)
 		if (MainFrame.frostSettings.getBoolValue("blockMessageChecked")) {
 			String header =
@@ -541,8 +529,7 @@ public class TOF
     /**
      * 
      */
-    public void initialSearchNewMessages()
-    {
+    public void initialSearchNewMessages() {
         new SearchAllNewMessages().start();
     }
 
@@ -554,11 +541,9 @@ public class TOF
         /* (non-Javadoc)
          * @see java.lang.Runnable#run()
          */
-        public void run()
-        {
+        public void run() {
             Enumeration e = ((DefaultMutableTreeNode) tofTreeModel.getRoot()).depthFirstEnumeration();
-            while( e.hasMoreElements() )
-            {
+            while( e.hasMoreElements() ) {
                 Board board = (Board)e.nextElement();
                 searchNewMessages(board);
             }
@@ -568,8 +553,7 @@ public class TOF
     /**
      * @param board
      */
-    public void initialSearchNewMessages(Board board)
-    {
+    public void initialSearchNewMessages(Board board) {
         new SearchNewMessages( board ).start();
     }
 
@@ -582,15 +566,13 @@ public class TOF
         /**
          * @param b
          */
-        public SearchNewMessages(Board b)
-        {
+        public SearchNewMessages(Board b) {
             board = b;
         }
         /* (non-Javadoc)
          * @see java.lang.Runnable#run()
          */
-        public void run()
-        {
+        public void run() {
             searchNewMessages(board);
         }
     }
@@ -624,69 +606,69 @@ public class TOF
         int dayCounter = 0;
         int newMessages = 0;
 
-        while( cal.after(firstDate) && dayCounter < daysToRead )
-        {
+        while( cal.after(firstDate) && dayCounter < daysToRead ) {
+
             String date = DateFun.getDateOfCalendar(cal);
             File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).append(fileSeparator)
                                                       .append(date).toString());
-            if( loadDir.isDirectory() )
-            {
-                File[] filePointers = loadDir.listFiles();
-                if( filePointers != null )
-                {
-                    for( int j = 0; j < filePointers.length; j++ )
-                    {
-                        if( filePointers[j].getName().endsWith(".xml.lck") )
-                        {
-                            // search for message
-                            String lockFilename = filePointers[j].getName();
-                            String messagename = lockFilename.substring(0, lockFilename.length()-4);
-                            boolean found = false;
-                            int k;
-                            for( k=0; k<filePointers.length; k++ )
-                            {
-                                if( filePointers[k].getName().equals( messagename ) &&
-                                    filePointers[k].length() > 0 &&
-                                    filePointers[k].length() < 32000
-                                  )
-                                {
-                                    // found message file for lock file
-                                    found = true;
-                                    break;
-                                }
-                            }
-                            if( found == false ) // messagefile for lockfile not found (paranoia)
-                            {
-                                filePointers[j].delete();
-                                continue;  // next .lck file
-                            }
-                            FrostMessageObject message;
-                            try {
-                                message = FrostMessageFactory.createFrostMessageObject(filePointers[k]);
-                            }
-                            catch(Exception ex)
-                            {
-                                // skip the file quitely
-                                message = null;
-                            }
-                            if( message != null &&
-                                message.isValid() && 
-                                !blocked(message,board) )
-                            {
-                                // update the node that contains new messages
-                                newMessages++;
-                            }
-                            else
-                            {
-                                // message is blocked, delete newmessage indicator file
-                                filePointers[j].delete();
-                            }
-                        }
-                    }
-                }
-            }
+            // prepare next loop
             dayCounter++;
             cal.add(Calendar.DATE, -1); // process previous day
+
+            // process
+            if( !loadDir.isDirectory() ) {
+                continue;
+            }
+            
+            File[] filePointers = loadDir.listFiles();
+            if( filePointers == null ) {
+                continue;
+            }
+            
+            for( int j = 0; j < filePointers.length; j++ ) {
+
+                if( !filePointers[j].getName().endsWith(".xml.lck") ) {
+                    continue;
+                }
+                
+                // search for message
+                String lockFilename = filePointers[j].getName();
+                String messagename = lockFilename.substring(0, lockFilename.length()-4);
+                boolean found = false;
+                int k;
+                for( k=0; k<filePointers.length; k++ ) {
+                    if( filePointers[k].getName().equals( messagename ) &&
+                        filePointers[k].length() > 0 //&&
+                        //filePointers[k].length() < 32000
+                      )
+                    {
+                        // found message file for lock file
+                        found = true;
+                        break;
+                    }
+                }
+                if( found == false ) { // messagefile for lockfile not found (paranoia)
+                    filePointers[j].delete();
+                    continue;  // next .lck file
+                }
+                FrostMessageObject message;
+                try {
+                    message = FrostMessageFactory.createFrostMessageObject(filePointers[k]);
+                } catch(Exception ex) {
+                    // skip the file quitely
+                    message = null;
+                }
+                if( message != null &&
+                    message.isValid() && 
+                    !blocked(message,board) )
+                {
+                    // update the node that contains new messages
+                    newMessages++;
+                } else {
+                    // message is blocked, delete newmessage indicator file
+                    filePointers[j].delete();
+                }
+            }
         }
         // count new messages arrived while processing
         int arrivedMessages = board.getNewMessageCount() - beforeMessages;
@@ -697,8 +679,7 @@ public class TOF
 
         // now a board is finished, update the tree
         SwingUtilities.invokeLater( new Runnable() {
-               public void run()
-               {
+               public void run() {
                    MainFrame.getInstance().updateTofTree(board);
                }
            });

@@ -1,26 +1,39 @@
+/*
+  FrostIdentities.java / Frost
+  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.identities;
 
-import java.util.Hashtable;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
-import frost.SettingsClass;
+import frost.*;
 import frost.storage.*;
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.Language;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 /**
  * A class that maintains identity stuff.
- * @author $Author$
- * @version $Revision$
  */
 public class FrostIdentities implements Savable {
 	
 	private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
 	
-//	private Hashtable badIds = new Hashtable();
-//	private Hashtable goodIds = new Hashtable();
 	private BuddyList enemies = new BuddyList();
 	private BuddyList friends = new BuddyList();	
 	private BuddyList neutrals = new BuddyList();
@@ -100,14 +113,6 @@ public class FrostIdentities implements Savable {
 		identitiesDAO.save(this);
 	}
 
-//	/**
-//	 * @return
-//	 */
-//	public Hashtable getBadIds() {
-//        System.out.println("GET_BAD_IDS:"+badIds.size());
-//		return badIds;
-//	}
-
 	/**
 	 * @return
 	 */
@@ -121,14 +126,6 @@ public class FrostIdentities implements Savable {
 	public BuddyList getFriends() {
 		return friends;
 	}
-
-//	/**
-//	 * @return
-//	 */
-//	public Hashtable getGoodIds() {
-//        System.out.println("GET_GOOD_IDS:"+goodIds.size());
-//		return goodIds;
-//	}
 
 	/**
 	 * @return
@@ -150,5 +147,4 @@ public class FrostIdentities implements Savable {
 	public BuddyList getNeutrals() {
 		return neutrals;
 	}
-
 }

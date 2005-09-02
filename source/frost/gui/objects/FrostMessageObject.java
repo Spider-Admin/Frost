@@ -173,7 +173,7 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
             case 0: return getIndex();
             case 1: return getFrom();
             case 2: return getSubject();
-            case 3: return getStatus();
+            case 3: return getMsgStatusString();
             case 4: return getDateAndTime();
             default: return "*ERR*"; 
         }

@@ -677,6 +677,8 @@ public class SettingsClass implements Savable {
 		defaults.put(RESTART_FAILED_UPLOADS, "true");
 		defaults.put(UPLOAD_MAX_RETRIES, "5");
 		defaults.put(UPLOAD_RETRIES_WAIT_TIME, "5");
+        
+        defaults.put("oneTimeUpdate.convertSigs.didRun", "false");
 
 		settingsHash.putAll(defaults);
 	}
