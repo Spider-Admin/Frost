@@ -107,25 +107,25 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 				return false;
 			}
 		} catch (Throwable t) {
-			logger.log(Level.SEVERE, "Oo. Exception in isValidFormat() - skipping Message.", t);
+			logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", t);
 			return false;
 		}
 		return true;
 	}
 
     /**
-     * @param dirDate
-     * @return
+     * Returns false if the date from inside the message is more than 1 day
+     * before/behind the date in the URL of the message.
+     *  
+     * @param dirDate  date of the url that was used to retrieve the message
+     * @return  true if date is valid, or false
      */
     public boolean verifyDate(GregorianCalendar dirDate) {
         VerifyableMessageObject currentMsg = this;
         SimpleDateFormat dateFormat = new SimpleDateFormat("yyyy.MM.dd");
         // first check for valid date:
-        // USE: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'   = given value 'dirDate'
-        // USE:  date in message  ( date=2003.6.9 ; time=09:32:31GMT )              = extracted from message
-        //
-        // - if date in msg. is greater than in url (in days), set msg. date the url date+put txt that it was changed into msg.
-        // - if date in msg. is smaller than url date, replace with url date (allow 2 days difference)
+        // USES: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'  = given value 'dirDate'
+        // USES: date in message  ( date=2003.6.9 ; time=09:32:31GMT )              = extracted from message
         String msgDateStr = currentMsg.getDate();
 		Date msgDateTmp = null;
 		try {
@@ -138,7 +138,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
         }
         GregorianCalendar msgDate = new GregorianCalendar();
         msgDate.setTime(msgDateTmp);
-        // set both dates to same time to allow computing millis
+        // set both dates to same _time_ to allow computing millis
         msgDate.set(Calendar.HOUR_OF_DAY, 1);
         msgDate.set(Calendar.MINUTE, 0);
         msgDate.set(Calendar.SECOND, 0);
@@ -169,7 +169,9 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
     }
 
     /**
-     * @return
+     * Verifies that the time is valid.
+     * 
+     * @return  true if time is valid, or false
      */
     public boolean verifyTime() {
         VerifyableMessageObject currentMsg = this;
