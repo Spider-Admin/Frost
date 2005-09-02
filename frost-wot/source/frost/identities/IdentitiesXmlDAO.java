@@ -11,21 +11,16 @@ import java.util.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 import frost.*;
-import frost.fcp.FecTools;
-import frost.storage.StorageException;
+import frost.storage.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class IdentitiesXmlDAO implements IdentitiesDAO {
 	
 	private static Logger logger = Logger.getLogger(IdentitiesXmlDAO.class.getName());
 	
-	private static final String OLD_FILENAME = "identities";
+//	private static final String OLD_FILENAME = "identities";
 	private static final String XML_FILENAME = "identities.xml";
 	private static final String TMP_FILENAME = "identities.xml.tmp";
 	private static final String BAK_FILENAME = "identities.xml.bak";
@@ -34,15 +29,15 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 	 * @see frost.identities.IdentitiesDAO#exists()
 	 */
 	public boolean exists() {
-		File oldFile = new File(OLD_FILENAME);
+//		File oldFile = new File(OLD_FILENAME);
 		File xmlFile = new File(XML_FILENAME);
-		if (oldFile.length() == 0) {
-			oldFile.delete();
-		}
+//		if (oldFile.length() == 0) {
+//			oldFile.delete();
+//		}
 		if (xmlFile.length() == 0) {
 			xmlFile.delete();
 		}
-		if (oldFile.exists() || xmlFile.exists()) {
+		if (/*oldFile.exists() || */ xmlFile.exists()) {
 			return true;
 		} else {
 			return false;
@@ -87,7 +82,7 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 	/**
 	 * @param identities
 	 */
-	private void loadOldFormat(FrostIdentities identities, File oldFile) throws IOException {
+//	private void loadOldFormat(FrostIdentities identities, File oldFile) throws IOException {
 //		BufferedReader fin = new BufferedReader(new FileReader(oldFile));
 //		String name = fin.readLine();
 //		String address = fin.readLine();
@@ -163,7 +158,7 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 //		if (friends.add(myId)) {
 //			logger.info("Added myself to the friends list");
 //		}
-	}
+//	}
 	
 	/*
 	 * (non-Javadoc)
@@ -171,23 +166,24 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 	 * @see frost.identities.IdentitiesDAO#load(frost.identities.FrostIdentities)
 	 */
 	public void load(FrostIdentities identities) throws StorageException {
-		File oldFile = new File(OLD_FILENAME);
+//		File oldFile = new File(OLD_FILENAME);
 		File xmlFile = new File(XML_FILENAME);
 		
 		if (xmlFile.exists()) {
 			try {
 				loadNewFormat(identities);
-				oldFile.delete();		//In case we have an old file hanging around, we delete it.
+//				oldFile.delete();		//In case we have an old file hanging around, we delete it.
 			} catch (Exception e) {
 				throw new StorageException("Exception while loading the new identities format.", e);
 			}
-		} else {
-			try {
-				loadOldFormat(identities, oldFile);
-			} catch (Exception ioe) {
-				throw new StorageException("Exception while loading the old identities format.", ioe);
-			}
-		}
+		} 
+//        else {
+//			try {
+//				loadOldFormat(identities, oldFile);
+//			} catch (Exception ioe) {
+//				throw new StorageException("Exception while loading the old identities format.", ioe);
+//			}
+//		}
 	}
 
 	/*
