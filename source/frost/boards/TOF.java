@@ -386,9 +386,7 @@ public class TOF
                                 FrostMessageObject message;
                                 try {
                                     message = FrostMessageFactory.createFrostMessageObject(filePointers[j]);
-                                }
-                                catch(Exception ex)
-                                {
+                                } catch(Exception ex) {
                                     // skip the file silently
                                     message = null;
                                 }
