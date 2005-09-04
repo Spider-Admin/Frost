@@ -354,7 +354,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						}
 
 						File unzippedTarget = new File(target.getPath() + "_unzipped");
-						FileAccess.writeByteArray(unzippedXml, unzippedTarget);
+						FileAccess.writeFile(unzippedXml, unzippedTarget);
 
 						//create the FrostIndex object
 						FrostIndex receivedIndex = null;

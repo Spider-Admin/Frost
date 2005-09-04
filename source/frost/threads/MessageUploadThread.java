@@ -25,15 +25,15 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
-import org.w3c.dom.Document;
+import org.w3c.dom.*;
 
 import frost.*;
-import frost.crypt.SignMetaData;
+import frost.crypt.*;
 import frost.fcp.*;
-import frost.fileTransfer.upload.FrostUploadItem;
-import frost.gui.MessageUploadFailedDialog;
-import frost.gui.objects.Board;
-import frost.identities.FrostIdentities;
+import frost.fileTransfer.upload.*;
+import frost.gui.*;
+import frost.gui.objects.*;
+import frost.identities.*;
 import frost.messages.*;
 
 /**
@@ -62,23 +62,42 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     
     private byte[] signMetadata;
 	private File zipFile;
+    
+    private Identity encryptForRecipient;
 
-
-	/**Constructor
-	 * @param board
-	 * @param mo
-	 * @param newIdentities
-	 * @param frostSettings
+    public MessageUploadThread(
+            Board board,
+            MessageObject mo,
+            FrostIdentities newIdentities,
+            SettingsClass frostSettings) {
+        
+        this(board, mo, newIdentities, frostSettings, null);
+    }
+	/**
+     * Upload a message.
+     * If recipient is not null, the message will be encrypted for the recipient.
+     * In this case the sender must be not Anonymous!
 	 */
 	public MessageUploadThread(
 		Board board,
 		MessageObject mo,
 		FrostIdentities newIdentities,
-		SettingsClass frostSettings) {
+		SettingsClass frostSettings,
+        Identity recipient) {
+        
 		super(board, newIdentities);
 		this.board = board;
 		this.message = mo;
 		this.frostSettings = frostSettings;
+        this.encryptForRecipient = recipient;
+        
+        String myId = identities.getMyId().getUniqueName();
+        String sender = message.getFrom();
+        if( ! (sender.equals(myId) // nick same as my identity
+               || sender.equals(Mixed.makeFilename(myId))) )// serialization may have changed it
+        {
+            logger.log(Level.SEVERE, "TOFUP: ALERT - can't encrypt message if sender is Anonymous! Will not send message!");
+        }
 
 		// we only set the date&time if they are not already set
 		// (in case the uploading was pending from before)
@@ -167,9 +186,17 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
 		FcpRequest.getFile(key, null, remoteFile, messageUploadHtl, false, false);
 		if (remoteFile.length() > 0) {
-			byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
-			FileAccess.writeByteArray(unzippedXml, remoteFile);
-			return checkLocalMessage(remoteFile);
+            if( encryptForRecipient != null ) {
+                // we compare the local encrypted zipFile with remoteFile
+                boolean isEqual = FileAccess.compareFiles(zipFile, remoteFile);
+                System.out.println("comp:"+isEqual);
+                return isEqual;
+            } else {
+                // compare contents
+                byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
+                FileAccess.writeFile(unzippedXml, remoteFile);
+                return checkLocalMessage(remoteFile);
+            }
 		} else {
 			return false;
 			//We could not retrieve the remote file. We assume they are different.	
@@ -306,8 +333,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
 		// first save msg to be able to resend on crash   
 		if (!saveMessage(message, messageFile)) {
-			logger.severe(
-				"This was a HARD error and the file to upload is lost, please report to a dev!");
+			logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
 			return false;
 		}
 
@@ -321,17 +347,34 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		zipFile.delete(); // just in case it already exists
 		zipFile.deleteOnExit(); // so that it is deleted when Frost exits
 		FileAccess.writeZipFile(FileAccess.readByteArray(messageFile), "entry", zipFile);
-
-		//sign the zipped file if necessary
+        
+		// encrypt and sign or just sign the zipped file if necessary
 		String sender = message.getFrom();
 		String myId = identities.getMyId().getUniqueName();
-		if (sender.equals(myId) //nick same as my identity
-			|| sender.equals(Mixed.makeFilename(myId))) //serialization may have changed it
-			{
-			byte[] zipped = FileAccess.readByteArray(zipFile);
-			SignMetaData md = new SignMetaData(zipped, identities.getMyId());
-			signMetadata = XMLTools.getRawXMLDocument(md);
-		}
+		if (sender.equals(myId) // nick same as my identity
+			|| sender.equals(Mixed.makeFilename(myId))) // serialization may have changed it
+		{
+            byte[] zipped = FileAccess.readByteArray(zipFile);
+            
+            if( encryptForRecipient != null ) {
+                // encrypt + sign
+                // first encrypt, then sign
+                
+                byte[] encData = Core.getCrypto().encrypt(zipped, encryptForRecipient.getKey());
+                zipFile.delete();
+                FileAccess.writeFile(encData, zipFile); // write encrypted zip file
+                
+                EncryptMetaData ed = new EncryptMetaData(encData, identities.getMyId(), encryptForRecipient.getUniqueName());
+                signMetadata = XMLTools.getRawXMLDocument(ed);
+                
+            } else {
+                // sign only
+    			SignMetaData md = new SignMetaData(zipped, identities.getMyId());
+    			signMetadata = XMLTools.getRawXMLDocument(md);
+            }
+		} else if( encryptForRecipient != null ) {
+		    return false; // unable to encrypt
+        }
 		return true;
 	}
 
@@ -532,7 +575,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             File testMe = new File(testFilename);
             if (testMe.exists() && testMe.length() > 0) {
                 // check each existing message in board if this is the msg we want to send
-                if (checkLocalMessage(testMe)) {
+                if (encryptForRecipient == null && checkLocalMessage(testMe)) {
                     throw new MessageAlreadyUploadedException();
                 } else {
                     tryIndex++;

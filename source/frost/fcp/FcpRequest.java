@@ -597,7 +597,7 @@ public class FcpRequest
                     if( algoName != null && algoName.equals("OnionFEC_a_1_2") )
                     {
                         // save metadata to temp file
-                        FileAccess.writeByteArray(results.getRawMetadata(), tempFile);
+                        FileAccess.writeFile(results.getRawMetadata(), tempFile);
                         
                         success = getFECSplitFile(target, tempFile, htl, dlItem);
                         // this method handles all working files, no more needed here

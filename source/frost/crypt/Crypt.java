@@ -19,7 +19,7 @@ import java.io.File;
 	/**
 	 * the key is the signing key
 	 */
-	public byte [] sign(byte [] message, String key);
+//	public byte [] sign(byte [] message, String key);
 	
 	/**
 	 * generates a detached signature on a String.
@@ -34,7 +34,7 @@ import java.io.File;
 	/**
 	 * the key is the verification key
 	 */
-	public boolean verify(String message, String key);
+//	public boolean verify(String message, String key);
 	
 	
 	/**
@@ -65,7 +65,9 @@ import java.io.File;
 	/**
 	 * encrypt and sign
 	 */
-	public byte [] encryptSign(byte [] what, String myKey, String otherKey);
+//	public byte [] encryptSign(byte [] what, String myKey, String otherKey);
+    
+    public byte[] encrypt(byte[] what, String key);
 
 	/**
 	 * decrypt and verify, returns null if failed

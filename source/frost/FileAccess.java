@@ -93,24 +93,6 @@ public class FileAccess
     }
 
     /**
-     * Writes a byte[] to disk
-     * @param data the byte[] with the data to write
-     * @param file the destination file
-     */
-    public static void writeByteArray(byte[] data, File file)
-    {
-        try {
-            FileOutputStream fileOut = new FileOutputStream(file);
-            fileOut.write(data);
-            fileOut.flush();
-            fileOut.close();
-        }
-        catch( IOException e ) {
-			logger.log(Level.SEVERE, "Exception thrown in writeByteArray(byte[] data, File file)", e);
-        }
-    }
-
-    /**
      * Reads a file and returns it's content in a byte[]
      * @param file the file to read
      * @return byte[] with the files content
@@ -440,9 +422,18 @@ public class FileAccess
             f1 = new FileWriter(file);
             f1.write(content);
             f1.close();
-        }
-        catch( IOException e ) {
+        } catch( IOException e ) {
 			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
+        }
+    }
+    
+    public static void writeFile(byte[] content, File file) {
+        try {
+            FileOutputStream s = new FileOutputStream(file);
+            s.write(content);
+            s.close();
+        } catch( IOException e ) {
+            logger.log(Level.SEVERE, "Exception thrown in writeFile(byte[] content, File file)", e);
         }
     }
     
@@ -723,5 +714,34 @@ public class FileAccess
 			}
 		}
 	}
-
+    
+    /**
+     * This method compares 2 file byte by byte.
+     * Returns true if they are equals, or false.
+     */
+    public static boolean compareFiles(File f1, File f2) {
+        try {
+            BufferedInputStream s1 = new BufferedInputStream(new FileInputStream(f1));
+            BufferedInputStream s2 = new BufferedInputStream(new FileInputStream(f2));
+            int i1, i2;
+            boolean equals = false;
+            while(true) {
+                i1 = s1.read();
+                i2 = s2.read();
+                if( i1 != i2 ) {
+                    equals = false;
+                    break;
+                }
+                if( i1 < 0 && i2 < 0 ) {
+                    equals = true; // both at EOF
+                    break;
+                }
+            }
+            s1.close();
+            s2.close();
+            return equals;
+        } catch(IOException e) {
+            return false;
+        }
+    }
 }

@@ -1,9 +1,21 @@
 /*
- * Created on Nov 19, 2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
+  MetaData.java / Frost
+  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.crypt;
 
 import java.util.logging.*;
@@ -14,22 +26,17 @@ import org.xml.sax.SAXException;
 import frost.*;
 import frost.identities.Identity;
 
-/**
- * @author root
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public abstract class MetaData implements XMLizable {
 	
 	private static Logger logger = Logger.getLogger(MetaData.class.getName());
 	
-	public static final int SIGN=0;
-	public static final int ENCRYPT=1;
+	public static final int SIGN    = 0;
+	public static final int ENCRYPT = 1;
 	
 	public abstract int getType();
 	
-	Identity person;
+	Identity person; // sender
+    
 	/**
 	 * @return the person (sender or recepient) of the message
 	 */
@@ -40,24 +47,25 @@ public abstract class MetaData implements XMLizable {
 	public Element getXMLElement(Document container){
 		Element el= container.createElement("FrostMetaData");
 //		make sure we don't add sensitive fields in the metadata
-			  // FIXME: maybe its better to remove all but the only wanted?
-			  // otherwise new fields could come into the xml file
-			  Element _person = person.getSafeXMLElement(container);
+	    // FIXME: maybe its better to remove all but the only wanted?
+	    // otherwise new fields could come into the xml file
+	    Element _person = person.getSafeXMLElement(container);
 
-			  el.appendChild(_person);
-			  return el;
+	    el.appendChild(_person);
+  	    return el;
 	}
 	
-	public static MetaData getInstance(byte [] body, Element e){
-		assert e!=null;
+	public static MetaData getInstance(byte [] body, Element e) {
+		assert e != null;
 		assert e.getNodeName().equals("FrostMetaData") : "root tag \"FrostMetaData\" missing!";
 		
 		try {
-			if (XMLTools.getChildElementsByTagName(e,"sig").size() > 0)
+			if (XMLTools.getChildElementsByTagName(e,"Recipient").size() == 0) {
 				return new SignMetaData(body, e);
-			else
+            } else {
 				return new EncryptMetaData(e);
-		}catch(SAXException ex) {
+            }
+		} catch(SAXException ex) {
 			logger.log(Level.SEVERE, "Exception thrown in getInstance(byte [] body, Element e)", ex);
 		}
 		return null;

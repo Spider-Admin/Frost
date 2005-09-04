@@ -1,34 +1,43 @@
 /*
- * Created on Oct 21, 2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
+  SignMetaData.java / Frost
+  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.crypt;
 
-import java.io.File;
+import java.io.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 import frost.*;
 import frost.identities.*;
-import frost.identities.Identity;
-
-
 
 /**
  * @author zlatinb
  *
  * This file represents MetaData that's of a file in Freenet.
- * It has the followint format:
+ * It has the following format:
  * <FrostMetaData>
- * <MyIdentity>
- * 	<name> unique name of person</name>
- * 	<key> public key of person </key>
- * </MyIdentity>
- * <sig> signature of file </sig>
+ *  <MyIdentity>
+ * 	 <name> unique name of person</name>
+ * 	 <key> public key of person </key>
+ *  </MyIdentity>
+ *  <sig> signature of file </sig>
  * </FrostMetaData>
  */
 public class SignMetaData extends MetaData {
@@ -37,16 +46,16 @@ public class SignMetaData extends MetaData {
 	
 	byte [] plaintext;
 	String sig;
-	boolean signed; //true = signed, false = encrypted
+//	boolean signed; // true = signed, false = encrypted
 	
-	public SignMetaData(){
-			person =null;
-			plaintext=null;
-			sig=null;
+	public SignMetaData() {
+		person = null;
+		plaintext = null;
+		sig = null;
 	}
 	
 	/**
-	 * represents a metadata of something about to be sent
+	 * Represents a metadata of something about to be sent.
 	 * @param plaintext
 	 */
 	public SignMetaData(byte[] plaintext, LocalIdentity myId) {
@@ -54,22 +63,25 @@ public class SignMetaData extends MetaData {
 		this.plaintext = plaintext;
 		sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivKey());
 	}
-	
-	public SignMetaData(byte [] plaintext, byte [] metadata) throws Throwable
-    {
+    
+    
+	/**
+     * Metadata of something that was received. 
+	 */
+	public SignMetaData(byte [] plaintext, byte [] metadata) throws Throwable {
+        
 		File tmp = new File("metadataTemp"+ System.currentTimeMillis());
-		FileAccess.writeByteArray(metadata,tmp);
+		FileAccess.writeFile(metadata,tmp);
 		Document d = XMLTools.parseXmlFile(tmp,false);
 		Element el = d.getDocumentElement();
-        if( el.getTagName().equals("FrostMetaData") == false )
-        {
+        if( el.getTagName().equals("FrostMetaData") == false ) {
             tmp.delete();
             throw new Exception("This is not FrostMetaData XML file.");
         }
 		this.plaintext = plaintext;
 		try {
 			loadXMLElement(el);
-		}catch (SAXException e){
+		} catch (SAXException e) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
             tmp.delete();
 			plaintext = null;
@@ -83,12 +95,11 @@ public class SignMetaData extends MetaData {
 	 * @param plaintext the plaintext to be verified
 	 * @param el the xml element to populate from
 	 */
-	public SignMetaData(byte [] plaintext, Element el) throws SAXException
-    {
+	public SignMetaData(byte [] plaintext, Element el) throws SAXException {
 		this.plaintext = plaintext;
-		try{
+		try {
 			loadXMLElement(el);
-		}catch (SAXException e){
+		} catch (SAXException e) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
 			plaintext = null;
             throw e;
@@ -178,5 +189,4 @@ public class SignMetaData extends MetaData {
 	public int getType() {
 		return MetaData.SIGN;
 	}
-
 }

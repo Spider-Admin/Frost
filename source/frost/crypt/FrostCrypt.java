@@ -1,3 +1,21 @@
+/*
+  FrostCrypt.java / Frost
+  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.crypt;
 
 import java.io.*;
@@ -20,7 +38,6 @@ import org.bouncycastle.util.encoders.Base64;
 /**
  * implementation of the crypto layer
  */
-
 public final class FrostCrypt implements Crypt {
 
 	private static Logger logger = Logger.getLogger(FrostCrypt.class.getName());
@@ -33,15 +50,14 @@ public final class FrostCrypt implements Crypt {
 	private static SHA1Digest sha1Digest = new SHA1Digest();
 	private static final PSSSigner signer =
 		new PSSSigner(rsaEngine, sha1Digest, 16);
-	private static TwofishEngine twofish = new TwofishEngine();
-	private static BufferedAsymmetricBlockCipher d_encryptor =
-		new BufferedAsymmetricBlockCipher(rsaEngine);
+//	private static TwofishEngine twofish = new TwofishEngine();
+//	private static BufferedAsymmetricBlockCipher d_encryptor = new BufferedAsymmetricBlockCipher(rsaEngine);
 	//private static BufferedBlockCipher sd_encryptor;
 
 	public FrostCrypt() {
 		keygen = new RSAKeyPairGenerator();
 		//frost.Core.getOut().println("creating signer " + signer.toString());
-		twofish = new TwofishEngine();
+//		twofish = new TwofishEngine();
 		texter = new Base64();
 	}
 
@@ -66,24 +82,18 @@ public final class FrostCrypt implements Crypt {
 		StringBuffer temp = new StringBuffer("");
 
 		//create the keys
-		temp.append(
-			new String(Base64.encode(PubKey.getExponent().toByteArray())));
+		temp.append( new String(Base64.encode(PubKey.getExponent().toByteArray())));
 		temp.append(":");
-		temp.append(
-			new String(Base64.encode(PubKey.getModulus().toByteArray())));
+		temp.append(new String(Base64.encode(PubKey.getModulus().toByteArray())));
 		result[1] = temp.toString();
 
 		//rince and repeat, this time exactly the way its done in the constructor
 		temp = new StringBuffer("");
-		temp.append(
-			new String(Base64.encode(PrivKey.getModulus().toByteArray())));
+		temp.append(new String(Base64.encode(PrivKey.getModulus().toByteArray())));
 		temp.append(":");
-		temp.append(
-			new String(
-				Base64.encode(PrivKey.getPublicExponent().toByteArray())));
+		temp.append(new String(Base64.encode(PrivKey.getPublicExponent().toByteArray())));
 		temp.append(":");
-		temp.append(
-			new String(Base64.encode(PrivKey.getExponent().toByteArray())));
+		temp.append(new String(Base64.encode(PrivKey.getExponent().toByteArray())));
 		temp.append(":");
 		temp.append(new String(Base64.encode(PrivKey.getP().toByteArray())));
 		temp.append(":");
@@ -100,85 +110,88 @@ public final class FrostCrypt implements Crypt {
 		return result;
 	}
 
-	public synchronized byte [] sign(byte [] message, String key) {
+//	public synchronized byte [] sign(byte [] message, String key) {
+//
+//		//extract the key
+//		StringBuffer signedMessage =
+//			new StringBuffer(new String("===Frost signed message===\n"));
+//		signedMessage.append(message);
+//		StringTokenizer keycutter = new StringTokenizer(key, ":");
+//		RSAPrivateCrtKeyParameters privKey =
+//			new RSAPrivateCrtKeyParameters(
+//				new BigInteger(Base64.decode(keycutter.nextToken())),
+//				new BigInteger(Base64.decode(keycutter.nextToken())),
+//				new BigInteger(Base64.decode(keycutter.nextToken())),
+//				new BigInteger(Base64.decode(keycutter.nextToken())),
+//				new BigInteger(Base64.decode(keycutter.nextToken())),
+//				new BigInteger(Base64.decode(keycutter.nextToken())),
+//				new BigInteger(Base64.decode(keycutter.nextToken())),
+//				new BigInteger(Base64.decode(keycutter.nextToken())));
+//
+//		//initialize the signer
+//
+//		signer.init(true, privKey);
+//		signer.update(message, 0, message.length);
+//
+//		//and sign
+//		try {
+//			byte[] signature = signer.generateSignature();
+//			signedMessage.append("\n=== Frost message signature: ===\n");
+//			signedMessage.append(new String(Base64.encode(signature)));
+//			signedMessage.append("\n=== End of Signature. ===");
+//		} catch (CryptoException e) {
+//			logger.log(Level.SEVERE, "Exception thrown in sign(byte [] message, String key)", e);
+//		}
+//
+//		//reset the signer
+//		signer.reset();
+//
+//		return signedMessage.toString().getBytes();
+//	}
 
-		//extract the key
-		StringBuffer signedMessage =
-			new StringBuffer(new String("===Frost signed message===\n"));
-		signedMessage.append(message);
-		StringTokenizer keycutter = new StringTokenizer(key, ":");
-		RSAPrivateCrtKeyParameters privKey =
-			new RSAPrivateCrtKeyParameters(
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())));
-
-		//initialize the signer
-
-		signer.init(true, privKey);
-		signer.update(message, 0, message.length);
-
-		//and sign
-		try {
-			byte[] signature = signer.generateSignature();
-			signedMessage.append("\n=== Frost message signature: ===\n");
-			signedMessage.append(new String(Base64.encode(signature)));
-			signedMessage.append("\n=== End of Signature. ===");
-		} catch (CryptoException e) {
-			logger.log(Level.SEVERE, "Exception thrown in sign(byte [] message, String key)", e);
-		}
-
-		//reset the signer
-		signer.reset();
-
-		return signedMessage.toString().getBytes();
-	}
-
-	public synchronized boolean verify(String message, String key) {
-		//reset the signer
-
-		//process the message first
-		StringBuffer msg = new StringBuffer(message);
-
-		//check for header, footer, etc.
-		int a = msg.indexOf("===Frost signed message===\n");
-		if (a == -1)
-			return false;
-		int b = msg.lastIndexOf("\n=== Frost message signature: ===\n");
-		if ((b == -1) || (b < a))
-			return false;
-		int c = msg.indexOf("\n=== End of Signature. ===", b);
-		if ((c == -1) || (c < b) || (c < a))
-			return false;
-
-		//now extract the message and sig
-		String plaintext = msg.substring(a + MSG_HEADER_SIZE, b);
-		//frost.Core.getOut().println("plaintext is " + plaintext);
-		String signature = msg.substring(b + SIG_HEADER_SIZE, c);
-		//frost.Core.getOut().println("signature is " + signature);
-
-		//extract the key
-		StringTokenizer keycutter = new StringTokenizer(key, ":");
-		BigInteger Exponent =
-			new BigInteger(Base64.decode(keycutter.nextToken()));
-		BigInteger Modulus =
-			new BigInteger(Base64.decode(keycutter.nextToken()));
-		signer.init(false, new RSAKeyParameters(true, Modulus, Exponent));
-
-		//and verify!
-		signer.update(plaintext.getBytes(), 0, plaintext.length());
-
-		boolean result =
-			signer.verifySignature(Base64.decode(signature.getBytes()));
-		signer.reset();
-		return result;
-
-	}
+//	public synchronized boolean verify(String message, String key) {
+//		//reset the signer
+//
+//		//process the message first
+//		StringBuffer msg = new StringBuffer(message);
+//
+//		//check for header, footer, etc.
+//		int a = msg.indexOf("===Frost signed message===\n");
+//		if (a == -1) {
+//			return false;
+//        }
+//		int b = msg.lastIndexOf("\n=== Frost message signature: ===\n");
+//		if ((b == -1) || (b < a)) {
+//			return false;
+//        }
+//		int c = msg.indexOf("\n=== End of Signature. ===", b);
+//		if ((c == -1) || (c < b) || (c < a)) {
+//			return false;
+//        }
+//
+//		//now extract the message and sig
+//		String plaintext = msg.substring(a + MSG_HEADER_SIZE, b);
+//		//frost.Core.getOut().println("plaintext is " + plaintext);
+//		String signature = msg.substring(b + SIG_HEADER_SIZE, c);
+//		//frost.Core.getOut().println("signature is " + signature);
+//
+//		//extract the key
+//		StringTokenizer keycutter = new StringTokenizer(key, ":");
+//		BigInteger Exponent =
+//			new BigInteger(Base64.decode(keycutter.nextToken()));
+//		BigInteger Modulus =
+//			new BigInteger(Base64.decode(keycutter.nextToken()));
+//		signer.init(false, new RSAKeyParameters(true, Modulus, Exponent));
+//
+//		//and verify!
+//		signer.update(plaintext.getBytes(), 0, plaintext.length());
+//
+//		boolean result =
+//			signer.verifySignature(Base64.decode(signature.getBytes()));
+//		signer.reset();
+//		return result;
+//
+//	}
 
 	public synchronized String digest(String message) {
 		SHA1Digest stomach = new SHA1Digest();
@@ -285,79 +298,125 @@ public final class FrostCrypt implements Crypt {
 		return null;
 	}
 
-	public synchronized byte [] encrypt(byte [] what, String otherKey) {
-		return encryptSign(what, null, otherKey, false);
-	}
-	
-	public synchronized byte [] encryptSign(byte [] what,String myKey, String otherKey) {
-			return encryptSign(what, myKey, otherKey, true);
-		}
-	private synchronized byte [] encryptSign(
-		byte [] what,
-		String myKey,
-		String otherKey,
-		boolean sign) {
+//	public synchronized byte [] encrypt(byte [] what, String otherKey) {
+//		return encryptSign(what, null, otherKey, false);
+//	}
+//	
+//	public synchronized byte [] encryptSign(byte [] what,String myKey, String otherKey) {
+//			return encryptSign(what, myKey, otherKey, true);
+//		}
+//	private synchronized byte [] encryptSign(
+//		byte [] what,
+//		String myKey,
+//		String otherKey,
+//		boolean sign) {
+//
+//		//initialize d_encryptor
+//		StringTokenizer keycutter = new StringTokenizer(otherKey, ":");
+//		BigInteger Exponent =
+//			new BigInteger(Base64.decode(keycutter.nextToken()));
+//		BigInteger Modulus =
+//			new BigInteger(Base64.decode(keycutter.nextToken()));
+//		RSAEngine rsa = new RSAEngine();
+//		rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
+//		//d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
+//		int size = rsa.getInputBlockSize();
+//		//frost.Core.getOut().println("input block size "+size);
+//		int outSize = rsa.getOutputBlockSize();
+//		//frost.Core.getOut().println("output block size " + outSize);
+//
+//		//sign the message
+//		if (sign)
+//			what = sign(what, myKey);
+//		/*frost.Core.getOut().println(what);/*
+//		frost.Core.getOut().println("encoded plaintext looks like \n " + new String(texter.encode(what.getBytes())));
+//		frost.Core.getOut().println("this will need " + (what.length()/size +1) + " blocks");*/
+//
+//		//put the message in the encryptor
+//
+//		int noRuns = what.length / size;
+//		if (what.length % size != 0)
+//			noRuns++;
+//		byte[] tmp = new byte[noRuns * 128];
+//		byte[] str = new byte[noRuns * size];
+//		System.arraycopy(what, 0, str, 0, what.length);
+//
+//		//determine how many blocks we need
+//		//int noRuns =what.length() / size;
+//		String result = new String();
+//		//insert them in the cipher, block at a time
+//
+//		for (int i = 0; i < noRuns; i++) {
+//			System.arraycopy(
+//				rsa.processBlock(str, i * size, size),
+//				0,
+//				tmp,
+//				i * outSize,
+//				outSize);
+//		}
+//		result = new String(Base64.encode(tmp));
+//		//d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
+//		//result = result + (new String(texter.encode(d_encryptor.doFinal())));
+//
+//		//pad the string with header and footer
+//		result =
+//			new String(
+//				"==== Frost Signed+Encrypted Message ===="
+//					+ result
+//					+ "==== End Of Frost SE Message ====");
+//
+//		//rsa.reset();
+//		return result.getBytes();
+//
+//		//return null;
+//	}
 
-		//initialize d_encryptor
-		StringTokenizer keycutter = new StringTokenizer(otherKey, ":");
-		BigInteger Exponent =
-			new BigInteger(Base64.decode(keycutter.nextToken()));
-		BigInteger Modulus =
-			new BigInteger(Base64.decode(keycutter.nextToken()));
-		RSAEngine rsa = new RSAEngine();
-		rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
-		//d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
-		int size = rsa.getInputBlockSize();
-		//frost.Core.getOut().println("input block size "+size);
-		int outSize = rsa.getOutputBlockSize();
-		//frost.Core.getOut().println("output block size " + outSize);
+    // TODO: test!
+    public synchronized byte[] encrypt(byte[] what, String key) {
+        
+      StringTokenizer keycutter = new StringTokenizer(key, ":");
+      BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
+      BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
+      RSAEngine rsa = new RSAEngine();
+      rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
+      //d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
+      int size = rsa.getInputBlockSize();
+      //frost.Core.getOut().println("input block size "+size);
+      int outSize = rsa.getOutputBlockSize();
+      //frost.Core.getOut().println("output block size " + outSize);
 
-		//sign the message
-		if (sign)
-			what = sign(what, myKey);
-		/*frost.Core.getOut().println(what);/*
-		frost.Core.getOut().println("encoded plaintext looks like \n " + new String(texter.encode(what.getBytes())));
-		frost.Core.getOut().println("this will need " + (what.length()/size +1) + " blocks");*/
+      //put the message in the encryptor
 
-		//put the message in the encryptor
+      //determine how many blocks we need
+      int noRuns = what.length / size;
+      if (what.length % size != 0) {
+          noRuns++;
+      }
+      byte[] tmp = new byte[noRuns * 128];
+      byte[] str = new byte[noRuns * size];
+      System.arraycopy(what, 0, str, 0, what.length);
 
-		int noRuns = what.length / size;
-		if (what.length % size != 0)
-			noRuns++;
-		byte[] tmp = new byte[noRuns * 128];
-		byte[] str = new byte[noRuns * size];
-		System.arraycopy(what, 0, str, 0, what.length);
+      String result = new String();
+      //insert them in the cipher, block at a time
 
-		//determine how many blocks we need
-		//int noRuns =what.length() / size;
-		String result = new String();
-		//insert them in the cipher, block at a time
+      for (int i = 0; i < noRuns; i++) {
+          System.arraycopy(
+              rsa.processBlock(str, i * size, size),
+              0,
+              tmp,
+              i * outSize,
+              outSize);
+      }
+      result = new String(Base64.encode(tmp));
+      //d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
+      //result = result + (new String(texter.encode(d_encryptor.doFinal())));
 
-		for (int i = 0; i < noRuns; i++) {
-			System.arraycopy(
-				rsa.processBlock(str, i * size, size),
-				0,
-				tmp,
-				i * outSize,
-				outSize);
-		}
-		result = new String(Base64.encode(tmp));
-		//d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
-		//result = result + (new String(texter.encode(d_encryptor.doFinal())));
-
-		//pad the string with header and footer
-		result =
-			new String(
-				"==== Frost Signed+Encrypted Message ===="
-					+ result
-					+ "==== End Of Frost SE Message ====");
-
-		//rsa.reset();
-		return result.getBytes();
-
-		//return null;
-	}
-
+      //pad the string with header and footer
+      //rsa.reset();
+      return result.getBytes();
+    }
+    
+    
 	public synchronized byte [] decrypt(byte [] what, String otherKey) {
 
 		//frost.Core.getOut().println("stripped what: " +what);
@@ -395,10 +454,7 @@ public final class FrostCrypt implements Crypt {
 				i * outSize,
 				outSize);
 		}
-
-
 		return plainText;
-
 	}
 
 	public synchronized String detachedSign(String message, String key){
