@@ -6,14 +6,15 @@
  */
 package frost.threads.maintenance;
 
-import java.io.File;
-import java.util.ArrayList;
+import java.io.*;
+import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
 import frost.boards.*;
-import frost.gui.objects.Board;
-import frost.messages.MessageObject;
+import frost.gui.objects.*;
+import frost.identities.*;
+import frost.messages.*;
 
 
 /**
@@ -79,7 +80,15 @@ public class ResendFailedMessagesThread extends Thread
                     }
                     // message will be resigned before send, actual date/time will be used
                     // no more faking here :)
-                    tofTree.getRunningBoardUpdateThreads().startMessageUpload(board, mo, null);
+                    Identity recipient = null;
+                    if( mo.getRecipient() != null && mo.getRecipient().length() > 0) {
+                        recipient = Core.getInstance().getIdentities().getFriends().get(mo.getRecipient());
+                        if( recipient == null ) {
+                            logger.warning("Can't resend Message '" + mo.getSubject() + "', the recipient is not longer in your identites file!");
+                            continue;
+                        }
+                    } 
+                    tofTree.getRunningBoardUpdateThreads().startMessageUpload(board, mo, null, recipient);
                     logger.info("Message '" + mo.getSubject() + "' will be resent to board '" + board.getName() + "'.");
                 }
                 // check if upload was successful before deleting the file -

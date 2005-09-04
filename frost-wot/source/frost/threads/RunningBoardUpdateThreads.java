@@ -3,13 +3,13 @@ package frost.threads;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JFrame;
+import javax.swing.*;
 
 import frost.*;
-import frost.gui.objects.Board;
-import frost.identities.FrostIdentities;
-import frost.messages.MessageObject;
-import frost.messaging.MessageHashes;
+import frost.gui.objects.*;
+import frost.identities.*;
+import frost.messages.*;
+import frost.messaging.*;
 
 /**
  * This class maintains the message download and upload threads.
@@ -223,10 +223,11 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 	public boolean startMessageUpload(
 		Board board,
 		MessageObject mo,
-		BoardUpdateThreadListener listener) {
+		BoardUpdateThreadListener listener,
+        Identity recipient) {
 			
 		MessageUploadThread msgUploadThread =
-			new MessageUploadThread(board, mo, identities, frostSettings);
+			new MessageUploadThread(board, mo, identities, frostSettings, recipient);
 		msgUploadThread.setParentFrame(parentFrame);
 		// register listener and this class as listener
 		msgUploadThread.addBoardUpdateThreadListener(this);

@@ -574,7 +574,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                 int datalen = (int)(checkSize.length() - metadataLength);
                 byte[] rawdata = new byte[ datalen];
                 System.arraycopy(content, (int)metadataLength, rawdata, 0, datalen);
-                FileAccess.writeByteArray(rawdata, checkSize); 
+                FileAccess.writeFile(rawdata, checkSize); 
             }
         }
         else if( metadataLength == 0 && checkSize.length() == 0 )

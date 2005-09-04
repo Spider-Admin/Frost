@@ -32,13 +32,13 @@ import javax.swing.event.*;
 import javax.swing.text.*;
 
 import frost.*;
-import frost.boards.TofTree;
-import frost.fcp.FcpInsert;
+import frost.boards.*;
+import frost.fcp.*;
 import frost.gui.model.*;
-import frost.gui.objects.Board;
-import frost.identities.LocalIdentity;
+import frost.gui.objects.*;
+import frost.identities.*;
 import frost.messages.*;
-import frost.storage.StorageException;
+import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -93,7 +93,7 @@ public class MessageFrame extends JFrame
          * 
          */
         private void initGui()
-        {        	
+        {
             Bok = new JButton("OK");
             Bok.addActionListener( new ActionListener() {
                    public void actionPerformed(ActionEvent e) {
@@ -699,6 +699,8 @@ public class MessageFrame extends JFrame
 	private JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
 
 	private JCheckBox sign = new JCheckBox();
+    JCheckBox encrypt = new JCheckBox("Encrypt for");
+    JComboBox buddies;
     private JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
 
     private JLabel Lboard = new JLabel();
@@ -974,6 +976,17 @@ public class MessageFrame extends JFrame
 			filesTableScrollPane = new JScrollPane(filesTable);
 			filesTable.addMouseListener(listener);
 
+            if( Core.getInstance().getIdentities().getFriends() != null ) {
+                BuddyList friends = Core.getInstance().getIdentities().getFriends();
+                String[] buddyNames = new String[friends.size()];
+                Vector budList = new Vector( friends.repairGetKeys() );
+                Collections.sort( budList, new BuddyComparator() );
+                buddies = new JComboBox(budList);
+                buddies.setSelectedItem(budList.get(0));
+            } else {
+                buddies = new JComboBox();
+            }
+            
 			MiscToolkit toolkit = MiscToolkit.getInstance();
 			toolkit.configureButton(Bsend, "Send message", "/data/send_rollover.gif", language);
 			toolkit.configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif", language);
@@ -1005,6 +1018,14 @@ public class MessageFrame extends JFrame
 				fromTextField.setEditable(false);
 				sign.setSelected(true);
 			}
+            
+            if( sign.isSelected() ) {
+                encrypt.setEnabled(true);
+            } else {
+                encrypt.setEnabled(false);
+            }
+            encrypt.setSelected(false);
+            buddies.setEnabled(false);
 
 			addAttachedFilesToUploadTable.setSelected(false);
 
@@ -1036,6 +1057,11 @@ public class MessageFrame extends JFrame
 					sign_ActionPerformed(e);
 				}
 			});
+            encrypt.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    encrypt_ActionPerformed(e);
+                }
+            });
 			fromTextField.getDocument().addDocumentListener(new DocumentListener() {
 				public void changedUpdate(DocumentEvent e) {
 					updateHeaderArea();
@@ -1108,6 +1134,8 @@ public class MessageFrame extends JFrame
 			panelButtons.add(BattachFile);
 			panelButtons.add(BattachBoard);
 			panelButtons.add(sign);
+            panelButtons.add(encrypt);
+            panelButtons.add(buddies);
 			panelButtons.add(addAttachedFilesToUploadTable);
 
 			JPanel dummyPanel = new JPanel(new BorderLayout());
@@ -1262,29 +1290,25 @@ public class MessageFrame extends JFrame
 
         boolean quit = true;
 
-        if( subject.equals("No subject") )
-        {
+        if( subject.equals("No subject") ) {
             int n = JOptionPane.showConfirmDialog( this,
             					language.getString("Do you want to enter a subject?"),
 								language.getString("No subject specified!"),
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.QUESTION_MESSAGE);
-            if( n == JOptionPane.YES_OPTION )
-            {
+            if( n == JOptionPane.YES_OPTION ) {
                 return;
             }
         }
         
-        if( subject.length() == 0)
-        {
+        if( subject.length() == 0) {
             JOptionPane.showMessageDialog( this,
             					language.getString("You must enter a subject!"),
 								language.getString("No subject specified!"),
             					JOptionPane.ERROR);
             return;                               
         }
-        if( from.length() == 0)
-        {
+        if( from.length() == 0) {
             JOptionPane.showMessageDialog( this,
             					language.getString("You must enter a sender name!"),
 								language.getString("No 'From' specified!"),
@@ -1301,48 +1325,52 @@ public class MessageFrame extends JFrame
         mo.setFrom(from);
         mo.setSubject(subject);
         mo.setContent(text);
-        if( sign.isSelected() )
-        {
+        
+        if( sign.isSelected() ) {
             mo.setPublicKey(myId.getKey());
         }
+        
         // MessageUploadThread will set date + time !
         
         // attach all files and boards the user chosed
-        for(int x=0; x < filesTableModel.getRowCount(); x++)
-        {
+        for(int x=0; x < filesTableModel.getRowCount(); x++) {
             MFAttachedFile af = (MFAttachedFile)filesTableModel.getRow(x);
             File aChosedFile = af.getFile();
             Board boardObj = null;
             
             SharedFileObject sfo;
-            if (aChosedFile.length() > FcpInsert.smallestChunk)
+            if (aChosedFile.length() > FcpInsert.smallestChunk) {
             	sfo = new FECRedirectFileObject(aChosedFile,boardObj);
-            else 
+            } else { 
             	sfo= new SharedFileObject(aChosedFile, boardObj);
-			if( addAttachedFilesToUploadTable.isSelected() )
-			{
-						sfo.setOwner(sign.isSelected() ?
-											Mixed.makeFilename(myId.getUniqueName()) :
-											"Anonymous");
+            }
+			if( addAttachedFilesToUploadTable.isSelected() ) {
+				sfo.setOwner(sign.isSelected() ?
+									Mixed.makeFilename(myId.getUniqueName()) :
+									"Anonymous");
 			}
-			
-			
             FileAttachment fa = new FileAttachment(sfo);
             mo.addAttachment(fa);
         }
-        for(int x=0; x < boardsTableModel.getRowCount(); x++)
-        {
+        for(int x=0; x < boardsTableModel.getRowCount(); x++) {
             MFAttachedBoard ab = (MFAttachedBoard)boardsTableModel.getRow(x);
             Board aChosedBoard = ab.getBoardObject();
             BoardAttachment ba = new BoardAttachment(aChosedBoard);
             mo.addAttachment(ba);
         }
 
-        // start upload thread which also saves the file, uploads attachments+signs if choosed
+        Identity recipient = null;
+        if( encrypt.isEnabled() && encrypt.isSelected() ) {
+            String rec = (String)buddies.getSelectedItem();
+            mo.setRecipient(rec);
+            recipient = Core.getInstance().getIdentities().getFriends().get(rec);
+        }
+        // start upload thread which also saves the file, uploads attachments and signs if choosed
         tofTree.getRunningBoardUpdateThreads().startMessageUpload(
                                               board,
                                               mo,
-                                              null);
+                                              null,
+                                              recipient);
 
         frostSettings.setValue("lastUsedDirectory", lastUsedDirectory);
         try {
@@ -1365,12 +1393,22 @@ public class MessageFrame extends JFrame
 		if (sign.isSelected()) {
 			sender = myId.getUniqueName();
 			fromTextField.setEditable(false);
+            encrypt.setEnabled(true);
 		} else {
 			sender = "Anonymous";
 			fromTextField.setEditable(true);
+            encrypt.setEnabled(false);
 		}
 		fromTextField.setText(sender);
 	}
+
+    private void encrypt_ActionPerformed(ActionEvent e) {
+        if( encrypt.isSelected() ) {
+            buddies.setEnabled(true);
+        } else {
+            buddies.setEnabled(false);
+        }
+    }
 
 	/**
 	 * 

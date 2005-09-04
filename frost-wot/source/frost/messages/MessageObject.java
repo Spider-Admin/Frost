@@ -52,6 +52,7 @@ public class MessageObject implements XMLizable
     private String time = "";
     private String index = "";
     private String publicKey  = "";
+    private String recipient = "";
     private boolean deleted = false;
     private int signatureStatus = SIGNATURESTATUS_UNSET;
     
@@ -206,6 +207,10 @@ public class MessageObject implements XMLizable
 		return index;
 	}
     
+    public String getRecipient() {
+        return recipient;
+    }
+    
     /**
 	 * @return
 	 */
@@ -292,12 +297,20 @@ public class MessageObject implements XMLizable
 		el.appendChild(current);
 
 		//public Key
-		if (publicKey != null) {
+		if (publicKey != null && publicKey.length() > 0) {
 			current = d.createElement("pubKey");
 			cdata = d.createCDATASection(Mixed.makeSafeXML(getPublicKey()));
 			current.appendChild(cdata);
 			el.appendChild(current);
 		}
+        
+        // recipient
+        if (recipient != null && recipient.length() > 0) {
+            current = d.createElement("recipient");
+            cdata = d.createCDATASection(Mixed.makeSafeXML(getRecipient()));
+            current.appendChild(cdata);
+            el.appendChild(current);
+        }
 
 		//is deleted?
 		if (deleted) {
@@ -415,6 +428,7 @@ public class MessageObject implements XMLizable
 		subject = XMLTools.getChildElementsCDATAValue(e, "Subject");
 		time = XMLTools.getChildElementsCDATAValue(e, "Time");
 		publicKey = XMLTools.getChildElementsCDATAValue(e, "pubKey");
+        recipient = XMLTools.getChildElementsCDATAValue(e, "recipient");
 		board = XMLTools.getChildElementsCDATAValue(e, "Board");
 		content = XMLTools.getChildElementsCDATAValue(e, "Body");
 
@@ -528,6 +542,10 @@ public class MessageObject implements XMLizable
 	public void setTime(String time) {
 		this.time = time;
 	}
+    
+    public void setRecipient(String rec) {
+        recipient = rec;
+    }
 	
 	/**
 	 * This method adds a new Attachment to the attachments list.

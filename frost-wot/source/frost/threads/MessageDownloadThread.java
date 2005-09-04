@@ -274,7 +274,7 @@ public class MessageDownloadThread
                 if (metadata == null) {
                     
                     byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
-                    FileAccess.writeByteArray(unzippedXml, testMe);
+                    FileAccess.writeFile(unzippedXml, testMe);
 
                     try {
                         currentMsg = new VerifyableMessageObject(testMe);
@@ -295,8 +295,8 @@ public class MessageDownloadThread
                 byte[] plaintext = FileAccess.readByteArray(testMe);
                 MetaData _metaData = null;
                 try {
-                	File tempMeta = new File("tempMeta");
-                	FileAccess.writeByteArray(metadata,tempMeta);
+                	File tempMeta = new File("tempMeta"+System.currentTimeMillis());
+                	FileAccess.writeFile(metadata,tempMeta);
                 	Element el = XMLTools.parseXmlFile(tempMeta,false).getDocumentElement();
                 	tempMeta.delete();
                     _metaData = MetaData.getInstance(plaintext, el);
@@ -305,7 +305,7 @@ public class MessageDownloadThread
 					logger.log(Level.SEVERE, "TOFDN: Metadata couldn't be read. " +
                             		"Offending file saved as badmetadata.xml - send to a dev for analysis", t);
                     File badmetadata = new File("badmetadata.xml");
-                    FileAccess.writeByteArray(metadata, badmetadata);
+                    FileAccess.writeFile(metadata, badmetadata);
                     // don't try this file again
                     FileAccess.writeFile("Broken", testMe); // this file is ignored by the gui
                     continue;
@@ -315,103 +315,109 @@ public class MessageDownloadThread
                 	_metaData.getType() == MetaData.ENCRYPT :
                 	"TOFDN: unknown type of metadata";
                 
-                //start of signed message processing
-                if (_metaData.getType() == MetaData.SIGN) {
-					SignMetaData metaData = (SignMetaData)_metaData;
-                    //check if we have the owner already on the lists
-                    String _owner = metaData.getPerson().getUniqueName();
-
-                    Identity owner;
-                    //check friends
-                    owner = identities.getFriends().get(_owner);
-                    //if not, check neutral
-                    if (owner == null) {
-                        owner = identities.getNeutrals().get(_owner);
-                    }
-                    //if not, check enemies
-                    if (owner == null) {
-                        owner = identities.getEnemies().get(_owner);
-                    }
-                    //if still not, use the parsed id
-                    if (owner == null) {
-                        owner = metaData.getPerson();
-                        owner.noFiles = 0;
-                        owner.noMessages = 1;
-						identities.getNeutrals().add(owner);
-                    }
-
-                    //verify! :)
-                    boolean sigIsValid =
-                        Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
-
-                    //unzip
-                    byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
-                    FileAccess.writeByteArray(unzippedXml, testMe);
-
-                    //create object
-                    try {
-                        currentMsg = new VerifyableMessageObject(testMe);
-                    } catch (Exception ex) {
-						logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
-                        // file could not be read, mark it invalid not to confuse gui
-                        FileAccess.writeFile("Broken", testMe); // this file is ignored by the gui
-                        continue;
-                    }
-
-                    //then check if the signature was ok
-                    if (!sigIsValid) {
-                        // TODO: should'nt we drop this msg instead of adding it to the gui?
-//                        currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-                        logger.warning("TOFDN: message failed verification, status set to TAMPERED.");
-                        addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);    
-                        continue;
-                    }
-
-                    //make sure the pubkey and from fields in the xml file are the same as those in the metadata
-                    String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getKey()));
-                    String messageHash = Mixed.makeFilename(
-                            currentMsg.getFrom().substring(
-                                currentMsg.getFrom().indexOf("@") + 1,
-                                currentMsg.getFrom().length()));
-
-                    if (!metaDataHash.equals(messageHash)) {
-                        // TODO: should'nt we drop this msg instead of adding it to the gui?
-                        logger.warning("TOFDN: Hash in metadata doesn't match hash in message!\n" +
-                        			   "metadata : "+metaDataHash+" , message: " + messageHash+
-                                       ". Message failed verification, status set to TAMPERED.");
-//                        currentMsg.setStatus(VerifyableMessageObject.TAMPERED);
-                        addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);
-                        continue;
-                    }
-
-//                    //if it is, we have the user either on the good, bad or neutral lists
-//                    if (identities.getFriends().containsKey(_owner)) {
-//                        currentMsg.setStatus(VerifyableMessageObject.VERIFIED);
-//                    } else if (identities.getEnemies().containsKey(_owner)) {
-//                        currentMsg.setStatus(VerifyableMessageObject.FAILED);
-//                    } else {
-//                        currentMsg.setStatus(VerifyableMessageObject.PENDING);
-//                    }
-                    /*        Encryption will be done+handled using private boards
-                    */
-
-                    addMessageToGui(currentMsg, testMe, true, calDL, MessageObject.SIGNATURESTATUS_VERIFIED);
-                }  //endif signed message
+                // now the msg could be signed OR signed and encrypted
+                // first check sign, later decrypt if msg was for me
                 
-                //start encrypted message processing
-                else if (_metaData.getType() == MetaData.ENCRYPT) {
-                	//1. check if the message is for myself
-                	if (!_metaData.getPerson().getUniqueName().equals(
-									identities.getMyId().getUniqueName())) {
-                		logger.fine("TOFDN: Encrypted message was for "+_metaData.getPerson().getUniqueName());
-						continue;
-                	}
-                	//2. if yes, decrypt
-                	byte []cipherText = FileAccess.readByteArray(testMe);
-                	byte []plainText = Core.getCrypto().decrypt(cipherText,identities.getMyId().getPrivKey());
-                	//TODO: continue tommorow
-                    logger.warning("TOFDN: Encrypted messages are currently not supported!");
-                }//endif encrypted message
+				SignMetaData metaData = (SignMetaData)_metaData;
+                
+                //check if we have the owner already on the lists
+                String _owner = metaData.getPerson().getUniqueName();
+                Identity owner;
+                //check friends
+                owner = identities.getFriends().get(_owner);
+                //if not, check neutral
+                if (owner == null) {
+                    owner = identities.getNeutrals().get(_owner);
+                }
+                //if not, check enemies
+                if (owner == null) {
+                    owner = identities.getEnemies().get(_owner);
+                }
+                // if still not, use the parsed id and add to our identities list
+                if (owner == null) {
+                    owner = metaData.getPerson();
+                    owner.noFiles = 0;
+                    owner.noMessages = 1;
+					identities.getNeutrals().add(owner);
+                }
+
+                // verify signature
+                boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
+
+                boolean wasEncrypted = false;
+                
+                // now check if msg is encrypted and for me, if yes decrypt the zipped data
+                if (_metaData.getType() == MetaData.ENCRYPT) {
+                    EncryptMetaData encMetaData = (EncryptMetaData)metaData;
+                    
+                    // 1. check if the message is for myself
+                    if (!encMetaData.getRecipient().equals(identities.getMyId().getUniqueName())) {
+                        logger.fine("TOFDN: Encrypted message was not for me, but for "+encMetaData.getRecipient());
+                        FileAccess.writeFile("Empty", testMe); // this file is ignored by the gui
+                        continue;
+                    }
+                    
+                    // 2. if yes, decrypt the content
+                    byte[] cipherText = FileAccess.readByteArray(testMe);
+                    byte[] zipData = Core.getCrypto().decrypt(cipherText,identities.getMyId().getPrivKey());
+                    
+                    if( zipData == null ) {
+                        logger.log(Level.SEVERE, "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
+                                                 " could not be decrypted!");
+                        FileAccess.writeFile("Empty", testMe); // this file is ignored by the gui
+                        continue;
+                    }
+                    
+                    testMe.delete();
+                    FileAccess.writeFile(zipData, testMe);
+                    
+                    logger.fine("TOFDN: Decrypted an encrypted message for me, sender was "+encMetaData.getPerson().getUniqueName());
+                    
+                    wasEncrypted = true; // TODO: mark in msg that is was encrypted
+                    
+                    // now continue as for signed files
+                    
+                } //endif encrypted message
+
+                // unzip
+                byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
+                FileAccess.writeFile(unzippedXml, testMe);
+
+                // create object
+                try {
+                    currentMsg = new VerifyableMessageObject(testMe);
+                } catch (Exception ex) {
+					logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
+                    // file could not be read, mark it invalid not to confuse gui
+                    FileAccess.writeFile("Broken", testMe); // this file is ignored by the gui
+                    continue;
+                }
+
+                //then check if the signature was ok
+                if (!sigIsValid) {
+                    // TODO: should'nt we drop this msg instead of adding it to the gui?
+                    logger.warning("TOFDN: message failed verification, status set to TAMPERED.");
+                    addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);    
+                    continue;
+                }
+
+                //make sure the pubkey and from fields in the xml file are the same as those in the metadata
+                String metaDataHash = Mixed.makeFilename(Core.getCrypto().digest(metaData.getPerson().getKey()));
+                String messageHash = Mixed.makeFilename(
+                        currentMsg.getFrom().substring(
+                            currentMsg.getFrom().indexOf("@") + 1,
+                            currentMsg.getFrom().length()));
+
+                if (!metaDataHash.equals(messageHash)) {
+                    // TODO: should'nt we drop this msg instead of adding it to the gui?
+                    logger.warning("TOFDN: Hash in metadata doesn't match hash in message!\n" +
+                    			   "metadata : "+metaDataHash+" , message: " + messageHash+
+                                   ". Message failed verification, status set to TAMPERED.");
+                    addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);
+                    continue;
+                }
+
+                addMessageToGui(currentMsg, testMe, true, calDL, MessageObject.SIGNATURESTATUS_VERIFIED);
 
             } catch (Throwable t) {
 				logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", t);
