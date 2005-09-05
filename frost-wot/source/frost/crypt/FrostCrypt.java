@@ -371,7 +371,6 @@ public final class FrostCrypt implements Crypt {
 //		//return null;
 //	}
 
-    // TODO: test!
     public synchronized byte[] encrypt(byte[] what, String key) {
         
       StringTokenizer keycutter = new StringTokenizer(key, ":");
@@ -392,30 +391,30 @@ public final class FrostCrypt implements Crypt {
       if (what.length % size != 0) {
           noRuns++;
       }
-      byte[] tmp = new byte[noRuns * 128];
+      byte[] encrypted = new byte[noRuns * 128];
       byte[] str = new byte[noRuns * size];
       System.arraycopy(what, 0, str, 0, what.length);
 
-      String result = new String();
       //insert them in the cipher, block at a time
 
       for (int i = 0; i < noRuns; i++) {
           System.arraycopy(
               rsa.processBlock(str, i * size, size),
               0,
-              tmp,
+              encrypted,
               i * outSize,
               outSize);
       }
-      result = new String(Base64.encode(tmp));
+//      result = new String(Base64.encode(tmp));
+//      return result.getBytes();
+
+      return encrypted;
       //d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
       //result = result + (new String(texter.encode(d_encryptor.doFinal())));
 
       //pad the string with header and footer
       //rsa.reset();
-      return result.getBytes();
     }
-    
     
 	public synchronized byte [] decrypt(byte [] what, String otherKey) {
 
@@ -441,7 +440,8 @@ public final class FrostCrypt implements Crypt {
 		int outSize = rsa.getOutputBlockSize();
 
 		//decode the text
-		byte[] cipherText = Base64.decode(what);
+//		byte[] cipherText = Base64.decode(what);
+        byte[] cipherText = what;
 		byte[] plainText = new byte[cipherText.length * 128 / size];
 
 		//String result = new String();

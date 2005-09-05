@@ -189,7 +189,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             if( encryptForRecipient != null ) {
                 // we compare the local encrypted zipFile with remoteFile
                 boolean isEqual = FileAccess.compareFiles(zipFile, remoteFile);
-                System.out.println("comp:"+isEqual);
                 return isEqual;
             } else {
                 // compare contents

@@ -52,7 +52,7 @@ public class MessageObject implements XMLizable
     private String time = "";
     private String index = "";
     private String publicKey  = "";
-    private String recipient = "";
+    private String recipient = ""; // set if msg was encrypted 
     private boolean deleted = false;
     private int signatureStatus = SIGNATURESTATUS_UNSET;
     
