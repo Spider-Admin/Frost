@@ -38,30 +38,34 @@ public abstract class MetaData implements XMLizable {
 	Identity person; // sender
     
 	/**
-	 * @return the person (sender or recepient) of the message
+	 * @return the person (sender) of the message
 	 */
 	public Identity getPerson(){
 		return person;
 	}
 	
 	public Element getXMLElement(Document container){
-		Element el= container.createElement("FrostMetaData");
-//		make sure we don't add sensitive fields in the metadata
-	    // FIXME: maybe its better to remove all but the only wanted?
-	    // otherwise new fields could come into the xml file
+		Element el = container.createElement("FrostMetaData");
+        // use getSafeXMLElement to make sure we don't add sensitive fields in the metadata
 	    Element _person = person.getSafeXMLElement(container);
-
 	    el.appendChild(_person);
   	    return el;
 	}
-	
-	public static MetaData getInstance(byte [] body, Element e) {
-		assert e != null;
-		assert e.getNodeName().equals("FrostMetaData") : "root tag \"FrostMetaData\" missing!";
-		
+    
+	public static MetaData getInstance(Element e) {
+
+        if( e == null ) {
+            logger.log(Level.SEVERE, "MetaData.getInstance(): The provided XML element is null.");
+            return null;
+        }
+        if( e.getNodeName().equals("FrostMetaData") == false ) {
+            logger.log(Level.SEVERE, "MetaData.getInstance(): This is no FrostMetaData XML element.");
+            return null;
+        }
+
 		try {
 			if (XMLTools.getChildElementsByTagName(e,"Recipient").size() == 0) {
-				return new SignMetaData(body, e);
+				return new SignMetaData(e);
             } else {
 				return new EncryptMetaData(e);
             }

@@ -970,11 +970,15 @@ public class MessageFrame extends JFrame
 
             if( Core.getInstance().getIdentities().getFriends() != null ) {
                 BuddyList friends = Core.getInstance().getIdentities().getFriends();
-                Vector budList = new Vector( friends.repairGetKeys() );
+                Vector budList = new Vector( friends.getAllKeys() );
                 budList.remove(Core.getInstance().getIdentities().getMyId().getUniqueName());
-                Collections.sort( budList, new BuddyComparator() );
-                buddies = new JComboBox(budList);
-                buddies.setSelectedItem(budList.get(0));
+                if( budList.size() > 0 ) {
+                    Collections.sort( budList, new BuddyComparator() );
+                    buddies = new JComboBox(budList);
+                    buddies.setSelectedItem(budList.get(0));
+                } else {
+                    buddies = new JComboBox();
+                }
             } else {
                 buddies = new JComboBox();
             }
@@ -1011,7 +1015,7 @@ public class MessageFrame extends JFrame
 				sign.setSelected(true);
 			}
             
-            if( sign.isSelected() ) {
+            if( sign.isSelected() && buddies.getItemCount() > 0 ) {
                 encrypt.setEnabled(true);
             } else {
                 encrypt.setEnabled(false);
@@ -1280,8 +1284,6 @@ public class MessageFrame extends JFrame
         subjectTextField.setText(subject); // if a pbl occurs show the subject we checked
         String text = messageTextArea.getText().trim();
 
-        boolean quit = true;
-
         if( subject.equals("No subject") ) {
             int n = JOptionPane.showConfirmDialog( this,
             					language.getString("Do you want to enter a subject?"),
@@ -1385,7 +1387,9 @@ public class MessageFrame extends JFrame
 		if (sign.isSelected()) {
 			sender = myId.getUniqueName();
 			fromTextField.setEditable(false);
-            encrypt.setEnabled(true);
+            if( buddies.getItemCount() > 0 ) {
+                encrypt.setEnabled(true);
+            }
 		} else {
 			sender = "Anonymous";
 			fromTextField.setEditable(true);

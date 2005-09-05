@@ -113,6 +113,23 @@ public class FrostIdentities implements Savable {
 		identitiesDAO.save(this);
 	}
 
+    /**
+     * Returns the Identity for uniqueName if found on any list.
+     */
+    public Identity getIdentityFromAnyList(String uniqueName) {
+        Identity found = null;
+        if( (found = getNeutrals().get(uniqueName)) != null ) {
+            return found;
+        }
+        if( (found = getFriends().get(uniqueName)) != null ) {
+            return found;
+        }
+        if( (found = getEnemies().get(uniqueName)) != null ) {
+            return found;
+        }
+        return null;
+    }
+
 	/**
 	 * @return
 	 */

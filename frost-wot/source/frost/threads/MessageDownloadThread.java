@@ -226,9 +226,8 @@ public class MessageDownloadThread
                 if (res == null) {
                     metadata = null; // if metadata==null its NOT a signed message
                 } else {
-                    metadata = res.getRawMetadata();
+                    metadata = res.getRawMetadata(); // signed and maybe encrypted message
                 }
-                Mixed.wait(111); // wait some time to not to hurt the node on next retry
 
             } catch(Throwable t) {
                 logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", t);
@@ -236,15 +235,14 @@ public class MessageDownloadThread
                 testMe.delete();
             }
 
-            // whatever happened, try next index next time
-            index++;
+            Mixed.wait(111); // wait some time to not to hurt the node on next retry
+
+            index++; // whatever happened, try next index next time
             
             try { // we don't want to die for any reason
 
-                // Download successful?
                 if( testMe.length() == 0 ) {
-                    // nothing downloaded
-                    failures++;
+                    failures++; // nothing downloaded
                     continue;
                 } else {
                     failures = 0; // we downloaded something
@@ -270,7 +268,7 @@ public class MessageDownloadThread
                 // else message is not a duplicate, continue to process
             	messageHashes.add(messageId);
 
-                //if no metadata, message wasn't signed
+                // if no metadata, message wasn't signed
                 if (metadata == null) {
                     
                     byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
@@ -278,9 +276,7 @@ public class MessageDownloadThread
 
                     try {
                         currentMsg = new VerifyableMessageObject(testMe);
-                        //set to unsigned
-//                        currentMsg.setStatus(VerifyableMessageObject.OLD);
-                        // check and maybe add msg to gui
+                        // check and maybe add msg to gui, set to unsigned
                         addMessageToGui(currentMsg, testMe, true, calDL, MessageObject.SIGNATURESTATUS_OLD);
 
                     } catch (Exception ex) {
@@ -289,21 +285,21 @@ public class MessageDownloadThread
                         FileAccess.writeFile("Broken", testMe); // this file is ignored by the gui
                     }
                     continue;
-                } //end of if no metadata part
-
-                //verify the zipped message
-                byte[] plaintext = FileAccess.readByteArray(testMe);
+                } 
+                
+                // verify the zipped message
                 MetaData _metaData = null;
                 try {
-                	File tempMeta = new File("tempMeta"+System.currentTimeMillis());
-                	FileAccess.writeFile(metadata,tempMeta);
-                	Element el = XMLTools.parseXmlFile(tempMeta,false).getDocumentElement();
-                	tempMeta.delete();
-                    _metaData = MetaData.getInstance(plaintext, el);
+                    Element el = XMLTools.parseXmlContent(metadata, false).getDocumentElement();
+                    _metaData = MetaData.getInstance(el);
                 } catch (Throwable t) {
+                    logger.log(Level.SEVERE, "TOFDN: Exeption in MetaData.getInstance(): ", t);
+                    _metaData = null;
+                }
+                if( _metaData == null ) {
                     // metadata failed, do something
-					logger.log(Level.SEVERE, "TOFDN: Metadata couldn't be read. " +
-                            		"Offending file saved as badmetadata.xml - send to a dev for analysis", t);
+                    logger.log(Level.SEVERE, "TOFDN: Metadata couldn't be read. " +
+                                    "Offending file saved as badmetadata.xml - send to a dev for analysis");
                     File badmetadata = new File("badmetadata.xml");
                     FileAccess.writeFile(metadata, badmetadata);
                     // don't try this file again
@@ -321,18 +317,8 @@ public class MessageDownloadThread
                 
                 //check if we have the owner already on the lists
                 String _owner = metaData.getPerson().getUniqueName();
-                Identity owner;
-                //check friends
-                owner = identities.getFriends().get(_owner);
-                //if not, check neutral
-                if (owner == null) {
-                    owner = identities.getNeutrals().get(_owner);
-                }
-                //if not, check enemies
-                if (owner == null) {
-                    owner = identities.getEnemies().get(_owner);
-                }
-                // if still not, use the parsed id and add to our identities list
+                Identity owner = identities.getIdentityFromAnyList(_owner);
+                // if not on any list, use the parsed id and add to our identities list
                 if (owner == null) {
                     owner = metaData.getPerson();
                     owner.noFiles = 0;
@@ -341,6 +327,7 @@ public class MessageDownloadThread
                 }
 
                 // verify signature
+                byte[] plaintext = FileAccess.readByteArray(testMe);
                 boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
 
                 // now check if msg is encrypted and for me, if yes decrypt the zipped data

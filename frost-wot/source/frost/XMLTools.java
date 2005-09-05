@@ -31,9 +31,8 @@ import org.xml.sax.SAXException;
 /**
  * A place to hold utility methods for XML processing.
  */
-public class XMLTools
-{
-	
+public class XMLTools {
+
 	private static Logger logger = Logger.getLogger(XMLTools.class.getName());
 	
 	private static DocumentBuilderFactory validatingFactory = DocumentBuilderFactory.newInstance();
@@ -61,25 +60,18 @@ public class XMLTools
 	 * @param element the object that will be contained by the document
 	 * @return the document
 	 */
-	public static Document getXMLDocument(XMLizable element){
+	public static Document getXMLDocument(XMLizable element) {
 		Document doc = createDomDocument();
 		doc.appendChild(element.getXMLElement(doc));
 		return doc;
 	}
 	
-	public static byte [] getRawXMLDocument (XMLizable element){
+    /**
+     * Serializes the XML into a byte array.
+     */
+	public static byte [] getRawXMLDocument (XMLizable element) {
 		Document doc = getXMLDocument(element);
-        // create a proper temp file (deleted on VM emergency exit)
-        File tmp = null;
-        try {
-            tmp = File.createTempFile("xmltools_", 
-                                      ".tmp", 
-                                      new File(MainFrame.frostSettings.getValue("temp.dir")));
-        }
-        catch(Exception ex) {
-            // this should never happen, but for the case ...
-            tmp = new File("xmltools_"+System.currentTimeMillis());
-        }
+        File tmp = getXmlTempFile();
 		byte [] result=null;
 		try {
     		writeXmlFile(doc, tmp.getPath());
@@ -90,6 +82,26 @@ public class XMLTools
 		}
 		return result;
 	}
+    
+    /**
+     * Returns the parsed Document for the given xml content.
+     * @param content  xml data
+     * @return  xml document
+     */
+    public static Document parseXmlContent(byte[] content, boolean validating) {
+        
+        File tmp = getXmlTempFile();
+        try {
+            FileAccess.writeFile(content, tmp);
+            Document d = XMLTools.parseXmlFile(tmp, validating);
+            return d;
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception thrown in parseXmlContent", t);
+        }
+        tmp.delete();
+        return null;
+    }
+
     /**
      * Parses an XML file and returns a DOM document.
      * If validating is true, the contents is validated against the DTD
@@ -150,14 +162,12 @@ public class XMLTools
 	 */
 	public static boolean writeXmlFile(Document doc, String filename) {
 		try {
-			//OutputFormat format = new OutputFormat(doc);
 			OutputFormat format = new OutputFormat(doc, "UTF-16", false);
 			format.setLineSeparator(LineSeparator.Windows);
 			//format.setIndenting(true);
 			format.setLineWidth(0);
 			format.setPreserveSpace(true);
-			OutputStreamWriter writer =
-				new OutputStreamWriter(new FileOutputStream(filename), "UTF-16");
+			OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-16");
 			XMLSerializer serializer = new XMLSerializer(writer, format);
 			serializer.asDOMSerializer();
 			serializer.serialize(doc);
@@ -175,14 +185,13 @@ public class XMLTools
     /**
      * This method creates a new DOM document.
      */
-    public static Document createDomDocument()
-    {
+    public static Document createDomDocument() {
+        
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.newDocument();
             return doc;
-        } catch (ParserConfigurationException e)
-        {
+        } catch (ParserConfigurationException e) {
 			logger.log(Level.SEVERE, "Exception thrown in createDomDocument()", e);
         }
         return null;
@@ -191,35 +200,34 @@ public class XMLTools
     /**
      * gets a true or false attribute from an element
      */
-    public static boolean getBoolValueFromAttribute(Element el, String attr, boolean defaultVal)
-    {
+    public static boolean getBoolValueFromAttribute(Element el, String attr, boolean defaultVal) {
+
         String res = el.getAttribute(attr);
 
-        if( res == null )
+        if( res == null ) {
             return defaultVal;
+        }
 
-        if( res.toLowerCase().equals("true") == true )
+        if( res.toLowerCase().equals("true") == true ) {
             return true;
-        else
+        } else {
             return false;
+        }
     }
 
     /**
      * Returns a list containing all Elements of this parent with given tag name.
      */
-    public static ArrayList getChildElementsByTagName(Element parent, String name)
-    {
+    public static ArrayList getChildElementsByTagName(Element parent, String name) {
+        
         ArrayList newList = new ArrayList();
 
         NodeList childs = parent.getChildNodes();
-        for( int x=0; x<childs.getLength(); x++ )
-        {
+        for( int x=0; x<childs.getLength(); x++ ) {
             Node child = childs.item(x);
-            if( child.getNodeType() == Node.ELEMENT_NODE )
-            {
+            if( child.getNodeType() == Node.ELEMENT_NODE ) {
                 Element ele = (Element)child;
-                if( ele.getTagName().equals( name ) == true )
-                {
+                if( ele.getTagName().equals( name ) == true ) {
                     newList.add( ele );
                 }
             }
@@ -234,30 +242,52 @@ public class XMLTools
      *   <child>
      *     text
      */
-    public static String getChildElementsTextValue( Element parent, String childname )
-    {
+    public static String getChildElementsTextValue( Element parent, String childname ) {
+        
         ArrayList nodes = getChildElementsByTagName( parent, childname );
-        if( nodes.size() == 0 )
+        if( nodes.size() == 0 ) {
             return null;
-	
+        }
         Text txtname = (Text) (((Node)nodes.get(0)).getFirstChild());
-	
-        if( txtname == null )
+        if( txtname == null ) {
             return null;
+        }
         return txtname.getData().trim();
     }
 
     /**
      * Gets the Element by name from parent and extracts the CDATASection child node.
      */
-    public static String getChildElementsCDATAValue( Element parent, String childname )
-    {
+    public static String getChildElementsCDATAValue( Element parent, String childname ) {
+        
         ArrayList nodes = getChildElementsByTagName( parent, childname );
-        if( nodes.size() == 0 )
+        if( nodes.size() == 0 ) {
             return null;
+        }
         CDATASection txtname = (CDATASection) ((Node)nodes.get(0)).getFirstChild();
-        if( txtname == null )
+        if( txtname == null ) {
             return null;
+        }
         return txtname.getData().trim();
+    }
+
+    /**
+     * create a proper temp file (deleted on VM emergency exit).
+     */ 
+    private static File getXmlTempFile() {
+        File tmp = null;
+        try {
+            tmp = File.createTempFile("xmltools_", 
+                                      ".tmp", 
+                                      new File(MainFrame.frostSettings.getValue("temp.dir")));
+        }
+        catch(Exception ex) {
+            // this should never happen, but for the case ...
+            tmp = new File("xmltools_"+System.currentTimeMillis());
+        }
+        if( tmp != null ) {
+            tmp.deleteOnExit();
+        }
+        return tmp;
     }
 }
