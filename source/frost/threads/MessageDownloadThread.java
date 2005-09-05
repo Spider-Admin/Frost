@@ -19,21 +19,21 @@
 
 package frost.threads;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
-import org.w3c.dom.Element;
+import org.w3c.dom.*;
 
 import frost.*;
-import frost.fcp.*;
-import frost.fileTransfer.Index;
-import frost.boards.TOF;
+import frost.boards.*;
 import frost.crypt.*;
-import frost.gui.objects.Board;
+import frost.fcp.*;
+import frost.fileTransfer.*;
+import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.messaging.MessageHashes;
+import frost.messaging.*;
 
 /**
  * Download messages.
@@ -42,7 +42,7 @@ public class MessageDownloadThread
     extends BoardUpdateThreadObject
     implements BoardUpdateThread
 {
-    public Board board;
+    private Board board;
     private int downloadHtl;
     private String keypool;
     private int maxMessageDownload;
@@ -53,6 +53,18 @@ public class MessageDownloadThread
     
 	private static Logger logger = Logger.getLogger(MessageDownloadThread.class.getName());
 	private MessageHashes messageHashes;
+
+    /**
+     * Constants for content of XML files if the message was dropped for some reason.
+     * .xml files with this content are ignored by the gui (in fact all .xml files with length smaller than 20) 
+     */ 
+    public static final String DUPLICATE_MSG   = "DuplicateMsg"; // msg was already received
+    public static final String BROKEN_METADATA = "BrokenMetaData"; // could not load metadata
+    public static final String BROKEN_MSG      = "BrokenMsg"; // could not load xml
+    public static final String MSG_NOT_FOR_ME  = "NotForMe"; // encrypted for someone other
+    public static final String DECRYPT_FAILED  = "DecryptFailed"; // encrypted for me, but decrypt failed
+    public static final String INVALID_MSG     = "InvalidMsg"; // message format validation failed
+
 
     public int getThreadType() {
         if (flagNew) {
@@ -261,7 +273,7 @@ public class MessageDownloadThread
                 if( messageHashes.contains(messageId) ) {
                     logger.info(Thread.currentThread().getName()+
                             ": TOFDN: ****** Duplicate Message : "+testMe.getName()+" *****");
-                    FileAccess.writeFile("Double", testMe); // this file is ignored by the gui
+                    FileAccess.writeFile(DUPLICATE_MSG, testMe); // this file is ignored by the gui
                     continue;
                 }
 
@@ -282,7 +294,7 @@ public class MessageDownloadThread
                     } catch (Exception ex) {
 						logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
                         // file could not be read, mark it invalid not to confuse gui
-                        FileAccess.writeFile("Broken", testMe); // this file is ignored by the gui
+                        FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     }
                     continue;
                 } 
@@ -303,7 +315,7 @@ public class MessageDownloadThread
                     File badmetadata = new File("badmetadata.xml");
                     FileAccess.writeFile(metadata, badmetadata);
                     // don't try this file again
-                    FileAccess.writeFile("Broken", testMe); // this file is ignored by the gui
+                    FileAccess.writeFile(BROKEN_METADATA, testMe); // this file is ignored by the gui
                     continue;
                 }
                 	
@@ -337,7 +349,7 @@ public class MessageDownloadThread
                     // 1. check if the message is for me
                     if (!encMetaData.getRecipient().equals(identities.getMyId().getUniqueName())) {
                         logger.fine("TOFDN: Encrypted message was not for me.");
-                        FileAccess.writeFile("Empty", testMe); // this file is ignored by the gui
+                        FileAccess.writeFile(MSG_NOT_FOR_ME, testMe); // this file is ignored by the gui
                         continue;
                     }
                     
@@ -348,7 +360,7 @@ public class MessageDownloadThread
                     if( zipData == null ) {
                         logger.log(Level.SEVERE, "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
                                                  " could not be decrypted!");
-                        FileAccess.writeFile("Empty", testMe); // this file is ignored by the gui
+                        FileAccess.writeFile(DECRYPT_FAILED, testMe); // this file is ignored by the gui
                         continue;
                     }
                     
@@ -371,7 +383,7 @@ public class MessageDownloadThread
                 } catch (Exception ex) {
 					logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
                     // file could not be read, mark it invalid not to confuse gui
-                    FileAccess.writeFile("Broken", testMe); // this file is ignored by the gui
+                    FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     continue;
                 }
 
@@ -432,13 +444,13 @@ public class MessageDownloadThread
                 logger.log(Level.SEVERE, "TOFDN: Could not save the XML file after setting the signatureState! signatureState keeps UNSET.");
             }
             
-            if (TOF.getInstance().blocked(currentMsg, board) && testMe.length() > 0) {
+            if (testMe.length() > 0 && TOF.getInstance().blocked(currentMsg, board) ) {
                 board.incBlocked();
                 logger.info("TOFDN: Blocked message for board '"+board.getName()+"'");
             } else {
                 if( markAsNew ) {                                
                     // write the NEW message indicator file
-                    FileAccess.writeFile("This message is new!", testMe.getPath() + ".lck");
+                    FileAccess.writeFile(FrostMessageObject.NEW_MSG_INDICATOR_STR, testMe.getPath() + ".lck");
                 }
                 // add new message or notify of arrival
                 TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
@@ -455,8 +467,7 @@ public class MessageDownloadThread
             }
         } else {
             // format validation failed
-//            currentMsg.removeStatus(); // delete .sig file
-            FileAccess.writeFile("Invalid", testMe);
+            FileAccess.writeFile(INVALID_MSG, testMe);
             logger.warning("TOFDN: Message "+testMe.getName()+" was dropped, format validation failed.");
         }
     }
