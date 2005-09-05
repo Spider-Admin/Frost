@@ -18,7 +18,6 @@
 */
 package frost.crypt;
 
-import java.io.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
@@ -44,64 +43,51 @@ public class SignMetaData extends MetaData {
 
 	private static Logger logger = Logger.getLogger(SignMetaData.class.getName());
 	
-	byte [] plaintext;
 	String sig;
-//	boolean signed; // true = signed, false = encrypted
 	
 	public SignMetaData() {
 		person = null;
-		plaintext = null;
 		sig = null;
 	}
 	
 	/**
 	 * Represents a metadata of something about to be sent.
-	 * @param plaintext
+     * Computes signature of plaintext.
 	 */
 	public SignMetaData(byte[] plaintext, LocalIdentity myId) {
 		this.person = myId;
-		this.plaintext = plaintext;
 		sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivKey());
 	}
     
-    
 	/**
-     * Metadata of something that was received. 
+     * Metadata of something that was received.
 	 */
-	public SignMetaData(byte [] plaintext, byte [] metadata) throws Throwable {
+	public SignMetaData(byte [] metadata) throws Throwable {
         
-		File tmp = new File("metadataTemp"+ System.currentTimeMillis());
-		FileAccess.writeFile(metadata,tmp);
-		Document d = XMLTools.parseXmlFile(tmp,false);
+		Document d = XMLTools.parseXmlContent(metadata, false);
 		Element el = d.getDocumentElement();
         if( el.getTagName().equals("FrostMetaData") == false ) {
-            tmp.delete();
             throw new Exception("This is not FrostMetaData XML file.");
         }
-		this.plaintext = plaintext;
 		try {
 			loadXMLElement(el);
 		} catch (SAXException e) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
-            tmp.delete();
-			plaintext = null;
             throw e;
 		}
-		tmp.delete();
 	}
 	
 	/**
-	 * represents something that was received and needs to be verified
+	 * Represents something that was received and needs to be verified.
+     * Parses XML and sets person and sig.
 	 * @param plaintext the plaintext to be verified
 	 * @param el the xml element to populate from
 	 */
-	public SignMetaData(byte [] plaintext, Element el) throws SAXException {
-		this.plaintext = plaintext;
+	public SignMetaData(Element el) throws SAXException {
 		try {
 			loadXMLElement(el);
 		} catch (SAXException e) {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
-			plaintext = null;
             throw e;
 		}
 	}
@@ -110,6 +96,7 @@ public class SignMetaData extends MetaData {
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
 	public Element getXMLElement(Document container) {
+        
 		Element el = super.getXMLElement(container);
 		
 		Element _sig = container.createElement("sig");
@@ -124,13 +111,13 @@ public class SignMetaData extends MetaData {
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
-		Element _person = (Element) XMLTools.getChildElementsByTagName(e,"MyIdentity").iterator().next();
+        
+		Element _person = (Element) XMLTools.getChildElementsByTagName(e, "MyIdentity").iterator().next();
 		person = new Identity(_person);
-		sig = XMLTools.getChildElementsCDATAValue(e,"sig");
+		sig = XMLTools.getChildElementsCDATAValue(e, "sig");
 		
 		assert person!=null && sig!=null;
 	}
-
 
 	/**
 	 * @return
@@ -139,50 +126,6 @@ public class SignMetaData extends MetaData {
 		return sig;
 	}
 
-    /**
-     * Creates the metadata xml file and returns the byte[] containing the utf-16 text.
-     * @param targetFilename
-     * @return
-     */   
-     
-    /*public byte[] getRawXmlContent()
-    {
-        // create a XML file
-        Document doc = XMLTools.createDomDocument();
-        if( doc == null )
-        {
-            Core.getOut().println("Factory did not create a XML document.");
-            return null; 
-        }
-        Element rootElement = doc.createElement("FrostMetaData");
-        Element childs = getXMLElement(doc);
-        rootElement.appendChild( childs );
-        // write to a dummy file
-        File tempFile = null;
-        try
-        {
-            tempFile = File.createTempFile("metadataraw_", ".tmp", new File(frame1.frostSettings.getValue("temp.dir")));
-        }
-        catch( IOException ex )
-        {
-            tempFile = new File("metadataxmltmp-"+System.currentTimeMillis());
-        }
-        
-        boolean writeOK;
-        try {
-            writeOK = XMLTools.writeXmlFile(doc, tempFile.getPath());
-        } catch(Throwable ex) { writeOK = false; }
-            
-        if( writeOK )
-        {
-            byte[] result = FileAccess.readByteArray(tempFile);
-            tempFile.delete();
-            return result;
-        }
-        tempFile.delete();
-        return null;
-    }
-*/
 	/* (non-Javadoc)
 	 * @see frost.crypt.MetaData#getType()
 	 */

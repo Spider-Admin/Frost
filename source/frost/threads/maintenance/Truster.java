@@ -54,16 +54,16 @@ public class Truster extends Thread
         //  - if someone is ( (GOOD or BAD) AND NEUTRAL) set it to GOOD or BAD
         //  - if someone is (GOOD AND BAD AND NEUTRAL) put it to GOOD
         HashSet allFroms = new HashSet();
-        Set s = identities.getFriends().repairGetKeys();
+        Set s = identities.getFriends().getAllKeys();
         allFroms.addAll(s);
-        s = identities.getNeutrals().repairGetKeys();
+        s = identities.getNeutrals().getAllKeys();
         allFroms.addAll(s);
-        s = identities.getEnemies().repairGetKeys();
+        s = identities.getEnemies().getAllKeys();
         allFroms.addAll(s);
         Iterator i = allFroms.iterator();
         while(i.hasNext()) {
             String from = (String)i.next();
-            Identity ident = getIdentityFromAnyList(from, identities);
+            Identity ident = identities.getIdentityFromAnyList(from);
 
             boolean friend  = identities.getFriends().containsKey(from);
             boolean neutral = identities.getNeutrals().containsKey(from);
@@ -87,20 +87,6 @@ public class Truster extends Thread
         }
     }
     
-    private static Identity getIdentityFromAnyList(String ident, FrostIdentities idents) {
-        Identity found = null;
-        if( (found = idents.getNeutrals().get(ident)) != null ) {
-            return found;
-        }
-        if( (found = idents.getFriends().get(ident)) != null ) {
-            return found;
-        }
-        if( (found = idents.getEnemies().get(ident)) != null ) {
-            return found;
-        }
-        return null;
-    }
-
     private static void removeIdentityFromAnyList(String ident, FrostIdentities idents) {
         idents.getFriends().remove(ident);
         idents.getEnemies().remove(ident);
@@ -124,7 +110,7 @@ public class Truster extends Thread
             return;
         }
 
-        newIdentity = getIdentityFromAnyList(from, identities);
+        newIdentity = identities.getIdentityFromAnyList(from);
 
         if( newIdentity == null ) {
             logger.log(Level.SEVERE, "Truster: FROM not found in any list: "+from);

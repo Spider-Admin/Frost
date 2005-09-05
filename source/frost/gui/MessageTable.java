@@ -44,6 +44,7 @@ public class MessageTable extends SortedTable
     /**
      * This renderer renders rows in different colors.
      * New messages gets a bold look, messages with attachments a blue color.
+     * Encrypted messages get a red color, no matter if they have attachments.
      */
     private class CellRenderer extends DefaultTableCellRenderer
     {
@@ -51,32 +52,20 @@ public class MessageTable extends SortedTable
         private Font normalFont = null;
         private boolean isDeleted = false;
         
-        /**
-         * 
-         */
-        public CellRenderer()
-        {
+        public CellRenderer() {
         	Font baseFont = MessageTable.this.getFont();
             normalFont = baseFont.deriveFont(Font.PLAIN);
             boldFont = baseFont.deriveFont(Font.BOLD);
         }
         
-        /* (non-Javadoc)
-         * @see java.awt.Component#paint(java.awt.Graphics)
-         */
-        public void paintComponent (Graphics g){
+        public void paintComponent (Graphics g) {
         	super.paintComponent(g);
-
         	if(isDeleted) {
         		Dimension size = getSize();
         		g.drawLine(0, size.height / 2, size.width, size.height / 2);
         	}
         }
-
         
-		/* (non-Javadoc)
-		 * @see javax.swing.table.TableCellRenderer#getTableCellRendererComponent(javax.swing.JTable, java.lang.Object, boolean, boolean, int, int)
-		 */
 		public Component getTableCellRendererComponent(
 			JTable table,
 			Object value,
@@ -109,13 +98,14 @@ public class MessageTable extends SortedTable
 				}
 				// now set color
 				if (!isSelected) {
-					if (msg.containsAttachments()) {
+                    if( msg.getRecipient() != null && msg.getRecipient().length() > 0) {
+                        setForeground(Color.RED);
+                    } else if (msg.containsAttachments()) {
 						setForeground(Color.BLUE);
 					} else {
 						setForeground(Color.BLACK);
 					}
 				}
-				
 			}
 			
 			setDeleted(msg.isDeleted());
@@ -163,6 +153,5 @@ public class MessageTable extends SortedTable
 		}
 		setRowHeight(font.getSize() + 5);
 	}
-
 }
 

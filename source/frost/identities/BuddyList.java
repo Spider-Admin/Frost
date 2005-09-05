@@ -104,11 +104,6 @@ public class BuddyList implements XMLizable {
 		return hashMap.remove(Mixed.makeFilename(key));
 	}
 	
-// does NOT work
-//	public Object remove(Identity key) {
-//		return hashMap.remove(key);
-//	}
-
 	/**
 	 * @return
 	 */
@@ -116,7 +111,7 @@ public class BuddyList implements XMLizable {
 		return hashMap.size();
 	}
     
-    public Set repairGetKeys() {
+    public Set getAllKeys() {
         return hashMap.keySet();
     }
 }

@@ -376,7 +376,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						if (fcpresults.getRawMetadata() != null) {
 							SignMetaData md;
 							try {
-								md = new SignMetaData(zippedXml, fcpresults.getRawMetadata());
+								md = new SignMetaData(fcpresults.getRawMetadata());
 							} catch (Throwable t) {
 								// reading of xml metadata failed, handle
 								logger.log(Level.SEVERE, "Could not read the XML metadata, skipping file index.", t);
