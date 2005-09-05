@@ -311,8 +311,7 @@ public class MessageDownloadThread
                     continue;
                 }
                 	
-                assert _metaData.getType() == MetaData.SIGN ||
-                	_metaData.getType() == MetaData.ENCRYPT :
+                assert _metaData.getType() == MetaData.SIGN || _metaData.getType() == MetaData.ENCRYPT :
                 	"TOFDN: unknown type of metadata";
                 
                 // now the msg could be signed OR signed and encrypted
@@ -344,15 +343,13 @@ public class MessageDownloadThread
                 // verify signature
                 boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
 
-                boolean wasEncrypted = false;
-                
                 // now check if msg is encrypted and for me, if yes decrypt the zipped data
                 if (_metaData.getType() == MetaData.ENCRYPT) {
                     EncryptMetaData encMetaData = (EncryptMetaData)metaData;
                     
-                    // 1. check if the message is for myself
+                    // 1. check if the message is for me
                     if (!encMetaData.getRecipient().equals(identities.getMyId().getUniqueName())) {
-                        logger.fine("TOFDN: Encrypted message was not for me, but for "+encMetaData.getRecipient());
+                        logger.fine("TOFDN: Encrypted message was not for me.");
                         FileAccess.writeFile("Empty", testMe); // this file is ignored by the gui
                         continue;
                     }
@@ -372,8 +369,6 @@ public class MessageDownloadThread
                     FileAccess.writeFile(zipData, testMe);
                     
                     logger.fine("TOFDN: Decrypted an encrypted message for me, sender was "+encMetaData.getPerson().getUniqueName());
-                    
-                    wasEncrypted = true; // TODO: mark in msg that is was encrypted
                     
                     // now continue as for signed files
                     

@@ -45,16 +45,8 @@ import frost.util.gui.translation.*;
 public class MessageFrame extends JFrame
 {
 
-    /**
-     *
-     */
     private class AttachBoardsChooser extends JDialog
     {
-    	
-    	/**
-		 * @author $Author$
-		 * @version $Revision$
-		 */
 		private class AttachBoardsCellRenderer extends DefaultListCellRenderer {
 
 			/* (non-Javadoc)
@@ -978,8 +970,8 @@ public class MessageFrame extends JFrame
 
             if( Core.getInstance().getIdentities().getFriends() != null ) {
                 BuddyList friends = Core.getInstance().getIdentities().getFriends();
-                String[] buddyNames = new String[friends.size()];
                 Vector budList = new Vector( friends.repairGetKeys() );
+                budList.remove(Core.getInstance().getIdentities().getMyId().getUniqueName());
                 Collections.sort( budList, new BuddyComparator() );
                 buddies = new JComboBox(budList);
                 buddies.setSelectedItem(budList.get(0));
