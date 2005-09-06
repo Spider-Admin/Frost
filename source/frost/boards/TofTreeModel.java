@@ -1,7 +1,22 @@
 /*
- * Created on 24-dic-2004
- * 
- */
+  TofTreeModel.java / Frost
+  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
+
+  This program is free software; you can redistribute it and/or 
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.boards;
 
 import java.util.*;
@@ -14,9 +29,6 @@ import frost.gui.objects.Board;
 
 /**
  * This class serves as both the data and selection models of the TofTree.
- * 
- * @author $Author$
- * @version $Revision$
  */
 public class TofTreeModel extends DefaultTreeModel {
 
@@ -47,17 +59,22 @@ public class TofTreeModel extends DefaultTreeModel {
 	 */
 	public void addNodeToTree(Board newNode) {
 		Board selectedNode = (Board) getSelectedNode();
-		if (selectedNode.isFolder() == true) {
-			selectedNode.add(newNode);
-		} else {
-			// add to parent of selected node
-			selectedNode = (Board) selectedNode.getParent();
-			selectedNode.add(newNode);
+		if (selectedNode.isFolder() != true) {
+            // add to parent of selected node
+            selectedNode = (Board) selectedNode.getParent();
 		}
-		// last in list is the newly added
-		int insertedIndex[] = { selectedNode.getChildCount() - 1 };
-		nodesWereInserted(selectedNode, insertedIndex);
+        addNodeToTree( newNode, selectedNode);
 	}
+
+    /**
+     * Adds a new boards to the specified target folder.
+     */
+    public void addNodeToTree(Board newNode, Board targetFolder) {
+        targetFolder.add(newNode);
+        // last in list is the newly added
+        int insertedIndex[] = { targetFolder.getChildCount() - 1 };
+        nodesWereInserted(targetFolder, insertedIndex);
+    }
 
 	/**
 	 * Returns Vector containing all Boards of the model.

@@ -30,6 +30,7 @@ import javax.swing.table.*;
 import frost.*;
 import frost.boards.TofTree;
 import frost.gui.model.*;
+import frost.gui.objects.*;
 import frost.gui.objects.Board;
 import frost.messages.BoardAttachment;
 import frost.util.gui.*;
@@ -49,6 +50,7 @@ public class KnownBoardsFrame extends JDialog
     
     private JButton Bclose;
     private JButton BaddBoard;
+    private JButton BaddBoardToFolder;
     private JTextField TFlookupBoard;
     private SortedTable boardsTable;
     private KnownBoardsTableModel tableModel;
@@ -108,6 +110,7 @@ public class KnownBoardsFrame extends JDialog
         
         Bclose = new JButton(language.getString("KnownBoardsFrame.Close"));
         BaddBoard = new JButton(language.getString("KnownBoardsFrame.Add board"));
+        BaddBoardToFolder = new JButton("Add Board to folder ...");
 
         TFlookupBoard = new JTextField(10);
         new TextComponentClipboardMenu(TFlookupBoard, language);
@@ -134,6 +137,10 @@ public class KnownBoardsFrame extends JDialog
                     public void actionPerformed(ActionEvent e) {
                         addBoards_actionPerformed(e);
                     } });
+        BaddBoardToFolder.addActionListener( new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addBoardsToFolder_actionPerformed(e);
+            } });
         Bclose.addActionListener( new java.awt.event.ActionListener() {
                     public void actionPerformed(ActionEvent e) {
                         dispose();
@@ -149,6 +156,8 @@ public class KnownBoardsFrame extends JDialog
         buttons.add( TFlookupBoard );
         buttons.add( Box.createHorizontalGlue() );
         buttons.add( BaddBoard );
+        buttons.add(Box.createRigidArea(new Dimension(15,3)));
+        buttons.add( BaddBoardToFolder );
         buttons.add(Box.createRigidArea(new Dimension(15,3)));
         buttons.add( Bclose );
         buttons.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
@@ -171,18 +180,24 @@ public class KnownBoardsFrame extends JDialog
     {
         tablePopupMenu = new JSkinnablePopupMenu();
         JMenuItem addBoardsMenu = new JMenuItem(language.getString("KnownBoardsFrame.Add board"));
+        JMenuItem addBoardsToFolderMenu = new JMenuItem("Add Board to folder ...");
         JMenuItem removeBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.Remove board"));
         
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        addBoards_actionPerformed(e);
-                    } });
+            public void actionPerformed(ActionEvent e) {
+                addBoards_actionPerformed(e);
+            } });
+        addBoardsToFolderMenu.addActionListener( new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                addBoardsToFolder_actionPerformed(e);
+            } });
         removeBoardEntry.addActionListener( new java.awt.event.ActionListener() {
-                    public void actionPerformed(ActionEvent e) {
-                        deleteBoards_actionPerformed(e);
-                    } });
+            public void actionPerformed(ActionEvent e) {
+                deleteBoards_actionPerformed(e);
+            } });
 
         tablePopupMenu.add(addBoardsMenu);
+        tablePopupMenu.add(addBoardsToFolderMenu);
         tablePopupMenu.add(removeBoardEntry);
                 
         boardsTable.addMouseListener(new TablePopupMenuMouseListener());        
@@ -278,7 +293,34 @@ public class KnownBoardsFrame extends JDialog
             boardsTable.clearSelection();
         }
     }
-    
+
+    private void addBoardsToFolder_actionPerformed(ActionEvent e) {
+        
+        TargetFolderChooser tfc = new TargetFolderChooser(MainFrame.getInstance().getTofTreeModel());
+        Board targetFolder = tfc.startDialog();
+        if( targetFolder == null ) {
+            return;
+        }
+
+        int[] selectedRows = boardsTable.getSelectedRows();
+        if( selectedRows.length > 0 )
+        {
+            for( int z=selectedRows.length-1; z>-1; z-- )
+            {
+                int rowIx = selectedRows[z];
+
+                if( rowIx >= tableModel.getRowCount() )
+                    continue; // paranoia
+
+                // add the board(s) to board tree and remove it from table
+                KnownBoardsTableMember row = (KnownBoardsTableMember)tableModel.getRow(rowIx);
+                MainFrame.getInstance().getTofTreeModel().addNodeToTree(row.getBoardObject(), targetFolder);
+                tableModel.deleteRow(row);
+            }
+            boardsTable.clearSelection();
+        }
+    }
+
     /**
      * @param e
      */
