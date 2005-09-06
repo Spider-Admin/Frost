@@ -82,12 +82,16 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
 				indices = (Vector) in.readObject(); // TODO: write own format
 				in.close();
-                return;
+                // validate loaded Vector
+                if( indices != null || indices.size() == 100 ) {
+                    return; // all OK
+                }
     		} catch (Throwable exception) {
     			logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date) - Date: '" + loadDate
     					+ "' - Board name: '" + board.getBoardFilename() + "'", exception);
     		}
         }
+        // problem with file, start new indices
         indices = new Vector(100);
         for (int i = 0; i < 100; i++) {
             indices.add( ZERO );
@@ -114,7 +118,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     	for (int i=0; i < indices.size(); i++) {
     		Integer current = (Integer)indices.elementAt(i);
     		if (current.intValue() >= MAX_TRIES) {
-    			indices.setElementAt(ZERO,i);
+    			indices.setElementAt(ZERO, i);
             }
     	}
     }
@@ -512,8 +516,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					index = findFreeDownloadIndex(index);
 				}
 			}
-			if (isInterrupted()) // check if thread should stop
-			{
+			if (isInterrupted()) { // check if thread should stop
 				notifyThreadFinished(this);
 				return;
 			}
@@ -567,9 +570,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             return null;        
         }
         //create the identity of the sharer
-        sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")),_pubkey);
-        //add him to the neutral list
-		identities.getNeutrals().add(sharer);
+        sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
+        //add him to the neutral list (if not already on any list)
+        if( identities.getIdentityFromAnyList(_sharer) == null ) {
+            identities.getNeutrals().add(sharer);
+        }
         return sharer;
     }
 
@@ -592,16 +597,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 		privateKey = board.getPrivateKey();
 
 		if (board.isPublicBoard() == false && publicKey != null) {
-			requestKey =
-				new StringBuffer()
+			requestKey = new StringBuffer()
 					.append(publicKey)
 					.append("/")
 					.append(date)
 					.append("/")
 					.toString();
 		} else {
-			requestKey =
-				new StringBuffer()
+			requestKey = new StringBuffer()
 					.append("KSK@frost/index/")
 					.append(board.getBoardFilename())
 					.append("/")
@@ -612,16 +615,14 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
 		//make all inserts today
 		if (board.isPublicBoard() == false && privateKey != null)
-			insertKey =
-				new StringBuffer()
+			insertKey = new StringBuffer()
 					.append(privateKey)
 					.append("/")
 					.append(currentDate)
 					.append("/")
 					.toString();
 		else
-			insertKey =
-				new StringBuffer()
+			insertKey = new StringBuffer()
 					.append("KSK@frost/index/")
 					.append(board.getBoardFilename())
 					.append("/")

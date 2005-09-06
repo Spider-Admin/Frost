@@ -386,33 +386,31 @@ public class MessageObject implements XMLizable
 	 * Parses the XML file and passes the FrostMessage element to XMLize load
 	 * method.
 	 */    
-    protected void loadFile() throws Exception
-    {
+    protected void loadFile() throws Exception {
         Document doc = null;
         try {
             doc = XMLTools.parseXmlFile(this.file, false);
         } catch(Exception ex) {  // xml format error
 			File badMessage = new File("badmessage.xml");
-			if (file.renameTo(badMessage))
+			if (file.renameTo(badMessage)) {
 				logger.log(Level.SEVERE, "Error - send the file badmessage.xml to a dev for analysis, more details below:", ex);
+            }
         } 
 
-        if( doc == null )
-        {
+        if( doc == null ) {
             throw new Exception("Error - MessageObject.loadFile: couldn't parse XML Document - " +
             					"File name: '" + file.getName() + "'");
         }
 
         Element rootNode = doc.getDocumentElement();
 
-        if( rootNode.getTagName().equals("FrostMessage") == false )
-        {
+        if( rootNode.getTagName().equals("FrostMessage") == false ) {
         	File badMessage = new File("badmessage.xml");
-        	if (file.renameTo(badMessage))
+        	if (file.renameTo(badMessage)) {
         		logger.severe("Error - send the file badmessage.xml to a dev for analysis.");
+            }
             throw new Exception("Error - invalid message: does not contain the root tag 'FrostMessage'");
         }
-        
         // load the message load itself
         loadXMLElement(rootNode);
     }
