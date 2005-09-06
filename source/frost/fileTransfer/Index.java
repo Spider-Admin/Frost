@@ -262,12 +262,12 @@ public class Index {
 	private void add(SharedFileObject key, File target) {
 		//final String split = "abcdefghijklmnopqrstuvwxyz1234567890";
 		//final String fileSeparator = System.getProperty("file.separator");
-		final String hash = key.getSHA1();
+//		final String hash = key.getSHA1();
 
 		if (key.getKey() != null)
 			updateDownloadTable(key);
 
-		final Map chk = Collections.synchronizedMap(new HashMap());
+//		final Map chk = Collections.synchronizedMap(new HashMap());
 
 		// File indexFile = new File(target.getPath()  + fileSeparator + "files.xml");
 		File indexFile = target;

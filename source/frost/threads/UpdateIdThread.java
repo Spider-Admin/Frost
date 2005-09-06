@@ -41,13 +41,15 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private static Logger logger = Logger.getLogger(UpdateIdThread.class.getName());
     
     private static final int MAX_TRIES = 2; //number of times each index will be tried -1
+    
+    private static final Integer ZERO = new Integer(0);
 
     private Vector indices;
     private File indicesFile;
     private int maxKeys;
     private String date;
     private String currentDate;
-    private String oldDate;
+//    private String oldDate;
     private int requestHtl;
     private int insertHtl;
     private String keypool;
@@ -56,7 +58,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private String privateKey;
     private String requestKey;
     private String insertKey;
-    private String boardState;
+//    private String boardState;
     private final static String fileSeparator = System.getProperty("file.separator");
 	private MessageHashes messageHashes;
     
@@ -71,47 +73,37 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 	 * Generates a new index file containing keys to upload.
 	 * @return true if index file was created, else false.
 	 */
-	private void loadIndex(String date) {
-		indicesFile =
-			new File(
-				MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indices-" + date);
+	private void loadIndex(String loadDate) {
 
-		//indices = new Vector();
+		indicesFile = new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indices-" + loadDate);
 
-		try {
-			if (indicesFile.exists()) {
+		if( indicesFile.isFile() ) {
+    		try {
 				ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
-				indices = (Vector) in.readObject();
+				indices = (Vector) in.readObject(); // TODO: write own format
 				in.close();
-			} else {
-				indices = new Vector(100);
-				for (int i = 0; i < 100; i++)
-					indices.add(new Integer(0));
-			}
-		} catch (IOException exception) {
-			logger.log(
-				Level.SEVERE,
-				"Exception thrown in loadIndex(String date) - Date: '" + date + 
-					"' - Board name: '" + board.getBoardFilename()	+ "'",
-				exception);
-		} catch (ClassNotFoundException exception) {
-			logger.log(
-				Level.SEVERE,
-				"Exception thrown in loadIndex(String date) - Date: '" + date
-					+ "' - Board name: '" + board.getBoardFilename() + "'",
-				exception);
-		}
+                return;
+    		} catch (Throwable exception) {
+    			logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date) - Date: '" + loadDate
+    					+ "' - Board name: '" + board.getBoardFilename() + "'", exception);
+    		}
+        }
+        indices = new Vector(100);
+        for (int i = 0; i < 100; i++) {
+            indices.add( ZERO );
+        }
 	}
+    
     private void commit() {
-    	try{
-		indicesFile.delete();
-		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indicesFile));
-		out.writeObject(indices);
-		out.flush();
-		out.close();
-	}catch(IOException e) {
-		logger.log(Level.SEVERE, "Exception thrown in commit()", e);
-	}
+    	try {
+    		indicesFile.delete();
+    		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indicesFile)); // TODO: write own format
+    		out.writeObject(indices);
+    		out.flush();
+    		out.close();
+    	} catch(IOException e) {
+    		logger.log(Level.SEVERE, "Exception thrown in commit()", e);
+    	}
     }
     
     /**
@@ -119,74 +111,81 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
      * for the next run of the thread
      */
     private void resetIndices() {
-    	for (int i=0;i<indices.size();i++) {
-		Integer current = (Integer)indices.elementAt(i);
-		if (current.intValue() >= MAX_TRIES)
-			indices.setElementAt(new Integer(0),i);
-	}
+    	for (int i=0; i < indices.size(); i++) {
+    		Integer current = (Integer)indices.elementAt(i);
+    		if (current.intValue() >= MAX_TRIES) {
+    			indices.setElementAt(ZERO,i);
+            }
+    	}
     }
+    
     private int findFreeUploadIndex() {
     	for (int i = 0;i<indices.size();i++){
-		Integer current = (Integer)indices.elementAt(i);
-		if (current.intValue() > -1)
-			return i;
-	}
-	return -1;
+    		Integer current = (Integer)indices.elementAt(i);
+    		if (current.intValue() > -1) {
+    			return i;
+            }
+    	}
+    	return -1;
     }
     
     private int findFreeUploadIndex(int exclude) {
-    	for (int i = 0;i<indices.size();i++){
-		if (i==exclude) continue;
-		Integer current = (Integer)indices.elementAt(i);
-		if (current.intValue() > -1)
-			return i;
-	}
-	return -1;
+    	for (int i=0; i < indices.size(); i++){
+    		if (i == exclude) {
+                continue;
+            }
+    		Integer current = (Integer)indices.elementAt(i);
+    		if (current.intValue() > -1) {
+    			return i;
+            }
+    	}
+    	return -1;
     }
     
     private int findFreeDownloadIndex() {
     	for (int i = 0;i<indices.size();i++){
-		Integer current = (Integer)indices.elementAt(i);
-		if (current.intValue() > -1 && current.intValue() < MAX_TRIES)
-			return i;
-	}
-	return -1;
+    		Integer current = (Integer)indices.elementAt(i);
+    		if (current.intValue() > -1 && current.intValue() < MAX_TRIES) {
+    			return i;
+            }
+    	}
+    	return -1;
     }
 
     private int findFreeDownloadIndex(int exclude) {
-	for (int i=0;i<indices.size();i++) {
-		if (i==exclude) continue;
-		Integer current = (Integer)indices.elementAt(i);
-		if (current.intValue() > -1 && current.intValue() < MAX_TRIES)
-			return i;
-	}
-	return -1;
+        for (int i=0; i<indices.size(); i++) {
+    		if (i==exclude) { 
+                continue;
+            }
+    		Integer current = (Integer)indices.elementAt(i);
+    		if (current.intValue() > -1 && current.intValue() < MAX_TRIES) {
+    			return i;
+            }
+    	}
+    	return -1;
     }
     
     private void setIndexFailed(int i) {
     	int current = ((Integer)indices.elementAt(i)).intValue();
 	
-	if (current == -1 || current > MAX_TRIES) {
-		logger.severe("WARNING - index sequence screwed in setFailed. report to a dev");
-		return;
-	}
-	
-	indices.setElementAt(new Integer(current++),i);
-	
-	commit();
-		
+    	if (current == -1 || current > MAX_TRIES) {
+    		logger.severe("WARNING - index sequence screwed in setFailed. report to a dev");
+    		return;
+    	}
+    	
+    	indices.setElementAt(new Integer(current++), i);
+    	
+    	commit();
     }
     
     private void setIndexSuccessfull(int i) {
     	int current = ((Integer)indices.elementAt(i)).intValue();
-	if (current == -1 || current > MAX_TRIES) {
-		logger.severe("WARNING - index sequence screwed in setSuccesful. report to a dev");
-		return;
-	}
-	
-	indices.setElementAt(new Integer(-1),i);
-	
-	commit();
+    	if (current == -1 || current > MAX_TRIES) {
+    		logger.severe("WARNING - index sequence screwed in setSuccesful. report to a dev");
+    		return;
+    	}
+    	indices.setElementAt(new Integer(-1),i);
+    	commit();
     }
     
     private FrostIndex makeIndexFile()
@@ -205,7 +204,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private void uploadIndexFile(FrostIndex idx) throws Throwable
     {
     	//load the indices for the current date
-	//currentDate = DateFun.getDate();
     	loadIndex(currentDate);
         File indexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
         XMLTools.writeXmlFile(XMLTools.getXMLDocument(idx),indexFile.getPath());
@@ -313,8 +311,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						board.getBoardFilename(),
 						new File(MainFrame.frostSettings.getValue("temp.dir"))); 
 
-				logger.info(
-					"FILEDN: Requesting index " + index + " for board " + board.getName() + " for date " + date);
+				logger.info("FILEDN: Requesting index " + index + " for board " + board.getName() + " for date " + date);
 
 				// Download the keyfile
 
@@ -516,7 +513,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				}
 			}
 			if (isInterrupted()) // check if thread should stop
-				{
+			{
 				notifyThreadFinished(this);
 				return;
 			}
