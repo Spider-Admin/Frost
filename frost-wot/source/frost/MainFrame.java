@@ -129,12 +129,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (e.getSource() == newMessageButton) {
 					newMessageButton_actionPerformed(e);
 				}
-				if (e.getSource() == downloadAttachmentsButton) {
-					downloadAttachments();
-				}
-				if (e.getSource() == downloadBoardsButton) {
-					downloadBoards();
-				}
+//				if (e.getSource() == downloadAttachmentsButton) {
+//					downloadAttachments();
+//				}
+//				if (e.getSource() == downloadBoardsButton) {
+//					downloadBoards();
+//				}
 				if (e.getSource() == replyButton) {
 					replyButton_actionPerformed(e);
 				}
@@ -290,80 +290,58 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			implements ActionListener, LanguageListener {
 
 			private JMenuItem cancelItem = new JMenuItem();
-			private JMenuItem saveBoardItem = new JMenuItem();
 			private JMenuItem saveBoardsItem = new JMenuItem();
+            private JMenuItem saveBoardsToFolderItem = new JMenuItem();
 			
-			/**
-			 * 
-			 */
 			public PopupMenuAttachmentBoard() {
 				super();
 				initialize();
 			}
 			
-			/* (non-Javadoc)
-			 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-			 */
 			public void actionPerformed(ActionEvent e) {
 				if (e.getSource() == saveBoardsItem) {
 					saveBoards();
 				}
-				if (e.getSource() == saveBoardItem) {
-					saveBoard();
+				if (e.getSource() == saveBoardsToFolderItem) {
+					saveBoardsToFolder();
 				}
 			}
 			
-			/**
-			 * 
-			 */
 			private void initialize() {
 				refreshLanguage();
 
 				saveBoardsItem.addActionListener(this);
-				saveBoardItem.addActionListener(this);
+				saveBoardsToFolderItem.addActionListener(this);
 			}
 			
-			/* (non-Javadoc)
-			 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-			 */
 			public void languageChanged(LanguageEvent event) {
 				refreshLanguage();
 			}
 			
-			/**
-			 * 
-			 */
 			private void refreshLanguage() {
+                
 				saveBoardsItem.setText(language.getString("Add Board(s)"));
-				saveBoardItem.setText(language.getString("Add selected board"));
+                saveBoardsToFolderItem.setText("Add Board(s) to folder...");
 				cancelItem.setText(language.getString("Cancel"));
 			}
 
-			/**
-			 * 
-			 */
-			private void saveBoard() {
-				downloadBoards();
-			}
-			
-			/**
-			 * 
-			 */
 			private void saveBoards() {
-				downloadBoards();
+				downloadBoards(null);
 			}
 
-			/* (non-Javadoc)
-			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-			 */
+			private void saveBoardsToFolder() {
+                TargetFolderChooser tfc = new TargetFolderChooser(tofTreeModel);
+                Board targetFolder = tfc.startDialog();
+                if( targetFolder != null ) {
+                    downloadBoards(targetFolder);
+                }
+            }
+
 			public void show(Component invoker, int x, int y) {
 				removeAll();
 
-				if (boardsTable.getSelectedRow() == -1) {
-					add(saveBoardsItem);
-				} else {
-					add(saveBoardItem);
-				}
+				add(saveBoardsItem);
+                add(saveBoardsToFolderItem);
 				addSeparator();
 				add(cancelItem);
 
@@ -371,9 +349,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		}
 		
-		/**
-		 * 
-		 */
 		private class PopupMenuAttachmentTable
 			extends JSkinnablePopupMenu
 			implements ActionListener, LanguageListener {
@@ -797,10 +772,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 		private JButton checkTrustButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
-		private JButton downloadAttachmentsButton =
-			new JButton(new ImageIcon(getClass().getResource("/data/attachment.gif")));
-		private JButton downloadBoardsButton =
-			new JButton(new ImageIcon(getClass().getResource("/data/attachmentBoard.gif")));
+//		private JButton downloadAttachmentsButton =
+//			new JButton(new ImageIcon(getClass().getResource("/data/attachment.gif")));
+//		private JButton downloadBoardsButton =
+//			new JButton(new ImageIcon(getClass().getResource("/data/attachmentBoard.gif")));
 		private JButton newMessageButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/newmessage.gif")));
 		private JButton notTrustButton =
@@ -894,8 +869,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		
 		/**
 		 * Adds all boards from the attachedBoardsTable to board list.
+         * If targetFolder is null the boards are added to the root folder.
 		 */
-		private void downloadBoards() {
+		private void downloadBoards(Board targetFolder) {
 			logger.info("adding boards");
 			int[] selectedRows = boardsTable.getSelectedRows();
 
@@ -923,7 +899,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 							"You already have a board named "
 								+ name
 								+ ".\n"
-								+ "Are you sure you want to download this one over it?",
+								+ "Are you sure you want to add this one over it?",
 							"Board already exists",
 							JOptionPane.YES_NO_OPTION)
 						!= 0) {
@@ -935,8 +911,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						updateTofTree(board);
 					}
 				} else {
-					// its a new board
-					tofTreeModel.addNodeToTree(fbo);
+                    // its a new board
+                    if(targetFolder == null) {
+                        tofTreeModel.addNodeToTree(fbo);
+                    } else {
+                        tofTreeModel.addNodeToTree(fbo, targetFolder);
+                    }
 				}
 			}
 		}
@@ -950,24 +930,24 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			toolkit.configureButton(newMessageButton, "New message", "/data/newmessage_rollover.gif", language);
 			toolkit.configureButton(updateButton, "Update", "/data/update_rollover.gif", language);
 			toolkit.configureButton(replyButton, "Reply", "/data/reply_rollover.gif", language);
-			toolkit.configureButton(
-				downloadAttachmentsButton,
-				"Download attachment(s)",
-				"/data/attachment_rollover.gif",
-				language);
-			toolkit.configureButton(
-				downloadBoardsButton,
-				"Add Board(s)",
-				"/data/attachmentBoard_rollover.gif",
-				language);
+//			toolkit.configureButton(
+//				downloadAttachmentsButton,
+//				"Download attachment(s)",
+//				"/data/attachment_rollover.gif",
+//				language);
+//			toolkit.configureButton(
+//				downloadBoardsButton,
+//				"Add Board(s)",
+//				"/data/attachmentBoard_rollover.gif",
+//				language);
 			toolkit.configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif", language);
 			toolkit.configureButton(trustButton, "Trust", "/data/trust_rollover.gif", language);
 			toolkit.configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif", language);
 			toolkit.configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif", language);
 
 			replyButton.setEnabled(false);
-			downloadAttachmentsButton.setEnabled(false);
-			downloadBoardsButton.setEnabled(false);
+//			downloadAttachmentsButton.setEnabled(false);
+//			downloadBoardsButton.setEnabled(false);
 			saveMessageButton.setEnabled(false);
 			trustButton.setEnabled(false);
 			notTrustButton.setEnabled(false);
@@ -992,11 +972,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			buttonsToolbar.add(updateButton);
 			buttonsToolbar.add(Box.createRigidArea(blankSpace));
 			buttonsToolbar.addSeparator();
-			buttonsToolbar.add(Box.createRigidArea(blankSpace));
-			buttonsToolbar.add(downloadAttachmentsButton);
-			buttonsToolbar.add(downloadBoardsButton);
-			buttonsToolbar.add(Box.createRigidArea(blankSpace));
-			buttonsToolbar.addSeparator();
+//			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+//			buttonsToolbar.add(downloadAttachmentsButton);
+//			buttonsToolbar.add(downloadBoardsButton);
+//			buttonsToolbar.add(Box.createRigidArea(blankSpace));
+//			buttonsToolbar.addSeparator();
 			buttonsToolbar.add(Box.createRigidArea(blankSpace));
 			buttonsToolbar.add(trustButton);
 			buttonsToolbar.add(checkTrustButton);
@@ -1020,15 +1000,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			newMessageButton.addActionListener(listener);
 			updateButton.addActionListener(listener);
 			replyButton.addActionListener(listener);
-			downloadAttachmentsButton.addActionListener(listener);
-			downloadBoardsButton.addActionListener(listener);
+//			downloadAttachmentsButton.addActionListener(listener);
+//			downloadBoardsButton.addActionListener(listener);
 			saveMessageButton.addActionListener(listener);
 			trustButton.addActionListener(listener);
 			notTrustButton.addActionListener(listener);
 			checkTrustButton.addActionListener(listener);
 
 			return buttonsToolbar;
-
 		}
 		
 		/**
@@ -1244,8 +1223,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			selectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
 			if (selectedMessage != null) {
 				displayNewMessageIcon(false);
-				downloadAttachmentsButton.setEnabled(false);
-				downloadBoardsButton.setEnabled(false);
+//				downloadAttachmentsButton.setEnabled(false);
+//				downloadBoardsButton.setEnabled(false);
 
 				lastSelectedMessage = selectedMessage.getSubject();
 				if (selectedBoard.isReadAccessBoard() == false) {
@@ -1290,8 +1269,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						language.getString("Select a message to view its content."));
 				replyButton.setEnabled(false);
 				saveMessageButton.setEnabled(false);
-				downloadAttachmentsButton.setEnabled(false);
-				downloadBoardsButton.setEnabled(false);
+//				downloadAttachmentsButton.setEnabled(false);
+//				downloadBoardsButton.setEnabled(false);
 			}
 		}
 		
@@ -1366,9 +1345,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private void refreshLanguage() {
 			newMessageButton.setToolTipText(language.getString("New message"));
 			replyButton.setToolTipText(language.getString("Reply"));
-			downloadAttachmentsButton.setToolTipText(
-					language.getString("Download attachment(s)"));
-			downloadBoardsButton.setToolTipText(language.getString("Add Board(s)"));
+//			downloadAttachmentsButton.setToolTipText(language.getString("Download attachment(s)"));
+//			downloadBoardsButton.setToolTipText(language.getString("Add Board(s)"));
 			saveMessageButton.setToolTipText(language.getString("Save message"));
 			trustButton.setToolTipText(language.getString("Trust"));
 			notTrustButton.setToolTipText(language.getString("Do not trust"));
@@ -1516,8 +1494,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						updateButton.setEnabled(true);
 						saveMessageButton.setEnabled(false);
 						replyButton.setEnabled(false);
-						downloadAttachmentsButton.setEnabled(false);
-						downloadBoardsButton.setEnabled(false);
+//						downloadAttachmentsButton.setEnabled(false);
+//						downloadBoardsButton.setEnabled(false);
 						if (node.isReadAccessBoard()) {
 							newMessageButton.setEnabled(false);
 						} else {
