@@ -448,10 +448,6 @@ public class MessageDownloadThread
                 board.incBlocked();
                 logger.info("TOFDN: Blocked message for board '"+board.getName()+"'");
             } else {
-                if( markAsNew ) {                                
-                    // write the NEW message indicator file
-                    FileAccess.writeFile(FrostMessageObject.NEW_MSG_INDICATOR_STR, testMe.getPath() + ".lck");
-                }
                 // add new message or notify of arrival
                 TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
                 // add all files indexed files

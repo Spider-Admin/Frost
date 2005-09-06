@@ -59,6 +59,8 @@ public class MessageObject implements XMLizable
     private int signatureStatus = SIGNATURESTATUS_UNSET;
     
     protected File file;
+    
+    private Boolean messageIsNew = null;
 
     /**
      * Constructor.
@@ -506,7 +508,9 @@ public class MessageObject implements XMLizable
 	 */
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
-        setMessageNew(false);
+        if( deleted == true ) {
+            setMessageNew(false);
+        }
 	}
 
 	/**
@@ -565,35 +569,35 @@ public class MessageObject implements XMLizable
     }
     
     public boolean isMessageNew() {
-//      if( this.messageIsNew == null ) {
-//          File newMessage = new File(getFile().getPath() + ".lck");
-//          if (newMessage.isFile()) {
-//              this.messageIsNew = new Boolean(true);
-//              return true;
-//          }
-//          this.messageIsNew = new Boolean(false);
-//          return false;
-//      }
-//      return this.messageIsNew.booleanValue();
-      File newMessage = new File(getFile().getPath() + ".lck");
-      if (newMessage.isFile()) {
-          return true;
-      } else {
+      if( this.messageIsNew == null ) {
+          File newMessage = new File(getFile().getPath() + ".lck");
+          if (newMessage.isFile()) {
+              this.messageIsNew = new Boolean(true);
+              return true;
+          }
+          this.messageIsNew = new Boolean(false);
           return false;
       }
+      return this.messageIsNew.booleanValue();
+//      File newMessage = new File(getFile().getPath() + ".lck");
+//      if (newMessage.isFile()) {
+//          return true;
+//      } else {
+//          return false;
+//      }
   }
   
   public void setMessageNew(boolean newMsg) {
       final String newMsgIndicator = getFile().getPath() + ".lck";
       Runnable ioworker = null;
       if( newMsg ) {
-//          this.messageIsNew = new Boolean(true);
+          this.messageIsNew = new Boolean(true);
           ioworker = new Runnable() {
               public void run() {
                   FileAccess.writeFile(NEW_MSG_INDICATOR_STR, newMsgIndicator);
               } };
       } else {
-//          this.messageIsNew = new Boolean(false);
+          this.messageIsNew = new Boolean(false);
           ioworker = new Runnable() {
               public void run() {
                   new File(newMsgIndicator).delete();

@@ -21,7 +21,7 @@ package frost.gui.objects;
 import java.io.File;
 import java.util.logging.*;
 
-import org.shiftone.cache.*;
+//import org.shiftone.cache.*;
 
 import frost.messages.MessageCreationException;
 
@@ -39,7 +39,10 @@ public class FrostMessageFactory {
 
 	private static Logger logger = Logger.getLogger(FrostMessageFactory.class.getName());
 
-	private Cache cache = null;
+//	private Cache cache = null;
+
+//   TODO: reason for removal of object cache: the markAllRead thread is'nt easily able to check all Messages in objects cache!
+//     (because this threads dont wants to instanciate messages)  (bback)
 
 	/**
 	 * The unique instance of this class.
@@ -50,18 +53,18 @@ public class FrostMessageFactory {
 	 * Prevent instances of this class from being created.
 	 */
 	private FrostMessageFactory() {
-		try {
-			cache =
-				new CacheConfiguration().createConfiguredCache(
-					CACHE_NAME,
-					CACHE_TIMEOUT,
-					CACHE_SIZE);
-		} catch (Exception exception) {
-			logger.log(
-				Level.SEVERE,
-				"Error while creating the object cache. Object caching will not be used.",
-				exception);
-		}
+//		try {
+//			cache =
+//				new CacheConfiguration().createConfiguredCache(
+//					CACHE_NAME,
+//					CACHE_TIMEOUT,
+//					CACHE_SIZE);
+//		} catch (Exception exception) {
+//			logger.log(
+//				Level.SEVERE,
+//				"Error while creating the object cache. Object caching will not be used.",
+//				exception);
+//		}
 	}
 
 	/**
@@ -91,18 +94,18 @@ public class FrostMessageFactory {
 	 * @throws MessageCreationException
 	 */
 	private FrostMessageObject innerCreateFrostMessageObject(File messageFile) throws MessageCreationException {
-		if (cache != null) {
-			Object messageObject = cache.getObject(messageFile);
-			if (messageObject != null) {
-				return (FrostMessageObject) messageObject;
-			} else {
-				messageObject = new FrostMessageObject(messageFile);
-				cache.addObject(messageFile, messageObject);
-				return (FrostMessageObject) messageObject;
-			}
-		} else {
+//		if (cache != null) {
+//			Object messageObject = cache.getObject(messageFile);
+//			if (messageObject != null) {
+//				return (FrostMessageObject) messageObject;
+//			} else {
+//				messageObject = new FrostMessageObject(messageFile);
+//				cache.addObject(messageFile, messageObject);
+//				return (FrostMessageObject) messageObject;
+//			}
+//		} else {
 			return new FrostMessageObject(messageFile);
-		}
+//		}
 	}
 
 }
