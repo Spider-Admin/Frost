@@ -495,7 +495,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					markMessageUnread();
 				}
 				if (e.getSource() == markAllMessagesReadItem) {
-					markAllMessagesRead();
+					markAllMessagesRead(tofTreeModel.getSelectedNode());
 				}
 				if (e.getSource() == setGoodItem) {
 					setGood();
@@ -554,8 +554,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			/**
 			 * 
 			 */
-			private void markAllMessagesRead() {
-				TOF.getInstance().setAllMessagesRead(getMessageTableModel(), tofTreeModel.getSelectedNode());
+			private void markAllMessagesRead(Board board) {
+                MessageTableModel mtm = null;
+                if( board == tofTreeModel.getSelectedNode() ) {
+                    mtm = getMessageTableModel();
+                }
+				TOF.getInstance().setAllMessagesRead(mtm, board);
 			}
 
 			/**
@@ -570,8 +574,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			 */
 			private void refreshLanguage() {
 				markMessageUnreadItem.setText(language.getString("Mark message unread"));
-				markAllMessagesReadItem.setText(
-						language.getString("Mark ALL messages read"));
+				markAllMessagesReadItem.setText(language.getString("Mark ALL messages read"));
 				setGoodItem.setText(language.getString("help user (sets to GOOD)"));
 				setBadItem.setText(language.getString("block user (sets to BAD)"));
 				setCheckItem.setText(language.getString("set to neutral (CHECK)"));
@@ -1377,20 +1380,25 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		 * @param e
 		 */
 		private void replyButton_actionPerformed(ActionEvent e) {
+//            if(! isCorrectlySelectedMessage() )
+//                return;
+
+            FrostMessageObject origMessage = selectedMessage;
+            
 			String subject = lastSelectedMessage;
-			if (subject.startsWith("Re:") == false)
+			if (subject.startsWith("Re:") == false) {
 				subject = "Re: " + subject;
-			/*
-			 * if (settings.getBoolValue("useAltEdit")) { altEdit = new
-			 * AltEdit(getSelectedNode(), subject, // subject
-			 * getTofTextAreaText(), settings, this); altEdit.start(); }
-			 * else {
-			 */
-			MessageFrame newMessageFrame = new MessageFrame(settings, parentFrame,
-												identities.getMyId());
+            }
+			MessageFrame newMessageFrame = new MessageFrame(settings, parentFrame, identities.getMyId());
 			newMessageFrame.setTofTree(tofTree);
-			newMessageFrame.composeReply(tofTreeModel.getSelectedNode(), settings.getValue("userName"),
-												subject, messageTextArea.getText());
+            if( origMessage.getRecipient() != null && origMessage.getRecipient().length() > 0 ) {
+                newMessageFrame.composeEncryptedReply(tofTreeModel.getSelectedNode(), identities.getMyId().getUniqueName(),
+                        subject, messageTextArea.getText(), origMessage.getFrom());
+                
+            } else {
+    			newMessageFrame.composeReply(tofTreeModel.getSelectedNode(), settings.getValue("userName"),
+    												subject, messageTextArea.getText());
+            }
 		}
 
 		/**
@@ -3008,7 +3016,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		}
 
 		if (board == tofTreeModel.getSelectedNode()) // is the board actually shown?
-			{
+		{
 			updateButtons(board);
 		}
 	}

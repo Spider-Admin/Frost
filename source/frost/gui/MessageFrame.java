@@ -854,14 +854,15 @@ public class MessageFrame extends JFrame
 		String newFrom,
 		String newSubject,
 		String newText,
-		boolean isReply) {
+		boolean isReply,
+        String recipient) { // if given compose encrypted reply
 			
 		headerArea.setEnabled(false);	
 		board = newBoard;
 		from = newFrom;
 		subject = newSubject;
 		String text = newText;
-
+        
 		String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
 
 		if (isReply) {
@@ -890,6 +891,15 @@ public class MessageFrame extends JFrame
 			logger.log(Level.SEVERE, "Exception thrown in composeMessage(...)", e);
 		}
 
+        // maybe prepare to reply to an encrypted message
+        if( recipient != null && recipient.length() > 0 ) {
+            sign.setSelected(true);
+            encrypt.setSelected(true);
+            buddies.removeAllItems();
+            buddies.addItem(recipient);
+            buddies.setSelectedItem(recipient);
+        }
+
 		messageTextArea.setText(text);
 		headerArea.setStartPos(headerAreaStart);
 		headerArea.setEndPos(headerAreaEnd);
@@ -912,7 +922,7 @@ public class MessageFrame extends JFrame
 	 * @param newText
 	 */
 	public void composeNewMessage(Board newBoard, String newFrom, String newSubject, String newText) {
-		composeMessage(newBoard, newFrom, newSubject, newText, false);
+		composeMessage(newBoard, newFrom, newSubject, newText, false, null);
 	}
     
 	/**
@@ -922,9 +932,14 @@ public class MessageFrame extends JFrame
 	 * @param newText
 	 */
 	public void composeReply(Board newBoard, String newFrom, String newSubject, String newText) {
-			composeMessage(newBoard, newFrom, newSubject, newText, true);
+		composeMessage(newBoard, newFrom, newSubject, newText, true, null);
 	}
-    
+
+    public void composeEncryptedReply(Board newBoard, String newFrom, String newSubject, String newText,
+            String recipient) {
+        composeMessage(newBoard, newFrom, newSubject, newText, true, recipient);
+    }
+
 	/* (non-Javadoc)
 	 * @see java.awt.Window#dispose()
 	 */
@@ -1022,7 +1037,7 @@ public class MessageFrame extends JFrame
             }
             encrypt.setSelected(false);
             buddies.setEnabled(false);
-
+// TODO:
 			addAttachedFilesToUploadTable.setSelected(false);
 
 			//------------------------------------------------------------------------
