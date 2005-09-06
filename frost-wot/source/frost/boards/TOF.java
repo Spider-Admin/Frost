@@ -131,44 +131,85 @@ public class TOF
      * @param tableModel  the messages table model
      * @param board  the board to reset
      */
-    public void setAllMessagesRead(final MessageTableModel tableModel, final Board board)
-    {
-        Runnable resetter = new Runnable() {
-            public void run()
-            {
-                for(int row=0; row < tableModel.getRowCount(); row++ )
-                {
-                    final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-                    if( message != null )
-                    {
-                        // Test if lockfile exists, remove it and update the tree display
-                        if( message.isMessageNew() == false )
-                        {
-                            // its a read message, nothing more to do here ...
-                            continue;
-                        }
-
-                        // this is a new message
-                        message.setMessageNew(false); // mark as read
-                        
-                        board.decNewMessageCount();
-                        
-                        SwingUtilities.invokeLater( new Runnable() {
-                            public void run() {
-                                tableModel.updateRow(message);
+    public void setAllMessagesRead(final MessageTableModel tableModel, final Board board) {
+        
+        if( tableModel != null ) {
+            // mark all msgs read in currently shown board
+            Runnable resetter = new Runnable() {
+                public void run() {
+                    for(int row=0; row < tableModel.getRowCount(); row++ ) {
+                        final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+                        if( message != null ) {
+                            // Test if lockfile exists, remove it and update the tree display
+                            if( message.isMessageNew() == false ) {
+                                // its a read message, nothing more to do here ...
+                                continue;
                             }
-                        });                
+
+                            // this is a new message
+                            message.setMessageNew(false); // mark as read
+                            
+                            board.decNewMessageCount();
+                            
+                            SwingUtilities.invokeLater( new Runnable() {
+                                public void run() {
+                                    tableModel.updateRow(message);
+                                }
+                            });                
+                        }
                     }
-                }
-                // all new messages should be gone now ...
-                SwingUtilities.invokeLater( new Runnable() {
-                    public void run() {
-                        MainFrame.getInstance().updateMessageCountLabels(board);
-                        MainFrame.getInstance().updateTofTree(board);
+                    // all new messages should be gone now ...
+                    SwingUtilities.invokeLater( new Runnable() {
+                        public void run() {
+                            MainFrame.getInstance().updateMessageCountLabels(board);
+                            MainFrame.getInstance().updateTofTree(board);
+                        }
+                    });                
+                } };
+            new Thread( resetter ).start();
+        } else {
+            // mark all messages read in a board NOT shown currently
+            Runnable resetter = new Runnable() {
+                public void run() {
+                    String keypool = MainFrame.keypool;
+                    final String boardFilename = board.getBoardFilename();
+
+                    File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).toString());
+                    if( !loadDir.isDirectory() ) {
+                        return;
                     }
-                });                
-            } };
-        new Thread( resetter ).start();
+
+                    ArrayList entries = null;
+                    int beforeMessages = 0;
+                    boolean noNewMessageArrived = false;
+                    while( noNewMessageArrived == false ) {
+                        beforeMessages = board.getNewMessageCount(); // remember old val to track if new msg. arrived
+                        entries = FileAccess.getAllEntries( loadDir, ".xml.lck");
+                        if( beforeMessages == board.getNewMessageCount() ) {
+                            // ok, no new .lck was created during we searched all .lck files
+                            noNewMessageArrived = true;
+                        }
+                        // else get new list of .lck files, a new one arrived
+                    }
+
+                    // delete all .lck files
+                    for( Iterator i = entries.iterator(); i.hasNext(); ) {
+                        File lckFile = (File)i.next();
+                        lckFile.delete();
+                    }
+
+                    board.setNewMessageCount( board.getNewMessageCount() - beforeMessages );
+                    
+                    // all new messages should be gone now ...
+                    SwingUtilities.invokeLater( new Runnable() {
+                        public void run() {
+                            MainFrame.getInstance().updateMessageCountLabels(board);
+                            MainFrame.getInstance().updateTofTree(board);
+                        }
+                    });                
+                } };
+            new Thread( resetter ).start();
+        }
     }
     
     /**

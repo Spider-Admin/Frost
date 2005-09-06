@@ -30,6 +30,7 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.gui.NewBoardDialog;
+import frost.gui.model.*;
 import frost.gui.objects.Board;
 import frost.messaging.MessageHashes;
 import frost.storage.*;
@@ -60,7 +61,9 @@ public class TofTree extends JDragTree implements Savable {
 		private JMenuItem pasteNodeItem = new JMenuItem();
 		private JMenuItem refreshItem = new JMenuItem();
 		private JMenuItem removeNodeItem = new JMenuItem();
-	
+
+        private JMenuItem markAllReadItem = new JMenuItem();
+
 		private Board selectedTreeNode = null;
 		private JMenuItem sortFolderItem = new JMenuItem();
 	
@@ -97,7 +100,9 @@ public class TofTree extends JDragTree implements Savable {
 						configureBoardSelected();
 					} else if (source == sortFolderItem) {
 						sortFolderSelected();
-					}
+					} else if( source == markAllReadItem ) {
+					    markAllReadSelected();
+                    }
 				}
 	
 				protected void doUIUpdateLogic() throws RuntimeException {
@@ -163,6 +168,7 @@ public class TofTree extends JDragTree implements Savable {
 			pasteNodeItem.addActionListener(this);
 			configureBoardItem.addActionListener(this);
 			sortFolderItem.addActionListener(this);
+            markAllReadItem.addActionListener(this);
 		}
 	
 		/* (non-Javadoc)
@@ -190,9 +196,8 @@ public class TofTree extends JDragTree implements Savable {
 			configureBoardItem.setText(language.getString("Configure selected board"));
 			cancelItem.setText(language.getString("Cancel"));
 			sortFolderItem.setText(language.getString("Sort folder"));
+            markAllReadItem.setText(language.getString("Mark ALL messages read"));
 		}
-		
-		
 	
 		/**
 		 * 
@@ -200,6 +205,10 @@ public class TofTree extends JDragTree implements Savable {
 		private void refreshSelected() {
 			refreshNode(selectedTreeNode);
 		}
+        
+        private void markAllReadSelected() {
+            markAllRead(selectedTreeNode);
+        }
 	
 		/**
 		 * 
@@ -237,6 +246,8 @@ public class TofTree extends JDragTree implements Savable {
 				add(descriptionItem);
 				addSeparator();
 				add(refreshItem);
+                addSeparator();
+                add(markAllReadItem);
 				addSeparator();
 				if (selectedTreeNode.isFolder() == false) {
 					add(configureBoardItem);
@@ -948,6 +959,26 @@ public class TofTree extends JDragTree implements Savable {
 				refreshNode((Board) leafs.nextElement());
 		}
 	}
+    
+    private void markAllRead(Board node) {
+        if (node == null) {
+            return;
+        }
+    
+        if (node.isFolder() == false) {
+            MessageTableModel mtm = null;
+            if( node == model.getSelectedNode() ) {
+                mtm = MainFrame.getInstance().getMessageTableModel();
+            }
+            TOF.getInstance().setAllMessagesRead(mtm, node);
+        } else {
+            // process all childs recursiv
+            Enumeration leafs = node.children();
+            while (leafs.hasMoreElements()) {
+                markAllRead((Board)leafs.nextElement());
+            }
+        }
+    }
 
 	/**
 	 * Returns true if board is allowed to be updated.
