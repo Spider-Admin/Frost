@@ -33,7 +33,9 @@ public class MessageObject implements XMLizable
 
 	//FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
-    
+
+    public static final String NEW_MSG_INDICATOR_STR = "NewMessage";
+
     public static final int SIGNATURESTATUS_UNSET    = 0; // status not set
     public static final int SIGNATURESTATUS_TAMPERED = 1; // wrong signature
     public static final int SIGNATURESTATUS_OLD      = 2; // no signature
@@ -504,6 +506,7 @@ public class MessageObject implements XMLizable
 	 */
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
+        setMessageNew(false);
 	}
 
 	/**
@@ -560,4 +563,43 @@ public class MessageObject implements XMLizable
     public void setSignatureStatus(int signatureStatus) {
         this.signatureStatus = signatureStatus;
     }
+    
+    public boolean isMessageNew() {
+//      if( this.messageIsNew == null ) {
+//          File newMessage = new File(getFile().getPath() + ".lck");
+//          if (newMessage.isFile()) {
+//              this.messageIsNew = new Boolean(true);
+//              return true;
+//          }
+//          this.messageIsNew = new Boolean(false);
+//          return false;
+//      }
+//      return this.messageIsNew.booleanValue();
+      File newMessage = new File(getFile().getPath() + ".lck");
+      if (newMessage.isFile()) {
+          return true;
+      } else {
+          return false;
+      }
+  }
+  
+  public void setMessageNew(boolean newMsg) {
+      final String newMsgIndicator = getFile().getPath() + ".lck";
+      Runnable ioworker = null;
+      if( newMsg ) {
+//          this.messageIsNew = new Boolean(true);
+          ioworker = new Runnable() {
+              public void run() {
+                  FileAccess.writeFile(NEW_MSG_INDICATOR_STR, newMsgIndicator);
+              } };
+      } else {
+//          this.messageIsNew = new Boolean(false);
+          ioworker = new Runnable() {
+              public void run() {
+                  new File(newMsgIndicator).delete();
+              } };
+      }
+      new Thread( ioworker ).start(); // do IO in another thread, not here in Swing thread
+  }
+    
 }

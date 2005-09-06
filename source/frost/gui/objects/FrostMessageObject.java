@@ -26,10 +26,7 @@ import frost.messages.*;
 
 public class FrostMessageObject extends VerifyableMessageObject implements TableMember {
     
-    public static final String NEW_MSG_INDICATOR_STR = "NewMessage";
-	
 	protected String dateAndTime = null;
-	//protected Boolean messageIsNew = null;
     	
 	/**
      * This constructor can be used to build a messageobject from
@@ -79,44 +76,6 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
         datetime.append(" ").append( time );
 
         this.dateAndTime = datetime.toString();
-    }
-    
-    public boolean isMessageNew() {
-//        if( this.messageIsNew == null ) {
-//            File newMessage = new File(getFile().getPath() + ".lck");
-//            if (newMessage.isFile()) {
-//                this.messageIsNew = new Boolean(true);
-//                return true;
-//            }
-//            this.messageIsNew = new Boolean(false);
-//            return false;
-//        }
-//        return this.messageIsNew.booleanValue();
-        File newMessage = new File(getFile().getPath() + ".lck");
-        if (newMessage.isFile()) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-    
-    public void setMessageNew(boolean newMsg) {
-        final String newMsgIndicator = getFile().getPath() + ".lck";
-        Runnable ioworker = null;
-        if( newMsg ) {
-//            this.messageIsNew = new Boolean(true);
-            ioworker = new Runnable() {
-                public void run() {
-                    FileAccess.writeFile(NEW_MSG_INDICATOR_STR, newMsgIndicator);
-                } };
-        } else {
-//            this.messageIsNew = new Boolean(false);
-            ioworker = new Runnable() {
-                public void run() {
-                    new File(newMsgIndicator).delete();
-                } };
-        }
-        new Thread( ioworker ).start(); // do IO in another thread, not here in Swing thread
     }
     
     /**
