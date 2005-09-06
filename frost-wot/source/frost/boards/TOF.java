@@ -132,7 +132,7 @@ public class TOF
      * @param board  the board to reset
      */
     public void setAllMessagesRead(final MessageTableModel tableModel, final Board board) {
-        
+        // TODO: take care if board is changed during mark read of many boards! reload current table
         Runnable resetter = new Runnable() {
             public void run() {
                 String keypool = MainFrame.keypool;
