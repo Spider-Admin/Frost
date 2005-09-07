@@ -2,24 +2,29 @@ Pending changes for next release:
 
 Added: timestamp to hashes.xml with automatic cleanup of old entries
 Added: reenabled the feature to send encrypted messages. The encrypted message must be signed,
-           anonymous encrypted messages are not possible.
+       anonymous encrypted messages are not possible.
 Added: 'Mark ALL messages read' to boards and folders in boards tree
 Added: 'Add board to folder ...' added to popup menu of board attachments and in known boards dialog
 Added: signature is not appended for anonymous  (unsigned) messages
 Added: Board settings can be changed for ALL boards in a folder (including all sub folders). Right click onto a folder
        and choose 'Change settings', then select all that you want to change for all boards. Unselected settings are
        unchanged in each board.
+Added: Option to enable/disable the automatic board updates is now available in Preferences - News(3) too.
+       Previously this setting was only changeable in menu News.
+
 Changed: Removed support for loading the very old format of 'hashes' and 'identities'
          because all Frost versions should support the XML format now.
          Up to the version 30-Aug-2005 the old format was silently converted by Frost
          to the new XML format.
 Changed: removed need for .sig files, changing trust state is now very fast,
          there is a one-time convert needed for this (done on startup of frost)
-Bugfix: fixed MessageDownloadThread
-          - validates format of all messages again
-          - writes indicator files for received invalid/double/broken messages
-          - under some circumstandes it was possible that message download stopped
-            before all indicies were tried to download
+Changed: Updated history.txt file, so the Help dialog will show correct history again.
+
+Bugfix: fixes in MessageDownloadThread:
+        - validates format of all messages again
+        - writes indicator files for received invalid/double/broken messages
+        - under some circumstandes it was possible that message download stopped
+          before all indicies were tried to download
 Bugfix: Date of a message is set to current date when message is uploaded.
         Needed because we check on message arrival if message date is (quite) the same as
         date in the url that was used to retrieve the message.
