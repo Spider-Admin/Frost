@@ -2600,6 +2600,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		} catch (StorageException se) {
 			logger.log(Level.SEVERE, "Error while saving the settings.", se);
 		}
+        
 		OptionsFrame optionsDlg = new OptionsFrame(this, frostSettings);
 		boolean okPressed = optionsDlg.runDialog();
 		if (okPressed) {
@@ -2743,12 +2744,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		//////////////////////////////////////////////////
 		//   Automatic TOF update
 		//////////////////////////////////////////////////
-		if (counter % 15 == 0
-			&& // check all 5 seconds if a board update could be started
-		tofAutomaticUpdateMenuItem
-				.isSelected()
-			&& tofTree.getRunningBoardUpdateThreads().getUpdatingBoardCount()
-				< frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")) {
+		if (counter % 15 == 0 && // check all 5 seconds if a board update could be started
+		   isAutomaticBoardUpdateEnabled() && 
+           tofTree.getRunningBoardUpdateThreads().getUpdatingBoardCount()
+				< frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates")) 
+        {
 			Vector boards = tofTreeModel.getAllBoards();
 			if (boards.size() > 0) {
 				Board actualBoard = selectNextBoard(boards);
@@ -2990,5 +2990,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	public void setUploadPanel(UploadPanel panel) {
 		uploadPanel = panel;
 	}
-
+    
+    public void setAutomaticBoardUpdateEnabled(boolean state) {
+        tofAutomaticUpdateMenuItem.setSelected(state);
+    }
+    
+    public boolean isAutomaticBoardUpdateEnabled() {
+        return tofAutomaticUpdateMenuItem.isSelected();
+    }
 }
