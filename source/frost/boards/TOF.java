@@ -131,14 +131,22 @@ public class TOF
      * @param tableModel  the messages table model
      * @param board  the board to reset
      */
-    public void setAllMessagesRead(final MessageTableModel tableModel, final Board board) {
-        // TODO: take care if board is changed during mark read of many boards! reload current table
+    public void setAllMessagesRead(final Board board) {
+        // now takes care if board is changed during mark read of many boards! reloads current table if needed
+        
         Runnable resetter = new Runnable() {
             public void run() {
+                
                 String keypool = MainFrame.keypool;
+                boolean boardWasShown = false;
                 final String boardFilename = board.getBoardFilename();
                 
-                if( tableModel != null ) {
+                // if this board is currently shown, update messages in table first
+                if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
+                    
+                    boardWasShown = true; // remember that was processed the shown messages
+                    final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
+                    
                     // first update msgs shown in table
                     for(int row=0; row < tableModel.getRowCount(); row++ ) {
                         final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
@@ -193,13 +201,25 @@ public class TOF
                     lckFile.delete();
                 }
 
+                // set not 0 in case a new msg arrived while we deleted
                 board.setNewMessageCount( board.getNewMessageCount() - beforeMessages );
+                
+                final boolean finalBoardWasShown = boardWasShown;
                 
                 // all new messages should be gone now ...
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
                         MainFrame.getInstance().updateMessageCountLabels(board);
                         MainFrame.getInstance().updateTofTree(board);
+                        
+                        if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board &&
+                             finalBoardWasShown == false ) 
+                        {
+                            // the board was not shown when we started to mark read, so user changed the board during our
+                            // operation. so he maybe has unread messages left in the messages table.
+                            // reload the table...
+                            MainFrame.getInstance().tofTree_actionPerformed(null);
+                        }
                     }
                 });                
             } };
@@ -477,11 +497,7 @@ public class TOF
 	 * @return true if message is blocked, else false
 	 */
 	public boolean blocked(VerifyableMessageObject message, Board board) {
-		// TODO: remove this later, is already check on incoming message.
-		// this is needed as long such messages are in keypool to block these
-		//  and of course its needed if you change the setting Hide unsigned
-
-        // Done on message arrival!
+        // verify of date and time was done on message arrival!
 //		if (message.verifyTime() == false) {
 //			return true;
 //		}

@@ -526,27 +526,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				refreshLanguage();
 			}
 
-			/**
-			 * 
-			 */
 			private void markAllMessagesRead(Board board) {
-                MessageTableModel mtm = null;
-                if( board == tofTreeModel.getSelectedNode() ) {
-                    mtm = getMessageTableModel();
-                }
-				TOF.getInstance().setAllMessagesRead(mtm, board);
+				TOF.getInstance().setAllMessagesRead(board);
 			}
 
-			/**
-			 * 
-			 */
 			private void markMessageUnread() {
 				markSelectedMessageUnread();
 			}
 
-			/**
-			 * 
-			 */
 			private void refreshLanguage() {
 				markMessageUnreadItem.setText(language.getString("Mark message unread"));
 				markAllMessagesReadItem.setText(language.getString("Mark ALL messages read"));
@@ -558,23 +545,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				cancelItem.setText(language.getString("Cancel"));
 			}
 
-			/**
-			 * 
-			 */
 			private void setBad() {
 				setMessageTrust(new Boolean(false));
 			}
 
-			/**
-			 * 
-			 */
 			private void setCheck() {
 				setMessageTrust(null);
 			}
 
-			/**
-			 * 
-			 */
 			private void setGood() {
 				setMessageTrust(new Boolean(true));
 			}

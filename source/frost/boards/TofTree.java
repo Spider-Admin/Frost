@@ -955,8 +955,9 @@ public class TofTree extends JDragTree implements Savable {
 		} else {
 			// update all childs recursiv
 			Enumeration leafs = node.children();
-			while (leafs.hasMoreElements())
+			while (leafs.hasMoreElements()) {
 				refreshNode((Board) leafs.nextElement());
+            }
 		}
 	}
     
@@ -964,13 +965,8 @@ public class TofTree extends JDragTree implements Savable {
         if (node == null) {
             return;
         }
-    
         if (node.isFolder() == false) {
-            MessageTableModel mtm = null;
-            if( node == model.getSelectedNode() ) {
-                mtm = MainFrame.getInstance().getMessageTableModel();
-            }
-            TOF.getInstance().setAllMessagesRead(mtm, node);
+            TOF.getInstance().setAllMessagesRead(node);
         } else {
             // process all childs recursiv
             Enumeration leafs = node.children();
