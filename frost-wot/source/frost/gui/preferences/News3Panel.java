@@ -24,20 +24,13 @@ import java.awt.event.*;
 import javax.swing.*;
 import javax.swing.border.*;
 
-import frost.SettingsClass;
+import frost.*;
 import frost.util.gui.*;
-import frost.util.gui.translation.Language;
+import frost.util.gui.translation.*;
 
 class News3Panel extends JPanel {
 	
-	/**
-	 * 
-	 */
 	private class Listener implements ActionListener {
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == showUpdateCheckBox) {
 				refreshUpdateState();
@@ -61,6 +54,7 @@ class News3Panel extends JPanel {
 	private JTextField concurrentUpdatesTextField = new JTextField(8);
 
 	private JCheckBox showUpdateCheckBox = new JCheckBox();
+    private JCheckBox automaticBoardUpdateCheckBox = new JCheckBox();
 	private JButton selectedColorButton = new JButton();
 	private JLabel selectedColorTextLabel = new JLabel();
 	private JLabel selectedColorLabel = new JLabel();
@@ -155,10 +149,10 @@ class News3Panel extends JPanel {
 		constraints.weighty = 1;
 		constraints.weightx = 1;
 		constraints.anchor = GridBagConstraints.NORTHWEST;
-
+        constraints.gridy = 0;
+        
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridx = 0;
-		constraints.gridy = 0;
 		constraints.weightx = 0.5;
 		updatePanel.add(minimumIntervalLabel, constraints);
 		constraints.fill = GridBagConstraints.NONE;
@@ -168,7 +162,7 @@ class News3Panel extends JPanel {
 
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		constraints.gridx = 0;
-		constraints.gridy = 1;
+		constraints.gridy++;
 		constraints.weightx = 0.5;
 		updatePanel.add(concurrentUpdatesLabel, constraints);
 		constraints.fill = GridBagConstraints.NONE;
@@ -203,18 +197,23 @@ class News3Panel extends JPanel {
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		add(autoUpdateLabel, constraints);
-		constraints.gridy = 1;
+
+        constraints.gridy++;
+        add(automaticBoardUpdateCheckBox, constraints);
+
+		constraints.gridy++;
 		add(getUpdatePanel(), constraints);
 
-		constraints.gridy = 2;
+		constraints.gridy++;
 		add(showUpdateCheckBox, constraints);
-		constraints.gridy = 3;
+
+		constraints.gridy++;
 		add(getColorPanel(), constraints);
 		
-		constraints.gridy = 4;
+		constraints.gridy++;
 		add(silentlyRetryCheckBox, constraints);
 		
-		constraints.gridy = 5;
+		constraints.gridy++;
 		add(showDeletedMessagesCheckBox, constraints);
 
 		// Add listeners
@@ -233,6 +232,9 @@ class News3Panel extends JPanel {
 		showUpdateCheckBox.setSelected(settings.getBoolValue("boardUpdateVisualization"));
 		refreshUpdateState();
 
+        // this setting is in MainFrame 
+        automaticBoardUpdateCheckBox.setSelected(MainFrame.getInstance().isAutomaticBoardUpdateEnabled());
+        
 		selectedColor = (Color) settings.getObjectValue("boardUpdatingSelectedBackgroundColor");
 		notSelectedColor = (Color) settings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
 		selectedColorLabel.setBackground(selectedColor);
@@ -243,9 +245,6 @@ class News3Panel extends JPanel {
 		showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
 	}
 	
-	/**
-	 * 
-	 */
 	private void notSelectedColorPressed() {
 		Color newCol =
 			JColorChooser.showDialog(
@@ -258,16 +257,10 @@ class News3Panel extends JPanel {
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	public void ok() {
 		saveSettings();
 	}
 
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
 		String minutes = language.getString("minutes");
 		String color = language.getString("Color");
@@ -279,6 +272,7 @@ class News3Panel extends JPanel {
 		concurrentUpdatesLabel.setText(
 				language.getString("Number of concurrently updating boards") + " (6)");
 
+        automaticBoardUpdateCheckBox.setText(language.getString("Automatic message update"));
 		showUpdateCheckBox.setText(
 				language.getString("Show board update visualization") + " (" + on + ")");
 		selectedColorTextLabel.setText(
@@ -295,9 +289,6 @@ class News3Panel extends JPanel {
 		showDeletedMessagesCheckBox.setText(language.getString("Show deleted messages"));
 	}
 	
-	/**
-	 * 
-	 */
 	private void refreshUpdateState() {
 		MiscToolkit.getInstance().setContainerEnabled(colorPanel, showUpdateCheckBox.isSelected());
 	}
@@ -310,6 +301,10 @@ class News3Panel extends JPanel {
 		settings.setValue("automaticUpdate.boardsMinimumUpdateInterval", minimumIntervalTextField.getText());
 		
 		settings.setValue("boardUpdateVisualization", showUpdateCheckBox.isSelected());
+        
+        // settings.setValue("automaticUpdate", automaticBoardUpdateCheckBox.isSelected());
+        // we change setting in MainFrame, this is auto-saved during frostSettings.save()
+        MainFrame.getInstance().setAutomaticBoardUpdateEnabled(automaticBoardUpdateCheckBox.isSelected());
 
 		settings.setObjectValue("boardUpdatingSelectedBackgroundColor", selectedColor);
 		settings.setObjectValue("boardUpdatingNonSelectedBackgroundColor", notSelectedColor);
@@ -318,9 +313,6 @@ class News3Panel extends JPanel {
 		settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
 	}
 	
-	/**
-	 * 
-	 */
 	private void selectedColorPressed() {
 		Color newCol =
 			JColorChooser.showDialog(
@@ -332,5 +324,4 @@ class News3Panel extends JPanel {
 			selectedColorButton.setBackground(selectedColor);
 		}
 	}
-
 }

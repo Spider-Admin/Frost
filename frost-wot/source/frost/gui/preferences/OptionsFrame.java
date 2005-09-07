@@ -460,8 +460,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 
 		saveSettings();
-		
-		
 
 		dispose();
 	}
@@ -506,12 +504,9 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 
 		// now check if some settings changed
-		if (checkDisableRequests == true
-			&& // BEFORE: uploads disabled?
-		frostSettings.getBoolValue(
-			SettingsClass.DISABLE_REQUESTS)
-				== false) // AFTER: uploads enabled?
-			{
+		if (checkDisableRequests == true && // BEFORE: uploads disabled?
+		    frostSettings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == false) // AFTER: uploads enabled?
+		{
 			shouldRemoveDummyReqFiles = true;
 		}
 		if (checkMaxMessageDisplay
