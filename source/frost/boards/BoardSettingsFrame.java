@@ -21,31 +21,24 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.IOException;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
 
+import frost.*;
 import frost.fcp.*;
-import frost.gui.objects.Board;
-import frost.util.gui.TextComponentClipboardMenu;
-import frost.util.gui.translation.Language;
+import frost.gui.objects.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 /**
- * @author $Author$
- * @version $Revision$
+ * Settingsdialog for a single Board or a folder.
  */
 public class BoardSettingsFrame extends JDialog {
 
-	/**
-	 * 
-	 */
 	private class Listener implements ActionListener {
-
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == publicBoardRadioButton) { // Public board radio button
 				radioButton_actionPerformed(e);
@@ -61,7 +54,6 @@ public class BoardSettingsFrame extends JDialog {
 				overrideSettingsCheckBox_actionPerformed(e);	
 			}
 		}
-
 	}
 	
 	private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
@@ -316,9 +308,6 @@ public class BoardSettingsFrame extends JDialog {
 		return settingsPanel;
 	}
 
-	/**
-	 * 
-	 */
 	private void initialize() {
 		JPanel contentPanel = new JPanel();
 		contentPanel.setBorder(new EmptyBorder(10,10,10,10));
@@ -378,9 +367,6 @@ public class BoardSettingsFrame extends JDialog {
 		okButton.addActionListener(listener);
 		cancelButton.addActionListener(listener);
 		
-		if (board.getDescription() != null) {
-			descriptionTextArea.setText(board.getDescription());
-		}
 		loadKeypair();
 		loadBoardSettings();
 	}
@@ -446,80 +432,103 @@ public class BoardSettingsFrame extends JDialog {
 	 * Set initial values for board settings.
 	 */
 	private void loadBoardSettings() {
-		overrideSettingsCheckBox.setSelected(board.isConfigured());
+        if( board.isFolder() ) {
 
-		if (!board.isConfigured() || board.getMaxMessageDisplayObj() == null)
-			maxMsg_default.setSelected(true);
-		else {
-			maxMsg_set.setSelected(true);
-			maxMsg_value.setText("" + board.getMaxMessageDisplay());
-		}
+            descriptionTextArea.setEnabled(false);
+            overrideSettingsCheckBox.setSelected(false);
+            
+        } else {
+            // its a single board
+            if (board.getDescription() != null) {
+                descriptionTextArea.setText(board.getDescription());
+            }
+            
+            overrideSettingsCheckBox.setSelected(board.isConfigured());
 
-		if (!board.isConfigured())
-			autoUpdateEnabled.setSelected(true); // default
-		else if (board.getAutoUpdateEnabled())
-			autoUpdateEnabled.setSelected(true);
-		else
-			autoUpdateEnabled.setSelected(false);
+            if (!board.isConfigured() || board.getMaxMessageDisplayObj() == null)
+                maxMsg_default.setSelected(true);
+            else {
+                maxMsg_set.setSelected(true);
+                maxMsg_value.setText("" + board.getMaxMessageDisplay());
+            }
 
-		if (!board.isConfigured() || board.getShowSignedOnlyObj() == null)
-			signedOnly_default.setSelected(true);
-		else if (board.getShowSignedOnly())
-			signedOnly_true.setSelected(true);
-		else
-			signedOnly_false.setSelected(true);
+            if (!board.isConfigured())
+                autoUpdateEnabled.setSelected(true); // default
+            else if (board.getAutoUpdateEnabled())
+                autoUpdateEnabled.setSelected(true);
+            else
+                autoUpdateEnabled.setSelected(false);
 
-		if (!board.isConfigured() || board.getHideBadObj() == null)
-			hideBad_default.setSelected(true);
-		else if (board.getHideBad())
-			hideBad_true.setSelected(true);
-		else
-			hideBad_false.setSelected(true);
+            if (!board.isConfigured() || board.getShowSignedOnlyObj() == null)
+                signedOnly_default.setSelected(true);
+            else if (board.getShowSignedOnly())
+                signedOnly_true.setSelected(true);
+            else
+                signedOnly_false.setSelected(true);
 
-		if (!board.isConfigured() || board.getHideCheckObj() == null)
-			hideCheck_default.setSelected(true);
-		else if (board.getHideCheck())
-			hideCheck_true.setSelected(true);
-		else
-			hideCheck_false.setSelected(true);
+            if (!board.isConfigured() || board.getHideBadObj() == null)
+                hideBad_default.setSelected(true);
+            else if (board.getHideBad())
+                hideBad_true.setSelected(true);
+            else
+                hideBad_false.setSelected(true);
 
-		if (!board.isConfigured() || board.getHideNAObj() == null)
-			hideNA_default.setSelected(true);
-		else if (board.getHideNA())
-			hideNA_true.setSelected(true);
-		else
-			hideNA_false.setSelected(true);
+            if (!board.isConfigured() || board.getHideCheckObj() == null)
+                hideCheck_default.setSelected(true);
+            else if (board.getHideCheck())
+                hideCheck_true.setSelected(true);
+            else
+                hideCheck_false.setSelected(true);
+
+            if (!board.isConfigured() || board.getHideNAObj() == null)
+                hideNA_default.setSelected(true);
+            else if (board.getHideNA())
+                hideNA_true.setSelected(true);
+            else
+                hideNA_false.setSelected(true);
+        }
 	}
 
 	/** 
 	 * Loads keypair from file 
 	 */
 	private void loadKeypair() {
-		String privateKey = board.getPrivateKey();
-		String publicKey = board.getPublicKey();
 
-		if (privateKey != null)
-			privateKeyTextField.setText(privateKey);
-		else
-			privateKeyTextField.setText(language.getString("Not available"));
-
-		if (publicKey != null)
-			publicKeyTextField.setText(publicKey);
-		else
-			publicKeyTextField.setText(language.getString("Not available"));
-
-		if (board.isWriteAccessBoard() || board.isReadAccessBoard()) {
-			privateKeyTextField.setEnabled(true);
-			publicKeyTextField.setEnabled(true);
-			generateKeyButton.setEnabled(true);
-			secureBoardRadioButton.setSelected(true);
-		} else // its a public board
-			{
-			privateKeyTextField.setEnabled(false);
-			publicKeyTextField.setEnabled(false);
-			generateKeyButton.setEnabled(false);
-			publicBoardRadioButton.setSelected(true);
-		}
+        if( board.isFolder() ) {
+            privateKeyTextField.setEnabled(false);
+            publicKeyTextField.setEnabled(false);
+            generateKeyButton.setEnabled(false);
+            publicBoardRadioButton.setEnabled(false);
+            secureBoardRadioButton.setEnabled(false);
+            
+        } else {
+    		String privateKey = board.getPrivateKey();
+    		String publicKey = board.getPublicKey();
+    
+    		if (privateKey != null) {
+    			privateKeyTextField.setText(privateKey);
+            } else {
+    			privateKeyTextField.setText(language.getString("Not available"));
+            }
+    
+    		if (publicKey != null) {
+    			publicKeyTextField.setText(publicKey);
+            } else {
+    			publicKeyTextField.setText(language.getString("Not available"));
+            }
+    
+    		if (board.isWriteAccessBoard() || board.isReadAccessBoard()) {
+    			privateKeyTextField.setEnabled(true);
+    			publicKeyTextField.setEnabled(true);
+    			generateKeyButton.setEnabled(true);
+    			secureBoardRadioButton.setSelected(true);
+    		} else { // its a public board
+    			privateKeyTextField.setEnabled(false);
+    			publicKeyTextField.setEnabled(false);
+    			generateKeyButton.setEnabled(false);
+    			publicBoardRadioButton.setSelected(true);
+    		}
+        }
 	}
 
 
@@ -528,65 +537,158 @@ public class BoardSettingsFrame extends JDialog {
 	 */
 	private void ok() {
 
-		if (secureBoardRadioButton.isSelected()) {
-			String privateKey = privateKeyTextField.getText();
-			String publicKey = publicKeyTextField.getText();
-			if (publicKey.startsWith("SSK@")) {
-				board.setPublicKey(publicKey);
-			}
-			if (privateKey.startsWith("SSK@")) {
-				board.setPrivateKey(privateKey);
-			}
-		} else {
-			int result =
-				JOptionPane.showConfirmDialog(
-					this,
-					language.getString("BoardSettingsFrame.confirmBody"),
-					language.getString("BoardSettingsFrame.confirmTitle"),
-					JOptionPane.YES_NO_OPTION,
-					JOptionPane.WARNING_MESSAGE);
-			if (result == JOptionPane.YES_OPTION) {
-				board.setPublicKey(null);
-				board.setPrivateKey(null);
-			} else {
-				return;
-			}
-		}
-		if (overrideSettingsCheckBox.isSelected()) {
-			board.setConfigured(true);
-			board.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
-			if (maxMsg_default.isSelected() == false) {
-				board.setMaxMessageDays(new Integer(maxMsg_value.getText()));
-			} else {
-				board.setMaxMessageDays(null);
-			}
-			if (signedOnly_default.isSelected() == false) {
-				board.setShowSignedOnly(Boolean.valueOf(signedOnly_true.isSelected()));
-			} else {
-				board.setShowSignedOnly(null);
-			}
-			if (hideBad_default.isSelected() == false) {
-				board.setHideBad(Boolean.valueOf(hideBad_true.isSelected()));
-			} else {
-				board.setHideBad(null);
-			}
-			if (hideCheck_default.isSelected() == false) {
-				board.setHideCheck(Boolean.valueOf(hideCheck_true.isSelected()));
-			} else {
-				board.setHideCheck(null);
-			}
-			if (hideNA_default.isSelected() == false) {
-				board.setHideNA(Boolean.valueOf(hideNA_true.isSelected()));
-			} else {
-				board.setHideNA(null);
-			}
-		} else {
-			board.setConfigured(false);
-		}
+        if( board.isFolder() == false ) {
+            // if board was secure before and now its public, ask user if ok to remove the keys
+            if( publicBoardRadioButton.isSelected() && board.isPublicBoard() == false ) {
+                int result = JOptionPane.showConfirmDialog(
+                        this,
+                        language.getString("BoardSettingsFrame.confirmBody"),
+                        language.getString("BoardSettingsFrame.confirmTitle"),
+                        JOptionPane.YES_NO_OPTION,
+                        JOptionPane.WARNING_MESSAGE);
+                if (result == JOptionPane.NO_OPTION) {
+                    return;
+                }
+            }
+            applySettingsToBoard();
+        } else {
+            // apply settings to all boards in a folder
+            applySettingsToFolder(board);
+        }
+
+        // finally update all involved boards before we close the dialog
+        updateBoard(board); // board or folder
+        
+        exitState = true;
 		dispose();
-		
-		exitState = true;
 	}
+    
+    private void applySettingsToFolder(Board b) {
+
+        // process all childs recursiv
+        if( b.isFolder() ) {
+            for(int x=0; x < b.getChildCount(); x++) {
+                Board b2 = (Board)b.getChildAt(x);
+                applySettingsToFolder(b2);
+            }
+            return;
+        }
+        // apply set settings to the board, unset options are not changed
+        if (overrideSettingsCheckBox.isSelected()) {
+            b.setConfigured(true);
+            
+            b.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
+            
+            if( maxMsg_default.isSelected() || maxMsg_set.isSelected() ) {
+                if (maxMsg_default.isSelected() == false) {
+                    b.setMaxMessageDays(new Integer(maxMsg_value.getText()));
+                } else {
+                    b.setMaxMessageDays(null);
+                }
+            }
+            if( signedOnly_default.isSelected() || signedOnly_true.isSelected() || signedOnly_false.isSelected() ) {
+                if (signedOnly_default.isSelected() == false) {
+                    b.setShowSignedOnly(Boolean.valueOf(signedOnly_true.isSelected()));
+                } else {
+                    b.setShowSignedOnly(null);
+                }
+            }
+            if( hideBad_default.isSelected() || hideBad_true.isSelected() || hideBad_false.isSelected() ) {
+                if (hideBad_default.isSelected() == false) {
+                    b.setHideBad(Boolean.valueOf(hideBad_true.isSelected()));
+                } else {
+                    b.setHideBad(null);
+                }
+            }
+            if( hideCheck_default.isSelected() || hideCheck_true.isSelected() || hideCheck_false.isSelected() ) {
+                if (hideCheck_default.isSelected() == false) {
+                    b.setHideCheck(Boolean.valueOf(hideCheck_true.isSelected()));
+                } else {
+                    b.setHideCheck(null);
+                }
+            }
+            if( hideNA_default.isSelected() || hideNA_true.isSelected() || hideNA_false.isSelected() ) {
+                if (hideNA_default.isSelected() == false) {
+                    b.setHideNA(Boolean.valueOf(hideNA_true.isSelected()));
+                } else {
+                    b.setHideNA(null);
+                }
+            }
+        } else {
+            b.setConfigured(false);
+        }
+        
+    }
+    
+    private void applySettingsToBoard() {
+        if (secureBoardRadioButton.isSelected()) {
+            String privateKey = privateKeyTextField.getText();
+            String publicKey = publicKeyTextField.getText();
+            if (publicKey.startsWith("SSK@")) {
+                board.setPublicKey(publicKey);
+            } else {
+                board.setPublicKey(null);
+            }
+            if (privateKey.startsWith("SSK@")) {
+                board.setPrivateKey(privateKey);
+            } else {
+                board.setPrivateKey(null);
+            }
+        } else {
+            board.setPublicKey(null);
+            board.setPrivateKey(null);
+        }
+
+        if (overrideSettingsCheckBox.isSelected()) {
+            board.setConfigured(true);
+            board.setAutoUpdateEnabled(autoUpdateEnabled.isSelected());
+            if (maxMsg_default.isSelected() == false) {
+                board.setMaxMessageDays(new Integer(maxMsg_value.getText()));
+            } else {
+                board.setMaxMessageDays(null);
+            }
+            if (signedOnly_default.isSelected() == false) {
+                board.setShowSignedOnly(Boolean.valueOf(signedOnly_true.isSelected()));
+            } else {
+                board.setShowSignedOnly(null);
+            }
+            if (hideBad_default.isSelected() == false) {
+                board.setHideBad(Boolean.valueOf(hideBad_true.isSelected()));
+            } else {
+                board.setHideBad(null);
+            }
+            if (hideCheck_default.isSelected() == false) {
+                board.setHideCheck(Boolean.valueOf(hideCheck_true.isSelected()));
+            } else {
+                board.setHideCheck(null);
+            }
+            if (hideNA_default.isSelected() == false) {
+                board.setHideNA(Boolean.valueOf(hideNA_true.isSelected()));
+            } else {
+                board.setHideNA(null);
+            }
+        } else {
+            board.setConfigured(false);
+        }
+    }
+    
+    private void updateBoard(Board b) {
+        if( b.isFolder() == false ) {
+            MainFrame.getInstance().updateTofTree(b);
+            // update the new msg. count for board
+            TOF.getInstance().initialSearchNewMessages(b);
+
+            if (b == MainFrame.getInstance().getTofTreeModel().getSelectedNode()) {
+                // reload all messages if board is shown
+                MainFrame.getInstance().tofTree_actionPerformed(null);
+            }
+        } else {
+            for(int x=0; x < b.getChildCount(); x++) {
+                Board b2 = (Board)b.getChildAt(x);
+                updateBoard(b2);
+            }
+        }
+    }
 
 	/**
 	 * okButton Action Listener (OK)
@@ -626,7 +728,11 @@ public class BoardSettingsFrame extends JDialog {
 	 * 
 	 */
 	private void refreshLanguage() {
-		setTitle(language.getString("Settings for board") + " '" + board.getName() + "'");
+        if( board.isFolder() ) {
+            setTitle("Settings for all boards in folder '"+board.getName()+"'");
+        } else {
+            setTitle(language.getString("Settings for board") + " '" + board.getName() + "'");
+        }
 
 		publicBoardRadioButton.setText(language.getString("Public board"));
 		secureBoardRadioButton.setText(language.getString("Secure board"));
@@ -685,5 +791,4 @@ public class BoardSettingsFrame extends JDialog {
 			}
 		}
 	}
-
 }
