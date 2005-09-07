@@ -38,15 +38,8 @@ import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class TofTree extends JDragTree implements Savable {
 	
-	/**
-	 * 
-	 */
 	private class PopupMenuTofTree
 		extends JSkinnablePopupMenu
 		implements LanguageListener, ActionListener {
@@ -55,7 +48,8 @@ public class TofTree extends JDragTree implements Savable {
 		private JMenuItem addFolderItem = new JMenuItem();
 		private JMenuItem cancelItem = new JMenuItem();
 		private JMenuItem configureBoardItem = new JMenuItem();
-		private JMenuItem cutNodeItem = new JMenuItem();
+        private JMenuItem configureFolderItem = new JMenuItem();
+        private JMenuItem cutNodeItem = new JMenuItem();
 	
 		private JMenuItem descriptionItem = new JMenuItem();
 		private JMenuItem pasteNodeItem = new JMenuItem();
@@ -67,9 +61,6 @@ public class TofTree extends JDragTree implements Savable {
 		private Board selectedTreeNode = null;
 		private JMenuItem sortFolderItem = new JMenuItem();
 	
-		/**
-		 * 
-		 */
 		public PopupMenuTofTree() {
 			super();
 			initialize();
@@ -96,7 +87,7 @@ public class TofTree extends JDragTree implements Savable {
 						cutNodeSelected();
 					} else if (source == pasteNodeItem) {
 						pasteNodeSelected();
-					} else if (source == configureBoardItem) {
+					} else if (source == configureBoardItem || source == configureFolderItem) {
 						configureBoardSelected();
 					} else if (source == sortFolderItem) {
 						sortFolderSelected();
@@ -113,37 +104,22 @@ public class TofTree extends JDragTree implements Savable {
 			worker.start();
 		}
 	
-		/**
-		 * 
-		 */
 		private void addBoardSelected() {
 			createNewBoard(mainFrame);
 		}
 	
-		/**
-		 * 
-		 */
 		private void addFolderSelected() {
 			createNewFolder(mainFrame);
 		}
 	
-		/**
-		 * 
-		 */
 		private void configureBoardSelected() {
 			configureBoard(selectedTreeNode);
 		}
 	
-		/**
-		 * 
-		 */
 		private void cutNodeSelected() {
 			cutNode(selectedTreeNode);
 		}
 	
-		/**
-		 * 
-		 */
 		private void initialize() {
 			refreshLanguage();
 	
@@ -151,7 +127,8 @@ public class TofTree extends JDragTree implements Savable {
 			addBoardItem.setIcon(miscToolkit.getScaledImage("/data/newboard.gif", 16, 16));
 			addFolderItem.setIcon(miscToolkit.getScaledImage("/data/newfolder.gif", 16, 16));
 			configureBoardItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
-			cutNodeItem.setIcon(miscToolkit.getScaledImage("/data/cut.gif", 16, 16));
+            configureFolderItem.setIcon(miscToolkit.getScaledImage("/data/configure.gif", 16, 16));
+            cutNodeItem.setIcon(miscToolkit.getScaledImage("/data/cut.gif", 16, 16));
 			pasteNodeItem.setIcon(miscToolkit.getScaledImage("/data/paste.gif", 16, 16));
 			refreshItem.setIcon(miscToolkit.getScaledImage("/data/update.gif", 16, 16));
 			removeNodeItem.setIcon(miscToolkit.getScaledImage("/data/remove.gif", 16, 16));
@@ -167,7 +144,8 @@ public class TofTree extends JDragTree implements Savable {
 			cutNodeItem.addActionListener(this);
 			pasteNodeItem.addActionListener(this);
 			configureBoardItem.addActionListener(this);
-			sortFolderItem.addActionListener(this);
+            configureFolderItem.addActionListener(this);
+            sortFolderItem.addActionListener(this);
             markAllReadItem.addActionListener(this);
 		}
 	
@@ -178,30 +156,22 @@ public class TofTree extends JDragTree implements Savable {
 			refreshLanguage();
 		}
 	
-		/**
-		 * 
-		 */
 		private void pasteNodeSelected() {
 			if (clipboard != null) {
 				pasteNode(selectedTreeNode);
 			}
 		}
 	
-		/**
-		 * 
-		 */
 		private void refreshLanguage() {
 			addBoardItem.setText(language.getString("Add new board"));
 			addFolderItem.setText(language.getString("Add new folder"));
 			configureBoardItem.setText(language.getString("Configure selected board"));
+            configureFolderItem.setText("Configure selected folder");
 			cancelItem.setText(language.getString("Cancel"));
 			sortFolderItem.setText(language.getString("Sort folder"));
             markAllReadItem.setText(language.getString("Mark ALL messages read"));
 		}
 	
-		/**
-		 * 
-		 */
 		private void refreshSelected() {
 			refreshNode(selectedTreeNode);
 		}
@@ -210,9 +180,6 @@ public class TofTree extends JDragTree implements Savable {
             markAllRead(selectedTreeNode);
         }
 	
-		/**
-		 * 
-		 */
 		private void removeNodeSelected() {
 			removeNode(selectedTreeNode);
 		}
@@ -242,18 +209,19 @@ public class TofTree extends JDragTree implements Savable {
 				refreshItem.setText(language.getString("Refresh") + " " + folderOrBoard2);
 				removeNodeItem.setText(language.getString("Remove") + " " + folderOrBoard2);
 				cutNodeItem.setText(language.getString("Cut") + " " + folderOrBoard2);
-	
+
 				add(descriptionItem);
 				addSeparator();
 				add(refreshItem);
                 addSeparator();
                 add(markAllReadItem);
 				addSeparator();
-				if (selectedTreeNode.isFolder() == false) {
-					add(configureBoardItem);
+				if (selectedTreeNode.isFolder() == true) {
+                    add(configureFolderItem);
+                    add(sortFolderItem);
 				} else {
-					add(sortFolderItem);
-				}
+                    add(configureBoardItem);
+                }
 				addSeparator();
 				add(addBoardItem);
 				add(addFolderItem);
@@ -285,18 +253,12 @@ public class TofTree extends JDragTree implements Savable {
 			}
 		}
 	
-		/**
-		 * 
-		 */
 		private void sortFolderSelected() {
 			selectedTreeNode.sortChildren();
 			model.nodeStructureChanged(selectedTreeNode);
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private class Listener extends MouseAdapter implements LanguageListener, ActionListener,
 								KeyListener, TreeSelectionListener, BoardUpdateThreadListener  {
 		
@@ -1028,22 +990,26 @@ public class TofTree extends JDragTree implements Savable {
 	 * @param board
 	 */
 	private void configureBoard(Board board) {
-		if (board == null || board.isFolder())
+		if (board == null ) {
 			return;
+        }
 	
-		BoardSettingsFrame newFrame =
-			new BoardSettingsFrame(mainFrame, board);
-		if (newFrame.runDialog() == true) // OK pressed?
-			{
-			mainFrame.updateTofTree(board);
-			// update the new msg. count for board
-			TOF.getInstance().initialSearchNewMessages(board);
-	
-			if (board == model.getSelectedNode()) {
-				// reload all messages if board is shown
-				mainFrame.tofTree_actionPerformed(null);
-			}
-		}
+		BoardSettingsFrame newFrame = new BoardSettingsFrame(mainFrame, board);
+        newFrame.runDialog();
+        
+        // all needed updates of boards are done by the dialog before it closes
+        
+//		if (newFrame.runDialog() == true) { // OK pressed?
+//            
+//			mainFrame.updateTofTree(board);
+//			// update the new msg. count for board
+//			TOF.getInstance().initialSearchNewMessages(board);
+//	
+//			if (board == model.getSelectedNode()) {
+//				// reload all messages if board is shown
+//				mainFrame.tofTree_actionPerformed(null);
+//			}
+//		}
 	}
 
 	/**
@@ -1053,8 +1019,9 @@ public class TofTree extends JDragTree implements Savable {
 	 * @param board
 	 */
 	public void updateBoard(Board board) {
-		if (board == null || board.isFolder())
+		if (board == null || board.isFolder()) {
 			return;
+        }
 	
 		boolean threadStarted = false;
 	
