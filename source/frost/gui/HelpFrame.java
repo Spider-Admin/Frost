@@ -59,13 +59,13 @@ public class HelpFrame extends JFrame {
     ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
 	setIconImage(frameIcon.getImage());
     setTitle("Help frame");
-    setSize(new Dimension(600, 500));
+    setSize(new Dimension(750, 550));
     setResizable(true);
 
     textArea.setLineWrap(true);
     textArea.setWrapStyleWord(true);
     textArea.setEditable(false);
-    scrollPane.setPreferredSize(new Dimension(600,500));
+    scrollPane.setPreferredSize(new Dimension(750,550));
 
     //------------------------------------------------------------------------
     // Actionlistener
