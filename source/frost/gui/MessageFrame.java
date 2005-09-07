@@ -44,7 +44,6 @@ import frost.util.gui.translation.*;
 
 public class MessageFrame extends JFrame
 {
-
     private class AttachBoardsChooser extends JDialog
     {
 		private class AttachBoardsCellRenderer extends DefaultListCellRenderer {
@@ -705,6 +704,7 @@ public class MessageFrame extends JFrame
     private AntialiasedTextArea messageTextArea = new AntialiasedTextArea(); // Text
     private ImmutableArea headerArea = null;
     private String oldSender = null;
+    private String signature = null;
     
     private TofTree tofTree;
     
@@ -877,11 +877,15 @@ public class MessageFrame extends JFrame
 
 		File signatureFile = new File("signature.txt");
 		if (signatureFile.isFile()) {
-			String signature = FileAccess.readFile("signature.txt", "UTF-8").trim();
-			if (signature.length() > 0) {
-				text += "\n-- \n";
-				text += signature;
-			}
+			signature = FileAccess.readFile("signature.txt", "UTF-8").trim();
+            if( signature != null ) {
+                signature = signature.trim();
+                if( signature.length() > 0 ) {
+                    signature = "\n-- \n" + signature;
+                } else {
+                    signature = null;
+                }
+            }
 		}
 
 		enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -898,6 +902,11 @@ public class MessageFrame extends JFrame
             buddies.removeAllItems();
             buddies.addItem(recipient);
             buddies.setSelectedItem(recipient);
+        }
+        
+        // set sig if msg is marked as signed
+        if( sign.isSelected() && signature != null ) {
+            text += signature;
         }
 
 		messageTextArea.setText(text);
@@ -1405,10 +1414,28 @@ public class MessageFrame extends JFrame
             if( buddies.getItemCount() > 0 ) {
                 encrypt.setEnabled(true);
             }
+            // add signature if not existing
+            String txt = messageTextArea.getText();
+            if (signature != null && !messageTextArea.getText().endsWith(signature)) {
+                try {
+                    messageTextArea.getDocument().insertString(txt.length(), signature, null);
+                } catch (BadLocationException e1) {
+                    logger.log(Level.SEVERE, "Error while updating the signature ", e1);
+                }
+            }
 		} else {
 			sender = "Anonymous";
 			fromTextField.setEditable(true);
             encrypt.setEnabled(false);
+            // remove signature if existing
+            if (signature != null && messageTextArea.getText().endsWith(signature)) {
+                try {
+                    messageTextArea.getDocument().remove(messageTextArea.getText().length()-signature.length(), 
+                            signature.length());
+                } catch (BadLocationException e1) {
+                    logger.log(Level.SEVERE, "Error while updating the signature ", e1);
+                }
+            }
 		}
 		fromTextField.setText(sender);
 	}
