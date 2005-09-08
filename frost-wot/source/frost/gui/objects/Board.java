@@ -34,7 +34,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	private String boardName = null;
 	private Boolean hideBad = null;
 	private Boolean hideCheck = null;
-	private Boolean hideNA = null;
+	private Boolean hideObserve = null;
 
 	// if isConfigured=true then below options may apply
 	private boolean isConfigured = false;
@@ -218,19 +218,19 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	/**
 	 * @return
 	 */
-	public boolean getHideNA() {
-		if (!isConfigured() || hideNA == null) {
+	public boolean getHideObserve() {
+		if (!isConfigured() || hideObserve == null) {
 			// return default
-			return MainFrame.frostSettings.getBoolValue("hideNAMessages");
+			return MainFrame.frostSettings.getBoolValue("hideObserveMessages");
 		}
-		return hideNA.booleanValue();
+		return hideObserve.booleanValue();
 	}
 	
 	/**
 	 * @return
 	 */
-	public Boolean getHideNAObj() {
-		return hideNA;
+	public Boolean getHideObserveObj() {
+		return hideObserve;
 	}
 
 	/**
@@ -444,8 +444,8 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	/**
 	 * @param val
 	 */
-	public void setHideNA(Boolean val) {
-		hideNA = val;
+	public void setHideObserve(Boolean val) {
+		hideObserve = val;
 	}
 
 	/**

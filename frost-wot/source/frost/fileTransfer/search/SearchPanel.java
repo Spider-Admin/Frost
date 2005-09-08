@@ -31,9 +31,6 @@ import frost.util.model.gui.*;
  */
 class SearchPanel extends JPanel implements SettingsUpdater {
 	
-	/**
-	 * 
-	 */
 	private class PopupMenuSearch
 		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener, ClipboardOwner {
@@ -56,17 +53,11 @@ class SearchPanel extends JPanel implements SettingsUpdater {
         
         private Clipboard clipboard;
 
-		/**
-		 * 
-		 */
 		public PopupMenuSearch() {
 			super();
 			initialize();
 		}
 	
-		/**
-		 * 
-		 */
 		private void initialize() {
 			refreshLanguage();
 	
@@ -235,52 +226,28 @@ class SearchPanel extends JPanel implements SettingsUpdater {
             }
         }
 	
-		/**
-		 * 
-		 */
 		private void setBad() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			Iterator owners = model.getSelectedItemsOwners(selectedItems);
 			while (owners.hasNext()) {
 				Identity owner_id = (Identity) owners.next();
-	
-				Truster truster =
-					new Truster(
-						identities,
-						new Boolean(false),
-						owner_id.getUniqueName());
-				truster.start();
+                identities.changeTrust(owner_id.getUniqueName(), FrostIdentities.ENEMY);
 			}
 		}
 	
-		/**
-		 * 
-		 */
 		private void setGood() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			Iterator owners = model.getSelectedItemsOwners(selectedItems);
 			while (owners.hasNext()) {
 				Identity owner_id = (Identity) owners.next();
-	
-				Truster truster =
-					new Truster(
-						identities,
-						new Boolean(true),
-						owner_id.getUniqueName());
-				truster.start();
+                identities.changeTrust(owner_id.getUniqueName(), FrostIdentities.FRIEND);
 			}
 		}
 	
-		/**
-		 * 
-		 */
 		private void downloadAllKeys() {
 			model.addAllItemsToDownloadModel();
 		}
 	
-		/**
-		 * 
-		 */
 		private void downloadSelectedKeys() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			model.addItemsToDownloadModel(selectedItems);

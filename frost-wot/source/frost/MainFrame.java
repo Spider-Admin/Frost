@@ -32,26 +32,23 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
-import javax.swing.table.DefaultTableModel;
-import javax.swing.text.JTextComponent;
-import javax.swing.tree.TreeNode;
+import javax.swing.text.*;
+import javax.swing.tree.*;
 
 import frost.boards.*;
-import frost.components.BrowserFrame;
-import frost.components.translate.TranslateFrame;
-import frost.ext.JSysTrayIcon;
+import frost.components.*;
+import frost.components.translate.*;
+import frost.ext.*;
 import frost.fileTransfer.download.*;
-import frost.fileTransfer.search.FrostSearchItem;
+import frost.fileTransfer.search.*;
 import frost.fileTransfer.upload.UploadPanel;
 import frost.gui.*;
-import frost.gui.KnownBoardsFrame.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
-import frost.gui.preferences.OptionsFrame;
+import frost.gui.preferences.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.storage.StorageException;
-import frost.threads.maintenance.Truster;
+import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -141,15 +138,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (e.getSource() == saveMessageButton) {
 					saveMessageButton_actionPerformed(e);
 				}
-				if (e.getSource() == trustButton) {
-					trustButton_actionPerformed(e);
+				if (e.getSource() == setGoodButton) {
+					setGoodButton_actionPerformed(e);
 				}
-				if (e.getSource() == notTrustButton) {
-					notTrustButton_actionPerformed(e);
+				if (e.getSource() == setBadButton) {
+					setBadButton_actionPerformed(e);
 				}
-				if (e.getSource() == checkTrustButton) {
-					checkTrustButton_actionPerformed(e);
+				if (e.getSource() == setCheckButton) {
+					setCheckButton_actionPerformed(e);
 				}
+                if (e.getSource() == setObserveButton) {
+                    setObserveButton_actionPerformed(e);
+                }
 			}
 
 			/**
@@ -196,9 +196,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 			
 			private void maybeDoSomething(KeyEvent e){
-				if(e.getSource() == messageTable &&
-						e.getKeyChar() == KeyEvent.VK_DELETE)
+				if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_DELETE) {
 					deleteSelectedMessage();
+                }
 			}
 			
 			public void keyTyped(KeyEvent e){
@@ -450,6 +450,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			private JMenuItem setBadItem = new JMenuItem();
 			private JMenuItem setCheckItem = new JMenuItem();
 			private JMenuItem setGoodItem = new JMenuItem();
+            private JMenuItem setObserveItem = new JMenuItem();
 			
 			private JMenuItem deleteItem = new JMenuItem();
 			private JMenuItem undeleteItem = new JMenuItem();
@@ -481,6 +482,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				if (e.getSource() == setCheckItem) {
 					setCheck();
 				}
+                if (e.getSource() == setObserveItem) {
+                    setObserve();
+                }
 				if (e.getSource() == deleteItem) {
 					deleteMessage();
 				}
@@ -515,6 +519,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setGoodItem.addActionListener(this);
 				setBadItem.addActionListener(this);
 				setCheckItem.addActionListener(this);
+                setObserveItem.addActionListener(this);
 				deleteItem.addActionListener(this);
 				undeleteItem.addActionListener(this);
 			}
@@ -540,22 +545,28 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				setGoodItem.setText(language.getString("help user (sets to GOOD)"));
 				setBadItem.setText(language.getString("block user (sets to BAD)"));
 				setCheckItem.setText(language.getString("set to neutral (CHECK)"));
+                setObserveItem.setText("observe user (OBSERVE)");
 				deleteItem.setText(language.getString("Delete message"));
 				undeleteItem.setText(language.getString("Undelete message"));
 				cancelItem.setText(language.getString("Cancel"));
 			}
 
 			private void setBad() {
-				setMessageTrust(new Boolean(false));
+				setMessageTrust(FrostIdentities.ENEMY);
 			}
 
 			private void setCheck() {
-				setMessageTrust(null);
+				setMessageTrust(FrostIdentities.NEUTRAL);
 			}
 
 			private void setGood() {
-				setMessageTrust(new Boolean(true));
+				setMessageTrust(FrostIdentities.FRIEND);
 			}
+
+            private void setObserve() {
+                setMessageTrust(FrostIdentities.OBSERVE);
+            }
+
 			/* (non-Javadoc)
 			 * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
 			 */
@@ -569,23 +580,32 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					add(markAllMessagesReadItem);
 					addSeparator();
 					add(setGoodItem);
+                    add(setObserveItem);
 					add(setCheckItem);
 					add(setBadItem);
 					setGoodItem.setEnabled(false);
+                    setObserveItem.setEnabled(false);
 					setCheckItem.setEnabled(false);
 					setBadItem.setEnabled(false);
 					
 					if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
 						//fscking html on all these..
 						if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
+                            setObserveItem.setEnabled(true);
 							setCheckItem.setEnabled(true);
 							setBadItem.setEnabled(true);
 						} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
+                            setObserveItem.setEnabled(true);
 							setGoodItem.setEnabled(true);
 							setBadItem.setEnabled(true);
 						} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xBAD) {
+                            setObserveItem.setEnabled(true);
 							setGoodItem.setEnabled(true);
 							setCheckItem.setEnabled(true);
+                        } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xOBSERVE) {
+                            setGoodItem.setEnabled(true);
+                            setCheckItem.setEnabled(true);
+                            setBadItem.setEnabled(true);
                         } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xOLD) {
                             // keep all buttons disabled
                         } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xTAMPERED) {
@@ -616,9 +636,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			}
 		}
 
-		/**
-		 * 
-		 */
 		private class PopupMenuTofText
 			extends JSkinnablePopupMenu
 			implements ActionListener, LanguageListener, ClipboardOwner {
@@ -748,7 +765,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private PopupMenuMessageTable popupMenuMessageTable = null;
 		private PopupMenuTofText popupMenuTofText = null;
 
-		private JButton checkTrustButton =
+		private JButton setCheckButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
 //		private JButton downloadAttachmentsButton =
 //			new JButton(new ImageIcon(getClass().getResource("/data/attachment.gif")));
@@ -756,13 +773,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //			new JButton(new ImageIcon(getClass().getResource("/data/attachmentBoard.gif")));
 		private JButton newMessageButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/newmessage.gif")));
-		private JButton notTrustButton =
+		private JButton setBadButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/nottrust.gif")));
+        private JButton setObserveButton =
+            new JButton(new ImageIcon(getClass().getResource("/data/observe.gif")));
 		private JButton replyButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/reply.gif")));
 		private JButton saveMessageButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
-		private JButton trustButton =
+		private JButton setGoodButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
 		private JButton updateButton =
 			new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
@@ -795,18 +814,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 			settings.addPropertyChangeListener("messageBodyAA", listener);
 		}
 		
-		/**
-		 * @param e
-		 */
-		private void checkTrustButton_actionPerformed(ActionEvent e) {
-			trustButton.setEnabled(false);
-			notTrustButton.setEnabled(false);
-			checkTrustButton.setEnabled(false);
-			if (selectedMessage != null) {
-				startTruster(selectedMessage);
-			}
-		}
-
 		/**
 		 * Adds either the selected or all files from the attachmentTable to downloads table.
 		 */
@@ -919,17 +926,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //				"/data/attachmentBoard_rollover.gif",
 //				language);
 			toolkit.configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif", language);
-			toolkit.configureButton(trustButton, "Trust", "/data/trust_rollover.gif", language);
-			toolkit.configureButton(notTrustButton, "Do not trust", "/data/nottrust_rollover.gif", language);
-			toolkit.configureButton(checkTrustButton, "Set to CHECK", "/data/check_rollover.gif", language);
+			toolkit.configureButton(setGoodButton, "Trust", "/data/trust_rollover.gif", language);
+			toolkit.configureButton(setBadButton, "Do not trust", "/data/nottrust_rollover.gif", language);
+			toolkit.configureButton(setCheckButton, "Set to CHECK", "/data/check_rollover.gif", language);
+            toolkit.configureButton(setObserveButton, "Set to OBSERVE", "/data/observe_rollover.gif", language);
 
 			replyButton.setEnabled(false);
 //			downloadAttachmentsButton.setEnabled(false);
 //			downloadBoardsButton.setEnabled(false);
 			saveMessageButton.setEnabled(false);
-			trustButton.setEnabled(false);
-			notTrustButton.setEnabled(false);
-			checkTrustButton.setEnabled(false);
+            setGoodButton.setEnabled(false);
+            setCheckButton.setEnabled(false);
+            setBadButton.setEnabled(false);
+            setObserveButton.setEnabled(false);
 
 			// build buttons panel
 			JToolBar buttonsToolbar = new JToolBar();
@@ -956,9 +965,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //			buttonsToolbar.add(Box.createRigidArea(blankSpace));
 //			buttonsToolbar.addSeparator();
 			buttonsToolbar.add(Box.createRigidArea(blankSpace));
-			buttonsToolbar.add(trustButton);
-			buttonsToolbar.add(checkTrustButton);
-			buttonsToolbar.add(notTrustButton);
+			buttonsToolbar.add(setGoodButton);
+            buttonsToolbar.add(setObserveButton);
+			buttonsToolbar.add(setCheckButton);
+			buttonsToolbar.add(setBadButton);
 
 			buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
 			buttonsToolbar.add(Box.createHorizontalGlue());
@@ -981,9 +991,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //			downloadAttachmentsButton.addActionListener(listener);
 //			downloadBoardsButton.addActionListener(listener);
 			saveMessageButton.addActionListener(listener);
-			trustButton.addActionListener(listener);
-			notTrustButton.addActionListener(listener);
-			checkTrustButton.addActionListener(listener);
+			setGoodButton.addActionListener(listener);
+			setCheckButton.addActionListener(listener);
+			setBadButton.addActionListener(listener);
+            setObserveButton.addActionListener(listener);
 
 			return buttonsToolbar;
 		}
@@ -1210,21 +1221,30 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				}
 
 				if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
-					trustButton.setEnabled(true);
-					notTrustButton.setEnabled(true);
-					checkTrustButton.setEnabled(false);
+                    setCheckButton.setEnabled(false);
+                    setGoodButton.setEnabled(true);
+                    setBadButton.setEnabled(true);
+                    setObserveButton.setEnabled(true);
 				} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
-					trustButton.setEnabled(false);
-					notTrustButton.setEnabled(true);
-					checkTrustButton.setEnabled(true);
+                    setGoodButton.setEnabled(false);
+                    setCheckButton.setEnabled(true);
+                    setBadButton.setEnabled(true);
+                    setObserveButton.setEnabled(true);
 				} else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xBAD) {
-					trustButton.setEnabled(true);
-					notTrustButton.setEnabled(false);
-					checkTrustButton.setEnabled(true);
+                    setBadButton.setEnabled(false);
+                    setGoodButton.setEnabled(true);
+                    setCheckButton.setEnabled(true);
+                    setObserveButton.setEnabled(true);
+                } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xOBSERVE) {
+                    setObserveButton.setEnabled(false);
+                    setGoodButton.setEnabled(true);
+                    setCheckButton.setEnabled(true);
+                    setBadButton.setEnabled(true);
 				} else {
-					trustButton.setEnabled(false);
-					notTrustButton.setEnabled(false);
-					checkTrustButton.setEnabled(false);
+                    setGoodButton.setEnabled(false);
+                    setCheckButton.setEnabled(false);
+                    setBadButton.setEnabled(false);
+                    setObserveButton.setEnabled(false);
 				}
 
 				messageTextArea.setText(selectedMessage.getContent());
@@ -1283,16 +1303,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
         }
         
-        /**
-		 * @param e
-		 */
 		private void newMessageButton_actionPerformed(ActionEvent e) {
 			tofNewMessageButton_actionPerformed(e);
 		}
-		/**
-		 * @param e
-		 */
-		private void notTrustButton_actionPerformed(ActionEvent e) {
+
+        private void setBadButton_actionPerformed(ActionEvent e) {
 			if (selectedMessage != null) {
 				if (identities.getFriends().containsKey(selectedMessage.getFrom())) {
 					if (JOptionPane
@@ -1309,26 +1324,67 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 						return;
 					}
 				} else {
-					startTruster(false, selectedMessage);
+                    setGoodButton.setEnabled(false);
+                    setCheckButton.setEnabled(false);
+                    setBadButton.setEnabled(false);
+                    setObserveButton.setEnabled(false);
+                    setMessageTrust(FrostIdentities.ENEMY);
 				}
 			}
-			trustButton.setEnabled(false);
-			notTrustButton.setEnabled(false);
-			checkTrustButton.setEnabled(false);
 		}
 
-		/**
-		 * 
-		 */
+        private void setCheckButton_actionPerformed(ActionEvent e) {
+            setGoodButton.setEnabled(false);
+            setCheckButton.setEnabled(false);
+            setBadButton.setEnabled(false);
+            setObserveButton.setEnabled(false);
+            setMessageTrust(FrostIdentities.NEUTRAL);
+        }
+
+        private void setObserveButton_actionPerformed(ActionEvent e) {
+            setGoodButton.setEnabled(false);
+            setCheckButton.setEnabled(false);
+            setBadButton.setEnabled(false);
+            setObserveButton.setEnabled(false);
+            setMessageTrust(FrostIdentities.OBSERVE);
+        }
+
+        private void setGoodButton_actionPerformed(ActionEvent e) {
+            if (selectedMessage != null) {
+                if (identities.getEnemies().containsKey(selectedMessage.getFrom())) {
+                    if (JOptionPane
+                        .showConfirmDialog(
+                            parentFrame,
+                            "are you sure you want to grant trust to user "
+                                + selectedMessage.getFrom().substring(
+                                    0,
+                                    selectedMessage.getFrom().indexOf("@"))
+                                + " ? \n If you choose yes, future messages from this user will be marked GOOD",
+                            "re-grant trust",
+                            JOptionPane.YES_NO_OPTION)
+                        != 0) {
+                        return;
+                    }
+                } else {
+                    setGoodButton.setEnabled(false);
+                    setCheckButton.setEnabled(false);
+                    setBadButton.setEnabled(false);
+                    setObserveButton.setEnabled(false);
+                    setMessageTrust(FrostIdentities.FRIEND);
+                }
+            }
+        }
+        
 		private void refreshLanguage() {
 			newMessageButton.setToolTipText(language.getString("New message"));
 			replyButton.setToolTipText(language.getString("Reply"));
 //			downloadAttachmentsButton.setToolTipText(language.getString("Download attachment(s)"));
 //			downloadBoardsButton.setToolTipText(language.getString("Add Board(s)"));
 			saveMessageButton.setToolTipText(language.getString("Save message"));
-			trustButton.setToolTipText(language.getString("Trust"));
-			notTrustButton.setToolTipText(language.getString("Do not trust"));
-			checkTrustButton.setToolTipText(language.getString("Set to CHECK"));
+			setGoodButton.setToolTipText(language.getString("Trust"));
+			setBadButton.setToolTipText(language.getString("Do not trust"));
+			setCheckButton.setToolTipText(language.getString("Set to CHECK"));
+            setObserveButton.setToolTipText("Observe user");
 			updateButton.setToolTipText(language.getString("Update"));
 		}
 		
@@ -1409,34 +1465,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		private MessageWindow getMessageWindow(MessageObject message,Dimension size){
 			MessageWindow messagewindow = new MessageWindow( settings, getInstance(), message, size );
 			return messagewindow;
-		}
-		
-		/**
-		 * @param e
-		 */
-		private void trustButton_actionPerformed(ActionEvent e) {
-			if (selectedMessage != null) {
-				if (identities.getEnemies().containsKey(selectedMessage.getFrom())) {
-					if (JOptionPane
-						.showConfirmDialog(
-							parentFrame,
-							"are you sure you want to grant trust to user "
-								+ selectedMessage.getFrom().substring(
-									0,
-									selectedMessage.getFrom().indexOf("@"))
-								+ " ? \n If you choose yes, future messages from this user will be marked GOOD",
-							"re-grant trust",
-							JOptionPane.YES_NO_OPTION)
-						!= 0) {
-						return;
-					}
-				} else {
-					startTruster(true, selectedMessage);
-				}
-			}
-			trustButton.setEnabled(false);
-			notTrustButton.setEnabled(false);
-			checkTrustButton.setEnabled(false);
 		}
 		
 		/**
@@ -1587,21 +1615,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		public void setParentFrame(JFrame parentFrame) {
 			this.parentFrame = parentFrame;
 		}
-
-		/**
-		 * @param what
-		 * @param which
-		 */
-		public void startTruster(boolean what, FrostMessageObject which) {
-			new Truster(identities, Boolean.valueOf(what), which.getFrom()).start();
-		}
-
-		/**
-		 * @param which
-		 */
-		public void startTruster(FrostMessageObject which) {
-			new Truster(identities, null, which.getFrom()).start();
-		}
+        
+        public void startTruster( FrostMessageObject which, int trustState ) {
+            identities.changeTrust(which.getFrom(), trustState);
+        }
 
 		/**
 		 * Marks current selected message unread
@@ -1631,7 +1648,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 		/**
 		 * @param what
 		 */
-		private void setMessageTrust(Boolean what) {
+		private void setMessageTrust(int newState) {
 			int row = messageTable.getSelectedRow();
 			if (row < 0 || selectedMessage == null)
 				return;
@@ -1656,9 +1673,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					logger.warning("message was GOOD but not found in GOOD list");
 					return;
 				}
+            } else if (status == VerifyableMessageObject.xOBSERVE) {
+                Identity owner = identities.getObserved().get(selectedMessage.getFrom());
+                if (owner == null) {
+                    logger.warning("message was OBSERVE but not found in OBSERVE list");
+                    return;
+                }
 			}
-			Truster truster = new Truster(identities, what, selectedMessage.getFrom());
-			truster.start();
+            identities.changeTrust(selectedMessage.getFrom(), newState);
 		}
 	}
 

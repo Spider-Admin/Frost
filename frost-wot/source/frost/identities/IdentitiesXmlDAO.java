@@ -77,9 +77,12 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		//then friends, enemies and neutrals
 		List lists = XMLTools.getChildElementsByTagName(rootEl, "BuddyList");
 		Iterator it = lists.iterator();
+        
 		BuddyList friends = identities.getFriends();
 		BuddyList enemies = identities.getEnemies();
 		BuddyList neutrals = identities.getNeutrals();
+        BuddyList observed = identities.getObserved();
+        
 		while (it.hasNext()) {
 			Element current = (Element) it.next();
 			if (current.getAttribute("type").equals("friends")) {
@@ -88,10 +91,12 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 				enemies.loadXMLElement(current);
 			} else if (current.getAttribute("type").equals("neutral")) {
 				neutrals.loadXMLElement(current);
-			}
+            } else if (current.getAttribute("type").equals("observed")) {
+                observed.loadXMLElement(current);
+            }
 		}
-		logger.info("Loaded " + friends.size() + " friends and " + enemies.size() + " enemies and "
-				+ neutrals.size() + " neutrals.");
+		logger.info("Loaded " + friends.size() + " friends and " + enemies.size() + " enemies, "
+				+ neutrals.size() + " neutrals and "+observed.size()+" observed.");
 
         // TODO: remove
 //		if (myId != null && friends.add(myId)) {
@@ -267,10 +272,14 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		Element enemies = identities.getEnemies().getXMLElement(d);
 		enemies.setAttribute("type", "enemies");
 		rootElement.appendChild(enemies);
-		//then everybody else
+		//then neutral
 		Element neutral = identities.getNeutrals().getXMLElement(d);
 		neutral.setAttribute("type", "neutral");
 		rootElement.appendChild(neutral);
+        //then observed
+        Element observed = identities.getObserved().getXMLElement(d);
+        observed.setAttribute("type", "observed");
+        rootElement.appendChild(observed);
         
         // finally put myId back to friends
 //        identities.getFriends().add(identities.getMyId());

@@ -18,11 +18,13 @@
 */
 package frost.identities;
 
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
 
 import frost.*;
+import frost.boards.*;
 import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -33,10 +35,16 @@ import frost.util.gui.translation.*;
 public class FrostIdentities implements Savable {
 	
 	private static Logger logger = Logger.getLogger(FrostIdentities.class.getName());
+    
+    public static final int FRIEND  = 1; 
+    public static final int NEUTRAL = 2; 
+    public static final int OBSERVE = 3; 
+    public static final int ENEMY   = 4; 
 	
-	private BuddyList enemies = new BuddyList();
 	private BuddyList friends = new BuddyList();	
 	private BuddyList neutrals = new BuddyList();
+    private BuddyList observed = new BuddyList();
+    private BuddyList enemies = new BuddyList();
 	
 	private LocalIdentity mySelf = null;
 	
@@ -129,48 +137,147 @@ public class FrostIdentities implements Savable {
         if( (found = getFriends().get(uniqueName)) != null ) {
             return found;
         }
+        if( (found = getObserved().get(uniqueName)) != null ) {
+            return found;
+        }
         if( (found = getEnemies().get(uniqueName)) != null ) {
             return found;
         }
         return null;
+    }
+
+    public void removeIdentityFromAnyList(String ident) {
+        getFriends().remove(ident);
+        getEnemies().remove(ident);
+        getNeutrals().remove(ident);
+        getObserved().remove(ident);
+    }
+
+    // run repair one time!
+    public void repairIdentities() {
+        // what is repaired? Due to a problem in BuddyList.remove the identities
+        // are not completely correct.
+        // test and fix: 
+        //  - if someone is ( (GOOD or BAD) AND NEUTRAL) set it to GOOD or BAD
+        //  - if someone is (GOOD AND BAD AND NEUTRAL) put it to GOOD
+        HashSet allFroms = new HashSet();
+        Set s = getFriends().getAllKeys();
+        allFroms.addAll(s);
+        s = getNeutrals().getAllKeys();
+        allFroms.addAll(s);
+        s = getEnemies().getAllKeys();
+        allFroms.addAll(s);
+        Iterator i = allFroms.iterator();
+        while(i.hasNext()) {
+            String from = (String)i.next();
+            Identity ident = getIdentityFromAnyList(from);
+
+            boolean friend  = getFriends().containsKey(from);
+            boolean neutral = getNeutrals().containsKey(from);
+            boolean enemy   = getEnemies().containsKey(from);
+            
+            if( neutral ) {
+                if( enemy && friend ) {
+                    removeIdentityFromAnyList(from);
+                    getFriends().add(ident);
+                } else if(enemy) {
+                    removeIdentityFromAnyList(from);
+                    getEnemies().add(ident);
+                } else if(friend) {
+                    removeIdentityFromAnyList(from);
+                    getFriends().add(ident);
+                }
+            } else if( enemy && friend ) {
+                removeIdentityFromAnyList(from);
+                getFriends().add(ident);
+            }
+        }
+    }
+    
+    public void changeTrust(String from, int newState)
+    {
+        from = Mixed.makeFilename(from);
+        
+        Identity newIdentity;
+        
+        String newStateStr;
+        if( newState == FrostIdentities.FRIEND ) {
+            newStateStr = "GOOD";
+        } else if( newState == FrostIdentities.NEUTRAL ) {
+            newStateStr = "CHECK";
+        } else if( newState == FrostIdentities.OBSERVE ) {
+            newStateStr = "OBSERVE";
+        } else if( newState == FrostIdentities.ENEMY ) {
+            newStateStr = "BAD";
+        } else {
+            logger.log(Level.SEVERE, "Invalid new state: "+newState);
+            return;
+        }
+        logger.info("Setting '" + from + "' to state '" + newStateStr + "'.");
+
+        // don't change GOOD state for mySelf!
+        if( isMySelf(from) && newState != FrostIdentities.FRIEND ) {
+            logger.info("Ignored call to change my own ID to state '" + newStateStr + "'.");
+            return;
+        }
+
+        newIdentity = getIdentityFromAnyList(from);
+
+        if( newIdentity == null ) {
+            logger.log(Level.SEVERE, "FROM not found in any list: "+from);
+            return;
+        }
+        
+        removeIdentityFromAnyList(from);
+        
+        if( newState == FrostIdentities.FRIEND ) { 
+            // set to good
+            getFriends().add( newIdentity );
+        } else if( newState == FrostIdentities.ENEMY ) {
+            // set to bad
+            getEnemies().add( newIdentity );
+        } else if( newState == FrostIdentities.NEUTRAL ) {
+            // set to good
+            getNeutrals().add( newIdentity );
+        } else if( newState == FrostIdentities.OBSERVE ) {
+            // set to observed
+            getObserved().add( newIdentity );
+        }
+
+        // finally step through all board files, count new messages and show only wanted messages
+        TOF.getInstance().initialSearchNewMessages(); // starts a separate thread
+
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                MainFrame.getInstance().tofTree_actionPerformed(null);
+            } });
     }
     
     public boolean isMySelf(String uniqueName) {
         return getMyId().getUniqueName().equals(uniqueName);
     }
 
-	/**
-	 * @return
-	 */
 	public BuddyList getEnemies() {
 		return enemies;
 	}
 
-	/**
-	 * @return
-	 */
 	public BuddyList getFriends() {
 		return friends;
 	}
 
-	/**
-	 * @return
-	 */
-	public LocalIdentity getMyId() {
+    public BuddyList getObserved() {
+        return observed;
+    }
+
+    public BuddyList getNeutrals() {
+        return neutrals;
+    }
+
+    public LocalIdentity getMyId() {
 		return mySelf;
 	}
 	
-	/**
-	 * @return
-	 */
 	void setMyId(LocalIdentity myId) {
 		mySelf = myId;
-	}
-
-	/**
-	 * @return
-	 */
-	public BuddyList getNeutrals() {
-		return neutrals;
 	}
 }

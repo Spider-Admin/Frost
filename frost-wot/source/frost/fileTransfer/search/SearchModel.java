@@ -86,15 +86,10 @@ public class SearchModel extends OrderedModel {
 				continue;
 
 			//see if already on some list
-			Identity id = identities.getFriends().get(owner);
-			if (id == null)
-				id = identities.getEnemies().get(owner);
-			if (id == null)
-				id = identities.getNeutrals().get(owner);
-			//and if still null, add the string
-			if (id != null)
+			Identity id = identities.getIdentityFromAnyList(owner);
+			if (id != null) {
 				result.add(id);
-
+            }
 		}
 		return result.iterator();
 	}

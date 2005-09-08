@@ -632,7 +632,7 @@ public class Core implements Savable, FrostEventDispatcher  {
             JOptionPane.showMessageDialog(splashscreen, txt, "About to start convert process",  
                     JOptionPane.INFORMATION_MESSAGE);
             
-            Truster.repairIdentities(getIdentities());
+            getIdentities().repairIdentities();
             convertSigIntoXml();
             
             frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
