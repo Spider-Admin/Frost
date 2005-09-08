@@ -1637,7 +1637,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				return;
 		
 			int status = selectedMessage.getMsgStatus();
-		
+            
 			if (status == VerifyableMessageObject.xCHECK) {
 				Identity owner = identities.getNeutrals().get(selectedMessage.getFrom());
 				if (owner == null) {

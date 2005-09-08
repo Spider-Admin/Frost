@@ -49,6 +49,9 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
             // get state of user (GOOD/CHECK/BAD)
             FrostIdentities identities = Core.getInstance().getIdentities();
             String testfrom = getFrom();
+            if( identities.isMySelf(testfrom)) {
+                return xGOOD;
+            }
             if( identities.getFriends().containsKey(testfrom) ) {
                 return xGOOD;
             } else if( identities.getNeutrals().containsKey(testfrom) ) {

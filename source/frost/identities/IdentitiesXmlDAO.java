@@ -94,9 +94,9 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 				+ neutrals.size() + " neutrals.");
 
         // TODO: remove
-		if (myId != null && friends.add(myId)) {
-			logger.info("Added myself to the friends list");
-		}
+//		if (myId != null && friends.add(myId)) {
+//			logger.info("Added myself to the friends list");
+//		}
 	}
 	
 	/**
@@ -273,7 +273,7 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		rootElement.appendChild(neutral);
         
         // finally put myId back to friends
-        identities.getFriends().add(identities.getMyId());
+//        identities.getFriends().add(identities.getMyId());
         
 		d.appendChild(rootElement);
 

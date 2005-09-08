@@ -95,9 +95,9 @@ public class FrostIdentities implements Savable {
 				logger.severe("couldn't create new identitiy" + e.toString());
 			}
             // TODO: remove
-			if (friends.add(mySelf)) {
-				logger.info("added myself to list");
-			}
+//			if (friends.add(mySelf)) {
+//				logger.info("added myself to list");
+//			}
 			settings.setValue("userName", mySelf.getUniqueName());
 		} else {
 			//Storage exists. Load from it.
@@ -133,6 +133,10 @@ public class FrostIdentities implements Savable {
             return found;
         }
         return null;
+    }
+    
+    public boolean isMySelf(String uniqueName) {
+        return getMyId().getUniqueName().equals(uniqueName);
     }
 
 	/**
