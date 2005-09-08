@@ -1,9 +1,3 @@
-/*
- * Created on Apr 12, 2004
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 package frost.util.gui;
 
 import java.awt.*;
@@ -18,12 +12,6 @@ import java.util.logging.*;
 import javax.swing.*;
 import javax.swing.tree.*;
 
-/**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public class JDragTree extends JTree implements DragGestureListener, DragSourceListener {
 
 	 //	DropTargetListener interface object...
@@ -90,8 +78,14 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		 */
 		 public void dragOver(DropTargetDragEvent e)
 		 {
+             if( e==null ) {
+                 return;
+             }
 			 // Even if the mouse is not moving, this method is still invoked 10 times per second
 			 Point pt = e.getLocation();
+             if(pt==null) {
+                 return;
+             }
 			 if (pt.equals(_ptLast))
 				 return;
 

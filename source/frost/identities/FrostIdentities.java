@@ -66,7 +66,7 @@ public class FrostIdentities implements Savable {
 						language.getString("Core.loadIdentities.ConnectionNotEstablishedTitle"));
 				System.exit(2);
 			}
-			//create new identities
+			//create new identitiy
 			try {
 				String nick = null;
 				do {
@@ -94,6 +94,7 @@ public class FrostIdentities implements Savable {
 			} catch (Exception e) {
 				logger.severe("couldn't create new identitiy" + e.toString());
 			}
+            // TODO: remove
 			if (friends.add(mySelf)) {
 				logger.info("added myself to list");
 			}
@@ -102,6 +103,10 @@ public class FrostIdentities implements Savable {
 			//Storage exists. Load from it.
 			identitiesDAO.load(this);
 			logger.info("ME = '" + mySelf.getUniqueName() + "'");
+            // if not already generated...
+            if( mySelf.getBoard() == null && freenetIsOnline ) {
+                mySelf.generateOwnBoard();
+            }
 		}
 	}
 	

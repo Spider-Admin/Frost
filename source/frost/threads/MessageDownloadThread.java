@@ -336,6 +336,11 @@ public class MessageDownloadThread
                     owner.noFiles = 0;
                     owner.noMessages = 1;
 					identities.getNeutrals().add(owner);
+                } else {
+                    // check if we already have owners board
+                    if( owner.getBoard() == null && metaData.getPerson().getBoard() != null ) {
+                        owner.setBoard(metaData.getPerson().getBoard());
+                    }
                 }
 
                 // verify signature
@@ -448,9 +453,23 @@ public class MessageDownloadThread
                 board.incBlocked();
                 logger.info("TOFDN: Blocked message for board '"+board.getName()+"'");
             } else {
-                // add new message or notify of arrival
-                TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
+
+                // check if msg would be displayed (maxMessageDays)
+                GregorianCalendar minDate = new GregorianCalendar();
+                minDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+                minDate.add(Calendar.DATE, -1*board.getMaxMessageDisplay());
+                Calendar msgDate = DateFun.getCalendarFromDate(currentMsg.getDate());
+                if( !msgDate.before(minDate) ) {
+                    // add new message or notify of arrival
+                    TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
+                } else {
+                    logger.info("TOFDN: received message from the past, not displayed due to max message days to display:"+
+                            testMe.getPath());
+                    // TODO: REMOVE ME, DEBUG!
+                    System.out.println("OLD MSG:"+testMe.getPath());
+                }
                 // add all files indexed files
+                // TODO: also for BAD users here? 
                 Iterator it = currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
                 while (it.hasNext()) {
                     SharedFileObject current = ((FileAttachment)it.next()).getFileObj();

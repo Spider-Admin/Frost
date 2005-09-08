@@ -18,7 +18,7 @@ public class Identity implements SafeXMLizable
     private String name;
     private String uniqueName;
     protected String key;
-    protected BoardAttachment board;
+    protected BoardAttachment board = null;
     
 	private static Logger logger = Logger.getLogger(Identity.class.getName());
     
@@ -99,8 +99,9 @@ public class Identity implements SafeXMLizable
 		el.appendChild( element );
 		
 		//board
-		if (board!=null)
+		if (board!=null) {
 			el.appendChild(board.getSafeXMLElement(doc));
+        }
 		
 		return el;
 	}
@@ -122,13 +123,16 @@ public class Identity implements SafeXMLizable
 				
 			//see if board is attached
 			List _board = XMLTools.getChildElementsByTagName(e,"Attachment");
-			if (_board.size() > 0)
-				try{
+			if (_board.size() > 0) {
+				try {
 					board = (BoardAttachment)Attachment.getInstance((Element)(_board.get(0)));
 				}catch(ClassCastException ex){
 					logger.log(Level.SEVERE, "Exception thrown in loadXMLElement(Element e)", ex);
 					board =null;
 				}	
+            } else {
+                board = null;
+            }
 				
 			ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
 			Element trusteesList = null;
@@ -203,5 +207,10 @@ public class Identity implements SafeXMLizable
 	public BoardAttachment getBoard() {
 		return board;
 	}
-
+    
+    public void setBoard(BoardAttachment b) {
+        if( board == null ) {
+            board = b;
+        }
+    }
 }

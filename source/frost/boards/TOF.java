@@ -244,17 +244,13 @@ public class TOF
             final FrostMessageObject message;
             try {
                 message = FrostMessageFactory.createFrostMessageObject(newMsgFile);
-            }
-            catch(Exception ex)
-            {
+            } catch(Exception ex) {
 				logger.log(Level.SEVERE, "Error: skipping to load file '" + newMsgFile.getPath()+
                                          "', reason:\n" + ex.getMessage(), ex);
                 return;                      
             }
-            if( message.isValid() && !blocked(message, board) )
-            {
-                if(markNew)
-                {
+            if( message.isValid() && !blocked(message, board) ) {
+                if(markNew) {
                     message.setMessageNew(true);
                     MainFrame.displayNewMessageIcon(true);
                     board.incNewMessageCount();
