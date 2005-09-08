@@ -103,8 +103,7 @@ public class TOF
                 if( message != null )
                 {
                     // Test if lockfile exists, remove it and update the tree display
-                    if( message.isMessageNew() == false )
-                    {
+                    if( message.isMessageNew() == false ) {
                         // its a read message, nothing more to do here ...
                         return message;
                     }
@@ -144,7 +143,7 @@ public class TOF
                 // if this board is currently shown, update messages in table first
                 if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
                     
-                    boardWasShown = true; // remember that was processed the shown messages
+                    boardWasShown = true; // remember that we processed the shown messages
                     final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
                     
                     // first update msgs shown in table

@@ -194,12 +194,13 @@ public class FrostIdentities implements Savable {
         }
     }
     
-    public void changeTrust(String from, int newState)
-    {
+    public void changeTrust(String from, int newState) {
+        
         from = Mixed.makeFilename(from);
         
         Identity newIdentity;
-        
+        // TODO: dont reload table after change!
+        // problem: if we changed someone to bad we should reload all new messages for all folders!
         String newStateStr;
         if( newState == FrostIdentities.FRIEND ) {
             newStateStr = "GOOD";

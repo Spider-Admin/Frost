@@ -89,14 +89,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 	} // end of class popuplistener
 
-	/**
-	 * 
-	 */
 	private class MessagePanel extends JPanel {
 
-		/**
-		 *  
-		 */
 		private class Listener
 			extends MouseAdapter
 			implements
@@ -109,9 +103,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				KeyListener
 				{
 			
-			/**
-			 * 
-			 */
 			public Listener() {
 				super();
 			}
@@ -181,16 +172,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				}
 			}
 
-			/* (non-Javadoc)
-			 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-			 */
 			public void mousePressed(MouseEvent e) {
 				maybeShowPopup(e);
 			}
 
-			/* (non-Javadoc)
-			 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-			 */
 			public void mouseReleased(MouseEvent e) {
 				maybeShowPopup(e);
 			}
@@ -200,23 +185,73 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 					deleteSelectedMessage();
                 }
 			}
-			
+
+            /**
+             * Handles keystrokes for message table.
+             * Currently implemented:
+             * - 'n' for next message
+             * - 'b' mark BAD
+             * - 'c' mark CHECK
+             * - 'o' mark OBSERVE
+             * - 'g' mark GOOD
+             */
 			public void keyTyped(KeyEvent e){
-				//Nothing here
+
+				if ((e.getSource() == messageTable || e.getSource() == boardsTable) && e.getKeyChar() == 'n') {
+					int currentSelection = messageTable.getSelectedRow();
+					
+					if (currentSelection == -1) {
+						currentSelection = 0;
+					}
+					
+					int nextMessage = -1;
+					
+					final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
+					
+					for (int row = currentSelection; row < tableModel.getRowCount(); row++) {
+						final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+						if (message.isMessageNew()) {
+							nextMessage = row;
+							break;
+						}
+					}
+					
+					if (nextMessage == -1 && currentSelection > 0) {
+						for(int row = 0; row < currentSelection; row++) {
+							final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+							if (message.isMessageNew()) {
+								nextMessage = row;
+								break;
+							}
+						}
+					}
+					
+					if (nextMessage == -1) {
+						// TODO: code to move to next board.
+					} else {	
+						messageTable.addRowSelectionInterval(nextMessage, nextMessage);
+						messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
+					}
+				} else if (e.getSource() == messageTable && e.getKeyChar() == 'b')  {
+					setMessageTrust(FrostIdentities.ENEMY);
+				} else if (e.getSource() == messageTable && e.getKeyChar() == 'g') {
+					setMessageTrust(FrostIdentities.FRIEND);
+				} else if (e.getSource() == messageTable && e.getKeyChar() == 'c') {
+					setMessageTrust(FrostIdentities.NEUTRAL);
+				} else if (e.getSource() == messageTable && e.getKeyChar() == 'o') {
+					setMessageTrust(FrostIdentities.OBSERVE);
+				}
+                // TODO: keep selected message in setMessageTrust() !
 			}
 			
 			public void keyPressed(KeyEvent e){
 				maybeDoSomething(e);
 			}
 			
-			
 			public void keyReleased(KeyEvent e){
 				//Nothing here
 			}
 						
-			/* (non-Javadoc)
-			 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-			 */
 			public void valueChanged(ListSelectionEvent e) {
 				messageTable_itemSelected(e);
 			}
@@ -1057,7 +1092,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 				messageTable = new MessageTable(messageTableModel);
 				messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
 				messageTable.getSelectionModel().addListSelectionListener(listener);
-				JScrollPane messageListScrollPane = new JScrollPane(messageTable);
+				messageListScrollPane = new JScrollPane(messageTable);
 
 				// build message body scroll pane
 				messageTextArea = new AntialiasedTextArea();
@@ -1830,6 +1865,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 	private MessagePanel messagePanel = null;
 	private MessageTable messageTable = null;
 	private MessageTableModel messageTableModel;
+	private JScrollPane messageListScrollPane = null;
 
 	// buttons that are enabled/disabled later
 	private JButton newBoardButton = null;
@@ -2869,8 +2905,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
 				updateButtons(node);
 
-				logger.info(
-					"Board " + node.getName() + " blocked count: " + node.getBlockedCount());
+				logger.info("Board " + node.getName() + " blocked count: " + node.getBlockedCount());
 
 				uploadPanel.setAddFilesButtonEnabled(true);
 				renameBoardButton.setEnabled(false);
