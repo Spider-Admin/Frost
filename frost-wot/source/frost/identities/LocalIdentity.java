@@ -110,7 +110,7 @@ public class LocalIdentity extends Identity
 //		}
 	}
     
-    public void generateOwnBoard() {
+    void generateOwnBoard() {
         if( board == null ) {
             FcpConnection connection = FcpFactory.getFcpConnectionInstance();
             if (connection == null) {

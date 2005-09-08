@@ -438,7 +438,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							}
 
 							//check if we have the owner already on the lists
-							if (identities.getMyId().getUniqueName().trim().equals(_owner)) {
+							if (identities.isMySelf(_owner)) {
 								logger.info("Received index file from myself");
 								sharer = identities.getMyId();
 							} else {

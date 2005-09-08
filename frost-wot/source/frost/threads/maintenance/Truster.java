@@ -104,8 +104,8 @@ public class Truster extends Thread
         logger.info("Truster: Setting '" + from + "' to state '" + newState + "'.");
 
         // don't change GOOD state for mySelf!
-        String myId = Mixed.makeFilename(identities.getMyId().getUniqueName());
-        if( from.equals(myId) && (trust == null || trust.booleanValue() != true) ) {
+
+        if( identities.isMySelf(from) && (trust == null || trust.booleanValue() != true) ) {
             logger.info("Truster: Ignored call to change my own ID to state '" + newState + "'.");
             return;
         }
