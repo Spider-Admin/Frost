@@ -37,10 +37,9 @@ public class Identity implements SafeXMLizable
     private String uniqueName;
     protected String key;
     protected BoardAttachment board = null;
+    private long lastSeenTimestamp = -1;
     
 	private static Logger logger = Logger.getLogger(Identity.class.getName());
-    
-    //public static final String NA = "NA";
     
     //some trust map methods
     public int noMessages,noFiles;
@@ -72,7 +71,15 @@ public class Identity implements SafeXMLizable
 		text = doc.createTextNode(""+noMessages);
 		element.appendChild(text);
 		el.appendChild(element);
-		
+
+        // last seen timestamp
+        if( getLastSeenTimestamp() > 0 ) {
+            element = doc.createElement("lastSeenTimestamp");
+            text = doc.createTextNode(""+getLastSeenTimestamp());
+            element.appendChild(text);
+            el.appendChild(element);
+        }
+
 		//if board is present, remove the safe element and add the
 		//full one.
 		if (board!=null) {
@@ -95,8 +102,6 @@ public class Identity implements SafeXMLizable
 			}
 			el.appendChild(element);
 		}
-		
-		
 		return el;
 	}
 	
@@ -130,43 +135,53 @@ public class Identity implements SafeXMLizable
 		uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
 		name = uniqueName.substring(0,uniqueName.indexOf("@"));
 		key =  XMLTools.getChildElementsCDATAValue(e, "key");
+		try {
+			String _msg = XMLTools.getChildElementsTextValue(e,"messages");
+			noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
+			String _files = XMLTools.getChildElementsTextValue(e,"files");
+			noFiles = _files == null ? 0 : Integer.parseInt(_files);
+		} catch (Exception npe) {
+			logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
+		}
+
+        String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeenTimestamp");
+        if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
+            lastSeenTimestamp = Long.parseLong(_lastSeenStr);
+        } else {
+            lastSeenTimestamp = -1;
+        }
+
+		// see if board is attached
+		List _board = XMLTools.getChildElementsByTagName(e,"Attachment");
+		if (_board.size() > 0) {
 			try {
-				String _msg = XMLTools.getChildElementsTextValue(e,"messages");
-				noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
-				String _files = XMLTools.getChildElementsTextValue(e,"files");
-				noFiles = _files == null ? 0 : Integer.parseInt(_files);
-			}catch (Exception npe) {
-				logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
-			}
-				
-			//see if board is attached
-			List _board = XMLTools.getChildElementsByTagName(e,"Attachment");
-			if (_board.size() > 0) {
-				try {
-					board = (BoardAttachment)Attachment.getInstance((Element)(_board.get(0)));
-				}catch(ClassCastException ex){
-					logger.log(Level.SEVERE, "Exception thrown in loadXMLElement(Element e)", ex);
-					board =null;
-				}	
-            } else {
-                board = null;
+				board = (BoardAttachment)Attachment.getInstance((Element)(_board.get(0)));
+			} catch(ClassCastException ex) {
+				logger.log(Level.SEVERE, "Exception thrown in loadXMLElement(Element e)", ex);
+				board =null;
+			}	
+        } else {
+            board = null;
+        }
+        
+		// check for trustees
+		ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
+		Element trusteesList = null;
+		if (_trusteesList.size() > 0) {
+			trusteesList = (Element) _trusteesList.get(0);
+        }
+		if (trusteesList != null) {
+			if (trustees == null) {
+				trustees = new TreeSet();
             }
-				
-			ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
-			Element trusteesList = null;
-			if (_trusteesList.size() > 0)
-				trusteesList = (Element) _trusteesList.get(0);
-			if (trusteesList != null) {
-				if (trustees == null)
-					trustees = new TreeSet();
-				List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
-				Iterator it = trusteeEntities.iterator();
-				while (it.hasNext()) {
-					Element trustee = (Element)it.next();
-					String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
-					trustees.add(id);
-				}
+			List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
+			Iterator it = trusteeEntities.iterator();
+			while (it.hasNext()) {
+				Element trustee = (Element)it.next();
+				String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
+				trustees.add(id);
 			}
+		}
 	}
 
     /**
@@ -230,5 +245,13 @@ public class Identity implements SafeXMLizable
         if( board == null ) {
             board = b;
         }
+    }
+
+    public long getLastSeenTimestamp() {
+        return lastSeenTimestamp;
+    }
+    
+    public void updateLastSeenTimestamp() {
+        lastSeenTimestamp = System.currentTimeMillis();
     }
 }
