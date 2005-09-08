@@ -11,6 +11,8 @@ Added: Board settings can be changed for ALL boards in a folder (including all s
        unchanged in each board.
 Added: Option to enable/disable the automatic board updates is now available in Preferences - News(3) too.
        Previously this setting was only changeable in menu News.
+Added: Copy to clipboard functionality is now available in search table too.
+Added: You can paste multiple keys into the download text box, they must be separated by a ';'
 
 Changed: Removed support for loading the very old format of 'hashes' and 'identities'
          because all Frost versions should support the XML format now.
