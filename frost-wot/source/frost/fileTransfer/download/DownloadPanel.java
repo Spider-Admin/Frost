@@ -342,7 +342,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		/* (non-Javadoc)
 		 * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
 		 */
-		public void lostOwnership(Clipboard clipboard, Transferable contents) {
+		public void lostOwnership(Clipboard tclipboard, Transferable contents) {
 			// Nothing here			
 		}
 

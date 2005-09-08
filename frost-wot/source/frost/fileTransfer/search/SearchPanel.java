@@ -4,25 +4,26 @@
 package frost.fileTransfer.search;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 
 import frost.*;
-import frost.boards.TofTreeModel;
-import frost.fileTransfer.download.DownloadModel;
-import frost.fileTransfer.upload.UploadModel;
-import frost.gui.objects.Board;
+import frost.boards.*;
+import frost.fileTransfer.download.*;
+import frost.fileTransfer.upload.*;
+import frost.gui.objects.*;
 import frost.identities.*;
-import frost.threads.maintenance.Truster;
+import frost.threads.maintenance.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
-import frost.util.model.gui.SortedModelTable;
+import frost.util.model.gui.*;
 
 /**
  * @author $Author$
@@ -35,14 +36,26 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	 */
 	private class PopupMenuSearch
 		extends JSkinnablePopupMenu
-		implements ActionListener, LanguageListener {
+		implements ActionListener, LanguageListener, ClipboardOwner {
 	
 		JMenuItem cancelItem = new JMenuItem();
 		JMenuItem downloadAllKeysItem = new JMenuItem();
 		JMenuItem downloadSelectedKeysItem = new JMenuItem();
 		JMenuItem setBadItem = new JMenuItem();
 		JMenuItem setGoodItem = new JMenuItem();
+        
+        private JMenu copyToClipboardMenu = new JMenu();
+        private JMenuItem copyKeysAndNamesItem = new JMenuItem();
+        private JMenuItem copyKeysItem = new JMenuItem();
+        private JMenuItem copyExtendedInfoItem = new JMenuItem();
 	
+        private String keyNotAvailableMessage;
+        private String fileMessage;
+        private String keyMessage;
+        private String bytesMessage;
+        
+        private Clipboard clipboard;
+
 		/**
 		 * 
 		 */
@@ -57,10 +70,18 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		private void initialize() {
 			refreshLanguage();
 	
+            copyToClipboardMenu.add(copyKeysAndNamesItem);
+            copyToClipboardMenu.add(copyKeysItem);
+            copyToClipboardMenu.add(copyExtendedInfoItem);
+
 			downloadSelectedKeysItem.addActionListener(this);
 			downloadAllKeysItem.addActionListener(this);
 			setGoodItem.addActionListener(this);
 			setBadItem.addActionListener(this);
+            
+            copyKeysAndNamesItem.addActionListener(this);
+            copyKeysItem.addActionListener(this);
+            copyExtendedInfoItem.addActionListener(this);
 	
 			/*		copyAttachmentItem.addActionListener(new ActionListener() {
 						 public void actionPerformed(ActionEvent e) {
@@ -88,6 +109,16 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			setBadItem.setText(
 					language.getString("block user (sets to BAD)"));
 			cancelItem.setText(language.getString("Cancel"));
+            
+            keyNotAvailableMessage = language.getString("Key not available yet");
+            fileMessage = language.getString("clipboard.File:");
+            keyMessage = language.getString("clipboard.Key:");
+            bytesMessage = language.getString("clipboard.Bytes:");
+            
+            copyKeysItem.setText(language.getString("Copy keys only"));
+            copyKeysAndNamesItem.setText(language.getString("Copy keys with filenames"));
+            copyExtendedInfoItem.setText(language.getString("Copy extended info"));
+            copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
 		}
 	
 		/* (non-Javadoc)
@@ -106,7 +137,103 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			if (e.getSource() == setBadItem) {
 				setBad();
 			}
+            if (e.getSource() == copyKeysItem) {
+                copyKeys();
+            }
+            if (e.getSource() == copyKeysAndNamesItem) {
+                copyKeysAndNames();
+            }
+            if (e.getSource() == copyExtendedInfoItem) {
+                copyExtendedInfo();
+            }
 		}
+        
+        /**
+         * This method copies the CHK keys and file names of the selected items (if any) to
+         * the clipboard.
+         */
+        private void copyKeysAndNames() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FrostSearchItem item = (FrostSearchItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(key);
+                    textToCopy.append("/");
+                    textToCopy.append(item.getFilename());
+                    textToCopy.append("\n");
+                }               
+                StringSelection selection = new StringSelection(textToCopy.toString());
+                getClipboard().setContents(selection, this);    
+            }
+        }
+        
+        private Clipboard getClipboard() {
+            if (clipboard == null) {
+                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            }
+            return clipboard;
+        }
+        
+        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
+            // Nothing here         
+        }
+        
+        /**
+         * This method copies extended information about the selected items (if any) to
+         * the clipboard. That information is composed of the filename, the key and
+         * the size in bytes.
+         */
+        private void copyExtendedInfo() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FrostSearchItem item = (FrostSearchItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(fileMessage);
+                    textToCopy.append(item.getFilename() + "\n");
+                    textToCopy.append(keyMessage);
+                    textToCopy.append(key + "\n");
+                    textToCopy.append(bytesMessage);
+                    textToCopy.append(item.getSize() + "\n\n");
+                }               
+                //We remove the additional \n at the end
+                String result = textToCopy.substring(0, textToCopy.length() - 1);
+                
+                StringSelection selection = new StringSelection(result);
+                getClipboard().setContents(selection, this);    
+            }
+        }
+
+        /**
+         * This method copies the CHK keys of the selected items (if any) to
+         * the clipboard.
+         */
+        private void copyKeys() {
+            ModelItem[] selectedItems = modelTable.getSelectedItems();
+            if (selectedItems.length > 0) {
+                StringBuffer textToCopy = new StringBuffer();
+                for (int i = 0; i < selectedItems.length; i++) {
+                    FrostSearchItem item = (FrostSearchItem) selectedItems[i];
+                    String key = item.getKey();
+                    if (key == null) {
+                        key = keyNotAvailableMessage;
+                    }
+                    textToCopy.append(key);
+                    textToCopy.append("\n");
+                }               
+                StringSelection selection = new StringSelection(textToCopy.toString());
+                getClipboard().setContents(selection, this);    
+            }
+        }
 	
 		/**
 		 * 
@@ -174,6 +301,11 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 	
+            if (selectedItems.length > 0) {
+                add(copyToClipboardMenu);
+                addSeparator();
+            }
+
 			if (selectedItems.length != 0) {
 				// If at least 1 item is selected
 				add(downloadSelectedKeysItem);
