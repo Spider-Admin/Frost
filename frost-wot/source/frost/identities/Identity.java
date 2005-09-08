@@ -1,3 +1,21 @@
+/*
+  Identity.java / Frost
+  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.identities;
 
 
@@ -22,7 +40,7 @@ public class Identity implements SafeXMLizable
     
 	private static Logger logger = Logger.getLogger(Identity.class.getName());
     
-    public static final String NA = "NA";
+    //public static final String NA = "NA";
     
     //some trust map methods
     public int noMessages,noFiles;
@@ -167,10 +185,10 @@ public class Identity implements SafeXMLizable
     private void setName(String nam)
     {
         this.name = nam;
-        if( getKey().equals( NA ) )
-            this.uniqueName = nam;
-        else
-            this.uniqueName = nam + "@" + Core.getCrypto().digest( getKey() );
+//        if( getKey().equals( NA ) )
+//            this.uniqueName = nam;
+//        else
+        this.uniqueName = nam + "@" + Core.getCrypto().digest( getKey() );
     }
 
     //obvious stuff
