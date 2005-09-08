@@ -15,6 +15,7 @@ Added: Copy to clipboard functionality is now available in search table too.
 Added: You can paste multiple keys into the download text box, they must be separated by a ';'
 Added: New user trust state OBSERVE, which is between CHECK and GOOD. For users that you trust not fully.
        The old N/A state was unneeded and was removed.
+Added: lastSeenTimestamp for each Identity. Needed later to cleanup old Identities by user request.
 
 Changed: Removed support for loading the very old format of 'hashes' and 'identities'
          because all Frost versions should support the XML format now.
