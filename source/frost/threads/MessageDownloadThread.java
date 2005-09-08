@@ -336,19 +336,22 @@ public class MessageDownloadThread
                     owner.noFiles = 0;
                     owner.noMessages = 1;
 					identities.getNeutrals().add(owner);
-                } else {
-                    // check if we already have owners board
-                    if( owner.getBoard() == null && metaData.getPerson().getBoard() != null ) {
-                        owner.setBoard(metaData.getPerson().getBoard());
-                    }
                 }
-                // update lastSeen for this Identity
-                owner.updateLastSeenTimestamp();
 
                 // verify signature
                 byte[] plaintext = FileAccess.readByteArray(testMe);
                 boolean sigIsValid = Core.getCrypto().detachedVerify(plaintext, owner.getKey(), metaData.getSig());
 
+                // only for correct owner (no faking allowed here)
+                if( sigIsValid ) {
+                    // check if we already have owners board
+                    if( owner.getBoard() == null && metaData.getPerson().getBoard() != null ) {
+                        owner.setBoard(metaData.getPerson().getBoard());
+                    }
+                    // update lastSeen for this Identity
+                    owner.updateLastSeenTimestamp();
+                }
+                
                 // now check if msg is encrypted and for me, if yes decrypt the zipped data
                 if (_metaData.getType() == MetaData.ENCRYPT) {
                     EncryptMetaData encMetaData = (EncryptMetaData)metaData;
