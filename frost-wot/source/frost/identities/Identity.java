@@ -125,11 +125,8 @@ public class Identity implements SafeXMLizable
 		if (board!=null) {
 			el.appendChild(board.getSafeXMLElement(doc));
         }
-		
 		return el;
 	}
-	
-	
 	
 	public void loadXMLElement(Element e) throws SAXException {
 		uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
@@ -148,7 +145,8 @@ public class Identity implements SafeXMLizable
         if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
             lastSeenTimestamp = Long.parseLong(_lastSeenStr);
         } else {
-            lastSeenTimestamp = -1;
+            // not yet set, init with current timestamp
+            lastSeenTimestamp = System.currentTimeMillis();
         }
 
 		// see if board is attached
