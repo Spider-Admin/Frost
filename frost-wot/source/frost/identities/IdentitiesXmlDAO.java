@@ -51,10 +51,16 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		logger.info("Trying to create/load ids");
 		Document d = XMLTools.parseXmlFile(XML_FILENAME, false);
 		Element rootEl = d.getDocumentElement();
+        
 		//first myself
 		Element myself = (Element) XMLTools.getChildElementsByTagName(rootEl, "MyIdentity").get(0);
-		LocalIdentity myId = new LocalIdentity(myself);
-		identities.setMyId(myId);
+        LocalIdentity myId = null;
+        if( myself != null ) {
+    		myId = new LocalIdentity(myself);
+    		identities.setMyId(myId);
+        } else {
+            identities.setMyId(null); // an imported identities file without myId
+        }
 
 		//then friends, enemies and neutrals
 		List lists = XMLTools.getChildElementsByTagName(rootEl, "BuddyList");
@@ -68,13 +74,15 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 				friends.loadXMLElement(current);
 			} else if (current.getAttribute("type").equals("enemies")) {
 				enemies.loadXMLElement(current);
-			} else {
+			} else if (current.getAttribute("type").equals("neutral")) {
 				neutrals.loadXMLElement(current);
 			}
 		}
 		logger.info("Loaded " + friends.size() + " friends and " + enemies.size() + " enemies and "
 				+ neutrals.size() + " neutrals.");
-		if (friends.add(myId)) {
+
+        // TODO: remove
+		if (myId != null && friends.add(myId)) {
 			logger.info("Added myself to the friends list");
 		}
 	}

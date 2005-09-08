@@ -20,7 +20,6 @@ public class LocalIdentity extends Identity
     
 	private static Logger logger = Logger.getLogger(LocalIdentity.class.getName());
 
-
 	public Element getXMLElement(Document doc) {
 	
 		//have to copy all children, no Element.rename()unfortunately
@@ -61,8 +60,7 @@ public class LocalIdentity extends Identity
      * a constructor that assumes that the user has inserted the
      * key in his SSK already
      */
-    public LocalIdentity(String name, String[] keys)
-    {
+    public LocalIdentity(String name, String[] keys) {
         super(name,  keys[1]);
         privKey=keys[0];
     }
@@ -75,25 +73,45 @@ public class LocalIdentity extends Identity
 	 */
 	public LocalIdentity(String name) {
 		this(name, Core.getCrypto().generateKeys());
+        
+        generateOwnBoard();
 
-		FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-		if (connection == null) {
-			this.key = NA;
-			return;
-		}
-		try {
-			String[] svk = connection.getKeyPair();
-			board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
-
-		} catch (IOException ex) {
-			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
-			board = null;
-		}
-
+//		FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+//		if (connection == null) {
+//			this.key = NA;
+//			return;
+//		}
+//        // generate own board keys
+//		try {
+//			String[] svk = connection.getKeyPair();
+//			board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
+//
+//		} catch (IOException ex) {
+//			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
+//			board = null;
+//		}
 	}
+    
+    public void generateOwnBoard() {
+        if( board == null ) {
+            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+            if (connection == null) {
+//                this.key = NA;
+                return;
+            }
+            // generate own board keys
+            try {
+                String[] svk = connection.getKeyPair();
+                board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
 
-    public String getPrivKey()
-    {
+            } catch (IOException ex) {
+                logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
+                board = null;
+            }
+        }
+    }
+
+    public String getPrivKey() {
         return privKey;
     }
 }
