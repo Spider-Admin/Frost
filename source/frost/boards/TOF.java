@@ -493,22 +493,22 @@ public class TOF
 	 * @return true if message is blocked, else false
 	 */
 	public boolean blocked(VerifyableMessageObject message, Board board) {
-        // verify of date and time was done on message arrival!
-//		if (message.verifyTime() == false) {
-//			return true;
-//		}
 
 		if (board.getShowSignedOnly()
 			&& (message.getMsgStatus() == VerifyableMessageObject.xOLD || 
                 message.getMsgStatus() == VerifyableMessageObject.xTAMPERED) )
+        {
 			return true;
-		if (board.getHideBad() && (message.getMsgStatus() == VerifyableMessageObject.xBAD))
+        }
+		if (board.getHideBad() && (message.getMsgStatus() == VerifyableMessageObject.xBAD)) {
 			return true;
-		if (board.getHideCheck() && (message.getMsgStatus() == VerifyableMessageObject.xCHECK))
+        }
+		if (board.getHideCheck() && (message.getMsgStatus() == VerifyableMessageObject.xCHECK)) {
 			return true;
-        // TODO: maybe NA is'nt needed any longer
-		if (board.getHideNA() && (message.getMsgStatus() == VerifyableMessageObject.xOLD))
+        }
+		if (board.getHideObserve() && (message.getMsgStatus() == VerifyableMessageObject.xOBSERVE)) {
 			return true;
+        }
 		//If the message is not signed and contains a @ character in the from field, we block it.
 		if (message.getMsgStatus() == VerifyableMessageObject.xOLD && message.getFrom().indexOf('@') != -1) {
 			return true;

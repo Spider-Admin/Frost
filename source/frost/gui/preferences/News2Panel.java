@@ -66,7 +66,7 @@ class News2Panel extends JPanel {
 	private JCheckBox doBoardBackoffCheckBox = new JCheckBox();
 	private JCheckBox hideBadMessagesCheckBox = new JCheckBox();
 	private JCheckBox hideCheckMessagesCheckBox = new JCheckBox();
-	private JCheckBox hideNAMessagesCheckBox = new JCheckBox();
+	private JCheckBox hideObserveMessagesCheckBox = new JCheckBox();
 	private JLabel intervalLabel = new JLabel();
 		
 	private Listener listener = new Listener();
@@ -205,7 +205,7 @@ class News2Panel extends JPanel {
 		constraints.gridy = 7;
 		add(hideCheckMessagesCheckBox, constraints);
 		constraints.gridx = 1;
-		add(hideNAMessagesCheckBox, constraints);
+		add(hideObserveMessagesCheckBox, constraints);
 						
 		constraints.gridwidth = 2;
 		constraints.gridx = 0;
@@ -229,7 +229,7 @@ class News2Panel extends JPanel {
 		signedOnlyCheckBox.setSelected(settings.getBoolValue("signedOnly"));
 		hideBadMessagesCheckBox.setSelected(settings.getBoolValue("hideBadMessages"));
 		hideCheckMessagesCheckBox.setSelected(settings.getBoolValue("hideCheckMessages"));
-		hideNAMessagesCheckBox.setSelected(settings.getBoolValue("hideNAMessages"));
+		hideObserveMessagesCheckBox.setSelected(settings.getBoolValue("hideObserveMessages"));
 			
 		blockSubjectCheckBox.setSelected(settings.getBoolValue("blockMessageChecked"));
 		blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());
@@ -269,8 +269,8 @@ class News2Panel extends JPanel {
 				language.getString("Hide messages flagged BAD") + " (" + off + ")");
 		hideCheckMessagesCheckBox.setText(
 				language.getString("Hide messages flagged CHECK") + " (" + off + ")");
-		hideNAMessagesCheckBox.setText(
-				language.getString("Hide messages flagged N/A") + " (" + off + ")");
+		hideObserveMessagesCheckBox.setText(
+				"Hide messages flagged OBSERVED" + " (" + off + ")");
 		blockSubjectCheckBox.setText(
 				language.getString(
 				"Block messages with subject containing (separate by ';' )")
@@ -313,6 +313,6 @@ class News2Panel extends JPanel {
 		settings.setValue("signedOnly", signedOnlyCheckBox.isSelected());
 		settings.setValue("hideBadMessages", hideBadMessagesCheckBox.isSelected());
 		settings.setValue("hideCheckMessages", hideCheckMessagesCheckBox.isSelected());
-		settings.setValue("hideNAMessages", hideNAMessagesCheckBox.isSelected());
+		settings.setValue("hideObserveMessages", hideObserveMessagesCheckBox.isSelected());
 	}
 }

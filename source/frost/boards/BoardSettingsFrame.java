@@ -79,10 +79,10 @@ public class BoardSettingsFrame extends JDialog {
 	private JRadioButton hideCheck_true = new JRadioButton();
 	private JLabel hideCheckMessagesLabel = new JLabel();
 
-	private JRadioButton hideNA_default = new JRadioButton();
-	private JRadioButton hideNA_false = new JRadioButton();
-	private JRadioButton hideNA_true = new JRadioButton();
-	private JLabel hideNaMessagesLabel = new JLabel();
+	private JRadioButton hideObserve_default = new JRadioButton();
+	private JRadioButton hideObserve_false = new JRadioButton();
+	private JRadioButton hideObserve_true = new JRadioButton();
+	private JLabel hideObserveMessagesLabel = new JLabel();
 	private JLabel hideUnsignedMessagesLabel = new JLabel();
 
 	private JRadioButton maxMsg_default = new JRadioButton();
@@ -206,9 +206,9 @@ public class BoardSettingsFrame extends JDialog {
 		bg5.add(hideCheck_true);
 		bg5.add(hideCheck_false);
 		ButtonGroup bg6 = new ButtonGroup();
-		bg6.add(hideNA_default);
-		bg6.add(hideNA_true);
-		bg6.add(hideNA_false);
+		bg6.add(hideObserve_default);
+		bg6.add(hideObserve_true);
+		bg6.add(hideObserve_false);
 
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.HORIZONTAL;
@@ -289,16 +289,16 @@ public class BoardSettingsFrame extends JDialog {
 		constraints.gridwidth = 3;
 		constraints.gridx = 0;
 		constraints.insets = new Insets(3, 25, 0, 5);
-		settingsPanel.add(hideNaMessagesLabel, constraints);
+		settingsPanel.add(hideObserveMessagesLabel, constraints);
 		constraints.insets = new Insets(0, 35, 5, 5);
 		constraints.gridwidth = 1;
 		constraints.gridy = 11;
 		constraints.gridx = 0;
-		settingsPanel.add(hideNA_default, constraints);
+		settingsPanel.add(hideObserve_default, constraints);
 		constraints.gridx = 1;
-		settingsPanel.add(hideNA_true, constraints);
+		settingsPanel.add(hideObserve_true, constraints);
 		constraints.gridx = 2;
-		settingsPanel.add(hideNA_false, constraints);
+		settingsPanel.add(hideObserve_false, constraints);
 		
 		// Adds listeners
 		overrideSettingsCheckBox.addActionListener(listener);
@@ -480,12 +480,12 @@ public class BoardSettingsFrame extends JDialog {
             else
                 hideCheck_false.setSelected(true);
 
-            if (!board.isConfigured() || board.getHideNAObj() == null)
-                hideNA_default.setSelected(true);
-            else if (board.getHideNA())
-                hideNA_true.setSelected(true);
+            if (!board.isConfigured() || board.getHideObserveObj() == null)
+                hideObserve_default.setSelected(true);
+            else if (board.getHideObserve())
+                hideObserve_true.setSelected(true);
             else
-                hideNA_false.setSelected(true);
+                hideObserve_false.setSelected(true);
         }
 	}
 
@@ -607,11 +607,11 @@ public class BoardSettingsFrame extends JDialog {
                     b.setHideCheck(null);
                 }
             }
-            if( hideNA_default.isSelected() || hideNA_true.isSelected() || hideNA_false.isSelected() ) {
-                if (hideNA_default.isSelected() == false) {
-                    b.setHideNA(Boolean.valueOf(hideNA_true.isSelected()));
+            if( hideObserve_default.isSelected() || hideObserve_true.isSelected() || hideObserve_false.isSelected() ) {
+                if (hideObserve_default.isSelected() == false) {
+                    b.setHideObserve(Boolean.valueOf(hideObserve_true.isSelected()));
                 } else {
-                    b.setHideNA(null);
+                    b.setHideObserve(null);
                 }
             }
         } else {
@@ -662,10 +662,10 @@ public class BoardSettingsFrame extends JDialog {
             } else {
                 board.setHideCheck(null);
             }
-            if (hideNA_default.isSelected() == false) {
-                board.setHideNA(Boolean.valueOf(hideNA_true.isSelected()));
+            if (hideObserve_default.isSelected() == false) {
+                board.setHideObserve(Boolean.valueOf(hideObserve_true.isSelected()));
             } else {
-                board.setHideNA(null);
+                board.setHideObserve(null);
             }
         } else {
             board.setConfigured(false);
@@ -752,9 +752,9 @@ public class BoardSettingsFrame extends JDialog {
 		hideCheck_default.setText(language.getString("Use default"));
 		hideCheck_true.setText(language.getString("Yes"));
 		hideCheck_false.setText(language.getString("No"));
-		hideNA_default.setText(language.getString("Use default"));
-		hideNA_true.setText(language.getString("Yes"));
-		hideNA_false.setText(language.getString("No"));
+		hideObserve_default.setText(language.getString("Use default"));
+		hideObserve_true.setText(language.getString("Yes"));
+		hideObserve_false.setText(language.getString("No"));
 		autoUpdateEnabled.setText(language.getString("Enable automatic board update"));
 
 		publicKeyLabel.setText(language.getString("Public key") + " :");
@@ -764,7 +764,7 @@ public class BoardSettingsFrame extends JDialog {
 		hideUnsignedMessagesLabel.setText(language.getString("Hide unsigned messages"));
 		hideBadMessagesLabel.setText(language.getString("Hide messages flagged BAD"));
 		hideCheckMessagesLabel.setText(language.getString("Hide messages flagged CHECK"));
-		hideNaMessagesLabel.setText(language.getString("Hide messages flagged N/A"));
+		hideObserveMessagesLabel.setText("Hide messages flagged OBSERVE");
 		
 		descriptionLabel.setText(language.getString("BoardSettingsFrame.description"));
 	}

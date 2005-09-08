@@ -31,18 +31,12 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 
 	private static Logger logger = Logger.getLogger(VerifyableMessageObject.class.getName());
     
-//    public static final String PENDING  = "<html><b><font color=#FFCC00>CHECK</font></b></html>";
-//    public static final String VERIFIED = "<html><b><font color=\"green\">GOOD</font></b></html>";
-//    public static final String FAILED   = "<html><b><font color=\"red\">BAD</font></b></html>";
-//    public static final String NA       = "N/A";
-//    public static final String OLD      = "NONE";
-//    public static final String TAMPERED = "FAKE :(";
-    	
     public static final int xGOOD     = 1;
     public static final int xCHECK    = 2;
     public static final int xBAD      = 3;
-    public static final int xTAMPERED = 4;
-    public static final int xOLD      = 5;
+    public static final int xOBSERVE  = 4;
+    public static final int xTAMPERED = 5;
+    public static final int xOLD      = 6;
 
     public int getMsgStatus() {
         if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_VERIFIED ) {
@@ -56,6 +50,8 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
                 return xGOOD;
             } else if( identities.getNeutrals().containsKey(testfrom) ) {
                 return xCHECK;
+            } else if( identities.getObserved().containsKey(testfrom) ) {
+                return xOBSERVE;
             } else if( identities.getEnemies().containsKey(testfrom) ) {
                 return xBAD;
             }
@@ -73,11 +69,13 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
     public String getMsgStatusString() {
         int status = getMsgStatus();
         if( status == xGOOD ) {
-            return "<html><b><font color=\"green\">GOOD</font></b></html>";
+            return "<html><b><font color=\"green\">GOOD</font></b></html>"; // dark green
         } else if( status == xCHECK ) {
-            return "<html><b><font color=#FFCC00>CHECK</font></b></html>";
+            return "<html><b><font color=#FFCC00>CHECK</font></b></html>"; // yellow
         } else if( status == xBAD ) {
-            return "<html><b><font color=\"red\">BAD</font></b></html>";
+            return "<html><b><font color=\"red\">BAD</font></b></html>"; // red
+        } else if( status == xOBSERVE ) {
+            return "<html><b><font color=\"#00D000\">OBSERVE</font></b></html>"; // a lighter green 
         } else if( status == xOLD ) {
             return "NONE";
         } else if( status == xTAMPERED ) {
