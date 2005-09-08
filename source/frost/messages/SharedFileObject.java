@@ -56,14 +56,12 @@ public class SharedFileObject implements XMLizable
     Board board;
     boolean exchange;
 
-    public GregorianCalendar getCal()
-    {
+    public GregorianCalendar getCal() {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         int firstPoint = date.indexOf(".");
         int secondPoint = date.lastIndexOf(".");
-        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
-        {
+        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint ) {
             int year = Integer.parseInt(date.substring(0, firstPoint));
             int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
             int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
@@ -75,54 +73,44 @@ public class SharedFileObject implements XMLizable
     }
 
     /**Returns false if key is outdated*/
-    public boolean checkDate()
-    {
-    	if (date == null) return true;
+    public boolean checkDate() {
         
+    	if (date == null) return true;
 	
         int maxAge = MainFrame.frostSettings.getIntValue("maxAge");
         String _oldestDate = DateFun.getDate(maxAge);
         Calendar fileDate=null;
         Calendar oldestDate=null;
         Calendar today = DateFun.getCalendarFromDate(DateFun.getDate());
-        try{
+        try {
         	fileDate=DateFun.getCalendarFromDate(date);
         	oldestDate=DateFun.getCalendarFromDate(_oldestDate);
-        }catch (NumberFormatException e){
+        } catch (NumberFormatException e) {
         	logger.warning("file " + filename + " has invalid date: " + date);
         	return false;
         }
-        
 
-        if( oldestDate.after(fileDate) )
-        {
+        if( oldestDate.after(fileDate) ) {
 			logger.warning(filename + " is outdated");
             return false;
         }
 
         today.add(Calendar.DATE, 2); // Accept one day into future
-        if( fileDate.after(today) )
-        {
+        if( fileDate.after(today) ) {
 			logger.warning("Future date of " + filename + " " + date);
         	return false;
         }
-
-         return true;
-       }
+        return true;
+    }
         
-        
-    
-
     /**Tests if the filename is valid*/
-    public boolean checkFilename()
-    {
-        if( filename==null || filename.length() == 0 || filename.length() > 255 )
+    public boolean checkFilename() {
+        
+        if( filename==null || filename.length() == 0 || filename.length() > 255 ) {
             return false;
-
-        for( int i = 0; i < invalidChars.length; i++ )
-        {
-            if( filename.indexOf(invalidChars[i]) != -1 )
-            {
+        }
+        for( int i = 0; i < invalidChars.length; i++ ) {
+            if( filename.indexOf(invalidChars[i]) != -1 ) {
                 logger.warning(filename + " has invalid filename");
                 return false;
             }
@@ -131,27 +119,15 @@ public class SharedFileObject implements XMLizable
     }
 
     /** Tests, if size is a valid integer value*/
-    public boolean checkSize()
-    {
-        if( size == null )
-            return false;
-        return true;
-
-/*
-        try {
-            long tmp = Integer.parseInt(size);
-        }
-        catch( NumberFormatException e ) {
-            if( DEBUG ) System.out.println("Invalid size in key " + filename);
+    public boolean checkSize() {
+        if( size == null ) {
             return false;
         }
         return true;
-*/
     }
 
     /**Tests if key is valid*/
-    public boolean checkKey()
-    {
+    public boolean checkKey() {
     	if (key == null) return true;
         if( key.startsWith("CHK@") && key.length() == 58 ) return true;
         //  if (DEBUG) System.out.println("Invalid key in " + filename);
@@ -160,8 +136,7 @@ public class SharedFileObject implements XMLizable
     }
 
     /**Returns true if key is valid*/
-    public boolean isValid()
-    {
+    public boolean isValid() {
         boolean valid=true;// = checkDate(); //don't check date here
         valid = valid && checkSize();
         valid = valid && checkFilename();
@@ -169,94 +144,85 @@ public class SharedFileObject implements XMLizable
         return valid;
     }
 
-    /**Set filename*/
-    public void setFilename(String filename)
-    {
+    /** Set filename */
+    public void setFilename(String filename) {
         this.filename = filename;
     }
 
-    /**Get filename*/
-    public String getFilename()
-    {
+    /** Get filename */
+    public String getFilename() {
         return filename.trim();
     }
-    
-    /** Get SHA1*/
+
+    /** Get SHA1 */
     public String getSHA1() {
-    	return SHA1;
-    }
-    
-    /** Set SHA1*/
-    public void setSHA1(String s) {
-    	SHA1=s;
-    }
-    
-    /** Set owner*/
-    public void setOwner(String owner_id) {
-    	owner=owner_id;
-    }
-    
-    /** Get owner*/
-    public String getOwner() {
-    	return owner;
+        return SHA1;
     }
 
-    /**Set key*/
-    public void setKey(String key)
-    {
+    /** Set SHA1 */
+    public void setSHA1(String s) {
+        SHA1 = s;
+    }
+
+    /** Set owner */
+    public void setOwner(String owner_id) {
+        owner = owner_id;
+    }
+
+    /** Get owner */
+    public String getOwner() {
+        return owner;
+    }
+
+    /** Set key */
+    public void setKey(String key) {
         this.key = key;
     }
 
-    /**Get key*/
-    public String getKey()
-    {
-    	if (key == null)
-		return key;
+    /** Get key */
+    public String getKey() {
+        if( key == null ) {
+            return key;
+        }
         return key.trim();
     }
 
-    /**Set date*/
-    public void setDate(String date)
-    {
+    /** Set date */
+    public void setDate(String date) {
         this.date = date;
     }
 
-    /**Get date*/
-    public String getDate()
-    {
-    	if (date == null) return date;
+    /** Get date */
+    public String getDate() {
+        if( date == null )
+            return date;
         return date.trim();
     }
 
-    /**Set size*/
-    public void setSize(String size)
-    {
+    /** Set size */
+    public void setSize(String size) {
         try {
             this.size = new Long(size);
-        }
-        catch(NumberFormatException ex) {
+        } catch (NumberFormatException ex) {
             this.size = null;
         }
     }
-   
-    /**Set size*/
-    public void setSize(long size)
-    {
+
+    /** Set size */
+    public void setSize(long size) {
         this.size = new Long(size);
     }
 
-    /**Get size*/
-    public Long getSize()
-    {
+    /** Get size */
+    public Long getSize() {
         return size;
     }
 
-    public boolean getExchange()
-    {
+    public boolean getExchange() {
         return exchange;
     }
-    public void setExchange(boolean exchange)
-    {
+
+    public void setExchange(boolean exchange) {
         this.exchange = exchange;
     }
     
@@ -331,113 +297,94 @@ public class SharedFileObject implements XMLizable
     	} 
     }
     
-    public Element getXMLElement(Document doc)  {
+    public Element getXMLElement(Document doc) {
 
-			 //we do not add keys who are not signed by people we marked as GOOD!
-			 //but we add unsigned keys for now; this will probably change soon
-                
-			 Element fileelement = doc.createElement("File");
-                
-			 Element element = doc.createElement("name");
-			 CDATASection cdata = doc.createCDATASection(getFilename());
-			 element.appendChild( cdata );
-			 fileelement.appendChild( element );
-              
-             //always add SHA1
-             
-			 element = doc.createElement("SHA1");
-			 cdata = doc.createCDATASection(getSHA1());
-			 element.appendChild( cdata );
-			 fileelement.appendChild( element );
-             
+        // we do not add keys who are not signed by people we marked as GOOD!
+        // but we add unsigned keys for now; this will probably change soon
 
-              
-			 element = doc.createElement("size");
-			 Text textnode = doc.createTextNode(""+getSize());
-			 element.appendChild( textnode );
-			 fileelement.appendChild( element );
-                
-			 if( getBatch() != null )
-			 {
-				 element = doc.createElement("batch");
-				 textnode = doc.createTextNode(getBatch());
-				 element.appendChild( textnode );
-				 fileelement.appendChild( element );
-			 }
+        Element fileelement = doc.createElement("File");
 
-//f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() + "\r\n");
+        Element element = doc.createElement("name");
+        CDATASection cdata = doc.createCDATASection(getFilename());
+        element.appendChild(cdata);
+        fileelement.appendChild(element);
 
-			 if (getOwner() != null)
-			 {
-				 element = doc.createElement("owner");
-				 cdata = doc.createCDATASection(getOwner());
-				 element.appendChild( cdata );
-				 fileelement.appendChild( element );
-			 } /*else 
-			 if (board!=null) {
-				 element = doc.createElement("owner");
-				 cdata = doc.createCDATASection(mixed.makeFilename(Core.getMyId().getUniqueName()));
-				 element.appendChild( cdata );
-				 fileelement.appendChild( element );
-			 }*/
-			 
-			 if (getKey() != null)
-			 {
-				 element = doc.createElement("key");
-				 textnode = doc.createTextNode(getKey());
-				 element.appendChild( textnode );
-				 fileelement.appendChild( element );
-			 }
-			 if (getDate() != null)
-			 {
-				 element = doc.createElement("date");
-				 textnode = doc.createTextNode(getDate());
-				 element.appendChild( textnode );
-				 fileelement.appendChild( element );
-			 }
-			 if (getLastSharedDate() != null)
-			 {
-				 element = doc.createElement("dateShared");
-				 textnode = doc.createTextNode(getLastSharedDate());
-				 element.appendChild( textnode );
-				 fileelement.appendChild( element );
-			 }
-			 return fileelement;
+        // always add SHA1
+
+        element = doc.createElement("SHA1");
+        cdata = doc.createCDATASection(getSHA1());
+        element.appendChild(cdata);
+        fileelement.appendChild(element);
+
+        element = doc.createElement("size");
+        Text textnode = doc.createTextNode("" + getSize());
+        element.appendChild(textnode);
+        fileelement.appendChild(element);
+
+        if( getBatch() != null ) {
+            element = doc.createElement("batch");
+            textnode = doc.createTextNode(getBatch());
+            element.appendChild(textnode);
+            fileelement.appendChild(element);
+        }
+
+        // f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() +
+        // "\r\n");
+
+        if( getOwner() != null ) {
+            element = doc.createElement("owner");
+            cdata = doc.createCDATASection(getOwner());
+            element.appendChild(cdata);
+            fileelement.appendChild(element);
+        } /*
+             * else if (board!=null) { element = doc.createElement("owner"); cdata =
+             * doc.createCDATASection(mixed.makeFilename(Core.getMyId().getUniqueName())); element.appendChild( cdata );
+             * fileelement.appendChild( element ); }
+             */
+
+        if( getKey() != null ) {
+            element = doc.createElement("key");
+            textnode = doc.createTextNode(getKey());
+            element.appendChild(textnode);
+            fileelement.appendChild(element);
+        }
+        if( getDate() != null ) {
+            element = doc.createElement("date");
+            textnode = doc.createTextNode(getDate());
+            element.appendChild(textnode);
+            fileelement.appendChild(element);
+        }
+        if( getLastSharedDate() != null ) {
+            element = doc.createElement("dateShared");
+            textnode = doc.createTextNode(getLastSharedDate());
+            element.appendChild(textnode);
+            fileelement.appendChild(element);
+        }
+        return fileelement;
     }
     
-    public void loadXMLElement(Element current) throws SAXException{
-//		extract the values
-					  
-						  setFilename(
-							  XMLTools.getChildElementsCDATAValue(current, "name"));						  
-						  setSHA1(
-							  XMLTools.getChildElementsCDATAValue(current, "SHA1"));
+    public void loadXMLElement(Element current) throws SAXException {
+        // extract the values
 
-					  
-					  setOwner(
-						  XMLTools.getChildElementsCDATAValue(current, "owner"));
-						  
-					  
+        setFilename(XMLTools.getChildElementsCDATAValue(current, "name"));
+        setSHA1(XMLTools.getChildElementsCDATAValue(current, "SHA1"));
 
-					  setKey(
-						  XMLTools.getChildElementsTextValue(current, "key"));
-					  setDate(
-						  XMLTools.getChildElementsTextValue(current, "date"));
-					  setLastSharedDate(
-						  XMLTools.getChildElementsTextValue(current, "dateShared"));
-					  setSize(
-						  XMLTools.getChildElementsTextValue(current, "size"));
-					  setBatch(
-						  XMLTools.getChildElementsTextValue(current, "batch"));
-						  
-					 assert filename!=null;
-					 assert size !=null;
+        setOwner(XMLTools.getChildElementsCDATAValue(current, "owner"));
+
+        setKey(XMLTools.getChildElementsTextValue(current, "key"));
+        setDate(XMLTools.getChildElementsTextValue(current, "date"));
+        setLastSharedDate(XMLTools.getChildElementsTextValue(current, "dateShared"));
+        setSize(XMLTools.getChildElementsTextValue(current, "size"));
+        setBatch(XMLTools.getChildElementsTextValue(current, "batch"));
+
+        assert filename != null;
+        assert size != null;
     }
     
     
 	/**
-	 * @return the board this file will be uploaded to, if any
-	 */
+     * @return the board this file will be uploaded to, if any
+     */
 	public Board getBoard() {
 		return board;
 	}
@@ -486,7 +433,6 @@ public class SharedFileObject implements XMLizable
 	 * @see java.lang.Object#hashCode()
 	 */
 	public int hashCode() {
-
 		return SHA1.hashCode();
 	}
 
@@ -496,16 +442,15 @@ public class SharedFileObject implements XMLizable
 	 * @return the sharedFileObject created according to the element.
 	 */
 	public static SharedFileObject getInstance(Element e){
-		try{
-	
-			if (e.getAttribute("redirect").length() > 0) 
+		try {
+			if (e.getAttribute("redirect").length() > 0) { 
 				return RedirectFileObject.getRedirectInstance(e);
-			else{
+            } else {
 				SharedFileObject result = new SharedFileObject();
 				result.loadXMLElement(e);
 				return result;
 			}
-		}catch(SAXException ex){
+		} catch(SAXException ex) {
 			logger.log(Level.SEVERE, "parsing file failed.", ex);
 			return null;
 		}
