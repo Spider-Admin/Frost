@@ -648,82 +648,102 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	/**
 	 * downloadTextField Action Listener (Download/Quickload)
+     * The textfield can contain 1 key to download or multiple keys separated by ';'.
 	 */
-
 	private void downloadTextField_actionPerformed(ActionEvent e) {
-		String key = (downloadTextField.getText()).trim();
-		if (key.length() > 0) {
-			// strip the 'browser' prefix
-			String stripMe = "http://127.0.0.1:8888/";
-			if (key.startsWith(stripMe)) {
-				key = key.substring(stripMe.length());
-			}
-			// strip the 'freenet:' prefix
-			stripMe = "freenet:";
-			if (key.startsWith(stripMe)) {
-				key = key.substring(stripMe.length());
-			}
 
-			String validkeys[] = { "SSK@", "CHK@", "KSK@" };
-			int keyType = -1; // invalid
+		String keys = downloadTextField.getText().trim();
+        
+        if( keys.length() == 0 ) {
+            downloadTextField.setText("");
+            return;
+        }
+        
+        String[] keyList = keys.split(";");
+        if( keyList == null || keyList.length == 0 ) {
+            downloadTextField.setText("");
+            return;
+        }
+        
+        for(int x=0; x < keyList.length; x++) {
+            String key = keyList[x].trim();
+            if( key.length() == 0 ) {
+                continue;
+            }
+            
+            // strip the 'browser' prefix
+            String stripMe = "http://127.0.0.1:8888/";
+            if (key.startsWith(stripMe)) {
+                key = key.substring(stripMe.length());
+            }
+            // strip the 'freenet:' prefix
+            stripMe = "freenet:";
+            if (key.startsWith(stripMe)) {
+                key = key.substring(stripMe.length());
+            }
+            
+            if( key.length() < 5 ) {
+                // at least the SSK@? is needed
+                showInvalidKeyErrorDialog(key);
+                continue;
+            }
 
-			//TODO: Improve parsing here. If length < 3, an ArrayIndexOutOfBounds exception is launched.
-			for (int i = 0; i < validkeys.length; i++) {
-				if (key.substring(0, validkeys[i].length()).equals(validkeys[i])) {
-					keyType = i;
-					break;
-				}
-			}
+            String validkeys[] = { "SSK@", "CHK@", "KSK@" };
+            int keyType = -1; // invalid
 
-			if (keyType > -1) {
-				// added a way to specify a file name. The filename is preceeded by a colon.
-				String fileName;
+            for (int i = 0; i < validkeys.length; i++) {
+                if (key.startsWith(validkeys[i])) {
+                    keyType = i;
+                    break;
+                }
+            }
+            
+            if( keyType < 0 ) {
+                showInvalidKeyErrorDialog(key);
+                continue;
+            }
 
-				int sepIndex = key.lastIndexOf(":");
+            // added a way to specify a file name. The filename is preceeded by a colon.
+            String fileName;
 
-				if (sepIndex != -1) {
-					fileName = key.substring(sepIndex + 1);
-					key = key.substring(0, sepIndex);
-				}
-				// take the filename from the last part the SSK or KSK
-				else if (-1 != (sepIndex = key.lastIndexOf("/"))) {
-					fileName = key.substring(sepIndex + 1);
-				} else {
-					fileName = key.substring(4);
-				}
-				//  zab, why did you comment this out, its needed, because otherwise you
-				//  use a wrong CHK key for download! i pasted a CHK@afcdf432dk/mytargetfilename.data
-				//FIXED: it happened when sha1 was still kept in this variable - and sha1 can contain "/"
+            int sepIndex = key.lastIndexOf(":");
 
-				// remove filename from key for CHK
-				if (keyType == 1) // CHK?
-					key = key.substring(0, key.indexOf("/"));
+            if (sepIndex > -1) {
+                fileName = key.substring(sepIndex + 1);
+                key = key.substring(0, sepIndex);
+            }
+            // take the filename from the last part the SSK or KSK
+            else if ( (sepIndex = key.lastIndexOf("/")) > -1 ) {
+                fileName = key.substring(sepIndex + 1);
+            } else {
+                fileName = key.substring(4);
+            }
+            //  zab, why did you comment this out, its needed, because otherwise you
+            //  use a wrong CHK key for download! i pasted a CHK@afcdf432dk/mytargetfilename.data
+            //FIXED: it happened when sha1 was still kept in this variable - and sha1 can contain "/"
 
-				// add valid key to download table
-				FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key, null);
-				//users weren't happy with '_'
-				boolean isAdded = model.addDownloadItem(dlItem);
+            // remove filename from key for CHK
+            if (keyType == 1 && key.indexOf("/") > -1 ) { // CHK?
+                key = key.substring(0, key.indexOf("/"));
+            }
 
-				if (isAdded == true)
-					downloadTextField.setText("");
-			} else {
-				// show messagebox that key is invalid
-				String keylist = "";
-				for (int i = 0; i < validkeys.length; i++) {
-					if (i > 0)
-						keylist += ", ";
-					keylist += validkeys[i];
-				}
-				JOptionPane.showMessageDialog(
-					this,
-					language.getString("Invalid key.  Key must begin with one of")
-						+ ": "
-						+ keylist,
-					language.getString("Invalid key"),
-					JOptionPane.ERROR_MESSAGE);
-			}
-		}
+            // add valid key to download table
+            FrostDownloadItem dlItem = new FrostDownloadItem(fileName, key, null);
+            //users weren't happy with '_'
+            /*boolean isAdded =*/ model.addDownloadItem(dlItem);
+        }
+        downloadTextField.setText("");
 	}
+    
+    private void showInvalidKeyErrorDialog(String invKey) {
+        JOptionPane.showMessageDialog(
+                this,
+                "<html>"+ // needed for linebreak in dialog
+                language.getString("Invalid key.  Key must begin with one of")
+                    + " SSK@, KSK@, @CHK: <br>"+invKey+"</html>",
+                language.getString("Invalid key"),
+                JOptionPane.ERROR_MESSAGE);
+    }
 
 	/**
 	 * Get keyTyped for downloadTable
