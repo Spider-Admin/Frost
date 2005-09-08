@@ -443,36 +443,40 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 								sharer = identities.getMyId();
 							} else {
 								String message = "Received index file from " + _owner;
-								if (identities.getFriends().containsKey(_owner)) {
-									sharer = identities.getFriends().get(_owner);
-									logger.info(message + ", a friend");
-								} else if (identities.getNeutrals().containsKey(_owner)) {
-									sharer = identities.getNeutrals().get(_owner);
-									logger.info(message + ", a neutral");
-								} else if (identities.getEnemies().containsKey(_owner)) {
-									if (MainFrame.frostSettings.getBoolValue("hideBadFiles")) {
-										logger.info("Skipped index file from BAD user " + _owner);
-										target.delete();
-										unzippedTarget.delete();
-										index = findFreeDownloadIndex();
-										continue;
-									}
-									//we may chose not to block files from bad people
-									sharer = identities.getEnemies().get(_owner);
-									logger.info(message + ", an enemy");
-								} else {
-									// a new sharer, put to neutral list
-									logger.info(message + ", a new contact");
-									sharer = addNewSharer(_owner, _pubkey);
-									if (sharer == null) // digest did not match, block file
-										{
-										logger.info("sharer was null... :(");
-										unzippedTarget.delete();
-										target.delete();
-										index = findFreeDownloadIndex();
-										continue;
-									}
-								}
+                                if (identities.getEnemies().containsKey(_owner)) {
+                                    if (MainFrame.frostSettings.getBoolValue("hideBadFiles")) {
+                                        logger.info("Skipped index file from BAD user " + _owner);
+                                        target.delete();
+                                        unzippedTarget.delete();
+                                        index = findFreeDownloadIndex();
+                                        continue;
+                                    }
+                                    //we may chose not to block files from bad people
+                                    sharer = identities.getEnemies().get(_owner);
+                                    logger.info(message + ", an enemy");
+                                } else if( (sharer=identities.getIdentityFromAnyList(_owner)) == null ) {
+                                    // a new sharer, put to neutral list
+                                    logger.info(message + ", a new contact");
+                                    sharer = addNewSharer(_owner, _pubkey);
+                                    if (sharer == null) // digest did not match, block file
+                                    {
+                                        logger.info("sharer was null... :(");
+                                        unzippedTarget.delete();
+                                        target.delete();
+                                        index = findFreeDownloadIndex();
+                                        continue;
+                                    }
+                                }
+                                // sharer should be set now
+                                if( sharer == null ) {
+                                    unzippedTarget.delete();
+                                    target.delete();
+                                    index = findFreeDownloadIndex();
+                                    continue;
+                                }
+                                // update lastSeen for sharer Identity
+                                sharer.updateLastSeenTimestamp();
+                                
 							}
 						} // end-of: if metadata != null
 						else if (MainFrame.frostSettings.getBoolValue("hideAnonFiles")) {
@@ -553,8 +557,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
      */
     private Identity addNewSharer(String _sharer, String _pubkey)
     {
-        Identity sharer = null;
-        
         //check if the digest matches
         String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
                                                 _sharer.length()).trim();
@@ -570,11 +572,11 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
             return null;        
         }
         //create the identity of the sharer
-        sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
+        Identity sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
+
         //add him to the neutral list (if not already on any list)
-        if( identities.getIdentityFromAnyList(_sharer) == null ) {
-            identities.getNeutrals().add(sharer);
-        }
+        identities.getNeutrals().add(sharer);
+
         return sharer;
     }
 

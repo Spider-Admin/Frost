@@ -342,6 +342,8 @@ public class MessageDownloadThread
                         owner.setBoard(metaData.getPerson().getBoard());
                     }
                 }
+                // update lastSeen for this Identity
+                owner.updateLastSeenTimestamp();
 
                 // verify signature
                 byte[] plaintext = FileAccess.readByteArray(testMe);
