@@ -1702,7 +1702,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             if (row < 0 || selectedMessage == null) {
                 return;
             }
-            identities.changeTrust(selectedMessage.getFrom(), newState);
+            if( selectedMessage.getSignatureStatus() == VerifyableMessageObject.SIGNATURESTATUS_VERIFIED ) {
+                identities.changeTrust(selectedMessage.getFrom(), newState);
+            }
         }
     }
 
