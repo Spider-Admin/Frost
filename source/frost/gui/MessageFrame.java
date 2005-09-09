@@ -992,17 +992,12 @@ public class MessageFrame extends JFrame
 			filesTableScrollPane = new JScrollPane(filesTable);
 			filesTable.addMouseListener(listener);
 
-            if( Core.getInstance().getIdentities().getFriends() != null ) {
-                BuddyList friends = Core.getInstance().getIdentities().getFriends();
-                Vector budList = new Vector( friends.getAllKeys() );
-                budList.remove(Core.getInstance().getIdentities().getMyId().getUniqueName());
-                if( budList.size() > 0 ) {
-                    Collections.sort( budList, new BuddyComparator() );
-                    buddies = new JComboBox(budList);
-                    buddies.setSelectedItem(budList.get(0));
-                } else {
-                    buddies = new JComboBox();
-                }
+            List budList = Core.getInstance().getIdentities().getAllIdentitiesWithState(FrostIdentities.FRIEND);
+            Vector budVec = new Vector(budList);
+            if( budList.size() > 0 ) {
+                Collections.sort( budVec, new BuddyComparator() );
+                buddies = new JComboBox(budVec);
+                buddies.setSelectedItem(budList.get(0));
             } else {
                 buddies = new JComboBox();
             }
@@ -1381,7 +1376,14 @@ public class MessageFrame extends JFrame
         if( encrypt.isEnabled() && encrypt.isSelected() ) {
             String rec = (String)buddies.getSelectedItem();
             mo.setRecipient(rec);
-            recipient = Core.getInstance().getIdentities().getFriends().get(rec);
+            recipient = Core.getInstance().getIdentities().getIdentity(rec);
+            if( recipient == null ) {
+                JOptionPane.showMessageDialog( this,
+                        "Can't encrypt, Choosed recipient is not longer in identities list!",
+                        "ERROR",
+                        JOptionPane.ERROR);
+                return;                               
+            }
         }
         // start upload thread which also saves the file, uploads attachments and signs if choosed
         tofTree.getRunningBoardUpdateThreads().startMessageUpload(

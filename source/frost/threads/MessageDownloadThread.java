@@ -329,13 +329,14 @@ public class MessageDownloadThread
                 
                 //check if we have the owner already on the lists
                 String _owner = metaData.getPerson().getUniqueName();
-                Identity owner = identities.getIdentityFromAnyList(_owner);
+                Identity owner = identities.getIdentity(_owner);
                 // if not on any list, use the parsed id and add to our identities list
                 if (owner == null) {
                     owner = metaData.getPerson();
                     owner.noFiles = 0;
                     owner.noMessages = 1;
-					identities.getNeutrals().add(owner);
+                    owner.setState(FrostIdentities.NEUTRAL);
+					identities.addIdentity(owner);
                 }
 
                 // verify signature

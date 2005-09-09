@@ -25,6 +25,7 @@ import javax.swing.table.*;
 
 import frost.gui.model.*;
 import frost.gui.objects.*;
+import frost.messages.*;
 
 public class MessageTable extends SortedTable
 {
@@ -51,6 +52,10 @@ public class MessageTable extends SortedTable
         private Font boldFont = null;
         private Font normalFont = null;
         private boolean isDeleted = false;
+        private final Color col_good    = new Color(0x00, 0x80, 0x00);
+        private final Color col_check   = new Color(0xFF, 0xCC, 0x00);
+        private final Color col_observe = new Color(0x00, 0xD0, 0x00);
+        private final Color col_bad     = new Color(0xFF, 0x00, 0x00);
         
         public CellRenderer() {
         	Font baseFont = MessageTable.this.getFont();
@@ -83,30 +88,53 @@ public class MessageTable extends SortedTable
             TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
-			// do nice things for FROM column only
-			if (column != 1) {
-				setFont(normalFont);
-				if (!isSelected) {
-					setForeground(Color.BLACK);
-				}
-			} else {
-				// first set font, bold for new msg or normal
-				if (msg.isMessageNew()) {
-					setFont(boldFont);
-				} else {
-					setFont(normalFont);
-				}
-				// now set color
-				if (!isSelected) {
+			// do nice things for FROM and SIG column
+            if( column == 1 ) {
+                // FROM
+                // first set font, bold for new msg or normal
+                if (msg.isMessageNew()) {
+                    setFont(boldFont);
+                } else {
+                    setFont(normalFont);
+                }
+                // now set color
+                if (!isSelected) {
                     if( msg.getRecipient() != null && msg.getRecipient().length() > 0) {
                         setForeground(Color.RED);
                     } else if (msg.containsAttachments()) {
-						setForeground(Color.BLUE);
-					} else {
-						setForeground(Color.BLACK);
-					}
-				}
-			}
+                        setForeground(Color.BLUE);
+                    } else {
+                        setForeground(Color.BLACK);
+                    }
+                }
+            } else if( column == 3 ) {
+                // SIG
+                // state == good/bad/check/observe -> bold and coloured
+                int state = msg.getMsgStatus();
+                if( state == VerifyableMessageObject.xGOOD ) {
+                    setFont(boldFont);
+                    setForeground(col_good);
+                } else if( state == VerifyableMessageObject.xCHECK ) {
+                    setFont(boldFont);
+                    setForeground(col_check);
+                } else if( state == VerifyableMessageObject.xOBSERVE ) {
+                    setFont(boldFont);
+                    setForeground(col_observe);
+                } else if( state == VerifyableMessageObject.xBAD ) {
+                    setFont(boldFont);
+                    setForeground(col_bad);
+                } else {
+                    setFont(normalFont);
+                    if (!isSelected) {
+                        setForeground(Color.BLACK);
+                    }
+                }
+            } else {
+                setFont(normalFont);
+                if (!isSelected) {
+                    setForeground(Color.BLACK);
+                }
+            }
 			
 			setDeleted(msg.isDeleted());
 			
@@ -122,14 +150,11 @@ public class MessageTable extends SortedTable
 			boldFont = font.deriveFont(Font.BOLD);
 		}
 		
-		/**
-		 * @param value
-		 */
 		public void setDeleted(boolean value) {
 			isDeleted = value;
 		}
-
     }
+
 	/* (non-Javadoc)
 	 * @see javax.swing.JTable#createDefaultColumnsFromModel()
 	 */

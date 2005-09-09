@@ -86,7 +86,7 @@ public class SearchModel extends OrderedModel {
 				continue;
 
 			//see if already on some list
-			Identity id = identities.getIdentityFromAnyList(owner);
+			Identity id = identities.getIdentity(owner);
 			if (id != null) {
 				result.add(id);
             }

@@ -196,7 +196,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
              * - 'g' mark GOOD
              */
             public void keyTyped(KeyEvent e){
-
+                if( e == null ) {
+                    return;
+                }
                 if ((e.getSource() == messageTable || e.getSource() == boardsTable) && e.getKeyChar() == 'n') {
                     int currentSelection = messageTable.getSelectedRow();
 
@@ -207,7 +209,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     int nextMessage = -1;
 
                     final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
-
+                    // search down
                     for (int row = currentSelection; row < tableModel.getRowCount(); row++) {
                         final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
                         if (message.isMessageNew()) {
@@ -215,7 +217,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                             break;
                         }
                     }
-
+                    // search from top
                     if (nextMessage == -1 && currentSelection > 0) {
                         for(int row = 0; row < currentSelection; row++) {
                             final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
@@ -232,16 +234,23 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                         messageTable.addRowSelectionInterval(nextMessage, nextMessage);
                         messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
                     }
-                } else if (e.getSource() == messageTable && e.getKeyChar() == 'b')  {
-                    setMessageTrust(FrostIdentities.ENEMY);
-                } else if (e.getSource() == messageTable && e.getKeyChar() == 'g') {
-                    setMessageTrust(FrostIdentities.FRIEND);
-                } else if (e.getSource() == messageTable && e.getKeyChar() == 'c') {
-                    setMessageTrust(FrostIdentities.NEUTRAL);
-                } else if (e.getSource() == messageTable && e.getKeyChar() == 'o') {
-                    setMessageTrust(FrostIdentities.OBSERVE);
+                } else if (e.getSource() == messageTable ) { 
+                    if( selectedMessage == null || 
+                        selectedMessage.getSignatureStatus() != MessageObject.SIGNATURESTATUS_VERIFIED) 
+                    {
+                        // change only for signed messages 
+                        return;
+                    }
+                    if (e.getKeyChar() == 'b')  {
+                        setMessageTrust(FrostIdentities.ENEMY);
+                    } else if (e.getKeyChar() == 'g') {
+                        setMessageTrust(FrostIdentities.FRIEND);
+                    } else if (e.getKeyChar() == 'c') {
+                        setMessageTrust(FrostIdentities.NEUTRAL);
+                    } else if (e.getKeyChar() == 'o') {
+                        setMessageTrust(FrostIdentities.OBSERVE);
+                    }
                 }
-                // TODO: keep selected message in setMessageTrust() !
             }
 
             public void keyPressed(KeyEvent e){
@@ -1344,7 +1353,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         private void setBadButton_actionPerformed(ActionEvent e) {
             if (selectedMessage != null) {
-                if (identities.getFriends().containsKey(selectedMessage.getFrom())) {
+                Identity id = identities.getIdentity(selectedMessage.getFrom());
+                if( id == null ) {
+                    return;
+                }
+                if(id.getState() == FrostIdentities.FRIEND) {
                     if (JOptionPane
                         .showConfirmDialog(
                             parentFrame,
@@ -1386,7 +1399,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         private void setGoodButton_actionPerformed(ActionEvent e) {
             if (selectedMessage != null) {
-                if (identities.getEnemies().containsKey(selectedMessage.getFrom())) {
+                Identity id = identities.getIdentity(selectedMessage.getFrom());
+                if( id == null ) {
+                    return;
+                }
+                if(id.getState() == FrostIdentities.ENEMY) {
                     if (JOptionPane
                         .showConfirmDialog(
                             parentFrame,
@@ -1682,35 +1699,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
          */
         private void setMessageTrust(int newState) {
             int row = messageTable.getSelectedRow();
-            if (row < 0 || selectedMessage == null)
+            if (row < 0 || selectedMessage == null) {
                 return;
-
-            int status = selectedMessage.getMsgStatus();
-
-            if (status == VerifyableMessageObject.xCHECK) {
-                Identity owner = identities.getNeutrals().get(selectedMessage.getFrom());
-                if (owner == null) {
-                    logger.warning("message was CHECK but not found in Neutral list");
-                    return;
-                }
-            } else if (status == VerifyableMessageObject.xBAD) {
-                Identity owner = identities.getEnemies().get(selectedMessage.getFrom());
-                if (owner == null) {
-                    logger.warning("message was BAD but not found in BAD list");
-                    return;
-                }
-            } else if (status == VerifyableMessageObject.xGOOD) {
-                Identity owner = identities.getFriends().get(selectedMessage.getFrom());
-                if (owner == null) {
-                    logger.warning("message was GOOD but not found in GOOD list");
-                    return;
-                }
-            } else if (status == VerifyableMessageObject.xOBSERVE) {
-                Identity owner = identities.getObserved().get(selectedMessage.getFrom());
-                if (owner == null) {
-                    logger.warning("message was OBSERVE but not found in OBSERVE list");
-                    return;
-                }
             }
             identities.changeTrust(selectedMessage.getFrom(), newState);
         }

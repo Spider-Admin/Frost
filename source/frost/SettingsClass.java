@@ -679,6 +679,7 @@ public class SettingsClass implements Savable {
 		defaults.put(UPLOAD_RETRIES_WAIT_TIME, "5");
         
         defaults.put("oneTimeUpdate.convertSigs.didRun", "false");
+        defaults.put("oneTimeUpdate.repairIdentities.didRun", "false");
 
 		settingsHash.putAll(defaults);
 	}

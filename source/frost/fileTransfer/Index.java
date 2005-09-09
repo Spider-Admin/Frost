@@ -356,24 +356,24 @@ public class Index {
 
 		Iterator i = totalIdx.getFiles().iterator();
 		String myUniqueName = Core.getInstance().getIdentities().getMyId().getUniqueName();
-		BuddyList friends = Core.getInstance().getIdentities().getFriends();
 		int downloadBack = MainFrame.frostSettings.getIntValue("maxAge");
 		logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
 		
 		while (i.hasNext()) {
 			SharedFileObject current = (SharedFileObject) i.next();
-			if ((current.getOwner() != null) && //not anonymous
-					(myUniqueName.compareTo(current.getOwner()) != 0) && //not myself
-					MainFrame.frostSettings.getBoolValue("helpFriends")	&& //and helping is enabled
-			 		(friends.containsKey(Mixed.makeFilename(current.getOwner())))) {//and marked GOOD
+            Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
+			if( id != null && //not anonymous
+				myUniqueName.compareTo(current.getOwner()) != 0 && //not myself
+				MainFrame.frostSettings.getBoolValue("helpFriends")	&& //and helping is enabled
+		 		id.getState() == FrostIdentities.FRIEND ) {//and marked GOOD
 					
 				toUpload.put(current.getSHA1(), current);
 				logger.fine("f"); //f means added file from friend
 			}
 			//also add the file if its been shared too long ago
-			if ((current.getOwner() != null) && //not anonymous 
-					(current.getOwner().compareTo(myUniqueName) == 0) && //from myself
-					(current.getLastSharedDate() != null)) { //not from the old format
+			if( current.getOwner() != null && //not anonymous 
+				current.getOwner().compareTo(myUniqueName) == 0 && //from myself
+				current.getLastSharedDate() != null) { //not from the old format
 
 				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
 					//if the file has been uploaded too long ago, 

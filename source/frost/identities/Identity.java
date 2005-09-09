@@ -38,6 +38,8 @@ public class Identity implements SafeXMLizable {
     protected BoardAttachment board = null;
     private long lastSeenTimestamp = -1;
     
+    int state = -1; // FRIEND,...
+    
 	private static Logger logger = Logger.getLogger(Identity.class.getName());
     
     //some trust map methods
@@ -266,5 +268,13 @@ public class Identity implements SafeXMLizable {
     
     public void updateLastSeenTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
+    }
+    
+    public int getState() {
+        return state;
+    }
+    
+    public void setState(int newstate) {
+        state = newstate;
     }
 }

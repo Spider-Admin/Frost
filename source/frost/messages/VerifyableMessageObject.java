@@ -37,23 +37,39 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
     public static final int xOBSERVE  = 4;
     public static final int xTAMPERED = 5;
     public static final int xOLD      = 6;
+    
+    private Identity fromIdentity = null;
+    
+    public Identity getFromIdentity() {
+        if( fromIdentity == null ) {
+            FrostIdentities identities = Core.getInstance().getIdentities();
+            if( identities.isMySelf(getFrom())) {
+                fromIdentity = identities.getMyId();
+            } else {
+                fromIdentity = identities.getIdentity(getFrom());
+            }
+        }
+        return fromIdentity;
+    }
 
     public int getMsgStatus() {
         if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_VERIFIED ) {
             // get state of user
-            FrostIdentities identities = Core.getInstance().getIdentities();
-            String testfrom = getFrom();
-            if( identities.isMySelf(testfrom)) {
+            if( getFromIdentity() == null ) {
+                logger.log(Level.SEVERE, "No identity for from found:"+getFrom());
+                return xOLD;
+            }
+            int state = getFromIdentity().getState();
+            if( state == FrostIdentities.NEUTRAL ) {
+                return xCHECK;
+            }
+            if( state == FrostIdentities.OBSERVE ) {
+                return xOBSERVE;
+            }
+            if( state == FrostIdentities.FRIEND ) {
                 return xGOOD;
             }
-            // TODO: make this synced so we don't need to lookup every time! this is very slow
-            if( identities.getFriends().containsKey(testfrom) ) {
-                return xGOOD;
-            } else if( identities.getNeutrals().containsKey(testfrom) ) {
-                return xCHECK;
-            } else if( identities.getObserved().containsKey(testfrom) ) {
-                return xOBSERVE;
-            } else if( identities.getEnemies().containsKey(testfrom) ) {
+            if( state == FrostIdentities.ENEMY ) {
                 return xBAD;
             }
         } else if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_OLD ) {
@@ -70,13 +86,13 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
     public String getMsgStatusString() {
         int status = getMsgStatus();
         if( status == xGOOD ) {
-            return "<html><b><font color=\"green\">GOOD</font></b></html>"; // dark green
+            return "GOOD"; // dark green
         } else if( status == xCHECK ) {
-            return "<html><b><font color=#FFCC00>CHECK</font></b></html>"; // yellow
+            return "CHECK"; // yellow
         } else if( status == xBAD ) {
-            return "<html><b><font color=\"red\">BAD</font></b></html>"; // red
+            return "BAD"; // red
         } else if( status == xOBSERVE ) {
-            return "<html><b><font color=\"#00D000\">OBSERVE</font></b></html>"; // a lighter green 
+            return "OBSERVE"; // a lighter green 
         } else if( status == xOLD ) {
             return "NONE";
         } else if( status == xTAMPERED ) {

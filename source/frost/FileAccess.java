@@ -18,17 +18,18 @@
 */
 
 package frost;
-import java.awt.Component;
+import java.awt.*;
 import java.io.*;
-import java.nio.channels.FileChannel;
+import java.nio.channels.*;
 import java.util.*;
 import java.util.logging.*;
 import java.util.zip.*;
 
-import javax.swing.JFileChooser;
+import javax.swing.*;
 
-import org.w3c.dom.Document;
+import org.w3c.dom.*;
 
+import frost.identities.*;
 import frost.messages.*;
 public class FileAccess
 {
@@ -609,19 +610,18 @@ public class FileAccess
             while (i.hasNext())
             {
                 SharedFileObject current = (SharedFileObject)i.next();
-				if (current.getOwner() != null
-						&& Core.getInstance().getIdentities().getEnemies().get(current.getOwner()) != null)
-							{
-								//Core.getOut().println("removing file from BAD user");
-								//FIXME: this has been happening too often.  Debug properly
-								i.remove();
-								continue;
-							}
-
+                if( current.getOwner() != null ) {
+                    Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
+                    if( id != null && id.getState() == FrostIdentities.ENEMY ) {
+                        //Core.getOut().println("removing file from BAD user");
+                        //FIXME: this has been happening too often.  Debug properly
+                        i.remove();
+                        continue;
+                    }
+                }
                 itemsAppended++;
             }
         }
-		
         
         if( itemsAppended == 0 )
         {

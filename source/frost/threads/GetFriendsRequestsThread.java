@@ -18,14 +18,14 @@
 */
 package frost.threads;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import frost.*;
-import frost.fcp.FcpRequest;
-import frost.identities.FrostIdentities;
-import frost.messages.SharedFileObject;
+import frost.fcp.*;
+import frost.identities.*;
+import frost.messages.*;
 
 /**
  * @author zlatinb
@@ -72,26 +72,23 @@ public class GetFriendsRequestsThread extends TimerTask {
 			//Core.getOut().println("helper analyzing index at " + current.getPath());
 			set.addAll(FileAccess.readKeyFile(current).getFiles());
 		}
-		logger.info("helper will traverse through " + set.size() + " files against " +
-					identities.getFriends().size() + " friends ");
+		logger.info("helper will traverse through " + set.size() + " files");
 		//get the prefixes of the good people
 		it = set.iterator();
 		while (it.hasNext()) {
 			SharedFileObject current = (SharedFileObject) it.next();
-			if (current.getOwner() == null)
+			if (current.getOwner() == null) {
 				continue; //do not request anonymous files
+            }
+            Identity id = identities.getIdentity(current.getOwner());
+            if( id == null ) {
+                continue;
+            }
 			//Core.getOut().println("current file's owner is "+current.getOwner() 
 			//		+ "and his safe name is "+ mixed.makeFilename(current.getOwner()));	
-			if (
-				current.getOwner().compareTo(identities.getMyId().getUniqueName()) != 0 //not me
-				&&
-			 		(
-						//Core.getFriends().Get(current.getOwner().substring(0,current.getOwner().indexOf("@"))) != null
-						identities.getFriends().containsKey(Mixed.makeFilename(current.getOwner()))
-//							|| //marked GOOD
-//						identities.getGoodIds().contains(current.getOwner())
-					) //marked to be helped
-			) {
+			if (current.getOwner().compareTo(identities.getMyId().getUniqueName()) != 0 && //not me
+				id.getState() == FrostIdentities.FRIEND ) //marked to be helped
+            {
 				String newPrefix = new String("KSK@frost/request/"
 					+ Core.frostSettings.getValue("messageBase")
 					+ "/"
@@ -99,7 +96,6 @@ public class GetFriendsRequestsThread extends TimerTask {
 					+ "-"
 					+ current.getBatch()); 
 				prefixes.add(newPrefix);
-			//	Core.getOut().println("helper adding "+ newPrefix);
 			}
 		}
 		

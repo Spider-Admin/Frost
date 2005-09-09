@@ -18,16 +18,16 @@
 */
 package frost.fileTransfer.search;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
 import frost.*;
-import frost.fileTransfer.download.DownloadModel;
-import frost.fileTransfer.upload.UploadModel;
-import frost.gui.objects.Board;
-import frost.identities.FrostIdentities;
-import frost.messages.SharedFileObject;
+import frost.fileTransfer.download.*;
+import frost.fileTransfer.upload.*;
+import frost.gui.objects.*;
+import frost.identities.*;
+import frost.messages.*;
 
 class SearchThread extends Thread {
 	private FrostIdentities identities;
@@ -201,9 +201,10 @@ class SearchThread extends Thread {
 				continue;
 			}
 			//check if file from someone bad
-			if (key.getOwner() != null
-				&& identities.getEnemies().get(key.getOwner()) != null
-				&& hideBad) {
+            Identity id = identities.getIdentity(key.getOwner());
+			if (id != null && 
+                id.getState() == FrostIdentities.ENEMY && 
+                hideBad) {
 				//Core.getOut().println("removing bad result");
 				it.remove();
 				continue;

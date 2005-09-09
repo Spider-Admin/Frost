@@ -36,6 +36,10 @@ public class BuddyList implements XMLizable {
 	public BuddyList() {
 		hashMap = new HashMap(100); //that sounds like a reasonable number
 	}
+    
+    void clearAll() {
+        hashMap.clear();
+    }
 
 	/**
 	 * adds a user to the list

@@ -46,8 +46,7 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
      * @param file  The xml file to read
      * @throws Exception  If the file could'nt be loaded
      */
-    FrostMessageObject(String filename) throws Exception
-    {
+    FrostMessageObject(String filename) throws Exception {
         this(new File(filename));
     }
     
@@ -67,11 +66,13 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
         String day = date.substring(point2+1, date.length());
         StringBuffer datetime = new StringBuffer(11);
         datetime.append(year).append(".");
-        if( month.length() == 1 )
+        if( month.length() == 1 ) {
             datetime.append("0");
+        }
         datetime.append(month).append(".");
-        if( day.length() == 1 )
+        if( day.length() == 1 ) {
             datetime.append("0");
+        }
         datetime.append(day);
         datetime.append(" ").append( time );
 
@@ -123,10 +124,8 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
     /* 
      * @see frost.gui.model.TableMember#getValueAt(int)
      */
-    public Object getValueAt(int column)
-    {
-        switch(column)
-        {
+    public Object getValueAt(int column) {
+        switch(column) {
             case 0: return getIndex();
             case 1: return getFrom();
             case 2: return getSubject();
@@ -136,9 +135,7 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
         }
     }
     
-    public String getDateAndTime()
-    {
+    public String getDateAndTime() {
         return this.dateAndTime;
     }
-
 }
