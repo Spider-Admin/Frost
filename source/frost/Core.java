@@ -526,13 +526,18 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return instance;
 	}
 
+    /**
+     * One time repair: finds all .sig files, reads the sig state from sig, loads
+     * message and sets the signature state into the xml.
+     * If message load failed .sig is removed (won't load either).
+     */
     private void convertSigIntoXml() {
         // get all .sig files in keypool
       ArrayList entries = FileAccess.getAllEntries( new File(frostSettings.getValue("keypool.dir")), ".sig");
       logger.info("convertSigIntoXml: Starting to convert "+entries.size()+" .sig files.");
 
-      for( int ii=0; ii<entries.size(); ii++ )
-      {
+      for( int ii=0; ii<entries.size(); ii++ ) {
+          
           File sigFile = (File)entries.get(ii);
           File msgFile = new File(sigFile.getPath().substring(0, sigFile.getPath().length() - 4)); // .xml.sig -> .xml
           if (msgFile.getName().equals("files.xml")) continue;
@@ -546,7 +551,7 @@ public class Core implements Savable, FrostEventDispatcher  {
               } else {
                   logger.log(Level.WARNING, "A message could not be created.", mce);
               }
-              // TODO: remove .sig
+              sigFile.delete();
               continue;
           }
           String oldStatus = FileAccess.readFile(sigFile);
