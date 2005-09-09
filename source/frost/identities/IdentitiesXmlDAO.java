@@ -97,11 +97,6 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		}
 		logger.info("Loaded " + friends.size() + " friends and " + enemies.size() + " enemies, "
 				+ neutrals.size() + " neutrals and "+observed.size()+" observed.");
-
-        // TODO: remove
-//		if (myId != null && friends.add(myId)) {
-//			logger.info("Added myself to the friends list");
-//		}
 	}
 	
 	/**
@@ -260,9 +255,6 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		Element rootElement = d.createElement("FrostIdentities");
 		//first save myself
 		rootElement.appendChild(identities.getMyId().getXMLElement(d));
-        
-        // myId is in friends list too, dont save it there
-        identities.getFriends().remove(identities.getMyId().getUniqueName());
         
 		//then friends
 		Element friends = identities.getFriends().getXMLElement(d);

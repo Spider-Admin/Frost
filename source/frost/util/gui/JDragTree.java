@@ -32,11 +32,11 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		 public CDropTargetListener()
 		 {
 			 _colorCueLine = new Color(
-										 SystemColor.controlShadow.getRed(),
-										 SystemColor.controlShadow.getGreen(),
-										 SystemColor.controlShadow.getBlue(),
-										 64
-									   );
+					 SystemColor.controlShadow.getRed(),
+					 SystemColor.controlShadow.getGreen(),
+					 SystemColor.controlShadow.getBlue(),
+					 64
+				   );
 
 			 // Set up a hover timer, so that a node will be automatically expanded or collapsed
 			 // if the user lingers on it for more than a short time
@@ -78,7 +78,8 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 		 */
 		 public void dragOver(DropTargetDragEvent e)
 		 {
-             if( e==null ) {
+             if( e==null || _raGhost == null || _ptLast == null || 
+                 _ptOffset == null || _imgGhost == null || _raCueLine == null ) {
                  return;
              }
 			 // Even if the mouse is not moving, this method is still invoked 10 times per second
@@ -96,7 +97,10 @@ public class JDragTree extends JTree implements DragGestureListener, DragSourceL
 			 _nLeftRight += nDeltaLeftRight;
 			 _ptLast = pt;
 			 Graphics2D g2 = (Graphics2D) getGraphics();
-
+             if( g2 == null ) {
+                 return;
+             }
+             
 			 // If a drag image is not supported by the platform, then draw my own drag image
 			 if (!DragSource.isDragImageSupported())
 			 {

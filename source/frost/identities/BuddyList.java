@@ -45,10 +45,15 @@ public class BuddyList implements XMLizable {
         String str = Mixed.makeFilename(user.getUniqueName());
 		if (containsKey(str)) {
 			return false;
-		} else {
-			hashMap.put(str, user);
-			return true;
 		}
+        // dont't store BoardAttachement with only pubKey=SSK@...
+        if( Identity.isForbiddenBoardAttachment(user.getBoard())) {
+            user.clearBoard(); // delete SKK pubKey board
+        }
+
+		hashMap.put(str, user);
+        
+		return true;
 	}
 
 	/**
@@ -100,7 +105,7 @@ public class BuddyList implements XMLizable {
 	 * @param key
 	 * @return
 	 */
-	public Object remove(String key) {
+	protected Object remove(String key) {
 		return hashMap.remove(Mixed.makeFilename(key));
 	}
 	

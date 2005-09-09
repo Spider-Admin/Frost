@@ -18,12 +18,11 @@
 */
 package frost.identities;
 
-
 import java.util.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 import frost.*;
 import frost.messages.*;
@@ -31,8 +30,8 @@ import frost.messages.*;
 /**
  * Represents a user identity, should be immutable.
  */
-public class Identity implements SafeXMLizable
-{
+public class Identity implements SafeXMLizable {
+
     private String name;
     private String uniqueName;
     protected String key;
@@ -56,7 +55,6 @@ public class Identity implements SafeXMLizable
 		}
 	}
 
-
 	public Element getXMLElement(Document doc)  {
 		Element el = getSafeXMLElement(doc);
 		
@@ -74,7 +72,7 @@ public class Identity implements SafeXMLizable
 
         // last seen timestamp
         if( getLastSeenTimestamp() > 0 ) {
-            element = doc.createElement("lastSeenTimestamp");
+            element = doc.createElement("lastSeen");
             text = doc.createTextNode(""+getLastSeenTimestamp());
             element.appendChild(text);
             el.appendChild(element);
@@ -141,7 +139,7 @@ public class Identity implements SafeXMLizable
 			logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
 		}
 
-        String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeenTimestamp");
+        String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeen");
         if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
             lastSeenTimestamp = Long.parseLong(_lastSeenStr);
         } else {
@@ -158,6 +156,7 @@ public class Identity implements SafeXMLizable
 				logger.log(Level.SEVERE, "Exception thrown in loadXMLElement(Element e)", ex);
 				board =null;
 			}	
+            
         } else {
             board = null;
         }
@@ -185,45 +184,40 @@ public class Identity implements SafeXMLizable
     /**
      * we use this constructor whenever we have all the info
      */
-    public Identity(String name, String key)
-    {
+    public Identity(String name, String key) {
         this.key = key;
-     	this.name = name;
-     	if (name.indexOf("@")!=-1)
-     		this.uniqueName = name;
-     	else 
-     		setName(name);
+        this.name = name;
+        if( name.indexOf("@") != -1 )
+            this.uniqueName = name;
+        else
+            setName(name);
     }
 
-    private void setName(String nam)
-    {
+    private void setName(String nam) {
         this.name = nam;
-//        if( getKey().equals( NA ) )
-//            this.uniqueName = nam;
-//        else
-        this.uniqueName = nam + "@" + Core.getCrypto().digest( getKey() );
+        // if( getKey().equals( NA ) )
+        // this.uniqueName = nam;
+        // else
+        this.uniqueName = nam + "@" + Core.getCrypto().digest(getKey());
     }
 
-    //obvious stuff
-    public String getName()
-    {
+    // obvious stuff
+    public String getName() {
         return name;
     }
-    
-    public String getKey()
-    {
+
+    public String getKey() {
         return key;
     }
-    public String getStrippedName()
-    {
-        return new String(name.substring(0,name.indexOf("@")));
+
+    public String getStrippedName() {
+        return new String(name.substring(0, name.indexOf("@")));
     }
 
-
-    public String getUniqueName()
-    {
+    public String getUniqueName() {
         return Mixed.makeFilename(uniqueName);
     }
+    
 	/**
 	 * @return list of identities this identity trusts
 	 */
@@ -239,10 +233,31 @@ public class Identity implements SafeXMLizable
 		return board;
 	}
     
-    public void setBoard(BoardAttachment b) {
+    public void setBoard(BoardAttachment ba) {
         if( board == null ) {
-            board = b;
+            // dont't store BoardAttachement with only pubKey=SSK@...
+            if( isForbiddenBoardAttachment(ba) ) {
+                return; // delete SKK pubKey board
+            } else {
+                board = ba;
+            }
         }
+    }
+    
+    // dont't store BoardAttachement with pubKey=SSK@...
+    public static boolean isForbiddenBoardAttachment(BoardAttachment ba) {
+        if( ba != null && 
+            ba.getBoardObj().getPublicKey() != null &&
+            ba.getBoardObj().getPublicKey().startsWith("SSK@") )
+        {
+            return true; // let delete SKK pubKey board
+        } else {
+            return false;
+        }
+    }
+    
+    public void clearBoard() {
+        board = null;
     }
 
     public long getLastSeenTimestamp() {

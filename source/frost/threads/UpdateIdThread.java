@@ -430,7 +430,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 							boolean valid = Core.getCrypto().detachedVerify(zippedXml, _pubkey, md.getSig());
 
 							if (valid == false) {
-								logger.warning("Invalid sign for index file from " + _owner);
+								logger.warning("Invalid signature for index file from " + _owner);
 								unzippedTarget.delete();
 								target.delete();
 								index = findFreeDownloadIndex();

@@ -25,6 +25,8 @@ import javax.swing.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.gui.model.*;
+import frost.gui.objects.*;
 import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
@@ -102,10 +104,6 @@ public class FrostIdentities implements Savable {
 			} catch (Exception e) {
 				logger.severe("couldn't create new identitiy" + e.toString());
 			}
-            // TODO: remove
-//			if (friends.add(mySelf)) {
-//				logger.info("added myself to list");
-//			}
 			settings.setValue("userName", mySelf.getUniqueName());
 		} else {
 			//Storage exists. Load from it.
@@ -113,7 +111,7 @@ public class FrostIdentities implements Savable {
 			logger.info("ME = '" + mySelf.getUniqueName() + "'");
             // if not already generated...
             if( mySelf.getBoard() == null && freenetIsOnline ) {
-                mySelf.generateOwnBoard();
+                // mySelf.generateOwnBoard(); // TODO: let generate correct keys
             }
 		}
 	}
@@ -160,6 +158,7 @@ public class FrostIdentities implements Savable {
         // test and fix: 
         //  - if someone is ( (GOOD or BAD) AND NEUTRAL) set it to GOOD or BAD
         //  - if someone is (GOOD AND BAD AND NEUTRAL) put it to GOOD
+        
         HashSet allFroms = new HashSet();
         Set s = getFriends().getAllKeys();
         allFroms.addAll(s);
@@ -199,8 +198,7 @@ public class FrostIdentities implements Savable {
         from = Mixed.makeFilename(from);
         
         Identity newIdentity;
-        // TODO: dont reload table after change!
-        // problem: if we changed someone to bad we should reload all new messages for all folders!
+        
         String newStateStr;
         if( newState == FrostIdentities.FRIEND ) {
             newStateStr = "GOOD";
@@ -244,14 +242,36 @@ public class FrostIdentities implements Savable {
             // set to observed
             getObserved().add( newIdentity );
         }
+        
+        // walk through shown messages and remove unneeded (e.g. if hideBad)
+        // remember selected msg and select next
+        Board board = MainFrame.getInstance().getTofTreeModel().getSelectedNode();
+        if( board == null || board.isFolder() ) {
+            return;
+        }
+        // a board is selected and shown
+        MessageTableModel msgTableModel = MainFrame.getInstance().getMessageTableModel();
+        for(int x=msgTableModel.getRowCount() - 1; x >= 0; x--) {
+            FrostMessageObject message = (FrostMessageObject)msgTableModel.getRow(x);
+
+            if( TOF.getInstance().blocked(message,board) ) {
+                msgTableModel.deleteRow(message);
+                if( message.isMessageNew() ) {
+                    board.decNewMessageCount();
+                }
+            } else {
+                msgTableModel.updateRow(message);
+            }
+        }
+        MainFrame.getInstance().updateMessageCountLabels(board);
 
         // finally step through all board files, count new messages and show only wanted messages
         TOF.getInstance().initialSearchNewMessages(); // starts a separate thread
 
-        SwingUtilities.invokeLater(new Runnable() {
-            public void run() {
-                MainFrame.getInstance().tofTree_actionPerformed(null);
-            } });
+//        SwingUtilities.invokeLater(new Runnable() {
+//            public void run() {
+//                MainFrame.getInstance().tofTree_actionPerformed(null);
+//            } });
     }
     
     public boolean isMySelf(String uniqueName) {
