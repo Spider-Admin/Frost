@@ -470,10 +470,8 @@ public class MessageDownloadThread
                     // add new message or notify of arrival
                     TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
                 } else {
-                    logger.info("TOFDN: received message from the past, not displayed due to max message days to display:"+
+                    logger.log(Level.SEVERE, "TOFDN: received message from the past, not displayed due to max message days to display:"+
                             testMe.getPath());
-                    // TODO: REMOVE ME, DEBUG!
-                    System.out.println("OLD MSG:"+testMe.getPath());
                 }
                 // add all files indexed files
                 // TODO: also for BAD users here? 
