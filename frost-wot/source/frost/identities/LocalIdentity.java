@@ -32,22 +32,20 @@ import frost.messages.BoardAttachment;
 /**
  * Represents the main user's identity
  */
-public class LocalIdentity extends Identity
-{
+public class LocalIdentity extends Identity {
+
     private String privKey;
     
 	private static Logger logger = Logger.getLogger(LocalIdentity.class.getName());
 
 	public Element getXMLElement(Document doc) {
-	
 		//have to copy all children, no Element.rename()unfortunately
 		Element el = super.getXMLElement(doc);
 		Element el2 = doc.createElement("MyIdentity");
 		NodeList list = el.getChildNodes();
-		while(list.getLength()>0)
-			el2.appendChild(list.item(0));
-		
-		
+		while(list.getLength() > 0) {
+			el2.appendChild(list.item(0)); // removes Node from el
+        }
 		Element element = doc.createElement("privKey");
 		CDATASection cdata = doc.createCDATASection(privKey);
 		element.appendChild(cdata);
@@ -62,16 +60,19 @@ public class LocalIdentity extends Identity
 		Element el = super.getSafeXMLElement(doc);
 		Element el2 = doc.createElement("MyIdentity");
 		NodeList list = el.getChildNodes();
-		while (list.getLength()>0)
-			el2.appendChild(list.item(0));
+		while (list.getLength() > 0) {
+			el2.appendChild(list.item(0)); // removes Node from el
+        }
 		return el2;	
-		
 	}
-	
 
 	public void loadXMLElement(Element el) throws SAXException {
 		super.loadXMLElement(el);
 		privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
+        // remove old SSK pub board
+        if( Identity.isForbiddenBoardAttachment(getBoard()) ) {
+            clearBoard();
+        }
 	}
 
     /**
@@ -91,43 +92,28 @@ public class LocalIdentity extends Identity
 	 */
 	public LocalIdentity(String name) {
 		this(name, Core.getCrypto().generateKeys());
-        
-        generateOwnBoard();
-
-//		FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-//		if (connection == null) {
-//			this.key = NA;
-//			return;
-//		}
-//        // generate own board keys
-//		try {
-//			String[] svk = connection.getKeyPair();
-//			board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
-//
-//		} catch (IOException ex) {
-//			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
-//			board = null;
-//		}
+        // generateOwnBoard();
+        // TODO: generate other than SSK
 	}
     
-    void generateOwnBoard() {
-        if( board == null ) {
-            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-            if (connection == null) {
-//                this.key = NA;
-                return;
-            }
-            // generate own board keys
-            try {
-                String[] svk = connection.getKeyPair();
-                board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
-
-            } catch (IOException ex) {
-                logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
-                board = null;
-            }
-        }
-    }
+//    void generateOwnBoard() {
+//        if( board == null ) {
+//            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+//            if (connection == null) {
+//                return;
+//            }
+//            // generate own board keys
+//            try {
+//                // TODO: change!
+//                String[] svk = connection.getKeyPair();
+//                board = new BoardAttachment(new Board(getUniqueName(), svk[1], svk[0], null));
+//
+//            } catch (IOException ex) {
+//                logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
+//                board = null;
+//            }
+//        }
+//    }
 
     public String getPrivKey() {
         return privKey;

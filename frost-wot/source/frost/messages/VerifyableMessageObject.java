@@ -40,12 +40,13 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 
     public int getMsgStatus() {
         if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_VERIFIED ) {
-            // get state of user (GOOD/CHECK/BAD)
+            // get state of user
             FrostIdentities identities = Core.getInstance().getIdentities();
             String testfrom = getFrom();
             if( identities.isMySelf(testfrom)) {
                 return xGOOD;
             }
+            // TODO: make this synced so we don't need to lookup every time! this is very slow
             if( identities.getFriends().containsKey(testfrom) ) {
                 return xGOOD;
             } else if( identities.getNeutrals().containsKey(testfrom) ) {

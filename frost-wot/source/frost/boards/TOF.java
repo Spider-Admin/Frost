@@ -493,23 +493,24 @@ public class TOF
 	 */
 	public boolean blocked(VerifyableMessageObject message, Board board) {
 
+        int msgStatus = message.getMsgStatus();
 		if (board.getShowSignedOnly()
-			&& (message.getMsgStatus() == VerifyableMessageObject.xOLD || 
-                message.getMsgStatus() == VerifyableMessageObject.xTAMPERED) )
+			&& (msgStatus == VerifyableMessageObject.xOLD || 
+                msgStatus == VerifyableMessageObject.xTAMPERED) )
         {
 			return true;
         }
-		if (board.getHideBad() && (message.getMsgStatus() == VerifyableMessageObject.xBAD)) {
+		if (board.getHideBad() && (msgStatus == VerifyableMessageObject.xBAD)) {
 			return true;
         }
-		if (board.getHideCheck() && (message.getMsgStatus() == VerifyableMessageObject.xCHECK)) {
+		if (board.getHideCheck() && (msgStatus == VerifyableMessageObject.xCHECK)) {
 			return true;
         }
-		if (board.getHideObserve() && (message.getMsgStatus() == VerifyableMessageObject.xOBSERVE)) {
+		if (board.getHideObserve() && (msgStatus == VerifyableMessageObject.xOBSERVE)) {
 			return true;
         }
 		//If the message is not signed and contains a @ character in the from field, we block it.
-		if (message.getMsgStatus() == VerifyableMessageObject.xOLD && message.getFrom().indexOf('@') != -1) {
+		if (msgStatus == VerifyableMessageObject.xOLD && message.getFrom().indexOf('@') > -1) {
 			return true;
 		}
 

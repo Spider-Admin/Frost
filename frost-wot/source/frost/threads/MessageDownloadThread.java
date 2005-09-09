@@ -345,6 +345,7 @@ public class MessageDownloadThread
                 // only for correct owner (no faking allowed here)
                 if( sigIsValid ) {
                     // check if we already have owners board
+                    // TODO: remove old useless SSK keys (pubKey in BoardAttachment is SSK)
                     if( owner.getBoard() == null && metaData.getPerson().getBoard() != null ) {
                         owner.setBoard(metaData.getPerson().getBoard());
                     }
