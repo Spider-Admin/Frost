@@ -849,7 +849,7 @@ public class MessageFrame extends JFrame
 		String newSubject,
 		String newText,
 		boolean isReply,
-        String recipient) { // if given compose encrypted reply
+        Identity recipient) { // if given compose encrypted reply
 			
 		headerArea.setEnabled(false);	
 		board = newBoard;
@@ -890,7 +890,7 @@ public class MessageFrame extends JFrame
 		}
 
         // maybe prepare to reply to an encrypted message
-        if( recipient != null && recipient.length() > 0 ) {
+        if( recipient != null ) {
             sign.setSelected(true);
             encrypt.setSelected(true);
             buddies.removeAllItems();
@@ -939,7 +939,7 @@ public class MessageFrame extends JFrame
 	}
 
     public void composeEncryptedReply(Board newBoard, String newFrom, String newSubject, String newText,
-            String recipient) {
+            Identity recipient) {
         composeMessage(newBoard, newFrom, newSubject, newText, true, recipient);
     }
 
