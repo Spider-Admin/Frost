@@ -594,19 +594,17 @@ public class Core implements Savable, FrostEventDispatcher  {
 		//Initializes storage
 		DAOFactory.initialize(frostSettings);
 
+        // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
+        Startup.startupCheck(frostSettings, keypool);
+        FileAccess.cleanKeypool(keypool);
+        
 		splashscreen.setText(language.getString("Hypercube fluctuating!"));
-		splashscreen.setProgress(50);
+		splashscreen.setProgress(40);
 
 		if (!initializeConnectivity()) {
 			System.exit(1);
 		}
 
-		// CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
-		Startup.startupCheck(frostSettings, keypool);
-		FileAccess.cleanKeypool(keypool);
-
-		getIdentities().initialize(freenetIsOnline);
-		
         // TODO: one time convert, remove later (added: 2005-09-02)
         if( frostSettings.getBoolValue("oneTimeUpdate.convertSigs.didRun") == false ) {
             splashscreen.setText("Convert from old format");
@@ -626,9 +624,8 @@ public class Core implements Savable, FrostEventDispatcher  {
 //          public static final String OLD      = "NONE";
 //          public static final String TAMPERED = "FAKE :(";
 
-            //
             String txt = "<html>Frost must now convert the messages, and this could take some time.<br>"+
-                         "Afterwards the .sig files are not longer needed and will be deleted.<br>"+
+                         "Afterwards the .sig files are not longer needed and will be deleted.<br><br>"+
                          "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
                          "<br><br>Do you want to start the conversion NOW press yes.</html>";
             int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start convert process",  
@@ -645,6 +642,8 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         splashscreen.setText(language.getString("Sending IP address to NSA"));
         splashscreen.setProgress(60);
+
+        getIdentities().initialize(freenetIsOnline);
 
 		//Main frame		
 		mainFrame = new MainFrame(frostSettings);
@@ -674,6 +673,13 @@ public class Core implements Savable, FrostEventDispatcher  {
 
 		initializeTasks(mainFrame);
 
+        // Display the tray icon
+        if (frostSettings.getBoolValue("showSystrayIcon") == true) {
+            if (JSysTrayIcon.createInstance(0, "Frost", "Frost") == false) {
+                logger.severe("Could not create systray icon.");
+            }
+        }
+
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				mainFrame.setVisible(true);	
@@ -681,13 +687,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		});
 
 		splashscreen.closeMe();
-
-		// Display the tray icon
-		if (frostSettings.getBoolValue("showSystrayIcon") == true) {
-			if (JSysTrayIcon.createInstance(0, "Frost", "Frost") == false) {
-				logger.severe("Could not create systray icon.");
-			}
-		}
 	}
 
 	/**
