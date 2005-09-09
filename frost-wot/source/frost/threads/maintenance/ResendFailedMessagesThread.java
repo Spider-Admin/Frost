@@ -82,7 +82,7 @@ public class ResendFailedMessagesThread extends Thread
                     // no more faking here :)
                     Identity recipient = null;
                     if( mo.getRecipient() != null && mo.getRecipient().length() > 0) {
-                        recipient = Core.getInstance().getIdentities().getFriends().get(mo.getRecipient());
+                        recipient = Core.getInstance().getIdentities().getIdentity(mo.getRecipient());
                         if( recipient == null ) {
                             logger.warning("Can't resend Message '" + mo.getSubject() + "', the recipient is not longer in your identites file!");
                             continue;

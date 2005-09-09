@@ -579,12 +579,6 @@ public class MessageObject implements XMLizable
           return false;
       }
       return this.messageIsNew.booleanValue();
-//      File newMessage = new File(getFile().getPath() + ".lck");
-//      if (newMessage.isFile()) {
-//          return true;
-//      } else {
-//          return false;
-//      }
   }
   
   public void setMessageNew(boolean newMsg) {
@@ -605,5 +599,4 @@ public class MessageObject implements XMLizable
       }
       new Thread( ioworker ).start(); // do IO in another thread, not here in Swing thread
   }
-    
 }

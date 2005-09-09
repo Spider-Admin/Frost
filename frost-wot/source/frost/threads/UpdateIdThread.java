@@ -436,14 +436,26 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 								index = findFreeDownloadIndex();
 								continue;
 							}
-
+                            
 							//check if we have the owner already on the lists
 							if (identities.isMySelf(_owner)) {
 								logger.info("Received index file from myself");
 								sharer = identities.getMyId();
 							} else {
-								String message = "Received index file from " + _owner;
-                                if (identities.getEnemies().containsKey(_owner)) {
+                                logger.info("Received index file from " + _owner);
+                                sharer = identities.getIdentity(_owner);
+                                
+                                if( sharer == null ) {
+                                    // a new sharer, put to neutral list
+                                    sharer = addNewSharer(_owner, _pubkey);
+                                    if (sharer == null) { // digest did not match, block file
+                                        logger.info("sharer was null... :(");
+                                        unzippedTarget.delete();
+                                        target.delete();
+                                        index = findFreeDownloadIndex();
+                                        continue;
+                                    }
+                                } else if (sharer.getState() == FrostIdentities.ENEMY ) {
                                     if (MainFrame.frostSettings.getBoolValue("hideBadFiles")) {
                                         logger.info("Skipped index file from BAD user " + _owner);
                                         target.delete();
@@ -451,32 +463,9 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                         index = findFreeDownloadIndex();
                                         continue;
                                     }
-                                    //we may chose not to block files from bad people
-                                    sharer = identities.getEnemies().get(_owner);
-                                    logger.info(message + ", an enemy");
-                                } else if( (sharer=identities.getIdentityFromAnyList(_owner)) == null ) {
-                                    // a new sharer, put to neutral list
-                                    logger.info(message + ", a new contact");
-                                    sharer = addNewSharer(_owner, _pubkey);
-                                    if (sharer == null) // digest did not match, block file
-                                    {
-                                        logger.info("sharer was null... :(");
-                                        unzippedTarget.delete();
-                                        target.delete();
-                                        index = findFreeDownloadIndex();
-                                        continue;
-                                    }
-                                }
-                                // sharer should be set now
-                                if( sharer == null ) {
-                                    unzippedTarget.delete();
-                                    target.delete();
-                                    index = findFreeDownloadIndex();
-                                    continue;
                                 }
                                 // update lastSeen for sharer Identity
                                 sharer.updateLastSeenTimestamp();
-                                
 							}
 						} // end-of: if metadata != null
 						else if (MainFrame.frostSettings.getBoolValue("hideAnonFiles")) {
@@ -491,7 +480,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						//unzippedTarget.renameTo(target);
 
 						//if the user is not on the GOOD list..
-						if (sharer == null || identities.getFriends().containsKey(sharer.getUniqueName()) == false) {
+						if (sharer == null || sharer.getState() != FrostIdentities.FRIEND ) {
 							// add only files from that user     
 							String _sharer = sharer == null ? "Anonymous" : sharer.getUniqueName();
 							logger.info("adding only files from " + _sharer);
@@ -575,7 +564,8 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         Identity sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
 
         //add him to the neutral list (if not already on any list)
-        identities.getNeutrals().add(sharer);
+        sharer.setState(FrostIdentities.NEUTRAL);
+        identities.addIdentity(sharer);
 
         return sharer;
     }
