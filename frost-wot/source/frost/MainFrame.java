@@ -633,8 +633,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     setBadItem.setEnabled(false);
 
                     if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
-                        //fscking html on all these..
-                        if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
+                        if( identities.isMySelf(selectedMessage.getFrom()) ) {
+                            // keep all off
+                        } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xGOOD) {
                             setObserveItem.setEnabled(true);
                             setCheckItem.setEnabled(true);
                             setBadItem.setEnabled(true);
@@ -1264,7 +1265,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     replyButton.setEnabled(true);
                 }
 
-                if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
+                if( identities.isMySelf(selectedMessage.getFrom()) ) {
+                    setGoodButton.setEnabled(false);
+                    setCheckButton.setEnabled(false);
+                    setBadButton.setEnabled(false);
+                    setObserveButton.setEnabled(false);
+                } else if (selectedMessage.getMsgStatus() == VerifyableMessageObject.xCHECK) {
                     setCheckButton.setEnabled(false);
                     setGoodButton.setEnabled(true);
                     setBadButton.setEnabled(true);
@@ -1307,8 +1313,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
             } else {
                 // no msg selected
-                messageTextArea.setText(
-                        language.getString("Select a message to view its content."));
+                messageTextArea.setText(language.getString("Select a message to view its content."));
                 replyButton.setEnabled(false);
                 saveMessageButton.setEnabled(false);
 //              downloadAttachmentsButton.setEnabled(false);
