@@ -30,7 +30,22 @@ And of course this can be combined with other requests also, for example:
 The order of these commands does not matter.
 
 
-It is also possible to search through all boards. Just activate the most right switch in the search tab (it is activated by default).
+It is also possible to search through all boards.
+Just activate the most right switch in the search tab (it is activated by default).
+
+
+##############
+# Shortkeys: #
+##############
+
+In message table:
+------------------
+
+- 'n' selects next new message in Board
+- 'g' changes sender of the selected message to state GOOD
+- 'o' changes sender of the selected message to state OBSERVE
+- 'c' changes sender of the selected message to state CHECK
+- 'b' changes sender of the selected message to state BAD
 
 
 ########################
