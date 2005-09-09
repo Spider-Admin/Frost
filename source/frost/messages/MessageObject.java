@@ -80,15 +80,15 @@ public class MessageObject implements XMLizable
         this();
         if (file == null) {
         	throw new MessageCreationException(
-        					"Invalid input file received for MessageObject. Its value is null.");
+        					"Invalid input file for MessageObject. Its value is null.");
         } else if (!file.exists()) {
         	throw new MessageCreationException(
-        					"Invalid input file '" + file.getName() + "' received for MessageObject. It doesn't exist.");
+        					"Invalid input file '" + file.getName() + "' for MessageObject. It doesn't exist.");
         } else if (file.length() < 20) { // prolog+needed tags are always > 20, but we need to filter 
         								 // out the messages containing "Empty", "Invalid", "Double", "Broken"
                                          // (encrypted for someone else OR completely invalid)
         	throw new MessageCreationException(
-        					"Invalid/Double/Broken input file '" + file.getName() + "' received for MessageObject.", true);
+        					"Info only: Empty input file '" + file.getName() + "' for MessageObject (size < 20).", true);
         }
         this.file = file;
         try {
@@ -97,7 +97,7 @@ public class MessageObject implements XMLizable
         	analyzeFile();
         } catch (Exception exception) {
         	throw new MessageCreationException(
-        					"Invalid input file '" + file.getName() + "' received for MessageObject.", exception);
+        					"Invalid input file '" + file.getName() + "' for MessageObject (load/analyze failed).", exception);
         }
     }
 

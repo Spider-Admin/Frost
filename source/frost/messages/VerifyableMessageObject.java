@@ -56,7 +56,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
         if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_VERIFIED ) {
             // get state of user
             if( getFromIdentity() == null ) {
-                logger.log(Level.SEVERE, "No identity for from found:"+getFrom());
+                logger.log(Level.SEVERE, "No identity for from found: "+getFrom());
                 return xOLD;
             }
             int state = getFromIdentity().getState();

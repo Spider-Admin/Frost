@@ -163,9 +163,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		} catch (Exception exception) {
 			logger.log(
 				Level.SEVERE,
-				"Exception while loading the local file in checkLocalMessage()",
-				exception);
-			return false; //We assume that the local message is different (it may be corrupted)
+				"Exception while loading the local file in checkLocalMessage(): "+exception.toString());
+			return false; // We assume that the local message is different (it may be corrupted)
 		}
 	}
 
