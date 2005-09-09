@@ -118,5 +118,9 @@ public class LocalIdentity extends Identity {
     public String getPrivKey() {
         return privKey;
     }
+    
+    public int getState() {
+        return FrostIdentities.FRIEND;
+    }
 }
 
