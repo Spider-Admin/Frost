@@ -607,9 +607,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 
 		getIdentities().initialize(freenetIsOnline);
 		
-		splashscreen.setText(language.getString("Sending IP address to NSA"));
-		splashscreen.setProgress(60);
-        
         // TODO: one time convert, remove later (added: 2005-09-02)
         if( frostSettings.getBoolValue("oneTimeUpdate.convertSigs.didRun") == false ) {
             splashscreen.setText("Convert from old format");
@@ -630,28 +627,35 @@ public class Core implements Savable, FrostEventDispatcher  {
 //          public static final String TAMPERED = "FAKE :(";
 
             //
-            String txt = "<html>Frost must now convert your existing messages.<br>"+
-                         "The .sig files are not longer needed and will be deleted<br>"+
-                         "after successful converting them into the xml file.<br>"+
-                         "<br>Please be patient...</html>";
-            JOptionPane.showMessageDialog(splashscreen, txt, "About to start convert process",  
-                    JOptionPane.INFORMATION_MESSAGE);
+            String txt = "<html>Frost must now convert the messages, and this could take some time.<br>"+
+                         "Afterwards the .sig files are not longer needed and will be deleted.<br>"+
+                         "<b>BACKUP YOUR FROST DIRECTORY BEFORE STARTING!</b><br>"+
+                         "<br><br>Do you want to start the conversion NOW press yes.</html>";
+            int answer = JOptionPane.showConfirmDialog(splashscreen, txt, "About to start convert process",  
+                          JOptionPane.INFORMATION_MESSAGE, JOptionPane.YES_NO_OPTION);
+            
+            if( answer != JOptionPane.YES_OPTION ) {
+                System.exit(1);
+            }
             
             convertSigIntoXml();
             
             frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
         }
+
         splashscreen.setText(language.getString("Sending IP address to NSA"));
+        splashscreen.setProgress(60);
 
 		//Main frame		
 		mainFrame = new MainFrame(frostSettings);
 		getMessagingManager().initialize();
 		getBoardsManager().initialize();
 		getFileTransferManager().initialize();
-		mainFrame.initialize();
 
 		splashscreen.setText(language.getString("Wasting more time"));
 		splashscreen.setProgress(70);
+
+        mainFrame.initialize();
 
 		//load vital data
 		loadBatches();
@@ -664,11 +668,11 @@ public class Core implements Savable, FrostEventDispatcher  {
 
 		//TODO: check if email notification is on and instantiate the emailNotifier
 		//of course it needs to be added as a setting first ;-p
-		
-		initializeTasks(mainFrame);
 
-		splashscreen.setText(language.getString("Reaching ridiculous speed..."));
-		splashscreen.setProgress(80);
+        splashscreen.setText(language.getString("Reaching ridiculous speed..."));
+        splashscreen.setProgress(80);
+
+		initializeTasks(mainFrame);
 
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
