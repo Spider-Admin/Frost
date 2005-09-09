@@ -277,4 +277,8 @@ public class Identity implements SafeXMLizable {
     public void setState(int newstate) {
         state = newstate;
     }
+    
+    public String toString() {
+        return getUniqueName();
+    }
 }
