@@ -1455,9 +1455,20 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
             MessageFrame newMessageFrame = new MessageFrame(settings, parentFrame, identities.getMyId());
             newMessageFrame.setTofTree(tofTree);
-            if( origMessage.getRecipient() != null && origMessage.getRecipient().length() > 0 ) {
-                newMessageFrame.composeEncryptedReply(tofTreeModel.getSelectedNode(), identities.getMyId().getUniqueName(),
-                        subject, messageTextArea.getText(), origMessage.getFrom());
+            if( origMessage.getRecipient() != null && 
+                origMessage.getRecipient().equals( identities.getMyId().getUniqueName() ) ) 
+            {
+                // this message was for me, reply encrypted
+                if( origMessage.getFromIdentity() == null ) {
+                    JOptionPane.showMessageDialog( this,
+                            "Can't encrypt, recipients public key is missing!",
+                            "ERROR",
+                            JOptionPane.ERROR);
+                    return;                               
+                }
+                newMessageFrame.composeEncryptedReply(tofTreeModel.getSelectedNode(), 
+                        identities.getMyId().getUniqueName(),
+                        subject, messageTextArea.getText(), origMessage.getFromIdentity());
 
             } else {
                 newMessageFrame.composeReply(tofTreeModel.getSelectedNode(), settings.getValue("userName"),
