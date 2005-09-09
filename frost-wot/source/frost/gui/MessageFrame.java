@@ -137,19 +137,13 @@ public class MessageFrame extends JFrame
         }
     }
     
-    /**
-     * 
-     */
-    class BuddyComparator implements Comparator
-    {
+    class BuddyComparator implements Comparator {
         /** 
          * compare buddies in lowercase
-         * @see java.util.Comparator#compare(java.lang.Object, java.lang.Object)
          */
-        public int compare(Object o1, Object o2)
-        {
-            String s1 = (String)o1;
-            String s2 = (String)o2;
+        public int compare(Object o1, Object o2) {
+            String s1 = o1.toString();
+            String s2 = o2.toString();
             return s1.toLowerCase().compareTo( s2.toLowerCase() );
         }
     }
@@ -994,10 +988,10 @@ public class MessageFrame extends JFrame
 
             List budList = Core.getInstance().getIdentities().getAllIdentitiesWithState(FrostIdentities.FRIEND);
             Vector budVec = new Vector(budList);
-            if( budList.size() > 0 ) {
+            if( budVec.size() > 0 ) {
                 Collections.sort( budVec, new BuddyComparator() );
                 buddies = new JComboBox(budVec);
-                buddies.setSelectedItem(budList.get(0));
+                buddies.setSelectedItem(budVec.get(0));
             } else {
                 buddies = new JComboBox();
             }
@@ -1243,21 +1237,13 @@ public class MessageFrame extends JFrame
         }
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
-     */
-    protected void processWindowEvent(WindowEvent e)
-    {
-        if( e.getID() == WindowEvent.WINDOW_CLOSING )
-        {
+    protected void processWindowEvent(WindowEvent e) {
+        if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
             dispose();
         }
         super.processWindowEvent(e);
     }
     
-    /**
-	 * 
-	 */
 	private void refreshLanguage() {
 		setTitle(language.getString("Create message"));
 		
@@ -1374,16 +1360,15 @@ public class MessageFrame extends JFrame
 
         Identity recipient = null;
         if( encrypt.isEnabled() && encrypt.isSelected() ) {
-            String rec = (String)buddies.getSelectedItem();
-            mo.setRecipient(rec);
-            recipient = Core.getInstance().getIdentities().getIdentity(rec);
+            recipient = (Identity)buddies.getSelectedItem();
             if( recipient == null ) {
                 JOptionPane.showMessageDialog( this,
-                        "Can't encrypt, Choosed recipient is not longer in identities list!",
+                        "Can't encrypt, no recipient choosed!",
                         "ERROR",
                         JOptionPane.ERROR);
                 return;                               
             }
+            mo.setRecipient(recipient.getUniqueName());
         }
         // start upload thread which also saves the file, uploads attachments and signs if choosed
         tofTree.getRunningBoardUpdateThreads().startMessageUpload(
@@ -1450,9 +1435,6 @@ public class MessageFrame extends JFrame
         }
     }
 
-	/**
-	 * 
-	 */
 	private void updateHeaderArea() {
 		headerArea.setEnabled(false);
 		String sender = fromTextField.getText();
