@@ -359,6 +359,10 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 // first encrypt, then sign
                 
                 byte[] encData = Core.getCrypto().encrypt(zipped, encryptForRecipient.getKey());
+                if( encData == null ) {
+                    logger.severe("Error: could not encrypt the message, please report to a dev!");
+                    return false;
+                }
                 zipFile.delete();
                 FileAccess.writeFile(encData, zipFile); // write encrypted zip file
                 

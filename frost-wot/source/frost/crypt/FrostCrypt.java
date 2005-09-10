@@ -372,48 +372,53 @@ public final class FrostCrypt implements Crypt {
 //	}
 
     public synchronized byte[] encrypt(byte[] what, String key) {
-        
-      StringTokenizer keycutter = new StringTokenizer(key, ":");
-      BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
-      BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
-      RSAEngine rsa = new RSAEngine();
-      rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
-      //d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
-      int size = rsa.getInputBlockSize();
-      //frost.Core.getOut().println("input block size "+size);
-      int outSize = rsa.getOutputBlockSize();
-      //frost.Core.getOut().println("output block size " + outSize);
 
-      //put the message in the encryptor
-
-      //determine how many blocks we need
-      int noRuns = what.length / size;
-      if (what.length % size != 0) {
-          noRuns++;
-      }
-      byte[] encrypted = new byte[noRuns * 128];
-      byte[] str = new byte[noRuns * size];
-      System.arraycopy(what, 0, str, 0, what.length);
-
-      //insert them in the cipher, block at a time
-
-      for (int i = 0; i < noRuns; i++) {
-          System.arraycopy(
-              rsa.processBlock(str, i * size, size),
-              0,
-              encrypted,
-              i * outSize,
-              outSize);
-      }
-//      result = new String(Base64.encode(tmp));
-//      return result.getBytes();
-
-      return encrypted;
-      //d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
-      //result = result + (new String(texter.encode(d_encryptor.doFinal())));
-
-      //pad the string with header and footer
-      //rsa.reset();
+        try {
+          StringTokenizer keycutter = new StringTokenizer(key, ":");
+          BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
+          BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
+          RSAEngine rsa = new RSAEngine();
+          rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
+          //d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
+          int size = rsa.getInputBlockSize();
+          //frost.Core.getOut().println("input block size "+size);
+          int outSize = rsa.getOutputBlockSize();
+          //frost.Core.getOut().println("output block size " + outSize);
+    
+          //put the message in the encryptor
+    
+          //determine how many blocks we need
+          int noRuns = what.length / size;
+          if (what.length % size != 0) {
+              noRuns++;
+          }
+          byte[] encrypted = new byte[noRuns * 128];
+          byte[] str = new byte[noRuns * size];
+          System.arraycopy(what, 0, str, 0, what.length);
+    
+          //insert them in the cipher, block at a time
+    
+          for (int i = 0; i < noRuns; i++) {
+              System.arraycopy(
+                  rsa.processBlock(str, i * size, size),
+                  0,
+                  encrypted,
+                  i * outSize,
+                  outSize);
+          }
+    //      result = new String(Base64.encode(tmp));
+    //      return result.getBytes();
+    
+          return encrypted;
+          //d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
+          //result = result + (new String(texter.encode(d_encryptor.doFinal())));
+    
+          //pad the string with header and footer
+          //rsa.reset();
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Error in encrypt ", t);
+        }
+        return null;
     }
     
 	public synchronized byte [] decrypt(byte [] what, String otherKey) {
