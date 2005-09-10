@@ -44,8 +44,7 @@ Added: New user trust state OBSERVE, which is between CHECK and GOOD.
 Added: lastSeenTimestamp for each Identity.
        Needed later to cleanup old Identities by user request.
 Added: Shortkeys in message table:
-       - press 'n' for next message (below current message, or from top if there are
-         no more new messages below the current one)
+       - press 'n' for next UNREAD message in current board
        - press 'g' to mark sender of selected message GOOD
        - press 'o' to mark sender of selected message OBSERVE
        - press 'c' to mark sender of selected message CHECK
