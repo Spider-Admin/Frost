@@ -420,41 +420,46 @@ public final class FrostCrypt implements Crypt {
 
 		//frost.Core.getOut().println("stripped what: " +what);
 		//if (what.length() % 172 == 0) frost.Core.getOut().println("good size");
+	    try {
+            RSAEngine rsa = new RSAEngine();
 
-		RSAEngine rsa = new RSAEngine();
+            StringTokenizer keycutter = new StringTokenizer(otherKey, ":");
+            RSAPrivateCrtKeyParameters privKey =
+                new RSAPrivateCrtKeyParameters(
+                    new BigInteger(Base64.decode(keycutter.nextToken())),
+                    new BigInteger(Base64.decode(keycutter.nextToken())),
+                    new BigInteger(Base64.decode(keycutter.nextToken())),
+                    new BigInteger(Base64.decode(keycutter.nextToken())),
+                    new BigInteger(Base64.decode(keycutter.nextToken())),
+                    new BigInteger(Base64.decode(keycutter.nextToken())),
+                    new BigInteger(Base64.decode(keycutter.nextToken())),
+                    new BigInteger(Base64.decode(keycutter.nextToken())));
+            rsa.init(false, privKey);
 
-		StringTokenizer keycutter = new StringTokenizer(otherKey, ":");
-		RSAPrivateCrtKeyParameters privKey =
-			new RSAPrivateCrtKeyParameters(
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())),
-				new BigInteger(Base64.decode(keycutter.nextToken())));
-		rsa.init(false, privKey);
+            int size = rsa.getInputBlockSize();
+            int outSize = rsa.getOutputBlockSize();
 
-		int size = rsa.getInputBlockSize();
-		int outSize = rsa.getOutputBlockSize();
+            //decode the text
+//          byte[] cipherText = Base64.decode(what);
+            byte[] cipherText = what;
+            byte[] plainText = new byte[cipherText.length * 128 / size];
 
-		//decode the text
-//		byte[] cipherText = Base64.decode(what);
-        byte[] cipherText = what;
-		byte[] plainText = new byte[cipherText.length * 128 / size];
+            //String result = new String();
 
-		//String result = new String();
-
-		for (int i = 0; i < cipherText.length / size; i++) {
-			System.arraycopy(
-				rsa.processBlock(cipherText, i * size, size),
-				0,
-				plainText,
-				i * outSize,
-				outSize);
-		}
-		return plainText;
+            for (int i = 0; i < cipherText.length / size; i++) {
+                System.arraycopy(
+                    rsa.processBlock(cipherText, i * size, size),
+                    0,
+                    plainText,
+                    i * outSize,
+                    outSize);
+            }
+            return plainText;
+            
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Error in decrypt ", t);
+        }
+        return null;
 	}
 
 	public synchronized String detachedSign(String message, String key){
