@@ -41,7 +41,7 @@ Just activate the most right switch in the search tab (it is activated by defaul
 In message table:
 ------------------
 
-- 'n' selects next new message in Board
+- 'n' selects next unread message in Board
 - 'g' changes sender of the selected message to state GOOD
 - 'o' changes sender of the selected message to state OBSERVE
 - 'c' changes sender of the selected message to state CHECK
