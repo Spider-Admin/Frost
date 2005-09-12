@@ -179,26 +179,31 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	 */
 	private boolean checkRemoteFile(String key) {
 
-		File remoteFile = new File(messageFile.getPath() + ".coll");
-		remoteFile.delete(); // just in case it already exists
-		remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
+		try {
+            File remoteFile = new File(messageFile.getPath() + ".coll");
+            remoteFile.delete(); // just in case it already exists
+            remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
 
-		FcpRequest.getFile(key, null, remoteFile, messageUploadHtl, false, false);
-		if (remoteFile.length() > 0) {
-            if( encryptForRecipient != null ) {
-                // we compare the local encrypted zipFile with remoteFile
-                boolean isEqual = FileAccess.compareFiles(zipFile, remoteFile);
-                return isEqual;
+            FcpRequest.getFile(key, null, remoteFile, messageUploadHtl, false, false);
+            if (remoteFile.length() > 0) {
+                if( encryptForRecipient != null ) {
+                    // we compare the local encrypted zipFile with remoteFile
+                    boolean isEqual = FileAccess.compareFiles(zipFile, remoteFile);
+                    return isEqual;
+                } else {
+                    // compare contents
+                    byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
+                    FileAccess.writeFile(unzippedXml, remoteFile);
+                    return checkLocalMessage(remoteFile);
+                }
             } else {
-                // compare contents
-                byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
-                FileAccess.writeFile(unzippedXml, remoteFile);
-                return checkLocalMessage(remoteFile);
+            	return false;
+            	//We could not retrieve the remote file. We assume they are different.	
             }
-		} else {
-			return false;
-			//We could not retrieve the remote file. We assume they are different.	
-		}
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Exception in checkRemoteFile", e);
+        }
+        return false;
 	}
 	
 	/**
