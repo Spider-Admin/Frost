@@ -23,21 +23,10 @@ import frost.util.gui.translation.Language;
  */
 public class StorageManager extends Timer {
 
-	/**
-	 * 
-	 */
 	private class AutoTask extends TimerTask {
-
-		/**
-		 * 
-		 */
 		public AutoTask() {
 			super();
 		}
-
-		/* (non-Javadoc)
-		 * @see java.util.TimerTask#run()
-		 */
 		public void run() {
 			if (autoSavables != null) {
 				Enumeration enumeration = autoSavables.elements();
@@ -55,22 +44,14 @@ public class StorageManager extends Timer {
 				}
 			}
 		}
-
 	}
-	/**
-	 * 
-	 */
-	private class ShutdownThread extends Thread {
 
-		/**
-		 * 
-		 */
+    private class ShutdownThread extends Thread {
 		public ShutdownThread() {
 		}
 
 		/**
 		 * Called by shutdown hook.
-		 * @see java.lang.Runnable#run()
 		 */
 		public void run() {
 			logger.info("Saving settings ...");
@@ -87,8 +68,7 @@ public class StorageManager extends Timer {
 					}
 				}
 			}
-			FileAccess.cleanKeypool(MainFrame.keypool);
-
+//			FileAccess.cleanKeypool(MainFrame.keypool);
 			logger.info("Bye!");
 		}
 	}

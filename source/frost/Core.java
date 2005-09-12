@@ -59,8 +59,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 	
 	private static Logger logger = Logger.getLogger(Core.class.getName());
 	
-	private static CleanUp fileCleaner = new CleanUp("keypool", false);
-	
 	static Hashtable myBatches = new Hashtable();
 	
 	private static Core instance = new Core();
@@ -201,24 +199,14 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return true;
 	}
 
-	/**
-	 * @return
-	 */
 	public boolean isFreenetOnline() {
 		return freenetIsOnline;
 	}
 	
-	/**
-	 * @return
-	 */
 	public boolean isFreenetTransient() {
 		return freenetIsTransient;
 	}
 	
-	
-    /**
-     * 
-     */
     private void loadKnownBoards()
     {
 		// load the known boards
@@ -341,12 +329,8 @@ public class Core implements Savable, FrostEventDispatcher  {
 			logger.info("Saved " + getKnownBoards().size() + " known boards.");
 		}
 		return writeOK;
-		
 	}
     
-    /**
-     * 
-     */
     private void loadBatches()
     {
         //load the batches
@@ -368,9 +352,6 @@ public class Core implements Savable, FrostEventDispatcher  {
         	}
     }
     
-	/**
-	 * @return
-	 */
 	private boolean saveBatches() {
 		try {
 			StringBuffer buf = new StringBuffer();
@@ -397,16 +378,10 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return false;
 	}
     
-	/**
-	 * @return
-	 */
 	public static Crypt getCrypto() {
 		return crypto;
 	}
 	
-	/**
-	 * @return
-	 */
 	public static Hashtable getMyBatches() {
 		return myBatches;
 	}
@@ -596,7 +571,12 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
         Startup.startupCheck(frostSettings, keypool);
-        FileAccess.cleanKeypool(keypool);
+//        FileAccess.cleanKeypool(keypool); // not longer needed
+        if( frostSettings.getBoolValue("doCleanUp") ) {
+            File keypoolFolder = new File(keypool);
+            CleanUp.deleteExpiredFiles(keypoolFolder);
+            CleanUp.deleteEmptyBoardDateDirs(keypoolFolder);
+        }
         
 		splashscreen.setText(language.getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(40);
@@ -746,8 +726,9 @@ public class Core implements Savable, FrostEventDispatcher  {
 				// maybe each 6 hours cleanup files (12 * 30 minutes)
 				if (i >= 12 && frostSettings.getBoolValue("doCleanUp")) {
 					i = 0;
-					logger.info("discarding old files");
-					fileCleaner.doCleanup();
+					logger.info("discarding expired files");
+                    File keypoolFolder = new File(keypool);
+                    CleanUp.deleteExpiredFiles(keypoolFolder);
 				}
 				logger.info("freeing memory");
 				System.gc();

@@ -67,31 +67,33 @@ public class FileAccess
      * removes unwanted files from the keypool
      * @param keyPath the directory to clean
      */
-    public static void cleanKeypool(String keyPath)
-    {
-        File[] chunks = (new File(keyPath)).listFiles();
-        String date = DateFun.getExtendedDate();
-        String fileSeparator = System.getProperty("file.separator");
-
-        for( int i = 0; i < chunks.length; i++ )
-        {
-            if( chunks[i].isFile() )
-            {
-                // Remove 0 byte and tmp files
-                if( chunks[i].length() == 0 ||
-                    chunks[i].getName().endsWith(".tmp") //||
-                    //chunks[i].getName().endsWith(".xml")
-                    )
-                    chunks[i].delete();
-
-                // Remove keyfiles and their locks
-                if( !chunks[i].getName().startsWith(date) && chunks[i].getName().endsWith(".idx") )
-                    chunks[i].delete();
-                if( !chunks[i].getName().startsWith(date) && chunks[i].getName().endsWith(".loc") )
-                    chunks[i].delete();
-            }
-        }
-    }
+    // disabled, not longer needed
+//    public static void cleanKeypool(String keyPath)
+//    {
+//        File[] chunks = (new File(keyPath)).listFiles();
+//        
+//        String date = DateFun.getExtendedDate();
+//        String fileSeparator = System.getProperty("file.separator");
+//
+//        for( int i = 0; i < chunks.length; i++ )
+//        {
+//            if( chunks[i].isFile() )
+//            {
+//                // Remove 0 byte and tmp files
+//                if( chunks[i].length() == 0 ||
+//                    chunks[i].getName().endsWith(".tmp") //||
+//                    //chunks[i].getName().endsWith(".xml")
+//                    )
+//                    chunks[i].delete();
+//
+//                // Remove keyfiles and their locks
+//                if( !chunks[i].getName().startsWith(date) && chunks[i].getName().endsWith(".idx") )
+//                    chunks[i].delete();
+//                if( !chunks[i].getName().startsWith(date) && chunks[i].getName().endsWith(".loc") )
+//                    chunks[i].delete();
+//            }
+//        }
+//    }
 
     /**
      * Reads a file and returns it's content in a byte[]
@@ -109,22 +111,6 @@ public class FileAccess
             FileInputStream fileIn = new FileInputStream(file);
             DataInputStream din = new DataInputStream(fileIn);
             din.readFully(data);
-        /*    int count = 0;
-            int bytesRead = 0;
-            int dataChunkLength = data.length;
-
-            while( bytesRead < dataChunkLength )
-            {
-                count = fileIn.read(data, bytesRead, dataChunkLength - bytesRead);
-                if( count < 0 )
-                {
-                    break;
-                }
-                else
-                {
-                    bytesRead++;
-                }
-            }*/
             fileIn.close();
             return data;
         }
