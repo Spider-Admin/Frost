@@ -304,11 +304,8 @@ public class TOF
         nextUpdateThread.start();
     }
 
-    /**
-     * 
-     */
-    private class UpdateTofFilesThread extends Thread
-    {
+    private class UpdateTofFilesThread extends Thread {
+
         Board board;
         String keypool;
         int daysToRead;
@@ -322,41 +319,25 @@ public class TOF
          * @param daysToRead
          * @param table
          */
-        public UpdateTofFilesThread(Board board, String keypool, int daysToRead, SortedTableModel tableModel)
-        {
+        public UpdateTofFilesThread(Board board, String keypool, int daysToRead, SortedTableModel tableModel) {
             this.board = board;
             this.keypool = keypool;
             this.daysToRead = daysToRead;
             this.tableModel = tableModel;
         }
 
-        /**
-         * 
-         */
-        public synchronized void cancel()
-        {
+        public synchronized void cancel() {
             isCancelled = true;
         }
         
-        /**
-         * @return
-         */
-        public synchronized boolean isCancel()
-        {
+        public synchronized boolean isCancel() {
             return isCancelled;
         }
 
-        /* (non-Javadoc)
-         * @see java.lang.Object#toString()
-         */
-        public String toString()
-        {
+        public String toString() {
             return board.getName();
         }
 
-        /* (non-Javadoc)
-         * @see java.lang.Runnable#run()
-         */
         public void run() {
             while( updateThread != null ) {
                 // wait for running thread to finish
@@ -373,7 +354,9 @@ public class TOF
                 updateThread = this;
             }
 
-            //messages = new Hashtable();
+            // lower thread prio to allow users to select and view messages when this thread runs
+            try { setPriority(getPriority() - 1); }
+            catch(Throwable t) { }
 
             // Clear tofTable
             final Board innerTargetBoard = board;
