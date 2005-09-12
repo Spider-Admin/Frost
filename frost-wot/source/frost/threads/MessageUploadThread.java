@@ -38,8 +38,6 @@ import frost.messages.*;
 
 /**
  * Uploads a message to a certain message board
- * @author $Author$
- * @version $Revision$
  */
 public class MessageUploadThread extends BoardUpdateThreadObject implements BoardUpdateThread {
     
@@ -399,9 +397,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 				Level.SEVERE,
 				"ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...",
 				ex);
-		} catch (MessageAlreadyUploadedException exception) {
-			logger.info("The message had already been uploaded. Therefore it will not be uploaded again.");
-			messageFile.delete();
+//		} catch (MessageAlreadyUploadedException exception) {
+//			logger.info("The message had already been uploaded. Therefore it will not be uploaded again.");
+//			messageFile.delete();
 		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Oo. EXCEPTION in MessageUploadThread", t);
 		}
@@ -560,10 +558,10 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * The final firstEmptyIndex is returned.
      * 
      * @param startIndex
-     * @return
+     * @return index higher -1 ; or -1 if message was already uploaded
      * @throws MessageAlreadyUploadedException
      */
-    private int findNextFreeIndex(int startIndex) throws MessageAlreadyUploadedException {
+    private int findNextFreeIndex(int startIndex) {
 
         final int maxGap = 3;
         int tryIndex = startIndex;
@@ -579,7 +577,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             if (testMe.exists() && testMe.length() > 0) {
                 // check each existing message in board if this is the msg we want to send
                 if (encryptForRecipient == null && checkLocalMessage(testMe)) {
-                    throw new MessageAlreadyUploadedException();
+                    return -1;
+//                    throw new MessageAlreadyUploadedException(); // bad idea
                 } else {
                     tryIndex++;
                     firstEmptyIndex = -1;
@@ -606,7 +605,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      * @throws IOException
      * @throws MessageAlreadyUploadedException
      */
-    private boolean uploadMessage() throws IOException, MessageAlreadyUploadedException {
+    private boolean uploadMessage() throws IOException {
         boolean success = false;
         int index = 0;
         int tries = 0;
@@ -616,6 +615,12 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         while (!success) {
             // find first free index slot
             index = findNextFreeIndex(index);
+            if( index < 0 ) {
+                // same message was already uploaded today
+                logger.info("TOFUP: Message seems to be already uploaded (1)");
+                success = true;
+                continue;
+            }
             
             // probably empty, check if other threads currently try to insert to this index
             File lockRequestIndex = new File(composeMsgFilename(index) + ".lock");
@@ -644,7 +649,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 logger.log(Level.SEVERE, "TOFUP: Error in run()/FcpInsert.putFile", t);
             }
 
-            if (result[0] == null || result[1] == null) {
+            if (result == null || result[0] == null || result[1] == null) {
                 result[0] = "Error";
                 result[1] = "Error";
             }
@@ -654,7 +659,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             } else {
                 if (result[0].equals("KeyCollision")) {
                     if (checkRemoteFile(downKey)) {
-                        throw new MessageAlreadyUploadedException();
+                        logger.info("TOFUP: Message seems to be already uploaded (2)");
+                        success = true;
+//                        throw new MessageAlreadyUploadedException(); // bad idea!
                     } else {
                         index++;
                         logger.fine("TOFUP: Upload collided, increasing index to " + index);
@@ -682,7 +689,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             zipFile.delete();
 
             logger.info("*********************************************************************\n"
-                    + "Message successfuly uploaded to board '" + board.getName() + "'.\n"
+                    + "Message successfully uploaded to board '" + board.getName() + "'.\n"
                     + "*********************************************************************");
             tryAgain = false;
         } else {
