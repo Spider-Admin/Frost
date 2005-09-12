@@ -67,11 +67,14 @@ Changed: the Java Object Cache is currently not used. It was responsible for ser
          benefits for Frost are. We even could use Hashtables for this.
 Changed: reworked message table internals, the table now updates much faster.
 Changed: Changing trust state does not reload the table.
-Changed: Cleanup of keypool now also runs during startup of Frost and deletes empty 
-         directories too. 
-         Remember: the cleanup deletes ALL expired message files, this means if the last
-         modification date of the file is before maxMessageDisplay days the file
-         is deleted.
+Changed: Option "Cleanup keypool" (News3) removed, added options in News1
+         "Delete expired messages" and "Number of days before a message expires".
+         If "Delete expired messages" is selected ,Frost will check all files in
+         keypool (messages) on ech startup for modification date and will delete files 
+         older than "Number of days before a message expires".
+         After this all empty date directories in a board directory are deleted.
+         The deletion of expired files is done all 6 hours after Frost startup,
+         directories are not deleted during runtime of Frost.
 
 Bugfix: fixes in MessageDownloadThread:
         - validates format of all messages again
