@@ -57,11 +57,17 @@ public class CleanUp {
             return;
         }
         for(int x=0; x < boardDirs.length; x++) {
+            if( boardDirs[x].isFile() ) {
+                continue;
+            }
             File[] dateDirs = boardDirs[x].listFiles();
             if( dateDirs == null || dateDirs.length == 0 ) {
                 continue;
             }
             for(int y=0; y < dateDirs.length; y++) {
+                if( dateDirs[y].isFile() ) {
+                    continue;
+                }
                 String[] filesList = dateDirs[y].list();
                 if( filesList == null ) {
                     continue;
@@ -75,7 +81,8 @@ public class CleanUp {
     }
 
     /**
-     * Deletes all expired FILES. 
+     * Deletes all expired FILES.
+     * Must not delete directories (could be a target for a running download,...). 
      * @param dirItem  Folder for recursion
      */
     private static void recursDir(File dirItem, long expiration) {
@@ -83,6 +90,9 @@ public class CleanUp {
         if( dirItem.isDirectory() ) {
             
             File[] list = dirItem.listFiles();
+            if( list == null ) {
+                return;
+            }
             for( int i = 0; i < list.length; i++ ) {
                 File f = list[i];
                 recursDir( f, expiration );
