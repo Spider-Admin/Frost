@@ -2,11 +2,14 @@
 Pending changes for next release:
 
 Added: timestamp to hashes.xml; and implemented automatic cleanup of old entries
-Added: reenabled the feature to send encrypted messages. The encrypted message must be
+Added: Reworked the feature to send encrypted messages. The encrypted message must be
        signed, anonymous encrypted messages are not possible.
        If an encrypted message for me arrives, it appears in the board it was sent to
        and the FROM text is drawn in RED. The sender will not see its own sent message
        (because he is not able to decrypt it).
+       The reworked encryption now uses AES to encrypt the data and RSA to encrypt the
+       AES session key.
+
     NOTE TO ENCRYPTED MESSAGES:
        Currently the encrypted messages are send to a board, the recipient must be
        subscribed to this board. The message is encrypted with the public key of the
@@ -21,10 +24,10 @@ Added: reenabled the feature to send encrypted messages. The encrypted message m
        KSK@DIGEST-OF-KEY/NAME/file
        This way we don't have to create new keys. But you can't send a private message to
        a user if you have only his unique name, because Frost additionally needs the 
-       public key of the user to encrypt the message for him.
+       complete public key of the user to encrypt the message for him.
        Later we could implement to allow to send/receive unencrypted messages which 
        maybe could make Frost compatible to pm4pigs...
-       Would be great if the pm4pigs developer could contact me to discuss this :)
+
 Added: generating and spreading of private board SSK key
 Added: 'Mark ALL messages read' to boards and folders in boards tree
 Added: 'Add board to folder ...' added to popup menu of board attachments and in known
