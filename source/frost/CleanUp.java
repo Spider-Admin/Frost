@@ -28,8 +28,6 @@ import java.util.logging.Logger;
  * 
  * Deletes all files with a LastModifiedDate that is before maxMessageDisplay.
  * Deletes all empty directories.
- * 
- * @author FillaMent
  */
 public class CleanUp {
 
@@ -41,7 +39,7 @@ public class CleanUp {
      */
     public static void deleteExpiredFiles(File keypoolFolder) {
         
-        int daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
+        int daysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
         long expiration = new Date().getTime() - (daysOld * 24 * 60 * 60 * 1000);
         
         recursDir(keypoolFolder, expiration);

@@ -636,6 +636,7 @@ public class SettingsClass implements Savable {
 		defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
 		defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
 		defaults.put("doCleanUp", "false");
+        defaults.put("messageExpireDays", "30");
 		defaults.put(AUTO_SAVE_INTERVAL, "15");
 
 		defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233, 233, 233));
