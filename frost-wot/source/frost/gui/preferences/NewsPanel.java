@@ -41,12 +41,16 @@ class NewsPanel extends JPanel {
 	private JLabel downloadDaysLabel = new JLabel();
 	private JLabel messageBaseLabel = new JLabel();
 	private JLabel signatureLabel = new JLabel();
+    private JLabel messageExpireDaysLabel = new JLabel();
 		
 	private JTextField uploadHtlTextField = new JTextField(8);
 	private JTextField downloadHtlTextField = new JTextField(8);
 	private JTextField displayDaysTextField = new JTextField(8);
 	private JTextField downloadDaysTextField = new JTextField(8);
 	private JTextField messageBaseTextField = new JTextField(16);
+    
+    private JCheckBox deleteExpiredMessages = new JCheckBox();
+    private JTextField messageExpireDays = new JTextField(8);
 		
 	private AntialiasedTextArea signatureTextArea;
 
@@ -77,13 +81,14 @@ class NewsPanel extends JPanel {
 		new TextComponentClipboardMenu(displayDaysTextField, language);
 		new TextComponentClipboardMenu(downloadDaysTextField, language);
 		new TextComponentClipboardMenu(messageBaseTextField, language);
+        new TextComponentClipboardMenu(messageExpireDays, language);
 		
 		// Adds all of the components
 		GridBagConstraints constraints = new GridBagConstraints();
 		constraints.fill = GridBagConstraints.NONE;
 		constraints.anchor = GridBagConstraints.WEST;
 		Insets insets5555 = new Insets(5, 5, 5, 5);
-		constraints.weighty = 1;
+		constraints.weighty = 0.1;
 		constraints.weightx = 0;		
 			
 		constraints.insets = insets5555;
@@ -96,25 +101,35 @@ class NewsPanel extends JPanel {
 		add(uploadHtlTextField, constraints);
 			
 		constraints.gridx = 0;
-		constraints.gridy = 1;
+        constraints.gridy++;
 		add(downloadHtlLabel, constraints);		
 		constraints.gridx = 1;
 		add(downloadHtlTextField, constraints);
 						
 		constraints.gridx = 0;
-		constraints.gridy = 2;
+		constraints.gridy++;
 		add(displayDaysLabel, constraints);		
 		constraints.gridx = 1;
 		add(displayDaysTextField, constraints);
 			
 		constraints.gridx = 0;
-		constraints.gridy = 3;
+        constraints.gridy++;
 		add(downloadDaysLabel, constraints);		
 		constraints.gridx = 1;
 		add(downloadDaysTextField, constraints);
-			
+        
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(deleteExpiredMessages, constraints);        
+
+        constraints.gridx = 0;
+        constraints.gridy++;
+        add(messageExpireDaysLabel, constraints);        
+        constraints.gridx = 1;
+        add(messageExpireDays, constraints);
+
 		constraints.gridx = 0;
-		constraints.gridy = 4;
+        constraints.gridy++;
 		add(messageBaseLabel, constraints);		
 		constraints.gridx = 1;
 		add(messageBaseTextField, constraints);
@@ -124,9 +139,9 @@ class NewsPanel extends JPanel {
 		constraints.weightx = 1;
 		constraints.weighty = 0;
 		constraints.gridx = 0;
-		constraints.gridy = 5;
+        constraints.gridy++;
 		add(signatureLabel, constraints);
-		constraints.gridy = 6;
+        constraints.gridy++;
 		JScrollPane signatureScrollPane = new JScrollPane(getSignatureTextArea());
 		add(signatureScrollPane, constraints);
 	}
@@ -136,7 +151,7 @@ class NewsPanel extends JPanel {
 	 */
 	private AntialiasedTextArea getSignatureTextArea() {
 		if (signatureTextArea == null) {
-			signatureTextArea = new AntialiasedTextArea(4, 50);
+			signatureTextArea = new AntialiasedTextArea(5, 50);
 
 			String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
 			int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
@@ -164,6 +179,8 @@ class NewsPanel extends JPanel {
 		displayDaysTextField.setText(settings.getValue("maxMessageDisplay"));
 		downloadDaysTextField.setText(settings.getValue("maxMessageDownload"));
 		messageBaseTextField.setText(settings.getValue("messageBase"));
+        deleteExpiredMessages.setSelected(settings.getBoolValue("doCleanup"));
+        messageExpireDays.setText(settings.getValue("messageExpireDays"));
 			
 		//Load signature
 		File signature = new File("signature.txt");
@@ -172,16 +189,10 @@ class NewsPanel extends JPanel {
 		}
 	}
 		
-	/**
-	 * 
-	 */
 	public void ok() {
 		saveSettings();
 	}
 		
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
 		uploadHtlLabel.setText(language.getString("Message upload HTL") + " (21)");
 		downloadHtlLabel.setText(language.getString("Message download HTL") + " (23)");
@@ -191,6 +202,8 @@ class NewsPanel extends JPanel {
 				language.getString("Number of days to download backwards") + " (5)");
 		messageBaseLabel.setText(language.getString("Message base") + " (news)");
 		signatureLabel.setText(language.getString("Signature"));
+        deleteExpiredMessages.setText("Delete expired messages");
+        messageExpireDaysLabel.setText("Number of days before a message expires" + " (30)");
 	}
 
 	/**
@@ -202,6 +215,8 @@ class NewsPanel extends JPanel {
 		settings.setValue("maxMessageDisplay", displayDaysTextField.getText());
 		settings.setValue("maxMessageDownload", downloadDaysTextField.getText());
 		settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
+        settings.setValue("messageExpireDays", messageExpireDays.getText());
+        settings.setValue("doCleanup", deleteExpiredMessages.isSelected());
 
 		//Save signature
 		FileAccess.writeFile(getSignatureTextArea().getText(), "signature.txt", "UTF-8");

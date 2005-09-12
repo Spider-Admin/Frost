@@ -33,9 +33,6 @@ import frost.util.gui.translation.*;
 
 class MiscPanel extends JPanel {
 
-	/**
-	 * 
-	 */
 	private class Listener implements ChangeListener, ActionListener {
 
 		/* (non-Javadoc)
@@ -70,7 +67,6 @@ class MiscPanel extends JPanel {
 	private JLabel availableNodesLabel1 = new JLabel();
 	private JLabel availableNodesLabel2 = new JLabel();
 	private JTextField availableNodesTextField = new JTextField();
-	private JCheckBox cleanupCheckBox = new JCheckBox();
 	private JCheckBox enableLoggingCheckBox = new JCheckBox();
 	private JLabel keyDownloadHtlLabel = new JLabel();
 	private JTextField keyDownloadHtlTextField = new JTextField(8);
@@ -228,10 +224,10 @@ class MiscPanel extends JPanel {
 		constraints.gridx = 0;
 		constraints.gridy = 7;
 		add(allowEvilBertCheckBox, constraints);			
-		constraints.gridx = 1;
-		constraints.gridwidth = 2;
-		constraints.weightx = 1;
-		add(cleanupCheckBox, constraints);	
+//		constraints.gridx = 1;
+//		constraints.gridwidth = 2;
+//		constraints.weightx = 1;
+//		add(cleanupCheckBox, constraints);	
 			
 		constraints.weightx = 0;
 		constraints.gridwidth = 1;
@@ -266,7 +262,6 @@ class MiscPanel extends JPanel {
 		availableNodesTextField.setText(settings.getValue("availableNodes"));
 		altEditTextField.setText(settings.getValue("altEdit"));
 		maxKeysTextField.setText(settings.getValue("maxKeys"));
-		cleanupCheckBox.setSelected(settings.getBoolValue("doCleanUp"));
 		autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
 		enableLoggingCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_TO_FILE));
 		logFileSizeTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
@@ -312,7 +307,6 @@ class MiscPanel extends JPanel {
 				language.getString("Allow 2 byte characters") + " (" + off + ")");
 		altEditCheckBox.setText(
 				language.getString("Use editor for writing messages") + " (" + off + ")");
-		cleanupCheckBox.setText(language.getString("Clean the keypool"));
 
 		enableLoggingCheckBox.setText(language.getString("Enable logging"));
 		logLevelLabel.setText(
@@ -347,7 +341,6 @@ class MiscPanel extends JPanel {
 		settings.setValue("allowEvilBert", allowEvilBertCheckBox.isSelected());
 		settings.setValue("useAltEdit", altEditCheckBox.isSelected());
 		settings.setValue("altEdit", altEditTextField.getText());
-		settings.setValue("doCleanUp", cleanupCheckBox.isSelected());
 		settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());
 		settings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
 		settings.setValue(
