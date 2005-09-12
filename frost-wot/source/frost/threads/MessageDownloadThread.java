@@ -284,6 +284,11 @@ public class MessageDownloadThread
                 if (metadata == null) {
                     
                     byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
+                    if( unzippedXml == null ) {
+                        logger.log(Level.SEVERE, "TOFDN: Unzip of unsigned xml failed");
+                        FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
+                        continue;
+                    }
                     FileAccess.writeFile(unzippedXml, testMe);
 
                     try {
@@ -333,8 +338,6 @@ public class MessageDownloadThread
                 // if not on any list, use the parsed id and add to our identities list
                 if (owner == null) {
                     owner = metaData.getPerson();
-                    owner.noFiles = 0;
-                    owner.noMessages = 1;
                     owner.setState(FrostIdentities.NEUTRAL);
 					identities.addIdentity(owner);
                 }
@@ -346,10 +349,9 @@ public class MessageDownloadThread
                 // only for correct owner (no faking allowed here)
                 if( sigIsValid ) {
                     // check if we already have owners board
-                    // TODO: remove old useless SSK keys (pubKey in BoardAttachment is SSK)
-                    if( owner.getBoard() == null && metaData.getPerson().getBoard() != null ) {
-                        owner.setBoard(metaData.getPerson().getBoard());
-                    }
+//                    if( owner.getBoard() == null && metaData.getPerson().getBoard() != null ) {
+//                        owner.setBoard(metaData.getPerson().getBoard());
+//                    }
                     // update lastSeen for this Identity
                     owner.updateLastSeenTimestamp();
                 }
@@ -387,13 +389,18 @@ public class MessageDownloadThread
 
                 // unzip
                 byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
+                if( unzippedXml == null ) {
+                    logger.log(Level.SEVERE, "TOFDN: Unzip of signed xml failed");
+                    FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
+                    continue;
+                }
                 FileAccess.writeFile(unzippedXml, testMe);
 
                 // create object
                 try {
                     currentMsg = new VerifyableMessageObject(testMe);
                 } catch (Exception ex) {
-					logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
+					logger.log(Level.SEVERE, "TOFDN: Exception when creating message object", ex);
                     // file could not be read, mark it invalid not to confuse gui
                     FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     continue;

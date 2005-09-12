@@ -19,180 +19,101 @@
 package frost.crypt;
 
 import java.io.*;
-import java.math.BigInteger;
-import java.nio.ByteBuffer;
-import java.nio.channels.FileChannel;
-import java.security.SecureRandom;
-import java.util.StringTokenizer;
+import java.math.*;
+import java.nio.*;
+import java.nio.channels.*;
+import java.security.*;
+import java.security.spec.*;
+import java.util.*;
 import java.util.logging.*;
 
+import javax.crypto.*;
+import javax.crypto.spec.*;
+
 import org.bouncycastle.crypto.*;
-import org.bouncycastle.crypto.digests.SHA1Digest;
+import org.bouncycastle.crypto.digests.*;
 import org.bouncycastle.crypto.engines.*;
-import org.bouncycastle.crypto.generators.RSAKeyPairGenerator;
+import org.bouncycastle.crypto.generators.*;
 import org.bouncycastle.crypto.params.*;
-import org.bouncycastle.crypto.signers.PSSSigner;
-import org.bouncycastle.util.encoders.Base64;
-//import org.bouncycastle.crypto.paddings.X923Padding;
+import org.bouncycastle.crypto.signers.*;
+import org.bouncycastle.jce.provider.*;
+import org.bouncycastle.util.encoders.*;
 
 /**
- * implementation of the crypto layer
+ * Implementation of the crypto layer.
  */
 public final class FrostCrypt implements Crypt {
 
 	private static Logger logger = Logger.getLogger(FrostCrypt.class.getName());
-
-	public static Base64 texter; //so people can use it outside the class
-
-	private static RSAKeyPairGenerator keygen;
-	private static AsymmetricCipherKeyPair keys;
-	private static RSAEngine rsaEngine = new RSAEngine();
-	private static SHA1Digest sha1Digest = new SHA1Digest();
-	private static final PSSSigner signer =
-		new PSSSigner(rsaEngine, sha1Digest, 16);
-//	private static TwofishEngine twofish = new TwofishEngine();
-//	private static BufferedAsymmetricBlockCipher d_encryptor = new BufferedAsymmetricBlockCipher(rsaEngine);
-	//private static BufferedBlockCipher sd_encryptor;
-
+    
+	private PSSSigner signer;
+    private SecureRandom secureRandom;
+    
+    private KeyGenerator keyGeneratorAES = null;
+    
 	public FrostCrypt() {
-		keygen = new RSAKeyPairGenerator();
-		//frost.Core.getOut().println("creating signer " + signer.toString());
-//		twofish = new TwofishEngine();
-		texter = new Base64();
+        Security.addProvider(new BouncyCastleProvider());
+
+        signer = new PSSSigner(new RSAEngine(), new SHA1Digest(), 16);
+        secureRandom = new SecureRandom();
 	}
 
+    /**
+     * Generate a new RSA 1024 bit key pair.
+     * @returns String[0] is private key; String[1] is public key
+     */
 	public synchronized String[] generateKeys() {
+
+        RSAKeyPairGenerator keygen = new RSAKeyPairGenerator();
 		keygen.init(
 			new RSAKeyGenerationParameters(
 				new BigInteger("3490529510847650949147849619903898133417764638493387843990820577"),
-				new SecureRandom(),
+				getSecureRandom(),
 				1024,
 				80));
 		//this big integer is the winner of some competition as far as I remember
 
-		keys = keygen.generateKeyPair();
+        AsymmetricCipherKeyPair keys = keygen.generateKeyPair();
 
 		//extract the keys
-		RSAKeyParameters PubKey = (RSAKeyParameters) keys.getPublic();
-		RSAPrivateCrtKeyParameters PrivKey =
-			(RSAPrivateCrtKeyParameters) keys.getPrivate();
+		RSAKeyParameters pubKey = (RSAKeyParameters) keys.getPublic();
+		RSAPrivateCrtKeyParameters privKey = (RSAPrivateCrtKeyParameters) keys.getPrivate();
 
 		//the return value
 		String[] result = new String[2];
-		StringBuffer temp = new StringBuffer("");
+		StringBuffer temp = new StringBuffer();
 
 		//create the keys
-		temp.append( new String(Base64.encode(PubKey.getExponent().toByteArray())));
+		temp.append( new String(Base64.encode(pubKey.getExponent().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PubKey.getModulus().toByteArray())));
-		result[1] = temp.toString();
+		temp.append(new String(Base64.encode(pubKey.getModulus().toByteArray())));
+		result[1] = temp.toString(); // public key
 
 		//rince and repeat, this time exactly the way its done in the constructor
-		temp = new StringBuffer("");
-		temp.append(new String(Base64.encode(PrivKey.getModulus().toByteArray())));
+		temp = new StringBuffer();
+		temp.append(new String(Base64.encode(privKey.getModulus().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PrivKey.getPublicExponent().toByteArray())));
+		temp.append(new String(Base64.encode(privKey.getPublicExponent().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PrivKey.getExponent().toByteArray())));
+		temp.append(new String(Base64.encode(privKey.getExponent().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PrivKey.getP().toByteArray())));
+		temp.append(new String(Base64.encode(privKey.getP().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PrivKey.getQ().toByteArray())));
+		temp.append(new String(Base64.encode(privKey.getQ().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PrivKey.getDP().toByteArray())));
+		temp.append(new String(Base64.encode(privKey.getDP().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PrivKey.getDQ().toByteArray())));
+		temp.append(new String(Base64.encode(privKey.getDQ().toByteArray())));
 		temp.append(":");
-		temp.append(new String(Base64.encode(PrivKey.getQInv().toByteArray())));
-		result[0] = temp.toString();
+		temp.append(new String(Base64.encode(privKey.getQInv().toByteArray())));
+		result[0] = temp.toString(); // private key
 
-		//that's it
 		return result;
 	}
 
-//	public synchronized byte [] sign(byte [] message, String key) {
-//
-//		//extract the key
-//		StringBuffer signedMessage =
-//			new StringBuffer(new String("===Frost signed message===\n"));
-//		signedMessage.append(message);
-//		StringTokenizer keycutter = new StringTokenizer(key, ":");
-//		RSAPrivateCrtKeyParameters privKey =
-//			new RSAPrivateCrtKeyParameters(
-//				new BigInteger(Base64.decode(keycutter.nextToken())),
-//				new BigInteger(Base64.decode(keycutter.nextToken())),
-//				new BigInteger(Base64.decode(keycutter.nextToken())),
-//				new BigInteger(Base64.decode(keycutter.nextToken())),
-//				new BigInteger(Base64.decode(keycutter.nextToken())),
-//				new BigInteger(Base64.decode(keycutter.nextToken())),
-//				new BigInteger(Base64.decode(keycutter.nextToken())),
-//				new BigInteger(Base64.decode(keycutter.nextToken())));
-//
-//		//initialize the signer
-//
-//		signer.init(true, privKey);
-//		signer.update(message, 0, message.length);
-//
-//		//and sign
-//		try {
-//			byte[] signature = signer.generateSignature();
-//			signedMessage.append("\n=== Frost message signature: ===\n");
-//			signedMessage.append(new String(Base64.encode(signature)));
-//			signedMessage.append("\n=== End of Signature. ===");
-//		} catch (CryptoException e) {
-//			logger.log(Level.SEVERE, "Exception thrown in sign(byte [] message, String key)", e);
-//		}
-//
-//		//reset the signer
-//		signer.reset();
-//
-//		return signedMessage.toString().getBytes();
-//	}
-
-//	public synchronized boolean verify(String message, String key) {
-//		//reset the signer
-//
-//		//process the message first
-//		StringBuffer msg = new StringBuffer(message);
-//
-//		//check for header, footer, etc.
-//		int a = msg.indexOf("===Frost signed message===\n");
-//		if (a == -1) {
-//			return false;
-//        }
-//		int b = msg.lastIndexOf("\n=== Frost message signature: ===\n");
-//		if ((b == -1) || (b < a)) {
-//			return false;
-//        }
-//		int c = msg.indexOf("\n=== End of Signature. ===", b);
-//		if ((c == -1) || (c < b) || (c < a)) {
-//			return false;
-//        }
-//
-//		//now extract the message and sig
-//		String plaintext = msg.substring(a + MSG_HEADER_SIZE, b);
-//		//frost.Core.getOut().println("plaintext is " + plaintext);
-//		String signature = msg.substring(b + SIG_HEADER_SIZE, c);
-//		//frost.Core.getOut().println("signature is " + signature);
-//
-//		//extract the key
-//		StringTokenizer keycutter = new StringTokenizer(key, ":");
-//		BigInteger Exponent =
-//			new BigInteger(Base64.decode(keycutter.nextToken()));
-//		BigInteger Modulus =
-//			new BigInteger(Base64.decode(keycutter.nextToken()));
-//		signer.init(false, new RSAKeyParameters(true, Modulus, Exponent));
-//
-//		//and verify!
-//		signer.update(plaintext.getBytes(), 0, plaintext.length());
-//
-//		boolean result =
-//			signer.verifySignature(Base64.decode(signature.getBytes()));
-//		signer.reset();
-//		return result;
-//
-//	}
-
+    /**
+     * Computes the SHA-1 checksum of given message.
+     */
 	public synchronized String digest(String message) {
 		SHA1Digest stomach = new SHA1Digest();
 		stomach.reset();
@@ -203,6 +124,9 @@ public final class FrostCrypt implements Crypt {
 		return (new String(Base64.encode(poop))).substring(0, 27);
 	}
 
+    /**
+     * Computes the SHA-1 checksum of given file.
+     */
 	public synchronized String digest(File file) {
 		SHA1Digest stomach = new SHA1Digest();
 		byte[] poop = new byte[64];
@@ -212,10 +136,8 @@ public final class FrostCrypt implements Crypt {
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Exception thrown in digest(File file)", e);
 		}
-		byte[] temp = new byte[1024 * 1024];
+		byte[] temp = new byte[32 * 1024];
 		ByteBuffer _temp = ByteBuffer.wrap(temp);
-		long x = 0;
-		long y = 0;
 		try {
 			while (true) {
 				//if (y >= file.length()) break;
@@ -236,201 +158,115 @@ public final class FrostCrypt implements Crypt {
 		return (new String(Base64.encode(poop))).substring(0, 27);
 	}
 
-	public synchronized String simEncrypt(
-		String what,
-		String key) { /*
-	 //initialize
-	 //X923Padding pad = new X923Padding();
-	 //pad.init(new SecureRandom());
-	 sd_encryptor = new BufferedBlockCipher(twofish);
-	 sd_encryptor.init(true, new KeyParameter((new String("asdfasdfasdfasdf")).getBytes(),0,16));
-	
-	 byte []result;
-	 if (what.length() % sd_encryptor.getBlockSize() == 0) result = new byte[what.length()];
-	 else
-	 result = new byte[(what.length() / sd_encryptor.getBlockSize() + 1) * sd_encryptor.getBlockSize()];
-	
-	 //do the god damn padding myself
-	 byte []source = new byte[result.length];
-	 (new Random()).nextBytes(source);
-	 System.arraycopy(what.getBytes(),0,source,0,what.length());
-	
-	
-	
-	 frost.Core.getOut().println("encrypting " + what + " to a buffer size " + result.length + " but block size is " + sd_encryptor.getBlockSize());
-	 try{
-	 if (sd_encryptor.processBytes(source,0,what.length(),result,0) == 0) {
-	 	frost.Core.getOut().println("doing final");
-	 	sd_encryptor.doFinal(result,0);
-		}
-	 }catch (InvalidCipherTextException e){frost.Core.getOut().println("problems");};
-	 /*
-	 boolean overflow =false;
-	
-	
-	
-	 //find the number of necessary blocks.
-	
-	 if (what.length() % twofish.getBlockSize() != 0) overflow = true;
-	
-	
-	 //create the result buffer
-	 byte [] result = new byte[blocks * twofish.getBlockSize()];
-	
-	 for (int i = 0; i< what.length() /twofish.getBlockSize();i++)
-	 	twofish.processBlock(what.getBytes(), i*twofish.getBlockSize(),result,i*twofish.getBlockSize());
-	
-	 /*if (overflow)
-	 	twofish.processBlock
-	 //and process the string
-	
-	 //reset and return
-	 sd_encryptor.reset();
-	
-	
-	 return new String(texter.encode(result));*/
-		return null;
-	}
+    /**
+     * Encryption of a byte array.
+     * 
+     * We generate a new 128bit AES key and encrypt the content with this key.
+     * Then we RSA encrypt the key with publicKey. RSA ecpects 117 bytes of input
+     * and generates 128byte of output. So we prepare a byte array of length 117 with
+     * random data and copy the AES key into the front of it. Then we RSA encrypt this
+     * array and put the result array of 128bytes length into the front of the AES encrypted
+     * data.
+     * 
+     *  @returns null if anything failed.
+     */
+    public synchronized byte[] encrypt(byte[] what, String publicKey) {
 
-	public synchronized String simDecrypt(String what, String key) {
-
-		//twofish.init(false, //find out about twofish parameters - key length etc.
-		return null;
-	}
-
-//	public synchronized byte [] encrypt(byte [] what, String otherKey) {
-//		return encryptSign(what, null, otherKey, false);
-//	}
-//	
-//	public synchronized byte [] encryptSign(byte [] what,String myKey, String otherKey) {
-//			return encryptSign(what, myKey, otherKey, true);
-//		}
-//	private synchronized byte [] encryptSign(
-//		byte [] what,
-//		String myKey,
-//		String otherKey,
-//		boolean sign) {
-//
-//		//initialize d_encryptor
-//		StringTokenizer keycutter = new StringTokenizer(otherKey, ":");
-//		BigInteger Exponent =
-//			new BigInteger(Base64.decode(keycutter.nextToken()));
-//		BigInteger Modulus =
-//			new BigInteger(Base64.decode(keycutter.nextToken()));
-//		RSAEngine rsa = new RSAEngine();
-//		rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
-//		//d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
-//		int size = rsa.getInputBlockSize();
-//		//frost.Core.getOut().println("input block size "+size);
-//		int outSize = rsa.getOutputBlockSize();
-//		//frost.Core.getOut().println("output block size " + outSize);
-//
-//		//sign the message
-//		if (sign)
-//			what = sign(what, myKey);
-//		/*frost.Core.getOut().println(what);/*
-//		frost.Core.getOut().println("encoded plaintext looks like \n " + new String(texter.encode(what.getBytes())));
-//		frost.Core.getOut().println("this will need " + (what.length()/size +1) + " blocks");*/
-//
-//		//put the message in the encryptor
-//
-//		int noRuns = what.length / size;
-//		if (what.length % size != 0)
-//			noRuns++;
-//		byte[] tmp = new byte[noRuns * 128];
-//		byte[] str = new byte[noRuns * size];
-//		System.arraycopy(what, 0, str, 0, what.length);
-//
-//		//determine how many blocks we need
-//		//int noRuns =what.length() / size;
-//		String result = new String();
-//		//insert them in the cipher, block at a time
-//
-//		for (int i = 0; i < noRuns; i++) {
-//			System.arraycopy(
-//				rsa.processBlock(str, i * size, size),
-//				0,
-//				tmp,
-//				i * outSize,
-//				outSize);
-//		}
-//		result = new String(Base64.encode(tmp));
-//		//d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
-//		//result = result + (new String(texter.encode(d_encryptor.doFinal())));
-//
-//		//pad the string with header and footer
-//		result =
-//			new String(
-//				"==== Frost Signed+Encrypted Message ===="
-//					+ result
-//					+ "==== End Of Frost SE Message ====");
-//
-//		//rsa.reset();
-//		return result.getBytes();
-//
-//		//return null;
-//	}
-
-    public synchronized byte[] encrypt(byte[] what, String key) {
-
-        try {
-          StringTokenizer keycutter = new StringTokenizer(key, ":");
-          BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
-          BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
-          RSAEngine rsa = new RSAEngine();
-          rsa.init(true, new RSAKeyParameters(false, Modulus, Exponent));
-          //d_encryptor.init(true, new RSAKeyParameters(false,Modulus,Exponent));
-          int size = rsa.getInputBlockSize();
-          //frost.Core.getOut().println("input block size "+size);
-          int outSize = rsa.getOutputBlockSize();
-          //frost.Core.getOut().println("output block size " + outSize);
-    
-          //put the message in the encryptor
-    
-          //determine how many blocks we need
-          int noRuns = what.length / size;
-          if (what.length % size != 0) {
-              noRuns++;
-          }
-          byte[] encrypted = new byte[noRuns * 128];
-          byte[] str = new byte[noRuns * size];
-          System.arraycopy(what, 0, str, 0, what.length);
-    
-          //insert them in the cipher, block at a time
-    
-          for (int i = 0; i < noRuns; i++) {
-              System.arraycopy(
-                  rsa.processBlock(str, i * size, size),
-                  0,
-                  encrypted,
-                  i * outSize,
-                  outSize);
-          }
-    //      result = new String(Base64.encode(tmp));
-    //      return result.getBytes();
-    
-          return encrypted;
-          //d_encryptor.processBytes(what.getBytes(),(what.length()-(what.length() % size)),what.length() % size);
-          //result = result + (new String(texter.encode(d_encryptor.doFinal())));
-    
-          //pad the string with header and footer
-          //rsa.reset();
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Error in encrypt ", t);
+        byte[] aesKeyBytes = null;
+        Cipher cipherAES = null;
+        Cipher cipherRSA = null;
+        
+        int cipherRSAinSize = 0;
+        int cipherRSAoutSize = 0;
+        
+        // prepare AES, we need cipherAES and keyBytes
+        aesKeyBytes = generateAESSessionKey(); // 16 bytes
+        if( aesKeyBytes == null ) {
+            return null;
         }
-        return null;
+        cipherAES = buildCipherAES(Cipher.ENCRYPT_MODE, aesKeyBytes);;
+        if( cipherAES == null ) {
+            return null;
+        }
+        
+        // prepare RSA, we only need chiperRSA
+        try {
+            StringTokenizer keycutter = new StringTokenizer(publicKey, ":");
+            BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
+            BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
+            RSAPublicKeySpec pubKeySpec = new RSAPublicKeySpec(Modulus, Exponent);
+            
+            KeyFactory fact = KeyFactory.getInstance("RSA", "BC");
+            PublicKey pubKey = fact.generatePublic(pubKeySpec);
+            cipherRSA = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+            cipherRSA.init(Cipher.ENCRYPT_MODE, pubKey);
+            cipherRSAinSize = cipherRSA.getBlockSize();
+            cipherRSAoutSize = cipherRSA.getOutputSize(cipherRSAinSize);
+            if( cipherRSAinSize != 117 || cipherRSAoutSize != 128 ) {
+                throw new Exception("block size invalid, inSize="+cipherRSAinSize+"; outSize="+cipherRSAoutSize);
+            }
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Error in encrypt, RSA preparation", t);
+            return null;
+        }
+
+        // encrypt keybytes with RSA
+        byte rsaEncData[] = null;
+        try {
+            byte[] rsaInpData = new byte[cipherRSAinSize]; // input for RSA encryption
+            // build 128 byte, first 16 byte the AES session key, remaining bytes are random data
+            byte[] randomBytes = new byte[cipherRSAinSize - aesKeyBytes.length];
+            getSecureRandom().nextBytes(randomBytes);
+            
+            System.arraycopy(aesKeyBytes, 0, rsaInpData, 0, aesKeyBytes.length);
+            System.arraycopy(randomBytes, 0, rsaInpData, aesKeyBytes.length, randomBytes.length);
+
+            rsaEncData = cipherRSA.doFinal(rsaInpData, 0, rsaInpData.length);
+            if( rsaEncData.length != cipherRSAoutSize ) {
+                throw new Exception("RSA out block size invalid: "+rsaEncData.length);
+            }
+        } catch (Throwable t) {
+            logger.log(Level.SEVERE, "Error in encrypt, RSA encryption", t);
+            return null;
+        }
+        
+        // encrypt content using AES
+        
+        ByteArrayOutputStream plainOut = new ByteArrayOutputStream(what.length + (what.length/10) +rsaEncData.length);
+        try {
+            // write RSA encrypted data
+            plainOut.write(rsaEncData);
+
+            // encrypt
+            CipherOutputStream cOut = new CipherOutputStream(plainOut, cipherAES);
+            cOut.write(what);
+            
+            cOut.close();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Error in encrypt, AES encryption", e);
+            return null;
+        }
+        return plainOut.toByteArray();
     }
-    
-	public synchronized byte [] decrypt(byte [] what, String otherKey) {
 
-		//frost.Core.getOut().println("stripped what: " +what);
-		//if (what.length() % 172 == 0) frost.Core.getOut().println("good size");
-	    try {
-            RSAEngine rsa = new RSAEngine();
+    /**
+     * Decrypts a byte array.
+     * 
+     * The first 128 byte in array must be the RSA encrypted AES key,
+     * remaining data is the AES data. See encrypt().
+     */
+	public synchronized byte[] decrypt(byte[] what, String privateKey) {
 
-            StringTokenizer keycutter = new StringTokenizer(otherKey, ":");
-            RSAPrivateCrtKeyParameters privKey =
-                new RSAPrivateCrtKeyParameters(
+        Cipher cipherAES = null;
+        Cipher cipherRSA = null;
+        
+        int cipherRSAinSize = 0;
+        int cipherRSAoutSize = 0;
+        
+        // prepare RSA, we need chiperRSA
+        try {
+            StringTokenizer keycutter = new StringTokenizer(privateKey, ":");
+            RSAPrivateCrtKeySpec privKeySpec = new RSAPrivateCrtKeySpec(
                     new BigInteger(Base64.decode(keycutter.nextToken())),
                     new BigInteger(Base64.decode(keycutter.nextToken())),
                     new BigInteger(Base64.decode(keycutter.nextToken())),
@@ -439,44 +275,77 @@ public final class FrostCrypt implements Crypt {
                     new BigInteger(Base64.decode(keycutter.nextToken())),
                     new BigInteger(Base64.decode(keycutter.nextToken())),
                     new BigInteger(Base64.decode(keycutter.nextToken())));
-            rsa.init(false, privKey);
-
-            int size = rsa.getInputBlockSize();
-            int outSize = rsa.getOutputBlockSize();
-
-            //decode the text
-//          byte[] cipherText = Base64.decode(what);
-            byte[] cipherText = what;
-            byte[] plainText = new byte[cipherText.length * 128 / size];
-
-            //String result = new String();
-
-            for (int i = 0; i < cipherText.length / size; i++) {
-                System.arraycopy(
-                    rsa.processBlock(cipherText, i * size, size),
-                    0,
-                    plainText,
-                    i * outSize,
-                    outSize);
-            }
-            return plainText;
             
-        } catch(Throwable t) {
-            logger.log(Level.SEVERE, "Error in decrypt ", t);
+            KeyFactory fact = KeyFactory.getInstance("RSA", "BC");
+            PrivateKey privKey = fact.generatePrivate(privKeySpec);
+            cipherRSA = Cipher.getInstance("RSA/ECB/PKCS1Padding", "BC");
+            cipherRSA.init(Cipher.DECRYPT_MODE, privKey);
+            cipherRSAinSize = cipherRSA.getBlockSize();
+            cipherRSAoutSize = cipherRSA.getOutputSize(cipherRSAinSize);
+            if( cipherRSAinSize != 128 || cipherRSAoutSize != 117 ) {
+                throw new Exception("RSA decryption block size invalid, inSize="+cipherRSAinSize+"; outSize="+cipherRSAoutSize);
+            }
+        } catch(Throwable e) {
+            logger.log(Level.SEVERE, "Error in decrypt, RSA preparation", e);
+            return null;
         }
-        return null;
-	}
+        
+        // decrypt rsa and get aes key
+        byte[] aesKeyBytes = null;
+        try {
+            byte[] sessionKeyBytes = cipherRSA.doFinal(what, 0, cipherRSAinSize);
+            if( sessionKeyBytes == null ) {
+                throw new Exception("RSA decryption failed, sessionKeyBytes = null");
+            }
+            if( sessionKeyBytes.length != cipherRSAoutSize ) {
+                throw new Exception("RSA decryption failed, sessionKeyBytes.length = "+sessionKeyBytes.length+
+                        ", must be "+cipherRSAoutSize);
+            }
+            // we need the first 16 byte
+            aesKeyBytes = new byte[16];
+            System.arraycopy(sessionKeyBytes, 0, aesKeyBytes, 0, aesKeyBytes.length);
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Error in decrypt, RSA decryption", e);
+            return null;
+        }
+        
+        // prepare AES, we need cipherAES
+        cipherAES = buildCipherAES(Cipher.DECRYPT_MODE, aesKeyBytes);;
+        if( cipherAES == null ) {
+            return null;
+        }
+        
+        // decrypt aes
+        ByteArrayOutputStream plainOut = new ByteArrayOutputStream(what.length - cipherRSAinSize);
+        
+        ByteArrayInputStream bIn = new ByteArrayInputStream(what, cipherRSAinSize, what.length-cipherRSAinSize);
+        CipherInputStream cIn = new CipherInputStream(bIn, cipherAES);
 
+        try {
+            byte[] buf = new byte[1024];
+            while(true) {
+                int bLen = cIn.read(buf);
+                if( bLen < 0 ) {
+                    break; // eof
+                }
+                plainOut.write(buf, 0, bLen);
+            }
+            cIn.close();
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Error in decrypt, AES decryption", e);
+            return null;
+        }
+        return plainOut.toByteArray();
+    }
+
+    
 	public synchronized String detachedSign(String message, String key){
 		return detachedSign(message.getBytes(), key);
 	}
-	/* (non-Javadoc)
-	 * @see frost.crypt.crypt#detachedSign(java.lang.String, java.lang.String)
-	 */
-	public synchronized String detachedSign(byte [] message, String key) {
-
+	public synchronized String detachedSign(byte[] message, String key) {
+        
 		StringTokenizer keycutter = new StringTokenizer(key, ":");
-		RSAPrivateCrtKeyParameters privKey =
+		RSAPrivateCrtKeyParameters privKey = 
 			new RSAPrivateCrtKeyParameters(
 				new BigInteger(Base64.decode(keycutter.nextToken())),
 				new BigInteger(Base64.decode(keycutter.nextToken())),
@@ -487,10 +356,9 @@ public final class FrostCrypt implements Crypt {
 				new BigInteger(Base64.decode(keycutter.nextToken())),
 				new BigInteger(Base64.decode(keycutter.nextToken())));
 
-		//initialize the signer
-
 		signer.init(true, privKey);
 		signer.update(message, 0, message.length);
+        
 		byte[] signature = null;
 		try {
 			signature = signer.generateSignature();
@@ -498,38 +366,79 @@ public final class FrostCrypt implements Crypt {
 			logger.log(Level.SEVERE, "Exception thrown in detachedSign(String message, String key)", e);
 		}
 		signer.reset();
-		String result=new String(Base64.encode(signature));
+		String result = new String(Base64.encode(signature));
 		return result;
 	}
 
 	public synchronized boolean detachedVerify(String message, String key, String sig){
 		return detachedVerify(message.getBytes(),key,sig);
 	}
-	/* (non-Javadoc)
-	 * @see frost.crypt.crypt#detachedVerify(java.lang.String, java.lang.String, byte[])
-	 */
-	public synchronized boolean detachedVerify(byte [] message, String key, String _sig) {
-		byte [] sig = Base64.decode(_sig.getBytes());
+	public synchronized boolean detachedVerify(byte[] message, String key, String _sig) {
+		byte[] sig = Base64.decode(_sig.getBytes());
+        
 		StringTokenizer keycutter = new StringTokenizer(key, ":");
-		BigInteger Exponent =
-			new BigInteger(Base64.decode(keycutter.nextToken()));
-		BigInteger Modulus =
-			new BigInteger(Base64.decode(keycutter.nextToken()));
+		BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
+		BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
+        
 		signer.init(false, new RSAKeyParameters(true, Modulus, Exponent));
 
 		signer.update(message, 0, message.length);
 		boolean result = signer.verifySignature(sig);
 		signer.reset();
 		return result;
-
 	}
-	
-	public String decode64(String what){
+    
+    private synchronized SecureRandom getSecureRandom() {
+        return secureRandom;
+    }
+
+	public String decode64(String what) {
 		return new String(Base64.decode(what.getBytes()));
 	}
 	
-	public String encode64(String what){
-			return new String(Base64.encode(what.getBytes()));
+	public String encode64(String what) {
+		return new String(Base64.encode(what.getBytes()));
 	}
+    
+    /**
+     * Called by encrypt() to generate a new random session key for AES.
+     * Must be called synchronized (we use a global object)! 
+     * Currently only called by synchronized encrypt().
+     * 
+     * @return the new session key or null.
+     */
+    private byte[] generateAESSessionKey() {
+        if( keyGeneratorAES == null ) {
+            try {
+                keyGeneratorAES = KeyGenerator.getInstance("AES");
+            } catch (NoSuchAlgorithmException e) {
+                logger.log(Level.SEVERE, "Could not get a KeyGenerator for AES.", e);
+                return null;
+            }
+            keyGeneratorAES.init(128); // 192 and 256 bits may not be available!
+        }
+        SecretKey skey = keyGeneratorAES.generateKey();
+        byte[] keyBytes = skey.getEncoded(); // 16 bytes
+        return keyBytes;
+    }
 
+    /**
+     * Builds and returns a new Cipher for AES.
+     */
+    private Cipher buildCipherAES(int mode, byte[] aesKey) {
+        Cipher cipherAES = null;
+        try {
+            if( aesKey == null ) {
+                return null;
+            }
+            SecretKeySpec sessionKey = new SecretKeySpec(aesKey, "AES");
+            cipherAES = Cipher.getInstance("AES", "BC");
+            cipherAES.init(mode, sessionKey);
+
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Error in AES preparation", t);
+            return null;
+        }
+        return cipherAES;
+    }
 }

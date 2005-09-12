@@ -50,11 +50,6 @@ public class BuddyList implements XMLizable {
 		if (containsKey(str)) {
 			return false;
 		}
-        // dont't store BoardAttachement with only pubKey=SSK@...
-        if( Identity.isForbiddenBoardAttachment(user.getBoard())) {
-            user.clearBoard(); // delete SKK pubKey board
-        }
-
 		hashMap.put(str, user);
         
 		return true;

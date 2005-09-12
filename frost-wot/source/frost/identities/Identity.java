@@ -35,7 +35,6 @@ public class Identity implements SafeXMLizable {
     private String name;
     private String uniqueName;
     protected String key;
-    protected BoardAttachment board = null;
     private long lastSeenTimestamp = -1;
     
     int state = -1; // FRIEND,...
@@ -43,7 +42,7 @@ public class Identity implements SafeXMLizable {
 	private static Logger logger = Logger.getLogger(Identity.class.getName());
     
     //some trust map methods
-    public int noMessages,noFiles;
+//    public int noMessages,noFiles;
     protected Set trustees;
 
 	//if this was C++ LocalIdentity wouldn't work
@@ -59,18 +58,20 @@ public class Identity implements SafeXMLizable {
 
 	public Element getXMLElement(Document doc)  {
 		Element el = getSafeXMLElement(doc);
+        Element element;
+        Text text;
 		
 		//# of files
-		Element element = doc.createElement("files");
-		Text text = doc.createTextNode(""+noFiles);
-		element.appendChild(text);
-		el.appendChild(element);
+//		Element element = doc.createElement("files");
+//		Text text = doc.createTextNode(""+noFiles);
+//		element.appendChild(text);
+//		el.appendChild(element);
 		
 		//# of messages
-		element = doc.createElement("messages");
-		text = doc.createTextNode(""+noMessages);
-		element.appendChild(text);
-		el.appendChild(element);
+//		element = doc.createElement("messages");
+//		text = doc.createTextNode(""+noMessages);
+//		element.appendChild(text);
+//		el.appendChild(element);
 
         // last seen timestamp
         if( getLastSeenTimestamp() > 0 ) {
@@ -80,15 +81,6 @@ public class Identity implements SafeXMLizable {
             el.appendChild(element);
         }
 
-		//if board is present, remove the safe element and add the
-		//full one.
-		if (board!=null) {
-			List list = XMLTools.getChildElementsByTagName(el,"Attachment");
-			if (list.size() > 0)
-				el.removeChild((Element)(list.get(0)));
-			el.appendChild(board.getXMLElement(doc));
-		}
-		
 		//trusted identities
 		if (trustees != null) {
 			element = doc.createElement("trustedIds");
@@ -121,10 +113,6 @@ public class Identity implements SafeXMLizable {
 		element.appendChild( cdata );
 		el.appendChild( element );
 		
-		//board
-		if (board!=null) {
-			el.appendChild(board.getSafeXMLElement(doc));
-        }
 		return el;
 	}
 	
@@ -132,14 +120,14 @@ public class Identity implements SafeXMLizable {
 		uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
 		name = uniqueName.substring(0,uniqueName.indexOf("@"));
 		key =  XMLTools.getChildElementsCDATAValue(e, "key");
-		try {
-			String _msg = XMLTools.getChildElementsTextValue(e,"messages");
-			noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
-			String _files = XMLTools.getChildElementsTextValue(e,"files");
-			noFiles = _files == null ? 0 : Integer.parseInt(_files);
-		} catch (Exception npe) {
-			logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
-		}
+//		try {
+//			String _msg = XMLTools.getChildElementsTextValue(e,"messages");
+//			noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
+//			String _files = XMLTools.getChildElementsTextValue(e,"files");
+//			noFiles = _files == null ? 0 : Integer.parseInt(_files);
+//		} catch (Exception npe) {
+//			logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
+//		}
 
         String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeen");
         if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
@@ -149,20 +137,6 @@ public class Identity implements SafeXMLizable {
             lastSeenTimestamp = System.currentTimeMillis();
         }
 
-		// see if board is attached
-		List _board = XMLTools.getChildElementsByTagName(e,"Attachment");
-		if (_board.size() > 0) {
-			try {
-				board = (BoardAttachment)Attachment.getInstance((Element)(_board.get(0)));
-			} catch(ClassCastException ex) {
-				logger.log(Level.SEVERE, "Exception thrown in loadXMLElement(Element e)", ex);
-				board =null;
-			}	
-            
-        } else {
-            board = null;
-        }
-        
 		// check for trustees
 		ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
 		Element trusteesList = null;
@@ -228,24 +202,6 @@ public class Identity implements SafeXMLizable {
 		return trustees;
 	}
 
-	/**
-	 * @return Returns the board.
-	 */
-	public BoardAttachment getBoard() {
-		return board;
-	}
-    
-    public void setBoard(BoardAttachment ba) {
-        if( board == null ) {
-            // dont't store BoardAttachement with only pubKey=SSK@...
-            if( isForbiddenBoardAttachment(ba) ) {
-                return; // delete SKK pubKey board
-            } else {
-                board = ba;
-            }
-        }
-    }
-    
     // dont't store BoardAttachement with pubKey=SSK@...
     public static boolean isForbiddenBoardAttachment(BoardAttachment ba) {
         if( ba != null && 
@@ -258,10 +214,6 @@ public class Identity implements SafeXMLizable {
         }
     }
     
-    public void clearBoard() {
-        board = null;
-    }
-
     public long getLastSeenTimestamp() {
         return lastSeenTimestamp;
     }
