@@ -69,10 +69,6 @@ public class LocalIdentity extends Identity {
 	public void loadXMLElement(Element el) throws SAXException {
 		super.loadXMLElement(el);
 		privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
-        // remove old SSK pub board
-        if( Identity.isForbiddenBoardAttachment(getBoard()) ) {
-            clearBoard();
-        }
 	}
 
     /**

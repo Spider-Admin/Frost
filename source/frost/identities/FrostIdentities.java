@@ -119,10 +119,6 @@ public class FrostIdentities implements Savable {
 			//Storage exists. Load from it.
 			identitiesDAO.load(this);
 			logger.info("ME = '" + mySelf.getUniqueName() + "'");
-            // if not already generated...
-            if( mySelf.getBoard() == null && freenetIsOnline ) {
-                // mySelf.generateOwnBoard(); // TODO: let generate correct keys
-            }
             // we loaded all 4 BuddyLists, only needed to repair them one time
             if( settings.getBoolValue("oneTimeUpdate.repairIdentities.didRun") == false ) {
                 repairIdentities();

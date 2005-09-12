@@ -1,25 +1,34 @@
+/*
+  Crypt.java / Frost
+  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
+
 package frost.crypt;
 import java.io.File;
+
 /**
  * facade for verifying/signing messages in frost
  */
-
  public interface Crypt {
  
- 	public static final int MSG_HEADER_SIZE = 27;
-	public static final int SIG_HEADER_SIZE = 34;
-	public static final int ENC_HEADER_SIZE = 40;
-
-
  	/**
 	 * [0] private, [1] public
 	 */
  	public String[] generateKeys(); 
-	
-	/**
-	 * the key is the signing key
-	 */
-//	public byte [] sign(byte [] message, String key);
 	
 	/**
 	 * generates a detached signature on a String.
@@ -32,12 +41,6 @@ import java.io.File;
 	public String detachedSign(byte [] message,String key);
 	
 	/**
-	 * the key is the verification key
-	 */
-//	public boolean verify(String message, String key);
-	
-	
-	/**
 	 *  Verifies a String with a detached signature
 	 * @param message the message to be verified
 	 * @param key the key used for verification
@@ -46,15 +49,6 @@ import java.io.File;
 	 */
     public boolean detachedVerify(String message, String key, String sig);
     public boolean detachedVerify(byte [] plaintext, String key, String sig);
-	/**
-	 * symmetric encryption of a string.
-	 */
-	public String simEncrypt(String what, String pass);
-
-	/**
-	 * symmetric decryption of a string.
-	 */
-	public String simDecrypt(String what, String pass);
 
 	/**
 	 * checksum of a string
@@ -62,17 +56,8 @@ import java.io.File;
 	public String digest(String what);
 	public String digest(File which);
 	
-	/**
-	 * encrypt and sign
-	 */
-//	public byte [] encryptSign(byte [] what, String myKey, String otherKey);
-    
-    public byte[] encrypt(byte[] what, String key);
-
-	/**
-	 * decrypt and verify, returns null if failed
-	 */
-	public byte [] decrypt(byte [] what, String myKey);
+    public byte[] encrypt(byte[] what, String publicKey);
+	public byte [] decrypt(byte [] what, String privateKey);
 	
 	public String encode64(String what);
 	
