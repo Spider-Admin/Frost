@@ -161,9 +161,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 			}
 			return true;
 		} catch (Exception exception) {
-			logger.log(
-				Level.SEVERE,
-				"Exception while loading the local file in checkLocalMessage(): "+exception.toString());
+			logger.log(Level.WARNING, "Handled Exception in checkLocalMessage", exception);
 			return false; // We assume that the local message is different (it may be corrupted)
 		}
 	}
@@ -178,7 +176,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	 * 			message that is being uploaded. False otherwise.
 	 */
 	private boolean checkRemoteFile(String key) {
-
 		try {
             File remoteFile = new File(messageFile.getPath() + ".coll");
             remoteFile.delete(); // just in case it already exists
@@ -197,13 +194,12 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     return checkLocalMessage(remoteFile);
                 }
             } else {
-            	return false;
-            	//We could not retrieve the remote file. We assume they are different.	
+            	return false; // We could not retrieve the remote file. We assume they are different.
             }
         } catch (Throwable e) {
-            logger.log(Level.SEVERE, "Exception in checkRemoteFile", e);
+            logger.log(Level.WARNING, "Handled exception in checkRemoteFile", e);
+            return false;
         }
-        return false;
 	}
 	
 	/**
