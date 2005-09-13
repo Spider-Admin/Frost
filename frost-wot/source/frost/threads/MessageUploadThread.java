@@ -188,6 +188,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 } else {
                     // compare contents
                     byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
+                    if(unzippedXml == null) {
+                        return false;
+                    }
                     FileAccess.writeFile(unzippedXml, remoteFile);
                     return checkLocalMessage(remoteFile);
                 }

@@ -209,35 +209,17 @@ public class FileAccess
     }
 
     /**
-     * Reads first zip file entry and returns content in a String
+     * Reads first zip file entry and returns content in a byte[].
      */
-    public static String readZipFile(String path) {
-        return readZipFile(new File(path));
-    }
-    
-    public static String readZipFile(File file) {
-        byte[] content = readZipFileBinary( file );
-        if( content != null ) {
-            return new String(content);
-        }
-        return null;
-    }
-    
-    
-    public static void main(String[] args) {
-        byte[] r = readZipFileBinary(new File("N:\\test1.enc.zip"));
-        writeFile(r, new File("N:\\RAUS"));
-        
-    }
     public static byte[] readZipFileBinary(File file) {
-		if( !file.isFile() || file.length() == 0 )
+		if( !file.isFile() || file.length() == 0 ) {
 			return null;
+        }
 
 		final int bufferSize = 4096;
 		try {
             ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-
 			try {
 				zis.getNextEntry();
                 
@@ -252,16 +234,12 @@ public class FileAccess
 				return out.toByteArray();
 			}
 			catch( IOException e ) {
-                if( zis != null ) {
-                    try { zis.close(); } catch(Throwable t) { }
-                }
+                try { zis.close(); } catch(Throwable t) { }
 				logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" + 
 										 "Offending file saved as badfile.zip, send to a dev for analysis", e);
-				File badFile = new File("badfile.zip");
-				file.renameTo(badFile);
+				try { copyFile(file.getPath(), "badfile.zip"); } catch(IOException ex) { }
 			}
-		}
-		catch( FileNotFoundException e ) {
+		} catch( FileNotFoundException e ) {
 			logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path)", e);
 		}
 		return null;
@@ -641,9 +619,8 @@ public class FileAccess
 	 * it is created. If it did exist, its contents are overwritten.
 	 * @param sourceName name of the source file
 	 * @param destName name of the destination file
-	 * @throws IOException if there was a problem while copying the file
 	 */
-	public static void copyFile(String sourceName, String destName) throws IOException {
+	public static void copyFile(String sourceName, String destName) throws IOException { 
 		FileChannel sourceChannel = null;
 		FileChannel destChannel = null;
 		try {
@@ -651,7 +628,7 @@ public class FileAccess
 			destChannel = new FileOutputStream(destName).getChannel();
 			destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
 		} catch (IOException exception) {
-			throw exception;
+			logger.log(Level.SEVERE, "Exception in copyFile", exception);
 		} finally {
 			if (sourceChannel != null) {
 				try { sourceChannel.close(); } catch (IOException ex) {}

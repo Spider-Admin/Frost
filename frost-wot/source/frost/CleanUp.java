@@ -42,9 +42,14 @@ public class CleanUp {
         // take maximum
         long daysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
 
-//        if( daysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
-//            daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
-//        }
+        // TODO: we should check all sepcial board settings for maxMessageDisplay,
+        // because if someone set 60 days for this and 30 days msgExpire, then we
+        // maybe delete a message that is currently shown, and if it is selected
+        // some error will occur. A reload fixes this.
+        // Alternative: check in options that expire date is always higher than maxMsgDisplay
+        if( daysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
+            daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
+        }
         if( daysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
             daysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
         }
