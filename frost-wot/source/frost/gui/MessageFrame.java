@@ -1314,6 +1314,14 @@ public class MessageFrame extends JFrame
             					JOptionPane.ERROR);
             return;                               
         }
+        int maxTextLength = (64*1024);
+        if( text.length() > maxTextLength ) {
+            JOptionPane.showMessageDialog( this,
+                    "The text of the message is too large ("+text.length()+" characters, "+maxTextLength+" allowed)!",
+                    "Text too large!",
+                    JOptionPane.ERROR_MESSAGE);
+            return;                               
+        }
 
         // for convinience set last used user (maybe obsolete now)
         frostSettings.setValue("userName", from);
@@ -1370,6 +1378,40 @@ public class MessageFrame extends JFrame
             }
             mo.setRecipient(recipient.getUniqueName());
         }
+        
+        // zip the xml file and check for maximum size
+        File tmpFile = null;
+        try {
+            tmpFile = File.createTempFile( "msgframe_", "_tmp", new File(frostSettings.getValue("temp.dir")) );
+        } catch (IOException e1) { }
+        if( tmpFile == null ) {
+            // paranoia
+            tmpFile = new File("msgframe_tmp_"+System.currentTimeMillis());
+        }
+        tmpFile.deleteOnExit();
+        if( mo.saveToFile(tmpFile) == true ) {
+            File zipFile = new File(tmpFile.getPath() + ".zipped");
+            zipFile.delete(); // just in case it already exists
+            zipFile.deleteOnExit(); // so that it is deleted when Frost exits
+            FileAccess.writeZipFile(FileAccess.readByteArray(tmpFile), "entry", zipFile);
+            long zipLen = zipFile.length();
+            tmpFile.delete();
+            zipFile.delete();
+            if( zipLen > 30000 ) { // 30000 because data+metadata must be smaller than 32k
+                JOptionPane.showMessageDialog( this,
+                        "The zipped message is too large ("+zipLen+" bytes, "+30000+" allowed)! Remove some text.",
+                        "Text too large!",
+                        JOptionPane.ERROR_MESSAGE);
+                return;
+            }
+        } else {
+            JOptionPane.showMessageDialog( this,
+                    "Error verifying the resulting message size.",
+                    "Error!",
+                    JOptionPane.ERROR_MESSAGE);
+            return;                               
+        }
+        
         // start upload thread which also saves the file, uploads attachments and signs if choosed
         tofTree.getRunningBoardUpdateThreads().startMessageUpload(
                                               board,

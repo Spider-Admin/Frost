@@ -380,7 +380,7 @@ public class MessageObject implements XMLizable
 			return false;
 		if (date.length() > 22)
 			return false;
-		if (content.length() > 32 * 1024)
+		if (content.length() > (64 * 1024)+1) // 64k or whatever fits in zipped data
 			return false;
 
 		return true;
@@ -464,24 +464,36 @@ public class MessageObject implements XMLizable
 	 * Save the message.
 	 */
 	public boolean save() {
-		File tmpFile = new File(file.getPath() + ".tmp");
-		boolean success = false;
-		try {
-			Document doc = XMLTools.createDomDocument();
-			doc.appendChild(getXMLElement(doc));
-			success = XMLTools.writeXmlFile(doc, tmpFile.getPath());
-		} catch (Exception e) {
-			logger.log(Level.SEVERE, "Error while saving message.", e);
-		}
-		if (success && tmpFile.length() > 0) {
-			file.delete();
-			tmpFile.renameTo(file);
-		} else {
-			tmpFile.delete();
-		}
-        return success;
+        if( file == null ) {
+            logger.log(Level.SEVERE, "Error: internal File is not set");
+            return false;
+        }
+        return saveToFile(file);
 	}
-    
+
+    /**
+     * Save the message to the specified file.
+     * Does not change the internal File.
+     */
+    public boolean saveToFile(File f) {
+        File tmpFile = new File(f.getPath() + ".tmp");
+        boolean success = false;
+        try {
+            Document doc = XMLTools.createDomDocument();
+            doc.appendChild(getXMLElement(doc));
+            success = XMLTools.writeXmlFile(doc, tmpFile.getPath());
+        } catch (Exception e) {
+            logger.log(Level.SEVERE, "Error while saving message.", e);
+        }
+        if (success && tmpFile.length() > 0) {
+            f.delete();
+            tmpFile.renameTo(f);
+        } else {
+            tmpFile.delete();
+        }
+        return success;
+    }
+
 	/**
 	 * @param board
 	 */

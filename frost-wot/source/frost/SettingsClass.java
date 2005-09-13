@@ -635,7 +635,7 @@ public class SettingsClass implements Savable {
 		defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin");
 		defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
 		defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
-		defaults.put("doCleanUp", "false");
+		defaults.put("deleteExpiredMessages", "false");
         defaults.put("messageExpireDays", "30");
 		defaults.put(AUTO_SAVE_INTERVAL, "15");
 

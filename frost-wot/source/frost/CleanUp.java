@@ -38,8 +38,17 @@ public class CleanUp {
      * Deletes all expired files in keypool.
      */
     public static void deleteExpiredFiles(File keypoolFolder) {
-        
+
+        // take maximum
         int daysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
+
+        if( daysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
+            daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
+        }
+        if( daysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
+            daysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
+        }
+        
         long expiration = new Date().getTime() - (daysOld * 24 * 60 * 60 * 1000);
         
         recursDir(keypoolFolder, expiration);
@@ -49,11 +58,12 @@ public class CleanUp {
      * MUST run only during startup of Frost.
      * Removes all empty date directories in a board directory. 
      */
-    public static void deleteEmptyBoardDateDirs(File keypool) {
-        File[] boardDirs = keypool.listFiles();
+    public static void deleteEmptyBoardDateDirs(File keypoolFolder) {
+        File[] boardDirs = keypoolFolder.listFiles();
         if( boardDirs == null || boardDirs.length == 0 ) {
             return;
         }
+        // all board directories
         for(int x=0; x < boardDirs.length; x++) {
             if( boardDirs[x].isFile() ) {
                 continue;
@@ -62,6 +72,7 @@ public class CleanUp {
             if( dateDirs == null || dateDirs.length == 0 ) {
                 continue;
             }
+            // all date directories
             for(int y=0; y < dateDirs.length; y++) {
                 if( dateDirs[y].isFile() ) {
                     continue;

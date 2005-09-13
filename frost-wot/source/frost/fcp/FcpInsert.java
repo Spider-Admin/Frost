@@ -95,6 +95,7 @@ public class FcpInsert
     
     /**
      * Inserts a file into freenet.
+     * The maximum file size for a KSK direct insert is 32000! (metadata + data!!!)
      * The uploadItem is needed for FEC splitfile puts, 
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
@@ -106,25 +107,41 @@ public class FcpInsert
                                    boolean doRedirect,
                                    FrostUploadItem ulItem)
     {
-        // Q: can this 32000 be enlarged? to same as for CHK keys (1MiB)?
-        // A: no, its hardcoded in freenet
-        if (file.length()==0){
+        if (file.length() == 0) {
 			JOptionPane.showMessageDialog(MainFrame.getInstance(), 
 							 "File "+file.getName()+" is empty!", // message
 							 "Warning", 
 							 JOptionPane.WARNING_MESSAGE);
 			return new String[]{"Error","Error"};
         }
-        if( file.length() > 32000 && uri.startsWith("KSK@") )
-        {
-            if( doRedirect )
-            {
+        // Q: can this 32K be enlarged? to same as for CHK keys (1MiB)?
+        // A: no, its hardcoded in freenet
+        long insertLength = file.length();
+        if( metadata != null ) {
+            insertLength += metadata.length;
+        }
+        
+        if( insertLength > 32767 && uri.startsWith("KSK@") ) {
+            if( doRedirect ) {
                 // Q: splitfile do currently NOT get any metadata applied
             	// A: they don't have metadata by convention
                 return putFECSplitFile(uri, file, htl, ulItem);
-            }
-            else
-            {
+            } else {
+                // alternativly we could insert the data as CHK and put a redirect into the metadata of the KSK:
+/*
+Version
+Revision=1
+EndPart
+Document
+Redirect.Target=freenet:CHK@04lpzVes2yukYy-CKLa7X28031oRAwI,mNNpw9nj4IasmujGtQeX0w
+Info.Description=file
+Info.Format=text/xml
+End
+
+----------
+RawDataLength=0 
+*/                
+                logger.log(Level.SEVERE, "Error: Data too large for direct KSK key, 32767 allowed: "+insertLength);
                 return new String[]{"Error", "Error"};
             }
         }
