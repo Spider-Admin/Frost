@@ -108,8 +108,9 @@ public class FcpInsert
                                    FrostUploadItem ulItem)
     {
         if (file.length() == 0) {
+            logger.log(Level.SEVERE, "Error: Can't upload empty file: "+file.getPath());
 			JOptionPane.showMessageDialog(MainFrame.getInstance(), 
-							 "File "+file.getName()+" is empty!", // message
+							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning", 
 							 JOptionPane.WARNING_MESSAGE);
 			return new String[]{"Error","Error"};
@@ -128,6 +129,7 @@ public class FcpInsert
                 return putFECSplitFile(uri, file, htl, ulItem);
             } else {
                 // alternativly we could insert the data as CHK and put a redirect into the metadata of the KSK:
+                // (but this would break compatability)
 /*
 Version
 Revision=1
@@ -142,6 +144,12 @@ End
 RawDataLength=0 
 */                
                 logger.log(Level.SEVERE, "Error: Data too large for direct KSK key, 32767 allowed: "+insertLength);
+                JOptionPane.showMessageDialog(MainFrame.getInstance(), 
+                         "<html>FcpInsert: Data of file "+file.getPath()+
+                         " too large for direct KSK key, 32767 allowed: "+insertLength+
+                         "<br>Please report this to a Frost developer!</html>",
+                         "Insert Error", 
+                         JOptionPane.ERROR_MESSAGE);
                 return new String[]{"Error", "Error"};
             }
         }
