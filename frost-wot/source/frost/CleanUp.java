@@ -40,7 +40,7 @@ public class CleanUp {
     public static void deleteExpiredFiles(File keypoolFolder) {
 
         // take maximum
-        int daysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
+        long daysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
 
         if( daysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
             daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
@@ -48,9 +48,7 @@ public class CleanUp {
         if( daysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
             daysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
         }
-        
         long expiration = new Date().getTime() - (daysOld * 24 * 60 * 60 * 1000);
-        
         recursDir(keypoolFolder, expiration);
     }
     
