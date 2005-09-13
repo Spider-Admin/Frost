@@ -4,9 +4,15 @@ Pending changes for next release:
 Added: timestamp to hashes.xml; and implemented automatic cleanup of old entries
 Added: Reworked the feature to send encrypted messages. The encrypted message must be
        signed, anonymous encrypted messages are not possible.
-       If an encrypted message for me arrives, it appears in the board it was sent to
+       If an encrypted message for you arrives, it appears in the board it was sent to
        and the FROM text is drawn in RED. The sender will not see its own sent message
        (because he is not able to decrypt it).
+       If you want to write an encrypted message to someone you must have marked him GOOD.
+       Then start to write a new message in a board, select 'Sign' and 'Encrypt' in 
+       the message dialog and choose the correct receiver from the drop down list.
+       Then send the message as usual...
+       (If you press REPLY to a selected encrypted message, the message dialog will
+        automatically select 'Encrypt' and add the correct recipient.)
        The reworked encryption now uses AES to encrypt the data and RSA to encrypt the
        AES session key.
 
@@ -47,7 +53,7 @@ Added: New user trust state OBSERVE, which is between CHECK and GOOD.
 Added: lastSeenTimestamp for each Identity.
        Needed later to cleanup old Identities by user request.
 Added: Shortkeys in message table:
-       - press 'n' for next UNREAD message in current board
+       - press 'n' to jump to next UNREAD message in current board
        - press 'g' to mark sender of selected message GOOD
        - press 'o' to mark sender of selected message OBSERVE
        - press 'c' to mark sender of selected message CHECK
@@ -67,17 +73,17 @@ Changed: the Java Object Cache is currently not used. It was responsible for ser
          benefits for Frost are. We even could use Hashtables for this.
 Changed: reworked message table internals, the table now updates much faster.
 Changed: Changing trust state does not reload the table.
-Changed: Option "Cleanup keypool" (News3) removed, added options in News1
+Changed: Option "Cleanup keypool" (News(3)) removed, added 2 new options in News(1):
          "Delete expired messages" and "Number of days before a message expires".
          If "Delete expired messages" is selected, Frost will check all files in
-         keypool (messages) on ech startup for modification date and will delete files 
+         keypool (messages) on each startup for modification date and will delete files
          older than "Number of days before a message expires".
-         After this all empty date directories in a board directory are deleted.
-         The deletion of expired files is done all 6 hours after Frost startup,
+         Then all empty date directories in a board directory are deleted.
+         The deletion of expired files is also done all 6 hours after Frost startup,
          directories are not deleted during runtime of Frost.
-Changed: Size of messages to upload is now checked, you get an error dialog if zipped
-         message is too large and you must shorten the message text.
-         The data+metadata of a KSK key must be smaller than 32K, therefore a zipped
+Changed: Size of messages to upload is now proved, you get an error dialog if the zipped
+         message is too large and you have to shorten the message text.
+         The data + metadata of a KSK key must be smaller than 32K, therefore a zipped
          XML message must be smaller or equal than 30000 bytes. The remaining bytes are
          needed for the metadata Frost adds to the message.
 
@@ -97,6 +103,7 @@ Bugfix: because of the bugs the identities file is maybe not completely valid,
         added one-time repair for this, its silently done during Frost startup.
 Bugfix: fixed some issues with new messages (new message indicator not removed
         after message was deleted,...)
+... and many other minor fixes ...
 
 ******************************************************************************************
 
