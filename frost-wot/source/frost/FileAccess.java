@@ -186,7 +186,7 @@ public class FileAccess
      */
     public static void writeZipFile(byte[] content, String entry, File file)
     {
-    	if (content.length==0) {
+    	if (content.length == 0) {
     		Exception e = new Exception();
     		e.fillInStackTrace();
 			logger.log(Level.SEVERE, "Tried to zip an empty file!  Send this output to a dev"+
@@ -194,8 +194,7 @@ public class FileAccess
     		return;
     	}
         try {
-            FileOutputStream fos = new FileOutputStream(file);
-            ZipOutputStream zos = new ZipOutputStream(fos);
+            ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file));
             zos.setLevel(9); // maximum compression
             ZipEntry ze = new ZipEntry(entry);
             ze.setSize(content.length);
@@ -204,9 +203,7 @@ public class FileAccess
 			zos.flush(); //do this before closeEntry()
             zos.closeEntry();
             zos.close();
-            fos.close();
-        }
-        catch( IOException e ) {
+        } catch( Throwable e ) {
 			logger.log(Level.SEVERE, "Exception thrown in writeZipFile(byte[] content, String entry, File file)", e);
         }
     }
@@ -214,87 +211,50 @@ public class FileAccess
     /**
      * Reads first zip file entry and returns content in a String
      */
-    public static String readZipFile(String path)
-    {
+    public static String readZipFile(String path) {
         return readZipFile(new File(path));
     }
-    public static String readZipFile(File file)
-    {
+    
+    public static String readZipFile(File file) {
         byte[] content = readZipFileBinary( file );
-        if( content != null )
-        {
+        if( content != null ) {
             return new String(content);
         }
         return null;
     }
     
-    public static byte[] readZipFileBinary(File file)
-    {
+    
+    public static void main(String[] args) {
+        byte[] r = readZipFileBinary(new File("N:\\test1.enc.zip"));
+        writeFile(r, new File("N:\\RAUS"));
+        
+    }
+    public static byte[] readZipFileBinary(File file) {
 		if( !file.isFile() || file.length() == 0 )
 			return null;
 
-		int bufferSize = 4096;
-		try
-		{
-			FileInputStream fis = new FileInputStream(file);
-			ZipInputStream zis = new ZipInputStream(fis);
+		final int bufferSize = 4096;
+		try {
+            ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
+            ByteArrayOutputStream out = new ByteArrayOutputStream();
 
 			try {
-				ArrayList chunks = new ArrayList();
-				ArrayList chunkLen = new ArrayList();
-                
 				zis.getNextEntry();
-				byte[] zipData = null;
-				int len;
-				boolean bur = true; // Buffer underrun
-				int off = 0;
-				int num = bufferSize;
-
-				while( zis.available() == 1 )
-				{
-					bur = true;
-					off = 0;
-					num = bufferSize;
-					zipData = new byte[bufferSize];
-					while( bur && zis.available() == 1 )
-					{
-						len = zis.read(zipData, off, num);
-						off += len;
-						if( off >= bufferSize )
-							bur = false;
-						else
-							num = num - len;
-					}
-					// first add allo chunks and assemble them later
-					chunks.add(zipData);
-					chunkLen.add( new Integer(off));
-				}
-				fis.close();
-				zis.close();
-				// now put all chunks into 1 byte array
-				int overallLen = 0;
-				Iterator i = chunkLen.iterator();
-				while(i.hasNext())
-				{
-					Integer aChunkLen = (Integer)i.next();
-					overallLen += aChunkLen.intValue();
-				}
-				overallLen++;
-				byte[] resultbytes = new byte[overallLen];
-				int actOffset = 0;
-				for(int x=0; x<chunks.size(); x++)
-				{
-					byte[] aChunk = (byte[])chunks.get(x);
-					int aChunkLen = ((Integer)chunkLen.get(x)).intValue();
-                    
-                    if (x==chunks.size()-1) aChunkLen++;
-					System.arraycopy(aChunk, 0, resultbytes, actOffset, aChunkLen);
-					actOffset += aChunkLen;
-				}
                 
-				return resultbytes;
+				byte[] zipData = new byte[bufferSize];
+				while( true ) {
+                    int len = zis.read(zipData);
+                    if( len < 0 ) {
+                        break;
+                    }
+                    out.write(zipData, 0, len);
+				}
+				return out.toByteArray();
 			}
 			catch( IOException e ) {
+                if( zis != null ) {
+                    try { zis.close(); } catch(Throwable t) { }
+                }
 				logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" + 
 										 "Offending file saved as badfile.zip, send to a dev for analysis", e);
 				File badFile = new File("badfile.zip");
