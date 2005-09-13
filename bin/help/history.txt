@@ -69,12 +69,17 @@ Changed: reworked message table internals, the table now updates much faster.
 Changed: Changing trust state does not reload the table.
 Changed: Option "Cleanup keypool" (News3) removed, added options in News1
          "Delete expired messages" and "Number of days before a message expires".
-         If "Delete expired messages" is selected ,Frost will check all files in
+         If "Delete expired messages" is selected, Frost will check all files in
          keypool (messages) on ech startup for modification date and will delete files 
          older than "Number of days before a message expires".
          After this all empty date directories in a board directory are deleted.
          The deletion of expired files is done all 6 hours after Frost startup,
          directories are not deleted during runtime of Frost.
+Changed: Size of messages to upload is now checked, you get an error dialog if zipped
+         message is too large and you must shorten the message text.
+         The data+metadata of a KSK key must be smaller than 32K, therefore a zipped
+         XML message must be smaller or equal than 30000 bytes. The remaining bytes are
+         needed for the metadata Frost adds to the message.
 
 Bugfix: fixes in MessageDownloadThread:
         - validates format of all messages again
