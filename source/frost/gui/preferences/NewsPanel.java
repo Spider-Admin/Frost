@@ -179,7 +179,7 @@ class NewsPanel extends JPanel {
 		displayDaysTextField.setText(settings.getValue("maxMessageDisplay"));
 		downloadDaysTextField.setText(settings.getValue("maxMessageDownload"));
 		messageBaseTextField.setText(settings.getValue("messageBase"));
-        deleteExpiredMessages.setSelected(settings.getBoolValue("doCleanup"));
+        deleteExpiredMessages.setSelected(settings.getBoolValue("deleteExpiredMessages"));
         messageExpireDays.setText(settings.getValue("messageExpireDays"));
 			
 		//Load signature
@@ -216,7 +216,7 @@ class NewsPanel extends JPanel {
 		settings.setValue("maxMessageDownload", downloadDaysTextField.getText());
 		settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
         settings.setValue("messageExpireDays", messageExpireDays.getText());
-        settings.setValue("doCleanup", deleteExpiredMessages.isSelected());
+        settings.setValue("deleteExpiredMessages", deleteExpiredMessages.isSelected());
 
 		//Save signature
 		FileAccess.writeFile(getSignatureTextArea().getText(), "signature.txt", "UTF-8");

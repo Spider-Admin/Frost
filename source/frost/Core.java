@@ -572,7 +572,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
         Startup.startupCheck(frostSettings, keypool);
 //        FileAccess.cleanKeypool(keypool); // not longer needed
-        if( frostSettings.getBoolValue("doCleanUp") ) {
+        if( frostSettings.getBoolValue("deleteExpiredMessages") ) {
             File keypoolFolder = new File(keypool);
             CleanUp.deleteExpiredFiles(keypoolFolder);
             CleanUp.deleteEmptyBoardDateDirs(keypoolFolder);
@@ -724,7 +724,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 			int i = 0;
 			public void run() {
 				// maybe each 6 hours cleanup files (12 * 30 minutes)
-				if (i >= 12 && frostSettings.getBoolValue("doCleanUp")) {
+				if (i >= 12 && frostSettings.getBoolValue("deleteExpiredMessages")) {
 					i = 0;
 					logger.info("discarding expired files");
                     File keypoolFolder = new File(keypool);

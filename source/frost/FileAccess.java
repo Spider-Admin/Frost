@@ -196,6 +196,7 @@ public class FileAccess
         try {
             FileOutputStream fos = new FileOutputStream(file);
             ZipOutputStream zos = new ZipOutputStream(fos);
+            zos.setLevel(9); // maximum compression
             ZipEntry ze = new ZipEntry(entry);
             ze.setSize(content.length);
             zos.putNextEntry(ze);

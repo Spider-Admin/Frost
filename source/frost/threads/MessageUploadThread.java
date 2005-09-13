@@ -376,6 +376,19 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		} else if( encryptForRecipient != null ) {
 		    return false; // unable to encrypt
         }
+
+        long allLength = zipFile.length();
+        if( signMetadata != null ) {
+            allLength += signMetadata.length;
+        }
+        if( allLength > 32767 ) { // limit in FcpInsert.putFile()
+            String txt = "The data you want to upload is too large ("+allLength+"), "+32767+" allowed.";
+            JOptionPane.showMessageDialog(parentFrame, txt, "Error: message too large", JOptionPane.ERROR_MESSAGE);
+            // TODO: the msg will be NEVER sent, we need an unsent folder in gui
+            // but no too large message should reach us, see MessageFrame
+            return false;
+        }
+
 		return true;
 	}
 
