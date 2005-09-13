@@ -48,8 +48,10 @@ public class CleanUp {
         if( daysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
             daysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
         }
+        logger.info("Starting to delete all expired files older than "+daysOld+" days.");
         long expiration = new Date().getTime() - (daysOld * 24 * 60 * 60 * 1000);
         recursDir(keypoolFolder, expiration);
+        logger.info("Finished to delete all expired files older than "+daysOld+" days.");
     }
     
     /**
@@ -61,6 +63,7 @@ public class CleanUp {
         if( boardDirs == null || boardDirs.length == 0 ) {
             return;
         }
+        logger.info("Starting to delete all empty board date directories.");
         // all board directories
         for(int x=0; x < boardDirs.length; x++) {
             if( boardDirs[x].isFile() ) {
@@ -85,6 +88,7 @@ public class CleanUp {
                 }
             }
         }
+        logger.info("Finished to delete all empty board date directories.");
     }
 
     /**
