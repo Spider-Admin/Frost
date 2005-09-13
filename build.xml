@@ -26,7 +26,7 @@
 
   <!--  javac compiler options -->
   <property name="debug" value="false" />
-  <property name="debuglevel" value="" /> 
+  <property name="debuglevel" value="" />
   <property name="deprecation" value="true" />
   <property name="verbose" value="false" />
   <property name="optimize" value="true" />
@@ -201,7 +201,7 @@ Build log  : ${logfilename}</echo>
         <include name="**"/>
       </fileset>
     </jar>
-    
+
     <delete quiet="true" file="${dist.dir}/frost.manifest"/>
 
     <delete quiet="true" file="${dist.dir}/lib/fecImpl.jar"/>
@@ -228,7 +228,7 @@ Build log  : ${logfilename}</echo>
         <include name="**/*.class"/>
       </fileset>
     </jar>
-    
+
     <delete quiet="true" file="${dist.dir}/lib/jocache.jar"/>
     <mkdir dir="${dist.dir}/lib"/>
     <jar jarfile="${dist.dir}/lib/jocache.jar">
@@ -280,12 +280,12 @@ Build log  : ${logfilename}</echo>
     <copy todir="${release.dir}">
       <fileset dir="${dist.dir}">
       	<filename name="${jarName}"/>
-      </fileset> 
+      </fileset>
    </copy>
 
     <delete quiet="true" file="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
     <delete quiet="true" file="${release.dir}/${distJarNamePrefix}latest.jar"/>
-    
+
     <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}${NOW.DATE}.jar"/>
 
     <copy todir="${release.dir}">
@@ -294,15 +294,15 @@ Build log  : ${logfilename}</echo>
 	</fileset>
    </copy>
    <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}latest.jar"/>
-			    
 
-    <!-- Prepares the source zip -->
+
+    <!-- Prepares the source zip (exclude the libary jars) -->
 
     <delete quiet="true" file="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip"/>
     <zip destfile="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip" filesonly="true">
     	<zipfileset dir="."
     				prefix = "frost-wot"
-    				excludes=".* **/CVS/*"
+    				excludes=".* **/CVS/* ${lib.dir}/**/*.jar"
     				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/*
     						  ${lib.dir}/**/* ${specs.dir}/**/*
 						  build.xml  HISTORY.txt TODO"/>
