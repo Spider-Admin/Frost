@@ -2,9 +2,6 @@
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <!-- Build file for Frost-wot                                          -->
 <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-<!-- Main settings you maybe want to change:                           -->
-<!--   "zipName"                                                       -->
-<!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
 <project name="frost" default="main" basedir=".">
 
   <!-- Prefix of the name of the distribution files to create -->
@@ -296,7 +293,7 @@ Build log  : ${logfilename}</echo>
    <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}latest.jar"/>
 
 
-    <!-- Prepares the source zip (exclude the libary jars) -->
+    <!-- Prepares the source zip (exclude the library jars) -->
 
     <delete quiet="true" file="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip"/>
     <zip destfile="${release.dir}/${distSourceZipNamePrefix}${NOW.DATE}.zip" filesonly="true">
