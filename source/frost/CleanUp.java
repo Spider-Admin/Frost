@@ -42,9 +42,9 @@ public class CleanUp {
         // take maximum
         long daysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
 
-        if( daysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
-            daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
-        }
+//        if( daysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
+//            daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
+//        }
         if( daysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
             daysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
         }

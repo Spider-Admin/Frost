@@ -53,11 +53,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
-  * TODO: rework identities stuff + save to xml
-  *       - save identities together (not separated friends,enemies)
-  *       - each identity have 3 states: GOOD, BAD, NEUTRAL
-  *       - filter out enemies on read of messages
-  *       - after removing a board, let actual board selected (currently if you
+  * TODO: - after removing a board, let actual board selected (currently if you
   *          delete another than selected board the tofTree is updated)
   */
 public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater {
@@ -66,10 +62,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * It also launches popup menus
      */
     private class Listener extends WindowAdapter {
-
-        /* (non-Javadoc)
-         * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
-         */
         public void windowClosing(WindowEvent e) {
             // save size,location and state of window
             Rectangle bounds = getBounds();
@@ -83,10 +75,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 frostSettings.setValue("lastFramePosX", bounds.x);
                 frostSettings.setValue("lastFramePosY", bounds.y);
             }
-
             fileExitMenuItem_actionPerformed(null);
         }
-
     } // end of class popuplistener
 
     private class MessagePanel extends JPanel {
@@ -107,9 +97,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 super();
             }
 
-            /* (non-Javadoc)
-             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-             */
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == updateButton) {
                     updateButton_actionPerformed(e);
@@ -162,7 +149,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     }
                     //if leftbtn double click on message show this message
                     //in popup window
-                }else if(SwingUtilities.isLeftMouseButton(e)){
+                } else if(SwingUtilities.isLeftMouseButton(e)) {
                     //accepting only mouse pressed event as double click,
                     //overwise it will be triggered twice
                     if(e.getID() == MouseEvent.MOUSE_PRESSED )
@@ -693,18 +680,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             private JMenuItem cancelItem = new JMenuItem();
             private JMenuItem saveMessageItem = new JMenuItem();
 
-            /**
-             * @param sourceTextComponent
-             */
             public PopupMenuTofText(JTextComponent sourceTextComponent) {
                 super();
                 this.sourceTextComponent = sourceTextComponent;
                 initialize();
             }
 
-            /* (non-Javadoc)
-             * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-             */
             public void actionPerformed(ActionEvent e) {
                 if (e.getSource() == saveMessageItem) {
                     saveMessage();
@@ -714,17 +695,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 }
             }
 
-            /**
-             *
-             */
             private void copySelectedText() {
                 StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
                 clipboard.setContents(selection, this);
             }
 
-            /**
-             *
-             */
             private void initialize() {
                 refreshLanguage();
 
@@ -741,25 +716,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 add(cancelItem);
             }
 
-            /* (non-Javadoc)
-             * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-             */
             public void languageChanged(LanguageEvent event) {
                 refreshLanguage();
             }
 
-            /**
-             *
-             */
             private void refreshLanguage() {
                 copyItem.setText(language.getString("Copy"));
                 saveMessageItem.setText(language.getString("Save message to disk"));
                 cancelItem.setText(language.getString("Cancel"));
             }
 
-            /**
-             *
-             */
             private void saveMessage() {
                 FileAccess.saveDialog(
                     parentFrame,
@@ -768,9 +734,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     language.getString("Save message to disk"));
             }
 
-            /* (non-Javadoc)
-             * @see javax.swing.JPopupMenu#show(java.awt.Component, int, int)
-             */
             public void show(Component invoker, int x, int y) {
                 if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
                     if (sourceTextComponent.getSelectedText() != null) {
@@ -782,13 +745,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 }
             }
 
-            /* (non-Javadoc)
-             * @see java.awt.datatransfer.ClipboardOwner#lostOwnership(java.awt.datatransfer.Clipboard, java.awt.datatransfer.Transferable)
-             */
-            public void lostOwnership(Clipboard clipboard, Transferable contents) {
+            public void lostOwnership(Clipboard tclipboard, Transferable contents) {
                 // Nothing here
             }
-
         }
 
         private Logger logger = Logger.getLogger(MainFrame.MessagePanel.class.getName());
@@ -832,7 +791,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
 
         private AntialiasedTextArea messageTextArea = null;
-        private JSplitPane mainSplitPane = null;
+//        private JSplitPane mainSplitPane = null;
         private JSplitPane messageSplitPane = null;
         private JSplitPane attachmentsSplitPane = null;
 
@@ -878,7 +837,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                             FrostSearchItem.STATE_NONE);
                     //FIXME: <-does this matter?
                     FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-                    boolean added = downloadModel.addDownloadItem(dlItem);
+                    downloadModel.addDownloadItem(dlItem);
                 }
 
             } else {
@@ -892,7 +851,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                             sfo,
                             FrostSearchItem.STATE_NONE);
                     FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-                    boolean added = downloadModel.addDownloadItem(dlItem);
+                    downloadModel.addDownloadItem(dlItem);
                 }
             }
         }
@@ -1044,9 +1003,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return buttonsToolbar;
         }
 
-        /**
-         * @return
-         */
         private PopupMenuAttachmentBoard getPopupMenuAttachmentBoard() {
             if (popupMenuAttachmentBoard == null) {
                 popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
@@ -1055,9 +1011,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return popupMenuAttachmentBoard;
         }
 
-        /**
-         * @return
-         */
         private PopupMenuAttachmentTable getPopupMenuAttachmentTable() {
             if (popupMenuAttachmentTable == null) {
                 popupMenuAttachmentTable = new PopupMenuAttachmentTable();
@@ -1066,9 +1019,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return popupMenuAttachmentTable;
         }
 
-        /**
-         * @return
-         */
         private PopupMenuMessageTable getPopupMenuMessageTable() {
             if (popupMenuMessageTable == null) {
                 popupMenuMessageTable = new PopupMenuMessageTable();
@@ -1077,9 +1027,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return popupMenuMessageTable;
         }
 
-        /**
-         * @return
-         */
         private PopupMenuTofText getPopupMenuTofText() {
             if (popupMenuTofText == null) {
                 popupMenuTofText = new PopupMenuTofText(messageTextArea);
@@ -1088,9 +1035,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return popupMenuTofText;
         }
 
-        /**
-         *
-         */
         public void initialize() {
             if (!initialized) {
                 refreshLanguage();
@@ -1211,14 +1155,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 if (((TreeNode) tofTreeModel.getRoot()).getChildCount() == 0) {
                     messageTextArea.setText(language.getString("Welcome message"));
                 }
-
                 initialized = true;
             }
         }
 
-        /**
-         *
-         */
         private void fontChanged() {
             String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
             int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
@@ -1247,13 +1187,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             messageTable.setFont(font);
         }
 
-        /**
-         * @param e
-         */
         private void messageTable_itemSelected(ListSelectionEvent e) {
             Board selectedBoard = tofTreeModel.getSelectedNode();
-            if (selectedBoard.isFolder())
+            if (selectedBoard.isFolder()) {
+                setGoodButton.setEnabled(false);
+                setCheckButton.setEnabled(false);
+                setBadButton.setEnabled(false);
+                setObserveButton.setEnabled(false);
                 return;
+            }
+
             selectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
             if (selectedMessage != null) {
                 displayNewMessageIcon(false);
@@ -1296,12 +1239,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     setBadButton.setEnabled(false);
                     setObserveButton.setEnabled(false);
                 }
-
                 messageTextArea.setText(selectedMessage.getContent());
-                if (selectedMessage.getContent().length() > 0)
+                if (selectedMessage.getContent().length() > 0) {
                     saveMessageButton.setEnabled(true);
-                else
+                } else {
                     saveMessageButton.setEnabled(false);
+                }
 
                 List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
                 List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
@@ -1316,6 +1259,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 messageTextArea.setText(language.getString("Select a message to view its content."));
                 replyButton.setEnabled(false);
                 saveMessageButton.setEnabled(false);
+                
+                setGoodButton.setEnabled(false);
+                setCheckButton.setEnabled(false);
+                setBadButton.setEnabled(false);
+                setObserveButton.setEnabled(false);
 //              downloadAttachmentsButton.setEnabled(false);
 //              downloadBoardsButton.setEnabled(false);
             }
@@ -2529,10 +2477,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         return messagePanel;
     }
     
-//    public MessageTable getMessageTable() {
-//        return messageTable;
-//    }
-
     /**
      * @return
      */
@@ -2918,7 +2862,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
                 uploadPanel.setAddFilesButtonEnabled(true);
                 renameBoardButton.setEnabled(false);
-
+                
                 // read all messages for this board into message table
                 TOF.getInstance().updateTofTable(node, keypool);
                 messageTable.clearSelection();

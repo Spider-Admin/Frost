@@ -382,7 +382,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             allLength += signMetadata.length;
         }
         if( allLength > 32767 ) { // limit in FcpInsert.putFile()
-            String txt = "The data you want to upload is too large ("+allLength+"), "+32767+" allowed.";
+            String txt = "<html>The data you want to upload is too large ("+allLength+"), "+32767+" is allowed.<br>"+
+                         "This should never happen, please report this to a Frost developer!</html>";
             JOptionPane.showMessageDialog(parentFrame, txt, "Error: message too large", JOptionPane.ERROR_MESSAGE);
             // TODO: the msg will be NEVER sent, we need an unsent folder in gui
             // but no too large message should reach us, see MessageFrame
