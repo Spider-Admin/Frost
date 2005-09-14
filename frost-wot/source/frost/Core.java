@@ -337,7 +337,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         File batches = new File("batches");
         if (batches.exists() && batches.length() > 0) //fix previous version bug
         	try {
-        		String allBatches = FileAccess.readFileRaw(batches);
+        		String allBatches = FileAccess.readFile(batches);
         		String[] _batches = allBatches.split("_");
         		//dumb.  will fix later
         

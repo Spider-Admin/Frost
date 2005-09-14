@@ -1660,9 +1660,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      */
     private class RemoveDummyRequestFiles extends Thread {
 
-        /* (non-Javadoc)
-         * @see java.lang.Runnable#run()
-         */
         public void run() {
             Iterator i = tofTreeModel.getAllBoards().iterator();
 
@@ -1682,10 +1679,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     File[] entries = boarddir.listFiles();
                     for (int x = 0; x < entries.length; x++) {
                         File entry = entries[x];
-
-                        if (entry.getName().endsWith(".req.sha")
-                            && FileAccess.readFileRaw(entry).indexOf(DownloadThread.KEYCOLL_INDICATOR)
-                                > -1) {
+                        if (entry.getName().endsWith(".req.sha") &&
+                            FileAccess.readFile(entry).indexOf(DownloadThread.KEYCOLL_INDICATOR) > -1) 
+                        {
                             entry.delete();
                         }
                     }
