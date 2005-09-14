@@ -182,7 +182,7 @@ public class GetRequestsThread extends Thread
 										+ " Received request "
 										+ testMe.getName());
 
-								String content = (FileAccess.readFileRaw(testMe)).trim();
+								String content = (FileAccess.readFile(testMe)).trim();
 								logger.fine("Request content is " + content);
 								int rowCount = model.getItemCount();
 

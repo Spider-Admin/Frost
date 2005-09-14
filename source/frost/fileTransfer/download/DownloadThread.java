@@ -228,7 +228,7 @@ public class DownloadThread extends Thread {
 			}
 		});
 		for (int i = 0; i < files.length; i++) {
-			String content = (FileAccess.readFileRaw(files[i])).trim();
+			String content = (FileAccess.readFile(files[i])).trim();
 			if (content.equals(SHA1)) {
 				requested = true;
 				logger.info("FILEDN: File '" + filename + "' was already requested");
@@ -357,8 +357,8 @@ public class DownloadThread extends Thread {
 						if (FcpRequest.getFile(requestMe, null, compareMe, 25, false) != null) {
 							File numberOne = compareMe;
 							File numberTwo = requestFile;
-							String contentOne = (FileAccess.readFileRaw(numberOne)).trim();
-							String contentTwo = (FileAccess.readFileRaw(numberTwo)).trim();
+							String contentOne = (FileAccess.readFile(numberOne)).trim();
+							String contentTwo = (FileAccess.readFile(numberTwo)).trim();
 
 							//if( DEBUG ) Core.getOut().println(contentOne);
 							//if( DEBUG ) Core.getOut().println(contentTwo);
