@@ -67,7 +67,8 @@ Changed: Removed support for loading the very old format of 'hashes' and 'identi
 Changed: removed need for .sig files, changing trust state is now very fast,
          there is a one-time convert needed for this (done on startup of frost)
 Changed: Updated history.txt file, so the Help dialog will show correct history again.
-Changed: upgraded from Apache Xerces XML parser version 2.4.0 to version 2.7.1
+Changed: upgraded from Apache Xerces XML parser version 2.4.0 to latest version 2.7.1
+Changed: upgraded the BouncyCastle encryption libraries to latest version 1.29
 Changed: the Java Object Cache is currently not used. It was responsible for serious
          problems if messages are marked read, and I was not able to realize what its
          benefits for Frost are. We even could use Hashtables for this.
