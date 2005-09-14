@@ -55,6 +55,7 @@ public class TofTree extends JDragTree implements Savable {
 		private JMenuItem pasteNodeItem = new JMenuItem();
 		private JMenuItem refreshItem = new JMenuItem();
 		private JMenuItem removeNodeItem = new JMenuItem();
+        private JMenuItem renameFolderItem = new JMenuItem();
 
         private JMenuItem markAllReadItem = new JMenuItem();
 
@@ -93,6 +94,8 @@ public class TofTree extends JDragTree implements Savable {
 						sortFolderSelected();
 					} else if( source == markAllReadItem ) {
 					    markAllReadSelected();
+                    } else if( source == renameFolderItem ) {
+                        renameFolderSelected();
                     }
 				}
 	
@@ -133,6 +136,7 @@ public class TofTree extends JDragTree implements Savable {
 			refreshItem.setIcon(miscToolkit.getScaledImage("/data/update.gif", 16, 16));
 			removeNodeItem.setIcon(miscToolkit.getScaledImage("/data/remove.gif", 16, 16));
 			sortFolderItem.setIcon(miscToolkit.getScaledImage("/data/sort.gif", 16, 16));
+            renameFolderItem.setIcon(miscToolkit.getScaledImage("/data/rename.gif", 16, 16));
 			
 			descriptionItem.setEnabled(false);
 	
@@ -147,6 +151,7 @@ public class TofTree extends JDragTree implements Savable {
             configureFolderItem.addActionListener(this);
             sortFolderItem.addActionListener(this);
             markAllReadItem.addActionListener(this);
+            renameFolderItem.addActionListener(this);
 		}
 	
 		/* (non-Javadoc)
@@ -170,6 +175,7 @@ public class TofTree extends JDragTree implements Savable {
 			cancelItem.setText(language.getString("Cancel"));
 			sortFolderItem.setText(language.getString("Sort folder"));
             markAllReadItem.setText(language.getString("Mark ALL messages read"));
+            renameFolderItem.setText(language.getString("Rename folder"));
 		}
 	
 		private void refreshSelected() {
@@ -217,6 +223,7 @@ public class TofTree extends JDragTree implements Savable {
                 add(markAllReadItem);
 				addSeparator();
 				if (selectedTreeNode.isFolder() == true) {
+                    add(renameFolderItem);
                     add(configureFolderItem);
                     add(sortFolderItem);
 				} else {
@@ -257,6 +264,10 @@ public class TofTree extends JDragTree implements Savable {
 			selectedTreeNode.sortChildren();
 			model.nodeStructureChanged(selectedTreeNode);
 		}
+        
+        private void renameFolderSelected() {
+            MainFrame.getInstance().renameNode( selectedTreeNode );
+        }
 	}
 
 	private class Listener extends MouseAdapter implements LanguageListener, ActionListener,
@@ -972,10 +983,8 @@ public class TofTree extends JDragTree implements Savable {
 		if (node != null) {
 			if (node.isFolder() == false) {
 				// Node is a board
-				configBoardButton.setEnabled(true);
 			} else {
 				// Node is a folder
-				configBoardButton.setEnabled(false);
 				if (node.isRoot()) {
 					cutBoardButton.setEnabled(false);
 				} else {

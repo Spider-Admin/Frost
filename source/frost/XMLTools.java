@@ -174,10 +174,7 @@ public class XMLTools {
 			writer.close(); //this also flushes
 			return true;
 		} catch (Exception ex) {
-			logger.log(
-				Level.SEVERE,
-				"Exception thrown in writeXmlFile(Document doc, String filename)",
-				ex);
+			logger.log(Level.SEVERE, "Exception thrown in writeXmlFile(Document doc, String filename)", ex);
 		}
 		return false;
 	}

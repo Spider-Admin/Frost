@@ -586,6 +586,14 @@ public class Core implements Savable, FrostEventDispatcher  {
 		}
 
         // TODO: one time convert, remove later (added: 2005-09-02)
+
+        // check if this is a first time startup and maybe skip conversion
+        File identitiesFile = new File("identities.xml");
+        if( identitiesFile.exists() == false || identitiesFile.length() == 0 ) {
+            frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
+            frostSettings.setValue("oneTimeUpdate.repairIdentities.didRun", true);
+        }
+
         if( frostSettings.getBoolValue("oneTimeUpdate.convertSigs.didRun") == false ) {
             splashscreen.setText("Convert from old format");
             
@@ -725,13 +733,17 @@ public class Core implements Savable, FrostEventDispatcher  {
 			public void run() {
 				// maybe each 6 hours cleanup files (12 * 30 minutes)
 				if (i >= 12 && frostSettings.getBoolValue("deleteExpiredMessages")) {
-					i = 0;
 					logger.info("discarding expired files");
-                    File keypoolFolder = new File(keypool);
-                    CleanUp.deleteExpiredFiles(keypoolFolder);
+                    CleanUp.deleteExpiredFiles(new File(keypool));
 				}
-				logger.info("freeing memory");
-				System.gc();
+                // free memory each hour
+                if( i % 2 == 0 ) {
+                    logger.info("freeing memory");
+                    System.gc();
+                }
+                if( i >= 12 ) { // reset
+                    i = 0;
+                }
 				i++;
 			}
 		};
