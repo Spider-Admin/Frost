@@ -465,7 +465,7 @@ public class MessageObject implements XMLizable
 	 */
 	public boolean save() {
         if( file == null ) {
-            logger.log(Level.SEVERE, "Error: internal File is not set");
+            logger.log(Level.SEVERE, "Error: internal File pointer is not set");
             return false;
         }
         return saveToFile(file);
@@ -473,7 +473,7 @@ public class MessageObject implements XMLizable
 
     /**
      * Save the message to the specified file.
-     * Does not change the internal File.
+     * Does not change the internal File pointer.
      */
     public boolean saveToFile(File f) {
         File tmpFile = new File(f.getPath() + ".tmp");
@@ -486,8 +486,13 @@ public class MessageObject implements XMLizable
             logger.log(Level.SEVERE, "Error while saving message.", e);
         }
         if (success && tmpFile.length() > 0) {
-            f.delete();
-            tmpFile.renameTo(f);
+            if( f.delete() == false ) {
+                logger.log(Level.SEVERE, "Error while saving message, delete failed.");
+            }
+            if( tmpFile.renameTo(f) == false ) {
+                logger.log(Level.SEVERE, "Error while saving message, renameTo failed.");
+                return false;
+            }
         } else {
             tmpFile.delete();
         }

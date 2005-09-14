@@ -363,7 +363,9 @@ public class TOF
             SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
                         // check if tof table shows this board
-                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
+                        if( tofTreeModel.getSelectedNode().isFolder() == false &&
+                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) 
+                        {
                             tableModel.clearDataModel();
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }
@@ -397,8 +399,7 @@ public class TOF
                                     return true;
                                 return false;
                             } });
-                    if( filePointers != null )
-                    {
+                    if( filePointers != null ) {
                         String sdate = new StringBuffer().append(date).append("-").append(targetBoard).append("-").toString();
                         for( int j = 0; j < filePointers.length; j++ ) {
                             if( filePointers[j].length() > 0 &&
@@ -431,7 +432,9 @@ public class TOF
                                     SwingUtilities.invokeLater( new Runnable() {
                                         public void run() {
                                             // check if tof table shows this board
-                                            if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
+                                            if( tofTreeModel.getSelectedNode().isFolder() == false &&
+                                                tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) 
+                                            {
                                                 tableModel.addRow(finalMessage);
                                                 if(updateMessagesCountLabels) {
                                                     MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
@@ -459,7 +462,8 @@ public class TOF
 
             SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
-                        if(tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
+                        if( tofTreeModel.getSelectedNode().isFolder() == false &&
+                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) {
                             MainFrame.getInstance().updateTofTree(innerTargetBoard);
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
                         }

@@ -18,6 +18,7 @@
 */
 
 package frost;
+
 import java.awt.*;
 import java.io.*;
 import java.nio.channels.*;
@@ -31,8 +32,8 @@ import org.w3c.dom.*;
 
 import frost.identities.*;
 import frost.messages.*;
-public class FileAccess
-{
+
+public class FileAccess {
 	
 	private static Logger logger = Logger.getLogger(FileAccess.class.getName());
 	
@@ -123,24 +124,19 @@ public class FileAccess
     /**
      * Reads a file and returns it contents in a String
      */
-    public static String read(String path)
-    {
+    public static String read(String path) {
         FileReader fr;
         StringBuffer content = new StringBuffer();
         int c;
-        try
-        {
+        try {
             fr = new FileReader(path);
-            while( (c = fr.read()) != -1 )
-            {
-                content.append((char)c);
+            while( (c = fr.read()) != -1 ) {
+                content.append((char) c);
             }
             fr.close();
-        }
-        catch( IOException e )
-        {
-			logger.log(Level.SEVERE, "Exception thrown in read(String path)", e);
-            return("Read Error");
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception thrown in read(String path)", e);
+            return ("Read Error");
         }
         return content.toString();
     }
@@ -148,8 +144,7 @@ public class FileAccess
     /**
      * Returns all files starting from given directory/file that have a given extension.
      */
-    public static ArrayList getAllEntries(File file, final String extension)
-    {
+    public static ArrayList getAllEntries(File file, final String extension) {
         ArrayList files = new ArrayList();
         getAllFiles(file, extension, files);
         return files;
@@ -158,25 +153,18 @@ public class FileAccess
     /**
      * Returns all files starting from given directory/file that have a given extension.
      */
-    private static void getAllFiles(File file, String extension, ArrayList filesLst)
-    {
-        if( file != null )
-        {
-            if( file.isDirectory() )
-            {
+    private static void getAllFiles(File file, String extension, ArrayList filesLst) {
+        if( file != null ) {
+            if( file.isDirectory() ) {
                 File[] dirfiles = file.listFiles();
-                if( dirfiles != null )
-                {
-                    for( int i = 0; i < dirfiles.length; i++ )
-                    {
+                if( dirfiles != null ) {
+                    for( int i = 0; i < dirfiles.length; i++ ) {
                         getAllFiles(dirfiles[i], extension, filesLst); // process recursive
                     }
                 }
             }
-            if( extension.length() == 0 ||
-                file.getName().endsWith(extension) )
-            {
-                filesLst.add( file );
+            if( extension.length() == 0 || file.getName().endsWith(extension) ) {
+                filesLst.add(file);
             }
         }
     }
@@ -184,8 +172,7 @@ public class FileAccess
     /**
      * Writes zip file
      */
-    public static void writeZipFile(byte[] content, String entry, File file)
-    {
+    public static void writeZipFile(byte[] content, String entry, File file) {
     	if (content.length == 0) {
     		Exception e = new Exception();
     		e.fillInStackTrace();
@@ -217,58 +204,55 @@ public class FileAccess
         }
 
 		final int bufferSize = 4096;
+        ZipInputStream zis = null;
 		try {
-            ZipInputStream zis = new ZipInputStream(new FileInputStream(file));
+            zis = new ZipInputStream(new FileInputStream(file));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-			try {
-				zis.getNextEntry();
-                
-				byte[] zipData = new byte[bufferSize];
-				while( true ) {
-                    int len = zis.read(zipData);
-                    if( len < 0 ) {
-                        break;
-                    }
-                    out.write(zipData, 0, len);
-				}
-				return out.toByteArray();
+			zis.getNextEntry();
+            
+			byte[] zipData = new byte[bufferSize];
+			while( true ) {
+                int len = zis.read(zipData);
+                if( len < 0 ) {
+                    break;
+                }
+                out.write(zipData, 0, len);
 			}
-			catch( IOException e ) {
-                try { zis.close(); } catch(Throwable t) { }
-				logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" + 
-										 "Offending file saved as badfile.zip, send to a dev for analysis", e);
-				try { copyFile(file.getPath(), "badfile.zip"); } catch(IOException ex) { }
-			}
+            zis.close();
+
+			return out.toByteArray();
 		} catch( FileNotFoundException e ) {
 			logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path)", e);
 		}
+        catch( IOException e ) {
+            try { if( zis != null) zis.close(); } catch(Throwable t) { }
+            logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" + 
+                                     "Offending file saved as badfile.zip, send to a dev for analysis", e);
+            try { copyFile(file.getPath(), "badfile.zip"); } catch(IOException ex) { }
+        }
 		return null;
     }
 
     /**
      * Reads file and returns a Vector of lines
      */
-    public static Vector readLines(File file)
-    {
+    public static Vector readLines(File file) {
         return readLines(file.getPath());
     }
-    public static Vector readLines(String path)
-    {
+
+    public static Vector readLines(String path) {
         BufferedReader f;
         String line;
         line = "";
         Vector data = new Vector();
-
         try {
             f = new BufferedReader(new FileReader(path));
-            while( (line = f.readLine()) != null )
-            {
+            while( (line = f.readLine()) != null ) {
                 data.add(line.trim());
             }
             f.close();
-        }
-        catch( IOException e ) {
-			logger.log(Level.SEVERE, "Exception thrown in readLines(String path)", e);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception thrown in readLines(String path)", e);
         }
         return data;
     }
@@ -276,41 +260,35 @@ public class FileAccess
     /**
      * Reads a file and returns its contents in a String
      */
-    public static String readFile(File file)
-    {
+    public static String readFile(File file) {
         return readFile(file.getPath());
     }
 
-    public static String readFile(String path)
-    {
+    public static String readFile(String path) {
         BufferedReader f;
         String line = new String();
         StringBuffer stringBuffer = new StringBuffer();
 
-        try
-        {
+        try {
             f = new BufferedReader(new FileReader(path));
-            while( (line = f.readLine()) != null )
-            {
+            while( (line = f.readLine()) != null ) {
                 stringBuffer.append(line);
                 stringBuffer.append("\n");
             }
             f.close();
-        }
-        catch( IOException e )
-        {
-			logger.log(Level.SEVERE, "Exception thrown in readFile(String path)", e);
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception thrown in readFile(String path)", e);
         }
         return stringBuffer.toString();
     }
     
 	/**
-	 * Reads a file, line by line, and adds a \n after each one.
-	 * You can specify the encoding to use when reading.
-	 * @param path
-	 * @param encoding
-	 * @return the contents of the file
-	 */
+     * Reads a file, line by line, and adds a \n after each one. You can specify the encoding to use when reading.
+     * 
+     * @param path
+     * @param encoding
+     * @return the contents of the file
+     */
 	public static String readFile(String path, String encoding) {
 		String line;
 		StringBuffer stringBuffer = new StringBuffer();
@@ -330,40 +308,42 @@ public class FileAccess
     /**
      * Writes a file "file" to "path"
      */
-    public static void writeFile(String content, String filename)
-    {
-        writeFile(content, new File(filename));
+    public static boolean writeFile(String content, String filename) {
+        return writeFile(content, new File(filename));
     }
     
 	/**
 	 * Writes a file "file" to "path", being able to specify the encoding
 	 */
-	public static void writeFile(String content, String filename, String encoding) {
-		writeFile(content, new File(filename), encoding);
+	public static boolean writeFile(String content, String filename, String encoding) {
+		return writeFile(content, new File(filename), encoding);
 	}
-    public static void writeFile(String content, File file)
-    {
+    public static boolean writeFile(String content, File file) {
         FileWriter f1;
         try {
             f1 = new FileWriter(file);
             f1.write(content);
             f1.close();
+            return true;
         } catch( IOException e ) {
 			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
         }
+        return false;
     }
     
-    public static void writeFile(byte[] content, File file) {
+    public static boolean writeFile(byte[] content, File file) {
         try {
             FileOutputStream s = new FileOutputStream(file);
             s.write(content);
             s.close();
+            return true;
         } catch( IOException e ) {
             logger.log(Level.SEVERE, "Exception thrown in writeFile(byte[] content, File file)", e);
         }
+        return false;
     }
     
-	public static void writeFile(String content, File file, String encoding) {
+	public static boolean writeFile(String content, File file, String encoding) {
 		try {
 			FileOutputStream outputStream = new FileOutputStream(file);
 			OutputStreamWriter outputWriter = new OutputStreamWriter(outputStream, encoding);
@@ -379,41 +359,23 @@ public class FileAccess
 			
 			outputWriter.close();
 			inputReader.close();
+            return true;
 		} catch (IOException e) {
 			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
 		}
+        return false;
 	}
-
-    /**
-     * Returns filenames in a directory
-     */
-    public static String[] getFilenames(String Path)
-    {
-        File FileObject = new File(Path);
-        String[] filenames;
-
-        if( FileObject.isDirectory() )
-            filenames = FileObject.list();
-        else
-            filenames = new String[0];
-
-        return filenames;
-    }
 
     /**
      * Deletes the given directory and ALL FILES/DIRS IN IT !!!
      * USE CAREFUL !!!
      */
-    public static boolean deleteDir(File dir)
-    {
-        if (dir.isDirectory())
-        {
+    public static boolean deleteDir(File dir) {
+        if( dir.isDirectory() ) {
             String[] children = dir.list();
-            for (int i=0; i<children.length; i++)
-            {
+            for( int i = 0; i < children.length; i++ ) {
                 boolean success = deleteDir(new File(dir, children[i]));
-                if (!success)
-                {
+                if( !success ) {
                     return false;
                 }
             }
@@ -422,12 +384,15 @@ public class FileAccess
         return dir.delete();
     }
 
-
     /**
      * Reads a keyfile from disk and adds the keys to a map
-     * @param source keyfile as String or as File
-     * @param chk Map that will be used to add the keys
-     * @param exchange the exchange flag of SharedFileObject will be set to this value
+     * 
+     * @param source
+     *            keyfile as String or as File
+     * @param chk
+     *            Map that will be used to add the keys
+     * @param exchange
+     *            the exchange flag of SharedFileObject will be set to this value
      */
     public static FrostIndex readKeyFile(String source)
     {

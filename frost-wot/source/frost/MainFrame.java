@@ -281,7 +281,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
              * @see javax.swing.event.TreeModelListener#treeNodesChanged(javax.swing.event.TreeModelEvent)
              */
             public void treeNodesChanged(TreeModelEvent e) {
-                boardsTreeNode_Changed(e);
+//                boardsTreeNode_Changed(e);
             }
 
             /* (non-Javadoc)
@@ -1194,6 +1194,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 setCheckButton.setEnabled(false);
                 setBadButton.setEnabled(false);
                 setObserveButton.setEnabled(false);
+                replyButton.setEnabled(false);
+                saveMessageButton.setEnabled(false);
                 return;
             }
 
@@ -1206,6 +1208,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 lastSelectedMessage = selectedMessage.getSubject();
                 if (selectedBoard.isReadAccessBoard() == false) {
                     replyButton.setEnabled(true);
+                } else {
+                    replyButton.setEnabled(false);
                 }
 
                 if( identities.isMySelf(selectedMessage.getFrom()) ) {
@@ -1414,7 +1418,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 // this message was for me, reply encrypted
                 if( origMessage.getFromIdentity() == null ) {
                     JOptionPane.showMessageDialog( this,
-                            "Can't encrypt, recipients public key is missing!",
+                            "Can't reply encrypted, recipients public key is missing!",
                             "ERROR",
                             JOptionPane.ERROR);
                     return;                               
@@ -1468,9 +1472,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
         }
 
-        /**
-         *
-         */
         private void showCurrentMessagePopupWindow(){
             if  (!isCorrectlySelectedMessage() )
                 return;
@@ -1506,13 +1507,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 messageTextArea.setText(language.getString("Welcome message"));
             } else {
                 //There are boards.
-                Board node =
-                    (Board) tofTree.getLastSelectedPathComponent();
+                Board node = (Board) tofTree.getLastSelectedPathComponent();
                 if (node != null) {
                     if (!node.isFolder()) {
                         // node is a board
-                        messageTextArea.setText(
-                                language.getString("Select a message to view its content."));
+                        messageTextArea.setText(language.getString("Select a message to view its content."));
                         updateButton.setEnabled(true);
                         saveMessageButton.setEnabled(false);
                         replyButton.setEnabled(false);
@@ -1525,34 +1524,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                         }
                     } else {
                         // node is a folder
-                        messageTextArea.setText(
-                                language.getString("Select a board to view its content."));
+                        messageTextArea.setText(language.getString("Select a board to view its content."));
                         newMessageButton.setEnabled(false);
+                        saveMessageButton.setEnabled(false);
                         updateButton.setEnabled(false);
                     }
                 }
             }
         }
 
-        /**
-         * @param e
-         */
-        private void boardsTreeNode_Changed(TreeModelEvent e) {
-            Object[] path = e.getPath();
-            Board board = (Board) path[path.length - 1];
-
-            if (board == tofTreeModel.getSelectedNode()) { // is the board actually shown?
-                if (board.isReadAccessBoard()) {
-                    newMessageButton.setEnabled(false);
-                } else {
-                    newMessageButton.setEnabled(true);
-                }
-            }
-        }
-
-        /**
-         * @param evt
-         */
         private void antialiasing_propertyChanged(PropertyChangeEvent evt) {
             messageTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
         }
@@ -1573,8 +1553,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
 
         private void deleteSelectedMessage() {
-            if(! isCorrectlySelectedMessage() )
+
+            if(! isCorrectlySelectedMessage() ) {
                 return;
+            }
 
             final FrostMessageObject targetMessage = selectedMessage;
 
@@ -1842,7 +1824,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     //Popups
     private JButton removeBoardButton = null;
-    private JButton renameBoardButton = null;
+    private JButton renameFolderButton = null;
 
     // labels that are updated later
     private JLabel statusLabel = null;
@@ -2062,7 +2044,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             newBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/newboard.gif")));
             newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
             removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
-            renameBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
+            renameFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/rename.gif")));
             boardInfoButton = new JButton(new ImageIcon(getClass().getResource("/data/info.gif")));
             systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
 
@@ -2070,7 +2052,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             toolkit.configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif", language);
             toolkit.configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif", language);
             toolkit.configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif", language);
-            toolkit.configureButton(renameBoardButton, "Rename folder", "/data/rename_rollover.gif", language);
+            toolkit.configureButton(renameFolderButton, "Rename folder", "/data/rename_rollover.gif", language);
             toolkit.configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif", language);
             toolkit.configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif", language);
             toolkit.configureButton(knownBoardsButton, "Display list of known boards", "/data/knownboards_rollover.gif", language);
@@ -2091,7 +2073,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     tofTree.createNewFolder(MainFrame.this);
                 }
             });
-            renameBoardButton.addActionListener(new java.awt.event.ActionListener() {
+            renameFolderButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     renameNode(tofTreeModel.getSelectedNode());
                 }
@@ -2130,7 +2112,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.addSeparator();
             buttonToolBar.add(Box.createRigidArea(blankSpace));
-            buttonToolBar.add(renameBoardButton);
+            buttonToolBar.add(renameFolderButton);
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.addSeparator();
             buttonToolBar.add(Box.createRigidArea(blankSpace));
@@ -2861,7 +2843,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 logger.info("Board " + node.getName() + " blocked count: " + node.getBlockedCount());
 
                 uploadPanel.setAddFilesButtonEnabled(true);
-                renameBoardButton.setEnabled(false);
+                renameFolderButton.setEnabled(false);
                 
                 // read all messages for this board into message table
                 TOF.getInstance().updateTofTable(node, keypool);
@@ -2872,7 +2854,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 updateMessageCountLabels(node);
 
                 uploadPanel.setAddFilesButtonEnabled(false);
-                renameBoardButton.setEnabled(true);
+                renameFolderButton.setEnabled(true);
                 if (node.isRoot()) {
                     removeBoardButton.setEnabled(false);
                 } else {
@@ -2893,7 +2875,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         boardInfoButton.setToolTipText(language.getString("Board Information Window"));
         newFolderButton.setToolTipText(language.getString("New folder"));
         removeBoardButton.setToolTipText(language.getString("Remove board"));
-        renameBoardButton.setToolTipText(language.getString("Rename folder"));
+        renameFolderButton.setToolTipText(language.getString("Rename folder"));
     }
 
     /**
