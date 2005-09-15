@@ -30,14 +30,7 @@ import frost.util.gui.translation.Language;
 
 class News2Panel extends JPanel {
 		
-	/**
-	 * 
-	 */
 	private class Listener implements ActionListener {
-
-		/* (non-Javadoc) 
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == blockSubjectCheckBox) {
 				blockSubjectPressed();
@@ -91,31 +84,18 @@ class News2Panel extends JPanel {
 		loadSettings();
 	}
 		
-	/**
-	 * 
-	 */
 	private void blockBoardPressed() {
 		blockBoardTextField.setEnabled(blockBoardCheckBox.isSelected());				
 	}
 		
-
-	/**
-	 * 
-	 */
 	private void blockBodyPressed() {
 		blockBodyTextField.setEnabled(blockBodyCheckBox.isSelected());				
 	}
 
-	/**
-	 * 
-	 */
 	private void blockSubjectPressed() {
 		blockSubjectTextField.setEnabled(blockSubjectCheckBox.isSelected());	
 	}		
 		
-	/**
-	 * @return
-	 */
 	private JPanel getSpamPanel() {
 		JPanel spamPanel = new JPanel(new GridBagLayout());
 		spamPanel.setBorder(new EmptyBorder(5, 30, 5, 5));
@@ -148,9 +128,6 @@ class News2Panel extends JPanel {
 		return spamPanel;
 	}
 		
-	/**
-	 * 
-	 */
 	private void initialize() {
 		setName("News2Panel");
 		setLayout(new GridBagLayout());
@@ -247,16 +224,10 @@ class News2Panel extends JPanel {
 		refreshSpamDetectionState();
 	}
 		
-	/**
-	 * 
-	 */
 	public void ok() {
 		saveSettings();
 	}
 
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
 		String hours = language.getString("hours");
 		String off = language.getString("Off");
@@ -270,7 +241,7 @@ class News2Panel extends JPanel {
 		hideCheckMessagesCheckBox.setText(
 				language.getString("Hide messages flagged CHECK") + " (" + off + ")");
 		hideObserveMessagesCheckBox.setText(
-				"Hide messages flagged OBSERVED" + " (" + off + ")");
+                language.getString("Hide messages flagged OBSERVE") + " (" + off + ")");
 		blockSubjectCheckBox.setText(
 				language.getString(
 				"Block messages with subject containing (separate by ';' )")
@@ -286,9 +257,6 @@ class News2Panel extends JPanel {
 		doBoardBackoffCheckBox.setText(language.getString("Do spam detection"));
 	}
 		
-	/**
-	 * 
-	 */
 	private void refreshSpamDetectionState() {
 		boolean enableSpamDetection = doBoardBackoffCheckBox.isSelected();
 		sampleIntervalTextField.setEnabled(enableSpamDetection);

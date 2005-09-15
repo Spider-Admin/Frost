@@ -171,7 +171,7 @@ public class TofTree extends JDragTree implements Savable {
 			addBoardItem.setText(language.getString("Add new board"));
 			addFolderItem.setText(language.getString("Add new folder"));
 			configureBoardItem.setText(language.getString("Configure selected board"));
-            configureFolderItem.setText("Configure selected folder");
+            configureFolderItem.setText(language.getString("Configure selected folder"));
 			cancelItem.setText(language.getString("Cancel"));
 			sortFolderItem.setText(language.getString("Sort folder"));
             markAllReadItem.setText(language.getString("Mark ALL messages read"));

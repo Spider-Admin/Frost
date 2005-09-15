@@ -764,7 +764,7 @@ public class BoardSettingsFrame extends JDialog {
 		hideUnsignedMessagesLabel.setText(language.getString("Hide unsigned messages"));
 		hideBadMessagesLabel.setText(language.getString("Hide messages flagged BAD"));
 		hideCheckMessagesLabel.setText(language.getString("Hide messages flagged CHECK"));
-		hideObserveMessagesLabel.setText("Hide messages flagged OBSERVE");
+		hideObserveMessagesLabel.setText(language.getString("Hide messages flagged OBSERVE"));
 		
 		descriptionLabel.setText(language.getString("BoardSettingsFrame.description"));
 	}
