@@ -100,6 +100,7 @@ public class LangRes extends ListResourceBundle {
     {"Increase Font Size", "Increase Font Size"},
     {"Decrease Font Size", "Decrease Font Size"},
     {"Configure selected board", "Configure selected board"},
+    {"Configure selected folder", "Configure selected folder"},
     {"Display board information window", "Display board information window"},
 	{"Display known boards", "Display known boards"},
 	
@@ -159,9 +160,11 @@ public class LangRes extends ListResourceBundle {
 	{"Reply", "Reply"},
 	{"Update", "Update"},
 	{"Download attachment(s)", "Download attachment(s)"},
-	{"Add Board(s)","Add Board(s)"},
+	{"Add Board(s)", "Add Board(s)"},
+    {"Add Board(s) to folder", "Add Board(s) to folder"},
 	{"Trust","Trust"},
 	{"Set to CHECK", "Set to CHECK"},
+    {"Set to OBSERVE", "Set to OBSERVE"},
 	{"Do not trust","Do not trust"},
 
 	// Popup over message table
@@ -197,7 +200,8 @@ public class LangRes extends ListResourceBundle {
 	{"Download all keys", "Download all keys"},
 	{"help user (sets to GOOD)", "help user (sets to GOOD)"},
 	{"block user (sets to BAD)", "block user (sets to BAD)"},
-	{"set to neutral (CHECK)","set to neutral (CHECK)"},
+	{"set to neutral (CHECK)", "set to neutral (CHECK)"},
+    {"observe user (OBSERVE)", "observe user (OBSERVE)"},
 	//{"Cancel", "Cancel"}, // Defined above
 	
 	//SearchComboBox
@@ -384,7 +388,7 @@ public class LangRes extends ListResourceBundle {
 	{"Hide unsigned messages", "Hide unsigned messages"},
 	{"Hide messages flagged BAD", "Hide messages flagged BAD"},
 	{"Hide messages flagged CHECK", "Hide messages flagged CHECK"},
-	{"Hide messages flagged N/A", "Hide messages flagged N/A"},
+ 	{"Hide messages flagged OBSERVE", "Hide messages flagged OBSERVE"},
 	{"Do spam detection", "Do spam detection"},
 	{"Sample interval", "Sample interval"},
 	{"hours", "hours"},
@@ -476,9 +480,7 @@ public class LangRes extends ListResourceBundle {
 	///////////////////////////////////////////////////
 	{"KnownBoardsFrame.List of known boards","List of known boards"},
 	{"KnownBoardsFrame.Close","Close"},
-	{"KnownBoardsFrame.Add board","Add board"},
 	{"KnownBoardsFrame.Lookup","Lookup"},
-	{"KnownBoardsFrame.Remove board","Remove board"},
 	{"KnownBoardsTableModel.Boardname","Boardname"},
 	
 	///////////////////////////////////////////////////

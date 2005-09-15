@@ -352,7 +352,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             private void refreshLanguage() {
 
                 saveBoardsItem.setText(language.getString("Add Board(s)"));
-                saveBoardsToFolderItem.setText("Add Board(s) to folder...");
+                saveBoardsToFolderItem.setText(language.getString("Add Board(s) to folder")+" ...");
                 cancelItem.setText(language.getString("Cancel"));
             }
 
@@ -576,7 +576,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 setGoodItem.setText(language.getString("help user (sets to GOOD)"));
                 setBadItem.setText(language.getString("block user (sets to BAD)"));
                 setCheckItem.setText(language.getString("set to neutral (CHECK)"));
-                setObserveItem.setText("observe user (OBSERVE)");
+                setObserveItem.setText(language.getString("observe user (OBSERVE)"));
                 deleteItem.setText(language.getString("Delete message"));
                 undeleteItem.setText(language.getString("Undelete message"));
                 cancelItem.setText(language.getString("Cancel"));
@@ -1318,12 +1318,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     if (JOptionPane
                         .showConfirmDialog(
                             parentFrame,
-                            "Are you sure you want to revoke trust to user "
+                            "Are you sure you want to revoke trust to user " // TODO: translate
                                 + selectedMessage.getFrom().substring(
                                     0,
                                     selectedMessage.getFrom().indexOf("@"))
                                 + " ? \n If you choose yes, future messages from this user will be marked BAD",
-                            "revoke trust",
+                            "Revoke trust",
                             JOptionPane.YES_NO_OPTION)
                         != 0) {
                         return;
@@ -1364,12 +1364,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     if (JOptionPane
                         .showConfirmDialog(
                             parentFrame,
-                            "are you sure you want to grant trust to user "
+                            "Are you sure you want to grant trust to user " // TODO: translate
                                 + selectedMessage.getFrom().substring(
                                     0,
                                     selectedMessage.getFrom().indexOf("@"))
                                 + " ? \n If you choose yes, future messages from this user will be marked GOOD",
-                            "re-grant trust",
+                            "Grant trust",
                             JOptionPane.YES_NO_OPTION)
                         != 0) {
                         return;
@@ -1418,7 +1418,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 // this message was for me, reply encrypted
                 if( origMessage.getFromIdentity() == null ) {
                     JOptionPane.showMessageDialog( this,
-                            "Can't reply encrypted, recipients public key is missing!",
+                            "Can't reply encrypted, recipients public key is missing!", // TODO: translate
                             "ERROR",
                             JOptionPane.ERROR);
                     return;                               
@@ -1755,7 +1755,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         return instance;
     }
 
-    private final String allMessagesCountPrefix = "Msg: ";
+    private final String allMessagesCountPrefix = "Msg: "; // TODO: translate
     private JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 
     private JButton boardInfoButton = null;
@@ -1806,7 +1806,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private JPanel extendableStatusPanel;
 
-    private final String newMessagesCountPrefix = "New: ";
+    private final String newMessagesCountPrefix = "New: "; // TODO: translate
     private JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
 
     //Options Menu
@@ -2442,9 +2442,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
     }
 
-    /**
-     * @return
-     */
     private MessagePanel getMessagePanel() {
         if (messagePanel == null) {
             messagePanel = new MessagePanel(frostSettings);
@@ -2455,32 +2452,22 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         return messagePanel;
     }
     
-    /**
-     * @return
-     */
     public MessageTableModel getMessageTableModel() {
         return messageTableModel;
     }
 
-    /**
-     * @return
-     */
     public TofTreeModel getTofTreeModel() {
         return tofTreeModel;
     }
 
     /**
      * Help | About action performed
-     * @param e
      */
     private void helpAboutMenuItem_actionPerformed(ActionEvent e) {
         AboutBox dlg = new AboutBox(this);
         dlg.setVisible(true);
     }
 
-    /**
-     *
-     */
     public void initialize() {
 
         // Add components
@@ -2624,7 +2611,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             newname =
                 JOptionPane.showInputDialog(
                     this,
-                    "Please enter the new name:\n",
+                    "Please enter the new name:\n",  // TODO: translate
                     selected.getName());
             if (newname == null)
                 return; // cancel
@@ -2633,7 +2620,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofTreeModel.getBoardByName(newname) != null) {
                 JOptionPane.showMessageDialog(
                     this,
-                    "You already have a board with name '"
+                    "You already have a board with name '" // TODO: translate
                         + newname
                         + "'!\nPlease choose a new name.");
                 newname = ""; // loop again
@@ -2866,8 +2853,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private void translateButtons() {
         newBoardButton.setToolTipText(language.getString("New board"));
         systemTrayButton.setToolTipText(language.getString("Minimize to System Tray"));
-        knownBoardsButton.setToolTipText(
-                language.getString("Display list of known boards"));
+        knownBoardsButton.setToolTipText(language.getString("Display list of known boards"));
         boardInfoButton.setToolTipText(language.getString("Board Information Window"));
         newFolderButton.setToolTipText(language.getString("New folder"));
         removeBoardButton.setToolTipText(language.getString("Remove board"));
@@ -2891,8 +2877,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         optionsPreferencesMenuItem.setText(language.getString("Preferences"));
         pluginMenu.setText(language.getString("Plugins"));
         pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
-        pluginTranslateMenuItem.setText(
-                language.getString("Translate Frost into another language"));
+        pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
         languageMenu.setText(language.getString("Language"));
         languageDefaultMenuItem.setText(language.getString("Default"));
         languageDutchMenuItem.setText(language.getString("Dutch"));
@@ -2965,16 +2950,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
     }
 
-    /**
-     * @param table
-     */
     public void setDownloadModel(DownloadModel table) {
         downloadModel = table;
     }
 
-    /**
-     * @param panel
-     */
     public void setUploadPanel(UploadPanel panel) {
         uploadPanel = panel;
     }
