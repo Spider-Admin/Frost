@@ -106,7 +106,18 @@ Q: Chunks?
 A: Large files are split up into several chunks, each with a size of 256Kb. These 'Splitfiles' can be downloaded from multiple sources at once.
 
 Q: I can't get a specific file, but I really need it!
-A: Go to options / downloads. Set maximum htl to 2500 and splitfile threads to 5. It will take several hours, but if the file is still available on Freenet you'll get it.
+A: First try asking (nicely) on the board the file was uploaded to! Get someone to re-insert the file.
+A2: If no-one responds, and the file has a "From:" put a message up on the board "public" with "<name>, re-insert request" as the subject and explain your desire for said file.
+A3: Post on the board 'unsuccessful'. This is the freenet board where people post the keys to files they cannot reach.
+A4: Try increasing your maximum HTL. Note that 25 is the maximum HTL that most nodes will respond to, and most nodes will, on receiving a higher HTL set it to 25.
+A5: Increase the splitfile threads to 5.
+If none of this works, your best bet is to keep asking on different (related) boards.
 
 Q: The attachments of messages appear in the public keyindex!
 A: Yes, they do. If you want only a specific person to see your attachments, please use PGP to encrypt the files.
+
+Q: Why can I see not very many messages?
+A: Frost by default only downloads 5 messages into the past. If you want to see more past messages increase "Number of days to download backwards" in Preferences->News(1) (I suggest increasing it to 15). Make sure that  this is less than "Number of days to display".
+
+Q: How do I get access to the <name> board?
+A: Just add it as a "New Board". If it is the same name as a public board someone else has created then this will work!
