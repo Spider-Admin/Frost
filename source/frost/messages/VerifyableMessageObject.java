@@ -109,42 +109,12 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 		return (VerifyableMessageObject) this.clone();
 	}
 
-//    /** 
-//     * gets the status of the message
-//     * @return
-//     */
-//    public String getStatus2() {
-//		return status;
-//	}
-//
-//    /**
-//	 * set the status
-//	 * @param status
-//	 */
-//	public void setStatus(String status) {
-//		this.status = status;
-//		FileAccess.writeFile(status, file.getPath() + ".sig");
-//	}
-    
-//    /**
-//     * Removes the status, deletes .sig file.
-//     */
-//    public void removeStatus() {
-//        new File(file.getPath() + ".sig").delete();
-//    }
-
     /**
      * @param file
      * @throws MessageCreationException
      */
     public VerifyableMessageObject(File file) throws MessageCreationException {
 		super(file); // throws exception if loading failed
-//		File sigFile = new File(file.getPath() + ".sig");
-//		if (!sigFile.exists()) {
-//			status = NA;
-//		} else {
-//			status = FileAccess.readFileRaw(sigFile);
-//		}
 	}
 
     /**

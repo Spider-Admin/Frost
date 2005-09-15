@@ -18,6 +18,7 @@
 */
 
 package frost.messages;
+
 import java.io.File;
 import java.util.*;
 import java.util.logging.*;
@@ -79,8 +80,7 @@ public class MessageObject implements XMLizable
     public MessageObject(File file) throws MessageCreationException {
         this();
         if (file == null) {
-        	throw new MessageCreationException(
-        					"Invalid input file for MessageObject. Its value is null.");
+        	throw new MessageCreationException("Invalid input file for MessageObject. Its value is null.");
         } else if (!file.exists()) {
         	throw new MessageCreationException(
         					"Invalid input file '" + file.getName() + "' for MessageObject. It doesn't exist.");
@@ -117,7 +117,6 @@ public class MessageObject implements XMLizable
         	logger.severe(message);
         	file.renameTo(new File("badMessage"));
             throw new Exception("Message have invalid or missing fields.");
-            
         }
         // replace evil chars
         for( int i = 0; i < evilChars.length; i++ ) {
@@ -129,8 +128,7 @@ public class MessageObject implements XMLizable
     }
     
     /**
-     * This method returns the AttachmentList. If no one exists, it
-     * creates a new one.
+     * This method returns the AttachmentList. If no one exists, it creates a new one.
      * @return the AttachmentList
      */
     private AttachmentList getAttachmentList() {
@@ -169,44 +167,26 @@ public class MessageObject implements XMLizable
     	}
     }
 
-	/**
-	 * @return
-	 */
 	public String getBoard() {
 		return board;
 	}
 
-	/**
-     * @return
-     */
     public String getContent() {
 		return content;
 	}
 
-	/**
-	 * @return
-	 */
 	public String getDate() {
 		return date;
 	}
 
-	/**
-	 * @return
-	 */
 	public File getFile() {
 		return file;
 	}
 
-  /**
-     * @return
-     */
     public String getFrom() {
 		return from;
 	}
 
-	/**
-	 * @return
-	 */
 	public String getIndex() {
 		return index;
 	}
@@ -214,10 +194,10 @@ public class MessageObject implements XMLizable
     public String getRecipient() {
         return recipient;
     }
-    
+
     /**
-	 * @return
-	 */
+     * Get a list of all attached files that are currently offline.
+     */
 	public List getOfflineFiles() {
 		List result = new LinkedList();
 		if (attachments != null) {
@@ -232,30 +212,19 @@ public class MessageObject implements XMLizable
 		return result;
 	}
 
-    /**
-	 * @return
-	 */
     public String getPublicKey() {
 		return publicKey;
 	}
 
-	/**
-	 * @return
-	 */
 	public String getSubject() {
 		return subject;
 	}
 
-	/**
-	 * @return
-	 */
 	public String getTime() {
 		return time;
 	}
 	
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
 	public Element getXMLElement(Document d) {
@@ -344,51 +313,45 @@ public class MessageObject implements XMLizable
 		return el;
 	}
 
-    /**
-	 * @return
-	 */
     public boolean isDeleted() {
     	return deleted;
     }
 	
 	/**
-	 * @return
+	 * @return true if the message is basically valid
 	 */
     public boolean isValid() {
 
-		if (subject == null)
-			subject = new String();
-		if (content == null)
-			content = new String();
+		if (date == null || date.length() == 0 || date.length() > 22 ) {
+			return false;
+        }
+		if (time == null || time.length() == 0) {
+			return false;
+        }
+		if (board == null || board.length() == 0 || board.length() > 256 ) {
+			return false;
+        }
+		if (from == null || from.length() == 0 || from.length() > 256 ) {
+			return false;
+        }
 
-		if (date.equals(""))
+        if (subject == null) {
+            subject = ""; // we accept empty subjects
+        } else if ( subject.length() > 256 ) {
 			return false;
-		if (time.equals(""))
-			return false;
-		// if (subject.equals(""))
-		//    return false;
-		if (board.equals(""))
-			return false;
-		if (from.equals(""))
-			return false;
+        }
 
-		if (from.length() > 256)
+        if (content == null) {
+            content = "";
+        } else if (content.length() > (64 * 1024)) { // 64k or whatever fits in zipped data
 			return false;
-		if (subject != null && subject.length() > 256)
-			return false;
-		if (board.length() > 256)
-			return false;
-		if (date.length() > 22)
-			return false;
-		if (content.length() > (64 * 1024)+1) // 64k or whatever fits in zipped data
-			return false;
+        }
 
 		return true;
 	}
 
     /**
-	 * Parses the XML file and passes the FrostMessage element to XMLize load
-	 * method.
+	 * Parses the XML file and passes the FrostMessage element to XMLize load method.
 	 */    
     protected void loadFile() throws Exception {
         Document doc = null;
@@ -419,9 +382,7 @@ public class MessageObject implements XMLizable
         loadXMLElement(rootNode);
     }
 	
-	/*
-	 * (non-Javadoc)
-	 * 
+	/**
 	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
@@ -499,30 +460,18 @@ public class MessageObject implements XMLizable
         return success;
     }
 
-	/**
-	 * @param board
-	 */
 	public void setBoard(String board) {
 		this.board = board;
 	}
 
-	/**
-	 * @param content
-	 */
 	public void setContent(String content) {
 		this.content = content;
 	}
 
-	/**
-	 * @param date
-	 */
 	public void setDate(String date) {
 		this.date = date;
 	}
 	
-	/**
-	 * @param deleted
-	 */
 	public void setDeleted(boolean deleted) {
 		this.deleted = deleted;
         if( deleted == true ) {
@@ -530,37 +479,22 @@ public class MessageObject implements XMLizable
         }
 	}
 
-	/**
-	 * @param from
-	 */
 	public void setFrom(String from) {
 		this.from = from;
 	}
 
-	/**
-	 * @param index
-	 */
 	public void setIndex(String index) {
 		this.index = index;
 	}
 
-	/**
-	 * @param pk
-	 */
 	public void setPublicKey(String pk) {
 		publicKey = pk;
 	}
 
-	/**
-	 * @param subject
-	 */
 	public void setSubject(String subject) {
 		this.subject = subject;
 	}
 
-	/**
-	 * @param time
-	 */
 	public void setTime(String time) {
 		this.time = time;
 	}
@@ -586,34 +520,41 @@ public class MessageObject implements XMLizable
     }
     
     public boolean isMessageNew() {
-      if( this.messageIsNew == null ) {
-          File newMessage = new File(getFile().getPath() + ".lck");
-          if (newMessage.isFile()) {
-              this.messageIsNew = new Boolean(true);
-              return true;
-          }
-          this.messageIsNew = new Boolean(false);
-          return false;
-      }
-      return this.messageIsNew.booleanValue();
-  }
-  
-  public void setMessageNew(boolean newMsg) {
-      final String newMsgIndicator = getFile().getPath() + ".lck";
-      Runnable ioworker = null;
-      if( newMsg ) {
-          this.messageIsNew = new Boolean(true);
-          ioworker = new Runnable() {
-              public void run() {
-                  FileAccess.writeFile(NEW_MSG_INDICATOR_STR, newMsgIndicator);
-              } };
-      } else {
-          this.messageIsNew = new Boolean(false);
-          ioworker = new Runnable() {
-              public void run() {
-                  new File(newMsgIndicator).delete();
-              } };
-      }
-      new Thread( ioworker ).start(); // do IO in another thread, not here in Swing thread
-  }
+        if( this.messageIsNew == null ) {
+            File newMessage = new File(getFile().getPath() + ".lck");
+            if( newMessage.isFile() ) {
+                this.messageIsNew = new Boolean(true);
+                return true;
+            } else {
+                this.messageIsNew = new Boolean(false);
+                return false;
+            }
+        }
+        return this.messageIsNew.booleanValue();
+    }
+
+    /**
+     * Sets the new-message status to true or false.
+     * @param newMsg  the new-message status to set
+     */
+    public void setMessageNew(boolean newMsg) {
+        final String newMsgIndicator = getFile().getPath() + ".lck";
+        Runnable ioworker = null;
+        if( newMsg ) {
+            this.messageIsNew = new Boolean(true);
+            ioworker = new Runnable() {
+                public void run() {
+                    FileAccess.writeFile(NEW_MSG_INDICATOR_STR, newMsgIndicator);
+                }
+            };
+        } else {
+            this.messageIsNew = new Boolean(false);
+            ioworker = new Runnable() {
+                public void run() {
+                    new File(newMsgIndicator).delete();
+                }
+            };
+        }
+        new Thread(ioworker).start(); // do IO in another thread, not here in Swing thread
+    }
 }
