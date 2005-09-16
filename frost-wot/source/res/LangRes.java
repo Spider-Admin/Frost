@@ -156,6 +156,7 @@ public class LangRes extends ListResourceBundle {
 	///////////////////////////////////////////////////
     // ToolBar in News Tab
 	{"Save message", "Save message"},
+    {"Next unread message","Next unread message"},
 	{"New message", "New message"},
 	{"Reply", "Reply"},
 	{"Update", "Update"},
