@@ -116,6 +116,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 if (e.getSource() == saveMessageButton) {
                     saveMessageButton_actionPerformed(e);
                 }
+                if (e.getSource() == nextUnreadMessageButton) {
+                    selectNextUnreadMessage();
+                }
                 if (e.getSource() == setGoodButton) {
                     setGoodButton_actionPerformed(e);
                 }
@@ -172,6 +175,44 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     deleteSelectedMessage();
                 }
             }
+            
+            private void selectNextUnreadMessage() {
+
+                int currentSelection = messageTable.getSelectedRow();
+
+                if (currentSelection == -1) {
+                    currentSelection = 0;
+                }
+
+                int nextMessage = -1;
+
+                final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
+                // search down
+                for (int row = currentSelection; row < tableModel.getRowCount(); row++) {
+                    final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+                    if (message.isMessageNew()) {
+                        nextMessage = row;
+                        break;
+                    }
+                }
+                // search from top
+                if (nextMessage == -1 && currentSelection > 0) {
+                    for(int row = 0; row < currentSelection; row++) {
+                        final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+                        if (message.isMessageNew()) {
+                            nextMessage = row;
+                            break;
+                        }
+                    }
+                }
+
+                if (nextMessage == -1) {
+                    // TODO: code to move to next board.
+                } else {
+                    messageTable.addRowSelectionInterval(nextMessage, nextMessage);
+                    messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
+                }
+            }
 
             /**
              * Handles keystrokes for message table.
@@ -186,41 +227,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 if( e == null ) {
                     return;
                 }
-                if ((e.getSource() == messageTable || e.getSource() == boardsTable) && e.getKeyChar() == 'n') {
-                    int currentSelection = messageTable.getSelectedRow();
+                if ( (e.getSource() == messageTable || 
+                      e.getSource() == tofTree ||
+                      e.getSource() == messageTextArea ) && 
+                    e.getKeyChar() == 'n') {
 
-                    if (currentSelection == -1) {
-                        currentSelection = 0;
-                    }
+                    selectNextUnreadMessage();
 
-                    int nextMessage = -1;
-
-                    final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
-                    // search down
-                    for (int row = currentSelection; row < tableModel.getRowCount(); row++) {
-                        final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-                        if (message.isMessageNew()) {
-                            nextMessage = row;
-                            break;
-                        }
-                    }
-                    // search from top
-                    if (nextMessage == -1 && currentSelection > 0) {
-                        for(int row = 0; row < currentSelection; row++) {
-                            final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-                            if (message.isMessageNew()) {
-                                nextMessage = row;
-                                break;
-                            }
-                        }
-                    }
-
-                    if (nextMessage == -1) {
-                        // TODO: code to move to next board.
-                    } else {
-                        messageTable.addRowSelectionInterval(nextMessage, nextMessage);
-                        messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
-                    }
                 } else if (e.getSource() == messageTable ) { 
                     if( selectedMessage == null || 
                         selectedMessage.getSignatureStatus() != MessageObject.SIGNATURESTATUS_VERIFIED) 
@@ -785,13 +798,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             new JButton(new ImageIcon(getClass().getResource("/data/reply.gif")));
         private JButton saveMessageButton =
             new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
+        protected JButton nextUnreadMessageButton = 
+            new JButton(new ImageIcon(getClass().getResource("/data/nextunreadmessage.gif"))); // TODO!
         private JButton setGoodButton =
             new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
         private JButton updateButton =
             new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
 
         private AntialiasedTextArea messageTextArea = null;
-//        private JSplitPane mainSplitPane = null;
         private JSplitPane messageSplitPane = null;
         private JSplitPane attachmentsSplitPane = null;
 
@@ -930,6 +944,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //              "/data/attachmentBoard_rollover.gif",
 //              language);
             toolkit.configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif", language);
+            toolkit.configureButton(nextUnreadMessageButton, "Next unread message", "/data/nextunreadmessage_rollover.gif", language);
             toolkit.configureButton(setGoodButton, "Trust", "/data/trust_rollover.gif", language);
             toolkit.configureButton(setBadButton, "Do not trust", "/data/nottrust_rollover.gif", language);
             toolkit.configureButton(setCheckButton, "Set to CHECK", "/data/check_rollover.gif", language);
@@ -950,6 +965,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             buttonsToolbar.setFloatable(false);
             Dimension blankSpace = new Dimension(3, 3);
 
+            buttonsToolbar.add(Box.createRigidArea(blankSpace));
+            buttonsToolbar.add(nextUnreadMessageButton);
+            buttonsToolbar.add(Box.createRigidArea(blankSpace));
+            buttonsToolbar.addSeparator();
             buttonsToolbar.add(Box.createRigidArea(blankSpace));
             buttonsToolbar.add(saveMessageButton);
             buttonsToolbar.add(Box.createRigidArea(blankSpace));
@@ -995,6 +1014,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //          downloadAttachmentsButton.addActionListener(listener);
 //          downloadBoardsButton.addActionListener(listener);
             saveMessageButton.addActionListener(listener);
+            nextUnreadMessageButton.addActionListener(listener);
             setGoodButton.addActionListener(listener);
             setCheckButton.addActionListener(listener);
             setBadButton.addActionListener(listener);
@@ -1142,6 +1162,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
                 //listeners
                 messageTextArea.addMouseListener(listener);
+                messageTextArea.addKeyListener(listener);
                 filesTable.addMouseListener(listener);
                 boardsTable.addMouseListener(listener);
                 messageTable.addMouseListener(listener);
@@ -1149,6 +1170,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
                 //other listeners
                 tofTree.addTreeSelectionListener(listener);
+                tofTree.addKeyListener(listener);
                 tofTreeModel.addTreeModelListener(listener);
 
                 // display welcome message if no boards are available
@@ -1198,6 +1220,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 saveMessageButton.setEnabled(false);
                 return;
             }
+            
+            // board selected
 
             selectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
             if (selectedMessage != null) {
@@ -1390,6 +1414,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //          downloadAttachmentsButton.setToolTipText(language.getString("Download attachment(s)"));
 //          downloadBoardsButton.setToolTipText(language.getString("Add Board(s)"));
             saveMessageButton.setToolTipText(language.getString("Save message"));
+            nextUnreadMessageButton.setToolTipText(language.getString("Next unread message"));
             setGoodButton.setToolTipText(language.getString("Trust"));
             setBadButton.setToolTipText(language.getString("Do not trust"));
             setCheckButton.setToolTipText(language.getString("Set to CHECK"));
@@ -1397,12 +1422,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             updateButton.setToolTipText(language.getString("Update"));
         }
 
-        /**
-         * @param e
-         */
         private void replyButton_actionPerformed(ActionEvent e) {
-//            if(! isCorrectlySelectedMessage() )
-//                return;
 
             FrostMessageObject origMessage = selectedMessage;
 
@@ -1433,9 +1453,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
         }
 
-        /**
-         * @param e
-         */
         private void saveMessageButton_actionPerformed(ActionEvent e) {
             FileAccess.saveDialog(
                 parentFrame,
@@ -1444,30 +1461,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 language.getString("Save message to disk"));
         }
 
-        /**
-         * @param e
-         */
         private void showAttachedBoardsPopupMenu(MouseEvent e) {
             getPopupMenuAttachmentBoard().show(e.getComponent(), e.getX(), e.getY());
         }
 
-        /**
-         * @param e
-         */
         private void showAttachedFilesPopupMenu(MouseEvent e) {
             getPopupMenuAttachmentTable().show(e.getComponent(), e.getX(), e.getY());
         }
 
-        /**
-         * @param e
-         */
         private void showMessageTablePopupMenu(MouseEvent e) {
             getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
         }
 
-        /**
-         * @param e
-         */
         private void showTofTextAreaPopupMenu(MouseEvent e) {
             getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
         }
@@ -1484,9 +1489,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return messagewindow;
         }
 
-        /**
-         * @param e
-         */
         private void updateButton_actionPerformed(ActionEvent e) {
             // restarts all finished threads if there are some long running threads
             if (tofTree.isUpdateAllowed(tofTreeModel.getSelectedNode())) {
@@ -1494,9 +1496,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
         }
 
-        /**
-         * @param e
-         */
         private void boardsTree_actionPerformed(TreeSelectionEvent e) {
 
             messageSplitPane.setBottomComponent(null);
@@ -1597,16 +1596,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             saver.start();
         }
 
-        /**
-         * @param identities
-         */
         public void setIdentities(FrostIdentities identities) {
             this.identities = identities;
         }
 
-        /**
-         * @param parentFrame
-         */
         public void setParentFrame(JFrame parentFrame) {
             this.parentFrame = parentFrame;
         }
@@ -1640,9 +1633,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             updateTofTree(tofTreeModel.getSelectedNode());
         }
 
-        /**
-         * @param what
-         */
         private void setMessageTrust(int newState) {
             int row = messageTable.getSelectedRow();
             if (row < 0 || selectedMessage == null) {
@@ -2447,6 +2437,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             messagePanel = new MessagePanel(frostSettings);
             messagePanel.setParentFrame(this);
             messagePanel.setIdentities(core.getIdentities());
+//            messagePanel.addKeyListener(messagePanel.listener);
             messagePanel.initialize();
         }
         return messagePanel;
@@ -2913,6 +2904,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         if (board.isFolder() == true) {
             allMessagesCountLabel.setText("");
             newMessagesCountLabel.setText("");
+            messagePanel.nextUnreadMessageButton.setEnabled(false);
         } else {
             DefaultTableModel model = (DefaultTableModel) messageTable.getModel();
 
@@ -2921,6 +2913,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
             int newMessages = board.getNewMessageCount();
             newMessagesCountLabel.setText(newMessagesCountPrefix + newMessages);
+            if( newMessages > 0 ) {
+                messagePanel.nextUnreadMessageButton.setEnabled(true);
+            } else {
+                messagePanel.nextUnreadMessageButton.setEnabled(false);
+            }
         }
     }
 
