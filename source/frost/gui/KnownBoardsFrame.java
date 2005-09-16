@@ -52,12 +52,15 @@ public class KnownBoardsFrame extends JDialog {
     private JButton BaddBoard;
     private JButton BaddBoardToFolder;
     private JTextField TFlookupBoard;
+    private JTextField TFfilterBoard;
     private SortedTable boardsTable;
     private KnownBoardsTableModel tableModel;
     private NameColumnRenderer nameColRenderer;
     private DescColumnRenderer descColRenderer;
     
     private JSkinnablePopupMenu tablePopupMenu;
+    
+    private Vector allKnownBoardsList; // a list of all boards, needed as data source when we filter in the table
     
 	private boolean savingNeeded = false;
     
@@ -122,8 +125,25 @@ public class KnownBoardsFrame extends JDialog {
                 public void removeUpdate(DocumentEvent e) { 
                     lookupContentChanged(); 
                 }
-            });        
+            });
+
+        TFfilterBoard = new JTextField(10);
+        new TextComponentClipboardMenu(TFfilterBoard, language);
+        // force a max size, needed for BoxLayout
+        TFfilterBoard.setMaximumSize(TFfilterBoard.getPreferredSize());
         
+        TFfilterBoard.getDocument().addDocumentListener(new DocumentListener() {
+                public void changedUpdate(DocumentEvent e) {
+                    filterContentChanged(); 
+                }
+                public void insertUpdate(DocumentEvent e) { 
+                    filterContentChanged(); 
+                }
+                public void removeUpdate(DocumentEvent e) { 
+                    filterContentChanged(); 
+                }
+            });
+
         boardsTable.getSelectionModel().addListSelectionListener(new ListSelectionListener() {
                      public void valueChanged(ListSelectionEvent e) {
                          boardsTableListModel_valueChanged(e);
@@ -149,6 +169,11 @@ public class KnownBoardsFrame extends JDialog {
         buttons.add( new JLabel(language.getString("KnownBoardsFrame.Lookup") + ":"));
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( TFlookupBoard );
+        buttons.add(Box.createRigidArea(new Dimension(5,3)));
+        buttons.add( new JLabel(language.getString("KnownBoardsFrame.Filter") + ":"));
+        buttons.add(Box.createRigidArea(new Dimension(5,3)));
+        buttons.add( TFfilterBoard );
+        
         buttons.add( Box.createHorizontalGlue() );
         buttons.add( BaddBoard );
         buttons.add(Box.createRigidArea(new Dimension(15,3)));
@@ -198,6 +223,7 @@ public class KnownBoardsFrame extends JDialog {
     public void startDialog() {
         // gets all known boards from Core, and shows all not-doubles in table
         Vector frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        allKnownBoardsList = new Vector();
 
         synchronized( Core.getKnownBoards() ) {
             Iterator i = Core.getKnownBoards().iterator();
@@ -229,6 +255,7 @@ public class KnownBoardsFrame extends JDialog {
                     // add this new board to table
                     KnownBoardsTableMember member = new KnownBoardsTableMember(ba);
                     this.tableModel.addRow(member);
+                    allKnownBoardsList.add(member);
                 }
             }
         }
@@ -253,6 +280,7 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 tofTree.addNewBoard(row.getBoardObject());
                 tableModel.deleteRow(row);
+                allKnownBoardsList.remove(row.getBoardAttachment());
             }
             boardsTable.clearSelection();
         }
@@ -278,6 +306,7 @@ public class KnownBoardsFrame extends JDialog {
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 MainFrame.getInstance().getTofTreeModel().addNodeToTree(row.getBoardObject(), targetFolder);
                 tableModel.deleteRow(row);
+                allKnownBoardsList.remove(row.getBoardAttachment());
             }
             boardsTable.clearSelection();
         }
@@ -297,6 +326,7 @@ public class KnownBoardsFrame extends JDialog {
                 // add the board(s) to board tree and remove it from table
                 KnownBoardsTableMember row = (KnownBoardsTableMember) tableModel.getRow(rowIx);
                 tableModel.deleteRow(row);
+                allKnownBoardsList.remove(row.getBoardAttachment());
                 // remove from global list of known boards
                 Core.getKnownBoards().remove(row.getBoardAttachment());
                 this.savingNeeded = true;
@@ -398,7 +428,30 @@ public class KnownBoardsFrame extends JDialog {
             }
         } catch(Exception ex) {}
     }
-    
+
+    /**
+     * Called whenever the content of the filter text field changes
+     */
+    private void filterContentChanged() {
+        try {
+            TFlookupBoard.setText(""); // clear
+            String txt = TFfilterBoard.getDocument().getText(0, TFfilterBoard.getDocument().getLength()).trim();
+            txt = txt.toLowerCase();
+            // filter: show all boards that have this txt in name
+            tableModel.clearDataModel();
+            for(Iterator i = allKnownBoardsList.iterator(); i.hasNext();  ) {
+                KnownBoardsTableMember tm = (KnownBoardsTableMember)i.next();
+                if( txt.length() > 0 ) {
+                    String bn = tm.getBoardObject().getName().toLowerCase();
+                    if( bn.indexOf(txt) < 0 ) {
+                        continue;
+                    }
+                }
+                tableModel.addRow(tm);
+            }
+        } catch(Exception ex) {}
+    }
+
     class NameColumnRenderer extends DefaultTableCellRenderer {
         public Component getTableCellRendererComponent(
             JTable table,

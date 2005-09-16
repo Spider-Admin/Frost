@@ -481,6 +481,7 @@ public class LangRes extends ListResourceBundle {
 	{"KnownBoardsFrame.List of known boards","List of known boards"},
 	{"KnownBoardsFrame.Close","Close"},
 	{"KnownBoardsFrame.Lookup","Lookup"},
+    {"KnownBoardsFrame.Filter","Filter"},
 	{"KnownBoardsTableModel.Boardname","Boardname"},
 	
 	///////////////////////////////////////////////////
