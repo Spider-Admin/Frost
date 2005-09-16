@@ -59,6 +59,7 @@ Added: Shortkeys in message table:
        - press 'c' to mark sender of selected message CHECK
        - press 'b' to mark sender of selected message BAD
        (thanks to mentalsurge for this code!)
+Added: Possibility to filter in known boards dialog.
 
 Changed: Removed support for loading the very old format of 'hashes' and 'identities'
          because all Frost versions should support the XML format now.
