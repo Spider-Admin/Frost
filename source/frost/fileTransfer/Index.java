@@ -380,10 +380,11 @@ public class Index {
 					//set it to offline again
 					if (!current.checkDate()) {
 						current.setDate(null);
-						current.setKey(null);
+						//current.setKey(null); // TODO: could we keep the chk key? I try it :)
 						logger.fine("o"); //o means assumed fallen off freenet
 						//NOTE: This will not remove the CHK from the upload table. 
 						//however, when the other side receives the index they will see the file "offline"
+                        // -> but they still have the key...
 					}
 					toUpload.put(current.getSHA1(), current);
 					logger.fine("d");
