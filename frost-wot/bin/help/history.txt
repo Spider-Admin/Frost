@@ -89,6 +89,9 @@ Changed: Size of messages to upload is now proved, you get an error dialog if th
          The data + metadata of a KSK key must be smaller than 32K, therefore a zipped
          XML message must be smaller or equal than 30000 bytes. The remaining bytes are
          needed for the metadata Frost adds to the message.
+Changed: Files that switch to 'offline' state keep their CHK key. This means that if
+         this offline file is downloaded, the download is tried and only if the
+         download failed the file is requested (when requesting is enabled).
 
 Bugfix: fixes in MessageDownloadThread:
         - validates format of all messages again
