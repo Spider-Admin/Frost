@@ -44,19 +44,15 @@ import frost.util.gui.translation.*;
 
 public class MessageFrame extends JFrame
 {
-    private class AttachBoardsChooser extends JDialog
-    {
+    private class AttachBoardsChooser extends JDialog {
 		private class AttachBoardsCellRenderer extends DefaultListCellRenderer {
 
-			/* (non-Javadoc)
-			 * @see javax.swing.ListCellRenderer#getListCellRendererComponent(javax.swing.JList, java.lang.Object, int, boolean, boolean)
-			 */
 			public Component getListCellRendererComponent(JList list, Object value, int index,
 					boolean isSelected, boolean cellHasFocus) {
 				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
 				if (value != null) {
-					Board board = (Board) value;
-					setText(board.getName());
+					Board tboard = (Board) value;
+					setText(tboard.getName());
 				}	
 				return this;
 			}
@@ -68,9 +64,6 @@ public class MessageFrame extends JFrame
         JList Lboards;
         boolean okPressed = false;
 
-        /**
-         * @param boards
-         */
         public AttachBoardsChooser(List boards)
         {	
             super();
@@ -80,9 +73,6 @@ public class MessageFrame extends JFrame
             initGui();
         }
         
-        /**
-         * 
-         */
         private void initGui()
         {
             Bok = new JButton("OK");
@@ -122,9 +112,6 @@ public class MessageFrame extends JFrame
             setSize(300, 400);
         }
         
-        /**
-         * @return
-         */
         public Vector runDialog()
         {
             setVisible(true);
@@ -148,14 +135,8 @@ public class MessageFrame extends JFrame
         }
     }
     
-	/**
-	 * 
-	 */
 	private class Listener implements MouseListener, LanguageListener {
 
-		/**
-		 * @param e
-		 */
 		protected void maybeShowPopup(MouseEvent e) {
 			if (e.isPopupTrigger()) {
 				if (e.getSource() == boardsTable) {
@@ -170,49 +151,28 @@ public class MessageFrame extends JFrame
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-		 */
 		public void mouseClicked(MouseEvent event) {
 		}
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-		 */
 		public void mouseEntered(MouseEvent event) {
 		}
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-		 */
 		public void mouseExited(MouseEvent event) {
 		}
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-		 */
 		public void mousePressed(MouseEvent event) {
 			maybeShowPopup(event);
 		}
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-		 */
 		public void mouseReleased(MouseEvent event) {
 			maybeShowPopup(event);
 		}
 
-		/* (non-Javadoc)
-		 * @see frost.util.gui.translation.LanguageListener#languageChanged(frost.util.gui.translation.LanguageEvent)
-		 */
 		public void languageChanged(LanguageEvent event) {
 			refreshLanguage();					
 		}
 	}
     
-	/**
-	 * 
-	 */
 	private class MessageBodyPopupMenu 
 		extends JSkinnablePopupMenu 
 		implements ActionListener, ClipboardOwner {
@@ -684,7 +644,7 @@ public class MessageFrame extends JFrame
 	private JButton BattachBoard= new JButton(new ImageIcon(MainFrame.class.getResource("/data/attachmentBoard.gif")));
 
 	private JCheckBox sign = new JCheckBox();
-    JCheckBox encrypt = new JCheckBox("Encrypt for");
+    JCheckBox encrypt = new JCheckBox();
     JComboBox buddies;
     private JCheckBox addAttachedFilesToUploadTable = new JCheckBox();
 
@@ -707,8 +667,9 @@ public class MessageFrame extends JFrame
 	 * @param parentWindow
 	 * @param newMyId
 	 */
-	public MessageFrame(SettingsClass newSettings, Window parentWindow, LocalIdentity newMyId) {
+	public MessageFrame(SettingsClass newSettings, Window tparentWindow, LocalIdentity newMyId) {
 		super();
+        parentWindow = tparentWindow;
 		this.language = Language.getInstance();
 		myId = newMyId;
 		state = false;
@@ -735,10 +696,13 @@ public class MessageFrame extends JFrame
 													  // the message
 		messageTextArea.setDocument(messageDocument);
 
-		setSize((int) (parentWindow.getWidth() * 0.75), 
-				(int) (parentWindow.getHeight() * 0.75));
-		setLocationRelativeTo(parentWindow);
+        // see initialze()
+//		setSize((int) (parentWindow.getWidth() * 0.75), 
+//				(int) (parentWindow.getHeight() * 0.75));
+//		setLocationRelativeTo(parentWindow);
 	}
+    
+    private Window parentWindow;
 
 	/**
 	 * @param e
@@ -995,6 +959,7 @@ public class MessageFrame extends JFrame
             } else {
                 buddies = new JComboBox();
             }
+            buddies.setMaximumSize(new Dimension(300, 25)); // dirty fix for overlength combobox on linux
             
 			MiscToolkit toolkit = MiscToolkit.getInstance();
 			toolkit.configureButton(Bsend, "Send message", "/data/send_rollover.gif", language);
@@ -1084,12 +1049,6 @@ public class MessageFrame extends JFrame
 			});		
 			AbstractDocument doc = (AbstractDocument) fromTextField.getDocument();
 			doc.setDocumentFilter(new DocumentFilter() {
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see javax.swing.text.DocumentFilter#insertString(javax.swing.text.DocumentFilter.FilterBypass,
-                 *      int, java.lang.String, javax.swing.text.AttributeSet)
-                 */
                 public void insertString(DocumentFilter.FilterBypass fb, int offset, String string,
                         AttributeSet attr) throws BadLocationException {
                     
@@ -1100,13 +1059,6 @@ public class MessageFrame extends JFrame
 
                 }
 
-                /*
-                 * (non-Javadoc)
-                 * 
-                 * @see javax.swing.text.DocumentFilter#replace(javax.swing.text.DocumentFilter.FilterBypass,
-                 *      int, int, java.lang.String,
-                 *      javax.swing.text.AttributeSet)
-                 */
                 public void replace(DocumentFilter.FilterBypass fb, int offset, int length, String text,
                         AttributeSet attrs) throws BadLocationException {
                     
@@ -1125,7 +1077,7 @@ public class MessageFrame extends JFrame
 			JPanel panelTextfields = new JPanel(new BorderLayout()); // Textfields
 			JPanel panelToolbar = new JPanel(new BorderLayout()); // Toolbar / Textfields
 			JPanel panelLabels = new JPanel(new BorderLayout()); // Labels
-			JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 8, 0));
+			JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
 
 			JScrollPane bodyScrollPane = new JScrollPane(messageTextArea); // Textscrollpane
 			bodyScrollPane.setMinimumSize(new Dimension(100, 50));
@@ -1174,14 +1126,24 @@ public class MessageFrame extends JFrame
 			getContentPane().add(panelMain, BorderLayout.CENTER);
 
 			initPopupMenu();
+            
+			pack();
+            
+            // window is now packed to needed size. Check if packed width is smaller than
+            // 75% of the parent frame and use the larger size.
+            // pack is needed to ensure that all dialog elements are shown (was problem on linux).
+            int width = getWidth();
+            if( width < (int)(parentWindow.getWidth() * 0.75) ) {
+                width = (int)(parentWindow.getWidth() * 0.75);
+            }
+            
+            setSize( width, (int)(parentWindow.getHeight() * 0.75) ); // always set height to 75% of parent
+            setLocationRelativeTo(parentWindow);
 
 			initialized = true;
 		}
 	}
     
-    /**
-     * 
-     */
     protected void initPopupMenu()
     {
         attFilesPopupMenu = new JSkinnablePopupMenu();
@@ -1205,9 +1167,6 @@ public class MessageFrame extends JFrame
         attBoardsPopupMenu.add( removeBoards );
     }
 
-	/**
-	 * 
-     */
     private void positionDividers() {
         int attachedFiles = filesTableModel.getRowCount();
         int attachedBoards = boardsTableModel.getRowCount();
@@ -1253,6 +1212,8 @@ public class MessageFrame extends JFrame
 		BattachBoard.setToolTipText(language.getString("Add Board(s)"));
 		
 		sign.setText(language.getString("Sign"));
+        encrypt.setText(language.getString("Encrypt for"));
+        
 		addAttachedFilesToUploadTable.setText(language.getString("Indexed attachments"));
 		
 		addAttachedFilesToUploadTable.setToolTipText(
@@ -1263,9 +1224,6 @@ public class MessageFrame extends JFrame
 		Lsubject.setText(language.getString("Subject") + ": ");
 	}
         
-    /**
-     * @param tbl
-     */
     protected void removeSelectedItemsFromTable( JTable tbl )
     {
         SortedTableModel m = (SortedTableModel)tbl.getModel();
@@ -1318,7 +1276,7 @@ public class MessageFrame extends JFrame
         if( text.length() > maxTextLength ) {
             JOptionPane.showMessageDialog( this,
                     "The text of the message is too large ("+text.length()+" characters, "+maxTextLength+" allowed)!",
-                    "Text too large!",
+                    "Message text too large!",
                     JOptionPane.ERROR_MESSAGE);
             return;                               
         }
@@ -1400,7 +1358,7 @@ public class MessageFrame extends JFrame
             if( zipLen > 30000 ) { // 30000 because data+metadata must be smaller than 32k
                 JOptionPane.showMessageDialog( this,
                         "The zipped message is too large ("+zipLen+" bytes, "+30000+" allowed)! Remove some text.",
-                        "Text too large!",
+                        "Message text too large!",
                         JOptionPane.ERROR_MESSAGE);
                 return;
             }
@@ -1442,6 +1400,11 @@ public class MessageFrame extends JFrame
 			fromTextField.setEditable(false);
             if( buddies.getItemCount() > 0 ) {
                 encrypt.setEnabled(true);
+                if( encrypt.isSelected() ) {
+                    buddies.setEnabled(true);
+                } else {
+                    buddies.setEnabled(true);
+                }
             }
             // add signature if not existing
             String txt = messageTextArea.getText();
@@ -1456,6 +1419,7 @@ public class MessageFrame extends JFrame
 			sender = "Anonymous";
 			fromTextField.setEditable(true);
             encrypt.setEnabled(false);
+            buddies.setEnabled(false);
             // remove signature if existing
             if (signature != null && messageTextArea.getText().endsWith(signature)) {
                 try {
