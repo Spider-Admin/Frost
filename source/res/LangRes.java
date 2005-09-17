@@ -300,6 +300,7 @@ public class LangRes extends ListResourceBundle {
 	{"Send message", "Send message"},
 	{"Add attachment(s)", "Add attachment(s)"},
 	{"Sign", "Sign"},
+    {"Encrypt for", "Encrypt for"},
 	{"Indexed attachments", "Indexed attachments"},
 	{"Should file attachments be added to upload table?", "Should file attachments be added to upload table?"},
 	{"Board", "Board"},
