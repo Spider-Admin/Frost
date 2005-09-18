@@ -1,5 +1,9 @@
-******************************************************************************************
-Pending changes for next release:
+ ************************
+*** Frost history file ***
+ ************************
+
+2005.09.18:
+------------
 
 Added: timestamp to hashes.xml; and implemented automatic cleanup of old entries
 Added: Reworked the feature to send encrypted messages. The encrypted message must be
@@ -8,7 +12,7 @@ Added: Reworked the feature to send encrypted messages. The encrypted message mu
        and the FROM text is drawn in RED. The sender will not see its own sent message
        (because he is not able to decrypt it).
        If you want to write an encrypted message to someone you must have marked him GOOD.
-       Then start to write a new message in a board, select 'Sign' and 'Encrypt' in 
+       Then start to write a new message in a board, select 'Sign' and 'Encrypt' in
        the message dialog and choose the correct receiver from the drop down list.
        Then send the message as usual...
        (If you press REPLY to a selected encrypted message, the message dialog will
@@ -29,9 +33,9 @@ Added: Reworked the feature to send encrypted messages. The encrypted message mu
        For private boards of a user we could use following KSK key:
        KSK@DIGEST-OF-KEY/NAME/file
        This way we don't have to create new keys. But you can't send a private message to
-       a user if you have only his unique name, because Frost additionally needs the 
+       a user if you have only his unique name, because Frost additionally needs the
        complete public key of the user to encrypt the message for him.
-       Later we could implement to allow to send/receive unencrypted messages which 
+       Later we could implement to allow to send/receive unencrypted messages which
        maybe could make Frost compatible to pm4pigs...
 
 Added: generating and spreading of private board SSK key
@@ -60,7 +64,7 @@ Added: Shortkeys in message table:
        - press 'b' to mark sender of selected message BAD
        (thanks to mentalsurge for this code!)
 Added: Button to jump to next unread message.
-Added: Possibility to filter in known boards dialog.
+Added: Possibility to filter by board name in known boards dialog.
 
 Changed: Removed support for loading the very old format of 'hashes' and 'identities'
          because all Frost versions should support the XML format now.
