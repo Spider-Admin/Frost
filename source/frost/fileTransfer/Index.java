@@ -86,8 +86,9 @@ public class Index {
 	//I put the accounting for trustmap here.  Be careful when you change it!!
 	private void add(File keyfile, File target, Identity owner) {
 		try {
-			if (!target.exists())
+			if (!target.exists()) {
 				target.createNewFile();
+            }
 		} catch (IOException e) {
 			logger.log(
 				Level.SEVERE,
@@ -99,14 +100,16 @@ public class Index {
 		if (!owner
 			.getUniqueName()
 			.equals(Core.getInstance().getIdentities().getMyId().getUniqueName()))
+        {
 			while (it.hasNext()) {
 				SharedFileObject current = (SharedFileObject) it.next();
-				if (!current.getOwner().equals(owner.getUniqueName()))
+				if (!current.getOwner().equals(owner.getUniqueName())) {
 					owner.getTrustees().add(current.getOwner());
+                }
 				//FIXME: find a way to count the files each person has shared
 				//without counting duplicates
 			}
-
+        }
 		add(chunk, target);
 	}
 
@@ -194,8 +197,9 @@ public class Index {
 			SharedFileObject current = (SharedFileObject) i.next();
 
 			//update the download table
-			if (current.getKey() != null)
+			if (current.getKey() != null) {
 				updateDownloadTable(current);
+            }
 
 			SharedFileObject old = (SharedFileObject) whole.getFilesMap().get(current.getSHA1());
 
@@ -351,63 +355,104 @@ public class Index {
 
 		Map toUpload = _toUpload.getFilesMap();
 
-		//add friends's files 
-		// TODO:  add a limit
+		//add friends's files and maybe reshare my files
+        
+		// add a limit -> key file could grow above 30.000 bytes which is the appr. maximum for KSK uploads!
+        //  (metadata size must be added to data size)
+        final int MAX_FILES = 100; // 100 seems to be a good size
+        // if not all files fit into this index, we send the next list on next update
 
-		Iterator i = totalIdx.getFiles().iterator();
 		String myUniqueName = Core.getInstance().getIdentities().getMyId().getUniqueName();
 		int downloadBack = MainFrame.frostSettings.getIntValue("maxAge");
 		logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
-		
-		while (i.hasNext()) {
+        
+		// first add all of my files
+        
+		for(Iterator i = totalIdx.getFiles().iterator(); i.hasNext(); ) {
 			SharedFileObject current = (SharedFileObject) i.next();
-            Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
-			if( id != null && //not anonymous
-				myUniqueName.compareTo(current.getOwner()) != 0 && //not myself
-				MainFrame.frostSettings.getBoolValue("helpFriends")	&& //and helping is enabled
-		 		id.getState() == FrostIdentities.FRIEND ) {//and marked GOOD
-					
-				toUpload.put(current.getSHA1(), current);
-				logger.fine("f"); //f means added file from friend
-			}
-			//also add the file if its been shared too long ago
-			if( current.getOwner() != null && //not anonymous 
-				current.getOwner().compareTo(myUniqueName) == 0 && //from myself
-				current.getLastSharedDate() != null) { //not from the old format
 
-				if (DateFun.getDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
-					//if the file has been uploaded too long ago, 
-					//set it to offline again
+			if( current.getOwner() != null && //not anonymous 
+                current.getOwner().compareTo(myUniqueName) == 0 && //from myself
+                current.getLastSharedDate() != null) { //not from the old format
+                
+			    // add my file if its been shared too long ago
+				if (DateFun.getExtendedDate(downloadBack).compareTo(current.getLastSharedDate()) > 0) {
+					// if the file has been uploaded too long ago, set it to offline again
 					if (!current.checkDate()) {
 						current.setDate(null);
 						//current.setKey(null); // TODO: could we keep the chk key? I try it :)
 						logger.fine("o"); //o means assumed fallen off freenet
 						//NOTE: This will not remove the CHK from the upload table. 
 						//however, when the other side receives the index they will see the file "offline"
-                        // -> but they still have the key...
+                        // -> but now they still have the key...
 					}
+                    current.setLastSharedDate(DateFun.getExtendedDate());
 					toUpload.put(current.getSHA1(), current);
 					logger.fine("d");
-					current.setLastSharedDate(DateFun.getDate());
 					reSharing = true;
 					//d means it was shared too long ago
+                    
+                    if( toUpload.size() >= MAX_FILES ) {
+                        break; // index file full
+                    }
 				}
 			}
 		}
+        
+        // if no own files must be send, don't send only friends files
+        if( toUpload.size() == 0 ) {
+            return null;
+        }
 
-		//update the lastSharedDate of the shared files
+        // if there is space in the file, add random files of friends
+        // TODO: we could mark helped files and send some other on next run (use e.g. a lastHelpedDate)
+        //       for now we collect all possible files and shuffle them
+
+        if( toUpload.size() < MAX_FILES ) {
+
+            // collect ALL friends files
+            ArrayList friendsFiles = new ArrayList();
+            for(Iterator i = totalIdx.getFiles().iterator(); i.hasNext(); ) {
+                
+                SharedFileObject current = (SharedFileObject) i.next();
+                Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
+                if( id != null && //not anonymous
+                    myUniqueName.compareTo(current.getOwner()) != 0 && //not myself
+                    MainFrame.frostSettings.getBoolValue("helpFriends") && //and helping is enabled
+                    id.getState() == FrostIdentities.FRIEND ) //and marked GOOD 
+                {
+                    // add friends files
+                    friendsFiles.add( current );
+                }
+            }
+            
+            // shuffle ALL files
+            Collections.shuffle(friendsFiles);
+            
+            // add files until index file is full
+            for(Iterator i = friendsFiles.iterator(); i.hasNext(); ) {
+                SharedFileObject current = (SharedFileObject) i.next();
+                toUpload.put(current.getSHA1(), current);
+                logger.fine("f"); //f means added file from friend
+                
+                if( toUpload.size() >= MAX_FILES ) {
+                    break;
+                }
+            }
+        }
+
+		// update the lastSharedDate of MY shared files
 		if (reSharing) {
 			FileAccess.writeKeyFile(totalIdx, boardFiles);
 		}
 
-		//return anything only if we either re-shared old files or
-		//have new files to upload.
+		//return anything only if we either re-shared old files or have new files to upload.
 		if (reSharing || newFiles) {
 			//update the last shared date
-			Iterator it2 = toUpload.values().iterator();
-			while (it2.hasNext()) {
+			for(Iterator it2 = toUpload.values().iterator(); it2.hasNext();  ) {
 				SharedFileObject obj = (SharedFileObject) it2.next();
-				obj.setLastSharedDate(DateFun.getDate());
+                // TODO: why do we change the dateShared for files of friends? the friend did not reshare the file!
+				obj.setLastSharedDate(DateFun.getExtendedDate());
 			}
 			return toUpload;
 		} else {

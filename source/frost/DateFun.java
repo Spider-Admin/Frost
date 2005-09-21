@@ -38,14 +38,37 @@ public class DateFun
     }
     
     /**
-     *Returns date -n days
+     * Returns date -n days.
+     * @return Date as String yyyy.m.d in GMT without leading zeros
      */
     public static String getDate(int daysAgo) {
     	GregorianCalendar cal = new GregorianCalendar();
-	cal.add(Calendar.DATE,-daysAgo);
+	    cal.add(Calendar.DATE,-daysAgo);
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append(".")
         .append(cal.get(Calendar.MONTH) + 1).append(".").append(cal.get(Calendar.DATE)).toString();
+    }
+
+    /**
+     * Returns date -n days.
+     * @return Date as String yyyy.mm.dd in GMT WITH leading zeros
+     */
+    public static String getExtendedDate(int daysAgo) {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        cal.add(Calendar.DATE,-daysAgo);
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        int day = cal.get(Calendar.DATE);
+        StringBuffer sb = new StringBuffer(11);
+        sb.append(year).append(".");
+        if( month < 10 )
+            sb.append("0");
+        sb.append(month).append(".");
+        if( day < 10 )
+            sb.append("0");
+        sb.append(day);
+        return sb.toString();
     }
 
     /**
