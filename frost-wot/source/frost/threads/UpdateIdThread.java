@@ -210,7 +210,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     	//load the indices for the current date
     	loadIndex(currentDate);
         File indexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
-        XMLTools.writeXmlFile(XMLTools.getXMLDocument(idx),indexFile.getPath());
+        XMLTools.writeXmlFile(XMLTools.getXMLDocument(idx), indexFile.getPath());
         boolean success = false;
         int tries = 0;
         String[] result = {"Error", "Error"};

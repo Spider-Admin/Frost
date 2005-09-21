@@ -215,7 +215,7 @@ class UploadThread extends Thread
 		SharedFileObject newKey = new SharedFileObject();
 		newKey.setKey(null);
 		newKey.setDate(null);
-		newKey.setLastSharedDate(DateFun.getDate());
+		newKey.setLastSharedDate(DateFun.getExtendedDate());
 		newKey.setSHA1(SHA1);
 		newKey.setFilename(destination);
 		newKey.setSize(file.length());

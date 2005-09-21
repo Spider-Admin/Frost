@@ -41,7 +41,7 @@ public class FrostIndex implements XMLizable {
 		boolean signUploads = Core.frostSettings.getBoolValue("signUploads");
 		//iterate through set of files and add them all
 		Iterator i = filesMap.values().iterator();
-		while (i.hasNext()){
+		while (i.hasNext()) {
 			SharedFileObject current = (SharedFileObject)i.next();
 			Element currentElement = current.getXMLElement(container);
 			
@@ -49,12 +49,13 @@ public class FrostIndex implements XMLizable {
 			List sensitive = XMLTools.getChildElementsByTagName(currentElement,"lastSharedDate");
 			
 			//strip the owner field if file is not signed
-			if (!signUploads)
+			if (!signUploads) {
 				sensitive.addAll(XMLTools.getChildElementsByTagName(currentElement,"owner"));
-				
-			Iterator i2 = sensitive.iterator();
-			while (i2.hasNext())
+            }
+			
+			for(Iterator i2 = sensitive.iterator(); i2.hasNext(); ) {
 				currentElement.removeChild((Element)i2.next());
+            }
 				
 			el.appendChild(currentElement);
 		}

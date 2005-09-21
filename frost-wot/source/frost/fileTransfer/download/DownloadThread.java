@@ -1,5 +1,5 @@
 /*
-  requestThread.java / Frost
+  DownloadThread.java / Frost
   Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -29,12 +29,6 @@ import frost.fileTransfer.Index;
 import frost.gui.objects.Board;
 import frost.messages.SharedFileObject;
 
-/**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public class DownloadThread extends Thread {
 	
 	private SettingsClass settings;
@@ -64,7 +58,6 @@ public class DownloadThread extends Thread {
 			Date today = new Date();
 			String date = formatter.format(today);
 			File newFile = new File(settings.getValue("downloadDirectory") + filename);
-			boolean do_request = false;
 
 			// if we don't have the CHK, means the key was not inserted
 			// request it by SHA1
@@ -238,7 +231,6 @@ public class DownloadThread extends Thread {
 
 		if (!requested) {
 			String date = DateFun.getDate();
-			String time = DateFun.getFullExtendedTime() + "GMT";
 
 			// Generate file to upload
 			File requestFile = null;
@@ -262,7 +254,6 @@ public class DownloadThread extends Thread {
 			// Search empty slot
 			boolean success = false;
 			int index = 0;
-			String output = new String();
 			int tries = 0;
 			boolean error = false;
 			File testMe = null;
@@ -324,7 +315,6 @@ public class DownloadThread extends Thread {
 							.toString();
 					logger.fine(upKey);
 					result = FcpInsert.putFile(upKey, requestFile, messageUploadHtl, false);
-					// doRedirect
 					logger.fine("FcpInsert result[0] = " + result[0] + " result[1] = " + result[1]);
 
 					if (result[0] == null || result[1] == null) {
