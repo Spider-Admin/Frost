@@ -57,7 +57,7 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 			try {
 				loadNewFormat(messageHashes);
 //				oldFile.delete();		//In case we have an old file hanging around, we delete it.
-			} catch (Exception e) {
+			} catch (Throwable e) {
 				throw new StorageException("Exception while loading the new message hashes format.", e);
 			}
 		} 
@@ -107,7 +107,8 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 		}
 
         // try to load OLD hashes with have no timestamp, convert them to new hashes
-        // we write ONLY new hashes, so this is a one time conversion
+        // we write ONLY new hashes, so this is a one time conversion.
+        // additionally move all hashe values into a CDATA tag, they could contain <>" 
 		Element hashesListRootNode = (Element) nodelist.get(0);
 		nodelist = XMLTools.getChildElementsByTagName(hashesListRootNode, "MessageHash");
 		if (nodelist.size() == 0) {
@@ -118,6 +119,13 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 			for (int x = 0; x < nodelist.size(); x++) {
 				Element element = (Element) nodelist.get(x);
 				String value = element.getAttribute("value");
+                if( value == null || value.length() == 0 ) {
+                    CDATASection txtname = (CDATASection)element.getFirstChild();
+                    if( txtname == null ) {
+                        logger.warning("No hash value found in MessageHash, continuing.");
+                    }
+                    value = txtname.getData().trim();
+                }
                 String timestamp = element.getAttribute("timestamp");
                 if( timestamp != null && (timestamp=timestamp.trim()).length() > 0 ) {
                     long timestampval = Long.parseLong(timestamp); 
@@ -180,8 +188,10 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
                 continue;
             }
 			Element element = doc.createElement("MessageHash");
-			element.setAttribute("value", hash);
+//			element.setAttribute("value", hash);
             element.setAttribute("timestamp", Long.toString(timestampval));
+            CDATASection cdata = doc.createCDATASection(hash);
+            element.appendChild(cdata);
 			listRoot.appendChild(element);
 		}		
 		
