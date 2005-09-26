@@ -4,6 +4,8 @@
  */
 package frost.messaging;
 
+import java.util.logging.*;
+
 import frost.SettingsClass;
 import frost.storage.StorageException;
 
@@ -13,7 +15,9 @@ import frost.storage.StorageException;
  */
 public class MessagingManager {
 	
-	private SettingsClass settings;
+    private static Logger logger = Logger.getLogger(MessagingManager.class.getName());
+
+    private SettingsClass settings;
 	
 	private MessageHashes messageHashes;
 	
@@ -28,8 +32,13 @@ public class MessagingManager {
 	/**
 	 * 
 	 */
-	public void initialize() throws StorageException {
-		getMessageHashes().initialize();
+	public void initialize() {
+        try {
+            getMessageHashes().initialize();
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Exception when loading hashes, continuing", t);
+            messageHashes = new MessageHashes();
+        }
 	}
 
 	/**

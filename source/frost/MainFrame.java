@@ -157,7 +157,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
             
             private void selectNextUnreadMessage() {
-
+                // TODO: select next msg by Date!
                 int currentSelection = messageTable.getSelectedRow();
 
                 if (currentSelection == -1) {
