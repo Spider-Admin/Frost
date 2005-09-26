@@ -2,6 +2,11 @@
 *** Frost history file ***
  ************************
 
+PENDING:
+
+Bugfix: restricted size of keyfile to upload
+Bugfix: reworked MessageHashes to prevent init errors
+
 2005.09.18:
 ------------
 
@@ -35,8 +40,8 @@ Added: Reworked the feature to send encrypted messages. The encrypted message mu
        This way we don't have to create new keys. But you can't send a private message to
        a user if you have only his unique name, because Frost additionally needs the
        complete public key of the user to encrypt the message for him.
-       Later we could implement to allow to send/receive unencrypted messages which
-       maybe could make Frost compatible to pm4pigs...
+       Later we could implement to allow to send/receive messages like pm4pigs to
+       maybe make Frost compatible to pm4pigs...
 
 Added: generating and spreading of private board SSK key
 Added: 'Mark ALL messages read' to boards and folders in boards tree
