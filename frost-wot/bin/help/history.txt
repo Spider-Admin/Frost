@@ -4,8 +4,12 @@
 
 PENDING:
 
-Bugfix: restricted size of keyfile to upload
+Changed: 'Next unread' nutton (or key 'n') now jumps to next unread message BY DATE
+
+Bugfix: restricted size of keyfile to upload (prevents key too big messages)
 Bugfix: reworked MessageHashes to prevent init errors
+
+******************************************************************************************
 
 2005.09.18:
 ------------

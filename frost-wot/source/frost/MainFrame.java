@@ -35,6 +35,8 @@ import javax.swing.table.*;
 import javax.swing.text.*;
 import javax.swing.tree.*;
 
+import com.sun.corba.se.impl.protocol.giopmsgheaders.*;
+
 import frost.boards.*;
 import frost.components.*;
 import frost.components.translate.*;
@@ -155,33 +157,26 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     deleteSelectedMessage();
                 }
             }
-            
+
+            /**
+             * Search through all messages, find next unread message by date (earliest message in table).
+             */
             private void selectNextUnreadMessage() {
-                // TODO: select next msg by Date!
-                int currentSelection = messageTable.getSelectedRow();
-
-                if (currentSelection == -1) {
-                    currentSelection = 0;
-                }
-
                 int nextMessage = -1;
 
                 final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
-                // search down
-                for (int row = currentSelection; row < tableModel.getRowCount(); row++) {
+                FrostMessageObject earliestMessage = null;
+                for (int row = 0; row < tableModel.getRowCount(); row++) {
                     final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
                     if (message.isMessageNew()) {
-                        nextMessage = row;
-                        break;
-                    }
-                }
-                // search from top
-                if (nextMessage == -1 && currentSelection > 0) {
-                    for(int row = 0; row < currentSelection; row++) {
-                        final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-                        if (message.isMessageNew()) {
+                        if( earliestMessage == null ) {
+                            earliestMessage = message;
                             nextMessage = row;
-                            break;
+                        } else {
+                            if( earliestMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
+                                earliestMessage = message;
+                                nextMessage = row;
+                            }
                         }
                     }
                 }
