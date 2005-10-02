@@ -111,7 +111,7 @@ public class SharedFileObject implements XMLizable
         }
         for( int i = 0; i < invalidChars.length; i++ ) {
             if( filename.indexOf(invalidChars[i]) != -1 ) {
-                logger.warning(filename + " has invalid filename");
+//                logger.warning(filename + " has invalid filename");
                 return false;
             }
         }
@@ -131,7 +131,7 @@ public class SharedFileObject implements XMLizable
     	if (key == null) return true;
         if( key.startsWith("CHK@") && key.length() == 58 ) return true;
         //  if (DEBUG) System.out.println("Invalid key in " + filename);
-        logger.warning("invalid key in " + filename);
+//        logger.warning("invalid key in " + filename);
         return false;
     }
 
