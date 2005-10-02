@@ -371,7 +371,7 @@ public class FileAccess {
                 // validate the key
                 if( !newKey.isValid() ) {
                     i.remove();
-                    logger.warning("invalid key found");
+//                    logger.warning("invalid key found");
                     continue;
                 }
             }

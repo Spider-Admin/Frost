@@ -35,8 +35,6 @@ import javax.swing.table.*;
 import javax.swing.text.*;
 import javax.swing.tree.*;
 
-import com.sun.corba.se.impl.protocol.giopmsgheaders.*;
-
 import frost.boards.*;
 import frost.components.*;
 import frost.components.translate.*;

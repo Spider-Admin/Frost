@@ -69,21 +69,44 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
     public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
+    /**
+     * Returns false if we should stop this thread because board was deleted.
+     */
+    private boolean isTargetBoardValid() {
+        File d = new File(MainFrame.keypool + board.getBoardFilename());
+        if( d.isDirectory() ) {
+            return true;
+        } else {
+            return false;
+        }
+    }
+
 	/**
 	 * Generates a new index file containing keys to upload.
 	 * @return true if index file was created, else false.
 	 */
 	private void loadIndex(String loadDate) {
 
-		indicesFile = new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indices-" + loadDate);
+		indicesFile = new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indicesV2-" + loadDate);
 
 		if( indicesFile.isFile() ) {
     		try {
-				ObjectInputStream in = new ObjectInputStream(new FileInputStream(indicesFile));
-				indices = (Vector) in.readObject(); // TODO: write own format
-				in.close();
+                // load new format, each int on a line
+                indices = new Vector();
+                BufferedReader rdr = new BufferedReader(new FileReader(indicesFile));
+                String line;
+                while( (line=rdr.readLine()) != null ) {
+                    line = line.trim();
+                    Integer i = new Integer(line);
+                    indices.add(i);
+                    // max 100, else error for all
+                    if( indices.size() > 100 ) {
+                        break;
+                    }
+                }
+                rdr.close();
                 // validate loaded Vector
-                if( indices != null || indices.size() == 100 ) {
+                if( indices.size() == 100 ) {
                     return; // all OK
                 }
     		} catch (Throwable exception) {
@@ -92,21 +115,27 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     		}
         }
         // problem with file, start new indices
-        indices = new Vector(100);
+        indices = new Vector();
         for (int i = 0; i < 100; i++) {
             indices.add( ZERO );
         }
 	}
     
-    private void commit() {
+    private void saveIndex() {
+        if( isTargetBoardValid() == false ) {
+            return;
+        }
     	try {
     		indicesFile.delete();
-    		ObjectOutputStream out = new ObjectOutputStream(new FileOutputStream(indicesFile)); // TODO: write own format
-    		out.writeObject(indices);
+            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(indicesFile)));
+            for (int i=0; i < indices.size(); i++) {
+                Integer current = (Integer)indices.elementAt(i);
+                out.println(""+current.intValue());
+            }
     		out.flush();
     		out.close();
-    	} catch(IOException e) {
-    		logger.log(Level.SEVERE, "Exception thrown in commit()", e);
+    	} catch(Throwable e) {
+    		logger.log(Level.SEVERE, "Exception thrown in saveIndex()", e);
     	}
     }
     
@@ -179,7 +208,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     	
     	indices.setElementAt(new Integer(current++), i);
     	
-    	commit();
+    	saveIndex();
     }
     
     private void setIndexSuccessfull(int i) {
@@ -189,7 +218,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     		return;
     	}
     	indices.setElementAt(new Integer(-1),i);
-    	commit();
+    	saveIndex();
     }
     
     private FrostIndex makeIndexFile()
@@ -199,71 +228,69 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
         // Calculate the keys to be uploaded
         Map files = Index.getInstance().getUploadKeys(board.getBoardFilename());
         
-		if (files == null)
+		if (files == null) {
 			return null;
+        }
        
      	return new FrostIndex(files);
     }
 
-    private void uploadIndexFile(FrostIndex idx) throws Throwable
-    {
-    	//load the indices for the current date
-    	loadIndex(currentDate);
+    private void uploadIndexFile(FrostIndex idx) throws Throwable {
+        // load the indices for the current date
+        loadIndex(currentDate);
         File indexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
         XMLTools.writeXmlFile(XMLTools.getXMLDocument(idx), indexFile.getPath());
         boolean success = false;
         int tries = 0;
-        String[] result = {"Error", "Error"};
+        String[] result = { "Error", "Error" };
 
-        if( indexFile.length() > 0 && indexFile.isFile() )
-        {
+        if( indexFile.length() > 0 && indexFile.isFile() ) {
             boolean signUpload = MainFrame.frostSettings.getBoolValue("signUploads");
             byte[] metadata = null;
-            
+
             // first zip, then maybe sign the zipped file
-            FileAccess.writeZipFile(FileAccess.readByteArray(indexFile), 
-                                    "entry", indexFile); // WRITE TO SAME NAME??? 
-                                    							//why not? ;)
-            
-            if( signUpload )
-            {
+            FileAccess.writeZipFile(FileAccess.readByteArray(indexFile), "entry", indexFile); // WRITE TO SAME NAME???
+            // why not? ;)
+
+            if( signUpload ) {
                 byte[] zipped = FileAccess.readByteArray(indexFile);
                 SignMetaData md = new SignMetaData(zipped, identities.getMyId());
                 metadata = XMLTools.getRawXMLDocument(md);
             }
-            
+
             // search empty slot
             int index = findFreeUploadIndex();
-            while( !success && tries <= MAX_TRIES )
-            {
-                // Does this index already exist?
-		           
-                result = FcpInsert.putFile(insertKey + index + ".idx.sha3.zip",  //this format is sha3 ;)
-                                           indexFile,
-                                           metadata,
-                                           insertHtl,
-                                           false); // doRedirect
-                                         
-                if( result[0].equals("Success") )
-                {
-                    success = true;
-		            setIndexSuccessfull(index);
-					logger.info("FILEDN:***** Index file successfully uploaded *****");
-                }
-                else
-                {
-                    if( result[0].equals("KeyCollision") )
-                    {
-                        index = findFreeUploadIndex(index);
-                        tries=0; // reset tries
-						logger.info("FILEDN:***** Index file collided, increasing index. *****");
+            while( !success && tries <= MAX_TRIES ) {
+
+                try {
+                    // Does this index already exist?
+                    result = FcpInsert.putFile(
+                            insertKey + index + ".idx.sha3.zip", // this format is sha3 ;)
+                            indexFile, 
+                            metadata, 
+                            insertHtl, 
+                            false); // doRedirect
+
+                    if( result[0].equals("Success") ) {
+                        success = true;
+                        setIndexSuccessfull(index);
+                        logger.info("FILEDN:***** Index file successfully uploaded *****");
+                    } else {
+                        if( result[0].equals("KeyCollision") ) {
+                            index = findFreeUploadIndex(index);
+                            tries = 0; // reset tries
+                            logger.info("FILEDN:***** Index file collided, increasing index. *****");
+                        } else {
+                            String tv = result[0];
+                            if( tv == null ) {
+                                tv = "";
+                            }
+                            logger.info("FILEDN:***** Unknown upload error (#" + tries + ", '" + tv
+                                            + "'), retrying. *****");
+                        }
                     }
-                    else
-                    {
-                        String tv = result[0];
-                        if( tv == null ) tv="";
-						logger.info("FILEDN:***** Unknown upload error (#" + tries + ", '" + tv + "'), retrying. *****");
-                    }
+                } catch (Throwable e) {
+                    logger.log(Level.SEVERE, "Exception in while loop", e);
                 }
                 tries++;
             }
@@ -305,12 +332,13 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 			int failures = 0;
 
 			while (failures < maxFailures) {
-				if (index == -1) { //something happened
+                
+				if (index < 0) { //something happened
 					notifyThreadFinished(this);
 					return;
 				}
-				File target =
-					File.createTempFile(
+                
+				File target = File.createTempFile(
 						"frost-index-" + index,
 						board.getBoardFilename(),
 						new File(MainFrame.frostSettings.getValue("temp.dir"))); 
@@ -534,7 +562,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 
 		notifyThreadFinished(this);
 		resetIndices();
-		commit();
+		saveIndex();
 	}
     
     /**
