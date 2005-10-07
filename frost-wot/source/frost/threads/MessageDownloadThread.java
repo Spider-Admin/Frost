@@ -486,7 +486,10 @@ public class MessageDownloadThread
                 while (it.hasNext()) {
                     SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
                     if (current.getOwner() != null) {
-                        Index.getInstance().add(current, board);
+                        Index index = Index.getInstance();
+                        synchronized(index) {
+                            index.add(current, board);
+                        }
                     }
                 }
                 // add all boards to the list of known boards

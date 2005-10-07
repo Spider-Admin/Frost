@@ -190,8 +190,11 @@ class UploadThread extends Thread
 			current.setSize(uploadItem.getFileSize().longValue());
 			current.setDate(lastUploadDate);
 			current.setLastSharedDate(lastUploadDate);
-			Index.getInstance().addMine(current, board);
-			Index.getInstance().add(current, board);
+            Index index = Index.getInstance();
+            synchronized(index) {
+    			index.addMine(current, board);
+    			index.add(current, board);
+            }
 		}
 		uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
 	}
@@ -231,9 +234,11 @@ class UploadThread extends Thread
 		uploadItem.setBatch(batchId);
 		fileIndex++;
 		//add to index
-		Index.getInstance().addMine(newKey, board);
-		Index.getInstance().add(newKey, board);
-
+        Index index = Index.getInstance();
+        synchronized(index) {
+    		index.addMine(newKey, board);
+    		index.add(newKey, board);
+        }
 		uploadItem.setState(this.nextState);
 	}
     

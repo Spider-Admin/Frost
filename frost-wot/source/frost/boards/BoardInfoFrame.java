@@ -30,6 +30,7 @@ import javax.swing.event.*;
 import javax.swing.table.DefaultTableCellRenderer;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.gui.SortedTable;
 import frost.gui.model.*;
 import frost.gui.objects.Board;
@@ -38,19 +39,9 @@ import frost.threads.*;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.translation.*;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 {
-	/**
-	 * 
-	 */
 	private class Listener implements MouseListener, LanguageListener {
-		/**
-		 * 
-		 */
 		public Listener() {
 			super();
 		}
@@ -132,9 +123,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     private BoardInfoTableModel boardTableModel = null;
     private SortedTable boardTable = null;
 
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
 		setTitle(language.getString("BoardInfoFrame.Board information window"));
 		
@@ -282,9 +270,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         updateButton_actionPerformed(null);
     }
 
-    /**
-     * @param e
-     */
     private void boardTableListModel_valueChanged(ListSelectionEvent e)
     {
         if( boardTable.getSelectedRowCount() > 0 )
@@ -301,9 +286,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
     private static UpdateBoardInfoTableThread updateBoardInfoTableThread = null;
 
-    /**
-     * @param e
-     */
     private void updateButton_actionPerformed(ActionEvent e)
     {
         if( updateBoardInfoTableThread != null )
@@ -318,14 +300,8 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         MIupdateSelectedBoard.setEnabled(false);
     }
 
-    /**
-     * 
-     */
     private class UpdateBoardInfoTableThread extends Thread
     {
-        /* (non-Javadoc)
-         * @see java.lang.Runnable#run()
-         */
         public void run()
         {
             int messageCount = 0;
@@ -335,7 +311,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             for( int i = 0; i < boards.size(); i++ )
             {
                 Board board = (Board)boards.elementAt(i);
-                String boardName = board.getName();
 
                 BoardInfoTableMember newRow = new BoardInfoTableMember(board);
                 fillInBoardCounts(board, newRow);
@@ -476,15 +451,18 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      */
     public int getLineCount(File file)
     {
-       FrostIndex current = FileAccess.readKeyFile(file); 
-       
-	    
-        return current.getFilesMap().size();
+        FrostIndex current = null;
+        Index idx = Index.getInstance();
+        synchronized(idx) {
+            current = idx.readKeyFile(file);
+        }
+        if( current == null ) {
+            return 0;
+        } else {
+            return current.getFilesMap().size();
+        }
     }
 
-	/**
-	 * 
-	 */
 	public void startDialog() {
 		tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
 		language.addLanguageListener(listener);

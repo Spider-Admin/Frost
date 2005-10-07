@@ -24,128 +24,137 @@ import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
+import frost.fileTransfer.*;
 import frost.identities.*;
 import frost.messages.*;
 
-/**
- * @author zlatinb
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public class GetFriendsRequestsThread extends TimerTask {
 
 	private FrostIdentities identities;
+    private RequestThread runner = null;
 
 	private static Logger logger = Logger.getLogger(GetFriendsRequestsThread.class.getName());
 
-	Set prefixes;
-
-	/**
-	 * 
-	 */
 	public GetFriendsRequestsThread(FrostIdentities newIdentities) {
 		super();
 		identities = newIdentities;
 	}
 
-	private final void generatePrefixes() {
-		File keypool = new File(MainFrame.keypool);
-		File[] boardDirs = keypool.listFiles();
-		LinkedList indices = new LinkedList();
-		//Map allFiles = new HashMap();
+    private class RequestThread extends Thread {
+        public void run() {
+            doRequests();
+            runner = null;
+        }
+    }
 
-		//put all index files in a list
-		for (int i = 0; i < boardDirs.length; i++)
-			if (boardDirs[i].isDirectory())
-				indices.add(
-					new File(
-						boardDirs[i].getPath() + File.separator + "files.xml"));
+    public void run() {
+        // we start and maintain a single thread here to be able to return quickly
+        // in the timertask. otherwise we block other tasks.
+        if( runner == null ) {
+            runner = new RequestThread();
+            runner.start();
+        }
+    }
 
-		HashSet set = new HashSet();
-		//put all files in a map
-		Iterator it = indices.iterator();
-		while (it.hasNext()) {
-			File current = (File) it.next();
-			if (!current.exists())
-				continue;
-			//Core.getOut().println("helper analyzing index at " + current.getPath());
-			set.addAll(FileAccess.readKeyFile(current).getFiles());
-		}
-		logger.info("helper will traverse through " + set.size() + " files");
-		//get the prefixes of the good people
-		it = set.iterator();
-		while (it.hasNext()) {
-			SharedFileObject current = (SharedFileObject) it.next();
-			if (current.getOwner() == null) {
-				continue; //do not request anonymous files
+	private Set generatePrefixes() {
+
+        Set prefixes = new HashSet();
+
+		// process all index files
+        File keypool = new File(MainFrame.keypool);
+        File[] boardDirs = keypool.listFiles();
+		for (int i = 0; i < boardDirs.length; i++) {
+			if (boardDirs[i].isDirectory()) {
+                File current = new File(boardDirs[i].getPath() + File.separator + "files.xml");
+                if (!current.isFile()) {
+                    continue;
+                }
+                FrostIndex frostIndex = null;
+                Index idx = Index.getInstance();
+                synchronized(idx) {
+                    frostIndex = idx.readKeyFile(current);
+                }
+                if( frostIndex != null ) {
+                    Collection c = frostIndex.getFilesMap().values();
+                    addToPrefixes(c, prefixes);
+                }
+            }
+        }
+        boardDirs = null;
+        System.gc();
+        return prefixes;
+	}
+    
+    private void addToPrefixes(Collection c, Set prefixes) {
+        for(Iterator it = c.iterator(); it.hasNext(); ) {
+            SharedFileObject current = (SharedFileObject) it.next();
+            if (current.getOwner() == null) {
+                continue; //do not request anonymous files
             }
             Identity id = identities.getIdentity(current.getOwner());
             if( id == null ) {
                 continue;
             }
-			//Core.getOut().println("current file's owner is "+current.getOwner() 
-			//		+ "and his safe name is "+ mixed.makeFilename(current.getOwner()));	
-			if (current.getOwner().compareTo(identities.getMyId().getUniqueName()) != 0 && //not me
-				id.getState() == FrostIdentities.FRIEND ) //marked to be helped
+            if (current.getOwner().compareTo(identities.getMyId().getUniqueName()) != 0 && //not me
+                id.getState() == FrostIdentities.FRIEND ) //marked to be helped
             {
-				String newPrefix = new String("KSK@frost/request/"
-					+ Core.frostSettings.getValue("messageBase")
-					+ "/"
-					+ Mixed.makeFilename(current.getOwner())
-					+ "-"
-					+ current.getBatch()); 
-				prefixes.add(newPrefix);
-			}
-		}
-		
-		//allFiles=null; //this is too big, clean it fast
-		set = null;
-		System.gc();
-	}
+                String newPrefix = new StringBuffer()
+                    .append("KSK@frost/request/")
+                    .append(Core.frostSettings.getValue("messageBase"))
+                    .append("/")
+                    .append(Mixed.makeFilename(current.getOwner()))
+                    .append("-")
+                    .append(current.getBatch()).toString();
 
-	public void run() {
+                prefixes.add(newPrefix);
+            }
+        }
+    }
+
+	private void doRequests() {
 		logger.info("starting to request requests for friends");
-		prefixes = new HashSet();
-		generatePrefixes();
-		
-		logger.info("will help total of " + prefixes.size() + " batches");
-		Iterator it = prefixes.iterator();
-		File tempFile = new File("requests"+File.separator+"helper");
-		//try {
-	//		tempFile = File.createTempFile("tmp"+System.currentTimeMillis(),null);
-	//	}catch (IOException e) {
-	//		e.printStackTrace(Core.getOut());
-	//	}
-		while (it.hasNext()){
+
+		Set prefixes = generatePrefixes();
+
+		logger.info("Will help a total of " + prefixes.size() + " batches");
+		File tempFile = new File("requests" + File.separator + "helper.tmp");
+		for(Iterator it = prefixes.iterator(); it.hasNext(); ) {
 			String currentPrefix = (String)it.next();
+            it.remove(); // remove currentPrefix to free mem
 			
 			//request until a DNF - we're doing this for other people so we don't really care
 			//and its ok to request the same keys again the next time around
-			
-				String date = DateFun.getDate();
-				int index =-1;
-				String slot;
-				do{
-					index++;
-					slot = currentPrefix +"-"+date+"-"+index+".req.sha";
-					logger.fine("friend's request address is " + slot);
-					tempFile.delete();
-					
-				} while(FcpRequest.getFile(slot,
-					null,
-					tempFile,
-					25,
-					true, //do redirect
-					false) //deep request
-					!= null ); //break when dnfs
+
+			String date = DateFun.getDate();
+			int index = -1;
+			String slot;
+			do {
+				index++;
+				slot = new StringBuffer()
+                        .append(currentPrefix)
+                        .append("-")
+                        .append(date)
+                        .append("-")
+                        .append(index)
+                        .append(".req.sha").toString(); 
+				logger.fine("friend's request address is " + slot);
+				tempFile.delete();
+
+                // sleep 1 second between requests to not hurt the node to much
+                try { Thread.sleep(1000); }
+                catch(Exception ex) { }
+
+			} while(FcpRequest.getFile(slot,
+				null,
+				tempFile,
+				21,
+				true, //do redirect
+				false) //deep request
+				!= null ); //break when dnfs
 			
 			logger.fine("batch of " + currentPrefix + " had " + index + " requests");
 		}
 		tempFile.delete();
-		prefixes = null;
-		//Core.schedule(this,3*60*60*1000); //3 hrs	
 		logger.info("finishing requesting friend's requests");
 	}
-
 }

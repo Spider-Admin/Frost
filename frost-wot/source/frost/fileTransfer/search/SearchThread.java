@@ -23,6 +23,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fileTransfer.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
@@ -337,7 +338,10 @@ class SearchThread extends Thread {
                     if( shaIndex.exists() )
                     {
                          chk.clear();
-                         chk = FileAccess.readKeyFile(shaIndex).getFilesMap();
+                         Index idx = Index.getInstance();
+                         synchronized(idx) {
+                             chk = idx.readKeyFile(shaIndex).getFilesMap();
+                         }
                          getSearchResults();
                          logger.fine(shaIndex.getName() + " - " + chk.size() + ";");
                     }

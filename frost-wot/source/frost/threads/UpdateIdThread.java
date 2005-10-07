@@ -31,25 +31,16 @@ import frost.identities.*;
 import frost.messages.FrostIndex;
 import frost.messaging.MessageHashes;
 
-public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpdateThread
+public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject implements BoardUpdateThread
 {
-    private static int maxFailures = 4;
     //private static int keyCount = 0;
     //private static int minKeyCount = 50;
     //private static int maxKeysPerFile = 5000;
+//  private int maxKeys;
     
     private static Logger logger = Logger.getLogger(UpdateIdThread.class.getName());
     
-    private static final int MAX_TRIES = 2; //number of times each index will be tried -1
-    
-    private static final Integer ZERO = new Integer(0);
-
-    private Vector indices;
-    private File indicesFile;
-    private int maxKeys;
     private String date;
-    private String currentDate;
-//    private String oldDate;
     private int requestHtl;
     private int insertHtl;
     private String keypool;
@@ -58,285 +49,173 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     private String privateKey;
     private String requestKey;
     private String insertKey;
-//    private String boardState;
     private final static String fileSeparator = System.getProperty("file.separator");
 	private MessageHashes messageHashes;
     
-    //these pertain to the currently received index
-//	Identity sharer = null;
-//	String _sharer = null;
-//	String pubkey = null;
-
+    private boolean isForToday = false;
+    private FrostIdentities identities;
+    
+    private IndexSlots indexSlots;
+    private final static int MAX_SLOTS_PER_DAY = 100;
+    
     public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
+    
+    // TODO: if we fail to upload here, the new files are lost!
     /**
-     * Returns false if we should stop this thread because board was deleted.
+     * Returns true if no error occured.
      */
-    private boolean isTargetBoardValid() {
-        File d = new File(MainFrame.keypool + board.getBoardFilename());
-        if( d.isDirectory() ) {
-            return true;
-        } else {
-            return false;
-        }
-    }
-
-	/**
-	 * Generates a new index file containing keys to upload.
-	 * @return true if index file was created, else false.
-	 */
-	private void loadIndex(String loadDate) {
-
-		indicesFile = new File(MainFrame.keypool + board.getBoardFilename() + fileSeparator + "indicesV2-" + loadDate);
-
-		if( indicesFile.isFile() ) {
-    		try {
-                // load new format, each int on a line
-                indices = new Vector();
-                BufferedReader rdr = new BufferedReader(new FileReader(indicesFile));
-                String line;
-                while( (line=rdr.readLine()) != null ) {
-                    line = line.trim();
-                    Integer i = new Integer(line);
-                    indices.add(i);
-                    // max 100, else error for all
-                    if( indices.size() > 100 ) {
-                        break;
-                    }
-                }
-                rdr.close();
-                // validate loaded Vector
-                if( indices.size() == 100 ) {
-                    return; // all OK
-                }
-    		} catch (Throwable exception) {
-    			logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date) - Date: '" + loadDate
-    					+ "' - Board name: '" + board.getBoardFilename() + "'", exception);
-    		}
-        }
-        // problem with file, start new indices
-        indices = new Vector();
-        for (int i = 0; i < 100; i++) {
-            indices.add( ZERO );
-        }
-	}
-    
-    private void saveIndex() {
-        if( isTargetBoardValid() == false ) {
-            return;
-        }
-    	try {
-    		indicesFile.delete();
-            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(indicesFile)));
-            for (int i=0; i < indices.size(); i++) {
-                Integer current = (Integer)indices.elementAt(i);
-                out.println(""+current.intValue());
-            }
-    		out.flush();
-    		out.close();
-    	} catch(Throwable e) {
-    		logger.log(Level.SEVERE, "Exception thrown in saveIndex()", e);
-    	}
-    }
-    
-    /**
-     * resets all indices that were tried MAX_TRIES times to 0
-     * for the next run of the thread
-     */
-    private void resetIndices() {
-    	for (int i=0; i < indices.size(); i++) {
-    		Integer current = (Integer)indices.elementAt(i);
-    		if (current.intValue() >= MAX_TRIES) {
-    			indices.setElementAt(ZERO, i);
-            }
-    	}
-    }
-    
-    private int findFreeUploadIndex() {
-    	for (int i = 0;i<indices.size();i++){
-    		Integer current = (Integer)indices.elementAt(i);
-    		if (current.intValue() > -1) {
-    			return i;
-            }
-    	}
-    	return -1;
-    }
-    
-    private int findFreeUploadIndex(int exclude) {
-    	for (int i=0; i < indices.size(); i++){
-    		if (i == exclude) {
-                continue;
-            }
-    		Integer current = (Integer)indices.elementAt(i);
-    		if (current.intValue() > -1) {
-    			return i;
-            }
-    	}
-    	return -1;
-    }
-    
-    private int findFreeDownloadIndex() {
-    	for (int i = 0;i<indices.size();i++){
-    		Integer current = (Integer)indices.elementAt(i);
-    		if (current.intValue() > -1 && current.intValue() < MAX_TRIES) {
-    			return i;
-            }
-    	}
-    	return -1;
-    }
-
-    private int findFreeDownloadIndex(int exclude) {
-        for (int i=0; i<indices.size(); i++) {
-    		if (i==exclude) { 
-                continue;
-            }
-    		Integer current = (Integer)indices.elementAt(i);
-    		if (current.intValue() > -1 && current.intValue() < MAX_TRIES) {
-    			return i;
-            }
-    	}
-    	return -1;
-    }
-    
-    private void setIndexFailed(int i) {
-    	int current = ((Integer)indices.elementAt(i)).intValue();
-	
-    	if (current == -1 || current > MAX_TRIES) {
-    		logger.severe("WARNING - index sequence screwed in setFailed. report to a dev");
-    		return;
-    	}
-    	
-    	indices.setElementAt(new Integer(current++), i);
-    	
-    	saveIndex();
-    }
-    
-    private void setIndexSuccessfull(int i) {
-    	int current = ((Integer)indices.elementAt(i)).intValue();
-    	if (current == -1 || current > MAX_TRIES) {
-    		logger.severe("WARNING - index sequence screwed in setSuccesful. report to a dev");
-    		return;
-    	}
-    	indices.setElementAt(new Integer(-1),i);
-    	saveIndex();
-    }
-    
-    private FrostIndex makeIndexFile()
-    {
-		logger.info("FILEDN: UpdateIdThread.makeIndexFile for " + board.getName());
+    private boolean uploadIndexFile() throws Throwable {
+        
+        logger.info("FILEDN: UpdateIdThread - makeIndexFile for " + board.getName());
 
         // Calculate the keys to be uploaded
-        Map files = Index.getInstance().getUploadKeys(board.getBoardFilename());
-        
-		if (files == null) {
-			return null;
+
+        // this method checks the final zip size (<=30000) !!!
+        Map files = null;
+        Index index = Index.getInstance();
+        synchronized(index) {
+            files = index.getUploadKeys(board.getBoardFilename());
         }
-       
-     	return new FrostIndex(files);
+        
+        FrostIndex frostIndex;
+        if(files == null) {
+            frostIndex = null;
+        } else {
+            frostIndex = new FrostIndex(files);
+        }
+
+        if (frostIndex == null) {
+            logger.info("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.getName());
+            return true;
+        }
+        
+        logger.info("FILEDN: Starting upload of index file to board '" + board.getName());
+
+        File uploadIndexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
+
+        // zip the xml file before upload
+        FileAccess.writeZipFile(XMLTools.getRawXMLDocument(frostIndex), "entry", uploadIndexFile);
+        
+        if( !uploadIndexFile.isFile() || uploadIndexFile.length() == 0 ) {
+            logger.info("No index file to upload.");
+            return false; // error
+        }
+
+        boolean success = uploadFile(uploadIndexFile);
+        if( success ) {
+            uploadIndexFile.delete();
+        }
+        return success;
     }
 
-    private void uploadIndexFile(FrostIndex idx) throws Throwable {
-        // load the indices for the current date
-        loadIndex(currentDate);
-        File indexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
-        XMLTools.writeXmlFile(XMLTools.getXMLDocument(idx), indexFile.getPath());
-        boolean success = false;
-        int tries = 0;
-        String[] result = { "Error", "Error" };
 
-        if( indexFile.length() > 0 && indexFile.isFile() ) {
+    /**
+     * Uploads the zipped index file.
+     * 
+     * @param zippedIndexFile
+     * @param metadata
+     */
+    private boolean uploadFile(File zippedIndexFile) {
+        
+        // TODO: generalize this and use it in MessageUploadThread too??
+        
+        boolean success = false;
+
+        try {
+            // sign zip file if requested
             boolean signUpload = MainFrame.frostSettings.getBoolValue("signUploads");
             byte[] metadata = null;
-
-            // first zip, then maybe sign the zipped file
-            FileAccess.writeZipFile(FileAccess.readByteArray(indexFile), "entry", indexFile); // WRITE TO SAME NAME???
-            // why not? ;)
-
             if( signUpload ) {
-                byte[] zipped = FileAccess.readByteArray(indexFile);
+                byte[] zipped = FileAccess.readByteArray(zippedIndexFile);
                 SignMetaData md = new SignMetaData(zipped, identities.getMyId());
                 metadata = XMLTools.getRawXMLDocument(md);
             }
+    
+            int tries = 0;
+            int maxTries = 3;
+            int index = indexSlots.findFirstFreeUploadSlot();
+            while( !success && 
+                   tries < maxTries &&
+                   index > -1 ) // no free index found 
+            {
+                logger.info("Trying index file upload to index "+index);
+                // Does this index already exist?
+                String[] result = FcpInsert.putFile(
+                        insertKey + index + ".idx.sha3.zip", // this format is sha3 ;)
+                        zippedIndexFile, 
+                        metadata, 
+                        insertHtl, 
+                        false); // doRedirect
 
-            // search empty slot
-            int index = findFreeUploadIndex();
-            while( !success && tries <= MAX_TRIES ) {
-
-                try {
-                    // Does this index already exist?
-                    result = FcpInsert.putFile(
-                            insertKey + index + ".idx.sha3.zip", // this format is sha3 ;)
-                            indexFile, 
-                            metadata, 
-                            insertHtl, 
-                            false); // doRedirect
-
-                    if( result[0].equals("Success") ) {
-                        success = true;
-                        setIndexSuccessfull(index);
-                        logger.info("FILEDN:***** Index file successfully uploaded *****");
+                if( result[0].equals("Success") ) {
+                    success = true;
+                    // my files are already added to totalIdx, we don't need to download this index
+                    indexSlots.setSlotUsed(index);
+                    logger.info("FILEDN:***** Index file successfully uploaded *****");
+                } else {
+                    if( result[0].equals("KeyCollision") ) {
+                        index = indexSlots.findNextFreeSlot(index); 
+                        tries = 0; // reset tries
+                        logger.info("FILEDN:***** Index file collided, increasing index. *****");
+                        continue;
                     } else {
-                        if( result[0].equals("KeyCollision") ) {
-                            index = findFreeUploadIndex(index);
-                            tries = 0; // reset tries
-                            logger.info("FILEDN:***** Index file collided, increasing index. *****");
-                        } else {
-                            String tv = result[0];
-                            if( tv == null ) {
-                                tv = "";
-                            }
-                            logger.info("FILEDN:***** Unknown upload error (#" + tries + ", '" + tv
-                                            + "'), retrying. *****");
+                        String tv = result[0];
+                        if( tv == null ) {
+                            tv = "";
                         }
+                        logger.info("FILEDN:***** Unknown upload error (#" + tries + ", '" + tv
+                                        + "'), retrying. *****");
                     }
-                } catch (Throwable e) {
-                    logger.log(Level.SEVERE, "Exception in while loop", e);
                 }
                 tries++;
             }
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Exception in uploadFile", e);
         }
+        return success;
     }
-
+    
     // If we're getting too much files on a board, we lower
     // the maxAge of keys. That way older keys get removed
     // sooner. With the new index system it should be possible
     // to work with large numbers of keys because they are
     // no longer kept in memory, but on disk.
-    private void adjustMaxAge(int count) {/*  //this is not used
-    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: old value = " + frame1.frame1.frostSettings.getValue("maxAge"));
-
-    int lowerLimit = 10 * maxKeys / 100;
-    int upperLimit = 90 * maxKeys / 100;
-    int maxAge = frame1.frame1.frame1.frostSettings.getIntValue("maxAge");
-
-    if (count < lowerLimit && maxAge < 21)
-        maxAge++;
-    if (count > upperLimit && maxAge > 1)
-        maxAge--;
-
-    frame1.frame1.frame1.frostSettings.setValue("maxAge", maxAge);
-    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: new value = " + maxAge);*/
-    }
+//    private void adjustMaxAge(int count) {/*  //this is not used
+//    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: old value = " + frame1.frame1.frostSettings.getValue("maxAge"));
+//
+//    int lowerLimit = 10 * maxKeys / 100;
+//    int upperLimit = 90 * maxKeys / 100;
+//    int maxAge = frame1.frame1.frame1.frostSettings.getIntValue("maxAge");
+//
+//    if (count < lowerLimit && maxAge < 21)
+//        maxAge++;
+//    if (count > upperLimit && maxAge > 1)
+//        maxAge--;
+//
+//    frame1.frame1.frame1.frostSettings.setValue("maxAge", maxAge);
+//    //if (DEBUG) Core.getOut().println("FILEDN: AdjustMaxAge: new value = " + maxAge);*/
+//    }
 
 	public void run() {
-		notifyThreadStarted(this);
+//		notifyThreadStarted(this);
 
 		try {
 			// Wait some random time to speed up the update of the TOF table
 			// ... and to not to flood the node
-			int waitTime = (int) (Math.random() * 5000);
-			// wait a max. of 5 seconds between start of threads
+			int waitTime = (int) (Math.random() * 2000);
+			// wait a max. of 2 seconds between start of threads
 			Mixed.wait(waitTime);
 
-			int index = findFreeDownloadIndex();
-			int failures = 0;
-
-			while (failures < maxFailures) {
-                
-				if (index < 0) { //something happened
-					notifyThreadFinished(this);
-					return;
-				}
+            int maxFailures;
+            if (isForToday) {
+                maxFailures = 3; // skip a maximum of 2 empty slots for today
+            } else {
+                maxFailures = 2; // skip a maximum of 1 empty slot for backload
+            }
+            int index = indexSlots.findFirstFreeDownloadSlot();
+            int failures = 0;
+			while (failures < maxFailures && index >= 0 ) {
                 
 				File target = File.createTempFile(
 						"frost-index-" + index,
@@ -346,57 +225,70 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 				logger.info("FILEDN: Requesting index " + index + " for board " + board.getName() + " for date " + date);
 
 				// Download the keyfile
-
-					FcpResults fcpresults =
-						FcpRequest.getFile(requestKey + index + ".idx.sha3.zip", //this format is sha3 ;)
-		null, target, requestHtl + ((Integer) indices.elementAt(index)).intValue(),
-					//^^^ this way we bypass the failure table
-		true);
-
-				if (fcpresults != null && target.length() > 0) {
-					//mark it as successful
-					setIndexSuccessfull(index);
+				FcpResults fcpresults = FcpRequest.getFile(
+                        requestKey + index + ".idx.sha3.zip", //this format is sha3 ;)
+				        null, 
+                        target, 
+                        requestHtl, // we need it faster, same as for messages
+                        false); // doRedirect, like in uploadIndexFile()
+                
+                if (fcpresults == null || target.length() == 0) {
+                    // download failed. Sometimes there are some 0 byte
+                    // files left, we better remove them now.
+                    target.delete();
+                    failures++;
+                    // next loop we try next index
+                    index = indexSlots.findNextFreeSlot(index);
+                    
+                } else {
+                    
+					// download was successful, mark it
+					indexSlots.setSlotUsed(index);
+                    // next loop we try next index
+                    index = indexSlots.findNextFreeSlot(index);
 					failures = 0;
 
-					//check if we have received such file before
+					// check if we have received such file before
 					String digest = Core.getCrypto().digest(target);
-					if (messageHashes.contains(digest)) {
-						//we have.  erase and continue
+					if( messageHashes.contains(digest) ) {
+						// we have.  erase and continue
 						target.delete();
-						index = findFreeDownloadIndex();
 						continue;
-					}
-					//else add it to the set of received files to prevent duplicates
-					messageHashes.add(digest);
+					} else {
+                        // else add it to the set of received files to prevent duplicates
+                        messageHashes.add(digest);
+                    }
 
 					// Add it to the index
 					try {
-						// first check if received ZIP file is correctly signed
-						byte[] zippedXml = FileAccess.readByteArray(target);
-						//we need to unzip here to check if identity IN FILE == identity IN METADATA
+						// we need to unzip here to check if identity IN FILE == identity IN METADATA
 						byte[] unzippedXml = FileAccess.readZipFileBinary(target);
 						if (unzippedXml == null) {
 							logger.warning("Could not extract received zip file, skipping.");
 							target.delete();
-							index = findFreeDownloadIndex();
 							continue;
 						}
 
 						File unzippedTarget = new File(target.getPath() + "_unzipped");
 						FileAccess.writeFile(unzippedXml, unzippedTarget);
+                        unzippedXml = null;
 
 						//create the FrostIndex object
 						FrostIndex receivedIndex = null;
 						try {
-							receivedIndex =
-								new FrostIndex(XMLTools.parseXmlFile(unzippedTarget, false).getDocumentElement());
+                            Index idx = Index.getInstance();
+                            synchronized(idx) {
+                                receivedIndex = idx.readKeyFile(unzippedTarget);
+                            }
 						} catch (Exception ex) {
-							logger.log(Level.SEVERE, "Could not parse the index file, skipping.", ex);
-							target.delete();
-							unzippedTarget.delete();
-							index = findFreeDownloadIndex();
-							continue;
+							logger.log(Level.SEVERE, "Could not parse the index file: ", ex);
 						}
+                        if( receivedIndex == null || receivedIndex.getFilesMap().size() == 0 ) {
+                            logger.log(Level.SEVERE, "Received index file invalid or empty, skipping.");
+                            target.delete();
+                            unzippedTarget.delete();
+                            continue;
+                        }
 
 						Identity sharer = null;
 						Identity sharerInFile = receivedIndex.getSharer();
@@ -410,7 +302,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 								// reading of xml metadata failed, handle
 								logger.log(Level.SEVERE, "Could not read the XML metadata, skipping file index.", t);
 								target.delete();
-								index = findFreeDownloadIndex();
 								continue;
 							}
 
@@ -419,7 +310,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 								logger.warning("MetaData present, but file didn't contain an identity :(");
 								unzippedTarget.delete();
 								target.delete();
-								index = findFreeDownloadIndex();
 								continue;
 							}
 
@@ -435,7 +325,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 								logger.warning("XML metadata have missing fields, skipping file index.");
 								unzippedTarget.delete();
 								target.delete();
-								index = findFreeDownloadIndex();
 								continue;
 							}
 
@@ -450,18 +339,18 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 												"meta key : " + _pubkey);
 								unzippedTarget.delete();
 								target.delete();
-								index = findFreeDownloadIndex();
 								continue;
 							}
 
 							//verify! :)
+                            byte[] zippedXml = FileAccess.readByteArray(target);
 							boolean valid = Core.getCrypto().detachedVerify(zippedXml, _pubkey, md.getSig());
+                            zippedXml = null;
 
 							if (valid == false) {
 								logger.warning("Invalid signature for index file from " + _owner);
 								unzippedTarget.delete();
 								target.delete();
-								index = findFreeDownloadIndex();
 								continue;
 							}
                             
@@ -480,7 +369,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                         logger.info("sharer was null... :(");
                                         unzippedTarget.delete();
                                         target.delete();
-                                        index = findFreeDownloadIndex();
                                         continue;
                                     }
                                 } else if (sharer.getState() == FrostIdentities.ENEMY ) {
@@ -488,7 +376,6 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
                                         logger.info("Skipped index file from BAD user " + _owner);
                                         target.delete();
                                         unzippedTarget.delete();
-                                        index = findFreeDownloadIndex();
                                         continue;
                                     }
                                 }
@@ -499,70 +386,55 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 						else if (MainFrame.frostSettings.getBoolValue("hideAnonFiles")) {
 							unzippedTarget.delete();
 							target.delete();
-							index = findFreeDownloadIndex();
 							continue; //do not show index.
 						}
 
-						//TODO: rework the Index.java methods to use FrostIndex object
-						//for now just rename the file and use old methods
-						//unzippedTarget.renameTo(target);
-
-						//if the user is not on the GOOD list..
+						// if the user is not on the GOOD list..
+                        String sharerStr;
 						if (sharer == null || sharer.getState() != FrostIdentities.FRIEND ) {
-							// add only files from that user     
-							String _sharer = sharer == null ? "Anonymous" : sharer.getUniqueName();
-							logger.info("adding only files from " + _sharer);
-							Index.getInstance().add(receivedIndex, board, _sharer);
+							// add only files from that user (not files from his friends)     
+							sharerStr = (sharer == null) ? "Anonymous" : sharer.getUniqueName();
+							logger.info("adding only files from " + sharerStr);
 						} else {
-							// if user is, add all files
+							// if user is GOOD, add all files (user could have sent files from HIS friends in this index)
 							logger.info("adding all files from " + sharer.getUniqueName());
-							Index.getInstance().add(unzippedTarget, board, sharer);
+                            sharerStr = null;
 						}
+                        Index idx = Index.getInstance();
+                        synchronized(idx) {
+                            idx.add(receivedIndex, board, sharerStr);
+                        }
+                        
 						target.delete();
 						unzippedTarget.delete();
 					} catch (Throwable t) {
 						logger.log(Level.SEVERE, "Error in UpdateIdThread", t);
-						// delete the file and try a re download???
 					}
-
-					index = findFreeDownloadIndex(index);
-					failures = 0;
-				} else {
-					// download failed. Sometimes there are some 0 byte
-					// files left, we better remove them now.
-					//Core.getOut().println("FILEDN:failed getting index "+index
-					target.delete();
-					setIndexFailed(index);
-					failures++;
-					index = findFreeDownloadIndex(index);
 				}
 			}
-			if (isInterrupted()) { // check if thread should stop
-				notifyThreadFinished(this);
-				return;
-			}
 
+            // FIXED: I assume its enough to do this on current day, not for all days the same
+            //   this thread is started up to maxDays times per board update!
+            
 			// Ok, we're done with downloading the keyfiles
 			// Now calculate whitch keys we want to upload.
 			// We only upload own keyfiles if:
 			// 1. We've got more than minKeyCount keys to upload
 			// 2. We don't upload any more files
-			//index -= maxFailures;
-			FrostIndex frostIndex = makeIndexFile();
-			if (frostIndex != null) {
-				logger.info("FILEDN: Starting upload of index file to board '" + board.getName());
-				uploadIndexFile(frostIndex);
-			} else {
-				logger.info("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.getName());
-			}
-
+            if( !isInterrupted() && isForToday ) {
+                try {
+                    uploadIndexFile();
+                } catch(Throwable t) {
+                    logger.log(Level.SEVERE, "Exception during uploadIndexFile()", t);
+                }
+            }
 		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Oo. EXCEPTION in UpdateIdThread", t);
 		}
 
-		notifyThreadFinished(this);
-		resetIndices();
-		saveIndex();
+        indexSlots.saveSlotsFile();
+
+//		notifyThreadFinished(this);
 	}
     
     /**
@@ -599,19 +471,20 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
     }
 
 	/**Constructor*/
-	public UpdateIdThread(Board board, String date, FrostIdentities newIdentities) {
-		super(board, newIdentities);
+	public UpdateIdThread(Board board, String date, FrostIdentities newIdentities, boolean isForToday) {
+//		super(board, newIdentities);
 		
 		this.board = board;
 		this.date = date;
-		currentDate = DateFun.getDate();
+        this.identities = newIdentities;
 		requestHtl = MainFrame.frostSettings.getIntValue("keyDownloadHtl");
 		insertHtl = MainFrame.frostSettings.getIntValue("keyUploadHtl");
 		keypool = MainFrame.frostSettings.getValue("keypool.dir");
-		maxKeys = MainFrame.frostSettings.getIntValue("maxKeys");
-
-		//first load the index with the date we wish to download
-		loadIndex(date);
+//		maxKeys = MainFrame.frostSettings.getIntValue("maxKeys");
+        this.isForToday = isForToday;
+        
+        //first load the index with the date we wish to download
+        indexSlots = new IndexSlots(board, date, MAX_SLOTS_PER_DAY);
 
 		publicKey = board.getPublicKey();
 		privateKey = board.getPrivateKey();
@@ -633,12 +506,12 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					.toString();
 		}
 
-		//make all inserts today
+		// we make all inserts today (isForCurrentDate)
 		if (board.isPublicBoard() == false && privateKey != null)
 			insertKey = new StringBuffer()
 					.append(privateKey)
 					.append("/")
-					.append(currentDate)
+					.append(date)
 					.append("/")
 					.toString();
 		else
@@ -646,7 +519,7 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 					.append("KSK@frost/index/")
 					.append(board.getBoardFilename())
 					.append("/")
-					.append(currentDate)
+					.append(date)
 					.append("/")
 					.toString();
 	}
@@ -657,4 +530,149 @@ public class UpdateIdThread extends BoardUpdateThreadObject implements BoardUpda
 	public void setMessageHashes(MessageHashes messageHashes) {
 		this.messageHashes = messageHashes;		
 	}
+    
+    /**
+     * Class provides functionality to track used index slots
+     * for upload and download.
+     */
+    private static class IndexSlots {
+
+        private static final Integer EMPTY = new Integer(0);
+        private static final Integer USED  = new Integer(-1);
+        
+        private int maxSlotsPerDay;
+
+        private Vector slots;
+        private File slotsFile;
+        
+        private Board targetBoard;
+        
+        public IndexSlots(Board b, String date, int maxSlotsPerDay) {
+            targetBoard = b;
+            this.maxSlotsPerDay = maxSlotsPerDay;
+            slotsFile = new File(MainFrame.keypool + targetBoard.getBoardFilename() + fileSeparator + "indicesV2-" + date);
+            loadSlotsFile(date);
+        }
+
+        /**
+         * Generates a new index file containing keys to upload.
+         */
+        private void loadSlotsFile(String loadDate) {
+
+            if( slotsFile.isFile() ) {
+                try {
+                    // load new format, each int on a line, -1 means USED, all other mean EMPTY
+                    slots = new Vector();
+                    BufferedReader rdr = new BufferedReader(new FileReader(slotsFile));
+                    String line;
+                    while( (line=rdr.readLine()) != null ) {
+                        line = line.trim();
+                        if(line.length() == 0) {
+                            continue;
+                        }
+                        if( line.equals("-1") ) {
+                            slots.add(USED);
+                        } else {
+                            slots.add(EMPTY);
+                        }
+                        // max MAX_SLOTS_PER_DAY, or error for all
+                        if( slots.size() > maxSlotsPerDay ) {
+                            break;
+                        }
+                    }
+                    rdr.close();
+                    // validate loaded Vector
+                    if( slots.size() == maxSlotsPerDay ) {
+                        return; // all OK
+                    }
+                } catch (Throwable exception) {
+                    logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date) - Date: '" + loadDate
+                            + "' - Board name: '" + targetBoard.getBoardFilename() + "'", exception);
+                }
+            }
+            // problem with file, start new indices
+            slots = new Vector();
+            for (int i = 0; i < maxSlotsPerDay; i++) {
+                slots.add( EMPTY );
+            }
+        }
+
+        /**
+         * Returns false if we should stop this thread because board was deleted.
+         */
+        private boolean isTargetBoardValid() {
+            File d = new File(MainFrame.keypool + targetBoard.getBoardFilename());
+            if( d.isDirectory() ) {
+                return true;
+            } else {
+                return false;
+            }
+        }
+
+        public void saveSlotsFile() {
+            if( isTargetBoardValid() == false ) {
+                return;
+            }
+            try {
+                slotsFile.delete();
+                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(slotsFile)));
+                for (int i=0; i < slots.size(); i++) {
+                    Integer current = (Integer)slots.elementAt(i);
+                    out.println(""+current.intValue());
+                }
+                out.flush();
+                out.close();
+            } catch(Throwable e) {
+                logger.log(Level.SEVERE, "Exception thrown in saveIndex()", e);
+            }
+        }
+        
+        public int findFirstFreeDownloadSlot() {
+            for (int i=0; i < slots.size(); i++){
+                Integer current = (Integer)slots.elementAt(i);
+                if (current.intValue() > -1) { 
+                    return i;
+                }
+            }
+            return -1;
+        }
+
+        /**
+         * First free upload slot is right behind last used slot.
+         */
+        public int findFirstFreeUploadSlot() {
+            for (int i=slots.size()-1; i >= 0; i--){
+                Integer current = (Integer)slots.elementAt(i);
+                if (current.intValue() < 0) {
+                    // used slot found
+                    if( i+1 < slots.size() ) {
+                        return i+1;
+                    } else {
+                        return -1; // all slots used
+                    }
+                }
+            }
+            // no used slot found, return first slot
+            return 0;
+        }
+
+        public int findNextFreeSlot(int beforeIndex) {
+            for (int i = beforeIndex+1; i < slots.size(); i++) {
+                Integer current = (Integer)slots.elementAt(i);
+                if (current.intValue() > -1) { 
+                    return i;
+                }
+            }
+            return -1;
+        }
+        
+        public void setSlotUsed(int i) {
+            int current = ((Integer)slots.elementAt(i)).intValue();
+            if (current < 0 ) { 
+                logger.severe("WARNING - index sequence screwed in setSlotUsed. report to a dev");
+                return;
+            }
+            slots.setElementAt(USED, i);
+        }
+    }
 }

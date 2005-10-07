@@ -1,28 +1,50 @@
 /*
- * Created on 26-ene-2005
- * 
+ MessageHashes.java / Frost
+ Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+ This program is free software; you can redistribute it and/or
+ modify it under the terms of the GNU General Public License as
+ published by the Free Software Foundation; either version 2 of
+ the License, or (at your option) any later version.
+
+ This program is distributed in the hope that it will be useful,
+ but WITHOUT ANY WARRANTY; without even the implied warranty of
+ MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+ General Public License for more details.
+
+ You should have received a copy of the GNU General Public License
+ along with this program; if not, write to the Free Software
+ Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
  */
 package frost.messaging;
 
 import java.util.*;
-import java.util.logging.Logger;
 
 import frost.storage.*;
 
 /**
  * This class contains the hashes of all the messages. It is used to check
  * if a message is a duplicate of those we already have a local copy of.
- * Each digest has a timestamp, when digests are saved we don't save expired digests.
- * @author $Author$
- * @version $Revision$
+ * Class maintains a maximum of MAX_HASHES digests, eldest entries are
+ * removed if a new entry is added.
  */
 public class MessageHashes implements Savable {
 
-	private static Logger logger = Logger.getLogger(MessageHashes.class.getName());
+//	private static Logger logger = Logger.getLogger(MessageHashes.class.getName());
+    
+    private final static int MAX_HASHES = 3000; // 30 new files for 100 boards per day, is this enough?
 
-    // key is digest, value is a Long with timestamp of this digest (when it was added)
-    private Hashtable hashesTable = new Hashtable();
-
+    private final OwnLinkedHashMap hashesMap = new OwnLinkedHashMap(); // uses insertion order, load/save care about this  
+    
+    private class OwnLinkedHashMap extends LinkedHashMap {
+        public OwnLinkedHashMap() {
+            super(MAX_HASHES); // initialCapacity
+        }
+        protected boolean removeEldestEntry(Map.Entry eldest) {
+            return size() > MAX_HASHES; // let remove eldest if list is full
+        }
+    }
+    
 	/**
 	 * This method initializes the instance of MessageHashes and reads its contents
 	 * from disk.
@@ -46,7 +68,7 @@ public class MessageHashes implements Savable {
 	 */
 	public void save() throws StorageException {
 		MessageHashesDAO hashesDAO = DAOFactory.getFactory(DAOFactory.XML).getMessageHashesDAO();
-		synchronized (hashesTable) {
+		synchronized (hashesMap) {
 			hashesDAO.save(this);
 		}
 	}
@@ -55,30 +77,10 @@ public class MessageHashes implements Savable {
 	 * This method adds the given digest to the set of message hashes. Its
 	 * implementation is thread safe.
 	 * @param digest the new digest to add to the set of message hashes.
-     * @param timestamp the timestamp of the digest.
-	 * @return true if this set did not already contain the specified digest.
 	 */
-	public boolean add(String digest, long timeStamp) {
-
-        boolean wasNotAlreadyContained;
-        if( hashesTable.put(digest, new Long(timeStamp)) == null ) {
-            wasNotAlreadyContained = true;
-        } else {
-            wasNotAlreadyContained = false;
-        }
-		return wasNotAlreadyContained;
+	public synchronized void add(String digest) {
+        hashesMap.put(digest, digest);
 	}
-
-    /**
-     * This method adds the given digest to the set of message hashes. Its
-     * implementation is thread safe.
-     * The timestamp of the new digest is set to current time.
-     * @param digest the new digest to add to the set of message hashes.
-     * @return true if this set did not already contain the specified digest.
-     */
-    public boolean add(String digest) {
-        return add(digest, System.currentTimeMillis());
-    }
 
 	/**
 	 * This method returns true if the set of message hashes contains the 
@@ -86,14 +88,8 @@ public class MessageHashes implements Savable {
 	 * @param digest digest whose presence in this set is to be tested
 	 * @return true if this set contains the specified digest.
 	 */
-	public boolean contains(String digest) {
-		boolean result;
-        if( hashesTable.get(digest) != null ) {
-            result = true;
-        } else {
-            result = false;
-        }
-		return result;
+	public synchronized boolean contains(String digest) {
+        return hashesMap.containsKey(digest);
 	}
 	/**
 	 * This method returns an Iterator with all of the message
@@ -101,19 +97,6 @@ public class MessageHashes implements Savable {
 	 * @return an Iterator with all of the message hashes.
 	 */
 	protected Iterator getHashes() {
-		return hashesTable.keySet().iterator();
+		return hashesMap.keySet().iterator();
 	}
-	/**
-     * Returns the timestamp for the provided digest. 
-     * @param digest  the digest to find the timestamp for
-     * @return  the timestamp of this digest or 0
-	 */
-    protected long getTimestampForDigest(String digest) {
-        Long value = (Long)hashesTable.get(digest);
-        if( value == null ) {
-            return 0; 
-        } else {
-            return value.longValue();
-        }
-    }
 }
