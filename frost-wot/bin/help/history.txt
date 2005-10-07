@@ -5,9 +5,11 @@
 PENDING:
 
 Changed: 'Next unread' nutton (or key 'n') now jumps to next unread message BY DATE
+Changed: Frost now uses lesser threads and lesser memory (reduces system load)
 
 Bugfix: restricted size of keyfile to upload (prevents key too big messages)
-Bugfix: reworked MessageHashes to prevent init errors
+Bugfix: reworked MessageHashes to prevent init errors, restricted list size
+Bugfix: several bugfixes in UpdateId area
 
 ******************************************************************************************
 
