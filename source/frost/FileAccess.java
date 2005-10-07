@@ -28,11 +28,6 @@ import java.util.zip.*;
 
 import javax.swing.*;
 
-import org.w3c.dom.*;
-
-import frost.identities.*;
-import frost.messages.*;
-
 public class FileAccess {
 	
 	private static Logger logger = Logger.getLogger(FileAccess.class.getName());
@@ -118,13 +113,13 @@ public class FileAccess {
     /**
      * Writes zip file
      */
-    public static void writeZipFile(byte[] content, String entry, File file) {
-    	if (content.length == 0) {
+    public static boolean writeZipFile(byte[] content, String entry, File file) {
+    	if (content == null || content.length == 0) {
     		Exception e = new Exception();
     		e.fillInStackTrace();
 			logger.log(Level.SEVERE, "Tried to zip an empty file!  Send this output to a dev"+
     									" and describe what you were doing.", e);
-    		return;
+    		return false;
     	}
         try {
             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file));
@@ -136,8 +131,10 @@ public class FileAccess {
 			zos.flush(); //do this before closeEntry()
             zos.closeEntry();
             zos.close();
+            return true;
         } catch( Throwable e ) {
 			logger.log(Level.SEVERE, "Exception thrown in writeZipFile(byte[] content, String entry, File file)", e);
+            return false;
         }
     }
 
@@ -323,119 +320,6 @@ public class FileAccess {
         }
         // The directory is now empty so delete it
         return dir.delete();
-    }
-
-    /**
-     * Reads a keyfile from disk and adds the keys to a map
-     * 
-     * @param source
-     *            keyfile as String or as File
-     * @param chk
-     *            Map that will be used to add the keys
-     * @param exchange
-     *            the exchange flag of SharedFileObject will be set to this value
-     */
-    public static FrostIndex readKeyFile(String source) {
-        return readKeyFile(new File(source));
-    }
-
-    public static FrostIndex readKeyFile(File source) {
-        if( !source.isFile() || !(source.length() > 0) ) {
-            return new FrostIndex(new HashMap());
-        } else {
-            // parse the xml file
-            Document d = null;
-            try {
-                d = XMLTools.parseXmlFile(source.getPath(), false);
-            } catch (IllegalArgumentException t) {
-                logger.log(Level.SEVERE, "Exception thrown in readKeyFile(File source): \n"
-                        + "Offending file saved as badfile.xml - send it to a dev for analysis", t);
-                File badfile = new File("badfile.xml");
-                source.renameTo(badfile);
-            }
-
-            if( d == null ) {
-                logger.warning("Couldn't parse index file.");
-                return null;
-            }
-
-            FrostIndex idx = new FrostIndex(d.getDocumentElement());
-
-            // now go through all the files
-            Iterator i = idx.getFiles().iterator();
-
-            while( i.hasNext() ) {
-                // Element current = (Element)i.next();
-                SharedFileObject newKey = (SharedFileObject) i.next();
-
-                // validate the key
-                if( !newKey.isValid() ) {
-                    i.remove();
-//                    logger.warning("invalid key found");
-                    continue;
-                }
-            }
-            return idx;
-        }
-    }
-
-    public static void writeKeyFile(FrostIndex idx, String destination) {
-        writeKeyFile(idx, new File(destination));
-    }
-
-    public static void writeKeyFile(FrostIndex idx, File destination) {
-        if( idx.getFiles().size() == 0 ) {
-            // no items to write
-            return;
-        }
-
-        File tmpFile = new File(destination.getPath() + ".tmp");
-
-        // use FrostIndex object
-
-        int itemsAppended = 0;
-        synchronized( idx ) {
-            Iterator i = idx.getFiles().iterator();
-            while( i.hasNext() ) {
-                SharedFileObject current = (SharedFileObject) i.next();
-                if( current.getOwner() != null ) {
-                    Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
-                    if( id != null && id.getState() == FrostIdentities.ENEMY ) {
-                        // Core.getOut().println("removing file from BAD user");
-                        // FIXME: this has been happening too often. Debug properly
-                        i.remove();
-                        continue;
-                    }
-                }
-                itemsAppended++;
-            }
-        }
-
-        if( itemsAppended == 0 ) {
-            // don't write file
-            logger.warning("writeKeyFile called with no files to add?");
-            return;
-        }
-
-        // xml tree created, now save
-
-        boolean writeOK = false;
-        try {
-            Document doc = XMLTools.getXMLDocument(idx);
-            writeOK = XMLTools.writeXmlFile(doc, tmpFile.getPath());
-        } catch (Throwable t) {
-            logger.log(Level.SEVERE, "Exception thrown in writeKeyFile(FrostIndex idx, File destination)", t);
-        }
-
-        if( writeOK ) {
-            File oldFile = new File(destination.getPath() + ".old");
-            oldFile.delete();
-            destination.renameTo(oldFile);
-            tmpFile.renameTo(destination);
-        } else {
-            // delete incomplete file
-            tmpFile.delete();
-        }
     }
 
 	/**

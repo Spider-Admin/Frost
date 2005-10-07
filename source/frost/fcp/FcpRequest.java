@@ -776,7 +776,7 @@ Document
                 }
                 catch( IOException e )
                 {
-					logger.log(Level.SEVERE, "FcpRequest.getKey(1): FcpToolsException", e);
+					logger.log(Level.SEVERE, "FcpRequest.getKey(1): IOException", e);
                     break;
                 }
             }

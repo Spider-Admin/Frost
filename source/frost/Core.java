@@ -764,9 +764,10 @@ public class Core implements Savable, FrostEventDispatcher  {
 		saver.addExitSavable(getFileTransferManager());
 		saver.addExitSavable(frostSettings);
 					
-		// We initialize the task that helps requests of friends
-		if (frostSettings.getBoolValue("helpFriends"))
+		// We initialize the task that helps requests of friends (delay 5min, repeat all 3hrs)
+		if (frostSettings.getBoolValue("helpFriends")) {
 			timer.schedule(new GetFriendsRequestsThread(identities), 5 * 60 * 1000, 3 * 60 * 60 * 1000);
+        }
 	}
 
 	/**

@@ -16,7 +16,6 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-
 package frost.threads;
 
 import java.util.*;
@@ -157,6 +156,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     public boolean startBoardFilesUpload(Board board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
+        // board file uploads are done inside the UpdateIdThread that is started in startBoardFilesDownload()
+        
         /*GetRequestsThread grt = new GetRequestsThread(
            board,
            config.getIntValue("tofDownloadHtl"),
@@ -190,47 +191,109 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     public boolean startBoardFilesDownload(Board board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
-    	final int downloadBack=MainFrame.frostSettings.getIntValue("maxMessageDownload");
-   
-	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
-	for (int i =0;i<downloadBack;i++) {
-		UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), identities);
-		thread.setMessageHashes(messageHashes);
-		threads[i] = thread;
-	}
+//    	final int downloadBack = MainFrame.frostSettings.getIntValue("maxMessageDownload");
+//   
+//    	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
+//        
+//    	for (int i=0; i < downloadBack; i++) {
+//            boolean doUpload;
+//            if( i == 0 ) {
+//                doUpload = true; // upload own keys today only
+//            } else {
+//                doUpload = false;
+//            }
+//    		UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), identities, doUpload);
+//    		thread.setMessageHashes(messageHashes);
+//            
+//            
+//    		threads[i] = thread;
+//    	}
         
-	//NOTE: since we now do deep requests, it takes a lot of time for
-	//all these threads to finish.  So I'll notify the gui that the message downlaod thread is done updating
-	//after the indices for the current date are finished requesting and leave the 
-	//threads that are downloading the previous day's indices running.
-	//IMPORTANT: I think its ok to start new update set on a board even if nota all
-	//threads have finished - the node's failure table will take care of it.
-	UpdateIdThread uit = threads[0];
-        uit.addBoardUpdateThreadListener( this );
-        if( listener != null )
-        {
-            uit.addBoardUpdateThreadListener( listener );
+    	// NOTE: since we now do deep requests, it takes a lot of time for
+    	//   all these threads to finish.  So I'll notify the gui that the message download thread is done updating
+    	//   after the indices for the current date are finished requesting and leave the 
+    	//   threads that are downloading the previous day's indices running.
+    	// IMPORTANT: I think its ok to start new update set on a board even if not all
+    	//   threads have finished - the node's failure table will take care of it.
+        
+        // -->> the above logic leaded into 'OutOfMemory: Java heap space' for some users.
+        //      I think the reason is that they have very large file lists whose upload
+        //      takes ages, and a huge amount of the threads started here (invisible) 
+        //      do finally running concurrently and fill up the Java heap.
+        
+//    	UpdateIdThread uit = threads[0];
+//        uit.addBoardUpdateThreadListener( this );
+//        if( listener != null ) {
+//            uit.addBoardUpdateThreadListener( listener );
+//        }
+//		getVectorFromHashtable( runningDownloadThreads, board).add(uit);
+//
+//    	//now start the threads one after another
+//        Thread starter = new Thread() {
+//    		public void run() {
+//    			for (int j=0; j < downloadBack; j++) {
+//    				//getVectorFromHashtable( runningDownloadThreads, board).add(threads[j]); //add to vector
+//    				threads[j].start();
+//    				try {
+//        				threads[j].join();
+//        				//if we get interrupted, continue with next thread
+//        				//or perhaps we want to stop all of them?
+//    				} catch (InterruptedException e) {
+//    					logger.log(Level.SEVERE, "Exception thrown in startBoardFilesDownload(...)", e);
+//    				}
+//    			}
+//    		}
+//    	};
+//    	starter.start();
+        
+        BoardFilesDownloadStarter starter = new BoardFilesDownloadStarter(board, identities);
+        
+        starter.addBoardUpdateThreadListener( this );
+        if( listener != null ) {
+            starter.addBoardUpdateThreadListener( listener );
         }
-		getVectorFromHashtable( runningDownloadThreads, board).add(uit);
-	//now start the threads one after another
-	Thread starter = new Thread() {
-		public void run() {
-			for (int j = 0;j<downloadBack;j++) {
-				//getVectorFromHashtable( runningDownloadThreads, board).add(threads[j]); //add to vector
-				threads[j].start();
-				try{
-				threads[j].join();
-				//if we get interrupted, continue with next thread
-				//or perhaps we want to stop all of them?
-				} catch (InterruptedException e) {
-					logger.log(Level.SEVERE, "Exception thrown in startBoardFilesDownload(...)", e);
-				}
-			}
-		}
-	};
-	starter.start();
+        getVectorFromHashtable( runningDownloadThreads, board).add(starter);
+        
+        starter.start();
+        
         return true;
     }
+    
+    private class BoardFilesDownloadStarter extends BoardUpdateThreadObject implements BoardUpdateThread {
+        Board board;
+        FrostIdentities newIdentities;
+        public BoardFilesDownloadStarter(Board board, FrostIdentities newIdentities) {
+            super(board, newIdentities);
+            this.newIdentities = newIdentities;
+            this.board = board;
+        }
+        public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
+        public void run() {
+            notifyThreadStarted(this);
+            
+            final int downloadBack = MainFrame.frostSettings.getIntValue("maxMessageDownload");
+            // if one gets an exception, do not try backwards further
+            try {
+                for (int i=0; i < downloadBack; i++) {
+                    boolean isForToday;
+                    if( i == 0 ) {
+                        isForToday = true; // upload own keys today only
+                    } else {
+                        isForToday = false;
+                    }
+                    UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), newIdentities, isForToday);
+                    thread.setMessageHashes(messageHashes);
+                    
+                    // directly call run, we want to block
+                    thread.run();
+                }
+            } catch (Throwable e) {
+                logger.log(Level.SEVERE, "Exception in BoardFilesDownloadStarter for() loop", e);
+            }
+            notifyThreadFinished(this);
+        }
+    }
+    
 	/**
 	 * if you specify a listener and the method returns true (thread is started), the listener
 	 * will be notified if THIS thread is finished

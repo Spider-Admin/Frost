@@ -19,15 +19,13 @@
 package frost.fileTransfer.download;
 
 import java.io.*;
-import java.text.SimpleDateFormat;
-import java.util.Date;
 import java.util.logging.*;
 
 import frost.*;
 import frost.fcp.*;
-import frost.fileTransfer.Index;
-import frost.gui.objects.Board;
-import frost.messages.SharedFileObject;
+import frost.fileTransfer.*;
+import frost.gui.objects.*;
+import frost.messages.*;
 
 public class DownloadThread extends Thread {
 	
@@ -54,9 +52,7 @@ public class DownloadThread extends Thread {
 		ticker.threadStarted();		
 		try {
 			// some vars
-			SimpleDateFormat formatter = new SimpleDateFormat("yyyy.MM.dd");
-			Date today = new Date();
-			String date = formatter.format(today);
+			String date = DateFun.getExtendedDate();
 			File newFile = new File(settings.getValue("downloadDirectory") + filename);
 
 			// if we don't have the CHK, means the key was not inserted
@@ -164,14 +160,18 @@ public class DownloadThread extends Thread {
 				if (board != null
 					&& board.isFolder() == false
 					&& this.SHA1 != null
-					&& Core.frostSettings.getBoolValue("shareDownloads")) {
+					&& Core.frostSettings.getBoolValue("shareDownloads")) 
+                {
 					// Add successful downloaded key to database
 					SharedFileObject newKey = new SharedFileObject(key);
 					newKey.setFilename(filename);
 					newKey.setSize(newFile.length());
 					newKey.setSHA1(SHA1);
 					newKey.setDate(date);
-					Index.getInstance().addMine(newKey, board);
+                    Index index = Index.getInstance();
+                    synchronized(index) {
+                        index.addMine(newKey, board);
+                    }
 				}
 
 				downloadItem.setFileSize(new Long(newFile.length()));

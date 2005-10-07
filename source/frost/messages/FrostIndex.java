@@ -1,9 +1,21 @@
 /*
- * Created on Oct 22, 2003
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
+  FrostIndex.java / Frost
+  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.messages;
 
 import java.util.*;
@@ -20,6 +32,7 @@ import frost.identities.Identity;
  * represents an index file in Freenet
  */
 public class FrostIndex implements XMLizable {
+
 	Identity sharer;
 	Map filesMap;
 	
@@ -29,19 +42,18 @@ public class FrostIndex implements XMLizable {
 	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
 	 */
 	public Element getXMLElement(Document container) {
+
 		Element el = container.createElement("FrostIndex");
 		
 		//if user signs uploads, remove the sensitive fields and append element
 		if (Core.frostSettings.getBoolValue("signUploads") && sharer!=null) {
 			Element _sharer = sharer.getSafeXMLElement(container);
-			
 			el.appendChild(_sharer);
 		}
 		
 		boolean signUploads = Core.frostSettings.getBoolValue("signUploads");
-		//iterate through set of files and add them all
-		Iterator i = filesMap.values().iterator();
-		while (i.hasNext()) {
+		// iterate through set of files and add them all
+		for(Iterator i = getFilesMap().values().iterator(); i.hasNext(); ) {
 			SharedFileObject current = (SharedFileObject)i.next();
 			Element currentElement = current.getXMLElement(container);
 			
@@ -56,10 +68,8 @@ public class FrostIndex implements XMLizable {
 			for(Iterator i2 = sensitive.iterator(); i2.hasNext(); ) {
 				currentElement.removeChild((Element)i2.next());
             }
-				
 			el.appendChild(currentElement);
 		}
-		
 		return el;
 	}
 
@@ -68,10 +78,11 @@ public class FrostIndex implements XMLizable {
 	 */
 	public void loadXMLElement(Element e) throws SAXException {
 		List _sharer = XMLTools.getChildElementsByTagName(e,"MyIdentity");
-		if (_sharer.size() >0)
+		if (_sharer.size() > 0) {
 			sharer = new Identity((Element)_sharer.get(0));
-		else 
+        } else { 
 			sharer = null;
+        }
 			
 		List _files = XMLTools.getChildElementsByTagName(e,"File");
 		
@@ -80,12 +91,10 @@ public class FrostIndex implements XMLizable {
 		while (it.hasNext()) {
 			Element el = (Element)it.next();
 			SharedFileObject file = SharedFileObject.getInstance(el);
-			//files.add(file);
-			if (file.getSHA1()!=null)
+			if (file.getSHA1()!=null) {
 				filesMap.put(file.getSHA1(),file);
+            }
 		}
-		
-		
 	}
 
 	public FrostIndex(Element e) {
@@ -95,42 +104,15 @@ public class FrostIndex implements XMLizable {
 			logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
 		}
 	}
-
-	public FrostIndex(Set files) {
-		
-		Iterator it = files.iterator();
-		while (it.hasNext()) {
-			SharedFileObject current = (SharedFileObject)it.next();
-			if (current.getSHA1() != null)
-				filesMap.put(current.getSHA1(),current);
-		}
-		
-		//wrap the set around the Map set, so that changes will be visible in both
-		
-		
-		
-		if (Core.frostSettings.getBoolValue("signUploads"))
-			sharer = Core.getInstance().getIdentities().getMyId();
-		else 
-			sharer = null;
-	}
 	
-	public FrostIndex (Map filesMap){
+	public FrostIndex(Map filesMap) {
 		this.filesMap = filesMap;
 		
-		
-		if (Core.frostSettings.getBoolValue("signUploads"))
+		if (Core.frostSettings.getBoolValue("signUploads")) {
 			sharer = Core.getInstance().getIdentities().getMyId();
-		else 
+        } else { 
 			sharer = null;
-	}
-	
-
-	/**
-	 * @return the set of files contained in this index
-	 */
-	public Set getFiles() {
-		return new HashSet(filesMap.values());
+        }
 	}
 
 	/**
@@ -146,5 +128,4 @@ public class FrostIndex implements XMLizable {
 	public Map getFilesMap() {
 		return filesMap;
 	}
-
 }

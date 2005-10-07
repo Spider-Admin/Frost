@@ -42,8 +42,7 @@ public class Identity implements SafeXMLizable {
 	private static Logger logger = Logger.getLogger(Identity.class.getName());
     
     //some trust map methods
-//    public int noMessages,noFiles;
-    protected Set trustees;
+//    protected Set trustees;
 
 	//if this was C++ LocalIdentity wouldn't work
 	//fortunately we have virtual construction so loadXMLElement will be called
@@ -82,18 +81,18 @@ public class Identity implements SafeXMLizable {
         }
 
 		//trusted identities
-		if (trustees != null) {
-			element = doc.createElement("trustedIds");
-			Iterator it = trustees.iterator();
-			while (it.hasNext()) {
-				String id = (String)it.next();
-				Element trustee = doc.createElement("trustee");
-				CDATASection cdata = doc.createCDATASection(id);
-				trustee.appendChild(cdata);
-				element.appendChild(trustee);
-			}
-			el.appendChild(element);
-		}
+//		if (trustees != null) {
+//			element = doc.createElement("trustedIds");
+//			Iterator it = trustees.iterator();
+//			while (it.hasNext()) {
+//				String id = (String)it.next();
+//				Element trustee = doc.createElement("trustee");
+//				CDATASection cdata = doc.createCDATASection(id);
+//				trustee.appendChild(cdata);
+//				element.appendChild(trustee);
+//			}
+//			el.appendChild(element);
+//		}
 		return el;
 	}
 	
@@ -138,23 +137,23 @@ public class Identity implements SafeXMLizable {
         }
 
 		// check for trustees
-		ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
-		Element trusteesList = null;
-		if (_trusteesList.size() > 0) {
-			trusteesList = (Element) _trusteesList.get(0);
-        }
-		if (trusteesList != null) {
-			if (trustees == null) {
-				trustees = new TreeSet();
-            }
-			List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
-			Iterator it = trusteeEntities.iterator();
-			while (it.hasNext()) {
-				Element trustee = (Element)it.next();
-				String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
-				trustees.add(id);
-			}
-		}
+//		ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
+//		Element trusteesList = null;
+//		if (_trusteesList.size() > 0) {
+//			trusteesList = (Element) _trusteesList.get(0);
+//        }
+//		if (trusteesList != null) {
+//			if (trustees == null) {
+//				trustees = new TreeSet();
+//            }
+//			List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
+//			Iterator it = trusteeEntities.iterator();
+//			while (it.hasNext()) {
+//				Element trustee = (Element)it.next();
+//				String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
+//				trustees.add(id);
+//			}
+//		}
 	}
 
     /**
@@ -197,10 +196,10 @@ public class Identity implements SafeXMLizable {
 	/**
 	 * @return list of identities this identity trusts
 	 */
-	public Set getTrustees() {
-		if (trustees== null ) trustees= new TreeSet();
-		return trustees;
-	}
+//	public Set getTrustees() {
+//		if (trustees== null ) trustees= new TreeSet();
+//		return trustees;
+//	}
 
     // dont't store BoardAttachement with pubKey=SSK@...
     public static boolean isForbiddenBoardAttachment(BoardAttachment ba) {
