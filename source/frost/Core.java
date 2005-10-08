@@ -627,14 +627,29 @@ public class Core implements Savable, FrostEventDispatcher  {
             
             frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
         }
-
+        
         splashscreen.setText(language.getString("Sending IP address to NSA"));
         splashscreen.setProgress(60);
 
         getIdentities().initialize(freenetIsOnline);
+        
+        // TODO: maybe make this configureable in optionsdialog for the paranoic people?
+        String title;
+        if( frostSettings.getBoolValue("mainframe.showSimpleTitle") == false ) {
+            title = "Frost - " + getIdentities().getMyId().getUniqueName();
+        } else {
+            title = "Frost";
+        }
 
-		//Main frame		
-		mainFrame = new MainFrame(frostSettings);
+        // Display the tray icon (do this before mainframe initializes)
+        if (frostSettings.getBoolValue("showSystrayIcon") == true) {
+            if (JSysTrayIcon.createInstance(0, title, title) == false) {
+                logger.severe("Could not create systray icon.");
+            }
+        }
+
+		// Main frame		
+		mainFrame = new MainFrame(frostSettings, title);
 		getMessagingManager().initialize();
 		getBoardsManager().initialize();
 		getFileTransferManager().initialize();
@@ -661,13 +676,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 
 		initializeTasks(mainFrame);
 
-        // Display the tray icon
-        if (frostSettings.getBoolValue("showSystrayIcon") == true) {
-            if (JSysTrayIcon.createInstance(0, "Frost", "Frost") == false) {
-                logger.severe("Could not create systray icon.");
-            }
-        }
-
 		SwingUtilities.invokeLater(new Runnable() {
 			public void run() {
 				mainFrame.setVisible(true);	
@@ -677,9 +685,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		splashscreen.closeMe();
 	}
 
-	/**
-	 * @return
-	 */
 	private FileTransferManager getFileTransferManager() {
 		if (fileTransferManager == null) {
 			fileTransferManager = new FileTransferManager(frostSettings);
@@ -692,9 +697,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return fileTransferManager;
 	}
 	
-	/**
-	 * 
-	 */
 	private MessagingManager getMessagingManager() {
 		if (messagingManager == null) {
 			messagingManager = new MessagingManager(frostSettings);
@@ -702,9 +704,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return messagingManager;
 	}
 	
-	/**
-	 * 
-	 */
 	private BoardsManager getBoardsManager() {
 		if (boardsManager == null) {
 			boardsManager = new BoardsManager(frostSettings);
@@ -724,33 +723,34 @@ public class Core implements Savable, FrostEventDispatcher  {
 		//We initialize the task that checks for spam
 		timer.schedule(
 			new CheckForSpam(frostSettings, getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel()),
-			0,
+			1*60*60*1000, // wait 1 min
 			frostSettings.getIntValue("sampleInterval") * 60 * 60 * 1000);
 
-		//We initialize the tash that discards old files and frees memory
+		// initialize the task that discards old files
 		TimerTask cleaner = new TimerTask() {
-			int i = 0;
 			public void run() {
-				// maybe each 6 hours cleanup files (12 * 30 minutes)
-				if (i >= 12 && frostSettings.getBoolValue("deleteExpiredMessages")) {
+				// maybe each 6 hours cleanup files
+				if (frostSettings.getBoolValue("deleteExpiredMessages")) {
 					logger.info("discarding expired files");
                     CleanUp.deleteExpiredFiles(new File(keypool));
 				}
-                // free memory each hour
-                if( i % 2 == 0 ) {
-                    logger.info("freeing memory");
-                    System.gc();
-                }
-                if( i >= 12 ) { // reset
-                    i = 0;
-                }
-				i++;
 			}
 		};
-		timer.schedule(cleaner, 30 * 60 * 1000, 30 * 60 * 1000);	//30 minutes
+		timer.schedule(cleaner, 6*60*60*1000, 6*60*60*1000); // 6 hrs interval
+        cleaner = null;
 
-		//We initialize the task that saves data
-		
+        // initialize the task that frees memory
+        cleaner = new TimerTask() {
+            public void run() {
+                // free memory each 30 min
+                logger.info("freeing memory");
+                System.gc();
+            }
+        };
+        timer.schedule(cleaner, 30 * 60 * 1000, 30 * 60 * 1000);    //30 minutes
+        cleaner = null;
+
+		// initialize the task that saves data
 		StorageManager saver = new StorageManager(frostSettings, this);
 		saver.addAutoSavable(this);
 		saver.addAutoSavable(getIdentities());
@@ -764,9 +764,9 @@ public class Core implements Savable, FrostEventDispatcher  {
 		saver.addExitSavable(getFileTransferManager());
 		saver.addExitSavable(frostSettings);
 					
-		// We initialize the task that helps requests of friends (delay 5min, repeat all 3hrs)
+		// We initialize the task that helps requests of friends (delay 5min, repeat all 6hrs)
 		if (frostSettings.getBoolValue("helpFriends")) {
-			timer.schedule(new GetFriendsRequestsThread(identities), 5 * 60 * 1000, 3 * 60 * 60 * 1000);
+			timer.schedule(new GetFriendsRequestsThread(identities), 5 * 60 * 1000, 6 * 60 * 60 * 1000);
         }
 	}
 
@@ -777,9 +777,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return emailNotifier;
 	}
 
-	/**
-	 * @param locale
-	 */
 	public static void setLocale(Locale locale) {
 		Core.locale = locale;
 	}
@@ -810,11 +807,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		}
 	}
 
-	/**
- 	 * description
- 	 * 
- 	 * @return description
- 	 */
 	public FrostIdentities getIdentities() {
 		if (identities == null) {
 			identities = new FrostIdentities(frostSettings);
@@ -833,32 +825,31 @@ public class Core implements Savable, FrostEventDispatcher  {
 			throw new StorageException("Error while saving the core items.");
 		}
 	}
-	/**
+
+    /**
 	 * This method returns the language resource to get internationalized messages
 	 * from. That language resource is initialized the first time this method is called.
 	 * In that case, if the locale field has a value, it is used to select the 
 	 * LanguageResource. If not, the locale value in frostSettings is used for that.
 	 */
 	private void initializeLanguage() {
-			if (locale != null) {
-				Language.initialize("res.LangRes", locale);
+		if (locale != null) {
+			Language.initialize("res.LangRes", locale);
+		} else {
+			String language = frostSettings.getValue("locale");
+			if (!language.equals("default")) {
+				Language.initialize("res.LangRes", new Locale(language));
 			} else {
-				String language = frostSettings.getValue("locale");
-				if (!language.equals("default")) {
-					Language.initialize("res.LangRes", new Locale(language));
-				} else {
-					Language.initialize("res.LangRes");
-				}
+				Language.initialize("res.LangRes");
 			}
-			language = Language.getInstance();
 		}
+		language = Language.getInstance();
+	}
 
 	/* (non-Javadoc)
 	 * @see frost.events.FrostEventDispatcher#dispatchEvent(frost.events.FrostEvent)
 	 */
 	public void dispatchEvent(FrostEvent frostEvent) {
 		dispatcher.dispatchEvent(frostEvent);
-		
 	}
 }
-

@@ -1548,16 +1548,27 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             mainFrame.setIconImage(frameIcon.getImage());
             mainFrame.statusMessageLabel.setIcon(newMessage[0]);
             // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
-            if ((System.getProperty("os.name").startsWith("Windows")) == false) {
-                mainFrame.setTitle("*Frost*");
+            if( System.getProperty("os.name").startsWith("Windows") == false ) {
+                String t = mainFrame.getTitle();
+                // if not already done, append * on begin and end of title string
+                if( !t.equals("*") && !(t.startsWith("*") && t.endsWith("*")) ) {
+                    t = "*" + t + "*";
+                }
+                mainFrame.setTitle(t);
             }
         } else {
             ImageIcon frameIcon = new ImageIcon(MainFrame.class.getResource("/data/jtc.jpg"));
             mainFrame.setIconImage(frameIcon.getImage());
             mainFrame.statusMessageLabel.setIcon(newMessage[1]);
             // The title should never be changed on Windows systems (SystemTray.exe expects "Frost" as title)
-            if ((System.getProperty("os.name").startsWith("Windows")) == false) {
-                mainFrame.setTitle("Frost");
+            if( System.getProperty("os.name").startsWith("Windows") == false ) {
+                String t = mainFrame.getTitle();
+                // if not already done, append * on begin and end of title string
+                if( !t.equals("*") && t.startsWith("*") && t.endsWith("*") ) {
+                    // remove * on begin and end
+                    t = t.substring(1, t.length()-1);
+                }
+                mainFrame.setTitle(t);
             }
         }
     }
@@ -1660,7 +1671,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * Construct the frame
      * @param frostSettings
      */
-    public MainFrame(SettingsClass settings) {
+    public MainFrame(SettingsClass settings, String title) {
 
         instance = this;
         core = Core.getInstance();
@@ -1678,7 +1689,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         setIconImage(frameIcon.getImage());
         setResizable(true);
 
-        setTitle("Frost");
+        setTitle(title);
 
         addWindowListener(listener);
     }
