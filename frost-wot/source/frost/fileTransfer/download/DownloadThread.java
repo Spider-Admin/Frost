@@ -193,14 +193,17 @@ public class DownloadThread extends Thread {
 		int messageUploadHtl = settings.getIntValue("tofUploadHtl");
 		boolean requested = false;
 
-		logger.info(
-			"FILEDN: Uploading request for '" + filename + "' to board '" + board.getName() + "'");
+		logger.info("FILEDN: Uploading request for '" + filename + "' to board '" + board.getName() + "'");
+        
+        if( batch == null || owner == null ) {
+            logger.severe("FILEDN: NO batch or owner, skipping upload");
+            return;
+        }
 
-		String fileSeparator = System.getProperty("file.separator");
 		String destination =
 			new StringBuffer()
 				.append("requests")
-				.append(fileSeparator)
+				.append(File.separator)
 				.append(owner)
 				.append("-")
 				.append(batch)
@@ -208,8 +211,9 @@ public class DownloadThread extends Thread {
 				.append(DateFun.getDate())
 				.toString();
 		File checkDestination = new File(destination);
-		if (!checkDestination.isDirectory())
+		if (!checkDestination.isDirectory()) {
 			checkDestination.mkdirs();
+        }
 
 		// Check if file was already requested
 		// ++ check only in req files
@@ -235,14 +239,12 @@ public class DownloadThread extends Thread {
 			// Generate file to upload
 			File requestFile = null;
 			try {
-				requestFile =
-					File.createTempFile(
-						"reqUpload_",
-						null,
-						new File(settings.getValue("temp.dir")));
+				requestFile = File.createTempFile(
+        						"reqUpload_",
+        						null,
+        						new File(settings.getValue("temp.dir")));
 			} catch (Exception ex) {
-				requestFile =
-					new File(
+				requestFile = new File(
 							settings.getValue("temp.dir")
 							+ System.currentTimeMillis()
 							+ ".tmp");
@@ -259,14 +261,12 @@ public class DownloadThread extends Thread {
 			File testMe = null;
 			while (!success) {
 				// Does this index already exist?
-				testMe =
-					new File(
-						new StringBuffer()
-							.append(destination)
-							.append(fileSeparator)
-							.append(index)
-							.append(".req.sha")
-							.toString());
+				testMe = new File( new StringBuffer()
+        							.append(destination)
+        							.append(File.separator)
+        							.append(index)
+        							.append(".req.sha")
+        							.toString());
 				if (testMe.length() > 0) { // already downloaded
 					index++;
 					//if( DEBUG ) Core.getOut().println("FILEDN: File exists, increasing index to " + index);
@@ -278,8 +278,7 @@ public class DownloadThread extends Thread {
 					try {
 						lockFileCreated = lockRequestIndex.createNewFile();
 					} catch (IOException ex) {
-						logger.log(
-							Level.SEVERE,
+						logger.log( Level.SEVERE,
 							"ERROR: requestThread.request(): unexpected IOException, terminating thread ...",
 							ex);
 						return;
@@ -288,8 +287,7 @@ public class DownloadThread extends Thread {
 					if (lockFileCreated == false) {
 						// another thread tries to insert using this index, try next
 						index++;
-						logger.fine(
-							"FILEDN: Other thread tries this index, increasing index to " + index);
+						logger.fine("FILEDN: Other thread tries this index, increasing index to " + index);
 						continue; // while
 					} else {
 						// we try this index

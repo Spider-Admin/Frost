@@ -266,7 +266,7 @@ public class JSysTrayIcon
       }
       catch(Throwable t)
       {
-          //t.printStackTrace();
+          //logger
           return false;
       }
       return true;

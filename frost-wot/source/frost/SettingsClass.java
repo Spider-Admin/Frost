@@ -554,6 +554,8 @@ public class SettingsClass implements Savable {
 		defaults.put("keypool.dir", "keypool" + fs);
 		defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
 		defaults.put("temp.dir", "localdata" + fs + "temp" + fs);
+        
+        defaults.put("mainframe.showSimpleTitle", "false");
 
 		defaults.put("allowEvilBert", "false");
 		defaults.put("altEdit", fn + "path" + fs + "to" + fs + "editor" + " %f");
