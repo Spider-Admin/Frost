@@ -61,44 +61,42 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
     public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
 
     
-    // TODO: if we fail to upload here, the new files are lost!
+    // TODO: if we fail to upload here, the file to upload should be uploaded next time!
     /**
      * Returns true if no error occured.
      */
     private boolean uploadIndexFile() throws Throwable {
         
         logger.info("FILEDN: UpdateIdThread - makeIndexFile for " + board.getName());
+        
+        if( indexSlots.findFirstFreeUploadSlot() < 0 ) {
+            // no free upload slot, don't continue now, continue tomorrow
+            return true;
+        }
 
         // Calculate the keys to be uploaded
-
-        // this method checks the final zip size (<=30000) !!!
         Map files = null;
         Index index = Index.getInstance();
         synchronized(index) {
-            files = index.getUploadKeys(board.getBoardFilename());
+            // this method checks the final zip size (<=30000) !!!
+            files = index.getUploadKeys(board);
         }
         
-        FrostIndex frostIndex;
-        if(files == null) {
-            frostIndex = null;
-        } else {
-            frostIndex = new FrostIndex(files);
-        }
-
-        if (frostIndex == null) {
+        if(files == null || files.size() == 0 ) {
             logger.info("FILEDN: No keys to upload, stopping UpdateIdThread for " + board.getName());
             return true;
         }
         
-        logger.info("FILEDN: Starting upload of index file to board '" + board.getName());
+        logger.info("FILEDN: Starting upload of index file to board " + board.getName()+"; files="+files.size());
 
+        FrostIndex frostIndex = new FrostIndex(files);
         File uploadIndexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
 
         // zip the xml file before upload
         FileAccess.writeZipFile(XMLTools.getRawXMLDocument(frostIndex), "entry", uploadIndexFile);
         
         if( !uploadIndexFile.isFile() || uploadIndexFile.length() == 0 ) {
-            logger.info("No index file to upload.");
+            logger.warning("No index file to upload, save/zip failed.");
             return false; // error
         }
 
@@ -108,7 +106,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         }
         return success;
     }
-
 
     /**
      * Uploads the zipped index file.
@@ -575,24 +572,23 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                         } else {
                             slots.add(EMPTY);
                         }
-                        // max MAX_SLOTS_PER_DAY, or error for all
-                        if( slots.size() > maxSlotsPerDay ) {
-                            break;
+                        // max MAX_SLOTS_PER_DAY
+                        if( slots.size() >= maxSlotsPerDay ) {
+                            break; // (allows to lower index slot count)
                         }
                     }
                     rdr.close();
-                    // validate loaded Vector
-                    if( slots.size() == maxSlotsPerDay ) {
-                        return; // all OK
-                    }
                 } catch (Throwable exception) {
                     logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date) - Date: '" + loadDate
                             + "' - Board name: '" + targetBoard.getBoardFilename() + "'", exception);
                 }
             }
             // problem with file, start new indices
-            slots = new Vector();
-            for (int i = 0; i < maxSlotsPerDay; i++) {
+            if( slots == null ) {
+                slots = new Vector();
+            }
+            // fill up (allows to raise index slot count)
+            for (int i = slots.size(); i < maxSlotsPerDay; i++) {
                 slots.add( EMPTY );
             }
         }
@@ -623,7 +619,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                 out.flush();
                 out.close();
             } catch(Throwable e) {
-                logger.log(Level.SEVERE, "Exception thrown in saveIndex()", e);
+                logger.log(Level.SEVERE, "Exception thrown in saveSlotsFile()", e);
             }
         }
         

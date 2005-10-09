@@ -2,7 +2,8 @@
 *** Frost history file ***
  ************************
 
-PENDING:
+2005.10.11:
+------------
 
 Changed: 'Next unread' nutton (or key 'n') now jumps to next unread message BY DATE
 Changed: Frost now uses lesser threads and lesser memory (reduces system load)
