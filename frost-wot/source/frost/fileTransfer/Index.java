@@ -221,19 +221,22 @@ public class Index {
 	 * @param boardFilename
 	 * @return
 	 */
-	public Map getUploadKeys(String boardFilename) {
+	public Map getUploadKeys(Board board) {
         
-        // TODO: add files until zip is larger than 30000, don't stop at 50 (nice to have)
+        // TODO: nice-to-have: add files until zip is larger than 30000, don't stop at 60
 
-        // add a limit -> key file could grow above 30.000 bytes which is the appr. maximum for KSK uploads!
+        // limit -> key file could grow above 30.000 bytes which is the appr. maximum for KSK uploads!
+        // we first try with 60 and lower by 5 until zipsize is <=30000
+        // (if not all files fit into this index, we send the next list on next update)
         final long MAX_ZIP_SIZE = 30000;
         final int MAX_FILES_CHANGE_INTERVAL = 5;
-        final int DEFAULT_MAX_FILES = 50;
+        final int DEFAULT_MAX_FILES = 60; // seems to be a good size to start with
         
-        int currentMaxFiles = DEFAULT_MAX_FILES; // seems to be a good size to start with
-        // (if not all files fit into this index, we send the next list on next update)
+        int currentMaxFiles = DEFAULT_MAX_FILES; 
+        
+        String boardFilename = board.getBoardFilename();
 
-		logger.fine("Index.getUploadKeys(" + boardFilename + ")");
+		logger.fine("Index.getUploadKeys for board " + boardFilename);
 
 		// Abort if boardDir does not exist
         File boardDir = new File(MainFrame.keypool + boardFilename);

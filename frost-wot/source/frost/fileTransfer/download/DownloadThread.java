@@ -196,7 +196,7 @@ public class DownloadThread extends Thread {
 		logger.info("FILEDN: Uploading request for '" + filename + "' to board '" + board.getName() + "'");
         
         if( batch == null || owner == null ) {
-            logger.severe("FILEDN: NO batch or owner, skipping upload");
+            logger.severe("FILEDN: NO batch or owner, skipping upload of request for "+filename);
             return;
         }
 
@@ -304,7 +304,7 @@ public class DownloadThread extends Thread {
 							.append("/")
 							.append(owner)
 							.append("-")
-							.append(batch.trim())
+							.append(batch)
 							.append("-")
 							.append(date)
 							.append("-")
@@ -426,13 +426,11 @@ public class DownloadThread extends Thread {
 		board = item.getSourceBoard();
 		SHA1 = item.getSHA1();
 		batch = item.getBatch();
-		if (item.getOwner() != null) // owner is null for manually added files
-			{
-			this.owner = Mixed.makeFilename(item.getOwner());
+		if( item.getOwner() != null ) { // owner is null for manually added files
+			owner = Mixed.makeFilename(item.getOwner());
 		} else {
-			this.owner = null;
+			owner = null;
 		}
-
 		ticker = newTicker;
 		downloadItem = item;
 		downloadModel = model;
