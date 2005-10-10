@@ -4,8 +4,9 @@
 
 2005.10.11:
 ------------
+(important bugfix release, fixes many internal issues)
 
-Changed: 'Next unread' nutton (or key 'n') now jumps to next unread message BY DATE
+Changed: 'Next unread' button (or key 'n') now jumps to next unread message BY DATE
 Changed: Frost now uses lesser threads and lesser memory (reduces system load)
 
 Bugfix: restricted size of keyfile to upload (prevents 'KSK key too large' messages)

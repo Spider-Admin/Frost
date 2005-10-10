@@ -39,7 +39,7 @@
   <property name="src.dir.feclib" value="${lib.dir}/fecImpl"/>
   <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
   <property name="src.dir.skinlfFixLib" value="${lib.dir}/skinlfFix"/>
-  <property name="src.dir.jocacheLib" value="${lib.dir}/jocache/src"/>
+<!--  <property name="src.dir.jocacheLib" value="${lib.dir}/jocache/src"/> -->
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
@@ -47,7 +47,7 @@
   <property name="build.classes.feclib" value="${build.dir}/classes_feclib"/>
   <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
   <property name="build.classes.skinlfFixLib" value="${build.dir}/classes_skinlfFixLib"/>
-  <property name="build.classes.jocacheLib" value="${build.dir}/classes_jocacheLib"/>
+  <!-- <property name="build.classes.jocacheLib" value="${build.dir}/classes_jocacheLib"/> -->
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
@@ -66,7 +66,7 @@
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.skinlfFixLib}"/>
-    <pathelement location="${build.classes.jocacheLib}"/>
+<!--    <pathelement location="${build.classes.jocacheLib}"/> -->
     <pathelement location="${lib.dir}/skinlf.jar"/>
   </path>
 
@@ -104,12 +104,12 @@ Build log  : ${logfilename}</echo>
  	<delete quiet="true" dir="${build.classes.feclib}"/>
     <delete quiet="true" dir="${build.classes.genchklib}"/>
     <delete quiet="true" dir="${build.classes.skinlfFixLib}"/>
-    <delete quiet="true" dir="${build.classes.jocacheLib}"/>
+<!--    <delete quiet="true" dir="${build.classes.jocacheLib}"/>  -->
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>
     <mkdir dir="${build.classes.skinlfFixLib}"/>
-    <mkdir dir="${build.classes.jocacheLib}"/>
+<!--    <mkdir dir="${build.classes.jocacheLib}"/> -->
 
     <javac srcdir="${src.dir.feclib}"
            destdir="${build.classes.feclib}"
@@ -134,7 +134,7 @@ Build log  : ${logfilename}</echo>
             <pathelement location="${build.classes.feclib}"/>
         </classpath>
     </javac>
-
+<!--
  	<javac srcdir="${src.dir.jocacheLib}"
            destdir="${build.classes.jocacheLib}"
   	 	   classpath="${src.dir.jocacheLib}"
@@ -147,6 +147,7 @@ Build log  : ${logfilename}</echo>
             <include name="**/*.properties"/>
         </fileset>
     </copy>
+-->
 
     <javac srcdir="${src.dir}"
            destdir="${build.classes}"
@@ -183,6 +184,7 @@ Build log  : ${logfilename}</echo>
 
 	<!--  Modify the version and copy the manifest -->
 	<filter token="VERSION_FROM_ANT" value="${NOW.DATE} dev"/>
+<!--	<filter token="VERSION_FROM_ANT" value="11-Oct-2005 dev"/> -->
 	<copy
 		file="${src.dir}/frost.manifest"
 		todir="${dist.dir}"
@@ -225,7 +227,7 @@ Build log  : ${logfilename}</echo>
         <include name="**/*.class"/>
       </fileset>
     </jar>
-
+<!--
     <delete quiet="true" file="${dist.dir}/lib/jocache.jar"/>
     <mkdir dir="${dist.dir}/lib"/>
     <jar jarfile="${dist.dir}/lib/jocache.jar">
@@ -234,7 +236,7 @@ Build log  : ${logfilename}</echo>
         <include name="**/*.properties"/>
       </fileset>
     </jar>
-
+-->
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
