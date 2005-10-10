@@ -58,9 +58,10 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
     private IndexSlots indexSlots;
     private final static int MAX_SLOTS_PER_DAY = 100;
     
-    public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
+//    public int getThreadType() { 
+//        return BoardUpdateThread.BOARD_FILE_DNLOAD; 
+//    }
 
-    
     // TODO: if we fail to upload here, the file to upload should be uploaded next time!
     /**
      * Returns true if no error occured.
@@ -90,10 +91,12 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         logger.info("FILEDN: Starting upload of index file to board " + board.getName()+"; files="+files.size());
 
         FrostIndex frostIndex = new FrostIndex(files);
+        files = null;
         File uploadIndexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
 
         // zip the xml file before upload
         FileAccess.writeZipFile(XMLTools.getRawXMLDocument(frostIndex), "entry", uploadIndexFile);
+        frostIndex = null;
         
         if( !uploadIndexFile.isFile() || uploadIndexFile.length() == 0 ) {
             logger.warning("No index file to upload, save/zip failed.");
@@ -120,6 +123,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         boolean success = false;
 
         try {
+
             // sign zip file if requested
             boolean signUpload = MainFrame.frostSettings.getBoolValue("signUploads");
             byte[] metadata = null;
@@ -130,7 +134,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             }
     
             int tries = 0;
-            int maxTries = 3;
+            final int maxTries = 3;
             int index = indexSlots.findFirstFreeUploadSlot();
             while( !success && 
                    tries < maxTries &&
@@ -149,20 +153,19 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                     success = true;
                     // my files are already added to totalIdx, we don't need to download this index
                     indexSlots.setSlotUsed(index);
-                    logger.info("FILEDN:***** Index file successfully uploaded *****");
+                    logger.info("FILEDN: Index file successfully uploaded.");
                 } else {
                     if( result[0].equals("KeyCollision") ) {
                         index = indexSlots.findNextFreeSlot(index); 
                         tries = 0; // reset tries
-                        logger.info("FILEDN:***** Index file collided, increasing index. *****");
+                        logger.info("FILEDN: Index file collided, increasing index.");
                         continue;
                     } else {
                         String tv = result[0];
                         if( tv == null ) {
                             tv = "";
                         }
-                        logger.info("FILEDN:***** Unknown upload error (#" + tries + ", '" + tv
-                                        + "'), retrying. *****");
+                        logger.info("FILEDN: Unknown upload error (#" + tries + ", '" + tv+ "'), retrying.");
                     }
                 }
                 tries++;
@@ -170,6 +173,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         } catch (Throwable e) {
             logger.log(Level.SEVERE, "Exception in uploadFile", e);
         }
+        logger.info("FILEDN: Index file upload finished, file uploaded state is: "+success);
         return success;
     }
     
@@ -441,16 +445,15 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
      * @param _pubkey
      * @return
      */
-    private Identity addNewSharer(String _sharer, String _pubkey)
-    {
+    private Identity addNewSharer(String _sharer, String _pubkey) {
+        
         //check if the digest matches
         String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
                                                 _sharer.length()).trim();
         String calculatedDigest = Core.getCrypto().digest(_pubkey.trim()).trim();
         calculatedDigest = Mixed.makeFilename( calculatedDigest ).trim();
         
-        if( ! Mixed.makeFilename(given_digest).equals( calculatedDigest ) )
-        {
+        if( ! Mixed.makeFilename(given_digest).equals( calculatedDigest ) ) {
             logger.warning("Warning: public key of sharer didn't match its digest:\n" +
             			   "given digest :'" + given_digest + "'\n" +
             			   "pubkey       :'" + _pubkey.trim() + "'\n" +
@@ -480,7 +483,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 //		maxKeys = MainFrame.frostSettings.getIntValue("maxKeys");
         this.isForToday = isForToday;
         
-        //first load the index with the date we wish to download
+        // first load the index with the date we wish to download
         indexSlots = new IndexSlots(board, date, MAX_SLOTS_PER_DAY);
 
 		publicKey = board.getPublicKey();
@@ -504,14 +507,14 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 		}
 
 		// we make all inserts today (isForCurrentDate)
-		if (board.isPublicBoard() == false && privateKey != null)
+		if (board.isPublicBoard() == false && privateKey != null) {
 			insertKey = new StringBuffer()
 					.append(privateKey)
 					.append("/")
 					.append(date)
 					.append("/")
 					.toString();
-		else
+        } else {
 			insertKey = new StringBuffer()
 					.append("KSK@frost/index/")
 					.append(board.getBoardFilename())
@@ -519,6 +522,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 					.append(date)
 					.append("/")
 					.toString();
+        }
 	}
 
 	/**

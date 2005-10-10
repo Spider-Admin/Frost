@@ -89,14 +89,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		this.frostSettings = frostSettings;
         this.encryptForRecipient = recipient;
         
-        String myId = identities.getMyId().getUniqueName();
-        String sender = message.getFrom();
-        if( ! (sender.equals(myId) // nick same as my identity
-               || sender.equals(Mixed.makeFilename(myId))) )// serialization may have changed it
-        {
-            logger.log(Level.SEVERE, "TOFUP: ALERT - can't encrypt message if sender is Anonymous! Will not send message!");
-        }
-
 		// we only set the date&time if they are not already set
 		// (in case the uploading was pending from before)
         // _OR_ if the date of the message differs from current date, because
@@ -113,8 +105,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
 		// this class always creates a new msg file on hd and deletes the file 
 		// after upload was successful, or keeps it for next try
-		String uploadMe =
-			new StringBuffer()
+		String uploadMe = new StringBuffer()
 				.append(frostSettings.getValue("unsent.dir"))
 				.append("unsent")
 				.append(String.valueOf(System.currentTimeMillis()))
@@ -212,8 +203,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	private String composeDownKey(int index) {
 		String key;
 		if (secure) {
-			key =
-				new StringBuffer()
+			key = new StringBuffer()
 					.append(publicKey)
 					.append("/")
 					.append(board.getBoardFilename())
@@ -224,8 +214,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 					.append(".xml")
 					.toString();
 		} else {
-			key =
-				new StringBuffer()
+			key = new StringBuffer()
 					.append("KSK@frost/message/")
 					.append(frostSettings.getValue("messageBase"))
 					.append("/")
@@ -249,8 +238,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	private String composeUpKey(int index) {
 		String key;
 		if (secure) {
-			key =
-				new StringBuffer()
+			key = new StringBuffer()
 					.append(privateKey)
 					.append("/")
 					.append(board.getBoardFilename())
@@ -261,8 +249,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 					.append(".xml")
 					.toString();
 		} else {
-			key =
-				new StringBuffer()
+			key = new StringBuffer()
 					.append("KSK@frost/message/")
 					.append(frostSettings.getValue("messageBase"))
 					.append("/")
@@ -287,8 +274,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	private String getDestinationBase() {
 		if (destinationBase == null) {
 			String fileSeparator = System.getProperty("file.separator");
-			destinationBase =
-				new StringBuffer()
+			destinationBase = new StringBuffer()
 					.append(keypool)
 					.append(board.getBoardFilename())
 					.append(fileSeparator)
@@ -325,11 +311,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 			secure = false;
 		}
 
-		logger.info(
-			"TOFUP: Uploading message to board '"
-				+ board.getName()
-				+ "' with HTL "
-				+ messageUploadHtl);
+		logger.info("TOFUP: Uploading message to board '" + board.getName() + "' with HTL " + messageUploadHtl);
 
 		// first save msg to be able to resend on crash   
 		if (!saveMessage(message, messageFile)) {
@@ -347,6 +329,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		zipFile.delete(); // just in case it already exists
 		zipFile.deleteOnExit(); // so that it is deleted when Frost exits
 		FileAccess.writeZipFile(FileAccess.readByteArray(messageFile), "entry", zipFile);
+        
+        if( !zipFile.isFile() || zipFile.length() == 0 ) {
+            logger.severe("Error: zip of message xml file failed, result file not existing or empty. Please report to a dev!");
+            return false;
+        }
         
 		// encrypt and sign or just sign the zipped file if necessary
 		String sender = message.getFrom();
@@ -377,6 +364,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     			signMetadata = XMLTools.getRawXMLDocument(md);
             }
 		} else if( encryptForRecipient != null ) {
+            logger.log(Level.SEVERE, "TOFUP: ALERT - can't encrypt message if sender is Anonymous! Will not send message!");
 		    return false; // unable to encrypt
         }
 
@@ -735,7 +723,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     tryAgain = true;
                 }
             } else {
-                //Retry silently
+                // Retry silently
                 tryAgain = true;
             }
         }
