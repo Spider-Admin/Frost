@@ -28,10 +28,6 @@ import javax.swing.UIManager.LookAndFeelInfo;
 import frost.util.gui.MiscToolkit;
 import frost.util.gui.translation.Language;
 
-/**
- * @author $Author$
- * @version $Revision$
- */
 public class Frost {
 
     private static Logger logger = Logger.getLogger(Frost.class.getName());
@@ -43,14 +39,14 @@ public class Frost {
      */
     public static void main(String[] args) {
         System.out.println();
-        System.out.println("Frost, Copyright (C) 2003 Jan-Thomas Czornack");
-        System.out.println("Frost comes with ABSOLUTELY NO WARRANTY");
+        System.out.println("Frost, Copyright (C) 2005 Jan-Thomas Czornack");
+        System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
         System.out.println("Frost uses code from apache.org (Apache license),");
         System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license),");
-        System.out.println("L2FProd.com (Apache license)");
-        System.out.println("and ShiftOne Java Object Cache (LGPL license)");
+        System.out.println("and L2FProd.com (Apache license).");
+//        System.out.println("and ShiftOne Java Object Cache (LGPL license)");
         System.out.println();
 
         parseCommandLine(args);
@@ -126,7 +122,7 @@ public class Frost {
         System.out.println("-lf     Sets the 'Look and Feel' Frost will use.");
         System.out.println("        (overriden by the skins preferences)\n");
         System.out.println("        These ones are currently available:");
-        String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
+//        String lookAndFeel = UIManager.getSystemLookAndFeelClassName();
         LookAndFeelInfo[] feels = UIManager.getInstalledLookAndFeels();
         for (int i = 0; i < feels.length; i++) {
             System.out.println("           " + feels[i].getClassName());
@@ -213,8 +209,8 @@ public class Frost {
             jarFileName = "smtp.jar";
             Class.forName("com.sun.mail.smtp.SMTPTransport");
             // check for jocache.jar
-            jarFileName = "jocache.jar";
-            Class.forName("org.shiftone.cache.CacheConfiguration");
+//            jarFileName = "jocache.jar";
+//            Class.forName("org.shiftone.cache.CacheConfiguration");
         } catch (ClassNotFoundException e1) {
             MiscToolkit.getInstance().showMessage(
                 "Please start Frost using the provided start "
@@ -255,5 +251,4 @@ public class Frost {
         runLock.deleteOnExit();
         return true;
     }
-
 }
