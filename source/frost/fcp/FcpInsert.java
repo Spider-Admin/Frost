@@ -50,28 +50,23 @@ public class FcpInsert
                                         "SizeError",
                                         "DataNotFound"};
 
-    private static String[] result(String text)
-    {
+    private static String[] result(String text) {
         String[] result = new String[2];
         result[0] = "Error";
         result[1] = "Error";
 
         logger.info("*** FcpInsert.result: text='"+text+"'");
         // check if the keyword returned by freenet is a known keyword.
-        for( int i = 0; i < keywords.length; i++ )
-        {
-            if( text.indexOf(keywords[i]) != -1 )
+        for( int i = 0; i < keywords.length; i++ ) {
+            if( text.indexOf(keywords[i]) != -1 ) {
                 result[0] = keywords[i];
+            }
         }
         // check if the returned text contains the computed CHK key (key generation)
-        if( text.indexOf("CHK@") != -1 )
-        {
-            result[1] = text.substring(text.lastIndexOf("CHK@"),
-                                       text.lastIndexOf("EndMessage"));
+        if( text.indexOf("CHK@") != -1 ) {
+            result[1] = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage"));
             result[1] = result[1].trim();
-        }
-        else
-        {
+        } else {
             result[1] = "Error";
         }
         return result;
@@ -83,19 +78,17 @@ public class FcpInsert
      * for inserting e.g. the pubkey.txt file set it to null.
      * This method wraps the calls without the uploadItem.
      */
-    public static String[] putFile(String uri, File file, int htl, boolean doRedirect)
-    {
+    public static String[] putFile(String uri, File file, int htl, boolean doRedirect) {
         return putFile(uri, file, null, htl, doRedirect, null);
     }
     
-    public static String[] putFile(String uri, File file, byte[]metadata, int htl, boolean doRedirect)
-    {
+    public static String[] putFile(String uri, File file, byte[]metadata, int htl, boolean doRedirect) {
         return putFile(uri, file, metadata, htl, doRedirect, null);
     }
     
     /**
      * Inserts a file into freenet.
-     * The maximum file size for a KSK direct insert is 32000! (metadata + data!!!)
+     * The maximum file size for a KSK/SSK direct insert is 32kb! (metadata + data!!!)
      * The uploadItem is needed for FEC splitfile puts, 
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
@@ -122,11 +115,12 @@ public class FcpInsert
             insertLength += metadata.length;
         }
         
-        if( insertLength > 32767 && uri.startsWith("KSK@") ) {
+        if( insertLength > 32767 && (uri.startsWith("KSK@") || uri.startsWith("SSK@")) ) {
             if( doRedirect ) {
                 // Q: splitfile do currently NOT get any metadata applied
             	// A: they don't have metadata by convention
                 return putFECSplitFile(uri, file, htl, ulItem);
+
             } else {
                 // alternativly we could insert the data as CHK and put a redirect into the metadata of the KSK:
                 // (but this would break compatability)
@@ -143,7 +137,7 @@ End
 ----------
 RawDataLength=0 
 */                
-                logger.log(Level.SEVERE, "Error: Data too large for direct KSK key, 32767 allowed: "+insertLength);
+                logger.log(Level.SEVERE, "Error: Data too large for direct KSK/SSK key, 32767 allowed: "+insertLength);
                 JOptionPane.showMessageDialog(MainFrame.getInstance(), 
                          "<html>FcpInsert: Data of file "+file.getPath()+
                          " too large for direct KSK key, 32767 allowed: "+insertLength+
@@ -231,15 +225,12 @@ RawDataLength=0
         splitfile = new FecSplitfile( file );
         
         boolean alreadyEncoded = splitfile.uploadInit();
-        if( alreadyEncoded == false )
-        {
+        if( alreadyEncoded == false ) {
             // should never happen, but for sure we also encode here
             // users could have deleted the .redirect or .checkblocks file
             try {
                 splitfile.encode();
-            }
-            catch(Throwable t)
-            {
+            } catch(Throwable t) {
 				logger.log(Level.SEVERE, "Encoding failed", t);
                 return ERROR;
             }
@@ -250,8 +241,7 @@ RawDataLength=0
         int totalAvailableBlocks = splitfile.getDataBlocks().size() + splitfile.getCheckBlocks().size();;
         int totalFinishedBlocks = 0;
 
-        if( ulItem != null && ulItem.getKey() != null )
-        {
+        if( ulItem != null && ulItem.getKey() != null ) {
             ulItem.setTotalBlocks( totalAvailableBlocks );
             ulItem.setDoneBlocks( 0 );
             ulItem.setState( FrostUploadItem.STATE_PROGRESS );
@@ -259,8 +249,8 @@ RawDataLength=0
         
         // insert blocks per segment. 
         // start next segment if current is finished by 100%
-        for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ )
-        {
+        for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
+
             FecSplitfile.SingleSegmentValues seginf = 
                 (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
             int segmentBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
@@ -273,13 +263,11 @@ RawDataLength=0
             int blocksToUploadCount = blocksToUpload.size();
             
             totalFinishedBlocks += segmentBlockCount - blocksToUploadCount;
-            if( ulItem != null && ulItem.getKey() != null )
-            {
+            if( ulItem != null && ulItem.getKey() != null ) {
                 ulItem.setDoneBlocks( totalFinishedBlocks );
             }
             
-            if( blocksToUploadCount == 0 )
-            {
+            if( blocksToUploadCount == 0 ) {
                 logger.info("Segment " + segmentNo + " is already inserted");
                 continue;
             }

@@ -20,11 +20,11 @@ package frost.fcp;
 
 import java.io.*;
 import java.net.*;
-import java.util.Vector;
-import java.util.logging.Logger;
+import java.util.*;
+import java.util.logging.*;
 
-import freenet.support.Bucket;
-import frost.FileAccess;
+import freenet.support.*;
+import frost.*;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
@@ -32,20 +32,23 @@ import frost.FileAccess;
  */
 public class FcpConnection
 {
-	public final static int NORMAL=0;
-	public final static int DOWNLOADING=1;
-	public final static int PING=2; //ok, I'm not really sure what this does .. yet ;)
+	public final static int NORMAL      = 0;
+	public final static int DOWNLOADING = 1;
+	public final static int PING        = 2; //ok, I'm not really sure what this does .. yet ;)
 	// ... add more types
 	
 	public static int DEFAULT = NORMAL; //not final so that we can change
 	
 	private static Logger logger = Logger.getLogger(FcpConnection.class.getName());
 	
-    final static int TIMEOUT = 900000;
+    // this is the timeout set in Socket.setSoTimeout()
+    // the value was 900000 (15 minutes), but I often saw INSERT errors caused by a timeout in the read socket part.
+    // this sometimes leaded to double inserted messages
+    // we now try with 30 minutes, I don't know if 0 (infinite) would be possible too (could freenet block us forever?)
+    final static int TIMEOUT = 30 * 60 * 1000;
 
     private InetAddress host;
     private int port;
-    private int defaultHtl;
     private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
@@ -61,7 +64,13 @@ public class FcpConnection
      */
     public FcpConnection() throws UnknownHostException, IOException, FcpToolsException
     {
-    this("127.0.0.1", 8481);
+        this("127.0.0.1", 8481);
+    }
+
+    public FcpConnection(String host, String port)
+    throws UnknownHostException, IOException, FcpToolsException
+    {
+        this(host, Integer.parseInt(port));
     }
 
     /**
@@ -76,66 +85,44 @@ public class FcpConnection
     public FcpConnection(String host, int port)
     throws UnknownHostException, IOException, FcpToolsException
     {
-    this(host, port, 40);
+        this.host = InetAddress.getByName(host);
+        this.port = port;
+
+        doHandshake();
     }
 
-    public FcpConnection(String host, String port)
-    throws UnknownHostException, IOException, FcpToolsException
-    {
-    this(host, Integer.parseInt(port), 40);
-    }
-
-    /**
-     * Create a connection to a host using FCP
-     *
-     * @param host the host to which we connect
-     * @param port the FCP port on the host
-     * @param defaultHtl the HTL to use if none is specified
-     * @exception UnknownHostException if the FCP host is unknown
-     * @exception IOException if there is a problem with the connection
-     * to the FCP host.
-     */
-    public FcpConnection(String host, int port, int defaultHtl)
-    throws UnknownHostException, IOException, FcpToolsException
-    {
-    this.defaultHtl = defaultHtl;
-    this.host = InetAddress.getByName(host);
-    this.port = port;
-
-    doHandshake();
-    }
-
-
-    public String[] getInfo() throws IOException, FcpToolsException{
-        Vector result = new Vector();
-
+    public String[] getInfo() throws IOException, FcpToolsException {
+        ArrayList result = new ArrayList();
 
         fcpSock = new Socket(host, port);
-    fcpSock.setSoTimeout(TIMEOUT);
-    fcpOut = new PrintStream(fcpSock.getOutputStream());
-    BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
-    //fcpIn = new BufferedInputStream(fcpSock.getInputStream());
-    //BufferedReader in = new BufferedReader(fcpIn);
-    fcpOut.write(header, 0, header.length);
-    fcpOut.println("ClientInfo");fcpOut.println("EndMessage");
-    String tmp;
-    do {
-        tmp = in.readLine();
-        if (tmp.compareTo("EndMessage")==0) break;
-        result.add(tmp);
-    }
-    while(tmp.compareTo("EndMessage") != 0);
-
-    fcpOut.close();
-    fcpSock.close();
-    in.close();
-    String [] ret = new String[result.size()];
-
-    if (result.isEmpty()) return null;
-    else for (int i=0;i<result.size();i++)
-        ret[i] = (String) result.elementAt(i);
-    return ret;
-
+        fcpSock.setSoTimeout(TIMEOUT);
+        fcpOut = new PrintStream(fcpSock.getOutputStream());
+        BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
+        fcpOut.write(header, 0, header.length);
+        fcpOut.println("ClientInfo");
+        fcpOut.println("EndMessage");
+        String tmp;
+        do {
+            tmp = in.readLine();
+            if (tmp.compareTo("EndMessage") == 0) {
+                break;
+            }
+            result.add(tmp);
+        } while(tmp.compareTo("EndMessage") != 0);
+    
+        in.close();
+        fcpOut.close();
+        fcpSock.close();
+        
+        if (result.isEmpty()) {
+            return null;
+        } else { 
+            String [] ret = new String[result.size()];
+            for (int i=0; i < result.size(); i++) {
+                ret[i] = (String) result.get(i);
+            }
+            return ret;
+        }
     }
 
     /**
@@ -272,7 +259,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                           	  " bytes, " + totalDataLength +
                               " total.");
                 byte [] b = new byte[dataChunkLength];
-                int bytesRead = 0, offset = 0, count;
+                int bytesRead = 0, count;
                 while( bytesRead < dataChunkLength )
                 {
                     count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
@@ -340,22 +327,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		}
 	}
 
-	/**
-	 * Retrieves the specified key and saves it to the file specified.
-	 * 
-	 * @param key
-	 *            the key to be retrieved
-	 * @param filename
-	 *            the filename to which the data should be saved
-	 * @return the results filled with metadata
-	 */
-/*    public FcpResults getKeyToFile(String key, String filename)
-        throws IOException, FcpToolsException
-    {
-        //key = FcpDisconnect(key);
-        return getKeyToFile(key, filename, defaultHtl);
-    }
-*/
     /**
      * Retrieves the specified key and saves it to the file
      * specified.
@@ -365,9 +336,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @param htl the HTL to use in this request
      * @return the results filled with metadata
      */
-    public FcpResults getKeyToFile(String keyString,
-                               String filename,
-                               int htl) throws IOException, FcpToolsException, InterruptedIOException {
+    public FcpResults getKeyToFile(String keyString, String filename, int htl) 
+    throws IOException, FcpToolsException, InterruptedIOException {
         return getKeyToFile( keyString, filename, htl, false );
     }
     /**
@@ -518,7 +488,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                 }
             }    	
                 */
-                int bytesRead = 0, offset = 0, count;
+                int bytesRead = 0, count;
                 while( bytesRead < dataChunkLength )
                 {
                     count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
@@ -655,7 +625,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 			}
 		}
 
-		//    fcpSock.close();
 		dOut.close();
 		fcpOut.close();
 		fcpIn.close();
@@ -680,6 +649,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         byte[] data = FileAccess.readByteArray(filename);
         return putKeyFromArray(key, data, null, htl);
     }
+
     public String putKeyFromFile(String key,
                  String filename,
                  byte[] metadata,
@@ -694,35 +664,32 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      */
     public void doHandshake() throws IOException, FcpToolsException
     {
-    fcpSock = new Socket(host, port);
-    fcpIn = new BufferedInputStream(fcpSock.getInputStream());
-    fcpOut = new PrintStream(fcpSock.getOutputStream());
-    fcpSock.setSoTimeout(TIMEOUT);
-
-    fcpOut.write(header, 0, header.length);
-    fcpOut.println("ClientHello");
-    logger.fine("ClientHello");
-    fcpOut.println("EndMessage");
-	logger.fine("EndMessage");
-
-    String s;
-    FcpKeyword response;
-    int timeout = 0;
-    do
-    {
-        response = FcpKeyword.getFcpKeyword(fcpIn);
-		logger.fine(response.getFullString());
-        try {
-        Thread.sleep(100);
+        fcpSock = new Socket(host, port);
+        fcpIn = new BufferedInputStream(fcpSock.getInputStream());
+        fcpOut = new PrintStream(fcpSock.getOutputStream());
+        fcpSock.setSoTimeout(TIMEOUT);
+    
+        fcpOut.write(header, 0, header.length);
+        fcpOut.println("ClientHello");
+        logger.fine("ClientHello");
+        fcpOut.println("EndMessage");
+    	logger.fine("EndMessage");
+    
+        FcpKeyword response;
+        int timeout = 0;
+        do {
+            response = FcpKeyword.getFcpKeyword(fcpIn);
+    		logger.fine(response.getFullString());
+            try {
+                Thread.sleep(100);
+            } catch(InterruptedException e) {}
+            timeout++;
+        } while (response.getId() != FcpKeyword.EndMessage && timeout < 32);
+        
+        if (timeout == 32) {
+            throw new ConnectionException();
         }
-        catch(InterruptedException e) {}
-        // frost.Core.getOut().print(">");
-        timeout++;
-    } while (response.getId() != FcpKeyword.EndMessage && timeout < 32);
-        //frost.Core.getOut().print("<");
-        if (timeout == 32)
-        throw new ConnectionException();
-    fcpSock.close();
+        fcpSock.close();
     }
 
     /**
@@ -731,58 +698,56 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      */
     public String[] getKeyPair() throws IOException {
 
-    fcpSock = new Socket(host, port);
-    fcpSock.setSoTimeout(TIMEOUT);
-    fcpOut = new PrintStream(fcpSock.getOutputStream());
-    fcpIn = new BufferedInputStream(fcpSock.getInputStream());
-
-    fcpOut.write(header, 0, header.length);
-    fcpOut.println("GenerateSVKPair");
-    fcpOut.println("EndMessage");
-
-    int c;
-    StringBuffer output = new StringBuffer();
-
-    while ((c = fcpIn.read()) != -1) {
-        output.append((char)c);
+        fcpSock = new Socket(host, port);
+        fcpSock.setSoTimeout(TIMEOUT);
+        fcpOut = new PrintStream(fcpSock.getOutputStream());
+        fcpIn = new BufferedInputStream(fcpSock.getInputStream());
+    
+        fcpOut.write(header, 0, header.length);
+        fcpOut.println("GenerateSVKPair");
+        fcpOut.println("EndMessage");
+    
+        int c;
+        StringBuffer output = new StringBuffer();
+    
+        while ((c = fcpIn.read()) != -1) {
+            output.append((char)c);
+        }
+    	logger.fine(output.toString());
+    /*
+        //nio doesn't always close the connection.  workaround:
+        while (true) {
+            c=fcpIn.read();
+            output.append((char)c);
+            if (DEBUG)frost.Core.getOut().print((char)c);
+        if (output.toString().indexOf("EndMessage") !=-1) break;
+        }
+    */
+        fcpOut.close();
+        fcpIn.close();
+        fcpSock.close();
+    
+        String[] result = {"SSK@", "SSK@"};
+        String outString = output.toString();
+        int privateKeyPos = outString.indexOf("PrivateKey=");
+        int publicKeyPos = outString.indexOf("PublicKey=");
+    
+        if (privateKeyPos != -1 && publicKeyPos != -1) {
+        	privateKeyPos += 11;
+        	publicKeyPos += 10;
+    		int privateKeyEnd = outString.indexOf('\n', privateKeyPos);
+    		int publicKeyEnd = outString.indexOf('\n', publicKeyPos);
+        	
+        	if (privateKeyEnd != -1 && publicKeyEnd != -1) {
+            	result[0] += (outString.substring(privateKeyPos, privateKeyEnd));
+            	result[1] += (outString.substring(publicKeyPos, publicKeyEnd)) + "PAgM";
+        	}
+        }
+    
+        return result;
     }
-	logger.fine(output.toString());
-/*
-    //nio doesn't always close the connection.  workaround:
-    while (true) {
-        c=fcpIn.read();
-        output.append((char)c);
-        if (DEBUG)frost.Core.getOut().print((char)c);
-    if (output.toString().indexOf("EndMessage") !=-1) break;
-    }
-*/
-    fcpSock.close();
-    fcpOut.close();
-    fcpIn.close();
-    fcpSock.close();
 
-    String[] result = {"SSK@", "SSK@"};
-    String outString = output.toString();
-    int privateKeyPos = outString.indexOf("PrivateKey=");
-    int publicKeyPos = outString.indexOf("PublicKey=");
-
-    if (privateKeyPos != -1 && publicKeyPos != -1) {
-    	privateKeyPos += 11;
-    	publicKeyPos += 10;
-		int privateKeyEnd = outString.indexOf('\n', privateKeyPos);
-		int publicKeyEnd = outString.indexOf('\n', publicKeyPos);
-    	
-    	if (privateKeyEnd != -1 && publicKeyEnd != -1) {
-        	result[0] += (outString.substring(privateKeyPos, privateKeyEnd));
-        	result[1] += (outString.substring(publicKeyPos, publicKeyEnd)) + "PAgM";
-    	}
-    }
-
-    return result;
-    }
-
-    private String FcpDisconnect(String port) {
-
-    return port;
+    private String FcpDisconnect(String tport) {
+        return tport;
     }
 }
