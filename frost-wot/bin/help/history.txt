@@ -2,6 +2,12 @@
 *** Frost history file ***
  ************************
 
+Pending changes:
+
+Changed: made uploads more reliable (increased socket timeout)
+
+******************************************************************************************
+
 2005.10.11:
 ------------
 (important bugfix release, fixes many internal issues)
