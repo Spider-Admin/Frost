@@ -20,8 +20,6 @@ package frost.fcp;
 import java.util.*;
 
 /**
- * @author zlatinb
- *
  * Selects nodes at random
  */
 public class RandomMultipleNodeManager extends MultipleNodeManager {
@@ -33,9 +31,9 @@ public class RandomMultipleNodeManager extends MultipleNodeManager {
 	 * @see frost.FcpTools.MultipleNodeManager#selectNode()
 	 */
 	protected String selectNode() {
-		if (nodes.size()==0) 
-			throw new Error("all connections to nodes failed. "+
-				"Check your network settings and restart Frost");
+		if (nodes.size()==0) { 
+			throw new Error("all connections to nodes failed. Check your network settings and restart Frost.");
+        }
 		return (String) nodes.elementAt(r.nextInt(nodes.size()));
 	}
 
@@ -53,5 +51,4 @@ public class RandomMultipleNodeManager extends MultipleNodeManager {
 		nodes = new Vector(frost.Core.getNodes());
 		r = new Random();
 	}
-
 }

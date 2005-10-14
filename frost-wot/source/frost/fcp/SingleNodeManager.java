@@ -17,18 +17,18 @@
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
 package frost.fcp;
-import java.io.IOException;
 
+import java.io.IOException;
 import frost.Core;
+
 /**
- * @author zlatinb
- *
  * Creates connections to a single node
  */
 public final class SingleNodeManager implements NodeManager {
 	final static boolean DEBUG = false;
 	String nodeUnparsed;
 	String[] nodeParsed;
+    
 	public void init() {
 		nodeUnparsed = (String) Core.getNodes().iterator().next();
 		nodeParsed = nodeUnparsed.split(":");
@@ -37,13 +37,5 @@ public final class SingleNodeManager implements NodeManager {
 	public FcpConnection getConnection()
 		throws IOException, FcpToolsException {
 		return new FcpConnection(nodeParsed[0], nodeParsed[1]);
-
 	}
-	
-	//we have only one node, so type doesn't matter...
-	public FcpConnection getConnection(int type)
-		throws IOException, FcpToolsException {
-			return getConnection();
-		} 
-
 }

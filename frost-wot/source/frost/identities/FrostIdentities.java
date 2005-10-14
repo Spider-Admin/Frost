@@ -38,8 +38,10 @@ import frost.util.gui.translation.*;
  * lists to repair corrupted lists, the load/save is already done using the BuddyLists!
  * After load and before save we convert the lists to 1 list which is used from within Frost.
  * 
- * This must be removed in a later version, then we can implement load/save directly
+ * TODO: This must be removed in a later version, then we can implement load/save directly
  * in FrostIdentities.
+ * 
+ * TODO: neutral list can become very large, find a way to put them to another datastore.
  */
 public class FrostIdentities implements Savable {
 	

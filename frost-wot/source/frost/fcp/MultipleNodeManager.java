@@ -38,42 +38,33 @@ public abstract class MultipleNodeManager implements NodeManager {
 	 */
 	protected abstract void delegateRemove(String s);
 
-	/* (non-Javadoc)
-		 * @see frost.FcpTools.NodeManager#init()
-		 */
+	public synchronized FcpConnection getConnection()  throws IOException, FcpToolsException {
 
-	public synchronized FcpConnection getConnection()
-		throws IOException, FcpToolsException {
-		return getConnection(FcpConnection.DEFAULT);
-	}
-
-	/* (non-Javadoc)
-		 * @see frost.FcpTools.NodeManager#getConnection(int)
-		 */
-	public synchronized FcpConnection getConnection(int type)
-		throws IOException, FcpToolsException {
 		FcpConnection con = null;
 		String nodeUnparsed;
-		if (frost.Core.getNodes().size()==0) throw new Error("No Freenet nodes available.  You need at least one");
-		if (frost.Core.getNodes().size()==1) nodeUnparsed = (String) frost.Core.getNodes().iterator().next();
-		else
-			nodeUnparsed = selectNode();
+		if (frost.Core.getNodes().size()==0) {
+            throw new Error("No Freenet nodes available.  You need at least one");
+        }
+		if (frost.Core.getNodes().size()==1) {
+            nodeUnparsed = (String) frost.Core.getNodes().iterator().next();
+        } else {
+            nodeUnparsed = selectNode();
+        }
 		String[] node = nodeUnparsed.split(":");
 		logger.info("using node "+ node[0].trim()+" port "+node[1].trim()); //debug test splits
 		try {
 			con = new FcpConnection(node[0].trim(), node[1].trim());
 		} catch (IOException e) {
-			//for now, remove on the first failure.
-			//FIXME: maybe we should give the node few chances? 
-			//also, should we remove it from the settings (i.e. forever)?
+			// for now, remove on the first failure.
+			// FIXME: maybe we should give the node few chances? 
+			// also, should we remove it from the settings (i.e. forever)?
 			delegateRemove(nodeUnparsed);
 			throw e;
 		} catch (FcpToolsException e) {
-			//same here
+			// same here
 			delegateRemove(nodeUnparsed);
 			throw e;
 		}
 		return con;
 	}
-
 }

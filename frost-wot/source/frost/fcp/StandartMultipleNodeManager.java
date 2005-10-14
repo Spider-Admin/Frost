@@ -20,16 +20,14 @@ package frost.fcp;
 
 import java.util.*;
 
-
 /**
- * @author zlatinb
- *
  * not exactly RoundRobinning node manager
  */
 public class StandartMultipleNodeManager extends MultipleNodeManager {
 
 	boolean forward;
 	ListIterator it;
+
 	public void init() {
 		it = (new LinkedList(frost.Core.getNodes())).listIterator();
 		forward = true;
@@ -38,30 +36,33 @@ public class StandartMultipleNodeManager extends MultipleNodeManager {
 	protected void delegateRemove(String node) {
 		it.remove();
 	}
+
 	protected String selectNode() {
 		
 		//first, if the list is empty throw something
-		if (frost.Core.getNodes().size()==0)
+		if (frost.Core.getNodes().size()==0) {
 			throw new Error("no nodes registered!  You need to have at least one");
+        }
 			
 		//second, avoid stupid endless recursion
-		if (frost.Core.getNodes().size()==1)
+		if (frost.Core.getNodes().size()==1) {
 			return (String) frost.Core.getNodes().iterator().next(); //use a different iterator
+        }
 		
 		if( forward) {
-			if (it.hasNext())
-						return (String)it.next();
-			else
+			if (it.hasNext()) {
+                return (String)it.next();
+            } else {
 				forward = false;
+            }
 		}
 		
-		if (it.hasPrevious())
+		if (it.hasPrevious()) {
 			return (String)it.previous();
-		else 
+        } else { 
 			forward=true;
-			
-		return selectNode(); //recursion....
-		
-	}
+        }
 
+		return selectNode(); //recursion....
+	}
 }

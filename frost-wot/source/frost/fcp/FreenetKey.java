@@ -18,10 +18,7 @@
 */
 package frost.fcp;
 
-public class FreenetKey
-{
-
-    private static boolean DEBUG = true;
+public class FreenetKey {
 
     public static final int CHK = 0;
     public static final int KSK = 1;
@@ -31,48 +28,43 @@ public class FreenetKey
     private int keyType;
     private String keyString;
   
-    public FreenetKey(String key)
-    {
-	keyType = getKeyType(key);
-	keyString = key;
+    public FreenetKey(String key) {
+    	keyType = getKeyType(key);
+    	keyString = key;
     }
 
     private static int getKeyType(String key)
     {
-	String freenetPrefix = "freenet:";
-	int keyType;
+    	String freenetPrefix = "freenet:";
+    	int keyType;
+        
+    	if (key.startsWith(freenetPrefix)) {
+    	    key = key.substring(freenetPrefix.length());
+    	}
     
-	if (key.startsWith(freenetPrefix))
-	{
-	    key = key.substring(freenetPrefix.length());
-	}
-
-	// determine the key type, assume a KSK
-	if (key.startsWith("CHK"))
-	    keyType = CHK;
-	else if (key.startsWith("SSK"))
-	    keyType = SSK;
-	else if (key.startsWith("MSK"))
-	    keyType = MSK;
-	else 
-	    keyType = KSK;
-    
-	return keyType;
+    	// determine the key type, assume a KSK
+    	if (key.startsWith("CHK")) {
+    	    keyType = CHK;
+        } else if (key.startsWith("SSK")) {
+    	    keyType = SSK;
+        } else if (key.startsWith("MSK")) {
+    	    keyType = MSK;
+        } else { 
+    	    keyType = KSK;
+        }
+        
+    	return keyType;
     }
 
-    public String getKeyString()
-    {
-	return keyString;
+    public String getKeyString() {
+        return keyString;
     }
 
-    public String toString()
-    {
-	return getKeyString();
+    public String toString() {
+        return getKeyString();
     }
 
-    public int getKeyType()
-    {
-	return keyType;
+    public int getKeyType() {
+        return keyType;
     }
-
 }
