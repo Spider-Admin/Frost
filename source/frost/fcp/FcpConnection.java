@@ -32,20 +32,15 @@ import frost.*;
  */
 public class FcpConnection
 {
-	public final static int NORMAL      = 0;
-	public final static int DOWNLOADING = 1;
-	public final static int PING        = 2; //ok, I'm not really sure what this does .. yet ;)
-	// ... add more types
-	
-	public static int DEFAULT = NORMAL; //not final so that we can change
-	
 	private static Logger logger = Logger.getLogger(FcpConnection.class.getName());
 	
-    // this is the timeout set in Socket.setSoTimeout()
-    // the value was 900000 (15 minutes), but I often saw INSERT errors caused by a timeout in the read socket part.
-    // this sometimes leaded to double inserted messages
-    // we now try with 30 minutes, I don't know if 0 (infinite) would be possible too (could freenet block us forever?)
-    final static int TIMEOUT = 30 * 60 * 1000;
+    // This is the timeout set in Socket.setSoTimeout().
+    // The value was 900000 (15 minutes), but I often saw INSERT errors caused by a timeout in the read socket part;
+    //   this sometimes leaded to double inserted messages.
+    // Using infinite (0) is'nt a good idea, because due to freenet bugs it happened in the past that
+    //   the socket blocked forever. 
+    // We now use with 60 minutes to be sure. mxbee (fuqid developer) told that he would maybe use 90 minutes!
+    final static int TIMEOUT = 60 * 60 * 1000;
 
     private InetAddress host;
     private int port;

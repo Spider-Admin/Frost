@@ -20,12 +20,9 @@ package frost.fcp;
 import java.io.IOException;
 
 /**
- * 
- * @author zlatinb
- *
  * controls the available nodes
  */
-interface NodeManager{
+interface NodeManager {
 	
 	public void init();
 	
@@ -36,13 +33,4 @@ interface NodeManager{
 	 * @throws FcpToolsException when an FcpTools exception happens ;-)
 	 */
 	public FcpConnection getConnection() throws IOException, FcpToolsException;
-	
-	/**
-		 *  Creates a FcpConnection to one of the available Freenet nodes transparently to the user
-		 * @param type The type of this connection.  Types are defined in FcpConnection
-		 * @return the FcpConnection
-		 * @throws IOException when an IOException happens
-		 * @throws FcpToolsException when an FcpTools exception happens ;-)
-		 */
-		public FcpConnection getConnection(int type) throws IOException, FcpToolsException;	
 }
