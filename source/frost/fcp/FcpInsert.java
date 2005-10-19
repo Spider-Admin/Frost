@@ -19,14 +19,14 @@
 package frost.fcp;
 
 import java.io.*;
-import java.net.UnknownHostException;
+import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-import javax.swing.JOptionPane;
+import javax.swing.*;
 
 import frost.*;
-import frost.fileTransfer.upload.FrostUploadItem;
+import frost.fileTransfer.upload.*;
 
 /**
  * This class provides methods to insert data into freenet.
@@ -108,8 +108,8 @@ public class FcpInsert
 							 JOptionPane.WARNING_MESSAGE);
 			return new String[]{"Error","Error"};
         }
-        // Q: can this 32K be enlarged? to same as for CHK keys (1MiB)?
-        // A: no, its hardcoded in freenet
+        // Q: can this 32K be enlarged? to same as for CHK keys?
+        // A: no, its hardcoded in freenet, each keytype except CHK is limited to 32kb size (data+metadata).
         long insertLength = file.length();
         if( metadata != null ) {
             insertLength += metadata.length;
@@ -146,17 +146,15 @@ RawDataLength=0
                          JOptionPane.ERROR_MESSAGE);
                 return new String[]{"Error", "Error"};
             }
-        }
-        else
-        {
-            if( file.length() <= smallestChunk )
-            {
+        } else {
+
+            if( file.length() <= smallestChunk ) {
                 // put file directly
-                try
-                {
+                try {
                     FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-                    if( connection == null )
+                    if( connection == null ) {
                         return new String[] { "Error", "Error" };
+                    }
 
 					//please remove this workaround when the freenet devs fix the FCP insert 
 					//returning empty string bug
@@ -164,32 +162,24 @@ RawDataLength=0
 					String output = new String();
 					do {
 						output = connection.putKeyFromFile(uri, file.getPath(), metadata, htl);
-                        if( output.length() < 5 ) //actually the length is 1, but just in case...
-                        {
+                        if( output.length() < 5 ) { //actually the length is 1, but just in case...
                             logger.warning("Freenet insert failed, maybe a bug. Trying again...");
                             Mixed.wait(333);
-                        }
-                        else
-                        {
+                        } else {
                             logger.info("output from fcp insert : "+output);
                         }
 					} while (output.length() < 5);
                     	
-                   // * * * end workaround for FCP bug ***  	
+                    // * * * end workaround for FCP bug ***  	
                     return result(output);
-                }
-                catch( UnknownHostException e )
-                {
+
+                } catch( UnknownHostException e ) {
 					logger.log(Level.SEVERE, "UnknownHostException", e);
-                }
-                catch( IOException e )
-                {
-					logger.log(Level.SEVERE, "IOException", e);
+                } catch( Throwable e ) {
+					logger.log(Level.SEVERE, "Throwable", e);
                 }
                 return result("");
-            }
-            else
-            {
+            } else {
                 // file is too big, put as FEC splitfile
                 return putFECSplitFile(uri, file, htl, ulItem);
             }
@@ -247,21 +237,26 @@ RawDataLength=0
             ulItem.setState( FrostUploadItem.STATE_PROGRESS );
         }
         
-        // insert blocks per segment. 
-        // start next segment if current is finished by 100%
+        LinkedList allBlocksToUpload = new LinkedList();
+
         for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
 
             FecSplitfile.SingleSegmentValues seginf = 
                 (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
-            int segmentBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
-            ArrayList blocksToUpload = getBlocksInSegmentWithState(splitfile.getDataBlocks(), 
+            
+            ArrayList blocksToUpload;
+            
+            blocksToUpload = getBlocksInSegmentWithState(splitfile.getDataBlocks(), 
                 segmentNo, 
                 FecBlock.STATE_TRANSFER_WAITING);
+            
             blocksToUpload.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(), 
                 segmentNo, 
                 FecBlock.STATE_TRANSFER_WAITING) );
+
             int blocksToUploadCount = blocksToUpload.size();
             
+            int segmentBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
             totalFinishedBlocks += segmentBlockCount - blocksToUploadCount;
             if( ulItem != null && ulItem.getKey() != null ) {
                 ulItem.setDoneBlocks( totalFinishedBlocks );
@@ -271,102 +266,72 @@ RawDataLength=0
                 logger.info("Segment " + segmentNo + " is already inserted");
                 continue;
             }
-            
-            int maxThreads = MainFrame.frostSettings.getIntValue("splitfileUploadThreads");
-            
-            // we need to insert some more blocks of this segment
-            Collections.shuffle( blocksToUpload );
-            // start configured amount of aplitfile threads
-            int actBlockIx = 0;
-            Vector runningThreads = new Vector(maxThreads);
-            
-            while( blocksToUploadCount > 0 &&
-                   actBlockIx < blocksToUpload.size() )
-            {
-                // check if threads are finished
-                boolean threadsFinished = false;
-                for( int y=runningThreads.size()-1; y >= 0; y-- )
-                {
-                    PutKeyThread pkt = (PutKeyThread)runningThreads.get(y);
-                    if( pkt.isAlive() == false )
-                    {
-                        if( pkt.getSuccess() == true )
-                        {
-                            totalFinishedBlocks++;
-                            blocksToUploadCount--;
-                            if( ulItem != null && ulItem.getKey() != null )
-                            {                                
-                                ulItem.setDoneBlocks( totalFinishedBlocks );
-                            }
-                            // now done in thread
-                            // splitfile.createRedirectFile(true);
-                        }
-                        runningThreads.remove(y);
-                        threadsFinished = true;
-                    }
-                }
-                if( threadsFinished == true )
-                    continue;
+
+            allBlocksToUpload.addAll( blocksToUpload );
+        }        
+
+        // insert all blocks
+        
+        ArrayList runningThreads = new ArrayList();
+        
+        while( allBlocksToUpload.size() > 0 || runningThreads.size() > 0 ) {
+
+            // check if threads are finished
+            boolean threadsFinished = false;
+            for( int y=runningThreads.size()-1; y >= 0; y-- ) {
                 
-                int maxThreadsNeeded = blocksToUploadCount;
-                int threadCountAllowedToStart = maxThreads - runningThreads.size();
-                if( maxThreadsNeeded > 0 && threadCountAllowedToStart > 0 )
-                {
-                    FecBlock block = (FecBlock)blocksToUpload.get(actBlockIx);
-                    actBlockIx++;
-                    PutKeyThread thread = new PutKeyThread( splitfile, block, htl, uri );
-                    runningThreads.add( thread );
-                    thread.start();
-                    Mixed.wait(111); // dont hurt node
-                    continue;
-                }
-                // now we are here, no thread allowed to start, so we wait 
-                Mixed.wait(1000); 
-            }
-            // wait for all running threads to finish
-            while( runningThreads.size() > 0 )
-            {
-                // check if threads are finished
-                boolean threadsFinished = false;
-                for( int y=runningThreads.size()-1; y >= 0; y-- )
-                {
-                    PutKeyThread pkt = (PutKeyThread)runningThreads.get(y);
-                    if( pkt.isAlive() == false )
-                    {
-                        if( pkt.getSuccess() == true )
-                        {
-                            totalFinishedBlocks++;
-                            blocksToUploadCount--;
-                            if( ulItem != null && ulItem.getKey() != null )
-                            {
-                                ulItem.setDoneBlocks( totalFinishedBlocks );
-                            }
-                            // now done in thread
-                            // splitfile.createRedirectFile(true);
+                PutKeyThread pkt = (PutKeyThread)runningThreads.get(y);
+                if( pkt.isAlive() == false ) {
+                    if( pkt.getSuccess() == true ) {
+                        totalFinishedBlocks++;
+                        // don't add block back to list
+                        if( ulItem != null && ulItem.getKey() != null ) {                                
+                            ulItem.setDoneBlocks( totalFinishedBlocks );
                         }
-                        runningThreads.remove(y);
-                        threadsFinished = true;
+                        // now done in thread
+                        // splitfile.createRedirectFile(true);
+                    } else {
+                        // no success, append block to end of list
+                        allBlocksToUpload.addLast(pkt.getBlock());
                     }
+                    runningThreads.remove(y);
+                    threadsFinished = true; // blocksToUploadCount changed, recheck
                 }
-                if( threadsFinished == true )
-                    continue;
-                Mixed.wait(1000);
             }
-            // go on with next segment
+            if( threadsFinished == true ) {
+                continue;
+            }
+            
+            // start one thread with next block in queue
+            int maxThreads = MainFrame.frostSettings.getIntValue("splitfileUploadThreads"); // allows dynamic change
+            int maxThreadsNeeded = allBlocksToUpload.size();
+            int threadCountAllowedToStart = maxThreads - runningThreads.size();
+            if( maxThreadsNeeded > 0 && threadCountAllowedToStart > 0 ) {
+                FecBlock block = (FecBlock)allBlocksToUpload.removeFirst(); 
+                PutKeyThread thread = new PutKeyThread( splitfile, block, htl, uri );
+                runningThreads.add( thread );
+                thread.start();
+                Mixed.wait(1111); 
+                continue;
+            }
+            // wait before next loop
+            // NICE: we could use notify/wait on a synced queue here instead of polling
+            Mixed.wait(2500); 
         }
+
+        // ** Upload of blocks must be completely finished here! **
         
         // paranoia: get generated key to check against freenets generated key for redirect file
         String chkKey = null;
-        if( ulItem != null )
-        { 
+        if( ulItem != null ) { 
             chkKey = ulItem.getKey();
         }
         
         // upload redirect file
         boolean success = false;
         FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if( connection != null )
-        {
+        if( connection != null ) {
+
             // create normal redirect file for uploading
             splitfile.createRedirectFile(false);
             try {
@@ -376,9 +341,9 @@ RawDataLength=0
                     htl);
                 String[] result = result(resultstr);
                                      
-                if( chkKey != null && result[1].indexOf(chkKey) < 0 )
-                {
-                    logger.warning("Error: the CHK keys for redirect file generated by frost and freenet differ:\n" +
+                if( chkKey != null && result[1].indexOf(chkKey) < 0 ) {
+
+                    logger.severe("Error: the CHK keys for redirect file generated by frost and freenet differ:\n" +
                     			   "FreeNet Key ='" + result[1] + "'\n" +
                     			   "Frost Key   ='" + chkKey + "'");
                     
@@ -391,9 +356,7 @@ RawDataLength=0
                                                    text.lastIndexOf("EndMessage"));
                         result[1] = result[1].trim();
                     }*/
-                }
-                else if( chkKey == null ) // attachment upload
-                {
+                } else if( chkKey == null ) { // attachment upload
                     // attachment uploaded, get key from freenet insert
                     chkKey = result[1];
                 }
@@ -402,30 +365,24 @@ RawDataLength=0
                     result[0].equals("KeyCollision") )
                 {
                     success = true;
+                } else {
+					logger.severe("Could not upload redirect file: " + result);
                 }
-                else
-                {
-					logger.warning("Could not upload redirect file: " + result);
-                }
-            }
-            catch( IOException e ) {
+            } catch( Throwable e ) {
                 success = false;
 				logger.log(Level.SEVERE, "Error uploading redirect file", e);
             }
         }
         
         // if we tried to upload a file not contained in upload table, remove work files
-        if( ulItem == null )
-        {
+        if( ulItem == null ) {
             splitfile.finishUpload(true);
-        }
-        else // keep workfiles for next insert
-        {
+        } else { // keep workfiles for next insert
             splitfile.finishUpload(false);
         }
         
-        if( success == true )
-        {
+        if( success == true ) {
+
             logger.info("Redirect successfully uploaded.");
             // return this to keep old behaviour ...
             return new String[]{"Success",chkKey};
@@ -461,48 +418,33 @@ RawDataLength=0
             {
             }*/
         }
-        else
-        {
+        else {
             return ERROR;
         }
     }
     
-    private static int getActiveThreads(Thread[] threads)
-    {
-        int count = 0;
-        for( int i = 0; i < threads.length; i++ )
-        {
-            if( threads[i] != null )
-            {
-                if( threads[i].isAlive() )
-                    count++;
-            }
-        }
-        return count;
-    }
-    
-    private static class PutKeyThread extends Thread
-    {
+    private static class PutKeyThread extends Thread {
+        
         FecBlock block;
         int htl;
         boolean success;
         String uri;
         FecSplitfile splitfile;
-        public PutKeyThread(FecSplitfile sf, FecBlock b, int h, String u)
-        {
+        
+        public PutKeyThread(FecSplitfile sf, FecBlock b, int h, String u) {
             block = b;
             htl = h;
             uri = u;
             splitfile = sf;
         }
-        public void run()
-        {
+        
+        public void run() {
+
             block.setCurrentState(FecBlock.STATE_TRANSFER_RUNNING);
             
             this.success = false;
             FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-            if( connection != null )
-            {
+            if( connection != null ) {
                 try {
                     String result = connection.putKeyFromArray(uri,//"CHK@", //block.getChkKey(),
                         block.getPaddedMemoryArray(),
@@ -512,33 +454,32 @@ RawDataLength=0
                     {
                         success = true;
                     }
-                }
-                catch( IOException e ) {
+                } catch( Throwable e ) {
+                    logger.log(Level.WARNING, "Error during insert: ", e);
                     success = false;
                 }
             }
-            if( success == true )
-            {
+            if( success == true ) {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_FINISHED);
                 splitfile.createRedirectFile(true);
-            }
-            else
-            {
+            } else {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_WAITING);
                 // no need to update redirect file
             }
         }
-        public boolean getSuccess()
-        {
+        
+        public boolean getSuccess() {
             return success;
+        }
+
+        public synchronized FecBlock getBlock() {
+            return block;
         }
     }
     
-    private static ArrayList getBlocksInSegmentWithState(List allBlocks, int segno, int state)
-    {
+    private static ArrayList getBlocksInSegmentWithState(List allBlocks, int segno, int state) {
         ArrayList l = new ArrayList();
-        for( int x=0; x<allBlocks.size(); x++ )
-        {
+        for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);
             if( b.getSegmentNo() == segno &&
                 b.getCurrentState() == state )
