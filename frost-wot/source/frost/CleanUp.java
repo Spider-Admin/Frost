@@ -19,44 +19,227 @@
 
 package frost;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
+
+import frost.gui.objects.*;
 
 /**
- * Clean up the keypool.
+ * TODO: archive identities.xml too
  * 
- * Deletes all files with a LastModifiedDate that is before maxMessageDisplay.
- * Deletes all empty directories.
+ * Clean up the keypool.
  */
 public class CleanUp {
 
     private static Logger logger = Logger.getLogger(CleanUp.class.getName());
+    
+    public static final int DELETE_MESSAGES  = 1;
+    public static final int ARCHIVE_MESSAGES = 2;
+    public static final int KEEP_MESSAGES = 3;
+    
+    /**
+     * Cleans the keypool during runtime of Frost.
+     * Deletes all expired files in keypool.
+     * Gets the mode to use from settings.
+     */
+    public static void processExpiredFiles(List boardList) {
+        int mode;
+        String strMode = Core.frostSettings.getValue("messageExpirationMode");
+        if( strMode.toUpperCase().equals("KEEP") ) {
+            mode = KEEP_MESSAGES;
+        } else if( strMode.toUpperCase().equals("ARCHIVE") ) {
+            mode = ARCHIVE_MESSAGES;
+        } else if( strMode.toUpperCase().equals("DELETE") ) {
+            mode = DELETE_MESSAGES;
+        } else {
+            mode = KEEP_MESSAGES;
+        }
+        processExpiredFiles(boardList, mode);
+    }    
 
     /**
      * Cleans the keypool during runtime of Frost.
      * Deletes all expired files in keypool.
      */
-    public static void deleteExpiredFiles(File keypoolFolder) {
-
+    private static void processExpiredFiles(List boardList, int mode) {
+        
+        String archiveDir;
+        
+        if( mode == ARCHIVE_MESSAGES ) {
+            logger.info("Expiration mode is ARCHIVE_MESSAGES.");
+            archiveDir = Core.frostSettings.getValue("archive.dir");
+            if( archiveDir == null || archiveDir.length() == 0 ) {
+                logger.severe("ERROR: no ARCHIVE DIR specified!");
+                return;
+            }
+            // append messages subfolder
+            archiveDir += ("messages" + File.separator);
+            
+            File f = new File(archiveDir);
+            if( f.isDirectory() == false ) {
+                boolean ok = f.mkdirs();
+                if( ok == false ) {
+                    logger.severe("ERROR: could not create archive directory: "+f.getPath());
+                    return;
+                }
+            }
+            
+        } else if( mode == DELETE_MESSAGES ) {
+            logger.info("Expiration mode is DELETE_MESSAGES.");
+            archiveDir = null;
+        } else if( mode == KEEP_MESSAGES ) {
+            logger.info("Expiration mode is KEEP_MESSAGES.");
+            archiveDir = null;
+        } else {
+            logger.severe("ERROR: invalid MODE specified: "+mode);
+            return;
+        }
+        
+        // ALWAYS delete expired indices files
+        deleteExpiredIndicesFiles(boardList);
+        
+        if( mode == KEEP_MESSAGES ) {
+            // we are finished now
+            return;
+        }
+        
         // take maximum
-        long daysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
+        int defaultDaysOld = Core.frostSettings.getIntValue("messageExpireDays") + 1;
 
-        // TODO: we should check all sepcial board settings for maxMessageDisplay,
-        // because if someone set 60 days for this and 30 days msgExpire, then we
-        // maybe delete a message that is currently shown, and if it is selected
-        // some error will occur. A reload fixes this.
-        // Alternative: check in options that expire date is always higher than maxMsgDisplay
-        if( daysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
-            daysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
+        if( defaultDaysOld < Core.frostSettings.getIntValue("maxMessageDisplay") ) {
+            defaultDaysOld = Core.frostSettings.getIntValue("maxMessageDisplay") + 1;
         }
-        if( daysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
-            daysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
+        if( defaultDaysOld < Core.frostSettings.getIntValue("maxMessageDownload") ) {
+            defaultDaysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
         }
-        logger.info("Starting to delete all expired files older than "+daysOld+" days.");
-        long expiration = new Date().getTime() - (daysOld * 24 * 60 * 60 * 1000);
-        recursDir(keypoolFolder, expiration);
-        logger.info("Finished to delete all expired files older than "+daysOld+" days.");
+
+        for(Iterator i=boardList.iterator(); i.hasNext(); ) {
+            
+            int currentDaysOld = defaultDaysOld;
+            Board board = (Board)i.next();
+            if( board.isConfigured() && board.getMaxMessageDisplay() > currentDaysOld ) {
+                currentDaysOld = board.getMaxMessageDisplay();
+            }
+
+            File boardFolder = new File(MainFrame.keypool + board.getBoardFilename());
+            if( boardFolder.isDirectory() == false ) {
+                logger.warning("No board folder for board "+board.getName());
+                continue;
+            }
+
+            if( mode == DELETE_MESSAGES ) {
+                
+                logger.info("Starting to DELETE all expired files in folder "+board.getBoardFilename()+
+                        " older than "+currentDaysOld+" days.");
+
+                int deleted = processExpiredMessages(boardFolder, currentDaysOld, mode, archiveDir);
+                
+                logger.info("Finished to DELETE expired indices files in folder "+boardFolder.getName()+
+                        "deleted "+deleted+" files.");
+                
+            } else if( mode == ARCHIVE_MESSAGES ) {
+                
+                logger.info("Starting to ARCHIVE all expired files in folder "+board.getBoardFilename()+
+                        " older than "+currentDaysOld+" days into archive folder "+archiveDir+".");
+                
+                int deleted = processExpiredMessages(boardFolder, currentDaysOld, mode, archiveDir);
+                
+                logger.info("Finished to ARCHIVE expired indices files in folder "+boardFolder.getName()+
+                        "deleted "+deleted+" files.");
+            } 
+        }
+        logger.info("Finished to process expired files.");
+    }
+    
+    private static int processExpiredMessages(File boardFolder, int daysOld, int mode, String archiveDir) {
+
+        int deleted = 0;
+        
+        String minDate = DateFun.getExtendedDate(daysOld);
+
+        File[] boardFolderFiles = boardFolder.listFiles();
+        for(int x=0; x < boardFolderFiles.length; x++) {
+            File boardFolderFile = boardFolderFiles[x];
+            if( boardFolderFile.isDirectory() ) {
+                String boardDateFolder = boardFolderFile.getName(); // "2005.9.1"
+                String extDate = DateFun.buildExtendedDate(boardDateFolder); // "2005.09.01"
+                if( extDate == null ) {
+                    continue;
+                }
+                if( extDate.compareTo( minDate ) < 0 ) {
+                    // expired date folder
+                    // delete all contained ".xml" files
+                    File[] boardDateFolderFiles = boardFolderFile.listFiles();
+                    for(int y=0; y < boardDateFolderFiles.length; y++) {
+                        File boardDateFolderFile = boardDateFolderFiles[y];
+                        if( boardDateFolderFile.isFile() && boardDateFolderFile.getName().endsWith(".xml") ) {
+                            // process this expired message
+                            if( mode == ARCHIVE_MESSAGES ) {
+                                String srcfile = boardDateFolderFile.getPath();
+                                String targetfile = archiveDir + // "archive/messages/" 
+                                                    boardFolder.getName() +   // "frost"
+                                                    File.separator + boardFolderFile.getName()+ // "/2005.9.1"
+                                                    File.separator +boardDateFolderFile.getName(); // "/msg.xml"
+                                File tfile = new File(targetfile);
+                                tfile.getParentFile().mkdirs();
+                                
+                                boolean copyOk = FileAccess.copyFile(srcfile, targetfile);
+                                if( copyOk == false ) {
+                                    logger.severe("Copy of file to archive failed, source="+srcfile+"; target="+targetfile);
+                                    logger.severe("Processing stopped.");
+                                    return deleted;
+                                }
+                            }
+                            if( boardDateFolderFile.delete() == true ) {
+                                deleted++;
+                            }
+                        }
+                    }
+                }
+            }
+        }
+        return deleted;
+    }
+    
+    /**
+     * Deletes ALL expired indices files.
+     * Expired means outdated file expiration time. 
+     */
+    private static void deleteExpiredIndicesFiles(List boardList) {
+        // keep indices files for maxMessageDownload*2 days, but at least 10 days
+        long maxDaysOld = Core.frostSettings.getIntValue("maxMessageDownload") * 2;
+        if( maxDaysOld < 10 ) {
+            maxDaysOld = 10;
+        }
+        long expiration = new Date().getTime() - (maxDaysOld * 24 * 60 * 60 * 1000);
+        
+        for(Iterator i=boardList.iterator(); i.hasNext(); ) {
+            
+            Board board = (Board)i.next();
+            
+            logger.info("Starting to delete all expired indices files in folder "+board.getBoardFilename()+
+                    " with a modified date older than "+maxDaysOld+" days.");
+
+            File boardFolder = new File(MainFrame.keypool + board.getBoardFilename());
+            if( boardFolder.isDirectory() == false ) {
+                logger.warning("No board folder for board "+board.getName());
+                continue;
+            }
+
+            int deleted = 0;
+            File[] boardFolderFiles = boardFolder.listFiles();
+            for(int x=0; x < boardFolderFiles.length; x++) {
+                File f = boardFolderFiles[x];
+                if( f.isFile() && f.getName().startsWith("indices") && f.lastModified() < expiration ) {
+                    if( f.delete() == true ) {
+                        deleted++;
+                    }
+                }
+            }
+            logger.info("Finished to delete expired indices files in folder "+board.getBoardFilename()+
+                    ", deleted "+deleted+" files.");
+        }
     }
     
     /**
@@ -101,23 +284,23 @@ public class CleanUp {
      * Must not delete directories (could be a target for a running download,...). 
      * @param dirItem  Folder for recursion
      */
-    private static void recursDir(File dirItem, long expiration) {
-        
-        if( dirItem.isDirectory() ) {
-            
-            File[] list = dirItem.listFiles();
-            if( list == null ) {
-                return;
-            }
-            for( int i = 0; i < list.length; i++ ) {
-                File f = list[i];
-                recursDir( f, expiration );
-            }
-        } else {
-            // its a file
-            if( dirItem.lastModified() < expiration ) {
-                dirItem.delete();
-            }
-        }
-    }
+//    private static void recursDir(File dirItem, long expiration) {
+//        
+//        if( dirItem.isDirectory() ) {
+//            
+//            File[] list = dirItem.listFiles();
+//            if( list == null ) {
+//                return;
+//            }
+//            for( int i = 0; i < list.length; i++ ) {
+//                File f = list[i];
+//                recursDir( f, expiration );
+//            }
+//        } else {
+//            // its a file
+//            if( dirItem.lastModified() < expiration ) {
+//                dirItem.delete();
+//            }
+//        }
+//    }
 }

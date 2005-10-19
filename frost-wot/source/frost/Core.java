@@ -52,8 +52,6 @@ import frost.util.gui.translation.*;
  * 
  * @pattern Singleton
  * 
- * @author $Author$
- * @version $Revision$
  */
 public class Core implements Savable, FrostEventDispatcher  {
 	
@@ -122,9 +120,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 	private FrostIdentities identities;
 	private String keypool;
 
-	/**
-	 * 
-	 */
 	private Core() {
 		frostSettings = new SettingsClass();
 		initializeLanguage();
@@ -150,8 +145,9 @@ public class Core implements Savable, FrostEventDispatcher  {
 			frostSettings.setValue("availableNodes", converted.trim());
 		} else { // new format
 			String[] _nodes = nodesUnparsed.split(",");
-			for (int i = 0; i < _nodes.length; i++)
+			for (int i = 0; i < _nodes.length; i++) {
 				nodes.add(_nodes[i]);
+            }
 		}
 		if (nodes.size() == 0) {
 			MiscToolkit.getInstance().showMessage(
@@ -571,12 +567,8 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
         Startup.startupCheck(frostSettings, keypool);
-//        FileAccess.cleanKeypool(keypool); // not longer needed
-        if( frostSettings.getBoolValue("deleteExpiredMessages") ) {
-            File keypoolFolder = new File(keypool);
-            CleanUp.deleteExpiredFiles(keypoolFolder);
-            CleanUp.deleteEmptyBoardDateDirs(keypoolFolder);
-        }
+        // nothing was started until now, its the perfect time to delete all empty date dirs in keypool...
+        CleanUp.deleteEmptyBoardDateDirs( new File(keypool) );
         
 		splashscreen.setText(language.getString("Hypercube fluctuating!"));
 		splashscreen.setProgress(40);
@@ -663,7 +655,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 		loadBatches();
 		loadKnownBoards();
 
-		// Start tofTree
 		if (isFreenetOnline()) {
 			resendFailedMessages();
 		}
@@ -673,6 +664,10 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         splashscreen.setText(language.getString("Reaching ridiculous speed..."));
         splashscreen.setProgress(80);
+
+        // toftree must be loaded before expiration can run!
+        // (cleanup gets the expiration mode from settings itself)
+        CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
 
 		initializeTasks(mainFrame);
 
@@ -731,12 +726,12 @@ public class Core implements Savable, FrostEventDispatcher  {
 			public void run() {
 				// maybe each 6 hours cleanup files
 				if (frostSettings.getBoolValue("deleteExpiredMessages")) {
-					logger.info("discarding expired files");
-                    CleanUp.deleteExpiredFiles(new File(keypool));
+					logger.info("Timer cleaner: Starting to process expired files.");
+                    CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
 				}
 			}
 		};
-		timer.schedule(cleaner, 6*60*60*1000, 6*60*60*1000); // 6 hrs interval
+		timer.schedule(cleaner, 6*60*60*1000, 6*60*60*1000); // 6 hrs interval, did run during startup
         cleaner = null;
 
         // initialize the task that frees memory

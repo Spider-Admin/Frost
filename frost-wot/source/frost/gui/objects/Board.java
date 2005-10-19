@@ -307,22 +307,18 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 		} else if (isPublicBoard()) {
 			return "public board";
 		}
+        // TODO: private key is set, but public key not! how to handle this?
 		return "*ERROR*";
 	}
 
-	/**
-	 * 
-	 */
 	//////////////////////////////////////////////
 	// From BoardStats
 
 	public void incBlocked() {
 		numberBlocked++;
 	}
-	/**
-	 * 
-	 */
-	public void incNewMessageCount() {
+
+    public void incNewMessageCount() {
 		newMessageCount++;
 	}
 
@@ -365,7 +361,16 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 		return false;
 	}
 
-	/**
+    /**
+     * @return
+     */
+    public boolean isWriteAccessBoard() {
+        if (publicKey != null && privateKey != null)
+            return true;
+        return false;
+    }
+
+    /**
 	 * @return
 	 */
 	public boolean isSpammed() {
@@ -377,15 +382,6 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
 	 */
 	public boolean isUpdating() {
 		return isUpdating;
-	}
-
-	/**
-	 * @return
-	 */
-	public boolean isWriteAccessBoard() {
-		if (publicKey != null && privateKey != null)
-			return true;
-		return false;
 	}
 
 	/**

@@ -167,7 +167,8 @@ public class SettingsClass implements Savable {
 						else if (
 							key.equals("unsent.dir")
 								|| key.equals("temp.dir")
-								|| key.equals("keypool.dir")) {
+								|| key.equals("keypool.dir")
+                                || key.equals("archive.dir")) {
 							value = setSystemsFileSeparator(value);
 							objValue = value;
 						} else {
@@ -192,7 +193,6 @@ public class SettingsClass implements Savable {
 
 		if (this.getValue("messageBase").equals("")) {
 			this.setValue("messageBase", "news");
-			//System.out.println("!!! set messageBase to default 'news' !!!");
 		}
 
 		logger.info("Read user configuration");
@@ -210,8 +210,8 @@ public class SettingsClass implements Savable {
 			try {
 				//Perhaps the problem is that the config dir doesn't exist? In that case, we create it and try again
 				File configDir = new File("config");
-				if (!configDir.exists()) {
-					configDir.mkdir(); // if the config dir doesn't exist, we create it 
+				if (!configDir.isDirectory()) {
+					configDir.mkdirs(); // if the config dir doesn't exist, we create it 
 				}
 				settingsWriter = new PrintWriter(new FileWriter(settingsFile));
 			} catch (IOException exception2) {
@@ -224,22 +224,19 @@ public class SettingsClass implements Savable {
 		Iterator i = sortedSettings.keySet().iterator();
 		while (i.hasNext()) {
 			String key = (String) i.next();
-			if (key.equals("config.dir"))
+			if (key.equals("config.dir")) {
 				continue; // do not save the config dir, its unchangeable
+            }
 
 			String val = null;
 			if (sortedSettings.get(key) instanceof Color) {
 				Color c = (Color) sortedSettings.get(key);
-
-				val =
-					new StringBuffer()
+				val = new StringBuffer()
 						.append("type.color(")
-						.append(c.getRed())
-						.append(",")
-						.append(c.getGreen())
-						.append(",")
+						.append(c.getRed()).append(",")
+						.append(c.getGreen()).append(",")
 						.append(c.getBlue())
-						.append(")")
+                        .append(")")
 						.toString();
 			} else {
 				val = sortedSettings.get(key).toString();
@@ -431,11 +428,10 @@ public class SettingsClass implements Savable {
 	 * @param newValue the property's new value
 	 */
 	protected void firePropertyChange(String propertyName, Object oldValue, Object newValue) {
-		PropertyChangeSupport changeSupport = this.changeSupport;
 		if (changeSupport == null) {
 			return;
 		}
-		changeSupport.firePropertyChange(propertyName, oldValue, newValue);
+        changeSupport.firePropertyChange(propertyName, oldValue, newValue);
 	}
 
 	/* Get the values from the Hash
@@ -512,6 +508,10 @@ public class SettingsClass implements Savable {
 	}
 
 	public void setValue(String key, String value) {
+        // for all dirs ensure correct separator chars and a separator checr at end of name
+        if( key.endsWith(".dir") ) {
+            value = setSystemsFileSeparator(value);
+        }
 		Object oldValue = settingsHash.get(key);
 		settingsHash.put(key, value);		
 		// Report the change to any registered listeners.
@@ -554,6 +554,7 @@ public class SettingsClass implements Savable {
 		defaults.put("keypool.dir", "keypool" + fs);
 		defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
 		defaults.put("temp.dir", "localdata" + fs + "temp" + fs);
+        defaults.put("archive.dir", "archive" + fs);
         
         defaults.put("mainframe.showSimpleTitle", "false");
 
@@ -595,8 +596,6 @@ public class SettingsClass implements Savable {
 
 		defaults.put(DISABLE_REQUESTS, "false");
 		defaults.put(DISABLE_DOWNLOADS, "false");
-		//        defaults.put("htl", "5");
-		//        defaults.put("htlMax", "30");
 		defaults.put("htlUpload", "21");
 		defaults.put("keyDownloadHtl", "24");
 		defaults.put("keyUploadHtl", "21");
@@ -615,7 +614,6 @@ public class SettingsClass implements Savable {
 		defaults.put("maxSearchResults", "10000");
 		defaults.put("splitfileDownloadThreads", "30");
 		defaults.put("splitfileUploadThreads", "15");
-		//        defaults.put("startRequestingAfterHtl", "10");
 		defaults.put("tofDownloadHtl", "23");
 		defaults.put("tofTreeSelectedRow", "0");
 		defaults.put("tofUploadHtl", "21");
@@ -637,14 +635,13 @@ public class SettingsClass implements Savable {
 		defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin");
 		defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
 		defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
-		defaults.put("deleteExpiredMessages", "false");
-        defaults.put("messageExpireDays", "30");
-		defaults.put(AUTO_SAVE_INTERVAL, "15");
+        defaults.put(AUTO_SAVE_INTERVAL, "15");
 
-		defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233, 233, 233));
-		//"type.color(233,233,233)"
-		defaults.put("boardUpdatingSelectedBackgroundColor", new Color(137, 137, 191));
-		//"type.color(137,137,191)
+        defaults.put("messageExpireDays", "30");
+        defaults.put("messageExpirationMode", "KEEP"); // KEEP or ARCHIVE or DELETE, default KEEP
+
+		defaults.put("boardUpdatingNonSelectedBackgroundColor", new Color(233, 233, 233)); // "type.color(233,233,233)"
+		defaults.put("boardUpdatingSelectedBackgroundColor", new Color(137, 137, 191)); // "type.color(137,137,191)"
 
 		defaults.put("skinsEnabled", "false");
 		defaults.put("selectedSkin", "none");
@@ -686,6 +683,7 @@ public class SettingsClass implements Savable {
 
 		settingsHash.putAll(defaults);
 	}
+
 	/**
 	 * This method asks all of the updaters to update the settings values
 	 * they have knowledge about and saves all of the settings values to disk. 
@@ -703,5 +701,4 @@ public class SettingsClass implements Savable {
 			throw new StorageException("Error while saving the settings.");
 		}
 	}
-
 }

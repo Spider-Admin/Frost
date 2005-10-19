@@ -248,5 +248,29 @@ public class DateFun
                       .append(calDL.get(Calendar.DATE)).toString();
         return date;
     }
+    
+    /**
+     * 2005.9.3 -> 2005.09.03 (for comparisions) 
+     */
+    public static String buildExtendedDate(String date) {
+        int firstPoint = date.indexOf(".");
+        int secondPoint = date.lastIndexOf(".");
+        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
+        {
+            int year = Integer.parseInt(date.substring(0, firstPoint));
+            int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
+            int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
+            StringBuffer sb = new StringBuffer(11);
+            sb.append(year).append(".");
+            if( month < 10 )
+                sb.append("0");
+            sb.append(month).append(".");
+            if( day < 10 )
+                sb.append("0");
+            sb.append(day);
+            return sb.toString();
+        }
+        return null;
+    }
 
 }

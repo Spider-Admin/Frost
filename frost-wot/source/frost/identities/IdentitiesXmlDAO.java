@@ -236,12 +236,8 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 		if (identitiesFile.exists()) {
 			File bakFile = new File(BAK_FILENAME);
 			bakFile.delete();
-			try {
-				FileAccess.copyFile(XML_FILENAME, BAK_FILENAME);
-			} catch (IOException exception) {
-				logger.log(Level.SEVERE, 
-							"Error while copying " + XML_FILENAME + " to " + BAK_FILENAME, 
-							exception);
+			if( !FileAccess.copyFile(XML_FILENAME, BAK_FILENAME) ) {
+				logger.log(Level.SEVERE, "Error while copying " + XML_FILENAME + " to " + BAK_FILENAME);
 			}
 		}
 
@@ -287,12 +283,9 @@ public class IdentitiesXmlDAO implements IdentitiesDAO {
 				if (!identitiesTmpFile.renameTo(identitiesFile)) {
 					//Replacement failed. We try to restore "identities.xml"
 					// from "identities.xml.bak"
-					try {
-						FileAccess.copyFile(BAK_FILENAME, XML_FILENAME);
-					} catch (IOException exception) {
+					if( !FileAccess.copyFile(BAK_FILENAME, XML_FILENAME) ) {
 						//Uh, oh, we are having a bad, bad day.
-						throw new StorageException(
-								"Error while restoring " + XML_FILENAME, exception);
+						throw new StorageException("Error while restoring " + XML_FILENAME);
 					}
 				}
 			} else {

@@ -39,6 +39,10 @@ import frost.threads.*;
 import frost.util.gui.JSkinnablePopupMenu;
 import frost.util.gui.translation.*;
 
+/**
+ * TODO: - add thread listeners (listen to all running threads) to change the
+ *         updating state (bold text in table row) on demand (from bback)
+ */
 public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
 {
 	private class Listener implements MouseListener, LanguageListener {

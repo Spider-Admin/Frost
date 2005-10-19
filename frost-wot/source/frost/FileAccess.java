@@ -171,7 +171,7 @@ public class FileAccess {
             try { if( zis != null) zis.close(); } catch(Throwable t) { }
             logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" + 
                                      "Offending file saved as badfile.zip, send to a dev for analysis", e);
-            try { copyFile(file.getPath(), "badfile.zip"); } catch(IOException ex) { }
+            copyFile(file.getPath(), "badfile.zip");
         }
 		return null;
     }
@@ -331,24 +331,28 @@ public class FileAccess {
      * @param destName
      *            name of the destination file
      */
-	public static void copyFile(String sourceName, String destName) throws IOException { 
-		FileChannel sourceChannel = null;
-		FileChannel destChannel = null;
-		try {
-			sourceChannel = new FileInputStream(sourceName).getChannel();
-			destChannel = new FileOutputStream(destName).getChannel();
-			destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
-		} catch (IOException exception) {
-			logger.log(Level.SEVERE, "Exception in copyFile", exception);
-		} finally {
-			if (sourceChannel != null) {
-				try { sourceChannel.close(); } catch (IOException ex) {}
-			}
-			if (destChannel != null) {
-				try { destChannel.close(); } catch (IOException ex) {}
-			}
-		}
-	}
+    public static boolean copyFile(String sourceName, String destName) { 
+        FileChannel sourceChannel = null;
+        FileChannel destChannel = null;
+        boolean wasOk = false;
+        try {
+            sourceChannel = new FileInputStream(sourceName).getChannel();
+            destChannel = new FileOutputStream(destName).getChannel();
+            destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
+            wasOk = true;
+        } catch (IOException exception) {
+            logger.log(Level.SEVERE, "Exception in copyFile", exception);
+        } finally {
+            if (sourceChannel != null) {
+                try { sourceChannel.close(); } catch (IOException ex) {}
+            }
+            if (destChannel != null) {
+                try { destChannel.close(); } catch (IOException ex) {}
+            }
+        }
+        return wasOk;
+    }
+    
     
     /**
      * This method compares 2 file byte by byte.

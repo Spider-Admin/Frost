@@ -410,6 +410,15 @@ public class LangRes extends ListResourceBundle {
 	{"Choose updating color of NON-SELECTED boards", "Choose updating color of NON-SELECTED boards"},
 	{"Silently retry failed messages", "Silently retry failed messages"},
 	{"Show deleted messages", "Show deleted messages"},
+    
+    // Expiration panel
+    // TODO:
+    {"Expiration", "Expiration"},
+    {"Number of days before a message expires","Number of days before a message expires"},
+    {"Keep expired messages in keypool","Keep expired messages in keypool"},
+    {"Archive expired messages","Archive expired messages"},
+    {"Archive folder","Archive folder"},
+    {"Delete expired messages from keypool","Delete expired messages from keypool"},
 	
     // Search Panel
 	{"Image Extension", "Image Extension"},

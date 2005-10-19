@@ -4,7 +4,12 @@
 
 Pending changes:
 
+Added: message archiving feature (move expired msgs from keypool to archive folder)
+
 Changed: made uploads more reliable (increased socket timeout)
+Changed: improved keypool cleanup
+
+Bugfix: fixed the splitfile upload at last, it was broken and works now
 
 ******************************************************************************************
 
