@@ -39,13 +39,10 @@ public class FcpRequest
 	
 	private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
 	
-    private static int getActiveThreads(Thread[] threads)
-    {
+    private static int getActiveThreads(Thread[] threads) {
         int count = 0;
-        for( int i = 0; i < threads.length; i++ )
-        {
-            if( threads[i] != null )
-            {
+        for( int i = 0; i < threads.length; i++ ) {
+            if( threads[i] != null ) {
                 if( threads[i].isAlive() )
                     count++;
             }
@@ -82,15 +79,12 @@ public class FcpRequest
         File t1 = new File(target.getPath() + ".redirect");
         
         // TODO: check if redirect files have same content (sizes could differ, thats ok!)
-        if( t1.exists() == false || t1.length() == 0 )
-        {
+        if( t1.exists() == false || t1.length() == 0 ) {
             // move redirect file to working location
             t1.delete();
             redirect.renameTo(t1);
             redirect = new File(target.getPath() + ".redirect");
-        }
-        else
-        {
+        } else {
             // we dont need the redirect file any longer, delete it
             // we use existing redirect file
             redirect.delete();
@@ -99,8 +93,7 @@ public class FcpRequest
         
         try {
             splitfile = new FecSplitfile(target, redirect);
-        }
-        catch(Exception ex) {
+        } catch(Exception ex) {
 			logger.log(Level.SEVERE, "Exception thrown in getFECSplitFile(File, File, int, FrostDownloadItem)", ex);
             return false;
         }
@@ -108,15 +101,20 @@ public class FcpRequest
         int displayedAvailableBlocks = splitfile.getDataBlocks().size() + splitfile.getCheckBlocks().size();
         int displayedFinishedBlocks = 0;
         
-        if( dlItem != null )
-        {
+        // TODO: 
+        // - wenn "try to download all segments, even if one fails" AN ist, dann alle laden;
+        //   ansonsten ein segment nach dem anderen
+        // - immer tracken ob ein segment komplett ist, wegen decode wenns in options an ist!
+        
+        if( dlItem != null ) {
+
             // compute finishedBlocks for ALL segments on start of download
-            for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ )
-            {
+            for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
+
                 FecSplitfile.SingleSegmentValues seginf = 
                     (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
                 int neededBlockCount = seginf.dataBlockCount;
-                int availableBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
+//                int availableBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
                 ArrayList missingBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(), 
                     segmentNo, 
                     FecBlock.STATE_TRANSFER_WAITING);
@@ -134,12 +132,9 @@ public class FcpRequest
             
                 // only count needed blocks, do not finish more than needed blocks. 
                 // this special counting is only needed for progress display
-                if( segmentsFinishedBlocks > neededBlockCount )
-                {
+                if( segmentsFinishedBlocks > neededBlockCount ) {
                     displayedFinishedBlocks += neededBlockCount;
-                }
-                else
-                {
+                } else {
                     displayedFinishedBlocks += segmentsFinishedBlocks;
                 }
             }        
@@ -155,13 +150,14 @@ public class FcpRequest
         boolean[] wasSegmentSuccessful = new boolean[splitfile.getSegmentCount()];
         Arrays.fill(wasSegmentSuccessful, false);
         
-        // try to get the missing blocks per segment. 
-        for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ )
-        {
+        // try to get the missing blocks per segment.
+        // TODO: request multiple segments together!
+        for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
+
             FecSplitfile.SingleSegmentValues seginf = 
                 (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
             int neededBlockCount = seginf.dataBlockCount;
-            int availableBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
+//            int availableBlockCount = seginf.dataBlockCount + seginf.checkBlockCount;
             ArrayList missingBlocks = getBlocksInSegmentWithState(splitfile.getDataBlocks(), 
                 segmentNo, 
                 FecBlock.STATE_TRANSFER_WAITING);
@@ -178,8 +174,7 @@ public class FcpRequest
             int segmentsFinishedBlocks = finishedBlocks.size();
             finishedBlocks = null; // not longer needed
             
-            if( missingOverallBlockCount == 0 )
-            {
+            if( missingOverallBlockCount == 0 ) {
                 // when a segment is decoded, ALL blocks are set to finished
                 logger.info("Segment "+segmentNo+" is already decoded.");
                 wasSegmentSuccessful[segmentNo] = true;
@@ -188,8 +183,7 @@ public class FcpRequest
             
             int maxThreads = MainFrame.frostSettings.getIntValue("splitfileDownloadThreads");
             
-            if( segmentsFinishedBlocks < neededBlockCount )
-            {
+            if( segmentsFinishedBlocks < neededBlockCount ) {
                 // we need to receive some more blocks before we are able to decode
                 Collections.shuffle( missingBlocks );
                 // start configured amount of aplitfile threads
@@ -201,21 +195,16 @@ public class FcpRequest
                 {
                     // check if threads are finished
                     boolean threadsFinished = false;
-                    for( int y=runningThreads.size()-1; y >= 0; y-- )
-                    {
+                    for( int y=runningThreads.size()-1; y >= 0; y-- ) {
                         GetKeyThread gkt = (GetKeyThread)runningThreads.get(y);
-                        if( gkt.isAlive() == false )
-                        {
-                            if( gkt.getSuccess() == true )
-                            {
+                        if( gkt.isAlive() == false ) {
+                            if( gkt.getSuccess() == true ) {
                                 // never count higher than datablocks/segment in each segment            
-                                if( segmentsFinishedBlocks < neededBlockCount )
-                                { 
+                                if( segmentsFinishedBlocks < neededBlockCount ) { 
                                     displayedFinishedBlocks++;
                                 }
                                 segmentsFinishedBlocks++;
-                                if( dlItem != null )
-                                {
+                                if( dlItem != null ) {
 									dlItem.setDoneBlocks(displayedFinishedBlocks);
 									dlItem.setRequiredBlocks(displayedRequiredBlocks);
 									dlItem.setTotalBlocks(displayedAvailableBlocks);
@@ -227,13 +216,13 @@ public class FcpRequest
                             threadsFinished = true;
                         }
                     }
-                    if( threadsFinished == true )
+                    if( threadsFinished == true ) {
                         continue;
+                    }
                     
                     int maxThreadsNeeded = neededBlockCount - segmentsFinishedBlocks;
                     int threadCountAllowedToStart = maxThreads - runningThreads.size();
-                    if( maxThreadsNeeded > 0 && threadCountAllowedToStart > 0 )
-                    {
+                    if( maxThreadsNeeded > 0 && threadCountAllowedToStart > 0 ) {
                         FecBlock block = (FecBlock)missingBlocks.get(actBlockIx);
                         actBlockIx++;
                         GetKeyThread thread = new GetKeyThread( splitfile, block, htl );
@@ -246,25 +235,19 @@ public class FcpRequest
                     Mixed.wait(1000); 
                 }
                 // wait for all running threads to finish
-                while( runningThreads.size() > 0 )
-                {
+                while( runningThreads.size() > 0 ) {
                     // check if threads are finished
                     boolean threadsFinished = false;
-                    for( int y=runningThreads.size()-1; y >= 0; y-- )
-                    {
+                    for( int y=runningThreads.size()-1; y >= 0; y-- ) {
                         GetKeyThread gkt = (GetKeyThread)runningThreads.get(y);
-                        if( gkt.isAlive() == false )
-                        {
-                            if( gkt.getSuccess() == true )
-                            {
+                        if( gkt.isAlive() == false ) {
+                            if( gkt.getSuccess() == true ) {
                                 // never count higher than datablocks/segment in each segment            
-                                if( segmentsFinishedBlocks < neededBlockCount )
-                                { 
+                                if( segmentsFinishedBlocks < neededBlockCount ) { 
                                     displayedFinishedBlocks++;
                                 }
                                 segmentsFinishedBlocks++;
-                                if( dlItem != null )
-                                {
+                                if( dlItem != null ) {
 									dlItem.setDoneBlocks(displayedFinishedBlocks);
 									dlItem.setRequiredBlocks(displayedRequiredBlocks);
 									dlItem.setTotalBlocks(displayedAvailableBlocks);
@@ -276,113 +259,93 @@ public class FcpRequest
                             threadsFinished = true;
                         }
                     }
-                    if( threadsFinished == true )
+                    if( threadsFinished == true ) {
                         continue;
+                    }
                     Mixed.wait(1000);
                 }
             } // end-of: if( provided < needed )
             // check if we have enough blocks to decode (paranoia)
-            if( splitfile.isDecodeable(segmentNo) )
-            {
+            if( splitfile.isDecodeable(segmentNo) ) {
                 logger.info("Segment "+segmentNo+" is decodeable...");
                     
-                if( optionDecodeAfterDownload == false )
-                {
-                    if( dlItem != null )
-                    {
+                if( optionDecodeAfterDownload == false ) {
+                    if( dlItem != null ) {
                         dlItem.setState(FrostDownloadItem.STATE_DECODING);
                     }
                     try {
                         splitfile.decode(segmentNo);
-                    }
-                    catch (Throwable e1) {
+                    } catch (Throwable e1) {
 						logger.log(Level.SEVERE, "Exception thrown in getFECSplitFile(File, File, int, FrostDownloadItem)", e1);
                         wasSegmentSuccessful[segmentNo] = false;
                         break;
                     }
-                    if( dlItem != null )
-                    {
+                    if( dlItem != null ) {
                         dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
                     }
                     
-                    // mark all blocks in actual segment finished
+                    // mark all blocks in current segment finished
                     setBlocksInSegmentFinished(splitfile.getDataBlocks(), segmentNo);
                     setBlocksInSegmentFinished(splitfile.getCheckBlocks(), segmentNo);
                     splitfile.createRedirectFile(true);
                 }
                 // BBACKFLAG: remember unfinished blocks to encode+reinsert them !!!
                 wasSegmentSuccessful[segmentNo] = true;
-            }
-            else
-            {
+            } else {
                 logger.warning("Segment " + segmentNo + " is NOT decodeable...");
                 wasSegmentSuccessful[segmentNo] = false;
-                if( optionTryAllSegments == false )
-                {
+                if( optionTryAllSegments == false ) {
                     break; // stop downloading now 
                 }
             }
             // go on with next segment
         }
+
         boolean success = true;
         // success is true if all segments were 
         // - downloaded+decoded (decodeAfterDownload = false -> decode after each segment)
         // - downloaded  (decodeAfterDownload = true)
-        for(int x=0; x<wasSegmentSuccessful.length; x++)
-        {
-            if( wasSegmentSuccessful[x] == false )
-            {
+        for(int x=0; x<wasSegmentSuccessful.length; x++) {
+            if( wasSegmentSuccessful[x] == false ) {
                 success = false;
             }
         }
         
-        if( optionDecodeAfterDownload == true && success == true )
-        {
-            if( dlItem != null )
-            {
+        if( optionDecodeAfterDownload == true && success == true ) {
+            if( dlItem != null ) {
                 dlItem.setState(FrostDownloadItem.STATE_DECODING);
             }
             // decode after all segments have downloaded successfully
-            for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ )
-            {
+            for( int segmentNo=0; segmentNo < splitfile.getSegmentCount(); segmentNo++ ) {
                 try {
                     splitfile.decode(segmentNo);
-                }
-                catch (Throwable e1) {
+                } catch (Throwable e1) {
 					logger.log(Level.SEVERE, "Exception thrown in getFECSplitFile(File, File, int, FrostDownloadItem)", e1);
                     success = false;
                     wasSegmentSuccessful[segmentNo] = false;
                     break;
                 }
             }
-            if( dlItem != null )
-            {
+            if( dlItem != null ) {
                 dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
             }
         }
-        
-        if( success == true )
-        {
+
+        if( success == true ) {
             // if we really reach here, all segments are successfully decoded.
             // we need to set the correct size of the downloaded file.
             splitfile.setCorrectDatafileSize();
 
             // rename target file, maybe delete redirect+checkblocks file
-            if( dlItem != null )
-            {
+            if( dlItem != null ) {
                 splitfile.finishDownload(false); // dont delete working files (TODO: healing!)
-            }
-            else
-            {
+            } else {
                 // this deletes work file, and if setCorrectDatafileSize() was not called (on error)
                 // it also deletes the data file
                 splitfile.finishDownload(true);
             }
-        }
-        else // no success
-        {
-            if( dlItem == null )
-            {
+        } else {// no success
+            if( dlItem == null ) {
                 // this deletes work file, and if setCorrectDatafileSize() was not called (on error)
                 // it also deletes the data file
                 splitfile.finishDownload(true);
@@ -391,60 +354,61 @@ public class FcpRequest
         return success;
     }
     
-    private static class GetKeyThread extends Thread
-    {
+    private static class GetKeyThread extends Thread {
+        
         FecBlock block;
         int htl;
         boolean success;
         FecSplitfile splitfile;
-        public GetKeyThread(FecSplitfile sf, FecBlock b, int h)
-        {
+        
+        public GetKeyThread(FecSplitfile sf, FecBlock b, int h) {
             block = b;
             htl = h;
             splitfile = sf;
         }
-        public void run()
-        {
+
+        public void run() {
+
             block.setCurrentState(FecBlock.STATE_TRANSFER_RUNNING);
             
             this.success = false;
+            
             FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-            if( connection != null )
-            {
+            if( connection != null ) {
                 try {
-                    success = connection.getKeyToBucket(block.getChkKey(), 
-                        block.getRandomAccessFileBucket(false),
-                        htl);
-                }
-                catch( FcpToolsException e ) {
+                    success = connection.getKeyToBucket(
+                            block.getChkKey(), 
+                            block.getRandomAccessFileBucket(false),
+                            htl);
+                } catch( FcpToolsException e ) {
+                    logger.log(Level.WARNING, "Error during request: ", e);
                     success = false;
-                }
-                catch( IOException e ) {
+                } catch( Throwable e ) {
+                    logger.log(Level.WARNING, "Error during request: ", e);
                     success = false;
                 }
             }
-            if( success == true )
-            {
+            if( success == true ) {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_FINISHED);
                 splitfile.createRedirectFile(true);
-            }
-            else
-            {
+            } else {
                 block.setCurrentState(FecBlock.STATE_TRANSFER_WAITING);
                 // no need to update redirect file
             }
         }
-        public boolean getSuccess()
-        {
+        
+        public boolean getSuccess() {
             return success;
+        }
+
+        public synchronized FecBlock getBlock() {
+            return block;
         }
     }
     
-    private static ArrayList getBlocksInSegmentWithState(List allBlocks, int segno, int state)
-    {
+    private static ArrayList getBlocksInSegmentWithState(List allBlocks, int segno, int state) {
         ArrayList l = new ArrayList();
-        for( int x=0; x<allBlocks.size(); x++ )
-        {
+        for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);
             if( b.getSegmentNo() == segno &&
                 b.getCurrentState() == state )
@@ -455,10 +419,8 @@ public class FcpRequest
         return l;
     }
 
-    private static void setBlocksInSegmentFinished(List allBlocks, int segno)
-    {
-        for( int x=0; x<allBlocks.size(); x++ )
-        {
+    private static void setBlocksInSegmentFinished(List allBlocks, int segno) {
+        for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);
             if( b.getSegmentNo() == segno &&
                 b.getCurrentState() != FecBlock.STATE_TRANSFER_FINISHED )
@@ -514,23 +476,16 @@ public class FcpRequest
     	assert htl >= 0; //some sanity checks
     	
         File tempFile = null;
-        if( createTempFile )
-        {
-            try
-            {
+        if( createTempFile ) {
+            try {
                 tempFile = File.createTempFile("getFile_", ".tmp", new File(MainFrame.frostSettings.getValue("temp.dir")));
-            }
-            catch( IOException ex )
-            {
+            } catch( Throwable ex ) {
 				logger.log(Level.SEVERE, "Exception thrown in getFile(...)", ex);
                 return null;
             }
-        }
-        else
-        {
+        } else {
             tempFile = new File( target.getPath() + ".tmp" );
         }
-
         
         // First we just download the file, not knowing what lies ahead
        
@@ -538,17 +493,15 @@ public class FcpRequest
         String [] metadataLines=null;
         
         if (dlItem!=null && dlItem.getRedirect() !=null) {
-        	results = new FcpResults(dlItem.getRedirect().getBytes(),
-        			dlItem.getKey());
+        	results = new FcpResults(dlItem.getRedirect().getBytes(), dlItem.getKey());
         	logger.info("starting download of an attached redirect");
-        }
-         else  
+        } else {  
         	results = getKey(key, tempFile, htl, fastDownload);
-         
+        }
         
-        
-        if (results !=null)
+        if (results !=null) {
         	metadataLines = results.getMetadataAsLines();
+        }
         
         if( results != null &&  
             ( tempFile.length() > 0 || metadataLines != null ) 
@@ -561,8 +514,7 @@ public class FcpRequest
                 // Check if this file is a redirect and if there is a key to the file in the metadata
                 String redirectCHK = getRedirectCHK( metadataLines, key );
 
-                if( redirectCHK != null )
-                { // File is a redirect
+                if( redirectCHK != null ) { // File is a redirect
                     logger.info("Redirecting to " + redirectCHK);
 
                     results = null;
