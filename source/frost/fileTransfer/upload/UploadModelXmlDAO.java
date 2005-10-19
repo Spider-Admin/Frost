@@ -213,12 +213,8 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 		if (uploadsFile.exists()) {
 			File bakFile = new File(directory + BAK_FILENAME);
 			bakFile.delete();
-			try {
-				FileAccess.copyFile(directory + XML_FILENAME, directory + BAK_FILENAME);
-			} catch (IOException exception) {
-				logger.log(Level.SEVERE, 
-							"Error while copying " + XML_FILENAME + " to " + BAK_FILENAME, 
-							exception);
+			if( !FileAccess.copyFile(directory + XML_FILENAME, directory + BAK_FILENAME )) {
+				logger.log(Level.SEVERE, "Error while copying " + XML_FILENAME + " to " + BAK_FILENAME);
 			}
 		}
 		
@@ -237,12 +233,9 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 				if (!uploadsTmpFile.renameTo(uploadsFile)) {
 					//Replacement failed. We try to restore "uploads.xml"
 					// from "uploads.xml.bak"
-					try {
-						FileAccess.copyFile(directory + BAK_FILENAME, directory + XML_FILENAME);
-					} catch (IOException exception) {
+					if( !FileAccess.copyFile(directory + BAK_FILENAME, directory + XML_FILENAME) ) {
 						//Uh, oh, we are having a bad, bad day.
-						throw new StorageException(
-								"Error while restoring " + XML_FILENAME, exception);
+						throw new StorageException("Error while restoring " + XML_FILENAME);
 					}
 				}
 			} else {
