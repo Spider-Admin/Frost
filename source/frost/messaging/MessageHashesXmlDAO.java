@@ -115,12 +115,8 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 		if (hashesFile.exists()) {
 			File bakFile = new File(BAK_FILENAME);
 			bakFile.delete();
-			try {
-				FileAccess.copyFile(XML_FILENAME, BAK_FILENAME);
-			} catch (IOException exception) {
-				logger.log(Level.SEVERE, 
-							"Error while copying " + XML_FILENAME + " to " + BAK_FILENAME, 
-							exception);
+			if( !FileAccess.copyFile(XML_FILENAME, BAK_FILENAME) ) {
+				logger.log(Level.SEVERE, "Error while copying " + XML_FILENAME + " to " + BAK_FILENAME);
 			}
 		}
 
@@ -154,11 +150,9 @@ public class MessageHashesXmlDAO implements MessageHashesDAO {
 				hashesFile.delete();
 				if (!hashesTmpFile.renameTo(hashesFile)) {
 					//Replacement failed. We try to restore "hashes.xml" from "hashes.xml.bak"
-					try {
-						FileAccess.copyFile(BAK_FILENAME, XML_FILENAME);
-					} catch (IOException exception) {
+					if( !FileAccess.copyFile(BAK_FILENAME, XML_FILENAME) ) {
 						//Uh, oh, we are having a bad, bad day.
-						throw new StorageException("Error while restoring " + XML_FILENAME, exception);
+						throw new StorageException("Error while restoring " + XML_FILENAME);
 					}
 				}
 			} else {

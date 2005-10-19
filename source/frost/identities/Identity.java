@@ -18,7 +18,6 @@
 */
 package frost.identities;
 
-import java.util.*;
 import java.util.logging.*;
 
 import org.w3c.dom.*;

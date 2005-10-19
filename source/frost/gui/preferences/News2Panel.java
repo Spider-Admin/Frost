@@ -146,51 +146,61 @@ class News2Panel extends JPanel {
 		Insets insets5555 = new Insets(5, 5, 5, 5);
 		Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
 		constraints.insets = insets5555;
-		constraints.weighty = 1;
-		constraints.weightx = 1;
+//		constraints.weighty = 1;
+//		constraints.weightx = 1;
 		constraints.gridwidth = 2;
 
 		constraints.gridx = 0;
 		constraints.gridy = 0;
 		add(blockSubjectCheckBox, constraints);
 		constraints.insets = insets5_30_5_5;
-		constraints.gridy = 1;
+		constraints.gridy++;
 		add(blockSubjectTextField, constraints);
 			
 		constraints.insets = insets5555;
-		constraints.gridy = 2;
+		constraints.gridy++;
 		add(blockBodyCheckBox, constraints);
 		constraints.insets = insets5_30_5_5;
-		constraints.gridy = 3;
+		constraints.gridy++;
 		add(blockBodyTextField, constraints);
 			
 		constraints.insets = insets5555;
-		constraints.gridy = 4;
+		constraints.gridy++;
 		add(blockBoardCheckBox, constraints);
 		constraints.insets = insets5_30_5_5;
-		constraints.gridy = 5;
+		constraints.gridy++;
 		add(blockBoardTextField, constraints);
 						
 		constraints.insets = insets5555;
 		constraints.gridwidth = 1;
 		constraints.gridx = 0;
-		constraints.gridy = 6;
+		constraints.gridy++;
 		add(signedOnlyCheckBox, constraints);
 		constraints.gridx = 1;
 		add(hideBadMessagesCheckBox, constraints);
 		constraints.gridx = 0;
-		constraints.gridy = 7;
+		constraints.gridy++;
 		add(hideCheckMessagesCheckBox, constraints);
 		constraints.gridx = 1;
 		add(hideObserveMessagesCheckBox, constraints);
 						
 		constraints.gridwidth = 2;
 		constraints.gridx = 0;
-		constraints.gridy = 8;
+		constraints.gridy++;
 		add(doBoardBackoffCheckBox, constraints);
-		constraints.gridy = 9;
+		constraints.gridy++;
 		constraints.weighty = 0;
 		add(getSpamPanel(), constraints);
+        
+        // glue
+        constraints.gridy++;
+        constraints.gridx = 0;
+        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.BOTH;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
+        add(new JLabel(""), constraints);
+
 						
 		// Add listeners
 		blockSubjectCheckBox.addActionListener(listener);

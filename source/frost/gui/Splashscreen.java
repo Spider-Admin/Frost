@@ -19,8 +19,7 @@
 package frost.gui;
 
 import java.awt.*;
-import java.io.File;
-import java.util.logging.Logger;
+import java.io.*;
 
 import javax.swing.*;
 
@@ -47,7 +46,7 @@ import javax.swing.*;
  */
 public class Splashscreen extends JDialog {
 
-	private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
+//	private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
 
 	private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
 	private static String NO_SPLASH_FILENAME = "nosplash.chk";
@@ -62,9 +61,6 @@ public class Splashscreen extends JDialog {
 
 	private boolean noSplash;
 
-	/**
-	 * 
-	 */
 	public Splashscreen() {
 		File splashchk = new File(NO_SPLASH_FILENAME);
 		if (splashchk.exists()) {
@@ -80,7 +76,7 @@ public class Splashscreen extends JDialog {
 		if (!noSplash) {
 			setVisible(false);
 			dispose();
-			logger.info("Splashscreen: I'm gone now :-(");
+//			logger.info("Splashscreen: I'm gone now :-(");
 		}
 	}
 
@@ -139,5 +135,4 @@ public class Splashscreen extends JDialog {
 			super.setVisible(b);
 		}
 	}
-
 }

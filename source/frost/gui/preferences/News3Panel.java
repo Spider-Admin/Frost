@@ -190,9 +190,6 @@ class News3Panel extends JPanel {
 		constraints.fill = GridBagConstraints.HORIZONTAL;
 		Insets insets5555 = new Insets(5, 5, 5, 5);
 		constraints.insets = insets5555;
-		constraints.weighty = 1;
-		constraints.weightx = 1;
-		constraints.gridwidth = 2;
 
 		constraints.gridx = 0;
 		constraints.gridy = 0;
@@ -215,6 +212,13 @@ class News3Panel extends JPanel {
 		
 		constraints.gridy++;
 		add(showDeletedMessagesCheckBox, constraints);
+
+        // glue
+        constraints.gridy++;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
+        constraints.fill = GridBagConstraints.BOTH;
+        add(new JLabel(""), constraints);
 
 		// Add listeners
 		showUpdateCheckBox.addActionListener(listener);

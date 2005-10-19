@@ -37,8 +37,7 @@ import frost.storage.StorageException;
 import frost.util.gui.translation.Language;
 
 /**
- * TODO: - add thread listeners (listen to all running threads) to change the
- *         updating state (bold text in table row) on demand (from bback)
+ * Main options frame.
  */
 public class OptionsFrame extends JDialog implements ListSelectionListener {
 	
@@ -48,23 +47,13 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	class ListBoxData {
 		String name;
 		JPanel panel;
-		/**
-		 * @param n
-		 * @param p
-		 */
 		public ListBoxData(String n, JPanel p) {
 			panel = p;
 			name = n;
 		}
-		/**
-		 * @return
-		 */
 		public JPanel getPanel() {
 			return panel;
 		}
-		/* (non-Javadoc)
-		 * @see java.lang.Object#toString()
-		 */
 		public String toString() {
 			return name;
 		}
@@ -75,8 +64,6 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private SettingsClass frostSettings;
 	private Language language;
 	
-//	private boolean _hideBad, _hideAnon;
-
 	private JPanel buttonPanel = null; // OK / Cancel
 	private boolean checkBlock;
 	private boolean checkBlockBody;
@@ -85,8 +72,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	// then its checked if the settings are changed by user
 	private boolean checkDisableRequests;
 	private boolean checkHideBadMessages;
-	boolean checkHideCheckMessages;
-	private boolean checkHideNAMessages;
+	private boolean checkHideCheckMessages;
+	private boolean checkHideObserveMessages;
 	private String checkMaxMessageDisplay;
 	private boolean checkSignedOnly;
 	
@@ -103,6 +90,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 	private NewsPanel newsPanel = null;
 	private News2Panel news2Panel = null;
 	private News3Panel news3Panel = null;
+    private ExpirationPanel expirationPanel = null;
 	private JList optionsGroupsList = null;
 	private JPanel optionsGroupsPanel = null;
 	private SearchPanel searchPanel = null;
@@ -280,7 +268,14 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		}
 		return news3Panel;
 	}
-	
+
+    private ExpirationPanel getExpirationPanel() {
+        if (expirationPanel == null) {
+            expirationPanel = new ExpirationPanel(frostSettings);
+        }
+        return expirationPanel;
+    }
+
 	/**
 	 * Build the news panel (general options).
 	 * @return
@@ -300,41 +295,17 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		if (optionsGroupsPanel == null) {
 			// init the list
 			Vector listData = new Vector();
-			listData.add(
-				new ListBoxData(
-					" " + language.getString("Downloads") + " ",
-					getDownloadPanel()));
-			listData.add(
-				new ListBoxData(
-					" " + language.getString("Uploads") + " ",
-					getUploadPanel()));
-			listData.add(
-				new ListBoxData(
-					" " + language.getString("News") + " (1) ",
-					getNewsPanel()));
-			listData.add(
-				new ListBoxData(
-					" " + language.getString("News") + " (2) ",
-					getNews2Panel()));
-			listData.add(
-				new ListBoxData(
-					" " + language.getString("News") + " (3) ",
-					getNews3Panel()));
-			listData.add(
-				new ListBoxData(
-					" " + language.getString("Search") + " ",
-					getSearchPanel()));
-			listData.add( 
-			    new ListBoxData( 
-                    " " + language.getString("Display") + " ",
-                    getDisplayPanel()));
-			listData.add(
-				new ListBoxData(
-					" " + language.getString("Miscellaneous") + " ",
-					getMiscPanel()));
+			listData.add( new ListBoxData(" "+language.getString("Downloads")+" ", getDownloadPanel()));
+			listData.add( new ListBoxData(" "+language.getString("Uploads")+" ", getUploadPanel()));
+			listData.add( new ListBoxData(" "+language.getString("News")+" (1) ", getNewsPanel()));
+			listData.add( new ListBoxData(" "+language.getString("News")+" (2) ", getNews2Panel()));
+			listData.add( new ListBoxData(" "+language.getString("News")+" (3) ", getNews3Panel()));
+            listData.add( new ListBoxData(" "+language.getString("Expiration")+" ", getExpirationPanel()));
+			listData.add( new ListBoxData(" "+language.getString("Search")+" ", getSearchPanel()));
+			listData.add( new ListBoxData(" "+language.getString("Display")+" ", getDisplayPanel()));
+			listData.add( new ListBoxData(" "+language.getString("Miscellaneous")+" ", getMiscPanel()));
 			optionsGroupsList = new JList(listData);
-			optionsGroupsList.setSelectionMode(
-				DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
+			optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
 			optionsGroupsList.addListSelectionListener(this);
 
 			optionsGroupsPanel = new JPanel(new GridBagLayout());
@@ -459,6 +430,11 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			news3Panel.ok();
 		}
 
+        if (expirationPanel != null) {
+            //If the expiration panel has been used, commit its changes
+            expirationPanel.ok();
+        }
+
 		saveSettings();
 
 		dispose();
@@ -509,20 +485,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		{
 			shouldRemoveDummyReqFiles = true;
 		}
-		if (checkMaxMessageDisplay
-			.equals(frostSettings.getValue("maxMessageDisplay"))
-			== false
+		if( checkMaxMessageDisplay.equals(frostSettings.getValue("maxMessageDisplay")) == false
 			|| checkSignedOnly != frostSettings.getBoolValue("signedOnly")
-			|| checkHideBadMessages
-				!= frostSettings.getBoolValue("hideBadMessages")
-			|| checkHideCheckMessages
-				!= frostSettings.getBoolValue("hideCheckMessages")
-			|| checkHideNAMessages != frostSettings.getBoolValue("hideNAMessages")
+			|| checkHideBadMessages != frostSettings.getBoolValue("hideBadMessages")
+			|| checkHideCheckMessages != frostSettings.getBoolValue("hideCheckMessages")
+			|| checkHideObserveMessages != frostSettings.getBoolValue("hideObserveMessages")
 			|| checkBlock != frostSettings.getBoolValue("blockMessageChecked")
-			|| checkBlockBody
-				!= frostSettings.getBoolValue("blockMessageBodyChecked")
-			|| checkShowDeletedMessages
-				!= frostSettings.getBoolValue("showDeletedMessages")) {
+			|| checkBlockBody != frostSettings.getBoolValue("blockMessageBodyChecked")
+			|| checkShowDeletedMessages != frostSettings.getBoolValue("showDeletedMessages")) 
+        {
 			// at least one setting changed, reload messages
 			shouldReloadMessages = true;
 		}
@@ -540,9 +511,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 		checkMaxMessageDisplay = frostSettings.getValue("maxMessageDisplay");
 		checkSignedOnly = frostSettings.getBoolValue("signedOnly");
 		checkHideBadMessages = frostSettings.getBoolValue("hideBadMessages");
-		checkHideCheckMessages =
-			frostSettings.getBoolValue("hideCheckMessages");
-		checkHideNAMessages = frostSettings.getBoolValue("hideNAMessages");
+		checkHideCheckMessages = frostSettings.getBoolValue("hideCheckMessages");
+		checkHideObserveMessages = frostSettings.getBoolValue("hideObserveMessages");
 		checkBlock = frostSettings.getBoolValue("blockMessageChecked");
 		checkBlockBody = frostSettings.getBoolValue("blockMessageBodyChecked");
 		checkShowDeletedMessages = frostSettings.getBoolValue("showDeletedMessages");
@@ -600,5 +570,4 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 			}
 		});
 	}
-
 }
