@@ -724,14 +724,12 @@ public class Core implements Savable, FrostEventDispatcher  {
 		// initialize the task that discards old files
 		TimerTask cleaner = new TimerTask() {
 			public void run() {
-				// maybe each 6 hours cleanup files
-				if (frostSettings.getBoolValue("deleteExpiredMessages")) {
-					logger.info("Timer cleaner: Starting to process expired files.");
-                    CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
-				}
+				// each 6 hours cleanup files
+				logger.info("Timer cleaner: Starting to process expired files.");
+                CleanUp.processExpiredFiles(MainFrame.getInstance().getTofTreeModel().getAllBoards());
 			}
 		};
-		timer.schedule(cleaner, 6*60*60*1000, 6*60*60*1000); // 6 hrs interval, did run during startup
+		timer.schedule(cleaner, 6*60*60*1000, 6*60*60*1000); // 6 hrs interval, always run during startup
         cleaner = null;
 
         // initialize the task that frees memory
