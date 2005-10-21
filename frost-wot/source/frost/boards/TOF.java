@@ -259,7 +259,8 @@ public class TOF
                         public void run() {
                             // check if tof table shows this board
                             MainFrame.getInstance().updateTofTree(board);
-                            if(tofTreeModel.getSelectedNode().getName().equals( board.getName() ) )
+                            Board selectedBoard = tofTreeModel.getSelectedNode();
+                            if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) )                            
                             {
                                 tableModel.addRow(message);
                                 MainFrame.getInstance().updateMessageCountLabels(board);
