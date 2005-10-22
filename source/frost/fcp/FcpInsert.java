@@ -49,16 +49,19 @@ public class FcpInsert
                                         "KeyCollision",
                                         "SizeError",
                                         "DataNotFound"};
+    
+    private static final String[] ERROR = new String[] {"Error","Error"};
 
     private static String[] result(String text) {
-        String[] result = new String[2];
-        result[0] = "Error";
-        result[1] = "Error";
 
         logger.info("*** FcpInsert.result: text='"+text+"'");
-        if( text == null ) {
-            return result; // error
+
+        if( text == null || text.length() == 0 ) {
+            return ERROR;
         }
+        
+        String[] result = {"Error", "Error"};
+        
         // check if the keyword returned by freenet is a known keyword.
         for( int i = 0; i < keywords.length; i++ ) {
             if( text.indexOf(keywords[i]) != -1 ) {
@@ -66,12 +69,9 @@ public class FcpInsert
             }
         }
         // check if the returned text contains the computed CHK key (key generation)
-        if( text.indexOf("CHK@") != -1 ) {
-            result[1] = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage"));
-            result[1] = result[1].trim();
-        } else {
-            result[1] = "Error";
-        }
+        if( text.indexOf("CHK@") > -1 && text.indexOf("EndMessage") > -1 ) {
+            result[1] = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage")).trim();
+        } // else result[1] keeps "Error"
         return result;
     }
 
@@ -109,7 +109,7 @@ public class FcpInsert
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning", 
 							 JOptionPane.WARNING_MESSAGE);
-			return new String[]{"Error","Error"};
+            return ERROR;
         }
         // Q: can this 32K be enlarged? to same as for CHK keys?
         // A: no, its hardcoded in freenet, each keytype except CHK is limited to 32kb size (data+metadata).
@@ -147,7 +147,7 @@ RawDataLength=0
                          "<br>Please report this to a Frost developer!</html>",
                          "Insert Error", 
                          JOptionPane.ERROR_MESSAGE);
-                return new String[]{"Error", "Error"};
+                return ERROR;
             }
         } else {
 
@@ -156,7 +156,7 @@ RawDataLength=0
                 try {
                     FcpConnection connection = FcpFactory.getFcpConnectionInstance();
                     if( connection == null ) {
-                        return new String[] { "Error", "Error" };
+                        return ERROR;
                     }
                     
                     byte[] data = FileAccess.readByteArray(file);
@@ -169,7 +169,7 @@ RawDataLength=0
                 } catch( Throwable e ) {
 					logger.log(Level.SEVERE, "Throwable", e);
                 }
-                return result("");
+                return ERROR;
             } else {
                 // file is too big, put as FEC splitfile
                 return putFECSplitFile(uri, file, htl, ulItem);
@@ -186,23 +186,23 @@ RawDataLength=0
     private static String workaroundPutKeyFromArray(
             FcpConnection connection, String key, byte[] data, byte[] metadata, int htl) throws IOException {
 
-        int loops = 0;
+        int loop = 0;
         final int maxLoops = 16; // high value for sure, should never happen
 
-        while(true) { // potential endless loop, risc was estimated and accepted
+        while(true) {
             String output = connection.putKeyFromArray(key, data, metadata, htl);
             if( output.length() < 5 ) { // actually the length is 1, but just in case...
-                if( loops < maxLoops ) {
-                    logger.warning("Freenet insert failed, maybe a freenet bug (output="+output+"). Trying again...");
-                    loops++;
+                if( loop < maxLoops ) {
+                    logger.warning("Freenet insert failed, maybe a freenet bug (output="+output+"). Loop "+loop+". Trying again...");
+                    loop++;
                     Mixed.wait(333);
                     continue;
                 } else {
-                    logger.severe("Freenet insert failed due to freenet bug, tried "+loops+" times (output="+output+").");
+                    logger.severe("Freenet insert failed due to freenet bug, tried "+loop+" times (output="+output+").");
                     return null;
                 }
             } else {
-                logger.info("Freenet insert ended, output from fcp insert : "+output);
+                logger.info("Freenet insert ended, loop="+loop+", output from fcp insert : "+output);
                 return output;
             }
         }
@@ -223,7 +223,6 @@ RawDataLength=0
     private static String[] putFECSplitFile(String uri, File file,
                                            int htl, FrostUploadItem ulItem)
     {
-        final String[] ERROR = new String[]{"Error","Error"};
         FecSplitfile splitfile =null;
         
 /*        
@@ -266,14 +265,14 @@ RawDataLength=0
             FecSplitfile.SingleSegmentValues seginf = 
                 (FecSplitfile.SingleSegmentValues)splitfile.getValuesForSegment(segmentNo);
             
-            ArrayList blocksToUpload;
+            List blocksToUpload;
             
-            blocksToUpload = getBlocksInSegmentWithState(splitfile.getDataBlocks(), 
+            blocksToUpload = getFecBlocksInSegmentWithState(splitfile.getDataBlocks(), 
                 segmentNo, 
                 FecBlock.STATE_TRANSFER_WAITING);
             
             blocksToUpload.addAll(
-                    getBlocksInSegmentWithState(
+                    getFecBlocksInSegmentWithState(
                             splitfile.getCheckBlocks(), 
                             segmentNo, 
                             FecBlock.STATE_TRANSFER_WAITING) );
@@ -354,99 +353,67 @@ RawDataLength=0
         // upload redirect file
         boolean success = false;
         FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if( connection != null ) {
-
-            // create normal redirect file for uploading
-            splitfile.createRedirectFile(false);
-            try {
-                byte[] metadata = FileAccess.readByteArray(splitfile.getRedirectFile());
-                String resultstr = workaroundPutKeyFromArray(
-                        connection, 
-                        uri, 
-                        null, // no data 
-                        metadata, 
-                        htl);
-
-                String[] result = result(resultstr);
-                                     
-                if( chkKey != null && result[1].indexOf(chkKey) < 0 ) {
-
-                    logger.severe("Error: the CHK keys for redirect file generated by frost and freenet differ:\n" +
-                    			   "FreeNet Key ='" + result[1] + "'\n" +
-                    			   "Frost Key   ='" + chkKey + "'");
-                    
-                    chkKey = result[1];
-                    
-                    // just if its needed sometimes: code to extract chk key out of freenet result msg
-                    /*if( text.indexOf("CHK@") != -1 )
-                    {
-                        result[1] = text.substring(text.lastIndexOf("CHK@"),
-                                                   text.lastIndexOf("EndMessage"));
-                        result[1] = result[1].trim();
-                    }*/
-                } else if( chkKey == null ) { // attachment upload
-                    // attachment uploaded, get key from freenet insert
-                    chkKey = result[1];
-                }
-                
-                if( result[0].equals("Success") ||
-                    result[0].equals("KeyCollision") )
-                {
-                    success = true;
-                } else {
-					logger.severe("Could not upload redirect file: " + result);
-                }
-            } catch( Throwable e ) {
-                success = false;
-				logger.log(Level.SEVERE, "Error uploading redirect file", e);
-            }
+        if( connection == null ) {
+            logger.severe("Could not upload redirect file, got no FcpConnection!");
+            return ERROR;
         }
         
-        // if we tried to upload a file not contained in upload table, remove work files
-        if( ulItem == null ) {
-            splitfile.finishUpload(true);
-        } else { // keep workfiles for next insert
-            splitfile.finishUpload(false);
+        try {
+            // create normal redirect file content for upload
+            byte[] metadata = splitfile.getRedirectFileContent(false).getBytes();
+            String resultstr = workaroundPutKeyFromArray(
+                    connection, 
+                    uri, 
+                    null, // no data 
+                    metadata, 
+                    htl);
+
+            String[] result = result(resultstr);
+                                 
+            if( chkKey != null && result[1].indexOf(chkKey) < 0 ) {
+
+                logger.severe("Error: the CHK keys for redirect file generated by frost and freenet differ:\n" +
+                			   "FreeNet Key ='" + result[1] + "'\n" +
+                			   "Frost Key   ='" + chkKey + "'");
+                chkKey = result[1]; // take over freenets key!
+            } else if( chkKey == null ) { // attachment upload
+                // attachment uploaded, get key from freenet insert
+                chkKey = result[1];
+            }
+            
+            if( result[0].equals("Success") ||
+                result[0].equals("KeyCollision") )
+            {
+                success = true;
+                splitfile.createRedirectFile(false); // create plain redirect file for next insert run
+            } else {
+				logger.severe("Could not upload redirect file: " + resultstr+" ("+result+")");
+                // keep redirect file to only try redirect upload on next try
+            }
+        } catch( Throwable e ) {
+            success = false;
+			logger.log(Level.SEVERE, "Error uploading redirect file", e);
         }
+        
+        if( ulItem == null ) { 
+            // if we tried to upload a file not contained in upload table, remove work files,
+            // no matter if success was true or false
+            splitfile.finishUpload(true);
+        } 
         
         if( success == true ) {
-
             logger.info("Redirect successfully uploaded.");
-            // return this to keep old behaviour ...
-            return new String[]{"Success", chkKey};
             
-// REDFLAG: what was / is this code intented to do? I could'nt find code that check for THIS file! 
-//          i think tracking if file is already
-//          uploaded today is done by lastUploadDate? Can this be removed ?             
-/*            
-            try
-            {
-                GregorianCalendar cal= new GregorianCalendar();
-                cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-
-                String dirdate = cal.get(Calendar.YEAR) + ".";
-                dirdate += cal.get(Calendar.MONTH) + 1 + ".";
-                dirdate += cal.get(Calendar.DATE);
-
-                String fileSeparator = System.getProperty("file.separator");
-                String destination = frame1.keypool + boardfilename + fileSeparator + dirdate + fileSeparator;
-                //connection = FcpFactory.getFcpConnectionInstance();
-                // That's not yet clean. Original frost code requires to start the insert funktion
-                // to generate the key, and here we process the results. Direct key generation
-                // should replace that, then we can also remove the result method
-                if( connection != null )
-                {
-                    String prefix = new String("freenet:");
-                    if( chkKey.startsWith(prefix) ) chkKey = chkKey.substring(prefix.length());
-
-                    FileAccess.writeFile("Already uploaded today", destination + chkKey + ".lck");
-                }
+            // keep workfiles for next insert
+            // TODO: make this configureable, checkblocks could be too large to keep them (user request)
+            if( ulItem != null ) {
+                splitfile.finishUpload(false);
             }
-            catch( Exception e )
-            {
-            }*/
-        }
-        else {
+
+            // return this to keep old behaviour ...
+            return new String[] {"Success", chkKey};
+            // info: tracking if file is already uploaded today is done by lastUploadDate.
+        } else {
             return ERROR;
         }
     }
@@ -508,7 +475,7 @@ RawDataLength=0
         }
     }
     
-    private static ArrayList getBlocksInSegmentWithState(List allBlocks, int segno, int state) {
+    private static List getFecBlocksInSegmentWithState(List allBlocks, int segno, int state) {
         ArrayList l = new ArrayList();
         for( int x=0; x<allBlocks.size(); x++ ) {
             FecBlock b = (FecBlock)allBlocks.get(x);
