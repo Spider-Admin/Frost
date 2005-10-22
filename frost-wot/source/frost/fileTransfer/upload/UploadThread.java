@@ -1,5 +1,5 @@
 /*
-  insertThread.java / Frost
+  UploadThread.java / Frost
   Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -116,10 +116,6 @@ class UploadThread extends Thread
 		}
 	}
     
-    
-	/**
-	 * 
-	 */
 	private void upload(boolean sign) { //real upload
 		
 		String lastUploadDate = null; // NEVER uploaded
@@ -129,10 +125,13 @@ class UploadThread extends Thread
 		
 		logger.info("Upload of " + file + " with HTL " + htl + " started.");
 
-		result = FcpInsert.putFile("CHK@", file, null,
-			// metadata
-			htl, true, // doRedirect
-		uploadItem); // provide the uploadItem to indicate that this upload is contained in table
+		result = FcpInsert.putFile(
+                "CHK@", 
+                file, 
+                null, // metadata
+			    htl, 
+                true, // doRedirect
+                uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
 		if (result[0].equals("Success") || result[0].equals("KeyCollision")) {
 			success = true;
@@ -199,14 +198,12 @@ class UploadThread extends Thread
 		uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());
 	}
     
-	/**
-	 * 
-	 */
 	private void generateSHA1(boolean sign) {
 		if (fileIndex % batchSize == 0) {
 			Core.getMyBatches().put(batchId, batchId);
-			while (Core.getMyBatches().contains(batchId))
+			while (Core.getMyBatches().contains(batchId)) {
 				batchId = (new Long(r.nextLong())).toString();
+            }
 			Core.getMyBatches().put(batchId, batchId);
 		}
 
@@ -242,9 +239,6 @@ class UploadThread extends Thread
 		uploadItem.setState(this.nextState);
 	}
     
-	/**
-	 * 
-	 */
 	private void generateCHK() {
 		logger.info("CHK generation started for file: " + file);
 		String chkkey = null;
@@ -270,19 +264,20 @@ class UploadThread extends Thread
 			splitfile.createRedirectFile(false);
 			// gen normal redirect file for CHK generation
 
-			chkkey =
-				FecTools.generateCHK(
+			chkkey = FecTools.generateCHK(
 					splitfile.getRedirectFile(),
 					splitfile.getRedirectFile().length());
 		}
 
 		if (chkkey != null) {
 			String prefix = new String("freenet:");
-			if (chkkey.startsWith(prefix))
+			if (chkkey.startsWith(prefix)) {
 				chkkey = chkkey.substring(prefix.length());
+            }
 		} else {
 			logger.warning("Could not generate CHK key for redirect file.");
 		}
+
 		uploadItem.setKey(chkkey);
 
 		// test if the GetRequestsThread did set us the nextState field...
@@ -317,7 +312,7 @@ class UploadThread extends Thread
 		this.settings = settings;
 		htl = settings.getIntValue("htlUpload");
 		board = ulItem.getTargetBoard();
-		mode = newMode; // true=upload file false=generate chk (do not upload)
+		mode = newMode;
 		nextState = newNextState;
 		if (nextState < 0) {
 			nextState = FrostUploadItem.STATE_IDLE;

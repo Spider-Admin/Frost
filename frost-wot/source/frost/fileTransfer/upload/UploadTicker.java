@@ -1,9 +1,21 @@
 /*
- * Created on Apr 27, 2004
- *
- * To change the template for this generated file go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
+  UploadTicker.java / Frost
+  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.fileTransfer.upload;
 
 import java.util.*;
@@ -13,12 +25,6 @@ import javax.swing.event.EventListenerList;
 import frost.*;
 import frost.identities.LocalIdentity;
 
-/**
- * @author Administrator
- *
- * To change the template for this generated type comment go to
- * Window&gt;Preferences&gt;Java&gt;Code Generation&gt;Code and Comments
- */
 public class UploadTicker extends Thread {
 
 	//To be able to increase this value, we have to add support for that. Without it,
@@ -30,10 +36,10 @@ public class UploadTicker extends Thread {
 
 	private SettingsClass settings;
 
-	private UploadPanel panel;
+//	private UploadPanel panel;
 	private UploadModel model;
 
-	private int counter;
+	private int removeNotExistingFilesCounter = 0;
 	
 	/**
 	 * Used to sort FrostUploadItems by lastUploadStopTimeMillis ascending.
@@ -76,7 +82,7 @@ public class UploadTicker extends Thread {
 		super("Upload");
 		settings = newSettings;
 		model = newModel;
-		panel = newPanel;
+//		panel = newPanel;
 		myID = newMyID;
 	}
 	
@@ -226,7 +232,7 @@ public class UploadTicker extends Thread {
 		while (true) {
 			Mixed.wait(1000);
 			// this is executed each second, so this counter counts seconds
-			counter++;
+			removeNotExistingFilesCounter++;
 			removeNotExistingFiles();
 			prepareUploadHashes();
 			generateCHKs();
@@ -253,8 +259,7 @@ public class UploadTicker extends Thread {
 					if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED) {
 						// set next state for item to REQUESTED, default is IDLE
 						// needed to keep the REQUESTED state for real uploading
-						newInsert =
-							new UploadThread(
+						newInsert = new UploadThread(
 								this,
 								ulItem,
 								settings,
@@ -263,8 +268,7 @@ public class UploadTicker extends Thread {
 								myID);
 					} else {
 						// next state will be IDLE (=default)
-						newInsert =
-							new UploadThread(
+						newInsert = new UploadThread(
 								this,
 								ulItem,
 								settings,
@@ -282,9 +286,6 @@ public class UploadTicker extends Thread {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private void startUploadThread() {
 		if (allocateUploadingThread()) {
 			
@@ -327,11 +328,11 @@ public class UploadTicker extends Thread {
 			for (int i = 0; i < model.getItemCount(); i++) {
 				FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
 				if (ulItem.getState() == FrostUploadItem.STATE_WAITING 
-						&& (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue())) {
+					&& (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue())) 
+                {
 					// check if waittime has expired
 					long waittimeMillis = settings.getIntValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME) * 60 * 1000;
-					if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis())
-								> waittimeMillis) {
+					if ((System.currentTimeMillis() - ulItem.getLastUploadStopTimeMillis()) > waittimeMillis) {
 						waitingItems.add(ulItem);
 					}
 				}
@@ -347,20 +348,18 @@ public class UploadTicker extends Thread {
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	private void prepareUploadHashes() {
 		// do this only if the automatic index handling is set
-		if (settings.getBoolValue("automaticIndexing") && allocateGeneratingThread()) {
+        // TODO: if autoindexing is disabled, no SHA1 is generated and we fail to start a thread in nextUploadItem()
+		if (/*settings.getBoolValue("automaticIndexing") && */ allocateGeneratingThread()) {
+
 			boolean threadLaunched = false;
 			
 			for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
 				FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
 				if (ulItem.getSHA1() == null) {
 					ulItem.setKey("Working...");
-					UploadThread newInsert =
-						new UploadThread(
+					UploadThread newInsert = new UploadThread(
 							this,
 							ulItem,
 							settings,
@@ -376,13 +375,11 @@ public class UploadTicker extends Thread {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private void removeNotExistingFiles() {
 		// Check uploadTable every 3 minutes
-		if (counter % 180 == 0) {
+		if (removeNotExistingFilesCounter >= 180 ) {
 			model.removeNotExistingFiles();
+            removeNotExistingFilesCounter = 0;
 		}
 	}
 	
