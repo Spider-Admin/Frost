@@ -56,6 +56,9 @@ public class FcpInsert
         result[1] = "Error";
 
         logger.info("*** FcpInsert.result: text='"+text+"'");
+        if( text == null ) {
+            return result; // error
+        }
         // check if the keyword returned by freenet is a known keyword.
         for( int i = 0; i < keywords.length; i++ ) {
             if( text.indexOf(keywords[i]) != -1 ) {
@@ -155,22 +158,10 @@ RawDataLength=0
                     if( connection == null ) {
                         return new String[] { "Error", "Error" };
                     }
+                    
+                    byte[] data = FileAccess.readByteArray(file);
+                    String output = workaroundPutKeyFromArray(connection, uri, data, metadata, htl);
 
-					//please remove this workaround when the freenet devs fix the FCP insert 
-					//returning empty string bug
-					//* * * begin workaround for FCP bug ***
-					String output = new String();
-					do {
-						output = connection.putKeyFromFile(uri, file.getPath(), metadata, htl);
-                        if( output.length() < 5 ) { //actually the length is 1, but just in case...
-                            logger.warning("Freenet insert failed, maybe a bug. Trying again...");
-                            Mixed.wait(333);
-                        } else {
-                            logger.info("output from fcp insert : "+output);
-                        }
-					} while (output.length() < 5);
-                    	
-                    // * * * end workaround for FCP bug ***  	
                     return result(output);
 
                 } catch( UnknownHostException e ) {
@@ -182,6 +173,37 @@ RawDataLength=0
             } else {
                 // file is too big, put as FEC splitfile
                 return putFECSplitFile(uri, file, htl, ulItem);
+            }
+        }
+    }
+    
+    /**
+     * Method calls FcpConnection.putKeyFromArray() and works around a freenet bug:
+     * sometimes freenet closes the socket without to provide an EndMessage.
+     * The output is < 5 characters then. If this is received, the insert is restarted.
+     * TODO: please remove this workaround when the freenet devs fix the FCP insert 
+     */
+    private static String workaroundPutKeyFromArray(
+            FcpConnection connection, String key, byte[] data, byte[] metadata, int htl) throws IOException {
+
+        int loops = 0;
+        final int maxLoops = 16; // high value for sure, should never happen
+
+        while(true) { // potential endless loop, risc was estimated and accepted
+            String output = connection.putKeyFromArray(key, data, metadata, htl);
+            if( output.length() < 5 ) { // actually the length is 1, but just in case...
+                if( loops < maxLoops ) {
+                    logger.warning("Freenet insert failed, maybe a freenet bug (output="+output+"). Trying again...");
+                    loops++;
+                    Mixed.wait(333);
+                    continue;
+                } else {
+                    logger.severe("Freenet insert failed due to freenet bug, tried "+loops+" times (output="+output+").");
+                    return null;
+                }
+            } else {
+                logger.info("Freenet insert ended, output from fcp insert : "+output);
+                return output;
             }
         }
     }
@@ -250,9 +272,11 @@ RawDataLength=0
                 segmentNo, 
                 FecBlock.STATE_TRANSFER_WAITING);
             
-            blocksToUpload.addAll( getBlocksInSegmentWithState(splitfile.getCheckBlocks(), 
-                segmentNo, 
-                FecBlock.STATE_TRANSFER_WAITING) );
+            blocksToUpload.addAll(
+                    getBlocksInSegmentWithState(
+                            splitfile.getCheckBlocks(), 
+                            segmentNo, 
+                            FecBlock.STATE_TRANSFER_WAITING) );
 
             int blocksToUploadCount = blocksToUpload.size();
             
@@ -335,10 +359,14 @@ RawDataLength=0
             // create normal redirect file for uploading
             splitfile.createRedirectFile(false);
             try {
-                String resultstr = connection.putKeyFromArray(uri,
-                    null,
-                    FileAccess.readByteArray(splitfile.getRedirectFile()),
-                    htl);
+                byte[] metadata = FileAccess.readByteArray(splitfile.getRedirectFile());
+                String resultstr = workaroundPutKeyFromArray(
+                        connection, 
+                        uri, 
+                        null, // no data 
+                        metadata, 
+                        htl);
+
                 String[] result = result(resultstr);
                                      
                 if( chkKey != null && result[1].indexOf(chkKey) < 0 ) {
@@ -385,7 +413,7 @@ RawDataLength=0
 
             logger.info("Redirect successfully uploaded.");
             // return this to keep old behaviour ...
-            return new String[]{"Success",chkKey};
+            return new String[]{"Success", chkKey};
             
 // REDFLAG: what was / is this code intented to do? I could'nt find code that check for THIS file! 
 //          i think tracking if file is already
@@ -446,9 +474,12 @@ RawDataLength=0
             FcpConnection connection = FcpFactory.getFcpConnectionInstance();
             if( connection != null ) {
                 try {
-                    String result = connection.putKeyFromArray(uri,//"CHK@", //block.getChkKey(),
-                        block.getPaddedMemoryArray(),
-                        null, htl);
+                    String result = workaroundPutKeyFromArray(
+                            connection, 
+                            uri,
+                            block.getPaddedMemoryArray(),
+                            null, // no metadata 
+                            htl);
                     if( result.indexOf("Success") > -1 ||
                         result.indexOf("KeyCollision") > -1 )
                     {
