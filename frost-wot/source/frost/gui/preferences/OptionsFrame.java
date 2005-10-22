@@ -271,7 +271,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
 
     private ExpirationPanel getExpirationPanel() {
         if (expirationPanel == null) {
-            expirationPanel = new ExpirationPanel(frostSettings);
+            expirationPanel = new ExpirationPanel(this, frostSettings);
         }
         return expirationPanel;
     }

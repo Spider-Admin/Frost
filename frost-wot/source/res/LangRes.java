@@ -419,6 +419,7 @@ public class LangRes extends ListResourceBundle {
     {"Archive expired messages","Archive expired messages"},
     {"Archive folder","Archive folder"},
     {"Delete expired messages from keypool","Delete expired messages from keypool"},
+    {"Select archive directory","Select archive directory"},
 	
     // Search Panel
 	{"Image Extension", "Image Extension"},

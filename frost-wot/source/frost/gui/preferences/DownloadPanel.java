@@ -32,14 +32,8 @@ import frost.util.gui.translation.Language;
 
 class DownloadPanel extends JPanel {
 
-	/**
-	 * 
-	 */
 	public class Listener implements ChangeListener, ActionListener {
 
-		/**
-		 * 
-		 */
 		public Listener() {
 			super();
 		}
