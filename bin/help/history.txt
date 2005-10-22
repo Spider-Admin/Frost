@@ -3,6 +3,17 @@
  ************************
 
 Pending changes:
+-----------------
+
+Added: added browse button for archive folder in expiration options
+
+Bugfix: it happened that new messages were indicated for a FOLDER, fixed (thanks mildew)
+
+******************************************************************************************
+
+
+2005.10.20:
+------------
 
 Added: message archiving feature (move expired msgs from keypool to archive folder)
 
