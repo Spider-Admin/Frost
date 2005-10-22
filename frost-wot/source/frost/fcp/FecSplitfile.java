@@ -560,11 +560,26 @@ public class FecSplitfile
      * Creates a redirect file. Is called also from within concurrent threads,
      * hence this method must be synchronized.
      * 
-     * @param downloadInProgress  if true a redirect file containing the progress is written
+     * @param transferInProgress  if true a redirect file containing the progress is written
      * @return
      */
-    public synchronized boolean createRedirectFile(boolean downloadInProgress) {
-        // TODO: add metafile information and checksum
+    public synchronized boolean createRedirectFile(boolean transferInProgress) {
+        
+        String s = getRedirectFileContent(transferInProgress);
+    	FileAccess.writeFile(s, this.redirectFile);
+        
+        return true;
+    }
+    
+    /**
+     * Creates a redirect filecontent . Is called also from within concurrent threads,
+     * hence this method must be synchronized.
+     * 
+     * @param transferInProgress  if true a redirect file containing the progress is written
+     * @return
+     */
+    public synchronized String getRedirectFileContent(boolean transferInProgress) {
+        // TODO: maybe add metafile information and checksum
 
         StringBuffer redirect = new StringBuffer(512);
         redirect.append("Version\n");
@@ -572,7 +587,7 @@ public class FecSplitfile
         redirect.append("EndPart\n");
         redirect.append("Document\n");
 
-        if( downloadInProgress ) {
+        if( transferInProgress ) {
             redirect.append(FROST_TRANSFER_INDICATOR).append("=true\n");
         }
 
@@ -583,17 +598,17 @@ public class FecSplitfile
         for( int x = 0; x < this.dataBlocks.size(); x++ ) {
             FecBlock fb = (FecBlock) this.dataBlocks.get(x);
             String blockChk = fb.getChkKey();
-            if( blockChk == null )
+            if( blockChk == null ) {
                 blockChk = "Error";
-            redirect.append("SplitFile.Block.").append(Integer.toHexString(x + 1)).append("=").append(blockChk).append(
-                    "\n");
-            if( downloadInProgress && fb.getCurrentState() == FecBlock.STATE_TRANSFER_FINISHED ) {
+            }
+            redirect.append("SplitFile.Block.").append(Integer.toHexString(x + 1)).append("=").append(blockChk).append("\n");
+            if( transferInProgress && fb.getCurrentState() == FecBlock.STATE_TRANSFER_FINISHED ) {
                 redirect.append(FROST_TRANSFER_FINISHED_INDICATOR).append("SplitFile.Block.").append(
                         Integer.toHexString(x + 1)).append("=true\n");
             }
         }
-		// insert all check block references
-		redirect.append("SplitFile.CheckBlockCount=").append(Integer.toHexString(this.checkBlocks.size())).append("\n");
+        // insert all check block references
+        redirect.append("SplitFile.CheckBlockCount=").append(Integer.toHexString(this.checkBlocks.size())).append("\n");
         for( int x = 0; x < this.checkBlocks.size(); x++ ) {
             FecBlock fb = (FecBlock) this.checkBlocks.get(x);
             String blockChk = fb.getChkKey();
@@ -602,16 +617,17 @@ public class FecSplitfile
             }
             redirect.append("SplitFile.CheckBlock.").append(Integer.toHexString(x + 1)).append("=").append(blockChk)
                     .append("\n");
-            if( downloadInProgress && fb.getCurrentState() == FecBlock.STATE_TRANSFER_FINISHED ) {
+            if( transferInProgress && fb.getCurrentState() == FecBlock.STATE_TRANSFER_FINISHED ) {
                 redirect.append(FROST_TRANSFER_FINISHED_INDICATOR).append("SplitFile.CheckBlock.").append(
                         Integer.toHexString(x + 1)).append("=true\n");
             }
         }
-		
-		redirect.append("End\n");
-    	FileAccess.writeFile(redirect.toString(), this.redirectFile);
-    	return true;
+        
+        redirect.append("End\n");
+        
+        return redirect.toString();
     }
+    
 /*
 This is a Redirect file created by freenet itself.
 I used this as a template, e.g. the hex file size is lowercase, ...
