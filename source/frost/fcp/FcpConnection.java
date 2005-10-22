@@ -40,14 +40,15 @@ public class FcpConnection
     // Using infinite (0) is'nt a good idea, because due to freenet bugs it happened in the past that
     //   the socket blocked forever. 
     // We now use with 60 minutes to be sure. mxbee (fuqid developer) told that he would maybe use 90 minutes!
-    final static int TIMEOUT = 60 * 60 * 1000;
+    private final static int TIMEOUT = 60 * 60 * 1000;
 
     private InetAddress host;
     private int port;
     private Socket fcpSock;
     private BufferedInputStream fcpIn;
     private PrintStream fcpOut;
-    private byte[] header = {0,0,0,2};
+
+    private final static byte[] header = {0,0,0,2};
 
     /**
      * Create a default connection to localhost using FCP
@@ -57,14 +58,11 @@ public class FcpConnection
      * @exception IOException if there is a problem with the connection
      * to the FCP host.
      */
-    public FcpConnection() throws UnknownHostException, IOException, FcpToolsException
-    {
+    public FcpConnection() throws UnknownHostException, IOException, FcpToolsException {
         this("127.0.0.1", 8481);
     }
 
-    public FcpConnection(String host, String port)
-    throws UnknownHostException, IOException, FcpToolsException
-    {
+    public FcpConnection(String host, String port) throws UnknownHostException, IOException, FcpToolsException {
         this(host, Integer.parseInt(port));
     }
 
@@ -77,9 +75,7 @@ public class FcpConnection
      * @exception IOException if there is a problem with the connection
      * to the FCP host.
      */
-    public FcpConnection(String host, int port)
-    throws UnknownHostException, IOException, FcpToolsException
-    {
+    public FcpConnection(String host, int port) throws UnknownHostException, IOException, FcpToolsException {
         this.host = InetAddress.getByName(host);
         this.port = port;
 
@@ -247,31 +243,24 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     //receivedFinalByte = true; // NO not for files. 
                     break;
                 }
-            }
-            else // handle data bytes
-            {
+            } else { // handle data bytes
 				logger.fine("Expecting " + dataChunkLength +
                           	  " bytes, " + totalDataLength +
                               " total.");
                 byte [] b = new byte[dataChunkLength];
                 int bytesRead = 0, count;
-                while( bytesRead < dataChunkLength )
-                {
+                while( bytesRead < dataChunkLength ) {
                     count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
-                    if( count < 0)
-                    {
+                    if( count < 0 ) {
                         break;
-                    }
-                    else
-                    {
+                    } else {
                         bytesRead += count;
                     }
                 }
                 fileOut.write(b);
                 expectingData = false;
                 totalDataLength -= bytesRead;
-                if( totalDataLength <= 0 )
-                {
+                if( totalDataLength <= 0 ) {
                     receivedFinalByte = true;
                 }
             }
@@ -467,45 +456,22 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     if( fastDownload )  receivedFinalByte = true;
                     break;
                 }
-            }
-            else // handle data bytes
-            {
-				logger.fine("Expecting " + dataChunkLength +
-                              " bytes, " + totalDataLength +
-                              " total.");
-                byte [] b = new byte[dataChunkLength];
-               /* DataInputStream dis = new DataInputStream(fcpIn);
-                try {
-                	dis.readFully(b);
-                	receivedFinalByte=true;
-                }catch(EOFException e){
-                	receivedFinalByte = false;
-                }
-            }    	
-                */
+            } else { // handle data bytes
+                logger.fine("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
+                byte[] b = new byte[dataChunkLength];
                 int bytesRead = 0, count;
-                while( bytesRead < dataChunkLength )
-                {
+                while( bytesRead < dataChunkLength ) {
                     count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
-                    if( count < 0)
-                    {
+                    if( count < 0 ) {
                         break;
-                    }
-                    else
-                    {
+                    } else {
                         bytesRead += count;
                     }
                 }
-                //        if (DEBUG)
-                //        {
-                //            String s = new String(b);
-                //          frost.Core.getOut().print(s);
-                //        }
                 fileOut.write(b);
                 expectingData = false;
                 totalDataLength -= bytesRead;
-                if( totalDataLength <= 0 )
-                {
+                if( totalDataLength <= 0 ) {
                     receivedFinalByte = true;
                 }
             }
@@ -517,33 +483,27 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fileOut.flush();
         fileOut.close();
         File checkSize = new File(filename);
-        if( metadataLength > 0 && checkSize.length() > 0)
-        {
-            if( metadataLength == checkSize.length() )
-            {
+        if( metadataLength > 0 && checkSize.length() > 0 ) {
+            if( metadataLength == checkSize.length() ) {
                 // all data are metadata ...
                 byte[] content = FileAccess.readByteArray(checkSize);
                 result.setRawMetadata(content);
                 // delete data file which contains no data
                 checkSize.delete();
-            }
-            else
-            {
+            } else {
                 // remove metadata from file and put metadata into result
                 byte[] content = FileAccess.readByteArray(checkSize);
-                byte[] metadata = new byte[(int)metadataLength]; 
-                System.arraycopy(content, 0, metadata, 0, (int)metadataLength);
-                
+                byte[] metadata = new byte[(int) metadataLength];
+                System.arraycopy(content, 0, metadata, 0, (int) metadataLength);
+
                 result.setRawMetadata(metadata);
                 // there is data behind metadata, write only this raw data to file
-                int datalen = (int)(checkSize.length() - metadataLength);
-                byte[] rawdata = new byte[ datalen];
-                System.arraycopy(content, (int)metadataLength, rawdata, 0, datalen);
-                FileAccess.writeFile(rawdata, checkSize); 
+                int datalen = (int) (checkSize.length() - metadataLength);
+                byte[] rawdata = new byte[datalen];
+                System.arraycopy(content, (int) metadataLength, rawdata, 0, datalen);
+                FileAccess.writeFile(rawdata, checkSize);
             }
-        }
-        else if( metadataLength == 0 && checkSize.length() == 0 )
-        {
+        } else if( metadataLength == 0 && checkSize.length() == 0 ) {
             checkSize.delete();
         }
         
@@ -551,15 +511,16 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
     }
 
 	/**
-	 * Inserts the specified key with the data from the file
-	 * specified.
-	 *
-	 * @param key  the key to be inserted
-	 * @param data  the bytearray with the data to be inserted
-	 * @param htl the HTL to use for this insert
-	 * @return the results filled with metadata and the CHK used to
-	 * insert the data
-	 */
+     * Inserts the specified key with the data from the file specified.
+     * 
+     * @param key
+     *            the key to be inserted
+     * @param data
+     *            the bytearray with the data to be inserted
+     * @param htl
+     *            the HTL to use for this insert
+     * @return the results filled with metadata and the CHK used to insert the data
+     */
 	public String putKeyFromArray(String key, byte[] data, byte[] metadata, int htl)
 		throws IOException {
 
@@ -607,7 +568,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
 		int c;
 		StringBuffer output = new StringBuffer();
-		//nio doesn't always close the connection.  workaround:
+		// nio doesn't always close the connection.  workaround:
 		while ((c = fcpIn.read()) != -1) {
 			output.append((char) c);
 			if (output.toString().indexOf("EndMessage") != -1) {
@@ -624,35 +585,9 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.close();
 		fcpIn.close();
 		fcpSock.close();
+
 		return output.toString();
 	}
-
-    /**
-     * Inserts the specified key with the data from the file
-     * specified.
-     *
-     * @param key  the key to be inserted
-     * @param filename  the filename from which the data should be read
-     * @param htl  HTL to use for insert
-     * @return the results filled with metadata and the CHK used to
-     * insert the data
-     */
-    public String putKeyFromFile(String key,
-                 String filename,
-                 int htl) throws IOException 
-    {
-        byte[] data = FileAccess.readByteArray(filename);
-        return putKeyFromArray(key, data, null, htl);
-    }
-
-    public String putKeyFromFile(String key,
-                 String filename,
-                 byte[] metadata,
-                 int htl) throws IOException 
-    {
-        byte[] data = FileAccess.readByteArray(filename);
-        return putKeyFromArray(key, data, metadata, htl);
-    }
 
     /**
      * Performs a handshake using this FcpConnection
@@ -709,6 +644,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
             output.append((char)c);
         }
     	logger.fine(output.toString());
+        
     /*
         //nio doesn't always close the connection.  workaround:
         while (true) {

@@ -28,7 +28,6 @@ import frost.threads.getKeyThread;
 
 /**
  * Requests a key from freenet
- * @author <a href=mailto:jantho666@hotmail.com>Jan-Thomas Czornack</a>
  */
 
 // while requesting / inserting, show chunks left to try (incl. trying chunks) -> Warte (9) / 18% (9)
