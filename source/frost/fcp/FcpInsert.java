@@ -355,7 +355,13 @@ RawDataLength=0
         } else {
             try {
                 // create normal redirect file content for upload
-                byte[] metadata = splitfile.getRedirectFileContent(false).getBytes();
+                byte[] metadata;
+                try {
+                    // on DBCS systems we don't want DBCS bytes!
+                    metadata = splitfile.getRedirectFileContent(false).getBytes("ISO-8859-1");
+                } catch(UnsupportedEncodingException e) {
+                    metadata = splitfile.getRedirectFileContent(false).getBytes();
+                }
                 String resultstr = workaroundPutKeyFromArray(
                         connection, 
                         uri, 

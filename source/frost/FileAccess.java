@@ -256,15 +256,24 @@ public class FileAccess {
 	public static boolean writeFile(String content, String filename, String encoding) {
 		return writeFile(content, new File(filename), encoding);
 	}
+    
     public static boolean writeFile(String content, File file) {
-        FileWriter f1;
+        OutputStreamWriter f1 = null;
         try {
-            f1 = new FileWriter(file);
+            // write the file in single byte codepage (default could be a DBCS codepage)
+            try {
+                f1 = new OutputStreamWriter(new FileOutputStream(file), "ISO-8859-1");
+            } catch(UnsupportedEncodingException e) {
+                f1 = new FileWriter(file);
+            }
             f1.write(content);
             f1.close();
             return true;
-        } catch( IOException e ) {
+        } catch( Throwable e ) {
 			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
+            if( f1 != null ) {
+                try { f1.close(); } catch(Throwable t) {}
+            }
         }
         return false;
     }
@@ -275,7 +284,7 @@ public class FileAccess {
             s.write(content);
             s.close();
             return true;
-        } catch( IOException e ) {
+        } catch( Throwable e ) {
             logger.log(Level.SEVERE, "Exception thrown in writeFile(byte[] content, File file)", e);
         }
         return false;
@@ -298,7 +307,7 @@ public class FileAccess {
 			outputWriter.close();
 			inputReader.close();
             return true;
-		} catch (IOException e) {
+		} catch (Throwable e) {
 			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
 		}
         return false;
@@ -340,7 +349,7 @@ public class FileAccess {
             destChannel = new FileOutputStream(destName).getChannel();
             destChannel.transferFrom(sourceChannel, 0, sourceChannel.size());
             wasOk = true;
-        } catch (IOException exception) {
+        } catch (Throwable exception) {
             logger.log(Level.SEVERE, "Exception in copyFile", exception);
         } finally {
             if (sourceChannel != null) {
@@ -379,7 +388,7 @@ public class FileAccess {
             s1.close();
             s2.close();
             return equals;
-        } catch(IOException e) {
+        } catch(Throwable e) {
             return false;
         }
     }
