@@ -76,10 +76,10 @@ public class XMLTools {
 		try {
     		writeXmlFile(doc, tmp.getPath());
     		result = FileAccess.readByteArray(tmp);
-    		tmp.delete();
 		} catch (Throwable t) {
 			logger.log(Level.SEVERE, "Exception thrown in getRawXMLDocument(XMLizable element)", t);
 		}
+        tmp.delete();
 		return result;
 	}
     
@@ -89,17 +89,16 @@ public class XMLTools {
      * @return  xml document
      */
     public static Document parseXmlContent(byte[] content, boolean validating) {
-        
+        Document result = null;
         File tmp = getXmlTempFile();
         try {
             FileAccess.writeFile(content, tmp);
-            Document d = XMLTools.parseXmlFile(tmp, validating);
-            return d;
+            result = XMLTools.parseXmlFile(tmp, validating);
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception thrown in parseXmlContent", t);
         }
         tmp.delete();
-        return null;
+        return result;
     }
 
     /**
@@ -277,8 +276,7 @@ public class XMLTools {
             tmp = File.createTempFile("xmltools_", 
                                       ".tmp", 
                                       new File(MainFrame.frostSettings.getValue("temp.dir")));
-        }
-        catch(Exception ex) {
+        } catch(Exception ex) {
             // this should never happen, but for the case ...
             tmp = new File("xmltools_"+System.currentTimeMillis());
         }
