@@ -181,7 +181,7 @@ public class GetRequestsThread extends Thread
 									Thread.currentThread().getName()
 										+ " Received request "
 										+ testMe.getName());
-
+// TODO: read multiple requests
 								String content = (FileAccess.readFile(testMe)).trim();
 								logger.fine("Request content is " + content);
 								int rowCount = model.getItemCount();

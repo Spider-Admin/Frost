@@ -338,10 +338,11 @@ public class UploadTicker extends Thread {
 				}
 			}
 			
-			if (waitingItems.size() == 0)
+			if (waitingItems.size() == 0) {
 				return null;
-
-			if (waitingItems.size() > 1) { // performance issues
+            } 
+            
+            if (waitingItems.size() > 1) { // performance issues
 				Collections.sort(waitingItems, uploadDlStopMillisCmp);
 			}
 			return (FrostUploadItem) waitingItems.get(0);

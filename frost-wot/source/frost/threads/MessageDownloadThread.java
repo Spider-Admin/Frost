@@ -157,18 +157,22 @@ public class MessageDownloadThread
             makedir.mkdirs();
         }
 
-        File checkLockfile = new File(destination + "locked.lck");
+//        File checkLockfile = new File(destination + "locked.lck");
         int index = 0;
         int failures = 0;
         int maxFailures;
 
-        if (flagNew) {
-            maxFailures = 3; // skip a maximum of 2 empty slots for today
-        } else {
-            maxFailures = 2; // skip a maximum of 1 empty slot for backload
-        }
+        // this works, but could lead into problems if you don't run frost 24h a day
+//        if (flagNew) {
+//            maxFailures = 2; // skip a maximum of 2 empty slots for today
+//        } else {
+//            maxFailures = 1; // skip a maximum of 1 empty slots for backload
+//        }
+        
+        maxFailures = 2; // skip a maximum of 2 empty slots
 
-        while (failures < maxFailures && (flagNew || !checkLockfile.exists())) {
+        while (failures < maxFailures) {
+//            while (failures < maxFailures && (flagNew || checkLockfile.exists() == false )) {
             
             if (isInterrupted()) {
                 return;
