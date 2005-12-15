@@ -84,13 +84,16 @@ public class DownloadThread extends Thread {
 			FcpResults success = null;
 
 			try {
-					// BBACKFLAG: implement increasing htls!
-					success =
-						FcpRequest.getFile(key, size, newFile, 25,
-											true, // doRedirect
-											false, // fastDownload
-											false, // createTempFile
-											downloadItem);
+				// BBACKFLAG: implement increasing htls!
+				success = FcpRequest.getFile(
+                            key, 
+                            size, 
+                            newFile, 
+                            25,  // HTL
+                            true, // doRedirect
+                            false, // fastDownload
+                            false, // createTempFile
+                            downloadItem);
 			} catch (Throwable t) {
 				logger.log(Level.SEVERE, "Exception thrown in run()", t);
 			}
@@ -214,7 +217,7 @@ public class DownloadThread extends Thread {
 		if (!checkDestination.isDirectory()) {
 			checkDestination.mkdirs();
         }
-
+// TODO: put multiple requests into 1 file; do this above downloadthread
 		// Check if file was already requested
 		// ++ check only in req files
 		File[] files = checkDestination.listFiles(new FilenameFilter() {
