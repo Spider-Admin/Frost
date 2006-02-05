@@ -78,14 +78,6 @@ public class SettingsClass implements Savable {
 		if (!readSettingsFile()) {
 			writeSettingsFile();
 		}
-		// TODO: remove this, and use default or loaded value
-		// i need to add because i used 'unsent' as name in former
-		// CVS versions. So if you already have this settings: its wrong!
-		// we need the '#' to separate internal boards in keypool from normal board.
-		// normal board file names are not allowed to contain '#'.
-		// once all users have the '#unsent#' folder configured, this can be removed
-		// and you can change the directory location
-		settingsHash.put("unsent.dir", "localdata" + fs + "unsent" + fs);
 	}
 
 	private String setSystemsFileSeparator(String path) {
@@ -166,6 +158,7 @@ public class SettingsClass implements Savable {
 						// scan all path config values and set correct system file separator
 						else if (
 							key.equals("unsent.dir")
+                                || key.equals("sent.dir")
 								|| key.equals("temp.dir")
 								|| key.equals("keypool.dir")
                                 || key.equals("archive.dir")) {
@@ -553,6 +546,7 @@ public class SettingsClass implements Savable {
 		// DIRECTORIES
 		defaults.put("keypool.dir", "keypool" + fs);
 		defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
+        defaults.put("sent.dir", "localdata" + fs + "sent" + fs);
 		defaults.put("temp.dir", "localdata" + fs + "temp" + fs);
         defaults.put("archive.dir", "archive" + fs);
         

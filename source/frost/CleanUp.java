@@ -31,6 +31,8 @@ import frost.gui.objects.*;
  * Clean up the keypool.
  */
 public class CleanUp {
+    
+    // TODO: archive/delete expired SENT messages (Core.frostSettings.getValue("sent.dir"))
 
     private static Logger logger = Logger.getLogger(CleanUp.class.getName());
     
@@ -180,7 +182,7 @@ public class CleanUp {
                                 String targetfile = archiveDir + // "archive/messages/" 
                                                     boardFolder.getName() +   // "frost"
                                                     File.separator + boardFolderFile.getName()+ // "/2005.9.1"
-                                                    File.separator +boardDateFolderFile.getName(); // "/msg.xml"
+                                                    File.separator + boardDateFolderFile.getName(); // "/msg.xml"
                                 File tfile = new File(targetfile);
                                 tfile.getParentFile().mkdirs();
                                 
@@ -191,8 +193,11 @@ public class CleanUp {
                                     return deleted;
                                 }
                             }
+                            // delete file after copy to archive OR if DELETE was requested
                             if( boardDateFolderFile.delete() == true ) {
                                 deleted++;
+                            } else {
+                                logger.severe("Failed to delete expired file "+boardDateFolderFile.getPath());
                             }
                         }
                     }
