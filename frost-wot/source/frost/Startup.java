@@ -84,6 +84,12 @@ public class Startup {
             unsentDirectory.mkdirs();
         }
 
+        File sentDirectory = new File(settings.getValue("sent.dir"));
+        if( !sentDirectory.isDirectory() ) {
+            logger.warning("Creating sent directory");
+            sentDirectory.mkdirs();
+        }
+
         File tempDirectory = new File(settings.getValue("temp.dir"));
         if( !tempDirectory.isDirectory() ) {
             logger.warning("Creating temp directory");

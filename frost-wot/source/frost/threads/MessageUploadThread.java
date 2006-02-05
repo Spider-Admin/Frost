@@ -617,6 +617,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         int maxTries = 5;
         boolean error = false;
         boolean tryAgain;
+        
+        String upKey = null;
+        
         while (!success) {
             // find first free index slot
             index = findNextFreeIndex(index);
@@ -644,7 +647,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
             // try to insert message
             String[] result = new String[2];
-            String upKey = composeUpKey(index);
+            upKey = composeUpKey(index);
             String downKey = composeDownKey(index);
 
             try {
@@ -689,14 +692,26 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
 
         if (!error) {
-            // we will see the message if received from freenet
-            messageFile.delete();
-            zipFile.delete();
-
             logger.info("*********************************************************************\n"
                     + "Message successfully uploaded to board '" + board.getName() + "'.\n"
                     + "*********************************************************************");
+
             tryAgain = false;
+
+            // move message file to sent folder
+            
+            // upKey is KSK@.../msg.xml, we want msg.xml name
+            String finalName = upKey.substring( upKey.lastIndexOf("/")+1 );
+
+            File sentTarget = new File( frostSettings.getValue("sent.dir") + finalName );
+            boolean wasOk = messageFile.renameTo(sentTarget);
+            if( !wasOk ) {
+                logger.severe("Error: rename of '"+messageFile.getPath()+"' into '"+sentTarget.getPath()+"' failed!");
+            }
+
+            messageFile.delete();
+            zipFile.delete();
+
         } else {
             logger.warning("TOFUP: Error while uploading message.");
 
