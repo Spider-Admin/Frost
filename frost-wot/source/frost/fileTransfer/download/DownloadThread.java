@@ -315,7 +315,13 @@ public class DownloadThread extends Thread {
 							.append(".req.sha")
 							.toString();
 					logger.fine(upKey);
-					result = FcpInsert.putFile(upKey, requestFile, messageUploadHtl, false);
+					result = FcpInsert.putFile(
+                            upKey, 
+                            requestFile, 
+                            null, 
+                            messageUploadHtl, 
+                            false, // doRedirect
+                            true); // removeLocalKey, insert with full HTL even if existing in local store
 					logger.fine("FcpInsert result[0] = " + result[0] + " result[1] = " + result[1]);
 
 					if (result[0] == null || result[1] == null) {

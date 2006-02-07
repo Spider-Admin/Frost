@@ -123,7 +123,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         boolean success = false;
 
         try {
-
             // sign zip file if requested
             boolean signUpload = MainFrame.frostSettings.getBoolValue("signUploads");
             byte[] metadata = null;
@@ -141,13 +140,14 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                    index > -1 ) // no free index found 
             {
                 logger.info("Trying index file upload to index "+index);
-                // Does this index already exist?
+
                 String[] result = FcpInsert.putFile(
                         insertKey + index + ".idx.sha3.zip", // this format is sha3 ;)
                         zippedIndexFile, 
                         metadata, 
                         insertHtl, 
-                        false); // doRedirect
+                        false, // doRedirect
+                        true); // removeLocalKey, insert with full HTL even if existing in local store
 
                 if( result[0].equals("Success") ) {
                     success = true;

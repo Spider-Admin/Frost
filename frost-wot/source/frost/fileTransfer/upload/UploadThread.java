@@ -116,7 +116,7 @@ class UploadThread extends Thread
 		}
 	}
     
-	private void upload(boolean sign) { //real upload
+	private void upload(boolean sign) { // real upload
 		
 		String lastUploadDate = null; // NEVER uploaded
 		boolean success = false;
@@ -131,6 +131,7 @@ class UploadThread extends Thread
                 null, // metadata
 			    htl, 
                 true, // doRedirect
+                true, // removeLocalKey, insert with full HTL even if existing in local store
                 uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
 		if (result[0].equals("Success") || result[0].equals("KeyCollision")) {

@@ -80,12 +80,15 @@ public class FcpInsert
      * for inserting e.g. the pubkey.txt file set it to null.
      * This method wraps the calls without the uploadItem.
      */
-    public static String[] putFile(String uri, File file, int htl, boolean doRedirect) {
-        return putFile(uri, file, null, htl, doRedirect, null);
-    }
-    
-    public static String[] putFile(String uri, File file, byte[]metadata, int htl, boolean doRedirect) {
-        return putFile(uri, file, metadata, htl, doRedirect, null);
+    public static String[] putFile(
+            String uri, 
+            File file, 
+            byte[] metadata, 
+            int htl, 
+            boolean doRedirect, 
+            boolean removeLocalKey) 
+    {
+        return putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, null);
     }
     
     /**
@@ -95,12 +98,14 @@ public class FcpInsert
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
-    public static String[] putFile(String uri, 
-                                   File file,
-                                   byte[] metadata, 
-                                   int htl, 
-                                   boolean doRedirect,
-                                   FrostUploadItem ulItem)
+    public static String[] putFile(
+            String uri, 
+            File file,
+            byte[] metadata, 
+            int htl, 
+            boolean doRedirect,
+            boolean removeLocalKey,
+            FrostUploadItem ulItem)
     {
         if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't upload empty file: "+file.getPath());
@@ -159,7 +164,7 @@ RawDataLength=0
                     }
                     
                     byte[] data = FileAccess.readByteArray(file);
-                    String output = workaroundPutKeyFromArray(connection, uri, data, metadata, htl);
+                    String output = workaroundPutKeyFromArray(connection, uri, data, metadata, htl, removeLocalKey);
 
                     return result(output);
 
@@ -183,14 +188,15 @@ RawDataLength=0
      * TODO: please remove this workaround when the freenet devs fix the FCP insert 
      */
     private static String workaroundPutKeyFromArray(
-            FcpConnection connection, String key, byte[] data, byte[] metadata, int htl) throws IOException {
+            FcpConnection connection, String key, byte[] data, byte[] metadata, int htl, boolean removeLocalKey) 
+    throws IOException {
 
         int loop = 0;
         final int maxLoops = 16; // high value for sure, should never happen
 
         while(true) {
-            String output = connection.putKeyFromArray(key, data, metadata, htl);
-            if( output.length() < 5 ) { // actually the length is 1, but just in case...
+            String output = connection.putKeyFromArray(key, data, metadata, htl, removeLocalKey);
+            if( output.length() < 3 ) { // actually the length is 1, but just in case...
                 if( loop < maxLoops ) {
                     logger.warning("Freenet insert failed, maybe a freenet bug (output="+output+"). Loop "+loop+". Trying again...");
                     loop++;
@@ -367,7 +373,8 @@ RawDataLength=0
                         uri, 
                         null, // no data 
                         metadata, 
-                        htl);
+                        htl,
+                        true); // removeLocalKey, insert with full HTL even if existing in local store
     
                 String[] result = result(resultstr);
                                      
@@ -415,6 +422,9 @@ RawDataLength=0
         }
     }
     
+    /**
+     * Class is used by putFECSplitFile to insert signle blocks.
+     */
     private static class PutKeyThread extends Thread {
         
         FecBlock block;
@@ -443,7 +453,8 @@ RawDataLength=0
                             uri,
                             block.getPaddedMemoryArray(),
                             null, // no metadata 
-                            htl);
+                            htl,
+                            true); // removeLocalKey, insert with full HTL even if existing in local store
                     if( result.indexOf("Success") > -1 || result.indexOf("KeyCollision") > -1 ) {
                         success = true;
                     }
