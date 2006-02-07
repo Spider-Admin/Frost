@@ -827,14 +827,16 @@ public class Core implements Savable, FrostEventDispatcher  {
 	 */
 	private void initializeLanguage() {
 		if (locale != null) {
+            // use locale specified on command line (overrides config setting)
 			Language.initialize("res.LangRes", locale);
 		} else {
-			String language = frostSettings.getValue("locale");
-			if (!language.equals("default")) {
-				Language.initialize("res.LangRes", new Locale(language));
-			} else {
-				Language.initialize("res.LangRes");
-			}
+			String lang = frostSettings.getValue("locale");
+            if( lang == null || lang.length() == 0 || lang.equals("default") ) {
+                // for default or if not set at all
+                Language.initialize("res.LangRes");
+            } else {
+                Language.initialize("res.LangRes", new Locale(lang));
+            }
 		}
 		language = Language.getInstance();
 	}

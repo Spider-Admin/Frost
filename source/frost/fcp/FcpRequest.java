@@ -185,7 +185,7 @@ public class FcpRequest
             if( segmentsFinishedBlocks < neededBlockCount ) {
                 // we need to receive some more blocks before we are able to decode
                 Collections.shuffle( missingBlocks );
-                // start configured amount of aplitfile threads
+                // start configured amount of splitfile threads
                 int actBlockIx = 0;
                 Vector runningThreads = new Vector(maxThreads);
                 

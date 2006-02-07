@@ -521,7 +521,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      *            the HTL to use for this insert
      * @return the results filled with metadata and the CHK used to insert the data
      */
-	public String putKeyFromArray(String key, byte[] data, byte[] metadata, int htl)
+	public String putKeyFromArray(String key, byte[] data, byte[] metadata, int htl, boolean removeLocalKey)
 		throws IOException {
 
 		key = FcpDisconnect(key);
@@ -535,7 +535,9 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.write(header, 0, header.length);
 
 		fcpOut.println("ClientPut");
-		fcpOut.println("RemoveLocalKey=true");
+        if( removeLocalKey ) {
+            fcpOut.println("RemoveLocalKey=true");
+        }
 		fcpOut.println("HopsToLive=" + Integer.toHexString(htl));
 		fcpOut.println("URI=" + key);
 

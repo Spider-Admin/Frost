@@ -124,7 +124,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	private boolean checkLocalMessage(File localFile) {
 		try {
 			MessageObject localMessage = new MessageObject(localFile);
-			//We compare the messages by content (body), subject, from and attachments
+			// We compare the messages by content (body), subject, from and attachments
 			if (!localMessage.getContent().equals(message.getContent())) {
 				return false;	
 			} 
@@ -468,15 +468,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 			&& !result[0].equals("KeyCollision")
 			&& !result[0].equals("Success")) {
 			try {
-				result =
-					FcpInsert.putFile(
+				result = FcpInsert.putFile(
 						"CHK@",
 						attachment.getFile(),
 						null,
 						uploadHtl,
-						true,
+						true, // doRedirect
+                        true, // removeLocalKey, insert with full HTL even if existing in local store
 						new FrostUploadItem(null, null));
-				// doRedirect
 			} catch (Exception ex) {
 				result = new String[1];
 				result[0] = "Error";
@@ -572,7 +571,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         int tryIndex = startIndex;
         int firstEmptyIndex = -1;
 
-        logger.fine("TOFUP: Searching free index in board "+board.getBoardFilename()+", starting at index " + startIndex);
+        logger.fine("TOFUP: Searching free index in board "+
+                    board.getBoardFilename()+", starting at index " + startIndex);
 
         while(true) {
 
@@ -583,7 +583,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 // check each existing message in board if this is the msg we want to send
                 if (encryptForRecipient == null && checkLocalMessage(testMe)) {
                     return -1;
-//                    throw new MessageAlreadyUploadedException(); // bad idea
                 } else {
                     tryIndex++;
                     firstEmptyIndex = -1;
@@ -651,8 +650,14 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             String downKey = composeDownKey(index);
 
             try {
-                // signMetadata is null for unsigned upload. Do not do redirect (false)
-                result = FcpInsert.putFile(upKey, zipFile, signMetadata, messageUploadHtl, false);
+                // signMetadata is null for unsigned upload. Do not do redirect.
+                result = FcpInsert.putFile(
+                        upKey, 
+                        zipFile, 
+                        signMetadata, 
+                        messageUploadHtl, 
+                        false,  // doRedirect
+                        false); // removeLocalKey, we want a KeyCollision if key does already exist in local store!
             } catch (Throwable t) {
                 logger.log(Level.SEVERE, "TOFUP: Error in run()/FcpInsert.putFile", t);
             }
@@ -669,7 +674,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     if (checkRemoteFile(downKey)) {
                         logger.info("TOFUP: Message seems to be already uploaded (2)");
                         success = true;
-//                        throw new MessageAlreadyUploadedException(); // bad idea!
                     } else {
                         index++;
                         logger.fine("TOFUP: Upload collided, increasing index to " + index);

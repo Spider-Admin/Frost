@@ -124,12 +124,13 @@ public class TranslatePanel extends JPanel {
 		tableModel.setRowCount(0);
 		for (Enumeration e = bundle.getKeys(); e.hasMoreElements();) {
 			String originalText = (String) e.nextElement();
-			String row[] = { originalText, newBundle.getString(originalText)};
+			String row[] = { originalText, newBundle.getString(originalText) };
 			tableModel.addRow(row);
 		}
 		
 		// Sort the table ascending
-		TranslateTableSorter.sortByColumn(table, 0, true);
+        // TODO: sorting disabled, keep structure in LangRes file
+//		TranslateTableSorter.sortByColumn(table, 0, true);
 	}
 
 	/**
