@@ -548,13 +548,23 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		return success;
 	}
     
-    private String composeMsgFilename(int index) {
-        
+    /**
+     * Composes the complete path + filename of a messagefile in the keypool for the given index.
+     */
+    private String composeMsgFilePath(int index) {
         return new StringBuffer().append(getDestinationBase()).append(message.getDate())
         .append("-").append(board.getBoardFilename()).append("-").append(index).append(".xml")
         .toString();
     }
-    
+
+    /**
+     * Composes only the filename of a messagefile in the keypool for the given index.
+     */
+    private String composeMsgFileNameWithoutXml(int index) {
+        return new StringBuffer().append(message.getDate()).append("-")
+        .append(board.getBoardFilename()).append("-").append(index).toString();
+    }
+
     /**
      * Finds the next free index slot, starting at startIndex.
      * If a free slot is found (no xml message exists for this index in keypool)
@@ -576,7 +586,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
         while(true) {
 
-            String testFilename = composeMsgFilename(tryIndex);
+            String testFilename = composeMsgFilePath(tryIndex);
 
             File testMe = new File(testFilename);
             if (testMe.exists() && testMe.length() > 0) {
@@ -630,7 +640,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
             
             // probably empty, check if other threads currently try to insert to this index
-            File lockRequestIndex = new File(composeMsgFilename(index) + ".lock");
+            File lockRequestIndex = new File(composeMsgFilePath(index) + ".lock");
             boolean lockFileCreated = false;
             lockFileCreated = lockRequestIndex.createNewFile();
 
@@ -704,16 +714,22 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
             // move message file to sent folder
             
-            // upKey is KSK@.../msg.xml, we want msg.xml name
-            String finalName = upKey.substring( upKey.lastIndexOf("/")+1 );
+            String finalName = composeMsgFileNameWithoutXml(index);
 
-            File sentTarget = new File( frostSettings.getValue("sent.dir") + finalName );
+            File sentTarget = new File( frostSettings.getValue("sent.dir") + finalName + ".xml" );
+            
+            int counter = 2;
+            while( sentTarget.exists() ) {
+                // paranoia, target file already exists, append an increasing number
+                sentTarget = new File( frostSettings.getValue("sent.dir") + finalName + "-" + counter + ".xml" );
+                counter++;
+            }
+            
             boolean wasOk = messageFile.renameTo(sentTarget);
             if( !wasOk ) {
                 logger.severe("Error: rename of '"+messageFile.getPath()+"' into '"+sentTarget.getPath()+"' failed!");
+                messageFile.delete(); // we must delete the file from unsent folder to prevent another upload
             }
-
-            messageFile.delete();
             zipFile.delete();
 
         } else {
