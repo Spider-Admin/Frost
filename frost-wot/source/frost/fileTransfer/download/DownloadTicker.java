@@ -246,9 +246,10 @@ public class DownloadTicker extends Thread {
 				// check if waittime is expired
 				long waittimeMillis = settings.getIntValue("downloadWaittime") * 60 * 1000;
 				// min->millisec
-				if (settings.getBoolValue("downloadRestartFailedDownloads")
-					&& (System.currentTimeMillis() - dlItem.getLastDownloadStopTimeMillis())
-						> waittimeMillis) {
+				if (dlItem.getLastDownloadStopTimeMillis() == 0 || // never started
+                    (settings.getBoolValue("downloadRestartFailedDownloads")
+					&& (System.currentTimeMillis() - dlItem.getLastDownloadStopTimeMillis()) > waittimeMillis)) 
+                {
 					waitingItems.add(dlItem);
 				}
 			}
