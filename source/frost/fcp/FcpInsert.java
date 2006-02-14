@@ -200,7 +200,7 @@ RawDataLength=0
                 if( loop < maxLoops ) {
                     logger.warning("Freenet insert failed, maybe a freenet bug (output="+output+"). Loop "+loop+". Trying again...");
                     loop++;
-                    Mixed.wait(333);
+                    Mixed.wait(10000);
                     continue;
                 } else {
                     logger.severe("Freenet insert failed due to freenet bug, tried "+loop+" times (output="+output+").");

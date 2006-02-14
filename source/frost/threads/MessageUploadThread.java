@@ -633,17 +633,19 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         boolean success = false;
         int index = 0;
         int tries = 0;
-        int maxTries = 5;
+        int maxTries = 8;
         boolean error = false;
         boolean tryAgain;
         
         String upKey = null;
         
         boolean retrySameIndex = false;
+        File lockRequestIndex = null;
         
         while (!success) {
+
             if( retrySameIndex == false ) {
-                // find first free index slot
+                // find next free index slot
                 index = findNextFreeIndex(index);
                 if( index < 0 ) {
                     // same message was already uploaded today
@@ -651,25 +653,27 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     success = true;
                     continue;
                 }
+
+                // probably empty slot, check if other threads currently try to insert to this index
+                lockRequestIndex = new File(composeMsgFilePath(index) + ".lock");
+                boolean lockFileCreated = lockRequestIndex.createNewFile();
+
+                if (lockFileCreated == false) {
+                    // another thread tries to insert using this index, try next
+                    index++;
+                    logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
+                    continue; // while
+                } else {
+                    // we try this index
+                    lockRequestIndex.deleteOnExit();
+                }
+
             } else {
                 // reset flag
                 retrySameIndex = false;
+                // lockfile already created
             }
             
-            // probably empty, check if other threads currently try to insert to this index
-            File lockRequestIndex = new File(composeMsgFilePath(index) + ".lock");
-            boolean lockFileCreated = lockRequestIndex.createNewFile();
-
-            if (lockFileCreated == false) {
-                // another thread tries to insert using this index, try next
-                index++;
-                logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
-                continue; // while
-            } else {
-                // we try this index
-                lockRequestIndex.deleteOnExit();
-            }
-
             // try to insert message
             String[] result = new String[2];
             upKey = composeUpKey(index);
@@ -699,7 +703,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 int dlTries = 0;
                 int dlMaxTries = 2;
                 while(dlTries < maxTries) {
-                    try { Thread.sleep(10000); } catch(InterruptedException e) {}
+                    Mixed.wait(10000);
                     tmpFile.delete(); // just in case it already exists
                     downloadMessage(index, tmpFile);
                     if( tmpFile.length() > 0 ) {
@@ -729,7 +733,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     } else {
                         index++;
                         logger.warning("TOFUP: Upload collided, increasing index to " + index);
-                        try { Thread.sleep(10000); } catch(InterruptedException e) {}
+                        Mixed.wait(10000);
                     }
                 } else {
                     if (tries > maxTries) {
@@ -740,12 +744,12 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                 + "), retrying index " + index);
                         tries++;
                         retrySameIndex = true;
-                        try { Thread.sleep(10000); } catch(InterruptedException e) {}
+                        Mixed.wait(10000);
                     }
                 }
             }
-            // finally delete the index lock file
-            if (lockFileCreated == true ) {
+            // finally delete the index lock file, if we retry this index we keep it
+            if (retrySameIndex == false) {
                 lockRequestIndex.delete();
             }
         }
