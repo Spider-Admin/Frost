@@ -25,8 +25,6 @@ import java.io.File;
 import java.util.*;
 
 import javax.swing.*;
-//import javax.swing.event.*;
-//import javax.swing.table.*;
 
 /**
  * Translate Component
@@ -112,9 +110,7 @@ public class TranslatePanel extends JPanel {
 	 */
 	private void configureTable(String language) {
 		java.util.ResourceBundle bundle =
-			java.util.ResourceBundle.getBundle(
-				"res.LangRes",
-				new Locale("en"));
+			java.util.ResourceBundle.getBundle("res.LangRes");
 
 		java.util.ResourceBundle newBundle =
 			java.util.ResourceBundle.getBundle(
@@ -176,15 +172,7 @@ public class TranslatePanel extends JPanel {
 		saveButton.addActionListener(new java.awt.event.ActionListener() {
 			public void actionPerformed(ActionEvent e) {
 				String languageCode = getSelectedLanguageCode();
-				String content =
-					LanguageFile.generateFile(tableModel, languageCode);
-				if (languageCode.equals("en")) {
-					WriteAccess.writeFile(content, new File("LangRes.java"));
-				} else {
-					WriteAccess.writeFile(
-						content,
-						new File("LangRes_" + languageCode + ".java"));
-				}
+                LanguageFile.generateFile(tableModel, languageCode); // save file
 			}
 		});
 		loadButton.addActionListener(new java.awt.event.ActionListener() {
@@ -212,5 +200,4 @@ public class TranslatePanel extends JPanel {
 			}
 		}
 	}
-
 }

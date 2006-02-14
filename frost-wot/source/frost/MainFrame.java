@@ -36,8 +36,6 @@ import javax.swing.text.*;
 import javax.swing.tree.*;
 
 import frost.boards.*;
-import frost.components.*;
-import frost.components.translate.*;
 import frost.ext.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.*;
@@ -1634,11 +1632,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     //Options Menu
     private JMenu optionsMenu = new JMenu();
     private JMenuItem optionsPreferencesMenuItem = new JMenuItem();
-    private JMenuItem pluginBrowserMenuItem = new JMenuItem();
+//    private JMenuItem pluginBrowserMenuItem = new JMenuItem();
 
     //Plugin Menu
-    private JMenu pluginMenu = new JMenu();
-    private JMenuItem pluginTranslateMenuItem = new JMenuItem();
+//    private JMenu pluginMenu = new JMenu();
+//    private JMenuItem pluginTranslateMenuItem = new JMenuItem();
 
     //Popups
     private JButton removeBoardButton = null;
@@ -1990,18 +1988,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     tofDisplayKnownBoardsMenuItem_actionPerformed(e);
                 }
             });
-            pluginBrowserMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    BrowserFrame browser = new BrowserFrame(true);
-                    browser.setVisible(true);
-                }
-            });
-            pluginTranslateMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    TranslateFrame translate = new TranslateFrame(true);
-                    translate.setVisible(true);
-                }
-            });
+//            pluginBrowserMenuItem.addActionListener(new ActionListener() {
+//                public void actionPerformed(ActionEvent e) {
+//                    BrowserFrame browser = new BrowserFrame(true);
+//                    browser.setVisible(true);
+//                }
+//            });
+//            pluginTranslateMenuItem.addActionListener(new ActionListener() {
+//                public void actionPerformed(ActionEvent e) {
+//                    TranslateFrame translate = new TranslateFrame(true);
+//                    translate.setVisible(true);
+//                }
+//            });
             languageDefaultMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes");
@@ -2098,8 +2096,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             // Options Menu
             optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu
-            pluginMenu.add(pluginBrowserMenuItem);
-            pluginMenu.add(pluginTranslateMenuItem);
+//            pluginMenu.add(pluginBrowserMenuItem);
+//            pluginMenu.add(pluginTranslateMenuItem);
             // Language Menu
             ButtonGroup languageMenuButtonGroup = new ButtonGroup();
             languageDefaultMenuItem.setSelected(true);
@@ -2148,7 +2146,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             menuBar.add(fileMenu);
             menuBar.add(tofMenu);
             menuBar.add(optionsMenu);
-            menuBar.add(pluginMenu);
+//            menuBar.add(pluginMenu);
             menuBar.add(languageMenu);
             menuBar.add(helpMenu);
 
@@ -2663,9 +2661,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         tofDisplayKnownBoards.setText(language.getString("Display known boards"));
         optionsMenu.setText(language.getString("Options"));
         optionsPreferencesMenuItem.setText(language.getString("Preferences"));
-        pluginMenu.setText(language.getString("Plugins"));
-        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
-        pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
+//        pluginMenu.setText(language.getString("Plugins"));
+//        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
+//        pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
         languageMenu.setText(language.getString("Language"));
         languageDefaultMenuItem.setText(language.getString("Default"));
         languageDutchMenuItem.setText(language.getString("Dutch"));

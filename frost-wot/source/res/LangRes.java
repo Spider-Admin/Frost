@@ -34,8 +34,8 @@ public class LangRes extends ListResourceBundle {
     return contents;
     }
     static final Object[][] contents = {
-	
-	
+
+
 	///////////////////////////////////////////////////
 	// Unknown translations
 	// Have to look where in the GUI these translations are needed
@@ -64,15 +64,13 @@ public class LangRes extends ListResourceBundle {
 	{"Display","Display"},
 	{"Miscellaneous","Miscellaneous"},
 	{"Messages Today","Messages Today"},
-	//{"Board information","Board information"},
-	//{"Boards","Boards"},
 	{"Public board","Public board"},
 	{"Secure board","Secure board"},
 	{"Generate new keypair","Generate new keypair"},
 	{"Private key","Private key"},
 	{"Public key","Public key"},
 	{"Not available","Not available"},
-	
+
 	///////////////////////////////////////////////////
 	// Splash messages
 	///////////////////////////////////////////////////
@@ -81,7 +79,7 @@ public class LangRes extends ListResourceBundle {
 	{"Sending IP address to NSA","Sending IP address to the NSA"},
 	{"Wasting more time","Wasting more time"},
 	{"Reaching ridiculous speed...","Reaching ridiculous speed..."},
-	
+
 	///////////////////////////////////////////////////
     // Welcome message
 	///////////////////////////////////////////////////
@@ -103,7 +101,7 @@ public class LangRes extends ListResourceBundle {
     {"Configure selected folder", "Configure selected folder"},
     {"Display board information window", "Display board information window"},
 	{"Display known boards", "Display known boards"},
-	
+
 	// Menu Options
     {"Options", "Options"},
     {"Preferences", "Preferences"},
@@ -124,7 +122,7 @@ public class LangRes extends ListResourceBundle {
 	{"Italian", "Italian"},
 	{"Spanish", "Spanish"},
 	{"Bulgarian","Bulgarian"},
-		
+
 	// Menu Help
     {"Help", "Help"},
     {"About", "About"},
@@ -141,7 +139,7 @@ public class LangRes extends ListResourceBundle {
 	{"Remove board", "Remove board"},
 	{"Board Information Window", "Board Information Window"},
 	{"Display list of known boards", "Display list of known boards"},
-    
+
 	///////////////////////////////////////////////////
 	// Main Window Tabbed Pane
 	///////////////////////////////////////////////////
@@ -173,21 +171,19 @@ public class LangRes extends ListResourceBundle {
 	{"Mark ALL messages read", "Mark ALL messages read"},
 	{"Delete message", "Delete message"},
 	{"Undelete message", "Undelete message"},
-	{"Cancel", "Cancel"},	
+	{"Cancel", "Cancel"},
 
 	// Popup over message (main frame)
 	{"Copy","Copy"},
 	{"Save message to disk", "Save message to disk"},
-	//{"Cancel", "Cancel"}, // Defined above
-	
+
 	// Popup over attachments table
-	{"Add selected board", "Add selected board"},	
-	{"Download selected attachment", "Download selected attachment"},	
-	//{"Cancel", "Cancel"}, // Defined above
-	
+	{"Add selected board", "Add selected board"},
+	{"Download selected attachment", "Download selected attachment"},
+
 	//Message table header
-	{"Sig", "Sig"},	
-	
+	{"Sig", "Sig"},
+
 	///////////////////////////////////////////////////
 	// Main Window Search Tab
 	///////////////////////////////////////////////////
@@ -195,16 +191,14 @@ public class LangRes extends ListResourceBundle {
 	//{"Search", "Search"}, // Defined above
 	{"Download selected keys", "Download selected keys"},
 	{"all boards", "all boards"},
-	
+
 	// Popup over search results table
-	//{"Download selected keys", "Download selected keys"}, // Defined above
 	{"Download all keys", "Download all keys"},
 	{"help user (sets to GOOD)", "help user (sets to GOOD)"},
 	{"block user (sets to BAD)", "block user (sets to BAD)"},
 	{"set to neutral (CHECK)", "set to neutral (CHECK)"},
     {"observe user (OBSERVE)", "observe user (OBSERVE)"},
-	//{"Cancel", "Cancel"}, // Defined above
-	
+
 	//SearchComboBox
 	{"All files","All files"},
 	{"Audio","Audio"},
@@ -213,7 +207,7 @@ public class LangRes extends ListResourceBundle {
 	{"Documents","Documents"},
 	{"Executables","Executables"},
 	{"Archives","Archives"},
-		
+
 	///////////////////////////////////////////////////
     // Main Window Downloads Tab
 	///////////////////////////////////////////////////
@@ -221,7 +215,7 @@ public class LangRes extends ListResourceBundle {
 	{"Activate downloading", "Activate downloading"},
     {"Pause downloading", "Pause downloading"},
 	{"Show healing information", "Show healing information"},
-    
+
     // Popup over download table
 	{"Restart selected downloads", "Restart selected downloads"},
 	{"Enable downloads", "Enable downloads"},
@@ -235,8 +229,7 @@ public class LangRes extends ListResourceBundle {
 	{"Remove selected downloads", "Remove selected downloads"},
 	{"Remove all downloads", "Remove all downloads"},
 	{"Remove finished downloads", "Remove finished downloads"},
-	//{"Cancel", "Cancel"}, // Defined above
-        
+
 	///////////////////////////////////////////////////
     // Main Window Uploads Tab
 	///////////////////////////////////////////////////
@@ -247,8 +240,7 @@ public class LangRes extends ListResourceBundle {
 	{"Select files you want to upload to the", "Select files you want to upload to the"},
 	{"board", "board"},
 
-	// Popup over uploads table    
-	//{"Remove", "Remove"}, // Defined above
+	// Popup over uploads table
 	{"Remove selected files", "Remove selected files"},
 	{"Remove all files", "Remove all files"},
 	{"Start encoding of selected files", "Start encoding of selected files"},
@@ -259,9 +251,8 @@ public class LangRes extends ListResourceBundle {
 	{"Restore default filenames for selected files", "Restore default filenames for selected files"},
 	{"Restore default filenames for all files", "Restore default filenames for all files"},
 	{"Change destination board", "Change destination board"},
-	{"Please enter the prefix you want to use for your files.", "Please enter the prefix you want to use for your files."}, 
-	//{"Cancel", "Cancel"}, // Defined above    
-    
+	{"Please enter the prefix you want to use for your files.", "Please enter the prefix you want to use for your files."},
+
 	///////////////////////////////////////////////////
 	// Main Window Board Selection Tree
 	///////////////////////////////////////////////////
@@ -277,11 +268,8 @@ public class LangRes extends ListResourceBundle {
 	{"Add new board", "Add new board"},
 	{"Add new folder", "Add new folder"},
 	{"Configure selected board", "Configure selected board"},
-	//{"Remove board", "Remove board"}, // Defined above
-	//{"Cut board", "Cut board"}, // Defined above
-	//{"Cancel", "Cancel"}, // Defined above
 	{"Sort folder", "Sort folder"},
-    
+
 	///////////////////////////////////////////////////
     // Main Window Status Bar
 	///////////////////////////////////////////////////
@@ -292,7 +280,7 @@ public class LangRes extends ListResourceBundle {
 	{"Results", "Results"},
 	{"Files", "Files"},
 	{"Selected board", "Selected board"},
-      
+
 	///////////////////////////////////////////////////
 	// New Message Window
 	///////////////////////////////////////////////////
@@ -337,14 +325,11 @@ public class LangRes extends ListResourceBundle {
 	// More often used translations
 	{"On", "On"},
 	{"Off", "Off"},
-	//{"OK", "OK"}, // Defined above
-	//{"Cancel", "Cancel"}, // Defined above
-	
+
 	// Downloads Panel
 	{"Downloads", "Downloads"},
 	{"Disable downloads", "Disable downloads"},
 	{"Download directory", "Download directory"},
-	//{"Browse", "Browse"}, // Defined above
 	{"Restart failed downloads", "Restart failed downloads"},
 	{"Maximum number of retries", "Maximum number of retries"},
 	{"Waittime after each try", "Waittime after each try"},
@@ -382,7 +367,7 @@ public class LangRes extends ListResourceBundle {
 	{"Number of days to download backwards", "Number of days to download backwards"},
 	{"Message base", "Message base"},
 	{"Signature", "Signature"},
-		
+
 	// News (2) Panel
 	{"Block messages with subject containing (separate by ';' )", "Block messages with subject containing (separate by ';' )"},
 	{"Block messages with body containing (separate by ';' )", "Block messages with body containing (separate by ';' )"},
@@ -395,11 +380,10 @@ public class LangRes extends ListResourceBundle {
 	{"Sample interval", "Sample interval"},
 	{"hours", "hours"},
 	{"Threshold of blocked messages", "Threshold of blocked messages"},
-		
+
 	// News (3) Panel
 	{"Automatic update options", "Automatic update options"},
 	{"Minimum update interval of a board", "Minimum update interval of a board"},
-	//{"minutes", "minutes"}, // Defined above
 	{"Number of concurrently updating boards", "Number of concurrently updating boards"},
 	{"Show board update visualization", "Show board update visualization"},
 	{"Background color if updating board is selected", "Background color if updating board is selected"},
@@ -410,7 +394,7 @@ public class LangRes extends ListResourceBundle {
 	{"Choose updating color of NON-SELECTED boards", "Choose updating color of NON-SELECTED boards"},
 	{"Silently retry failed messages", "Silently retry failed messages"},
 	{"Show deleted messages", "Show deleted messages"},
-    
+
     // Expiration panel
     // TODO:
     {"Expiration", "Expiration"},
@@ -420,7 +404,7 @@ public class LangRes extends ListResourceBundle {
     {"Archive folder","Archive folder"},
     {"Delete expired messages from keypool","Delete expired messages from keypool"},
     {"Select archive directory","Select archive directory"},
-	
+
     // Search Panel
 	{"Image Extension", "Image Extension"},
 	{"Video Extension", "Video Extension"},
@@ -441,8 +425,8 @@ public class LangRes extends ListResourceBundle {
 	{"Allow 2 byte characters", "Allow 2 byte characters"},
 	{"Use editor for writing messages", "Use editor for writing messages"},
 	{"Clean the keypool", "Clean the keypool"},
-	{"Automatic saving interval", "Automatic saving interval"}, 	
-	{"Disable splashscreen", "Disable splashscreen"}, 
+	{"Automatic saving interval", "Automatic saving interval"},
+	{"Disable splashscreen", "Disable splashscreen"},
 	{"Enable logging", "Enable logging"},
 	{"Logging level", "Logging level"},
 	{"Log file size limit (in KB)", "Log files size limit  (in KB)"},
@@ -450,10 +434,10 @@ public class LangRes extends ListResourceBundle {
 	{"High", "High"},
 	{"Medium", "Medium"},
 	{"Low", "Low"},
-	{"Very low", "Very low"},	
+	{"Very low", "Very low"},
 
     // Display Panel
-    {"EnableSkins", "Enable Skins"}, 	
+    {"EnableSkins", "Enable Skins"},
 	{"MoreSkinsAt", "You can get more skins at"},
 	{"Preview","Preview"},
 	{"RefreshList","Refresh List"},
@@ -483,7 +467,7 @@ public class LangRes extends ListResourceBundle {
 	{"BoardInfoFrame.Boards","Boards"},
 	{"BoardInfoFrame.Messages","Messages"},
 	{"BoardInfoFrame.Files","Files"},
-	
+
 	// Board information window table
 	{"Messages","Messages"},
 
@@ -495,7 +479,7 @@ public class LangRes extends ListResourceBundle {
 	{"KnownBoardsFrame.Lookup","Lookup"},
     {"KnownBoardsFrame.Filter","Filter"},
 	{"KnownBoardsTableModel.Boardname","Boardname"},
-	
+
 	///////////////////////////////////////////////////
 	// Core start messages
 	///////////////////////////////////////////////////
@@ -503,7 +487,7 @@ public class LangRes extends ListResourceBundle {
 	{"Core.init.NodeNotRunningBody","Make sure your node is running and that you have configured Freenet correctly.\n"
 									+ "Nevertheless, to allow you to read messages, Frost will startup now.\n"
                                     + "Please note that automatic board updates were disabled (Menu 'News')!\n"
-									+ "Don't get confused by some error messages ;)\n"},	
+									+ "Don't get confused by some error messages ;)\n"},
 	{"Core.init.NodeNotRunningTitle","Error - could not establish a connection to freenet node."},
 	{"Core.init.TransientNodeBody","You are running a TRANSIENT node. Better run a PERMANENT freenet node."},
 	{"Core.init.TransientNodeTitle","Transient node detected"},
@@ -526,24 +510,22 @@ public class LangRes extends ListResourceBundle {
 	{"Enable automatic board update","Enable automatic board update"},
 	{"Maximum message display (days)","Maximum message display (days)"},
 	{"Warning","Warning"},
-	
+
 	//	Uploads underway warning when exiting
 	 {"UploadsUnderway.title","Uploads underway"},
 	 {"UploadsUnderway.body","Some messages are still being uploaded.\n"
 							 + "Do you want to exit anyway?"},
-							 
+
 	//email notification stuff
 	{"SMTP.server","server address"},
 	{"SMTP.username","username"},
 	{"SMTP.password","password"},
 	{"Email.address","send notification to"},
-	{"Email.body",
-		"Enter the body of the email.  \"<filename>\" will be replaced with the name of the file"},
-		
+
 	///
 	///	TofTree
 	///
-	
+
 	{"New Folder Name","New Folder Name"},
 	{"New Node Name","New Board name"},
 	{"newboard","newBoard"},
@@ -554,21 +536,21 @@ public class LangRes extends ListResourceBundle {
 	{"Please choose a new name","Please choose a new name"},
 	{"Do you really want to overwrite it?","Do you really want to overwrite it?"},
 	{"This will not delete messages","This will not delete messages"},
-		
+
 	///
 	///	SearchTableFormat
 	///
-	
+
 	{"FrostSearchItemObject.Offline","Offline"},
 	{"FrostSearchItemObject.Anonymous","Anonymous"},
 	{"SearchTableFormat.Uploading","Uploading"},
 	{"SearchTableFormat.Downloading","Downloading"},
 	{"SearchTableFormat.Downloaded","Downloaded"},
-		
+
 	///
 	/// DownloadTableFormat
 	///
-	
+
 	{"DownloadTableFormat.Enabled", "Enabled"},
 	{"Blocks", "Blocks"},
 	{"Tries", "Tries"},
@@ -579,46 +561,46 @@ public class LangRes extends ListResourceBundle {
 	{"Requesting","Requesting"},
 	{"Requested","Requested"},
 	{"Decoding segment","Decoding segment"},
-		
+
 	///
 	/// UploadTableFormat
 	///
-	
+
 	{"Never","Never"},
 	{"Uploading","Uploading"},
 	{"Encode requested","Encode requested"},
 	{"Encoding file","Encoding file"},
 	{"Unknown", "Unknown"},
-	
+
 	///
 	///	NewBoardDialog
 	///
-	
+
 	{"NewBoardDialog.title", "Add a new board"},
 	{"NewBoardDialog.details", "Please enter the details of the new board:"},
 	{"NewBoardDialog.name","Name:"},
 	{"NewBoardDialog.description","Description (Optional). Do not put private information here:"},
 	{"NewBoardDialog.add","Add Board"},
-	
+
 	///
 	/// BoardSettingsFrame
 	///
-	
+
 	{"BoardSettingsFrame.description","Description:"},
 	{"BoardSettingsFrame.confirmTitle","Set Board as Public?"},
 	{"BoardSettingsFrame.confirmBody","If you set this board as public, you will lose its keys. Are you sure you want to do that?"},
-	
+
 	///
 	/// Misc (appear in several classes)
 	///
-	
+
 	{"Description","Description"},
-	
+
 	//	Frost startup error messages
 	{"Frost.lockFileFound", "This indicates that another Frost instance is already running in this directory.\n" +
 	  					  	"Running Frost concurrently will cause data loss.\n"+
 							"If you are REALLY SURE that Frost is not already running, delete the lockfile:\n"},
-							
+
 	//
 	//  Message upload failed dialog
 	//
@@ -627,33 +609,31 @@ public class LangRes extends ListResourceBundle {
 	{"Retry", "Retry"},
 	{"Retry on next startup", "Retry on next startup"},
 	{"Discard message", "Discard message"},
-	
+
 	//AttachedBoardTableModel
 	{"Board Name", "Board name"},
 	{"Access rights", "Access rights"},
-	
+
 	//Saver popup
 	{"Saver.AutoTask.title", "Problem found."},
 	{"Saver.AutoTask.message", "Frost found an error while saving a resource and it will close itself."},
-	
+
 	// Popup over message body (message frame)
 	{"Cut","Cut"},
-	//{"Copy","Copy"}, // Defined above
 	{"Paste","Paste"},
-	//{"Cancel", "Cancel"} // Defined above
-		
+
 	// Attach Boards Chooser (message frame)
 	{"MessageFrame.ConfirmBody1", "You have the private key to board '"},
 	{"MessageFrame.ConfirmBody2", "'.  Are you sure you want it attached?\n" +
 								  "If you choose NO, only the public key will be attached.",},
 	{"MessageFrame.ConfirmTitle", "Include private board key?"},
-								  
+
 	// Status bar
-	{"UploadStatusPanel.Uploading", "Uploading:"}, 
+	{"UploadStatusPanel.Uploading", "Uploading:"},
 	{"StatusPanel.file", "file"},
     {"StatusPanel.files", "files"},
 	{"DownloadStatusPanel.Downloading", "Downloading:"},
-	
+
 	// Copy to clipboard submenu
 	{"Copy to clipboard", "Copy to clipboard"},
 	{"Copy keys only", "Copy keys only"},
@@ -663,7 +643,7 @@ public class LangRes extends ListResourceBundle {
 	{"clipboard.File:",  "File:  "},	//These three strings are a special case.
 	{"clipboard.Key:",   "Key:   "},	//They must have the same length so that the
 	{"clipboard.Bytes:", "Bytes: "}	//format of the output is preserved.
-	
+
     };
 }
 

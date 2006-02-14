@@ -89,7 +89,9 @@ public class MessageHashes implements Savable {
 	 * @return true if this set contains the specified digest.
 	 */
 	public synchronized boolean contains(String digest) {
-        return hashesMap.containsKey(digest);
+        // TODO: temporarly disabled to see effect. If many dups are reported by users reenable!
+        return false;
+//        return hashesMap.containsKey(digest);
 	}
 	/**
 	 * This method returns an Iterator with all of the message

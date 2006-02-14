@@ -271,7 +271,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         public void run() {
             notifyThreadStarted(this);
             
-            final int downloadBack = MainFrame.frostSettings.getIntValue("maxMessageDownload");
+            // +1 for today
+            final int downloadBack = 1 + MainFrame.frostSettings.getIntValue("maxMessageDownload");
             // if one gets an exception, do not try backwards further
             try {
                 for (int i=0; i < downloadBack; i++) {

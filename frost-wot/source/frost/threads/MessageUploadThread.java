@@ -164,17 +164,19 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	 * @return true if the remote message with the given key equals the 
 	 * 			message that is being uploaded. False otherwise.
 	 */
-	private boolean checkRemoteFile(String key) {
+	private boolean checkRemoteFile(int index) {
 		try {
             File remoteFile = new File(messageFile.getPath() + ".coll");
             remoteFile.delete(); // just in case it already exists
             remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
-
-            FcpRequest.getFile(key, null, remoteFile, messageUploadHtl, false, false);
+            
+            downloadMessage(index, remoteFile);
+            
             if (remoteFile.length() > 0) {
                 if( encryptForRecipient != null ) {
                     // we compare the local encrypted zipFile with remoteFile
                     boolean isEqual = FileAccess.compareFiles(zipFile, remoteFile);
+                    remoteFile.delete();
                     return isEqual;
                 } else {
                     // compare contents
@@ -183,9 +185,12 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         return false;
                     }
                     FileAccess.writeFile(unzippedXml, remoteFile);
-                    return checkLocalMessage(remoteFile);
+                    boolean isEqual = checkLocalMessage(remoteFile);
+                    remoteFile.delete();
+                    return isEqual;
                 }
             } else {
+                remoteFile.delete();
             	return false; // We could not retrieve the remote file. We assume they are different.
             }
         } catch (Throwable e) {
@@ -193,6 +198,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             return false;
         }
 	}
+    
+    private void downloadMessage(int index, File targetFile) {
+        String downKey = composeDownKey(index);
+        FcpRequest.getFile(downKey, null, targetFile, messageUploadHtl, false, false);
+    }
 	
 	/**
 	 * This method composes the downloading key for the message, given a
@@ -629,20 +639,26 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         
         String upKey = null;
         
+        boolean retrySameIndex = false;
+        
         while (!success) {
-            // find first free index slot
-            index = findNextFreeIndex(index);
-            if( index < 0 ) {
-                // same message was already uploaded today
-                logger.info("TOFUP: Message seems to be already uploaded (1)");
-                success = true;
-                continue;
+            if( retrySameIndex == false ) {
+                // find first free index slot
+                index = findNextFreeIndex(index);
+                if( index < 0 ) {
+                    // same message was already uploaded today
+                    logger.info("TOFUP: Message seems to be already uploaded (1)");
+                    success = true;
+                    continue;
+                }
+            } else {
+                // reset flag
+                retrySameIndex = false;
             }
             
             // probably empty, check if other threads currently try to insert to this index
             File lockRequestIndex = new File(composeMsgFilePath(index) + ".lock");
-            boolean lockFileCreated = false;
-            lockFileCreated = lockRequestIndex.createNewFile();
+            boolean lockFileCreated = lockRequestIndex.createNewFile();
 
             if (lockFileCreated == false) {
                 // another thread tries to insert using this index, try next
@@ -657,7 +673,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             // try to insert message
             String[] result = new String[2];
             upKey = composeUpKey(index);
-            String downKey = composeDownKey(index);
 
             try {
                 // signMetadata is null for unsigned upload. Do not do redirect.
@@ -678,24 +693,52 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
 
             if (result[0].equals("Success")) {
-                success = true;
+                // msg is probabilistic cached in freenet node, we retrieve it to ensure it is in our store
+                File tmpFile = new File(messageFile.getPath() + ".down");
+                
+                int dlTries = 0;
+                int dlMaxTries = 2;
+                while(dlTries < maxTries) {
+                    try { Thread.sleep(3000); } catch(InterruptedException e) {}
+                    tmpFile.delete(); // just in case it already exists
+                    downloadMessage(index, tmpFile);
+                    if( tmpFile.length() > 0 ) {
+                        break;
+                    } else {
+                        logger.severe("TOFUP: Uploaded message could NOT be retrieved! "+
+                                "Download try "+dlTries+" of "+dlMaxTries);
+                        dlTries++;
+                    }
+                }
+                
+                if( tmpFile.length() > 0 ) {
+                    logger.warning("TOFUP: Uploaded message was successfully retrieved.");
+                    success = true;
+                } else {
+                    logger.severe("TOFUP: Uploaded message could NOT be retrieved! Retrying upload. "+
+                            "(try no. " + tries + " of " + maxTries + "), retrying index " + index);
+                    tries++;
+                    retrySameIndex = true;
+                }
+                tmpFile.delete();
             } else {
                 if (result[0].equals("KeyCollision")) {
-                    if (checkRemoteFile(downKey)) {
-                        logger.info("TOFUP: Message seems to be already uploaded (2)");
+                    if (checkRemoteFile(index)) {
+                        logger.warning("TOFUP: Message seems to be already uploaded (2)");
                         success = true;
                     } else {
                         index++;
-                        logger.fine("TOFUP: Upload collided, increasing index to " + index);
+                        logger.warning("TOFUP: Upload collided, increasing index to " + index);
                     }
                 } else {
                     if (tries > maxTries) {
                         success = true;
                         error = true;
                     } else {
-                        logger.info("TOFUP: Upload failed (try no. " + tries + " of " + maxTries
+                        logger.warning("TOFUP: Upload failed (try no. " + tries + " of " + maxTries
                                 + "), retrying index " + index);
                         tries++;
+                        retrySameIndex = true;
                     }
                 }
             }
