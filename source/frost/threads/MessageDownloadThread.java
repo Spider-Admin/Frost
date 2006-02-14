@@ -157,7 +157,6 @@ public class MessageDownloadThread
             makedir.mkdirs();
         }
 
-//        File checkLockfile = new File(destination + "locked.lck");
         int index = 0;
         int failures = 0;
         int maxFailures;
@@ -172,7 +171,6 @@ public class MessageDownloadThread
         maxFailures = 2; // skip a maximum of 2 empty slots
 
         while (failures < maxFailures) {
-//            while (failures < maxFailures && (flagNew || checkLockfile.exists() == false )) {
             
             if (isInterrupted()) {
                 return;
@@ -202,7 +200,15 @@ public class MessageDownloadThread
                     index++;
                     failures = 0;
                     continue;
-                } 
+                }
+                
+                File checkUploadLockfile = new File(val + ".lock");
+                if( checkUploadLockfile.exists() ) {
+                    // this file is currently uploaded, don't try to download it now
+                    index++;
+                    failures = 0;
+                    continue;
+                }
 
                 String downKey = null;
                 if (secure) {

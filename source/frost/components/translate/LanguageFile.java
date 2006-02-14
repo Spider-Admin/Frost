@@ -19,8 +19,8 @@
 
 package frost.components.translate;
 
-import java.io.File;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.logging.*;
 
 /**
  * Reads and generates Frost language resource files.
@@ -34,9 +34,10 @@ public class LanguageFile {
 	 * Generates the complete class file with comments
 	 * that can directly be compiled with frost.
 	 */
-	public static String generateFile(
+	public static void generateFile(
 		TranslateTableModel tableModel,
-		String languageCode) {
+		String languageCode) 
+    {
 		StringBuffer content = new StringBuffer();
 		int rowCount = tableModel.getRowCount();
 
@@ -53,10 +54,10 @@ public class LanguageFile {
 		content.append("package res;\n\n");
 		content.append("import java.util.ListResourceBundle;\n\n");
 
-		if (languageCode.equals("en"))
-			content.append(
-				"public class LangRes extends ListResourceBundle {\n\n");
-		else
+//		if (languageCode.equals("en"))
+//			content.append(
+//				"public class LangRes extends ListResourceBundle {\n\n");
+//		else
 			content.append(
 				"public class LangRes_"
 					+ languageCode
@@ -84,8 +85,15 @@ public class LanguageFile {
 
 		content.append("};\n");
 		content.append("}\n");
-
-		return content.toString();
+        
+        try {
+            File file = new File("LangRes_" + languageCode + ".java");
+            Writer out = new OutputStreamWriter(new FileOutputStream(file), "UTF8");
+            out.write(content.toString());
+            out.close();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
+        }
 	}
 
 	/**
@@ -117,37 +125,43 @@ public class LanguageFile {
 	public static TranslateTableModel readLanguageFile(
 		TranslateTableModel tableModel,
 		File file) {
-		String content = ReadAccess.readFile(file);
-		String originalText = new String();
-		String translatedText = new String();
-		int cursor = 0;
-		int positions[] = { 0, 0, 0, 0 };
+        
 		tableModel.setRowCount(0);
 
-		while (cursor != -1) {
-			for (int i = 0; i < 4; i++) {
-				positions[i] = content.indexOf("\"", cursor + 1);
-				cursor = positions[i];
-				if (cursor == -1)
-					break;
-			}
-
-			if (positions[0] != -1
-				&& positions[1] != -1
-				&& positions[2] != -1
-				&& positions[3] != -1) {
-				String row[] =
-					{
-						new String(
-							content.substring(positions[0] + 1, positions[1])),
-						new String(
-							content.substring(positions[2] + 1, positions[3]))};
-				tableModel.addRow(row);
-				logger.info(row[0] + " --- " + row[1]);
-			}
-		}
-
+        try {
+            BufferedReader rdr = new BufferedReader(new InputStreamReader(new FileInputStream(file), "UTF8"));
+            
+OUTER:  while(true) {
+                String line = rdr.readLine();
+                if( line == null ) {
+                    break;
+                }
+                // find first 4 "
+                int cursor = -1;
+                int positions[] = { 0, 0, 0, 0 };
+                for (int i = 0; i < 4; i++) {
+                    positions[i] = line.indexOf("\"", cursor + 1);
+                    cursor = positions[i];
+                    if (cursor == -1) {
+                        continue OUTER;
+                    }
+                }
+                if (positions[0] != -1
+                    && positions[1] != -1
+                    && positions[2] != -1
+                    && positions[3] != -1) 
+                {
+                        String row[] = {
+                            new String(line.substring(positions[0] + 1, positions[1])),
+                            new String(line.substring(positions[2] + 1, positions[3]))
+                        };
+                        tableModel.addRow(row);
+//                        logger.info(row[0] + " --- " + row[1]);
+                    }
+            }
+        } catch (Throwable e) {
+            e.printStackTrace();
+        }
 		return tableModel;
 	}
-
 }

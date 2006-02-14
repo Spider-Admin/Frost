@@ -550,11 +550,11 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 			metadataLength = metadata.length;
 		}
 
-		fcpOut.println("DataLength=" + Integer.toHexString(dataLength + metadataLength));
+        fcpOut.println("DataLength=" + Integer.toHexString(dataLength + metadataLength));
 
-		if (metadata != null) {
-			fcpOut.println("MetadataLength=" + Integer.toHexString(metadataLength));
-		}
+        if (metadata != null) {
+            fcpOut.println("MetadataLength=" + Integer.toHexString(metadataLength));
+        }
 
 		fcpOut.println("Data");
 		fcpOut.flush();
