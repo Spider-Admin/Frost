@@ -699,7 +699,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 int dlTries = 0;
                 int dlMaxTries = 2;
                 while(dlTries < maxTries) {
-                    try { Thread.sleep(3000); } catch(InterruptedException e) {}
+                    try { Thread.sleep(10000); } catch(InterruptedException e) {}
                     tmpFile.delete(); // just in case it already exists
                     downloadMessage(index, tmpFile);
                     if( tmpFile.length() > 0 ) {
@@ -729,6 +729,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     } else {
                         index++;
                         logger.warning("TOFUP: Upload collided, increasing index to " + index);
+                        try { Thread.sleep(10000); } catch(InterruptedException e) {}
                     }
                 } else {
                     if (tries > maxTries) {
@@ -739,11 +740,12 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                 + "), retrying index " + index);
                         tries++;
                         retrySameIndex = true;
+                        try { Thread.sleep(10000); } catch(InterruptedException e) {}
                     }
                 }
             }
             // finally delete the index lock file
-            if (lockFileCreated == true) {
+            if (lockFileCreated == true ) {
                 lockRequestIndex.delete();
             }
         }
