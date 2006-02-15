@@ -33,8 +33,8 @@ public class DateFun
     {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append(".")
-        .append(cal.get(Calendar.MONTH) + 1).append(".").append(cal.get(Calendar.DATE)).toString();
+        return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append('.')
+        .append(cal.get(Calendar.MONTH) + 1).append('.').append(cal.get(Calendar.DATE)).toString();
     }
     
     /**
@@ -47,8 +47,8 @@ public class DateFun
             cal.add(Calendar.DATE,-daysAgo);
         }
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append(".")
-        .append(cal.get(Calendar.MONTH) + 1).append(".").append(cal.get(Calendar.DATE)).toString();
+        return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append('.')
+        .append(cal.get(Calendar.MONTH) + 1).append('.').append(cal.get(Calendar.DATE)).toString();
     }
 
     /**
@@ -63,12 +63,12 @@ public class DateFun
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DATE);
         StringBuffer sb = new StringBuffer(11);
-        sb.append(year).append(".");
+        sb.append(year).append('.');
         if( month < 10 )
-            sb.append("0");
-        sb.append(month).append(".");
+            sb.append('0');
+        sb.append(month).append('.');
         if( day < 10 )
-            sb.append("0");
+            sb.append('0');
         sb.append(day);
         return sb.toString();
     }
@@ -81,8 +81,8 @@ public class DateFun
     {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return new StringBuffer(9).append(cal.get(Calendar.HOUR_OF_DAY)).append(":")
-        .append(cal.get(Calendar.MINUTE)).append(":").append(cal.get(Calendar.SECOND)).toString();
+        return new StringBuffer(9).append(cal.get(Calendar.HOUR_OF_DAY)).append(':')
+        .append(cal.get(Calendar.MINUTE)).append(':').append(cal.get(Calendar.SECOND)).toString();
     }
 
     /**
@@ -97,12 +97,12 @@ public class DateFun
         int month = cal.get(Calendar.MONTH) + 1;
         int day = cal.get(Calendar.DATE);
         StringBuffer sb = new StringBuffer(11);
-        sb.append(year).append(".");
+        sb.append(year).append('.');
         if( month < 10 )
-            sb.append("0");
-        sb.append(month).append(".");
+            sb.append('0');
+        sb.append(month).append('.');
         if( day < 10 )
-            sb.append("0");
+            sb.append('0');
         sb.append(day);
         return sb.toString();
     }
@@ -119,11 +119,11 @@ public class DateFun
         int day = cal.get(Calendar.DATE);
         StringBuffer sb = new StringBuffer(11);
         if( day < 10 )
-            sb.append("0");
-        sb.append(day).append(".");
+            sb.append('0');
+        sb.append(day).append('.');
         if( month < 10 )
-            sb.append("0");
-        sb.append(month).append(".");
+            sb.append('0');
+        sb.append(month).append('.');
         sb.append(year);
         return sb.toString();
     }
@@ -141,13 +141,13 @@ public class DateFun
         int second = cal.get(Calendar.SECOND);
         StringBuffer sb = new StringBuffer(9);
         //    if( hour<10 )  // commented out to keep old behaviour, see below
-        //        sb.append("0");
-        sb.append(hour).append(":");
+        //        sb.append('0');
+        sb.append(hour).append(':');
         if( minute < 10 )
-            sb.append("0");
-        sb.append(minute).append(":");
+            sb.append('0');
+        sb.append(minute).append(':');
         if( second < 10 )
-            sb.append("0");
+            sb.append('0');
         sb.append(second);
         return sb.toString();
         /*
@@ -179,13 +179,13 @@ public class DateFun
         int second = cal.get(Calendar.SECOND);
         StringBuffer sb = new StringBuffer(9);
         if( hour<10 )
-            sb.append("0");
-        sb.append(hour).append(":");
+            sb.append('0');
+        sb.append(hour).append(':');
         if( minute < 10 )
-            sb.append("0");
-        sb.append(minute).append(":");
+            sb.append('0');
+        sb.append(minute).append(':');
         if( second < 10 )
-            sb.append("0");
+            sb.append('0');
         sb.append(second);
         return sb.toString();
     }
@@ -199,11 +199,11 @@ public class DateFun
     {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        if( text.indexOf(" ") != -1 )
+        if( text.indexOf(' ') != -1 )
         {
-            String date = text.substring(0, text.indexOf(" "));
-            int firstPoint = date.indexOf(".");
-            int secondPoint = date.lastIndexOf(".");
+            String date = text.substring(0, text.indexOf(' '));
+            int firstPoint = date.indexOf('.');
+            int secondPoint = date.lastIndexOf('.');
             if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
             {
                 int year = Integer.parseInt(date.substring(0, firstPoint));
@@ -227,8 +227,8 @@ public class DateFun
     {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int firstPoint = date.indexOf(".");
-        int secondPoint = date.lastIndexOf(".");
+        int firstPoint = date.indexOf('.');
+        int secondPoint = date.lastIndexOf('.');
         if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
         {
             int year = Integer.parseInt(date.substring(0, firstPoint));
@@ -243,8 +243,8 @@ public class DateFun
 
     public static String getDateOfCalendar(GregorianCalendar calDL)
     {
-        String date = new StringBuffer(11).append(calDL.get(Calendar.YEAR)).append( ".")
-                      .append(calDL.get(Calendar.MONTH) + 1).append( ".")
+        String date = new StringBuffer(11).append(calDL.get(Calendar.YEAR)).append('.')
+                      .append(calDL.get(Calendar.MONTH) + 1).append('.')
                       .append(calDL.get(Calendar.DATE)).toString();
         return date;
     }
@@ -253,20 +253,20 @@ public class DateFun
      * 2005.9.3 -> 2005.09.03 (for comparisions) 
      */
     public static String buildExtendedDate(String date) {
-        int firstPoint = date.indexOf(".");
-        int secondPoint = date.lastIndexOf(".");
+        int firstPoint = date.indexOf('.');
+        int secondPoint = date.lastIndexOf('.');
         if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
         {
             int year = Integer.parseInt(date.substring(0, firstPoint));
             int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
             int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
             StringBuffer sb = new StringBuffer(11);
-            sb.append(year).append(".");
+            sb.append(year).append('.');
             if( month < 10 )
-                sb.append("0");
-            sb.append(month).append(".");
+                sb.append('0');
+            sb.append(month).append('.');
             if( day < 10 )
-                sb.append("0");
+                sb.append('0');
             sb.append(day);
             return sb.toString();
         }

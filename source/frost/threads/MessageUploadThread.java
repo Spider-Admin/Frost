@@ -637,8 +637,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         boolean error = false;
         boolean tryAgain;
         
-        String upKey = null;
-        
         boolean retrySameIndex = false;
         File lockRequestIndex = null;
         
@@ -656,9 +654,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
                 // probably empty slot, check if other threads currently try to insert to this index
                 lockRequestIndex = new File(composeMsgFilePath(index) + ".lock");
-                boolean lockFileCreated = lockRequestIndex.createNewFile();
-
-                if (lockFileCreated == false) {
+                if (lockRequestIndex.createNewFile() == false) {
                     // another thread tries to insert using this index, try next
                     index++;
                     logger.fine("TOFUP: Other thread tries this index, increasing index to " + index);
@@ -667,7 +663,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     // we try this index
                     lockRequestIndex.deleteOnExit();
                 }
-
             } else {
                 // reset flag
                 retrySameIndex = false;
@@ -676,12 +671,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             
             // try to insert message
             String[] result = new String[2];
-            upKey = composeUpKey(index);
 
             try {
                 // signMetadata is null for unsigned upload. Do not do redirect.
                 result = FcpInsert.putFile(
-                        upKey, 
+                        composeUpKey(index), 
                         zipFile, 
                         signMetadata, 
                         messageUploadHtl, 
@@ -697,11 +691,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
 
             if (result[0].equals("Success")) {
-                // msg is probabilistic cached in freenet node, we retrieve it to ensure it is in our store
+                // msg is probabilistic cached in freenet node, retrieve it to ensure it is in our store
                 File tmpFile = new File(messageFile.getPath() + ".down");
                 
                 int dlTries = 0;
-                int dlMaxTries = 2;
+                int dlMaxTries = 3;
                 while(dlTries < maxTries) {
                     Mixed.wait(10000);
                     tmpFile.delete(); // just in case it already exists
