@@ -1049,7 +1049,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             
             // board selected
 
-            selectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
+            FrostMessageObject newSelectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
+            if( newSelectedMessage == selectedMessage ) {
+                return; // user is reading a message, selection did NOT change
+            } else {
+                selectedMessage = newSelectedMessage;
+            }
+
             if (selectedMessage != null) {
                 displayNewMessageIcon(false);
 //              downloadAttachmentsButton.setEnabled(false);
