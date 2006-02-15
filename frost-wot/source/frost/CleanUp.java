@@ -32,8 +32,6 @@ import frost.gui.objects.*;
  */
 public class CleanUp {
     
-    // TODO: archive/delete expired SENT messages (Core.frostSettings.getValue("sent.dir"))
-
     private static Logger logger = Logger.getLogger(CleanUp.class.getName());
     
     public static final int DELETE_MESSAGES  = 1;
@@ -116,6 +114,14 @@ public class CleanUp {
             defaultDaysOld = Core.frostSettings.getIntValue("maxMessageDownload") + 1;
         }
 
+        // sent messages
+        logger.info("Starting to process all expired files in SENT folder"+
+                " older than "+defaultDaysOld+" days.");
+        int deletedSentMsgs = processExpiredSentMessages(defaultDaysOld, mode);
+        logger.info("Finished to process expired files in SENT folder, "+
+                "deleted "+deletedSentMsgs+" files.");
+
+        // boards
         for(Iterator i=boardList.iterator(); i.hasNext(); ) {
             
             int currentDaysOld = defaultDaysOld;
@@ -137,7 +143,7 @@ public class CleanUp {
 
                 int deleted = processExpiredMessages(boardFolder, currentDaysOld, mode, archiveDir);
                 
-                logger.info("Finished to DELETE expired indices files in folder "+boardFolder.getName()+
+                logger.info("Finished to DELETE expired files in folder "+boardFolder.getName()+
                         "deleted "+deleted+" files.");
                 
             } else if( mode == ARCHIVE_MESSAGES ) {
@@ -147,11 +153,98 @@ public class CleanUp {
                 
                 int deleted = processExpiredMessages(boardFolder, currentDaysOld, mode, archiveDir);
                 
-                logger.info("Finished to ARCHIVE expired indices files in folder "+boardFolder.getName()+
+                logger.info("Finished to ARCHIVE expired files in folder "+boardFolder.getName()+
                         "deleted "+deleted+" files.");
             } 
         }
         logger.info("Finished to process expired files.");
+    }
+    
+    // archive/delete expired SENT messages (Core.frostSettings.getValue("sent.dir"))
+    private static int processExpiredSentMessages(int daysOld, int mode) {
+
+        String sentArchiveDir = Core.frostSettings.getValue("archive.dir");
+        if( sentArchiveDir == null || sentArchiveDir.length() == 0 ) {
+            logger.severe("ERROR: no ARCHIVE DIR specified!");
+            return 0;
+        }
+
+        sentArchiveDir += ("sent" + File.separator);
+        
+        File f = new File(sentArchiveDir);
+        if( f.isDirectory() == false ) {
+            boolean ok = f.mkdirs();
+            if( ok == false ) {
+                logger.severe("ERROR: could not create archive directory for sent msgs: "+f.getPath());
+                return 0;
+            }
+        }
+        f = null;
+        
+        String sentMsgsDirName = Core.frostSettings.getValue("sent.dir");
+        if( sentMsgsDirName == null || sentMsgsDirName.length() == 0 ) {
+            logger.severe("ERROR: no SENT DIR specified!");
+            return 0;
+        }
+        
+        File sentMsgsDir = new File(sentMsgsDirName);
+        if( sentMsgsDir.isDirectory() == false ) {
+            logger.severe("ERROR: SENT DIR does not exist!");
+            return 0;
+        }
+
+        String minDate = DateFun.getExtendedDate(daysOld);
+
+        File[] sentFilesList = sentMsgsDir.listFiles();
+        if( sentFilesList == null ) {
+            logger.severe("Could not get list of files for folder "+sentMsgsDir.getPath());
+            return 0;
+        }
+        
+        int deleted = 0;
+        
+        for(int x=0; x < sentFilesList.length; x++) {
+            // "2006.2.10-freenet-19.xml"
+            File sentMsg = sentFilesList[x];
+            String fileName = sentMsg.getName();
+            if( fileName.endsWith(".xml") == false ) {
+                continue;
+            }
+            int pos = fileName.indexOf('-');
+            if( pos < 0 ) {
+                continue;
+            }
+            String fileDate = fileName.substring(0, pos); // "2005.9.1"
+            String extDate = DateFun.buildExtendedDate(fileDate); // "2005.09.01"
+            if( extDate == null ) {
+                continue;
+            }
+            if( extDate.compareTo( minDate ) < 0 ) {
+                // file expired
+                if( mode == ARCHIVE_MESSAGES ) {
+                    String srcfile = sentMsg.getPath();
+                    String targetfile = sentArchiveDir + // "archive/sent/" 
+                                        extDate + // "2005.09.01"
+                                        File.separator + sentMsg.getName(); // "/msg.xml"
+                    File tfile = new File(targetfile);
+                    tfile.getParentFile().mkdirs();
+                    
+                    boolean copyOk = FileAccess.copyFile(srcfile, targetfile);
+                    if( copyOk == false ) {
+                        logger.severe("Copy of sent msg to archive failed, source="+srcfile+"; target="+targetfile);
+                        logger.severe("Processing stopped.");
+                        return deleted;
+                    }
+                }
+                // delete file after copy to archive OR if DELETE was requested
+                if( sentMsg.delete() == true ) {
+                    deleted++;
+                } else {
+                    logger.severe("Failed to delete expired sent file "+sentMsg.getPath());
+                }
+            }            
+        }
+        return deleted;
     }
     
     private static int processExpiredMessages(File boardFolder, int daysOld, int mode, String archiveDir) {
@@ -161,6 +254,10 @@ public class CleanUp {
         String minDate = DateFun.getExtendedDate(daysOld);
 
         File[] boardFolderFiles = boardFolder.listFiles();
+        if( boardFolderFiles == null ) {
+            logger.severe("Could not get list of files for folder "+boardFolder.getPath());
+            return 0;
+        }
         for(int x=0; x < boardFolderFiles.length; x++) {
             File boardFolderFile = boardFolderFiles[x];
             if( boardFolderFile.isDirectory() ) {
@@ -171,8 +268,12 @@ public class CleanUp {
                 }
                 if( extDate.compareTo( minDate ) < 0 ) {
                     // expired date folder
-                    // delete all contained ".xml" files
+                    // process all contained ".xml" files
                     File[] boardDateFolderFiles = boardFolderFile.listFiles();
+                    if( boardDateFolderFiles == null ) {
+                        logger.severe("Could not get list of files for folder "+boardFolderFile.getPath());
+                        return 0;
+                    }
                     for(int y=0; y < boardDateFolderFiles.length; y++) {
                         File boardDateFolderFile = boardDateFolderFiles[y];
                         if( boardDateFolderFile.isFile() && boardDateFolderFile.getName().endsWith(".xml") ) {
@@ -181,7 +282,7 @@ public class CleanUp {
                                 String srcfile = boardDateFolderFile.getPath();
                                 String targetfile = archiveDir + // "archive/messages/" 
                                                     boardFolder.getName() +   // "frost"
-                                                    File.separator + boardFolderFile.getName()+ // "/2005.9.1"
+                                                    File.separator + extDate + // "/2005.09.01"
                                                     File.separator + boardDateFolderFile.getName(); // "/msg.xml"
                                 File tfile = new File(targetfile);
                                 tfile.getParentFile().mkdirs();
