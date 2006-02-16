@@ -25,7 +25,7 @@ public class SearchMessageDialog extends JDialog {
     private JPanel buttonPanel = null;
     private JButton Bclose = null;
     private JButton Bsearch = null;
-    private JLabel Lauthor = null;
+    private JLabel Lsender = null;
     private JTextField TFauthor = null;
     private JLabel Lcontent = null;
     private JLabel Ldate = null;
@@ -61,6 +61,12 @@ public class SearchMessageDialog extends JDialog {
     private JLabel jLabel1 = null;
     private JScrollPane jScrollPane = null;
     private JTable jTable = null;
+    private JCheckBox CBprivateMsgsOnly = null;
+    private JPanel ParchiveSearch = null;
+    private JRadioButton RBsearchNormalAndArc = null;
+    private JRadioButton RBsearchNormalOnly = null;
+    private JRadioButton RBsearchArcOnly = null;
+    private JLabel Lglue = null;
     /**
      * This is the default constructor
      */
@@ -102,9 +108,19 @@ public class SearchMessageDialog extends JDialog {
      */
     private JPanel getCenterPanel() {
         if( centerPanel == null ) {
+            GridBagConstraints gridBagConstraints211 = new GridBagConstraints();
+            gridBagConstraints211.gridx = 1;
+            gridBagConstraints211.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints211.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints211.gridheight = 1;
+            gridBagConstraints211.gridy = 3;
+            GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
+            gridBagConstraints110.gridx = 1;
+            gridBagConstraints110.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints110.gridy = 2;
             GridBagConstraints gridBagConstraints210 = new GridBagConstraints();
             gridBagConstraints210.fill = java.awt.GridBagConstraints.BOTH;
-            gridBagConstraints210.gridy = 6;
+            gridBagConstraints210.gridy = 9;
             gridBagConstraints210.weightx = 1.0;
             gridBagConstraints210.weighty = 1.0;
             gridBagConstraints210.gridwidth = 2;
@@ -115,7 +131,7 @@ public class SearchMessageDialog extends JDialog {
             gridBagConstraints14.gridwidth = 2;
             gridBagConstraints14.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints14.insets = new java.awt.Insets(3,5,1,5);
-            gridBagConstraints14.gridy = 5;
+            gridBagConstraints14.gridy = 8;
             jLabel1 = new JLabel();
             jLabel1.setText("Search Result");
             GridBagConstraints gridBagConstraints51 = new GridBagConstraints();
@@ -127,16 +143,16 @@ public class SearchMessageDialog extends JDialog {
             gridBagConstraints41.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints41.weightx = 0.0D;
             gridBagConstraints41.weighty = 0.0D;
-            gridBagConstraints41.gridy = 4;
+            gridBagConstraints41.gridy = 6;
             GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
             gridBagConstraints21.gridx = 1;
             gridBagConstraints21.fill = java.awt.GridBagConstraints.BOTH;
-            gridBagConstraints21.gridy = 3;
+            gridBagConstraints21.gridy = 5;
             GridBagConstraints gridBagConstraints11 = new GridBagConstraints();
             gridBagConstraints11.gridx = 1;
             gridBagConstraints11.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints11.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints11.gridy = 2;
+            gridBagConstraints11.gridy = 4;
             GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints6.gridy = 1;
@@ -148,21 +164,21 @@ public class SearchMessageDialog extends JDialog {
             gridBagConstraints5.gridx = 0;
             gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints5.insets = new java.awt.Insets(3,5,3,5);
-            gridBagConstraints5.gridy = 4;
+            gridBagConstraints5.gridy = 6;
             Lboard = new JLabel();
             Lboard.setText("Board");
             GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 0;
             gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints4.insets = new java.awt.Insets(3,5,3,5);
-            gridBagConstraints4.gridy = 3;
+            gridBagConstraints4.gridy = 5;
             Lstate = new JLabel();
             Lstate.setText("Trust state");
             GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
             gridBagConstraints3.insets = new java.awt.Insets(3,5,3,5);
             gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints3.gridy = 2;
+            gridBagConstraints3.gridy = 4;
             Ldate = new JLabel();
             Ldate.setText("Date");
             GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -184,11 +200,11 @@ public class SearchMessageDialog extends JDialog {
             gridBagConstraints.insets = new java.awt.Insets(3,5,3,5);
             gridBagConstraints.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints.gridy = 0;
-            Lauthor = new JLabel();
-            Lauthor.setText("Author");
+            Lsender = new JLabel();
+            Lsender.setText("Sender");
             centerPanel = new JPanel();
             centerPanel.setLayout(new GridBagLayout());
-            centerPanel.add(Lauthor, gridBagConstraints);
+            centerPanel.add(Lsender, gridBagConstraints);
             centerPanel.add(getTFauthor(), gridBagConstraints1);
             centerPanel.add(Lcontent, gridBagConstraints2);
             centerPanel.add(getTFcontent(), gridBagConstraints6);
@@ -200,6 +216,8 @@ public class SearchMessageDialog extends JDialog {
             centerPanel.add(getJPanel3(), gridBagConstraints41);
             centerPanel.add(jLabel1, gridBagConstraints14);
             centerPanel.add(getJScrollPane(), gridBagConstraints210);
+            centerPanel.add(getCBprivateMsgsOnly(), gridBagConstraints110);
+            centerPanel.add(getParchiveSearch(), gridBagConstraints211);
         }
         return centerPanel;
     }
@@ -771,6 +789,103 @@ public class SearchMessageDialog extends JDialog {
             jTable = new JTable();
         }
         return jTable;
+    }
+
+    /**
+     * This method initializes CBprivateMsgsOnly	
+     * 	
+     * @return javax.swing.JCheckBox	
+     */
+    private JCheckBox getCBprivateMsgsOnly() {
+        if( CBprivateMsgsOnly == null ) {
+            CBprivateMsgsOnly = new JCheckBox();
+            CBprivateMsgsOnly.setText("Search private messages only");
+        }
+        return CBprivateMsgsOnly;
+    }
+
+    /**
+     * This method initializes ParchiveSearch	
+     * 	
+     * @return javax.swing.JPanel	
+     */
+    private JPanel getParchiveSearch() {
+        if( ParchiveSearch == null ) {
+            GridBagConstraints gridBagConstraints36 = new GridBagConstraints();
+            gridBagConstraints36.gridx = 3;
+            gridBagConstraints36.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints36.weightx = 0.5;
+            gridBagConstraints36.gridy = 0;
+            Lglue = new JLabel();
+            Lglue.setText("");
+            GridBagConstraints gridBagConstraints35 = new GridBagConstraints();
+            gridBagConstraints35.insets = new java.awt.Insets(1,3,1,5);
+            gridBagConstraints35.gridy = 0;
+            gridBagConstraints35.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints35.gridx = 2;
+            GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+            gridBagConstraints31.insets = new java.awt.Insets(1,3,1,2);
+            gridBagConstraints31.gridy = 0;
+            gridBagConstraints31.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints31.gridx = 1;
+            GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+            gridBagConstraints8.insets = new java.awt.Insets(1,5,1,2);
+            gridBagConstraints8.gridy = 0;
+            gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints8.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints8.gridx = 0;
+            ParchiveSearch = new JPanel();
+            ParchiveSearch.setPreferredSize(new java.awt.Dimension(517,25));
+            ParchiveSearch.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEmptyBorder(3,3,3,3), javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED)));
+            ParchiveSearch.setLayout(new GridBagLayout());
+            ParchiveSearch.add(getRBsearchNormalAndArc(), gridBagConstraints8);
+            ParchiveSearch.add(getRBsearchNormalOnly(), gridBagConstraints31);
+            ParchiveSearch.add(getRBsearchArcOnly(), gridBagConstraints35);
+            ParchiveSearch.add(Lglue, gridBagConstraints36);
+        }
+        return ParchiveSearch;
+    }
+
+    /**
+     * This method initializes RBsearchNormalAndArc	
+     * 	
+     * @return javax.swing.JRadioButton	
+     */
+    private JRadioButton getRBsearchNormalAndArc() {
+        if( RBsearchNormalAndArc == null ) {
+            RBsearchNormalAndArc = new JRadioButton();
+            RBsearchNormalAndArc.setText("Search in keypool and archive");
+            RBsearchNormalAndArc.setPreferredSize(new java.awt.Dimension(195,20));
+        }
+        return RBsearchNormalAndArc;
+    }
+
+    /**
+     * This method initializes RBsearchNormalOnly	
+     * 	
+     * @return javax.swing.JRadioButton	
+     */
+    private JRadioButton getRBsearchNormalOnly() {
+        if( RBsearchNormalOnly == null ) {
+            RBsearchNormalOnly = new JRadioButton();
+            RBsearchNormalOnly.setText("Search only in keypool");
+            RBsearchNormalOnly.setPreferredSize(new java.awt.Dimension(152,20));
+        }
+        return RBsearchNormalOnly;
+    }
+
+    /**
+     * This method initializes RBsearchArcOnly	
+     * 	
+     * @return javax.swing.JRadioButton	
+     */
+    private JRadioButton getRBsearchArcOnly() {
+        if( RBsearchArcOnly == null ) {
+            RBsearchArcOnly = new JRadioButton();
+            RBsearchArcOnly.setText("Search only in archive");
+            RBsearchArcOnly.setPreferredSize(new java.awt.Dimension(150,20));
+        }
+        return RBsearchArcOnly;
     }
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"

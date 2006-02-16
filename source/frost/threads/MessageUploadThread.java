@@ -52,7 +52,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private String keypool;
     private MessageObject message;
     
-	private File messageFile;
+	private File unsentMessageFile;
     private int messageUploadHtl;
     private String privateKey;
     private String publicKey;
@@ -111,7 +111,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 				.append(String.valueOf(System.currentTimeMillis()))
 				.append(".xml")
 				.toString();
-		messageFile = new File(uploadMe);
+		unsentMessageFile = new File(uploadMe);
 	}
 
 	/**
@@ -166,7 +166,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	 */
 	private boolean checkRemoteFile(int index) {
 		try {
-            File remoteFile = new File(messageFile.getPath() + ".coll");
+            File remoteFile = new File(unsentMessageFile.getPath() + ".coll");
             remoteFile.delete(); // just in case it already exists
             remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
             
@@ -324,21 +324,22 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		logger.info("TOFUP: Uploading message to board '" + board.getName() + "' with HTL " + messageUploadHtl);
 
 		// first save msg to be able to resend on crash   
-		if (!saveMessage(message, messageFile)) {
+		if (!saveMessage(message, unsentMessageFile)) {
 			logger.severe("This was a HARD error and the file to upload is lost, please report to a dev!");
 			return false;
 		}
 
 		// BBACKFLAG: ask user if uploading of X files is allowed!
-		if (!uploadAttachments(message, messageFile)) {
+        // if one attachment file does not longer exists (on retry), we delete the message in uploadAttachments()!
+		if (!uploadAttachments(message, unsentMessageFile)) {
 			return false;
 		}
 
 		// zip the xml file to a temp file
-		zipFile = new File(messageFile.getPath() + ".upltmp");
+		zipFile = new File(unsentMessageFile.getPath() + ".upltmp");
 		zipFile.delete(); // just in case it already exists
 		zipFile.deleteOnExit(); // so that it is deleted when Frost exits
-		FileAccess.writeZipFile(FileAccess.readByteArray(messageFile), "entry", zipFile);
+		FileAccess.writeZipFile(FileAccess.readByteArray(unsentMessageFile), "entry", zipFile);
         
         if( !zipFile.isFile() || zipFile.length() == 0 ) {
             logger.severe("Error: zip of message xml file failed, result file not existing or empty. Please report to a dev!");
@@ -446,8 +447,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 			logger.log(Level.SEVERE, "Exception thrown in saveMessage()", ex);
 		}
 		if (success && tmpFile.length() > 0) {
-			messageFile.delete();
-			tmpFile.renameTo(messageFile);
+			unsentMessageFile.delete();
+			tmpFile.renameTo(unsentMessageFile);
 			return true;
 		} else {
 			tmpFile.delete();
@@ -462,7 +463,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 	 */
 	private boolean uploadAttachment(SharedFileObject attachment) {
 
-		assert attachment.getFile() != null : "message.getOfflineFiles() failed!";
+		assert attachment.getFile() != null : "message.getFile() failed!";
 
 		String[] result = { "", "" };
 		int uploadHtl = frostSettings.getIntValue("htlUpload");
@@ -536,15 +537,38 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 		boolean success = true;
 		List fileAttachments = msg.getOfflineFiles();
 		Iterator i = fileAttachments.iterator();
+        // check if upload files still exist
 		while (i.hasNext()) {
 			SharedFileObject attachment = (SharedFileObject) i.next();
-			if(uploadAttachment(attachment)) {
-				//If the attachment was successfully inserted, we update the message on disk.
-				saveMessage(msg, file);
-			} else {
-				success = false;	
+            if( attachment.getFile()== null || 
+                attachment.getFile().isFile() == false || 
+                attachment.getFile().length() == 0 )
+            {
+                JOptionPane.showMessageDialog(
+                        parentFrame,
+                        "The message that is currently send (maybe a send retry on next startup of Frost)\n"+
+                        "contains a file attachment that does not longer exist!\n\n"+
+                        "The send of the message was aborted and the message file was deleted\n"+
+                        "to prevent another upload try on next startup of Frost.",
+                        "Unrecoverable error",
+                        JOptionPane.ERROR_MESSAGE);
+                
+                unsentMessageFile.delete();
+                return false;
 			}
 		}
+        
+		// upload each attachment
+        i = fileAttachments.iterator();
+        while (i.hasNext()) {
+            SharedFileObject attachment = (SharedFileObject) i.next();
+            if(uploadAttachment(attachment)) {
+                //If the attachment was successfully inserted, we update the message on disk.
+                saveMessage(msg, file);
+            } else {
+                success = false;    
+            }
+        }
 
 		if (!success) {
 			JOptionPane.showMessageDialog(
@@ -692,7 +716,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
             if (result[0].equals("Success")) {
                 // msg is probabilistic cached in freenet node, retrieve it to ensure it is in our store
-                File tmpFile = new File(messageFile.getPath() + ".down");
+                File tmpFile = new File(unsentMessageFile.getPath() + ".down");
                 
                 int dlTries = 0;
                 int dlMaxTries = 3;
@@ -768,10 +792,10 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 counter++;
             }
             
-            boolean wasOk = messageFile.renameTo(sentTarget);
+            boolean wasOk = unsentMessageFile.renameTo(sentTarget);
             if( !wasOk ) {
-                logger.severe("Error: rename of '"+messageFile.getPath()+"' into '"+sentTarget.getPath()+"' failed!");
-                messageFile.delete(); // we must delete the file from unsent folder to prevent another upload
+                logger.severe("Error: rename of '"+unsentMessageFile.getPath()+"' into '"+sentTarget.getPath()+"' failed!");
+                unsentMessageFile.delete(); // we must delete the file from unsent folder to prevent another upload
             }
             zipFile.delete();
 
@@ -793,7 +817,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     tryAgain = false;
                 } else if (answer == MessageUploadFailedDialog.DISCARD_VALUE) {
                     zipFile.delete();
-                    messageFile.delete();
+                    unsentMessageFile.delete();
                     logger.warning("TOFUP: Will NOT try to upload message again.");
                     tryAgain = false;
                 } else { // paranoia
