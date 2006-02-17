@@ -2,15 +2,43 @@
 *** Frost history file ***
  ************************
 
-Pending changes:
------------------
+2006.02.16:
+------------
 
+Added: Added an early version of a 'sent' folder. It is NOT visible in the
+       GUI right now (needs bigger changes in folder management), but all
+       sent messages (encrypted messages too) are now stored into a folder
+       in the Frost directory (localdata/sent/) after a successful upload.
+       You can open the sent messages in this folder using e.g. your internet
+       browser. The 'sent' folder is included in the archiving process.
 Added: added browse button for archive folder in expiration options
 
-Bugfix: it happened that new messages were indicated for a FOLDER, fixed (thanks mildew)
+Changed: Disabled the duplicate message prevention mechanism (hashes.xml).
+         Maybe it is not any longer needed, if users report many duplicate
+         message I will enable it again.
+Changed: Disabled translation feature, I wanted to fix it and recognized that
+         it did never work correctly. If you want to translate Frost contact me.
+
+Bugfix: Added fixes to (hopefully) prevent lost messages now. After ages of
+        analysing I think the problem is the (now working) probabilistic caching
+        in freenet node that does not always add the inserted message to your
+        own store. This leads to situations where another message is inserted
+        to the same message index by Frost and no key collision occured.
+        Frost now retrieves the successfully uploaded file immediately after
+        the upload to ensure it is in your store. If this fails the upload
+        is retried.
+Bugfix: Fixed some problems that happened if the count of days to download
+        backwards was set to zero (e.g. no file index download started).
+Bugfix: Fixed problem that currently shown message scrolled to bottom when a
+        new message in same board arrives. New message indication
+        (yellow icon) was also reset in this case, fixed too.
+Bugfix: Fixed problem that occured if an unsent message is resend on Frost
+        startup that contains file attachments and the files where deleted you
+        got an annoying dialog telling you that the resend failed. Now the
+        message is deleted (because its not valid without the attachment files).
+Bugfix: It happened that new messages were indicated for a FOLDER, fixed (thanks mildew).
 
 ******************************************************************************************
-
 
 2005.10.20:
 ------------
