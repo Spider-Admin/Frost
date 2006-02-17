@@ -70,11 +70,6 @@
                 <name><![CDATA[frost]]></name>
             </FrostBoardTreeEntry>
             <FrostBoardTreeEntry>
-                <name><![CDATA[frost-wot]]></name>
-                <publicKey><![CDATA[SSK@WR7Fq4LmCLIYtWRFHoxzvrZMDNoPAgM]]></publicKey>
-                <privateKey><![CDATA[SSK@ZVaQ955z2rfwP0l9BaBXsN3Rbw4]]></privateKey>
-            </FrostBoardTreeEntry>
-            <FrostBoardTreeEntry>
                 <name><![CDATA[fuqid-public]]></name>
                 <publicKey><![CDATA[SSK@5o9nBkbkt9Hwsm0PJpKYJEa8cSMPAgM]]></publicKey>
                 <privateKey><![CDATA[SSK@ALbN9vLjIZ3PBS58ZHw6jY71mFhD]]></privateKey>
