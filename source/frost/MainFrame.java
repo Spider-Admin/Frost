@@ -61,18 +61,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      */
     private class Listener extends WindowAdapter {
         public void windowClosing(WindowEvent e) {
-            // save size,location and state of window
-            Rectangle bounds = getBounds();
-            boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
-
-            frostSettings.setValue("lastFrameMaximized", isMaximized);
-
-            if (!isMaximized) { //Only saves the dimension if it is not maximized
-                frostSettings.setValue("lastFrameHeight", bounds.height);
-                frostSettings.setValue("lastFrameWidth", bounds.width);
-                frostSettings.setValue("lastFramePosX", bounds.x);
-                frostSettings.setValue("lastFramePosY", bounds.y);
-            }
             fileExitMenuItem_actionPerformed(null);
         }
     } // end of class popuplistener
@@ -893,6 +881,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
                 messageTable.getSelectionModel().addListSelectionListener(listener);
                 messageListScrollPane = new JScrollPane(messageTable);
+                
+                // load message table layout
+                messageTable.loadLayout(frostSettings);
 
                 // build message body scroll pane
                 messageTextArea = new AntialiasedTextArea();
@@ -2238,6 +2229,24 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * @param e
      */
     private void fileExitMenuItem_actionPerformed(ActionEvent e) {
+
+        // TODO: move to saveable???
+        // TODO: save msg table column sizes!!!
+        
+        // save size,location and state of window
+        Rectangle bounds = getBounds();
+        boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
+
+        frostSettings.setValue("lastFrameMaximized", isMaximized);
+
+        if (!isMaximized) { // Only save the current dimension if frame is not maximized
+            frostSettings.setValue("lastFrameHeight", bounds.height);
+            frostSettings.setValue("lastFrameWidth", bounds.width);
+            frostSettings.setValue("lastFramePosX", bounds.x);
+            frostSettings.setValue("lastFramePosY", bounds.y);
+        }
+        
+        messageTable.saveLayout(frostSettings);
 
         if (tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
             int result =
