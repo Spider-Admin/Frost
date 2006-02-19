@@ -145,7 +145,7 @@ public class MemoryMonitor extends JPanel {
         private int pts[];
         private int ptNum;
         private int ascent, descent;
-        private float freeMemory, totalMemory;
+//        private float freeMemory, totalMemory;
         private Rectangle graphOutlineRect = new Rectangle();
         private Rectangle2D mfRect = new Rectangle2D.Float();
         private Rectangle2D muRect = new Rectangle2D.Float();
@@ -174,9 +174,8 @@ public class MemoryMonitor extends JPanel {
         }
 
         public Dimension getPreferredSize() {
-            return new Dimension(100, 80);
+            return new Dimension(200, 100);
         }
-
             
         public void paint(Graphics g) {
 
@@ -193,16 +192,16 @@ public class MemoryMonitor extends JPanel {
             // .. Draw allocated and used strings ..
             big.setColor(Color.green);
             big.drawString(String.valueOf((int) totalMemory/1024) + "K allocated",  4.0f, (float) ascent+0.5f);
-            usedStr = String.valueOf(((int) (totalMemory - freeMemory))/1024) 
-                + "K used";
+            usedStr = String.valueOf(((int) (totalMemory - freeMemory))/1024) + "K used";
             big.drawString(usedStr, 4, h-descent);
+            big.drawString(Thread.activeCount() + " threads", 110, h-descent);
 
             // Calculate remaining size
             float ssH = ascent + descent;
             float remainingHeight = (float) (h - (ssH*2) - 0.5f);
             float blockHeight = remainingHeight/10;
             float blockWidth = 20.0f;
-            float remainingWidth = (float) (w - blockWidth - 10);
+//            float remainingWidth = (float) (w - blockWidth - 10);
 
             // .. Memory Free ..
             big.setColor(mfColor);
@@ -291,11 +290,9 @@ public class MemoryMonitor extends JPanel {
                 }
             }
 
-			if (gc_counter > 4)
-			{
+			if (gc_counter > 4) {
 				//if (!Common.isRunningProcess() && thread != null && box.isSelected() && freeMemory < 2048000L)
-				if (thread != null /*&& box.isSelected()*/ && freeMemory < 2048000L)
-				{
+				if (thread != null /*&& box.isSelected()*/ && freeMemory < 2048000L) {
 					big.setColor(Color.red);
 					big.fillRect(84, h - descent - 6, 4, 4);
 
@@ -303,13 +300,12 @@ public class MemoryMonitor extends JPanel {
 				}
 
 				gc_counter = 0;
-			}
-			else
+			} else {
 				gc_counter++;
+            }
 
             g.drawImage(bimg, 0, 0, this);
         }
-
 
         public void start() {
             thread = new Thread(this);
@@ -318,24 +314,22 @@ public class MemoryMonitor extends JPanel {
             thread.start();
         }
 
-
         public synchronized void stop() {
             thread = null;
             notify();
         }
 
-
         public void run() {
 
             Thread me = Thread.currentThread();
 
-            while (thread == me && !isShowing() || getSize().width == 0) {
-                try {
-                    thread.sleep(500);
-                } catch (InterruptedException e) { return; }
-            }
+//            while (thread == me && !isShowing() || getSize().width == 0) {
+//                try {
+//                    thread.sleep(500);
+//                } catch (InterruptedException e) { return; }
+//            }
     
-            while (thread == me && isShowing()) {
+            while (thread == me /*&& isShowing()*/) {
                 Dimension d = getSize();
                 if (d.width != w || d.height != h) {
                     w = d.width;
@@ -347,11 +341,13 @@ public class MemoryMonitor extends JPanel {
                     ascent = (int) fm.getAscent();
                     descent = (int) fm.getDescent();
                 }
+                
+                paint(getGraphics()); // draw also when hidden
 
-                repaint();
+//                repaint(); // draw only when shown
 
                 try {
-                    thread.sleep(sleepAmount);
+                    Thread.sleep(sleepAmount);
                 } catch (InterruptedException e) { break; }
             }
             thread = null;
