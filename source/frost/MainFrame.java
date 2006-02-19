@@ -63,7 +63,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         public void windowClosing(WindowEvent e) {
             fileExitMenuItem_actionPerformed(null);
         }
-    } // end of class popuplistener
+    }
+    
+    private MemoryMonitor memoryMonitor = null;
+    private MemoryMonitor getMemoryMonitor() {
+        if( memoryMonitor == null ) {
+            memoryMonitor = new MemoryMonitor();
+        }
+        return memoryMonitor;
+    }
 
     private class MessagePanel extends JPanel {
 
@@ -1587,6 +1595,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private JMenuItem helpAboutMenuItem = new JMenuItem();
     private JMenuItem helpHelpMenuItem = new JMenuItem();
+    private JMenuItem helpMemMonMenuItem = new JMenuItem("Show memory monitor");
 
     //Help Menu
     private JMenu helpMenu = new JMenu();
@@ -2081,6 +2090,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     helpAboutMenuItem_actionPerformed(e);
                 }
             });
+            helpMemMonMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    getMemoryMonitor().showDialog();
+                }
+            });
 
             // construct menu
             // File Menu
@@ -2137,6 +2151,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             languageMenu.add(languageSpanishMenuItem);
             languageMenu.add(languageBulgarianMenuItem);
             // Help Menu
+            helpMenu.add(helpMemMonMenuItem);
             helpMenu.add(helpHelpMenuItem);
             helpMenu.add(helpAboutMenuItem);
             // add all to bar
