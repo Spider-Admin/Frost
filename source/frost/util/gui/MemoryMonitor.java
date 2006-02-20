@@ -40,6 +40,8 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
+// TODO: nach neuem öffnen die history resetten!
+
 /**
  * Tracks Memory allocated & used, displayed in graph form.
  */
@@ -53,6 +55,11 @@ public class MemoryMonitor extends JPanel {
     
     JFrame dialog = null;
     boolean isShown = false;
+    
+    public static void main(String[] args) {
+        MemoryMonitor mem = new MemoryMonitor();
+        mem.showDialog();
+    }
     
     private JFrame getDialog() {
         if( dialog == null ) {
@@ -188,10 +195,13 @@ public class MemoryMonitor extends JPanel {
 
             float freeMemory = (float) r.freeMemory();
             float totalMemory = (float) r.totalMemory();
+            float maxMemory = (float) r.maxMemory();
 
             // .. Draw allocated and used strings ..
             big.setColor(Color.green);
             big.drawString(String.valueOf((int) totalMemory/1024) + "K allocated",  4.0f, (float) ascent+0.5f);
+            big.drawString(String.valueOf((int) maxMemory/1024) + "K max",  110, (float) ascent+0.5f);
+            
             usedStr = String.valueOf(((int) (totalMemory - freeMemory))/1024) + "K used";
             big.drawString(usedStr, 4, h-descent);
             big.drawString(Thread.activeCount() + " threads", 110, h-descent);
@@ -290,6 +300,7 @@ public class MemoryMonitor extends JPanel {
                 }
             }
 
+            // each 5 seconds do a System.gc() if free memory is smaller than 2MB (compared to allocated memory)
 			if (gc_counter > 4) {
 				//if (!Common.isRunningProcess() && thread != null && box.isSelected() && freeMemory < 2048000L)
 				if (thread != null /*&& box.isSelected()*/ && freeMemory < 2048000L) {
