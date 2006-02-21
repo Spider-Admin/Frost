@@ -719,7 +719,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 File tmpFile = new File(unsentMessageFile.getPath() + ".down");
                 
                 int dlTries = 0;
-                int dlMaxTries = 3;
+                // we use same maxTries as for upload
                 while(dlTries < maxTries) {
                     Mixed.wait(10000);
                     tmpFile.delete(); // just in case it already exists
@@ -728,7 +728,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         break;
                     } else {
                         logger.severe("TOFUP: Uploaded message could NOT be retrieved! "+
-                                "Download try "+dlTries+" of "+dlMaxTries);
+                                "Download try "+dlTries+" of "+maxTries);
                         dlTries++;
                     }
                 }
