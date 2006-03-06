@@ -161,12 +161,12 @@ public class XMLTools {
 	 */
 	public static boolean writeXmlFile(Document doc, String filename) {
 		try {
-			OutputFormat format = new OutputFormat(doc, "UTF-16", false);
+			OutputFormat format = new OutputFormat(doc, "UTF-8", false);
 			format.setLineSeparator(LineSeparator.Windows);
 			//format.setIndenting(true);
 			format.setLineWidth(0);
 			format.setPreserveSpace(true);
-			OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-16");
+			OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-8");
 			XMLSerializer serializer = new XMLSerializer(writer, format);
 			serializer.asDOMSerializer();
 			serializer.serialize(doc);
