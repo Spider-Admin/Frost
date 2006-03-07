@@ -1608,6 +1608,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JRadioButtonMenuItem languageGermanMenuItem = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem languageItalianMenuItem = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem languageJapaneseMenuItem = new JRadioButtonMenuItem();
+    private JRadioButtonMenuItem languageRussianMenuItem = new JRadioButtonMenuItem();
 
     //Language Menu
     private JMenu languageMenu = new JMenu();
@@ -2058,6 +2059,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     setLanguageResource(bundle);
                 }
             });
+            languageRussianMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("ru"));
+                    frostSettings.setValue("locale", "ru");
+                    setLanguageResource(bundle);
+                }
+            });
             languageItalianMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("it"));
@@ -2150,6 +2158,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             languageMenu.add(languageJapaneseMenuItem);
             languageMenu.add(languageSpanishMenuItem);
             languageMenu.add(languageBulgarianMenuItem);
+            languageMenu.add(languageRussianMenuItem);
             // Help Menu
             helpMenu.add(helpMemMonMenuItem);
             helpMenu.add(helpHelpMenuItem);
@@ -2704,6 +2713,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         languageJapaneseMenuItem.setText(language.getString("Japanese"));
         languageSpanishMenuItem.setText(language.getString("Spanish"));
         languageBulgarianMenuItem.setText(language.getString("Bulgarian"));
+        languageRussianMenuItem.setText(language.getString("Russian"));
         helpMenu.setText(language.getString("Help"));
         helpHelpMenuItem.setText(language.getString("Help"));
         helpAboutMenuItem.setText(language.getString("About"));

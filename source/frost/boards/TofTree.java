@@ -73,7 +73,7 @@ public class TofTree extends JDragTree implements Savable {
 		public void actionPerformed(ActionEvent e) {
 			final Object source = e.getSource();
 	
-			SwingWorker worker = new SwingWorker(this) {
+            frost.util.gui.SwingWorker worker = new frost.util.gui.SwingWorker(this) {
 				
 				protected void doNonUILogic() throws RuntimeException {
 					if (source == refreshItem) {
