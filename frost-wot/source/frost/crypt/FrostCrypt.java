@@ -42,7 +42,7 @@ import org.bouncycastle.util.encoders.*;
 /**
  * Implementation of the crypto layer.
  */
-public final class FrostCrypt implements Crypt {
+public final class FrostCrypt {
 
 	private static Logger logger = Logger.getLogger(FrostCrypt.class.getName());
     
@@ -115,13 +115,18 @@ public final class FrostCrypt implements Crypt {
      * Computes the SHA-1 checksum of given message.
      */
 	public synchronized String digest(String message) {
-		SHA1Digest stomach = new SHA1Digest();
-		stomach.reset();
-		byte[] food = message.getBytes();
-		stomach.update(food, 0, food.length);
-		byte[] poop = new byte[64];
-		stomach.doFinal(poop, 0);
-		return (new String(Base64.encode(poop))).substring(0, 27);
+        try {
+    		SHA1Digest stomach = new SHA1Digest();
+    		stomach.reset();
+    		byte[] food = message.getBytes("UTF-8");
+    		stomach.update(food, 0, food.length);
+    		byte[] poop = new byte[64];
+    		stomach.doFinal(poop, 0);
+    		return (new String(Base64.encode(poop))).substring(0, 27);
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 encoding is not supported.", ex);
+        }
+        return null;
 	}
 
     /**
@@ -157,6 +162,18 @@ public final class FrostCrypt implements Crypt {
 		stomach.doFinal(poop, 0);
 		return (new String(Base64.encode(poop))).substring(0, 27);
 	}
+
+    public synchronized String encrypt(String what, String publicKey) {
+        try {
+            byte[] whatBytes = what.getBytes("UTF-8");
+            byte[] encryptedBytes = encrypt(whatBytes, publicKey);
+            String result = new String(Base64.encode(encryptedBytes), "ISO-8859-1");
+            return result;
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 encoding is not supported.", ex);
+        }
+        return null;
+    }
 
     /**
      * Encryption of a byte array.
@@ -249,6 +266,17 @@ public final class FrostCrypt implements Crypt {
         return plainOut.toByteArray();
     }
 
+    public synchronized String decrypt(String what, String privateKey) {
+        try {
+            byte[] encBytes = Base64.decode(what.getBytes("ISO-8859-1"));
+            byte[] decBytes = decrypt(encBytes, privateKey);
+            return new String(decBytes, "UTF-8");
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 encoding is not supported.", ex);
+        }
+        return null;
+    }
+
     /**
      * Decrypts a byte array.
      * 
@@ -338,9 +366,14 @@ public final class FrostCrypt implements Crypt {
         return plainOut.toByteArray();
     }
 
-    
 	public synchronized String detachedSign(String message, String key){
-		return detachedSign(message.getBytes(), key);
+        try {
+            byte[] msgBytes = message.getBytes("UTF-8");
+            return detachedSign(msgBytes, key);
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 encoding is not supported.", ex);
+        }
+        return null;
 	}
 	public synchronized String detachedSign(byte[] message, String key) {
         
@@ -366,26 +399,42 @@ public final class FrostCrypt implements Crypt {
 			logger.log(Level.SEVERE, "Exception thrown in detachedSign(String message, String key)", e);
 		}
 		signer.reset();
-		String result = new String(Base64.encode(signature));
-		return result;
+        try {
+    		String result = new String(Base64.encode(signature), "ISO-8859-1");
+    		return result;
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "ISO-8859-1 encoding is not supported.", ex);
+        }
+        return null;
 	}
 
 	public synchronized boolean detachedVerify(String message, String key, String sig){
-		return detachedVerify(message.getBytes(),key,sig);
+        try {
+            byte[] msgBytes = message.getBytes("UTF-8");
+            return detachedVerify(msgBytes, key, sig);
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 encoding is not supported.", ex);
+        }
+        return false;
 	}
 	public synchronized boolean detachedVerify(byte[] message, String key, String _sig) {
-		byte[] sig = Base64.decode(_sig.getBytes());
-        
-		StringTokenizer keycutter = new StringTokenizer(key, ":");
-		BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
-		BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
-        
-		signer.init(false, new RSAKeyParameters(true, Modulus, Exponent));
-
-		signer.update(message, 0, message.length);
-		boolean result = signer.verifySignature(sig);
-		signer.reset();
-		return result;
+        try {
+    		byte[] sig = Base64.decode(_sig.getBytes("ISO-8859-1"));
+            
+    		StringTokenizer keycutter = new StringTokenizer(key, ":");
+    		BigInteger Exponent = new BigInteger(Base64.decode(keycutter.nextToken()));
+    		BigInteger Modulus = new BigInteger(Base64.decode(keycutter.nextToken()));
+            
+    		signer.init(false, new RSAKeyParameters(true, Modulus, Exponent));
+    
+    		signer.update(message, 0, message.length);
+    		boolean result = signer.verifySignature(sig);
+    		signer.reset();
+    		return result;
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "ISO-8859-1 encoding is not supported.", ex);
+        }
+        return false;
 	}
     
     private synchronized SecureRandom getSecureRandom() {
@@ -393,11 +442,23 @@ public final class FrostCrypt implements Crypt {
     }
 
 	public String decode64(String what) {
-		return new String(Base64.decode(what.getBytes()));
+        try {
+            byte[] whatBytes = what.getBytes("ISO-8859-1");
+            return new String(Base64.decode(whatBytes), "UTF-8");
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 or ISO-8859-1 encoding is not supported.", ex);
+        }
+        return null;
 	}
 	
 	public String encode64(String what) {
-		return new String(Base64.encode(what.getBytes()));
+        try {
+            byte[] whatBytes = what.getBytes("UTF-8");
+            return new String(Base64.encode(whatBytes), "ISO-8859-1");
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 or ISO-8859-1 encoding is not supported.", ex);
+        }
+        return null;
 	}
     
     /**

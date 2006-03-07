@@ -68,7 +68,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 	
 	public static SettingsClass frostSettings;
 	
-	private static Crypt crypto = new FrostCrypt();
+	private static FrostCrypt crypto = new FrostCrypt();
 	
 	private class EventDispatcher {
 
@@ -374,7 +374,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return false;
 	}
     
-	public static Crypt getCrypto() {
+	public static FrostCrypt getCrypto() {
 		return crypto;
 	}
 	

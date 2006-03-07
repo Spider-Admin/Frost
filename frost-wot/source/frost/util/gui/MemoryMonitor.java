@@ -40,8 +40,6 @@ import java.awt.image.*;
 
 import javax.swing.*;
 
-// TODO: nach neuem öffnen die history resetten!
-
 /**
  * Tracks Memory allocated & used, displayed in graph form.
  */
