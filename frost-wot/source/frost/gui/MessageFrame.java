@@ -1325,7 +1325,7 @@ public class MessageFrame extends JFrame
         }
 
         Identity recipient = null;
-        if( encrypt.isEnabled() && encrypt.isSelected() ) {
+        if( encrypt.isSelected() ) {
             recipient = (Identity)buddies.getSelectedItem();
             if( recipient == null ) {
                 JOptionPane.showMessageDialog( this,
