@@ -27,7 +27,6 @@ import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.border.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
@@ -42,87 +41,7 @@ import frost.storage.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-public class MessageFrame extends JFrame
-{
-    private class AttachBoardsChooser extends JDialog {
-		private class AttachBoardsCellRenderer extends DefaultListCellRenderer {
-
-			public Component getListCellRendererComponent(JList list, Object value, int index,
-					boolean isSelected, boolean cellHasFocus) {
-				super.getListCellRendererComponent(list, value, index, isSelected, cellHasFocus);
-				if (value != null) {
-					Board tboard = (Board) value;
-					setText(tboard.getName());
-				}	
-				return this;
-			}
-		}
-    	
-        JButton Bcancel;
-        List boards;
-        JButton Bok;
-        JList Lboards;
-        boolean okPressed = false;
-
-        public AttachBoardsChooser(List boards)
-        {	
-            super();
-            setTitle(language.getString("Choose boards to attach"));
-            setModal(true);
-            this.boards = boards;
-            initGui();
-        }
-        
-        private void initGui()
-        {
-            Bok = new JButton("OK");
-            Bok.addActionListener( new ActionListener() {
-                   public void actionPerformed(ActionEvent e) {
-                       	okPressed = true;
-                       	setVisible(false);
-                   } });
-            Bcancel = new JButton("Cancel");
-            Bcancel.addActionListener( new ActionListener() {
-                   public void actionPerformed(ActionEvent e) {
-                       	okPressed = false;
-						setVisible(false);
-                   } });
-            JPanel buttonsPanel = new JPanel( new FlowLayout(FlowLayout.RIGHT, 8, 8) );
-            buttonsPanel.add( Bok );
-            buttonsPanel.add( Bcancel );
-
-            ListModel boardsModel = new AbstractListModel() {
-				public int getSize() {
-					return boards.size();
-				}
-				public Object getElementAt(int index) {
-					return boards.get(index);
-				}
-            };
-            Lboards = new JList(boardsModel);
-            Lboards.setCellRenderer(new AttachBoardsCellRenderer());
-            Lboards.setSelectionMode(ListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
-            JScrollPane listScroller = new JScrollPane( Lboards );
-            listScroller.setBorder( new CompoundBorder( new EmptyBorder(5,5,5,5),
-                                                        new CompoundBorder( new EtchedBorder(),
-                                                                            new EmptyBorder(5,5,5,5) )
-                                                      ) );
-            getContentPane().add(listScroller, BorderLayout.CENTER);
-            getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
-            setSize(300, 400);
-        }
-        
-        public Vector runDialog()
-        {
-            setVisible(true);
-            if( okPressed == false )
-                return null;
-
-            Object[] sels = Lboards.getSelectedValues();
-            Vector chosed = new Vector( Arrays.asList( sels ) );
-            return chosed;
-        }
-    }
+public class MessageFrame extends JFrame {
     
     class BuddyComparator implements Comparator {
         /** 
@@ -620,7 +539,6 @@ public class MessageFrame extends JFrame
     private String from;
     private String subject;
     private String lastUsedDirectory;
-    private String keypool;
     private boolean state;
     private SettingsClass frostSettings;
         
@@ -675,7 +593,6 @@ public class MessageFrame extends JFrame
 		state = false;
 		frostSettings = newSettings;
 		lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
-		keypool = frostSettings.getValue("keypool.dir");
 
 		String fontName = frostSettings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
 		int fontStyle = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
@@ -695,11 +612,6 @@ public class MessageFrame extends JFrame
 													  // modify the header of
 													  // the message
 		messageTextArea.setDocument(messageDocument);
-
-        // see initialze()
-//		setSize((int) (parentWindow.getWidth() * 0.75), 
-//				(int) (parentWindow.getHeight() * 0.75));
-//		setLocationRelativeTo(parentWindow);
 	}
     
     private Window parentWindow;
@@ -708,16 +620,18 @@ public class MessageFrame extends JFrame
 	 * @param e
 	 */
 	private void attachBoards_actionPerformed(ActionEvent e) {
-		Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
-		if (allBoards.size() == 0)
-			return;
-		Collections.sort(allBoards);
 
-		AttachBoardsChooser chooser = new AttachBoardsChooser(allBoards);
+        // get and sort all boards
+        Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        if (allBoards.size() == 0) {
+            return;
+        }
+        Collections.sort(allBoards);
+
+		BoardsChooser chooser = new BoardsChooser(allBoards);
 		chooser.setLocationRelativeTo(this);
-		Vector chosenBoards = chooser.runDialog();
-		if (chosenBoards == null || chosenBoards.size() == 0) // nothing chosed or cancelled
-			{
+		List chosenBoards = chooser.runDialog();
+		if (chosenBoards == null || chosenBoards.size() == 0) { // nothing chosed or cancelled
 			return;
 		}
 
