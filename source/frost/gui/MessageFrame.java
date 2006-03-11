@@ -860,6 +860,11 @@ public class MessageFrame extends JFrame
             buddies.removeAllItems();
             buddies.addItem(recipient);
             buddies.setSelectedItem(recipient);
+            // dont allow to disable signing/encryption
+            fromTextField.setEditable(false);
+            sign.setEnabled(false);
+            encrypt.setEnabled(false);
+            buddies.setEnabled(false);
         }
         
         // set sig if msg is marked as signed
@@ -1403,7 +1408,7 @@ public class MessageFrame extends JFrame
                 if( encrypt.isSelected() ) {
                     buddies.setEnabled(true);
                 } else {
-                    buddies.setEnabled(true);
+                    buddies.setEnabled(false);
                 }
             }
             // add signature if not existing
@@ -1418,6 +1423,7 @@ public class MessageFrame extends JFrame
 		} else {
 			sender = "Anonymous";
 			fromTextField.setEditable(true);
+            encrypt.setSelected(false);
             encrypt.setEnabled(false);
             buddies.setEnabled(false);
             // remove signature if existing
