@@ -64,9 +64,9 @@ public class BoardsChooser extends JDialog {
     JList Lboards;
     boolean okPressed = false;
 
-    public BoardsChooser(List boards) {   
+    public BoardsChooser(List boards, List preselectedBoards) {
         super();
-        setTitle(language.getString("Choose boards to attach"));
+        setTitle(language.getString("Choose boards"));
         setModal(true);
         
         // fill given board into our list as BoardListEntries
@@ -76,10 +76,26 @@ public class BoardsChooser extends JDialog {
             BoardListEntry e = new BoardListEntry();
             e.board = b;
             e.checkBox = new JCheckBox(b.getName());
+            e.checkBox.setSelected(false);
+            
+            if( preselectedBoards != null ) {
+                // check if this board should be selected
+                for(Iterator j=preselectedBoards.iterator(); j.hasNext(); ) {
+                    Board sb = (Board)j.next();
+                    if( b.getName().equals(sb.getName()) ) {
+                        e.checkBox.setSelected(true);
+                    }
+                }
+            }
+            
             boardList.add(e);
         }
         
         initGui();
+    }
+    
+    public BoardsChooser(List boards) {
+        this(boards, null);
     }
     
     private void initGui() {
