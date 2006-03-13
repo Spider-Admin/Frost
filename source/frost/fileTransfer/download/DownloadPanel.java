@@ -645,19 +645,19 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	 * @param selectedIcon Displayed when CheckBox is checked
 	 * @param rolloverSelectedIcon Displayed when mouse is over the selected CheckBox
 	 */
-	private void configureCheckBox(
-		JCheckBox checkBox,
-		String rolloverIcon,
-		String selectedIcon,
-		String rolloverSelectedIcon) {
-
-		checkBox.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
-		checkBox.setSelectedIcon(new ImageIcon(getClass().getResource(selectedIcon)));
-		checkBox.setRolloverSelectedIcon(
-			new ImageIcon(getClass().getResource(rolloverSelectedIcon)));
-		checkBox.setMargin(new Insets(0, 0, 0, 0));
-		checkBox.setFocusPainted(false);
-	}
+//	private void configureCheckBox(
+//		JCheckBox checkBox,
+//		String rolloverIcon,
+//		String selectedIcon,
+//		String rolloverSelectedIcon) {
+//
+//		checkBox.setRolloverIcon(new ImageIcon(getClass().getResource(rolloverIcon)));
+//		checkBox.setSelectedIcon(new ImageIcon(getClass().getResource(selectedIcon)));
+//		checkBox.setRolloverSelectedIcon(
+//			new ImageIcon(getClass().getResource(rolloverSelectedIcon)));
+//		checkBox.setMargin(new Insets(0, 0, 0, 0));
+//		checkBox.setFocusPainted(false);
+//	}
 
 	/**
 	 * downloadTextField Action Listener (Download/Quickload)
@@ -874,7 +874,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			File file = new File(execFilename);
 			logger.info("Executing: " + file.getPath());
 			if (file.exists()) {
-				Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
+                try {
+                    Execute.run("exec.bat" + " \"" + file.getPath() + "\"", false);
+                } catch(Throwable t) {
+                    JOptionPane.showMessageDialog(this,
+                            "Could not open the file: "+file.getName()+"\n"+t.toString(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);            
+                }
 			}
 		}
 	}

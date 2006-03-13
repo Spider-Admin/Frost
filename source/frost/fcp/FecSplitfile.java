@@ -142,7 +142,7 @@ public class FecSplitfile
      */    
     protected void initFromRedirectFile() throws IllegalStateException, Exception
     {
-    	 Vector lines = FileAccess.readLines(this.redirectFile);
+    	 List lines = FileAccess.readLines(this.redirectFile);
     	 if( lines.size() == 0 )
     	 	throw new IllegalStateException("Empty redirect file");
             
@@ -394,7 +394,7 @@ public class FecSplitfile
         if( this.redirectFile.isFile() && this.redirectFile.length() > 0 && this.checkBlocksFile.isFile()
                 && this.checkBlocksFile.length() > 0 ) {
             // check for sure if filesize in redirect file is same as datafilesize
-            Vector lines = FileAccess.readLines(this.redirectFile);
+            List lines = FileAccess.readLines(this.redirectFile);
             String slen = SettingsFun.getValue(lines, "SplitFile.Size");
             if( slen.length() > 0 ) {
                 long fsize = Long.parseLong(slen, 16);
