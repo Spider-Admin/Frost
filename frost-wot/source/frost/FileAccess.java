@@ -23,6 +23,7 @@ import java.awt.*;
 import java.io.*;
 import java.nio.channels.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 import java.util.zip.*;
 
@@ -179,13 +180,13 @@ public class FileAccess {
     /**
      * Reads file and returns a Vector of lines
      */
-    public static Vector readLines(File file) {
+    public static List readLines(File file) {
         return readLines(file.getPath());
     }
 
-    public static Vector readLines(String path) {
+    public static List readLines(String path) {
         String line;
-        Vector data = new Vector();
+        ArrayList data = new ArrayList();
         try {
             BufferedReader f = new BufferedReader(new FileReader(path));
             while( (line = f.readLine()) != null ) {

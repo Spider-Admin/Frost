@@ -28,9 +28,6 @@ import frost.util.model.gui.SortedModelTable;
  */
 public class UploadPanel extends JPanel {
 	
-	/**
-	 *  
-	 */
 	private class PopupMenuUpload extends JSkinnablePopupMenu implements ActionListener, LanguageListener, ClipboardOwner {
 
 		private JMenuItem cancelItem = new JMenuItem();
@@ -705,14 +702,18 @@ public class UploadPanel extends JPanel {
 			File file = new File(ulItem.getFilePath());
 			logger.info("Executing: " + file.getPath());
 			if (file.exists()) {
-				Execute.run("exec.bat" + " \"" + file.getPath() + "\"");
+                try {
+                    Execute.run("exec.bat" + " \"" + file.getPath() + "\"", false);
+                } catch(Throwable t) {
+                    JOptionPane.showMessageDialog(this,
+                            "Could not open the file: "+file.getName()+"\n"+t.toString(),
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);            
+                }
 			}
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	private void fontChanged() {
 		String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
 		int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);

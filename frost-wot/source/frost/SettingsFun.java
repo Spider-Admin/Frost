@@ -19,9 +19,9 @@
 
 package frost;
 
-import java.io.File;
-import java.util.Vector;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
 
 public class SettingsFun
 {
@@ -43,7 +43,7 @@ public class SettingsFun
         File checkFile = new File(filename);
         if( checkFile.isFile() )
         {
-            Vector lines = FileAccess.readLines(filename);
+            List lines = FileAccess.readLines(filename);
             return getValue( lines, value );
         }
         return "";
@@ -55,11 +55,11 @@ public class SettingsFun
      * @param value the requested value
      * @return String the requested value as a String
      */
-    public static String getValue(Vector lines, String value)
+    public static String getValue(List lines, String value)
     {
         for( int i = 0; i < lines.size(); i++ )
         {
-            String line = (String)lines.elementAt(i);
+            String line = (String)lines.get(i);
             if( line.startsWith(value + "=") || line.startsWith(value + " ") )
             {
                 if( line.indexOf("=") != -1 )

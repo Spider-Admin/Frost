@@ -32,6 +32,7 @@ import javax.swing.text.*;
 
 import frost.*;
 import frost.boards.*;
+import frost.ext.*;
 import frost.fcp.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
@@ -736,14 +737,24 @@ public class MessageFrame extends JFrame {
 		String text = newText;
         
 		String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
-
+		String fromLine = "----- " + from + " ----- " + date + " -----";
+        
 		if (isReply) {
 			text += "\n\n";
 		}
+        
 		int headerAreaStart = text.length();//Beginning of non-modifiable area
-		text += "----- " + from + " ----- " + date + " -----\n\n";
+		text += fromLine + "\n\n";
 		int headerAreaEnd = text.length() - 2; //End of non-modifiable area
 		oldSender = from;
+        
+        if (frostSettings.getBoolValue("useAltEdit")) {
+            AltEdit ae = new AltEdit(subject, text, MainFrame.getInstance());
+            if( ae.run() ) {
+                subject = ae.getNewSubject();
+                text += ae.getNewText();
+            }
+        }
 		
 		int caretPos = text.length();
 
