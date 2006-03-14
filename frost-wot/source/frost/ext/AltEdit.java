@@ -102,7 +102,7 @@ public class AltEdit {
         sb.append(oldText).append(linesep); // contains new from-header-line
         sb.append(TEXT_MARKER).append(linesep);
 
-        if( FileAccess.writeFile(sb.toString(), editFile) == false ) {
+        if( FileAccess.writeFile(sb.toString(), editFile, "UTF-8") == false ) {
             JOptionPane.showMessageDialog(parentFrame,
                     "Could not create message file for alternate editor: "+editFile.getPath(),
                     "Error",
@@ -123,7 +123,7 @@ public class AltEdit {
             return false;
         }
 
-        List lines = FileAccess.readLines(editFile);
+        List lines = FileAccess.readLines(editFile, "UTF-8");
         if( lines.size() < 4 ) { // subject marker,subject,from line, text marker
             JOptionPane.showMessageDialog(parentFrame,
                     "The message file returned by the alternate editor is invalid.",

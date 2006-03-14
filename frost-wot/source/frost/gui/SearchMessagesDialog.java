@@ -36,6 +36,8 @@ import frost.threads.*;
 
 public class SearchMessagesDialog extends JDialog {
 
+    // TODO: add Lookup to BoardsChooser!
+    
     public static void main(String[] args) {
         new SearchMessagesDialog().setVisible(true);
     }

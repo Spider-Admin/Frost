@@ -174,7 +174,7 @@ class NewsPanel extends JPanel {
 		//Load signature
 		File signature = new File("signature.txt");
 		if (signature.isFile()) {
-			getSignatureTextArea().setText(FileAccess.readFile("signature.txt", "UTF-8"));
+			getSignatureTextArea().setText(FileAccess.readFile(signature, "UTF-8"));
 		}
 	}
 		

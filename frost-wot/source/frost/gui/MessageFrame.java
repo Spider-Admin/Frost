@@ -760,7 +760,7 @@ public class MessageFrame extends JFrame {
 
 		File signatureFile = new File("signature.txt");
 		if (signatureFile.isFile()) {
-			signature = FileAccess.readFile("signature.txt", "UTF-8").trim();
+			signature = FileAccess.readFile(signatureFile, "UTF-8").trim();
             if( signature != null ) {
                 signature = signature.trim();
                 if( signature.length() > 0 ) {
