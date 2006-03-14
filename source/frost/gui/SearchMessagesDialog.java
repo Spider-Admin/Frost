@@ -15,15 +15,30 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
-*/package frost.gui;
+*/
+package frost.gui;
 
 import java.awt.*;
+import java.text.*;
+import java.util.*;
+import java.util.List;
 
 import javax.swing.*;
+import javax.swing.text.*;
 
+import mseries.Calendar.*;
+import mseries.ui.*;
+import frost.*;
 import frost.gui.model.*;
+import frost.gui.objects.*;
+import frost.messages.*;
+import frost.threads.*;
 
 public class SearchMessagesDialog extends JDialog {
+
+    public static void main(String[] args) {
+        new SearchMessagesDialog().setVisible(true);
+    }
 
     private JPanel jContentPane = null;
     private JPanel contentPanel = null;
@@ -40,9 +55,9 @@ public class SearchMessagesDialog extends JDialog {
     private JPanel Pdate = null;
     private JRadioButton date_RBdisplayed = null;
     private JRadioButton date_RBbetweenDates = null;
-    private JTextField date_TFstartDate = null;
+    private MDateEntryField date_TFstartDate = null;
     private JLabel date_Lto = null;
-    private JTextField date_TFendDate = null;
+    private MDateEntryField date_TFendDate = null;
     private JRadioButton date_RBdaysBackward = null;
     private JTextField date_TFdaysBackward = null;
     private JPanel PtrustState = null;
@@ -75,6 +90,8 @@ public class SearchMessagesDialog extends JDialog {
     private ButtonGroup date_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="765,261"
     private ButtonGroup truststate_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="752,302"
     private ButtonGroup archive_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="760,342"
+    private JLabel jLabel = null;
+    private JTextField search_TFsubject = null;
 
     /**
      * This is the default constructor
@@ -82,12 +99,22 @@ public class SearchMessagesDialog extends JDialog {
     public SearchMessagesDialog() {
         super();
         initialize();
+        
+        initializeWithDefaults();
     }
 
-    public static void main(String[] args) {
-        new SearchMessagesDialog().setVisible(true);
+    /**
+     * This method initializes search_TFsubject	
+     * 	
+     * @return javax.swing.JTextField	
+     */
+    private JTextField getSearch_TFsubject() {
+        if( search_TFsubject == null ) {
+            search_TFsubject = new JTextField();
+        }
+        return search_TFsubject;
     }
-    
+
     /**
      * This method initializes this
      * 
@@ -164,7 +191,7 @@ public class SearchMessagesDialog extends JDialog {
             Bsearch.setMnemonic(java.awt.event.KeyEvent.VK_S);
             Bsearch.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+                    startSearching();
                 }
             });
         }
@@ -183,7 +210,8 @@ public class SearchMessagesDialog extends JDialog {
             Bcancel.setMnemonic(java.awt.event.KeyEvent.VK_C);
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    System.out.println("actionPerformed()"); // TODO Auto-generated Event stub actionPerformed()
+                    setVisible(false);
+                    dispose();
                 }
             });
         }
@@ -215,19 +243,32 @@ public class SearchMessagesDialog extends JDialog {
      */
     private JPanel getPsearch() {
         if( Psearch == null ) {
+            GridBagConstraints gridBagConstraints29 = new GridBagConstraints();
+            gridBagConstraints29.fill = java.awt.GridBagConstraints.HORIZONTAL;
+            gridBagConstraints29.gridy = 1;
+            gridBagConstraints29.weightx = 1.0;
+            gridBagConstraints29.insets = new java.awt.Insets(1,5,1,5);
+            gridBagConstraints29.gridx = 1;
+            GridBagConstraints gridBagConstraints110 = new GridBagConstraints();
+            gridBagConstraints110.gridx = 0;
+            gridBagConstraints110.insets = new java.awt.Insets(1,5,1,0);
+            gridBagConstraints110.anchor = java.awt.GridBagConstraints.WEST;
+            gridBagConstraints110.gridy = 1;
+            jLabel = new JLabel();
+            jLabel.setText("Subject");
             GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
             gridBagConstraints101.gridx = 1;
             gridBagConstraints101.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints101.insets = new java.awt.Insets(1,1,1,5);
             gridBagConstraints101.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints101.weighty = 1.0;
-            gridBagConstraints101.gridy = 2;
+            gridBagConstraints101.gridy = 3;
             GridBagConstraints gridBagConstraints91 = new GridBagConstraints();
             gridBagConstraints91.gridx = -1;
             gridBagConstraints91.gridy = -1;
             GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints2.gridy = 1;
+            gridBagConstraints2.gridy = 2;
             gridBagConstraints2.weightx = 1.0;
             gridBagConstraints2.gridwidth = 1;
             gridBagConstraints2.insets = new java.awt.Insets(1,5,1,5);
@@ -243,7 +284,7 @@ public class SearchMessagesDialog extends JDialog {
             gridBagConstraints1.gridx = 0;
             gridBagConstraints1.insets = new java.awt.Insets(1,5,1,0);
             gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
-            gridBagConstraints1.gridy = 1;
+            gridBagConstraints1.gridy = 2;
             Lcontent = new JLabel();
             Lcontent.setText("Content");
             GridBagConstraints gridBagConstraints = new GridBagConstraints();
@@ -261,6 +302,8 @@ public class SearchMessagesDialog extends JDialog {
             Psearch.add(getSearch_TFsender(), gridBagConstraints11);
             Psearch.add(getSearch_TFcontent(), gridBagConstraints2);
             Psearch.add(getSearch_CBprivateMsgsOnly(), gridBagConstraints101);
+            Psearch.add(jLabel, gridBagConstraints110);
+            Psearch.add(getSearch_TFsubject(), gridBagConstraints29);
         }
         return Psearch;
     }
@@ -351,7 +394,7 @@ public class SearchMessagesDialog extends JDialog {
             gridBagConstraints13.weightx = 0.0;
             gridBagConstraints13.fill = java.awt.GridBagConstraints.NONE;
             GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
-            gridBagConstraints12.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints12.gridx = 2;
             gridBagConstraints12.gridy = 1;
             gridBagConstraints12.insets = new java.awt.Insets(1,2,0,2);
@@ -432,10 +475,13 @@ public class SearchMessagesDialog extends JDialog {
      * 	
      * @return javax.swing.JTextField	
      */
-    private JTextField getDate_TFstartDate() {
+    private MDateEntryField getDate_TFstartDate() {
         if( date_TFstartDate == null ) {
-            date_TFstartDate = new JTextField();
-            date_TFstartDate.setColumns(10);
+            date_TFstartDate = new MDateEntryField();
+            MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
+            c.firstDay = Calendar.MONDAY;
+            c.changerStyle=MDateChanger.SPINNER;
+            date_TFstartDate.setConstraints(c);
         }
         return date_TFstartDate;
     }
@@ -445,10 +491,13 @@ public class SearchMessagesDialog extends JDialog {
      * 	
      * @return javax.swing.JTextField	
      */
-    private JTextField getDate_TFendDate() {
+    private MDateEntryField getDate_TFendDate() {
         if( date_TFendDate == null ) {
-            date_TFendDate = new JTextField();
-            date_TFendDate.setColumns(10);
+            date_TFendDate = new MDateEntryField();
+            MDefaultPullDownConstraints c = new MDefaultPullDownConstraints();
+            c.firstDay = Calendar.MONDAY;
+            c.changerStyle=MDateChanger.SPINNER;
+            date_TFendDate.setConstraints(c);
         }
         return date_TFendDate;
     }
@@ -496,7 +545,8 @@ public class SearchMessagesDialog extends JDialog {
     private JTextField getDate_TFdaysBackward() {
         if( date_TFdaysBackward == null ) {
             date_TFdaysBackward = new JTextField();
-            date_TFdaysBackward.setColumns(8);
+            date_TFdaysBackward.setColumns(6);
+            date_TFdaysBackward.setDocument(new WholeNumberDocument());
         }
         return date_TFdaysBackward;
     }
@@ -939,6 +989,11 @@ public class SearchMessagesDialog extends JDialog {
         if( boards_Bchoose == null ) {
             boards_Bchoose = new JButton();
             boards_Bchoose.setText("Choose...");
+            boards_Bchoose.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    chooseBoards();
+                }
+            });
         }
         return boards_Bchoose;
     }
@@ -1069,5 +1124,246 @@ public class SearchMessagesDialog extends JDialog {
         }
         return archive_buttonGroup;
     }
+
+    private void chooseBoards() {
+
+        // get and sort all boards
+        Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+        if (allBoards.size() == 0) {
+            return;
+        }
+        Collections.sort(allBoards);
+
+        BoardsChooser bc = new BoardsChooser(allBoards, chosedBoardsList);
+        List resultBoards = bc.runDialog();
+        if( resultBoards != null ) {
+            chosedBoardsList = resultBoards;
+            StringBuffer txt = new StringBuffer();
+            for(Iterator i=chosedBoardsList.iterator(); i.hasNext(); ) {
+                Board b = (Board)i.next();
+                txt.append(b.getName());
+                if( i.hasNext() ) {
+                    txt.append("; ");
+                }
+            }
+            getBoards_TFchosedBoards().setText(txt.toString());
+        }
+    }
+    
+    private void initializeWithDefaults() {
+        
+        getBoards_RBdisplayed().doClick();
+        getDate_RBdisplayed().doClick();
+        getTruststate_RBdisplayed().doClick();
+        getArchive_RBkeypoolOnly().doClick();
+        
+        getDate_TFdaysBackward().setText("0");
+    }
+    
+    private List splitString(String str) {
+        List lst = new ArrayList();
+        String[] splitted = str.split(" ");
+        for(int x=0; x < splitted.length; x++) {
+            String s = splitted[x].trim();
+            if( s.length() > 0 ) {
+                lst.add(s);
+//                System.out.println("ítem: "+s);
+            }
+        }
+        if( lst.size() > 0 ) {
+            return lst;
+        } else {
+            return null;
+        }
+    }
+
+    private SearchConfig getSearchConfig() {
+
+        SearchConfig scfg = new SearchConfig();
+
+        // sender_part1; sender_part2
+        // TODO: maybe provide a chooser?
+        String txt = getSearch_TFsender().getText().trim();
+        if( txt.length() > 0 ) {
+            scfg.sender = splitString(txt);
+        }
+        
+        // TODO: "text abc"; text2; "hugo;emil"
+        txt = getSearch_TFsubject().getText().trim();
+        if( txt.length() > 0 ) {
+            scfg.subject = splitString(txt);
+        }
+
+        // TODO: "text abc"; text2; "hugo;emil"
+        txt = getSearch_TFcontent().getText().trim();
+        if( txt.length() > 0 ) {
+            scfg.content = splitString(txt);
+        }
+        
+        scfg.searchPrivateMsgsOnly = getSearch_CBprivateMsgsOnly().isSelected();
+        
+        if( getBoards_RBdisplayed().isSelected() ) {
+            scfg.searchBoards = SearchConfig.BOARDS_DISPLAYED;
+        } else if( getBoards_RBallExisting().isSelected() ) {
+            scfg.searchBoards = SearchConfig.BOARDS_EXISTING_DIRS;
+        } else if( getBoards_RBchosed().isSelected() ) {
+            if( chosedBoardsList.size() == 0 ) {
+                JOptionPane.showMessageDialog(this,
+                        "No boards to search into were chosed.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+            scfg.searchBoards = SearchConfig.BOARDS_CHOSED;
+            scfg.chosedBoards = chosedBoardsList;
+        }
+        
+        if( getDate_RBdisplayed().isSelected() ) {
+            scfg.searchDates = SearchConfig.DATE_DISPLAYED;
+        } else if( getDate_RBbetweenDates().isSelected() ) {
+            scfg.searchDates = SearchConfig.DATE_BETWEEN_DATES;
+            try {
+                scfg.startDate = getDate_TFstartDate().getValue();
+                scfg.endDate = getDate_TFendDate().getValue();
+                // check start before end
+                if( scfg.startDate.after(scfg.endDate) ) {
+                    JOptionPane.showMessageDialog(this,
+                            "Start date is after end date.",
+                            "Error",
+                            JOptionPane.ERROR_MESSAGE);
+                    return null;
+                }
+            } catch(ParseException ex) {
+                JOptionPane.showMessageDialog(this,
+                        "Invalid start date or end date specified.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+        } else if( getDate_RBdaysBackward().isSelected() ) {
+            scfg.searchDates = SearchConfig.DATE_DAYS_BACKWARD;
+            scfg.daysBackward = getDate_TFdaysBackward().getText();
+        }
+
+        if( getTruststate_RBdisplayed().isSelected() ) {
+            scfg.searchTruststates = SearchConfig.TRUST_DISPLAYED;
+        } else if( getTruststate_RBall().isSelected() ) {
+            scfg.searchTruststates = SearchConfig.TRUST_ALL;
+        } else if( getTruststate_RBchosed().isSelected() ) {
+            scfg.searchTruststates = SearchConfig.TRUST_CHOSED;
+            scfg.trust_good = getTruststate_CBgood().isSelected();
+            scfg.trust_observe = getTruststate_CBobserve().isSelected();
+            scfg.trust_check = getTruststate_CBcheck().isSelected();
+            scfg.trust_bad = getTruststate_CBbad().isSelected();
+            scfg.trust_none = getTruststate_CBnone().isSelected();
+            scfg.trust_tampered = getTruststate_CBtampered().isSelected();
+            
+            if( !scfg.trust_good && !scfg.trust_observe && !scfg.trust_check &&
+                !scfg.trust_bad && !scfg.trust_none && !scfg.trust_tampered ) 
+            {
+                JOptionPane.showMessageDialog(this,
+                        "No trust state is selected.",
+                        "Error",
+                        JOptionPane.ERROR_MESSAGE);
+                return null;
+            }
+        }
+        
+        if( getArchive_RBkeypoolOnly().isSelected() ) {
+            scfg.searchKeypoolArchive = SearchConfig.SEARCH_KEYPOOL_ONLY;
+        } else if( getArchive_RBarchiveOnly().isSelected() ) {
+            scfg.searchKeypoolArchive = SearchConfig.SEARCH_ARCHIVE_ONLY;
+        } else if( getArchive_RBkeypoolAndArchive().isSelected() ) {
+            scfg.searchKeypoolArchive = SearchConfig.SEARCH_KEYPOOL_AND_ARCHIVE;
+        }
+        
+        return scfg;
+    }
+    
+    private void startSearching() {
+        
+        if( runningSearchThread != null ) {
+            System.out.println("Error: search thread still runs!");
+            return;
+        }
+        
+        SearchConfig scfg = getSearchConfig();
+        if( scfg == null ) {
+            // invalid cfg
+            return;
+        }
+        
+        runningSearchThread = new SearchMessagesThread(this, scfg);
+        runningSearchThread.start();
+        // TODO: disable buttons, add stop button, implement request of stop, implement callback to add found msgs
+    }
+    
+    /**
+     * Called by SearchMessagesThread to add a found message.
+     */
+    public void addFoundMessage(MessageObject msg) {
+        
+    }
+    
+    /**
+     * This class contains all configured search options.
+     */
+    public class SearchConfig {
+
+        List sender = null; // List of String
+        List subject = null; // List of String
+        List content = null; // List of String
+        boolean searchPrivateMsgsOnly = false;
+        
+        static final int BOARDS_DISPLAYED  = 1;
+        static final int BOARDS_EXISTING_DIRS = 2;
+        static final int BOARDS_CHOSED = 3;
+        int searchBoards = 0;
+        List chosedBoards = null; // list of Board objects
+        
+        static final int DATE_DISPLAYED = 1;
+        static final int DATE_BETWEEN_DATES = 2;
+        static final int DATE_DAYS_BACKWARD = 3;
+        int searchDates;
+        Date startDate, endDate;
+        String daysBackward;
+        
+        static final int TRUST_DISPLAYED = 1;
+        static final int TRUST_ALL = 2;
+        static final int TRUST_CHOSED = 3;
+        int searchTruststates = 0;
+        boolean trust_good = false;
+        boolean trust_observe = false;
+        boolean trust_check = false;
+        boolean trust_bad = false;
+        boolean trust_none = false;
+        boolean trust_tampered = false;
+        
+        static final int SEARCH_KEYPOOL_ONLY = 1;
+        static final int SEARCH_ARCHIVE_ONLY = 2;
+        static final int SEARCH_KEYPOOL_AND_ARCHIVE = 3;
+        int searchKeypoolArchive = 0;
+    }
+
+    /** 
+     * This Document ensures that only digits can be entered into a text field.
+     */ 
+    protected class WholeNumberDocument extends PlainDocument {
+        public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+            char[] source = str.toCharArray();
+            char[] result = new char[source.length];
+            int j = 0;
+
+            for( int i = 0; i < result.length; i++ ) {
+                if( Character.isDigit(source[i]) ) {
+                    result[j++] = source[i];
+                }
+            }
+            super.insertString(offs, new String(result, 0, j), a);
+        }
+    }
+    
+    List chosedBoardsList = new ArrayList();
+    SearchMessagesThread runningSearchThread = null;
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"
