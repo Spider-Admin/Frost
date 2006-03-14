@@ -2023,6 +2023,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             languageItalianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
             languageJapaneseMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_jp.png", 16, 16));
             languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
+            languageRussianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ru.png", 16, 16));
 
             languageGermanMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -2121,14 +2122,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             ButtonGroup languageMenuButtonGroup = new ButtonGroup();
             languageDefaultMenuItem.setSelected(true);
             languageMenuButtonGroup.add(languageDefaultMenuItem);
+            languageMenuButtonGroup.add(languageBulgarianMenuItem);
             languageMenuButtonGroup.add(languageDutchMenuItem);
             languageMenuButtonGroup.add(languageEnglishMenuItem);
             languageMenuButtonGroup.add(languageFrenchMenuItem);
             languageMenuButtonGroup.add(languageGermanMenuItem);
             languageMenuButtonGroup.add(languageItalianMenuItem);
             languageMenuButtonGroup.add(languageJapaneseMenuItem);
+            languageMenuButtonGroup.add(languageRussianMenuItem);
             languageMenuButtonGroup.add(languageSpanishMenuItem);
-            languageMenuButtonGroup.add(languageBulgarianMenuItem);
 
             // Selects the language menu option according to the settings
             HashMap languageMenuItems = new HashMap();
@@ -2141,6 +2143,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             languageMenuItems.put("it", languageItalianMenuItem);
             languageMenuItems.put("es", languageSpanishMenuItem);
             languageMenuItems.put("bg", languageBulgarianMenuItem);
+            languageMenuItems.put("ru", languageRussianMenuItem);
 
             String language = frostSettings.getValue("locale");
             Object languageItem = languageMenuItems.get(language);
@@ -2150,15 +2153,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
             languageMenu.add(languageDefaultMenuItem);
             languageMenu.addSeparator();
+            languageMenu.add(languageBulgarianMenuItem);
             languageMenu.add(languageDutchMenuItem);
             languageMenu.add(languageEnglishMenuItem);
             languageMenu.add(languageFrenchMenuItem);
             languageMenu.add(languageGermanMenuItem);
             languageMenu.add(languageItalianMenuItem);
             languageMenu.add(languageJapaneseMenuItem);
-            languageMenu.add(languageSpanishMenuItem);
-            languageMenu.add(languageBulgarianMenuItem);
             languageMenu.add(languageRussianMenuItem);
+            languageMenu.add(languageSpanishMenuItem);
             // Help Menu
             helpMenu.add(helpMemMonMenuItem);
             helpMenu.add(helpHelpMenuItem);
