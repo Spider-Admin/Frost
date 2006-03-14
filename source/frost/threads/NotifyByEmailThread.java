@@ -67,7 +67,7 @@ public class NotifyByEmailThread extends Thread implements FlexibleObserver {
 			&& body.length() > 0
 			&& body.length() < 64 * 1024)
         {
-			template = FileAccess.readFile(body.getPath());
+			template = FileAccess.readFile(body);
         } else {
 			template = "Hello\n, this is the automatic Frost email notifier. " +
 					   "The download of file <filename> has completed.\n\n";

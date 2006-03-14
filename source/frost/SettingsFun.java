@@ -43,7 +43,7 @@ public class SettingsFun
         File checkFile = new File(filename);
         if( checkFile.isFile() )
         {
-            List lines = FileAccess.readLines(filename);
+            List lines = FileAccess.readLines(checkFile);
             return getValue( lines, value );
         }
         return "";

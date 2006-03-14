@@ -72,7 +72,7 @@ public class HelpFrame extends JFrame {
     //------------------------------------------------------------------------
     comboBox.addActionListener(new java.awt.event.ActionListener() {
         public void actionPerformed(ActionEvent e) {
-            textArea.setText(FileAccess.readFile("help/" + (String)comboBox.getSelectedItem() + ".txt"));
+            textArea.setText(FileAccess.readFile(new File("help/" + (String)comboBox.getSelectedItem() + ".txt")));
             textArea.setCaretPosition(0);
         }
         });

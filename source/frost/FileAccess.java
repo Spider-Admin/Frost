@@ -178,23 +178,27 @@ public class FileAccess {
     }
 
     /**
-     * Reads file and returns a Vector of lines
+     * Reads file and returns a List of lines.
+     * Encoding "ISO-8859-1" is used.
      */
     public static List readLines(File file) {
-        return readLines(file.getPath());
-    }
-
-    public static List readLines(String path) {
+        return readLines(file, "ISO-8859-1");
+    }    
+    /**
+     * Reads file and returns a List of lines
+     */
+    public static List readLines(File file, String encoding) {
         String line;
         ArrayList data = new ArrayList();
         try {
-            BufferedReader f = new BufferedReader(new FileReader(path));
-            while( (line = f.readLine()) != null ) {
+            InputStreamReader iSReader = new InputStreamReader(new FileInputStream(file), encoding);
+            BufferedReader reader = new BufferedReader(iSReader);
+            while( (line = reader.readLine()) != null ) {
                 data.add(line.trim());
             }
-            f.close();
+            reader.close();
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Exception thrown in readLines(String path)", e);
+            logger.log(Level.SEVERE, "Exception thrown in readLines(String path, String encoding)", e);
         }
         return data;
     }
@@ -203,14 +207,10 @@ public class FileAccess {
      * Reads a file and returns its contents in a String
      */
     public static String readFile(File file) {
-        return readFile(file.getPath());
-    }
-
-    public static String readFile(String path) {
         String line;
         StringBuffer stringBuffer = new StringBuffer();
         try {
-            BufferedReader f = new BufferedReader(new FileReader(path));
+            BufferedReader f = new BufferedReader(new FileReader(file));
             while( (line = f.readLine()) != null ) {
                 stringBuffer.append(line).append("\n");
             }
@@ -228,11 +228,11 @@ public class FileAccess {
      * @param encoding
      * @return the contents of the file
      */
-	public static String readFile(String path, String encoding) {
+	public static String readFile(File file, String encoding) {
 		String line;
 		StringBuffer stringBuffer = new StringBuffer();
 		try {
-			InputStreamReader iSReader = new InputStreamReader(new FileInputStream(path), encoding);
+			InputStreamReader iSReader = new InputStreamReader(new FileInputStream(file), encoding);
 			BufferedReader reader = new BufferedReader(iSReader);
 			while ((line = reader.readLine()) != null) {
 				stringBuffer.append(line).append("\n");
@@ -257,7 +257,10 @@ public class FileAccess {
 	public static boolean writeFile(String content, String filename, String encoding) {
 		return writeFile(content, new File(filename), encoding);
 	}
-    
+
+    /** 
+     * Writes a text file in ISO-8859-1 encoding.
+     */
     public static boolean writeFile(String content, File file) {
         OutputStreamWriter f1 = null;
         try {
@@ -291,10 +294,13 @@ public class FileAccess {
         return false;
     }
     
+    /** 
+     * Writes a text file in specified encoding. Converts line separators to target platform.
+     */
 	public static boolean writeFile(String content, File file, String encoding) {
+        OutputStreamWriter outputWriter = null;
 		try {
-			FileOutputStream outputStream = new FileOutputStream(file);
-			OutputStreamWriter outputWriter = new OutputStreamWriter(outputStream, encoding);
+			outputWriter = new OutputStreamWriter(new FileOutputStream(file), encoding);
 
 			BufferedReader inputReader = new BufferedReader(new StringReader(content));
 			String lineSeparator = System.getProperty("line.separator");
@@ -310,6 +316,9 @@ public class FileAccess {
             return true;
 		} catch (Throwable e) {
 			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
+            if( outputWriter != null ) {
+                try { outputWriter.close(); } catch(Throwable t) {}
+            }
 		}
         return false;
 	}
