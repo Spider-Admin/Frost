@@ -226,5 +226,3 @@ public class LangRes_nl extends ListResourceBundle {
     {"Name","Name"},
     };
 }
-
-
