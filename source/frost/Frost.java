@@ -39,14 +39,13 @@ public class Frost {
      */
     public static void main(String[] args) {
         System.out.println();
-        System.out.println("Frost, Copyright (C) 2005 Jan-Thomas Czornack");
+        System.out.println("Frost, Copyright (C) 2006 Jan-Thomas Czornack");
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");
         System.out.println("Frost uses code from apache.org (Apache license),");
         System.out.println("bouncycastle.org (BSD license), Onion Networks (BSD license),");
-        System.out.println("and L2FProd.com (Apache license).");
-//        System.out.println("and ShiftOne Java Object Cache (LGPL license)");
+        System.out.println("L2FProd.com (Apache license) and Martin Newstead (LGPL license).");
         System.out.println();
 
         parseCommandLine(args);
