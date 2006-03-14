@@ -311,6 +311,7 @@ static final Object[][] contents = {
 {"Sort folder","Ordner sortieren"}, //Kontext Ordner
 {"Source","Quelle"},
 {"Spanish","Spanisch"},
+{"Russian","Russisch"},
 {"splitfile explanation","(mehr ist besser, braucht aber auch Leistung)"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Start encoding of selected files","Gewählte Dateien kodieren"},
 {"State","Status"}, // Zustand?
