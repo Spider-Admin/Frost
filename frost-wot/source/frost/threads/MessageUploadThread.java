@@ -657,7 +657,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         boolean success = false;
         int index = 0;
         int tries = 0;
-        int maxTries = 8;
+        int maxTries = 10;
         boolean error = false;
         boolean tryAgain;
         
