@@ -629,12 +629,10 @@ public class TOF
         final String fileSeparator = System.getProperty("file.separator");
 
         // Get actual date
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        GregorianCalendar cal = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
 
         // Read files up to maxMessages days to the past
-        GregorianCalendar firstDate = new GregorianCalendar();
-        firstDate.setTimeZone(TimeZone.getTimeZone("GMT"));
+        GregorianCalendar firstDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         firstDate.set(Calendar.YEAR, 2001);
         firstDate.set(Calendar.MONTH, 5);
         firstDate.set(Calendar.DATE, 11);

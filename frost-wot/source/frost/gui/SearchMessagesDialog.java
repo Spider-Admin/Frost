@@ -39,7 +39,10 @@ public class SearchMessagesDialog extends JDialog {
     // TODO: add Lookup to BoardsChooser!
     
     public static void main(String[] args) {
-        new SearchMessagesDialog().setVisible(true);
+//        new SearchMessagesDialog().setVisible(true);
+        GregorianCalendar c = new GregorianCalendar();
+        int i = c.get(c.DATE);
+        System.out.println("i="+i);
     }
 
     private JPanel jContentPane = null;
@@ -79,7 +82,7 @@ public class SearchMessagesDialog extends JDialog {
     private JRadioButton archive_RBarchiveOnly = null;
     private JPanel Pboards = null;
     private JRadioButton boards_RBdisplayed = null;
-    private JRadioButton boards_RBallExisting = null;
+//    private JRadioButton boards_RBallExisting = null;
     private JRadioButton boards_RBchosed = null;
     private JButton boards_Bchoose = null;
     private JTextField boards_TFchosedBoards = null;
@@ -909,7 +912,7 @@ public class SearchMessagesDialog extends JDialog {
             Pboards.setLayout(new GridBagLayout());
             Pboards.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEmptyBorder(3,3,3,3), javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED)));
             Pboards.add(getBoards_RBdisplayed(), gridBagConstraints31);
-            Pboards.add(getBoards_RBallExisting(), gridBagConstraints32);
+//            Pboards.add(getBoards_RBallExisting(), gridBagConstraints32);
             Pboards.add(getBoards_RBchosed(), gridBagConstraints33);
             Pboards.add(getBoards_Bchoose(), gridBagConstraints34);
             Pboards.add(getBoards_TFchosedBoards(), gridBagConstraints35);
@@ -940,18 +943,18 @@ public class SearchMessagesDialog extends JDialog {
      * 	
      * @return javax.swing.JRadioButton	
      */
-    private JRadioButton getBoards_RBallExisting() {
-        if( boards_RBallExisting == null ) {
-            boards_RBallExisting = new JRadioButton();
-            boards_RBallExisting.setText("Search in all existing board directories");
-            boards_RBallExisting.addItemListener(new java.awt.event.ItemListener() {
-                public void itemStateChanged(java.awt.event.ItemEvent e) {
-                    boards_RBitemStateChanged();
-                }
-            });
-        }
-        return boards_RBallExisting;
-    }
+//    private JRadioButton getBoards_RBallExisting() {
+//        if( boards_RBallExisting == null ) {
+//            boards_RBallExisting = new JRadioButton();
+//            boards_RBallExisting.setText("Search in all existing board directories");
+//            boards_RBallExisting.addItemListener(new java.awt.event.ItemListener() {
+//                public void itemStateChanged(java.awt.event.ItemEvent e) {
+//                    boards_RBitemStateChanged();
+//                }
+//            });
+//        }
+//        return boards_RBallExisting;
+//    }
 
     /**
      * This method initializes jRadioButton11	
@@ -1077,7 +1080,7 @@ public class SearchMessagesDialog extends JDialog {
             boards_buttonGroup = new ButtonGroup();
             boards_buttonGroup.add(getBoards_RBdisplayed());
             boards_buttonGroup.add(getBoards_RBchosed());
-            boards_buttonGroup.add(getBoards_RBallExisting());
+//            boards_buttonGroup.add(getBoards_RBallExisting());
         }
         return boards_buttonGroup;
     }
@@ -1132,6 +1135,10 @@ public class SearchMessagesDialog extends JDialog {
         // get and sort all boards
         Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
+            JOptionPane.showMessageDialog(this,
+                    "There are no boards that could be choosed.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
             return;
         }
         Collections.sort(allBoards);
@@ -1169,7 +1176,7 @@ public class SearchMessagesDialog extends JDialog {
             String s = splitted[x].trim();
             if( s.length() > 0 ) {
                 lst.add(s);
-//                System.out.println("ítem: "+s);
+//                System.out.println("Item: "+s);
             }
         }
         if( lst.size() > 0 ) {
@@ -1179,9 +1186,9 @@ public class SearchMessagesDialog extends JDialog {
         }
     }
 
-    private SearchConfig getSearchConfig() {
+    private SearchMessagesConfig getSearchConfig() {
 
-        SearchConfig scfg = new SearchConfig();
+        SearchMessagesConfig scfg = new SearchMessagesConfig();
 
         // sender_part1; sender_part2
         // TODO: maybe provide a chooser?
@@ -1205,9 +1212,9 @@ public class SearchMessagesDialog extends JDialog {
         scfg.searchPrivateMsgsOnly = getSearch_CBprivateMsgsOnly().isSelected();
         
         if( getBoards_RBdisplayed().isSelected() ) {
-            scfg.searchBoards = SearchConfig.BOARDS_DISPLAYED;
-        } else if( getBoards_RBallExisting().isSelected() ) {
-            scfg.searchBoards = SearchConfig.BOARDS_EXISTING_DIRS;
+            scfg.searchBoards = SearchMessagesConfig.BOARDS_DISPLAYED;
+//        } else if( getBoards_RBallExisting().isSelected() ) {
+//            scfg.searchBoards = SearchConfig.BOARDS_EXISTING_DIRS;
         } else if( getBoards_RBchosed().isSelected() ) {
             if( chosedBoardsList.size() == 0 ) {
                 JOptionPane.showMessageDialog(this,
@@ -1216,17 +1223,24 @@ public class SearchMessagesDialog extends JDialog {
                         JOptionPane.ERROR_MESSAGE);
                 return null;
             }
-            scfg.searchBoards = SearchConfig.BOARDS_CHOSED;
+            scfg.searchBoards = SearchMessagesConfig.BOARDS_CHOSED;
             scfg.chosedBoards = chosedBoardsList;
         }
         
         if( getDate_RBdisplayed().isSelected() ) {
-            scfg.searchDates = SearchConfig.DATE_DISPLAYED;
+            scfg.searchDates = SearchMessagesConfig.DATE_DISPLAYED;
         } else if( getDate_RBbetweenDates().isSelected() ) {
-            scfg.searchDates = SearchConfig.DATE_BETWEEN_DATES;
+            scfg.searchDates = SearchMessagesConfig.DATE_BETWEEN_DATES;
             try {
-                scfg.startDate = getDate_TFstartDate().getValue();
-                scfg.endDate = getDate_TFendDate().getValue();
+                GregorianCalendar c;
+                c = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+                c.setTime(getDate_TFstartDate().getValue());
+                scfg.startDate = c;
+                
+                c = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+                c.setTime(getDate_TFendDate().getValue());
+                scfg.endDate = c;
+                
                 // check start before end
                 if( scfg.startDate.after(scfg.endDate) ) {
                     JOptionPane.showMessageDialog(this,
@@ -1243,16 +1257,16 @@ public class SearchMessagesDialog extends JDialog {
                 return null;
             }
         } else if( getDate_RBdaysBackward().isSelected() ) {
-            scfg.searchDates = SearchConfig.DATE_DAYS_BACKWARD;
+            scfg.searchDates = SearchMessagesConfig.DATE_DAYS_BACKWARD;
             scfg.daysBackward = getDate_TFdaysBackward().getText();
         }
 
         if( getTruststate_RBdisplayed().isSelected() ) {
-            scfg.searchTruststates = SearchConfig.TRUST_DISPLAYED;
+            scfg.searchTruststates = SearchMessagesConfig.TRUST_DISPLAYED;
         } else if( getTruststate_RBall().isSelected() ) {
-            scfg.searchTruststates = SearchConfig.TRUST_ALL;
+            scfg.searchTruststates = SearchMessagesConfig.TRUST_ALL;
         } else if( getTruststate_RBchosed().isSelected() ) {
-            scfg.searchTruststates = SearchConfig.TRUST_CHOSED;
+            scfg.searchTruststates = SearchMessagesConfig.TRUST_CHOSED;
             scfg.trust_good = getTruststate_CBgood().isSelected();
             scfg.trust_observe = getTruststate_CBobserve().isSelected();
             scfg.trust_check = getTruststate_CBcheck().isSelected();
@@ -1272,11 +1286,14 @@ public class SearchMessagesDialog extends JDialog {
         }
         
         if( getArchive_RBkeypoolOnly().isSelected() ) {
-            scfg.searchKeypoolArchive = SearchConfig.SEARCH_KEYPOOL_ONLY;
+            scfg.searchInKeypool = true;
+            scfg.searchInArchive = false;
         } else if( getArchive_RBarchiveOnly().isSelected() ) {
-            scfg.searchKeypoolArchive = SearchConfig.SEARCH_ARCHIVE_ONLY;
+            scfg.searchInKeypool = false;
+            scfg.searchInArchive = true;
         } else if( getArchive_RBkeypoolAndArchive().isSelected() ) {
-            scfg.searchKeypoolArchive = SearchConfig.SEARCH_KEYPOOL_AND_ARCHIVE;
+            scfg.searchInKeypool = true;
+            scfg.searchInArchive = true;
         }
         
         return scfg;
@@ -1289,13 +1306,14 @@ public class SearchMessagesDialog extends JDialog {
             return;
         }
         
-        SearchConfig scfg = getSearchConfig();
+        SearchMessagesConfig scfg = getSearchConfig();
         if( scfg == null ) {
             // invalid cfg
             return;
         }
         
         runningSearchThread = new SearchMessagesThread(this, scfg);
+        runningSearchThread.setPriority(runningSearchThread.getPriority() - 10); // low prio
         runningSearchThread.start();
         // TODO: disable buttons, add stop button, implement request of stop, implement callback to add found msgs
     }
@@ -1307,46 +1325,6 @@ public class SearchMessagesDialog extends JDialog {
         
     }
     
-    /**
-     * This class contains all configured search options.
-     */
-    public class SearchConfig {
-
-        List sender = null; // List of String
-        List subject = null; // List of String
-        List content = null; // List of String
-        boolean searchPrivateMsgsOnly = false;
-        
-        static final int BOARDS_DISPLAYED  = 1;
-        static final int BOARDS_EXISTING_DIRS = 2;
-        static final int BOARDS_CHOSED = 3;
-        int searchBoards = 0;
-        List chosedBoards = null; // list of Board objects
-        
-        static final int DATE_DISPLAYED = 1;
-        static final int DATE_BETWEEN_DATES = 2;
-        static final int DATE_DAYS_BACKWARD = 3;
-        int searchDates;
-        Date startDate, endDate;
-        String daysBackward;
-        
-        static final int TRUST_DISPLAYED = 1;
-        static final int TRUST_ALL = 2;
-        static final int TRUST_CHOSED = 3;
-        int searchTruststates = 0;
-        boolean trust_good = false;
-        boolean trust_observe = false;
-        boolean trust_check = false;
-        boolean trust_bad = false;
-        boolean trust_none = false;
-        boolean trust_tampered = false;
-        
-        static final int SEARCH_KEYPOOL_ONLY = 1;
-        static final int SEARCH_ARCHIVE_ONLY = 2;
-        static final int SEARCH_KEYPOOL_AND_ARCHIVE = 3;
-        int searchKeypoolArchive = 0;
-    }
-
     /** 
      * This Document ensures that only digits can be entered into a text field.
      */ 
