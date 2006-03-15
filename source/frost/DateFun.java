@@ -21,34 +21,39 @@ import java.util.*;
 import java.util.logging.Logger;
 
 
-public class DateFun
-{
+public class DateFun {
+
 	private static Logger logger = Logger.getLogger(DateFun.class.getName());
 	
     /**
      * Returns date
      * @return Date as String yyyy.m.d in GMT without leading zeros
      */
-    public static String getDate()
-    {
+    public static String getDate() {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append('.')
-        .append(cal.get(Calendar.MONTH) + 1).append('.').append(cal.get(Calendar.DATE)).toString();
+        return getDateOfCalendar(cal);
     }
-    
+
+    /**
+     * Returns date with leading zeroes
+     * @return Date as String yyyy.MM.dd in GMT with leading zeros
+     */
+    public static String getExtendedDate() {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return getExtendedDateOfCalendar(cal);
+    }
+
     /**
      * Returns date -n days.
      * @return Date as String yyyy.m.d in GMT without leading zeros
      */
     public static String getDate(int daysAgo) {
     	GregorianCalendar cal = new GregorianCalendar();
-        if( daysAgo != 0 ) {
-            cal.add(Calendar.DATE,-daysAgo);
-        }
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return new StringBuffer(11).append(cal.get(Calendar.YEAR)).append('.')
-        .append(cal.get(Calendar.MONTH) + 1).append('.').append(cal.get(Calendar.DATE)).toString();
+        cal.add(Calendar.DATE,-daysAgo);
+        return getDateOfCalendar(cal);
     }
 
     /**
@@ -59,59 +64,14 @@ public class DateFun
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         cal.add(Calendar.DATE,-daysAgo);
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH) + 1;
-        int day = cal.get(Calendar.DATE);
-        StringBuffer sb = new StringBuffer(11);
-        sb.append(year).append('.');
-        if( month < 10 )
-            sb.append('0');
-        sb.append(month).append('.');
-        if( day < 10 )
-            sb.append('0');
-        sb.append(day);
-        return sb.toString();
-    }
-
-    /**
-     * Returns time
-     * @return Time as String h:m:s in GMT without leading zeros
-     */
-    public static String getTime()
-    {
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        return new StringBuffer(9).append(cal.get(Calendar.HOUR_OF_DAY)).append(':')
-        .append(cal.get(Calendar.MINUTE)).append(':').append(cal.get(Calendar.SECOND)).toString();
+        return getExtendedDateOfCalendar(cal);
     }
 
     /**
      * Returns date with leading zeroes
-     * @return Date as String yyyy.MM.dd in GMT with leading zeros
+     * @return Date as String dd.mm.yyyy in GMT with leading zeros
      */
-    public static String getExtendedDate()
-    {
-        GregorianCalendar cal = new GregorianCalendar();
-        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
-        int year = cal.get(Calendar.YEAR);
-        int month = cal.get(Calendar.MONTH) + 1;
-        int day = cal.get(Calendar.DATE);
-        StringBuffer sb = new StringBuffer(11);
-        sb.append(year).append('.');
-        if( month < 10 )
-            sb.append('0');
-        sb.append(month).append('.');
-        if( day < 10 )
-            sb.append('0');
-        sb.append(day);
-        return sb.toString();
-    }
-    /**
-     * Returns date with leading zeroes
-     * @return Date as String yyyy.MM.dd in GMT with leading zeros
-     */
-    public static String getVisibleExtendedDate()
-    {
+    public static String getVisibleExtendedDate() {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         int year = cal.get(Calendar.YEAR);
@@ -129,11 +89,21 @@ public class DateFun
     }
 
     /**
+     * Returns time
+     * @return Time as String h:m:s in GMT without leading zeros
+     */
+    public static String getTime() {
+        GregorianCalendar cal = new GregorianCalendar();
+        cal.setTimeZone(TimeZone.getTimeZone("GMT"));
+        return new StringBuffer(9).append(cal.get(Calendar.HOUR_OF_DAY)).append(':')
+        .append(cal.get(Calendar.MINUTE)).append(':').append(cal.get(Calendar.SECOND)).toString();
+    }
+
+    /**
      * Returns time with leading zeroes
      * @return Time as String h:mm:ss in GMT with leading zeros
      */
-    public static String getExtendedTime()
-    {
+    public static String getExtendedTime() {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         int hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -170,8 +140,7 @@ public class DateFun
      * **** getExtendedDate() returns h:mm:ss, this returns the correct hh:mm:ss
      *
      */
-    public static String getFullExtendedTime()
-    {
+    public static String getFullExtendedTime() {
         GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         int hour = cal.get(Calendar.HOUR_OF_DAY);
@@ -211,7 +180,7 @@ public class DateFun
                 int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
                 cal.set(Calendar.YEAR, year);
                 cal.set(Calendar.MONTH, month - 1);
-                cal.set(Calendar.DATE, day - 1);
+                cal.set(Calendar.DATE, day);
                 logger.fine("TOF Date: " + year + "." + month + "." + day);
             }
         }
@@ -236,19 +205,39 @@ public class DateFun
             int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
             cal.set(Calendar.YEAR, year);
             cal.set(Calendar.MONTH, month - 1);
-            cal.set(Calendar.DATE, day - 1);
+            cal.set(Calendar.DATE, day);
         }
         return cal;
     }
 
-    public static String getDateOfCalendar(GregorianCalendar calDL)
-    {
+    /**
+     * Returns the date from Calendar as String with format yyyy.m.d
+     */
+    public static String getDateOfCalendar(GregorianCalendar calDL) {
         String date = new StringBuffer(11).append(calDL.get(Calendar.YEAR)).append('.')
                       .append(calDL.get(Calendar.MONTH) + 1).append('.')
                       .append(calDL.get(Calendar.DATE)).toString();
         return date;
     }
-    
+
+    /**
+     * Returns the date from Calendar as String with format yyyy.mm.dd
+     */
+    public static String getExtendedDateOfCalendar(GregorianCalendar cal) {
+        int year = cal.get(Calendar.YEAR);
+        int month = cal.get(Calendar.MONTH) + 1;
+        int day = cal.get(Calendar.DATE);
+        StringBuffer sb = new StringBuffer(11);
+        sb.append(year).append('.');
+        if( month < 10 )
+            sb.append('0');
+        sb.append(month).append('.');
+        if( day < 10 )
+            sb.append('0');
+        sb.append(day);
+        return sb.toString();
+    }
+
     /**
      * 2005.9.3 -> 2005.09.03 (for comparisions) 
      */
@@ -272,5 +261,4 @@ public class DateFun
         }
         return null;
     }
-
 }
