@@ -299,6 +299,16 @@ public class SearchMessagesThread extends Thread {
             dr.startDate = null;
             dr.endDate = null;
         }
+        if( dr.startDate != null ) {
+            dr.startDate.set(Calendar.HOUR_OF_DAY, 00);
+            dr.startDate.set(Calendar.MINUTE, 00);
+            dr.startDate.set(Calendar.SECOND, 00);
+        }
+        if( dr.endDate != null ) {
+            dr.endDate.set(Calendar.HOUR_OF_DAY, 23);
+            dr.endDate.set(Calendar.MINUTE, 59);
+            dr.endDate.set(Calendar.SECOND, 59);
+        }
     }
 
     public synchronized boolean isStopRequested() {
