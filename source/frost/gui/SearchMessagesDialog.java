@@ -805,13 +805,14 @@ public class SearchMessagesDialog extends JFrame {
             GridBagConstraints gridBagConstraints28 = new GridBagConstraints();
             gridBagConstraints28.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints28.gridx = 0;
-            gridBagConstraints28.gridy = 1;
+            gridBagConstraints28.gridy = 2;
             gridBagConstraints28.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints28.weighty = 1.0;
             gridBagConstraints28.insets = new java.awt.Insets(3,5,1,5);
             GridBagConstraints gridBagConstraints27 = new GridBagConstraints();
             gridBagConstraints27.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints27.gridx = 0;
-            gridBagConstraints27.gridy = 0;
+            gridBagConstraints27.gridy = 1;
             gridBagConstraints27.fill = java.awt.GridBagConstraints.NONE;
             gridBagConstraints27.weightx = 1.0;
             gridBagConstraints27.insets = new java.awt.Insets(3,5,1,5);
@@ -819,8 +820,8 @@ public class SearchMessagesDialog extends JFrame {
             gridBagConstraints26.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints26.insets = new java.awt.Insets(3,5,1,5);
             gridBagConstraints26.gridx = 0;
-            gridBagConstraints26.gridy = 2;
-            gridBagConstraints26.weighty = 1.0;
+            gridBagConstraints26.gridy = 0;
+            gridBagConstraints26.weighty = 0.0;
             gridBagConstraints26.fill = java.awt.GridBagConstraints.NONE;
             Parchive = new JPanel();
             Parchive.setLayout(new GridBagLayout());

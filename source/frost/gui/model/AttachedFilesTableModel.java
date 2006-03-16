@@ -30,11 +30,12 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
 {
 	private Language language = null;
 	
-	protected final static String columnNames[] = new String[2];
+	protected final static String columnNames[] = new String[3];
 
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
-        String.class //LangRes.getString("Size")
+        String.class, //LangRes.getString("Size")
+        String.class // key
     };
 
     /**
@@ -68,6 +69,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
 	private void refreshLanguage() {
 		columnNames[0] = language.getString("Filename");
 		columnNames[1] = language.getString("Size");
+        columnNames[2] = language.getString("Key");
 
 		fireTableStructureChanged();		
 	}
@@ -85,8 +87,9 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
 			SharedFileObject fileObject = attachment.getFileObj();
 			// There is no point in showing a file without key / name
 			if (fileObject.getKey() != null && fileObject.getKey().length() > 40 &&
-				fileObject.getFilename() != null && fileObject.getFilename().length() > 0 ) {
-				Object[] row = {fileObject.getFilename(), fileObject.getSize()};
+				fileObject.getFilename() != null && fileObject.getFilename().length() > 0 ) 
+            {
+				Object[] row = {fileObject.getFilename(), fileObject.getSize(), fileObject.getKey()};
 				addRow(row);
 			}
 		}
