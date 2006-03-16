@@ -7,8 +7,15 @@ import frost.messages.*;
 
 public class FrostSearchResultMessageObject extends FrostMessageObject {
 
-    public FrostSearchResultMessageObject(File file) throws MessageCreationException {
+    private boolean messageIsArchived;
+    
+    public FrostSearchResultMessageObject(File file, boolean archived) throws MessageCreationException {
         super(file);
+        messageIsArchived = archived;
+    }
+    
+    public boolean isMessageArchived() {
+        return messageIsArchived;
     }
 
     /*

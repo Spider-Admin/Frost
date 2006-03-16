@@ -64,7 +64,7 @@ public class BoardsChooser extends JDialog {
     JList Lboards;
     boolean okPressed = false;
 
-    public BoardsChooser(List boards, List preselectedBoards) {
+    public BoardsChooser(Component parent, List boards, List preselectedBoards) {
         super();
         setTitle(language.getString("Choose boards"));
         setModal(true);
@@ -92,10 +92,12 @@ public class BoardsChooser extends JDialog {
         }
         
         initGui();
+        
+        setLocationRelativeTo(parent);
     }
     
-    public BoardsChooser(List boards) {
-        this(boards, null);
+    public BoardsChooser(Component parent, List boards) {
+        this(parent, boards, null);
     }
     
     private void initGui() {

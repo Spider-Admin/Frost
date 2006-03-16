@@ -37,8 +37,9 @@ public class SearchMessagesConfig {
     public List chosedBoards = null; // list of Board objects
     
     public static final int DATE_DISPLAYED = 1;
-    public static final int DATE_BETWEEN_DATES = 2;
-    public static final int DATE_DAYS_BACKWARD = 3;
+    public static final int DATE_ALL = 2;
+    public static final int DATE_BETWEEN_DATES = 3;
+    public static final int DATE_DAYS_BACKWARD = 4;
     public int searchDates;
     public GregorianCalendar startDate, endDate;
     public int daysBackward;

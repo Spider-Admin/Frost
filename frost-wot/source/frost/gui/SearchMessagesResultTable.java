@@ -138,7 +138,7 @@ public class SearchMessagesResultTable extends SortedTable {
             TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
-            // do nice things for FROM and SIG column
+            // do nice things for FROM and SIG column and BOARD column
             if( column == 1 ) {
                 // FROM
                 // first set font, bold for new msg or normal
@@ -153,6 +153,16 @@ public class SearchMessagesResultTable extends SortedTable {
                         setForeground(Color.RED);
                     } else if (msg.containsAttachments()) {
                         setForeground(Color.BLUE);
+                    } else {
+                        setForeground(Color.BLACK);
+                    }
+                }
+            } else if( column == 2 ) {
+                // BOARD - gray for archived msgs
+                setFont(normalFont);
+                if (!isSelected) {
+                    if( msg.isMessageArchived() ) {
+                        setForeground(Color.GRAY);
                     } else {
                         setForeground(Color.BLACK);
                     }
@@ -212,7 +222,7 @@ public class SearchMessagesResultTable extends SortedTable {
         super.createDefaultColumnsFromModel();
 
         // set column sizes
-        int[] widths = { 30, 125, 100, 250, 50, 150 };
+        int[] widths = { 30, 125, 80, 250, 75, 150 };
         for (int i = 0; i < widths.length; i++) {
             getColumnModel().getColumn(i).setPreferredWidth(widths[i]);
         }

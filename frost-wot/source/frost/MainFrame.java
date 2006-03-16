@@ -17,7 +17,6 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-
 package frost;
 
 import java.awt.*;
@@ -1590,6 +1589,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private DownloadModel downloadModel = null;
     private JMenuItem fileExitMenuItem = new JMenuItem();
 
+    private JButton knownBoardsButton = null;
+    private JButton searchMessagesButton = null;
+
     //File Menu
     private JMenu fileMenu = new JMenu();
 
@@ -1599,7 +1601,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     //Help Menu
     private JMenu helpMenu = new JMenu();
-    private JButton knownBoardsButton = null;
     private JRadioButtonMenuItem languageBulgarianMenuItem = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem languageDefaultMenuItem = new JRadioButtonMenuItem();
     private JRadioButtonMenuItem languageDutchMenuItem = new JRadioButtonMenuItem();
@@ -1855,6 +1856,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             timeLabel = new JLabel("");
             // configure buttons
             knownBoardsButton = new JButton(new ImageIcon(getClass().getResource("/data/knownboards.gif")));
+            searchMessagesButton = new JButton(new ImageIcon(getClass().getResource("/data/search.gif")));
             newBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/newboard.gif")));
             newFolderButton = new JButton(new ImageIcon(getClass().getResource("/data/newfolder.gif")));
             removeBoardButton = new JButton(new ImageIcon(getClass().getResource("/data/remove.gif")));
@@ -1870,11 +1872,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             toolkit.configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif", language);
             toolkit.configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif", language);
             toolkit.configureButton(knownBoardsButton, "Display list of known boards", "/data/knownboards_rollover.gif", language);
+            toolkit.configureButton(searchMessagesButton, "Search messages", "/data/search_rollover.gif", language);
 
             // add action listener
             knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     tofDisplayKnownBoardsMenuItem_actionPerformed(e);
+                }
+            });
+            searchMessagesButton.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    startSearchMessagesDialog();
                 }
             });
             newBoardButton.addActionListener(new java.awt.event.ActionListener() {
@@ -1936,6 +1944,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             buttonToolBar.add(Box.createRigidArea(blankSpace));
             buttonToolBar.add(boardInfoButton);
             buttonToolBar.add(knownBoardsButton);
+            buttonToolBar.add(searchMessagesButton);
             if (JSysTrayIcon.getInstance() != null) {
                 buttonToolBar.add(Box.createRigidArea(blankSpace));
                 buttonToolBar.addSeparator();
@@ -1960,6 +1969,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofDisplayBoardInfoMenuItem.setIcon(miscToolkit.getScaledImage("/data/info.gif", 16, 16));
             tofAutomaticUpdateMenuItem.setSelected(true);
             tofDisplayKnownBoards.setIcon(miscToolkit.getScaledImage("/data/knownboards.gif", 16, 16));
+            tofSearchMessages.setIcon(miscToolkit.getScaledImage("/data/search.gif", 16, 16));
 
             // add action listener
             fileExitMenuItem.addActionListener(new ActionListener() {
@@ -1998,12 +2008,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             });
             tofSearchMessages.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    if( getSearchMessagesDialog() != null ) {
-                        // bring dialog to front
-                    } else {
-                        setSearchMessagesDialog(new SearchMessagesDialog());
-                        getSearchMessagesDialog().setVisible(true);
-                    }
+                    startSearchMessagesDialog();
                 }
             });
 //            pluginBrowserMenuItem.addActionListener(new ActionListener() {
@@ -2697,6 +2702,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         newBoardButton.setToolTipText(language.getString("New board"));
         systemTrayButton.setToolTipText(language.getString("Minimize to System Tray"));
         knownBoardsButton.setToolTipText(language.getString("Display list of known boards"));
+        searchMessagesButton.setToolTipText(language.getString("Search messages"));
         boardInfoButton.setToolTipText(language.getString("Board Information Window"));
         newFolderButton.setToolTipText(language.getString("New folder"));
         removeBoardButton.setToolTipText(language.getString("Remove board"));
@@ -2812,6 +2818,18 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
     
     private SearchMessagesDialog searchMessagesDialog = null;
+    
+    public void startSearchMessagesDialog() {
+        if( getSearchMessagesDialog() == null ) {
+            setSearchMessagesDialog(new SearchMessagesDialog());
+        }
+        if( getSearchMessagesDialog().isVisible() ) {
+            // bring dialog to front
+            getSearchMessagesDialog().requestFocus();
+        } else {
+            getSearchMessagesDialog().setVisible(true);
+        }
+    }
     
     public void setSearchMessagesDialog(SearchMessagesDialog d) {
         searchMessagesDialog = d;
