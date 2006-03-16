@@ -629,7 +629,7 @@ public class MessageFrame extends JFrame {
         }
         Collections.sort(allBoards);
 
-		BoardsChooser chooser = new BoardsChooser(allBoards);
+		BoardsChooser chooser = new BoardsChooser(this, allBoards);
 		chooser.setLocationRelativeTo(this);
 		List chosenBoards = chooser.runDialog();
 		if (chosenBoards == null || chosenBoards.size() == 0) { // nothing chosed or cancelled

@@ -87,7 +87,7 @@ public class SearchMessagesThread extends Thread {
                     // Format: keypool\boards\2006.3.1\2006.3.1-boards-0.xml
                     File boardFolder = new File(keypoolDir + board.getBoardFilename());
                     if( boardFolder.isDirectory() == true ) {
-                        searchBoardFolder(boardFolder, trustStates, dateRange);
+                        searchBoardFolder(boardFolder, trustStates, dateRange, false);
                     } else {
                         logger.warning("No board folder in keypool for board "+board.getName());
                     }
@@ -102,7 +102,7 @@ public class SearchMessagesThread extends Thread {
                     // Format: keypool-archive.j\messages\boards\2005.12.7\2005.12.7-boards-0.xml
                     File boardFolder = new File(archiveDir + board.getBoardFilename());
                     if( boardFolder.isDirectory() == true ) {
-                        searchBoardFolder(boardFolder, trustStates, dateRange);
+                        searchBoardFolder(boardFolder, trustStates, dateRange, true);
                     } else {
                         logger.warning("No board folder in archive for board "+board.getName());
                     }
@@ -115,7 +115,7 @@ public class SearchMessagesThread extends Thread {
     }
     
     // Format: boards\2006.3.1\2006.3.1-boards-0.xml
-    private void searchBoardFolder(File boardFolder, TrustStates ts, DateRange dr) {
+    private void searchBoardFolder(File boardFolder, TrustStates ts, DateRange dr, boolean archived) {
         
         File[] boardFolderFiles = boardFolder.listFiles();
         if( boardFolderFiles == null ) {
@@ -140,8 +140,11 @@ public class SearchMessagesThread extends Thread {
                 logger.warning("Incorrect board date folder name, must be a date: "+boardFolderFile.getPath());
                 continue;
             }
+            
             // check if this date dir is in the date range we want to search
-            if( dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate) ) {
+            if( dr.startDate != null && dr.endDate != null &&
+                (dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate)) ) 
+            {
                 continue;
             }
             // get list of .xml files in the date dir
@@ -158,16 +161,16 @@ public class SearchMessagesThread extends Thread {
 
                 File xmlFile = xmlFiles[y];
                 // search this xml file
-                searchXmlFile(xmlFile, ts);
+                searchXmlFile(xmlFile, ts, archived);
             }
         }
     }
     
-    private void searchXmlFile(File xmlFile, TrustStates ts) {
+    private void searchXmlFile(File xmlFile, TrustStates ts, boolean archived) {
         
         FrostSearchResultMessageObject mo = null;
         try {
-            mo = new FrostSearchResultMessageObject(xmlFile);
+            mo = new FrostSearchResultMessageObject(xmlFile, archived);
         } catch(Throwable t) {
             logger.warning("Could not load xml file '"+xmlFile.getPath()+"': "+t.toString());
             return;
@@ -288,9 +291,13 @@ public class SearchMessagesThread extends Thread {
             dr.startDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
             dr.startDate.add(Calendar.DATE, -searchConfig.daysBackward);
             dr.endDate = new GregorianCalendar(TimeZone.getTimeZone("GMT")); // today
-        } if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
+        } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
             dr.startDate = searchConfig.startDate;
             dr.endDate = searchConfig.endDate;
+        } else {
+            // all dates
+            dr.startDate = null;
+            dr.endDate = null;
         }
     }
 

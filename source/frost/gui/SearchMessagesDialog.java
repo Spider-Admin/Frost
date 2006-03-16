@@ -19,6 +19,7 @@
 package frost.gui;
 
 import java.awt.*;
+import java.awt.event.*;
 import java.text.*;
 import java.util.*;
 import java.util.List;
@@ -33,9 +34,6 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.threads.*;
 import frost.util.gui.translation.*;
-import javax.swing.JPanel;
-import javax.swing.JLabel;
-import java.awt.GridBagConstraints;
 
 public class SearchMessagesDialog extends JFrame {
 
@@ -99,8 +97,9 @@ public class SearchMessagesDialog extends JFrame {
      */
     public SearchMessagesDialog() {
         super();
+        enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         initialize();
-        
+        loadWindowState();
         initializeWithDefaults();
     }
 
@@ -122,8 +121,8 @@ public class SearchMessagesDialog extends JFrame {
      * @return void
      */
     private void initialize() {
-        this.setSize(700, 550);
         this.setTitle(language.getString("Search messages"));
+        this.setIconImage(new ImageIcon(getClass().getResource("/data/search.gif")).getImage());
         this.setPreferredSize(new java.awt.Dimension(700,550));
         this.setContentPane(getJContentPane());
         // create button groups
@@ -192,7 +191,7 @@ public class SearchMessagesDialog extends JFrame {
             Bsearch.setMnemonic(java.awt.event.KeyEvent.VK_S);
             Bsearch.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    startSearching();
+                    startOrStopSearching();
                 }
             });
         }
@@ -211,9 +210,7 @@ public class SearchMessagesDialog extends JFrame {
             Bcancel.setMnemonic(java.awt.event.KeyEvent.VK_C);
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    setVisible(false);
-                    MainFrame.getInstance().setSearchMessagesDialog(null);
-                    dispose();
+                    closePressed();
                 }
             });
         }
@@ -382,17 +379,22 @@ public class SearchMessagesDialog extends JFrame {
      */
     private JPanel getPdate() {
         if( Pdate == null ) {
+            GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
+            gridBagConstraints7.gridx = 0;
+            gridBagConstraints7.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints7.insets = new java.awt.Insets(1,5,0,5);
+            gridBagConstraints7.gridy = 1;
             GridBagConstraints gridBagConstraints15 = new GridBagConstraints();
             gridBagConstraints15.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints15.insets = new java.awt.Insets(1,5,1,5);
             gridBagConstraints15.gridwidth = 3;
             gridBagConstraints15.gridx = 1;
-            gridBagConstraints15.gridy = 2;
+            gridBagConstraints15.gridy = 3;
             gridBagConstraints15.weightx = 1.0;
             gridBagConstraints15.fill = java.awt.GridBagConstraints.NONE;
             GridBagConstraints gridBagConstraints14 = new GridBagConstraints();
             gridBagConstraints14.insets = new java.awt.Insets(1,5,1,5);
-            gridBagConstraints14.gridy = 2;
+            gridBagConstraints14.gridy = 3;
             gridBagConstraints14.weighty = 1.0;
             gridBagConstraints14.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints14.gridx = 0;
@@ -400,13 +402,13 @@ public class SearchMessagesDialog extends JFrame {
             gridBagConstraints13.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints13.insets = new java.awt.Insets(1,5,0,5);
             gridBagConstraints13.gridx = 3;
-            gridBagConstraints13.gridy = 1;
+            gridBagConstraints13.gridy = 2;
             gridBagConstraints13.weightx = 0.0;
             gridBagConstraints13.fill = java.awt.GridBagConstraints.NONE;
             GridBagConstraints gridBagConstraints12 = new GridBagConstraints();
             gridBagConstraints12.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints12.gridx = 2;
-            gridBagConstraints12.gridy = 1;
+            gridBagConstraints12.gridy = 2;
             gridBagConstraints12.insets = new java.awt.Insets(1,2,0,2);
             date_Lto = new JLabel();
             date_Lto.setText("to");
@@ -414,13 +416,13 @@ public class SearchMessagesDialog extends JFrame {
             gridBagConstraints10.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints10.insets = new java.awt.Insets(1,5,0,5);
             gridBagConstraints10.gridx = 1;
-            gridBagConstraints10.gridy = 1;
+            gridBagConstraints10.gridy = 2;
             gridBagConstraints10.weightx = 0.0;
             gridBagConstraints10.fill = java.awt.GridBagConstraints.NONE;
             GridBagConstraints gridBagConstraints9 = new GridBagConstraints();
             gridBagConstraints9.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints9.gridx = 0;
-            gridBagConstraints9.gridy = 1;
+            gridBagConstraints9.gridy = 2;
             gridBagConstraints9.insets = new java.awt.Insets(1,5,0,5);
             GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -438,6 +440,7 @@ public class SearchMessagesDialog extends JFrame {
             Pdate.add(getDate_TFendDate(), gridBagConstraints13);
             Pdate.add(getDate_RBdaysBackward(), gridBagConstraints14);
             Pdate.add(getDate_TFdaysBackward(), gridBagConstraints15);
+            Pdate.add(getDate_RBall(), gridBagConstraints7);
         }
         return Pdate;
     }
@@ -450,7 +453,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getDate_RBdisplayed() {
         if( date_RBdisplayed == null ) {
             date_RBdisplayed = new JRadioButton();
-            date_RBdisplayed.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 12));
             date_RBdisplayed.setText("Search in messages that would be displayed");
             date_RBdisplayed.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
@@ -469,7 +471,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getDate_RBbetweenDates() {
         if( date_RBbetweenDates == null ) {
             date_RBbetweenDates = new JRadioButton();
-            date_RBbetweenDates.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 12));
             date_RBbetweenDates.setText("Search between dates");
             date_RBbetweenDates.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
@@ -520,7 +521,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getDate_RBdaysBackward() {
         if( date_RBdaysBackward == null ) {
             date_RBdaysBackward = new JRadioButton();
-            date_RBdaysBackward.setFont(new java.awt.Font("Dialog", java.awt.Font.BOLD, 12));
             date_RBdaysBackward.setText("Search number of days backward");
             date_RBdaysBackward.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
@@ -1100,6 +1100,7 @@ public class SearchMessagesDialog extends JFrame {
             date_buttonGroup.add(getDate_RBbetweenDates());
             date_buttonGroup.add(getDate_RBdaysBackward());
             date_buttonGroup.add(getDate_RBdisplayed());
+            date_buttonGroup.add(getDate_RBall());
         }
         return date_buttonGroup;
     }
@@ -1147,7 +1148,7 @@ public class SearchMessagesDialog extends JFrame {
         }
         Collections.sort(allBoards);
 
-        BoardsChooser bc = new BoardsChooser(allBoards, chosedBoardsList);
+        BoardsChooser bc = new BoardsChooser(this, allBoards, chosedBoardsList);
         List resultBoards = bc.runDialog();
         if( resultBoards != null ) {
             chosedBoardsList = resultBoards;
@@ -1168,8 +1169,8 @@ public class SearchMessagesDialog extends JFrame {
         getBoards_RBdisplayed().doClick();
         getDate_RBdisplayed().doClick();
         getTruststate_RBdisplayed().doClick();
-        getArchive_RBkeypoolOnly().doClick();
-        
+        getArchive_RBkeypoolAndArchive().doClick();
+
         getDate_TFdaysBackward().setText("0");
     }
     
@@ -1177,10 +1178,9 @@ public class SearchMessagesDialog extends JFrame {
         List lst = new ArrayList();
         String[] splitted = str.split(" ");
         for(int x=0; x < splitted.length; x++) {
-            String s = splitted[x].trim();
+            String s = splitted[x].trim().toLowerCase();
             if( s.length() > 0 ) {
-                lst.add(s.toLowerCase());
-//                System.out.println("Item: "+s);
+                lst.add(s);
             }
         }
         if( lst.size() > 0 ) {
@@ -1233,6 +1233,8 @@ public class SearchMessagesDialog extends JFrame {
         
         if( getDate_RBdisplayed().isSelected() ) {
             scfg.searchDates = SearchMessagesConfig.DATE_DISPLAYED;
+        } else if( getDate_RBall().isSelected() ) {
+            scfg.searchDates = SearchMessagesConfig.DATE_ALL;
         } else if( getDate_RBbetweenDates().isSelected() ) {
             scfg.searchDates = SearchMessagesConfig.DATE_BETWEEN_DATES;
             try {
@@ -1304,7 +1306,19 @@ public class SearchMessagesDialog extends JFrame {
         
         return scfg;
     }
-    
+
+    /**
+     * When window is about to close, do same as if CANCEL was pressed.
+     * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
+     */
+    protected void processWindowEvent(WindowEvent e) {
+        if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+            closePressed();
+        } else {
+            super.processWindowEvent(e);
+        }
+    }
+
     private SearchMessagesThread getRunningSearchThread() {
         return runningSearchThread;
     }
@@ -1315,13 +1329,30 @@ public class SearchMessagesDialog extends JFrame {
     
     public void notifySearchThreadFinished() {
         setRunningSearchThread(null);
-        // TODO: reset buttons
+        // reset buttons
+        getBcancel().setEnabled(true);
+        getBsearch().setText("Search");
+    }
+    
+    // stop searching or close window
+    private void closePressed() {
+        if( getRunningSearchThread() != null ) {
+            // close not allowed, search must be stopped
+            JOptionPane.showMessageDialog(this,
+                    "Please stop the running search before closing the window.",
+                    "Error",
+                    JOptionPane.ERROR_MESSAGE);
+            return;
+        }
+        saveWindowState();
+        setVisible(false);
     }
 
-    private void startSearching() {
+    private void startOrStopSearching() {
         
         if( getRunningSearchThread() != null ) {
-            System.out.println("Error: search thread still runs!");
+            // stop search thread, final handling is done in notifySearchThreadFinished()
+            getRunningSearchThread().requestStop();
             return;
         }
         
@@ -1335,11 +1366,14 @@ public class SearchMessagesDialog extends JFrame {
         getSearchMessagesTableModel().clearDataModel();
         resultCount = 0;
         updateResultCountLabel(resultCount);
+        
+        // set button states
+        getBcancel().setEnabled(false);
+        getBsearch().setText("Stop search");
 
         setRunningSearchThread(new SearchMessagesThread(this, scfg));
         getRunningSearchThread().setPriority(Thread.MIN_PRIORITY); // low prio
         getRunningSearchThread().start();
-        // TODO: disable buttons, add stop button, implement request of stop
     }
     
     private void updateResultCountLabel(int rs) {
@@ -1385,4 +1419,75 @@ public class SearchMessagesDialog extends JFrame {
 
     private JLabel LresultCount = null;
 
+    private JRadioButton date_RBall = null;
+
+    /**
+     * This method initializes date_RBall	
+     * 	
+     * @return javax.swing.JRadioButton	
+     */
+    private JRadioButton getDate_RBall() {
+        if( date_RBall == null ) {
+            date_RBall = new JRadioButton();
+            date_RBall.setText("Search all dates");
+        }
+        return date_RBall;
+    }
+    
+    private void saveWindowState() {
+        Rectangle bounds = getBounds();
+        boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
+
+        Core.frostSettings.setValue("searchMessagesDialog.lastFrameMaximized", isMaximized);
+
+        if (!isMaximized) { // Only save the current dimension if frame is not maximized
+            Core.frostSettings.setValue("searchMessagesDialog.lastFrameHeight", bounds.height);
+            Core.frostSettings.setValue("searchMessagesDialog.lastFrameWidth", bounds.width);
+            Core.frostSettings.setValue("searchMessagesDialog.lastFramePosX", bounds.x);
+            Core.frostSettings.setValue("searchMessagesDialog.lastFramePosY", bounds.y);
+        }
+    }
+    
+    private void loadWindowState() {
+        // load size, location and state of window
+        int lastHeight = Core.frostSettings.getIntValue("searchMessagesDialog.lastFrameHeight");
+        int lastWidth = Core.frostSettings.getIntValue("searchMessagesDialog.lastFrameWidth");
+        int lastPosX = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosX");
+        int lastPosY = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosY");
+        boolean lastMaximized = Core.frostSettings.getBoolValue("searchMessagesDialog.lastFrameMaximized");
+        
+        if( lastHeight <= 0 || lastWidth <= 0 ) {
+            // first call
+            setSize(700,550);
+            setLocationRelativeTo(MainFrame.getInstance());
+            return;
+        }
+        
+        Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        if (lastWidth < 100) {
+            lastWidth = 700;
+        }
+        if (lastHeight < 100) {
+            lastHeight = 550;
+        }
+
+        if ((lastPosX + lastWidth) > scrSize.width) {
+            setSize(700,550);
+            setLocationRelativeTo(MainFrame.getInstance());
+            return;
+        }
+
+        if ((lastPosY + lastHeight) > scrSize.height) {
+            setSize(700,550);
+            setLocationRelativeTo(MainFrame.getInstance());
+            return;
+        }
+
+        setBounds(lastPosX, lastPosY, lastWidth, lastHeight);
+
+        if (lastMaximized) {
+            setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
+        }
+    }
 }  //  @jve:decl-index=0:visual-constraint="10,10"
