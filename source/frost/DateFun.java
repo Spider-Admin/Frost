@@ -198,14 +198,15 @@ public class DateFun {
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         int firstPoint = date.indexOf('.');
         int secondPoint = date.lastIndexOf('.');
-        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint )
-        {
+        if( firstPoint != -1 && secondPoint != -1 && firstPoint != secondPoint ) {
             int year = Integer.parseInt(date.substring(0, firstPoint));
             int month = Integer.parseInt(date.substring(firstPoint + 1, secondPoint));
             int day = Integer.parseInt(date.substring(secondPoint + 1, date.length()));
             cal.set(Calendar.YEAR, year);
             cal.set(Calendar.MONTH, month - 1);
             cal.set(Calendar.DATE, day);
+        } else {
+            throw new NumberFormatException("Invalid date: "+date);
         }
         return cal;
     }

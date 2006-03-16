@@ -1245,7 +1245,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             setGoodButton.setToolTipText(language.getString("Trust"));
             setBadButton.setToolTipText(language.getString("Do not trust"));
             setCheckButton.setToolTipText(language.getString("Set to CHECK"));
-            setObserveButton.setToolTipText("Observe user");
+            setObserveButton.setToolTipText(language.getString("Set to OBSERVE"));
             updateButton.setToolTipText(language.getString("Update"));
         }
 
@@ -1662,6 +1662,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
     private JMenuItem tofDisplayKnownBoards = new JMenuItem();
+    private JMenuItem tofSearchMessages = new JMenuItem();
 
     private JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem();
 
@@ -1995,6 +1996,16 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     tofDisplayKnownBoardsMenuItem_actionPerformed(e);
                 }
             });
+            tofSearchMessages.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                    if( getSearchMessagesDialog() != null ) {
+                        // bring dialog to front
+                    } else {
+                        setSearchMessagesDialog(new SearchMessagesDialog());
+                        getSearchMessagesDialog().setVisible(true);
+                    }
+                }
+            });
 //            pluginBrowserMenuItem.addActionListener(new ActionListener() {
 //                public void actionPerformed(ActionEvent e) {
 //                    BrowserFrame browser = new BrowserFrame(true);
@@ -2113,6 +2124,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             tofMenu.addSeparator();
             tofMenu.add(tofDisplayBoardInfoMenuItem);
             tofMenu.add(tofDisplayKnownBoards);
+            tofMenu.add(tofSearchMessages);
             // Options Menu
             optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu
@@ -2701,6 +2713,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         tofIncreaseFontSizeMenuItem.setText(language.getString("Increase Font Size"));
         tofDecreaseFontSizeMenuItem.setText(language.getString("Decrease Font Size"));
         tofDisplayKnownBoards.setText(language.getString("Display known boards"));
+        tofSearchMessages.setText(language.getString("Search messages"));
         optionsMenu.setText(language.getString("Options"));
         optionsPreferencesMenuItem.setText(language.getString("Preferences"));
 //        pluginMenu.setText(language.getString("Plugins"));
@@ -2796,5 +2809,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     public boolean isAutomaticBoardUpdateEnabled() {
         return tofAutomaticUpdateMenuItem.isSelected();
+    }
+    
+    private SearchMessagesDialog searchMessagesDialog = null;
+    
+    public void setSearchMessagesDialog(SearchMessagesDialog d) {
+        searchMessagesDialog = d;
+    }
+    public SearchMessagesDialog getSearchMessagesDialog() {
+        return searchMessagesDialog;
     }
 }

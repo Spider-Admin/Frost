@@ -483,6 +483,11 @@ public class MessageDownloadThread
                 minDate.setTimeZone(TimeZone.getTimeZone("GMT"));
                 minDate.add(Calendar.DATE, -1*board.getMaxMessageDisplay());
                 Calendar msgDate = DateFun.getCalendarFromDate(currentMsg.getDate());
+                if( msgDate == null ) {
+                    logger.log(Level.SEVERE, "TOFDN: invalid date in filename, message dropped:"+testMe.getPath());
+                    FileAccess.writeFile(INVALID_MSG, testMe);
+                    return;
+                }
                 if( !msgDate.before(minDate) ) {
                     // add new message or notify of arrival
                     TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);

@@ -38,6 +38,8 @@ public class CleanUp {
     public static final int ARCHIVE_MESSAGES = 2;
     public static final int KEEP_MESSAGES = 3;
     
+    private static XmlFileFilter xmlFileFilter = new XmlFileFilter();
+    
     /**
      * Cleans the keypool during runtime of Frost.
      * Deletes all expired files in keypool.
@@ -195,7 +197,7 @@ public class CleanUp {
 
         String minDate = DateFun.getExtendedDate(daysOld);
 
-        File[] sentFilesList = sentMsgsDir.listFiles();
+        File[] sentFilesList = sentMsgsDir.listFiles(xmlFileFilter);
         if( sentFilesList == null ) {
             logger.severe("Could not get list of files for folder "+sentMsgsDir.getPath());
             return 0;
@@ -207,9 +209,6 @@ public class CleanUp {
             // "2006.2.10-freenet-19.xml"
             File sentMsg = sentFilesList[x];
             String fileName = sentMsg.getName();
-            if( fileName.endsWith(".xml") == false ) {
-                continue;
-            }
             int pos = fileName.indexOf('-');
             if( pos < 0 ) {
                 continue;
@@ -269,37 +268,35 @@ public class CleanUp {
                 if( extDate.compareTo( minDate ) < 0 ) {
                     // expired date folder
                     // process all contained ".xml" files
-                    File[] boardDateFolderFiles = boardFolderFile.listFiles();
+                    File[] boardDateFolderFiles = boardFolderFile.listFiles(xmlFileFilter);
                     if( boardDateFolderFiles == null ) {
                         logger.severe("Could not get list of files for folder "+boardFolderFile.getPath());
                         return 0;
                     }
                     for(int y=0; y < boardDateFolderFiles.length; y++) {
                         File boardDateFolderFile = boardDateFolderFiles[y];
-                        if( boardDateFolderFile.isFile() && boardDateFolderFile.getName().endsWith(".xml") ) {
-                            // process this expired message
-                            if( mode == ARCHIVE_MESSAGES ) {
-                                String srcfile = boardDateFolderFile.getPath();
-                                String targetfile = archiveDir + // "archive/messages/" 
-                                                    boardFolder.getName() +   // "frost"
-                                                    File.separator + extDate + // "/2005.09.01"
-                                                    File.separator + boardDateFolderFile.getName(); // "/msg.xml"
-                                File tfile = new File(targetfile);
-                                tfile.getParentFile().mkdirs();
-                                
-                                boolean copyOk = FileAccess.copyFile(srcfile, targetfile);
-                                if( copyOk == false ) {
-                                    logger.severe("Copy of file to archive failed, source="+srcfile+"; target="+targetfile);
-                                    logger.severe("Processing stopped.");
-                                    return deleted;
-                                }
+                        // process this expired message
+                        if( mode == ARCHIVE_MESSAGES ) {
+                            String srcfile = boardDateFolderFile.getPath();
+                            String targetfile = archiveDir + // "archive/messages/" 
+                                                boardFolder.getName() +   // "frost"
+                                                File.separator + extDate + // "/2005.09.01"
+                                                File.separator + boardDateFolderFile.getName(); // "/msg.xml"
+                            File tfile = new File(targetfile);
+                            tfile.getParentFile().mkdirs();
+                            
+                            boolean copyOk = FileAccess.copyFile(srcfile, targetfile);
+                            if( copyOk == false ) {
+                                logger.severe("Copy of file to archive failed, source="+srcfile+"; target="+targetfile);
+                                logger.severe("Processing stopped.");
+                                return deleted;
                             }
-                            // delete file after copy to archive OR if DELETE was requested
-                            if( boardDateFolderFile.delete() == true ) {
-                                deleted++;
-                            } else {
-                                logger.severe("Failed to delete expired file "+boardDateFolderFile.getPath());
-                            }
+                        }
+                        // delete file after copy to archive OR if DELETE was requested
+                        if( boardDateFolderFile.delete() == true ) {
+                            deleted++;
+                        } else {
+                            logger.severe("Failed to delete expired file "+boardDateFolderFile.getPath());
                         }
                     }
                 }
@@ -383,6 +380,15 @@ public class CleanUp {
             }
         }
         logger.info("Finished to delete all empty board date directories.");
+    }
+
+    private static class XmlFileFilter implements FileFilter {
+        public boolean accept(File f) {
+            if( f.isFile() && f.getName().endsWith(".xml") ) {
+                return true;
+            }
+            return false;
+        }
     }
 
     /**
