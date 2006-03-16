@@ -31,20 +31,16 @@ import mseries.ui.*;
 import frost.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
-import frost.messages.*;
 import frost.threads.*;
+import frost.util.gui.translation.*;
+import javax.swing.JPanel;
+import javax.swing.JLabel;
+import java.awt.GridBagConstraints;
 
-public class SearchMessagesDialog extends JDialog {
+public class SearchMessagesDialog extends JFrame {
 
-    // TODO: add Lookup to BoardsChooser!
+    static Language language = Language.getInstance();
     
-    public static void main(String[] args) {
-//        new SearchMessagesDialog().setVisible(true);
-        GregorianCalendar c = new GregorianCalendar();
-        int i = c.get(c.DATE);
-        System.out.println("i="+i);
-    }
-
     private JPanel jContentPane = null;
     private JPanel contentPanel = null;
     private JPanel Pbuttons = null;
@@ -89,7 +85,7 @@ public class SearchMessagesDialog extends JDialog {
     private JCheckBox search_CBprivateMsgsOnly = null;
     private JLabel LsearchResult = null;
     private JScrollPane jScrollPane = null;
-    private JTable searchResultTable = null;
+    private SearchMessagesResultTable searchResultTable = null;
     private SearchMessagesTableModel searchMessagesTableModel = null;  //  @jve:decl-index=0:visual-constraint="735,15"
     private ButtonGroup boards_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="755,213"
     private ButtonGroup date_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="765,261"
@@ -127,7 +123,7 @@ public class SearchMessagesDialog extends JDialog {
      */
     private void initialize() {
         this.setSize(700, 550);
-        this.setTitle("Search messages");
+        this.setTitle(language.getString("Search messages"));
         this.setPreferredSize(new java.awt.Dimension(700,550));
         this.setContentPane(getJContentPane());
         // create button groups
@@ -216,6 +212,7 @@ public class SearchMessagesDialog extends JDialog {
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     setVisible(false);
+                    MainFrame.getInstance().setSearchMessagesDialog(null);
                     dispose();
                 }
             });
@@ -320,6 +317,12 @@ public class SearchMessagesDialog extends JDialog {
      */
     private JPanel getPsearchResult() {
         if( PsearchResult == null ) {
+            GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
+            gridBagConstraints6.gridx = 1;
+            gridBagConstraints6.anchor = java.awt.GridBagConstraints.EAST;
+            gridBagConstraints6.insets = new java.awt.Insets(1,5,1,5);
+            gridBagConstraints6.gridy = 0;
+            LresultCount = new JLabel("");
             GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints4.gridy = 1;
@@ -328,6 +331,7 @@ public class SearchMessagesDialog extends JDialog {
             gridBagConstraints4.weightx = 1.0;
             gridBagConstraints4.weighty = 1.0;
             gridBagConstraints4.insets = new java.awt.Insets(1,5,1,5);
+            gridBagConstraints4.gridwidth = 2;
             gridBagConstraints4.gridx = 0;
             GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
@@ -342,6 +346,7 @@ public class SearchMessagesDialog extends JDialog {
             PsearchResult.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEmptyBorder(3,3,3,3), javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED)));
             PsearchResult.add(LsearchResult, gridBagConstraints3);
             PsearchResult.add(getJScrollPane(), gridBagConstraints4);
+            PsearchResult.add(LresultCount, gridBagConstraints6);
         }
         return PsearchResult;
     }
@@ -1011,7 +1016,7 @@ public class SearchMessagesDialog extends JDialog {
     private JTextField getBoards_TFchosedBoards() {
         if( boards_TFchosedBoards == null ) {
             boards_TFchosedBoards = new JTextField();
-            boards_TFchosedBoards.setText("found; boards; list");
+            boards_TFchosedBoards.setText("");
             boards_TFchosedBoards.setEditable(false);
         }
         return boards_TFchosedBoards;
@@ -1049,11 +1054,10 @@ public class SearchMessagesDialog extends JDialog {
      * 	
      * @return javax.swing.JTable	
      */
-    private JTable getSearchResultTable() {
+    private SearchMessagesResultTable getSearchResultTable() {
         if( searchResultTable == null ) {
-            searchResultTable = new JTable();
+            searchResultTable = new SearchMessagesResultTable(getSearchMessagesTableModel());
             searchResultTable.setAutoCreateColumnsFromModel(true);
-            searchResultTable.setModel(getSearchMessagesTableModel());
         }
         return searchResultTable;
     }
@@ -1175,7 +1179,7 @@ public class SearchMessagesDialog extends JDialog {
         for(int x=0; x < splitted.length; x++) {
             String s = splitted[x].trim();
             if( s.length() > 0 ) {
-                lst.add(s);
+                lst.add(s.toLowerCase());
 //                System.out.println("Item: "+s);
             }
         }
@@ -1258,7 +1262,9 @@ public class SearchMessagesDialog extends JDialog {
             }
         } else if( getDate_RBdaysBackward().isSelected() ) {
             scfg.searchDates = SearchMessagesConfig.DATE_DAYS_BACKWARD;
-            scfg.daysBackward = getDate_TFdaysBackward().getText();
+            try {
+                scfg.daysBackward = Integer.parseInt(getDate_TFdaysBackward().getText());
+            } catch(NumberFormatException ex) { } // never happens, we allow only digits in textfield!
         }
 
         if( getTruststate_RBdisplayed().isSelected() ) {
@@ -1299,9 +1305,22 @@ public class SearchMessagesDialog extends JDialog {
         return scfg;
     }
     
+    private SearchMessagesThread getRunningSearchThread() {
+        return runningSearchThread;
+    }
+
+    private void setRunningSearchThread(SearchMessagesThread t) {
+        runningSearchThread = t;
+    }
+    
+    public void notifySearchThreadFinished() {
+        setRunningSearchThread(null);
+        // TODO: reset buttons
+    }
+
     private void startSearching() {
         
-        if( runningSearchThread != null ) {
+        if( getRunningSearchThread() != null ) {
             System.out.println("Error: search thread still runs!");
             return;
         }
@@ -1312,17 +1331,34 @@ public class SearchMessagesDialog extends JDialog {
             return;
         }
         
-        runningSearchThread = new SearchMessagesThread(this, scfg);
-        runningSearchThread.setPriority(runningSearchThread.getPriority() - 10); // low prio
-        runningSearchThread.start();
-        // TODO: disable buttons, add stop button, implement request of stop, implement callback to add found msgs
+        // clear search result table
+        getSearchMessagesTableModel().clearDataModel();
+        resultCount = 0;
+        updateResultCountLabel(resultCount);
+
+        setRunningSearchThread(new SearchMessagesThread(this, scfg));
+        getRunningSearchThread().setPriority(Thread.MIN_PRIORITY); // low prio
+        getRunningSearchThread().start();
+        // TODO: disable buttons, add stop button, implement request of stop
+    }
+    
+    private void updateResultCountLabel(int rs) {
+        LresultCount.setText("Results: "+rs);
     }
     
     /**
      * Called by SearchMessagesThread to add a found message.
      */
-    public void addFoundMessage(MessageObject msg) {
-        
+    public void addFoundMessage(final FrostSearchResultMessageObject msg) {
+        // we were called from io thread
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                // add msg to table
+                getSearchMessagesTableModel().addRow(msg);
+                resultCount++;
+                updateResultCountLabel(resultCount);
+            }
+        });
     }
     
     /** 
@@ -1345,5 +1381,8 @@ public class SearchMessagesDialog extends JDialog {
     
     List chosedBoardsList = new ArrayList();
     SearchMessagesThread runningSearchThread = null;
+    int resultCount;
+
+    private JLabel LresultCount = null;
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"

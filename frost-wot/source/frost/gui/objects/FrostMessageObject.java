@@ -18,10 +18,9 @@
 */
 package frost.gui.objects;
 
-import java.io.File;
+import java.io.*;
 
-import frost.FileAccess;
-import frost.gui.model.TableMember;
+import frost.gui.model.*;
 import frost.messages.*;
 
 public class FrostMessageObject extends VerifyableMessageObject implements TableMember {
@@ -35,19 +34,9 @@ public class FrostMessageObject extends VerifyableMessageObject implements Table
      * @param file  The xml file to read
      * @throws MessageCreationException  If the file couldn't be loaded
      */
-    FrostMessageObject(File file) throws MessageCreationException {
+    public FrostMessageObject(File file) throws MessageCreationException {
         super(file);
         buildVisibleStrings();
-    }
-    /**
-     * This constructor can be used to build a messageobject from
-     * an existing file.
-     * 
-     * @param file  The xml file to read
-     * @throws Exception  If the file could'nt be loaded
-     */
-    FrostMessageObject(String filename) throws Exception {
-        this(new File(filename));
     }
     
     /*

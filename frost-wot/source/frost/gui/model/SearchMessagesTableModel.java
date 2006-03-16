@@ -18,27 +18,80 @@
 */
 package frost.gui.model;
 
-import javax.swing.table.*;
+import frost.util.gui.translation.*;
 
-public class SearchMessagesTableModel extends DefaultTableModel {
+public class SearchMessagesTableModel extends SortedTableModel implements LanguageListener {
 
-    static String columnNames[] = {
-        "Col1",
-        "Col2"
+    private Language language = null;
+    
+    protected final String columnNames[] = new String[6];
+
+    protected final Class columnClasses[] = {
+        String.class, //LangRes.getString("Index"),
+        String.class, //LangRes.getString("From"),
+        String.class, //LangRes.getString("Board"),
+        String.class, //LangRes.getString("Subject"),
+        String.class, //"Sig",
+        String.class //LangRes.getString("Date")
     };
+
+    public SearchMessagesTableModel() {
+        super();
+        language = Language.getInstance();
+        refreshLanguage();
+    }
     
-    public String getColumnName(int col) {
-        return columnNames[col].toString();
-    }
-    public int getRowCount() { return 5; }
-    public int getColumnCount() { return columnNames.length; }
-    public Object getValueAt(int row, int col) {
-        return "DATA!";
-    }
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#isCellEditable(int, int)
+     */
     public boolean isCellEditable(int row, int col)
-        { return true; }
-    
-    public void setValueAt(Object value, int row, int col) {
+    {
+        return false;
     }
 
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnName(int)
+     */
+    public String getColumnName(int column)
+    {
+        if( column >= 0 && column < columnNames.length )
+            return columnNames[column];
+        return null;
+    }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnCount()
+     */
+    public int getColumnCount()
+    {
+        return columnNames.length;
+    }
+    
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#getColumnClass(int)
+     */
+    public Class getColumnClass(int column)
+    {
+        if( column >= 0 && column < columnClasses.length )
+            return columnClasses[column];
+        return null;
+    }
+
+    /* (non-Javadoc)
+     * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+     */
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();          
+    }
+
+    private void refreshLanguage() {
+        columnNames[0] = language.getString("Index");
+        columnNames[1] = language.getString("From");
+        columnNames[2] = language.getString("Board");
+        columnNames[3] = language.getString("Subject");
+        columnNames[4] = language.getString("Sig");
+        columnNames[5] = language.getString("Date");
+
+        fireTableStructureChanged();        
+    }
 }

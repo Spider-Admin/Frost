@@ -242,7 +242,7 @@ public class TOF
         {
             final FrostMessageObject message;
             try {
-                message = FrostMessageFactory.createFrostMessageObject(newMsgFile);
+                message = new FrostMessageObject(newMsgFile);
             } catch(Exception ex) {
 				logger.log(Level.SEVERE, "Error: skipping to load file '" + newMsgFile.getPath()+
                                          "', reason:\n" + ex.getMessage(), ex);
@@ -410,7 +410,7 @@ public class TOF
                             {
                                 FrostMessageObject message;
                                 try {
-                                    message = FrostMessageFactory.createFrostMessageObject(filePointers[j]);
+                                    message = new FrostMessageObject(filePointers[j]);
                                 } catch(Exception ex) {
                                     // skip the file silently
                                     message = null;
@@ -686,7 +686,7 @@ public class TOF
                 }
                 FrostMessageObject message;
                 try {
-                    message = FrostMessageFactory.createFrostMessageObject(filePointers[k]);
+                    message = new FrostMessageObject(filePointers[k]);
                 } catch(Exception ex) {
                     // skip the file quitely
                     message = null;

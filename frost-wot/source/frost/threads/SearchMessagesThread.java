@@ -25,6 +25,7 @@ import java.util.logging.*;
 import frost.*;
 import frost.gui.*;
 import frost.gui.objects.*;
+import frost.messages.*;
 
 public class SearchMessagesThread extends Thread {
 
@@ -37,10 +38,9 @@ public class SearchMessagesThread extends Thread {
     
     String keypoolDir;
     String archiveDir;
-    
-    TrustStates trustStates = new TrustStates();
-    
-    
+
+    private XmlFileFilter xmlFileFilter = new XmlFileFilter();
+
     public SearchMessagesThread(SearchMessagesDialog searchDlg, SearchMessagesConfig searchCfg) {
         searchDialog = searchDlg;
         searchConfig = searchCfg;
@@ -55,92 +55,203 @@ public class SearchMessagesThread extends Thread {
     }
     
     public void run() {
-        
-        // select board dirs
-        List boardsToSearch;
-        if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_DISPLAYED ) {
-            boardsToSearch = MainFrame.getInstance().getTofTreeModel().getAllBoards();
-        } else if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_DISPLAYED ) {
-            boardsToSearch = searchConfig.chosedBoards;
-        } else {
-            return;
-        }
-        
-        for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
-            
-            Board board = (Board)i.next();
-            
-            // build date and trust state info for this board
-            updatelTrustStatesToSearchInto(board, trustStates);
-            
-            if( searchConfig.searchInKeypool ) {
-                // search in keypool
-                // Format: keypool\boards\2006.3.1\2006.3.1-boards-0.xml
-                File boardFolder = new File(keypoolDir + board.getBoardFilename());
-                if( boardFolder.isDirectory() == true ) {
 
-
-                    String date = "2006.1.1";
-                    try {
-                        Calendar currCal = DateFun.getCalendarFromDate(date);
-                    } catch(NumberFormatException ex) {
-                        logger.warning("Incorrect date: "+date);
+        try {
+            // select board dirs
+            List boardsToSearch;
+            if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_DISPLAYED ) {
+                boardsToSearch = MainFrame.getInstance().getTofTreeModel().getAllBoards();
+            } else if( searchConfig.searchBoards == SearchMessagesConfig.BOARDS_CHOSED ) {
+                boardsToSearch = searchConfig.chosedBoards;
+            } else {
+                boardsToSearch = new ArrayList(); // paranoia
+            }
+    
+            TrustStates trustStates = new TrustStates();
+            DateRange dateRange = new DateRange();
+    
+            for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
+                
+                if( isStopRequested() ) {
+                    break;
+                }
+                
+                Board board = (Board)i.next();
+                
+                // build date and trust state info for this board
+                updateTrustStatesForBoard(board, trustStates);
+                updateDateRangeForBoard(board, dateRange);
+                
+                if( searchConfig.searchInKeypool ) {
+                    // search in keypool
+                    // Format: keypool\boards\2006.3.1\2006.3.1-boards-0.xml
+                    File boardFolder = new File(keypoolDir + board.getBoardFilename());
+                    if( boardFolder.isDirectory() == true ) {
+                        searchBoardFolder(boardFolder, trustStates, dateRange);
+                    } else {
+                        logger.warning("No board folder in keypool for board "+board.getName());
                     }
-                    
-                    
-                } else {
-                    logger.warning("No board folder in keypool for board "+board.getName());
+                }
+                
+                if( isStopRequested() ) {
+                    break;
+                }
+    
+                if( searchConfig.searchInArchive && archiveDir != null ) {
+                    // search in archive
+                    // Format: keypool-archive.j\messages\boards\2005.12.7\2005.12.7-boards-0.xml
+                    File boardFolder = new File(archiveDir + board.getBoardFilename());
+                    if( boardFolder.isDirectory() == true ) {
+                        searchBoardFolder(boardFolder, trustStates, dateRange);
+                    } else {
+                        logger.warning("No board folder in archive for board "+board.getName());
+                    }
                 }
             }
-            if( searchConfig.searchInArchive && archiveDir != null ) {
-                // search in archive
-                // Format: keypool-archive.j\messages\boards\2005.12.7\2005.12.7-boards-0.xml
-                File boardFolder = new File(archiveDir + board.getBoardFilename());
-                if( boardFolder.isDirectory() == true ) {
-
-                } else {
-                    logger.warning("No board folder in archive for board "+board.getName());
-                }
-            }
-
+        } catch(Throwable t) {
+            logger.log(Level.SEVERE, "Catched exception:", t);
         }
+        searchDialog.notifySearchThreadFinished();
+    }
+    
+    // Format: boards\2006.3.1\2006.3.1-boards-0.xml
+    private void searchBoardFolder(File boardFolder, TrustStates ts, DateRange dr) {
         
-        // scan for dates in dirs
-        // instanciate each xml file and search content
-        
-        /*
-        String minDate = DateFun.getExtendedDate(daysOld);
-
         File[] boardFolderFiles = boardFolder.listFiles();
         if( boardFolderFiles == null ) {
             logger.severe("Could not get list of files for folder "+boardFolder.getPath());
-            return 0;
+            return;
         }
         for(int x=0; x < boardFolderFiles.length; x++) {
+            
+            if( isStopRequested() ) {
+                break;
+            }
+
             File boardFolderFile = boardFolderFiles[x];
-            if( boardFolderFile.isDirectory() ) {
-                String boardDateFolder = boardFolderFile.getName(); // "2005.9.1"
-                String extDate = DateFun.buildExtendedDate(boardDateFolder); // "2005.09.01"
-                if( extDate == null ) {
-                    continue;
+            if( boardFolderFile.isDirectory() == false ) {
+                continue;
+            }
+            // its a dir, we expect a name like '2006.3.1'
+            Calendar dateDirCal = null;
+            try {
+                dateDirCal = DateFun.getCalendarFromDate(boardFolderFile.getName());
+            } catch(NumberFormatException ex) {
+                logger.warning("Incorrect board date folder name, must be a date: "+boardFolderFile.getPath());
+                continue;
+            }
+            // check if this date dir is in the date range we want to search
+            if( dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate) ) {
+                continue;
+            }
+            // get list of .xml files in the date dir
+            File[] xmlFiles = boardFolderFile.listFiles(xmlFileFilter);
+            if( xmlFiles == null ) {
+                logger.severe("Could not get list of xml files for folder "+boardFolderFile.getPath());
+                continue;
+            }
+            for(int y=0; y < xmlFiles.length; y++) {
+                
+                if( isStopRequested() ) {
+                    break;
                 }
-                if( extDate.compareTo( minDate ) < 0 ) {
-                    // expired date folder
-                    // process all contained ".xml" files
-                    File[] boardDateFolderFiles = boardFolderFile.listFiles();
-                    if( boardDateFolderFiles == null ) {
-                        logger.severe("Could not get list of files for folder "+boardFolderFile.getPath());
-                        return 0;
-                    }
-                    for(int y=0; y < boardDateFolderFiles.length; y++) {
-                        File boardDateFolderFile = boardDateFolderFiles[y];
-                        if( boardDateFolderFile.isFile() && boardDateFolderFile.getName().endsWith(".xml") ) {
-                            // process this expired message
-        
-        */
+
+                File xmlFile = xmlFiles[y];
+                // search this xml file
+                searchXmlFile(xmlFile, ts);
+            }
+        }
     }
     
-    private void updatelTrustStatesToSearchInto(Board b, TrustStates ts) {
+    private void searchXmlFile(File xmlFile, TrustStates ts) {
+        
+        FrostSearchResultMessageObject mo = null;
+        try {
+            mo = new FrostSearchResultMessageObject(xmlFile);
+        } catch(Throwable t) {
+            logger.warning("Could not load xml file '"+xmlFile.getPath()+"': "+t.toString());
+            return;
+        }
+        
+        // check private only
+        if( searchConfig.searchPrivateMsgsOnly ) {
+            if( mo.getRecipient() == null || mo.getRecipient().length() == 0 ) {
+                return;
+            }
+        }
+        
+        // check trust states
+        if( matchesTrustStates(mo, ts) == false ) {
+            return;
+        }
+
+        // check sender
+        if( searchConfig.sender != null ) {
+            if( searchInText(searchConfig.sender, mo.getFrom()) == false ) {
+                // sender not found
+                return;
+            }
+        }
+        
+        // check subject
+        if( searchConfig.subject != null ) {
+            if( searchInText(searchConfig.subject, mo.getSubject()) == false ) {
+                // subject not found
+                return;
+            }
+        }
+        
+        // check content
+        if( searchConfig.content != null ) {
+            if( searchInText(searchConfig.content, mo.getContent()) == false ) {
+                // content not found
+                return;
+            }
+        }
+        
+        // match, add to result table
+        searchDialog.addFoundMessage(mo);
+    }
+    
+    private boolean searchInText(List searchItems, String txt) {
+        boolean found = false;
+        txt = txt.toLowerCase(); // search items are already lowercase
+        for(Iterator i=searchItems.iterator(); i.hasNext(); ) {
+            String item = (String)i.next();
+            if( txt.indexOf(item) > -1 ) {
+                found = true;
+                break; // one match is enough
+            }
+        }
+        return found;
+    }
+    
+    private boolean matchesTrustStates(FrostMessageObject msg, TrustStates ts) {
+        int state = msg.getMsgStatus();
+        
+        if( state == VerifyableMessageObject.xGOOD && ts.trust_good == false ) {
+            return false;
+        }
+        if( state == VerifyableMessageObject.xOBSERVE && ts.trust_observe == false ) {
+            return false;
+        }
+        if( state == VerifyableMessageObject.xCHECK && ts.trust_check == false ) {
+            return false;
+        }
+        if( state == VerifyableMessageObject.xBAD && ts.trust_bad == false ) {
+            return false;
+        }
+        if( state == VerifyableMessageObject.xOLD && ts.trust_none == false ) {
+            return false;
+        }
+        if( state == VerifyableMessageObject.xTAMPERED && ts.trust_tampered == false ) {
+            return false;
+        }
+        
+        return true;
+    }
+    
+    private void updateTrustStatesForBoard(Board b, TrustStates ts) {
         if( searchConfig.searchTruststates == SearchMessagesConfig.TRUST_ALL ) {
             // use all trust states
             ts.trust_good = true;
@@ -168,13 +279,33 @@ public class SearchMessagesThread extends Thread {
         }
     }
     
+    private void updateDateRangeForBoard(Board b, DateRange dr) {
+        if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
+            dr.startDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            dr.startDate.add(Calendar.DATE, -b.getMaxMessageDisplay());
+            dr.endDate = new GregorianCalendar(TimeZone.getTimeZone("GMT")); // today
+        } else if( searchConfig.searchDates == SearchMessagesConfig.DATE_DAYS_BACKWARD ) {
+            dr.startDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
+            dr.startDate.add(Calendar.DATE, -searchConfig.daysBackward);
+            dr.endDate = new GregorianCalendar(TimeZone.getTimeZone("GMT")); // today
+        } if( searchConfig.searchDates == SearchMessagesConfig.DATE_BETWEEN_DATES ) {
+            dr.startDate = searchConfig.startDate;
+            dr.endDate = searchConfig.endDate;
+        }
+    }
+
     public synchronized boolean isStopRequested() {
         return stopRequested;
     }
     public synchronized void requestStop() {
         stopRequested = true;
     }
-    
+
+    private class DateRange {
+        GregorianCalendar startDate;
+        GregorianCalendar endDate;
+    }
+
     private class TrustStates {
         // current trust status to search into
         public boolean trust_good = false;
@@ -183,5 +314,14 @@ public class SearchMessagesThread extends Thread {
         public boolean trust_bad = false;
         public boolean trust_none = false;
         public boolean trust_tampered = false;
+    }
+    
+    private class XmlFileFilter implements FileFilter {
+        public boolean accept(File f) {
+            if( f.isFile() && f.getName().endsWith(".xml") ) {
+                return true;
+            }
+            return false;
+        }
     }
 }

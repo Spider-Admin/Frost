@@ -81,7 +81,7 @@ public class SharedFileObject implements XMLizable
         String _oldestDate = DateFun.getDate(maxAge);
         Calendar fileDate=null;
         Calendar oldestDate=null;
-        Calendar today = DateFun.getCalendarFromDate(DateFun.getDate());
+        GregorianCalendar today = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         try {
         	fileDate=DateFun.getCalendarFromDate(date);
         	oldestDate=DateFun.getCalendarFromDate(_oldestDate);

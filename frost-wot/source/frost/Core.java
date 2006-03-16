@@ -515,7 +515,7 @@ public class Core implements Savable, FrostEventDispatcher  {
           if (msgFile.getName().equals("new_files.xml")) continue;
           FrostMessageObject tempMsg = null;
           try {
-              tempMsg = FrostMessageFactory.createFrostMessageObject(msgFile);
+              tempMsg = new FrostMessageObject(msgFile);
           } catch (MessageCreationException mce){
               if (mce.isEmpty()) {
                   logger.log(Level.INFO, "A message could not be created. It is empty.", mce);

@@ -101,6 +101,7 @@ public class LangRes extends ListResourceBundle {
     {"Configure selected folder", "Configure selected folder"},
     {"Display board information window", "Display board information window"},
 	{"Display known boards", "Display known boards"},
+    {"Search messages", "Search messages"},
 
 	// Menu Options
     {"Options", "Options"},
@@ -303,6 +304,7 @@ public class LangRes extends ListResourceBundle {
 	{"No 'From' specified!", "No 'From' specified!"},
 	{"Choose file(s) / directory(s) to attach", "Choose file(s) / directory(s) to attach"},
 	{"Choose boards to attach", "Choose boards to attach"},
+    {"Choose boards", "Choose boards"},
 
 	///////////////////////////////////////////////////
 	// About box
