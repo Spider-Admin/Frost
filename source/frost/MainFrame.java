@@ -40,6 +40,7 @@ import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.*;
 import frost.fileTransfer.upload.UploadPanel;
 import frost.gui.*;
+import frost.gui.help.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.preferences.*;
@@ -64,13 +65,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
     }
     
+    private HelpBrowserFrame helpBrowser = null;
+    private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
-    private MemoryMonitor getMemoryMonitor() {
-        if( memoryMonitor == null ) {
-            memoryMonitor = new MemoryMonitor();
-        }
-        return memoryMonitor;
-    }
 
     private class MessagePanel extends JPanel {
 
@@ -2104,10 +2101,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     setLanguageResource(bundle);
                 }
             });
+            
+            helpHelpMenuItem.setIcon(miscToolkit.getScaledImage("/data/help.png", 16, 16));
+            
             helpHelpMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    HelpFrame dlg = new HelpFrame(MainFrame.this);
-                    dlg.setVisible(true);
+                    showHtmlHelp("index.html");
+                    //HelpFrame dlg = new HelpFrame(MainFrame.this);
+                    //dlg.setVisible(true);
                 }
             });
             helpAboutMenuItem.addActionListener(new ActionListener() {
@@ -2816,19 +2817,31 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     public boolean isAutomaticBoardUpdateEnabled() {
         return tofAutomaticUpdateMenuItem.isSelected();
     }
-    
-    private SearchMessagesDialog searchMessagesDialog = null;
+
+    private MemoryMonitor getMemoryMonitor() {
+        if( memoryMonitor == null ) {
+            memoryMonitor = new MemoryMonitor();
+        }
+        return memoryMonitor;
+    }
+
+    public void showHtmlHelp(String item) {
+      if( helpBrowser == null ) {
+          helpBrowser = new HelpBrowserFrame(frostSettings.getValue("locale"), "help/help.zip");
+      }
+      // show first time or bring to front
+      helpBrowser.setVisible(true);
+      helpBrowser.showHelpPage(item);
+
+      return;
+    }
     
     public void startSearchMessagesDialog() {
         if( getSearchMessagesDialog() == null ) {
             setSearchMessagesDialog(new SearchMessagesDialog());
         }
-        if( getSearchMessagesDialog().isVisible() ) {
-            // bring dialog to front
-            getSearchMessagesDialog().requestFocus();
-        } else {
-            getSearchMessagesDialog().setVisible(true);
-        }
+        // show first time or bring to front
+        getSearchMessagesDialog().setVisible(true);
     }
     
     public void setSearchMessagesDialog(SearchMessagesDialog d) {
