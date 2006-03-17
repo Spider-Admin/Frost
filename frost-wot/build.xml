@@ -54,6 +54,10 @@
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
   <property name="release.dir" value="${build.dir}/release"/>
+  
+  <!--  Set up properties for the frost help -->	
+  <property name="helpsrc.dir" value="help"/>
+  <property name="helpbin.dir" value="${dist.dir}/help"/>
 
   <!--  The CLASSPATH to use for compilation. -->
   <path id="classpath">
@@ -290,6 +294,9 @@ Build log  : ${logfilename}</echo>
 
     <mkdir dir="${dist.dir}/downloads"/>
     <mkdir dir="${dist.dir}/exec"/>
+    
+    <!-- create the help-zip -->
+    <antcall target="helpzip"/>
 
    </target>
 
@@ -342,13 +349,20 @@ Build log  : ${logfilename}</echo>
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Clean -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
-  <target name="clean"
-          description="--> clean the build files.">
-
+  <target name="clean" description="--> clean the build files.">
     <delete quiet="true" dir="${build.dir}"/>
-
   </target>
-
+  
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Building help.zip -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <target name="helpzip" description="--> build the help.zip">
+	<delete quiet="true" file="${helpbin.dir}/help.zip"/>
+	<zip destfile="${helpbin.dir}/help.zip">
+		<zipfileset dir="${helpsrc.dir}" excludes=".* **/CVS/*"/>
+    	</zip>
+  </target>
+	
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
   <!-- Main target - runs dist by default -->
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
