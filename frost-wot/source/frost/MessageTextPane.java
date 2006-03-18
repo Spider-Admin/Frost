@@ -64,11 +64,13 @@ public class MessageTextPane extends JPanel {
     private MainFrame mainFrame = MainFrame.getInstance();
     private DownloadModel downloadModel = null;
     
-    Component parentFrame;
+    private Component parentFrame;
+    
+    private PropertyChangeListener propertyChangeListener;
     
     public MessageTextPane(Component parentFrame) {
-        initialize();
         this.parentFrame = parentFrame;
+        initialize();
     }
     
     /**
@@ -109,11 +111,10 @@ public class MessageTextPane extends JPanel {
 
         List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
         List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
-
-        positionDividers(fileAttachments.size(), boardAttachments.size());
-
         attachedFilesModel.setData(fileAttachments);
         attachedBoardsModel.setData(boardAttachments);
+
+        positionDividers(fileAttachments.size(), boardAttachments.size());
     }
 
     private void initialize() {
@@ -245,7 +246,7 @@ public class MessageTextPane extends JPanel {
             }
         });
         
-        PropertyChangeListener propertyChangeListener = new PropertyChangeListener() {
+        propertyChangeListener = new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("messageBodyAA")) {
                     messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
@@ -280,29 +281,39 @@ public class MessageTextPane extends JPanel {
     }
     
     private void positionDividers(int attachedFiles, int attachedBoards) {
+        
         if (attachedFiles == 0 && attachedBoards == 0) {
             // Neither files nor boards
             messageSplitPane.setBottomComponent(null);
             messageSplitPane.setDividerSize(0);
             return;
         }
+        
         messageSplitPane.setDividerSize(3);
         messageSplitPane.setDividerLocation(0.75);
+        
         if (attachedFiles != 0 && attachedBoards == 0) {
             //Only files
+            attachmentsSplitPane.setTopComponent(null);
+            attachmentsSplitPane.setBottomComponent(null);
+
             messageSplitPane.setBottomComponent(filesTableScrollPane);
             return;
         }
         if (attachedFiles == 0 && attachedBoards != 0) {
             //Only boards
+            attachmentsSplitPane.setTopComponent(null);
+            attachmentsSplitPane.setBottomComponent(null);
+
             messageSplitPane.setBottomComponent(boardsTableScrollPane);
             return;
         }
         if (attachedFiles != 0 && attachedBoards != 0) {
             //Both files and boards
-            messageSplitPane.setBottomComponent(attachmentsSplitPane);
             attachmentsSplitPane.setTopComponent(filesTableScrollPane);
             attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
+
+            messageSplitPane.setBottomComponent(attachmentsSplitPane);
         }
     }
 
@@ -593,5 +604,25 @@ public class MessageTextPane extends JPanel {
 
     public void setDownloadModel(DownloadModel table) {
         downloadModel = table;
+    }
+    
+    public void close() {
+        Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, propertyChangeListener);
+        Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
+        Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
+        Core.frostSettings.removePropertyChangeListener("messageBodyAA", propertyChangeListener);       
+    }
+    
+    public void addKeyListener(KeyListener l) {
+        super.addKeyListener(l);
+        messageTextArea.addKeyListener(l);
+        filesTable.addKeyListener(l);
+        boardsTable.addKeyListener(l);
+    }
+    public void removeKeyListener(KeyListener l) {
+        super.removeKeyListener(l);
+        messageTextArea.removeKeyListener(l);
+        filesTable.removeKeyListener(l);
+        boardsTable.removeKeyListener(l);
     }
 }

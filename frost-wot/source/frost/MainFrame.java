@@ -78,9 +78,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     new StringBuffer()
                         .append(MainFrame.keypool)
                         .append(board.getBoardFilename())
-                        .append(fileSeparator)
+                        .append(System.getProperty("file.separator"))
                         .append(DateFun.getDate())
-                        .append(fileSeparator)
+                        .append(System.getProperty("file.separator"))
                         .toString();
                 File boarddir = new File(destination);
                 if (boarddir.isDirectory()) {
@@ -100,7 +100,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private static Core core;
 
-    private static String fileSeparator = System.getProperty("file.separator");
     // saved to frost.ini
     public static SettingsClass frostSettings = null;
 

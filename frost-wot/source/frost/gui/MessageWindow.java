@@ -18,76 +18,58 @@
 */
 package frost.gui;
 
-import frost.messages.*;
 import java.awt.*;
 import java.awt.event.*;
+import java.util.logging.*;
+
 import javax.swing.*;
 
-import java.beans.*;
-import java.util.logging.Logger;
-
-import frost.SettingsClass;
+import frost.*;
+import frost.gui.objects.*;
 import frost.util.gui.*;
 
-public class MessageWindow extends JFrame{
+public class MessageWindow extends JFrame {
 	
-	private static Logger logger = Logger.getLogger(MessageWindow.class.getName());
+//	private static Logger logger = Logger.getLogger(MessageWindow.class.getName());
 	
-	private final MessageObject message;
-	private AntialiasedTextArea messageTextArea;
-	private JScrollPane scrollpane;
-	private Listener listener;
-	private SettingsClass settings;
+	private final FrostMessageObject message;
 	private Window parentWindow;
+    
+    private MessageTextPane messageTextPane;
+    
+    private Listener listener;
 	
-	/**
-	 * 
-	 */
-	private class Listener extends WindowAdapter implements KeyListener, PropertyChangeListener, WindowListener{
+	private class Listener extends WindowAdapter implements KeyListener, WindowListener {
 		/* (non-Javadoc)
 		 * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
 		 */
-		public void keyPressed(KeyEvent e){
+		public void keyPressed(KeyEvent e) {
 			maybeDoSomething(e);
 		}
 		/* (non-Javadoc)
 		 * @see java.awt.event.KeyListener#keyReleased(java.awt.event.KeyEvent)
 		 */
-		public void keyReleased(KeyEvent e){
+		public void keyReleased(KeyEvent e) {
 			//Nothing
 		}
 		/* (non-Javadoc)
 		 * @see java.awt.event.KeyListener#keyTyped(java.awt.event.KeyEvent)
 		 */
-		public void keyTyped(KeyEvent e){
+		public void keyTyped(KeyEvent e) {
 			//Nothing
 		}
 		/* (non-Javadoc)
 		 * @see java.awt.event.WindowListener#windowClosing(java.awt.event.WindowEvent)
 		 */
-		public void windowClosing(WindowEvent e){
+		public void windowClosing(WindowEvent e) {
 			close();
 		}
 		/**
 		 * @param e
 		 */
 		public void maybeDoSomething(KeyEvent e){
-			if( e.getKeyChar() == KeyEvent.VK_ESCAPE ){
-					close();
-			}
-		}
-		/* (non-Javadoc)
-		 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-		 */
-		public void propertyChange( PropertyChangeEvent evt) {
-			if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_NAME)) {
-				fontChanged();
-			}
-			if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_SIZE)) {
-				fontChanged();
-			}
-			if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_STYLE)) {
-				fontChanged();
+			if( e.getKeyChar() == KeyEvent.VK_ESCAPE ) {
+				close();
 			}
 		}
 	}
@@ -98,13 +80,16 @@ public class MessageWindow extends JFrame{
 	 * @param message
 	 * @param size
 	 */
-	public MessageWindow(SettingsClass frostSettings, Window parentWindow, MessageObject message, Dimension size){
+	public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size){
 		super();
-		this.setSize(size);
 		this.message = message;
 		this.parentWindow = parentWindow;
-		settings = frostSettings;
+        this.setSize(size);
 		initialize();
+        
+		setVisible(true); // set visible to allow correct positioning of dividers
+        
+        messageTextPane.update_messageSelected(message);
 	}
 	
 	private void initialize(){
@@ -112,57 +97,23 @@ public class MessageWindow extends JFrame{
 		
 		this.setTitle(message.getSubject());
 		
-		messageTextArea = new AntialiasedTextArea();
-		messageTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
-		messageTextArea.setWrapStyleWord(true);
-		messageTextArea.setLineWrap(true);
-		messageTextArea.setEditable(false);
-		messageTextArea.setText(message.getContent());
-		messageTextArea.addKeyListener(listener);
-		this.addKeyListener(listener);
-		this.addWindowListener(listener);
-		
-		settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
-		settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
-		settings.addPropertyChangeListener(
-			SettingsClass.MESSAGE_BODY_FONT_STYLE,
-			listener);
-		settings.addPropertyChangeListener("messageBodyAA", listener);
-		
-		fontChanged();
-		
-		scrollpane = new JScrollPane();
-		scrollpane.getViewport().add(messageTextArea);
-		
 		this.getContentPane().setLayout(new BorderLayout());
-		this.getContentPane().add(scrollpane, BorderLayout.CENTER );
-		
+        
+        messageTextPane = new MessageTextPane(this);
+        this.getContentPane().add(messageTextPane, BorderLayout.CENTER);
+
+        this.addKeyListener(listener);
+        messageTextPane.addKeyListener(listener);
+        this.addWindowListener(listener);
+        
 		ImageIcon frameIcon = new ImageIcon(MessageWindow.class.getResource("/data/messagebright.gif"));
 		this.setIconImage(frameIcon.getImage());
 		this.setLocationRelativeTo(parentWindow);
-		
-	}
-	
-	private void fontChanged() {
-		String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-		int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-		int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-		Font font = new Font(fontName, fontStyle, fontSize);
-		if (!font.getFamily().equals(fontName)) {
-			logger.severe(
-				"The selected font was not found in your system\n"
-					+ "That selection will be changed to \"Monospaced\".");
-			settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
-			font = new Font("Monospaced", fontStyle, fontSize);
-		}
-		messageTextArea.setFont(font);
 	}
 	
 	private void close() {
-		settings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
-		settings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
-		settings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, listener);
-		settings.removePropertyChangeListener("messageBodyAA", listener);		
+        messageTextPane.removeKeyListener(listener);
+        messageTextPane.close();
 		dispose();
 	}
 }

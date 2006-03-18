@@ -759,15 +759,11 @@ public class MessagePanel extends JPanel {
     }
     
     private void showCurrentMessagePopupWindow(){
-        if  (!isCorrectlySelectedMessage() )
+        if( !isCorrectlySelectedMessage() ) {
             return;
-        getMessageWindow(selectedMessage, this.getSize()).setVisible(true);
-    
-    }
-    
-    private MessageWindow getMessageWindow(MessageObject message,Dimension size){
-        MessageWindow messagewindow = new MessageWindow( settings, mainFrame, message, size );
-        return messagewindow;
+        }
+        MessageWindow messageWindow = new MessageWindow( mainFrame, selectedMessage, this.getSize() );
+        messageWindow.setVisible(true);
     }
     
     private void updateButton_actionPerformed(ActionEvent e) {
