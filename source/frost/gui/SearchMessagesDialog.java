@@ -25,6 +25,7 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
+import javax.swing.event.*;
 import javax.swing.text.*;
 
 import mseries.Calendar.*;
@@ -169,12 +170,10 @@ public class SearchMessagesDialog extends JFrame {
      */
     private JPanel getPbuttons() {
         if( Pbuttons == null ) {
-            FlowLayout flowLayout = new FlowLayout();
-            flowLayout.setAlignment(java.awt.FlowLayout.RIGHT);
             Pbuttons = new JPanel();
-            Pbuttons.setLayout(flowLayout);
-            Pbuttons.add(getBsearch(), null);
-            Pbuttons.add(getBcancel(), null);
+            Pbuttons.setLayout(new BorderLayout());
+            Pbuttons.add(getPbuttonsRight(), java.awt.BorderLayout.WEST);
+            Pbuttons.add(getJPanel(), java.awt.BorderLayout.EAST);
         }
         return Pbuttons;
     }
@@ -1059,6 +1058,31 @@ public class SearchMessagesDialog extends JFrame {
         if( searchResultTable == null ) {
             searchResultTable = new SearchMessagesResultTable(getSearchMessagesTableModel());
             searchResultTable.setAutoCreateColumnsFromModel(true);
+            searchResultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
+            // Ask to be notified of selection changes
+            ListSelectionModel rowSM = searchResultTable.getSelectionModel();
+            rowSM.addListSelectionListener(new ListSelectionListener() {
+                public void valueChanged(ListSelectionEvent e) {
+                    //Ignore extra messages.
+                    if (e.getValueIsAdjusting()) return;
+
+                    ListSelectionModel lsm = (ListSelectionModel)e.getSource();
+                    if (lsm.isSelectionEmpty()) {
+                        // no rows are selected
+                        getBfocus().setEnabled(false);
+                    } else {
+                        // selectedRow is selected
+                        int selectedRow = lsm.getMinSelectionIndex();
+                        FrostSearchResultMessageObject msg;
+                        msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(selectedRow);
+                        if( msg.isMessageArchived() ) {
+                            getBfocus().setEnabled(false);
+                        } else {
+                            getBfocus().setEnabled(true);
+                        }
+                    }
+                }
+            });
         }
         return searchResultTable;
     }
@@ -1335,6 +1359,16 @@ public class SearchMessagesDialog extends JFrame {
         getBsearch().setText("Search");
     }
     
+    private void focusMessagePressed() {
+        int selectedRow = getSearchResultTable().getSelectedRow();
+        if( selectedRow < 0 ) {
+            return;
+        }
+        FrostSearchResultMessageObject msg;
+        msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(selectedRow);
+
+    }
+    
     // stop searching or close window
     private void closePressed() {
         if( getRunningSearchThread() != null ) {
@@ -1422,6 +1456,12 @@ public class SearchMessagesDialog extends JFrame {
 
     private JRadioButton date_RBall = null;
 
+    private JPanel PbuttonsRight = null;
+
+    private JPanel PbuttonsLeft = null;
+
+    private JButton Bfocus = null;
+
     /**
      * This method initializes date_RBall	
      * 	
@@ -1490,5 +1530,51 @@ public class SearchMessagesDialog extends JFrame {
         if (lastMaximized) {
             setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
         }
+    }
+
+    /**
+     * This method initializes jPanel	
+     * 	
+     * @return javax.swing.JPanel	
+     */
+    private JPanel getJPanel() {
+        if( PbuttonsRight == null ) {
+            PbuttonsRight = new JPanel();
+            PbuttonsRight.add(getBsearch(), null);
+            PbuttonsRight.add(getBcancel(), null);
+        }
+        return PbuttonsRight;
+    }
+
+    /**
+     * This method initializes PbuttonsRight	
+     * 	
+     * @return javax.swing.JPanel	
+     */
+    private JPanel getPbuttonsRight() {
+        if( PbuttonsLeft == null ) {
+            PbuttonsLeft = new JPanel();
+            PbuttonsLeft.add(getBfocus(), null);
+        }
+        return PbuttonsLeft;
+    }
+
+    /**
+     * This method initializes Bfocus	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getBfocus() {
+        if( Bfocus == null ) {
+            Bfocus = new JButton();
+            Bfocus.setText("Focus message");
+            Bfocus.setMnemonic(java.awt.event.KeyEvent.VK_F);
+            Bfocus.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    focusMessagePressed();
+                }
+            });
+        }
+        return Bfocus;
     }
 }  //  @jve:decl-index=0:visual-constraint="10,10"
