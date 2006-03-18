@@ -19,5 +19,4 @@ public interface LanguageListener extends EventListener {
 	 * @param event
 	 */
 	public void languageChanged(LanguageEvent event);
-
 }

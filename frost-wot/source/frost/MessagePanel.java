@@ -1,22 +1,34 @@
+/*
+  MessagePanel.java / Frost
+  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost;
 
 import java.awt.*;
-import java.awt.datatransfer.*;
 import java.awt.event.*;
-import java.beans.*;
-import java.util.*;
-import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.table.*;
-import javax.swing.text.*;
 import javax.swing.tree.*;
 
 import frost.boards.*;
-import frost.fileTransfer.download.*;
-import frost.fileTransfer.search.*;
 import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
@@ -28,11 +40,10 @@ import frost.util.gui.translation.*;
 public class MessagePanel extends JPanel {
     
     private MessageTable messageTable = null;
-    private MessageTableModel messageTableModel;
+    private MessageTableModel messageTableModel = null;
+    private MessageTextPane messageTextPane = null;
     private JScrollPane messageListScrollPane = null;
 
-    private DownloadModel downloadModel = null;
-    
     MainFrame mainFrame;
     
     private class Listener
@@ -40,7 +51,6 @@ public class MessagePanel extends JPanel {
     implements
         ActionListener,
         ListSelectionListener,
-        PropertyChangeListener,
         TreeSelectionListener,
         TreeModelListener,
         LanguageListener,
@@ -59,7 +69,7 @@ public class MessagePanel extends JPanel {
             } else if (e.getSource() == replyButton) {
                 replyButton_actionPerformed(e);
             } else if (e.getSource() == saveMessageButton) {
-                saveMessageButton_actionPerformed(e);
+                getMessageTextPane().saveMessageButton_actionPerformed();
             } else if (e.getSource() == nextUnreadMessageButton) {
                 selectNextUnreadMessage();
             } else if (e.getSource() == setGoodButton) {
@@ -75,14 +85,8 @@ public class MessagePanel extends JPanel {
     
         private void maybeShowPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
-                if (e.getComponent() == messageTextArea) {
-                    showTofTextAreaPopupMenu(e);
-                } else if (e.getComponent() == messageTable) {
+                if (e.getComponent() == messageTable) {
                     showMessageTablePopupMenu(e);
-                } else if (e.getComponent() == boardsTable) {
-                    showAttachedBoardsPopupMenu(e);
-                } else if (e.getComponent() == filesTable) {
-                    showAttachedFilesPopupMenu(e);
                 }
                 //if leftbtn double click on message show this message
                 //in popup window
@@ -104,43 +108,6 @@ public class MessagePanel extends JPanel {
             maybeShowPopup(e);
         }
     
-        private void maybeDoSomething(KeyEvent e){
-            if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_DELETE) {
-                deleteSelectedMessage();
-            }
-        }
-    
-        /**
-         * Search through all messages, find next unread message by date (earliest message in table).
-         */
-        private void selectNextUnreadMessage() {
-            int nextMessage = -1;
-    
-            final MessageTableModel tableModel = getMessageTableModel();
-            FrostMessageObject earliestMessage = null;
-            for (int row = 0; row < tableModel.getRowCount(); row++) {
-                final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-                if (message.isMessageNew()) {
-                    if( earliestMessage == null ) {
-                        earliestMessage = message;
-                        nextMessage = row;
-                    } else {
-                        if( earliestMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
-                            earliestMessage = message;
-                            nextMessage = row;
-                        }
-                    }
-                }
-            }
-    
-            if (nextMessage == -1) {
-                // TODO: code to move to next board.
-            } else {
-                messageTable.addRowSelectionInterval(nextMessage, nextMessage);
-                messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
-            }
-        }
-    
         /**
          * Handles keystrokes for message table.
          * Currently implemented:
@@ -155,8 +122,7 @@ public class MessagePanel extends JPanel {
                 return;
             }
             if ( (e.getSource() == messageTable || 
-                  e.getSource() == mainFrame.getTofTree() ||
-                  e.getSource() == messageTextArea ) && 
+                  e.getSource() == mainFrame.getTofTree() ) && 
                 e.getKeyChar() == 'n') {
     
                 selectNextUnreadMessage();
@@ -181,7 +147,9 @@ public class MessagePanel extends JPanel {
         }
     
         public void keyPressed(KeyEvent e){
-            maybeDoSomething(e);
+            if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_DELETE) {
+                deleteSelectedMessage();
+            }
         }
     
         public void keyReleased(KeyEvent e){
@@ -190,18 +158,6 @@ public class MessagePanel extends JPanel {
     
         public void valueChanged(ListSelectionEvent e) {
             messageTable_itemSelected(e);
-        }
-    
-        public void propertyChange(PropertyChangeEvent evt) {
-            if (evt.getPropertyName().equals("messageBodyAA")) {
-                antialiasing_propertyChanged(evt);
-            } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_NAME)) {
-                fontChanged();
-            } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_SIZE)) {
-                fontChanged();
-            } else if (evt.getPropertyName().equals(SettingsClass.MESSAGE_BODY_FONT_STYLE)) {
-                fontChanged();
-            }
         }
     
         public void valueChanged(TreeSelectionEvent e) {
@@ -226,116 +182,6 @@ public class MessagePanel extends JPanel {
     
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
-        }
-    
-    }
-    
-    private class PopupMenuAttachmentBoard
-        extends JSkinnablePopupMenu
-        implements ActionListener, LanguageListener {
-    
-        private JMenuItem cancelItem = new JMenuItem();
-        private JMenuItem saveBoardsItem = new JMenuItem();
-        private JMenuItem saveBoardsToFolderItem = new JMenuItem();
-    
-        public PopupMenuAttachmentBoard() {
-            super();
-            initialize();
-        }
-    
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == saveBoardsItem) {
-                downloadBoards(null);
-            } else if (e.getSource() == saveBoardsToFolderItem) {
-                TargetFolderChooser tfc = new TargetFolderChooser(mainFrame.getTofTreeModel());
-                Board targetFolder = tfc.startDialog();
-                if( targetFolder != null ) {
-                    downloadBoards(targetFolder);
-                }
-            }
-        }
-    
-        private void initialize() {
-            refreshLanguage();
-    
-            saveBoardsItem.addActionListener(this);
-            saveBoardsToFolderItem.addActionListener(this);
-        }
-    
-        public void languageChanged(LanguageEvent event) {
-            refreshLanguage();
-        }
-    
-        private void refreshLanguage() {
-            saveBoardsItem.setText(language.getString("Add Board(s)"));
-            saveBoardsToFolderItem.setText(language.getString("Add Board(s) to folder")+" ...");
-            cancelItem.setText(language.getString("Cancel"));
-        }
-    
-        public void show(Component invoker, int x, int y) {
-            removeAll();
-    
-            add(saveBoardsItem);
-            add(saveBoardsToFolderItem);
-            addSeparator();
-            add(cancelItem);
-    
-            super.show(invoker, x, y);
-        }
-    }
-    
-    private class PopupMenuAttachmentTable
-        extends JSkinnablePopupMenu
-        implements ActionListener, LanguageListener {
-    
-        private JMenuItem cancelItem = new JMenuItem();
-        private JMenuItem saveAttachmentItem = new JMenuItem();
-        private JMenuItem saveAttachmentsItem = new JMenuItem();
-    
-        public PopupMenuAttachmentTable() throws HeadlessException {
-            super();
-            initialize();
-        }
-    
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
-                downloadAttachments();
-            }
-        }
-    
-        private void initialize() {
-            refreshLanguage();
-    
-            saveAttachmentsItem.addActionListener(this);
-            saveAttachmentItem.addActionListener(this);
-        }
-    
-        /* (non-Javadoc)
-         * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-         */
-        public void languageChanged(LanguageEvent event) {
-            refreshLanguage();
-        }
-    
-        private void refreshLanguage() {
-            saveAttachmentsItem.setText(language.getString("Download attachment(s)"));
-            saveAttachmentItem.setText(
-                    language.getString("Download selected attachment"));
-            cancelItem.setText(language.getString("Cancel"));
-        }
-    
-        public void show(Component invoker, int x, int y) {
-            removeAll();
-    
-            if (filesTable.getSelectedRow() == -1) {
-                add(saveAttachmentsItem);
-            } else {
-                add(saveAttachmentItem);
-            }
-            addSeparator();
-            add(cancelItem);
-    
-            super.show(invoker, x, y);
         }
     }
     
@@ -477,80 +323,6 @@ public class MessagePanel extends JPanel {
         }
     }
     
-    private class PopupMenuTofText
-        extends JSkinnablePopupMenu
-        implements ActionListener, LanguageListener, ClipboardOwner {
-    
-        private Clipboard clipboard;
-    
-        private JTextComponent sourceTextComponent;
-    
-        private JMenuItem copyItem = new JMenuItem();
-        private JMenuItem cancelItem = new JMenuItem();
-        private JMenuItem saveMessageItem = new JMenuItem();
-    
-        public PopupMenuTofText(JTextComponent sourceTextComponent) {
-            super();
-            this.sourceTextComponent = sourceTextComponent;
-            initialize();
-        }
-    
-        public void actionPerformed(ActionEvent e) {
-            if (e.getSource() == saveMessageItem) {
-                FileAccess.saveDialog(
-                        parentFrame,
-                        sourceTextComponent.getText(),
-                        settings.getValue("lastUsedDirectory"),
-                        language.getString("Save message to disk"));
-            } else if (e.getSource() == copyItem) {
-                // copy selected text
-                StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
-                clipboard.setContents(selection, this);
-            }
-        }
-    
-        private void initialize() {
-            refreshLanguage();
-    
-            Toolkit toolkit = Toolkit.getDefaultToolkit();
-            clipboard = toolkit.getSystemClipboard();
-    
-            copyItem.addActionListener(this);
-            saveMessageItem.addActionListener(this);
-    
-            add(copyItem);
-            addSeparator();
-            add(saveMessageItem);
-            addSeparator();
-            add(cancelItem);
-        }
-    
-        public void languageChanged(LanguageEvent event) {
-            refreshLanguage();
-        }
-    
-        private void refreshLanguage() {
-            copyItem.setText(language.getString("Copy"));
-            saveMessageItem.setText(language.getString("Save message to disk"));
-            cancelItem.setText(language.getString("Cancel"));
-        }
-    
-        public void show(Component invoker, int x, int y) {
-            if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
-                if (sourceTextComponent.getSelectedText() != null) {
-                    copyItem.setEnabled(true);
-                } else {
-                    copyItem.setEnabled(false);
-                }
-                super.show(invoker, x, y);
-            }
-        }
-    
-        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-            // Nothing here
-        }
-    }
-    
     private Logger logger = Logger.getLogger(MessagePanel.class.getName());
     
     private SettingsClass settings;
@@ -563,12 +335,8 @@ public class MessagePanel extends JPanel {
     private Listener listener = new Listener();
     
     private FrostMessageObject selectedMessage;
-    private String lastSelectedMessage;
     
-    private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
-    private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
     private PopupMenuMessageTable popupMenuMessageTable = null;
-    private PopupMenuTofText popupMenuTofText = null;
     
     private JButton setCheckButton =
         new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
@@ -599,122 +367,11 @@ public class MessagePanel extends JPanel {
     private final String newMessagesCountPrefix = "New: "; // TODO: translate
     private JLabel newMessagesCountLabel = new JLabel(newMessagesCountPrefix + "0");
 
-    
-    private AntialiasedTextArea messageTextArea = null;
-    private JSplitPane messageSplitPane = null;
-    private JSplitPane attachmentsSplitPane = null;
-    
-    private AttachedFilesTableModel attachedFilesModel;
-    private AttachedBoardTableModel attachedBoardsModel;
-    private JTable filesTable = null;
-    private JTable boardsTable = null;
-    private JScrollPane filesTableScrollPane;
-    private JScrollPane boardsTableScrollPane;
-    
     public MessagePanel(SettingsClass settings, MainFrame mf) {
         super();
         this.settings = settings;
         mainFrame = mf;
         language = Language.getInstance();
-    
-        settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, listener);
-        settings.addPropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, listener);
-        settings.addPropertyChangeListener(
-            SettingsClass.MESSAGE_BODY_FONT_STYLE,
-            listener);
-        settings.addPropertyChangeListener("messageBodyAA", listener);
-    }
-    
-    /**
-     * Adds either the selected or all files from the attachmentTable to downloads table.
-     */
-    public void downloadAttachments() {
-        int[] selectedRows = filesTable.getSelectedRows();
-    
-        // If no rows are selected, add all attachments to download table
-        if (selectedRows.length == 0) {
-            Iterator it = selectedMessage.getAttachmentsOfType(Attachment.FILE).iterator();
-            while (it.hasNext()) {
-                FileAttachment fa = (FileAttachment) it.next();
-                SharedFileObject sfo = fa.getFileObj();
-                FrostSearchItem fsio =
-                    new FrostSearchItem(
-                            mainFrame.getTofTreeModel().getSelectedNode(),
-                        sfo,
-                        FrostSearchItem.STATE_NONE);
-                //FIXME: <-does this matter?
-                FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-                downloadModel.addDownloadItem(dlItem);
-            }
-    
-        } else {
-            LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-            for (int i = 0; i < selectedRows.length; i++) {
-                FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
-                SharedFileObject sfo = fo.getFileObj();
-                FrostSearchItem fsio =
-                    new FrostSearchItem(
-                            mainFrame.getTofTreeModel().getSelectedNode(),
-                        sfo,
-                        FrostSearchItem.STATE_NONE);
-                FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-                downloadModel.addDownloadItem(dlItem);
-            }
-        }
-    }
-    
-    /**
-     * Adds all boards from the attachedBoardsTable to board list.
-     * If targetFolder is null the boards are added to the root folder.
-     */
-    private void downloadBoards(Board targetFolder) {
-        logger.info("adding boards");
-        int[] selectedRows = boardsTable.getSelectedRows();
-    
-        if (selectedRows.length == 0) {
-            // add all rows
-            boardsTable.selectAll();
-            selectedRows = boardsTable.getSelectedRows();
-            if (selectedRows.length == 0)
-                return;
-        }
-        LinkedList boards = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
-        for (int i = 0; i < selectedRows.length; i++) {
-            BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
-            Board fbo = ba.getBoardObj();
-            String name = fbo.getName();
-    
-            // search board in exising boards list
-            Board board = mainFrame.getTofTreeModel().getBoardByName(name);
-    
-            //ask if we already have the board
-            if (board != null) {
-                if (JOptionPane
-                    .showConfirmDialog(
-                        this,
-                        "You already have a board named "
-                            + name
-                            + ".\n"
-                            + "Are you sure you want to add this one over it?",
-                        "Board already exists",
-                        JOptionPane.YES_NO_OPTION)
-                    != 0) {
-                    continue; // next row of table / next attached board
-                } else {
-                    // change existing board keys to keys of new board
-                    board.setPublicKey(fbo.getPublicKey());
-                    board.setPrivateKey(fbo.getPrivateKey());
-                    mainFrame.updateTofTree(board);
-                }
-            } else {
-                // its a new board
-                if(targetFolder == null) {
-                    mainFrame.getTofTreeModel().addNodeToTree(fbo);
-                } else {
-                    mainFrame.getTofTreeModel().addNodeToTree(fbo, targetFolder);
-                }
-            }
-        }
     }
     
     private JToolBar getButtonsToolbar() {
@@ -813,36 +470,12 @@ public class MessagePanel extends JPanel {
         return buttonsToolbar;
     }
     
-    private PopupMenuAttachmentBoard getPopupMenuAttachmentBoard() {
-        if (popupMenuAttachmentBoard == null) {
-            popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
-            language.addLanguageListener(popupMenuAttachmentBoard);
-        }
-        return popupMenuAttachmentBoard;
-    }
-    
-    private PopupMenuAttachmentTable getPopupMenuAttachmentTable() {
-        if (popupMenuAttachmentTable == null) {
-            popupMenuAttachmentTable = new PopupMenuAttachmentTable();
-            language.addLanguageListener(popupMenuAttachmentTable);
-        }
-        return popupMenuAttachmentTable;
-    }
-    
     private PopupMenuMessageTable getPopupMenuMessageTable() {
         if (popupMenuMessageTable == null) {
             popupMenuMessageTable = new PopupMenuMessageTable();
             language.addLanguageListener(popupMenuMessageTable);
         }
         return popupMenuMessageTable;
-    }
-    
-    private PopupMenuTofText getPopupMenuTofText() {
-        if (popupMenuTofText == null) {
-            popupMenuTofText = new PopupMenuTofText(messageTextArea);
-            language.addLanguageListener(popupMenuTofText);
-        }
-        return popupMenuTofText;
     }
     
     public void initialize() {
@@ -858,106 +491,29 @@ public class MessagePanel extends JPanel {
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
             
+            messageTextPane = new MessageTextPane(mainFrame);
+            
             // load message table layout
             messageTable.loadLayout(settings);
     
-            // build message body scroll pane
-            messageTextArea = new AntialiasedTextArea();
-            messageTextArea.setEditable(false);
-            messageTextArea.setLineWrap(true);
-            messageTextArea.setWrapStyleWord(true);
-            messageTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
-            JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
-    
-            // build attached files scroll pane
-            attachedFilesModel = new AttachedFilesTableModel();
-            filesTable = new JTable(attachedFilesModel);
-            filesTableScrollPane = new JScrollPane(filesTable);
-    
-            // build attached boards scroll pane
-            attachedBoardsModel = new AttachedBoardTableModel();
-            boardsTable = new JTable(attachedBoardsModel) {
-                DescColumnRenderer descColRenderer = new DescColumnRenderer();
-                public TableCellRenderer getCellRenderer(int row, int column) {
-                    if( column == 2 ) {
-                        return descColRenderer;
-                    }
-                    return super.getCellRenderer(row, column);
-                }
-                // renderer that show a tooltip text, used for the description column
-                class DescColumnRenderer extends DefaultTableCellRenderer
-                {
-                    public Component getTableCellRendererComponent(
-                        JTable table,
-                        Object value,
-                        boolean isSelected,
-                        boolean hasFocus,
-                        int row,
-                        int column)
-                    {
-                        super.getTableCellRendererComponent(
-                            table,
-                            value,
-                            isSelected,
-                            hasFocus,
-                            row,
-                            column);
-    
-                        String sval = (String)value;
-                        if( sval != null &&
-                            sval.length() > 0 )
-                        {
-                            setToolTipText(sval);
-                        } else {
-                            setToolTipText(null);
-                        }
-                        return this;
-                    }
-                }
-            };
-            boardsTableScrollPane = new JScrollPane(boardsTable);
-    
             fontChanged();
-    
-            //Put everything together
-            attachmentsSplitPane =
-                new JSplitPane(
-                    JSplitPane.VERTICAL_SPLIT,
-                    filesTableScrollPane,
-                    boardsTableScrollPane);
-            attachmentsSplitPane.setResizeWeight(0.5);
-            attachmentsSplitPane.setDividerSize(3);
-            attachmentsSplitPane.setDividerLocation(0.5);
-    
-            messageSplitPane =
-                new JSplitPane(
-                    JSplitPane.VERTICAL_SPLIT,
-                    messageBodyScrollPane,
-                    attachmentsSplitPane);
-            messageSplitPane.setDividerSize(0);
-            messageSplitPane.setDividerLocation(1.0);
-            messageSplitPane.setResizeWeight(1.0);
-    
+
             JSplitPane mainSplitPane =
                 new JSplitPane(
                     JSplitPane.VERTICAL_SPLIT,
                     messageListScrollPane,
-                    messageSplitPane);
+                    messageTextPane);
             mainSplitPane.setDividerSize(10);
             mainSplitPane.setDividerLocation(160);
             mainSplitPane.setResizeWeight(0.5d);
             mainSplitPane.setMinimumSize(new Dimension(50, 20));
-    
+
             // build main panel
             setLayout(new BorderLayout());
             add(getButtonsToolbar(), BorderLayout.NORTH);
             add(mainSplitPane, BorderLayout.CENTER);
     
             //listeners
-            messageTextArea.addMouseListener(listener);
-            messageTextArea.addKeyListener(listener);
-            filesTable.addMouseListener(listener);
-            boardsTable.addMouseListener(listener);
             messageTable.addMouseListener(listener);
             messageTable.addKeyListener(listener);
     
@@ -965,33 +521,19 @@ public class MessagePanel extends JPanel {
             mainFrame.getTofTree().addTreeSelectionListener(listener);
             mainFrame.getTofTree().addKeyListener(listener);
             mainFrame.getTofTreeModel().addTreeModelListener(listener); // TODO!
-    
+
             // display welcome message if no boards are available
-            if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
-                messageTextArea.setText(language.getString("Welcome message"));
-            }
+            boardsTree_actionPerformed(null); // set initial states
+
             initialized = true;
         }
     }
     
     private void fontChanged() {
-        String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-        int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-        int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+        String fontName = settings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
+        int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
+        int fontSize = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
         Font font = new Font(fontName, fontStyle, fontSize);
-        if (!font.getFamily().equals(fontName)) {
-            logger.severe(
-                "The selected font was not found in your system\n"
-                    + "That selection will be changed to \"Monospaced\".");
-            settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
-            font = new Font("Monospaced", fontStyle, fontSize);
-        }
-        messageTextArea.setFont(font);
-    
-        fontName = settings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
-        fontStyle = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
-        fontSize = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_SIZE);
-        font = new Font(fontName, fontStyle, fontSize);
         if (!font.getFamily().equals(fontName)) {
             logger.severe(
                 "The selected font was not found in your system\n"
@@ -1028,7 +570,6 @@ public class MessagePanel extends JPanel {
     //      downloadAttachmentsButton.setEnabled(false);
     //      downloadBoardsButton.setEnabled(false);
     
-            lastSelectedMessage = selectedMessage.getSubject();
             if (selectedBoard.isReadAccessBoard() == false) {
                 replyButton.setEnabled(true);
             } else {
@@ -1066,24 +607,16 @@ public class MessagePanel extends JPanel {
                 setBadButton.setEnabled(false);
                 setObserveButton.setEnabled(false);
             }
-            messageTextArea.setText(selectedMessage.getContent());
+            getMessageTextPane().update_messageSelected(selectedMessage);
             if (selectedMessage.getContent().length() > 0) {
                 saveMessageButton.setEnabled(true);
             } else {
                 saveMessageButton.setEnabled(false);
             }
     
-            List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-            List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
-    
-            positionDividers(fileAttachments.size(), boardAttachments.size());
-    
-            attachedFilesModel.setData(fileAttachments);
-            attachedBoardsModel.setData(boardAttachments);
-    
         } else {
             // no msg selected
-            messageTextArea.setText(language.getString("Select a message to view its content."));
+            getMessageTextPane().update_boardSelected();
             replyButton.setEnabled(false);
             saveMessageButton.setEnabled(false);
             
@@ -1093,33 +626,6 @@ public class MessagePanel extends JPanel {
             setObserveButton.setEnabled(false);
     //      downloadAttachmentsButton.setEnabled(false);
     //      downloadBoardsButton.setEnabled(false);
-        }
-    }
-    
-    private void positionDividers(int attachedFiles, int attachedBoards) {
-        if (attachedFiles == 0 && attachedBoards == 0) {
-            // Neither files nor boards
-            messageSplitPane.setBottomComponent(null);
-            messageSplitPane.setDividerSize(0);
-            return;
-        }
-        messageSplitPane.setDividerSize(3);
-        messageSplitPane.setDividerLocation(0.75);
-        if (attachedFiles != 0 && attachedBoards == 0) {
-            //Only files
-            messageSplitPane.setBottomComponent(filesTableScrollPane);
-            return;
-        }
-        if (attachedFiles == 0 && attachedBoards != 0) {
-            //Only boards
-            messageSplitPane.setBottomComponent(boardsTableScrollPane);
-            return;
-        }
-        if (attachedFiles != 0 && attachedBoards != 0) {
-            //Both files and boards
-            messageSplitPane.setBottomComponent(attachmentsSplitPane);
-            attachmentsSplitPane.setTopComponent(filesTableScrollPane);
-            attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
         }
     }
     
@@ -1221,7 +727,7 @@ public class MessagePanel extends JPanel {
     
         FrostMessageObject origMessage = selectedMessage;
     
-        String subject = lastSelectedMessage;
+        String subject = origMessage.getSubject();
         if (subject.startsWith("Re:") == false) {
             subject = "Re: " + subject;
         }
@@ -1240,36 +746,16 @@ public class MessagePanel extends JPanel {
             }
             newMessageFrame.composeEncryptedReply(mainFrame.getTofTreeModel().getSelectedNode(), 
                     identities.getMyId().getUniqueName(),
-                    subject, messageTextArea.getText(), origMessage.getFromIdentity());
+                    subject, origMessage.getContent(), origMessage.getFromIdentity());
     
         } else {
             newMessageFrame.composeReply(mainFrame.getTofTreeModel().getSelectedNode(), settings.getValue("userName"),
-                                                subject, messageTextArea.getText());
+                                                subject, origMessage.getContent());
         }
-    }
-    
-    private void saveMessageButton_actionPerformed(ActionEvent e) {
-        FileAccess.saveDialog(
-            parentFrame,
-            messageTextArea.getText(),
-            settings.getValue("lastUsedDirectory"),
-            language.getString("Save message to disk"));
-    }
-    
-    private void showAttachedBoardsPopupMenu(MouseEvent e) {
-        getPopupMenuAttachmentBoard().show(e.getComponent(), e.getX(), e.getY());
-    }
-    
-    private void showAttachedFilesPopupMenu(MouseEvent e) {
-        getPopupMenuAttachmentTable().show(e.getComponent(), e.getX(), e.getY());
     }
     
     private void showMessageTablePopupMenu(MouseEvent e) {
         getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
-    }
-    
-    private void showTofTextAreaPopupMenu(MouseEvent e) {
-        getPopupMenuTofText().show(e.getComponent(), e.getX(), e.getY());
     }
     
     private void showCurrentMessagePopupWindow(){
@@ -1293,19 +779,16 @@ public class MessagePanel extends JPanel {
     
     private void boardsTree_actionPerformed(TreeSelectionEvent e) {
     
-        messageSplitPane.setBottomComponent(null);
-        messageSplitPane.setDividerSize(0);
-    
         if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
             //There are no boards. //TODO: check if there are really no boards (folders count as children)
-            messageTextArea.setText(language.getString("Welcome message"));
+            getMessageTextPane().update_noBoardsFound();
         } else {
             //There are boards.
             Board node = (Board) mainFrame.getTofTree().getLastSelectedPathComponent();
             if (node != null) {
                 if (!node.isFolder()) {
                     // node is a board
-                    messageTextArea.setText(language.getString("Select a message to view its content."));
+                    getMessageTextPane().update_boardSelected();
                     updateButton.setEnabled(true);
                     saveMessageButton.setEnabled(false);
                     replyButton.setEnabled(false);
@@ -1318,17 +801,13 @@ public class MessagePanel extends JPanel {
                     }
                 } else {
                     // node is a folder
-                    messageTextArea.setText(language.getString("Select a board to view its content."));
+                    getMessageTextPane().update_folderSelected();
                     newMessageButton.setEnabled(false);
                     saveMessageButton.setEnabled(false);
                     updateButton.setEnabled(false);
                 }
             }
         }
-    }
-    
-    private void antialiasing_propertyChanged(PropertyChangeEvent evt) {
-        messageTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
     }
     
     /**
@@ -1479,8 +958,35 @@ public class MessagePanel extends JPanel {
                                           "");
     }
 
-    public void setDownloadModel(DownloadModel table) {
-        downloadModel = table;
+    /**
+     * Search through all messages, find next unread message by date (earliest message in table).
+     */
+    public void selectNextUnreadMessage() {
+        int nextMessage = -1;
+
+        final MessageTableModel tableModel = getMessageTableModel();
+        FrostMessageObject earliestMessage = null;
+        for (int row = 0; row < tableModel.getRowCount(); row++) {
+            final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+            if (message.isMessageNew()) {
+                if( earliestMessage == null ) {
+                    earliestMessage = message;
+                    nextMessage = row;
+                } else {
+                    if( earliestMessage.getDateAndTime().compareTo(message.getDateAndTime()) > 0 ) {
+                        earliestMessage = message;
+                        nextMessage = row;
+                    }
+                }
+            }
+        }
+
+        if (nextMessage == -1) {
+            // TODO: code to move to next board.
+        } else {
+            messageTable.addRowSelectionInterval(nextMessage, nextMessage);
+            messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
+        }
     }
 
     public MessageTableModel getMessageTableModel() {
@@ -1488,5 +994,8 @@ public class MessagePanel extends JPanel {
     }
     public MessageTable getMessageTable() {
         return messageTable;
+    }
+    public MessageTextPane getMessageTextPane() {
+        return messageTextPane;
     }
 }
