@@ -53,7 +53,7 @@ public class FileTransferManager implements Savable {
 		Index.initialize(getDownloadManager().getModel());
 		
 		//Until the downloads and uploads are fully separated from frame1:
-		mainFrame.setDownloadModel(getDownloadManager().getModel());
+		mainFrame.getMessagePanel().setDownloadModel(getDownloadManager().getModel());
 		mainFrame.setUploadPanel(getUploadManager().getPanel());
 		
 		Thread requestsThread =
