@@ -756,8 +756,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             languageMenuItems.put("bg", languageBulgarianMenuItem);
             languageMenuItems.put("ru", languageRussianMenuItem);
 
-            String language = frostSettings.getValue("locale");
-            Object languageItem = languageMenuItems.get(language);
+            String setLanguage = frostSettings.getValue("locale");
+            Object languageItem = languageMenuItems.get(setLanguage);
             if (languageItem != null) {
                 languageMenuButtonGroup.setSelected(((JMenuItem) languageItem).getModel(), true);
             }
