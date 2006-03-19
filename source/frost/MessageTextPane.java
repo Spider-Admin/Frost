@@ -38,6 +38,7 @@ import frost.gui.objects.*;
 import frost.messages.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
+import frost.util.model.*;
 
 public class MessageTextPane extends JPanel {
 
@@ -56,7 +57,7 @@ public class MessageTextPane extends JPanel {
     private JScrollPane boardsTableScrollPane;
 
     private PopupMenuAttachmentBoard popupMenuAttachmentBoard = null;
-    private PopupMenuAttachmentTable popupMenuAttachmentTable = null;
+    private PopupMenuAttachmentFile popupMenuAttachmentTable = null;
     private PopupMenuTofText popupMenuTofText = null;
 
     private FrostMessageObject selectedMessage;
@@ -377,42 +378,6 @@ public class MessageTextPane extends JPanel {
         }
     }
 
-    /**
-     * Adds either the selected or all files from the attachmentTable to downloads table.
-     */
-    private void downloadAttachments() {
-        int[] selectedRows = filesTable.getSelectedRows();
-    
-        // If no rows are selected, add all attachments to download table
-        if (selectedRows.length == 0) {
-            Iterator it = selectedMessage.getAttachmentsOfType(Attachment.FILE).iterator();
-            while (it.hasNext()) {
-                FileAttachment fa = (FileAttachment) it.next();
-                SharedFileObject sfo = fa.getFileObj();
-                FrostSearchItem fsio = new FrostSearchItem(
-                        mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard()),
-                        sfo,
-                        FrostSearchItem.STATE_NONE);
-                //FIXME: <-does this matter?
-                FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-                downloadModel.addDownloadItem(dlItem);
-            }
-    
-        } else {
-            LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
-            for (int i = 0; i < selectedRows.length; i++) {
-                FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
-                SharedFileObject sfo = fo.getFileObj();
-                FrostSearchItem fsio = new FrostSearchItem(
-                        mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard()),
-                        sfo,
-                        FrostSearchItem.STATE_NONE);
-                FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
-                downloadModel.addDownloadItem(dlItem);
-            }
-        }
-    }
-
     private void showAttachedBoardsPopupMenu(MouseEvent e) {
         if (popupMenuAttachmentBoard == null) {
             popupMenuAttachmentBoard = new PopupMenuAttachmentBoard();
@@ -423,7 +388,7 @@ public class MessageTextPane extends JPanel {
     
     private void showAttachedFilesPopupMenu(MouseEvent e) {
         if (popupMenuAttachmentTable == null) {
-            popupMenuAttachmentTable = new PopupMenuAttachmentTable();
+            popupMenuAttachmentTable = new PopupMenuAttachmentFile();
             language.addLanguageListener(popupMenuAttachmentTable);
         }
         popupMenuAttachmentTable.show(e.getComponent(), e.getX(), e.getY());
@@ -487,15 +452,26 @@ public class MessageTextPane extends JPanel {
         }
     }
     
-    private class PopupMenuAttachmentTable
+    private class PopupMenuAttachmentFile
         extends JSkinnablePopupMenu
-        implements ActionListener, LanguageListener {
+        implements ActionListener, LanguageListener, ClipboardOwner {
     
         private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveAttachmentItem = new JMenuItem();
         private JMenuItem saveAttachmentsItem = new JMenuItem();
-    
-        public PopupMenuAttachmentTable() throws HeadlessException {
+        
+        private JMenu copyToClipboardMenu = new JMenu();
+        private JMenuItem copyKeysAndNamesItem = new JMenuItem();
+        private JMenuItem copyKeysItem = new JMenuItem();
+        private JMenuItem copyExtendedInfoItem = new JMenuItem();
+
+        private Clipboard clipboard;
+
+        private String fileMessage;
+        private String keyMessage;
+        private String bytesMessage;
+
+        public PopupMenuAttachmentFile() throws HeadlessException {
             super();
             initialize();
         }
@@ -504,10 +480,27 @@ public class MessageTextPane extends JPanel {
             if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
                 downloadAttachments();
             }
+            if (e.getSource() == copyKeysItem) {
+                copyKeys();
+            }
+            if (e.getSource() == copyKeysAndNamesItem) {
+                copyKeysAndNames();
+            }
+            if (e.getSource() == copyExtendedInfoItem) {
+                copyExtendedInfo();
+            }
         }
     
         private void initialize() {
             languageChanged(null);
+            
+            copyToClipboardMenu.add(copyKeysAndNamesItem);
+            copyToClipboardMenu.add(copyKeysItem);
+            copyToClipboardMenu.add(copyExtendedInfoItem);
+
+            copyKeysAndNamesItem.addActionListener(this);
+            copyKeysItem.addActionListener(this);
+            copyExtendedInfoItem.addActionListener(this);
     
             saveAttachmentsItem.addActionListener(this);
             saveAttachmentItem.addActionListener(this);
@@ -517,14 +510,26 @@ public class MessageTextPane extends JPanel {
          * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
          */
         public void languageChanged(LanguageEvent event) {
+            copyKeysItem.setText(language.getString("Copy keys only"));
+            copyKeysAndNamesItem.setText(language.getString("Copy keys with filenames"));
+            copyExtendedInfoItem.setText(language.getString("Copy extended info"));
+            copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
+
             saveAttachmentsItem.setText(language.getString("Download attachment(s)"));
             saveAttachmentItem.setText(language.getString("Download selected attachment"));
             cancelItem.setText(language.getString("Cancel"));
+            
+            fileMessage = language.getString("clipboard.File:");
+            keyMessage = language.getString("clipboard.Key:");
+            bytesMessage = language.getString("clipboard.Bytes:");
         }
     
         public void show(Component invoker, int x, int y) {
             removeAll();
     
+            add(copyToClipboardMenu);
+            addSeparator();
+
             if (filesTable.getSelectedRow() == -1) {
                 add(saveAttachmentsItem);
             } else {
@@ -534,6 +539,149 @@ public class MessageTextPane extends JPanel {
             add(cancelItem);
     
             super.show(invoker, x, y);
+        }
+
+        /**
+         * Adds either the selected or all files from the attachmentTable to downloads table.
+         */
+        private void downloadAttachments() {
+            int[] selectedRows = filesTable.getSelectedRows();
+        
+            // If no rows are selected, add all attachments to download table
+            if (selectedRows.length == 0) {
+                Iterator it = selectedMessage.getAttachmentsOfType(Attachment.FILE).iterator();
+                while (it.hasNext()) {
+                    FileAttachment fa = (FileAttachment) it.next();
+                    SharedFileObject sfo = fa.getFileObj();
+                    FrostSearchItem fsio = new FrostSearchItem(
+                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard()),
+                            sfo,
+                            FrostSearchItem.STATE_NONE);
+                    //FIXME: <-does this matter?
+                    FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
+                    downloadModel.addDownloadItem(dlItem);
+                }
+        
+            } else {
+                LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+                for (int i = 0; i < selectedRows.length; i++) {
+                    FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
+                    SharedFileObject sfo = fo.getFileObj();
+                    FrostSearchItem fsio = new FrostSearchItem(
+                            mainFrame.getTofTreeModel().getBoardByName(selectedMessage.getBoard()),
+                            sfo,
+                            FrostSearchItem.STATE_NONE);
+                    FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
+                    downloadModel.addDownloadItem(dlItem);
+                }
+            }
+        }
+        
+        /**
+         * Returns a list of all items to process, either selected ones or all.
+         */
+        private List getItems() {
+            List items = null;
+            int[] selectedRows = filesTable.getSelectedRows();
+            if (selectedRows.length == 0) {
+                // If no rows are selected, add all attachments to download table
+                items = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+            } else {
+                LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
+                items = new ArrayList();
+                for (int i = 0; i < selectedRows.length; i++) {
+                    FileAttachment fo = (FileAttachment) attachments.get(selectedRows[i]);
+                    items.add(fo);
+                }
+            }
+            return items;
+        }
+
+        /**
+         * This method copies the CHK keys and file names of the selected or all items to the clipboard.
+         */
+        private void copyKeysAndNames() {
+
+            List items = getItems();
+            if( items.size() == 0 ) {
+                return;
+            }
+            
+            StringBuffer textToCopy = new StringBuffer();
+            for(Iterator i = items.iterator(); i.hasNext(); ) {
+                FileAttachment fa = (FileAttachment) i.next();
+                SharedFileObject sfo = fa.getFileObj();
+                String key = sfo.getKey();
+                textToCopy.append(key);
+                textToCopy.append("/");
+                textToCopy.append(sfo.getFilename());
+                textToCopy.append("\n");
+            }               
+            StringSelection selection = new StringSelection(textToCopy.toString());
+            getClipboard().setContents(selection, this);    
+        }
+        
+        /**
+         * This method copies extended information about the selected items (if any) to
+         * the clipboard. That information is composed of the filename, the key and
+         * the size in bytes.
+         */
+        private void copyExtendedInfo() {
+            List items = getItems();
+            if( items.size() == 0 ) {
+                return;
+            }
+            
+            StringBuffer textToCopy = new StringBuffer();
+            for(Iterator i = items.iterator(); i.hasNext(); ) {
+                FileAttachment fa = (FileAttachment) i.next();
+                SharedFileObject sfo = fa.getFileObj();
+
+                String key = sfo.getKey();
+                textToCopy.append(fileMessage);
+                textToCopy.append(sfo.getFilename() + "\n");
+                textToCopy.append(keyMessage);
+                textToCopy.append(key + "\n");
+                textToCopy.append(bytesMessage);
+                textToCopy.append(sfo.getSize() + "\n\n");
+            }               
+            //We remove the additional \n at the end
+            String result = textToCopy.substring(0, textToCopy.length() - 1);
+            
+            StringSelection selection = new StringSelection(result);
+            getClipboard().setContents(selection, this);    
+        }
+
+        /**
+         * This method copies the CHK keys of the selected items (if any) to the clipboard.
+         */
+        private void copyKeys() {
+            List items = getItems();
+            if( items.size() == 0 ) {
+                return;
+            }
+
+            StringBuffer textToCopy = new StringBuffer();
+            for(Iterator i = items.iterator(); i.hasNext(); ) {
+                FileAttachment fa = (FileAttachment) i.next();
+                SharedFileObject sfo = fa.getFileObj();
+                String key = sfo.getKey();
+                textToCopy.append(key);
+                textToCopy.append("\n");
+            }               
+            StringSelection selection = new StringSelection(textToCopy.toString());
+            getClipboard().setContents(selection, this);    
+        }
+
+        private Clipboard getClipboard() {
+            if (clipboard == null) {
+                clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
+            }
+            return clipboard;
+        }
+        
+        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
+            // Nothing here         
         }
     }
 
@@ -611,7 +759,17 @@ public class MessageTextPane extends JPanel {
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, propertyChangeListener);
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
-        Core.frostSettings.removePropertyChangeListener("messageBodyAA", propertyChangeListener);       
+        Core.frostSettings.removePropertyChangeListener("messageBodyAA", propertyChangeListener);
+        
+        if (popupMenuAttachmentBoard != null) {
+            language.removeLanguageListener(popupMenuAttachmentBoard);
+        }
+        if (popupMenuAttachmentTable != null) {
+            language.removeLanguageListener(popupMenuAttachmentTable);
+        }
+        if (popupMenuTofText != null) {
+            language.removeLanguageListener(popupMenuTofText);
+        }
     }
     
     public void addKeyListener(KeyListener l) {
