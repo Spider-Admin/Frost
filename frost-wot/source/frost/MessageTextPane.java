@@ -69,6 +69,7 @@ public class MessageTextPane extends JPanel {
     private PropertyChangeListener propertyChangeListener;
     
     public MessageTextPane(Component parentFrame) {
+        super();
         this.parentFrame = parentFrame;
         initialize();
     }

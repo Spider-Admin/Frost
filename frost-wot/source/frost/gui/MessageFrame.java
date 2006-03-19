@@ -586,11 +586,12 @@ public class MessageFrame extends JFrame {
 	 * @param parentWindow
 	 * @param newMyId
 	 */
-	public MessageFrame(SettingsClass newSettings, Window tparentWindow, LocalIdentity newMyId) {
+	public MessageFrame(SettingsClass newSettings, Window tparentWindow, LocalIdentity newMyId, TofTree tofTree) {
 		super();
         parentWindow = tparentWindow;
 		this.language = Language.getInstance();
 		myId = newMyId;
+        this.tofTree = tofTree;
 		state = false;
 		frostSettings = newSettings;
 		lastUsedDirectory = frostSettings.getValue("lastUsedDirectory");
@@ -1383,12 +1384,5 @@ public class MessageFrame extends JFrame {
 		} catch (BadLocationException exception) {
 			logger.log(Level.SEVERE, "Error while updating the message header", exception);
 		}
-	}
-	
-	/**
-	 * @param tofTree
-	 */
-	public void setTofTree(TofTree tofTree) {
-		this.tofTree = tofTree;
 	}
 }
