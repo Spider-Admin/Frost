@@ -724,33 +724,40 @@ public class MessagePanel extends JPanel {
     }
     
     private void replyButton_actionPerformed(ActionEvent e) {
-    
         FrostMessageObject origMessage = selectedMessage;
+        composeReply(origMessage, parentFrame);
+    }
     
+    public void composeReply(FrostMessageObject origMessage, Window parent) {
         String subject = origMessage.getSubject();
         if (subject.startsWith("Re:") == false) {
             subject = "Re: " + subject;
         }
-        MessageFrame newMessageFrame = new MessageFrame(settings, parentFrame, identities.getMyId());
-        newMessageFrame.setTofTree(mainFrame.getTofTree());
+        MessageFrame newMessageFrame = new MessageFrame(settings, parent, identities.getMyId(), mainFrame.getTofTree());
         if( origMessage.getRecipient() != null && 
             origMessage.getRecipient().equals( identities.getMyId().getUniqueName() ) ) 
         {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
-                JOptionPane.showMessageDialog( this,
+                JOptionPane.showMessageDialog( parent,
                         "Can't reply encrypted, recipients public key is missing!", // TODO: translate
                         "ERROR",
                         JOptionPane.ERROR);
                 return;                               
             }
-            newMessageFrame.composeEncryptedReply(mainFrame.getTofTreeModel().getSelectedNode(), 
+            newMessageFrame.composeEncryptedReply(
+                    mainFrame.getTofTreeModel().getSelectedNode(), 
                     identities.getMyId().getUniqueName(),
-                    subject, origMessage.getContent(), origMessage.getFromIdentity());
+                    subject, 
+                    origMessage.getContent(), 
+                    origMessage.getFromIdentity());
     
         } else {
-            newMessageFrame.composeReply(mainFrame.getTofTreeModel().getSelectedNode(), settings.getValue("userName"),
-                                                subject, origMessage.getContent());
+            newMessageFrame.composeReply(
+                    mainFrame.getTofTreeModel().getSelectedNode(), 
+                    settings.getValue("userName"),
+                    subject, 
+                    origMessage.getContent());
         }
     }
     
@@ -946,8 +953,8 @@ public class MessagePanel extends JPanel {
     private void tofNewMessageButton_actionPerformed(ActionEvent e) {
         MessageFrame newMessageFrame = new MessageFrame(
                                                 settings, mainFrame,
-                                                Core.getInstance().getIdentities().getMyId());
-        newMessageFrame.setTofTree(mainFrame.getTofTree());
+                                                Core.getInstance().getIdentities().getMyId(),
+                                                mainFrame.getTofTree());
         newMessageFrame.composeNewMessage(mainFrame.getTofTreeModel().getSelectedNode(), 
                                           settings.getValue("userName"),
                                           "No subject", 
