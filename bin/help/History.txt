@@ -2,12 +2,22 @@
 *** Frost history file ***
  ************************
 
-
 PENDING CHANGES:
 
 Added: Column position and column width of message table is now saved on shutdown.
-Added: Added a graphical memory monitor, see in 'Help' menu.
+Added: Added a graphical memory monitor ('Help' menu).
+Added: Alternate editor support now works again. You can write a message with any
+       program you want. Please take care that the external program must save the
+       file in UTF-8 format to preserve your character encoding.
+Added: Russian translation, thanks to VolodyA.
+Added: Search dialog to search for messages in keypool and archive ('News' menu).
+Added: 'Copy keys' in menu of file attachments table. Table now shows also the key.
 
+Changed: Nicer board attachment chooser, uses checkboxes now.
+Changed: All XML files are now saved in UTF-8 encoding, saves space.
+Changed: Message window enhanced, shows attachments and more informations, allows reply.
+
+Bugfix: Fixes in checkbox handling of MessageFrame.
 
 ******************************************************************************************
 
