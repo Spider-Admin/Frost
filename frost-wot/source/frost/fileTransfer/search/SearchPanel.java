@@ -19,7 +19,6 @@ import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 import frost.gui.objects.*;
 import frost.identities.*;
-import frost.threads.maintenance.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.*;
@@ -73,32 +72,13 @@ class SearchPanel extends JPanel implements SettingsUpdater {
             copyKeysAndNamesItem.addActionListener(this);
             copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
-	
-			/*		copyAttachmentItem.addActionListener(new ActionListener() {
-						 public void actionPerformed(ActionEvent e) {
-							 String srcData =
-								 getSearchTable()
-									 .getSelectedSearchItemsAsAttachmentsString();
-							 Clipboard clipboard = getToolkit().getSystemClipboard();
-							 StringSelection contents = new StringSelection(srcData);
-							 clipboard.setContents(contents, frame1.this);
-						 }
-					 });
-			*/
 		}
 	
-		/**
-		 * 
-		 */
 		private void refreshLanguage() {
-			downloadSelectedKeysItem.setText(
-					language.getString("Download selected keys"));
-			downloadAllKeysItem.setText(
-					language.getString("Download all keys"));
-			setGoodItem.setText(
-					language.getString("help user (sets to GOOD)"));
-			setBadItem.setText(
-					language.getString("block user (sets to BAD)"));
+			downloadSelectedKeysItem.setText(language.getString("Download selected keys"));
+			downloadAllKeysItem.setText(language.getString("Download all keys"));
+			setGoodItem.setText(language.getString("help user (sets to GOOD)"));
+			setBadItem.setText(language.getString("block user (sets to BAD)"));
 			cancelItem.setText(language.getString("Cancel"));
             
             keyNotAvailableMessage = language.getString("Key not available yet");
@@ -290,8 +270,8 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	
 			super.show(invoker, x, y);
 		}
-	
 	}
+    
 	/**
 	 * @param e
 	 */
