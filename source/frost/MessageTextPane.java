@@ -293,7 +293,7 @@ public class MessageTextPane extends JPanel {
         messageSplitPane.setDividerLocation(0.75);
         
         if (attachedFiles != 0 && attachedBoards == 0) {
-            //Only files
+            // Only files
             attachmentsSplitPane.setTopComponent(null);
             attachmentsSplitPane.setBottomComponent(null);
 
@@ -301,7 +301,7 @@ public class MessageTextPane extends JPanel {
             return;
         }
         if (attachedFiles == 0 && attachedBoards != 0) {
-            //Only boards
+            // Only boards
             attachmentsSplitPane.setTopComponent(null);
             attachmentsSplitPane.setBottomComponent(null);
 
@@ -309,7 +309,7 @@ public class MessageTextPane extends JPanel {
             return;
         }
         if (attachedFiles != 0 && attachedBoards != 0) {
-            //Both files and boards
+            // Both files and boards
             attachmentsSplitPane.setTopComponent(filesTableScrollPane);
             attachmentsSplitPane.setBottomComponent(boardsTableScrollPane);
 

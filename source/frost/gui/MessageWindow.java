@@ -20,13 +20,11 @@ package frost.gui;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.logging.*;
 
 import javax.swing.*;
 
 import frost.*;
 import frost.gui.objects.*;
-import frost.util.gui.*;
 
 public class MessageWindow extends JFrame {
 	
@@ -87,7 +85,8 @@ public class MessageWindow extends JFrame {
         this.setSize(size);
 		initialize();
         
-		setVisible(true); // set visible to allow correct positioning of dividers
+		// set visible BEFORE updating the textpane to allow correct positioning of dividers
+		setVisible(true);
         
         messageTextPane.update_messageSelected(message);
 	}

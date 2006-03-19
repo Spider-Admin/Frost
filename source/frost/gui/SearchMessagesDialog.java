@@ -25,7 +25,6 @@ import java.util.*;
 import java.util.List;
 
 import javax.swing.*;
-import javax.swing.event.*;
 import javax.swing.text.*;
 
 import mseries.Calendar.*;
@@ -1059,27 +1058,11 @@ public class SearchMessagesDialog extends JFrame {
             searchResultTable = new SearchMessagesResultTable(getSearchMessagesTableModel());
             searchResultTable.setAutoCreateColumnsFromModel(true);
             searchResultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            // Ask to be notified of selection changes
-            ListSelectionModel rowSM = searchResultTable.getSelectionModel();
-            rowSM.addListSelectionListener(new ListSelectionListener() {
-                public void valueChanged(ListSelectionEvent e) {
-                    //Ignore extra messages.
-                    if (e.getValueIsAdjusting()) return;
-
-                    ListSelectionModel lsm = (ListSelectionModel)e.getSource();
-                    if (lsm.isSelectionEmpty()) {
-                        // no rows are selected
-                        getBfocus().setEnabled(false);
-                    } else {
-                        // selectedRow is selected
-                        int selectedRow = lsm.getMinSelectionIndex();
-                        FrostSearchResultMessageObject msg;
-                        msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(selectedRow);
-                        if( msg.isMessageArchived() ) {
-                            getBfocus().setEnabled(false);
-                        } else {
-                            getBfocus().setEnabled(true);
-                        }
+            
+            searchResultTable.addMouseListener(new MouseAdapter() {
+                public void mousePressed(MouseEvent e) {
+                    if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
+                        openSelectedMessage();
                     }
                 }
             });
@@ -1359,16 +1342,6 @@ public class SearchMessagesDialog extends JFrame {
         getBsearch().setText("Search");
     }
     
-    private void focusMessagePressed() {
-        int selectedRow = getSearchResultTable().getSelectedRow();
-        if( selectedRow < 0 ) {
-            return;
-        }
-        FrostSearchResultMessageObject msg;
-        msg = (FrostSearchResultMessageObject)getSearchMessagesTableModel().getRow(selectedRow);
-
-    }
-    
     // stop searching or close window
     private void closePressed() {
         if( getRunningSearchThread() != null ) {
@@ -1405,6 +1378,8 @@ public class SearchMessagesDialog extends JFrame {
         // set button states
         getBcancel().setEnabled(false);
         getBsearch().setText("Stop search");
+        
+        getBopenMsg().setEnabled(false);
 
         setRunningSearchThread(new SearchMessagesThread(this, scfg));
         getRunningSearchThread().setPriority(Thread.MIN_PRIORITY); // low prio
@@ -1426,8 +1401,24 @@ public class SearchMessagesDialog extends JFrame {
                 getSearchMessagesTableModel().addRow(msg);
                 resultCount++;
                 updateResultCountLabel(resultCount);
+                if( !getBopenMsg().isEnabled() ) {
+                    getBopenMsg().setEnabled(true);
+                }
             }
         });
+    }
+    
+    private void openSelectedMessage() {
+        int row = getSearchResultTable().getSelectedRow();
+        if (row < 0) {
+            return;
+        }
+        FrostMessageObject msg = (FrostMessageObject)getSearchMessagesTableModel().getRow(row);
+        if( msg == null ) {
+            return;
+        }
+        MessageWindow messageWindow = new MessageWindow( this, msg, this.getSize() );
+        messageWindow.setVisible(true);
     }
     
     /** 
@@ -1460,7 +1451,7 @@ public class SearchMessagesDialog extends JFrame {
 
     private JPanel PbuttonsLeft = null;
 
-    private JButton Bfocus = null;
+    private JButton BopenMsg = null;
 
     /**
      * This method initializes date_RBall	
@@ -1554,7 +1545,7 @@ public class SearchMessagesDialog extends JFrame {
     private JPanel getPbuttonsRight() {
         if( PbuttonsLeft == null ) {
             PbuttonsLeft = new JPanel();
-            PbuttonsLeft.add(getBfocus(), null);
+            PbuttonsLeft.add(getBopenMsg(), null);
         }
         return PbuttonsLeft;
     }
@@ -1564,17 +1555,18 @@ public class SearchMessagesDialog extends JFrame {
      * 	
      * @return javax.swing.JButton	
      */
-    private JButton getBfocus() {
-        if( Bfocus == null ) {
-            Bfocus = new JButton();
-            Bfocus.setText("Focus message");
-            Bfocus.setMnemonic(java.awt.event.KeyEvent.VK_F);
-            Bfocus.addActionListener(new java.awt.event.ActionListener() {
+    private JButton getBopenMsg() {
+        if( BopenMsg == null ) {
+            BopenMsg = new JButton();
+            BopenMsg.setText("Open message");
+            BopenMsg.setMnemonic(java.awt.event.KeyEvent.VK_O);
+            BopenMsg.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
-                    focusMessagePressed();
+                    openSelectedMessage();
                 }
             });
+            BopenMsg.setEnabled(false);
         }
-        return Bfocus;
+        return BopenMsg;
     }
 }  //  @jve:decl-index=0:visual-constraint="10,10"
