@@ -103,8 +103,11 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         super();
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         initialize();
+        languageChanged(null);
         loadWindowState();
         initializeWithDefaults();
+        
+        language.addLanguageListener(this);
     }
 
     /**
@@ -1329,6 +1332,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             return;
         }
         saveWindowState();
+        language.removeLanguageListener(this);
         setVisible(false);
     }
 

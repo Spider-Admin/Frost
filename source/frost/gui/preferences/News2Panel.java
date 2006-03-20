@@ -325,13 +325,13 @@ class News2Panel extends JPanel {
 		intervalLabel.setText(language.getString("Sample interval") + " (" + hours + ")");
 		tresholdLabel.setText(language.getString("Threshold of blocked messages"));
         
-        hideMessagesLabel.setText(language.getString("Hide messages with following trust states"+":"));
+        hideMessagesLabel.setText(language.getString("Hide messages with following trust states")+":");
         hideUnsignedMessagesCheckBox.setText(language.getString("None (unsigned)"));
         hideBadMessagesCheckBox.setText(language.getString("Bad"));
         hideCheckMessagesCheckBox.setText(language.getString("Check"));
         hideObserveMessagesCheckBox.setText(language.getString("Observe"));
 
-        blockBoardsLabel.setText(language.getString("Block boards from messages with following trust states"+":"));
+        blockBoardsLabel.setText(language.getString("Block boards from messages with following trust states")+":");
         blockBoardsFromUnsignedCheckBox.setText(language.getString("None (unsigned)"));
         blockBoardsFromBadCheckBox.setText(language.getString("Bad"));
         blockBoardsFromCheckCheckBox.setText(language.getString("Check"));

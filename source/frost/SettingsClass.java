@@ -71,10 +71,10 @@ public class SettingsClass implements Savable {
     public static final String HIDE_MESSAGES_BAD = "hideBadMessages";
     public static final String HIDE_MESSAGES_UNSIGNED = "signedOnly";
 
-    public static final String BLOCK_BOARDS_FROM_OBSERVE = "";
-    public static final String BLOCK_BOARDS_FROM_CHECK = "";
-    public static final String BLOCK_BOARDS_FROM_BAD = "";
-    public static final String BLOCK_BOARDS_FROM_UNSIGNED = "";
+    public static final String BLOCK_BOARDS_FROM_OBSERVE = "blockBoardsFromObserve";
+    public static final String BLOCK_BOARDS_FROM_CHECK = "blockBoardsFromCheck";
+    public static final String BLOCK_BOARDS_FROM_BAD = "blockBoardsFromBad";
+    public static final String BLOCK_BOARDS_FROM_UNSIGNED = "blockBoardsFromUnsigned";
 
 	//Constructors
 	public SettingsClass() {
