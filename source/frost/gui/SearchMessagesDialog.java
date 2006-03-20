@@ -35,9 +35,13 @@ import frost.gui.objects.*;
 import frost.threads.*;
 import frost.util.gui.translation.*;
 
-public class SearchMessagesDialog extends JFrame {
+public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
-    static Language language = Language.getInstance();
+    private Language language = Language.getInstance();
+    
+    private String resultCountPrefix = null;
+    private String startSearchStr = null;
+    private String stopSearchStr = null;
     
     private JPanel jContentPane = null;
     private JPanel contentPanel = null;
@@ -89,7 +93,7 @@ public class SearchMessagesDialog extends JFrame {
     private ButtonGroup date_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="765,261"
     private ButtonGroup truststate_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="752,302"
     private ButtonGroup archive_buttonGroup = null;  //  @jve:decl-index=0:visual-constraint="760,342"
-    private JLabel jLabel = null;
+    private JLabel Lsubject = null;
     private JTextField search_TFsubject = null;
 
     /**
@@ -185,8 +189,6 @@ public class SearchMessagesDialog extends JFrame {
     private JButton getBsearch() {
         if( Bsearch == null ) {
             Bsearch = new JButton();
-            Bsearch.setText("Search");
-            Bsearch.setMnemonic(java.awt.event.KeyEvent.VK_S);
             Bsearch.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     startOrStopSearching();
@@ -204,8 +206,6 @@ public class SearchMessagesDialog extends JFrame {
     private JButton getBcancel() {
         if( Bcancel == null ) {
             Bcancel = new JButton();
-            Bcancel.setText("Close");
-            Bcancel.setMnemonic(java.awt.event.KeyEvent.VK_C);
             Bcancel.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     closePressed();
@@ -251,8 +251,7 @@ public class SearchMessagesDialog extends JFrame {
             gridBagConstraints110.insets = new java.awt.Insets(1,5,1,0);
             gridBagConstraints110.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints110.gridy = 1;
-            jLabel = new JLabel();
-            jLabel.setText("Subject");
+            Lsubject = new JLabel();
             GridBagConstraints gridBagConstraints101 = new GridBagConstraints();
             gridBagConstraints101.gridx = 1;
             gridBagConstraints101.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -283,14 +282,12 @@ public class SearchMessagesDialog extends JFrame {
             gridBagConstraints1.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints1.gridy = 2;
             Lcontent = new JLabel();
-            Lcontent.setText("Content");
             GridBagConstraints gridBagConstraints = new GridBagConstraints();
             gridBagConstraints.gridx = 0;
             gridBagConstraints.insets = new java.awt.Insets(1,5,1,0);
             gridBagConstraints.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints.gridy = 0;
             Lsender = new JLabel();
-            Lsender.setText("Sender");
             Psearch = new JPanel();
             Psearch.setLayout(new GridBagLayout());
             Psearch.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEmptyBorder(3,3,3,3), javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED)));
@@ -299,7 +296,7 @@ public class SearchMessagesDialog extends JFrame {
             Psearch.add(getSearch_TFsender(), gridBagConstraints11);
             Psearch.add(getSearch_TFcontent(), gridBagConstraints2);
             Psearch.add(getSearch_CBprivateMsgsOnly(), gridBagConstraints101);
-            Psearch.add(jLabel, gridBagConstraints110);
+            Psearch.add(Lsubject, gridBagConstraints110);
             Psearch.add(getSearch_TFsubject(), gridBagConstraints29);
         }
         return Psearch;
@@ -335,7 +332,6 @@ public class SearchMessagesDialog extends JFrame {
             gridBagConstraints3.anchor = java.awt.GridBagConstraints.WEST;
             gridBagConstraints3.gridy = 0;
             LsearchResult = new JLabel();
-            LsearchResult.setText("Search result");
             PsearchResult = new JPanel();
             PsearchResult.setLayout(new GridBagLayout());
             PsearchResult.setBorder(javax.swing.BorderFactory.createCompoundBorder(javax.swing.BorderFactory.createEmptyBorder(3,3,3,3), javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED)));
@@ -409,7 +405,6 @@ public class SearchMessagesDialog extends JFrame {
             gridBagConstraints12.gridy = 2;
             gridBagConstraints12.insets = new java.awt.Insets(1,2,0,2);
             date_Lto = new JLabel();
-            date_Lto.setText("to");
             GridBagConstraints gridBagConstraints10 = new GridBagConstraints();
             gridBagConstraints10.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints10.insets = new java.awt.Insets(1,5,0,5);
@@ -451,7 +446,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getDate_RBdisplayed() {
         if( date_RBdisplayed == null ) {
             date_RBdisplayed = new JRadioButton();
-            date_RBdisplayed.setText("Search in messages that would be displayed");
             date_RBdisplayed.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     date_RBitemStateChanged();
@@ -469,7 +463,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getDate_RBbetweenDates() {
         if( date_RBbetweenDates == null ) {
             date_RBbetweenDates = new JRadioButton();
-            date_RBbetweenDates.setText("Search between dates");
             date_RBbetweenDates.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     date_RBitemStateChanged();
@@ -519,7 +512,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getDate_RBdaysBackward() {
         if( date_RBdaysBackward == null ) {
             date_RBdaysBackward = new JRadioButton();
-            date_RBdaysBackward.setText("Search number of days backward");
             date_RBdaysBackward.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     date_RBitemStateChanged();
@@ -610,7 +602,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getTruststate_RBdisplayed() {
         if( truststate_RBdisplayed == null ) {
             truststate_RBdisplayed = new JRadioButton();
-            truststate_RBdisplayed.setText("Search in messages that would be displayed");
             truststate_RBdisplayed.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     trustState_RBitemStateChanged();
@@ -641,7 +632,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getTruststate_RBall() {
         if( truststate_RBall == null ) {
             truststate_RBall = new JRadioButton();
-            truststate_RBall.setText("Search all messages, no matter which trust state is set");
             truststate_RBall.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     trustState_RBitemStateChanged();
@@ -659,7 +649,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getTruststate_RBchosed() {
         if( truststate_RBchosed == null ) {
             truststate_RBchosed = new JRadioButton();
-            truststate_RBchosed.setText("Search only in messages with following trust state");
             truststate_RBchosed.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     trustState_RBitemStateChanged();
@@ -723,7 +712,6 @@ public class SearchMessagesDialog extends JFrame {
     private JCheckBox getTruststate_CBgood() {
         if( truststate_CBgood == null ) {
             truststate_CBgood = new JCheckBox();
-            truststate_CBgood.setText("GOOD");
         }
         return truststate_CBgood;
     }
@@ -736,7 +724,6 @@ public class SearchMessagesDialog extends JFrame {
     private JCheckBox getTruststate_CBobserve() {
         if( truststate_CBobserve == null ) {
             truststate_CBobserve = new JCheckBox();
-            truststate_CBobserve.setText("OBSERVE");
         }
         return truststate_CBobserve;
     }
@@ -749,7 +736,6 @@ public class SearchMessagesDialog extends JFrame {
     private JCheckBox getTruststate_CBcheck() {
         if( truststate_CBcheck == null ) {
             truststate_CBcheck = new JCheckBox();
-            truststate_CBcheck.setText("CHECK");
         }
         return truststate_CBcheck;
     }
@@ -762,7 +748,6 @@ public class SearchMessagesDialog extends JFrame {
     private JCheckBox getTruststate_CBbad() {
         if( truststate_CBbad == null ) {
             truststate_CBbad = new JCheckBox();
-            truststate_CBbad.setText("BAD");
         }
         return truststate_CBbad;
     }
@@ -775,7 +760,6 @@ public class SearchMessagesDialog extends JFrame {
     private JCheckBox getTruststate_CBnone() {
         if( truststate_CBnone == null ) {
             truststate_CBnone = new JCheckBox();
-            truststate_CBnone.setText("NONE (anonymous)");
         }
         return truststate_CBnone;
     }
@@ -788,7 +772,6 @@ public class SearchMessagesDialog extends JFrame {
     private JCheckBox getTruststate_CBtampered() {
         if( truststate_CBtampered == null ) {
             truststate_CBtampered = new JCheckBox();
-            truststate_CBtampered.setText("TAMPERED");
         }
         return truststate_CBtampered;
     }
@@ -841,7 +824,6 @@ public class SearchMessagesDialog extends JFrame {
         if( archive_RBkeypoolAndArchive == null ) {
             archive_RBkeypoolAndArchive = new JRadioButton();
             archive_RBkeypoolAndArchive.setPreferredSize(new java.awt.Dimension(195,20));
-            archive_RBkeypoolAndArchive.setText("Search in keypool and archive");
         }
         return archive_RBkeypoolAndArchive;
     }
@@ -855,7 +837,6 @@ public class SearchMessagesDialog extends JFrame {
         if( archive_RBkeypoolOnly == null ) {
             archive_RBkeypoolOnly = new JRadioButton();
             archive_RBkeypoolOnly.setPreferredSize(new java.awt.Dimension(152,20));
-            archive_RBkeypoolOnly.setText("Search only in keypool");
         }
         return archive_RBkeypoolOnly;
     }
@@ -869,7 +850,6 @@ public class SearchMessagesDialog extends JFrame {
         if( archive_RBarchiveOnly == null ) {
             archive_RBarchiveOnly = new JRadioButton();
             archive_RBarchiveOnly.setPreferredSize(new java.awt.Dimension(150,20));
-            archive_RBarchiveOnly.setText("Search only in archive");
         }
         return archive_RBarchiveOnly;
     }
@@ -932,7 +912,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getBoards_RBdisplayed() {
         if( boards_RBdisplayed == null ) {
             boards_RBdisplayed = new JRadioButton();
-            boards_RBdisplayed.setText("Search in displayed boards");
             boards_RBdisplayed.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     boards_RBitemStateChanged();
@@ -968,7 +947,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getBoards_RBchosed() {
         if( boards_RBchosed == null ) {
             boards_RBchosed = new JRadioButton();
-            boards_RBchosed.setText("Search following boards");
             boards_RBchosed.addItemListener(new java.awt.event.ItemListener() {
                 public void itemStateChanged(java.awt.event.ItemEvent e) {
                     boards_RBitemStateChanged();
@@ -997,7 +975,6 @@ public class SearchMessagesDialog extends JFrame {
     private JButton getBoards_Bchoose() {
         if( boards_Bchoose == null ) {
             boards_Bchoose = new JButton();
-            boards_Bchoose.setText("Choose...");
             boards_Bchoose.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     chooseBoards();
@@ -1029,7 +1006,6 @@ public class SearchMessagesDialog extends JFrame {
     private JCheckBox getSearch_CBprivateMsgsOnly() {
         if( search_CBprivateMsgsOnly == null ) {
             search_CBprivateMsgsOnly = new JCheckBox();
-            search_CBprivateMsgsOnly.setText("Search private messages only");
         }
         return search_CBprivateMsgsOnly;
     }
@@ -1149,8 +1125,8 @@ public class SearchMessagesDialog extends JFrame {
         Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             JOptionPane.showMessageDialog(this,
-                    "There are no boards that could be choosed.",
-                    "Error",
+                    language.getString("There are no boards that could be choosed."),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -1230,8 +1206,8 @@ public class SearchMessagesDialog extends JFrame {
         } else if( getBoards_RBchosed().isSelected() ) {
             if( chosedBoardsList.size() == 0 ) {
                 JOptionPane.showMessageDialog(this,
-                        "No boards to search into were chosed.",
-                        "Error",
+                        language.getString("No boards to search into were chosed."),
+                        language.getString("Error"),
                         JOptionPane.ERROR_MESSAGE);
                 return null;
             }
@@ -1258,15 +1234,15 @@ public class SearchMessagesDialog extends JFrame {
                 // check start before end
                 if( scfg.startDate.after(scfg.endDate) ) {
                     JOptionPane.showMessageDialog(this,
-                            "Start date is after end date.",
-                            "Error",
+                            language.getString("Start date is after end date."),
+                            language.getString("Error"),
                             JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
             } catch(ParseException ex) {
                 JOptionPane.showMessageDialog(this,
-                        "Invalid start date or end date specified.",
-                        "Error",
+                        language.getString("Invalid start date or end date specified."),
+                        language.getString("Error"),
                         JOptionPane.ERROR_MESSAGE);
                 return null;
             }
@@ -1294,8 +1270,8 @@ public class SearchMessagesDialog extends JFrame {
                 !scfg.trust_bad && !scfg.trust_none && !scfg.trust_tampered ) 
             {
                 JOptionPane.showMessageDialog(this,
-                        "No trust state is selected.",
-                        "Error",
+                        language.getString("No trust state is selected."),
+                        language.getString("Error"),
                         JOptionPane.ERROR_MESSAGE);
                 return null;
             }
@@ -1339,7 +1315,7 @@ public class SearchMessagesDialog extends JFrame {
         setRunningSearchThread(null);
         // reset buttons
         getBcancel().setEnabled(true);
-        getBsearch().setText("Search");
+        getBsearch().setText(startSearchStr);
     }
     
     // stop searching or close window
@@ -1347,8 +1323,8 @@ public class SearchMessagesDialog extends JFrame {
         if( getRunningSearchThread() != null ) {
             // close not allowed, search must be stopped
             JOptionPane.showMessageDialog(this,
-                    "Please stop the running search before closing the window.",
-                    "Error",
+                    language.getString("Please stop the search before closing the window."),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -1377,7 +1353,7 @@ public class SearchMessagesDialog extends JFrame {
         
         // set button states
         getBcancel().setEnabled(false);
-        getBsearch().setText("Stop search");
+        getBsearch().setText(stopSearchStr);
         
         getBopenMsg().setEnabled(false);
 
@@ -1387,7 +1363,7 @@ public class SearchMessagesDialog extends JFrame {
     }
     
     private void updateResultCountLabel(int rs) {
-        LresultCount.setText("Results: "+rs);
+        LresultCount.setText(resultCountPrefix + rs);
     }
     
     /**
@@ -1461,7 +1437,6 @@ public class SearchMessagesDialog extends JFrame {
     private JRadioButton getDate_RBall() {
         if( date_RBall == null ) {
             date_RBall = new JRadioButton();
-            date_RBall.setText("Search all dates");
         }
         return date_RBall;
     }
@@ -1558,8 +1533,6 @@ public class SearchMessagesDialog extends JFrame {
     private JButton getBopenMsg() {
         if( BopenMsg == null ) {
             BopenMsg = new JButton();
-            BopenMsg.setText("Open message");
-            BopenMsg.setMnemonic(java.awt.event.KeyEvent.VK_O);
             BopenMsg.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     openSelectedMessage();
@@ -1569,4 +1542,54 @@ public class SearchMessagesDialog extends JFrame {
         }
         return BopenMsg;
     }
+    
+    public void languageChanged(LanguageEvent e) {
+        
+        resultCountPrefix = language.getString("Results") + ": ";
+        startSearchStr = language.getString("Search");
+        stopSearchStr = language.getString("Stop search");
+
+        if( getRunningSearchThread() != null ) {
+            getBsearch().setText(stopSearchStr);
+        } else {
+            getBsearch().setText(startSearchStr);
+        }
+
+        getBopenMsg().setText(language.getString("Open message"));
+        getBcancel().setText(language.getString("Close"));
+        
+        Lsender.setText(language.getString("Sender"));
+        Lcontent.setText(language.getString("Content"));
+        Lsubject.setText(language.getString("Subject"));
+
+        LsearchResult.setText(language.getString("Search result"));
+        date_Lto.setText(language.getString("to"));
+
+        getDate_RBbetweenDates().setText(language.getString("Search between dates"));
+        getDate_RBdisplayed().setText(language.getString("Search in messages that would be displayed"));
+        getDate_RBdaysBackward().setText(language.getString("Search number of days backward"));
+        getDate_RBall().setText(language.getString("Search all dates"));
+        
+        getTruststate_RBall().setText(language.getString("Search all messages, no matter which trust state is set"));
+        getTruststate_RBdisplayed().setText(language.getString("Search in messages that would be displayed"));
+        getTruststate_RBchosed().setText(language.getString("Search only in messages with following trust state"));
+
+        getTruststate_CBtampered().setText(language.getString("Tampered"));
+        getTruststate_CBnone().setText(language.getString("None (unsigned)"));
+        getTruststate_CBbad().setText(language.getString("Bad"));
+        getTruststate_CBcheck().setText(language.getString("Check"));
+        getTruststate_CBobserve().setText(language.getString("Observe"));
+        getTruststate_CBgood().setText(language.getString("Good"));
+
+        getArchive_RBarchiveOnly().setText(language.getString("Search only in archive"));
+        getArchive_RBkeypoolOnly().setText(language.getString("Search only in keypool"));
+        getArchive_RBkeypoolAndArchive().setText(language.getString("Search in keypool and archive"));
+
+        getBoards_RBchosed().setText(language.getString("Search following boards"));
+        getBoards_RBdisplayed().setText(language.getString("Search in displayed boards"));
+
+        getSearch_CBprivateMsgsOnly().setText(language.getString("Search private messages only"));
+        getBoards_Bchoose().setText(language.getString("Choose boards")+"...");
+    }
+
 }  //  @jve:decl-index=0:visual-constraint="10,10"

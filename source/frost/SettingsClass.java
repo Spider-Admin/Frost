@@ -31,8 +31,6 @@ import frost.storage.Savable;
 
 /**
  * Read settings from frost.ini and store them.
- *
- * TODO: why handle all in strings and convert between types? FIX!
  */
 public class SettingsClass implements Savable {
 	private File settingsFile;
@@ -64,9 +62,20 @@ public class SettingsClass implements Savable {
 	public static final String SEARCH_ALL_BOARDS = "searchAllBoards";
 	public static final String SHOW_DELETED_MESSAGES = "showDeletedMessages";
 	public static final String SILENTLY_RETRY_MESSAGES = "silentlyRetryMessages";
+    public static final String RECEIVE_DUPLICATE_MESSAGES = "receiveDuplicateMessages";
 	public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
 	public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
-	
+
+    public static final String HIDE_MESSAGES_OBSERVE = "hideObserveMessages";
+    public static final String HIDE_MESSAGES_CHECK = "hideCheckMessages";
+    public static final String HIDE_MESSAGES_BAD = "hideBadMessages";
+    public static final String HIDE_MESSAGES_UNSIGNED = "signedOnly";
+
+    public static final String BLOCK_BOARDS_FROM_OBSERVE = "";
+    public static final String BLOCK_BOARDS_FROM_CHECK = "";
+    public static final String BLOCK_BOARDS_FROM_BAD = "";
+    public static final String BLOCK_BOARDS_FROM_UNSIGNED = "";
+
 	//Constructors
 	public SettingsClass() {
 		settingsHash = new Hashtable();
@@ -569,10 +578,17 @@ public class SettingsClass implements Savable {
 		defaults.put("blockMessageBodyChecked", "false");
 		defaults.put("blockMessageBoard", "");
 		defaults.put("blockMessageBoardChecked", "false");
-		defaults.put("signedOnly", "false");
-		defaults.put("hideBadMessages", "false");
-		defaults.put("hideCheckMessages", "false");
-		defaults.put("hideObserveMessages", "false");
+        
+		defaults.put(HIDE_MESSAGES_UNSIGNED, "false");
+		defaults.put(HIDE_MESSAGES_BAD, "false");
+		defaults.put(HIDE_MESSAGES_CHECK, "false");
+		defaults.put(HIDE_MESSAGES_OBSERVE, "false");
+
+        defaults.put(BLOCK_BOARDS_FROM_UNSIGNED, "false");
+        defaults.put(BLOCK_BOARDS_FROM_BAD, "false");
+        defaults.put(BLOCK_BOARDS_FROM_CHECK, "false");
+        defaults.put(BLOCK_BOARDS_FROM_OBSERVE, "false");
+
 		defaults.put("downloadDirectory", "downloads" + fs);
 		defaults.put("downloadThreads", "3");
 		defaults.put(DOWNLOADING_ACTIVATED, "true");
@@ -665,8 +681,8 @@ public class SettingsClass implements Savable {
 		defaults.put(LOG_FILE_SIZE_LIMIT, "1000");
 		
 		defaults.put(SILENTLY_RETRY_MESSAGES, "false");
-		
 		defaults.put(SHOW_DELETED_MESSAGES, "false");
+        defaults.put(RECEIVE_DUPLICATE_MESSAGES, "false");
 		
 		defaults.put(RESTART_FAILED_UPLOADS, "true");
 		defaults.put(UPLOAD_MAX_RETRIES, "5");

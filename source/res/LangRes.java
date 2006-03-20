@@ -31,10 +31,9 @@ import java.util.ListResourceBundle;
 public class LangRes extends ListResourceBundle {
 
     public Object[][] getContents() {
-    return contents;
+        return contents;
     }
     static final Object[][] contents = {
-
 
 	///////////////////////////////////////////////////
 	// Unknown translations
@@ -70,6 +69,7 @@ public class LangRes extends ListResourceBundle {
 	{"Private key","Private key"},
 	{"Public key","Public key"},
 	{"Not available","Not available"},
+    {"Error", "Error"}, // error dialog title
 
 	///////////////////////////////////////////////////
 	// Splash messages
@@ -375,10 +375,18 @@ public class LangRes extends ListResourceBundle {
 	{"Block messages with subject containing (separate by ';' )", "Block messages with subject containing (separate by ';' )"},
 	{"Block messages with body containing (separate by ';' )", "Block messages with body containing (separate by ';' )"},
 	{"Block messages with these attached boards (separate by ';' )", "Block messages with these attached boards (separate by ';' )"},
-	{"Hide unsigned messages", "Hide unsigned messages"},
-	{"Hide messages flagged BAD", "Hide messages flagged BAD"},
-	{"Hide messages flagged CHECK", "Hide messages flagged CHECK"},
- 	{"Hide messages flagged OBSERVE", "Hide messages flagged OBSERVE"},
+    
+//	{"Hide unsigned messages", "Hide unsigned messages"},
+//	{"Hide messages flagged BAD", "Hide messages flagged BAD"},
+//	{"Hide messages flagged CHECK", "Hide messages flagged CHECK"},
+// 	{"Hide messages flagged OBSERVE", "Hide messages flagged OBSERVE"},
+    {"Block boards from messages with following trust states", "Block boards from messages with following trust states"},
+    {"Hide messages with following trust states", "Hide messages with following trust states"},
+	{"Bad", "Bad"},
+    {"Check", "Check"},
+    {"Observe", "Observe"},
+    {"None (unsigned)", "None (unsigned)"},
+    
 	{"Do spam detection", "Do spam detection"},
 	{"Sample interval", "Sample interval"},
 	{"hours", "hours"},
@@ -397,6 +405,7 @@ public class LangRes extends ListResourceBundle {
 	{"Choose updating color of NON-SELECTED boards", "Choose updating color of NON-SELECTED boards"},
 	{"Silently retry failed messages", "Silently retry failed messages"},
 	{"Show deleted messages", "Show deleted messages"},
+    {"Receive duplicate messages", "Receive duplicate messages"},
 
     // Expiration panel
     // TODO:
@@ -645,8 +654,50 @@ public class LangRes extends ListResourceBundle {
 	{"Key not available yet", "Key not available yet"},
 	{"clipboard.File:",  "File:  "},	//These three strings are a special case.
 	{"clipboard.Key:",   "Key:   "},	//They must have the same length so that the
-	{"clipboard.Bytes:", "Bytes: "}	//format of the output is preserved.
+	{"clipboard.Bytes:", "Bytes: "},	//format of the output is preserved.
+    
+    // AltEdit support
+    {"The message file returned by the alternate editor is invalid.", "The message file returned by the alternate editor is invalid."},
+    {"Could not start alternate editor using command: ", "Could not start alternate editor using command: "},
+    {"Could not create message file for alternate editor: ", "Could not create message file for alternate editor: "},
+    {"Configured alternate editor line must contain a '%f' as placeholder for the filename.", "Configured alternate editor line must contain a '%f' as placeholder for the filename."},
+    {"No alternate editor configured.", "No alternate editor configured."},
+    {">>> This is a Frost alternate editor message file.                <<<", ">>> This is a Frost alternate editor message file.                <<<"},
+    {">>> You can edit the subject and add text at the end of the file. <<<", ">>> You can edit the subject and add text at the end of the file. <<<"},
+    {">>> Don't change or delete the marker lines!                      <<<", ">>> Don't change or delete the marker lines!                      <<<"},
+    {"*--- Subject line (changeable) ---*", "*--- Subject line (changeable) ---*"}, // marker line
+    {"*--- Enter your text after this line ---*", "*--- Enter your text after this line ---*"}, // marker line
+    
+    // Search messages dialog
+    {"Sender", "Sender"},
+    {"Content", "Content"},
+    {"to", "to"}, // startDate 'to' endDate
+    {"Search between dates", "Search between dates"},
+    {"Search in messages that would be displayed", "Search in messages that would be displayed"},
+    {"Search number of days backward", "Search number of days backward"},
+    {"Search all dates", "Search all dates"},
+    {"Search all messages, no matter which trust state is set", "Search all messages, no matter which trust state is set"},
+    {"Search in messages that would be displayed", "Search in messages that would be displayed"},
+    {"Search only in messages with following trust state", "Search only in messages with following trust state"},
+    {"Search only in archive", "Search only in archive"},
+    {"Search only in keypool", "Search only in keypool"},
+    {"Search in keypool and archive", "Search in keypool and archive"},
+    {"Search following boards", "Search following boards"},
+    {"Search in displayed boards", "Search in displayed boards"},
+    {"Search private messages only", "Search private messages only"},
+    {"Good", "Good"},
+    {"Tampered", "Tampered"},
+    {"Stop search", "Stop search"},
+    {"Close", "Close"},
+    {"Open message", "Open message"},
+    {"Search result", "Search result"},
+    // error messages
+    {"Please stop the search before closing the window.", "Please stop the search before closing the window."},
+    {"No trust state is selected.", "No trust state is selected."},
+    {"Invalid start date or end date specified.", "Invalid start date or end date specified."},
+    {"Start date is after end date.", "Start date is after end date."},
+    {"No boards to search into were chosed.", "No boards to search into were chosed."},
+    {"There are no boards that could be choosed.", "There are no boards that could be choosed."}
 
     };
 }
-

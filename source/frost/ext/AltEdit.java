@@ -26,6 +26,7 @@ import java.util.List;
 import javax.swing.*;
 
 import frost.*;
+import frost.util.gui.translation.*;
 
 /**
  * Class provides alternate editor functionality.
@@ -34,14 +35,16 @@ import frost.*;
  */
 public class AltEdit {
 
+    Language language = Language.getInstance();
+    
     private Frame parentFrame;
     private String linesep = System.getProperty("line.separator");
     
     private String oldSubject;
     private String oldText;
     
-    private static final String SUBJECT_MARKER = "*--- Subject line (changeable) ---*";
-    private static final String TEXT_MARKER = "*--- Enter your text after this line ---*";
+    private final String SUBJECT_MARKER = language.getString("*--- Subject line (changeable) ---*");
+    private final String TEXT_MARKER = language.getString("*--- Enter your text after this line ---*");
     
     private String reportSubject = null;
     private String reportText = null;
@@ -63,7 +66,7 @@ public class AltEdit {
         
         if( editor == null || editor.length() == 0 ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    "No alternate editor configured.",
+                    language.getString("No alternate editor configured."),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
             return false;
@@ -71,8 +74,8 @@ public class AltEdit {
         
         if( editor.indexOf("%f") == -1 ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    "Configured alternate editor line must contain a '%f' as placeholder for the filename.",
-                    "Error",
+                    language.getString("Configured alternate editor line must contain a '%f' as placeholder for the filename."),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);            
             return false;
         }
@@ -86,17 +89,17 @@ public class AltEdit {
             editFile =  File.createTempFile("frostmsg", ".txt", new File(Core.frostSettings.getValue("temp.dir")));
         } catch (IOException e) {
             JOptionPane.showMessageDialog(parentFrame,
-                    "Could not create message file for alternate editor: "+editFile.getPath()+"\n"+e.toString(),
-                    "Error",
+                    language.getString("Could not create message file for alternate editor: ")+editFile.getPath()+"\n"+e.toString(),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
         editFile.deleteOnExit();
 
         StringBuffer sb = new StringBuffer();
-        sb.append(">>> This is a Frost alternate editor message file.                <<<").append(linesep);
-        sb.append(">>> You can edit the subject and add text at the end of the file. <<<").append(linesep);
-        sb.append(">>> Don't change or delete the marker lines!                      <<<").append(linesep).append(linesep);
+        sb.append(language.getString(">>> This is a Frost alternate editor message file.                <<<")).append(linesep);
+        sb.append(language.getString(">>> You can edit the subject and add text at the end of the file. <<<")).append(linesep);
+        sb.append(language.getString(">>> Don't change or delete the marker lines!                      <<<")).append(linesep).append(linesep);
         sb.append(SUBJECT_MARKER).append(linesep);
         sb.append(oldSubject).append(linesep).append(linesep);
         sb.append(oldText).append(linesep); // contains new from-header-line
@@ -104,8 +107,8 @@ public class AltEdit {
 
         if( FileAccess.writeFile(sb.toString(), editFile, "UTF-8") == false ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    "Could not create message file for alternate editor: "+editFile.getPath(),
-                    "Error",
+                    language.getString("Could not create message file for alternate editor: ")+editFile.getPath(),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
@@ -116,8 +119,8 @@ public class AltEdit {
             Execute.run(editorCmdLine, true);
         } catch(Throwable t) {
             JOptionPane.showMessageDialog(parentFrame,
-                    "Could not start alternate editor with command: "+editorCmdLine+"\n"+t.toString(),
-                    "Error",
+                    language.getString("Could not start alternate editor using command: ")+editorCmdLine+"\n"+t.toString(),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
             return false;
@@ -126,8 +129,8 @@ public class AltEdit {
         List lines = FileAccess.readLines(editFile, "UTF-8");
         if( lines.size() < 4 ) { // subject marker,subject,from line, text marker
             JOptionPane.showMessageDialog(parentFrame,
-                    "The message file returned by the alternate editor is invalid.",
-                    "Error",
+                    language.getString("The message file returned by the alternate editor is invalid."),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
             return false;
@@ -149,8 +152,8 @@ public class AltEdit {
                 // next line is the new subject
                 if( it.hasNext() == false ) {
                     JOptionPane.showMessageDialog(parentFrame,
-                            "The message file returned by the alternate editor is invalid.",
-                            "Error",
+                            language.getString("The message file returned by the alternate editor is invalid."),
+                            language.getString("Error"),
                             JOptionPane.ERROR_MESSAGE);
                     editFile.delete();
                     return false;
@@ -158,8 +161,8 @@ public class AltEdit {
                 line = (String)it.next();
                 if( line.equals(TEXT_MARKER) ) {
                     JOptionPane.showMessageDialog(parentFrame,
-                            "The message file returned by the alternate editor is invalid.",
-                            "Error",
+                            language.getString("The message file returned by the alternate editor is invalid."),
+                            language.getString("Error"),
                             JOptionPane.ERROR_MESSAGE);
                     editFile.delete();
                     return false;
@@ -176,8 +179,8 @@ public class AltEdit {
         
         if( newSubject == null ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    "The message file returned by the alternate editor is invalid.",
-                    "Error",
+                    language.getString("The message file returned by the alternate editor is invalid."),
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
             return false;
