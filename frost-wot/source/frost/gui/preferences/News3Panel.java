@@ -64,6 +64,7 @@ class News3Panel extends JPanel {
 	
 	private JCheckBox silentlyRetryCheckBox = new JCheckBox();
 	private JCheckBox showDeletedMessagesCheckBox = new JCheckBox();
+    private JCheckBox receiveDuplicateMessagesCheckBox = new JCheckBox();
 
 	private JPanel colorPanel = null;
 
@@ -213,6 +214,9 @@ class News3Panel extends JPanel {
 		constraints.gridy++;
 		add(showDeletedMessagesCheckBox, constraints);
 
+        constraints.gridy++;
+        add(receiveDuplicateMessagesCheckBox, constraints);
+
         // glue
         constraints.gridy++;
         constraints.weightx = 1;
@@ -245,8 +249,8 @@ class News3Panel extends JPanel {
 		notSelectedColorLabel.setBackground(notSelectedColor);
 		
 		silentlyRetryCheckBox.setSelected(settings.getBoolValue(SettingsClass.SILENTLY_RETRY_MESSAGES));
-		
 		showDeletedMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES));
+        receiveDuplicateMessagesCheckBox.setSelected(settings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES));
 	}
 	
 	private void notSelectedColorPressed() {
@@ -271,26 +275,22 @@ class News3Panel extends JPanel {
 		String on = language.getString("On");
 
 		autoUpdateLabel.setText(language.getString("Automatic update options"));
-		minimumIntervalLabel.setText(
-				language.getString("Minimum update interval of a board") + " (" + minutes + ") (45)");
-		concurrentUpdatesLabel.setText(
-				language.getString("Number of concurrently updating boards") + " (6)");
+		minimumIntervalLabel.setText(language.getString("Minimum update interval of a board") + " (" + minutes + ") (45)");
+		concurrentUpdatesLabel.setText(language.getString("Number of concurrently updating boards") + " (6)");
 
         automaticBoardUpdateCheckBox.setText(language.getString("Automatic message update"));
-		showUpdateCheckBox.setText(
-				language.getString("Show board update visualization") + " (" + on + ")");
-		selectedColorTextLabel.setText(
-				language.getString("Background color if updating board is selected"));
+		showUpdateCheckBox.setText(language.getString("Show board update visualization") + " (" + on + ")");
+		selectedColorTextLabel.setText(language.getString("Background color if updating board is selected"));
 		selectedColorLabel.setText("    " + color + "    ");
 		selectedColorButton.setText(language.getString("Choose"));
 		
-		notSelectedColorTextLabel.setText(
-				language.getString("Background color if updating board is not selected"));
+		notSelectedColorTextLabel.setText(language.getString("Background color if updating board is not selected"));
 		notSelectedColorLabel.setText("    " + color + "    ");
 		notSelectedColorButton.setText(language.getString("Choose"));
 
 		silentlyRetryCheckBox.setText(language.getString("Silently retry failed messages"));
 		showDeletedMessagesCheckBox.setText(language.getString("Show deleted messages"));
+        receiveDuplicateMessagesCheckBox.setText(language.getString("Receive duplicate messages"));
 	}
 	
 	private void refreshUpdateState() {
@@ -315,6 +315,7 @@ class News3Panel extends JPanel {
 		
 		settings.setValue(SettingsClass.SILENTLY_RETRY_MESSAGES, silentlyRetryCheckBox.isSelected());
 		settings.setValue(SettingsClass.SHOW_DELETED_MESSAGES, showDeletedMessagesCheckBox.isSelected());
+        settings.setValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES, receiveDuplicateMessagesCheckBox.isSelected());
 	}
 	
 	private void selectedColorPressed() {

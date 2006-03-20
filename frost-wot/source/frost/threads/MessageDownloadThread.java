@@ -278,17 +278,19 @@ public class MessageDownloadThread
                 // this digest is ONLY used to check for incoming exact duplicate files, because
                 // the locally stored message xml file could be changed later by Frost
                 String messageId = Core.getCrypto().digest(testMe);
-
                 // Does a duplicate message exist?
-                if( messageHashes.contains(messageId) ) {
-                    logger.info(Thread.currentThread().getName()+
-                            ": TOFDN: ****** Duplicate Message : "+testMe.getName()+" *****");
-                    FileAccess.writeFile(DUPLICATE_MSG, testMe); // this file is ignored by the gui
-                    continue;
-                }
+                boolean isDuplicateMsg = messageHashes.contains(messageId);
+                // add to the list of message hashes to track this received message
+                messageHashes.add(messageId);
 
-                // else message is not a duplicate, continue to process
-            	messageHashes.add(messageId);
+                if( isDuplicateMsg ) {
+                    logger.info(Thread.currentThread().getName()+": TOFDN: *** Duplicate Message : "+testMe.getName()+" ***");
+                    if( Core.frostSettings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES) == false ) {
+                        // user don't want to see the duplicate messages
+                        FileAccess.writeFile(DUPLICATE_MSG, testMe); // this file is ignored by the gui
+                        continue;
+                    }
+                }
 
                 // if no metadata, message wasn't signed
                 if (metadata == null) {
@@ -492,23 +494,45 @@ public class MessageDownloadThread
                     // add new message or notify of arrival
                     TOF.getInstance().addNewMessageToTable(testMe, board, markAsNew);
                 } else {
-                    logger.log(Level.SEVERE, "TOFDN: received message from the past, not displayed due to max message days to display:"+
+                    logger.log(Level.SEVERE, "TOFDN: received message from the past, not displayed due to maxMessageDays to display:"+
                             testMe.getPath());
                 }
-                // add all files indexed files
-                // TODO: also for BAD users here? 
-                Iterator it = currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
-                while (it.hasNext()) {
-                    SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
-                    if (current.getOwner() != null) {
-                        Index index = Index.getInstance();
-                        synchronized(index) {
-                            index.add(current, board);
+                // add all files indexed files, but never for BAD users
+                if( currentMsg.getSignatureStatus() != VerifyableMessageObject.xBAD ) {
+                    Iterator it = currentMsg.getAttachmentsOfType(Attachment.FILE).iterator();
+                    while (it.hasNext()) {
+                        SharedFileObject current = ((FileAttachment)it.next()).getFileObj();
+                        if (current.getOwner() != null) {
+                            Index index = Index.getInstance();
+                            synchronized(index) {
+                                index.add(current, board);
+                            }
                         }
                     }
                 }
                 // add all boards to the list of known boards
-                Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
+                if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xOLD &&
+                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) )
+                {
+                    logger.info("Boards from unsigned message blocked.");
+                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xBAD &&
+                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) )
+                {
+                    logger.info("Boards from BAD message blocked.");
+                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xCHECK &&
+                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) )
+                {
+                    logger.info("Boards from CHECK message blocked.");
+                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xOBSERVE &&
+                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) )
+                {
+                    logger.info("Boards from OBSERVE message blocked.");
+                } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xTAMPERED ) {
+                    logger.info("Boards from TAMPERED message blocked.");
+                } else {
+                    // either GOOD user or add was allowed by user
+                    Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
+                }
             }
         } else {
             // format validation failed
