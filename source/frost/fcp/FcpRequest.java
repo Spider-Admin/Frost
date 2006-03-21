@@ -462,6 +462,9 @@ public class FcpRequest
         return getFile(key,size,target,htl,doRedirect, fastDownload, true, null);
     }
 
+    /**
+     * Returns null if nothing was received. 
+     */
     public static FcpResults getFile(String key, 
                                   Long size, 
                                   File target, 
@@ -471,9 +474,9 @@ public class FcpRequest
                                   boolean createTempFile, 
                                   FrostDownloadItem dlItem)
     {
-    	
     	assert htl >= 0; //some sanity checks
-    	
+
+        // prepare a temp file
         File tempFile = null;
         if( createTempFile ) {
             try {
@@ -487,18 +490,17 @@ public class FcpRequest
         }
         
         // First we just download the file, not knowing what lies ahead
-       
         FcpResults results =null;
         String [] metadataLines=null;
         
-        if (dlItem!=null && dlItem.getRedirect() !=null) {
+        if (dlItem != null && dlItem.getRedirect() != null) {
         	results = new FcpResults(dlItem.getRedirect().getBytes(), dlItem.getKey());
         	logger.info("starting download of an attached redirect");
         } else {  
         	results = getKey(key, tempFile, htl, fastDownload);
         }
         
-        if (results !=null) {
+        if (results != null) {
         	metadataLines = results.getMetadataAsLines();
         }
         
@@ -518,8 +520,8 @@ public class FcpRequest
 
                     results = null;
                     results = getKey(redirectCHK, tempFile, htl, fastDownload);
-                    if( results == null || tempFile.length() == 0 )
-                    {
+                    // redirect must contain data, not only metadata
+                    if( results == null || tempFile.length() == 0 ) {
                         // remove temporary file if download failed
                         tempFile.delete();
                         return null;
@@ -529,21 +531,19 @@ public class FcpRequest
 
             // Check if file is a splitfile.
             boolean isSplitfile = false;
-            if( metadataLines != null )
-            {
+            if( metadataLines != null ) {
                 String content[] = metadataLines;
                 String algoName = null;
-                for( int i = 0; i < content.length; i++ )
-                {
-                    if( content[i].startsWith("SplitFile.Size") ) 
+                for( int i = 0; i < content.length; i++ ) {
+                    if( content[i].startsWith("SplitFile.Size") ) { 
                         isSplitfile = true;
-                    if( content[i].startsWith("SplitFile.AlgoName") )
-                    {
+                    }
+                    if( content[i].startsWith("SplitFile.AlgoName") ) {
                         algoName = content[i].substring(content[i].indexOf("=")+1).trim();                         
                     }
                 }
-                if( isSplitfile )
-                { // File is a splitfile
+
+                if( isSplitfile ) {
                     boolean success;
                     if( algoName != null && algoName.equals("OnionFEC_a_1_2") )
                     {
@@ -564,16 +564,13 @@ public class FcpRequest
                         success = getSplitFile(key, tempFile, htl, dlItem);
                     }
                         
-                    if( success )
-                    {
+                    if( success ) {
                         // If the target file exists, we remove it
                         if( target.isFile() )
                             target.delete();
                         tempFile.renameTo(target);
                         return results; // return the metadata
-                    }
-                    else
-                    {
+                    } else {
                         // remove temporary file (e.g. redirect file) if download failed
                         tempFile.delete();
                         return null;
@@ -582,20 +579,18 @@ public class FcpRequest
             }
 
             // download should be successful now
-            if( size == null || size.longValue() == tempFile.length() )
-            {
+            if( size == null || size.longValue() == tempFile.length() ) {
                 // If the target file exists, we remove it
-                if( target.isFile() )
+                if( target.isFile() ) {
                     target.delete();
+                }
                 boolean wasOK = tempFile.renameTo(target);
-                if( wasOK == false )
-                {
+                if( wasOK == false ) {
                     logger.severe("ERROR: Could not move file '" + tempFile.getPath() + "' to '" + target.getPath() + "'.\n" +
                     			  "Maybe the locations are on different filesystems where a move is not allowed.\n" +
                     			  "Please try change the location of 'temp.dir' in the frost.ini file,"+
                                   " and copy the file to a save location by yourself.");
                 }
-                
                 return results;
             }
         }
@@ -690,43 +685,33 @@ Document
     }
 
     // used by getFile
-    private static FcpResults getKey(String key, File target, int htl, boolean fastDownload)
-    {
-        if( key == null || key.length() == 0 || key.startsWith("null") )
+    private static FcpResults getKey(String key, File target, int htl, boolean fastDownload) {
+
+        if( key == null || key.length() == 0 || key.startsWith("null") ) {
             return null;
+        }
 
         FcpResults results = null;
 
         FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if( connection != null )
-        {
+        if( connection != null ) {
             int tries = 0;
             int maxtries = 3;
-            while( tries < maxtries || results != null )
-            {
-                try
-                {
+            while( tries < maxtries || results != null ) {
+                try {
                     results = connection.getKeyToFile(key, target.getPath(), htl, fastDownload);
                     break;
-                }
-                catch( java.net.ConnectException e )
-                {
+                } catch( java.net.ConnectException e ) {
                     tries++;
                     continue;
-                }
-                catch( DataNotFoundException ex ) // frost.FcpTools.DataNotFoundException
-                {
+                } catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
                     // do nothing, data not found is usual ...
 					logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
                     break;
-                }
-                catch( FcpToolsException e )
-                {
+                } catch( FcpToolsException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): FcpToolsException", e);
                     break;
-                }
-                catch( IOException e )
-                {
+                } catch( IOException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): IOException", e);
                     break;
                 }
@@ -734,8 +719,7 @@ Document
         }
 
         String printableKey = null;
-        if( DEBUG )
-        {
+        if( DEBUG ) {
             String keyPrefix = "";
             if( key.indexOf("@") > -1 )  keyPrefix = key.substring(0, key.indexOf("@")+1);
             String keyUrl = "";
@@ -745,7 +729,8 @@ Document
                                              .append(keyUrl).toString();
         }
 
-        boolean metadataAvailable = results!=null && results.getRawMetadata()!=null && 
+        boolean metadataAvailable = results!=null && 
+                                    results.getRawMetadata()!=null && 
                                     results.getRawMetadata().length > 0; 
         if( results != null && 
             ( target.length() > 0 || metadataAvailable )

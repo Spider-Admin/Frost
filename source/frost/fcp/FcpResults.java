@@ -31,8 +31,7 @@ public class FcpResults
     /** the CHK URI */
     String chkUri = null;
     
-    public FcpResults(byte[] md, String cu)
-    {
+    public FcpResults(byte[] md, String cu) {
         rawMetadata = md;
         chkUri = cu;
     }
@@ -47,10 +46,8 @@ public class FcpResults
      *
      * @return the metadata
      */
-    public String [] getMetadataAsLines()
-    {
-        if( rawMetadata == null )
-        {
+    public String [] getMetadataAsLines() {
+        if( rawMetadata == null ) {
             return null;
         }
 	    return new String(rawMetadata).split("\n");
@@ -62,8 +59,7 @@ public class FcpResults
      *
      * @return the CHK URI
      */
-    public String getChkUri()
-    {
+    public String getChkUri() {
 	   return chkUri;
     }
 
@@ -73,8 +69,7 @@ public class FcpResults
      *
      * @param chkUri the CHK URI
      */
-    void setChkUri(String chkUri)
-    {
+    void setChkUri(String chkUri) {
 	   this.chkUri = chkUri;
     }
 
@@ -94,5 +89,4 @@ public class FcpResults
 	public void setRawMetadata(byte[] bs) {
 		rawMetadata = bs;
 	}
-
 }
