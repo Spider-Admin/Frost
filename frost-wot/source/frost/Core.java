@@ -100,9 +100,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 			}
 			System.exit(3);
 		}
-				
 	}
-	
 	
 	private EventDispatcher dispatcher = new EventDispatcher();
 	private Language language = null;
@@ -203,13 +201,13 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return freenetIsTransient;
 	}
 	
-    private void loadKnownBoards()
-    {
+    private void loadKnownBoards() {
 		// load the known boards
 		// just a flat list in xml
 		File boards = new File("boards");
 		if(boards.exists()) // old style file, 1 time conversion
         {
+            // TODO: remove if not longer needed
             loadOLDKnownBoards(boards);
             // save converted list
             saveKnownBoards();
@@ -327,18 +325,16 @@ public class Core implements Savable, FrostEventDispatcher  {
 		return writeOK;
 	}
     
-    private void loadBatches()
-    {
+    private void loadBatches() {
         //load the batches
         File batches = new File("batches");
-        if (batches.exists() && batches.length() > 0) //fix previous version bug
+        if (batches.exists() && batches.length() > 0) { //fix previous version bug
         	try {
         		String allBatches = FileAccess.readFile(batches);
         		String[] _batches = allBatches.split("_");
         		//dumb.  will fix later
         
-        		for (int i = 0; i < _batches.length; i++)
-                {
+        		for (int i = 0; i < _batches.length; i++) {
                     myBatches.put(_batches[i], _batches[i]);
                 }
         
@@ -346,6 +342,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         	} catch (Throwable e) {
 				logger.log(Level.SEVERE, "couldn't load batches:", e);
         	}
+        }
     }
     
 	private boolean saveBatches() {
@@ -386,8 +383,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 	 * Tries to send old messages that have not been sent yet
 	 */
 	protected void resendFailedMessages() {
-		// start a thread that waits some seconds for gui to appear, then searches for
-		// unsent messages
+		// start a thread that waits some seconds for gui to appear, then searches for unsent messages
 		ResendFailedMessagesThread t =
 			new ResendFailedMessagesThread(getBoardsManager().getTofTree(), getBoardsManager().getTofTreeModel());
 		t.start();
@@ -436,14 +432,13 @@ public class Core implements Savable, FrostEventDispatcher  {
      * that are not contained already
      * @param lst
      */
-    public static void addNewKnownBoards( List lst )
-    {
-        if( lst == null || lst.size() == 0 )
+    public static void addNewKnownBoards( List lst ) {
+        if( lst == null || lst.size() == 0 ) {
             return;
+        }
             
         Iterator i = lst.iterator();
-        while(i.hasNext())
-        {
+        while(i.hasNext()) {
             BoardAttachment newba = (BoardAttachment)i.next();
             
             String bname = newba.getBoardObj().getName();
@@ -451,11 +446,9 @@ public class Core implements Savable, FrostEventDispatcher  {
             String bpubkey = newba.getBoardObj().getPublicKey();
             
             boolean addMe = true;
-            synchronized(getKnownBoards())
-            {
+            synchronized(getKnownBoards()) {
                 Iterator j = getKnownBoards().iterator();
-                while(j.hasNext())
-                {
+                while(j.hasNext()) {
                     BoardAttachment board = (BoardAttachment)j.next();
                     if( board.getBoardObj().getName().equalsIgnoreCase(bname) &&
                         ( 
@@ -482,8 +475,7 @@ public class Core implements Savable, FrostEventDispatcher  {
                       }
                 }     
             }
-            if( addMe )
-            {
+            if( addMe ) {
                 getKnownBoards().add(newba);
             }
         }

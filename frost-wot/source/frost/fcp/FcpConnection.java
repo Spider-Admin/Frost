@@ -483,13 +483,15 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fileOut.flush();
         fileOut.close();
         File checkSize = new File(filename);
+
         if( metadataLength > 0 && checkSize.length() > 0 ) {
             if( metadataLength == checkSize.length() ) {
                 // all data are metadata ...
                 byte[] content = FileAccess.readByteArray(checkSize);
                 result.setRawMetadata(content);
-                // delete data file which contains no data
+                // create empty data file
                 checkSize.delete();
+                FileAccess.writeFile(new byte[0], checkSize);
             } else {
                 // remove metadata from file and put metadata into result
                 byte[] content = FileAccess.readByteArray(checkSize);

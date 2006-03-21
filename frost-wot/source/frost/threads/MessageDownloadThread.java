@@ -176,17 +176,10 @@ public class MessageDownloadThread
                 return;
             }
             File testMe = null, testMe2 = null;
-            byte[] metadata = null;
+            FcpResults results = null;
 
             try { // we don't want to die for any reason
                 String val = new StringBuffer()
-                        .append(destination)
-                        .append(System.currentTimeMillis())
-                        .append(".xml.msg")
-                        .toString();
-                testMe = new File(val);
-
-                val = new StringBuffer()
                         .append(destination)
                         .append(dirdate)
                         .append("-")
@@ -201,8 +194,15 @@ public class MessageDownloadThread
                     failures = 0;
                     continue;
                 }
-                
-                File checkUploadLockfile = new File(val + ".lock");
+
+                val = new StringBuffer()
+                        .append(destination)
+                        .append(System.currentTimeMillis())
+                        .append(".xml.msg")
+                        .toString();
+                testMe = new File(val);
+
+                File checkUploadLockfile = new File(testMe2.getPath() + ".lock");
                 if( checkUploadLockfile.exists() ) {
                     // this file is currently uploaded, don't try to download it now
                     index++;
@@ -238,18 +238,13 @@ public class MessageDownloadThread
 
                 // for backload use fast download, deep for today
                 boolean fastDownload = !flagNew; 
-                FcpResults res = FcpRequest.getFile(
+                results = FcpRequest.getFile(
                         downKey,
                         null,
                         testMe,
                         downloadHtl,
                         false,
                         fastDownload);
-                if (res == null) {
-                    metadata = null; // if metadata==null its NOT a signed message
-                } else {
-                    metadata = res.getRawMetadata(); // signed and maybe encrypted message
-                }
 
             } catch(Throwable t) {
                 logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", t);
@@ -257,17 +252,37 @@ public class MessageDownloadThread
                 testMe.delete();
             }
 
-            Mixed.wait(111); // wait some time to not to hurt the node on next retry
+            Mixed.wait(1111); // wait some time to not to hurt the node on next retry
 
             index++; // whatever happened, try next index next time
-            
+
             try { // we don't want to die for any reason
 
-                if( testMe.length() == 0 ) {
-                    failures++; // nothing downloaded
+                if (results == null) {
+                    // download failed, try next file
+                    testMe.delete();
                     continue;
-                } else {
-                    failures = 0; // we downloaded something
+                }
+                
+                // we downloaded something
+                failures = 0;
+                
+                // either null (unsigned) or signed and maybe encrypted message
+                byte[] metadata = results.getRawMetadata();
+
+                if( testMe.length() == 0 ) {
+                    // Frosts message files do always contain data, so the received content is wrong
+                    if( metadata != null && metadata.length > 0 ) {
+                        logger.severe("TOFDN: Received metadata without data, maybe faked message.");
+                    } else if( metadata == null || metadata.length == 0 ) {
+                        // paranoia checking, should never happen if FcpResults != null
+                        logger.severe("TOFDN: Received neither metadata nor data, maybe a bug or a faked message.");
+                    } else {
+                        // something bad happened if we ever come here :)
+                        logger.severe("TOFDN: Received something, but bad things happened in code, maybe a bug or a faked message.");
+                    }
+                    FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
+                    continue;
                 }
 
                 // a file was downloaded
@@ -319,8 +334,10 @@ public class MessageDownloadThread
                 // verify the zipped message
                 MetaData _metaData = null;
                 try {
-                    Element el = XMLTools.parseXmlContent(metadata, false).getDocumentElement();
-                    _metaData = MetaData.getInstance(el);
+                    Document doc = XMLTools.parseXmlContent(metadata, false);
+                    if( doc != null ) { // was metadata xml ok?
+                        _metaData = MetaData.getInstance( doc.getDocumentElement() );
+                    }
                 } catch (Throwable t) {
                     logger.log(Level.SEVERE, "TOFDN: Exeption in MetaData.getInstance(): ", t);
                     _metaData = null;
@@ -360,10 +377,6 @@ public class MessageDownloadThread
 
                 // only for correct owner (no faking allowed here)
                 if( sigIsValid ) {
-                    // check if we already have owners board
-//                    if( owner.getBoard() == null && metaData.getPerson().getBoard() != null ) {
-//                        owner.setBoard(metaData.getPerson().getBoard());
-//                    }
                     // update lastSeen for this Identity
                     owner.updateLastSeenTimestamp();
                 }
@@ -512,25 +525,25 @@ public class MessageDownloadThread
                 }
                 // add all boards to the list of known boards
                 if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xOLD &&
-                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) )
+                    Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_UNSIGNED) == true )
                 {
                     logger.info("Boards from unsigned message blocked.");
                 } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xBAD &&
-                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) )
+                           Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_BAD) == true )
                 {
                     logger.info("Boards from BAD message blocked.");
                 } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xCHECK &&
-                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) )
+                           Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_CHECK) == true )
                 {
                     logger.info("Boards from CHECK message blocked.");
                 } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xOBSERVE &&
-                        Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) )
+                           Core.frostSettings.getBoolValue(SettingsClass.BLOCK_BOARDS_FROM_OBSERVE) == true )
                 {
                     logger.info("Boards from OBSERVE message blocked.");
                 } else if( currentMsg.getSignatureStatus() == VerifyableMessageObject.xTAMPERED ) {
                     logger.info("Boards from TAMPERED message blocked.");
                 } else {
-                    // either GOOD user or add was allowed by user
+                    // either GOOD user or not blocked by user
                     Core.addNewKnownBoards(currentMsg.getAttachmentsOfType(Attachment.BOARD));
                 }
             }
