@@ -266,6 +266,9 @@ public class MessageDownloadThread
                 
                 // we downloaded something
                 failures = 0;
+
+                testMe.renameTo(testMe2);
+                testMe = testMe2;
                 
                 // either null (unsigned) or signed and maybe encrypted message
                 byte[] metadata = results.getRawMetadata();
@@ -284,10 +287,6 @@ public class MessageDownloadThread
                     FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     continue;
                 }
-
-                // a file was downloaded
-                testMe.renameTo(testMe2);
-                testMe = testMe2;
 
                 // compute the sha1 checksum of the original msg file
                 // this digest is ONLY used to check for incoming exact duplicate files, because
