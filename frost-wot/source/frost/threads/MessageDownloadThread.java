@@ -260,6 +260,7 @@ public class MessageDownloadThread
 
                 if (results == null) {
                     // download failed, try next file
+                    failures++;
                     testMe.delete();
                     continue;
                 }

@@ -433,6 +433,8 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 			logger.log(Level.SEVERE, "Oo. EXCEPTION in UpdateIdThread", t);
 		}
 
+        // TODO: currently only saved when thread finishes, but not on shutdown.
+        // does not hurt, but could be done better :)
         indexSlots.saveSlotsFile();
 
 //		notifyThreadFinished(this);
