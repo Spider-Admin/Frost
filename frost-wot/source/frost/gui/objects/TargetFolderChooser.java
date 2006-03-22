@@ -1,9 +1,9 @@
 /*
   TargetFolderChooser.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
   Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
 
-  This program is free software; you can redistribute it and/or 
+  This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
   published by the Free Software Foundation; either version 2 of
   the License, or (at your option) any later version.
@@ -37,9 +37,9 @@ public class TargetFolderChooser extends JDialog {
     private JTree folderTree = null;
     private JButton okButton = null;
     private JButton cancelButton = null;
-    
+
     private DefaultTreeModel treeModel;
-    
+
     private Board choosedFolder = null;
     private JScrollPane jScrollPane = null;
 
@@ -52,20 +52,20 @@ public class TargetFolderChooser extends JDialog {
         treeModel = new DefaultTreeModel(rootNode);
         initialize();
     }
-    
+
     /**
      * Build a new tree which contains all folders of the TofTree.
      */
     private MyTreeNode buildTree(TofTreeModel origModel) {
         MyTreeNode rootNode = new MyTreeNode((Board)origModel.getRoot());
-        
+
         addNodesRecursiv(rootNode, (DefaultMutableTreeNode)origModel.getRoot());
-        
+
         return rootNode;
     }
-    
+
     private void addNodesRecursiv(MyTreeNode addNode, DefaultMutableTreeNode origNode) {
-        
+
         for(int x=0; x<origNode.getChildCount(); x++) {
             Board b = (Board)origNode.getChildAt(x);
             if( b.isFolder() ) {
@@ -78,7 +78,7 @@ public class TargetFolderChooser extends JDialog {
 
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize() {
@@ -88,7 +88,7 @@ public class TargetFolderChooser extends JDialog {
         int x = (screen.width-dlgSizeX)/2;
         int y = (screen.height-dlgSizeY)/2;
         setBounds(x,y,dlgSizeX,dlgSizeY);
-        
+
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setModal(true);
         this.setTitle("Choose a target folder");
@@ -102,7 +102,7 @@ public class TargetFolderChooser extends JDialog {
 
     /**
      * This method initializes jContentPane
-     * 
+     *
      * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
@@ -116,9 +116,9 @@ public class TargetFolderChooser extends JDialog {
     }
 
     /**
-     * This method initializes buttonsPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes buttonsPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getButtonsPanel() {
         if( buttonsPanel == null ) {
@@ -133,9 +133,9 @@ public class TargetFolderChooser extends JDialog {
     }
 
     /**
-     * This method initializes folderTree	
-     * 	
-     * @return javax.swing.JTree	
+     * This method initializes folderTree
+     *
+     * @return javax.swing.JTree
      */
     private JTree getFolderTree() {
         if( folderTree == null ) {
@@ -147,9 +147,9 @@ public class TargetFolderChooser extends JDialog {
     }
 
     /**
-     * This method initializes okButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes okButton
+     *
+     * @return javax.swing.JButton
      */
     private JButton getOkButton() {
         if( okButton == null ) {
@@ -166,9 +166,9 @@ public class TargetFolderChooser extends JDialog {
     }
 
     /**
-     * This method initializes cancelButton	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes cancelButton
+     *
+     * @return javax.swing.JButton
      */
     private JButton getCancelButton() {
         if( cancelButton == null ) {
@@ -182,7 +182,7 @@ public class TargetFolderChooser extends JDialog {
         }
         return cancelButton;
     }
-    
+
     private void okButtonPressed() {
         choosedFolder = ((MyTreeNode)getFolderTree().getSelectionPath().getLastPathComponent()).getFolder();
         setVisible(false);
@@ -194,22 +194,22 @@ public class TargetFolderChooser extends JDialog {
     }
 
     public Board startDialog() {
-        
+
         setVisible(true);
         return choosedFolder;
     }
 
     /**
-     * This method initializes jScrollPane	
-     * 	
-     * @return javax.swing.JScrollPane	
+     * This method initializes jScrollPane
+     *
+     * @return javax.swing.JScrollPane
      */
     private JScrollPane getJScrollPane() {
         if( jScrollPane == null ) {
             jScrollPane = new JScrollPane();
             jScrollPane.setBackground(java.awt.Color.white);
             jScrollPane.setBorder(javax.swing.BorderFactory.createCompoundBorder(
-                    javax.swing.BorderFactory.createEmptyBorder(2,2,2,2), 
+                    javax.swing.BorderFactory.createEmptyBorder(2,2,2,2),
                     javax.swing.BorderFactory.createEtchedBorder(javax.swing.border.EtchedBorder.LOWERED)));
             jScrollPane.setViewportView(getFolderTree());
         }

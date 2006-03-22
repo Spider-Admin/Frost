@@ -1,6 +1,6 @@
 /*
   SettingsFun.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ import java.util.logging.*;
 
 public class SettingsFun
 {
-	private static Logger logger = Logger.getLogger(SettingsFun.class.getName());
+    private static Logger logger = Logger.getLogger(SettingsFun.class.getName());
 
     /**
      * Reads a settings file and returns the requested value

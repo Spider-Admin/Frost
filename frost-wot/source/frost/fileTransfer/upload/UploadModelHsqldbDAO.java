@@ -1,6 +1,6 @@
 /*
   UploadModelHsqldbDAO.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -26,36 +26,36 @@ import frost.storage.StorageException;
  */
 public class UploadModelHsqldbDAO implements UploadModelDAO {
 
-	/* (non-Javadoc)
-	 * @see frost.fileTransfer.upload.UploadModelDAO#exists()
-	 */
-	public boolean exists() {
-		// TODO Auto-generated method stub
-		return false;
-	}
+    /* (non-Javadoc)
+     * @see frost.fileTransfer.upload.UploadModelDAO#exists()
+     */
+    public boolean exists() {
+        // TODO Auto-generated method stub
+        return false;
+    }
 
-	/* (non-Javadoc)
-	 * @see frost.fileTransfer.upload.UploadModelDAO#load(frost.fileTransfer.upload.UploadModel)
-	 */
-	public void load(UploadModel uploadModel) throws StorageException {
-		// TODO Auto-generated method stub
-		
-	}
+    /* (non-Javadoc)
+     * @see frost.fileTransfer.upload.UploadModelDAO#load(frost.fileTransfer.upload.UploadModel)
+     */
+    public void load(UploadModel uploadModel) throws StorageException {
+        // TODO Auto-generated method stub
 
-	/* (non-Javadoc)
-	 * @see frost.fileTransfer.upload.UploadModelDAO#save(frost.fileTransfer.upload.UploadModel)
-	 */
-	public void save(UploadModel uploadModel) throws StorageException {
-		// TODO Auto-generated method stub
-		
-	}
+    }
 
-	/* (non-Javadoc)
-	 * @see frost.fileTransfer.upload.UploadModelDAO#create()
-	 */
-	public void create() throws StorageException {
-		// TODO Auto-generated method stub
-		
-	}
+    /* (non-Javadoc)
+     * @see frost.fileTransfer.upload.UploadModelDAO#save(frost.fileTransfer.upload.UploadModel)
+     */
+    public void save(UploadModel uploadModel) throws StorageException {
+        // TODO Auto-generated method stub
+
+    }
+
+    /* (non-Javadoc)
+     * @see frost.fileTransfer.upload.UploadModelDAO#create()
+     */
+    public void create() throws StorageException {
+        // TODO Auto-generated method stub
+
+    }
 
 }

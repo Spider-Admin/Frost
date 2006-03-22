@@ -1,6 +1,6 @@
 /*
   FreenetKey.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -27,33 +27,33 @@ public class FreenetKey {
 
     private int keyType;
     private String keyString;
-  
+
     public FreenetKey(String key) {
-    	keyType = getKeyType(key);
-    	keyString = key;
+        keyType = getKeyType(key);
+        keyString = key;
     }
 
     private static int getKeyType(String key)
     {
-    	String freenetPrefix = "freenet:";
-    	int keyType;
-        
-    	if (key.startsWith(freenetPrefix)) {
-    	    key = key.substring(freenetPrefix.length());
-    	}
-    
-    	// determine the key type, assume a KSK
-    	if (key.startsWith("CHK")) {
-    	    keyType = CHK;
-        } else if (key.startsWith("SSK")) {
-    	    keyType = SSK;
-        } else if (key.startsWith("MSK")) {
-    	    keyType = MSK;
-        } else { 
-    	    keyType = KSK;
+        String freenetPrefix = "freenet:";
+        int keyType;
+
+        if (key.startsWith(freenetPrefix)) {
+            key = key.substring(freenetPrefix.length());
         }
-        
-    	return keyType;
+
+        // determine the key type, assume a KSK
+        if (key.startsWith("CHK")) {
+            keyType = CHK;
+        } else if (key.startsWith("SSK")) {
+            keyType = SSK;
+        } else if (key.startsWith("MSK")) {
+            keyType = MSK;
+        } else {
+            keyType = KSK;
+        }
+
+        return keyType;
     }
 
     public String getKeyString() {

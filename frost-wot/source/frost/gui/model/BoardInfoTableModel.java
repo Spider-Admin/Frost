@@ -1,6 +1,6 @@
 /*
   BoardInfoTableModel.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,9 +23,9 @@ import frost.util.gui.translation.*;
 
 public class BoardInfoTableModel extends SortedTableModel implements LanguageListener
 {
-	private Language language = null;
+    private Language language = null;
 
-	protected final static String columnNames[] = new String[5];
+    protected final static String columnNames[] = new String[5];
 
     protected final static Class columnClasses[] =  {
         String.class, //LangRes.getString("Board"),
@@ -35,39 +35,39 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
         Integer.class //LangRes.getString("Files")
     };
 
-	/**
-	 * 
-	 */
-	public BoardInfoTableModel() {
-		super();
-		language = Language.getInstance();
-		refreshLanguage();
-	}
+    /**
+     *
+     */
+    public BoardInfoTableModel() {
+        super();
+        language = Language.getInstance();
+        refreshLanguage();
+    }
 
     /**
-	 * 
-	 */
-	private void refreshLanguage() {
-	   	columnNames[0] = language.getString("Board");
-		columnNames[1] = language.getString("State");
-		columnNames[2] = language.getString("Messages");
-		columnNames[3] = language.getString("Messages Today");
-		columnNames[4] = language.getString("Files");
-		
-		fireTableStructureChanged();		
-	}
-	
-	/* (non-Javadoc)
-	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-	 */
-	public void languageChanged(LanguageEvent event) {
-		refreshLanguage();
-	}
+     *
+     */
+    private void refreshLanguage() {
+        columnNames[0] = language.getString("Board");
+        columnNames[1] = language.getString("State");
+        columnNames[2] = language.getString("Messages");
+        columnNames[3] = language.getString("Messages Today");
+        columnNames[4] = language.getString("Files");
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#isCellEditable(int, int)
-	 */
-	public boolean isCellEditable(int row, int col)
+        fireTableStructureChanged();
+    }
+
+    /* (non-Javadoc)
+     * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+     */
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();
+    }
+
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#isCellEditable(int, int)
+     */
+    public boolean isCellEditable(int row, int col)
     {
         return false;
     }
@@ -81,7 +81,7 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
             return columnNames[column];
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
@@ -89,7 +89,7 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
     {
         return columnNames.length;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */

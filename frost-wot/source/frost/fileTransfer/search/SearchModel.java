@@ -1,6 +1,6 @@
 /*
   SearchModel.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -33,84 +33,84 @@ import frost.util.model.*;
  */
 public class SearchModel extends OrderedModel {
 
-	private FrostIdentities identities;
+    private FrostIdentities identities;
 
-	private DownloadModel downloadModel;
+    private DownloadModel downloadModel;
 
-	private SettingsClass settings;
+    private SettingsClass settings;
 
-	/**
-	 * 
-	 */
-	public SearchModel(SettingsClass frostSettings) {
-		super();
-		settings = frostSettings;
-	}
+    /**
+     *
+     */
+    public SearchModel(SettingsClass frostSettings) {
+        super();
+        settings = frostSettings;
+    }
 
-	/**
-	 * @param searchItem
-	 */
-	public void addSearchItem(FrostSearchItem searchItem) {
-		addItem(searchItem);		
-	}
+    /**
+     * @param searchItem
+     */
+    public void addSearchItem(FrostSearchItem searchItem) {
+        addItem(searchItem);
+    }
 
-	/**
-	 * @param downloadModel
-	 */
-	public void setDownloadModel(DownloadModel model) {
-		downloadModel = model;		
-	}
+    /**
+     * @param downloadModel
+     */
+    public void setDownloadModel(DownloadModel model) {
+        downloadModel = model;
+    }
 
-	/**
-	 * @param selectedItems
-	 */
-	public void addItemsToDownloadModel(ModelItem[] selectedItems) {
-		for (int i = 0; i < selectedItems.length; i++) {
-			FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
-			FrostDownloadItem dlItem = new FrostDownloadItem(searchItem);
-			downloadModel.addDownloadItem(dlItem);
-		}
-	}
+    /**
+     * @param selectedItems
+     */
+    public void addItemsToDownloadModel(ModelItem[] selectedItems) {
+        for (int i = 0; i < selectedItems.length; i++) {
+            FrostSearchItem searchItem = (FrostSearchItem) selectedItems[i];
+            FrostDownloadItem dlItem = new FrostDownloadItem(searchItem);
+            downloadModel.addDownloadItem(dlItem);
+        }
+    }
 
-	/**
-	 * 
-	 */
-	public synchronized void addAllItemsToDownloadModel() {
-		Iterator iterator = data.iterator();
-		while (iterator.hasNext()) {
-			FrostSearchItem searchItem = (FrostSearchItem) iterator.next();
-			FrostDownloadItem dlItem = new FrostDownloadItem(searchItem);
-			downloadModel.addDownloadItem(dlItem);
-		}
-	}
+    /**
+     *
+     */
+    public synchronized void addAllItemsToDownloadModel() {
+        Iterator iterator = data.iterator();
+        while (iterator.hasNext()) {
+            FrostSearchItem searchItem = (FrostSearchItem) iterator.next();
+            FrostDownloadItem dlItem = new FrostDownloadItem(searchItem);
+            downloadModel.addDownloadItem(dlItem);
+        }
+    }
 
-	/**
-	 * @param selectedItems
-	 * @return
-	 */
-	public Iterator getSelectedItemsOwners(ModelItem[] selectedItems) {
-		List result = new LinkedList();
-		for (int i = 0; i < selectedItems.length; i++) {
-			FrostSearchItem srItem = (FrostSearchItem) selectedItems[i];
-			String owner = srItem.getOwner();
-			//check if null or from myself
-			if (owner == null || owner.compareTo(identities.getMyId().getUniqueName()) == 0)
-				continue;
+    /**
+     * @param selectedItems
+     * @return
+     */
+    public Iterator getSelectedItemsOwners(ModelItem[] selectedItems) {
+        List result = new LinkedList();
+        for (int i = 0; i < selectedItems.length; i++) {
+            FrostSearchItem srItem = (FrostSearchItem) selectedItems[i];
+            String owner = srItem.getOwner();
+            //check if null or from myself
+            if (owner == null || owner.compareTo(identities.getMyId().getUniqueName()) == 0)
+                continue;
 
-			//see if already on some list
-			Identity id = identities.getIdentity(owner);
-			if (id != null) {
-				result.add(id);
+            //see if already on some list
+            Identity id = identities.getIdentity(owner);
+            if (id != null) {
+                result.add(id);
             }
-		}
-		return result.iterator();
-	}
+        }
+        return result.iterator();
+    }
 
-	/**
-	 * @param newIdentities
-	 */
-	public void setIdentities(FrostIdentities newIdentities) {
-		identities = newIdentities;	
-	}
+    /**
+     * @param newIdentities
+     */
+    public void setIdentities(FrostIdentities newIdentities) {
+        identities = newIdentities;
+    }
 
 }

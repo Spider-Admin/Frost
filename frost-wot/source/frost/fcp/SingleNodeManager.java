@@ -1,6 +1,6 @@
 /*
   SingleNodeManager.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -25,17 +25,17 @@ import frost.Core;
  * Creates connections to a single node
  */
 public final class SingleNodeManager implements NodeManager {
-	final static boolean DEBUG = false;
-	String nodeUnparsed;
-	String[] nodeParsed;
-    
-	public void init() {
-		nodeUnparsed = (String) Core.getNodes().iterator().next();
-		nodeParsed = nodeUnparsed.split(":");
-	}
+    final static boolean DEBUG = false;
+    String nodeUnparsed;
+    String[] nodeParsed;
 
-	public FcpConnection getConnection()
-		throws IOException, FcpToolsException {
-		return new FcpConnection(nodeParsed[0], nodeParsed[1]);
-	}
+    public void init() {
+        nodeUnparsed = (String) Core.getNodes().iterator().next();
+        nodeParsed = nodeUnparsed.split(":");
+    }
+
+    public FcpConnection getConnection()
+        throws IOException, FcpToolsException {
+        return new FcpConnection(nodeParsed[0], nodeParsed[1]);
+    }
 }

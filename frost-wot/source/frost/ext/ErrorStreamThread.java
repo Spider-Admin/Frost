@@ -1,6 +1,6 @@
 /*
 ErrorStreamThread.java / Frost
-Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -27,40 +27,40 @@ import java.util.logging.*;
  * @version 010711
  */
 class ErrorStreamThread extends Thread {
-    
-	private static Logger logger = Logger.getLogger(ErrorStreamThread.class.getName());
-    
+
+    private static Logger logger = Logger.getLogger(ErrorStreamThread.class.getName());
+
     Process p;
     Transit data;
 
     public void run() {
-	
-    	StringBuffer output = new StringBuffer();
-    	DataInputStream dis = new DataInputStream(p.getErrorStream());
-    	
-    	try {
-    	    int result = 0;
-    
-    	    while((result = dis.read()) != -1) {
-    		output.append((char)result);
-    	    }
+
+        StringBuffer output = new StringBuffer();
+        DataInputStream dis = new DataInputStream(p.getErrorStream());
+
+        try {
+            int result = 0;
+
+            while((result = dis.read()) != -1) {
+            output.append((char)result);
+            }
             String s = output.toString().trim();
             if( s.length() > 0 ) {
                 logger.warning("err output from external program: "+s);
             }
-    	}
-    	catch (IOException e) {
-    		logger.log(Level.SEVERE, "Can't get input stream.", e);
-    	}
+        }
+        catch (IOException e) {
+            logger.log(Level.SEVERE, "Can't get input stream.", e);
+        }
         data.setString(output.toString());
     }
-    
+
     /**
      * Constructor
      * @param p Process to get the Error Stream from
      */
     public ErrorStreamThread (Process p, Transit data) {
-    	this.p = p;
-    	this.data = data;
+        this.p = p;
+        this.data = data;
     }
 }

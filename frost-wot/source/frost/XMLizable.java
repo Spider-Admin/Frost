@@ -1,6 +1,6 @@
 /*
   XMLizable.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -27,14 +27,14 @@ import org.xml.sax.SAXException;
  * Interface for objects that will be serializable in xml
  */
 public interface XMLizable extends Serializable {
-	
-	/**
-	 * Creates an xml element of those objects that can be serialized to xml
-	 * @param container the parent document
-	 * @return the element that's ready to be returned
-	 */
-	public Element getXMLElement(Document container); 
-	
-	public void loadXMLElement(Element e) throws SAXException; //this probably shouldn't be SAXException
-	
+
+    /**
+     * Creates an xml element of those objects that can be serialized to xml
+     * @param container the parent document
+     * @return the element that's ready to be returned
+     */
+    public Element getXMLElement(Document container);
+
+    public void loadXMLElement(Element e) throws SAXException; //this probably shouldn't be SAXException
+
 }

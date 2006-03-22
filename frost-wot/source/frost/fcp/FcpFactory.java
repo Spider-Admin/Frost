@@ -1,6 +1,6 @@
 /*
   FcpFactory.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -27,58 +27,58 @@ import frost.*;
 
 
 public class FcpFactory {
-	static NodeManager manager = null;
+    static NodeManager manager = null;
 
-	private static Logger logger = Logger.getLogger(FcpFactory.class.getName());
+    private static Logger logger = Logger.getLogger(FcpFactory.class.getName());
 
-	/**
-	 * This method creates an instance of FcpConnection and handles errors.
-	 * Returns either the connection, or null on any error.
-	 */
-	public static FcpConnection getFcpConnectionInstance() {
-		if (manager == null) {
-			if (Core.getNodes().size() == 1)
-				manager = new SingleNodeManager();
-			else
-				manager = new RandomMultipleNodeManager(); //sick of debugging the other one
+    /**
+     * This method creates an instance of FcpConnection and handles errors.
+     * Returns either the connection, or null on any error.
+     */
+    public static FcpConnection getFcpConnectionInstance() {
+        if (manager == null) {
+            if (Core.getNodes().size() == 1)
+                manager = new SingleNodeManager();
+            else
+                manager = new RandomMultipleNodeManager(); //sick of debugging the other one
 
-			manager.init();
-		}
-		FcpConnection connection = null;
+            manager.init();
+        }
+        FcpConnection connection = null;
 
-		int tries = 0;
-		//if we have more than one node, try each one at least once
-		int maxTries = Core.getNodes().size() > 1 ? Core.getNodes().size() : 3;
-		while (connection == null && tries < maxTries) {
-			try {
-				connection = manager.getConnection();
-			} catch (ConnectionException e) {
-				logger.warning(
-					"FcpConnection.getFcpConnectionInstance: FcpTools.ConnectionException "
-						+ e	+ " , this was try " + (tries + 1) + "/" + maxTries);
-			} catch (FcpToolsException e) {
-				logger.severe("FcpConnection.getFcpConnectionInstance: FcpToolsException " + e);
-				break;
-			} catch (UnknownHostException e) {
-				logger.severe("FcpConnection.getFcpConnectionInstance: UnknownHostException " + e);
-				break;
-			} catch (java.net.ConnectException e) {
-				/*  IOException java.net.ConnectException: Connection refused: connect  */
-				logger.warning(
-					"FcpConnection.getFcpConnectionInstance: java.net.ConnectException "
-						+ e + " , this was try " + (tries + 1) + "/" + maxTries);
-			} catch (IOException e) {
-				logger.warning(
-					"FcpConnection.getFcpConnectionInstance: IOException "
-						+ e + " , this was try " + (tries + 1) + "/" + maxTries);
-			}
-			tries++;
-			Mixed.wait(tries * 1250);
-		}
-		if (connection == null) {
-			logger.warning(
-				"ERROR: FcpConnection.getFcpConnectionInstance: Could not connect to node!");
-		}
-		return connection;
-	}
+        int tries = 0;
+        //if we have more than one node, try each one at least once
+        int maxTries = Core.getNodes().size() > 1 ? Core.getNodes().size() : 3;
+        while (connection == null && tries < maxTries) {
+            try {
+                connection = manager.getConnection();
+            } catch (ConnectionException e) {
+                logger.warning(
+                    "FcpConnection.getFcpConnectionInstance: FcpTools.ConnectionException "
+                        + e + " , this was try " + (tries + 1) + "/" + maxTries);
+            } catch (FcpToolsException e) {
+                logger.severe("FcpConnection.getFcpConnectionInstance: FcpToolsException " + e);
+                break;
+            } catch (UnknownHostException e) {
+                logger.severe("FcpConnection.getFcpConnectionInstance: UnknownHostException " + e);
+                break;
+            } catch (java.net.ConnectException e) {
+                /*  IOException java.net.ConnectException: Connection refused: connect  */
+                logger.warning(
+                    "FcpConnection.getFcpConnectionInstance: java.net.ConnectException "
+                        + e + " , this was try " + (tries + 1) + "/" + maxTries);
+            } catch (IOException e) {
+                logger.warning(
+                    "FcpConnection.getFcpConnectionInstance: IOException "
+                        + e + " , this was try " + (tries + 1) + "/" + maxTries);
+            }
+            tries++;
+            Mixed.wait(tries * 1250);
+        }
+        if (connection == null) {
+            logger.warning(
+                "ERROR: FcpConnection.getFcpConnectionInstance: Could not connect to node!");
+        }
+        return connection;
+    }
 }

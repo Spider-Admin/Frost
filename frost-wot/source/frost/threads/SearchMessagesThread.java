@@ -1,6 +1,6 @@
 /*
   SearchMessagesThread.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -33,9 +33,9 @@ public class SearchMessagesThread extends Thread {
 
     SearchMessagesDialog searchDialog; // used to add found messages
     SearchMessagesConfig searchConfig;
-    
+
     private boolean stopRequested = false;
-    
+
     String keypoolDir;
     String archiveDir;
 
@@ -44,7 +44,7 @@ public class SearchMessagesThread extends Thread {
     public SearchMessagesThread(SearchMessagesDialog searchDlg, SearchMessagesConfig searchCfg) {
         searchDialog = searchDlg;
         searchConfig = searchCfg;
-        
+
         keypoolDir = MainFrame.keypool;
         archiveDir = Core.frostSettings.getValue("archive.dir");
         if( archiveDir == null || archiveDir.length() == 0 ) {
@@ -53,7 +53,7 @@ public class SearchMessagesThread extends Thread {
         }
         archiveDir += ("messages" + File.separator);
     }
-    
+
     public void run() {
 
         try {
@@ -66,22 +66,22 @@ public class SearchMessagesThread extends Thread {
             } else {
                 boardsToSearch = new ArrayList(); // paranoia
             }
-    
+
             TrustStates trustStates = new TrustStates();
             DateRange dateRange = new DateRange();
-    
+
             for(Iterator i=boardsToSearch.iterator(); i.hasNext(); ) {
-                
+
                 if( isStopRequested() ) {
                     break;
                 }
-                
+
                 Board board = (Board)i.next();
-                
+
                 // build date and trust state info for this board
                 updateTrustStatesForBoard(board, trustStates);
                 updateDateRangeForBoard(board, dateRange);
-                
+
                 if( searchConfig.searchInKeypool ) {
                     // search in keypool
                     // Format: keypool\boards\2006.3.1\2006.3.1-boards-0.xml
@@ -92,11 +92,11 @@ public class SearchMessagesThread extends Thread {
                         logger.warning("No board folder in keypool for board "+board.getName());
                     }
                 }
-                
+
                 if( isStopRequested() ) {
                     break;
                 }
-    
+
                 if( searchConfig.searchInArchive && archiveDir != null ) {
                     // search in archive
                     // Format: keypool-archive.j\messages\boards\2005.12.7\2005.12.7-boards-0.xml
@@ -113,17 +113,17 @@ public class SearchMessagesThread extends Thread {
         }
         searchDialog.notifySearchThreadFinished();
     }
-    
+
     // Format: boards\2006.3.1\2006.3.1-boards-0.xml
     private void searchBoardFolder(File boardFolder, TrustStates ts, DateRange dr, boolean archived) {
-        
+
         File[] boardFolderFiles = boardFolder.listFiles();
         if( boardFolderFiles == null ) {
             logger.severe("Could not get list of files for folder "+boardFolder.getPath());
             return;
         }
         for(int x=0; x < boardFolderFiles.length; x++) {
-            
+
             if( isStopRequested() ) {
                 break;
             }
@@ -140,10 +140,10 @@ public class SearchMessagesThread extends Thread {
                 logger.warning("Incorrect board date folder name, must be a date: "+boardFolderFile.getPath());
                 continue;
             }
-            
+
             // check if this date dir is in the date range we want to search
             if( dr.startDate != null && dr.endDate != null &&
-                (dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate)) ) 
+                (dateDirCal.before(dr.startDate) || dateDirCal.after(dr.endDate)) )
             {
                 continue;
             }
@@ -154,7 +154,7 @@ public class SearchMessagesThread extends Thread {
                 continue;
             }
             for(int y=0; y < xmlFiles.length; y++) {
-                
+
                 if( isStopRequested() ) {
                     break;
                 }
@@ -165,9 +165,9 @@ public class SearchMessagesThread extends Thread {
             }
         }
     }
-    
+
     private void searchXmlFile(File xmlFile, TrustStates ts, boolean archived) {
-        
+
         FrostSearchResultMessageObject mo = null;
         try {
             mo = new FrostSearchResultMessageObject(xmlFile, archived);
@@ -175,14 +175,14 @@ public class SearchMessagesThread extends Thread {
             logger.warning("Could not load xml file '"+xmlFile.getPath()+"': "+t.toString());
             return;
         }
-        
+
         // check private only
         if( searchConfig.searchPrivateMsgsOnly ) {
             if( mo.getRecipient() == null || mo.getRecipient().length() == 0 ) {
                 return;
             }
         }
-        
+
         // check trust states
         if( matchesTrustStates(mo, ts) == false ) {
             return;
@@ -195,7 +195,7 @@ public class SearchMessagesThread extends Thread {
                 return;
             }
         }
-        
+
         // check subject
         if( searchConfig.subject != null ) {
             if( searchInText(searchConfig.subject, mo.getSubject()) == false ) {
@@ -203,7 +203,7 @@ public class SearchMessagesThread extends Thread {
                 return;
             }
         }
-        
+
         // check content
         if( searchConfig.content != null ) {
             if( searchInText(searchConfig.content, mo.getContent()) == false ) {
@@ -211,11 +211,11 @@ public class SearchMessagesThread extends Thread {
                 return;
             }
         }
-        
+
         // match, add to result table
         searchDialog.addFoundMessage(mo);
     }
-    
+
     private boolean searchInText(List searchItems, String txt) {
         boolean found = false;
         txt = txt.toLowerCase(); // search items are already lowercase
@@ -228,10 +228,10 @@ public class SearchMessagesThread extends Thread {
         }
         return found;
     }
-    
+
     private boolean matchesTrustStates(FrostMessageObject msg, TrustStates ts) {
         int state = msg.getMsgStatus();
-        
+
         if( state == VerifyableMessageObject.xGOOD && ts.trust_good == false ) {
             return false;
         }
@@ -250,10 +250,10 @@ public class SearchMessagesThread extends Thread {
         if( state == VerifyableMessageObject.xTAMPERED && ts.trust_tampered == false ) {
             return false;
         }
-        
+
         return true;
     }
-    
+
     private void updateTrustStatesForBoard(Board b, TrustStates ts) {
         if( searchConfig.searchTruststates == SearchMessagesConfig.TRUST_ALL ) {
             // use all trust states
@@ -281,7 +281,7 @@ public class SearchMessagesThread extends Thread {
             ts.trust_tampered = !b.getShowSignedOnly();
         }
     }
-    
+
     private void updateDateRangeForBoard(Board b, DateRange dr) {
         if( searchConfig.searchDates == SearchMessagesConfig.DATE_DISPLAYED ) {
             dr.startDate = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
@@ -332,7 +332,7 @@ public class SearchMessagesThread extends Thread {
         public boolean trust_none = false;
         public boolean trust_tampered = false;
     }
-    
+
     private class XmlFileFilter implements FileFilter {
         public boolean accept(File f) {
             if( f.isFile() && f.getName().endsWith(".xml") ) {

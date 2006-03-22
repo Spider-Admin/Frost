@@ -1,6 +1,6 @@
 /*
   GetFriendsRequestsThread.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -30,15 +30,15 @@ import frost.messages.*;
 
 public class GetFriendsRequestsThread extends TimerTask {
 
-	private FrostIdentities identities;
+    private FrostIdentities identities;
     private RequestThread runner = null;
 
-	private static Logger logger = Logger.getLogger(GetFriendsRequestsThread.class.getName());
+    private static Logger logger = Logger.getLogger(GetFriendsRequestsThread.class.getName());
 
-	public GetFriendsRequestsThread(FrostIdentities newIdentities) {
-		super();
-		identities = newIdentities;
-	}
+    public GetFriendsRequestsThread(FrostIdentities newIdentities) {
+        super();
+        identities = newIdentities;
+    }
 
     private class RequestThread extends Thread {
         public void run() {
@@ -56,15 +56,15 @@ public class GetFriendsRequestsThread extends TimerTask {
         }
     }
 
-	private Set generatePrefixes() {
+    private Set generatePrefixes() {
 
         Set prefixes = new HashSet();
 
-		// process all index files
+        // process all index files
         File keypool = new File(MainFrame.keypool);
         File[] boardDirs = keypool.listFiles();
-		for (int i = 0; i < boardDirs.length; i++) {
-			if (boardDirs[i].isDirectory()) {
+        for (int i = 0; i < boardDirs.length; i++) {
+            if (boardDirs[i].isDirectory()) {
                 File current = new File(boardDirs[i].getPath() + File.separator + "files.xml");
                 if (!current.isFile()) {
                     continue;
@@ -83,8 +83,8 @@ public class GetFriendsRequestsThread extends TimerTask {
         boardDirs = null;
         System.gc();
         return prefixes;
-	}
-    
+    }
+
     private void addToPrefixes(Collection c, Set prefixes) {
         for(Iterator it = c.iterator(); it.hasNext(); ) {
             SharedFileObject current = (SharedFileObject) it.next();
@@ -111,50 +111,50 @@ public class GetFriendsRequestsThread extends TimerTask {
         }
     }
 
-	private void doRequests() {
-		logger.info("starting to request requests for friends");
+    private void doRequests() {
+        logger.info("starting to request requests for friends");
 
-		Set prefixes = generatePrefixes();
+        Set prefixes = generatePrefixes();
 
-		logger.info("Will help a total of " + prefixes.size() + " batches");
-		File tempFile = new File("requests" + File.separator + "helper.tmp");
-		for(Iterator it = prefixes.iterator(); it.hasNext(); ) {
-			String currentPrefix = (String)it.next();
+        logger.info("Will help a total of " + prefixes.size() + " batches");
+        File tempFile = new File("requests" + File.separator + "helper.tmp");
+        for(Iterator it = prefixes.iterator(); it.hasNext(); ) {
+            String currentPrefix = (String)it.next();
             it.remove(); // remove currentPrefix to free mem
-			
-			//request until a DNF - we're doing this for other people so we don't really care
-			//and its ok to request the same keys again the next time around
 
-			String date = DateFun.getDate();
-			int index = -1;
-			String slot;
-			do {
-				index++;
-				slot = new StringBuffer()
+            //request until a DNF - we're doing this for other people so we don't really care
+            //and its ok to request the same keys again the next time around
+
+            String date = DateFun.getDate();
+            int index = -1;
+            String slot;
+            do {
+                index++;
+                slot = new StringBuffer()
                         .append(currentPrefix)
                         .append("-")
                         .append(date)
                         .append("-")
                         .append(index)
-                        .append(".req.sha").toString(); 
-				logger.fine("friend's request address is " + slot);
-				tempFile.delete();
+                        .append(".req.sha").toString();
+                logger.fine("friend's request address is " + slot);
+                tempFile.delete();
 
                 // sleep 1 second between requests to not hurt the node to much
                 try { Thread.sleep(1000); }
                 catch(Exception ex) { }
 
-			} while(FcpRequest.getFile(slot,
-				null,
-				tempFile,
-				21,
-				true, //do redirect
-				false) //deep request
-				!= null ); //break when dnfs
-			
-			logger.fine("batch of " + currentPrefix + " had " + index + " requests");
-		}
-		tempFile.delete();
-		logger.info("finishing requesting friend's requests");
-	}
+            } while(FcpRequest.getFile(slot,
+                null,
+                tempFile,
+                21,
+                true, //do redirect
+                false) //deep request
+                != null ); //break when dnfs
+
+            logger.fine("batch of " + currentPrefix + " had " + index + " requests");
+        }
+        tempFile.delete();
+        logger.info("finishing requesting friend's requests");
+    }
 }

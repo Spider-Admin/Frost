@@ -1,6 +1,6 @@
 /*
   SearchMessagesResultTable.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -28,9 +28,9 @@ import frost.gui.objects.*;
 import frost.messages.*;
 
 public class SearchMessagesResultTable extends SortedTable {
-    
+
     private CellRenderer cellRenderer = new CellRenderer();
-    
+
     public SearchMessagesResultTable(SearchMessagesTableModel m) {
         super(m);
 
@@ -41,10 +41,10 @@ public class SearchMessagesResultTable extends SortedTable {
         sortedColumnAscending = false;
         resortTable();
     }
-    
+
     /**
      * Save the current column positions and column sizes for restore on next startup.
-     * 
+     *
      * @param frostSettings
      */
 //    public void saveLayout(SettingsClass frostSettings) {
@@ -62,16 +62,16 @@ public class SearchMessagesResultTable extends SortedTable {
 
     /**
      * Load the saved column positions and column sizes.
-     * 
+     *
      * @param frostSettings
      */
 //    public void loadLayout(SettingsClass frostSettings) {
 //        TableColumnModel tcm = getColumnModel();
-//        
+//
 //        // load the saved tableindex for each column in model, and its saved width
 //        int[] tableToModelIndex = new int[tcm.getColumnCount()];
 //        int[] columnWidths = new int[tcm.getColumnCount()];
-//        
+//
 //        for(int x=0; x < tableToModelIndex.length; x++) {
 //            String indexKey = "messagetable.tableindex.modelcolumn."+x;
 //            if( frostSettings.getObjectValue(indexKey) == null ) {
@@ -83,7 +83,7 @@ public class SearchMessagesResultTable extends SortedTable {
 //                return; // invalid table index value
 //            }
 //            tableToModelIndex[tableIndex] = x;
-//            
+//
 //            String widthKey = "messagetable.columnwidth.modelcolumn."+x;
 //            if( frostSettings.getObjectValue(widthKey) == null ) {
 //                return; // column not found, abort
@@ -96,12 +96,12 @@ public class SearchMessagesResultTable extends SortedTable {
 //            columnWidths[x] = columnWidth;
 //        }
 //        // columns are currently added in model order, remove them all and save in an array
-//        // while on it, set the loaded width of each column 
+//        // while on it, set the loaded width of each column
 //        TableColumn[] tcms = new TableColumn[tcm.getColumnCount()];
 //        for(int x=tcms.length-1; x >= 0; x--) {
 //            tcms[x] = tcm.getColumn(x);
 //            tcm.removeColumn(tcms[x]);
-//            
+//
 //            tcms[x].setPreferredWidth(columnWidths[x]);
 //        }
 //        // add the columns in order loaded from settings
@@ -124,13 +124,13 @@ public class SearchMessagesResultTable extends SortedTable {
         private final Color col_check   = new Color(0xFF, 0xCC, 0x00);
         private final Color col_observe = new Color(0x00, 0xD0, 0x00);
         private final Color col_bad     = new Color(0xFF, 0x00, 0x00);
-        
+
         public CellRenderer() {
             Font baseFont = SearchMessagesResultTable.this.getFont();
             normalFont = baseFont.deriveFont(Font.PLAIN);
             boldFont = baseFont.deriveFont(Font.BOLD);
         }
-        
+
         public void paintComponent (Graphics g) {
             super.paintComponent(g);
             if(isDeleted) {
@@ -138,7 +138,7 @@ public class SearchMessagesResultTable extends SortedTable {
                 g.drawLine(0, size.height / 2, size.width, size.height / 2);
             }
         }
-        
+
         public Component getTableCellRendererComponent(
             JTable table,
             Object value,
@@ -146,13 +146,13 @@ public class SearchMessagesResultTable extends SortedTable {
             boolean hasFocus,
             int row,
             int column) {
-            
+
             super.getTableCellRendererComponent(table, value, isSelected, hasFocus, row, column);
 
             SearchMessagesTableModel model = (SearchMessagesTableModel) getModel();
             FrostSearchResultMessageObject msg = (FrostSearchResultMessageObject) model.getRow(row);
-            
-            // get the original model column index (maybe columns were reordered by user) 
+
+            // get the original model column index (maybe columns were reordered by user)
             TableColumn tableColumn = getColumnModel().getColumn(column);
             column = tableColumn.getModelIndex();
 
@@ -213,9 +213,9 @@ public class SearchMessagesResultTable extends SortedTable {
                     setForeground(Color.BLACK);
                 }
             }
-            
+
             setDeleted(msg.isDeleted());
-            
+
             return this;
         }
 
@@ -227,7 +227,7 @@ public class SearchMessagesResultTable extends SortedTable {
             normalFont = font.deriveFont(Font.PLAIN);
             boldFont = font.deriveFont(Font.BOLD);
         }
-        
+
         public void setDeleted(boolean value) {
             isDeleted = value;
         }

@@ -1,6 +1,6 @@
 /*
   SearchMessagesDialog.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -38,11 +38,11 @@ import frost.util.gui.translation.*;
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     private Language language = Language.getInstance();
-    
+
     private String resultCountPrefix = null;
     private String startSearchStr = null;
     private String stopSearchStr = null;
-    
+
     private JPanel jContentPane = null;
     private JPanel contentPanel = null;
     private JPanel Pbuttons = null;
@@ -106,14 +106,14 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         languageChanged(null);
         loadWindowState();
         initializeWithDefaults();
-        
+
         language.addLanguageListener(this);
     }
 
     /**
-     * This method initializes search_TFsubject	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes search_TFsubject
+     *
+     * @return javax.swing.JTextField
      */
     private JTextField getSearch_TFsubject() {
         if( search_TFsubject == null ) {
@@ -124,7 +124,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize() {
@@ -141,7 +141,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     /**
      * This method initializes jContentPane
-     * 
+     *
      * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
@@ -155,9 +155,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes contentPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes contentPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getContentPanel() {
         if( contentPanel == null ) {
@@ -170,9 +170,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes buttonPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes buttonPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPbuttons() {
         if( Pbuttons == null ) {
@@ -185,9 +185,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes Bsearch	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bsearch
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBsearch() {
         if( Bsearch == null ) {
@@ -202,9 +202,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes Bcancel	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bcancel
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBcancel() {
         if( Bcancel == null ) {
@@ -219,9 +219,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jTabbedPane	
-     * 	
-     * @return javax.swing.JTabbedPane	
+     * This method initializes jTabbedPane
+     *
+     * @return javax.swing.JTabbedPane
      */
     private JTabbedPane getJTabbedPane() {
         if( jTabbedPane == null ) {
@@ -237,9 +237,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPsearch() {
         if( Psearch == null ) {
@@ -306,9 +306,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel2	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel2
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPsearchResult() {
         if( PsearchResult == null ) {
@@ -346,9 +346,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jTextField	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField
+     *
+     * @return javax.swing.JTextField
      */
     private JTextField getSearch_TFsender() {
         if( search_TFsender == null ) {
@@ -358,9 +358,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jTextField1	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField1
+     *
+     * @return javax.swing.JTextField
      */
     private JTextField getSearch_TFcontent() {
         if( search_TFcontent == null ) {
@@ -370,9 +370,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel1	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel1
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPdate() {
         if( Pdate == null ) {
@@ -442,9 +442,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getDate_RBdisplayed() {
         if( date_RBdisplayed == null ) {
@@ -459,9 +459,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton1	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton1
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getDate_RBbetweenDates() {
         if( date_RBbetweenDates == null ) {
@@ -476,9 +476,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jTextField3	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField3
+     *
+     * @return javax.swing.JTextField
      */
     private MDateEntryField getDate_TFstartDate() {
         if( date_TFstartDate == null ) {
@@ -492,9 +492,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jTextField4	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField4
+     *
+     * @return javax.swing.JTextField
      */
     private MDateEntryField getDate_TFendDate() {
         if( date_TFendDate == null ) {
@@ -508,9 +508,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton2	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton2
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getDate_RBdaysBackward() {
         if( date_RBdaysBackward == null ) {
@@ -523,7 +523,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         return date_RBdaysBackward;
     }
-    
+
     private void date_RBitemStateChanged() {
         if( getDate_RBdisplayed().isSelected() ) {
             getDate_TFdaysBackward().setEnabled(false);
@@ -537,13 +537,13 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             getDate_TFdaysBackward().setEnabled(true);
             getDate_TFendDate().setEnabled(false);
             getDate_TFstartDate().setEnabled(false);
-        }        
+        }
     }
 
     /**
-     * This method initializes jTextField5	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField5
+     *
+     * @return javax.swing.JTextField
      */
     private JTextField getDate_TFdaysBackward() {
         if( date_TFdaysBackward == null ) {
@@ -555,9 +555,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel4	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel4
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPtrustState() {
         if( PtrustState == null ) {
@@ -598,9 +598,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton3	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton3
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getTruststate_RBdisplayed() {
         if( truststate_RBdisplayed == null ) {
@@ -613,7 +613,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         return truststate_RBdisplayed;
     }
-    
+
     private void trustState_RBitemStateChanged() {
         boolean enableTtrustStatesPanel;
         if( getTruststate_RBchosed().isSelected() ) {
@@ -628,9 +628,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton4	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton4
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getTruststate_RBall() {
         if( truststate_RBall == null ) {
@@ -645,9 +645,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton5	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton5
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getTruststate_RBchosed() {
         if( truststate_RBchosed == null ) {
@@ -662,9 +662,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel5	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel5
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getTruststate_PtrustStates() {
         if( truststate_PtrustStates == null ) {
@@ -708,9 +708,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jCheckBox	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes jCheckBox
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getTruststate_CBgood() {
         if( truststate_CBgood == null ) {
@@ -720,9 +720,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jCheckBox1	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes jCheckBox1
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getTruststate_CBobserve() {
         if( truststate_CBobserve == null ) {
@@ -732,9 +732,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jCheckBox2	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes jCheckBox2
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getTruststate_CBcheck() {
         if( truststate_CBcheck == null ) {
@@ -744,9 +744,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jCheckBox3	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes jCheckBox3
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getTruststate_CBbad() {
         if( truststate_CBbad == null ) {
@@ -756,9 +756,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jCheckBox4	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes jCheckBox4
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getTruststate_CBnone() {
         if( truststate_CBnone == null ) {
@@ -768,9 +768,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jCheckBox5	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes jCheckBox5
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getTruststate_CBtampered() {
         if( truststate_CBtampered == null ) {
@@ -780,9 +780,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel3	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel3
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getParchive() {
         if( Parchive == null ) {
@@ -819,9 +819,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton6	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton6
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getArchive_RBkeypoolAndArchive() {
         if( archive_RBkeypoolAndArchive == null ) {
@@ -832,9 +832,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton7	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton7
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getArchive_RBkeypoolOnly() {
         if( archive_RBkeypoolOnly == null ) {
@@ -845,9 +845,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton8	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton8
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getArchive_RBarchiveOnly() {
         if( archive_RBarchiveOnly == null ) {
@@ -858,9 +858,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel6	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel6
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPboards() {
         if( Pboards == null ) {
@@ -908,9 +908,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton9	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton9
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getBoards_RBdisplayed() {
         if( boards_RBdisplayed == null ) {
@@ -925,9 +925,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jRadioButton10	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton10
+     *
+     * @return javax.swing.JRadioButton
      */
 //    private JRadioButton getBoards_RBallExisting() {
 //        if( boards_RBallExisting == null ) {
@@ -943,9 +943,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 //    }
 
     /**
-     * This method initializes jRadioButton11	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes jRadioButton11
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getBoards_RBchosed() {
         if( boards_RBchosed == null ) {
@@ -958,7 +958,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         return boards_RBchosed;
     }
-    
+
     private void boards_RBitemStateChanged() {
         boolean enableChooseControls;
         if( getBoards_RBchosed().isSelected() ) {
@@ -971,9 +971,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jButton1	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes jButton1
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBoards_Bchoose() {
         if( boards_Bchoose == null ) {
@@ -988,9 +988,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jTextField6	
-     * 	
-     * @return javax.swing.JTextField	
+     * This method initializes jTextField6
+     *
+     * @return javax.swing.JTextField
      */
     private JTextField getBoards_TFchosedBoards() {
         if( boards_TFchosedBoards == null ) {
@@ -1002,9 +1002,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jCheckBox6	
-     * 	
-     * @return javax.swing.JCheckBox	
+     * This method initializes jCheckBox6
+     *
+     * @return javax.swing.JCheckBox
      */
     private JCheckBox getSearch_CBprivateMsgsOnly() {
         if( search_CBprivateMsgsOnly == null ) {
@@ -1014,9 +1014,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jScrollPane	
-     * 	
-     * @return javax.swing.JScrollPane	
+     * This method initializes jScrollPane
+     *
+     * @return javax.swing.JScrollPane
      */
     private JScrollPane getJScrollPane() {
         if( jScrollPane == null ) {
@@ -1029,16 +1029,16 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jTable	
-     * 	
-     * @return javax.swing.JTable	
+     * This method initializes jTable
+     *
+     * @return javax.swing.JTable
      */
     private SearchMessagesResultTable getSearchResultTable() {
         if( searchResultTable == null ) {
             searchResultTable = new SearchMessagesResultTable(getSearchMessagesTableModel());
             searchResultTable.setAutoCreateColumnsFromModel(true);
             searchResultTable.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
-            
+
             searchResultTable.addMouseListener(new MouseAdapter() {
                 public void mousePressed(MouseEvent e) {
                     if(SwingUtilities.isLeftMouseButton(e) && e.getClickCount() == 2) {
@@ -1051,9 +1051,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes searchMessagesTableModel	
-     * 	
-     * @return frost.gui.model.SearchMessagesTableModel	
+     * This method initializes searchMessagesTableModel
+     *
+     * @return frost.gui.model.SearchMessagesTableModel
      */
     private SearchMessagesTableModel getSearchMessagesTableModel() {
         if( searchMessagesTableModel == null ) {
@@ -1063,9 +1063,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes buttonGroup	
-     * 	
-     * @return javax.swing.ButtonGroup	
+     * This method initializes buttonGroup
+     *
+     * @return javax.swing.ButtonGroup
      */
     private ButtonGroup getBoards_buttonGroup() {
         if( boards_buttonGroup == null ) {
@@ -1078,9 +1078,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes date_buttonGroup	
-     * 	
-     * @return javax.swing.ButtonGroup	
+     * This method initializes date_buttonGroup
+     *
+     * @return javax.swing.ButtonGroup
      */
     private ButtonGroup getDate_buttonGroup() {
         if( date_buttonGroup == null ) {
@@ -1094,9 +1094,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes truststate_buttonGroup	
-     * 	
-     * @return javax.swing.ButtonGroup	
+     * This method initializes truststate_buttonGroup
+     *
+     * @return javax.swing.ButtonGroup
      */
     private ButtonGroup getTruststate_buttonGroup() {
         if( truststate_buttonGroup == null ) {
@@ -1109,9 +1109,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes archive_buttonGroup	
-     * 	
-     * @return javax.swing.ButtonGroup	
+     * This method initializes archive_buttonGroup
+     *
+     * @return javax.swing.ButtonGroup
      */
     private ButtonGroup getArchive_buttonGroup() {
         if( archive_buttonGroup == null ) {
@@ -1151,9 +1151,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             getBoards_TFchosedBoards().setText(txt.toString());
         }
     }
-    
+
     private void initializeWithDefaults() {
-        
+
         getBoards_RBdisplayed().doClick();
         getDate_RBdisplayed().doClick();
         getTruststate_RBdisplayed().doClick();
@@ -1161,7 +1161,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
         getDate_TFdaysBackward().setText("0");
     }
-    
+
     private List splitString(String str) {
         List lst = new ArrayList();
         String[] splitted = str.split(" ");
@@ -1188,7 +1188,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( txt.length() > 0 ) {
             scfg.sender = splitString(txt);
         }
-        
+
         // TODO: "text abc"; text2; "hugo;emil"
         txt = getSearch_TFsubject().getText().trim();
         if( txt.length() > 0 ) {
@@ -1200,9 +1200,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( txt.length() > 0 ) {
             scfg.content = splitString(txt);
         }
-        
+
         scfg.searchPrivateMsgsOnly = getSearch_CBprivateMsgsOnly().isSelected();
-        
+
         if( getBoards_RBdisplayed().isSelected() ) {
             scfg.searchBoards = SearchMessagesConfig.BOARDS_DISPLAYED;
 //        } else if( getBoards_RBallExisting().isSelected() ) {
@@ -1218,7 +1218,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.searchBoards = SearchMessagesConfig.BOARDS_CHOSED;
             scfg.chosedBoards = chosedBoardsList;
         }
-        
+
         if( getDate_RBdisplayed().isSelected() ) {
             scfg.searchDates = SearchMessagesConfig.DATE_DISPLAYED;
         } else if( getDate_RBall().isSelected() ) {
@@ -1230,11 +1230,11 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                 c = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
                 c.setTime(getDate_TFstartDate().getValue());
                 scfg.startDate = c;
-                
+
                 c = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
                 c.setTime(getDate_TFendDate().getValue());
                 scfg.endDate = c;
-                
+
                 // check start before end
                 if( scfg.startDate.after(scfg.endDate) ) {
                     JOptionPane.showMessageDialog(this,
@@ -1269,9 +1269,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.trust_bad = getTruststate_CBbad().isSelected();
             scfg.trust_none = getTruststate_CBnone().isSelected();
             scfg.trust_tampered = getTruststate_CBtampered().isSelected();
-            
+
             if( !scfg.trust_good && !scfg.trust_observe && !scfg.trust_check &&
-                !scfg.trust_bad && !scfg.trust_none && !scfg.trust_tampered ) 
+                !scfg.trust_bad && !scfg.trust_none && !scfg.trust_tampered )
             {
                 JOptionPane.showMessageDialog(this,
                         language.getString("No trust state is selected."),
@@ -1280,7 +1280,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                 return null;
             }
         }
-        
+
         if( getArchive_RBkeypoolOnly().isSelected() ) {
             scfg.searchInKeypool = true;
             scfg.searchInArchive = false;
@@ -1291,7 +1291,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.searchInKeypool = true;
             scfg.searchInArchive = true;
         }
-        
+
         return scfg;
     }
 
@@ -1314,14 +1314,14 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void setRunningSearchThread(SearchMessagesThread t) {
         runningSearchThread = t;
     }
-    
+
     public void notifySearchThreadFinished() {
         setRunningSearchThread(null);
         // reset buttons
         getBcancel().setEnabled(true);
         getBsearch().setText(startSearchStr);
     }
-    
+
     // stop searching or close window
     private void closePressed() {
         if( getRunningSearchThread() != null ) {
@@ -1338,39 +1338,39 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     private void startOrStopSearching() {
-        
+
         if( getRunningSearchThread() != null ) {
             // stop search thread, final handling is done in notifySearchThreadFinished()
             getRunningSearchThread().requestStop();
             return;
         }
-        
+
         SearchMessagesConfig scfg = getSearchConfig();
         if( scfg == null ) {
             // invalid cfg
             return;
         }
-        
+
         // clear search result table
         getSearchMessagesTableModel().clearDataModel();
         resultCount = 0;
         updateResultCountLabel(resultCount);
-        
+
         // set button states
         getBcancel().setEnabled(false);
         getBsearch().setText(stopSearchStr);
-        
+
         getBopenMsg().setEnabled(false);
 
         setRunningSearchThread(new SearchMessagesThread(this, scfg));
         getRunningSearchThread().setPriority(Thread.MIN_PRIORITY); // low prio
         getRunningSearchThread().start();
     }
-    
+
     private void updateResultCountLabel(int rs) {
         LresultCount.setText(resultCountPrefix + rs);
     }
-    
+
     /**
      * Called by SearchMessagesThread to add a found message.
      */
@@ -1388,7 +1388,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             }
         });
     }
-    
+
     private void openSelectedMessage() {
         int row = getSearchResultTable().getSelectedRow();
         if (row < 0) {
@@ -1401,10 +1401,10 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         MessageWindow messageWindow = new MessageWindow( this, msg, this.getSize() );
         messageWindow.setVisible(true);
     }
-    
-    /** 
+
+    /**
      * This Document ensures that only digits can be entered into a text field.
-     */ 
+     */
     protected class WholeNumberDocument extends PlainDocument {
         public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
             char[] source = str.toCharArray();
@@ -1419,7 +1419,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             super.insertString(offs, new String(result, 0, j), a);
         }
     }
-    
+
     List chosedBoardsList = new ArrayList();
     SearchMessagesThread runningSearchThread = null;
     int resultCount;
@@ -1435,9 +1435,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JButton BopenMsg = null;
 
     /**
-     * This method initializes date_RBall	
-     * 	
-     * @return javax.swing.JRadioButton	
+     * This method initializes date_RBall
+     *
+     * @return javax.swing.JRadioButton
      */
     private JRadioButton getDate_RBall() {
         if( date_RBall == null ) {
@@ -1445,7 +1445,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         return date_RBall;
     }
-    
+
     private void saveWindowState() {
         Rectangle bounds = getBounds();
         boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
@@ -1459,7 +1459,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             Core.frostSettings.setValue("searchMessagesDialog.lastFramePosY", bounds.y);
         }
     }
-    
+
     private void loadWindowState() {
         // load size, location and state of window
         int lastHeight = Core.frostSettings.getIntValue("searchMessagesDialog.lastFrameHeight");
@@ -1467,14 +1467,14 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         int lastPosX = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosX");
         int lastPosY = Core.frostSettings.getIntValue("searchMessagesDialog.lastFramePosY");
         boolean lastMaximized = Core.frostSettings.getBoolValue("searchMessagesDialog.lastFrameMaximized");
-        
+
         if( lastHeight <= 0 || lastWidth <= 0 ) {
             // first call
             setSize(700,550);
             setLocationRelativeTo(MainFrame.getInstance());
             return;
         }
-        
+
         Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
 
         if (lastWidth < 100) {
@@ -1504,9 +1504,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes jPanel	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes jPanel
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getJPanel() {
         if( PbuttonsRight == null ) {
@@ -1518,9 +1518,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes PbuttonsRight	
-     * 	
-     * @return javax.swing.JPanel	
+     * This method initializes PbuttonsRight
+     *
+     * @return javax.swing.JPanel
      */
     private JPanel getPbuttonsRight() {
         if( PbuttonsLeft == null ) {
@@ -1531,9 +1531,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     }
 
     /**
-     * This method initializes Bfocus	
-     * 	
-     * @return javax.swing.JButton	
+     * This method initializes Bfocus
+     *
+     * @return javax.swing.JButton
      */
     private JButton getBopenMsg() {
         if( BopenMsg == null ) {
@@ -1547,9 +1547,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         return BopenMsg;
     }
-    
+
     public void languageChanged(LanguageEvent e) {
-        
+
         resultCountPrefix = language.getString("Results") + ": ";
         startSearchStr = language.getString("Search");
         stopSearchStr = language.getString("Stop search");
@@ -1562,7 +1562,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
         getBopenMsg().setText(language.getString("Open message"));
         getBcancel().setText(language.getString("Close"));
-        
+
         Lsender.setText(language.getString("Sender"));
         Lcontent.setText(language.getString("Content"));
         Lsubject.setText(language.getString("Subject"));
@@ -1574,7 +1574,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         getDate_RBdisplayed().setText(language.getString("Search in messages that would be displayed"));
         getDate_RBdaysBackward().setText(language.getString("Search number of days backward"));
         getDate_RBall().setText(language.getString("Search all dates"));
-        
+
         getTruststate_RBall().setText(language.getString("Search all messages, no matter which trust state is set"));
         getTruststate_RBdisplayed().setText(language.getString("Search in messages that would be displayed"));
         getTruststate_RBchosed().setText(language.getString("Search only in messages with following trust state"));

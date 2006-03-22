@@ -1,6 +1,6 @@
 /*
   MessageTableModel.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,9 +23,9 @@ import frost.util.gui.translation.*;
 
 public class MessageTableModel extends SortedTableModel implements LanguageListener
 {
-	private Language language = null;
-	
-	protected final static String columnNames[] = new String[5];
+    private Language language = null;
+
+    protected final static String columnNames[] = new String[5];
 
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Index"),
@@ -35,15 +35,15 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
         String.class //LangRes.getString("Date")
     };
 
-	/**
-	 * 
-	 */
-	public MessageTableModel() {
-		super();
-		language = Language.getInstance();
-		refreshLanguage();
-	}
-    
+    /**
+     *
+     */
+    public MessageTableModel() {
+        super();
+        language = Language.getInstance();
+        refreshLanguage();
+    }
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
@@ -61,7 +61,7 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
             return columnNames[column];
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
@@ -69,7 +69,7 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
     {
         return columnNames.length;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
@@ -80,23 +80,23 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
         return null;
     }
 
-	/* (non-Javadoc)
-	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-	 */
-	public void languageChanged(LanguageEvent event) {
-		refreshLanguage();			
-	}
+    /* (non-Javadoc)
+     * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+     */
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();
+    }
 
-	/**
-	 * 
-	 */
-	private void refreshLanguage() {
-		columnNames[0] = language.getString("Index");
-		columnNames[1] = language.getString("From");
-		columnNames[2] = language.getString("Subject");
-		columnNames[3] = language.getString("Sig");
-		columnNames[4] = language.getString("Date");
+    /**
+     *
+     */
+    private void refreshLanguage() {
+        columnNames[0] = language.getString("Index");
+        columnNames[1] = language.getString("From");
+        columnNames[2] = language.getString("Subject");
+        columnNames[3] = language.getString("Sig");
+        columnNames[4] = language.getString("Date");
 
-		fireTableStructureChanged();		
-	}
+        fireTableStructureChanged();
+    }
 }

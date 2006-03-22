@@ -1,6 +1,6 @@
 /*
   FrostSearchItem.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -25,9 +25,9 @@ import frost.util.model.ModelItem;
 
 public class FrostSearchItem extends ModelItem
 {
-	private Board board;
-	private SharedFileObject sfo;
-	private int state;
+    private Board board;
+    private SharedFileObject sfo;
+    private int state;
 
     public static final int STATE_NONE        = 1; // set if a search table item is only in search table
     public static final int STATE_DOWNLOADED  = 2; // set if the item is already downloaded and is found in download folder
@@ -35,15 +35,15 @@ public class FrostSearchItem extends ModelItem
     public static final int STATE_UPLOADING   = 4; // set if file is in upload table
     public static final int STATE_OFFLINE     = 5; // set if file is offline
 
-	public FrostSearchItem(
-		Board newBoard,
-		SharedFileObject newKey,
-		int newState) {
-			
-		board = newBoard;
-		sfo = newKey;
-		state = newState;
-	}
+    public FrostSearchItem(
+        Board newBoard,
+        SharedFileObject newKey,
+        int newState) {
+
+        board = newBoard;
+        sfo = newKey;
+        state = newState;
+    }
 
     public String getFilename()
     {
@@ -74,24 +74,24 @@ public class FrostSearchItem extends ModelItem
     {
         return state;
     }
-    
+
     public String getOwner() {
-    	return sfo.getOwner();
+        return sfo.getOwner();
     }
-    
+
     public String getSHA1() {
-    	return sfo.getSHA1();
+        return sfo.getSHA1();
     }
     public String getBatch() {
-    	return sfo.getBatch();
+        return sfo.getBatch();
     }
-	/**
-	 * @return Returns the sfo.
-	 */
-	public String getRedirect() {
-		if (sfo instanceof RedirectFileObject)
-			return ((RedirectFileObject)sfo).getRedirect();
-		else return null;
-	}
+    /**
+     * @return Returns the sfo.
+     */
+    public String getRedirect() {
+        if (sfo instanceof RedirectFileObject)
+            return ((RedirectFileObject)sfo).getRedirect();
+        else return null;
+    }
 
 }

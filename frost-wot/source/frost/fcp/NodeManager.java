@@ -1,6 +1,6 @@
 /*
   NodeManager.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,14 +23,14 @@ import java.io.IOException;
  * controls the available nodes
  */
 interface NodeManager {
-	
-	public void init();
-	
-	/**
-	 *  Creates a FcpConnection to one of the available Freenet nodes transparently to the user
-	 * @return the FcpConnection
-	 * @throws IOException when an IOException happens
-	 * @throws FcpToolsException when an FcpTools exception happens ;-)
-	 */
-	public FcpConnection getConnection() throws IOException, FcpToolsException;
+
+    public void init();
+
+    /**
+     *  Creates a FcpConnection to one of the available Freenet nodes transparently to the user
+     * @return the FcpConnection
+     * @throws IOException when an IOException happens
+     * @throws FcpToolsException when an FcpTools exception happens ;-)
+     */
+    public FcpConnection getConnection() throws IOException, FcpToolsException;
 }

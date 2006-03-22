@@ -1,6 +1,6 @@
 /*
   LocalIdentity.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -35,41 +35,41 @@ import frost.messages.BoardAttachment;
 public class LocalIdentity extends Identity {
 
     private String privKey;
-    
-	private static Logger logger = Logger.getLogger(LocalIdentity.class.getName());
 
-	public Element getXMLElement(Document doc) {
-		//have to copy all children, no Element.rename()unfortunately
-		Element el = super.getXMLElement(doc);
-		Element el2 = doc.createElement("MyIdentity");
-		NodeList list = el.getChildNodes();
-		while(list.getLength() > 0) {
-			el2.appendChild(list.item(0)); // removes Node from el
-        }
-		Element element = doc.createElement("privKey");
-		CDATASection cdata = doc.createCDATASection(privKey);
-		element.appendChild(cdata);
-		el2.appendChild(element);
-		return el2;
-	}
-	/**
-	 * just renames the element to MyIdentity to maintain
-	 * backward compatibility
-	 */
-	public Element getSafeXMLElement(Document doc){
-		Element el = super.getSafeXMLElement(doc);
-		Element el2 = doc.createElement("MyIdentity");
-		NodeList list = el.getChildNodes();
-		while (list.getLength() > 0) {
-			el2.appendChild(list.item(0)); // removes Node from el
-        }
-		return el2;	
-	}
+    private static Logger logger = Logger.getLogger(LocalIdentity.class.getName());
 
-	public void loadXMLElement(Element el) throws SAXException {
-		super.loadXMLElement(el);
-		privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
-	}
+    public Element getXMLElement(Document doc) {
+        //have to copy all children, no Element.rename()unfortunately
+        Element el = super.getXMLElement(doc);
+        Element el2 = doc.createElement("MyIdentity");
+        NodeList list = el.getChildNodes();
+        while(list.getLength() > 0) {
+            el2.appendChild(list.item(0)); // removes Node from el
+        }
+        Element element = doc.createElement("privKey");
+        CDATASection cdata = doc.createCDATASection(privKey);
+        element.appendChild(cdata);
+        el2.appendChild(element);
+        return el2;
+    }
+    /**
+     * just renames the element to MyIdentity to maintain
+     * backward compatibility
+     */
+    public Element getSafeXMLElement(Document doc){
+        Element el = super.getSafeXMLElement(doc);
+        Element el2 = doc.createElement("MyIdentity");
+        NodeList list = el.getChildNodes();
+        while (list.getLength() > 0) {
+            el2.appendChild(list.item(0)); // removes Node from el
+        }
+        return el2;
+    }
+
+    public void loadXMLElement(Element el) throws SAXException {
+        super.loadXMLElement(el);
+        privKey =  XMLTools.getChildElementsCDATAValue(el, "privKey");
+    }
 
     /**
      * a constructor that assumes that the user has inserted the
@@ -80,18 +80,18 @@ public class LocalIdentity extends Identity {
         privKey=keys[0];
     }
 
-	public LocalIdentity(Element el){
-		super(el);
-	}
-	/**
-	 * constructor that creates an RSA Keypair
-	 */
-	public LocalIdentity(String name) {
-		this(name, Core.getCrypto().generateKeys());
+    public LocalIdentity(Element el){
+        super(el);
+    }
+    /**
+     * constructor that creates an RSA Keypair
+     */
+    public LocalIdentity(String name) {
+        this(name, Core.getCrypto().generateKeys());
         // generateOwnBoard();
         // TODO: generate other than SSK
-	}
-    
+    }
+
 //    void generateOwnBoard() {
 //        if( board == null ) {
 //            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
@@ -114,7 +114,7 @@ public class LocalIdentity extends Identity {
     public String getPrivKey() {
         return privKey;
     }
-    
+
     public int getState() {
         return FrostIdentities.FRIEND;
     }

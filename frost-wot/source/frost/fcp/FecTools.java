@@ -1,6 +1,6 @@
 /*
   FecTools.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -34,7 +34,7 @@ import freenet.support.*;
  */
 public class FecTools
 {
-	private static Logger logger = Logger.getLogger(FecTools.class.getName());
+    private static Logger logger = Logger.getLogger(FecTools.class.getName());
 
     /****************************************
      * Methods for CHK@ key generation
@@ -62,7 +62,7 @@ public class FecTools
         Bucket data = new FileBucket(inputfile);
         return generateCHK( data, metalength );
     }
-    
+
     /**
      * Generate CHK@ key of data in a given byte array.
      *
@@ -72,7 +72,7 @@ public class FecTools
     {
         return generateCHK( inputdata, 0 );
     }
-    
+
     public static String generateCHK(byte[] inputdata, long metalength)
     {
         if( inputdata == null || inputdata.length == 0 )
@@ -114,7 +114,7 @@ public class FecTools
             return chkKey;
         }
         catch(Throwable t) {
-			logger.log(Level.SEVERE, "Exception in FecTools.generateCHK()", t);
+            logger.log(Level.SEVERE, "Exception in FecTools.generateCHK()", t);
         }
         return null;
     }
@@ -139,7 +139,7 @@ public class FecTools
         }
         catch(Throwable t)
         {
-			logger.log(Level.SEVERE, "Error while encoding FEC splitfile", t);
+            logger.log(Level.SEVERE, "Error while encoding FEC splitfile", t);
             return null;
         }
 
@@ -160,7 +160,7 @@ public class FecTools
         while( i.hasNext() )
         {
             FecBlock b = (FecBlock)i.next();
-			logger.finer("check_" + cnt + ": '" + b.getChkKey() + "'");
+            logger.finer("check_" + cnt + ": '" + b.getChkKey() + "'");
             cnt++;
         }
 

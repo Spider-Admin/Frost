@@ -1,6 +1,6 @@
 /*
   MetaData.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -27,32 +27,32 @@ import frost.*;
 import frost.identities.Identity;
 
 public abstract class MetaData implements XMLizable {
-	
-	private static Logger logger = Logger.getLogger(MetaData.class.getName());
-	
-	public static final int SIGN    = 0;
-	public static final int ENCRYPT = 1;
-	
-	public abstract int getType();
-	
-	Identity person; // sender
-    
-	/**
-	 * @return the person (sender) of the message
-	 */
-	public Identity getPerson(){
-		return person;
-	}
-	
-	public Element getXMLElement(Document container){
-		Element el = container.createElement("FrostMetaData");
+
+    private static Logger logger = Logger.getLogger(MetaData.class.getName());
+
+    public static final int SIGN    = 0;
+    public static final int ENCRYPT = 1;
+
+    public abstract int getType();
+
+    Identity person; // sender
+
+    /**
+     * @return the person (sender) of the message
+     */
+    public Identity getPerson(){
+        return person;
+    }
+
+    public Element getXMLElement(Document container){
+        Element el = container.createElement("FrostMetaData");
         // use getSafeXMLElement to make sure we don't add sensitive fields in the metadata
-	    Element _person = person.getSafeXMLElement(container);
-	    el.appendChild(_person);
-  	    return el;
-	}
-    
-	public static MetaData getInstance(Element e) {
+        Element _person = person.getSafeXMLElement(container);
+        el.appendChild(_person);
+        return el;
+    }
+
+    public static MetaData getInstance(Element e) {
 
         if( e == null ) {
             logger.log(Level.SEVERE, "MetaData.getInstance(): The provided XML element is null.");
@@ -63,15 +63,15 @@ public abstract class MetaData implements XMLizable {
             return null;
         }
 
-		try {
-			if (XMLTools.getChildElementsByTagName(e,"Recipient").size() == 0) {
-				return new SignMetaData(e);
+        try {
+            if (XMLTools.getChildElementsByTagName(e,"Recipient").size() == 0) {
+                return new SignMetaData(e);
             } else {
-				return new EncryptMetaData(e);
+                return new EncryptMetaData(e);
             }
-		} catch(SAXException ex) {
-			logger.log(Level.SEVERE, "Exception thrown in getInstance(byte [] body, Element e)", ex);
-		}
-		return null;
-	}
+        } catch(SAXException ex) {
+            logger.log(Level.SEVERE, "Exception thrown in getInstance(byte [] body, Element e)", ex);
+        }
+        return null;
+    }
 }

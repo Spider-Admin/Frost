@@ -1,6 +1,6 @@
 /*
   getKeyThread.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -26,16 +26,16 @@ import frost.fcp.*;
 
 /**
  * Reads a key from Freenet
- * 
+ *
  * ATTN: this class is only used by the obsolete old non-fec splitfile download.
  *   Could maybe be removed completely.
- * 
+ *
  * @author Jan-Thomas Czornack
  * @version 010711
  */
 public class getKeyThread extends Thread
 {
-	private static Logger logger = Logger.getLogger(getKeyThread.class.getName());
+    private static Logger logger = Logger.getLogger(getKeyThread.class.getName());
 
     private String key;
     private File file;

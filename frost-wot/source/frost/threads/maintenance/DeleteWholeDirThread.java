@@ -1,6 +1,6 @@
 /*
   DeleteWholeDirThread.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,12 +23,12 @@ import java.io.File;
 import frost.*;
 
 public class DeleteWholeDirThread extends Thread {
-	private final Core core;
+    private final Core core;
     String delDir;
-    
+
     public DeleteWholeDirThread(Core core, String dirToDelete) {
         delDir = dirToDelete;
-		this.core = core;
+        this.core = core;
     }
     public void run() {
         FileAccess.deleteDir( new File(delDir) );

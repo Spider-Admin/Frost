@@ -1,6 +1,6 @@
 /*
   MessageTextPane.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
   Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
 
   This program is free software; you can redistribute it and/or
@@ -48,7 +48,7 @@ public class MessageTextPane extends JPanel {
     private AntialiasedTextArea messageTextArea = null;
     private JSplitPane messageSplitPane = null;
     private JSplitPane attachmentsSplitPane = null;
-    
+
     private AttachedFilesTableModel attachedFilesModel;
     private AttachedBoardTableModel attachedBoardsModel;
     private JTable filesTable = null;
@@ -64,17 +64,17 @@ public class MessageTextPane extends JPanel {
 
     private MainFrame mainFrame = MainFrame.getInstance();
     private DownloadModel downloadModel = null;
-    
+
     private Component parentFrame;
-    
+
     private PropertyChangeListener propertyChangeListener;
-    
+
     public MessageTextPane(Component parentFrame) {
         super();
         this.parentFrame = parentFrame;
         initialize();
     }
-    
+
     /**
      * Called if there are no boards in the board list.
      */
@@ -101,12 +101,12 @@ public class MessageTextPane extends JPanel {
         messageSplitPane.setDividerSize(0);
         messageTextArea.setText(language.getString("Select a board to view its content."));
     }
-    
+
     /**
      * Called if a message is selected.
      */
     public void update_messageSelected(FrostMessageObject msg) {
-        
+
         selectedMessage = msg;
 
         messageTextArea.setText(selectedMessage.getContent());
@@ -120,9 +120,9 @@ public class MessageTextPane extends JPanel {
     }
 
     private void initialize() {
-        
+
         setLayout(new BorderLayout());
-        
+
         // build message body scroll pane
         messageTextArea = new AntialiasedTextArea();
         messageTextArea.setEditable(false);
@@ -182,7 +182,7 @@ public class MessageTextPane extends JPanel {
         boardsTableScrollPane.setWheelScrollingEnabled(true);
 
         fontChanged();
-        
+
         //Put everything together
         attachmentsSplitPane =
             new JSplitPane(
@@ -201,7 +201,7 @@ public class MessageTextPane extends JPanel {
         messageSplitPane.setDividerSize(0);
         messageSplitPane.setDividerLocation(1.0);
         messageSplitPane.setResizeWeight(1.0);
-        
+
         add(messageSplitPane, BorderLayout.CENTER);
 
         messageTextArea.addMouseListener(new MouseAdapter() {
@@ -250,7 +250,7 @@ public class MessageTextPane extends JPanel {
                 }
             }
         });
-        
+
         propertyChangeListener = new PropertyChangeListener() {
             public void propertyChange(PropertyChangeEvent evt) {
                 if (evt.getPropertyName().equals("messageBodyAA")) {
@@ -284,19 +284,19 @@ public class MessageTextPane extends JPanel {
         }
         messageTextArea.setFont(font);
     }
-    
+
     private void positionDividers(int attachedFiles, int attachedBoards) {
-        
+
         if (attachedFiles == 0 && attachedBoards == 0) {
             // Neither files nor boards
             messageSplitPane.setBottomComponent(null);
             messageSplitPane.setDividerSize(0);
             return;
         }
-        
+
         messageSplitPane.setDividerSize(3);
         messageSplitPane.setDividerLocation(0.75);
-        
+
         if (attachedFiles != 0 && attachedBoards == 0) {
             // Only files
             attachmentsSplitPane.setTopComponent(null);
@@ -337,7 +337,7 @@ public class MessageTextPane extends JPanel {
     private void downloadBoards(Board targetFolder) {
         logger.info("adding boards");
         int[] selectedRows = boardsTable.getSelectedRows();
-    
+
         if (selectedRows.length == 0) {
             // add all rows
             boardsTable.selectAll();
@@ -350,10 +350,10 @@ public class MessageTextPane extends JPanel {
             BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
             Board fbo = ba.getBoardObj();
             String name = fbo.getName();
-    
+
             // search board in exising boards list
             Board board = mainFrame.getTofTreeModel().getBoardByName(name);
-    
+
             //ask if we already have the board
             if (board != null) {
                 if (JOptionPane.showConfirmDialog(
@@ -361,7 +361,7 @@ public class MessageTextPane extends JPanel {
                         "You already have a board named " + name + ".\n" +
                             "Are you sure you want to add this one over it?",
                         "Board already exists",
-                        JOptionPane.YES_NO_OPTION) != 0) 
+                        JOptionPane.YES_NO_OPTION) != 0)
                 {
                     continue; // next row of table / next attached board
                 } else {
@@ -388,7 +388,7 @@ public class MessageTextPane extends JPanel {
         }
         popupMenuAttachmentBoard.show(e.getComponent(), e.getX(), e.getY());
     }
-    
+
     private void showAttachedFilesPopupMenu(MouseEvent e) {
         if (popupMenuAttachmentTable == null) {
             popupMenuAttachmentTable = new PopupMenuAttachmentFile();
@@ -412,12 +412,12 @@ public class MessageTextPane extends JPanel {
         private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveBoardsItem = new JMenuItem();
         private JMenuItem saveBoardsToFolderItem = new JMenuItem();
-    
+
         public PopupMenuAttachmentBoard() {
             super();
             initialize();
         }
-    
+
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == saveBoardsItem) {
                 downloadBoards(null);
@@ -429,40 +429,40 @@ public class MessageTextPane extends JPanel {
                 }
             }
         }
-    
+
         private void initialize() {
             languageChanged(null);
-    
+
             saveBoardsItem.addActionListener(this);
             saveBoardsToFolderItem.addActionListener(this);
         }
-    
+
         public void languageChanged(LanguageEvent event) {
             saveBoardsItem.setText(language.getString("Add Board(s)"));
             saveBoardsToFolderItem.setText(language.getString("Add Board(s) to folder")+" ...");
             cancelItem.setText(language.getString("Cancel"));
         }
-    
+
         public void show(Component invoker, int x, int y) {
             removeAll();
-    
+
             add(saveBoardsItem);
             add(saveBoardsToFolderItem);
             addSeparator();
             add(cancelItem);
-    
+
             super.show(invoker, x, y);
         }
     }
-    
+
     private class PopupMenuAttachmentFile
         extends JSkinnablePopupMenu
         implements ActionListener, LanguageListener, ClipboardOwner {
-    
+
         private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveAttachmentItem = new JMenuItem();
         private JMenuItem saveAttachmentsItem = new JMenuItem();
-        
+
         private JMenu copyToClipboardMenu = new JMenu();
         private JMenuItem copyKeysAndNamesItem = new JMenuItem();
         private JMenuItem copyKeysItem = new JMenuItem();
@@ -478,7 +478,7 @@ public class MessageTextPane extends JPanel {
             super();
             initialize();
         }
-    
+
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == saveAttachmentsItem || e.getSource() == saveAttachmentItem) {
                 downloadAttachments();
@@ -493,10 +493,10 @@ public class MessageTextPane extends JPanel {
                 copyExtendedInfo();
             }
         }
-    
+
         private void initialize() {
             languageChanged(null);
-            
+
             copyToClipboardMenu.add(copyKeysAndNamesItem);
             copyToClipboardMenu.add(copyKeysItem);
             copyToClipboardMenu.add(copyExtendedInfoItem);
@@ -504,11 +504,11 @@ public class MessageTextPane extends JPanel {
             copyKeysAndNamesItem.addActionListener(this);
             copyKeysItem.addActionListener(this);
             copyExtendedInfoItem.addActionListener(this);
-    
+
             saveAttachmentsItem.addActionListener(this);
             saveAttachmentItem.addActionListener(this);
         }
-    
+
         /* (non-Javadoc)
          * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
          */
@@ -521,15 +521,15 @@ public class MessageTextPane extends JPanel {
             saveAttachmentsItem.setText(language.getString("Download attachment(s)"));
             saveAttachmentItem.setText(language.getString("Download selected attachment"));
             cancelItem.setText(language.getString("Cancel"));
-            
+
             fileMessage = language.getString("clipboard.File:");
             keyMessage = language.getString("clipboard.Key:");
             bytesMessage = language.getString("clipboard.Bytes:");
         }
-    
+
         public void show(Component invoker, int x, int y) {
             removeAll();
-    
+
             add(copyToClipboardMenu);
             addSeparator();
 
@@ -540,7 +540,7 @@ public class MessageTextPane extends JPanel {
             }
             addSeparator();
             add(cancelItem);
-    
+
             super.show(invoker, x, y);
         }
 
@@ -549,7 +549,7 @@ public class MessageTextPane extends JPanel {
          */
         private void downloadAttachments() {
             int[] selectedRows = filesTable.getSelectedRows();
-        
+
             // If no rows are selected, add all attachments to download table
             if (selectedRows.length == 0) {
                 Iterator it = selectedMessage.getAttachmentsOfType(Attachment.FILE).iterator();
@@ -564,7 +564,7 @@ public class MessageTextPane extends JPanel {
                     FrostDownloadItem dlItem = new FrostDownloadItem(fsio);
                     downloadModel.addDownloadItem(dlItem);
                 }
-        
+
             } else {
                 LinkedList attachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
                 for (int i = 0; i < selectedRows.length; i++) {
@@ -579,7 +579,7 @@ public class MessageTextPane extends JPanel {
                 }
             }
         }
-        
+
         /**
          * Returns a list of all items to process, either selected ones or all.
          */
@@ -609,7 +609,7 @@ public class MessageTextPane extends JPanel {
             if( items.size() == 0 ) {
                 return;
             }
-            
+
             StringBuffer textToCopy = new StringBuffer();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
@@ -619,11 +619,11 @@ public class MessageTextPane extends JPanel {
                 textToCopy.append("/");
                 textToCopy.append(sfo.getFilename());
                 textToCopy.append("\n");
-            }               
+            }
             StringSelection selection = new StringSelection(textToCopy.toString());
-            getClipboard().setContents(selection, this);    
+            getClipboard().setContents(selection, this);
         }
-        
+
         /**
          * This method copies extended information about the selected items (if any) to
          * the clipboard. That information is composed of the filename, the key and
@@ -634,7 +634,7 @@ public class MessageTextPane extends JPanel {
             if( items.size() == 0 ) {
                 return;
             }
-            
+
             StringBuffer textToCopy = new StringBuffer();
             for(Iterator i = items.iterator(); i.hasNext(); ) {
                 FileAttachment fa = (FileAttachment) i.next();
@@ -647,12 +647,12 @@ public class MessageTextPane extends JPanel {
                 textToCopy.append(key + "\n");
                 textToCopy.append(bytesMessage);
                 textToCopy.append(sfo.getSize() + "\n\n");
-            }               
+            }
             //We remove the additional \n at the end
             String result = textToCopy.substring(0, textToCopy.length() - 1);
-            
+
             StringSelection selection = new StringSelection(result);
-            getClipboard().setContents(selection, this);    
+            getClipboard().setContents(selection, this);
         }
 
         /**
@@ -671,9 +671,9 @@ public class MessageTextPane extends JPanel {
                 String key = sfo.getKey();
                 textToCopy.append(key);
                 textToCopy.append("\n");
-            }               
+            }
             StringSelection selection = new StringSelection(textToCopy.toString());
-            getClipboard().setContents(selection, this);    
+            getClipboard().setContents(selection, this);
         }
 
         private Clipboard getClipboard() {
@@ -682,9 +682,9 @@ public class MessageTextPane extends JPanel {
             }
             return clipboard;
         }
-        
+
         public void lostOwnership(Clipboard tclipboard, Transferable contents) {
-            // Nothing here         
+            // Nothing here
         }
     }
 
@@ -693,19 +693,19 @@ public class MessageTextPane extends JPanel {
     implements ActionListener, LanguageListener, ClipboardOwner {
 
         private Clipboard clipboard;
-    
+
         private JTextComponent sourceTextComponent;
-    
+
         private JMenuItem copyItem = new JMenuItem();
         private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveMessageItem = new JMenuItem();
-    
+
         public PopupMenuTofText(JTextComponent sourceTextComponent) {
             super();
             this.sourceTextComponent = sourceTextComponent;
             initialize();
         }
-    
+
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == saveMessageItem) {
                 saveMessageButton_actionPerformed();
@@ -715,29 +715,29 @@ public class MessageTextPane extends JPanel {
                 clipboard.setContents(selection, this);
             }
         }
-    
+
         private void initialize() {
             languageChanged(null);
-    
+
             Toolkit toolkit = Toolkit.getDefaultToolkit();
             clipboard = toolkit.getSystemClipboard();
-    
+
             copyItem.addActionListener(this);
             saveMessageItem.addActionListener(this);
-    
+
             add(copyItem);
             addSeparator();
             add(saveMessageItem);
             addSeparator();
             add(cancelItem);
         }
-    
+
         public void languageChanged(LanguageEvent event) {
             copyItem.setText(language.getString("Copy"));
             saveMessageItem.setText(language.getString("Save message to disk"));
             cancelItem.setText(language.getString("Cancel"));
         }
-    
+
         public void show(Component invoker, int x, int y) {
             if ((selectedMessage != null) && (selectedMessage.getContent() != null)) {
                 if (sourceTextComponent.getSelectedText() != null) {
@@ -748,7 +748,7 @@ public class MessageTextPane extends JPanel {
                 super.show(invoker, x, y);
             }
         }
-    
+
         public void lostOwnership(Clipboard tclipboard, Transferable contents) {
             // Nothing here
         }
@@ -757,13 +757,13 @@ public class MessageTextPane extends JPanel {
     public void setDownloadModel(DownloadModel table) {
         downloadModel = table;
     }
-    
+
     public void close() {
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_NAME, propertyChangeListener);
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_SIZE, propertyChangeListener);
         Core.frostSettings.removePropertyChangeListener(SettingsClass.MESSAGE_BODY_FONT_STYLE, propertyChangeListener);
         Core.frostSettings.removePropertyChangeListener("messageBodyAA", propertyChangeListener);
-        
+
         if (popupMenuAttachmentBoard != null) {
             language.removeLanguageListener(popupMenuAttachmentBoard);
         }
@@ -774,7 +774,7 @@ public class MessageTextPane extends JPanel {
             language.removeLanguageListener(popupMenuTofText);
         }
     }
-    
+
     public void addKeyListener(KeyListener l) {
         super.addKeyListener(l);
         messageTextArea.addKeyListener(l);

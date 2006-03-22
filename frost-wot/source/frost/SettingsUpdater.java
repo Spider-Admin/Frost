@@ -1,6 +1,6 @@
 /*
   SettingsUpdater.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -20,16 +20,16 @@ package frost;
 
 /**
  * @author Administrator
- * 
+ *
  * All classes that have settings values that have to be updated before
  * the settings are saved to disk must register themselves with SettingsClass
  * and implement this interface.
  */
 public interface SettingsUpdater {
-	
-	/**
-	 * This is the callback method that will be called from Settings class
-	 * before saving its contents to disk.
-	 */
-	void updateSettings();
+
+    /**
+     * This is the callback method that will be called from Settings class
+     * before saving its contents to disk.
+     */
+    void updateSettings();
 }

@@ -1,6 +1,6 @@
 /*
   KnownBoardsFrame.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -38,16 +38,16 @@ import frost.util.gui.translation.Language;
 
 public class KnownBoardsFrame extends JDialog {
 
-	private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
-	
-	private Language language;
-	
-	private TofTree tofTree;
+    private static Logger logger = Logger.getLogger(KnownBoardsFrame.class.getName());
+
+    private Language language;
+
+    private TofTree tofTree;
 
     private static ImageIcon boardIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/board.gif"));
     private static ImageIcon writeAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/waboard.jpg"));
     private static ImageIcon readAccessIcon = new ImageIcon(KnownBoardsFrame.class.getResource("/data/raboard.jpg"));
-    
+
     private JButton Bclose;
     private JButton BaddBoard;
     private JButton BaddBoardToFolder;
@@ -57,46 +57,46 @@ public class KnownBoardsFrame extends JDialog {
     private KnownBoardsTableModel tableModel;
     private NameColumnRenderer nameColRenderer;
     private DescColumnRenderer descColRenderer;
-    
+
     private JSkinnablePopupMenu tablePopupMenu;
-    
+
     private Vector allKnownBoardsList; // a list of all boards, needed as data source when we filter in the table
-    
-	private boolean savingNeeded = false;
-    
+
+    private boolean savingNeeded = false;
+
     public KnownBoardsFrame(JFrame parent, TofTree tofTree) {
         super();
         this.tofTree = tofTree;
-		language = Language.getInstance();
+        language = Language.getInstance();
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             initialize();
         }
         catch( Exception e ) {
-			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
         setDefaultCloseOperation(JDialog.DISPOSE_ON_CLOSE);
-		setSize((int) (parent.getWidth() * 0.75), 
-				(int) (parent.getHeight() * 0.75));
+        setSize((int) (parent.getWidth() * 0.75),
+                (int) (parent.getHeight() * 0.75));
         setLocationRelativeTo( parent );
     }
-    
+
     /**
      * Build the GUI.
      */
     private void initialize() {
         setModal(true);
         setTitle(language.getString("KnownBoardsFrame.List of known boards"));
-        
+
         this.setResizable(true);
-        
+
         tableModel = new KnownBoardsTableModel();
         // add a special renderer to name column which shows the board icon
         nameColRenderer = new NameColumnRenderer();
         descColRenderer = new DescColumnRenderer();
         boardsTable = new SortedTable( tableModel ) {
                 public TableCellRenderer getCellRenderer(int row, int column) {
-                    if( column == 0 ) { 
+                    if( column == 0 ) {
                         return nameColRenderer;
                     } else if( column == 3 ) {
                         return descColRenderer;
@@ -105,25 +105,25 @@ public class KnownBoardsFrame extends JDialog {
             }};
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
-        
+
         Bclose = new JButton(language.getString("KnownBoardsFrame.Close"));
         BaddBoard = new JButton(language.getString("Add Board(s)"));
-        BaddBoardToFolder = new JButton(language.getString("Add Board(s) to folder")+" ..."); 
+        BaddBoardToFolder = new JButton(language.getString("Add Board(s) to folder")+" ...");
 
         TFlookupBoard = new JTextField(10);
         new TextComponentClipboardMenu(TFlookupBoard, language);
         // force a max size, needed for BoxLayout
         TFlookupBoard.setMaximumSize(TFlookupBoard.getPreferredSize());
-        
+
         TFlookupBoard.getDocument().addDocumentListener(new DocumentListener() {
                 public void changedUpdate(DocumentEvent e) {
-                    lookupContentChanged(); 
+                    lookupContentChanged();
                 }
-                public void insertUpdate(DocumentEvent e) { 
-                    lookupContentChanged(); 
+                public void insertUpdate(DocumentEvent e) {
+                    lookupContentChanged();
                 }
-                public void removeUpdate(DocumentEvent e) { 
-                    lookupContentChanged(); 
+                public void removeUpdate(DocumentEvent e) {
+                    lookupContentChanged();
                 }
             });
 
@@ -131,16 +131,16 @@ public class KnownBoardsFrame extends JDialog {
         new TextComponentClipboardMenu(TFfilterBoard, language);
         // force a max size, needed for BoxLayout
         TFfilterBoard.setMaximumSize(TFfilterBoard.getPreferredSize());
-        
+
         TFfilterBoard.getDocument().addDocumentListener(new DocumentListener() {
                 public void changedUpdate(DocumentEvent e) {
-                    filterContentChanged(); 
+                    filterContentChanged();
                 }
-                public void insertUpdate(DocumentEvent e) { 
-                    filterContentChanged(); 
+                public void insertUpdate(DocumentEvent e) {
+                    filterContentChanged();
                 }
-                public void removeUpdate(DocumentEvent e) { 
-                    filterContentChanged(); 
+                public void removeUpdate(DocumentEvent e) {
+                    filterContentChanged();
                 }
             });
 
@@ -160,10 +160,10 @@ public class KnownBoardsFrame extends JDialog {
                     public void actionPerformed(ActionEvent e) {
                         dispose();
                     } });
-        
+
         // create panel
         JPanel mainPanel = new JPanel(new BorderLayout());
-        
+
         JPanel buttons = new JPanel(new BorderLayout());
         buttons.setLayout( new BoxLayout( buttons, BoxLayout.X_AXIS ));
         buttons.add( new JLabel(language.getString("KnownBoardsFrame.Lookup") + ":"));
@@ -173,7 +173,7 @@ public class KnownBoardsFrame extends JDialog {
         buttons.add( new JLabel(language.getString("KnownBoardsFrame.Filter") + ":"));
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( TFfilterBoard );
-        
+
         buttons.add( Box.createHorizontalGlue() );
         buttons.add( BaddBoard );
         buttons.add(Box.createRigidArea(new Dimension(15,3)));
@@ -181,27 +181,27 @@ public class KnownBoardsFrame extends JDialog {
         buttons.add(Box.createRigidArea(new Dimension(15,3)));
         buttons.add( Bclose );
         buttons.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
-        
+
         JScrollPane scrollPane = new JScrollPane( boardsTable );
         scrollPane.setWheelScrollingEnabled(true);
         mainPanel.add( scrollPane, BorderLayout.CENTER );
         mainPanel.add( buttons, BorderLayout.SOUTH );
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5,7,7,7));
-        
+
         this.getContentPane().add(mainPanel, null); // add Main panel
-        
+
         BaddBoard.setEnabled(false);
         BaddBoardToFolder.setEnabled(false);
-        
+
         initPopupMenu();
     }
-    
+
     private void initPopupMenu() {
         tablePopupMenu = new JSkinnablePopupMenu();
         JMenuItem addBoardsMenu = new JMenuItem(language.getString("Add Board(s)"));
         JMenuItem addBoardsToFolderMenu = new JMenuItem(language.getString("Add Board(s) to folder")+" ...");
         JMenuItem removeBoardEntry = new JMenuItem(language.getString("Remove board"));
-        
+
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 addBoards_actionPerformed(e);
@@ -218,10 +218,10 @@ public class KnownBoardsFrame extends JDialog {
         tablePopupMenu.add(addBoardsMenu);
         tablePopupMenu.add(addBoardsToFolderMenu);
         tablePopupMenu.add(removeBoardEntry);
-                
-        boardsTable.addMouseListener(new TablePopupMenuMouseListener());        
+
+        boardsTable.addMouseListener(new TablePopupMenuMouseListener());
     }
-    
+
     public void startDialog() {
         // gets all known boards from Core, and shows all not-doubles in table
         Vector frostboards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
@@ -243,10 +243,10 @@ public class KnownBoardsFrame extends JDialog {
                 while( j.hasNext() ) {
                     Board board = (Board) j.next();
                     if( board.getName().equalsIgnoreCase(bname)
-                        && ((board.getPrivateKey() == null && bprivkey == null) || 
+                        && ((board.getPrivateKey() == null && bprivkey == null) ||
                             (board.getPrivateKey() != null && board.getPrivateKey().equals(bprivkey)))
-                        && ((board.getPublicKey() == null && bpubkey == null) || 
-                            (board.getPublicKey() != null && board.getPublicKey().equals(bpubkey))) ) 
+                        && ((board.getPublicKey() == null && bpubkey == null) ||
+                            (board.getPublicKey() != null && board.getPublicKey().equals(bpubkey))) )
                     {
                         // same boards, dont add
                         addMe = false;
@@ -267,7 +267,7 @@ public class KnownBoardsFrame extends JDialog {
             Core.getInstance().saveKnownBoards();
         }
     }
-    
+
     private void addBoards_actionPerformed(ActionEvent e) {
         int[] selectedRows = boardsTable.getSelectedRows();
 
@@ -336,7 +336,7 @@ public class KnownBoardsFrame extends JDialog {
             boardsTable.clearSelection();
         }
     }
-    
+
     /**
      * @param e
      */
@@ -349,8 +349,8 @@ public class KnownBoardsFrame extends JDialog {
             BaddBoardToFolder.setEnabled(false);
         }
     }
-    
-    
+
+
     /**
      * The class is a table row, holding the board and its file/message counts.
      */
@@ -392,7 +392,7 @@ public class KnownBoardsFrame extends JDialog {
             return boardatt;
         }
     }
-    
+
     /**
      * Called whenever the content of the lookup text field changes
      */
@@ -409,7 +409,7 @@ public class KnownBoardsFrame extends JDialog {
                 {
                     boardsTable.getSelectionModel().setSelectionInterval(row, row);
                     // now scroll to selected row, try to show it on top of table
-                    
+
                     // determine the count of showed rows
                     int visibleRows = (int)(boardsTable.getVisibleRect().getHeight() / boardsTable.getCellRect(row,0,true).getHeight());
                     int scrollToRow;
@@ -422,7 +422,7 @@ public class KnownBoardsFrame extends JDialog {
                         scrollToRow = row + visibleRows - 1;
                     }
                     if( scrollToRow > row ) scrollToRow--;
-                    // scroll 2 times to make sure row is displayed                    
+                    // scroll 2 times to make sure row is displayed
                     boardsTable.scrollRectToVisible(boardsTable.getCellRect(row,0,true));
                     boardsTable.scrollRectToVisible(boardsTable.getCellRect(scrollToRow,0,true));
                     break;
@@ -470,15 +470,15 @@ public class KnownBoardsFrame extends JDialog {
                 hasFocus,
                 row,
                 column);
-                
+
             KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-            if( memb.getBoardObject().getPublicKey() == null && 
+            if( memb.getBoardObject().getPublicKey() == null &&
                 memb.getBoardObject().getPrivateKey() == null )
             {
                 // public board
-                setIcon(boardIcon);    
+                setIcon(boardIcon);
             }
-            else if( memb.getBoardObject().getPublicKey() != null && 
+            else if( memb.getBoardObject().getPublicKey() != null &&
                      memb.getBoardObject().getPrivateKey() == null )
             {
                 // read access board
@@ -489,7 +489,7 @@ public class KnownBoardsFrame extends JDialog {
                 // write access board (or write-only)
                 setIcon(writeAccessIcon);
             }
-            return this;    
+            return this;
         }
     }
 
@@ -509,17 +509,17 @@ public class KnownBoardsFrame extends JDialog {
                 hasFocus,
                 row,
                 column);
-                
+
             KnownBoardsTableMember memb = (KnownBoardsTableMember)tableModel.getRow(row);
-            if( memb.getBoardObject().getDescription() != null && 
+            if( memb.getBoardObject().getDescription() != null &&
                 memb.getBoardObject().getDescription().length() > 0 )
             {
                 setToolTipText(memb.getBoardObject().getDescription());
             } else {
                 setToolTipText(null);
             }
-            
-            return this;    
+
+            return this;
         }
     }
 
@@ -533,7 +533,7 @@ public class KnownBoardsFrame extends JDialog {
         public void mouseClicked(MouseEvent event) {}
         public void mouseEntered(MouseEvent event) {}
         public void mouseExited(MouseEvent event) {}
-        
+
         protected void maybeShowPopup(MouseEvent e) {
             if( e.isPopupTrigger() ) {
                 if( boardsTable.getSelectedRowCount() > 0 ) {

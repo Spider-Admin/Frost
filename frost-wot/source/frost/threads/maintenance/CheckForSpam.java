@@ -1,6 +1,6 @@
 /*
   CheckForSpam.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -32,18 +32,18 @@ import frost.threads.BoardUpdateThread;
  */
 public class CheckForSpam extends TimerTask
 {
-	private static Logger logger = Logger.getLogger(CheckForSpam.class.getName());
-	
-	private SettingsClass settings;
-	private TofTree tofTree;
-	private TofTreeModel tofTreeModel;
-	
-	public CheckForSpam(SettingsClass settings, TofTree tofTree, TofTreeModel tofTreeModel) {
-		this.settings = settings;
-		this.tofTree = tofTree;
-		this.tofTreeModel = tofTreeModel;
-	}
-	
+    private static Logger logger = Logger.getLogger(CheckForSpam.class.getName());
+
+    private SettingsClass settings;
+    private TofTree tofTree;
+    private TofTreeModel tofTreeModel;
+
+    public CheckForSpam(SettingsClass settings, TofTree tofTree, TofTreeModel tofTreeModel) {
+        this.settings = settings;
+        this.tofTree = tofTree;
+        this.tofTreeModel = tofTreeModel;
+    }
+
     public void run() {
         if( settings.getBoolValue("doBoardBackoff") ) {
             Iterator iter = tofTreeModel.getAllBoards().iterator();

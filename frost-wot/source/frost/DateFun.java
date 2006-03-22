@@ -1,6 +1,6 @@
 /*
   DateFun.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,8 +23,8 @@ import java.util.logging.Logger;
 
 public class DateFun {
 
-	private static Logger logger = Logger.getLogger(DateFun.class.getName());
-	
+    private static Logger logger = Logger.getLogger(DateFun.class.getName());
+
     /**
      * Returns date
      * @return Date as String yyyy.m.d in GMT without leading zeros
@@ -50,7 +50,7 @@ public class DateFun {
      * @return Date as String yyyy.m.d in GMT without leading zeros
      */
     public static String getDate(int daysAgo) {
-    	GregorianCalendar cal = new GregorianCalendar();
+        GregorianCalendar cal = new GregorianCalendar();
         cal.setTimeZone(TimeZone.getTimeZone("GMT"));
         cal.add(Calendar.DATE,-daysAgo);
         return getDateOfCalendar(cal);
@@ -240,7 +240,7 @@ public class DateFun {
     }
 
     /**
-     * 2005.9.3 -> 2005.09.03 (for comparisions) 
+     * 2005.9.3 -> 2005.09.03 (for comparisions)
      */
     public static String buildExtendedDate(String date) {
         int firstPoint = date.indexOf('.');

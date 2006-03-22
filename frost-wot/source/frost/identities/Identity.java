@@ -1,6 +1,6 @@
 /*
   Identity.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -35,41 +35,41 @@ public class Identity implements SafeXMLizable {
     private String uniqueName;
     protected String key;
     private long lastSeenTimestamp = -1;
-    
+
     int state = -1; // FRIEND,...
-    
-	private static Logger logger = Logger.getLogger(Identity.class.getName());
-    
+
+    private static Logger logger = Logger.getLogger(Identity.class.getName());
+
     //some trust map methods
 //    protected Set trustees;
 
-	//if this was C++ LocalIdentity wouldn't work
-	//fortunately we have virtual construction so loadXMLElement will be called
-	//for the inheriting class ;-)
-	public Identity(Element el) {
-		try {
-			loadXMLElement(el);
-		} catch (SAXException e) {
-			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
-		}
-	}
+    //if this was C++ LocalIdentity wouldn't work
+    //fortunately we have virtual construction so loadXMLElement will be called
+    //for the inheriting class ;-)
+    public Identity(Element el) {
+        try {
+            loadXMLElement(el);
+        } catch (SAXException e) {
+            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+        }
+    }
 
-	public Element getXMLElement(Document doc)  {
-		Element el = getSafeXMLElement(doc);
+    public Element getXMLElement(Document doc)  {
+        Element el = getSafeXMLElement(doc);
         Element element;
         Text text;
-		
-		//# of files
-//		Element element = doc.createElement("files");
-//		Text text = doc.createTextNode(""+noFiles);
-//		element.appendChild(text);
-//		el.appendChild(element);
-		
-		//# of messages
-//		element = doc.createElement("messages");
-//		text = doc.createTextNode(""+noMessages);
-//		element.appendChild(text);
-//		el.appendChild(element);
+
+        //# of files
+//      Element element = doc.createElement("files");
+//      Text text = doc.createTextNode(""+noFiles);
+//      element.appendChild(text);
+//      el.appendChild(element);
+
+        //# of messages
+//      element = doc.createElement("messages");
+//      text = doc.createTextNode(""+noMessages);
+//      element.appendChild(text);
+//      el.appendChild(element);
 
         // last seen timestamp
         if( getLastSeenTimestamp() > 0 ) {
@@ -79,53 +79,53 @@ public class Identity implements SafeXMLizable {
             el.appendChild(element);
         }
 
-		//trusted identities
-//		if (trustees != null) {
-//			element = doc.createElement("trustedIds");
-//			Iterator it = trustees.iterator();
-//			while (it.hasNext()) {
-//				String id = (String)it.next();
-//				Element trustee = doc.createElement("trustee");
-//				CDATASection cdata = doc.createCDATASection(id);
-//				trustee.appendChild(cdata);
-//				element.appendChild(trustee);
-//			}
-//			el.appendChild(element);
-//		}
-		return el;
-	}
-	
-	//same method used for LocalIdentity
-	public Element getSafeXMLElement(Document doc){
-		Element el = doc.createElement("Identity");
-		
-		//name
-		Element element = doc.createElement("name");
-		CDATASection cdata = doc.createCDATASection(getUniqueName());
-		element.appendChild( cdata );
-		el.appendChild( element );
-		
-		//key itself
-		element = doc.createElement("key");
-		cdata = doc.createCDATASection(getKey());
-		element.appendChild( cdata );
-		el.appendChild( element );
-		
-		return el;
-	}
-	
-	public void loadXMLElement(Element e) throws SAXException {
-		uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
-		name = uniqueName.substring(0,uniqueName.indexOf("@"));
-		key =  XMLTools.getChildElementsCDATAValue(e, "key");
-//		try {
-//			String _msg = XMLTools.getChildElementsTextValue(e,"messages");
-//			noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
-//			String _files = XMLTools.getChildElementsTextValue(e,"files");
-//			noFiles = _files == null ? 0 : Integer.parseInt(_files);
-//		} catch (Exception npe) {
-//			logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
-//		}
+        //trusted identities
+//      if (trustees != null) {
+//          element = doc.createElement("trustedIds");
+//          Iterator it = trustees.iterator();
+//          while (it.hasNext()) {
+//              String id = (String)it.next();
+//              Element trustee = doc.createElement("trustee");
+//              CDATASection cdata = doc.createCDATASection(id);
+//              trustee.appendChild(cdata);
+//              element.appendChild(trustee);
+//          }
+//          el.appendChild(element);
+//      }
+        return el;
+    }
+
+    //same method used for LocalIdentity
+    public Element getSafeXMLElement(Document doc){
+        Element el = doc.createElement("Identity");
+
+        //name
+        Element element = doc.createElement("name");
+        CDATASection cdata = doc.createCDATASection(getUniqueName());
+        element.appendChild( cdata );
+        el.appendChild( element );
+
+        //key itself
+        element = doc.createElement("key");
+        cdata = doc.createCDATASection(getKey());
+        element.appendChild( cdata );
+        el.appendChild( element );
+
+        return el;
+    }
+
+    public void loadXMLElement(Element e) throws SAXException {
+        uniqueName = XMLTools.getChildElementsCDATAValue(e, "name");
+        name = uniqueName.substring(0,uniqueName.indexOf("@"));
+        key =  XMLTools.getChildElementsCDATAValue(e, "key");
+//      try {
+//          String _msg = XMLTools.getChildElementsTextValue(e,"messages");
+//          noMessages = _msg == null ? 0 : Integer.parseInt(_msg);
+//          String _files = XMLTools.getChildElementsTextValue(e,"files");
+//          noFiles = _files == null ? 0 : Integer.parseInt(_files);
+//      } catch (Exception npe) {
+//          logger.log(Level.SEVERE, "No data about # of messages found for identity " + uniqueName, npe);
+//      }
 
         String _lastSeenStr = XMLTools.getChildElementsTextValue(e,"lastSeen");
         if( _lastSeenStr != null && ((_lastSeenStr=_lastSeenStr.trim())).length() > 0 ) {
@@ -135,25 +135,25 @@ public class Identity implements SafeXMLizable {
             lastSeenTimestamp = System.currentTimeMillis();
         }
 
-		// check for trustees
-//		ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
-//		Element trusteesList = null;
-//		if (_trusteesList.size() > 0) {
-//			trusteesList = (Element) _trusteesList.get(0);
+        // check for trustees
+//      ArrayList _trusteesList = XMLTools.getChildElementsByTagName(e,"trustees");
+//      Element trusteesList = null;
+//      if (_trusteesList.size() > 0) {
+//          trusteesList = (Element) _trusteesList.get(0);
 //        }
-//		if (trusteesList != null) {
-//			if (trustees == null) {
-//				trustees = new TreeSet();
+//      if (trusteesList != null) {
+//          if (trustees == null) {
+//              trustees = new TreeSet();
 //            }
-//			List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
-//			Iterator it = trusteeEntities.iterator();
-//			while (it.hasNext()) {
-//				Element trustee = (Element)it.next();
-//				String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
-//				trustees.add(id);
-//			}
-//		}
-	}
+//          List trusteeEntities = XMLTools.getChildElementsByTagName(trusteesList,"trustee");
+//          Iterator it = trusteeEntities.iterator();
+//          while (it.hasNext()) {
+//              Element trustee = (Element)it.next();
+//              String id = ((CDATASection) trustee.getFirstChild()).getData().trim();
+//              trustees.add(id);
+//          }
+//      }
+    }
 
     /**
      * we use this constructor whenever we have all the info
@@ -191,18 +191,18 @@ public class Identity implements SafeXMLizable {
     public String getUniqueName() {
         return Mixed.makeFilename(uniqueName);
     }
-    
-	/**
-	 * @return list of identities this identity trusts
-	 */
-//	public Set getTrustees() {
-//		if (trustees== null ) trustees= new TreeSet();
-//		return trustees;
-//	}
+
+    /**
+     * @return list of identities this identity trusts
+     */
+//  public Set getTrustees() {
+//      if (trustees== null ) trustees= new TreeSet();
+//      return trustees;
+//  }
 
     // dont't store BoardAttachement with pubKey=SSK@...
     public static boolean isForbiddenBoardAttachment(BoardAttachment ba) {
-        if( ba != null && 
+        if( ba != null &&
             ba.getBoardObj().getPublicKey() != null &&
             ba.getBoardObj().getPublicKey().startsWith("SSK@") )
         {
@@ -211,23 +211,23 @@ public class Identity implements SafeXMLizable {
             return false;
         }
     }
-    
+
     public long getLastSeenTimestamp() {
         return lastSeenTimestamp;
     }
-    
+
     public void updateLastSeenTimestamp() {
         lastSeenTimestamp = System.currentTimeMillis();
     }
-    
+
     public int getState() {
         return state;
     }
-    
+
     public void setState(int newstate) {
         state = newstate;
     }
-    
+
     public String toString() {
         return getUniqueName();
     }

@@ -1,6 +1,6 @@
 /*
   MessageWindow.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -29,42 +29,42 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class MessageWindow extends JFrame {
-	
-//	private static Logger logger = Logger.getLogger(MessageWindow.class.getName());
-	
-	private final FrostMessageObject message;
-	private Window parentWindow;
-    
+
+//  private static Logger logger = Logger.getLogger(MessageWindow.class.getName());
+
+    private final FrostMessageObject message;
+    private Window parentWindow;
+
     private MessageTextPane messageTextPane;
     private MessageWindowTopPanel topPanel;
-    
+
     private Listener listener;
-    
+
     private Language language = Language.getInstance();
-	
-	public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size){
-		super();
-		this.message = message;
-		this.parentWindow = parentWindow;
+
+    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size){
+        super();
+        this.message = message;
+        this.parentWindow = parentWindow;
         this.setSize(size);
-		initialize();
-        
-		// set visible BEFORE updating the textpane to allow correct positioning of dividers
-		setVisible(true);
-        
+        initialize();
+
+        // set visible BEFORE updating the textpane to allow correct positioning of dividers
+        setVisible(true);
+
         messageTextPane.update_messageSelected(message);
-	}
-	
-	private void initialize(){
-		listener = new Listener();
-		
-		this.setTitle(message.getSubject());
-		
-		this.getContentPane().setLayout(new BorderLayout());
-        
+    }
+
+    private void initialize(){
+        listener = new Listener();
+
+        this.setTitle(message.getSubject());
+
+        this.getContentPane().setLayout(new BorderLayout());
+
         topPanel = new MessageWindowTopPanel(message);
         this.getContentPane().add(topPanel, BorderLayout.NORTH);
-        
+
         messageTextPane = new MessageTextPane(this);
         this.getContentPane().add(messageTextPane, BorderLayout.CENTER);
 
@@ -72,24 +72,24 @@ public class MessageWindow extends JFrame {
         messageTextPane.addKeyListener(listener);
         topPanel.addKeyListener(listener);
         this.addWindowListener(listener);
-        
-		ImageIcon frameIcon = new ImageIcon(MessageWindow.class.getResource("/data/messagebright.gif"));
-		this.setIconImage(frameIcon.getImage());
-		this.setLocationRelativeTo(parentWindow);
-	}
-	
-	private void close() {
+
+        ImageIcon frameIcon = new ImageIcon(MessageWindow.class.getResource("/data/messagebright.gif"));
+        this.setIconImage(frameIcon.getImage());
+        this.setLocationRelativeTo(parentWindow);
+    }
+
+    private void close() {
         messageTextPane.removeKeyListener(listener);
         messageTextPane.close();
         topPanel.removeKeyListener(listener);
         topPanel.close();
-		dispose();
-	}
-    
+        dispose();
+    }
+
     private void replyButtonPressed() {
         MainFrame.getInstance().getMessagePanel().composeReply(message, MainFrame.getInstance());
     }
-    
+
     private class Listener extends WindowAdapter implements KeyListener, WindowListener {
         /* (non-Javadoc)
          * @see java.awt.event.KeyListener#keyPressed(java.awt.event.KeyEvent)
@@ -124,9 +124,9 @@ public class MessageWindow extends JFrame {
             }
         }
     }
-    
+
     class MessageWindowTopPanel extends JPanel implements LanguageListener {
-        
+
         private JLabel Lsubject = null;
         private JLabel Lfrom = null;
         private JLabel Ldate = null;
@@ -135,10 +135,10 @@ public class MessageWindow extends JFrame {
         private JTextField TFdate = null;
         private JLabel Lboard = null;
         private JTextField TFboard = null;
-        
+
         private FrostMessageObject innerMessage;
         private JButton Breply = null;
-        
+
         public MessageWindowTopPanel(FrostMessageObject msg) {
             super();
             innerMessage = msg;
@@ -146,7 +146,7 @@ public class MessageWindow extends JFrame {
             languageChanged(null);
             language.addLanguageListener(this);
         }
-        
+
         public void addKeyListener(KeyListener l) {
             super.addKeyListener(l);
             Component[] c = getComponents();
@@ -244,7 +244,7 @@ public class MessageWindow extends JFrame {
             this.add(getTFboard(), gridBagConstraints11);
             this.add(getBreply(), gridBagConstraints41);
         }
-        
+
         public void languageChanged(LanguageEvent event) {
             Lsubject.setText(language.getString("Subject")+":");
             Lfrom.setText(language.getString("From")+":");

@@ -1,6 +1,6 @@
 /*
   UploadTickerListener.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -26,14 +26,14 @@ import java.util.EventListener;
  * @version $Revision$
  */
 public interface UploadTickerListener extends EventListener {
-	
-	/**
-	 * This event is fired when the number of uploading threads changes.
-	 */
-	void uploadingCountChanged();
-	
-	/**
-	 * This event is fired when the number of generating threads changes.
-	 */
-	void generatingCountChanged();
+
+    /**
+     * This event is fired when the number of uploading threads changes.
+     */
+    void uploadingCountChanged();
+
+    /**
+     * This event is fired when the number of generating threads changes.
+     */
+    void generatingCountChanged();
 }

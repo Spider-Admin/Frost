@@ -1,6 +1,6 @@
 /*
   FcpFECUtilsSagmentHeader.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -22,9 +22,9 @@ import java.util.logging.Logger;
 
 
 public class FcpFECUtilsSegmentHeader {
-	
-	private static Logger logger = Logger.getLogger(FcpFECUtilsSegmentHeader.class.getName());
-	
+
+    private static Logger logger = Logger.getLogger(FcpFECUtilsSegmentHeader.class.getName());
+
     public String FECAlgorithm;
     public long CheckBlockOffset;
     public long SegmentNum;
@@ -39,7 +39,7 @@ public class FcpFECUtilsSegmentHeader {
     public long CheckBlockCount;
 
     public FcpFECUtilsSegmentHeader(){
-    	logger.fine("SegmentHeader generated");
+        logger.fine("SegmentHeader generated");
     }
     public void insertValue(String valueString){
     if (valueString.startsWith("CheckBlockOffset=")){

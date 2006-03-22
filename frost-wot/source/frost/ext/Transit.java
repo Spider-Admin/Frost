@@ -1,6 +1,6 @@
 /*
 Transit.java / Frost
-Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -31,31 +31,31 @@ class Transit {
     Vector vector;
     Transit transit;
 
- 
+
     public void setString(String string) {
-	this.string = string;
+    this.string = string;
     }
 
     public String getString() {
-	return string;
+    return string;
     }
 
 
     public void setVector(Vector vector) {
-	this.vector = vector;
+    this.vector = vector;
     }
 
     public Vector getVector() {
-	return vector;
+    return vector;
     }
 
 
     public void setTransit(Transit transit) {
-	this.transit = transit;
+    this.transit = transit;
     }
 
     public Transit getTransit() {
-	return transit;
+    return transit;
     }
 
 

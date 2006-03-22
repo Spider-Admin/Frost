@@ -1,6 +1,6 @@
 /*
   KnownBoardsTableModel.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -22,9 +22,9 @@ import frost.util.gui.translation.Language;
 
 public class KnownBoardsTableModel extends SortedTableModel
 {
-	private Language language = null;
+    private Language language = null;
 
-	protected final static String columnNames[] = new String[4];
+    protected final static String columnNames[] = new String[4];
 
     protected final static Class columnClasses[] =  {
         String.class,
@@ -33,29 +33,29 @@ public class KnownBoardsTableModel extends SortedTableModel
         String.class
     };
 
-	/**
-	 * 
-	 */
-	public KnownBoardsTableModel() {
-		super();
-		language = Language.getInstance();
-		refreshLanguage();
-	}
+    /**
+     *
+     */
+    public KnownBoardsTableModel() {
+        super();
+        language = Language.getInstance();
+        refreshLanguage();
+    }
 
     /**
-	 * 
-	 */
-	private void refreshLanguage() {
-		columnNames[0] = language.getString("KnownBoardsTableModel.Boardname");
-		columnNames[1] = language.getString("Public key");
-		columnNames[2] = language.getString("Private key");		
-		columnNames[3] = language.getString("Description");		
-	}
+     *
+     */
+    private void refreshLanguage() {
+        columnNames[0] = language.getString("KnownBoardsTableModel.Boardname");
+        columnNames[1] = language.getString("Public key");
+        columnNames[2] = language.getString("Private key");
+        columnNames[3] = language.getString("Description");
+    }
 
-	/* (non-Javadoc)
-	 * @see javax.swing.table.TableModel#isCellEditable(int, int)
-	 */
-	public boolean isCellEditable(int row, int col)
+    /* (non-Javadoc)
+     * @see javax.swing.table.TableModel#isCellEditable(int, int)
+     */
+    public boolean isCellEditable(int row, int col)
     {
         return false;
     }
@@ -69,7 +69,7 @@ public class KnownBoardsTableModel extends SortedTableModel
             return columnNames[column];
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
@@ -77,7 +77,7 @@ public class KnownBoardsTableModel extends SortedTableModel
     {
         return columnNames.length;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */

@@ -1,6 +1,6 @@
 /*
   UploadManager.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -31,128 +31,128 @@ import frost.storage.StorageException;
  */
 public class UploadManager implements PropertyChangeListener {
 
-	private LocalIdentity myID;
-	private TofTreeModel tofTreeModel;
-	private MainFrame mainFrame; 
-	private SettingsClass settings;
-	
-	private UploadModel model;
-	private UploadPanel panel;
-	private UploadTicker ticker;
-	private UploadStatusPanel statusPanel;
+    private LocalIdentity myID;
+    private TofTreeModel tofTreeModel;
+    private MainFrame mainFrame;
+    private SettingsClass settings;
 
-	private boolean freenetIsOnline;
+    private UploadModel model;
+    private UploadPanel panel;
+    private UploadTicker ticker;
+    private UploadStatusPanel statusPanel;
 
-	/**
-	 * @param settings
-	 */
-	public UploadManager(SettingsClass settings) {
-		super();
-		this.settings = settings;
-	}
-	
-	/**
-	 * 
-	 */
-	public void initialize() throws StorageException {
-		mainFrame.addPanel("Uploads", getPanel());
-		mainFrame.addStatusPanel(getStatusPanel(), 0);
-		settings.addPropertyChangeListener(SettingsClass.DISABLE_REQUESTS, this);
-		updateUploadStatus();
-		getModel().initialize();
-		if (freenetIsOnline) {
-			getTicker().start();
-		}
-	}
-	
-	/**
-	 * @param tofTreeModel
-	 */
-	public void setTofTreeModel(TofTreeModel tofTreeModel) {
-		this.tofTreeModel = tofTreeModel;
-	}
-	
-	/**
-	 * @param mainFrame
-	 */
-	public void setMainFrame(MainFrame newMainFrame) {
-		mainFrame = newMainFrame;	
-	}
-	
-	/**
-	 * description
-	 * 
-	 * @param freenetIsOnline description
-	 */
-	public void setFreenetIsOnline(boolean freenetIsOnline) {
-		this.freenetIsOnline = freenetIsOnline;
-	}
-	
-	/**
-	 * @return
-	 */
-	public UploadPanel getPanel() {
-		if (panel == null) {
-			panel = new UploadPanel(settings);
-			panel.setModel(getModel());
-			panel.setTofTreeModel(tofTreeModel);
-			panel.initialize();
-		}
-		return panel;
-	}
-	
-	/**
-	 * @return
-	 */
-	private UploadStatusPanel getStatusPanel() {
-		if (statusPanel == null) {
-			statusPanel = new UploadStatusPanel(getTicker());
-		}
-		return statusPanel;
-	}
-	
-	/* (non-Javadoc)
-	 * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-	 */
-	public void propertyChange(PropertyChangeEvent evt) {
-		if (evt.getPropertyName().equals(SettingsClass.DISABLE_REQUESTS)) {
-			updateUploadStatus();
-		}
-	}
-	
-	/**
-	 * 
-	 */
-	private void updateUploadStatus() {
-		boolean disableUploads = settings.getBoolValue(SettingsClass.DISABLE_REQUESTS);
-		mainFrame.setPanelEnabled("Uploads", !disableUploads && freenetIsOnline);
-	}
-	
-	/**
-	 * @return
-	 */
-	private UploadTicker getTicker() {
-		if (ticker == null) {
-			ticker = new UploadTicker(settings, getModel(), getPanel(), myID);
-		}
-		return ticker;
-	}
+    private boolean freenetIsOnline;
 
-	/**
-	 * @param identity
-	 */
-	public void setMyID(LocalIdentity identity) {
-		myID = identity;
-	}
+    /**
+     * @param settings
+     */
+    public UploadManager(SettingsClass settings) {
+        super();
+        this.settings = settings;
+    }
 
-	/**
-	 * @return
-	 */
-	public UploadModel getModel() {
-		if (model == null) {
-			model = new UploadModel(settings);	
-		}
-		return model;
-	}
+    /**
+     *
+     */
+    public void initialize() throws StorageException {
+        mainFrame.addPanel("Uploads", getPanel());
+        mainFrame.addStatusPanel(getStatusPanel(), 0);
+        settings.addPropertyChangeListener(SettingsClass.DISABLE_REQUESTS, this);
+        updateUploadStatus();
+        getModel().initialize();
+        if (freenetIsOnline) {
+            getTicker().start();
+        }
+    }
+
+    /**
+     * @param tofTreeModel
+     */
+    public void setTofTreeModel(TofTreeModel tofTreeModel) {
+        this.tofTreeModel = tofTreeModel;
+    }
+
+    /**
+     * @param mainFrame
+     */
+    public void setMainFrame(MainFrame newMainFrame) {
+        mainFrame = newMainFrame;
+    }
+
+    /**
+     * description
+     *
+     * @param freenetIsOnline description
+     */
+    public void setFreenetIsOnline(boolean freenetIsOnline) {
+        this.freenetIsOnline = freenetIsOnline;
+    }
+
+    /**
+     * @return
+     */
+    public UploadPanel getPanel() {
+        if (panel == null) {
+            panel = new UploadPanel(settings);
+            panel.setModel(getModel());
+            panel.setTofTreeModel(tofTreeModel);
+            panel.initialize();
+        }
+        return panel;
+    }
+
+    /**
+     * @return
+     */
+    private UploadStatusPanel getStatusPanel() {
+        if (statusPanel == null) {
+            statusPanel = new UploadStatusPanel(getTicker());
+        }
+        return statusPanel;
+    }
+
+    /* (non-Javadoc)
+     * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
+     */
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.DISABLE_REQUESTS)) {
+            updateUploadStatus();
+        }
+    }
+
+    /**
+     *
+     */
+    private void updateUploadStatus() {
+        boolean disableUploads = settings.getBoolValue(SettingsClass.DISABLE_REQUESTS);
+        mainFrame.setPanelEnabled("Uploads", !disableUploads && freenetIsOnline);
+    }
+
+    /**
+     * @return
+     */
+    private UploadTicker getTicker() {
+        if (ticker == null) {
+            ticker = new UploadTicker(settings, getModel(), getPanel(), myID);
+        }
+        return ticker;
+    }
+
+    /**
+     * @param identity
+     */
+    public void setMyID(LocalIdentity identity) {
+        myID = identity;
+    }
+
+    /**
+     * @return
+     */
+    public UploadModel getModel() {
+        if (model == null) {
+            model = new UploadModel(settings);
+        }
+        return model;
+    }
 
 }

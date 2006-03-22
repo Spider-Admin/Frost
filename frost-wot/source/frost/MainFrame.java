@@ -1,6 +1,6 @@
 /*
   MainFrame.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
   Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
 
   This program is free software; you can redistribute it and/or
@@ -57,11 +57,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             fileExitMenuItem_actionPerformed(null);
         }
     }
-    
+
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
-    
+
     /**
      * Search through .req files of this day in all boards and remove the
      * dummy .req files that are created by requestThread on key collosions.
@@ -88,7 +88,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     for (int x = 0; x < entries.length; x++) {
                         File entry = entries[x];
                         if (entry.getName().endsWith(".req.sha") &&
-                            FileAccess.readFile(entry).indexOf(DownloadThread.KEYCOLL_INDICATOR) > -1) 
+                            FileAccess.readFile(entry).indexOf(DownloadThread.KEYCOLL_INDICATOR) > -1)
                         {
                             entry.delete();
                         }
@@ -209,7 +209,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     // The main menu
     private JMenuBar menuBar;
     private MessagePanel messagePanel = null;
-    
+
     // buttons that are enabled/disabled later
     private JButton newBoardButton = null;
     private JButton newFolderButton = null;
@@ -254,7 +254,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private TofTree tofTree = null;
     private TofTreeModel tofTreeModel = null;
     private UploadPanel uploadPanel = null;
-    
+
     public TofTree getTofTree() {
         return tofTree;
     }
@@ -693,9 +693,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     setLanguageResource(bundle);
                 }
             });
-            
+
             helpHelpMenuItem.setIcon(miscToolkit.getScaledImage("/data/help.png", 16, 16));
-            
+
             helpHelpMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     showHtmlHelp("index.html");
@@ -870,7 +870,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
         // TODO: move to saveable???
         // TODO: save msg table column sizes!!!
-        
+
         // save size,location and state of window
         Rectangle bounds = getBounds();
         boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
@@ -883,7 +883,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             frostSettings.setValue("lastFramePosX", bounds.x);
             frostSettings.setValue("lastFramePosY", bounds.y);
         }
-        
+
         getMessagePanel().getMessageTable().saveLayout(frostSettings);
 
         if (tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
@@ -912,7 +912,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         }
         return messagePanel;
     }
-    
+
     /**
      * Help | About action performed
      */
@@ -1246,7 +1246,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
                 uploadPanel.setAddFilesButtonEnabled(true);
                 renameFolderButton.setEnabled(false);
-                
+
                 // read all messages for this board into message table
                 TOF.getInstance().updateTofTable(node, keypool);
                 getMessagePanel().getMessageTable().clearSelection();
@@ -1372,7 +1372,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
       return;
     }
-    
+
     public void startSearchMessagesDialog() {
         if( getSearchMessagesDialog() == null ) {
             setSearchMessagesDialog(new SearchMessagesDialog());
@@ -1380,14 +1380,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         // show first time or bring to front
         getSearchMessagesDialog().setVisible(true);
     }
-    
+
     public void setSearchMessagesDialog(SearchMessagesDialog d) {
         searchMessagesDialog = d;
     }
     public SearchMessagesDialog getSearchMessagesDialog() {
         return searchMessagesDialog;
     }
-    
+
     public void updateMessageCountLabels(Board board) {
         // forward to MessagePanel
         getMessagePanel().updateMessageCountLabels(board);
