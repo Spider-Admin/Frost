@@ -874,11 +874,13 @@ public class MessageFrame extends JFrame {
 			boardsTableModel = new MFAttachedBoardsTableModel();
 			boardsTable = new MFAttachedBoardsTable(boardsTableModel);
 			boardsTableScrollPane = new JScrollPane(boardsTable);
+            boardsTableScrollPane.setWheelScrollingEnabled(true);
 			boardsTable.addMouseListener(listener);
 
 			filesTableModel = new MFAttachedFilesTableModel();
 			filesTable = new MFAttachedFilesTable(filesTableModel);
 			filesTableScrollPane = new JScrollPane(filesTable);
+            filesTableScrollPane.setWheelScrollingEnabled(true);
 			filesTable.addMouseListener(listener);
 
             List budList = Core.getInstance().getIdentities().getAllIdentitiesWithState(FrostIdentities.FRIEND);
@@ -1011,6 +1013,7 @@ public class MessageFrame extends JFrame {
 			JPanel panelButtons = new JPanel(new FlowLayout(FlowLayout.LEFT, 6, 0));
 
 			JScrollPane bodyScrollPane = new JScrollPane(messageTextArea); // Textscrollpane
+            bodyScrollPane.setWheelScrollingEnabled(true);
 			bodyScrollPane.setMinimumSize(new Dimension(100, 50));
 
 			panelLabels.add(Lboard, BorderLayout.NORTH);
