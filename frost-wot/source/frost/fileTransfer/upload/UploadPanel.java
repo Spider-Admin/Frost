@@ -54,17 +54,11 @@ public class UploadPanel extends JPanel {
 		
 		private Clipboard clipboard;
 
-		/**
-		 *  
-		 */
 		public PopupMenuUpload() {
 			super();
 			initialize();
 		}
 
-		/**
-		 * 
-		 */
 		private void initialize() {
 			refreshLanguage();
 
@@ -86,9 +80,6 @@ public class UploadPanel extends JPanel {
 			restoreDefaultFilenamesForAllFilesItem.addActionListener(this);
 		}
 
-		/**
-		 * 
-		 */
 		private void refreshLanguage() {
 			keyNotAvailableMessage = language.getString("Key not available yet");
 			fileMessage = language.getString("clipboard.File:");
@@ -605,9 +596,6 @@ public class UploadPanel extends JPanel {
 		uploadAddFilesButton.setEnabled(enabled);
 	}
 
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
 		uploadAddFilesButton.setToolTipText(language.getString("Browse") + "...");
 	}
@@ -734,5 +722,4 @@ public class UploadPanel extends JPanel {
 	public void setModel(UploadModel model) {
 		this.model = model;
 	}
-
 }

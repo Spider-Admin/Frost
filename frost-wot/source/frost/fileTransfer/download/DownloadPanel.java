@@ -39,9 +39,6 @@ import frost.util.model.gui.SortedModelTable;
  */
 public class DownloadPanel extends JPanel implements SettingsUpdater {
 	
-	/**
-	 *  
-	 */
 	private class PopupMenuDownload
 		extends JSkinnablePopupMenu
 		implements ActionListener, LanguageListener, ClipboardOwner {
@@ -70,17 +67,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		
 		private Clipboard clipboard;
 
-		/**
-		 * 
-		 */
 		public PopupMenuDownload() {
 			super();
 			initialize();
 		}
 
-		/**
-		 * 
-		 */
 		private void initialize() {
 			refreshLanguage();
 
@@ -105,9 +96,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			invertEnabledSelectedItem.addActionListener(this);
 		}
 
-		/**
-		 * 
-		 */
 		private void refreshLanguage() {
 			keyNotAvailableMessage = language.getString("Key not available yet");
 			fileMessage = language.getString("clipboard.File:");
@@ -139,9 +127,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
 		}
 		
-		/**
-		 * @return
-		 */
 		private Clipboard getClipboard() {
 			if (clipboard == null) {
 				clipboard = Toolkit.getDefaultToolkit().getSystemClipboard();
@@ -194,76 +179,46 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			}
 		}
 
-		/**
-		 * 
-		 */
 		private void invertEnabledSelected() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			model.setItemsEnabled(null, selectedItems);
 		}
 
-		/**
-		 * 
-		 */
 		private void invertEnabledAll() {
 			model.setAllItemsEnabled(null);
 		}
 
-		/**
-		 * 
-		 */
 		private void disableSelectedDownloads() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			model.setItemsEnabled(new Boolean(false), selectedItems);
 		}
 
-		/**
-		 * 
-		 */
 		private void enableSelectedDownloads() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			model.setItemsEnabled(new Boolean(true), selectedItems);
 		}
 
-		/**
-		 * 
-		 */
 		private void disableAllDownloads() {
 			model.setAllItemsEnabled(new Boolean(false));
 		}
 
-		/**
-		 * 
-		 */
 		private void enableAllDownloads() {
 			model.setAllItemsEnabled(new Boolean(true));
 		}
 
-		/**
-		 * 
-		 */
 		private void removeFinished() {
 			model.removeFinishedDownloads();
 		}
 
-		/**
-		 * 
-		 */
 		private void removeAllDownloads() {
 			model.removeAllItems();
 		}
 
-		/**
-		 * 
-		 */
 		private void removeSelectedDownloads() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			model.removeItems(selectedItems);
 		}
 
-		/**
-		 * 
-		 */
 		private void restartSelectedDownloads() {
 			ModelItem[] selectedItems = modelTable.getSelectedItems();
 			model.restartItems(selectedItems);
@@ -410,16 +365,11 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 	}
 
-	/**
-	 * 
-	 */
 	private class Listener
 		extends MouseAdapter
 		implements LanguageListener, ActionListener, KeyListener, MouseListener, PropertyChangeListener {
-		/**
-		 * 
-		 */
-		public Listener() {
+
+        public Listener() {
 			super();
 		}
 
@@ -555,9 +505,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		language.addLanguageListener(listener);
 	}
 
-	/**
-	 * 
-	 */
 	public void initialize() {
 		if (!initialized) {
 			refreshLanguage();
@@ -617,9 +564,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		return dummyLabel.getPreferredSize();
 	}
 
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
 		downloadActivateButton.setToolTipText(language.getString("Activate downloading"));
         downloadPauseButton.setToolTipText(language.getString("Pause downloading"));
@@ -802,9 +746,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		downloadItemCountLabel.setText(s);
 	}
 
-	/**
-	 * @return
-	 */
 	private PopupMenuDownload getPopupMenuDownload() {
 		if (popupMenuDownload == null) {
 			popupMenuDownload = new PopupMenuDownload();
@@ -820,9 +761,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
 	
-	/**
-	 * 
-	 */
 	private void fontChanged() {
 		String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
 		int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
@@ -892,5 +830,4 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	public void updateSettings() {
 		settingsClass.setValue(SettingsClass.DOWNLOADING_ACTIVATED, isDownloadingActivated());
 	}
-
 }
