@@ -280,9 +280,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		model.addItemsToDownloadModel(selectedItems);
 	}
 
-	/**
-	 * 
-	 */
 	private class Listener
 		extends MouseAdapter
 		implements
@@ -293,9 +290,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 			ListSelectionListener,
 			ModelListener {
 
-		/**
-		 * 
-		 */
 		public Listener() {
 			super();
 		}
@@ -462,9 +456,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		setAllBoardsSelected(settingsClass.getBoolValue(SettingsClass.SEARCH_ALL_BOARDS));
 	}
 
-	/**
-	 * 
-	 */
 	public void initialize() {
 		if (!initialized) {
 			refreshLanguage();
@@ -526,9 +517,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
 		searchAllBoardsCheckBox.setText(language.getString("all boards"));
 		searchButton.setToolTipText(language.getString("Search"));
@@ -618,9 +606,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
 	}
 	
 
-	/**
-	 * 
-	 */
 	private void fontChanged() {
 		String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
 		int fontStyle = settingsClass.getIntValue(SettingsClass.FILE_LIST_FONT_STYLE);
