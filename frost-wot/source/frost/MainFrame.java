@@ -828,6 +828,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         getTabbedPane().setSelectedIndex(0);
 
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
+        tofTreeScrollPane.setWheelScrollingEnabled(true);
         // tofTree selection listener
         tofTree.addTreeSelectionListener(new TreeSelectionListener() {
             public void valueChanged(TreeSelectionEvent e) {

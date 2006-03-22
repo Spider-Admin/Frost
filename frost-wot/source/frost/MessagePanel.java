@@ -490,6 +490,7 @@ public class MessagePanel extends JPanel {
             messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
+            messageListScrollPane.setWheelScrollingEnabled(true);
             
             messageTextPane = new MessageTextPane(mainFrame);
             

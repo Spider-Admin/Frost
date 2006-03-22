@@ -1021,6 +1021,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JScrollPane getJScrollPane() {
         if( jScrollPane == null ) {
             jScrollPane = new JScrollPane();
+            jScrollPane.setWheelScrollingEnabled(true);
             jScrollPane.setForeground(new java.awt.Color(51,51,51));
             jScrollPane.setViewportView(getSearchResultTable());
         }

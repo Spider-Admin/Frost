@@ -177,6 +177,7 @@ public class MessageDownloadThread
             }
             File testMe = null, testMe2 = null;
             FcpResults results = null;
+            String downKey = null;
 
             try { // we don't want to die for any reason
                 String val = new StringBuffer()
@@ -210,7 +211,6 @@ public class MessageDownloadThread
                     continue;
                 }
 
-                String downKey = null;
                 if (secure) {
                     downKey = new StringBuffer()
                             .append(publicKey)
@@ -266,6 +266,8 @@ public class MessageDownloadThread
                 }
                 
                 // we downloaded something
+                logger.info("TOFDN: A message was downloaded, key="+downKey);
+
                 failures = 0;
 
                 testMe.renameTo(testMe2);
@@ -277,13 +279,13 @@ public class MessageDownloadThread
                 if( testMe.length() == 0 ) {
                     // Frosts message files do always contain data, so the received content is wrong
                     if( metadata != null && metadata.length > 0 ) {
-                        logger.severe("TOFDN: Received metadata without data, maybe faked message.");
+                        logger.severe("TOFDN: Received metadata without data, maybe faked message. key="+downKey);
                     } else if( metadata == null || metadata.length == 0 ) {
                         // paranoia checking, should never happen if FcpResults != null
-                        logger.severe("TOFDN: Received neither metadata nor data, maybe a bug or a faked message.");
+                        logger.severe("TOFDN: Received neither metadata nor data, maybe a bug or a faked message. key="+downKey);
                     } else {
                         // something bad happened if we ever come here :)
-                        logger.severe("TOFDN: Received something, but bad things happened in code, maybe a bug or a faked message.");
+                        logger.severe("TOFDN: Received something, but bad things happened in code, maybe a bug or a faked message. key="+downKey);
                     }
                     FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     continue;
@@ -299,7 +301,7 @@ public class MessageDownloadThread
                 messageHashes.add(messageId);
 
                 if( isDuplicateMsg ) {
-                    logger.info(Thread.currentThread().getName()+": TOFDN: *** Duplicate Message : "+testMe.getName()+" ***");
+                    logger.info(Thread.currentThread().getName()+": TOFDN: *** Duplicate Message, key="+downKey+" ***");
                     if( Core.frostSettings.getBoolValue(SettingsClass.RECEIVE_DUPLICATE_MESSAGES) == false ) {
                         // user don't want to see the duplicate messages
                         FileAccess.writeFile(DUPLICATE_MSG, testMe); // this file is ignored by the gui
@@ -312,7 +314,7 @@ public class MessageDownloadThread
                     
                     byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
                     if( unzippedXml == null ) {
-                        logger.log(Level.SEVERE, "TOFDN: Unzip of unsigned xml failed");
+                        logger.log(Level.SEVERE, "TOFDN: Unzip of unsigned xml failed, key="+downKey);
                         FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                         continue;
                     }
@@ -324,7 +326,7 @@ public class MessageDownloadThread
                         addMessageToGui(currentMsg, testMe, true, calDL, MessageObject.SIGNATURESTATUS_OLD);
 
                     } catch (Exception ex) {
-						logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", ex);
+						logger.log(Level.SEVERE, "TOFDN: Unsigned message is invalid, key="+downKey, ex);
                         // file could not be read, mark it invalid not to confuse gui
                         FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     }
@@ -339,22 +341,24 @@ public class MessageDownloadThread
                         _metaData = MetaData.getInstance( doc.getDocumentElement() );
                     }
                 } catch (Throwable t) {
-                    logger.log(Level.SEVERE, "TOFDN: Exeption in MetaData.getInstance(): ", t);
+                    logger.log(Level.SEVERE, "TOFDN: Invalid metadata of signed message, key="+downKey, t);
                     _metaData = null;
                 }
                 if( _metaData == null ) {
                     // metadata failed, do something
                     logger.log(Level.SEVERE, "TOFDN: Metadata couldn't be read. " +
-                                    "Offending file saved as badmetadata.xml - send to a dev for analysis");
+                                    "Offending file saved as badmetadata.xml - send to a dev for analysis. key="+downKey);
                     File badmetadata = new File("badmetadata.xml");
                     FileAccess.writeFile(metadata, badmetadata);
                     // don't try this file again
                     FileAccess.writeFile(BROKEN_METADATA, testMe); // this file is ignored by the gui
                     continue;
                 }
-                	
-                assert _metaData.getType() == MetaData.SIGN || _metaData.getType() == MetaData.ENCRYPT :
-                	"TOFDN: unknown type of metadata";
+
+                if( _metaData.getType() != MetaData.SIGN && _metaData.getType() != MetaData.ENCRYPT ) {
+                    logger.severe("TOFDN: unknown type of metadata, key="+downKey);
+                    continue;
+                }
                 
                 // now the msg could be signed OR signed and encrypted
                 // first check sign, later decrypt if msg was for me
@@ -398,7 +402,7 @@ public class MessageDownloadThread
                     
                     if( zipData == null ) {
                         logger.log(Level.SEVERE, "TOFDN: Encrypted message from "+encMetaData.getPerson().getUniqueName()+
-                                                 " could not be decrypted!");
+                                                 " could not be decrypted! key="+downKey);
                         FileAccess.writeFile(DECRYPT_FAILED, testMe); // this file is ignored by the gui
                         continue;
                     }
@@ -415,7 +419,7 @@ public class MessageDownloadThread
                 // unzip
                 byte[] unzippedXml = FileAccess.readZipFileBinary(testMe);
                 if( unzippedXml == null ) {
-                    logger.log(Level.SEVERE, "TOFDN: Unzip of signed xml failed");
+                    logger.log(Level.SEVERE, "TOFDN: Unzip of signed xml failed, key="+downKey);
                     FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     continue;
                 }
@@ -425,7 +429,7 @@ public class MessageDownloadThread
                 try {
                     currentMsg = new VerifyableMessageObject(testMe);
                 } catch (Exception ex) {
-					logger.log(Level.SEVERE, "TOFDN: Exception when creating message object", ex);
+					logger.log(Level.SEVERE, "TOFDN: Exception when creating message object, key="+downKey, ex);
                     // file could not be read, mark it invalid not to confuse gui
                     FileAccess.writeFile(BROKEN_MSG, testMe); // this file is ignored by the gui
                     continue;
@@ -434,7 +438,7 @@ public class MessageDownloadThread
                 //then check if the signature was ok
                 if (!sigIsValid) {
                     // TODO: should'nt we drop this msg instead of adding it to the gui?
-                    logger.warning("TOFDN: message failed verification, status set to TAMPERED.");
+                    logger.warning("TOFDN: message failed verification, status set to TAMPERED. key="+downKey);
                     addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);    
                     continue;
                 }
@@ -450,7 +454,7 @@ public class MessageDownloadThread
                     // TODO: should'nt we drop this msg instead of adding it to the gui?
                     logger.warning("TOFDN: Hash in metadata doesn't match hash in message!\n" +
                     			   "metadata : "+metaDataHash+" , message: " + messageHash+
-                                   ". Message failed verification, status set to TAMPERED.");
+                                   ". Message failed verification, status set to TAMPERED. key="+downKey);
                     addMessageToGui(currentMsg, testMe, false, calDL, MessageObject.SIGNATURESTATUS_TAMPERED);
                     continue;
                 }
@@ -458,7 +462,7 @@ public class MessageDownloadThread
                 addMessageToGui(currentMsg, testMe, true, calDL, MessageObject.SIGNATURESTATUS_VERIFIED);
 
             } catch (Throwable t) {
-				logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL)", t);
+				logger.log(Level.SEVERE, "TOFDN: Exception thrown in downloadDate(GregorianCalendar calDL), key="+downKey, t);
                 // index is already increased for next try
             }
         } // end-of: while
