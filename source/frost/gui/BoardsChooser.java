@@ -140,6 +140,7 @@ public class BoardsChooser extends JDialog {
         } );
         Lboards.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
         JScrollPane listScroller = new JScrollPane( Lboards );
+        listScroller.setWheelScrollingEnabled(true);
         listScroller.setBorder( new CompoundBorder( new EmptyBorder(5,5,5,5),
                                                     new CompoundBorder( new EtchedBorder(),
                                                                         new EmptyBorder(5,5,5,5) )

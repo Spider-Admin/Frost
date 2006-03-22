@@ -130,11 +130,13 @@ public class MessageTextPane extends JPanel {
         messageTextArea.setWrapStyleWord(true);
         messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
         JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
+        messageBodyScrollPane.setWheelScrollingEnabled(true);
 
         // build attached files scroll pane
         attachedFilesModel = new AttachedFilesTableModel();
         filesTable = new JTable(attachedFilesModel);
         filesTableScrollPane = new JScrollPane(filesTable);
+        filesTableScrollPane.setWheelScrollingEnabled(true);
 
         // build attached boards scroll pane
         attachedBoardsModel = new AttachedBoardTableModel();
@@ -177,6 +179,7 @@ public class MessageTextPane extends JPanel {
             }
         };
         boardsTableScrollPane = new JScrollPane(boardsTable);
+        boardsTableScrollPane.setWheelScrollingEnabled(true);
 
         fontChanged();
         
