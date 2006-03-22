@@ -1,6 +1,6 @@
 /*
   AttachedFilesTableModel.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -28,9 +28,9 @@ import frost.util.gui.translation.*;
 
 public class AttachedFilesTableModel extends DefaultTableModel implements LanguageListener
 {
-	private Language language = null;
-	
-	protected final static String columnNames[] = new String[3];
+    private Language language = null;
+
+    protected final static String columnNames[] = new String[3];
 
     protected final static Class columnClasses[] = {
         String.class, //LangRes.getString("Filename"),
@@ -39,14 +39,14 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
     };
 
     /**
-     * 
+     *
      */
     public AttachedFilesTableModel() {
-		super();
-		language = Language.getInstance();
-		language.addLanguageListener(this);
-		refreshLanguage();
-	}
+        super();
+        language = Language.getInstance();
+        language.addLanguageListener(this);
+        refreshLanguage();
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
@@ -55,45 +55,45 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
     {
         return false;
     }
-    
-	/* (non-Javadoc)
-	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-	 */
-	public void languageChanged(LanguageEvent event) {
-		refreshLanguage();			
-	}
-	
-	/**
-	 * 
-	 */
-	private void refreshLanguage() {
-		columnNames[0] = language.getString("Filename");
-		columnNames[1] = language.getString("Size");
+
+    /* (non-Javadoc)
+     * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+     */
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();
+    }
+
+    /**
+     *
+     */
+    private void refreshLanguage() {
+        columnNames[0] = language.getString("Filename");
+        columnNames[1] = language.getString("Size");
         columnNames[2] = language.getString("Key");
 
-		fireTableStructureChanged();		
-	}
-	
-	/**
-	 * This method fills the table model with the FileAttachments
-	 * in the list passed as a parameter  
-	 * @param fileAttachments list of FileAttachments fo fill the model with
-	 */
-	public void setData(List fileAttachments) {
-		setRowCount(0);
-		Iterator files = fileAttachments.iterator();
-		while (files.hasNext()) {
-			FileAttachment attachment = (FileAttachment) files.next();
-			SharedFileObject fileObject = attachment.getFileObj();
-			// There is no point in showing a file without key / name
-			if (fileObject.getKey() != null && fileObject.getKey().length() > 40 &&
-				fileObject.getFilename() != null && fileObject.getFilename().length() > 0 ) 
+        fireTableStructureChanged();
+    }
+
+    /**
+     * This method fills the table model with the FileAttachments
+     * in the list passed as a parameter
+     * @param fileAttachments list of FileAttachments fo fill the model with
+     */
+    public void setData(List fileAttachments) {
+        setRowCount(0);
+        Iterator files = fileAttachments.iterator();
+        while (files.hasNext()) {
+            FileAttachment attachment = (FileAttachment) files.next();
+            SharedFileObject fileObject = attachment.getFileObj();
+            // There is no point in showing a file without key / name
+            if (fileObject.getKey() != null && fileObject.getKey().length() > 40 &&
+                fileObject.getFilename() != null && fileObject.getFilename().length() > 0 )
             {
-				Object[] row = {fileObject.getFilename(), fileObject.getSize(), fileObject.getKey()};
-				addRow(row);
-			}
-		}
-	}
+                Object[] row = {fileObject.getFilename(), fileObject.getSize(), fileObject.getKey()};
+                addRow(row);
+            }
+        }
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnName(int)
@@ -104,7 +104,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
             return columnNames[column];
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
@@ -112,7 +112,7 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
     {
         return columnNames.length;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */

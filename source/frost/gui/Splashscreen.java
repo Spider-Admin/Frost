@@ -1,6 +1,6 @@
 /*
   Splashscreen.java
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -30,109 +30,109 @@ import javax.swing.*;
  * Exception in thread "main" java.lang.NullPointerException
  *       at java.awt.Dimension.<init>(Unknown Source)
  *       at javax.swing.plaf.basic.BasicProgressBarUI.getPreferredSize(Unknown Source)
- *     	 [..]
- * 		 at java.awt.Window.pack(Unknown Source)
+ *       [..]
+ *       at java.awt.Window.pack(Unknown Source)
  *       at frost.gui.Splashscreen.init(Splashscreen.java:66)
- * 		 [..]
+ *       [..]
  * The suggested workaround was to create the nosplash.chk file to completely disable the splash screen, but it would
  * be nice to find out why the JProgressBar is causing that trouble.
- * 
- * Update: the suggested workaround didn't work. It threw another strage Swing exception later, when the main frame 
- * was about to be shown, so I assume it may be a problem with the gfx card drivers or a bug with the JVM itself 
+ *
+ * Update: the suggested workaround didn't work. It threw another strage Swing exception later, when the main frame
+ * was about to be shown, so I assume it may be a problem with the gfx card drivers or a bug with the JVM itself
  * (probably the first).
- * 
+ *
  * Update: it seems the problem lies on the com.sun.java.swing.plaf.windows.WindowsLookAndFeel. If the user chooses
  * another one (like Metal) from the command line options, the issue is solved.
  */
 public class Splashscreen extends JDialog {
 
-//	private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
+//  private static Logger logger = Logger.getLogger(Splashscreen.class.getName());
 
-	private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
-	private static String NO_SPLASH_FILENAME = "nosplash.chk";
+    private static String SPLASH_LOGO_FILENAME = "/data/splash.png";
+    private static String NO_SPLASH_FILENAME = "nosplash.chk";
 
-	//Splashscreen size depends on this image. 
-	private ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource(SPLASH_LOGO_FILENAME));
+    //Splashscreen size depends on this image.
+    private ImageIcon frostLogo = new ImageIcon(Splashscreen.class.getResource(SPLASH_LOGO_FILENAME));
 
-	//GUI Objects
-	JPanel mainPanel = new JPanel(new BorderLayout());
-	JLabel pictureLabel = new JLabel();
-	JProgressBar progressBar = new JProgressBar(0, 100);
+    //GUI Objects
+    JPanel mainPanel = new JPanel(new BorderLayout());
+    JLabel pictureLabel = new JLabel();
+    JProgressBar progressBar = new JProgressBar(0, 100);
 
-	private boolean noSplash;
+    private boolean noSplash;
 
-	public Splashscreen() {
-		File splashchk = new File(NO_SPLASH_FILENAME);
-		if (splashchk.exists()) {
-			noSplash = true;
-		} else {
-			noSplash = false;
-			init();
-		}
-	}
+    public Splashscreen() {
+        File splashchk = new File(NO_SPLASH_FILENAME);
+        if (splashchk.exists()) {
+            noSplash = true;
+        } else {
+            noSplash = false;
+            init();
+        }
+    }
 
-	/**Close the splashscreen*/
-	public void closeMe() {
-		if (!noSplash) {
-			setVisible(false);
-			dispose();
-//			logger.info("Splashscreen: I'm gone now :-(");
-		}
-	}
+    /**Close the splashscreen*/
+    public void closeMe() {
+        if (!noSplash) {
+            setVisible(false);
+            dispose();
+//          logger.info("Splashscreen: I'm gone now :-(");
+        }
+    }
 
-	/**Component initialization*/
-	private void init() {
+    /**Component initialization*/
+    private void init() {
 
-		setUndecorated(true);
-		setResizable(false);
+        setUndecorated(true);
+        setResizable(false);
 
-		pictureLabel.setIcon(frostLogo);
+        pictureLabel.setIcon(frostLogo);
 
-		progressBar.setStringPainted(true);
-		progressBar.setString("Starting...");
+        progressBar.setStringPainted(true);
+        progressBar.setString("Starting...");
 
-		getContentPane().add(mainPanel);
-		mainPanel.add(pictureLabel, BorderLayout.CENTER);
-		mainPanel.add(progressBar, BorderLayout.SOUTH);
+        getContentPane().add(mainPanel);
+        mainPanel.add(pictureLabel, BorderLayout.CENTER);
+        mainPanel.add(progressBar, BorderLayout.SOUTH);
 
-		pack();
+        pack();
 
-		Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-		Dimension splashscreenSize = getSize();
-		if (splashscreenSize.height > screenSize.height) {
-			splashscreenSize.height = screenSize.height;
-		}
-		if (splashscreenSize.width > screenSize.width) {
-			splashscreenSize.width = screenSize.width;
-		}
-		setLocation(
-			(screenSize.width - splashscreenSize.width) / 2,
-			(screenSize.height - splashscreenSize.height) / 2);
-	}
+        Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+        Dimension splashscreenSize = getSize();
+        if (splashscreenSize.height > screenSize.height) {
+            splashscreenSize.height = screenSize.height;
+        }
+        if (splashscreenSize.width > screenSize.width) {
+            splashscreenSize.width = screenSize.width;
+        }
+        setLocation(
+            (screenSize.width - splashscreenSize.width) / 2,
+            (screenSize.height - splashscreenSize.height) / 2);
+    }
 
-	/**
-	 * Set progress for the progressBar.
-	 * Default range is from 0 to 100.
-	 * */
-	public void setProgress(int progress) {
-		if (!noSplash) {
-			progressBar.setValue(progress);
-		}
-	}
+    /**
+     * Set progress for the progressBar.
+     * Default range is from 0 to 100.
+     * */
+    public void setProgress(int progress) {
+        if (!noSplash) {
+            progressBar.setValue(progress);
+        }
+    }
 
-	/**Set the text for the progressBar*/
-	public void setText(String text) {
-		if (!noSplash) {
-			progressBar.setString(text);
-		}
-	}
+    /**Set the text for the progressBar*/
+    public void setText(String text) {
+        if (!noSplash) {
+            progressBar.setString(text);
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see java.awt.Component#setVisible(boolean)
-	 */
-	public void setVisible(boolean b) {
-		if (!noSplash) {
-			super.setVisible(b);
-		}
-	}
+    /* (non-Javadoc)
+     * @see java.awt.Component#setVisible(boolean)
+     */
+    public void setVisible(boolean b) {
+        if (!noSplash) {
+            super.setVisible(b);
+        }
+    }
 }

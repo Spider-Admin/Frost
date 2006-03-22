@@ -1,6 +1,6 @@
 /*
   SafeXMLizable.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -25,6 +25,6 @@ import org.w3c.dom.*;
  * that may be a privacy risk
  */
 public interface SafeXMLizable extends XMLizable {
-	public Element getSafeXMLElement(Document container);
+    public Element getSafeXMLElement(Document container);
 
 }

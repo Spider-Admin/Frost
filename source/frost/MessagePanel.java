@@ -1,6 +1,6 @@
 /*
   MessagePanel.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
   Some changes by Stefan Majewski <e9926279@stud3.tuwien.ac.at>
 
   This program is free software; you can redistribute it and/or
@@ -38,14 +38,14 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class MessagePanel extends JPanel {
-    
+
     private MessageTable messageTable = null;
     private MessageTableModel messageTableModel = null;
     private MessageTextPane messageTextPane = null;
     private JScrollPane messageListScrollPane = null;
 
     MainFrame mainFrame;
-    
+
     private class Listener
     extends MouseAdapter
     implements
@@ -60,7 +60,7 @@ public class MessagePanel extends JPanel {
         public Listener() {
             super();
         }
-    
+
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == updateButton) {
                 updateButton_actionPerformed(e);
@@ -82,7 +82,7 @@ public class MessagePanel extends JPanel {
                 setObserveButton_actionPerformed(e);
             }
         }
-    
+
         private void maybeShowPopup(MouseEvent e) {
             if (e.isPopupTrigger()) {
                 if (e.getComponent() == messageTable) {
@@ -99,15 +99,15 @@ public class MessagePanel extends JPanel {
                         showCurrentMessagePopupWindow();
             }
         }
-    
+
         public void mousePressed(MouseEvent e) {
             maybeShowPopup(e);
         }
-    
+
         public void mouseReleased(MouseEvent e) {
             maybeShowPopup(e);
         }
-    
+
         /**
          * Handles keystrokes for message table.
          * Currently implemented:
@@ -121,17 +121,17 @@ public class MessagePanel extends JPanel {
             if( e == null ) {
                 return;
             }
-            if ( (e.getSource() == messageTable || 
-                  e.getSource() == mainFrame.getTofTree() ) && 
+            if ( (e.getSource() == messageTable ||
+                  e.getSource() == mainFrame.getTofTree() ) &&
                 e.getKeyChar() == 'n') {
-    
+
                 selectNextUnreadMessage();
-    
-            } else if (e.getSource() == messageTable ) { 
-                if( selectedMessage == null || 
-                    selectedMessage.getSignatureStatus() != MessageObject.SIGNATURESTATUS_VERIFIED) 
+
+            } else if (e.getSource() == messageTable ) {
+                if( selectedMessage == null ||
+                    selectedMessage.getSignatureStatus() != MessageObject.SIGNATURESTATUS_VERIFIED)
                 {
-                    // change only for signed messages 
+                    // change only for signed messages
                     return;
                 }
                 if (e.getKeyChar() == 'b')  {
@@ -145,67 +145,67 @@ public class MessagePanel extends JPanel {
                 }
             }
         }
-    
+
         public void keyPressed(KeyEvent e){
             if(e.getSource() == messageTable && e.getKeyChar() == KeyEvent.VK_DELETE) {
                 deleteSelectedMessage();
             }
         }
-    
+
         public void keyReleased(KeyEvent e){
             //Nothing here
         }
-    
+
         public void valueChanged(ListSelectionEvent e) {
             messageTable_itemSelected(e);
         }
-    
+
         public void valueChanged(TreeSelectionEvent e) {
             boardsTree_actionPerformed(e);
         }
-    
+
         public void treeNodesChanged(TreeModelEvent e) {
     //        boardsTreeNode_Changed(e);
         }
-    
+
         public void treeNodesInserted(TreeModelEvent e) {
             //Nothing here
         }
-    
+
         public void treeNodesRemoved(TreeModelEvent e) {
             //Nothing here
         }
-    
+
         public void treeStructureChanged(TreeModelEvent e) {
             //Nothing here
         }
-    
+
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
     }
-    
+
     private class PopupMenuMessageTable
         extends JSkinnablePopupMenu
         implements ActionListener, LanguageListener {
-    
+
         private JMenuItem cancelItem = new JMenuItem();
-    
+
         private JMenuItem markAllMessagesReadItem = new JMenuItem();
         private JMenuItem markMessageUnreadItem = new JMenuItem();
         private JMenuItem setBadItem = new JMenuItem();
         private JMenuItem setCheckItem = new JMenuItem();
         private JMenuItem setGoodItem = new JMenuItem();
         private JMenuItem setObserveItem = new JMenuItem();
-    
+
         private JMenuItem deleteItem = new JMenuItem();
         private JMenuItem undeleteItem = new JMenuItem();
-    
+
         public PopupMenuMessageTable() {
             super();
             initialize();
         }
-    
+
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == markMessageUnreadItem) {
                 markSelectedMessageUnread();
@@ -226,10 +226,10 @@ public class MessagePanel extends JPanel {
                 undeleteSelectedMessage();
             }
         }
-    
+
         private void initialize() {
             refreshLanguage();
-    
+
             markMessageUnreadItem.addActionListener(this);
             markAllMessagesReadItem.addActionListener(this);
             setGoodItem.addActionListener(this);
@@ -239,11 +239,11 @@ public class MessagePanel extends JPanel {
             deleteItem.addActionListener(this);
             undeleteItem.addActionListener(this);
         }
-    
+
         public void languageChanged(LanguageEvent event) {
             refreshLanguage();
         }
-    
+
         private void refreshLanguage() {
             markMessageUnreadItem.setText(language.getString("Mark message unread"));
             markAllMessagesReadItem.setText(language.getString("Mark ALL messages read"));
@@ -255,11 +255,11 @@ public class MessagePanel extends JPanel {
             undeleteItem.setText(language.getString("Undelete message"));
             cancelItem.setText(language.getString("Cancel"));
         }
-    
+
         public void show(Component invoker, int x, int y) {
             if (!mainFrame.getTofTreeModel().getSelectedNode().isFolder()) {
                 removeAll();
-    
+
                 if (messageTable.getSelectedRow() > -1) {
                     add(markMessageUnreadItem);
                 }
@@ -273,7 +273,7 @@ public class MessagePanel extends JPanel {
                 setObserveItem.setEnabled(false);
                 setCheckItem.setEnabled(false);
                 setBadItem.setEnabled(false);
-    
+
                 if (messageTable.getSelectedRow() > -1 && selectedMessage != null) {
                     if( identities.isMySelf(selectedMessage.getFrom()) ) {
                         // keep all off
@@ -301,7 +301,7 @@ public class MessagePanel extends JPanel {
                         logger.warning("invalid message state : " + selectedMessage.getMsgStatus());
                     }
                 }
-    
+
                 if (selectedMessage != null) {
                     addSeparator();
                     add(deleteItem);
@@ -314,7 +314,7 @@ public class MessagePanel extends JPanel {
                         deleteItem.setEnabled(true);
                     }
                 }
-    
+
                 addSeparator();
                 add(cancelItem);
                 // ATT: misuse of another menuitem displaying 'Cancel' ;)
@@ -322,22 +322,22 @@ public class MessagePanel extends JPanel {
             }
         }
     }
-    
+
     private Logger logger = Logger.getLogger(MessagePanel.class.getName());
-    
+
     private SettingsClass settings;
     private Language language;
     private FrostIdentities identities;
     private JFrame parentFrame;
-    
+
     private boolean initialized = false;
-    
+
     private Listener listener = new Listener();
-    
+
     private FrostMessageObject selectedMessage;
-    
+
     private PopupMenuMessageTable popupMenuMessageTable = null;
-    
+
     private JButton setCheckButton =
         new JButton(new ImageIcon(getClass().getResource("/data/check.gif")));
     //private JButton downloadAttachmentsButton =
@@ -354,13 +354,13 @@ public class MessagePanel extends JPanel {
         new JButton(new ImageIcon(getClass().getResource("/data/reply.gif")));
     private JButton saveMessageButton =
         new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
-    protected JButton nextUnreadMessageButton = 
+    protected JButton nextUnreadMessageButton =
         new JButton(new ImageIcon(getClass().getResource("/data/nextunreadmessage.gif"))); // TODO!
     private JButton setGoodButton =
         new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
     private JButton updateButton =
         new JButton(new ImageIcon(getClass().getResource("/data/update.gif")));
-    
+
     private final String allMessagesCountPrefix = "Msg: "; // TODO: translate
     private JLabel allMessagesCountLabel = new JLabel(allMessagesCountPrefix + "0");
 
@@ -373,7 +373,7 @@ public class MessagePanel extends JPanel {
         mainFrame = mf;
         language = Language.getInstance();
     }
-    
+
     private JToolBar getButtonsToolbar() {
         // configure buttons
         MiscToolkit toolkit = MiscToolkit.getInstance();
@@ -396,7 +396,7 @@ public class MessagePanel extends JPanel {
         toolkit.configureButton(setBadButton, "Do not trust", "/data/nottrust_rollover.gif", language);
         toolkit.configureButton(setCheckButton, "Set to CHECK", "/data/check_rollover.gif", language);
         toolkit.configureButton(setObserveButton, "Set to OBSERVE", "/data/observe_rollover.gif", language);
-    
+
         replyButton.setEnabled(false);
     //  downloadAttachmentsButton.setEnabled(false);
     //  downloadBoardsButton.setEnabled(false);
@@ -405,13 +405,13 @@ public class MessagePanel extends JPanel {
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
         setObserveButton.setEnabled(false);
-    
+
         // build buttons panel
         JToolBar buttonsToolbar = new JToolBar();
         buttonsToolbar.setRollover(true);
         buttonsToolbar.setFloatable(false);
         Dimension blankSpace = new Dimension(3, 3);
-    
+
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
         buttonsToolbar.add(nextUnreadMessageButton);
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
@@ -439,7 +439,7 @@ public class MessagePanel extends JPanel {
         buttonsToolbar.add(setObserveButton);
         buttonsToolbar.add(setCheckButton);
         buttonsToolbar.add(setBadButton);
-    
+
         buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
         buttonsToolbar.add(Box.createHorizontalGlue());
         JLabel dummyLabel = new JLabel(allMessagesCountPrefix + "00000");
@@ -453,7 +453,7 @@ public class MessagePanel extends JPanel {
         buttonsToolbar.add(Box.createRigidArea(new Dimension(8, 0)));
         buttonsToolbar.add(newMessagesCountLabel);
         buttonsToolbar.add(Box.createRigidArea(blankSpace));
-    
+
         // listeners
         newMessageButton.addActionListener(listener);
         updateButton.addActionListener(listener);
@@ -466,10 +466,10 @@ public class MessagePanel extends JPanel {
         setCheckButton.addActionListener(listener);
         setBadButton.addActionListener(listener);
         setObserveButton.addActionListener(listener);
-    
+
         return buttonsToolbar;
     }
-    
+
     private PopupMenuMessageTable getPopupMenuMessageTable() {
         if (popupMenuMessageTable == null) {
             popupMenuMessageTable = new PopupMenuMessageTable();
@@ -477,12 +477,12 @@ public class MessagePanel extends JPanel {
         }
         return popupMenuMessageTable;
     }
-    
+
     public void initialize() {
         if (!initialized) {
             refreshLanguage();
             language.addLanguageListener(listener);
-    
+
             // build messages list scroll pane
             messageTableModel = new MessageTableModel();
             language.addLanguageListener(messageTableModel);
@@ -491,12 +491,12 @@ public class MessagePanel extends JPanel {
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
             messageListScrollPane.setWheelScrollingEnabled(true);
-            
+
             messageTextPane = new MessageTextPane(mainFrame);
-            
+
             // load message table layout
             messageTable.loadLayout(settings);
-    
+
             fontChanged();
 
             JSplitPane mainSplitPane =
@@ -513,11 +513,11 @@ public class MessagePanel extends JPanel {
             setLayout(new BorderLayout());
             add(getButtonsToolbar(), BorderLayout.NORTH);
             add(mainSplitPane, BorderLayout.CENTER);
-    
+
             //listeners
             messageTable.addMouseListener(listener);
             messageTable.addKeyListener(listener);
-    
+
             //other listeners
             mainFrame.getTofTree().addTreeSelectionListener(listener);
             mainFrame.getTofTree().addKeyListener(listener);
@@ -529,7 +529,7 @@ public class MessagePanel extends JPanel {
             initialized = true;
         }
     }
-    
+
     private void fontChanged() {
         String fontName = settings.getValue(SettingsClass.MESSAGE_LIST_FONT_NAME);
         int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_LIST_FONT_STYLE);
@@ -544,7 +544,7 @@ public class MessagePanel extends JPanel {
         }
         messageTable.setFont(font);
     }
-    
+
     private void messageTable_itemSelected(ListSelectionEvent e) {
         Board selectedBoard = mainFrame.getTofTreeModel().getSelectedNode();
         if (selectedBoard.isFolder()) {
@@ -556,27 +556,27 @@ public class MessagePanel extends JPanel {
             saveMessageButton.setEnabled(false);
             return;
         }
-        
+
         // board selected
-    
+
         FrostMessageObject newSelectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
         if( newSelectedMessage == selectedMessage ) {
             return; // user is reading a message, selection did NOT change
         } else {
             selectedMessage = newSelectedMessage;
         }
-    
+
         if (selectedMessage != null) {
             MainFrame.displayNewMessageIcon(false);
     //      downloadAttachmentsButton.setEnabled(false);
     //      downloadBoardsButton.setEnabled(false);
-    
+
             if (selectedBoard.isReadAccessBoard() == false) {
                 replyButton.setEnabled(true);
             } else {
                 replyButton.setEnabled(false);
             }
-    
+
             if( identities.isMySelf(selectedMessage.getFrom()) ) {
                 setGoodButton.setEnabled(false);
                 setCheckButton.setEnabled(false);
@@ -614,13 +614,13 @@ public class MessagePanel extends JPanel {
             } else {
                 saveMessageButton.setEnabled(false);
             }
-    
+
         } else {
             // no msg selected
             getMessageTextPane().update_boardSelected();
             replyButton.setEnabled(false);
             saveMessageButton.setEnabled(false);
-            
+
             setGoodButton.setEnabled(false);
             setCheckButton.setEnabled(false);
             setBadButton.setEnabled(false);
@@ -629,11 +629,11 @@ public class MessagePanel extends JPanel {
     //      downloadBoardsButton.setEnabled(false);
         }
     }
-    
+
     private void newMessageButton_actionPerformed(ActionEvent e) {
         tofNewMessageButton_actionPerformed(e);
     }
-    
+
     private void setBadButton_actionPerformed(ActionEvent e) {
         if (selectedMessage != null) {
             Identity id = identities.getIdentity(selectedMessage.getFrom());
@@ -663,7 +663,7 @@ public class MessagePanel extends JPanel {
             }
         }
     }
-    
+
     private void setCheckButton_actionPerformed(ActionEvent e) {
         setGoodButton.setEnabled(false);
         setCheckButton.setEnabled(false);
@@ -671,7 +671,7 @@ public class MessagePanel extends JPanel {
         setObserveButton.setEnabled(false);
         setMessageTrust(FrostIdentities.NEUTRAL);
     }
-    
+
     private void setObserveButton_actionPerformed(ActionEvent e) {
         setGoodButton.setEnabled(false);
         setCheckButton.setEnabled(false);
@@ -679,7 +679,7 @@ public class MessagePanel extends JPanel {
         setObserveButton.setEnabled(false);
         setMessageTrust(FrostIdentities.OBSERVE);
     }
-    
+
     private void setGoodButton_actionPerformed(ActionEvent e) {
         if (selectedMessage != null) {
             Identity id = identities.getIdentity(selectedMessage.getFrom());
@@ -709,7 +709,7 @@ public class MessagePanel extends JPanel {
             }
         }
     }
-    
+
     private void refreshLanguage() {
         newMessageButton.setToolTipText(language.getString("New message"));
         replyButton.setToolTipText(language.getString("Reply"));
@@ -723,20 +723,20 @@ public class MessagePanel extends JPanel {
         setObserveButton.setToolTipText(language.getString("Set to OBSERVE"));
         updateButton.setToolTipText(language.getString("Update"));
     }
-    
+
     private void replyButton_actionPerformed(ActionEvent e) {
         FrostMessageObject origMessage = selectedMessage;
         composeReply(origMessage, parentFrame);
     }
-    
+
     public void composeReply(FrostMessageObject origMessage, Window parent) {
         String subject = origMessage.getSubject();
         if (subject.startsWith("Re:") == false) {
             subject = "Re: " + subject;
         }
         MessageFrame newMessageFrame = new MessageFrame(settings, parent, identities.getMyId(), mainFrame.getTofTree());
-        if( origMessage.getRecipient() != null && 
-            origMessage.getRecipient().equals( identities.getMyId().getUniqueName() ) ) 
+        if( origMessage.getRecipient() != null &&
+            origMessage.getRecipient().equals( identities.getMyId().getUniqueName() ) )
         {
             // this message was for me, reply encrypted
             if( origMessage.getFromIdentity() == null ) {
@@ -744,28 +744,28 @@ public class MessagePanel extends JPanel {
                         "Can't reply encrypted, recipients public key is missing!", // TODO: translate
                         "ERROR",
                         JOptionPane.ERROR);
-                return;                               
+                return;
             }
             newMessageFrame.composeEncryptedReply(
-                    mainFrame.getTofTreeModel().getSelectedNode(), 
+                    mainFrame.getTofTreeModel().getSelectedNode(),
                     identities.getMyId().getUniqueName(),
-                    subject, 
-                    origMessage.getContent(), 
+                    subject,
+                    origMessage.getContent(),
                     origMessage.getFromIdentity());
-    
+
         } else {
             newMessageFrame.composeReply(
-                    mainFrame.getTofTreeModel().getSelectedNode(), 
+                    mainFrame.getTofTreeModel().getSelectedNode(),
                     settings.getValue("userName"),
-                    subject, 
+                    subject,
                     origMessage.getContent());
         }
     }
-    
+
     private void showMessageTablePopupMenu(MouseEvent e) {
         getPopupMenuMessageTable().show(e.getComponent(), e.getX(), e.getY());
     }
-    
+
     private void showCurrentMessagePopupWindow(){
         if( !isCorrectlySelectedMessage() ) {
             return;
@@ -773,16 +773,16 @@ public class MessagePanel extends JPanel {
         MessageWindow messageWindow = new MessageWindow( mainFrame, selectedMessage, this.getSize() );
         messageWindow.setVisible(true);
     }
-    
+
     private void updateButton_actionPerformed(ActionEvent e) {
         // restarts all finished threads if there are some long running threads
         if (mainFrame.getTofTree().isUpdateAllowed(mainFrame.getTofTreeModel().getSelectedNode())) {
             mainFrame.getTofTree().updateBoard(mainFrame.getTofTreeModel().getSelectedNode());
         }
     }
-    
+
     private void boardsTree_actionPerformed(TreeSelectionEvent e) {
-    
+
         if (((TreeNode) mainFrame.getTofTreeModel().getRoot()).getChildCount() == 0) {
             //There are no boards. //TODO: check if there are really no boards (folders count as children)
             getMessageTextPane().update_noBoardsFound();
@@ -813,7 +813,7 @@ public class MessagePanel extends JPanel {
             }
         }
     }
-    
+
     /**
      * returns true if message was correctly selected
      * @return
@@ -825,20 +825,20 @@ public class MessagePanel extends JPanel {
             || mainFrame.getTofTreeModel().getSelectedNode() == null
             || mainFrame.getTofTreeModel().getSelectedNode().isFolder() == true)
             return false;
-    
+
         return true;
     }
-    
+
     private void deleteSelectedMessage() {
-    
+
         if(! isCorrectlySelectedMessage() ) {
             return;
         }
-    
+
         final FrostMessageObject targetMessage = selectedMessage;
-    
+
         targetMessage.setDeleted(true);
-    
+
         if ( ! settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
             // if we show deleted messages we don't need to remove them from the table
             messageTableModel.deleteRow(selectedMessage);
@@ -847,7 +847,7 @@ public class MessagePanel extends JPanel {
             // needs repaint or the line which crosses the message isn't completely seen
             getMessageTableModel().updateRow(targetMessage);
         }
-    
+
         Thread saver = new Thread() {
             public void run() {
                 // save message, we must save the changed deleted state into the xml file
@@ -856,15 +856,15 @@ public class MessagePanel extends JPanel {
         };
         saver.start();
     }
-    
+
     private void undeleteSelectedMessage(){
         if(! isCorrectlySelectedMessage() )
                 return;
-    
+
         final FrostMessageObject targetMessage = selectedMessage;
         targetMessage.setDeleted(false);
         this.repaint();
-    
+
         Thread saver = new Thread() {
             public void run() {
                 // save message, we must save the changed deleted state into the xml file
@@ -873,19 +873,19 @@ public class MessagePanel extends JPanel {
         };
         saver.start();
     }
-    
+
     public void setIdentities(FrostIdentities identities) {
         this.identities = identities;
     }
-    
+
     public void setParentFrame(JFrame parentFrame) {
         this.parentFrame = parentFrame;
     }
-    
+
     public void startTruster( FrostMessageObject which, int trustState ) {
         identities.changeTrust(which.getFrom(), trustState);
     }
-    
+
     /**
      * Marks current selected message unread
      */
@@ -896,21 +896,21 @@ public class MessagePanel extends JPanel {
             || mainFrame.getTofTreeModel().getSelectedNode() == null
             || mainFrame.getTofTreeModel().getSelectedNode().isFolder() == true)
             return;
-    
+
         FrostMessageObject targetMessage = selectedMessage;
-    
+
         messageTable.removeRowSelectionInterval(0, messageTable.getRowCount() - 1);
-    
+
         targetMessage.setMessageNew(true);
         // let renderer check for new state
         getMessageTableModel().updateRow(targetMessage);
-    
+
         mainFrame.getTofTreeModel().getSelectedNode().incNewMessageCount();
-    
+
         updateMessageCountLabels(mainFrame.getTofTreeModel().getSelectedNode());
         mainFrame.updateTofTree(mainFrame.getTofTreeModel().getSelectedNode());
     }
-    
+
     /**
      * Method that update the Msg and New counts for tof table
      * Expects that the boards messages are shown in table
@@ -946,7 +946,7 @@ public class MessagePanel extends JPanel {
             identities.changeTrust(selectedMessage.getFrom(), newState);
         }
     }
-    
+
     /**
      * tofNewMessageButton Action Listener (tof/ New Message)
      * @param e
@@ -956,9 +956,9 @@ public class MessagePanel extends JPanel {
                                                 settings, mainFrame,
                                                 Core.getInstance().getIdentities().getMyId(),
                                                 mainFrame.getTofTree());
-        newMessageFrame.composeNewMessage(mainFrame.getTofTreeModel().getSelectedNode(), 
+        newMessageFrame.composeNewMessage(mainFrame.getTofTreeModel().getSelectedNode(),
                                           settings.getValue("userName"),
-                                          "No subject", 
+                                          "No subject",
                                           "");
     }
 

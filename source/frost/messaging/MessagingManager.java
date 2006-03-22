@@ -1,6 +1,6 @@
 /*
  MessagingManager.java / Frost
- Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+ Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
@@ -23,40 +23,40 @@ import java.util.logging.*;
 import frost.*;
 
 public class MessagingManager {
-	
+
     private static Logger logger = Logger.getLogger(MessagingManager.class.getName());
 
     private SettingsClass settings;
-	
-	private MessageHashes messageHashes;
-	
-	/**
-	 * 
-	 */
-	public MessagingManager(SettingsClass settings) {
-		super();
-		this.settings = settings;
-	}
-	
-	/**
-	 * 
-	 */
-	public void initialize() {
+
+    private MessageHashes messageHashes;
+
+    /**
+     *
+     */
+    public MessagingManager(SettingsClass settings) {
+        super();
+        this.settings = settings;
+    }
+
+    /**
+     *
+     */
+    public void initialize() {
         try {
             getMessageHashes().initialize();
         } catch(Throwable t) {
             logger.log(Level.SEVERE, "Exception when loading hashes, continuing", t);
             messageHashes = new MessageHashes();
         }
-	}
+    }
 
-	/**
-	 * @return
-	 */
-	public MessageHashes getMessageHashes() {
-		if (messageHashes == null) {
-			messageHashes = new MessageHashes();	
-		}
-		return messageHashes;
-	}
+    /**
+     * @return
+     */
+    public MessageHashes getMessageHashes() {
+        if (messageHashes == null) {
+            messageHashes = new MessageHashes();
+        }
+        return messageHashes;
+    }
 }

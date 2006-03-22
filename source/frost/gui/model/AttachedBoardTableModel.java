@@ -1,6 +1,6 @@
 /*
   AttachedBoardTableModel.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -28,25 +28,25 @@ import frost.util.gui.translation.*;
 
 public class AttachedBoardTableModel extends DefaultTableModel implements LanguageListener
 {
-	private Language language = null;
-	
-	protected final static String columnNames[] = new String[3];
+    private Language language = null;
+
+    protected final static String columnNames[] = new String[3];
 
     protected final static Class columnClasses[] = {
         String.class, //"Board Name",
         String.class, //"Access rights"
-		String.class, //"Description"
+        String.class, //"Description"
     };
 
     /**
-     * 
+     *
      */
     public AttachedBoardTableModel() {
-		super();
-		language = Language.getInstance();
-		language.addLanguageListener(this);
-		refreshLanguage();
-	}
+        super();
+        language = Language.getInstance();
+        language.addLanguageListener(this);
+        refreshLanguage();
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
@@ -55,56 +55,56 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
     {
         return false;
     }
-    
-	/* (non-Javadoc)
-	 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-	 */
-	public void languageChanged(LanguageEvent event) {
-		refreshLanguage();			
-	}
-	
-	/**
-	 * 
-	 */
-	private void refreshLanguage() {
-		columnNames[0] = language.getString("Board Name");
-		columnNames[1] = language.getString("Access rights");
-		columnNames[2] = language.getString("Description");	
 
-		fireTableStructureChanged();		
-	}
-	
-	/**
-	 * This method fills the table model with the BoardAttachments
-	 * in the list passed as a parameter  
-	 * @param boardAttachments list of BoardAttachments fo fill the model with
-	 */
-	public void setData(List boardAttachments) {
-		setRowCount(0);
-		Iterator boards = boardAttachments.iterator();
-		while (boards.hasNext()) {
-			BoardAttachment attachment = (BoardAttachment) boards.next();
-			Board board = attachment.getBoardObj();
-			Object[] row = new Object[3];
-			// There is no point in showing a board without name
-			if (board.getName() != null) {
-				row[0] = board.getName();
-				if (board.getPublicKey() == null && board.getPrivateKey() == null) {
-					row[1] = "public";
-				} else if (board.getPublicKey() != null && board.getPrivateKey() == null) { 
-					row[1] = "read - only";
-				} else {
-					row[1] = "read / write";
-				}
-				if (board.getDescription() == null) {
-					row[2] = "Not present";
-				} else {
-					row[2] = board.getDescription();
-				}
-				addRow(row);
-			}
-		}
-	}
+    /* (non-Javadoc)
+     * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+     */
+    public void languageChanged(LanguageEvent event) {
+        refreshLanguage();
+    }
+
+    /**
+     *
+     */
+    private void refreshLanguage() {
+        columnNames[0] = language.getString("Board Name");
+        columnNames[1] = language.getString("Access rights");
+        columnNames[2] = language.getString("Description");
+
+        fireTableStructureChanged();
+    }
+
+    /**
+     * This method fills the table model with the BoardAttachments
+     * in the list passed as a parameter
+     * @param boardAttachments list of BoardAttachments fo fill the model with
+     */
+    public void setData(List boardAttachments) {
+        setRowCount(0);
+        Iterator boards = boardAttachments.iterator();
+        while (boards.hasNext()) {
+            BoardAttachment attachment = (BoardAttachment) boards.next();
+            Board board = attachment.getBoardObj();
+            Object[] row = new Object[3];
+            // There is no point in showing a board without name
+            if (board.getName() != null) {
+                row[0] = board.getName();
+                if (board.getPublicKey() == null && board.getPrivateKey() == null) {
+                    row[1] = "public";
+                } else if (board.getPublicKey() != null && board.getPrivateKey() == null) {
+                    row[1] = "read - only";
+                } else {
+                    row[1] = "read / write";
+                }
+                if (board.getDescription() == null) {
+                    row[2] = "Not present";
+                } else {
+                    row[2] = board.getDescription();
+                }
+                addRow(row);
+            }
+        }
+    }
 
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnName(int)
@@ -115,7 +115,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
             return columnNames[column];
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
@@ -123,7 +123,7 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
     {
         return columnNames.length;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */

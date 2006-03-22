@@ -1,6 +1,6 @@
 /*
   BoardUpdateThreadObject.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -29,15 +29,15 @@ import frost.identities.FrostIdentities;
  * A thread have to extend this class and to implement BoardUpdateThread.
  */
 public class BoardUpdateThreadObject extends Thread {
-    
+
     protected FrostIdentities identities;
-	Board targetBoard = null;
+    Board targetBoard = null;
     long startTimeMillis = -1;
     boolean isFinished = false;
     Vector registeredListeners = null;
 
     public BoardUpdateThreadObject(Board board, FrostIdentities newIdentities) {
-    	super(board.getName());
+        super(board.getName());
         this.targetBoard = board;
         this.registeredListeners = new Vector();
         identities = newIdentities;

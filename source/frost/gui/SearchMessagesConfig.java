@@ -1,6 +1,6 @@
 /*
   SearchMessagesConfig.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -29,13 +29,13 @@ public class SearchMessagesConfig {
     public List subject = null; // List of String
     public List content = null; // List of String
     public boolean searchPrivateMsgsOnly = false;
-    
+
     public static final int BOARDS_DISPLAYED  = 1;
 //    public static final int BOARDS_EXISTING_DIRS = 2;
     public static final int BOARDS_CHOSED = 3;
     public int searchBoards = 0;
     public List chosedBoards = null; // list of Board objects
-    
+
     public static final int DATE_DISPLAYED = 1;
     public static final int DATE_ALL = 2;
     public static final int DATE_BETWEEN_DATES = 3;
@@ -43,7 +43,7 @@ public class SearchMessagesConfig {
     public int searchDates;
     public GregorianCalendar startDate, endDate;
     public int daysBackward;
-    
+
     public static final int TRUST_DISPLAYED = 1;
     public static final int TRUST_ALL = 2;
     public static final int TRUST_CHOSED = 3;
@@ -54,7 +54,7 @@ public class SearchMessagesConfig {
     public boolean trust_bad = false;
     public boolean trust_none = false;
     public boolean trust_tampered = false;
-    
+
     public boolean searchInKeypool = false;
     public boolean searchInArchive = false;
 }

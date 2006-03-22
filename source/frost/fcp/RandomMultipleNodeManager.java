@@ -1,6 +1,6 @@
 /*
   RandomMultipleNodesManager.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,32 +23,32 @@ import java.util.*;
  * Selects nodes at random
  */
 public class RandomMultipleNodeManager extends MultipleNodeManager {
-	
-	Vector nodes;
-	Random r;
 
-	/* (non-Javadoc)
-	 * @see frost.FcpTools.MultipleNodeManager#selectNode()
-	 */
-	protected String selectNode() {
-		if (nodes.size()==0) { 
-			throw new Error("all connections to nodes failed. Check your network settings and restart Frost.");
+    Vector nodes;
+    Random r;
+
+    /* (non-Javadoc)
+     * @see frost.FcpTools.MultipleNodeManager#selectNode()
+     */
+    protected String selectNode() {
+        if (nodes.size()==0) {
+            throw new Error("all connections to nodes failed. Check your network settings and restart Frost.");
         }
-		return (String) nodes.elementAt(r.nextInt(nodes.size()));
-	}
+        return (String) nodes.elementAt(r.nextInt(nodes.size()));
+    }
 
-	/* (non-Javadoc)
-	 * @see frost.FcpTools.MultipleNodeManager#delegateRemove(java.lang.String)
-	 */
-	protected void delegateRemove(String s) {
-		nodes.remove(s);
-	}
+    /* (non-Javadoc)
+     * @see frost.FcpTools.MultipleNodeManager#delegateRemove(java.lang.String)
+     */
+    protected void delegateRemove(String s) {
+        nodes.remove(s);
+    }
 
-	/* (non-Javadoc)
-	 * @see frost.FcpTools.NodeManager#init()
-	 */
-	public void init() {
-		nodes = new Vector(frost.Core.getNodes());
-		r = new Random();
-	}
+    /* (non-Javadoc)
+     * @see frost.FcpTools.NodeManager#init()
+     */
+    public void init() {
+        nodes = new Vector(frost.Core.getNodes());
+        r = new Random();
+    }
 }

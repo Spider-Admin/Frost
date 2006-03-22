@@ -1,6 +1,6 @@
 /*
 KeyClass.java / Frost
-Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -39,8 +39,8 @@ import frost.gui.objects.Board;
 
 public class SharedFileObject implements XMLizable
 {
-	private static Logger logger = Logger.getLogger(SharedFileObject.class.getName());
-	
+    private static Logger logger = Logger.getLogger(SharedFileObject.class.getName());
+
     private boolean DEBUG = false;
     private final static String[] invalidChars = {"/", "\\", "?", "*", "<", ">", "\"", ":", "|"};
 
@@ -74,38 +74,38 @@ public class SharedFileObject implements XMLizable
 
     /**Returns false if key is outdated*/
     public boolean checkDate() {
-        
-    	if (date == null) return true;
-	
+
+        if (date == null) return true;
+
         int maxAge = MainFrame.frostSettings.getIntValue("maxAge");
         String _oldestDate = DateFun.getDate(maxAge);
         Calendar fileDate=null;
         Calendar oldestDate=null;
         GregorianCalendar today = new GregorianCalendar(TimeZone.getTimeZone("GMT"));
         try {
-        	fileDate=DateFun.getCalendarFromDate(date);
-        	oldestDate=DateFun.getCalendarFromDate(_oldestDate);
+            fileDate=DateFun.getCalendarFromDate(date);
+            oldestDate=DateFun.getCalendarFromDate(_oldestDate);
         } catch (NumberFormatException e) {
-        	logger.warning("file " + filename + " has invalid date: " + date);
-        	return false;
+            logger.warning("file " + filename + " has invalid date: " + date);
+            return false;
         }
 
         if( oldestDate.after(fileDate) ) {
-			logger.warning(filename + " is outdated");
+            logger.warning(filename + " is outdated");
             return false;
         }
 
         today.add(Calendar.DATE, 2); // Accept one day into future
         if( fileDate.after(today) ) {
-			logger.warning("Future date of " + filename + " " + date);
-        	return false;
+            logger.warning("Future date of " + filename + " " + date);
+            return false;
         }
         return true;
     }
-        
+
     /**Tests if the filename is valid*/
     public boolean checkFilename() {
-        
+
         if( filename==null || filename.length() == 0 || filename.length() > 255 ) {
             return false;
         }
@@ -128,7 +128,7 @@ public class SharedFileObject implements XMLizable
 
     /**Tests if key is valid*/
     public boolean checkKey() {
-    	if (key == null) return true;
+        if (key == null) return true;
         if( key.startsWith("CHK@") && key.length() == 58 ) return true;
         //  if (DEBUG) System.out.println("Invalid key in " + filename);
 //        logger.warning("invalid key in " + filename);
@@ -225,26 +225,26 @@ public class SharedFileObject implements XMLizable
     public void setExchange(boolean exchange) {
         this.exchange = exchange;
     }
-    
+
     public String getLastSharedDate() {
-    	return lastSharedDate;
+        return lastSharedDate;
     }
     public void setLastSharedDate(String newdate) {
-    	/*if (newdate==null){
-    		Exception e = new Exception("null shareddate");
-    		e.fillInStackTrace();
-    		e.printStackTrace(Core.getOut());
-    	}*/
-    	lastSharedDate=newdate;
+        /*if (newdate==null){
+            Exception e = new Exception("null shareddate");
+            e.fillInStackTrace();
+            e.printStackTrace(Core.getOut());
+        }*/
+        lastSharedDate=newdate;
     }
-    
+
     public String getBatch() {
-    	return batch;
+        return batch;
     }
-    
+
     public void setBatch(String what) {
-    	batch=what;
-    	
+        batch=what;
+
     }
 
     /** Constructor*/
@@ -253,12 +253,12 @@ public class SharedFileObject implements XMLizable
         this.key = key;
         this.exchange = true;
     }
-    
+
     /** also an empty constructor, just in case*/
     public SharedFileObject() {
-    	exchange=true;
+        exchange=true;
     }
-    
+
     /**
      * Creates a sharedFileObject to be uploaded.
      * it can be used both from the uploadTable and from attachments.
@@ -267,36 +267,36 @@ public class SharedFileObject implements XMLizable
      * not be added to any index and won't participate in the request system.
      */
     public SharedFileObject(File file, Board board) {
-    	SHA1 = Core.getCrypto().digest(file);
-    	size = new Long(file.length());
-    	filename = file.getName();
-    	date = DateFun.getDate();
-    	
-    	this.file = file;
-    	//if key == null means file is offline.
-    	//when uploading file as attachment, key will change to CHK
-    	//when the file is uploaded.
-    	key = null;
-    	
-    	
-    	this.board = board;
-    	if (board == null)
-    		batch = null;
-    	else { //this file will be added to index, assign  a batch
-    		Iterator it = Core.getMyBatches().entrySet().iterator();
-    		
-    		while (it.hasNext()){
-    			String current = (String)it.next();
-    			int size = ((Integer)Core.getMyBatches().get(current)).intValue();
-    			if (size < Core.frostSettings.getIntValue("batchSize")) {
-    				batch=current;
-    				break;
-    			} 
-    		}
-    		
-    	} 
+        SHA1 = Core.getCrypto().digest(file);
+        size = new Long(file.length());
+        filename = file.getName();
+        date = DateFun.getDate();
+
+        this.file = file;
+        //if key == null means file is offline.
+        //when uploading file as attachment, key will change to CHK
+        //when the file is uploaded.
+        key = null;
+
+
+        this.board = board;
+        if (board == null)
+            batch = null;
+        else { //this file will be added to index, assign  a batch
+            Iterator it = Core.getMyBatches().entrySet().iterator();
+
+            while (it.hasNext()){
+                String current = (String)it.next();
+                int size = ((Integer)Core.getMyBatches().get(current)).intValue();
+                if (size < Core.frostSettings.getIntValue("batchSize")) {
+                    batch=current;
+                    break;
+                }
+            }
+
+        }
     }
-    
+
     public Element getXMLElement(Document doc) {
 
         // we do not add keys who are not signed by people we marked as GOOD!
@@ -362,7 +362,7 @@ public class SharedFileObject implements XMLizable
         }
         return fileelement;
     }
-    
+
     public void loadXMLElement(Element current) throws SAXException {
         // extract the values
 
@@ -380,79 +380,79 @@ public class SharedFileObject implements XMLizable
         assert filename != null;
         assert size != null;
     }
-    
-    
-	/**
+
+
+    /**
      * @return the board this file will be uploaded to, if any
      */
-	public Board getBoard() {
-		return board;
-	}
-	
-	/**
-	 * 
-	 * @return true if the file is expected to be in freenet
-	 */
-	public boolean isOnline() {
-		if (date == null) return false;
-		if (key == null) return false;
-		//also offline if outdated
-		return checkDate();
-	}
+    public Board getBoard() {
+        return board;
+    }
 
-	/**
-	 * @return the File object if such exists
-	 */
-	public File getFile() {
-		return file;
-	}
+    /**
+     *
+     * @return true if the file is expected to be in freenet
+     */
+    public boolean isOnline() {
+        if (date == null) return false;
+        if (key == null) return false;
+        //also offline if outdated
+        return checkDate();
+    }
 
-	/**
-	 * @param file
-	 */
-	public void setFile(File file) {
-		this.file = file;
-	}
+    /**
+     * @return the File object if such exists
+     */
+    public File getFile() {
+        return file;
+    }
 
-	/**
-	 * @param object
-	 */
-	public void setBoard(Board object) {
-		board = object;
-	}
+    /**
+     * @param file
+     */
+    public void setFile(File file) {
+        this.file = file;
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#equals(java.lang.Object)
-	 */
-	public boolean equals(Object obj) {
-		SharedFileObject other = (SharedFileObject) obj;
-		return SHA1.equals(other.getSHA1());
-	}
+    /**
+     * @param object
+     */
+    public void setBoard(Board object) {
+        board = object;
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Object#hashCode()
-	 */
-	public int hashCode() {
-		return SHA1.hashCode();
-	}
+    /* (non-Javadoc)
+     * @see java.lang.Object#equals(java.lang.Object)
+     */
+    public boolean equals(Object obj) {
+        SharedFileObject other = (SharedFileObject) obj;
+        return SHA1.equals(other.getSHA1());
+    }
 
-	/**
-	 * factory method
-	 * @param e the element
-	 * @return the sharedFileObject created according to the element.
-	 */
-	public static SharedFileObject getInstance(Element e){
-		try {
-			if (e.getAttribute("redirect").length() > 0) { 
-				return RedirectFileObject.getRedirectInstance(e);
+    /* (non-Javadoc)
+     * @see java.lang.Object#hashCode()
+     */
+    public int hashCode() {
+        return SHA1.hashCode();
+    }
+
+    /**
+     * factory method
+     * @param e the element
+     * @return the sharedFileObject created according to the element.
+     */
+    public static SharedFileObject getInstance(Element e){
+        try {
+            if (e.getAttribute("redirect").length() > 0) {
+                return RedirectFileObject.getRedirectInstance(e);
             } else {
-				SharedFileObject result = new SharedFileObject();
-				result.loadXMLElement(e);
-				return result;
-			}
-		} catch(SAXException ex) {
-			logger.log(Level.SEVERE, "parsing file failed.", ex);
-			return null;
-		}
-	}
+                SharedFileObject result = new SharedFileObject();
+                result.loadXMLElement(e);
+                return result;
+            }
+        } catch(SAXException ex) {
+            logger.log(Level.SEVERE, "parsing file failed.", ex);
+            return null;
+        }
+    }
 }

@@ -1,6 +1,6 @@
 /*
   HelpFrame.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -29,9 +29,9 @@ import javax.swing.*;
 import frost.*;
 
 public class HelpFrame extends JFrame {
-	
-	private static Logger logger = Logger.getLogger(HelpFrame.class.getName());
-	
+
+    private static Logger logger = Logger.getLogger(HelpFrame.class.getName());
+
     static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes");
 
     //------------------------------------------------------------------------
@@ -57,7 +57,7 @@ public class HelpFrame extends JFrame {
     //------------------------------------------------------------------------
 
     ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
-	setIconImage(frameIcon.getImage());
+    setIconImage(frameIcon.getImage());
     setTitle("Help frame");
     setSize(new Dimension(750, 550));
     setResizable(true);
@@ -108,7 +108,7 @@ public class HelpFrame extends JFrame {
         Init();
     }
     catch(Exception e) {
-		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+        logger.log(Level.SEVERE, "Exception thrown in constructor", e);
     }
     pack();
     setLocationRelativeTo(parent);

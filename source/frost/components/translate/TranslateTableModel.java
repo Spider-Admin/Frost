@@ -1,6 +1,6 @@
 /*
   TranslateTableModel.java
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -28,34 +28,34 @@ public class TranslateTableModel extends DefaultTableModel
     }
 
     protected final static String columnNames[] = {
-	"Hardcoded text",
+    "Hardcoded text",
         "Translation",
     };
 
     protected final static Class columnClasses[] = {
-	String.class, //"Hardcoded text",
-	String.class, //"Translation",
+    String.class, //"Hardcoded text",
+    String.class, //"Translation",
     };
-    
+
     public boolean isCellEditable(int row, int col) {
-	if (col == 1)
-	    return true;
+    if (col == 1)
+        return true;
         return false;
     }
 
     public String getColumnName(int column) {
-	if( column >= 0 && column < columnNames.length )
-	    return columnNames[column];
-	return null;
+    if( column >= 0 && column < columnNames.length )
+        return columnNames[column];
+    return null;
     }
 
     public int getColumnCount() {
-	return columnNames.length;
+    return columnNames.length;
     }
 
     public Class getColumnClass(int column) {
-	if( column >= 0 && column < columnClasses.length )
-	    return columnClasses[column];
-	return null;
+    if( column >= 0 && column < columnClasses.length )
+        return columnClasses[column];
+    return null;
     }
 }

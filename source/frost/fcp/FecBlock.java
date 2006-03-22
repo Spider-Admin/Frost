@@ -1,6 +1,6 @@
 /*
   FecBlock.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -36,8 +36,8 @@ public class FecBlock
     public static final int STATE_TRANSFER_RUNNING  = 2; // is currently transferred
     public static final int STATE_TRANSFER_FINISHED = 3; // transfer is finished
     public static final int STATE_TRANSFER_INVALID  = 4; // dont touch this block, its missing
-    
-	private static Logger logger = Logger.getLogger(FecBlock.class.getName());
+
+    private static Logger logger = Logger.getLogger(FecBlock.class.getName());
 
     protected int currentState = -1;
     protected int blockType = -1;
@@ -64,23 +64,23 @@ public class FecBlock
 
         this.currentState = STATE_TRANSFER_WAITING;
     }
-    
+
     public RandomAccessFileBucket getRandomAccessFileBucket(boolean readOnly)
     {
         RandomAccessFileBucket b = null;
         try {
-            b = new RandomAccessFileBucket(this.blockFile, 
+            b = new RandomAccessFileBucket(this.blockFile,
                                            this.getFileOffset(),
-                                           this.getBlockSize(), 
+                                           this.getBlockSize(),
                                            readOnly);
         }
         catch (IOException e) {
-			logger.log(Level.SEVERE, "Exception thrown in getRandomAccessFileBucket(boolean readOnly)", e);
+            logger.log(Level.SEVERE, "Exception thrown in getRandomAccessFileBucket(boolean readOnly)", e);
             return null;
         }
         return b;
     }
-    
+
     /**
      * Returns the data of this block padded to blockSize.
      * Padding is needed for blocks at the end of input file.
@@ -95,7 +95,7 @@ public class FecBlock
         }
         return null;
     }
-    
+
     /**
      * Returns the data of this block padded to blockSize.
      * Padding is needed for blocks at the end of input file.
@@ -129,7 +129,7 @@ public class FecBlock
         }
         catch(Exception ex)
         {
-			logger.log(Level.SEVERE, "Error in FecBlock.getPaddedMemoryArray()", ex);
+            logger.log(Level.SEVERE, "Error in FecBlock.getPaddedMemoryArray()", ex);
         }
         return null;
     }

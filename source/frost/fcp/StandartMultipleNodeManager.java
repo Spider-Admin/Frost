@@ -1,6 +1,6 @@
 /*
   StandartMultipleNodeManager.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -25,44 +25,44 @@ import java.util.*;
  */
 public class StandartMultipleNodeManager extends MultipleNodeManager {
 
-	boolean forward;
-	ListIterator it;
+    boolean forward;
+    ListIterator it;
 
-	public void init() {
-		it = (new LinkedList(frost.Core.getNodes())).listIterator();
-		forward = true;
-	}
-	
-	protected void delegateRemove(String node) {
-		it.remove();
-	}
+    public void init() {
+        it = (new LinkedList(frost.Core.getNodes())).listIterator();
+        forward = true;
+    }
 
-	protected String selectNode() {
-		
-		//first, if the list is empty throw something
-		if (frost.Core.getNodes().size()==0) {
-			throw new Error("no nodes registered!  You need to have at least one");
+    protected void delegateRemove(String node) {
+        it.remove();
+    }
+
+    protected String selectNode() {
+
+        //first, if the list is empty throw something
+        if (frost.Core.getNodes().size()==0) {
+            throw new Error("no nodes registered!  You need to have at least one");
         }
-			
-		//second, avoid stupid endless recursion
-		if (frost.Core.getNodes().size()==1) {
-			return (String) frost.Core.getNodes().iterator().next(); //use a different iterator
+
+        //second, avoid stupid endless recursion
+        if (frost.Core.getNodes().size()==1) {
+            return (String) frost.Core.getNodes().iterator().next(); //use a different iterator
         }
-		
-		if( forward) {
-			if (it.hasNext()) {
+
+        if( forward) {
+            if (it.hasNext()) {
                 return (String)it.next();
             } else {
-				forward = false;
+                forward = false;
             }
-		}
-		
-		if (it.hasPrevious()) {
-			return (String)it.previous();
-        } else { 
-			forward=true;
         }
 
-		return selectNode(); //recursion....
-	}
+        if (it.hasPrevious()) {
+            return (String)it.previous();
+        } else {
+            forward=true;
+        }
+
+        return selectNode(); //recursion....
+    }
 }

@@ -1,6 +1,6 @@
 /*
   MultipleNodesManager.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,48 +23,48 @@ import java.util.logging.Logger;
 
 public abstract class MultipleNodeManager implements NodeManager {
 
-	private static Logger logger = Logger.getLogger(MultipleNodeManager.class.getName());
+    private static Logger logger = Logger.getLogger(MultipleNodeManager.class.getName());
 
-	/**
-	 * Method which may be overriden by implementations of different selection algorithms
-	 * @return [hostname][port] of selected node.
-	 */
-	protected abstract String selectNode();
-	
-	/**
-	 * implementations may use iterators, so instead of removing directly
-	 * from the set we ask them to do it
-	 * @param s the node to be removed
-	 */
-	protected abstract void delegateRemove(String s);
+    /**
+     * Method which may be overriden by implementations of different selection algorithms
+     * @return [hostname][port] of selected node.
+     */
+    protected abstract String selectNode();
 
-	public synchronized FcpConnection getConnection()  throws IOException, FcpToolsException {
+    /**
+     * implementations may use iterators, so instead of removing directly
+     * from the set we ask them to do it
+     * @param s the node to be removed
+     */
+    protected abstract void delegateRemove(String s);
 
-		FcpConnection con = null;
-		String nodeUnparsed;
-		if (frost.Core.getNodes().size()==0) {
+    public synchronized FcpConnection getConnection()  throws IOException, FcpToolsException {
+
+        FcpConnection con = null;
+        String nodeUnparsed;
+        if (frost.Core.getNodes().size()==0) {
             throw new Error("No Freenet nodes available.  You need at least one");
         }
-		if (frost.Core.getNodes().size()==1) {
+        if (frost.Core.getNodes().size()==1) {
             nodeUnparsed = (String) frost.Core.getNodes().iterator().next();
         } else {
             nodeUnparsed = selectNode();
         }
-		String[] node = nodeUnparsed.split(":");
-		logger.info("using node "+ node[0].trim()+" port "+node[1].trim()); //debug test splits
-		try {
-			con = new FcpConnection(node[0].trim(), node[1].trim());
-		} catch (IOException e) {
-			// for now, remove on the first failure.
-			// FIXME: maybe we should give the node few chances? 
-			// also, should we remove it from the settings (i.e. forever)?
-			delegateRemove(nodeUnparsed);
-			throw e;
-		} catch (FcpToolsException e) {
-			// same here
-			delegateRemove(nodeUnparsed);
-			throw e;
-		}
-		return con;
-	}
+        String[] node = nodeUnparsed.split(":");
+        logger.info("using node "+ node[0].trim()+" port "+node[1].trim()); //debug test splits
+        try {
+            con = new FcpConnection(node[0].trim(), node[1].trim());
+        } catch (IOException e) {
+            // for now, remove on the first failure.
+            // FIXME: maybe we should give the node few chances?
+            // also, should we remove it from the settings (i.e. forever)?
+            delegateRemove(nodeUnparsed);
+            throw e;
+        } catch (FcpToolsException e) {
+            // same here
+            delegateRemove(nodeUnparsed);
+            throw e;
+        }
+        return con;
+    }
 }

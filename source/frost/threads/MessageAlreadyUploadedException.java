@@ -1,6 +1,6 @@
 /*
   MessageAlreadyUploadedException.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -21,7 +21,7 @@ package frost.threads;
 /**
  * This exception is used to indicate that a message that is being uploaded has
  * already been found on Freenet (either as a local file in the directory of the
- * board it is being uploaded to or as a key collision whose associated message 
+ * board it is being uploaded to or as a key collision whose associated message
  * is the same).
  */
 public class MessageAlreadyUploadedException extends Exception {

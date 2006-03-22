@@ -1,6 +1,6 @@
 /*
   RunningBoardUpdateThreads.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -37,12 +37,12 @@ import frost.messaging.*;
  */
 public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 {
-	private static Logger logger = Logger.getLogger(RunningBoardUpdateThreads.class.getName());
-	
+    private static Logger logger = Logger.getLogger(RunningBoardUpdateThreads.class.getName());
+
     private JFrame parentFrame;
     private FrostIdentities identities;
     private SettingsClass frostSettings;
-	
+
     // listeners are notified of each finished thread
     Hashtable threadListenersForBoard = null; // contains all listeners registered for 1 board
     Vector threadListenersForAllBoards = null; // contains all listeners for all boards
@@ -52,7 +52,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     // contains key=board, data=vector of BoardUpdateThread's (multiple of kind MSG_UPLOAD)
     Hashtable runningUploadThreads = null;
 
-	private MessageHashes messageHashes;
+    private MessageHashes messageHashes;
 
     /**
      * @param parentFrame
@@ -71,79 +71,79 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         runningUploadThreads = new Hashtable();
     }
 
-	/**
-	 * if you specify a listener and the method returns true (thread is started), the listener
-	 * will be notified if THIS thread is finished
-	 * before starting a thread you should check if it is'nt updating already.
-	 * @param board
-	 * @param config
-	 * @param listener
-	 * @return
-	 */
-	public boolean startMessageDownloadToday(
-		Board board,
-		SettingsClass config,
-		BoardUpdateThreadListener listener) {
-			
-		MessageDownloadThread tofd =
-			new MessageDownloadThread(
-				true,
-				board,
-				config.getIntValue("tofDownloadHtl"),
-				config.getValue("keypool.dir"),
-				config.getValue("maxMessageDownload"),
-				identities);
-		tofd.setMessageHashes(messageHashes);
+    /**
+     * if you specify a listener and the method returns true (thread is started), the listener
+     * will be notified if THIS thread is finished
+     * before starting a thread you should check if it is'nt updating already.
+     * @param board
+     * @param config
+     * @param listener
+     * @return
+     */
+    public boolean startMessageDownloadToday(
+        Board board,
+        SettingsClass config,
+        BoardUpdateThreadListener listener) {
 
-		// register listener and this class as listener
-		tofd.addBoardUpdateThreadListener(this);
-		if (listener != null) {
-			tofd.addBoardUpdateThreadListener(listener);
-		}
-		// store thread in threads list
-		getVectorFromHashtable(runningDownloadThreads, board).add(tofd);
+        MessageDownloadThread tofd =
+            new MessageDownloadThread(
+                true,
+                board,
+                config.getIntValue("tofDownloadHtl"),
+                config.getValue("keypool.dir"),
+                config.getValue("maxMessageDownload"),
+                identities);
+        tofd.setMessageHashes(messageHashes);
 
-		// start thread
-		tofd.start();
-		return true;
-	}
-	/**
-	 * if you specify a listener and the method returns true (thread is started), the listener
-	 * will be notified if THIS thread is finished
-	 * before starting a thread you should check if it is'nt updating already.
-	 * @param board
-	 * @param config
-	 * @param listener
-	 * @return
-	 */
-	public boolean startMessageDownloadBack(
-		Board board,
-		SettingsClass config,
-		BoardUpdateThreadListener listener) {
-			
-		MessageDownloadThread backload =
-			new MessageDownloadThread(
-				false,
-				board,
-				config.getIntValue("tofDownloadHtl"),
-				config.getValue("keypool.dir"),
-				config.getValue("maxMessageDownload"),
-				identities);
-		backload.setMessageHashes(messageHashes);
+        // register listener and this class as listener
+        tofd.addBoardUpdateThreadListener(this);
+        if (listener != null) {
+            tofd.addBoardUpdateThreadListener(listener);
+        }
+        // store thread in threads list
+        getVectorFromHashtable(runningDownloadThreads, board).add(tofd);
 
-		// register listener and this class as listener
-		backload.addBoardUpdateThreadListener(this);
-		if (listener != null) {
-			backload.addBoardUpdateThreadListener(listener);
-		}
-		// store thread in threads list
-		getVectorFromHashtable(runningDownloadThreads, board).add(backload);
+        // start thread
+        tofd.start();
+        return true;
+    }
+    /**
+     * if you specify a listener and the method returns true (thread is started), the listener
+     * will be notified if THIS thread is finished
+     * before starting a thread you should check if it is'nt updating already.
+     * @param board
+     * @param config
+     * @param listener
+     * @return
+     */
+    public boolean startMessageDownloadBack(
+        Board board,
+        SettingsClass config,
+        BoardUpdateThreadListener listener) {
 
-		// start thread
-		backload.start();
+        MessageDownloadThread backload =
+            new MessageDownloadThread(
+                false,
+                board,
+                config.getIntValue("tofDownloadHtl"),
+                config.getValue("keypool.dir"),
+                config.getValue("maxMessageDownload"),
+                identities);
+        backload.setMessageHashes(messageHashes);
 
-		return true;
-	}
+        // register listener and this class as listener
+        backload.addBoardUpdateThreadListener(this);
+        if (listener != null) {
+            backload.addBoardUpdateThreadListener(listener);
+        }
+        // store thread in threads list
+        getVectorFromHashtable(runningDownloadThreads, board).add(backload);
+
+        // start thread
+        backload.start();
+
+        return true;
+    }
     /**
      * If you specify a listener and the method returns true (thread is started), the listener
      * will be notified if THIS thread is finished
@@ -157,7 +157,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
                                            BoardUpdateThreadListener listener)
     {
         // board file uploads are done inside the UpdateIdThread that is started in startBoardFilesDownload()
-        
+
         /*GetRequestsThread grt = new GetRequestsThread(
            board,
            config.getIntValue("tofDownloadHtl"),
@@ -191,74 +191,74 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     public boolean startBoardFilesDownload(Board board, SettingsClass config,
                                            BoardUpdateThreadListener listener)
     {
-//    	final int downloadBack = MainFrame.frostSettings.getIntValue("maxMessageDownload");
-//   
-//    	final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
-//        
-//    	for (int i=0; i < downloadBack; i++) {
+//      final int downloadBack = MainFrame.frostSettings.getIntValue("maxMessageDownload");
+//
+//      final UpdateIdThread [] threads = new UpdateIdThread[downloadBack];
+//
+//      for (int i=0; i < downloadBack; i++) {
 //            boolean doUpload;
 //            if( i == 0 ) {
 //                doUpload = true; // upload own keys today only
 //            } else {
 //                doUpload = false;
 //            }
-//    		UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), identities, doUpload);
-//    		thread.setMessageHashes(messageHashes);
-//            
-//            
-//    		threads[i] = thread;
-//    	}
-        
-    	// NOTE: since we now do deep requests, it takes a lot of time for
-    	//   all these threads to finish.  So I'll notify the gui that the message download thread is done updating
-    	//   after the indices for the current date are finished requesting and leave the 
-    	//   threads that are downloading the previous day's indices running.
-    	// IMPORTANT: I think its ok to start new update set on a board even if not all
-    	//   threads have finished - the node's failure table will take care of it.
-        
+//          UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), identities, doUpload);
+//          thread.setMessageHashes(messageHashes);
+//
+//
+//          threads[i] = thread;
+//      }
+
+        // NOTE: since we now do deep requests, it takes a lot of time for
+        //   all these threads to finish.  So I'll notify the gui that the message download thread is done updating
+        //   after the indices for the current date are finished requesting and leave the
+        //   threads that are downloading the previous day's indices running.
+        // IMPORTANT: I think its ok to start new update set on a board even if not all
+        //   threads have finished - the node's failure table will take care of it.
+
         // -->> the above logic leaded into 'OutOfMemory: Java heap space' for some users.
         //      I think the reason is that they have very large file lists whose upload
-        //      takes ages, and a huge amount of the threads started here (invisible) 
+        //      takes ages, and a huge amount of the threads started here (invisible)
         //      do finally running concurrently and fill up the Java heap.
-        
-//    	UpdateIdThread uit = threads[0];
+
+//      UpdateIdThread uit = threads[0];
 //        uit.addBoardUpdateThreadListener( this );
 //        if( listener != null ) {
 //            uit.addBoardUpdateThreadListener( listener );
 //        }
-//		getVectorFromHashtable( runningDownloadThreads, board).add(uit);
+//      getVectorFromHashtable( runningDownloadThreads, board).add(uit);
 //
-//    	//now start the threads one after another
+//      //now start the threads one after another
 //        Thread starter = new Thread() {
-//    		public void run() {
-//    			for (int j=0; j < downloadBack; j++) {
-//    				//getVectorFromHashtable( runningDownloadThreads, board).add(threads[j]); //add to vector
-//    				threads[j].start();
-//    				try {
-//        				threads[j].join();
-//        				//if we get interrupted, continue with next thread
-//        				//or perhaps we want to stop all of them?
-//    				} catch (InterruptedException e) {
-//    					logger.log(Level.SEVERE, "Exception thrown in startBoardFilesDownload(...)", e);
-//    				}
-//    			}
-//    		}
-//    	};
-//    	starter.start();
-        
+//          public void run() {
+//              for (int j=0; j < downloadBack; j++) {
+//                  //getVectorFromHashtable( runningDownloadThreads, board).add(threads[j]); //add to vector
+//                  threads[j].start();
+//                  try {
+//                      threads[j].join();
+//                      //if we get interrupted, continue with next thread
+//                      //or perhaps we want to stop all of them?
+//                  } catch (InterruptedException e) {
+//                      logger.log(Level.SEVERE, "Exception thrown in startBoardFilesDownload(...)", e);
+//                  }
+//              }
+//          }
+//      };
+//      starter.start();
+
         BoardFilesDownloadStarter starter = new BoardFilesDownloadStarter(board, identities);
-        
+
         starter.addBoardUpdateThreadListener( this );
         if( listener != null ) {
             starter.addBoardUpdateThreadListener( listener );
         }
         getVectorFromHashtable( runningDownloadThreads, board).add(starter);
-        
+
         starter.start();
-        
+
         return true;
     }
-    
+
     private class BoardFilesDownloadStarter extends BoardUpdateThreadObject implements BoardUpdateThread {
         Board board;
         FrostIdentities newIdentities;
@@ -270,7 +270,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
         public void run() {
             notifyThreadStarted(this);
-            
+
             // +1 for today
             final int downloadBack = 1 + MainFrame.frostSettings.getIntValue("maxMessageDownload");
             // if one gets an exception, do not try backwards further
@@ -284,7 +284,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
                     }
                     UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), newIdentities, isForToday);
                     thread.setMessageHashes(messageHashes);
-                    
+
                     // directly call run, we want to block
                     thread.run();
                 }
@@ -294,38 +294,38 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
             notifyThreadFinished(this);
         }
     }
-    
-	/**
-	 * if you specify a listener and the method returns true (thread is started), the listener
-	 * will be notified if THIS thread is finished
-	 * @param board
-	 * @param mo
-	 * @param listener
-	 * @return
-	 */
-	public boolean startMessageUpload(
-		Board board,
-		MessageObject mo,
-		BoardUpdateThreadListener listener,
+
+    /**
+     * if you specify a listener and the method returns true (thread is started), the listener
+     * will be notified if THIS thread is finished
+     * @param board
+     * @param mo
+     * @param listener
+     * @return
+     */
+    public boolean startMessageUpload(
+        Board board,
+        MessageObject mo,
+        BoardUpdateThreadListener listener,
         Identity recipient) {
-			
-		MessageUploadThread msgUploadThread =
-			new MessageUploadThread(board, mo, identities, frostSettings, recipient);
-		msgUploadThread.setParentFrame(parentFrame);
-		// register listener and this class as listener
-		msgUploadThread.addBoardUpdateThreadListener(this);
-		if (listener != null) {
-			msgUploadThread.addBoardUpdateThreadListener(listener);
-		}
 
-		// store thread in threads list
-		getVectorFromHashtable(runningUploadThreads, board).add(msgUploadThread);
+        MessageUploadThread msgUploadThread =
+            new MessageUploadThread(board, mo, identities, frostSettings, recipient);
+        msgUploadThread.setParentFrame(parentFrame);
+        // register listener and this class as listener
+        msgUploadThread.addBoardUpdateThreadListener(this);
+        if (listener != null) {
+            msgUploadThread.addBoardUpdateThreadListener(listener);
+        }
 
-		// start thread
-		msgUploadThread.start();
+        // store thread in threads list
+        getVectorFromHashtable(runningUploadThreads, board).add(msgUploadThread);
 
-		return true;
-	}
+        // start thread
+        msgUploadThread.start();
+
+        return true;
+    }
 
     /**
      * Gets an Vector from a Hashtable with given key. If key is not contained
@@ -635,12 +635,12 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         return false;
     }
 
-	/**
-	 * @param messageHashes
-	 */
-	public void setMessageHashes(MessageHashes messageHashes) {
-		this.messageHashes = messageHashes;
-	}
+    /**
+     * @param messageHashes
+     */
+    public void setMessageHashes(MessageHashes messageHashes) {
+        this.messageHashes = messageHashes;
+    }
 
 /*
 maybe useable if the counters are set on thread start/end

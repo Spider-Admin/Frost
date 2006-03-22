@@ -1,6 +1,6 @@
 /*
   FcpResults.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -18,7 +18,7 @@
 */
 package frost.fcp;
 
-/** 
+/**
  * This class is a utility class to provide a datatype for results
  * returned from an FCP operation.
  * @author <a href=mailto:landtuna@hotmail.com>Jim Hunziker</a>
@@ -27,15 +27,15 @@ public class FcpResults
 {
     /** the metadata */
     byte [] rawMetadata = null;
-    
+
     /** the CHK URI */
     String chkUri = null;
-    
+
     public FcpResults(byte[] md, String cu) {
         rawMetadata = md;
         chkUri = cu;
     }
-    
+
     public FcpResults()
     {
     }
@@ -50,7 +50,7 @@ public class FcpResults
         if( rawMetadata == null ) {
             return null;
         }
-	    return new String(rawMetadata).split("\n");
+        return new String(rawMetadata).split("\n");
     }
 
     /**
@@ -60,25 +60,25 @@ public class FcpResults
      * @return the CHK URI
      */
     public String getChkUri() {
-	   return chkUri;
+       return chkUri;
     }
 
-    /** 
+    /**
      * Sets the CHK URI.
      * Valid for uploading.
      *
      * @param chkUri the CHK URI
      */
     void setChkUri(String chkUri) {
-	   this.chkUri = chkUri;
+       this.chkUri = chkUri;
     }
 
-	/**
-	 * @return
-	 */
-	public byte[] getRawMetadata() {
-		return rawMetadata;
-	}
+    /**
+     * @return
+     */
+    public byte[] getRawMetadata() {
+        return rawMetadata;
+    }
 
     /**
      * Sets the metadata.
@@ -86,7 +86,7 @@ public class FcpResults
      *
      * @param metadata the metadata
      */
-	public void setRawMetadata(byte[] bs) {
-		rawMetadata = bs;
-	}
+    public void setRawMetadata(byte[] bs) {
+        rawMetadata = bs;
+    }
 }

@@ -1,6 +1,6 @@
 /*
   SortedTableModel.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -27,8 +27,8 @@ import frost.gui.SortedTable;
 
 public class SortedTableModel extends DefaultTableModel
 {
-	private static Logger logger = Logger.getLogger(SortedTableModel.class.getName());
-	
+    private static Logger logger = Logger.getLogger(SortedTableModel.class.getName());
+
     private boolean bWasResized = false;
     private ArrayList rows = null;
     private SortedTable parentTable = null;
@@ -217,7 +217,7 @@ public class SortedTableModel extends DefaultTableModel
                 deleteRow((TableMember)obj);
         }
     }
-    
+
     /**
      * Returns the value at <I>column</I> and <I>row</I>. Used by JTable.
      *

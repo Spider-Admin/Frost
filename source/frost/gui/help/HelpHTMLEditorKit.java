@@ -1,6 +1,6 @@
 /*
  HelpHTMLEditorKit.java / Frost
- Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+ Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
  This program is free software; you can redistribute it and/or
  modify it under the terms of the GNU General Public License as
@@ -25,7 +25,7 @@ import javax.swing.text.html.*;
 
 /**
  * @author notitaccu
- * 
+ *
  * This class implements a comparator that is the reverse of the one passed as the parameter of the constructor.
  */
 public class HelpHTMLEditorKit extends HTMLEditorKit {
@@ -44,15 +44,15 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
         super();
     }
 
-    /** 
-     * Shared factory for creating HTML Views. 
+    /**
+     * Shared factory for creating HTML Views.
      */
     private static final ViewFactory helpFactory = new helpHTMLFactory();
 
     public ViewFactory getViewFactory() {
         return helpFactory;
     }
-    
+
     /**
      * Factory which creates views for elements in the JGloss document.
      */
@@ -60,7 +60,7 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
 
         /**
          * Creates a new factory.
-         * 
+         *
          */
         public helpHTMLFactory() {
             // System.out.println("Boom!01Create:");
@@ -68,7 +68,7 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
 
         /**
          * Creates a view which can render the element.
-         * 
+         *
          * @param elem
          *            The element to create the view for.
          * @return The newly created view.

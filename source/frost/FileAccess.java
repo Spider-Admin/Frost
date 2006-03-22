@@ -1,6 +1,6 @@
 /*
   FileAccess.java / File Access
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -30,35 +30,35 @@ import java.util.zip.*;
 import javax.swing.*;
 
 public class FileAccess {
-	
-	private static Logger logger = Logger.getLogger(FileAccess.class.getName());
-	
-	/**
-	 * Writes a file to disk after opening a saveDialog window
-	 * @param parent The parent component, often 'this' can be used
-	 * @param conten The data to write to disk.
-	 * @param lastUsedDirectory The saveDialog starts at this directory
-	 * @param title The saveDialog gets this title
-	 */
-	public static void saveDialog(Component parent, String content, String lastUsedDirectory,	String title) {
-		
-		final JFileChooser fc = new JFileChooser(lastUsedDirectory);
-		fc.setDialogTitle(title);
-		fc.setFileHidingEnabled(true);
-		fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
-		fc.setMultiSelectionEnabled(false);
 
-		int returnVal = fc.showSaveDialog(parent);
-		if (returnVal == JFileChooser.APPROVE_OPTION) {
-			File file = fc.getSelectedFile();
-			if (file != null) {
-				MainFrame.frostSettings.setValue("lastUsedDirectory", file.getParent());
-				if (!file.isDirectory()) {
-					writeFile(content, file, "UTF-8");
-				}
-			}
-		}
-	}
+    private static Logger logger = Logger.getLogger(FileAccess.class.getName());
+
+    /**
+     * Writes a file to disk after opening a saveDialog window
+     * @param parent The parent component, often 'this' can be used
+     * @param conten The data to write to disk.
+     * @param lastUsedDirectory The saveDialog starts at this directory
+     * @param title The saveDialog gets this title
+     */
+    public static void saveDialog(Component parent, String content, String lastUsedDirectory,   String title) {
+
+        final JFileChooser fc = new JFileChooser(lastUsedDirectory);
+        fc.setDialogTitle(title);
+        fc.setFileHidingEnabled(true);
+        fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
+        fc.setMultiSelectionEnabled(false);
+
+        int returnVal = fc.showSaveDialog(parent);
+        if (returnVal == JFileChooser.APPROVE_OPTION) {
+            File file = fc.getSelectedFile();
+            if (file != null) {
+                MainFrame.frostSettings.setValue("lastUsedDirectory", file.getParent());
+                if (!file.isDirectory()) {
+                    writeFile(content, file, "UTF-8");
+                }
+            }
+        }
+    }
 
     /**
      * Reads a file and returns it's content in a byte[]
@@ -78,7 +78,7 @@ public class FileAccess {
             fileIn.close();
             return data;
         } catch( IOException e ) {
-			logger.log(Level.SEVERE, "Exception thrown in readByteArray(File file)", e);
+            logger.log(Level.SEVERE, "Exception thrown in readByteArray(File file)", e);
         }
         return null;
     }
@@ -115,13 +115,13 @@ public class FileAccess {
      * Writes zip file
      */
     public static boolean writeZipFile(byte[] content, String entry, File file) {
-    	if (content == null || content.length == 0) {
-    		Exception e = new Exception();
-    		e.fillInStackTrace();
-			logger.log(Level.SEVERE, "Tried to zip an empty file!  Send this output to a dev"+
-    									" and describe what you were doing.", e);
-    		return false;
-    	}
+        if (content == null || content.length == 0) {
+            Exception e = new Exception();
+            e.fillInStackTrace();
+            logger.log(Level.SEVERE, "Tried to zip an empty file!  Send this output to a dev"+
+                                        " and describe what you were doing.", e);
+            return false;
+        }
         try {
             ZipOutputStream zos = new ZipOutputStream(new FileOutputStream(file));
             zos.setLevel(9); // maximum compression
@@ -129,12 +129,12 @@ public class FileAccess {
             ze.setSize(content.length);
             zos.putNextEntry(ze);
             zos.write(content);
-			zos.flush(); //do this before closeEntry()
+            zos.flush(); //do this before closeEntry()
             zos.closeEntry();
             zos.close();
             return true;
         } catch( Throwable e ) {
-			logger.log(Level.SEVERE, "Exception thrown in writeZipFile(byte[] content, String entry, File file)", e);
+            logger.log(Level.SEVERE, "Exception thrown in writeZipFile(byte[] content, String entry, File file)", e);
             return false;
         }
     }
@@ -143,38 +143,38 @@ public class FileAccess {
      * Reads first zip file entry and returns content in a byte[].
      */
     public static byte[] readZipFileBinary(File file) {
-		if( !file.isFile() || file.length() == 0 ) {
-			return null;
+        if( !file.isFile() || file.length() == 0 ) {
+            return null;
         }
 
-		final int bufferSize = 4096;
+        final int bufferSize = 4096;
         ZipInputStream zis = null;
-		try {
+        try {
             zis = new ZipInputStream(new FileInputStream(file));
             ByteArrayOutputStream out = new ByteArrayOutputStream();
-			zis.getNextEntry();
-            
-			byte[] zipData = new byte[bufferSize];
-			while( true ) {
+            zis.getNextEntry();
+
+            byte[] zipData = new byte[bufferSize];
+            while( true ) {
                 int len = zis.read(zipData);
                 if( len < 0 ) {
                     break;
                 }
                 out.write(zipData, 0, len);
-			}
+            }
             zis.close();
-			return out.toByteArray();
+            return out.toByteArray();
 
-		} catch( FileNotFoundException e ) {
-			logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path)", e);
-		}
+        } catch( FileNotFoundException e ) {
+            logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path)", e);
+        }
         catch( IOException e ) {
             try { if( zis != null) zis.close(); } catch(Throwable t) { }
-            logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" + 
+            logger.log(Level.SEVERE, "Exception thrown in readZipFile(String path) \n" +
                                      "Offending file saved as badfile.zip, send to a dev for analysis", e);
             copyFile(file.getPath(), "badfile.zip");
         }
-		return null;
+        return null;
     }
 
     /**
@@ -183,7 +183,7 @@ public class FileAccess {
      */
     public static List readLines(File file) {
         return readLines(file, "ISO-8859-1");
-    }    
+    }
     /**
      * Reads file and returns a List of lines
      */
@@ -220,29 +220,29 @@ public class FileAccess {
         }
         return stringBuffer.toString();
     }
-    
-	/**
+
+    /**
      * Reads a file, line by line, and adds a \n after each one. You can specify the encoding to use when reading.
-     * 
+     *
      * @param path
      * @param encoding
      * @return the contents of the file
      */
-	public static String readFile(File file, String encoding) {
-		String line;
-		StringBuffer stringBuffer = new StringBuffer();
-		try {
-			InputStreamReader iSReader = new InputStreamReader(new FileInputStream(file), encoding);
-			BufferedReader reader = new BufferedReader(iSReader);
-			while ((line = reader.readLine()) != null) {
-				stringBuffer.append(line).append("\n");
-			}
-			reader.close();
-		} catch (IOException e) {
-			logger.log(Level.SEVERE, "Exception thrown in readFile(String path, String encoding)", e);
-		}
-		return stringBuffer.toString();
-	}
+    public static String readFile(File file, String encoding) {
+        String line;
+        StringBuffer stringBuffer = new StringBuffer();
+        try {
+            InputStreamReader iSReader = new InputStreamReader(new FileInputStream(file), encoding);
+            BufferedReader reader = new BufferedReader(iSReader);
+            while ((line = reader.readLine()) != null) {
+                stringBuffer.append(line).append("\n");
+            }
+            reader.close();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception thrown in readFile(String path, String encoding)", e);
+        }
+        return stringBuffer.toString();
+    }
 
     /**
      * Writes a file "file" to "path"
@@ -250,15 +250,15 @@ public class FileAccess {
     public static boolean writeFile(String content, String filename) {
         return writeFile(content, new File(filename));
     }
-    
-	/**
-	 * Writes a file "file" to "path", being able to specify the encoding
-	 */
-	public static boolean writeFile(String content, String filename, String encoding) {
-		return writeFile(content, new File(filename), encoding);
-	}
 
-    /** 
+    /**
+     * Writes a file "file" to "path", being able to specify the encoding
+     */
+    public static boolean writeFile(String content, String filename, String encoding) {
+        return writeFile(content, new File(filename), encoding);
+    }
+
+    /**
      * Writes a text file in ISO-8859-1 encoding.
      */
     public static boolean writeFile(String content, File file) {
@@ -274,14 +274,14 @@ public class FileAccess {
             f1.close();
             return true;
         } catch( Throwable e ) {
-			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
+            logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file)", e);
             if( f1 != null ) {
                 try { f1.close(); } catch(Throwable t) {}
             }
         }
         return false;
     }
-    
+
     public static boolean writeFile(byte[] content, File file) {
         try {
             FileOutputStream s = new FileOutputStream(file);
@@ -293,35 +293,35 @@ public class FileAccess {
         }
         return false;
     }
-    
-    /** 
+
+    /**
      * Writes a text file in specified encoding. Converts line separators to target platform.
      */
-	public static boolean writeFile(String content, File file, String encoding) {
+    public static boolean writeFile(String content, File file, String encoding) {
         OutputStreamWriter outputWriter = null;
-		try {
-			outputWriter = new OutputStreamWriter(new FileOutputStream(file), encoding);
+        try {
+            outputWriter = new OutputStreamWriter(new FileOutputStream(file), encoding);
 
-			BufferedReader inputReader = new BufferedReader(new StringReader(content));
-			String lineSeparator = System.getProperty("line.separator");
-			String line = inputReader.readLine();
-			
-			while (line != null) {
-				outputWriter.write(line + lineSeparator);
-				line = inputReader.readLine();
-			}
-			
-			outputWriter.close();
-			inputReader.close();
+            BufferedReader inputReader = new BufferedReader(new StringReader(content));
+            String lineSeparator = System.getProperty("line.separator");
+            String line = inputReader.readLine();
+
+            while (line != null) {
+                outputWriter.write(line + lineSeparator);
+                line = inputReader.readLine();
+            }
+
+            outputWriter.close();
+            inputReader.close();
             return true;
-		} catch (Throwable e) {
-			logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
+        } catch (Throwable e) {
+            logger.log(Level.SEVERE, "Exception thrown in writeFile(String content, File file, String encoding)", e);
             if( outputWriter != null ) {
                 try { outputWriter.close(); } catch(Throwable t) {}
             }
-		}
+        }
         return false;
-	}
+    }
 
     /**
      * Deletes the given directory and ALL FILES/DIRS IN IT !!!
@@ -341,16 +341,16 @@ public class FileAccess {
         return dir.delete();
     }
 
-	/**
+    /**
      * This method copies the contents of one file to another. If the destination file didn't exist, it is created. If
      * it did exist, its contents are overwritten.
-     * 
+     *
      * @param sourceName
      *            name of the source file
      * @param destName
      *            name of the destination file
      */
-    public static boolean copyFile(String sourceName, String destName) { 
+    public static boolean copyFile(String sourceName, String destName) {
         FileChannel sourceChannel = null;
         FileChannel destChannel = null;
         boolean wasOk = false;
@@ -371,8 +371,8 @@ public class FileAccess {
         }
         return wasOk;
     }
-    
-    
+
+
     /**
      * This method compares 2 file byte by byte.
      * Returns true if they are equals, or false.

@@ -1,6 +1,6 @@
 /*
   VerifyableMessageObject.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -29,17 +29,17 @@ import frost.identities.*;
 
 public class VerifyableMessageObject extends MessageObject implements Cloneable {
 
-	private static Logger logger = Logger.getLogger(VerifyableMessageObject.class.getName());
-    
+    private static Logger logger = Logger.getLogger(VerifyableMessageObject.class.getName());
+
     public static final int xGOOD     = 1;
     public static final int xCHECK    = 2;
     public static final int xBAD      = 3;
     public static final int xOBSERVE  = 4;
     public static final int xTAMPERED = 5;
     public static final int xOLD      = 6;
-    
+
     private Identity fromIdentity = null;
-    
+
     public Identity getFromIdentity() {
         if( fromIdentity == null ) {
             FrostIdentities identities = Core.getInstance().getIdentities();
@@ -78,11 +78,11 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
         } else if( getSignatureStatus() == MessageObject.SIGNATURESTATUS_TAMPERED ) {
             // invalid signature
             return xTAMPERED;
-        } 
+        }
         // signature status unset
         return xOLD;
     }
-    
+
     public String getMsgStatusString() {
         int status = getMsgStatus();
         if( status == xGOOD ) {
@@ -92,7 +92,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
         } else if( status == xBAD ) {
             return "BAD"; // red
         } else if( status == xOBSERVE ) {
-            return "OBSERVE"; // a lighter green 
+            return "OBSERVE"; // a lighter green
         } else if( status == xOLD ) {
             return "NONE";
         } else if( status == xTAMPERED ) {
@@ -100,44 +100,44 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
         }
         return "*err*"; // never come here
     }
-    
+
     /**
      * @return
      * @throws CloneNotSupportedException
      */
     public VerifyableMessageObject copy() throws CloneNotSupportedException {
-		return (VerifyableMessageObject) this.clone();
-	}
+        return (VerifyableMessageObject) this.clone();
+    }
 
     /**
      * @param file
      * @throws MessageCreationException
      */
     public VerifyableMessageObject(File file) throws MessageCreationException {
-		super(file); // throws exception if loading failed
-	}
+        super(file); // throws exception if loading failed
+    }
 
     /**
-	 * First time verify.
+     * First time verify.
      * @param dirDate
      * @return
      */
     public boolean isValidFormat(GregorianCalendar dirDate) {
-		try { // if something fails here, set msg. to N/A (maybe harmful message)
-			if (verifyDate(dirDate) == false || verifyTime() == false) {
-				return false;
-			}
-		} catch (Throwable t) {
-			logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", t);
-			return false;
-		}
-		return true;
-	}
+        try { // if something fails here, set msg. to N/A (maybe harmful message)
+            if (verifyDate(dirDate) == false || verifyTime() == false) {
+                return false;
+            }
+        } catch (Throwable t) {
+            logger.log(Level.SEVERE, "Exception in isValidFormat() - skipping Message.", t);
+            return false;
+        }
+        return true;
+    }
 
     /**
      * Returns false if the date from inside the message is more than 1 day
      * before/behind the date in the URL of the message.
-     *  
+     *
      * @param dirDate  date of the url that was used to retrieve the message
      * @return  true if date is valid, or false
      */
@@ -148,12 +148,12 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
         // USES: date of msg. url: 'keypool\public\2003.6.9\2003.6.9-public-1.txt'  = given value 'dirDate'
         // USES: date in message  ( date=2003.6.9 ; time=09:32:31GMT )              = extracted from message
         String msgDateStr = currentMsg.getDate();
-		Date msgDateTmp = null;
-		try {
-			msgDateTmp = dateFormat.parse(msgDateStr);
-		} catch (Exception ex) {
-		}
-		if (msgDateTmp == null) {
+        Date msgDateTmp = null;
+        try {
+            msgDateTmp = dateFormat.parse(msgDateStr);
+        } catch (Exception ex) {
+        }
+        if (msgDateTmp == null) {
             logger.warning("* verifyDate(): Invalid date string found, will block message: " + msgDateStr);
             return false;
         }
@@ -191,7 +191,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
 
     /**
      * Verifies that the time is valid.
-     * 
+     *
      * @return  true if time is valid, or false
      */
     public boolean verifyTime() {
@@ -199,13 +199,13 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
         // time=06:52:48GMT  <<-- expected format
         String timeStr = currentMsg.getTime();
         if (timeStr == null) {
-			logger.warning("* verifyTime(): Time is NULL, blocking message.");
-			return false;
-		}
-		timeStr = timeStr.trim();
+            logger.warning("* verifyTime(): Time is NULL, blocking message.");
+            return false;
+        }
+        timeStr = timeStr.trim();
 
-		if (timeStr.length() != 11) {
-			logger.warning("* verifyTime(): Time string have invalid length (!=11), blocking message: " + timeStr);
+        if (timeStr.length() != 11) {
+            logger.warning("* verifyTime(): Time string have invalid length (!=11), blocking message: " + timeStr);
             return false;
         }
         // check format
@@ -221,7 +221,7 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
             !(timeStr.charAt(9) == 'M') ||
             !(timeStr.charAt(10) == 'T') )
         {
-			logger.warning("* verifyTime(): Time string have invalid format (xx:xx:xxGMT), blocking message: " + timeStr);
+            logger.warning("* verifyTime(): Time string have invalid format (xx:xx:xxGMT), blocking message: " + timeStr);
             return false;
         }
         // check for valid values :)
@@ -236,14 +236,14 @@ public class VerifyableMessageObject extends MessageObject implements Cloneable 
             iminutes = Integer.parseInt( minutes );
             iseconds = Integer.parseInt( seconds );
         } catch(Exception ex) {
-			logger.warning("* verifyTime(): Could not parse the numbers, blocking message: " + timeStr);
+            logger.warning("* verifyTime(): Could not parse the numbers, blocking message: " + timeStr);
             return false;
         }
         if( ihours < 0 || ihours > 23 ||
             iminutes < 0 || iminutes > 59 ||
             iseconds < 0 || iseconds > 59 )
         {
-			logger.warning("* verifyTime(): Time is invalid, blocking message: " + timeStr);
+            logger.warning("* verifyTime(): Time is invalid, blocking message: " + timeStr);
             return false;
         }
         return true;

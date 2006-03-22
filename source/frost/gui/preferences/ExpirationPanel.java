@@ -1,6 +1,6 @@
 /*
   ExpirationPanel.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -29,7 +29,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 class ExpirationPanel extends JPanel {
-        
+
     private class Listener implements ActionListener {
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == RbKeepExpiredMessages) {
@@ -70,48 +70,48 @@ class ExpirationPanel extends JPanel {
             }
         }
     }
-    
+
     private SettingsClass settings = null;
     private Language language = null;
-    
+
     private JButton BbrowseArchiveDirectory = new JButton();
 
     private JRadioButton RbKeepExpiredMessages = new JRadioButton();
     private JRadioButton RbArchiveExpiredMessages = new JRadioButton();
     private JRadioButton RbDeleteExpiredMessages = new JRadioButton();
     private ButtonGroup BgExpiredMessages = new ButtonGroup();
-    
+
     private JLabel LmessageExpireDays = new JLabel();
     private JTextField TfMessageExpireDays = new JTextField(8);
 
     private JLabel LarchiveFolder = new JLabel();
     private JTextField TfArchiveFolder = new JTextField(30);
-    
+
     private Listener listener = new Listener();
-    
+
     private JDialog owner;
-        
+
     /**
-     * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
+     * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
      */
     protected ExpirationPanel(JDialog owner, SettingsClass settings) {
         super();
         this.owner = owner;
         this.language = Language.getInstance();
         this.settings = settings;
-        
+
         initialize();
         loadSettings();
     }
-        
+
     private void initialize() {
         setName("ExpirationPanel");
         setLayout(new GridBagLayout());
         refreshLanguage();
-            
+
         // We create the components
         new TextComponentClipboardMenu(TfMessageExpireDays, language);
-        
+
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.anchor = GridBagConstraints.NORTHWEST;
@@ -119,7 +119,7 @@ class ExpirationPanel extends JPanel {
         Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
 
         int maxGridWidth = 3;
-        
+
         constraints.insets = insets5555;
         constraints.gridy = 0;
 
@@ -129,7 +129,7 @@ class ExpirationPanel extends JPanel {
         subPanel.add(LmessageExpireDays, constraints);
         constraints.gridx = 1;
         subPanel.add(TfMessageExpireDays, constraints);
-        
+
         constraints.gridx = 0;
         constraints.gridwidth = maxGridWidth;
         add(subPanel, constraints);
@@ -160,14 +160,14 @@ class ExpirationPanel extends JPanel {
         constraints.gridx = 2;
         constraints.insets = insets5555;
         add(BbrowseArchiveDirectory, constraints);
-        
+
         constraints.gridy++;
 
         constraints.gridx = 0;
         constraints.gridwidth = maxGridWidth;
         add(RbDeleteExpiredMessages, constraints);
         constraints.gridwidth = 1;
-        
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -181,7 +181,7 @@ class ExpirationPanel extends JPanel {
         RbKeepExpiredMessages.addActionListener(listener);
         RbArchiveExpiredMessages.addActionListener(listener);
         RbDeleteExpiredMessages.addActionListener(listener);
-        
+
         BbrowseArchiveDirectory.addActionListener(listener);
 
         // add radiobuttons to buttongroup
@@ -189,12 +189,12 @@ class ExpirationPanel extends JPanel {
         BgExpiredMessages.add( RbArchiveExpiredMessages );
         BgExpiredMessages.add( RbDeleteExpiredMessages );
     }
-        
+
     /**
      * Load the settings of this panel
      */
     private void loadSettings() {
-          
+
         TfMessageExpireDays.setText(settings.getValue("messageExpireDays"));
         TfArchiveFolder.setText(settings.getValue("archive.dir"));
 
@@ -211,7 +211,7 @@ class ExpirationPanel extends JPanel {
     }
 
     /**
-     * Save the settings of this panel 
+     * Save the settings of this panel
      */
     private void saveSettings() {
 
@@ -237,7 +237,7 @@ class ExpirationPanel extends JPanel {
         RbKeepExpiredMessages.setText(language.getString("Keep expired messages in keypool"));
         RbArchiveExpiredMessages.setText(language.getString("Archive expired messages"));
         RbDeleteExpiredMessages.setText(language.getString("Delete expired messages from keypool"));
-        
+
         LmessageExpireDays.setText(language.getString("Number of days before a message expires") + " (30)");
         LarchiveFolder.setText(language.getString("Archive folder"));
         BbrowseArchiveDirectory.setText(language.getString("Browse") + "...");

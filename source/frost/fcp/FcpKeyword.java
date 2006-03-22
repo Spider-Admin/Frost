@@ -1,6 +1,6 @@
 /*
   FcpKeyword.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -28,7 +28,7 @@ import java.util.logging.Logger;
  */
 public final class FcpKeyword
 {
-	private static Logger logger = Logger.getLogger(FcpKeyword.class.getName());
+    private static Logger logger = Logger.getLogger(FcpKeyword.class.getName());
 
     public final static int UnknownError = -1;
     public final static int ClientGet = 0;
@@ -67,7 +67,7 @@ public final class FcpKeyword
     private String keyword;
     private long longVal;
     private int kwId;
-    
+
     /**
      * Returns the keyword/value pair.
      *
@@ -89,7 +89,7 @@ public final class FcpKeyword
     logger.fine("in " + s);
     fullString = s;
     keyword = getFcpKeyword(s);
-	logger.fine("kw " + keyword);
+    logger.fine("kw " + keyword);
     kwId = getFcpId(s);
     try
     {
@@ -97,7 +97,7 @@ public final class FcpKeyword
         if (keyword.length() < fullString.length())
             {
             String number = s.substring(keyword.length() + 1);
-			logger.fine("Getting longval for *" + number + "*");
+            logger.fine("Getting longval for *" + number + "*");
             longVal = Long.parseLong(number, 16);
             }
         else
@@ -260,23 +260,23 @@ public final class FcpKeyword
         return null;
     }
 
-	/**
-	 * Return a new keyword from the input stream.  This should only be
-	 * called when the input stream is expected to start with a keyword.
-	 *
-	 * @param in InputStream from which to read
-	 * @return new FcpKeyword
-	 */
-	public static FcpKeyword getFcpKeyword(InputStream in) throws IOException {
-		int b;
-		byte[] bytes = new byte[256];
-		int count = 0;
-		while ((b = in.read()) != '\n' && b != -1 && count < 256 && (b != '\0')) {
-			bytes[count] = (byte) b;
-			count++;
-		}
-		return new FcpKeyword(new String(bytes, 0, count));
-	}
+    /**
+     * Return a new keyword from the input stream.  This should only be
+     * called when the input stream is expected to start with a keyword.
+     *
+     * @param in InputStream from which to read
+     * @return new FcpKeyword
+     */
+    public static FcpKeyword getFcpKeyword(InputStream in) throws IOException {
+        int b;
+        byte[] bytes = new byte[256];
+        int count = 0;
+        while ((b = in.read()) != '\n' && b != -1 && count < 256 && (b != '\0')) {
+            bytes[count] = (byte) b;
+            count++;
+        }
+        return new FcpKeyword(new String(bytes, 0, count));
+    }
 
     /**
      * Return the value associated with this keyword as a long.

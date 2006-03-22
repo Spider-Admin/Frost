@@ -1,6 +1,6 @@
 /*
   SearchMessagesTableModel.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -23,7 +23,7 @@ import frost.util.gui.translation.*;
 public class SearchMessagesTableModel extends SortedTableModel implements LanguageListener {
 
     private Language language = null;
-    
+
     protected final String columnNames[] = new String[6];
 
     protected final Class columnClasses[] = {
@@ -40,7 +40,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
         language = Language.getInstance();
         refreshLanguage();
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#isCellEditable(int, int)
      */
@@ -58,7 +58,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
             return columnNames[column];
         return null;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnCount()
      */
@@ -66,7 +66,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     {
         return columnNames.length;
     }
-    
+
     /* (non-Javadoc)
      * @see javax.swing.table.TableModel#getColumnClass(int)
      */
@@ -81,7 +81,7 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
      * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
      */
     public void languageChanged(LanguageEvent event) {
-        refreshLanguage();          
+        refreshLanguage();
     }
 
     private void refreshLanguage() {
@@ -92,6 +92,6 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
         columnNames[4] = language.getString("Sig");
         columnNames[5] = language.getString("Date");
 
-        fireTableStructureChanged();        
+        fireTableStructureChanged();
     }
 }

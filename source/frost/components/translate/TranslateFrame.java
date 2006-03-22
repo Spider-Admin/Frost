@@ -1,6 +1,6 @@
 /*
   TranslateFrame.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -25,54 +25,54 @@ import java.util.logging.*;
 
 import javax.swing.JFrame;
 
-public class TranslateFrame extends JFrame {    
-	
-	private static Logger logger = Logger.getLogger(TranslateFrame.class.getName());
-	
+public class TranslateFrame extends JFrame {
+
+    private static Logger logger = Logger.getLogger(TranslateFrame.class.getName());
+
     boolean plugin;
 
     TranslatePanel translatePanel = new TranslatePanel(this);
-    
+
     private void Init() throws Exception {
-	//------------------------------------------------------------------------
-	// Configure objects
-	//------------------------------------------------------------------------
-	this.setTitle("Frost language translator"); 
-	this.setSize(new Dimension(780, 550));
-	this.setResizable(true); 
+    //------------------------------------------------------------------------
+    // Configure objects
+    //------------------------------------------------------------------------
+    this.setTitle("Frost language translator");
+    this.setSize(new Dimension(780, 550));
+    this.setResizable(true);
 
-	translatePanel.setPreferredSize(new Dimension(780, 550));
+    translatePanel.setPreferredSize(new Dimension(780, 550));
 
-	this.getContentPane().add(translatePanel);
+    this.getContentPane().add(translatePanel);
     }
 
     protected void processWindowEvent(WindowEvent e) {
-	if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-	    dispose();
-	    if (!plugin)
-		System.exit(0);
-	}
-	super.processWindowEvent(e);
+    if (e.getID() == WindowEvent.WINDOW_CLOSING) {
+        dispose();
+        if (!plugin)
+        System.exit(0);
     }
-    
+    super.processWindowEvent(e);
+    }
+
     /**Constructor*/
     public TranslateFrame(boolean plugin) {
 
-	this.plugin = plugin;
+    this.plugin = plugin;
 
-	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
-	try {
-	    Init();
-	}
-	catch(Exception e) {
-		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
-	}
-	pack();
+    enableEvents(AWTEvent.WINDOW_EVENT_MASK);
+    try {
+        Init();
     }
-	/**Main method*/
-	public static void main(String[] args) {
-		new TranslateFrame(false).setVisible(true);
-	}
+    catch(Exception e) {
+        logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+    }
+    pack();
+    }
+    /**Main method*/
+    public static void main(String[] args) {
+        new TranslateFrame(false).setVisible(true);
+    }
 
 }
 

@@ -1,6 +1,6 @@
 /*
   StartBrowser.java
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -26,29 +26,29 @@ public class StartBrowser {
 
     public StartBrowser() {
 
-	BrowserFrame frame = new BrowserFrame(false);
+    BrowserFrame frame = new BrowserFrame(false);
 
-	if (packFrame) {
-	    frame.pack();
-	}
-	else {
-	    frame.validate();
-	}
+    if (packFrame) {
+        frame.pack();
+    }
+    else {
+        frame.validate();
+    }
 
-	Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
-	Dimension frameSize = frame.getSize();
-	if (frameSize.height > screenSize.height) {
-	    frameSize.height = screenSize.height;
-	}
-	if (frameSize.width > screenSize.width) {
-	    frameSize.width = screenSize.width;
-	}
-	frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
-	frame.setVisible(true);
+    Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+    Dimension frameSize = frame.getSize();
+    if (frameSize.height > screenSize.height) {
+        frameSize.height = screenSize.height;
+    }
+    if (frameSize.width > screenSize.width) {
+        frameSize.width = screenSize.width;
+    }
+    frame.setLocation((screenSize.width - frameSize.width) / 2, (screenSize.height - frameSize.height) / 2);
+    frame.setVisible(true);
     }
 
     /**Main method*/
     public static void main(String[] args) {
-	new StartBrowser();
+    new StartBrowser();
     }
 }

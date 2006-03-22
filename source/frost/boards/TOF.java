@@ -1,6 +1,6 @@
 /*
   TOF.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -33,55 +33,55 @@ import frost.messages.VerifyableMessageObject;
 
 /**
  * @pattern Singleton
- * 
+ *
  * @author $Author$
  * @version $Revision$
  */
 public class TOF
-{    
-	private static Logger logger = Logger.getLogger(TOF.class.getName());
-	
-	private UpdateTofFilesThread updateThread = null;
-	private UpdateTofFilesThread nextUpdateThread = null;
-	
-	private TofTreeModel tofTreeModel;
-	
-	private static boolean initialized = false;
-	
-	/**
-	 * The unique instance of this class.
-	 */
-	private static TOF instance = null;
-	
-	/**
-	 * Return the unique instance of this class.
-	 *
-	 * @return the unique instance of this class
-	 */
-	public static TOF getInstance() {
-		return instance;
-	}
-	
-	/**
-	 * Prevent instances of this class from being created from the outside.
-	 * @param tofTreeModel this is the TofTreeModel this TOF will operate on
-	 */
-	private TOF(TofTreeModel tofTreeModel) {
-		super();
-		this.tofTreeModel = tofTreeModel;
-	}
-	
-	/**
-	 * This method initializes the TOF.
-	 * If it has already been initialized, this method does nothing.
-	 * @param tofTreeModel this is the TofTreeModel this TOF will operate on
-	 */
-	public static void initialize(TofTreeModel tofTreeModel) {
-		if (!initialized) {
-			initialized = true;
-			instance = new TOF(tofTreeModel);
-		}
-	}
+{
+    private static Logger logger = Logger.getLogger(TOF.class.getName());
+
+    private UpdateTofFilesThread updateThread = null;
+    private UpdateTofFilesThread nextUpdateThread = null;
+
+    private TofTreeModel tofTreeModel;
+
+    private static boolean initialized = false;
+
+    /**
+     * The unique instance of this class.
+     */
+    private static TOF instance = null;
+
+    /**
+     * Return the unique instance of this class.
+     *
+     * @return the unique instance of this class
+     */
+    public static TOF getInstance() {
+        return instance;
+    }
+
+    /**
+     * Prevent instances of this class from being created from the outside.
+     * @param tofTreeModel this is the TofTreeModel this TOF will operate on
+     */
+    private TOF(TofTreeModel tofTreeModel) {
+        super();
+        this.tofTreeModel = tofTreeModel;
+    }
+
+    /**
+     * This method initializes the TOF.
+     * If it has already been initialized, this method does nothing.
+     * @param tofTreeModel this is the TofTreeModel this TOF will operate on
+     */
+    public static void initialize(TofTreeModel tofTreeModel) {
+        if (!initialized) {
+            initialized = true;
+            instance = new TOF(tofTreeModel);
+        }
+    }
 
     /**
      * Gets the content of the message selected in the tofTable.
@@ -107,7 +107,7 @@ public class TOF
                         // its a read message, nothing more to do here ...
                         return message;
                     }
-                    
+
                     // this is a new message
                     message.setMessageNew(false); // mark as read
                     tableModel.updateRow(message);
@@ -126,26 +126,26 @@ public class TOF
 
     /**
      * Resets the NEW state to READ for all messages shown in board table.
-     * 
+     *
      * @param tableModel  the messages table model
      * @param board  the board to reset
      */
     public void setAllMessagesRead(final Board board) {
         // now takes care if board is changed during mark read of many boards! reloads current table if needed
-        
+
         Runnable resetter = new Runnable() {
             public void run() {
-                
+
                 String keypool = MainFrame.keypool;
                 boolean boardWasShown = false;
                 final String boardFilename = board.getBoardFilename();
-                
+
                 // if this board is currently shown, update messages in table first
                 if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board ) {
-                    
+
                     boardWasShown = true; // remember that we processed the shown messages
                     final MessageTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
-                    
+
                     // first update msgs shown in table
                     for(int row=0; row < tableModel.getRowCount(); row++ ) {
                         final FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
@@ -157,12 +157,12 @@ public class TOF
                             // this is a new message
                             message.setMessageNew(false); // mark as read
                             board.decNewMessageCount();
-                            
+
                             SwingUtilities.invokeLater( new Runnable() {
                                 public void run() {
                                     tableModel.updateRow(message);
                                 }
-                            });                
+                            });
                         }
                     }
                     // all new messages should be gone now ...
@@ -171,9 +171,9 @@ public class TOF
                             MainFrame.getInstance().updateMessageCountLabels(board);
                             MainFrame.getInstance().updateTofTree(board);
                         }
-                    });                
+                    });
                 }
-                
+
                 // remove all older .lck files
 
                 File loadDir = new File(new StringBuffer().append(keypool).append(boardFilename).toString());
@@ -202,17 +202,17 @@ public class TOF
 
                 // set not 0 in case a new msg arrived while we deleted
                 board.setNewMessageCount( board.getNewMessageCount() - beforeMessages );
-                
+
                 final boolean finalBoardWasShown = boardWasShown;
-                
+
                 // all new messages should be gone now ...
                 SwingUtilities.invokeLater( new Runnable() {
                     public void run() {
                         MainFrame.getInstance().updateMessageCountLabels(board);
                         MainFrame.getInstance().updateTofTree(board);
-                        
+
                         if( MainFrame.getInstance().getTofTreeModel().getSelectedNode() == board &&
-                             finalBoardWasShown == false ) 
+                             finalBoardWasShown == false )
                         {
                             // the board was not shown when we started to mark read, so user changed the board during our
                             // operation. so he maybe has unread messages left in the messages table.
@@ -220,11 +220,11 @@ public class TOF
                             MainFrame.getInstance().tofTree_actionPerformed(null);
                         }
                     }
-                });                
+                });
             } };
         new Thread( resetter ).start();
     }
-    
+
     /**
      * called by non-swing thread
      * @param newMsgFile
@@ -236,7 +236,7 @@ public class TOF
         final SortedTableModel tableModel = MainFrame.getInstance().getMessageTableModel();
 
         if( (newMsgFile.getName()).endsWith(".xml") &&
-             newMsgFile.length() > 0 
+             newMsgFile.length() > 0
              //&& newMsgFile.length() < 32000
           )
         {
@@ -244,9 +244,9 @@ public class TOF
             try {
                 message = new FrostMessageObject(newMsgFile);
             } catch(Exception ex) {
-				logger.log(Level.SEVERE, "Error: skipping to load file '" + newMsgFile.getPath()+
+                logger.log(Level.SEVERE, "Error: skipping to load file '" + newMsgFile.getPath()+
                                          "', reason:\n" + ex.getMessage(), ex);
-                return;                      
+                return;
             }
             if( message.isValid() && !blocked(message, board) ) {
                 if(markNew) {
@@ -260,7 +260,7 @@ public class TOF
                             // check if tof table shows this board
                             MainFrame.getInstance().updateTofTree(board);
                             Board selectedBoard = tofTreeModel.getSelectedNode();
-                            if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) )                            
+                            if( !selectedBoard.isFolder() && selectedBoard.getName().equals( board.getName() ) )
                             {
                                 tableModel.addRow(message);
                                 MainFrame.getInstance().updateMessageCountLabels(board);
@@ -330,7 +330,7 @@ public class TOF
         public synchronized void cancel() {
             isCancelled = true;
         }
-        
+
         public synchronized boolean isCancel() {
             return isCancelled;
         }
@@ -365,7 +365,7 @@ public class TOF
                     public void run() {
                         // check if tof table shows this board
                         if( tofTreeModel.getSelectedNode().isFolder() == false &&
-                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) 
+                            tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                         {
                             tableModel.clearDataModel();
                             MainFrame.getInstance().updateMessageCountLabels(innerTargetBoard);
@@ -416,9 +416,9 @@ public class TOF
                                     message = null;
                                 }
                                 if( message != null &&
-                                	( MainFrame.frostSettings.getBoolValue("showDeletedMessages") || 
-                                	  !message.isDeleted() ) &&
-                                    message.isValid() && 
+                                    ( MainFrame.frostSettings.getBoolValue("showDeletedMessages") ||
+                                      !message.isDeleted() ) &&
+                                    message.isValid() &&
                                     !blocked(message,board) )
                                 {
                                     msgcount++;
@@ -434,7 +434,7 @@ public class TOF
                                         public void run() {
                                             // check if tof table shows this board
                                             if( tofTreeModel.getSelectedNode().isFolder() == false &&
-                                                tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) ) 
+                                                tofTreeModel.getSelectedNode().getName().equals( innerTargetBoard.getName() ) )
                                             {
                                                 tableModel.addRow(finalMessage);
                                                 if(updateMessagesCountLabels) {
@@ -474,102 +474,102 @@ public class TOF
         }
     }
 
-	/**
-	 * Returns true if the message should not be displayed
-	 * @param message The message object to check
-	 * @return true if message is blocked, else false
-	 */
-	public boolean blocked(VerifyableMessageObject message, Board board) {
+    /**
+     * Returns true if the message should not be displayed
+     * @param message The message object to check
+     * @return true if message is blocked, else false
+     */
+    public boolean blocked(VerifyableMessageObject message, Board board) {
 
         int msgStatus = message.getMsgStatus();
-		if (board.getShowSignedOnly()
-			&& (msgStatus == VerifyableMessageObject.xOLD || 
+        if (board.getShowSignedOnly()
+            && (msgStatus == VerifyableMessageObject.xOLD ||
                 msgStatus == VerifyableMessageObject.xTAMPERED) )
         {
-			return true;
+            return true;
         }
-		if (board.getHideBad() && (msgStatus == VerifyableMessageObject.xBAD)) {
-			return true;
+        if (board.getHideBad() && (msgStatus == VerifyableMessageObject.xBAD)) {
+            return true;
         }
-		if (board.getHideCheck() && (msgStatus == VerifyableMessageObject.xCHECK)) {
-			return true;
+        if (board.getHideCheck() && (msgStatus == VerifyableMessageObject.xCHECK)) {
+            return true;
         }
-		if (board.getHideObserve() && (msgStatus == VerifyableMessageObject.xOBSERVE)) {
-			return true;
+        if (board.getHideObserve() && (msgStatus == VerifyableMessageObject.xOBSERVE)) {
+            return true;
         }
-		//If the message is not signed and contains a @ character in the from field, we block it.
-		if (msgStatus == VerifyableMessageObject.xOLD && message.getFrom().indexOf('@') > -1) {
-			return true;
-		}
+        //If the message is not signed and contains a @ character in the from field, we block it.
+        if (msgStatus == VerifyableMessageObject.xOLD && message.getFrom().indexOf('@') > -1) {
+            return true;
+        }
 
         // TODO: maybe allow regexp here?!
-        
-		// Block by subject (and rest of the header)
-		if (MainFrame.frostSettings.getBoolValue("blockMessageChecked")) {
-			String header =
-				(message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
-			StringTokenizer blockWords =
-				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessage"), ";");
-			boolean found = false;
-			while (blockWords.hasMoreTokens() && !found) {
-				String blockWord = blockWords.nextToken().trim();
-				if ((blockWord.length() > 0) && (header.indexOf(blockWord) != -1)) {
-					found = true;
-				}
-			}
-			if (found) {
-				return true;
-			}
-		}
-		// Block by body
-		if (MainFrame.frostSettings.getBoolValue("blockMessageBodyChecked")) {
-			String content = message.getContent().toLowerCase();
-			StringTokenizer blockWords =
-				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBody"), ";");
-			boolean found = false;
-			while (blockWords.hasMoreTokens() && !found) {
-				String blockWord = blockWords.nextToken().trim();
-				if ((blockWord.length() > 0) && (content.indexOf(blockWord) != -1)) {
-					found = true;
-				}
-			}
-			if (found) {
-				return true;
-			}
-		}
-		// Block by attached boards
-		if (MainFrame.frostSettings.getBoolValue("blockMessageBoardChecked")) {
-			List boards = message.getAttachmentsOfType(Attachment.BOARD);
-			StringTokenizer blockWords =
-				new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBoard"), ";");
-			boolean found = false;
-			while (blockWords.hasMoreTokens() && !found) {
-				String blockWord = blockWords.nextToken().trim();
-				Iterator boardsIterator = boards.iterator();
-				while (boardsIterator.hasNext()) {
-					BoardAttachment boardAttachment = (BoardAttachment) boardsIterator.next();
-					Board boardObject = boardAttachment.getBoardObj();
-					if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
-						found = true;
-					}
-				}
-			}
-			if (found) {
-				return true;
-			}
-		}
-		return false;
-	}
+
+        // Block by subject (and rest of the header)
+        if (MainFrame.frostSettings.getBoolValue("blockMessageChecked")) {
+            String header =
+                (message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
+            StringTokenizer blockWords =
+                new StringTokenizer(MainFrame.frostSettings.getValue("blockMessage"), ";");
+            boolean found = false;
+            while (blockWords.hasMoreTokens() && !found) {
+                String blockWord = blockWords.nextToken().trim();
+                if ((blockWord.length() > 0) && (header.indexOf(blockWord) != -1)) {
+                    found = true;
+                }
+            }
+            if (found) {
+                return true;
+            }
+        }
+        // Block by body
+        if (MainFrame.frostSettings.getBoolValue("blockMessageBodyChecked")) {
+            String content = message.getContent().toLowerCase();
+            StringTokenizer blockWords =
+                new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBody"), ";");
+            boolean found = false;
+            while (blockWords.hasMoreTokens() && !found) {
+                String blockWord = blockWords.nextToken().trim();
+                if ((blockWord.length() > 0) && (content.indexOf(blockWord) != -1)) {
+                    found = true;
+                }
+            }
+            if (found) {
+                return true;
+            }
+        }
+        // Block by attached boards
+        if (MainFrame.frostSettings.getBoolValue("blockMessageBoardChecked")) {
+            List boards = message.getAttachmentsOfType(Attachment.BOARD);
+            StringTokenizer blockWords =
+                new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBoard"), ";");
+            boolean found = false;
+            while (blockWords.hasMoreTokens() && !found) {
+                String blockWord = blockWords.nextToken().trim();
+                Iterator boardsIterator = boards.iterator();
+                while (boardsIterator.hasNext()) {
+                    BoardAttachment boardAttachment = (BoardAttachment) boardsIterator.next();
+                    Board boardObject = boardAttachment.getBoardObj();
+                    if ((blockWord.length() > 0) && (boardObject.getName().equalsIgnoreCase(blockWord))) {
+                        found = true;
+                    }
+                }
+            }
+            if (found) {
+                return true;
+            }
+        }
+        return false;
+    }
 
     /**
-     * 
+     *
      */
     public void initialSearchNewMessages() {
         new SearchAllNewMessages().start();
     }
 
     /**
-     * 
+     *
      */
     private class SearchAllNewMessages extends Thread
     {
@@ -593,7 +593,7 @@ public class TOF
     }
 
     /**
-     * 
+     *
      */
     private class SearchNewMessages extends Thread
     {
@@ -652,18 +652,18 @@ public class TOF
             if( !loadDir.isDirectory() ) {
                 continue;
             }
-            
+
             File[] filePointers = loadDir.listFiles();
             if( filePointers == null ) {
                 continue;
             }
-            
+
             for( int j = 0; j < filePointers.length; j++ ) {
 
                 if( !filePointers[j].getName().endsWith(".xml.lck") ) {
                     continue;
                 }
-                
+
                 // search for message
                 String lockFilename = filePointers[j].getName();
                 String messagename = lockFilename.substring(0, lockFilename.length()-4);
@@ -692,7 +692,7 @@ public class TOF
                     message = null;
                 }
                 if( message != null &&
-                    message.isValid() && 
+                    message.isValid() &&
                     !blocked(message,board) )
                 {
                     // update the node that contains new messages

@@ -1,6 +1,6 @@
 /*
   FecSplitfile.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -35,12 +35,12 @@ public class FecSplitfile
     public static final int MODE_UPLOAD = 1; // intendet mode for this file
     public static final int MODE_DOWNLOAD = 2;
     public static final int MODE_FINISHED = 3; // we are finished, currently only set in setCorrect...
-	
-	private static final String FROST_TRANSFER_INDICATOR = "namespace.frost.transferInProgress";
-	private static final String FROST_TRANSFER_FINISHED_INDICATOR = "namespace.frost.transferFinished.";
-	
-	private static Logger logger = Logger.getLogger(FecSplitfile.class.getName());
-	
+
+    private static final String FROST_TRANSFER_INDICATOR = "namespace.frost.transferInProgress";
+    private static final String FROST_TRANSFER_FINISHED_INDICATOR = "namespace.frost.transferFinished.";
+
+    private static Logger logger = Logger.getLogger(FecSplitfile.class.getName());
+
     protected int transferMode; // the mode for this file: is it to upload or download?
 
     protected ArrayList segmentValues; // holds infos about the segmentation of file
@@ -49,18 +49,18 @@ public class FecSplitfile
     protected File checkBlocksFile; // the target file + ".checkblocks"
     protected long checkBlocksFileSize;
     protected File redirectFile; // // the target file + ".redirect"
-	protected int fileDataBlockCount; // number of data blocks for whole file 
+    protected int fileDataBlockCount; // number of data blocks for whole file
     protected int fileCheckBlockCount; // number of check blocks for whole file
     protected File downloadTargetFile; // the real target filename
 
     protected OnionFECEncoder encoder = null;
     protected FrostFECEncodeBucketFactory fecEncodeFactory = null;
-	protected OnionFECDecoder decoder = null;
+    protected OnionFECDecoder decoder = null;
     protected FrostFECDecodeBucketFactory fecDecodeFactory = null;
 
     // the lists holding the data+check blocks
     protected ArrayList dataBlocks, checkBlocks;
-    
+
     /**
      * This constructor expects that both files are valid.
      * Will check if files are existing or not and handle this.
@@ -71,21 +71,21 @@ public class FecSplitfile
      *   downloadtargetdir/DownloadFile.zip.redirect
      * Scans for existing
      *   downloadtargetdir/DownloadFile.zip.checkblocks
-     * 
+     *
      * @param downloadTargetFile
      * @param redirectFile
      */
     public FecSplitfile(File downloadFile, File redirectFile) throws IllegalStateException, Exception
     {
-		transferMode = MODE_DOWNLOAD;
+        transferMode = MODE_DOWNLOAD;
         this.downloadTargetFile = downloadFile;
-    	this.dataFile = new File(downloadTargetFile.getPath()+".data");
-    	this.redirectFile = redirectFile;
-    	// filesize and others is determined by parsing the redirect file
-    	
-		this.checkBlocksFile = new File( downloadTargetFile.getPath() + ".checkblocks" );
-		
-    	initFromRedirectFile();
+        this.dataFile = new File(downloadTargetFile.getPath()+".data");
+        this.redirectFile = redirectFile;
+        // filesize and others is determined by parsing the redirect file
+
+        this.checkBlocksFile = new File( downloadTargetFile.getPath() + ".checkblocks" );
+
+        initFromRedirectFile();
     }
 
     /**
@@ -122,56 +122,56 @@ public class FecSplitfile
 
         // append keypool dir and a _ before filename
         filename = MainFrame.frostSettings.getValue("keypool.dir") + "_" + filename;
-        
+
         logger.fine("DBG-ULFILENAME="+filename);
-                
+
         this.checkBlocksFile = new File( filename + ".checkblocks" );
-		this.redirectFile = new File( filename + ".redirect" );
+        this.redirectFile = new File( filename + ".redirect" );
     }
 
     /**
      * This method initializes the splitfile using an existing redirect file.
      * This file tracks the upload/download state of the file.
      * Method expects an existing this.redirectFile and that the data/checkblock
-     * files are created. 
+     * files are created.
      * Sometimes it does different actions for upload or download, this is decided using
      * this.transferMode.
-     * 
+     *
      * @throws IllegalStateException
      * @throws Exception
-     */    
+     */
     protected void initFromRedirectFile() throws IllegalStateException, Exception
     {
-    	 List lines = FileAccess.readLines(this.redirectFile);
-    	 if( lines.size() == 0 )
-    	 	throw new IllegalStateException("Empty redirect file");
-            
+         List lines = FileAccess.readLines(this.redirectFile);
+         if( lines.size() == 0 )
+            throw new IllegalStateException("Empty redirect file");
+
 // DEBUG
 //for(int s=0;s<lines.size();s++)
-//    Core.getOut().println(lines.get(s).toString());            
-    	 	
-    	 long fileSize;
-		 int dataBlockCount;
-		 int checkBlockCount;
-         
+//    Core.getOut().println(lines.get(s).toString());
+
+         long fileSize;
+         int dataBlockCount;
+         int checkBlockCount;
+
          String v1 = SettingsFun.getValue(lines,"SplitFile.BlockCount");
          String v2 = SettingsFun.getValue(lines,"SplitFile.CheckBlockCount");
          String v3 = SettingsFun.getValue(lines,"SplitFile.Size");
-		 try {
-		    dataBlockCount = Integer.parseInt(v1, 16);
-		    checkBlockCount = Integer.parseInt(v2, 16);
-		    fileSize = Long.parseLong(v3, 16);
-		 } catch (Exception e) {
-            logger.log(Level.SEVERE, "ERROR: One of the following 3 values is invalid in received redirect file:\n" +             
-            						 "(SplitFile.BlockCount='" + v1 + "')\n" +      
-            						 "(SplitFile.CheckBlockCount='" + v2 + "')\n" +           
-            	  					 "(SplitFile.Size='"+v3+"')", e);             
-		    throw new IllegalStateException("Could not parse block count from redirect file: "+e.getMessage());
-		 }
-		 if( dataBlockCount == 0 || fileSize == 0) {
-			throw new IllegalStateException("Invalid data block count of 0");
+         try {
+            dataBlockCount = Integer.parseInt(v1, 16);
+            checkBlockCount = Integer.parseInt(v2, 16);
+            fileSize = Long.parseLong(v3, 16);
+         } catch (Exception e) {
+            logger.log(Level.SEVERE, "ERROR: One of the following 3 values is invalid in received redirect file:\n" +
+                                     "(SplitFile.BlockCount='" + v1 + "')\n" +
+                                     "(SplitFile.CheckBlockCount='" + v2 + "')\n" +
+                                     "(SplitFile.Size='"+v3+"')", e);
+            throw new IllegalStateException("Could not parse block count from redirect file: "+e.getMessage());
          }
-			
+         if( dataBlockCount == 0 || fileSize == 0) {
+            throw new IllegalStateException("Invalid data block count of 0");
+         }
+
          if( this.transferMode == MODE_DOWNLOAD ) {
             this.dataFileSize = fileSize;
             this.decoder = new OnionFECDecoder();
@@ -187,34 +187,34 @@ public class FecSplitfile
             throw new IllegalStateException("transferMode is invalid");
         }
 
-		 // paranoia
-		 if( this.fileDataBlockCount != dataBlockCount ||
-		     this.fileCheckBlockCount != checkBlockCount )
-	     {
-	     	throw new IllegalStateException("Block counts from redirect file and from decoder do not match");
-	     }
-	     
-		/*
-		 * redirect and data file are valid, and the redirect file exists.
-		 * In redirect file there could be parameter 
-		 *  "namespace.frost.downloadInProgress=true"
-		 * This means the download is in progress and there are already some
-		 * blocks downloaded. If this parameter not appears, this is the
-		 * first time the download runs or there is not yet any block downloaded.
-		 */
-		 
-		 boolean transferContinues = SettingsFun.getValue(lines, FROST_TRANSFER_INDICATOR).toLowerCase().equals("true");
-		 
-		/* IF downloadContinues == true
-		 * This file download was in progress before.
-		 * This means the data and the checkblock file are already created.
-		 * We now have to step through lines, find the splitfile CHKs and create
-		 * all FecBlocks for this splitfile.
-		 * If there is a line
-		 *   "namespace.frost.transferFinished.SplitFile.Block"
-		 * this is an indication that this block is already downloaded and stored in file.
-		 */
-		 if( transferContinues == false && this.transferMode == MODE_DOWNLOAD ) {
+         // paranoia
+         if( this.fileDataBlockCount != dataBlockCount ||
+             this.fileCheckBlockCount != checkBlockCount )
+         {
+            throw new IllegalStateException("Block counts from redirect file and from decoder do not match");
+         }
+
+        /*
+         * redirect and data file are valid, and the redirect file exists.
+         * In redirect file there could be parameter
+         *  "namespace.frost.downloadInProgress=true"
+         * This means the download is in progress and there are already some
+         * blocks downloaded. If this parameter not appears, this is the
+         * first time the download runs or there is not yet any block downloaded.
+         */
+
+         boolean transferContinues = SettingsFun.getValue(lines, FROST_TRANSFER_INDICATOR).toLowerCase().equals("true");
+
+        /* IF downloadContinues == true
+         * This file download was in progress before.
+         * This means the data and the checkblock file are already created.
+         * We now have to step through lines, find the splitfile CHKs and create
+         * all FecBlocks for this splitfile.
+         * If there is a line
+         *   "namespace.frost.transferFinished.SplitFile.Block"
+         * this is an indication that this block is already downloaded and stored in file.
+         */
+         if( transferContinues == false && this.transferMode == MODE_DOWNLOAD ) {
             // create a data file with size of added data block sizes
             // this means the last bytes are padded with 0, after successful
             // download the filesize is set to correct size
@@ -247,11 +247,11 @@ public class FecSplitfile
                 }
             }
         }
-        
-		logger.info("Reading CHK keys from redirect file");		 
-		 buildFecBlocks(false);
-		 // read in all data block CHKs
-		 for( int x = 0; x < this.fileDataBlockCount; x++ ) {
+
+        logger.info("Reading CHK keys from redirect file");
+         buildFecBlocks(false);
+         // read in all data block CHKs
+         for( int x = 0; x < this.fileDataBlockCount; x++ ) {
             String blockParameter = "SplitFile.Block." + Integer.toHexString(x + 1);
             String blockChk = SettingsFun.getValue(lines, blockParameter);
 
@@ -279,9 +279,9 @@ public class FecSplitfile
             }
             b.setChkKey(blockChk);
         }
-         
-		 // read in all check CHKs
-		 for( int x = 0; x < this.fileCheckBlockCount; x++ ) {
+
+         // read in all check CHKs
+         for( int x = 0; x < this.fileCheckBlockCount; x++ ) {
             String blockParameter = "SplitFile.CheckBlock." + Integer.toHexString(x + 1);
             String blockChk = SettingsFun.getValue(lines, blockParameter);
             if( blockChk == null ) {
@@ -306,9 +306,9 @@ public class FecSplitfile
             }
             b.setChkKey(blockChk);
         }
-		 logger.info("Download prepared");		 
+         logger.info("Download prepared");
     }
-    
+
     public boolean isDecodeable(int segmentNo) {
         SingleSegmentValues segval = (SingleSegmentValues) this.segmentValues.get(segmentNo);
         int neededBlocks = segval.dataBlockCount;
@@ -327,22 +327,22 @@ public class FecSplitfile
         }
         return (providedBlocks >= neededBlocks);
     }
-    
+
     public void decode(int segmentNo) throws Throwable {
-    	if( !isDecodeable(segmentNo) ) {
-    		throw new IllegalStateException("Can't decode the segment, too less blocks provided");
+        if( !isDecodeable(segmentNo) ) {
+            throw new IllegalStateException("Can't decode the segment, too less blocks provided");
         }
 
-		logger.info("Starting to decode segment " + segmentNo);
+        logger.info("Starting to decode segment " + segmentNo);
         SingleSegmentValues segval = (SingleSegmentValues)this.segmentValues.get(segmentNo);
         int dataBlocksInSegment = segval.dataBlockCount;
 
         // init decoder for this segment
         this.decoder.setSegment( segmentNo );
-        
+
         ArrayList requestedDataBlocksIxList = new ArrayList(); // Integer
         ArrayList requestedDataBlocksBucketList = new ArrayList(); // RandomAccessFileBuckets
-        
+
         // search downloaded data blocks, put existing into decoder,
         // and remember the missing for the list of missing blocks
         for( int x = 0; x < this.dataBlocks.size(); x++ ) {
@@ -356,7 +356,7 @@ public class FecSplitfile
                 }
             }
         }
-        
+
         // search downloaded check blocks and put them into decoder
         for( int x = 0; x < this.checkBlocks.size(); x++ ) {
             FecBlock b = (FecBlock) this.checkBlocks.get(x);
@@ -370,23 +370,23 @@ public class FecSplitfile
         for( int x = 0; x < missingDataBlockIx.length; x++ ) {
             missingDataBlockIx[x] = ((Integer) requestedDataBlocksIxList.get(x)).intValue();
         }
-        
+
         // provide the bucketFactory with the buckets for the missing blocks
         this.fecDecodeFactory.init( requestedDataBlocksBucketList );
-        
+
         // provide an empty array to hold the returned buckets
         // we don't need them here ... our factory give out the right buckets on the fly
         Bucket[] targetBuckets = new Bucket[missingDataBlockIx.length];
         this.decoder.decode(missingDataBlockIx, targetBuckets);
-        
-        logger.info("Finished decoding segment " + segmentNo);	    	 
+
+        logger.info("Finished decoding segment " + segmentNo);
     }
-    
+
     /**
      * Checks for valid, existing checkblocks+redirect file and reads them in,
      * or returns false to indicate there are no valid files existing and
      * an encode() is needed.
-     * 
+     *
      * @return boolean  true if splitfile exists and is encoded, false if not
      */
     public boolean uploadInit() {
@@ -455,9 +455,9 @@ public class FecSplitfile
         // preparing is successfully finished.
         /////////////////////////////////////////////////////////////////////////////////////
         if( createRedirectFile(true) == false ) {
-        	String emsg = "Error: Could not create the redirect file.";
-        	logger.severe(emsg);
-        	throw new Exception(emsg);
+            String emsg = "Error: Could not create the redirect file.";
+            logger.severe(emsg);
+            throw new Exception(emsg);
         }
         logger.info("Splitfile encode finished.");
     }
@@ -466,31 +466,31 @@ public class FecSplitfile
      * Build the list of data / check blocks.
      * If called with TRUE, expects an existing datafile and
      * creates the CHK keys for each block.
-     * 
+     *
      * @param encodeBlocks true to encode, false to only create list of blocks
      * @throws Exception
      */
     protected void buildFecBlocks(boolean encodeBlocks) throws Exception {
         this.dataBlocks = new ArrayList();
         this.checkBlocks = new ArrayList();
-        
+
         int dataBlockIndexInFile = 0;
         int checkBlockIndexInFile = 0;
         long dataBlockOffset = 0;
         long checkBlockOffset = 0;
-		int segmentCount = getSegmentCount();
+        int segmentCount = getSegmentCount();
         for(int actSegment = 0; actSegment < segmentCount; actSegment++) {
             int dataBlockIndexInSegment = 0;
             int checkBlockIndexInSegment = 0;
-        
+
             int blockCount = getValuesForSegment(actSegment).dataBlockCount;
             int blockSize = getValuesForSegment(actSegment).dataBlockSize;
             int checkBlockCount = getValuesForSegment(actSegment).checkBlockCount;
             int checkBlockSize = getValuesForSegment(actSegment).checkBlockSize;
-        
+
             // build data blocks and while on it compute CHK@ for each block
             if( encodeBlocks == true ) {
-                logger.info("Creating CHK keys for "+blockCount+" blocks...");            
+                logger.info("Creating CHK keys for "+blockCount+" blocks...");
             }
             for( int x=0; x<blockCount; x++ ) {
 
@@ -502,25 +502,25 @@ public class FecSplitfile
                                            blockSize,
                                            dataBlockOffset
                                          );
-                                         
+
                 if( encodeBlocks == true ) {
-					Bucket blockdata = b.getPaddedMemoryBucket();
-					String chkKey = FecTools.generateCHK( blockdata );
-					if( chkKey == null ) {
-						String msg = "ERROR: could NOT generate CHK key of a splitfile data block!!!";
-						logger.severe(msg);
-						throw new Exception(msg);
-					}
-					b.setChkKey( chkKey );
+                    Bucket blockdata = b.getPaddedMemoryBucket();
+                    String chkKey = FecTools.generateCHK( blockdata );
+                    if( chkKey == null ) {
+                        String msg = "ERROR: could NOT generate CHK key of a splitfile data block!!!";
+                        logger.severe(msg);
+                        throw new Exception(msg);
+                    }
+                    b.setChkKey( chkKey );
                 }
-        
+
                 dataBlockOffset += blockSize;
                 dataBlockIndexInFile++;
                 dataBlockIndexInSegment++;
-        
+
                 this.dataBlocks.add( b );
             }
-        
+
             // build check blocks and while on it compute CHK@ for each block
             if( encodeBlocks == true ) {
                 logger.fine("Creating CHK keys for "+checkBlockCount+" check blocks...");
@@ -536,21 +536,21 @@ public class FecSplitfile
                                            checkBlockSize,
                                            checkBlockOffset
                                          );
-				if( encodeBlocks == true ) {
-					Bucket blockdata = b.getPaddedMemoryBucket();
-					String chkKey = FecTools.generateCHK( blockdata );
-					if( chkKey == null ) {
-						String msg = "ERROR: could NOT generate CHK key of a splitfile check block!!!";
-						logger.severe(msg);
-						throw new Exception(msg);
-					}
-					b.setChkKey( chkKey );
-				}
-        
+                if( encodeBlocks == true ) {
+                    Bucket blockdata = b.getPaddedMemoryBucket();
+                    String chkKey = FecTools.generateCHK( blockdata );
+                    if( chkKey == null ) {
+                        String msg = "ERROR: could NOT generate CHK key of a splitfile check block!!!";
+                        logger.severe(msg);
+                        throw new Exception(msg);
+                    }
+                    b.setChkKey( chkKey );
+                }
+
                 checkBlockOffset += checkBlockSize;
                 checkBlockIndexInFile++;
                 checkBlockIndexInSegment++;
-        
+
                 this.checkBlocks.add( b );
             }
         }
@@ -559,22 +559,22 @@ public class FecSplitfile
     /**
      * Creates a redirect file. Is called also from within concurrent threads,
      * hence this method must be synchronized.
-     * 
+     *
      * @param transferInProgress  if true a redirect file containing the progress is written
      * @return
      */
     public synchronized boolean createRedirectFile(boolean transferInProgress) {
-        
+
         String s = getRedirectFileContent(transferInProgress);
-    	FileAccess.writeFile(s, this.redirectFile);
-        
+        FileAccess.writeFile(s, this.redirectFile);
+
         return true;
     }
-    
+
     /**
      * Creates a redirect filecontent . Is called also from within concurrent threads,
      * hence this method must be synchronized.
-     * 
+     *
      * @param transferInProgress  if true a redirect file containing the progress is written
      * @return
      */
@@ -622,12 +622,12 @@ public class FecSplitfile
                         Integer.toHexString(x + 1)).append("=true\n");
             }
         }
-        
+
         redirect.append("End\n");
-        
+
         return redirect.toString();
     }
-    
+
 /*
 This is a Redirect file created by freenet itself.
 I used this as a template, e.g. the hex file size is lowercase, ...
@@ -660,9 +660,9 @@ End
         int segmentCount = myEncoder.getSegmentCount();
         this.segmentValues = new ArrayList(segmentCount);
         this.checkBlocksFileSize = 0;
-        
+
         this.fileDataBlockCount = 0;
-		this.fileCheckBlockCount = 0;
+        this.fileCheckBlockCount = 0;
 
         long tmpSegmentStartOffset = 0;
         for(int z=0; z < segmentCount; z++) {
@@ -725,11 +725,11 @@ End
             {
                 return; // file already existing
             }
-                    
+
             factoryCheckBlocksFile.delete();
             // create file with given size
             boolean created = createFileOfLength( cBlocksFile, myCheckBlocksFileSize );
-            
+
             // init the used raf
             raf = new RandomAccessFile( factoryCheckBlocksFile, "rw" );
         }
@@ -752,7 +752,7 @@ End
     }
 
     private class FrostFECDecodeBucketFactory implements BucketFactory {
-        
+
         int actualIndexInBucketList;
         List bucketList;
 
@@ -777,7 +777,7 @@ End
             //Core.getOut().println("FreeBucket");
         }
     }
-    
+
     public class SingleSegmentValues
     {
         public long segmentSize;
@@ -788,7 +788,7 @@ End
         public int checkBlockSize;
         public int checkBlockCount;
     }
-    
+
     public void setCorrectDatafileSize() {
         this.transferMode = MODE_FINISHED;
         try {
@@ -802,11 +802,11 @@ End
             logger.log(Level.SEVERE, "Exception thrown in setCorrectDatafileSize()", ex);
         }
     }
-    
+
     /**
      * Rename the tmp. download file to real target name, maybe remove redirect and checkblocks file. Can be called to
      * clean up for cancelled downloads or for finishing a successful download.
-     */    
+     */
     public void finishDownload(boolean removeWorkFiles) {
         // check if size was set after successful download+decode
         if( this.transferMode == MODE_FINISHED ) {
@@ -831,11 +831,11 @@ End
             checkBlocksFile.delete();
         }
     }
-    
+
     /**
      * Maybe remove redirect and checkblocks file. Can be called to clean up for cancelled uploads or for finishing a
      * successful upload.
-     */    
+     */
     public void finishUpload(boolean removeWorkFiles) {
         this.transferMode = MODE_FINISHED;
 
@@ -858,13 +858,13 @@ End
      * there is a problem in linux vfat driver and an Exception is throw if you call setLength to enlarge a file that
      * resides on a FAT32 partition (truncating works). So these method catches an Excpetion in setLength() and tries to
      * create the file using write. The contents of the file are not defined after creation.
-     * 
+     *
      * @param newfile
      *            the new file to create, must not be existent
      * @param filelength
      *            the requested filelength that the file should have.
      * @return true if ceate was successful, or false if not.
-     */    
+     */
     protected boolean createFileOfLength( File newfile, long filelength)
     {
         try {
@@ -881,7 +881,7 @@ End
                 // * if there is not enough space on disk getMessage() will return:
                 //     "There is not enough space on the disk"
                 // * if filesystem does not support such large files, getMessage() will return:
-                //     "An attempt was made to move the file pointer before the beginning of the file" 
+                //     "An attempt was made to move the file pointer before the beginning of the file"
                 //   - e.g. this msg occurs on FAT16 if you create a 2GB file -> 2GB is -1
                 String msgtxt = ex.getMessage();
                 try { raf.close(); } catch(Exception ex2) { }
@@ -894,15 +894,15 @@ End
                     newfile.delete();
                     return false;
                 }
-                
+
                 logger.warning("Warning: Could not create a work file, error=" + msgtxt);
-                
+
                 // * if the linux vfat problem occurs, getMessage() will return:
                 //     "Operation not permitted" or "Invalid argument"
                 // This error _could_ be recoverable, so try to fill using write (below) ...
-                // and currently we also try to recover on all other exception messages 
+                // and currently we also try to recover on all other exception messages
             }
-            
+
             if( fileLengthSet == false ) {
 
                 logger.info("Trying to use a slower creating method, starting ...");
@@ -918,7 +918,7 @@ End
             }
             return true;
         } catch(Exception ex) {
-			logger.log(Level.SEVERE, "createFileOfLength(File newfile, long filelength)", ex);
+            logger.log(Level.SEVERE, "createFileOfLength(File newfile, long filelength)", ex);
         }
         newfile.delete(); // delete file on error
         logger.severe("ERROR: Could not create the work file " + newfile.getPath());

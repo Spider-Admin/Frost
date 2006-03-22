@@ -1,6 +1,6 @@
 /*
   IdentitiesBrowser.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -40,7 +40,7 @@ public class IdentitiesBrowser extends JDialog {
 
     /**
      * This method initializes this
-     * 
+     *
      * @return void
      */
     private void initialize() {
@@ -51,7 +51,7 @@ public class IdentitiesBrowser extends JDialog {
 
     /**
      * This method initializes jContentPane
-     * 
+     *
      * @return javax.swing.JPanel
      */
     private JPanel getJContentPane() {
@@ -64,9 +64,9 @@ public class IdentitiesBrowser extends JDialog {
     }
 
     /**
-     * This method initializes jScrollPane	
-     * 	
-     * @return javax.swing.JScrollPane	
+     * This method initializes jScrollPane
+     *
+     * @return javax.swing.JScrollPane
      */
     private JScrollPane getJScrollPane() {
         if( jScrollPane == null ) {
@@ -78,9 +78,9 @@ public class IdentitiesBrowser extends JDialog {
     }
 
     /**
-     * This method initializes identitiesTable	
-     * 	
-     * @return javax.swing.JTable	
+     * This method initializes identitiesTable
+     *
+     * @return javax.swing.JTable
      */
     private JTable getIdentitiesTable() {
         if( identitiesTable == null ) {

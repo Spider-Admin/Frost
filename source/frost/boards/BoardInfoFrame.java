@@ -1,6 +1,6 @@
 /*
   BoardInfoFrame.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -43,76 +43,76 @@ import frost.util.gui.translation.*;
  * TODO: - add thread listeners (listen to all running threads) to change the
  *         updating state (bold text in table row) on demand (from bback)
  */
-public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener 
+public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 {
-	private class Listener implements MouseListener, LanguageListener {
-		public Listener() {
-			super();
-		}
+    private class Listener implements MouseListener, LanguageListener {
+        public Listener() {
+            super();
+        }
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
-		 */
-		public void mouseClicked(MouseEvent e) {
-			if (e.getClickCount() == 2) {
-				updateSelectedBoardButton_actionPerformed(null);
-			}
-		}
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseClicked(java.awt.event.MouseEvent)
+         */
+        public void mouseClicked(MouseEvent e) {
+            if (e.getClickCount() == 2) {
+                updateSelectedBoardButton_actionPerformed(null);
+            }
+        }
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
-		 */
-		public void mouseEntered(MouseEvent e) {
-			//Nothing here			
-		}
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseEntered(java.awt.event.MouseEvent)
+         */
+        public void mouseEntered(MouseEvent e) {
+            //Nothing here
+        }
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
-		 */
-		public void mouseExited(MouseEvent e) {
-			//Nothing here
-		}
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseExited(java.awt.event.MouseEvent)
+         */
+        public void mouseExited(MouseEvent e) {
+            //Nothing here
+        }
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
-		 */
-		public void mousePressed(MouseEvent e) {
-			maybeShowPopup(e);			
-		}
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mousePressed(java.awt.event.MouseEvent)
+         */
+        public void mousePressed(MouseEvent e) {
+            maybeShowPopup(e);
+        }
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
-		 */
-		public void mouseReleased(MouseEvent e) {
-			maybeShowPopup(e);			
-		}
-		
-		private void maybeShowPopup(MouseEvent e) {
-			if( e.isPopupTrigger() ) {
-				popupMenu.show(boardTable, e.getX(), e.getY());
-			}
-		}
+        /* (non-Javadoc)
+         * @see java.awt.event.MouseListener#mouseReleased(java.awt.event.MouseEvent)
+         */
+        public void mouseReleased(MouseEvent e) {
+            maybeShowPopup(e);
+        }
 
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
-		public void languageChanged(LanguageEvent event) {
-			refreshLanguage();			
-		}
+        private void maybeShowPopup(MouseEvent e) {
+            if( e.isPopupTrigger() ) {
+                popupMenu.show(boardTable, e.getX(), e.getY());
+            }
+        }
 
-	}
-	
+        /* (non-Javadoc)
+         * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
+         */
+        public void languageChanged(LanguageEvent event) {
+            refreshLanguage();
+        }
+
+    }
+
     private TofTree tofTree = null;
     private static boolean isShowing = false; // flag, is true if frame is showing, used by frame1
     private Language language = null;
     private Listener listener = new Listener();
-    
-	private static Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
 
-	private JPanel mainPanel = new JPanel(new BorderLayout());
-	private JPanel boardTablePanel = new JPanel(new BorderLayout());
+    private static Logger logger = Logger.getLogger(BoardInfoFrame.class.getName());
 
-	private JLabel summaryLabel = new JLabel();
+    private JPanel mainPanel = new JPanel(new BorderLayout());
+    private JPanel boardTablePanel = new JPanel(new BorderLayout());
+
+    private JLabel summaryLabel = new JLabel();
 
     private JButton updateButton = new JButton();
     private JButton updateSelectedBoardButton = new JButton();
@@ -127,18 +127,18 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     private BoardInfoTableModel boardTableModel = null;
     private SortedTable boardTable = null;
 
-	private void refreshLanguage() {
-		setTitle(language.getString("BoardInfoFrame.Board information window"));
-		
-		updateButton.setText(language.getString("BoardInfoFrame.Update"));
-		updateSelectedBoardButton.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-		updateAllBoardsButton.setText(language.getString("BoardInfoFrame.Update all boards"));
-		Bclose.setText(language.getString("BoardInfoFrame.Close"));	
-		
-		MIupdate.setText(language.getString("BoardInfoFrame.Update"));
-		MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-		MIupdateAllBoards.setText(language.getString("BoardInfoFrame.Update all boards"));		
-	}
+    private void refreshLanguage() {
+        setTitle(language.getString("BoardInfoFrame.Board information window"));
+
+        updateButton.setText(language.getString("BoardInfoFrame.Update"));
+        updateSelectedBoardButton.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+        updateAllBoardsButton.setText(language.getString("BoardInfoFrame.Update all boards"));
+        Bclose.setText(language.getString("BoardInfoFrame.Close"));
+
+        MIupdate.setText(language.getString("BoardInfoFrame.Update"));
+        MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
+        MIupdateAllBoards.setText(language.getString("BoardInfoFrame.Update all boards"));
+    }
 
     /**
      * Constructor
@@ -148,17 +148,17 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     {
         super();
         language = Language.getInstance();
-		refreshLanguage();
-		this.tofTree = tofTree;
+        refreshLanguage();
+        this.tofTree = tofTree;
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         try {
             Init();
         }
         catch( Exception e ) {
-        	logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
         }
-		setSize((int) (parentFrame.getWidth() * 0.75), 
-				(int) (parentFrame.getHeight() * 0.75));
+        setSize((int) (parentFrame.getWidth() * 0.75),
+                (int) (parentFrame.getHeight() * 0.75));
         setLocationRelativeTo(parentFrame);
     }
 
@@ -166,15 +166,15 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
      * @throws Exception
      */
     private void Init() throws Exception {
-    	
-		boardTableModel = new BoardInfoTableModel();
-		boardTable = new SortedTable(boardTableModel);
-    	
+
+        boardTableModel = new BoardInfoTableModel();
+        boardTable = new SortedTable(boardTableModel);
+
         //------------------------------------------------------------------------
         // Configure objects
         //------------------------------------------------------------------------
 
-		ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
+        ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/jtc.jpg"));
         setIconImage(frameIcon.getImage());
         setSize(new Dimension(300, 200));
         setResizable(true);
@@ -357,7 +357,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             Board board = (Board)boards.elementAt(i);
             if( tofTree.isUpdateAllowed(board) == true ) // is update allowed for this board?
             {
-            	tofTree.updateBoard(board);
+                tofTree.updateBoard(board);
             }
             boardTableModel.fireTableDataChanged();
         }
@@ -383,7 +383,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
 
                 if( tofTree.isUpdateAllowed(row.getBoard()) == true ) // is update allowed for this board?
                 {
-                	tofTree.updateBoard(row.getBoard());
+                    tofTree.updateBoard(row.getBoard());
                 }
                 boardTableModel.fireTableCellUpdated(rowIx, 0);
             }
@@ -467,24 +467,24 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         }
     }
 
-	public void startDialog() {
-		tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
-		language.addLanguageListener(listener);
-		language.addLanguageListener(boardTableModel);
-		setDialogShowing(true);
-		setVisible(true);
-	}
+    public void startDialog() {
+        tofTree.getRunningBoardUpdateThreads().addBoardUpdateThreadListener(this);
+        language.addLanguageListener(listener);
+        language.addLanguageListener(boardTableModel);
+        setDialogShowing(true);
+        setVisible(true);
+    }
 
-	/**
-	 * 
-	 */
-	protected void closeDialog() {
-		tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
-		language.removeLanguageListener(listener);
-		language.removeLanguageListener(boardTableModel);
-		setDialogShowing(false);
-		dispose();
-	}
+    /**
+     *
+     */
+    protected void closeDialog() {
+        tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
+        language.removeLanguageListener(listener);
+        language.removeLanguageListener(boardTableModel);
+        setDialogShowing(false);
+        dispose();
+    }
 
     /* (non-Javadoc)
      * @see java.awt.Window#processWindowEvent(java.awt.event.WindowEvent)
@@ -535,7 +535,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             }
             return "*ERR*";
         }
-        
+
         /* (non-Javadoc)
          * @see frost.gui.model.TableMember#compareTo(frost.gui.model.TableMember, int)
          */
@@ -545,7 +545,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             Comparable c2 = (Comparable)anOther.getValueAt(tableColumIndex);
             return c1.compareTo( c2 );
         }
-        
+
         /**
          * @return
          */
@@ -553,7 +553,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         {
             return board;
         }
-        
+
         /**
          * @return
          */
@@ -561,7 +561,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         {
             return files;
         }
-        
+
         /**
          * @param i
          */
@@ -569,7 +569,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         {
             files = new Integer(i);
         }
-        
+
         /**
          * @return
          */
@@ -577,7 +577,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         {
             return allmsg;
         }
-        
+
         /**
          * @param i
          */
@@ -585,7 +585,7 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         {
             allmsg = new Integer(i);
         }
-        
+
         /**
          * @param i
          */
@@ -596,15 +596,15 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     }
 
     /**
-     * 
+     *
      */
     private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
     {
         Font boldFont;
         Font origFont;
-        
+
         /**
-         * 
+         *
          */
         public BoardInfoTableCellRenderer()
         {
@@ -634,38 +634,38 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
             return this;
         }
     }
-    
-	//	Implementing the BoardUpdateThreadListener ...
-	
-	 /**
-	  * Is called if a Thread is finished.
-	  */
-	 public void boardUpdateThreadFinished(BoardUpdateThread thread)
-	 {
-		 boardTableModel.tableEntriesChanged();
-	 }
-	 
-	/**
-	 * Is called if a Thread is started.
-	 * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
-	 */
-	public void boardUpdateThreadStarted(BoardUpdateThread thread)
-	 {
-		 boardTableModel.tableEntriesChanged();
-	 }
-	 
-	/**
-	 * @return
-	 */
-	public static boolean isDialogShowing() {
-		return isShowing;
-	}
-	   
-	/**
-	 * @param val
-	 */
-	public static void setDialogShowing(boolean val) {
-		isShowing = val;
-	}
+
+    //  Implementing the BoardUpdateThreadListener ...
+
+     /**
+      * Is called if a Thread is finished.
+      */
+     public void boardUpdateThreadFinished(BoardUpdateThread thread)
+     {
+         boardTableModel.tableEntriesChanged();
+     }
+
+    /**
+     * Is called if a Thread is started.
+     * @see frost.threads.BoardUpdateThreadListener#boardUpdateThreadStarted(frost.threads.BoardUpdateThread)
+     */
+    public void boardUpdateThreadStarted(BoardUpdateThread thread)
+     {
+         boardTableModel.tableEntriesChanged();
+     }
+
+    /**
+     * @return
+     */
+    public static boolean isDialogShowing() {
+        return isShowing;
+    }
+
+    /**
+     * @param val
+     */
+    public static void setDialogShowing(boolean val) {
+        isShowing = val;
+    }
 
 }

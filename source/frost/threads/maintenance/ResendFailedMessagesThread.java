@@ -1,6 +1,6 @@
 /*
   ResendFailedMessagesThread.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -35,11 +35,11 @@ import frost.messages.*;
  */
 public class ResendFailedMessagesThread extends Thread
 {
-	private static Logger logger = Logger.getLogger(ResendFailedMessagesThread.class.getName());
-	
-	private TofTree tofTree;
+    private static Logger logger = Logger.getLogger(ResendFailedMessagesThread.class.getName());
+
+    private TofTree tofTree;
     private TofTreeModel tofTreeModel;
-    
+
     /**
      * @param core
      * @param frameToLock
@@ -47,9 +47,9 @@ public class ResendFailedMessagesThread extends Thread
     public ResendFailedMessagesThread(TofTree tofTree, TofTreeModel tofTreeModel)
     {
         this.tofTree = tofTree;
-		this.tofTreeModel = tofTreeModel;
+        this.tofTreeModel = tofTreeModel;
     }
-    
+
     /* (non-Javadoc)
      * @see java.lang.Runnable#run()
      */
@@ -63,7 +63,7 @@ public class ResendFailedMessagesThread extends Thread
 
         logger.info("Starting search for unsent messages ...");
 
-        ArrayList entries = FileAccess.getAllEntries(new File(Core.frostSettings.getValue("unsent.dir")), 
+        ArrayList entries = FileAccess.getAllEntries(new File(Core.frostSettings.getValue("unsent.dir")),
                                                      ".xml");
 
         for( int i = 0; i < entries.size(); i++ )
@@ -77,9 +77,9 @@ public class ResendFailedMessagesThread extends Thread
                     mo = new MessageObject(unsentMsgFile);
                 } catch(Exception ex)
                 {
-					logger.log(Level.SEVERE, "Couldn't read the message file, will not send message.", ex);
+                    logger.log(Level.SEVERE, "Couldn't read the message file, will not send message.", ex);
                 }
-                
+
                 if( mo != null && mo.isValid() )
                 {
                     Board board = tofTreeModel.getBoardByName( mo.getBoard() );
@@ -99,7 +99,7 @@ public class ResendFailedMessagesThread extends Thread
                             logger.warning("Can't resend Message '" + mo.getSubject() + "', the recipient is not longer in your identites file!");
                             continue;
                         }
-                    } 
+                    }
                     tofTree.getRunningBoardUpdateThreads().startMessageUpload(board, mo, null, recipient);
                     logger.info("Message '" + mo.getSubject() + "' will be resent to board '" + board.getName() + "'.");
                 }

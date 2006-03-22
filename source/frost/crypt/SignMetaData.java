@@ -1,6 +1,6 @@
 /*
   SignMetaData.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -33,103 +33,103 @@ import frost.identities.*;
  * It has the following format:
  * <FrostMetaData>
  *  <MyIdentity>
- * 	 <name> unique name of person</name>
- * 	 <key> public key of person </key>
+ *   <name> unique name of person</name>
+ *   <key> public key of person </key>
  *  </MyIdentity>
  *  <sig> signature of file </sig>
  * </FrostMetaData>
  */
 public class SignMetaData extends MetaData {
 
-	private static Logger logger = Logger.getLogger(SignMetaData.class.getName());
-	
-	String sig;
-	
-	public SignMetaData() {
-		person = null;
-		sig = null;
-	}
-	
-	/**
-	 * Represents a metadata of something about to be sent.
+    private static Logger logger = Logger.getLogger(SignMetaData.class.getName());
+
+    String sig;
+
+    public SignMetaData() {
+        person = null;
+        sig = null;
+    }
+
+    /**
+     * Represents a metadata of something about to be sent.
      * Computes signature of plaintext.
-	 */
-	public SignMetaData(byte[] plaintext, LocalIdentity myId) {
-		this.person = myId;
-		sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivKey());
-	}
-    
-	/**
+     */
+    public SignMetaData(byte[] plaintext, LocalIdentity myId) {
+        this.person = myId;
+        sig = Core.getCrypto().detachedSign(plaintext, myId.getPrivKey());
+    }
+
+    /**
      * Metadata of something that was received.
-	 */
-	public SignMetaData(byte [] metadata) throws Throwable {
-        
-		Document d = XMLTools.parseXmlContent(metadata, false);
-		Element el = d.getDocumentElement();
+     */
+    public SignMetaData(byte [] metadata) throws Throwable {
+
+        Document d = XMLTools.parseXmlContent(metadata, false);
+        Element el = d.getDocumentElement();
         if( el.getTagName().equals("FrostMetaData") == false ) {
             throw new Exception("This is not FrostMetaData XML file.");
         }
-		try {
-			loadXMLElement(el);
-		} catch (SAXException e) {
-			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+        try {
+            loadXMLElement(el);
+        } catch (SAXException e) {
+            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
             throw e;
-		}
-	}
-	
-	/**
-	 * Represents something that was received and needs to be verified.
+        }
+    }
+
+    /**
+     * Represents something that was received and needs to be verified.
      * Parses XML and sets person and sig.
-	 * @param plaintext the plaintext to be verified
-	 * @param el the xml element to populate from
-	 */
-	public SignMetaData(Element el) throws SAXException {
-		try {
-			loadXMLElement(el);
-		} catch (SAXException e) {
-			logger.log(Level.SEVERE, "Exception thrown in constructor", e);
+     * @param plaintext the plaintext to be verified
+     * @param el the xml element to populate from
+     */
+    public SignMetaData(Element el) throws SAXException {
+        try {
+            loadXMLElement(el);
+        } catch (SAXException e) {
+            logger.log(Level.SEVERE, "Exception thrown in constructor", e);
             throw e;
-		}
-	}
+        }
+    }
 
-	/* (non-Javadoc)
-	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
-	 */
-	public Element getXMLElement(Document container) {
-        
-		Element el = super.getXMLElement(container);
-		
-		Element _sig = container.createElement("sig");
-		CDATASection cdata = container.createCDATASection(sig);
-		_sig.appendChild(cdata);
-		
-		el.appendChild(_sig);
-		return el;
-	}
+    /* (non-Javadoc)
+     * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
+     */
+    public Element getXMLElement(Document container) {
 
-	/* (non-Javadoc)
-	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
-	 */
-	public void loadXMLElement(Element e) throws SAXException {
-        
-		Element _person = (Element) XMLTools.getChildElementsByTagName(e, "MyIdentity").iterator().next();
-		person = new Identity(_person);
-		sig = XMLTools.getChildElementsCDATAValue(e, "sig");
-		
-		assert person!=null && sig!=null;
-	}
+        Element el = super.getXMLElement(container);
 
-	/**
-	 * @return
-	 */
-	public String getSig() {
-		return sig;
-	}
+        Element _sig = container.createElement("sig");
+        CDATASection cdata = container.createCDATASection(sig);
+        _sig.appendChild(cdata);
 
-	/* (non-Javadoc)
-	 * @see frost.crypt.MetaData#getType()
-	 */
-	public int getType() {
-		return MetaData.SIGN;
-	}
+        el.appendChild(_sig);
+        return el;
+    }
+
+    /* (non-Javadoc)
+     * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
+     */
+    public void loadXMLElement(Element e) throws SAXException {
+
+        Element _person = (Element) XMLTools.getChildElementsByTagName(e, "MyIdentity").iterator().next();
+        person = new Identity(_person);
+        sig = XMLTools.getChildElementsCDATAValue(e, "sig");
+
+        assert person!=null && sig!=null;
+    }
+
+    /**
+     * @return
+     */
+    public String getSig() {
+        return sig;
+    }
+
+    /* (non-Javadoc)
+     * @see frost.crypt.MetaData#getType()
+     */
+    public int getType() {
+        return MetaData.SIGN;
+    }
 }

@@ -1,6 +1,6 @@
 /*
 AltEdit.java / Frost
-Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
 This program is free software; you can redistribute it and/or
 modify it under the terms of the GNU General Public License as
@@ -30,22 +30,22 @@ import frost.util.gui.translation.*;
 
 /**
  * Class provides alternate editor functionality.
- * 
+ *
  * @author bback
  */
 public class AltEdit {
 
     Language language = Language.getInstance();
-    
+
     private Frame parentFrame;
     private String linesep = System.getProperty("line.separator");
-    
+
     private String oldSubject;
     private String oldText;
-    
+
     private final String SUBJECT_MARKER = language.getString("*--- Subject line (changeable) ---*");
     private final String TEXT_MARKER = language.getString("*--- Enter your text after this line ---*");
-    
+
     private String reportSubject = null;
     private String reportText = null;
 
@@ -56,14 +56,14 @@ public class AltEdit {
     }
 
     public boolean run() {
-        
+
         // paranoia
         if( Core.frostSettings.getBoolValue("useAltEdit") == false ) {
             return false;
         }
-        
+
         String editor = Core.frostSettings.getValue("altEdit");
-        
+
         if( editor == null || editor.length() == 0 ) {
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("No alternate editor configured."),
@@ -71,12 +71,12 @@ public class AltEdit {
                     JOptionPane.ERROR_MESSAGE);
             return false;
         }
-        
+
         if( editor.indexOf("%f") == -1 ) {
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("Configured alternate editor line must contain a '%f' as placeholder for the filename."),
                     language.getString("Error"),
-                    JOptionPane.ERROR_MESSAGE);            
+                    JOptionPane.ERROR_MESSAGE);
             return false;
         }
 
@@ -135,19 +135,19 @@ public class AltEdit {
             editFile.delete();
             return false;
         }
-        
+
         String newSubject = null;
         StringBuffer newTextSb = new StringBuffer();
 
         boolean inNewText = false;
         for( Iterator it=lines.iterator(); it.hasNext(); ) {
             String line = (String)it.next();
-            
+
             if( inNewText ) {
                 newTextSb.append(line).append(linesep);
                 continue;
             }
-            
+
             if( line.equals(SUBJECT_MARKER) ) {
                 // next line is the new subject
                 if( it.hasNext() == false ) {
@@ -170,13 +170,13 @@ public class AltEdit {
                 newSubject = line.trim();
                 continue;
             }
-            
+
             if( line.equals(TEXT_MARKER) ) {
                 // text begins
                 inNewText = true;
             }
         }
-        
+
         if( newSubject == null ) {
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("The message file returned by the alternate editor is invalid."),
@@ -185,11 +185,11 @@ public class AltEdit {
             editFile.delete();
             return false;
         }
-        
+
         // finished, we have a newSubject and a newText now
         reportSubject = newSubject;
         reportText = newTextSb.toString();
-        
+
         return true;
     }
 

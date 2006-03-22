@@ -1,6 +1,6 @@
 /*
   FrostSearchResultMessageObject.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -26,12 +26,12 @@ import frost.messages.*;
 public class FrostSearchResultMessageObject extends FrostMessageObject {
 
     private boolean messageIsArchived;
-    
+
     public FrostSearchResultMessageObject(File file, boolean archived) throws MessageCreationException {
         super(file);
         messageIsArchived = archived;
     }
-    
+
     public boolean isMessageArchived() {
         return messageIsArchived;
     }
@@ -67,7 +67,7 @@ public class FrostSearchResultMessageObject extends FrostMessageObject {
         }
     }
 
-    /* 
+    /*
      * @see frost.gui.model.TableMember#getValueAt(int)
      */
     public Object getValueAt(int column) {
@@ -78,7 +78,7 @@ public class FrostSearchResultMessageObject extends FrostMessageObject {
             case 3: return getSubject();
             case 4: return getMsgStatusString();
             case 5: return getDateAndTime();
-            default: return "*ERR*"; 
+            default: return "*ERR*";
         }
     }
 

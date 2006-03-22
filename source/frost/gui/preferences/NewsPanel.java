@@ -1,6 +1,6 @@
 /*
   NewsPanel.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -29,104 +29,104 @@ import frost.util.gui.*;
 import frost.util.gui.translation.Language;
 
 class NewsPanel extends JPanel {
-		
-	private static Logger logger = Logger.getLogger(NewsPanel.class.getName());
-		
-	private SettingsClass settings = null;
-	private Language language = null;
-		
-	private JLabel uploadHtlLabel = new JLabel();
-	private JLabel downloadHtlLabel = new JLabel();
-	private JLabel displayDaysLabel = new JLabel();
-	private JLabel downloadDaysLabel = new JLabel();
-	private JLabel messageBaseLabel = new JLabel();
-	private JLabel signatureLabel = new JLabel();
-    
-	private JTextField uploadHtlTextField = new JTextField(8);
-	private JTextField downloadHtlTextField = new JTextField(8);
-	private JTextField displayDaysTextField = new JTextField(8);
-	private JTextField downloadDaysTextField = new JTextField(8);
-	private JTextField messageBaseTextField = new JTextField(16);
-    
-	private AntialiasedTextArea signatureTextArea;
 
-	/**
-	 * @param settings the SettingsClass instance that will be used to get and store the settings of the panel 
-	 */
-	protected NewsPanel(SettingsClass settings) {
-		super();
-		
-		this.language = Language.getInstance();
-		this.settings = settings;
-		
-		initialize();
-		loadSettings();
-	}
+    private static Logger logger = Logger.getLogger(NewsPanel.class.getName());
 
-	private void initialize() {
-		setName("NewsPanel");
-		setLayout(new GridBagLayout());
-		refreshLanguage();
+    private SettingsClass settings = null;
+    private Language language = null;
 
-		// We create the components
-		new TextComponentClipboardMenu(uploadHtlTextField, language);
-		new TextComponentClipboardMenu(downloadHtlTextField, language);
-		new TextComponentClipboardMenu(displayDaysTextField, language);
-		new TextComponentClipboardMenu(downloadDaysTextField, language);
-		new TextComponentClipboardMenu(messageBaseTextField, language);
-		
-		// Adds all of the components
-		GridBagConstraints constraints = new GridBagConstraints();
-		constraints.fill = GridBagConstraints.NONE;
-		constraints.anchor = GridBagConstraints.WEST;
-		Insets insets5555 = new Insets(5, 5, 5, 5);
-		constraints.weighty = 0.1;
-		constraints.weightx = 0;		
-			
-		constraints.insets = insets5555;
-		constraints.weightx = 0.4;	
-		constraints.gridx = 0;
-		constraints.gridy = 0;
-		add(uploadHtlLabel, constraints);	
-		constraints.weightx = 0.6;		
-		constraints.gridx = 1;
-		add(uploadHtlTextField, constraints);
-			
-		constraints.gridx = 0;
+    private JLabel uploadHtlLabel = new JLabel();
+    private JLabel downloadHtlLabel = new JLabel();
+    private JLabel displayDaysLabel = new JLabel();
+    private JLabel downloadDaysLabel = new JLabel();
+    private JLabel messageBaseLabel = new JLabel();
+    private JLabel signatureLabel = new JLabel();
+
+    private JTextField uploadHtlTextField = new JTextField(8);
+    private JTextField downloadHtlTextField = new JTextField(8);
+    private JTextField displayDaysTextField = new JTextField(8);
+    private JTextField downloadDaysTextField = new JTextField(8);
+    private JTextField messageBaseTextField = new JTextField(16);
+
+    private AntialiasedTextArea signatureTextArea;
+
+    /**
+     * @param settings the SettingsClass instance that will be used to get and store the settings of the panel
+     */
+    protected NewsPanel(SettingsClass settings) {
+        super();
+
+        this.language = Language.getInstance();
+        this.settings = settings;
+
+        initialize();
+        loadSettings();
+    }
+
+    private void initialize() {
+        setName("NewsPanel");
+        setLayout(new GridBagLayout());
+        refreshLanguage();
+
+        // We create the components
+        new TextComponentClipboardMenu(uploadHtlTextField, language);
+        new TextComponentClipboardMenu(downloadHtlTextField, language);
+        new TextComponentClipboardMenu(displayDaysTextField, language);
+        new TextComponentClipboardMenu(downloadDaysTextField, language);
+        new TextComponentClipboardMenu(messageBaseTextField, language);
+
+        // Adds all of the components
+        GridBagConstraints constraints = new GridBagConstraints();
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.anchor = GridBagConstraints.WEST;
+        Insets insets5555 = new Insets(5, 5, 5, 5);
+        constraints.weighty = 0.1;
+        constraints.weightx = 0;
+
+        constraints.insets = insets5555;
+        constraints.weightx = 0.4;
+        constraints.gridx = 0;
+        constraints.gridy = 0;
+        add(uploadHtlLabel, constraints);
+        constraints.weightx = 0.6;
+        constraints.gridx = 1;
+        add(uploadHtlTextField, constraints);
+
+        constraints.gridx = 0;
         constraints.gridy++;
-		add(downloadHtlLabel, constraints);		
-		constraints.gridx = 1;
-		add(downloadHtlTextField, constraints);
-						
-		constraints.gridx = 0;
-		constraints.gridy++;
-		add(displayDaysLabel, constraints);		
-		constraints.gridx = 1;
-		add(displayDaysTextField, constraints);
-			
-		constraints.gridx = 0;
+        add(downloadHtlLabel, constraints);
+        constraints.gridx = 1;
+        add(downloadHtlTextField, constraints);
+
+        constraints.gridx = 0;
         constraints.gridy++;
-		add(downloadDaysLabel, constraints);		
-		constraints.gridx = 1;
-		add(downloadDaysTextField, constraints);
-        
-		constraints.gridx = 0;
+        add(displayDaysLabel, constraints);
+        constraints.gridx = 1;
+        add(displayDaysTextField, constraints);
+
+        constraints.gridx = 0;
         constraints.gridy++;
-		add(messageBaseLabel, constraints);		
-		constraints.gridx = 1;
-		add(messageBaseTextField, constraints);
-			
-		constraints.fill = GridBagConstraints.HORIZONTAL;
-		constraints.gridwidth = 2;	
-		constraints.weightx = 1;
-		constraints.weighty = 0;
-		constraints.gridx = 0;
+        add(downloadDaysLabel, constraints);
+        constraints.gridx = 1;
+        add(downloadDaysTextField, constraints);
+
+        constraints.gridx = 0;
         constraints.gridy++;
-		add(signatureLabel, constraints);
+        add(messageBaseLabel, constraints);
+        constraints.gridx = 1;
+        add(messageBaseTextField, constraints);
+
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.gridwidth = 2;
+        constraints.weightx = 1;
+        constraints.weighty = 0;
+        constraints.gridx = 0;
         constraints.gridy++;
-		JScrollPane signatureScrollPane = new JScrollPane(getSignatureTextArea());
-		add(signatureScrollPane, constraints);
-        
+        add(signatureLabel, constraints);
+        constraints.gridy++;
+        JScrollPane signatureScrollPane = new JScrollPane(getSignatureTextArea());
+        add(signatureScrollPane, constraints);
+
         // glue
         constraints.gridy++;
         constraints.gridx = 0;
@@ -135,75 +135,75 @@ class NewsPanel extends JPanel {
         constraints.weightx = 1;
         constraints.weighty = 1;
         add(new JLabel(""), constraints);
-	}
+    }
 
-	/**
-	 * @return
-	 */
-	private AntialiasedTextArea getSignatureTextArea() {
-		if (signatureTextArea == null) {
-			signatureTextArea = new AntialiasedTextArea(6, 50);
+    /**
+     * @return
+     */
+    private AntialiasedTextArea getSignatureTextArea() {
+        if (signatureTextArea == null) {
+            signatureTextArea = new AntialiasedTextArea(6, 50);
 
-			String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
-			int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
-			int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-			Font tofFont = new Font(fontName, fontStyle, fontSize);
-			if (!tofFont.getFamily().equals(fontName)) {
-				logger.severe(
-					"The selected font was not found in your system\n"
-						+ "That selection will be changed to \"Monospaced\".");
-				settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
-				tofFont = new Font("Monospaced", fontStyle, fontSize);
-			}
-			signatureTextArea.setFont(tofFont);
-			signatureTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
-		}
-		return signatureTextArea;
-	}
+            String fontName = settings.getValue(SettingsClass.MESSAGE_BODY_FONT_NAME);
+            int fontStyle = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_STYLE);
+            int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
+            Font tofFont = new Font(fontName, fontStyle, fontSize);
+            if (!tofFont.getFamily().equals(fontName)) {
+                logger.severe(
+                    "The selected font was not found in your system\n"
+                        + "That selection will be changed to \"Monospaced\".");
+                settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
+                tofFont = new Font("Monospaced", fontStyle, fontSize);
+            }
+            signatureTextArea.setFont(tofFont);
+            signatureTextArea.setAntiAliasEnabled(settings.getBoolValue("messageBodyAA"));
+        }
+        return signatureTextArea;
+    }
 
-	/**
-	 * Load the settings of this panel
-	 */
-	private void loadSettings() {
-		uploadHtlTextField.setText(settings.getValue("tofUploadHtl"));
-		downloadHtlTextField.setText(settings.getValue("tofDownloadHtl"));
-		displayDaysTextField.setText(settings.getValue("maxMessageDisplay"));
-		downloadDaysTextField.setText(settings.getValue("maxMessageDownload"));
-		messageBaseTextField.setText(settings.getValue("messageBase"));
+    /**
+     * Load the settings of this panel
+     */
+    private void loadSettings() {
+        uploadHtlTextField.setText(settings.getValue("tofUploadHtl"));
+        downloadHtlTextField.setText(settings.getValue("tofDownloadHtl"));
+        displayDaysTextField.setText(settings.getValue("maxMessageDisplay"));
+        downloadDaysTextField.setText(settings.getValue("maxMessageDownload"));
+        messageBaseTextField.setText(settings.getValue("messageBase"));
 
-		//Load signature
-		File signature = new File("signature.txt");
-		if (signature.isFile()) {
-			getSignatureTextArea().setText(FileAccess.readFile(signature, "UTF-8"));
-		}
-	}
-		
-	public void ok() {
-		saveSettings();
-	}
-		
-	private void refreshLanguage() {
-		uploadHtlLabel.setText(language.getString("Message upload HTL") + " (21)");
-		downloadHtlLabel.setText(language.getString("Message download HTL") + " (23)");
-		displayDaysLabel.setText(
-				language.getString("Number of days to display") + " (15)");
-		downloadDaysLabel.setText(
-				language.getString("Number of days to download backwards") + " (5)");
-		messageBaseLabel.setText(language.getString("Message base") + " (news)");
-		signatureLabel.setText(language.getString("Signature"));
-	}
+        //Load signature
+        File signature = new File("signature.txt");
+        if (signature.isFile()) {
+            getSignatureTextArea().setText(FileAccess.readFile(signature, "UTF-8"));
+        }
+    }
 
-	/**
-	 * Save the settings of this panel 
-	 */
-	private void saveSettings() {
-		settings.setValue("tofUploadHtl", uploadHtlTextField.getText());
-		settings.setValue("tofDownloadHtl", downloadHtlTextField.getText());
-		settings.setValue("maxMessageDisplay", displayDaysTextField.getText());
-		settings.setValue("maxMessageDownload", downloadDaysTextField.getText());
-		settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
+    public void ok() {
+        saveSettings();
+    }
 
-		//Save signature
-		FileAccess.writeFile(getSignatureTextArea().getText(), "signature.txt", "UTF-8");
-	}
+    private void refreshLanguage() {
+        uploadHtlLabel.setText(language.getString("Message upload HTL") + " (21)");
+        downloadHtlLabel.setText(language.getString("Message download HTL") + " (23)");
+        displayDaysLabel.setText(
+                language.getString("Number of days to display") + " (15)");
+        downloadDaysLabel.setText(
+                language.getString("Number of days to download backwards") + " (5)");
+        messageBaseLabel.setText(language.getString("Message base") + " (news)");
+        signatureLabel.setText(language.getString("Signature"));
+    }
+
+    /**
+     * Save the settings of this panel
+     */
+    private void saveSettings() {
+        settings.setValue("tofUploadHtl", uploadHtlTextField.getText());
+        settings.setValue("tofDownloadHtl", downloadHtlTextField.getText());
+        settings.setValue("maxMessageDisplay", displayDaysTextField.getText());
+        settings.setValue("maxMessageDownload", downloadDaysTextField.getText());
+        settings.setValue("messageBase", messageBaseTextField.getText().trim().toLowerCase());
+
+        //Save signature
+        FileAccess.writeFile(getSignatureTextArea().getText(), "signature.txt", "UTF-8");
+    }
 }

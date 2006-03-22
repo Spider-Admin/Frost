@@ -1,6 +1,6 @@
 /*
   ClearSpam.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -30,22 +30,22 @@ import frost.gui.objects.Board;
  */
 class ClearSpam extends TimerTask {
 
-	private Board clearMe;
+    private Board clearMe;
 
-	private static Logger logger = Logger.getLogger(ClearSpam.class.getName());
+    private static Logger logger = Logger.getLogger(ClearSpam.class.getName());
 
-	/**
-	 * @param which
-	 */
-	public ClearSpam(Board which) {
-		clearMe = which;
-	}
+    /**
+     * @param which
+     */
+    public ClearSpam(Board which) {
+        clearMe = which;
+    }
 
-	/* (non-Javadoc)
-	 * @see java.lang.Runnable#run()
-	 */
-	public void run() {
-		logger.info("############ clearing spam status for board '" + clearMe.getName() + "' ###########");
-		clearMe.setSpammed(false);
-	}
+    /* (non-Javadoc)
+     * @see java.lang.Runnable#run()
+     */
+    public void run() {
+        logger.info("############ clearing spam status for board '" + clearMe.getName() + "' ###########");
+        clearMe.setSpammed(false);
+    }
 }

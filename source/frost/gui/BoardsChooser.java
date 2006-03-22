@@ -1,6 +1,6 @@
 /*
   BoardsChooser.java / Frost
-  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
   This file is contributed by Stefan Majewski <feuerblume@users.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -35,7 +35,7 @@ public class BoardsChooser extends JDialog {
     private Language language = Language.getInstance();
 
     protected static Border noFocusBorder = new EmptyBorder(1, 1, 1, 1);
-    
+
     protected class BoardsCellRenderer implements ListCellRenderer {
 
        public Component getListCellRendererComponent(
@@ -43,9 +43,9 @@ public class BoardsChooser extends JDialog {
                      boolean isSelected, boolean cellHasFocus)
        {
           BoardListEntry e = (BoardListEntry)value;
-          
+
           JCheckBox checkbox = e.checkBox;
-          
+
           checkbox.setBackground(isSelected ? Lboards.getSelectionBackground() : Lboards.getBackground());
           checkbox.setForeground(isSelected ? Lboards.getSelectionForeground() : Lboards.getForeground());
           checkbox.setEnabled(isEnabled());
@@ -57,7 +57,7 @@ public class BoardsChooser extends JDialog {
           return checkbox;
        }
     }
-    
+
     JButton Bcancel;
     List boardList;
     JButton Bok;
@@ -68,7 +68,7 @@ public class BoardsChooser extends JDialog {
         super();
         setTitle(language.getString("Choose boards"));
         setModal(true);
-        
+
         // fill given board into our list as BoardListEntries
         boardList = new ArrayList();
         for(Iterator i=boards.iterator(); i.hasNext(); ) {
@@ -77,7 +77,7 @@ public class BoardsChooser extends JDialog {
             e.board = b;
             e.checkBox = new JCheckBox(b.getName());
             e.checkBox.setSelected(false);
-            
+
             if( preselectedBoards != null ) {
                 // check if this board should be selected
                 for(Iterator j=preselectedBoards.iterator(); j.hasNext(); ) {
@@ -87,19 +87,19 @@ public class BoardsChooser extends JDialog {
                     }
                 }
             }
-            
+
             boardList.add(e);
         }
-        
+
         initGui();
-        
+
         setLocationRelativeTo(parent);
     }
-    
+
     public BoardsChooser(Component parent, List boards) {
         this(parent, boards, null);
     }
-    
+
     private void initGui() {
         Bok = new JButton("OK");
         Bok.addActionListener( new ActionListener() {
@@ -149,7 +149,7 @@ public class BoardsChooser extends JDialog {
         getContentPane().add(buttonsPanel, BorderLayout.SOUTH);
         setSize(300, 400);
     }
-    
+
     public List runDialog()
     {
         setVisible(true);

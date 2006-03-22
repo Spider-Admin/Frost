@@ -1,6 +1,6 @@
 /*
   FcpFECUtils.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -30,8 +30,8 @@ import java.util.logging.Logger;
  */
 public class FcpFECUtils {
     static String description = "FEC file inserted by FROST";
-    
-	private static Logger logger = Logger.getLogger(FcpFECUtils.class.getName());
+
+    private static Logger logger = Logger.getLogger(FcpFECUtils.class.getName());
 
     private InetAddress host;
     private int port;

@@ -1,6 +1,6 @@
 /*
   SearchThread.java / Frost
-  Copyright (C) 2001  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2001  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -31,8 +31,8 @@ import frost.identities.*;
 import frost.messages.*;
 
 class SearchThread extends Thread {
-	private FrostIdentities identities;
-	private static Logger logger = Logger.getLogger(SearchThread.class.getName());
+    private FrostIdentities identities;
+    private static Logger logger = Logger.getLogger(SearchThread.class.getName());
     private String request;
     private String board;
     private String date;
@@ -52,12 +52,12 @@ class SearchThread extends Thread {
     int allFileCount;
     int maxSearchResults;
     private SearchPanel searchPanel = null;
-    
-	private SearchModel model;
-	private DownloadModel downloadModel;
+
+    private SearchModel model;
+    private DownloadModel downloadModel;
     private UploadModel uploadModel;
 
-	private SettingsClass settings;
+    private SettingsClass settings;
 
     /**
      * Splits a String into single parts
@@ -149,103 +149,103 @@ class SearchThread extends Thread {
     return accepted;
     }
 
-	/**
-	 * Removes unwanted keys from results
-	 */
-	private void filterSearchResults() {
-		if (request.indexOf("*age") != -1) {
-			int agePos = request.indexOf("*age");
-			int nextSpacePos = request.indexOf(" ", agePos);
-			if (nextSpacePos == -1)
-				nextSpacePos = request.length();
+    /**
+     * Removes unwanted keys from results
+     */
+    private void filterSearchResults() {
+        if (request.indexOf("*age") != -1) {
+            int agePos = request.indexOf("*age");
+            int nextSpacePos = request.indexOf(" ", agePos);
+            if (nextSpacePos == -1)
+                nextSpacePos = request.length();
 
-			int age = 1;
-			try {
-				age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos));
-			} catch (NumberFormatException e) {
-				logger.warning("Did not recognice age, using default 1.");
-			}
+            int age = 1;
+            try {
+                age = Integer.parseInt(request.substring(agePos + 4, nextSpacePos));
+            } catch (NumberFormatException e) {
+                logger.warning("Did not recognice age, using default 1.");
+            }
 
-			logger.fine("AGE = " + age);
+            logger.fine("AGE = " + age);
 
-			GregorianCalendar today = new GregorianCalendar();
-			today.setTimeZone(TimeZone.getTimeZone("GMT"));
+            GregorianCalendar today = new GregorianCalendar();
+            today.setTimeZone(TimeZone.getTimeZone("GMT"));
 
-			for (int i = results.size() - 1; i >= 0; i--) {
-				SharedFileObject key = (SharedFileObject) results.elementAt(i);
-				GregorianCalendar keyCal = null;
-				if (key.getDate() != null) {
-					keyCal = key.getCal();
+            for (int i = results.size() - 1; i >= 0; i--) {
+                SharedFileObject key = (SharedFileObject) results.elementAt(i);
+                GregorianCalendar keyCal = null;
+                if (key.getDate() != null) {
+                    keyCal = key.getCal();
 
-					keyCal.add(Calendar.DATE, + (age));
+                    keyCal.add(Calendar.DATE, + (age));
 
-					if (keyCal.before(today)) {
-						results.removeElementAt(i);
-						logger.fine("removing because of keyCal");
-					}
-				}
-			}
-		}
+                    if (keyCal.before(today)) {
+                        results.removeElementAt(i);
+                        logger.fine("removing because of keyCal");
+                    }
+                }
+            }
+        }
 
-		boolean hideAnon = settings.getBoolValue("hideAnonFiles");
-		boolean hideBad = settings.getBoolValue("hideBadFiles");
+        boolean hideAnon = settings.getBoolValue("hideAnonFiles");
+        boolean hideBad = settings.getBoolValue("hideBadFiles");
 
-		//check if file anonymous
-		Iterator it = results.iterator();
-		while (it.hasNext()) {
-			SharedFileObject key = (SharedFileObject) it.next();
-			if ((key.getOwner() == null
-				|| (key.getOwner() != null && key.getOwner().compareToIgnoreCase("anonymous") == 0))
-				&& hideAnon) {
-				//	Core.getOut().println("removing anon result");
-				it.remove();
-				continue;
-			}
-			//check if file from someone bad
+        //check if file anonymous
+        Iterator it = results.iterator();
+        while (it.hasNext()) {
+            SharedFileObject key = (SharedFileObject) it.next();
+            if ((key.getOwner() == null
+                || (key.getOwner() != null && key.getOwner().compareToIgnoreCase("anonymous") == 0))
+                && hideAnon) {
+                //  Core.getOut().println("removing anon result");
+                it.remove();
+                continue;
+            }
+            //check if file from someone bad
             Identity id = identities.getIdentity(key.getOwner());
-			if (id != null && 
-                id.getState() == FrostIdentities.ENEMY && 
+            if (id != null &&
+                id.getState() == FrostIdentities.ENEMY &&
                 hideBad) {
-				//Core.getOut().println("removing bad result");
-				it.remove();
-				continue;
-			}
-		}
+                //Core.getOut().println("removing bad result");
+                it.remove();
+                continue;
+            }
+        }
 
-		if (request.indexOf("*-") != -1) {
-			Vector removeStrings = new Vector();
-			int notPos = request.indexOf("*-");
-			int nextSpacePos = request.indexOf(" ", notPos);
-			if (nextSpacePos == -1)
-				nextSpacePos = request.length();
+        if (request.indexOf("*-") != -1) {
+            Vector removeStrings = new Vector();
+            int notPos = request.indexOf("*-");
+            int nextSpacePos = request.indexOf(" ", notPos);
+            if (nextSpacePos == -1)
+                nextSpacePos = request.length();
 
-			String notString = request.substring(notPos + 2, nextSpacePos);
-			if (notString.indexOf(";") == -1) { // only one notString
-				removeStrings.add(notString);
-			} else { //more notStrings
-				while (notString.indexOf(";") != -1) {
-					removeStrings.add(notString.substring(0, notString.indexOf(";")));
-					if (!notString.endsWith(";"))
-						notString =
-							notString.substring(notString.indexOf(";") + 1, notString.length());
-				}
-				if (notString.length() > 0)
-					removeStrings.add(notString);
-			}
+            String notString = request.substring(notPos + 2, nextSpacePos);
+            if (notString.indexOf(";") == -1) { // only one notString
+                removeStrings.add(notString);
+            } else { //more notStrings
+                while (notString.indexOf(";") != -1) {
+                    removeStrings.add(notString.substring(0, notString.indexOf(";")));
+                    if (!notString.endsWith(";"))
+                        notString =
+                            notString.substring(notString.indexOf(";") + 1, notString.length());
+                }
+                if (notString.length() > 0)
+                    removeStrings.add(notString);
+            }
 
-			for (int j = 0; j < removeStrings.size(); j++) {
-				notString = (String) removeStrings.elementAt(j);
-				for (int i = results.size() - 1; i >= 0; i--) {
-					SharedFileObject key = (SharedFileObject) results.elementAt(i);
-					if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase())
-						!= -1) {
-						results.removeElementAt(i);
-					}
-				}
-			}
-		}
-	}
-    
+            for (int j = 0; j < removeStrings.size(); j++) {
+                notString = (String) removeStrings.elementAt(j);
+                for (int i = results.size() - 1; i >= 0; i--) {
+                    SharedFileObject key = (SharedFileObject) results.elementAt(i);
+                    if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase())
+                        != -1) {
+                        results.removeElementAt(i);
+                    }
+                }
+            }
+        }
+    }
+
     /**
      * Filters items by setting of Hide offline, Hide downloaded/downloading.
      * @param state
@@ -256,63 +256,63 @@ class SearchThread extends Thread {
         return true;
     }
 
-	/**
-	 * Displays search results in search table
-	 */
-	private void displaySearchResults(Board board) {
-		for (int i = 0; i < results.size(); i++) {
-			allFileCount++;
+    /**
+     * Displays search results in search table
+     */
+    private void displaySearchResults(Board board) {
+        for (int i = 0; i < results.size(); i++) {
+            allFileCount++;
 
-			if (allFileCount > this.maxSearchResults) {
-				logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
-				return;
-			}
+            if (allFileCount > this.maxSearchResults) {
+                logger.info("NOTE: maxSearchResults reached (" + maxSearchResults + ")!");
+                return;
+            }
 
-			SharedFileObject key = (SharedFileObject) results.elementAt(i);
+            SharedFileObject key = (SharedFileObject) results.elementAt(i);
 
-			String filename = key.getFilename();
-			Long size = key.getSize();
-			String date = key.getDate();
-			String keyData = key.getKey();
-			String SHA1 = key.getSHA1();
+            String filename = key.getFilename();
+            Long size = key.getSize();
+            String date = key.getDate();
+            String keyData = key.getKey();
+            String SHA1 = key.getSHA1();
 
-			if (SHA1 == null) {
-				logger.warning("SHA1 null in SearchThread!!! ");
-			}
+            if (SHA1 == null) {
+                logger.warning("SHA1 null in SearchThread!!! ");
+            }
 
-			int searchItemState = FrostSearchItem.STATE_NONE;
+            int searchItemState = FrostSearchItem.STATE_NONE;
 
-			// Already downloaded files get a nice color outfit (see renderer in SearchTable)
-			File file = new File(settings.getValue("downloadDirectory") + filename);
-			if (file.exists()) {
-				// file is already downloaded -> light_gray
-				searchItemState = FrostSearchItem.STATE_DOWNLOADED;
-			} else if (downloadModel.containsItemWithKey(SHA1)) {
-				// this file is in download table -> blue
-				searchItemState = FrostSearchItem.STATE_DOWNLOADING;
-			} else if (uploadModel.containsItemWithKey(SHA1)) {
-				// this file is in upload table -> green
-				searchItemState = FrostSearchItem.STATE_UPLOADING;
-			} else if (isOffline(key)) {
-				// this file is offline -> gray
-				searchItemState = FrostSearchItem.STATE_OFFLINE;
-			}
+            // Already downloaded files get a nice color outfit (see renderer in SearchTable)
+            File file = new File(settings.getValue("downloadDirectory") + filename);
+            if (file.exists()) {
+                // file is already downloaded -> light_gray
+                searchItemState = FrostSearchItem.STATE_DOWNLOADED;
+            } else if (downloadModel.containsItemWithKey(SHA1)) {
+                // this file is in download table -> blue
+                searchItemState = FrostSearchItem.STATE_DOWNLOADING;
+            } else if (uploadModel.containsItemWithKey(SHA1)) {
+                // this file is in upload table -> green
+                searchItemState = FrostSearchItem.STATE_UPLOADING;
+            } else if (isOffline(key)) {
+                // this file is offline -> gray
+                searchItemState = FrostSearchItem.STATE_OFFLINE;
+            }
 
-			// filter by searchItemState
-			if (filterBySearchItemState(searchItemState) == false) {
-				continue;
-			}
+            // filter by searchItemState
+            if (filterBySearchItemState(searchItemState) == false) {
+                continue;
+            }
 
-			final FrostSearchItem searchItem =
-				new FrostSearchItem(board, key, searchItemState);
+            final FrostSearchItem searchItem =
+                new FrostSearchItem(board, key, searchItemState);
 
-			model.addSearchItem(searchItem);
-		}
-	}
-    
+            model.addSearchItem(searchItem);
+        }
+    }
+
     private boolean isOffline(SharedFileObject key)
     {
-		return !key.isOnline();
+        return !key.isOnline();
     }
 
     public void run()
@@ -353,7 +353,7 @@ class SearchThread extends Thread {
                 results.clear();
             }
         }
-		searchPanel.setSearchEnabled(true);
+        searchPanel.setSearchEnabled(true);
     }
 
     /**Constructor*/
@@ -362,8 +362,8 @@ class SearchThread extends Thread {
             String newSearchType,
             SearchManager searchManager)
     {
-    	identities = searchManager.getIdentities();
-    	settings = searchManager.getSettings();
+        identities = searchManager.getIdentities();
+        settings = searchManager.getSettings();
         request = newRequest.toLowerCase();
         if( request.length() == 0 )
         {
@@ -386,18 +386,18 @@ class SearchThread extends Thread {
         }
         searchPanel = searchManager.getPanel();
     }
-	/**
-	 * @param model
-	 */
-	public void setUploadModel(UploadModel model) {
-		uploadModel = model;
-	}
-	
-	/**
-	 * @param model
-	 */
-	public void setDownloadModel(DownloadModel model) {
-		downloadModel = model;
-	}
+    /**
+     * @param model
+     */
+    public void setUploadModel(UploadModel model) {
+        uploadModel = model;
+    }
+
+    /**
+     * @param model
+     */
+    public void setDownloadModel(DownloadModel model) {
+        downloadModel = model;
+    }
 
 }

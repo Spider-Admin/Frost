@@ -1,6 +1,6 @@
 /*
   XMLTools.java / Frost
-  Copyright (C) 2003  Jan-Thomas Czornack <jantho@users.sourceforge.net>
+  Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
   modify it under the terms of the GNU General Public License as
@@ -33,56 +33,56 @@ import org.xml.sax.SAXException;
  */
 public class XMLTools {
 
-	private static Logger logger = Logger.getLogger(XMLTools.class.getName());
-	
-	private static DocumentBuilderFactory validatingFactory = DocumentBuilderFactory.newInstance();
-	private static DocumentBuilderFactory nonValidatingFactory = DocumentBuilderFactory.newInstance();
-	
-	{
-		validatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
-		validatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
-		validatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
-		validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
-		validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
-		validatingFactory.setValidating(true);
-		
-		nonValidatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
-		nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
-		nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
-		nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
-		nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
-		nonValidatingFactory.setValidating(false);
-	}
-	
-	/**
-	 * creates a document containing a single element - the one 
-	 * returned by getXMLElement of the argument
-	 * @param element the object that will be contained by the document
-	 * @return the document
-	 */
-	public static Document getXMLDocument(XMLizable element) {
-		Document doc = createDomDocument();
-		doc.appendChild(element.getXMLElement(doc));
-		return doc;
-	}
-	
+    private static Logger logger = Logger.getLogger(XMLTools.class.getName());
+
+    private static DocumentBuilderFactory validatingFactory = DocumentBuilderFactory.newInstance();
+    private static DocumentBuilderFactory nonValidatingFactory = DocumentBuilderFactory.newInstance();
+
+    {
+        validatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
+        validatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
+        validatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
+        validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
+        validatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
+        validatingFactory.setValidating(true);
+
+        nonValidatingFactory.setAttribute("http://apache.org/xml/features/disallow-doctype-decl", new Boolean(true));
+        nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-general-entities",new Boolean(false));
+        nonValidatingFactory.setAttribute("http://xml.org/sax/features/external-parameter-entities",new Boolean(false));
+        nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-dtd-grammar",new Boolean(false));
+        nonValidatingFactory.setAttribute("http://apache.org/xml/features/nonvalidating/load-external-dtd",new Boolean(false));
+        nonValidatingFactory.setValidating(false);
+    }
+
+    /**
+     * creates a document containing a single element - the one
+     * returned by getXMLElement of the argument
+     * @param element the object that will be contained by the document
+     * @return the document
+     */
+    public static Document getXMLDocument(XMLizable element) {
+        Document doc = createDomDocument();
+        doc.appendChild(element.getXMLElement(doc));
+        return doc;
+    }
+
     /**
      * Serializes the XML into a byte array.
      */
-	public static byte [] getRawXMLDocument (XMLizable element) {
-		Document doc = getXMLDocument(element);
+    public static byte [] getRawXMLDocument (XMLizable element) {
+        Document doc = getXMLDocument(element);
         File tmp = getXmlTempFile();
-		byte [] result=null;
-		try {
-    		writeXmlFile(doc, tmp.getPath());
-    		result = FileAccess.readByteArray(tmp);
-		} catch (Throwable t) {
-			logger.log(Level.SEVERE, "Exception thrown in getRawXMLDocument(XMLizable element)", t);
-		}
+        byte [] result=null;
+        try {
+            writeXmlFile(doc, tmp.getPath());
+            result = FileAccess.readByteArray(tmp);
+        } catch (Throwable t) {
+            logger.log(Level.SEVERE, "Exception thrown in getRawXMLDocument(XMLizable element)", t);
+        }
         tmp.delete();
-		return result;
-	}
-    
+        return result;
+    }
+
     /**
      * Returns the parsed Document for the given xml content.
      * @param content  xml data
@@ -111,84 +111,84 @@ public class XMLTools {
     {
         return parseXmlFile(new File(filename), validating);
     }
-    
-	/**
-	 * Parses an XML file and returns a DOM document.
-	 * If validating is true, the contents is validated against the DTD
-	 * specified in the file.
-	 */
-	public static Document parseXmlFile(File file, boolean validating)
-		throws IllegalArgumentException {
-		try {
-			DocumentBuilder builder;
-			if (validating) {
-				synchronized (validatingFactory) {
-					builder = validatingFactory.newDocumentBuilder();
-				}
-			} else {
-				synchronized (nonValidatingFactory) {
-					builder = nonValidatingFactory.newDocumentBuilder();
-				}
-			}
-			return builder.parse(file);
-		} catch (SAXException e) {
-			// A parsing error occurred; the xml input is not valid
-			logger.log(
-				Level.SEVERE,
-				"Parsing of xml file failed (send badfile.xml to a dev for analysis) - " +
-				"File name: '" + file.getName() + "'",
-				e);
-			file.renameTo(new File("badfile.xml"));
-			throw new IllegalArgumentException();
-		} catch (ParserConfigurationException e) {
-			logger.log(
-				Level.SEVERE,
-				"Exception thrown in parseXmlFile(File file, boolean validating) - " + 
-				"File name: '" + file.getName() + "'", 
-				e);
-		} catch (IOException e) {
-			logger.log(
-				Level.SEVERE,
-				"Exception thrown in parseXmlFile(File file, boolean validating) - " + 
-				"File name: '" + file.getName() + "'",
-				e);
-		}
-		return null;
-	}
 
-	/**
-	 * This method writes a DOM document to a file.
-	 */
-	public static boolean writeXmlFile(Document doc, String filename) {
-		try {
-			OutputFormat format = new OutputFormat(doc, "UTF-8", false);
-			format.setLineSeparator(LineSeparator.Windows);
-			//format.setIndenting(true);
-			format.setLineWidth(0);
-			format.setPreserveSpace(true);
-			OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-8");
-			XMLSerializer serializer = new XMLSerializer(writer, format);
-			serializer.asDOMSerializer();
-			serializer.serialize(doc);
-			writer.close(); //this also flushes
-			return true;
-		} catch (Exception ex) {
-			logger.log(Level.SEVERE, "Exception thrown in writeXmlFile(Document doc, String filename)", ex);
-		}
-		return false;
-	}
+    /**
+     * Parses an XML file and returns a DOM document.
+     * If validating is true, the contents is validated against the DTD
+     * specified in the file.
+     */
+    public static Document parseXmlFile(File file, boolean validating)
+        throws IllegalArgumentException {
+        try {
+            DocumentBuilder builder;
+            if (validating) {
+                synchronized (validatingFactory) {
+                    builder = validatingFactory.newDocumentBuilder();
+                }
+            } else {
+                synchronized (nonValidatingFactory) {
+                    builder = nonValidatingFactory.newDocumentBuilder();
+                }
+            }
+            return builder.parse(file);
+        } catch (SAXException e) {
+            // A parsing error occurred; the xml input is not valid
+            logger.log(
+                Level.SEVERE,
+                "Parsing of xml file failed (send badfile.xml to a dev for analysis) - " +
+                "File name: '" + file.getName() + "'",
+                e);
+            file.renameTo(new File("badfile.xml"));
+            throw new IllegalArgumentException();
+        } catch (ParserConfigurationException e) {
+            logger.log(
+                Level.SEVERE,
+                "Exception thrown in parseXmlFile(File file, boolean validating) - " +
+                "File name: '" + file.getName() + "'",
+                e);
+        } catch (IOException e) {
+            logger.log(
+                Level.SEVERE,
+                "Exception thrown in parseXmlFile(File file, boolean validating) - " +
+                "File name: '" + file.getName() + "'",
+                e);
+        }
+        return null;
+    }
+
+    /**
+     * This method writes a DOM document to a file.
+     */
+    public static boolean writeXmlFile(Document doc, String filename) {
+        try {
+            OutputFormat format = new OutputFormat(doc, "UTF-8", false);
+            format.setLineSeparator(LineSeparator.Windows);
+            //format.setIndenting(true);
+            format.setLineWidth(0);
+            format.setPreserveSpace(true);
+            OutputStreamWriter writer = new OutputStreamWriter(new FileOutputStream(filename), "UTF-8");
+            XMLSerializer serializer = new XMLSerializer(writer, format);
+            serializer.asDOMSerializer();
+            serializer.serialize(doc);
+            writer.close(); //this also flushes
+            return true;
+        } catch (Exception ex) {
+            logger.log(Level.SEVERE, "Exception thrown in writeXmlFile(Document doc, String filename)", ex);
+        }
+        return false;
+    }
 
     /**
      * This method creates a new DOM document.
      */
     public static Document createDomDocument() {
-        
+
         try {
             DocumentBuilder builder = DocumentBuilderFactory.newInstance().newDocumentBuilder();
             Document doc = builder.newDocument();
             return doc;
         } catch (ParserConfigurationException e) {
-			logger.log(Level.SEVERE, "Exception thrown in createDomDocument()", e);
+            logger.log(Level.SEVERE, "Exception thrown in createDomDocument()", e);
         }
         return null;
     }
@@ -215,7 +215,7 @@ public class XMLTools {
      * Returns a list containing all Elements of this parent with given tag name.
      */
     public static ArrayList getChildElementsByTagName(Element parent, String name) {
-        
+
         ArrayList newList = new ArrayList();
 
         NodeList childs = parent.getChildNodes();
@@ -239,7 +239,7 @@ public class XMLTools {
      *     text
      */
     public static String getChildElementsTextValue( Element parent, String childname ) {
-        
+
         ArrayList nodes = getChildElementsByTagName( parent, childname );
         if( nodes.size() == 0 ) {
             return null;
@@ -255,7 +255,7 @@ public class XMLTools {
      * Gets the Element by name from parent and extracts the CDATASection child node.
      */
     public static String getChildElementsCDATAValue( Element parent, String childname ) {
-        
+
         ArrayList nodes = getChildElementsByTagName( parent, childname );
         if( nodes.size() == 0 ) {
             return null;
@@ -269,12 +269,12 @@ public class XMLTools {
 
     /**
      * create a proper temp file (deleted on VM emergency exit).
-     */ 
+     */
     private static File getXmlTempFile() {
         File tmp = null;
         try {
-            tmp = File.createTempFile("xmltools_", 
-                                      ".tmp", 
+            tmp = File.createTempFile("xmltools_",
+                                      ".tmp",
                                       new File(MainFrame.frostSettings.getValue("temp.dir")));
         } catch(Exception ex) {
             // this should never happen, but for the case ...
