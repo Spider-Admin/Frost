@@ -1,5 +1,5 @@
 /*
- HelpBrowser.java
+ HelpBrowser.java / Frost
  Copyright (C) 2006  Jan-Thomas Czornack <jantho@users.sourceforge.net>
  
  This program is free software; you can redistribute it and/or

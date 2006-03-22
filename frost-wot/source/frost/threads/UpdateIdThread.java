@@ -553,9 +553,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             loadSlotsFile(date);
         }
 
-        /**
-         * Generates a new index file containing keys to upload.
-         */
         private void loadSlotsFile(String loadDate) {
 
             if( slotsFile.isFile() ) {
@@ -616,7 +613,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                 PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(slotsFile)));
                 for (int i=0; i < slots.size(); i++) {
                     Integer current = (Integer)slots.elementAt(i);
-                    out.println(""+current.intValue());
+                    out.println(current.toString());
                 }
                 out.flush();
                 out.close();
