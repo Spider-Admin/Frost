@@ -409,10 +409,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 				}
 			}
 		} catch (IOException ex) {
-			logger.log(
-				Level.SEVERE,
-				"ERROR: MessageUploadThread.run(): unexpected IOException, terminating thread ...",
-				ex);
+			logger.log(Level.SEVERE,"ERROR: Unexpected IOException, terminating thread ...",ex);
 //		} catch (MessageAlreadyUploadedException exception) {
 //			logger.info("The message had already been uploaded. Therefore it will not be uploaded again.");
 //			messageFile.delete();
@@ -506,14 +503,16 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 				logger.fine("attaching redirect to file " + attachment.getFile().getName());
 
 				FecSplitfile splitFile = new FecSplitfile(attachment.getFile());
-				if (!splitFile.uploadInit())
+				if (!splitFile.uploadInit()) {
 					throw new Error("file was just uploaded, but .redirect missing!");
+                }
 
 				((FECRedirectFileObject) attachment).setRedirect(
 					new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
 				splitFile.finishUpload(true);
-			} else
+			} else {
 				logger.fine("not attaching redirect");
+            }
 
 			attachment.setFile(null); // we never want to give out a real pathname, this is paranoia
 			return true;
@@ -664,7 +663,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         boolean retrySameIndex = false;
         File lockRequestIndex = null;
         
-        String upKey = null;
+        String logInfo = null;
         
         while (!success) {
 
@@ -699,7 +698,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             String[] result = new String[2];
 
             try {
-                upKey = composeUpKey(index);
+                String upKey = composeUpKey(index);
+                logInfo = " board="+board.getName()+", key="+upKey;
                 // signMetadata is null for unsigned upload. Do not do redirect.
                 result = FcpInsert.putFile(
                         upKey, 
@@ -709,7 +709,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         false,  // doRedirect
                         false); // removeLocalKey, we want a KeyCollision if key does already exist in local store!
             } catch (Throwable t) {
-                logger.log(Level.SEVERE, "TOFUP: Error in run()/FcpInsert.putFile", t);
+                logger.log(Level.SEVERE, "TOFUP: Error in FcpInsert.putFile."+logInfo, t);
             }
 
             if (result == null || result[0] == null || result[1] == null) {
@@ -731,17 +731,17 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         break;
                     } else {
                         logger.severe("TOFUP: Uploaded message could NOT be retrieved! "+
-                                "Download try "+dlTries+" of "+maxTries+"\nkey="+upKey);
+                                "Download try "+dlTries+" of "+maxTries+"\n"+logInfo);
                         dlTries++;
                     }
                 }
                 
                 if( tmpFile.length() > 0 ) {
-                    logger.warning("TOFUP: Uploaded message was successfully retrieved, key="+upKey);
+                    logger.warning("TOFUP: Uploaded message was successfully retrieved."+logInfo);
                     success = true;
                 } else {
-                    logger.severe("TOFUP: Uploaded message could NOT be retrieved!\nkey="+upKey+"\n Retrying upload. "+
-                            "(try no. " + tries + " of " + maxTries + "), retrying index " + index);
+                    logger.severe("TOFUP: Uploaded message could NOT be retrieved!\n"+logInfo+
+                            "\n(try no. " + tries + " of " + maxTries + "), retrying index " + index);
                     tries++;
                     retrySameIndex = true;
                 }
@@ -749,11 +749,11 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             } else {
                 if (result[0].equals("KeyCollision")) {
                     if (checkRemoteFile(index)) {
-                        logger.warning("TOFUP: Message seems to be already uploaded (2), key="+upKey);
+                        logger.warning("TOFUP: Message seems to be already uploaded (2)."+logInfo);
                         success = true;
                     } else {
                         index++;
-                        logger.warning("TOFUP: Upload collided, increasing index to " + index+"\ncolliding key="+upKey);
+                        logger.warning("TOFUP: Upload collided, increasing index to " + index+"."+logInfo);
                         Mixed.wait(10000);
                     }
                 } else {
@@ -761,7 +761,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         success = true;
                         error = true;
                     } else {
-                        logger.warning("TOFUP: Upload failed, key="+upKey+"\n(try no. " + tries + " of " + maxTries
+                        logger.warning("TOFUP: Upload failed, "+logInfo+"\n(try no. " + tries + " of " + maxTries
                                 + "), retrying index " + index);
                         tries++;
                         retrySameIndex = true;
@@ -777,8 +777,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
         if (!error) {
             logger.info("*********************************************************************\n"
-                    + "Message successfully uploaded to board '" + board.getName() + "'.\n"
-                    + " key="+upKey+"\n"
+                    + "Message successfully uploaded."+logInfo+"\n"
                     + "*********************************************************************");
 
             tryAgain = false;
