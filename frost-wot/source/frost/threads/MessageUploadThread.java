@@ -170,28 +170,26 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             remoteFile.delete(); // just in case it already exists
             remoteFile.deleteOnExit(); // so that it is deleted when Frost exits
 
-            downloadMessage(index, remoteFile);
-
-            if (remoteFile.length() > 0) {
-                if( encryptForRecipient != null ) {
-                    // we compare the local encrypted zipFile with remoteFile
-                    boolean isEqual = FileAccess.compareFiles(zipFile, remoteFile);
-                    remoteFile.delete();
-                    return isEqual;
-                } else {
-                    // compare contents
-                    byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
-                    if(unzippedXml == null) {
-                        return false;
-                    }
-                    FileAccess.writeFile(unzippedXml, remoteFile);
-                    boolean isEqual = checkLocalMessage(remoteFile);
-                    remoteFile.delete();
-                    return isEqual;
-                }
-            } else {
+            if( !downloadMessage(index, remoteFile) ) {
                 remoteFile.delete();
                 return false; // We could not retrieve the remote file. We assume they are different.
+            }
+
+            if( encryptForRecipient != null ) {
+                // we compare the local encrypted zipFile with remoteFile
+                boolean isEqual = FileAccess.compareFiles(zipFile, remoteFile);
+                remoteFile.delete();
+                return isEqual;
+            } else {
+                // compare contents
+                byte[] unzippedXml = FileAccess.readZipFileBinary(remoteFile);
+                if(unzippedXml == null) {
+                    return false;
+                }
+                FileAccess.writeFile(unzippedXml, remoteFile);
+                boolean isEqual = checkLocalMessage(remoteFile);
+                remoteFile.delete();
+                return isEqual;
             }
         } catch (Throwable e) {
             logger.log(Level.WARNING, "Handled exception in checkRemoteFile", e);
@@ -199,9 +197,17 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
         }
     }
 
-    private void downloadMessage(int index, File targetFile) {
-        String downKey = composeDownKey(index);
-        FcpRequest.getFile(downKey, null, targetFile, messageUploadHtl, false, false);
+    private boolean downloadMessage(int index, File targetFile) {
+        try {
+            String downKey = composeDownKey(index);
+            FcpResults res = FcpRequest.getFile(downKey, null, targetFile, messageUploadHtl, false, false);
+            if( res != null && targetFile.length() > 0 ) {
+                return true;
+            }
+        } catch(Throwable t) {
+            logger.log(Level.WARNING, "Handled exception in downloadMessage", t);
+        }
+        return false;
     }
 
     /**
@@ -726,8 +732,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 while(dlTries < maxTries) {
                     Mixed.wait(10000);
                     tmpFile.delete(); // just in case it already exists
-                    downloadMessage(index, tmpFile);
-                    if( tmpFile.length() > 0 ) {
+                    if( downloadMessage(index, tmpFile) ) {
                         break;
                     } else {
                         logger.severe("TOFUP: Uploaded message could NOT be retrieved! "+
