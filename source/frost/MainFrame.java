@@ -702,6 +702,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     //dlg.setVisible(true);
                 }
             });
+            
+            if( CheckHtmlIntegrity.isHtmlSecure() == false ) {
+                helpHelpMenuItem.setEnabled(false);
+            }
+            
             helpAboutMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     helpAboutMenuItem_actionPerformed(e);

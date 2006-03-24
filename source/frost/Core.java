@@ -36,6 +36,7 @@ import frost.ext.*;
 import frost.fcp.*;
 import frost.fileTransfer.*;
 import frost.gui.*;
+import frost.gui.help.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
@@ -568,6 +569,9 @@ public class Core implements Savable, FrostEventDispatcher  {
         if (!initializeConnectivity()) {
             System.exit(1);
         }
+        
+        // check if help.zip contains only secure files (no http or ftp links at all)
+        CheckHtmlIntegrity.scanZipFile("help/help.zip");
 
         // TODO: one time convert, remove later (added: 2005-09-02)
 
@@ -617,7 +621,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         getIdentities().initialize(freenetIsOnline);
 
-        // TODO: maybe make this configureable in optionsdialog for the paranoic people?
+        // TODO: maybe make this configureable in options dialog for the paranoic people?
         String title;
         if( frostSettings.getBoolValue("mainframe.showSimpleTitle") == false ) {
             title = "Frost - " + getIdentities().getMyId().getUniqueName();
