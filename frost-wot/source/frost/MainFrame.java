@@ -184,7 +184,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private JMenuItem helpAboutMenuItem = new JMenuItem();
     private JMenuItem helpHelpMenuItem = new JMenuItem();
-    private JMenuItem helpMemMonMenuItem = new JMenuItem("Show memory monitor");
+    private JMenuItem helpMemMonMenuItem = new JMenuItem();
 
     //Help Menu
     private JMenu helpMenu = new JMenu();
@@ -695,7 +695,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             });
 
             helpHelpMenuItem.setIcon(miscToolkit.getScaledImage("/data/help.png", 16, 16));
-
             helpHelpMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     showHtmlHelp("index.html");
@@ -708,6 +707,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     helpAboutMenuItem_actionPerformed(e);
                 }
             });
+            
+            helpMemMonMenuItem.setIcon(miscToolkit.getScaledImage("/data/memmon.png", 16, 16));
             helpMemMonMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     getMemoryMonitor().showDialog();
@@ -869,7 +870,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private void fileExitMenuItem_actionPerformed(ActionEvent e) {
 
         // TODO: move to saveable???
-        // TODO: save msg table column sizes!!!
 
         // save size,location and state of window
         Rectangle bounds = getBounds();
@@ -1305,6 +1305,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         languageBulgarianMenuItem.setText(language.getString("Bulgarian"));
         languageRussianMenuItem.setText(language.getString("Russian"));
         helpMenu.setText(language.getString("Help"));
+        helpMemMonMenuItem.setText(language.getString("Show memory monitor"));
         helpHelpMenuItem.setText(language.getString("Help"));
         helpAboutMenuItem.setText(language.getString("About"));
     }

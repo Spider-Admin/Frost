@@ -66,6 +66,8 @@ public class MemoryMonitor extends JPanel {
             dialog.add(this);
             dialog.setSize(225,130);
             dialog.setTitle("Frost Memory Monitor");
+            ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/memmon.png"));
+            dialog.setIconImage(frameIcon.getImage());
             dialog.addWindowListener(new WindowAdapter() {
                 public void windowClosing(WindowEvent e) {
                     surf.stop();
