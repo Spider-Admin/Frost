@@ -359,7 +359,7 @@ Build log  : ${logfilename}</echo>
   <target name="helpzip" description="--> build the help.zip">
 	<delete quiet="true" file="${helpbin.dir}/help.zip"/>
 	<zip destfile="${helpbin.dir}/help.zip">
-		<zipfileset dir="${helpsrc.dir}" excludes=".* **/CVS/*"/>
+		<zipfileset dir="${helpsrc.dir}" excludes="/**/CVS/*"/>
     	</zip>
   </target>
 	

@@ -70,6 +70,7 @@ public class LangRes extends ListResourceBundle {
 	{"Public key","Public key"},
 	{"Not available","Not available"},
     {"Error", "Error"}, // error dialog title
+    {"Show memory monitor", "Show memory monitor"},
 
 	///////////////////////////////////////////////////
 	// Splash messages
