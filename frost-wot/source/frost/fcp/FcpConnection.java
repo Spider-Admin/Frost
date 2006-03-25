@@ -59,11 +59,7 @@ public class FcpConnection
      * to the FCP host.
      */
     public FcpConnection() throws UnknownHostException, IOException, FcpToolsException {
-        this("127.0.0.1", 8481);
-    }
-
-    public FcpConnection(String host, String port) throws UnknownHostException, IOException, FcpToolsException {
-        this(host, Integer.parseInt(port));
+        this(InetAddress.getByName("127.0.0.1"), 8481);
     }
 
     /**
@@ -75,8 +71,8 @@ public class FcpConnection
      * @exception IOException if there is a problem with the connection
      * to the FCP host.
      */
-    public FcpConnection(String host, int port) throws UnknownHostException, IOException, FcpToolsException {
-        this.host = InetAddress.getByName(host);
+    public FcpConnection(InetAddress host, int port) throws UnknownHostException, IOException, FcpToolsException {
+        this.host = host;
         this.port = port;
 
         doHandshake();
