@@ -97,7 +97,7 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
     
     	HelpHTMLDocument doc = new HelpHTMLDocument(url_prefix, ss);
     	doc.setParser(getParser());
-    	doc.setAsynchronousLoadPriority(-1); // -1 means syncron, else somthing auround 5? 
+    	doc.setAsynchronousLoadPriority(4); // -1 means syncron, else somthing auround 5? 
     	doc.setTokenThreshold(100);
     	return doc;
     }
