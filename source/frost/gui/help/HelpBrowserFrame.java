@@ -48,6 +48,7 @@ public class HelpBrowserFrame extends JFrame {
     protected void processWindowEvent(WindowEvent e) {
         if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
             if( !plugin ) {
+                dispose();
                 System.exit(0);
             } else {
                 saveWindowState();
@@ -69,7 +70,6 @@ public class HelpBrowserFrame extends JFrame {
      * Complete for browser usage
      */
     public HelpBrowserFrame(String langlocale, String zipfile, String startpage, boolean plugin) {
-      
         this.plugin = plugin;
 
         this.browser = new HelpBrowser(this, langlocale, zipfile, startpage);
