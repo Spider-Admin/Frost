@@ -210,17 +210,17 @@ public class HelpBrowser extends JPanel {
  */
         // TODO: - internationalisierung ueberarbeiten, sowas geht schoener
         //       - datum/zeit bei intl beruecksichtigen
-        
-        try {
-            editorPane.setPage(url_prefix + url_locale + url);
-        } catch (IOException e) {
-            logger.log(Level.INFO, "Help: Missing translation '" + url_locale + "' for: " + url);
+        //  temporaer aus fürs release
+   //     try {
+   //         editorPane.setPage(url_prefix + url_locale + url);
+   //     } catch (IOException e) {
+   //         logger.log(Level.INFO, "Help: Missing translation '" + url_locale + "' for: " + url);
             try {
                 editorPane.setPage(url_prefix + url);
             } catch (IOException e1) {
-                logger.log(Level.INFO, "Help: Missing file: " + url);
+                logger.log(Level.INFO, "HELP: Missing file: '" + url + "'");
             }
-        }
+   //     }
     }
 
     void hyperlink_actionPerformed(HyperlinkEvent e) {
