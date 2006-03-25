@@ -21,6 +21,7 @@ package frost.gui.help;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
+import java.util.ArrayList;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -34,8 +35,11 @@ import javax.swing.event.*;
 public class HelpBrowser extends JPanel {
 
     private static Logger logger = Logger.getLogger(HelpBrowser.class.getName());
+    
+    private ArrayList history = null;
+    private int historypos = -1; // this means history ist invalid
 
-//    private String last_url;
+   // private String last_url;
     private String url_prefix;
     private String url_locale;
     private String homePage;
@@ -45,14 +49,14 @@ public class HelpBrowser extends JPanel {
     // GUI Objects
     JPanel contentPanel;
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
- //   JButton backButton = new JButton(new ImageIcon(this.getClass().getResource("/data/back.png")));
+    JButton backButton = new JButton(new ImageIcon(this.getClass().getResource("/data/back.png")));
     JButton homeButton = new JButton(new ImageIcon(this.getClass().getResource("/data/gohome.png")));
- //   JButton forwardButton = new JButton(new ImageIcon(this.getClass().getResource("/data/forward.png")));
+    JButton forwardButton = new JButton(new ImageIcon(this.getClass().getResource("/data/forward.png")));
    // JButton addPageButton = new JButton(new ImageIcon(this.getClass().getResource("/data/bookmark_add.png")));
 
     JEditorPane editorPane = new JEditorPane();
 
- //   JComboBox urlComboBox = new JComboBox();
+  //  JComboBox urlComboBox = new JComboBox();
  //   JComboBox favComboBox = new JComboBox();
 
     JScrollPane scrollPane = new JScrollPane(editorPane);
@@ -60,6 +64,10 @@ public class HelpBrowser extends JPanel {
  //   JSplitPane splitPane = new JSplitPane();
 
     private void init() {
+      
+        // history init
+      
+      history = new ArrayList();
 
    //     editorPane.setEditorKit(new HelpHTMLEditorKit(url_prefix));
    //     urlComboBox.setEditable(true);
@@ -71,13 +79,13 @@ public class HelpBrowser extends JPanel {
             }
         });
 
-   /*     // backButton Action Listener
+        // backButton Action Listener
         backButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int i = urlComboBox.getSelectedIndex();
-                if( i > 0 ) {
-                    i--;
-                    urlComboBox.setSelectedIndex(i);
+              if (historypos > 0) {
+                historypos--;
+                setHelpPage((String)history.get(historypos));
+                historypos--;
                 }
             }
         });
@@ -85,14 +93,12 @@ public class HelpBrowser extends JPanel {
         // forwardButton Action Listener
         forwardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-                int i = urlComboBox.getSelectedIndex();
-                if( i < urlComboBox.getItemCount() - 1 ) {
-                    i++;
-                    urlComboBox.setSelectedIndex(i);
+              if (historypos < (history.size()-1)) {
+                    setHelpPage((String)history.get(historypos+1));
                 }
             }
         });
-
+/*
         // addPageButton Action Listener
         addPageButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -113,14 +119,14 @@ public class HelpBrowser extends JPanel {
         });
 
         // removePageButton Action Listener
-        //removePageButton.addActionListener(new java.awt.event.ActionListener() {
-        //      public void actionPerformed(ActionEvent e) {
-        //          favComboBox.removeItem(editorPane.getPage().toString());
+          removePageButton.addActionListener(new java.awt.event.ActionListener() {
+              public void actionPerformed(ActionEvent e) {
+                  favComboBox.removeItem(editorPane.getPage().toString());
         //writeSettings(new File("browser.ini"));
-        //      }
-        //    });
+              }
+            });
 
-    
+   
         // urlComboBox Action Listener
         urlComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -145,9 +151,9 @@ public class HelpBrowser extends JPanel {
         contentPanel = this;
         contentPanel.setLayout(new BorderLayout());
 
-      //  buttonPanel.add(backButton);
+        buttonPanel.add(backButton);
         buttonPanel.add(homeButton);
-      //  buttonPanel.add(forwardButton);
+        buttonPanel.add(forwardButton);
 
       //  buttonPanel.add(addPageButton);
       //  buttonPanel.add(favComboBox);
@@ -155,7 +161,8 @@ public class HelpBrowser extends JPanel {
         editorPane.setEditable(false);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
         contentPanel.add(buttonPanel, BorderLayout.NORTH);
-    //    contentPanel.add(urlComboBox, BorderLayout.SOUTH);
+   
+      //  contentPanel.add(urlComboBox, BorderLayout.SOUTH);
 
         //readSettings(new File("browser.ini"));
 
@@ -182,11 +189,15 @@ public class HelpBrowser extends JPanel {
         if( url == null ) {
             url = homePage;
         }
+        
+        if (historypos < 10) {   // Fixme maxhistorylistitemcount
+        
+        history.add(url);
+        historypos++; 
+        }
 
         if( url.startsWith(url_prefix) ) {
-            // System.out.println("Bum02:" + url_prefix.length());
             url = url.substring(url_prefix.length());
-            // System.out.println("Bum03:" + url);
         }
 
 //        last_url = url;
