@@ -6,12 +6,12 @@
  modify it under the terms of the GNU General Public License as
  published by the Free Software Foundation; either version 2 of
  the License, or (at your option) any later version.
-
+ 
  This program is distributed in the hope that it will be useful,
  but WITHOUT ANY WARRANTY; without even the implied warranty of
  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
  General Public License for more details.
-
+ 
  You should have received a copy of the GNU General Public License
  along with this program; if not, write to the Free Software
  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
@@ -25,11 +25,13 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
+import javax.swing.text.*;
 import javax.swing.text.html.*;
 
 /**
  * Browser Component
  * @author Jantho
+ * modified by notitaccu
  */
 public class HelpBrowser extends JPanel {
 
@@ -38,30 +40,31 @@ public class HelpBrowser extends JPanel {
     private String last_url;
     private String url_prefix;
     private String url_locale;
-
+    private String homePage;
+    
     // Global Variables
     JFrame parent;
     // GUI Objects
     JPanel contentPanel;
     JPanel buttonPanel = new JPanel(new FlowLayout(FlowLayout.LEFT));
-    JButton backButton = new JButton(new ImageIcon(this.getClass().getResource("/data/back.png")));
+ //   JButton backButton = new JButton(new ImageIcon(this.getClass().getResource("/data/back.png")));
     JButton homeButton = new JButton(new ImageIcon(this.getClass().getResource("/data/gohome.png")));
-    JButton forwardButton = new JButton(new ImageIcon(this.getClass().getResource("/data/forward.png")));
-    JButton addPageButton = new JButton(new ImageIcon(this.getClass().getResource("/data/bookmark_add.png")));
+ //   JButton forwardButton = new JButton(new ImageIcon(this.getClass().getResource("/data/forward.png")));
+   // JButton addPageButton = new JButton(new ImageIcon(this.getClass().getResource("/data/bookmark_add.png")));
 
     JEditorPane editorPane = new JEditorPane();
 
-    JComboBox urlComboBox = new JComboBox();
-    JComboBox favComboBox = new JComboBox();
+ //   JComboBox urlComboBox = new JComboBox();
+ //   JComboBox favComboBox = new JComboBox();
 
     JScrollPane scrollPane = new JScrollPane(editorPane);
 
-    JSplitPane splitPane = new JSplitPane();
+ //   JSplitPane splitPane = new JSplitPane();
 
     private void init() {
 
-        editorPane.setEditorKit(new HelpHTMLEditorKit());
-        urlComboBox.setEditable(true);
+   //     editorPane.setEditorKit(new HelpHTMLEditorKit(url_prefix));
+   //     urlComboBox.setEditable(true);
 
         // Browser Link Listener
         editorPane.addHyperlinkListener(new HyperlinkListener() {
@@ -70,7 +73,7 @@ public class HelpBrowser extends JPanel {
             }
         });
 
-        // backButton Action Listener
+   /*     // backButton Action Listener
         backButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
                 int i = urlComboBox.getSelectedIndex();
@@ -89,13 +92,6 @@ public class HelpBrowser extends JPanel {
                     i++;
                     urlComboBox.setSelectedIndex(i);
                 }
-            }
-        });
-
-        // homeButton Action Listener
-        homeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                setHelpPage("index.html");
             }
         });
 
@@ -126,6 +122,7 @@ public class HelpBrowser extends JPanel {
         //      }
         //    });
 
+    
         // urlComboBox Action Listener
         urlComboBox.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -139,25 +136,32 @@ public class HelpBrowser extends JPanel {
                 setHelpPage((String) favComboBox.getSelectedItem());
             }
         });
+*/
+        // homeButton Action Listener
+        homeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                setHelpPage(homePage);
+            }
+        });
 
         contentPanel = this;
         contentPanel.setLayout(new BorderLayout());
 
-        buttonPanel.add(backButton);
+      //  buttonPanel.add(backButton);
         buttonPanel.add(homeButton);
-        buttonPanel.add(forwardButton);
+      //  buttonPanel.add(forwardButton);
 
-        buttonPanel.add(addPageButton);
-        buttonPanel.add(favComboBox);
+      //  buttonPanel.add(addPageButton);
+      //  buttonPanel.add(favComboBox);
 
         editorPane.setEditable(false);
         contentPanel.add(scrollPane, BorderLayout.CENTER);
         contentPanel.add(buttonPanel, BorderLayout.NORTH);
-        contentPanel.add(urlComboBox, BorderLayout.SOUTH);
+    //    contentPanel.add(urlComboBox, BorderLayout.SOUTH);
 
         //readSettings(new File("browser.ini"));
 
-        setHelpPage("index.html");
+        setHelpPage(homePage);
     }
 
     /*
@@ -165,21 +169,27 @@ public class HelpBrowser extends JPanel {
      String html = new String();
      html = "<html><body>Start<HR>";
      for (int i = 0; i < favComboBox.getItemCount(); i++) {
-     html = html + "<a href=\"" + (String)favComboBox.getItemAt(i) + "\">" +
+     html = html + "<a href=\"" + (String)favComboBox.getItemAt(i) + "\">" + 
      (String)favComboBox.getItemAt(i) + "</a><br>";
-     }
-
+     }           
+     
      html = html + "</body></html>";
      return html;
      }
      */
     void setHelpPage(String url) {
-
+      
+      
+       editorPane.setEditorKit(new HelpHTMLEditorKit(url_prefix));
+      
+       
+        
         if( url == null ) {
-            url = "index.html";
+            url = homePage;
         }
-        //System.out.println("Bum01:" + url);
-        //System.out.println("Bum01:" + url_prefix);
+        
+        // 
+        
         if( url.startsWith(url_prefix) ) {
             //System.out.println("Bum02:" + url_prefix.length());
             url = url.substring(url_prefix.length());
@@ -187,7 +197,7 @@ public class HelpBrowser extends JPanel {
         }
 
         last_url = url;
-
+/*
         // Add url to urlComboBox
         boolean exists = false;
         for( int i = 0; i < urlComboBox.getItemCount(); i++ ) {
@@ -206,7 +216,10 @@ public class HelpBrowser extends JPanel {
             urlComboBox.insertItemAt(url, i);
             urlComboBox.setSelectedItem(url);
         }
-
+*/
+        // TODO: - internationalisierung ueberarbeiten, sowas geht schoener
+        //       - datum/zeit bei intl beruecksichtigen
+        
         try {
             editorPane.setPage(url_prefix + url_locale + url);
         } catch (IOException e) {
@@ -232,26 +245,28 @@ public class HelpBrowser extends JPanel {
 
         if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
             JEditorPane pane = (JEditorPane) e.getSource();
-            if( e instanceof HTMLFrameHyperlinkEvent ) {
+       /*     if( e instanceof HTMLFrameHyperlinkEvent ) {
                 HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
                 HTMLDocument doc = (HTMLDocument) pane.getDocument();
                 doc.processHTMLFrameHyperlinkEvent(evt);
-            } else {
+            } else { */
+            
                 setHelpPage(e.getURL().toString());
-            }
+       //     }
         }
     }
 
     /**Constructor*/
-    public HelpBrowser(String locale, JFrame parent, String zipfile) {
+    public HelpBrowser(JFrame parent, String locale, String zipfile, String homePage) {
         this.parent = parent;
-        this.url_prefix = "jar:file:" + zipfile + "!/";
+        this.url_prefix = zipfile;
+        this.homePage = homePage;
         SetHelpLocale(locale);
         init();
     }
 
     void SetHelpLocale(String newLocale) {
-        // Hier ist ne schoene stelle zum pruefen.
+        // Hier ist ne schoene stelle zum pruefen.        
         if( newLocale.equals("default") ) {
             url_locale = "";
         } else {
