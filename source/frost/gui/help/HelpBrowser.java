@@ -25,8 +25,6 @@ import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
-import javax.swing.text.*;
-import javax.swing.text.html.*;
 
 /**
  * Browser Component
@@ -37,7 +35,7 @@ public class HelpBrowser extends JPanel {
 
     private static Logger logger = Logger.getLogger(HelpBrowser.class.getName());
 
-    private String last_url;
+//    private String last_url;
     private String url_prefix;
     private String url_locale;
     private String homePage;
@@ -178,45 +176,27 @@ public class HelpBrowser extends JPanel {
      }
      */
     void setHelpPage(String url) {
-      
-      
-       editorPane.setEditorKit(new HelpHTMLEditorKit(url_prefix));
-      
-       
-        
+
+        editorPane.setEditorKit(new HelpHTMLEditorKit(url_prefix));
+
         if( url == null ) {
             url = homePage;
         }
-        
-        // 
-        
+
         if( url.startsWith(url_prefix) ) {
-            //System.out.println("Bum02:" + url_prefix.length());
+            // System.out.println("Bum02:" + url_prefix.length());
             url = url.substring(url_prefix.length());
-            //System.out.println("Bum03:" + url);
+            // System.out.println("Bum03:" + url);
         }
 
-        last_url = url;
+//        last_url = url;
 /*
-        // Add url to urlComboBox
-        boolean exists = false;
-        for( int i = 0; i < urlComboBox.getItemCount(); i++ ) {
-            if( ((String) urlComboBox.getItemAt(i)).equals(url) ) {
-                exists = true;
-                urlComboBox.setSelectedItem(url);
-            }
-        }
-
-        if( !exists ) {
-            int i = urlComboBox.getSelectedIndex();
-            if( i == -1 || urlComboBox.getItemCount() == 0 )
-                i = 0;
-            else
-                i++;
-            urlComboBox.insertItemAt(url, i);
-            urlComboBox.setSelectedItem(url);
-        }
-*/
+ * // Add url to urlComboBox boolean exists = false; for( int i = 0; i < urlComboBox.getItemCount(); i++ ) { if(
+ * ((String) urlComboBox.getItemAt(i)).equals(url) ) { exists = true; urlComboBox.setSelectedItem(url); } }
+ * 
+ * if( !exists ) { int i = urlComboBox.getSelectedIndex(); if( i == -1 || urlComboBox.getItemCount() == 0 ) i = 0; else
+ * i++; urlComboBox.insertItemAt(url, i); urlComboBox.setSelectedItem(url); }
+ */
         // TODO: - internationalisierung ueberarbeiten, sowas geht schoener
         //       - datum/zeit bei intl beruecksichtigen
         
@@ -244,7 +224,7 @@ public class HelpBrowser extends JPanel {
         }
 
         if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
-            JEditorPane pane = (JEditorPane) e.getSource();
+//            JEditorPane pane = (JEditorPane) e.getSource();
        /*     if( e instanceof HTMLFrameHyperlinkEvent ) {
                 HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
                 HTMLDocument doc = (HTMLDocument) pane.getDocument();

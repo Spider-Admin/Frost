@@ -18,20 +18,13 @@
  */
 package frost.gui.help;
 
-import java.io.*;
 import java.util.logging.*;
 
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
-import frost.gui.help.HelpHTMLDocument;
-
 /**
- * 
- * Mega
  * @author notitaccu
- * 
- * 
  */
 public class HelpHTMLEditorKit extends HTMLEditorKit {
 
@@ -73,7 +66,6 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
          * 
          */
         public helpHTMLFactory() {
-          ;  
         }
 
         /**
@@ -98,19 +90,15 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
      * @return the model
      */
     public Document createDefaultDocument() {
-	StyleSheet styles = getStyleSheet();
-	StyleSheet ss = new StyleSheet();
-
-	ss.addStyleSheet(styles);
-
-	HelpHTMLDocument doc = new HelpHTMLDocument(url_prefix, ss);
-	doc.setParser(getParser());
-	doc.setAsynchronousLoadPriority(4);
-	doc.setTokenThreshold(100);
-	return doc;
+    	StyleSheet styles = getStyleSheet();
+    	StyleSheet ss = new StyleSheet();
+    
+    	ss.addStyleSheet(styles);
+    
+    	HelpHTMLDocument doc = new HelpHTMLDocument(url_prefix, ss);
+    	doc.setParser(getParser());
+    	doc.setAsynchronousLoadPriority(4);
+    	doc.setTokenThreshold(100);
+    	return doc;
     }
-   
-    
-    
-    
 }
