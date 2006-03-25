@@ -24,12 +24,13 @@ import java.util.logging.*;
 
 import javax.swing.*;
 
+import frost.*;
+
 public class HelpBrowserFrame extends JFrame {
     
   private static Logger logger = Logger.getLogger(HelpBrowserFrame.class.getName());
 
   boolean plugin;    
-	  
   HelpBrowser browser;
     
   private void Init() throws Exception {
@@ -37,7 +38,6 @@ public class HelpBrowserFrame extends JFrame {
     	// Configure objects
     	//------------------------------------------------------------------------
     	this.setTitle("Frost - Help Browser"); 
-    	this.setSize(new Dimension(780, 550));
     	this.setResizable(true); 
     
     	browser.setPreferredSize(new Dimension(780, 550));
@@ -46,33 +46,28 @@ public class HelpBrowserFrame extends JFrame {
     }
 
     protected void processWindowEvent(WindowEvent e) {
-    	if (e.getID() == WindowEvent.WINDOW_CLOSING) {
-          dispose();
-          if (!plugin) {
-            System.exit(0);
-          } //else {      
-    	 //   setVisible(false); // das lieber 'papa' ueberlassen. 
-                                 // frunzt bei mir so. notitaccu
-       //   }  
+        if( e.getID() == WindowEvent.WINDOW_CLOSING ) {
+            if( !plugin ) {
+                System.exit(0);
+            } else {
+                saveWindowState();
+                setVisible(false);
+            }
+        } else {
+            super.processWindowEvent(e);
         }
-    	super.processWindowEvent(e);
     }
     
-    
-    
-     /**Constructor
-      * shorthand for ziphelp usage
+     /**
+      * Shorthand for ziphelp usage
       */
     public HelpBrowserFrame(String langlocale, String zipfile) {
-       /**Constructor*/
-      this(langlocale, "jar:file:" + zipfile + "!/", "index.html", true);
+        this(langlocale, "jar:file:" + zipfile + "!/", "index.html", true);
     }
 
-    /**Constructor
-     * 
-     * complete for browser usage
+    /**
+     * Complete for browser usage
      */
-    
     public HelpBrowserFrame(String langlocale, String zipfile, String startpage, boolean plugin) {
       
         this.plugin = plugin;
@@ -84,36 +79,83 @@ public class HelpBrowserFrame extends JFrame {
     	enableEvents(AWTEvent.WINDOW_EVENT_MASK);
     	try {
     	    Init();
-    	}
-    	catch(Exception e) {
+            if( !plugin ) {
+                // standalone - fix size
+                this.setSize(new Dimension(780, 550));
+            } else {
+                loadWindowState();
+            }
+    	} catch(Throwable e) {
     		logger.log(Level.SEVERE, "Exception thrown in constructor", e);
     	}
-    	pack();
     }
     
     public void showHelpPage(String page) {
-      browser.setHelpPage(page);
+        browser.setHelpPage(page);
     }
    
     public void showHelpPage_htmlLink(String page) {
-      browser.setHelpPage(page);
+        browser.setHelpPage(page);
     }
     
     public void showHelpPage_alias(String page) {
-      browser.setHelpPage(page);
+        browser.setHelpPage(page);
+    }
+    
+    private void saveWindowState() {
+        Rectangle bounds = getBounds();
+        boolean isMaximized = ((getExtendedState() & Frame.MAXIMIZED_BOTH) != 0);
+
+        Core.frostSettings.setValue("helpBrowser.lastFrameMaximized", isMaximized);
+
+        if (!isMaximized) { // Only save the current dimension if frame is not maximized
+            Core.frostSettings.setValue("helpBrowser.lastFrameHeight", bounds.height);
+            Core.frostSettings.setValue("helpBrowser.lastFrameWidth", bounds.width);
+            Core.frostSettings.setValue("helpBrowser.lastFramePosX", bounds.x);
+            Core.frostSettings.setValue("helpBrowser.lastFramePosY", bounds.y);
+        }
+    }
+
+    private void loadWindowState() {
+        // load size, location and state of window
+        int lastHeight = Core.frostSettings.getIntValue("helpBrowser.lastFrameHeight");
+        int lastWidth = Core.frostSettings.getIntValue("helpBrowser.lastFrameWidth");
+        int lastPosX = Core.frostSettings.getIntValue("helpBrowser.lastFramePosX");
+        int lastPosY = Core.frostSettings.getIntValue("helpBrowser.lastFramePosY");
+        boolean lastMaximized = Core.frostSettings.getBoolValue("helpBrowser.lastFrameMaximized");
+
+        if( lastHeight <= 0 || lastWidth <= 0 ) {
+            // first call
+            setSize(780,550);
+            setLocationRelativeTo(MainFrame.getInstance());
+            return;
+        }
+
+        Dimension scrSize = Toolkit.getDefaultToolkit().getScreenSize();
+
+        if (lastWidth < 100) {
+            lastWidth = 780;
+        }
+        if (lastHeight < 100) {
+            lastHeight = 550;
+        }
+
+        if ((lastPosX + lastWidth) > scrSize.width) {
+            setSize(780,550);
+            setLocationRelativeTo(MainFrame.getInstance());
+            return;
+        }
+
+        if ((lastPosY + lastHeight) > scrSize.height) {
+            setSize(780,550);
+            setLocationRelativeTo(MainFrame.getInstance());
+            return;
+        }
+
+        setBounds(lastPosX, lastPosY, lastWidth, lastHeight);
+
+        if (lastMaximized) {
+            setExtendedState(getExtendedState() | Frame.MAXIMIZED_BOTH);
+        }
     }
 }
-
-
-
-
-
-
-
-
-
-
-
-
-
-
