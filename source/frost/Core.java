@@ -63,7 +63,6 @@ public class Core implements Savable, FrostEventDispatcher  {
     private static Core instance = new Core();
     private static Locale locale = null;
 
-    private static Set nodes = new HashSet(); //list of available nodes
     private static List knownBoards = new ArrayList(); //list of known boards
     private static NotifyByEmailThread emailNotifier = null;
 
@@ -133,6 +132,8 @@ public class Core implements Savable, FrostEventDispatcher  {
     private boolean initializeConnectivity() {
         // First of all we parse the list of available nodes
         String nodesUnparsed = frostSettings.getValue("availableNodes");
+        
+        List nodes = new ArrayList();
 
         if (nodesUnparsed == null) { //old format
             String converted =
@@ -155,7 +156,11 @@ public class Core implements Savable, FrostEventDispatcher  {
                 "ERROR: No Freenet nodes are available.");
             return false;
         }
-        logger.info("Frost will use " + nodes.size() + " Freenet nodes");
+        
+        FcpFactory.init(nodes); // init the factory with configured nodes
+        
+        // install our security manager that only allows connections to the configured FCP hosts
+        System.setSecurityManager(new FrostSecurityManager());
 
         // Then we check if the user is running a transient node or not
         try {
@@ -412,13 +417,6 @@ public class Core implements Savable, FrostEventDispatcher  {
      */
     public static void schedule(TimerTask task, long delay, long period) {
         getInstance().timer.schedule(task, delay, period);
-    }
-
-    /**
-     * @return list of nodes Frost is using
-     */
-    public static Set getNodes() {
-        return nodes;
     }
 
     /**

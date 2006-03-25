@@ -33,7 +33,7 @@ public class CheckHtmlIntegrity {
 
     private static Logger logger = Logger.getLogger(CheckHtmlIntegrity.class.getName());
 
-    private static boolean isHtmlSecure = true;
+    private static boolean isHtmlSecure = false;
     
     public static boolean isHtmlSecure() {
         return isHtmlSecure;

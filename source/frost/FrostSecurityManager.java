@@ -18,8 +18,11 @@
 */
 package frost;
 
-import java.net.*;
 import java.security.*;
+import java.util.*;
+
+import frost.fcp.*;
+
 /**
  * Our security manager does not allow any socket connections to other host:port
  * than the ones defined as FCP hosts in the configuration.
@@ -32,20 +35,30 @@ import java.security.*;
  */
 public class FrostSecurityManager extends SecurityManager {
     
-    public static void main(String[] args) throws Throwable {
-        System.setSecurityManager(new FrostSecurityManager());
-        new Socket("localhost", 1234);
+    protected void checkFrostConnect(String host, int port) {
+        List nodes = FcpFactory.getNodes();
+        for(Iterator i=nodes.iterator(); i.hasNext(); ) {
+            FcpFactory.NodeAddress na = (FcpFactory.NodeAddress)i.next();
+            if( !host.equals(na.host.getHostAddress()) &&
+                !host.equals(na.host.getHostName()) )
+            {
+                throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
+            }
+            if( port != na.port && port > -1 ) {
+                throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
+            }
+        }
     }
     
     public void checkConnect(String host, int port, Object context) {
-        System.out.println("c1:"+host+","+port);
+//        System.out.println("checkConnect(1):"+host+","+port);
+        checkFrostConnect(host, port);
         super.checkConnect(host, port, context);
-//        throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
     }
     public void checkConnect(String host, int port) {
-        System.out.println("c1:"+host+","+port);
+//        System.out.println("checkConnect(2):"+host+","+port);
+        checkFrostConnect(host, port);
         super.checkConnect(host, port);
-//        throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
     }
     public void checkPermission(Permission arg0, Object arg1) {
         // we allow all that was not already denied by the direct method call (checkConnect)
