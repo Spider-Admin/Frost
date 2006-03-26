@@ -21,7 +21,7 @@ package frost.gui.help;
 import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
-import java.util.ArrayList;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -36,13 +36,12 @@ public class HelpBrowser extends JPanel {
 
     private static Logger logger = Logger.getLogger(HelpBrowser.class.getName());
     
-    private ArrayList history = null;
-    private int historypos = -1; // this means history ist invalid
-
    // private String last_url;
     private String url_prefix;
     private String url_locale;
     private String homePage;
+    
+    private BrowserHistory browserHistory = null;
     
     // Global Variables
     JFrame parent;
@@ -63,11 +62,19 @@ public class HelpBrowser extends JPanel {
 
  //   JSplitPane splitPane = new JSplitPane();
 
+    public HelpBrowser(JFrame parent, String locale, String zipfile, String homePage) {
+        this.parent = parent;
+        this.url_prefix = zipfile;
+        this.homePage = homePage;
+        SetHelpLocale(locale);
+        init();
+    }
+    
     private void init() {
       
         // history init
-      
-      history = new ArrayList();
+        browserHistory = new BrowserHistory();
+        browserHistory.resetToHomepage(homePage);
 
    //     editorPane.setEditorKit(new HelpHTMLEditorKit(url_prefix));
    //     urlComboBox.setEditable(true);
@@ -75,17 +82,36 @@ public class HelpBrowser extends JPanel {
         // Browser Link Listener
         editorPane.addHyperlinkListener(new HyperlinkListener() {
             public void hyperlinkUpdate(HyperlinkEvent e) {
-                hyperlink_actionPerformed(e);
+                if( e.getEventType() == HyperlinkEvent.EventType.ENTERED ) {
+                    ((JEditorPane) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
+                    return;
+                }
+                if( e.getEventType() == HyperlinkEvent.EventType.EXITED ) {
+                    ((JEditorPane) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    return;
+                }
+                if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
+                    ((JEditorPane) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
+                    browserHistory.setCurrentPage(e.getURL().toString());
+                    setHelpPage(e.getURL().toString());
+                    
+//                    JEditorPane pane = (JEditorPane) e.getSource();
+               /*     if( e instanceof HTMLFrameHyperlinkEvent ) {
+                        HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
+                        HTMLDocument doc = (HTMLDocument) pane.getDocument();
+                        doc.processHTMLFrameHyperlinkEvent(evt);
+                    } else { */
+//                        setHelpPage(e.getURL().toString());
+               //     }
+                }
             }
         });
 
         // backButton Action Listener
         backButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              if (historypos > 0) {
-                historypos--;
-                setHelpPage((String)history.get(historypos));
-                historypos--;
+                if( browserHistory.isBackwardPossible() ) {
+                    setHelpPage(browserHistory.backwardPage());
                 }
             }
         });
@@ -93,11 +119,20 @@ public class HelpBrowser extends JPanel {
         // forwardButton Action Listener
         forwardButton.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
-              if (historypos < (history.size()-1)) {
-                    setHelpPage((String)history.get(historypos+1));
+                if( browserHistory.isForwardPossible() ) {
+                    setHelpPage(browserHistory.forwardPage());
                 }
             }
         });
+
+        // homeButton Action Listener
+        homeButton.addActionListener(new java.awt.event.ActionListener() {
+            public void actionPerformed(ActionEvent e) {
+                browserHistory.resetToHomepage(homePage);
+                setHelpPage(homePage);
+            }
+        });
+
 /*
         // addPageButton Action Listener
         addPageButton.addActionListener(new java.awt.event.ActionListener() {
@@ -141,12 +176,6 @@ public class HelpBrowser extends JPanel {
             }
         });
 */
-        // homeButton Action Listener
-        homeButton.addActionListener(new java.awt.event.ActionListener() {
-            public void actionPerformed(ActionEvent e) {
-                setHelpPage(homePage);
-            }
-        });
 
         contentPanel = this;
         contentPanel.setLayout(new BorderLayout());
@@ -169,19 +198,6 @@ public class HelpBrowser extends JPanel {
         setHelpPage(homePage);
     }
 
-    /*
-     String makeStartPage() {
-     String html = new String();
-     html = "<html><body>Start<HR>";
-     for (int i = 0; i < favComboBox.getItemCount(); i++) {
-     html = html + "<a href=\"" + (String)favComboBox.getItemAt(i) + "\">" + 
-     (String)favComboBox.getItemAt(i) + "</a><br>";
-     }           
-     
-     html = html + "</body></html>";
-     return html;
-     }
-     */
     void setHelpPage(String url) {
 
         editorPane.setEditorKit(new HelpHTMLEditorKit(url_prefix));
@@ -190,27 +206,13 @@ public class HelpBrowser extends JPanel {
             url = homePage;
         }
         
-        if (historypos < 10) {   // Fixme maxhistorylistitemcount
-        
-        history.add(url);
-        historypos++; 
-        }
-
         if( url.startsWith(url_prefix) ) {
             url = url.substring(url_prefix.length());
         }
 
-//        last_url = url;
-/*
- * // Add url to urlComboBox boolean exists = false; for( int i = 0; i < urlComboBox.getItemCount(); i++ ) { if(
- * ((String) urlComboBox.getItemAt(i)).equals(url) ) { exists = true; urlComboBox.setSelectedItem(url); } }
- * 
- * if( !exists ) { int i = urlComboBox.getSelectedIndex(); if( i == -1 || urlComboBox.getItemCount() == 0 ) i = 0; else
- * i++; urlComboBox.insertItemAt(url, i); urlComboBox.setSelectedItem(url); }
- */
         // TODO: - internationalisierung ueberarbeiten, sowas geht schoener
         //       - datum/zeit bei intl beruecksichtigen
-        //  temporaer aus fürs release
+        //  temporaer aus 
    //     try {
    //         editorPane.setPage(url_prefix + url_locale + url);
    //     } catch (IOException e) {
@@ -221,39 +223,12 @@ public class HelpBrowser extends JPanel {
                 logger.log(Level.INFO, "HELP: Missing file: '" + url + "'");
             }
    //     }
+            updateBrowserButtons();
     }
 
-    void hyperlink_actionPerformed(HyperlinkEvent e) {
-        if( e.getEventType() == HyperlinkEvent.EventType.ENTERED ) {
-            ((JEditorPane) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.HAND_CURSOR));
-            return;
-        }
-
-        if( e.getEventType() == HyperlinkEvent.EventType.EXITED ) {
-            ((JEditorPane) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
-            return;
-        }
-
-        if( e.getEventType() == HyperlinkEvent.EventType.ACTIVATED ) {
-//            JEditorPane pane = (JEditorPane) e.getSource();
-       /*     if( e instanceof HTMLFrameHyperlinkEvent ) {
-                HTMLFrameHyperlinkEvent evt = (HTMLFrameHyperlinkEvent) e;
-                HTMLDocument doc = (HTMLDocument) pane.getDocument();
-                doc.processHTMLFrameHyperlinkEvent(evt);
-            } else { */
-            
-                setHelpPage(e.getURL().toString());
-       //     }
-        }
-    }
-
-    /**Constructor*/
-    public HelpBrowser(JFrame parent, String locale, String zipfile, String homePage) {
-        this.parent = parent;
-        this.url_prefix = zipfile;
-        this.homePage = homePage;
-        SetHelpLocale(locale);
-        init();
+    private void updateBrowserButtons() {
+        forwardButton.setEnabled( browserHistory.isForwardPossible() ); 
+        backButton.setEnabled( browserHistory.isBackwardPossible() ); 
     }
 
     void SetHelpLocale(String newLocale) {
@@ -262,6 +237,53 @@ public class HelpBrowser extends JPanel {
             url_locale = "";
         } else {
             url_locale = newLocale;
+        }
+    }
+    
+    private class BrowserHistory {
+
+        private ArrayList history = new ArrayList();
+        private int historypos = -1; // this means history ist invalid
+
+        public boolean isForwardPossible() {
+            if( historypos < history.size()-1 ) {
+                return true;
+            }
+            return false;
+        }
+        public String forwardPage() {
+            if( !isForwardPossible() ) {
+                return null;
+            }
+            historypos++;
+            return (String)history.get(historypos);
+        }
+        public boolean isBackwardPossible() {
+            if( historypos > 0 ) {
+                return true;
+            }
+            return false;
+        }
+        public String backwardPage() {
+            if( !isBackwardPossible() ) {
+                return null;
+            }
+            historypos--;
+            return (String)history.get(historypos);
+        }
+        public void setCurrentPage(String page) {
+            // a link was clicked, add this new page after current historypos and clear alll forward pages
+            // this is the behaviour of Mozilla too
+            if( historypos < history.size()-1 ) {
+                history.subList(historypos+1, history.size()).clear();
+            }
+            history.add(page);
+            historypos++;
+        }
+        public void resetToHomepage(String homepage) {
+            history.clear();
+            history.add(homepage);
+            historypos = 0; // current page is page at index 0
         }
     }
 }
