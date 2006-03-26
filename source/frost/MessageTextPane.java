@@ -329,6 +329,26 @@ public class MessageTextPane extends JPanel {
             Core.frostSettings.getValue("lastUsedDirectory"),
             language.getString("Save message to disk"));
     }
+    
+    private void addBoardsToKnownBoards() {
+        int[] selectedRows = boardsTable.getSelectedRows();
+
+        if (selectedRows.length == 0) {
+            // add all rows
+            boardsTable.selectAll();
+            selectedRows = boardsTable.getSelectedRows();
+            if (selectedRows.length == 0) {
+                return;
+            }
+        }
+        LinkedList boards = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
+        LinkedList addBoards = new LinkedList();
+        for (int i = 0; i < selectedRows.length; i++) {
+            BoardAttachment ba = (BoardAttachment) boards.get(selectedRows[i]);
+            addBoards.add(ba);
+        }
+        Core.addNewKnownBoards(addBoards);
+    }
 
     /**
      * Adds all boards from the attachedBoardsTable to board list.
@@ -412,6 +432,7 @@ public class MessageTextPane extends JPanel {
         private JMenuItem cancelItem = new JMenuItem();
         private JMenuItem saveBoardsItem = new JMenuItem();
         private JMenuItem saveBoardsToFolderItem = new JMenuItem();
+        private JMenuItem addBoardsToKnownBoards = new JMenuItem();
 
         public PopupMenuAttachmentBoard() {
             super();
@@ -427,6 +448,8 @@ public class MessageTextPane extends JPanel {
                 if( targetFolder != null ) {
                     downloadBoards(targetFolder);
                 }
+            } else if( e.getSource() == addBoardsToKnownBoards ) {
+                addBoardsToKnownBoards();
             }
         }
 
@@ -435,11 +458,13 @@ public class MessageTextPane extends JPanel {
 
             saveBoardsItem.addActionListener(this);
             saveBoardsToFolderItem.addActionListener(this);
+            addBoardsToKnownBoards.addActionListener(this);
         }
 
         public void languageChanged(LanguageEvent event) {
             saveBoardsItem.setText(language.getString("Add Board(s)"));
             saveBoardsToFolderItem.setText(language.getString("Add Board(s) to folder")+" ...");
+            addBoardsToKnownBoards.setText(language.getString("Add board(s) to list of known boards"));
             cancelItem.setText(language.getString("Cancel"));
         }
 
@@ -448,6 +473,7 @@ public class MessageTextPane extends JPanel {
 
             add(saveBoardsItem);
             add(saveBoardsToFolderItem);
+            add(addBoardsToKnownBoards);
             addSeparator();
             add(cancelItem);
 

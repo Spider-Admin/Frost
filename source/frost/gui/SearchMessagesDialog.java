@@ -34,6 +34,11 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.threads.*;
 import frost.util.gui.translation.*;
+import javax.swing.JPanel;
+import java.awt.GridBagLayout;
+import javax.swing.JCheckBox;
+import java.awt.GridBagConstraints;
+import javax.swing.JButton;
 
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
@@ -225,13 +230,13 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      */
     private JTabbedPane getJTabbedPane() {
         if( jTabbedPane == null ) {
-            jTabbedPane = new JTabbedPane();
-            jTabbedPane.setName("");
+            jTabbedPane = new JTranslatableTabbedPane(language);
             jTabbedPane.addTab("Search", null, getPsearch(), null);
             jTabbedPane.addTab("Boards", null, getPboards(), null);
             jTabbedPane.addTab("Date", null, getPdate(), null);
             jTabbedPane.addTab("Trust state", null, getPtrustState(), null);
             jTabbedPane.addTab("Archive", null, getParchive(), null);
+            jTabbedPane.addTab("Attachments", null, getPattachments(), null);
         }
         return jTabbedPane;
     }
@@ -1291,6 +1296,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             scfg.searchInKeypool = true;
             scfg.searchInArchive = true;
         }
+        
+        scfg.msgMustContainBoards = getAttachment_CBmustContainBoards().isSelected();
+        scfg.msgMustContainFiles = getAttachment_CBmustContainFiles().isSelected();
 
         return scfg;
     }
@@ -1334,6 +1342,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
         saveWindowState();
         language.removeLanguageListener(this);
+        ((JTranslatableTabbedPane)getJTabbedPane()).close();
         setVisible(false);
     }
 
@@ -1434,6 +1443,14 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     private JButton BopenMsg = null;
 
+    private JPanel Pattachments = null;
+
+    private JCheckBox attachment_CBmustContainBoards = null;
+
+    private JCheckBox attachment_CBmustContainFiles = null;
+
+    private JButton Bhelp = null;
+
     /**
      * This method initializes date_RBall
      *
@@ -1525,6 +1542,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JPanel getPbuttonsRight() {
         if( PbuttonsLeft == null ) {
             PbuttonsLeft = new JPanel();
+            PbuttonsLeft.add(getBhelp(), null);
             PbuttonsLeft.add(getBopenMsg(), null);
         }
         return PbuttonsLeft;
@@ -1561,6 +1579,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         }
 
         getBopenMsg().setText(language.getString("Open message"));
+        getBhelp().setText(language.getString("Help"));
         getBcancel().setText(language.getString("Close"));
 
         Lsender.setText(language.getString("Sender"));
@@ -1595,6 +1614,77 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
         getSearch_CBprivateMsgsOnly().setText(language.getString("Search private messages only"));
         getBoards_Bchoose().setText(language.getString("Choose boards")+"...");
+        
+        getAttachment_CBmustContainBoards().setText(language.getString("Message must contain board attachments"));
+        getAttachment_CBmustContainFiles().setText(language.getString("Message must contain file attachments"));
+    }
+
+    /**
+     * This method initializes Pattachments	
+     * 	
+     * @return javax.swing.JPanel	
+     */
+    private JPanel getPattachments() {
+        if( Pattachments == null ) {
+            GridBagConstraints gridBagConstraints30 = new GridBagConstraints();
+            gridBagConstraints30.gridx = 0;
+            gridBagConstraints30.insets = new java.awt.Insets(3,5,1,5);
+            gridBagConstraints30.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints30.weighty = 1.0;
+            gridBagConstraints30.weightx = 1.0;
+            gridBagConstraints30.gridy = 1;
+            GridBagConstraints gridBagConstraints8 = new GridBagConstraints();
+            gridBagConstraints8.gridx = 0;
+            gridBagConstraints8.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints8.insets = new java.awt.Insets(3,5,1,5);
+            gridBagConstraints8.gridy = 0;
+            Pattachments = new JPanel();
+            Pattachments.setLayout(new GridBagLayout());
+            Pattachments.add(getAttachment_CBmustContainBoards(), gridBagConstraints8);
+            Pattachments.add(getAttachment_CBmustContainFiles(), gridBagConstraints30);
+        }
+        return Pattachments;
+    }
+
+    /**
+     * This method initializes attachment_CBmustContainBoards	
+     * 	
+     * @return javax.swing.JCheckBox	
+     */
+    private JCheckBox getAttachment_CBmustContainBoards() {
+        if( attachment_CBmustContainBoards == null ) {
+            attachment_CBmustContainBoards = new JCheckBox();
+        }
+        return attachment_CBmustContainBoards;
+    }
+
+    /**
+     * This method initializes attachment_CBmustContainFiles	
+     * 	
+     * @return javax.swing.JCheckBox	
+     */
+    private JCheckBox getAttachment_CBmustContainFiles() {
+        if( attachment_CBmustContainFiles == null ) {
+            attachment_CBmustContainFiles = new JCheckBox();
+        }
+        return attachment_CBmustContainFiles;
+    }
+
+    /**
+     * This method initializes Bhelp	
+     * 	
+     * @return javax.swing.JButton	
+     */
+    private JButton getBhelp() {
+        if( Bhelp == null ) {
+            Bhelp = new JButton();
+            Bhelp.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    MainFrame.getInstance().showHtmlHelp("searchDialog.html");
+                }
+            });
+        }
+        return Bhelp;
     }
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"

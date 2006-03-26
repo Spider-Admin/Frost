@@ -187,6 +187,14 @@ public class SearchMessagesThread extends Thread {
         if( matchesTrustStates(mo, ts) == false ) {
             return;
         }
+        
+        // check attachments
+        if( searchConfig.msgMustContainBoards && mo.getAttachmentsOfType(Attachment.BOARD).size() <= 0 ) {
+            return;
+        }
+        if( searchConfig.msgMustContainFiles && mo.getAttachmentsOfType(Attachment.FILE).size() <= 0 ) {
+            return;
+        }
 
         // check sender
         if( searchConfig.sender != null ) {

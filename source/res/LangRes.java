@@ -164,6 +164,7 @@ public class LangRes extends ListResourceBundle {
 	{"Download attachment(s)", "Download attachment(s)"},
 	{"Add Board(s)", "Add Board(s)"},
     {"Add Board(s) to folder", "Add Board(s) to folder"},
+    {"Add board(s) to list of known boards", "Add board(s) to list of known boards"},
 	{"Trust","Trust"},
 	{"Set to CHECK", "Set to CHECK"},
     {"Set to OBSERVE", "Set to OBSERVE"},
@@ -381,8 +382,8 @@ public class LangRes extends ListResourceBundle {
 //	{"Hide messages flagged BAD", "Hide messages flagged BAD"},
 //	{"Hide messages flagged CHECK", "Hide messages flagged CHECK"},
 // 	{"Hide messages flagged OBSERVE", "Hide messages flagged OBSERVE"},
-    {"Block boards from messages with following trust states", "Block boards from messages with following trust states"},
-    {"Hide messages with following trust states", "Hide messages with following trust states"},
+    {"Don't add boards to known boards list from users with trust states", "Don't add boards to known boards list from users with trust states"},
+    {"Hide messages with trust states", "Hide messages with trust states"},
 	{"Bad", "Bad"},
     {"Check", "Check"},
     {"Observe", "Observe"},
@@ -673,6 +674,10 @@ public class LangRes extends ListResourceBundle {
     {"Sender", "Sender"},
     {"Content", "Content"},
     {"to", "to"}, // startDate 'to' endDate
+    {"Boards", "Boards"},
+    {"Trust state", "Trust state"},
+    {"Archive", "Archive"},
+    {"Attachments", "Attachments"},
     {"Search between dates", "Search between dates"},
     {"Search in messages that would be displayed", "Search in messages that would be displayed"},
     {"Search number of days backward", "Search number of days backward"},
@@ -698,7 +703,9 @@ public class LangRes extends ListResourceBundle {
     {"Invalid start date or end date specified.", "Invalid start date or end date specified."},
     {"Start date is after end date.", "Start date is after end date."},
     {"No boards to search into were chosed.", "No boards to search into were chosed."},
-    {"There are no boards that could be choosed.", "There are no boards that could be choosed."}
+    {"There are no boards that could be choosed.", "There are no boards that could be choosed."},
+    {"Message must contain board attachments", "Message must contain board attachments"},
+    {"Message must contain file attachments", "Message must contain file attachments"}
 
     };
 }
