@@ -36,7 +36,7 @@ public class AboutBox extends JDialogWithDetails {
     // because a growing amount of users use CVS version:
     private String version = null;
 
-    private final static String copyright = "Copyright (c) 2003 Jan-Thomas Czornack";
+    private final static String copyright = "Copyright (c) 2006 Frost Project";
     private final static String comments2 = "http://jtcfrost.sourceforge.net/";
 
     private JPanel imagePanel = new JPanel();
@@ -101,13 +101,14 @@ public class AboutBox extends JDialogWithDetails {
     private void fillDetailsArea() {
         StringBuffer details = new StringBuffer();
         details.append(language.getString("Development:") + "\n");
-        details.append("   Jan-Thomas Czornack\n");
-        details.append("   Thomas Mueller\n");
-        details.append("   Jim Hunziker\n");
-        details.append("   Stefan Majewski\n");
         details.append("   Karsten Graul\n");
-        details.append("   José Manuel Arnesto\n");
-        details.append("   Roman Glebov\n\n");
+        details.append("   S. Amoako\n");
+        details.append("   Roman Glebov (inactive)\n");
+        details.append("   Jan-Thomas Czornack (left)\n");
+        details.append("   Thomas Mueller (left)\n");
+        details.append("   Jim Hunziker (left)\n");
+        details.append("   Stefan Majewski (left)\n");
+        details.append("   José Manuel Arnesto (left)\n\n");
         details.append(language.getString("Windows Installer:") + "\n");
         details.append("   Benoit Laniel\n\n");
         details.append(language.getString("System Tray Executables:") + "\n");

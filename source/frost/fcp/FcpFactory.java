@@ -70,6 +70,9 @@ public class FcpFactory {
                 logger.warning(
                     "FcpConnection.getFcpConnectionInstance: IOException "
                         + e + " , this was try " + (tries + 1) + "/" + maxTries);
+            } catch (Throwable e) {
+                logger.severe("FcpConnection.getFcpConnectionInstance: Throwable " + e);
+                break;
             }
             tries++;
             Mixed.wait(tries * 1250);
@@ -150,7 +153,7 @@ public class FcpFactory {
         logger.info("Frost will use " + nodes.size() + " Freenet nodes");
     }
 
-    protected static synchronized FcpConnection getConnection()  throws IOException, FcpToolsException {
+    protected static synchronized FcpConnection getConnection()  throws IOException, FcpToolsException, Error {
 
         FcpConnection con = null;
         if (getNodes().size()==0) {
