@@ -7,11 +7,8 @@
     <TITLE>enter your title here</TITLE>
   </HEAD>
   <BODY>
-      <!-- comment -->
+<H2>Frost history</H2>
       <PRE>
- ************************
-*** Frost history file ***
- ************************
 
 PENDING CHANGES:
 
@@ -23,12 +20,17 @@ Added: Alternate editor support now works again. You can write a message with an
 Added: Russian translation, thanks to VolodyA.
 Added: Search dialog to search for messages in keypool and archive ('News' menu).
 Added: 'Copy keys' in menu of file attachments table. Table now shows also the key.
+Added: Options to block boards from unsigned, bad, check or observe users.
+       If blocked the boards in a message are not added to the known boards list.
+Added: Mouse wheel support for scrollable components.
 
-Changed: Nicer board attachment chooser, uses checkboxes now.
+Changed: Nicer board attachment chooser, contains checkboxes now.
 Changed: All XML files are now saved in UTF-8 encoding, saves space.
 Changed: Message window enhanced, shows attachments and more informations, allows reply.
+Changed: Duplicate message prevention reenabled, and created an option for it.
 
 Bugfix: Fixes in checkbox handling of MessageFrame.
+Bugfix: Fixes in message download handling.
 
 ******************************************************************************************
 
@@ -841,6 +843,6 @@ Bugfix: fixed 'Minimize to tray and never come up again' bug on
 - Save keys on exit added
 
       </PRE>
-     
+
   </BODY>
 </HTML>
