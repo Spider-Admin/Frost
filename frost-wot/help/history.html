@@ -23,6 +23,13 @@ Added: 'Copy keys' in menu of file attachments table. Table now shows also the k
 Added: Options to block boards from unsigned, bad, check or observe users.
        If blocked the boards in a message are not added to the known boards list.
 Added: Mouse wheel support for scrollable components.
+Added: HTML help browser to show the help pages in the /frost/help/help.zip file.
+Added: Own Java security manager. Frosts security manager only allows Frost to open
+       TCP/IP connections to the configured FCP hosts. All other connections attempts
+       will not be allowed. This makes external links within the HTML help pages
+       impossible, providing you maximum anonymity. Additionally the HTML pages in
+       help.zip are scanned for external URLs during startup, if any external link
+       is found the whole help will be disabled (help menu item is not chooseable).
 
 Changed: Nicer board attachment chooser, contains checkboxes now.
 Changed: All XML files are now saved in UTF-8 encoding, saves space.
