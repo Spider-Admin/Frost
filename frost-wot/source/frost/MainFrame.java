@@ -1375,8 +1375,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
       // show first time or bring to front
       helpBrowser.setVisible(true);
       helpBrowser.showHelpPage(item);
-
-      return;
     }
 
     public void startSearchMessagesDialog() {

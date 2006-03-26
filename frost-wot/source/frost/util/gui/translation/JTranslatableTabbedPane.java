@@ -41,6 +41,10 @@ public class JTranslatableTabbedPane extends JTabbedPane implements LanguageList
 		this.language = language;
 		language.addLanguageListener(this);
 	}
+    
+    public void close() {
+        language.removeLanguageListener(this);
+    }
 
 	/**
 	 * This method returns the localized title

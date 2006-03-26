@@ -57,4 +57,7 @@ public class SearchMessagesConfig {
 
     public boolean searchInKeypool = false;
     public boolean searchInArchive = false;
+    
+    public boolean msgMustContainBoards = false;
+    public boolean msgMustContainFiles = false;
 }
