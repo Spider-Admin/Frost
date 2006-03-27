@@ -31,6 +31,7 @@ public class ConvertXMLUTF16ToUTF8 {
     private static XmlFileFilter xmlFileFilter = new XmlFileFilter();
     
     private static long filesProcessed = 0;
+    private static long savedBytes = 0;
     
     public static void main(String[] args) throws Throwable {
         System.out.println("Converting all XML files in keypool and archive from encoding UTF-16 to UTF-8...");
@@ -39,7 +40,7 @@ public class ConvertXMLUTF16ToUTF8 {
             return;
         }
         c.run();
-        System.out.println("Ready, processed "+filesProcessed+" files.");
+        System.out.println("Ready, processed "+filesProcessed+" files, saved "+savedBytes+" bytes.");
     }
 
     public ConvertXMLUTF16ToUTF8() {
@@ -133,6 +134,7 @@ public class ConvertXMLUTF16ToUTF8 {
                         continue;
                     }
                     try {
+                        long bytesBefore = xmlFile.length();
                         MessageObject mo = new MessageObject(xmlFile); // loads UTF-16 and UTF-8
                         boolean saveOk = mo.save(); // saves as UTF-8
                         if( !saveOk ) {
@@ -140,6 +142,7 @@ public class ConvertXMLUTF16ToUTF8 {
                             continue;
                         }
                         filesProcessed++;
+                        savedBytes += (bytesBefore - xmlFile.length());
                     } catch(Throwable t) {
                         System.out.println("Message could not be loaded, conversion skipped: "+xmlFile.getPath());
                         continue;
