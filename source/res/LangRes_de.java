@@ -26,6 +26,7 @@ static final Object[][] contents = {
 {"Activate downloading","Herunterladen aktivieren"},
 {"Add attachment(s)","Attachments anhängen"},
 {"Add Board(s)","Foren hinzufügen"},
+{"Add Board(s) to folder ...","Foren zu Ordner hinzufügen..."},
 {"Add new board","Neues Forum hinzufügen (erstellen)"}, //Boards -> Kontext
 {"Add new folder","Neuen Ordner hinzufügen"},
 {"Add selected board","Gewähltes Forum hinzufügen (abonnieren)"}, //Message -> Board-Attachments -> Kontext
@@ -35,6 +36,7 @@ static final Object[][] contents = {
 {"Allow 2 byte characters","2-Byte Zeichen erlauben"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
 {"Archive Extension","Archiv-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Archives","Archive"},
+{"Attachments","Anhänge"},
 {"Audio","Audio"},
 {"Audio Extension","Audio-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Automatic Indexing","Automatischer Index"},
@@ -50,6 +52,7 @@ static final Object[][] contents = {
 {"Blocks","Blöcke"},
 {"board","Forum"},
 {"Board","Forum"},
+{"Boards","Foren"},
 {"Board Information Window","Forumsinformationen"},
 {"BoardInfoFrame.Board information window","Forumsinformationen"},
 {"BoardInfoFrame.Boards","Foren"},
@@ -65,15 +68,18 @@ static final Object[][] contents = {
 {"Bulgarian","Bulgarisch"}, //Menü: Sprache
 {"Cancel","Abbruch"},
 {"Change destination board","Zielforum ändern"},
+{"Content","Inhalt"},
 {"Copy keys only","CHK-Schlüssel"},
 {"Copy keys with filenames","CHK-Schlüssel und Dateiname"},
 {"Choose","Auswählen"},
 {"Choose a Font","Schriftart auswählen"},
-{"Choose boards to attach","Forum für Anhang auswählen"},
+{"Choose boards","Foren auswählen"},
+{"Choose boards to attach","Foren für Anhang auswählen"},
 {"Choose file(s) / directory(s) to attach","Datei(en)/Verzeichnis(se) als Anhang auswählen"},
 {"Choose updating color of NON-SELECTED boards","Aktualisierungsfarbe für nicht selektierte Foren"},
 {"Choose updating color of SELECTED boards","Aktualisierungsfarbe für gewählte Foren"},
 {"Clean the keypool","Keypool leeren"},
+{"Close","Schließen"},
 {"Configure board","Forum konfigurieren"},
 {"Configure selected board","Gewähltes Forum konfigurieren"},
 {"Copy to clipboard","In die Zwischenablage kopieren"},
@@ -93,7 +99,8 @@ static final Object[][] contents = {
 {"Decode each segment immediately after its download","Segmente sofort nach dem Download dekodieren"},
 {"Decoding segment","Dekodiere Segment"},
 {"Decrease Font Size","Kleinere Schrift"},
-{"Default","Default"}, // Standard?
+{"Default","Default"}, // Standard? Vorgabe? fuer Sprache -> System?
+{"Description","Beschreibung"},
 {"Destination","Ziel"},
 {"Disable all downloads","Alle Downloads deaktivieren"},
 {"Disable downloads","Herunterladen deaktivieren"}, //Menü: Optionen -> Einstellungen -> Herunterladen
@@ -127,6 +134,7 @@ static final Object[][] contents = {
 {"Enable logging","Logging aktivieren"},
 {"Enable requesting of failed download files","Fehlgeschlagene Downloads anfordern"},
 {"Enable selected downloads","Gewählte Downloads aktivieren"},
+{"Enabled","Aktiviert"},
 {"EnableMessageBodyAA","Antialiasing für den Nachrichtenrumpf aktivieren"},
 {"EnableSkins","Skins aktivieren"},
 {"Encode requested","Kodieren angefragt"},
@@ -141,6 +149,7 @@ static final Object[][] contents = {
 {"File List","Dateiliste"},
 {"Filename","Dateiname"},
 {"Files","Dateien"},
+{"files","Dateien"},
 {"Folder","Ordner"},
 {"folder","Ordner"},
 {"Fonts","Schriftarten"},
@@ -153,7 +162,7 @@ static final Object[][] contents = {
 {"Generate new keypair","Neues Schlüsselpaar generieren"},
 {"German","Deutsch"},
 {"Help","Hilfe"},
-{"Help spread files from people marked GOOD","Leute die als 'GOOD' markiert sind untertützen"},
+{"Help spread files from people marked GOOD","Leute, die als 'GOOD' markiert sind, untertützen"},
 {"help user (sets to GOOD)","Nutzer unterstützen (auf 'GOOD' setzen)"},
 {"Hide files from anonymous users","Von anonymen Nutzern hochgeladene Dateien verbergen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Hide files from people marked BAD","Dateien vor mit 'BAD' markierten Leuten verbergen"},
@@ -234,6 +243,7 @@ static final Object[][] contents = {
 {"Off","Aus"},
 {"OK","OK"},
 {"On","An"},
+{"Open message","Nachricht öffnen"},
 {"Open Source Project (GPL license)","Open-Source-Projekt (GPL-Lizenz)"},
 {"Options","Optionen"},
 {"Override default settings","Override default settings"},
@@ -250,8 +260,8 @@ static final Object[][] contents = {
 {"Preferences","Einstellungen"},
 {"Preview","Vorschau"},
 {"Private key","Privater Schlüssel"},
-{"Public board","íffentliches Forum"},
-{"Public key","íffentlicher Schlüssel"},
+{"Public board","öffentliches Forum"},
+{"Public key","öffentlicher Schlüssel"},
 {"Reaching ridiculous speed...","Lächerliche Geschwindigkeit erreicht..."},
 {"redundancy explanation","geht nicht"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Refresh","Aktualisiere"},
@@ -281,6 +291,11 @@ static final Object[][] contents = {
 {"Save message","Nachricht speichern"},
 {"Save message to disk","Nachricht speichern"},
 {"Search","Suchen"},
+{"Search following boards","nur gewählte Foren durchsuchen"},
+{"Search in displayed boards","in angezeigten Foren suchen"},
+{"Search result","Suchergebnis"},
+{"Search messages","Nachrichten durchsuchen"},
+{"Search private messages only","nur private Nachrichten durchsuchen"},
 {"Secure board","Sicheres Forum"},
 {"Select a board to view its content.","Forum auswählen, um Inhalt zu sehen."},
 {"Select a message to view its content.","Nachricht auswählen, um Inhalt zu sehen."},
@@ -288,6 +303,7 @@ static final Object[][] contents = {
 {"Select files you want to upload to the","Dateien wählen, die hinzugefügt werden sollen zum"},
 {"Selected board","Gewähltes Forum"},
 {"Send message","Nachricht senden"},
+{"Sender","Absender"},
 {"Sending IP address to NSA","Sende IP-Adresse an den BND"},
 {"Set prefix for all files","Präfix für alle Dateien setzen"},
 {"Set prefix for selected files","Präfix für selektierte Dateien"},
@@ -299,6 +315,7 @@ static final Object[][] contents = {
 {"Should file attachments be added to upload table?","Anhänge in die Uploadliste eintragen?"},
 {"Show board update visualization","Aktualisierungsinformationen von Foren anzeigen"},
 {"Show healing information","Heilungsinfos anzeigen"},
+{"Show memory monitor","Memorymonitor anzeigen"},
 {"Show systray icon","Taskleistenicon anzeigen"},
 {"Sig","Sig"},
 {"Sign","Signieren"},
@@ -324,6 +341,7 @@ static final Object[][] contents = {
 {"Translate Frost into another language","Frost in eine andere Sprache übersetzen"},
 {"Tries","Versuche"}, // ??
 {"Trust","Vertrauen"},
+{"Trust state","Vertrauensstatus"},
 {"Try to download all segments, even if one fails","Versuche alle Segmente runterzuladen, auch wenn eines fehlschlägt"},
 {"Trying","Versuche"}, // ?? Status beim Hoch-/Herunterladen
 {"Unknown","Unbekannt"},
