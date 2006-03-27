@@ -39,24 +39,24 @@ public class FrostSecurityManager extends SecurityManager {
         List nodes = FcpFactory.getNodes();
         for(Iterator i=nodes.iterator(); i.hasNext(); ) {
             FcpFactory.NodeAddress na = (FcpFactory.NodeAddress)i.next();
-            // TODO: should we allow any name lookups (port = -1) ???
-            if( port == na.port || port < 0 ) {
+            if( port < 0 ) {
+                return; // allow DNS lookups
+            }
+            if( port == na.port ) {
                 if( host.equals(na.hostIp) || host.equals(na.hostName) ) {
                     return; // host:port is in our list
                 }
             }            
         }
-        // host:port is not in our list 
+        // host:port is not in our list
         throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
     }
     
     public void checkConnect(String host, int port, Object context) {
-//        System.out.println("checkConnect(1):"+host+","+port);
         checkFrostConnect(host, port);
         super.checkConnect(host, port, context);
     }
     public void checkConnect(String host, int port) {
-//        System.out.println("checkConnect(2):"+host+","+port);
         checkFrostConnect(host, port);
         super.checkConnect(host, port);
     }
