@@ -19,6 +19,7 @@
 package frost.gui.help;
 
 import java.net.*;
+import java.util.*;
 
 import javax.swing.text.*;
 import javax.swing.text.html.*;
@@ -114,6 +115,16 @@ public class HelpHTMLDocument extends HTMLDocument {
          */
         public void handleSimpleTag(HTML.Tag t, MutableAttributeSet a, int pos) {
 
+//            for(Enumeration e = a.getAttributeNames(); e.hasMoreElements(); ) {
+//                Object attName = e.nextElement();
+//                String attVal = (String)a.getAttribute(attName);
+//                if( attVal.indexOf("http://") > -1 ) {
+//                    a.removeAttribute(attName);
+//                    a.addAttribute(attName, attVal.substring("http://".length()));
+//                }
+//            }
+            
+            
             // System.out.println("noti's parserhook touched");
             if( t == HTML.Tag.IMG ) {
 
