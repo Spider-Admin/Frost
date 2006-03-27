@@ -286,6 +286,77 @@ static HTML.Attribute  ACTION
    the list of attributes 4.01: http://www.w3.org/TR/html401/index/attributes.html
    *
    *
+   *% URI stuff
+
+Name        Related Elements	Type	Default         Depr.	DTD	Comment
+
+action      FORM                %URI;       #REQUIRED	 	 	server-side form handler
+archive     APPLET              CDATA       #IMPLIED	D	L	comma-separated archive list
+archive     OBJECT              CDATA	    #IMPLIED	 	 	space-separated list of URIs
+background  BODY                %URI;       #IMPLIED	D	L	texture tile for document background
+cite        BLOCKQUOTE, Q	%URI;	    #IMPLIED	 	 	URI for source document or msg
+cite        DEL, INS            %URI;	    #IMPLIED	 	 	info on reason for change
+classid     OBJECT              %URI;	    #IMPLIED	 	 	identifies an implementation
+code        APPLET              CDATA	    #IMPLIED	D	L	applet class file
+codebase    OBJECT              %URI;	    #IMPLIED	 	 	base URI for classid, data, archive
+codebase    APPLET              %URI;	    #IMPLIED	D	L	optional base URI for applet
+content     META                CDATA	    #REQUIRED	 	 	associated information
+data        OBJECT              %URI;	    #IMPLIED	 	 	reference to object's data
+defer       SCRIPT              (defer)	    #IMPLIED	 	 	UA may defer execution of script
+href        A, AREA, LINK	%URI;	    #IMPLIED	 	 	URI for linked resource
+href        BASE                %URI;	    #IMPLIED	 	 	URI that acts as base URI
+longdesc    IMG         	%URI;	    #IMPLIED	 	 	link to long description (complements alt)
+profile     HEAD                %URI;	    #IMPLIED	 	 	named dictionary of meta info
+rel         A, LINK             %LinkTypes; #IMPLIED	 	 	forward link types
+rev         A, LINK             %LinkTypes; #IMPLIED	 	 	reverse link types
+src         SCRIPT              %URI;       #IMPLIED	 	 	URI for an external script
+src         INPUT               %URI;       #IMPLIED	 	 	for fields with images
+src         IMG                 %URI;       #REQUIRED	 	 	URI of image to embed
+usemap      IMG, INPUT, OBJECT	%URI;       #IMPLIED	 	 	use client-side image map
+
+FRAMES stuff  
+    
+target      A, AREA, BASE, FORM, LINK
+                                %FrameTarget;	#IMPLIED 	L	render in this frame
+longdesc    FRAME, IFRAME	%URI;	#IMPLIED	 	F	link to long description (complements title)
+src         FRAME, IFRAME	%URI;	#IMPLIED	 	F	source of frame content
+
+SCRIPT stuff   
+
+onblur      A, AREA, BUTTON, INPUT, LABEL, SELECT, TEXTAREA
+                                %Script;	#IMPLIED	 	 	the element lost the focus
+onchange    INPUT, SELECT, TEXTAREA
+                                %Script;	#IMPLIED	 	 	the element value was changed
+onclick     All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                               %Script;         #IMPLIED	 	 	a pointer button was clicked
+ondblclick  All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE
+                                %Script;	#IMPLIED	 	 	a pointer button was double clicked
+onfocus     A, AREA, BUTTON, INPUT, LABEL, SELECT, TEXTAREA
+                                %Script;	#IMPLIED	 	 	the element got the focus
+onkeydown   All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a key was pressed down
+onkeypress  All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a key was pressed and released
+onkeyup     All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a key was released
+onload      FRAMESET            %Script;	#IMPLIED	 	F	all the frames have been loaded
+onload      BODY                %Script;	#IMPLIED	 	 	the document has been loaded
+onmousedown All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a pointer button was pressed down
+onmousemove All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a pointer was moved within
+onmouseout  All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a pointer was moved away
+onmouseover All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a pointer was moved onto
+onmouseup   All elements but APPLET, BASE, BASEFONT, BDO, BR, FONT, FRAME, FRAMESET, HEAD, HTML, IFRAME, ISINDEX, META, PARAM, SCRIPT, STYLE, TITLE	
+                                %Script;	#IMPLIED	 	 	a pointer button was released
+onreset     FORM                %Script;	#IMPLIED	 	 	the form was reset
+onselect    INPUT, TEXTAREA	%Script;	#IMPLIED	 	 	some text was selected
+onsubmit    FORM                %Script;	#IMPLIED	 	 	the form was submitted
+onunload    FRAMESET            %Script;	#IMPLIED	 	F	all the frames have been removed
+onunload    BODY                %Script;	#IMPLIED	 	 	the document has been removed
+
    *
    *
    */
