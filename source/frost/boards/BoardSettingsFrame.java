@@ -729,7 +729,7 @@ public class BoardSettingsFrame extends JDialog {
      */
     private void refreshLanguage() {
         if( board.isFolder() ) {
-            setTitle("Settings for all boards in folder '"+board.getName()+"'");
+            setTitle(language.getString("Settings for all boards in folder") + " '" + board.getName() + "'");
         } else {
             setTitle(language.getString("Settings for board") + " '" + board.getName() + "'");
         }
@@ -759,8 +759,7 @@ public class BoardSettingsFrame extends JDialog {
 
         publicKeyLabel.setText(language.getString("Public key") + " :");
         privateKeyLabel.setText(language.getString("Private key") + " :");
-        messageDisplayDaysLabel.setText(
-                language.getString("Maximum message display (days)"));
+        messageDisplayDaysLabel.setText(language.getString("Maximum message display (days)"));
         hideUnsignedMessagesLabel.setText(language.getString("Hide unsigned messages"));
         hideBadMessagesLabel.setText(language.getString("Hide messages flagged BAD"));
         hideCheckMessagesLabel.setText(language.getString("Hide messages flagged CHECK"));
