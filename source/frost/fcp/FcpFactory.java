@@ -35,6 +35,8 @@ public class FcpFactory {
     public static class NodeAddress {
         public InetAddress host = null;
         public int port = -1;
+        public String hostName = null; // avoid name lookup recursion in security manager
+        public String hostIp = null; // avoid name lookup recursion in security manager
     }
 
     /**
@@ -45,9 +47,16 @@ public class FcpFactory {
         
         FcpConnection connection = null;
 
+        int maxTries;
+        if( getNodes().size() == 1 ) {
+            // give our single FCP host 3 tries
+            maxTries = 3;
+        } else {
+            // if we have more than one node, try each one at least twice
+            maxTries = getNodes().size()*2;
+        }
+
         int tries = 0;
-        // if we have more than one node, try each one at least once
-        int maxTries = getNodes().size() > 1 ? getNodes().size() : 3;
         while (connection == null && tries < maxTries) {
             try {
                 connection = getConnection();
@@ -105,13 +114,13 @@ public class FcpFactory {
         }
     }
 
-    /**
-     * @param s the node to be removed
-     */
-    protected static void delegateRemove(NodeAddress s) {
-        nodes.remove(s);
-    }
-
+//    /**
+//     * @param s the node to be removed
+//     */
+//    protected static void delegateRemove(NodeAddress s) {
+//        nodes.remove(s);
+//    }
+//
     /**
      * Process provided List of string (host:port or host) and create InetAddress objects for each.
      */
@@ -123,17 +132,22 @@ public class FcpFactory {
                 InetAddress ia = null;
                 try {
                     ia = InetAddress.getByName(nodeName);
+                    na.host = ia;
+                    na.port = 8481; // default
+                    na.hostName = ia.getHostName();
+                    na.hostIp = ia.getHostAddress();
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Unknown FCP host: "+nodeName, t);
                     continue;
                 }
-                na.host = ia;
-                na.port = 8481; // default
             } else {
                 String[] splitNodeName = nodeName.split(":");
                 InetAddress ia = null;
                 try {
                     ia = InetAddress.getByName(splitNodeName[0]);
+                    na.host = ia;
+                    na.hostName = ia.getHostName();
+                    na.hostIp = ia.getHostAddress();
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Unknown FCP host: "+nodeName, t);
                     continue;
@@ -141,12 +155,11 @@ public class FcpFactory {
                 int port = -1;
                 try {
                     port = Integer.parseInt(splitNodeName[1]);
+                    na.port = port;
                 } catch(Throwable t) {
                     logger.log(Level.SEVERE, "Unknown FCP port: "+nodeName, t);
                     continue;
                 }
-                na.host = ia;
-                na.port = port;
             }
             nodes.add(na);
         }
@@ -169,11 +182,11 @@ public class FcpFactory {
             // for now, remove on the first failure.
             // FIXME: maybe we should give the node few chances?
             // also, should we remove it from the settings (i.e. forever)?
-            delegateRemove(selectedNode);
+//            delegateRemove(selectedNode);
             throw e;
         } catch (FcpToolsException e) {
             // same here
-            delegateRemove(selectedNode);
+//            delegateRemove(selectedNode);
             throw e;
         }
         return con;

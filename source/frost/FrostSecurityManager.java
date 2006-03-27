@@ -39,15 +39,14 @@ public class FrostSecurityManager extends SecurityManager {
         List nodes = FcpFactory.getNodes();
         for(Iterator i=nodes.iterator(); i.hasNext(); ) {
             FcpFactory.NodeAddress na = (FcpFactory.NodeAddress)i.next();
-            if( !host.equals(na.host.getHostAddress()) &&
-                !host.equals(na.host.getHostName()) )
-            {
-                throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
-            }
-            if( port != na.port && port > -1 ) {
-                throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
-            }
+            if( port == na.port || port < 0 ) {
+                if( host.equals(na.hostIp) || host.equals(na.hostName) ) {
+                    return; // host:port is in our list
+                }
+            }            
         }
+        // host:port is not in our list 
+        throw new SecurityException("Connect to non-FCP host/port forbidden: "+host+":"+port);
     }
     
     public void checkConnect(String host, int port, Object context) {
