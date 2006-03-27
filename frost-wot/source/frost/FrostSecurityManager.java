@@ -39,6 +39,7 @@ public class FrostSecurityManager extends SecurityManager {
         List nodes = FcpFactory.getNodes();
         for(Iterator i=nodes.iterator(); i.hasNext(); ) {
             FcpFactory.NodeAddress na = (FcpFactory.NodeAddress)i.next();
+            // TODO: should we allow any name lookups (port = -1) ???
             if( port == na.port || port < 0 ) {
                 if( host.equals(na.hostIp) || host.equals(na.hostName) ) {
                     return; // host:port is in our list

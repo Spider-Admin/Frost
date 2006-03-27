@@ -26,6 +26,7 @@ import java.util.List;
 import javax.swing.*;
 
 import frost.*;
+import frost.gui.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -33,9 +34,9 @@ import frost.util.gui.translation.*;
  *
  * @author bback
  */
-public class AltEdit {
+public class AltEdit extends Thread {
 
-    Language language = Language.getInstance();
+    private Language language = Language.getInstance();
 
     private Frame parentFrame;
     private String linesep = System.getProperty("line.separator");
@@ -46,20 +47,31 @@ public class AltEdit {
     private final String SUBJECT_MARKER = language.getString("*--- Subject line (changeable) ---*");
     private final String TEXT_MARKER = language.getString("*--- Enter your text after this line ---*");
 
-    private String reportSubject = null;
-    private String reportText = null;
+    private Object transferObject;
+    private MessageFrame callbackTarget;
 
-    public AltEdit(String subject, String text, Frame parentFrame) {
+    public AltEdit(String subject, String text, Frame parentFrame, Object transferObject, MessageFrame callbackTarget) {
         this.parentFrame = parentFrame;
         this.oldSubject = subject;
         this.oldText = text;
+        this.transferObject = transferObject;
+        this.callbackTarget = callbackTarget;
+    }
+    
+    private void callbackMessageFrame(final String newSubject, final String newText) {
+        SwingUtilities.invokeLater(new Runnable() {
+            public void run() {
+                callbackTarget.altEditCallback(transferObject, newSubject, newText);
+            }
+        });
     }
 
-    public boolean run() {
+    public void run() {
 
         // paranoia
         if( Core.frostSettings.getBoolValue("useAltEdit") == false ) {
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
 
         String editor = Core.frostSettings.getValue("altEdit");
@@ -69,7 +81,8 @@ public class AltEdit {
                     language.getString("No alternate editor configured."),
                     "Error",
                     JOptionPane.ERROR_MESSAGE);
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
 
         if( editor.indexOf("%f") == -1 ) {
@@ -77,7 +90,8 @@ public class AltEdit {
                     language.getString("Configured alternate editor line must contain a '%f' as placeholder for the filename."),
                     language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
 
         // part before and after %f
@@ -92,7 +106,8 @@ public class AltEdit {
                     language.getString("Could not create message file for alternate editor: ")+editFile.getPath()+"\n"+e.toString(),
                     language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
         editFile.deleteOnExit();
 
@@ -110,7 +125,8 @@ public class AltEdit {
                     language.getString("Could not create message file for alternate editor: ")+editFile.getPath(),
                     language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
         sb = null;
 
@@ -123,7 +139,8 @@ public class AltEdit {
                     language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
 
         List lines = FileAccess.readLines(editFile, "UTF-8");
@@ -133,7 +150,8 @@ public class AltEdit {
                     language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
 
         String newSubject = null;
@@ -156,7 +174,8 @@ public class AltEdit {
                             language.getString("Error"),
                             JOptionPane.ERROR_MESSAGE);
                     editFile.delete();
-                    return false;
+                    callbackMessageFrame(null, null);
+                    return;
                 }
                 line = (String)it.next();
                 if( line.equals(TEXT_MARKER) ) {
@@ -165,7 +184,8 @@ public class AltEdit {
                             language.getString("Error"),
                             JOptionPane.ERROR_MESSAGE);
                     editFile.delete();
-                    return false;
+                    callbackMessageFrame(null, null);
+                    return;
                 }
                 newSubject = line.trim();
                 continue;
@@ -183,21 +203,11 @@ public class AltEdit {
                     language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
-            return false;
+            callbackMessageFrame(null, null);
+            return;
         }
 
         // finished, we have a newSubject and a newText now
-        reportSubject = newSubject;
-        reportText = newTextSb.toString();
-
-        return true;
-    }
-
-    public String getNewSubject() {
-        return reportSubject;
-    }
-
-    public String getNewText() {
-        return reportText;
+        callbackMessageFrame(newSubject, newTextSb.toString());
     }
 }

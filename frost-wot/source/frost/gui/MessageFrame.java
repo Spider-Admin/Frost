@@ -710,54 +710,97 @@ public class MessageFrame extends JFrame {
      * jButton2 Action Listener (Cancel)
      * @param e
      */
-    private void cancel_actionPerformed(ActionEvent e)
-    {
+    private void cancel_actionPerformed(ActionEvent e) {
         state = false;
         dispose();
     }
+    
+    private class TransferObject {
+        public Board newBoard;
+        public String newFrom;
+        public String newSubject;
+        public String newText;
+        public boolean isReply;
+        public Identity recipient;
+    }
 
     /**
-     * @param newBoard
-     * @param newFrom
-     * @param newSubject
-     * @param newText
-     * @param isReply
+     * Finally called to start composing a message. Uses alternate editor if configured.
      */
     private void composeMessage(
+            Board newBoard,
+            String newFrom,
+            String newSubject,
+            String newText,
+            boolean isReply,
+            Identity recipient) { // if given compose encrypted reply
+        
+        if (isReply) {
+            newText += "\n\n";
+        }
+
+        if (frostSettings.getBoolValue("useAltEdit")) {
+            // build our transfer object that the parser will provide us in its callback
+            TransferObject to = new TransferObject();
+            to.newBoard = newBoard;
+            to.newFrom = newFrom;
+            to.newSubject = newSubject;
+            to.newText = newText;
+            to.isReply = isReply;
+            to.recipient = recipient;
+            // create a temporary editText that is show in alternate editor
+            // the editor will return only new text to us
+            String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
+            String fromLine = "----- " + newFrom + " ----- " + date + " -----";
+            String editText = newText + fromLine + "\n\n";
+            
+            AltEdit ae = new AltEdit(newSubject, editText, MainFrame.getInstance(), to, this);
+            ae.start();
+        } else {
+            // invoke frame directly, no alternate editor
+            composeMessageContinued(newBoard, newFrom, newSubject, newText, null, isReply, recipient);
+        }
+    }
+    
+    public void altEditCallback(Object toObj, String newAltSubject, String newAltText) {
+        TransferObject to = (TransferObject)toObj;
+        if( newAltSubject == null ) {
+            newAltSubject = to.newSubject; // use original subject
+        }
+        composeMessageContinued(to.newBoard, to.newFrom, newAltSubject, to.newText, newAltText, to.isReply, to.recipient);
+    }
+
+    /**
+     * This method is either invoked by ComposeMessage OR by the callback of the AltEdit class.
+     */
+    private void composeMessageContinued(
         Board newBoard,
         String newFrom,
         String newSubject,
         String newText,
+        String altEditText,
         boolean isReply,
         Identity recipient) { // if given compose encrypted reply
-
+        
         headerArea.setEnabled(false);
         board = newBoard;
         from = newFrom;
         subject = newSubject;
-        String text = newText;
+
+        oldSender = from;
 
         String date = DateFun.getExtendedDate() + " - " + DateFun.getFullExtendedTime() + "GMT";
         String fromLine = "----- " + from + " ----- " + date + " -----";
 
-        if (isReply) {
-            text += "\n\n";
+        int headerAreaStart = newText.length();//Beginning of non-modifiable area
+        newText += fromLine + "\n\n";
+        int headerAreaEnd = newText.length() - 2; //End of non-modifiable area
+
+        if( altEditText != null ) {
+            newText += altEditText; // maybe append text entered in alternate editor
         }
 
-        int headerAreaStart = text.length();//Beginning of non-modifiable area
-        text += fromLine + "\n\n";
-        int headerAreaEnd = text.length() - 2; //End of non-modifiable area
-        oldSender = from;
-
-        if (frostSettings.getBoolValue("useAltEdit")) {
-            AltEdit ae = new AltEdit(subject, text, MainFrame.getInstance());
-            if( ae.run() ) {
-                subject = ae.getNewSubject();
-                text += ae.getNewText();
-            }
-        }
-
-        int caretPos = text.length();
+        int caretPos = newText.length();
 
         File signatureFile = new File("signature.txt");
         if (signatureFile.isFile()) {
@@ -795,10 +838,10 @@ public class MessageFrame extends JFrame {
 
         // set sig if msg is marked as signed
         if( sign.isSelected() && signature != null ) {
-            text += signature;
+            newText += signature;
         }
 
-        messageTextArea.setText(text);
+        messageTextArea.setText(newText);
         headerArea.setStartPos(headerAreaStart);
         headerArea.setEndPos(headerAreaEnd);
         headerArea.setEnabled(true);
