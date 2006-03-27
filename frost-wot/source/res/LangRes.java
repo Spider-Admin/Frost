@@ -378,10 +378,6 @@ public class LangRes extends ListResourceBundle {
 	{"Block messages with body containing (separate by ';' )", "Block messages with body containing (separate by ';' )"},
 	{"Block messages with these attached boards (separate by ';' )", "Block messages with these attached boards (separate by ';' )"},
     
-//	{"Hide unsigned messages", "Hide unsigned messages"},
-//	{"Hide messages flagged BAD", "Hide messages flagged BAD"},
-//	{"Hide messages flagged CHECK", "Hide messages flagged CHECK"},
-// 	{"Hide messages flagged OBSERVE", "Hide messages flagged OBSERVE"},
     {"Don't add boards to known boards list from users with trust states", "Don't add boards to known boards list from users with trust states"},
     {"Hide messages with trust states", "Hide messages with trust states"},
 	{"Bad", "Bad"},
@@ -514,8 +510,9 @@ public class LangRes extends ListResourceBundle {
 	{"Core.loadIdentities.InvalidNameBody","Your name must not contain a '@'!"},
 	{"Core.loadIdentities.InvalidNameTitle","Invalid identity name"},
 
-	//Board Settings Dialog
-	{"Settings for board","Settings for board"},
+	// Board Settings Dialog
+	{"Settings for board", "Settings for board"},
+    {"Settings for all boards in folder", "Settings for all boards in folder"},
 	{"Override default settings","Override default settings"},
 	{"Use default","Use default"},
 	{"Set to","Set to"},
@@ -524,6 +521,10 @@ public class LangRes extends ListResourceBundle {
 	{"Enable automatic board update","Enable automatic board update"},
 	{"Maximum message display (days)","Maximum message display (days)"},
 	{"Warning","Warning"},
+    {"Hide unsigned messages", "Hide unsigned messages"},
+    {"Hide messages flagged BAD", "Hide messages flagged BAD"},
+    {"Hide messages flagged CHECK", "Hide messages flagged CHECK"},
+    {"Hide messages flagged OBSERVE", "Hide messages flagged OBSERVE"},
 
 	//	Uploads underway warning when exiting
 	 {"UploadsUnderway.title","Uploads underway"},
