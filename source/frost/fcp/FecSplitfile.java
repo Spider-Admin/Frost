@@ -121,7 +121,7 @@ public class FecSplitfile
         filename = filename.replace(System.getProperty("file.separator").charAt(0), '_');
 
         // append keypool dir and a _ before filename
-        filename = MainFrame.frostSettings.getValue("keypool.dir") + "_" + filename;
+        filename = Core.frostSettings.getValue("keypool.dir") + "_" + filename;
 
         logger.fine("DBG-ULFILENAME="+filename);
 

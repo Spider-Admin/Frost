@@ -162,7 +162,7 @@ public class GetRequestsThread extends Thread
 
                                 FcpRequest.getFile(
                                     "KSK@frost/request/"
-                                        + MainFrame.frostSettings.getValue("messageBase")
+                                        + Core.frostSettings.getValue("messageBase")
                                         + "/"
                                         + Mixed.makeFilename(identities.getMyId().getUniqueName())
                                         + "-"

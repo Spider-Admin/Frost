@@ -25,10 +25,12 @@ import frost.messages.*;
 
 public class ConvertXMLUTF16ToUTF8 {
     
-    File keypoolDirFile = null;
-    File archiveDirFile = null;
+    private File keypoolDirFile = null;
+    private File archiveDirFile = null;
   
     private static XmlFileFilter xmlFileFilter = new XmlFileFilter();
+    
+    private static long filesProcessed = 0;
     
     public static void main(String[] args) throws Throwable {
         System.out.println("Converting all XML files in keypool and archive from encoding UTF-16 to UTF-8...");
@@ -37,12 +39,12 @@ public class ConvertXMLUTF16ToUTF8 {
             return;
         }
         c.run();
+        System.out.println("Ready, processed "+filesProcessed+" files.");
     }
 
     public ConvertXMLUTF16ToUTF8() {
-        SettingsClass frostSettings = new SettingsClass();
-
-        String archiveDir = frostSettings.getValue("archive.dir");
+        
+        String archiveDir = Core.frostSettings.getValue("archive.dir");
         if( archiveDir.length() == 0 ) {
             archiveDir = null;
         } else {
@@ -50,7 +52,7 @@ public class ConvertXMLUTF16ToUTF8 {
             archiveDir += ("messages" + File.separator);
         }
         
-        String keypoolDir = frostSettings.getValue("keypool.dir");
+        String keypoolDir = Core.frostSettings.getValue("keypool.dir");
         if( keypoolDir.length() == 0 ) {
             keypoolDir = null;
         }
@@ -101,7 +103,6 @@ public class ConvertXMLUTF16ToUTF8 {
         return true;
     }
 
-    
     private void run() throws Throwable {
         // scan all directories in keypoolDir and archiveDir for .xml files and convert them (load+save)
         if( keypoolDirFile != null ) {
@@ -138,6 +139,7 @@ public class ConvertXMLUTF16ToUTF8 {
                             System.out.println("Message could not be saved, conversion skipped: "+xmlFile.getPath());
                             continue;
                         }
+                        filesProcessed++;
                     } catch(Throwable t) {
                         System.out.println("Message could not be loaded, conversion skipped: "+xmlFile.getPath());
                         continue;

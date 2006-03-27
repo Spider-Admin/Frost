@@ -64,9 +64,9 @@ public class FcpRequest
     private static boolean getFECSplitFile(File target, File redirect, int htl, FrostDownloadItem dlItem)
     {
         // true = try all segments even if one fails
-        boolean optionTryAllSegments = MainFrame.frostSettings.getBoolValue("downloadTryAllSegments");
+        boolean optionTryAllSegments = Core.frostSettings.getBoolValue("downloadTryAllSegments");
         // true = deocde after download of ALL segments
-        boolean optionDecodeAfterDownload = MainFrame.frostSettings.getBoolValue("downloadDecodeAfterEachSegment");
+        boolean optionDecodeAfterDownload = Core.frostSettings.getBoolValue("downloadDecodeAfterEachSegment");
 
         FecSplitfile splitfile =null;
 
@@ -180,7 +180,7 @@ public class FcpRequest
                 continue;
             }
 
-            int maxThreads = MainFrame.frostSettings.getIntValue("splitfileDownloadThreads");
+            int maxThreads = Core.frostSettings.getIntValue("splitfileDownloadThreads");
 
             if( segmentsFinishedBlocks < neededBlockCount ) {
                 // we need to receive some more blocks before we are able to decode
@@ -480,7 +480,7 @@ public class FcpRequest
         File tempFile = null;
         if( createTempFile ) {
             try {
-                tempFile = File.createTempFile("getFile_", ".tmp", new File(MainFrame.frostSettings.getValue("temp.dir")));
+                tempFile = File.createTempFile("getFile_", ".tmp", new File(Core.frostSettings.getValue("temp.dir")));
             } catch( Throwable ex ) {
                 logger.log(Level.SEVERE, "Exception thrown in getFile(...)", ex);
                 return null;
@@ -758,7 +758,7 @@ Document
         String splitFileBlocksize = SettingsFun.getValue(target.getPath(), "SplitFile.Blocksize");
 
         int maxThreads = 3;
-        maxThreads = MainFrame.frostSettings.getIntValue("splitfileDownloadThreads");
+        maxThreads = Core.frostSettings.getIntValue("splitfileDownloadThreads");
 
         int intBlockCount = 0;
         try {

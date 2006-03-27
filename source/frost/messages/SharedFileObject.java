@@ -77,7 +77,7 @@ public class SharedFileObject implements XMLizable
 
         if (date == null) return true;
 
-        int maxAge = MainFrame.frostSettings.getIntValue("maxAge");
+        int maxAge = Core.frostSettings.getIntValue("maxAge");
         String _oldestDate = DateFun.getDate(maxAge);
         Calendar fileDate=null;
         Calendar oldestDate=null;

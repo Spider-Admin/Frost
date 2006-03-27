@@ -416,7 +416,7 @@ public class TOF
                                     message = null;
                                 }
                                 if( message != null &&
-                                    ( MainFrame.frostSettings.getBoolValue("showDeletedMessages") ||
+                                    ( Core.frostSettings.getBoolValue("showDeletedMessages") ||
                                       !message.isDeleted() ) &&
                                     message.isValid() &&
                                     !blocked(message,board) )
@@ -505,11 +505,11 @@ public class TOF
         // TODO: maybe allow regexp here?!
 
         // Block by subject (and rest of the header)
-        if (MainFrame.frostSettings.getBoolValue("blockMessageChecked")) {
+        if (Core.frostSettings.getBoolValue("blockMessageChecked")) {
             String header =
                 (message.getSubject() + message.getDate() + message.getTime()).toLowerCase();
             StringTokenizer blockWords =
-                new StringTokenizer(MainFrame.frostSettings.getValue("blockMessage"), ";");
+                new StringTokenizer(Core.frostSettings.getValue("blockMessage"), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();
@@ -522,10 +522,10 @@ public class TOF
             }
         }
         // Block by body
-        if (MainFrame.frostSettings.getBoolValue("blockMessageBodyChecked")) {
+        if (Core.frostSettings.getBoolValue("blockMessageBodyChecked")) {
             String content = message.getContent().toLowerCase();
             StringTokenizer blockWords =
-                new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBody"), ";");
+                new StringTokenizer(Core.frostSettings.getValue("blockMessageBody"), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();
@@ -538,10 +538,10 @@ public class TOF
             }
         }
         // Block by attached boards
-        if (MainFrame.frostSettings.getBoolValue("blockMessageBoardChecked")) {
+        if (Core.frostSettings.getBoolValue("blockMessageBoardChecked")) {
             List boards = message.getAttachmentsOfType(Attachment.BOARD);
             StringTokenizer blockWords =
-                new StringTokenizer(MainFrame.frostSettings.getValue("blockMessageBoard"), ";");
+                new StringTokenizer(Core.frostSettings.getValue("blockMessageBoard"), ";");
             boolean found = false;
             while (blockWords.hasMoreTokens() && !found) {
                 String blockWord = blockWords.nextToken().trim();

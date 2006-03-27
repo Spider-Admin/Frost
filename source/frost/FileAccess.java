@@ -52,7 +52,7 @@ public class FileAccess {
         if (returnVal == JFileChooser.APPROVE_OPTION) {
             File file = fc.getSelectedFile();
             if (file != null) {
-                MainFrame.frostSettings.setValue("lastUsedDirectory", file.getParent());
+                Core.frostSettings.setValue("lastUsedDirectory", file.getParent());
                 if (!file.isDirectory()) {
                     writeFile(content, file, "UTF-8");
                 }

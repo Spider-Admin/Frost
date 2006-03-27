@@ -124,7 +124,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
         try {
             // sign zip file if requested
-            boolean signUpload = MainFrame.frostSettings.getBoolValue("signUploads");
+            boolean signUpload = Core.frostSettings.getBoolValue("signUploads");
             byte[] metadata = null;
             if( signUpload ) {
                 byte[] zipped = FileAccess.readByteArray(zippedIndexFile);
@@ -221,7 +221,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                 File target = File.createTempFile(
                         "frost-index-" + index,
                         board.getBoardFilename(),
-                        new File(MainFrame.frostSettings.getValue("temp.dir")));
+                        new File(Core.frostSettings.getValue("temp.dir")));
 
                 logger.info("FILEDN: Requesting index " + index + " for board " + board.getName() + " for date " + date);
 
@@ -373,7 +373,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                                         continue;
                                     }
                                 } else if (sharer.getState() == FrostIdentities.ENEMY ) {
-                                    if (MainFrame.frostSettings.getBoolValue("hideBadFiles")) {
+                                    if (Core.frostSettings.getBoolValue("hideBadFiles")) {
                                         logger.info("Skipped index file from BAD user " + _owner);
                                         target.delete();
                                         unzippedTarget.delete();
@@ -384,7 +384,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                                 sharer.updateLastSeenTimestamp();
                             }
                         } // end-of: if metadata != null
-                        else if (MainFrame.frostSettings.getBoolValue("hideAnonFiles")) {
+                        else if (Core.frostSettings.getBoolValue("hideAnonFiles")) {
                             unzippedTarget.delete();
                             target.delete();
                             continue; //do not show index.
@@ -475,9 +475,9 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         this.board = board;
         this.date = date;
         this.identities = newIdentities;
-        requestHtl = MainFrame.frostSettings.getIntValue("keyDownloadHtl");
-        insertHtl = MainFrame.frostSettings.getIntValue("keyUploadHtl");
-        keypool = MainFrame.frostSettings.getValue("keypool.dir");
+        requestHtl = Core.frostSettings.getIntValue("keyDownloadHtl");
+        insertHtl = Core.frostSettings.getIntValue("keyUploadHtl");
+        keypool = Core.frostSettings.getValue("keypool.dir");
 //      maxKeys = MainFrame.frostSettings.getIntValue("maxKeys");
         this.isForToday = isForToday;
 

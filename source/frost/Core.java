@@ -59,12 +59,13 @@ public class Core implements Savable, FrostEventDispatcher  {
 
     static Hashtable myBatches = new Hashtable();
 
+    // Core instanciates itself, frostSettings must be created before instance=Core() !
+    public static SettingsClass frostSettings = new SettingsClass();
+
     private static Core instance = new Core();
     private static Locale locale = null;
 
     private static List knownBoards = new ArrayList(); //list of known boards
-
-    public static SettingsClass frostSettings;
 
     private static FrostCrypt crypto = new FrostCrypt();
 
@@ -87,7 +88,6 @@ public class Core implements Savable, FrostEventDispatcher  {
     private String keypool;
 
     private Core() {
-        frostSettings = new SettingsClass();
         initializeLanguage();
     }
 

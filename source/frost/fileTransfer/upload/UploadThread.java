@@ -84,7 +84,7 @@ class UploadThread extends Thread
         if (Core.getMyBatches().values().size() == 0) {
             Core.getMyBatches().put(batchId, batchId);
         }
-        boolean sign = MainFrame.frostSettings.getBoolValue("signUploads");
+        boolean sign = Core.frostSettings.getBoolValue("signUploads");
         try {
             switch (mode) {
                 case MODE_UPLOAD :

@@ -185,7 +185,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public boolean getHideBad() {
         if (!isConfigured() || hideBad == null) {
             // return default
-            return MainFrame.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD);
+            return Core.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_BAD);
         }
         return hideBad.booleanValue();
     }
@@ -203,7 +203,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public boolean getHideCheck() {
         if (!isConfigured() || hideCheck == null) {
             // return default
-            return MainFrame.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_CHECK);
+            return Core.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_CHECK);
         }
         return hideCheck.booleanValue();
     }
@@ -221,7 +221,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public boolean getHideObserve() {
         if (!isConfigured() || hideObserve == null) {
             // return default
-            return MainFrame.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE);
+            return Core.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_OBSERVE);
         }
         return hideObserve.booleanValue();
     }
@@ -246,7 +246,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public int getMaxMessageDisplay() {
         if (!isConfigured() || maxMessageDisplay == null) {
             // return default
-            return MainFrame.frostSettings.getIntValue("maxMessageDisplay");
+            return Core.frostSettings.getIntValue("maxMessageDisplay");
         }
         return maxMessageDisplay.intValue();
     }
@@ -284,7 +284,7 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public boolean getShowSignedOnly() {
         if (!isConfigured() || showSignedOnly == null) {
             // return default
-            return MainFrame.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_UNSIGNED);
+            return Core.frostSettings.getBoolValue(SettingsClass.HIDE_MESSAGES_UNSIGNED);
         }
         return showSignedOnly.booleanValue();
     }
