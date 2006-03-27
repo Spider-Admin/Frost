@@ -44,7 +44,6 @@ import frost.messaging.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.threads.maintenance.*;
-import frost.util.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -64,43 +63,12 @@ public class Core implements Savable, FrostEventDispatcher  {
     private static Locale locale = null;
 
     private static List knownBoards = new ArrayList(); //list of known boards
-    private static NotifyByEmailThread emailNotifier = null;
 
     public static SettingsClass frostSettings;
 
     private static FrostCrypt crypto = new FrostCrypt();
 
-    private class EventDispatcher {
-
-        /**
-         * @param frostEvent
-         */
-        public void dispatchEvent(FrostEvent frostEvent) {
-            switch(frostEvent.getId()) {
-                case FrostEvent.STORAGE_ERROR_EVENT_ID:
-                    dispatchStorageErrorEvent((StorageErrorEvent) frostEvent);
-                    break;
-                default:
-                    logger.severe("Unknown FrostEvent received. Id: '" + frostEvent.getId() + "'");
-            }
-        }
-
-        /**
-         * @param errorEvent
-         */
-        public void dispatchStorageErrorEvent(StorageErrorEvent errorEvent) {
-            StringWriter stringWriter = new StringWriter();
-            errorEvent.getException().printStackTrace(new PrintWriter(stringWriter));
-
-            if (mainFrame != null) {
-                JDialogWithDetails.showErrorDialog(mainFrame,
-                                    language.getString("Saver.AutoTask.title"),
-                                    errorEvent.getMessage(),
-                                    stringWriter.toString());
-            }
-            System.exit(3);
-        }
-    }
+    private static boolean isHelpHtmlSecure = false;
 
     private EventDispatcher dispatcher = new EventDispatcher();
     private Language language = null;
@@ -569,7 +537,9 @@ public class Core implements Savable, FrostEventDispatcher  {
         }
         
         // check if help.zip contains only secure files (no http or ftp links at all)
-        CheckHtmlIntegrity.scanZipFile("help/help.zip");
+        CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
+        isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
+        chi = null;
 
         // TODO: one time convert, remove later (added: 2005-09-02)
 
@@ -652,9 +622,6 @@ public class Core implements Savable, FrostEventDispatcher  {
         if (isFreenetOnline()) {
             resendFailedMessages();
         }
-
-        //TODO: check if email notification is on and instantiate the emailNotifier
-        //of course it needs to be added as a setting first ;-p
 
         splashscreen.setText(language.getString("Reaching ridiculous speed..."));
         splashscreen.setProgress(80);
@@ -757,13 +724,6 @@ public class Core implements Savable, FrostEventDispatcher  {
         }
     }
 
-    /**
-     * @return the thread that will notify the user for email
-     */
-    public static FlexibleObserver getEmailNotifier(){
-        return emailNotifier;
-    }
-
     public static void setLocale(Locale locale) {
         Core.locale = locale;
     }
@@ -840,5 +800,40 @@ public class Core implements Savable, FrostEventDispatcher  {
      */
     public void dispatchEvent(FrostEvent frostEvent) {
         dispatcher.dispatchEvent(frostEvent);
+    }
+
+    public static boolean isHelpHtmlSecure() {
+        return isHelpHtmlSecure;
+    }
+    
+    private class EventDispatcher {
+        /**
+         * @param frostEvent
+         */
+        public void dispatchEvent(FrostEvent frostEvent) {
+            switch(frostEvent.getId()) {
+                case FrostEvent.STORAGE_ERROR_EVENT_ID:
+                    dispatchStorageErrorEvent((StorageErrorEvent) frostEvent);
+                    break;
+                default:
+                    logger.severe("Unknown FrostEvent received. Id: '" + frostEvent.getId() + "'");
+            }
+        }
+
+        /**
+         * @param errorEvent
+         */
+        public void dispatchStorageErrorEvent(StorageErrorEvent errorEvent) {
+            StringWriter stringWriter = new StringWriter();
+            errorEvent.getException().printStackTrace(new PrintWriter(stringWriter));
+
+            if (mainFrame != null) {
+                JDialogWithDetails.showErrorDialog(mainFrame,
+                                    language.getString("Saver.AutoTask.title"),
+                                    errorEvent.getMessage(),
+                                    stringWriter.toString());
+            }
+            System.exit(3);
+        }
     }
 }

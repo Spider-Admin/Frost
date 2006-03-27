@@ -33,6 +33,9 @@ public class ConvertXMLUTF16ToUTF8 {
     public static void main(String[] args) throws Throwable {
         System.out.println("Converting all XML files in keypool and archive from encoding UTF-16 to UTF-8...");
         ConvertXMLUTF16ToUTF8 c = new ConvertXMLUTF16ToUTF8();
+        if( c.initializeLockFile() == false ) {
+            return;
+        }
         c.run();
     }
 
@@ -79,8 +82,25 @@ public class ConvertXMLUTF16ToUTF8 {
             System.out.println("Archive directory does not exists, converting keypool only.");
             return;
         }
-
     }
+    
+    private boolean initializeLockFile() {
+        // check for running frost (lock file)
+        File runLock = new File(".frost_run_lock");
+        boolean fileCreated = false;
+        try {
+            fileCreated = runLock.createNewFile();
+        } catch (IOException ex) {
+            ex.printStackTrace(System.out);
+        }
+        if (fileCreated == false) {
+            System.out.println("Frost is currently running, conversion aborted.");
+            return false;
+        }
+        runLock.deleteOnExit();
+        return true;
+    }
+
     
     private void run() throws Throwable {
         // scan all directories in keypoolDir and archiveDir for .xml files and convert them (load+save)
@@ -107,6 +127,10 @@ public class ConvertXMLUTF16ToUTF8 {
                 File[] xmlFileList = subDirList[z].listFiles(xmlFileFilter);
                 for(int y=0; y < xmlFileList.length; y++ ) {
                     File xmlFile = xmlFileList[y];
+                    if( xmlFile.length() < 20 ) {
+                        // just a marker file, ignore silently
+                        continue;
+                    }
                     try {
                         MessageObject mo = new MessageObject(xmlFile); // loads UTF-16 and UTF-8
                         boolean saveOk = mo.save(); // saves as UTF-8
@@ -115,7 +139,7 @@ public class ConvertXMLUTF16ToUTF8 {
                             continue;
                         }
                     } catch(Throwable t) {
-                        System.out.println("INFO: Message could not be loaded, conversion skipped: "+xmlFile.getPath());
+                        System.out.println("Message could not be loaded, conversion skipped: "+xmlFile.getPath());
                         continue;
                     }
                 }

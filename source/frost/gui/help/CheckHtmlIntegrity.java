@@ -1,5 +1,5 @@
 /*
-  CheckHtmlIntegrity.java / About Box
+  CheckHtmlIntegrity.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -33,19 +33,19 @@ public class CheckHtmlIntegrity {
 
     private static Logger logger = Logger.getLogger(CheckHtmlIntegrity.class.getName());
 
-    private static boolean isHtmlSecure = false;
+    private boolean isHtmlSecure = false;
     
-    public static boolean isHtmlSecure() {
+    public boolean isHtmlSecure() {
         return isHtmlSecure;
     }
 
-    public static void scanZipFile(String fileName) {
+    public boolean scanZipFile(String fileName) {
 
         File file = new File(fileName);
         
         if( !file.isFile() || file.length() == 0 ) {
             logger.log(Level.SEVERE, "Zip file does not exist: "+file.getPath());
-            return;
+            return isHtmlSecure;
         }
 
         final byte[] zipData = new byte[4096];
@@ -74,7 +74,7 @@ public class CheckHtmlIntegrity {
                         htmlStr.indexOf("nntp://") > -1 )
                     {
                         logger.log(Level.SEVERE, "Unsecure HTML file in help.zip found: "+zn);
-                        return;
+                        return isHtmlSecure;
                     }
                 }
             }
@@ -88,5 +88,6 @@ public class CheckHtmlIntegrity {
         catch( IOException e ) {
             logger.log(Level.SEVERE, "Exception while reading help.zip. File is invalid.", e);
         }
+        return isHtmlSecure;
     }
 }
