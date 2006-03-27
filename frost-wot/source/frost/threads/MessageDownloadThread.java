@@ -228,7 +228,7 @@ public class MessageDownloadThread
                 } else {
                     downKey = new StringBuffer()
                             .append("KSK@frost/message/")
-                            .append(MainFrame.frostSettings.getValue("messageBase"))
+                            .append(Core.frostSettings.getValue("messageBase"))
                             .append("/")
                             .append(dirdate)
                             .append("-")

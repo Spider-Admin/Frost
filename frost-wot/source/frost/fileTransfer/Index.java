@@ -197,7 +197,7 @@ public class Index {
     private long determineZippedSize(FrostIndex idx) {
         File tmp = null;
         try {
-            tmp = File.createTempFile("index_", ".ziptmp", new File(MainFrame.frostSettings.getValue("temp.dir")));
+            tmp = File.createTempFile("index_", ".ziptmp", new File(Core.frostSettings.getValue("temp.dir")));
         } catch(Exception ex) {
             // this should never happen, but for the case ...
             tmp = new File("index_"+System.currentTimeMillis());
@@ -317,7 +317,7 @@ public class Index {
             totalIdx = readKeyFile(boardFiles);
 
             String myUniqueName = Core.getInstance().getIdentities().getMyId().getUniqueName();
-            int downloadBack = MainFrame.frostSettings.getIntValue("maxAge");
+            int downloadBack = Core.frostSettings.getIntValue("maxAge");
             logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
 
             String minDate = DateFun.getExtendedDate(downloadBack);

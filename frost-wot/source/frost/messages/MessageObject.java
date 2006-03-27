@@ -447,7 +447,7 @@ public class MessageObject implements XMLizable
             logger.log(Level.SEVERE, "Error while saving message.", e);
         }
         if (success && tmpFile.length() > 0) {
-            if( f.delete() == false ) {
+            if( f.isFile() && f.delete() == false ) {
                 logger.log(Level.SEVERE, "Error while saving message, delete failed.");
             }
             if( tmpFile.renameTo(f) == false ) {

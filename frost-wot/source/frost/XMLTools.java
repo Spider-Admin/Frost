@@ -275,7 +275,7 @@ public class XMLTools {
         try {
             tmp = File.createTempFile("xmltools_",
                                       ".tmp",
-                                      new File(MainFrame.frostSettings.getValue("temp.dir")));
+                                      new File(Core.frostSettings.getValue("temp.dir")));
         } catch(Exception ex) {
             // this should never happen, but for the case ...
             tmp = new File("xmltools_"+System.currentTimeMillis());

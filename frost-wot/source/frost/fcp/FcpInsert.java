@@ -329,7 +329,7 @@ RawDataLength=0
             }
 
             // start one thread with next block in queue
-            int maxThreads = MainFrame.frostSettings.getIntValue("splitfileUploadThreads"); // allows dynamic change
+            int maxThreads = Core.frostSettings.getIntValue("splitfileUploadThreads"); // allows dynamic change
             int maxThreadsNeeded = allBlocksToUpload.size();
             int threadCountAllowedToStart = maxThreads - runningThreads.size();
             if( maxThreadsNeeded > 0 && threadCountAllowedToStart > 0 ) {

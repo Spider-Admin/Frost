@@ -101,7 +101,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private static Core core;
 
     // saved to frost.ini
-    public static SettingsClass frostSettings = null;
+    private static SettingsClass frostSettings = null;
 
     private static MainFrame instance = null; // set in constructor
     // "keypool.dir" is the corresponding key in frostSettings, is set in defaults of SettingsClass.java
