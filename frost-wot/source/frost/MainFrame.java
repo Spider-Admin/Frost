@@ -703,7 +703,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 }
             });
             
-            if( CheckHtmlIntegrity.isHtmlSecure() == false ) {
+            if( Core.isHelpHtmlSecure() == false ) {
                 helpHelpMenuItem.setEnabled(false);
             }
             
@@ -1369,12 +1369,15 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     public void showHtmlHelp(String item) {
-      if( helpBrowser == null ) {
-          helpBrowser = new HelpBrowserFrame(frostSettings.getValue("locale"), "help/help.zip");
-      }
-      // show first time or bring to front
-      helpBrowser.setVisible(true);
-      helpBrowser.showHelpPage(item);
+        if( Core.isHelpHtmlSecure() == false ) {
+            return;
+        }
+        if( helpBrowser == null ) {
+            helpBrowser = new HelpBrowserFrame(frostSettings.getValue("locale"), "help/help.zip");
+        }
+        // show first time or bring to front
+        helpBrowser.setVisible(true);
+        helpBrowser.showHelpPage(item);
     }
 
     public void startSearchMessagesDialog() {

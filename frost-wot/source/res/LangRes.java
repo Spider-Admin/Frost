@@ -530,12 +530,6 @@ public class LangRes extends ListResourceBundle {
 	 {"UploadsUnderway.body","Some messages are still being uploaded.\n"
 							 + "Do you want to exit anyway?"},
 
-	//email notification stuff
-	{"SMTP.server","server address"},
-	{"SMTP.username","username"},
-	{"SMTP.password","password"},
-	{"Email.address","send notification to"},
-
 	///
 	///	TofTree
 	///

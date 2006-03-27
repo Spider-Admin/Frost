@@ -19,14 +19,14 @@
 package frost;
 
 import java.io.*;
-import java.util.Locale;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.UIManager.LookAndFeelInfo;
+import javax.swing.UIManager.*;
 
-import frost.util.gui.MiscToolkit;
-import frost.util.gui.translation.Language;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
 
 public class Frost {
 
@@ -141,7 +141,6 @@ public class Frost {
         System.out.println("That command line will instruct Frost to use the");
         if (feels.length > 0) {
             System.out.println(feels[0].getClassName() + " look and feel and the");
-
         }
         System.out.println("Spanish language.");
         System.exit(0);
@@ -152,6 +151,7 @@ public class Frost {
      */
     public Frost() {
         Core core = Core.getInstance();
+
         if (!initializeLockFile(Language.getInstance())) {
             System.exit(1);
         }
@@ -198,18 +198,10 @@ public class Frost {
             // check for skinlfFix.jar
             jarFileName = "skinlfFix.jar";
             Class.forName("com.l2fprod.gui.plaf.skin.SkinlfFixMarkerClass");
-            //REDFLAG, FIXME: I'm not sure about licensing here.  Theoretically we need to
-            //make this optional, but we're linking against so much closed source it probably
-            //doesn't matter anymore.
-            // check for mailapi.jar
-            jarFileName = "mailapi.jar";
-            Class.forName("javax.mail.Address");
-            // check for smtp.jar
-            jarFileName = "smtp.jar";
-            Class.forName("com.sun.mail.smtp.SMTPTransport");
-            // check for jocache.jar
-//            jarFileName = "jocache.jar";
-//            Class.forName("org.shiftone.cache.CacheConfiguration");
+            // check for datechooser.jar
+            jarFileName = "datechooser.jar";
+            Class.forName("mseries.ui.MDateEntryField");
+
         } catch (ClassNotFoundException e1) {
             MiscToolkit.getInstance().showMessage(
                 "Please start Frost using the provided start "

@@ -1678,13 +1678,16 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JButton getBhelp() {
         if( Bhelp == null ) {
             Bhelp = new JButton();
-            Bhelp.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    MainFrame.getInstance().showHtmlHelp("searchDialog.html");
-                }
-            });
+            if( Core.isHelpHtmlSecure() == false ) {
+                Bhelp.setEnabled(false);
+            } else {
+                Bhelp.addActionListener(new java.awt.event.ActionListener() {
+                    public void actionPerformed(java.awt.event.ActionEvent e) {
+                        MainFrame.getInstance().showHtmlHelp("searchDialog.html");
+                    }
+                });
+            }
         }
         return Bhelp;
     }
-
 }  //  @jve:decl-index=0:visual-constraint="10,10"

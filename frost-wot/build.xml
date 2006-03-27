@@ -40,7 +40,6 @@
   <property name="src.dir.genchklib" value="${lib.dir}/genChkImpl"/>
   <property name="src.dir.skinlfFixLib" value="${lib.dir}/skinlfFix"/>
   <property name="src.dir.datechooser" value="${lib.dir}/datechooser"/>
-<!--  <property name="src.dir.jocacheLib" value="${lib.dir}/jocache/src"/> -->
 
   <!--  Set the properties for the build area  -->
   <property name="build.dir" value="build"/>
@@ -49,7 +48,6 @@
   <property name="build.classes.genchklib" value="${build.dir}/classes_genchklib"/>
   <property name="build.classes.skinlfFixLib" value="${build.dir}/classes_skinlfFixLib"/>
   <property name="build.classes.datechooser" value="${build.dir}/classes_datechooser"/>
-  <!-- <property name="build.classes.jocacheLib" value="${build.dir}/classes_jocacheLib"/> -->
 
   <!--  Set up properties for the distribution area -->
   <property name="dist.dir" value="${build.dir}/dist"/>
@@ -65,15 +63,12 @@
     <pathelement location="${lib.dir}/xml-apis.jar"/>
     <pathelement location="${lib.dir}/xmlParserAPIs.jar"/>
     <pathelement location="${lib.dir}/BCastle.jar"/>
-    <pathelement location="${lib.dir}/mailapi.jar"/>
-    <pathelement location="${lib.dir}/smtp.jar"/>
     <pathelement location="${lib.dir}/hsqldbmin.jar"/>
     <pathelement location="${lib.dir}/jnlp.jar"/>
     <pathelement location="${build.classes.feclib}"/>
     <pathelement location="${build.classes.genchklib}"/>
     <pathelement location="${build.classes.skinlfFixLib}"/>
     <pathelement location="${build.classes.datechooser}"/>
-<!--    <pathelement location="${build.classes.jocacheLib}"/> -->
     <pathelement location="${lib.dir}/skinlf.jar"/>
   </path>
 
@@ -112,13 +107,11 @@ Build log  : ${logfilename}</echo>
     <delete quiet="true" dir="${build.classes.genchklib}"/>
     <delete quiet="true" dir="${build.classes.skinlfFixLib}"/>
     <delete quiet="true" dir="${build.classes.datechooser}"/>
-<!--    <delete quiet="true" dir="${build.classes.jocacheLib}"/>  -->
     <mkdir dir="${build.classes}"/>
     <mkdir dir="${build.classes.feclib}"/>
     <mkdir dir="${build.classes.genchklib}"/>
     <mkdir dir="${build.classes.skinlfFixLib}"/>
     <mkdir dir="${build.classes.datechooser}"/>
-<!--    <mkdir dir="${build.classes.jocacheLib}"/> -->
 
     <javac srcdir="${src.dir.feclib}"
            destdir="${build.classes.feclib}"
@@ -155,21 +148,6 @@ Build log  : ${logfilename}</echo>
             <include name="**/*.properties"/>
         </fileset>
     </copy>
-
-<!--
- 	<javac srcdir="${src.dir.jocacheLib}"
-           destdir="${build.classes.jocacheLib}"
-  	 	   classpath="${src.dir.jocacheLib}"
-	   	   debug="${debug}"		   debuglevel="${debuglevel}" 		deprecation="${deprecation}"
-	  	   verbose="${verbose}"    optimize="${optimize}"
-	  	   source="${source}"	   target="${target}">
-    </javac>
-    <copy todir="${build.classes.jocacheLib}">
-        <fileset dir="${lib.dir}/jocache">
-            <include name="**/*.properties"/>
-        </fileset>
-    </copy>
--->
 
     <javac srcdir="${src.dir}"
            destdir="${build.classes}"
@@ -259,16 +237,6 @@ Build log  : ${logfilename}</echo>
       </fileset>
     </jar>
 
-<!--
-    <delete quiet="true" file="${dist.dir}/lib/jocache.jar"/>
-    <mkdir dir="${dist.dir}/lib"/>
-    <jar jarfile="${dist.dir}/lib/jocache.jar">
-      <fileset dir="${build.classes.jocacheLib}">
-        <include name="**/*.class"/>
-        <include name="**/*.properties"/>
-      </fileset>
-    </jar>
--->
   </target>
 
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
@@ -339,7 +307,7 @@ Build log  : ${logfilename}</echo>
     				excludes=".* **/CVS/* ${lib.dir}/**/*.jar"
     				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/*
     						  ${lib.dir}/**/* ${specs.dir}/**/*
-						  build.xml  HISTORY.txt TODO"/>
+						  build.xml TODO"/>
     </zip>
 
     <echo>
