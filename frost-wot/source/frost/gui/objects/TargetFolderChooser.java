@@ -23,9 +23,10 @@ import java.awt.*;
 
 import javax.swing.*;
 import javax.swing.tree.*;
+import javax.swing.JScrollPane;
 
 import frost.boards.*;
-import javax.swing.JScrollPane;
+import frost.util.gui.translation.*;
 
 /**
  * This class let the user choose a folder from the folders in tofTree.
@@ -42,6 +43,8 @@ public class TargetFolderChooser extends JDialog {
 
     private Board choosedFolder = null;
     private JScrollPane jScrollPane = null;
+    
+    private Language language;
 
     /**
      * This is the default constructor
@@ -50,6 +53,7 @@ public class TargetFolderChooser extends JDialog {
         super();
         MyTreeNode rootNode = buildTree(origModel);
         treeModel = new DefaultTreeModel(rootNode);
+        language = Language.getInstance();
         initialize();
     }
 
@@ -154,7 +158,7 @@ public class TargetFolderChooser extends JDialog {
     private JButton getOkButton() {
         if( okButton == null ) {
             okButton = new JButton();
-            okButton.setText("Ok");
+            okButton.setText(language.getString("Ok"));
             okButton.setSelected(false);
             okButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -173,7 +177,7 @@ public class TargetFolderChooser extends JDialog {
     private JButton getCancelButton() {
         if( cancelButton == null ) {
             cancelButton = new JButton();
-            cancelButton.setText("Cancel");
+            cancelButton.setText(language.getString("Cancel"));
             cancelButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     cancelButtonPressed();
