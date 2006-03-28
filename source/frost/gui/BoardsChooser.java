@@ -101,13 +101,13 @@ public class BoardsChooser extends JDialog {
     }
 
     private void initGui() {
-        Bok = new JButton("OK");
+        Bok = new JButton(language.getString("OK"));
         Bok.addActionListener( new ActionListener() {
                public void actionPerformed(ActionEvent e) {
                     okPressed = true;
                     setVisible(false);
                } });
-        Bcancel = new JButton("Cancel");
+        Bcancel = new JButton(language.getString("Cancel"));
         Bcancel.addActionListener( new ActionListener() {
                public void actionPerformed(ActionEvent e) {
                     okPressed = false;

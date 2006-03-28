@@ -24,9 +24,9 @@ public Object[][] getContents() {
 static final Object[][] contents = {
 {"About","Über Frost"}, //Menü: Hilfe; anderer Vorschlag: "Info über Frost"
 {"Activate downloading","Herunterladen aktivieren"},
-{"Add attachment(s)","Attachments anhängen"},
+{"Add attachment(s)","Ordner/Dateien anhängen"},
 {"Add Board(s)","Foren hinzufügen"},
-{"Add Board(s) to folder ...","Foren zu Ordner hinzufügen..."},
+{"Add Board(s) to folder","Foren zu Ordner hinzufügen"},
 {"Add new board","Neues Forum hinzufügen (erstellen)"}, //Boards -> Kontext
 {"Add new folder","Neuen Ordner hinzufügen"},
 {"Add selected board","Gewähltes Forum hinzufügen (abonnieren)"}, //Message -> Board-Attachments -> Kontext
@@ -34,7 +34,9 @@ static final Object[][] contents = {
 {"all boards","Alle Foren"},
 {"All files","Alle Dateien"},
 {"Allow 2 byte characters","2-Byte Zeichen erlauben"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
+{"Archive expired messages","Verfallene Nachrichten in das Archiv verschieben"},
 {"Archive Extension","Archiv-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
+{"Archive folder","Archivordner"},
 {"Archives","Archive"},
 {"Attachments","Anhänge"},
 {"Audio","Audio"},
@@ -44,6 +46,8 @@ static final Object[][] contents = {
 {"Automatic saving interval","Automatisches Speicherintervall (in Minuten)"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
 {"Automatic update options","Einstellungen für das automatische Aktualisieren der Foren"}, //Menü: Optionen -> Einstellungen -> Nachrichten(3)
 {"AvailableSkins","Vorhandene Skins"},
+{"Background color if updating board is selected","Hintergrundfarbe für aktualisierndes Forum (ausgewählt)"},
+{"Background color if updating board is not selected","Hintergrundfarbe für aktualisierendes Forum (nicht ausgewählt)"},
 {"batch explanation","(größer ist schneller, kleiner ist spamsicherer)"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Block messages with body containing (separate by ';' )","Blockiere Nachrichtentexte mit (trenne mit ';' )"},
 {"Block messages with subject containing (separate by ';' )","Blockiere Nachrichten, die im Titel folgendes enthalten (trenne mit ';' )"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
@@ -68,6 +72,7 @@ static final Object[][] contents = {
 {"Bulgarian","Bulgarisch"}, //Menü: Sprache
 {"Cancel","Abbruch"},
 {"Change destination board","Zielforum ändern"},
+{"Color","Farbe"},
 {"Content","Inhalt"},
 {"Copy keys only","CHK-Schlüssel"},
 {"Copy keys with filenames","CHK-Schlüssel und Dateiname"},
@@ -82,6 +87,8 @@ static final Object[][] contents = {
 {"Close","Schließen"},
 {"Configure board","Forum konfigurieren"},
 {"Configure selected board","Gewähltes Forum konfigurieren"},
+{"Copy","Kopieren"},
+{"Copy extended info","erweiterte Information"},
 {"Copy to clipboard","In die Zwischenablage kopieren"},
 {"Core.init.NodeNotRunningBody","Stellen Sie sicher, daß Ihr Freenet-Knoten läuft und daß Sie Freenet richtig konfiguriert haben.\nFreenet wird aber trotzdem starten, damit Sie Nachrichten lesen können.\nLassen Sie sich nicht irritieren, wenn Sie einige Fehler beim Lesen von Nachrichten bekommen ;)\n"},
 {"Core.init.NodeNotRunningTitle","Fehler - konnte keine Verbindung zum Freenet-Knoten aufbauen."},
@@ -100,6 +107,8 @@ static final Object[][] contents = {
 {"Decoding segment","Dekodiere Segment"},
 {"Decrease Font Size","Kleinere Schrift"},
 {"Default","Default"}, // Standard? Vorgabe? fuer Sprache -> System?
+{"Delete expired messages from keypool","Verfallene Nachrichten aus dem Keypool löschen"},
+{"Delete message","Nachricht löschen"},
 {"Description","Beschreibung"},
 {"Destination","Ziel"},
 {"Disable all downloads","Alle Downloads deaktivieren"},
@@ -118,12 +127,14 @@ static final Object[][] contents = {
 {"Document Extension","Dokument-Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Documents","Dokumente"},
 {"Done","Erledigt"},
+{"Don't add boards to known boards list from users with trust states","Neue Foren von Nutzern mit folgenden Vertrauensstatus ignorieren"},
 {"Down","Runter"}, //Hauptfenster - unten
 {"Download all keys","Alle Schlüssel herunterladen"},
 {"Download attachment(s)","Attachments herunterladen"},
 {"Download directory","Herunterladen ins Verzeichnis"}, //Menü: Optionen -> Einstellungen -> Herunterladen
 {"Download selected attachment","Selektierten Anhang herunterladen"},
 {"Download selected keys","Gewählte Schlüssel herunterladen"},
+{"DownloadStatusPanel.Downloading", "Herunterladen"},
 {"Downloads","Herunterladen"}, //Menü: Optionen -> Einstellungen -> Herunterladen
 {"Dutch","Niederländisch"},
 {"Email.address","Benachrichtigung senden an"},
@@ -139,9 +150,11 @@ static final Object[][] contents = {
 {"EnableSkins","Skins aktivieren"},
 {"Encode requested","Kodieren angefragt"},
 {"Encoding file","Datei wird kodiert"},
+{"Encrypt for","Verschlüsseln für"},
 {"English","Englisch"},
 {"Executable Extension","Ausführbare Erweiterungen"}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Executables","Ausfürhrbare Dateien"},
+{"Expiration","Verfall"},
 {"Exit","Beenden"}, //Menü: Datei
 {"Experimental Freenet Browser","Browser für Freenet (Status: experimental, sehr instabil)"}, //Menü: Plugins
 {"Failed","Fehlgeschlagen"},
@@ -165,10 +178,11 @@ static final Object[][] contents = {
 {"Help spread files from people marked GOOD","Leute, die als 'GOOD' markiert sind, untertützen"},
 {"help user (sets to GOOD)","Nutzer unterstützen (auf 'GOOD' setzen)"},
 {"Hide files from anonymous users","Von anonymen Nutzern hochgeladene Dateien verbergen"}, //Menü: Optionen -> Einstellungen -> Suchen
-{"Hide files from people marked BAD","Dateien vor mit 'BAD' markierten Leuten verbergen"},
+{"Hide files from people marked BAD","Dateien von mit 'BAD' markierten Leuten verbergen"},
 {"Hide messages flagged BAD","Mit 'BAD' markierte Nachrichten verbergen"},
 {"Hide messages flagged CHECK","Mit 'CHECK' markierte Nachrichten verbergen"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
 {"Hide messages flagged N/A","Mit N/A markierte Nachrichten verbergen"},
+{"Hide messages with trust states","Nachrichten von Nutzern mit folgenden Vertrauensstatus verbergen"},
 {"Hide unsigned messages","Unsignierte Nachrichten verbergen"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
 {"High","High"},
 {"hours","Stunden"},
@@ -185,6 +199,7 @@ static final Object[][] contents = {
 {"Italian","Italienisch"},
 {"Italic","Kursiv"},
 {"Japanese","Japanisch"},
+{"Keep expired messages in keypool","Verfallene Nachrichten im Keypool halten"},
 {"Key","Schlüssel"},
 {"Keyfile download HTL","Schlüsseldatei herunterladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
 {"Keyfile upload HTL","Schlüsseldatei hochladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
@@ -237,11 +252,13 @@ static final Object[][] contents = {
 {"NoSkinsFound","Keine Skins gefunden"},
 {"Not available","Nicht vorhanden"},
 {"Number of concurrently updating boards","Gleichzeitig aktualisierte Foren"},
+{"Number of days before a message expires","Tage, bevor eine Nachricht verfällt"},
 {"Number of days to display","Anzahl dargestellter Tage"},
 {"Number of days to download backwards","Zurückliegende Tage, die gelesen werden sollen"},
 {"Number of simultaneous downloads","Gleichzeitige Downloads"},
 {"Number of simultaneous uploads","Gleichzeitige Uploads"},
 {"Number of splitfile threads","Splitfile-Threads insgesamt"}, //Menü: Optionen -> Einstellungen -> Hochladen/Runterladen
+{"observe user (OBSERVE)","Nutzer beobachten (OBSERVERE)"},
 {"Off","Aus"},
 {"OK","OK"},
 {"On","An"},
@@ -266,6 +283,7 @@ static final Object[][] contents = {
 {"Public key","öffentlicher Schlüssel"},
 {"Reaching ridiculous speed...","Lächerliche Geschwindigkeit erreicht..."},
 {"redundancy explanation","geht nicht"}, //Menü: Optionen -> Einstellungen -> Hochladen
+{"Receive duplicate messages","Doppelte Nachrichten empfangen"},
 {"Refresh","Aktualisiere"},
 {"RefreshList","Liste aktualisieren"},
 {"Reload all files","Alle Dateien hochladen"},
@@ -284,6 +302,7 @@ static final Object[][] contents = {
 {"Requested","Angefragt"},
 {"Requesting","beim Anfragen"},
 {"Restart failed downloads","Fehlgeschlagene Downloads wiederholen"},
+{"Restart failed uploads","Fehlgeschlagene Uploads wiederholen"},
 {"Restart selected downloads","Gewählte Downloads starten"},
 {"Restore default filenames for all files","Standarddateinamen wiederherstellen"},
 {"Restore default filenames for selected files","Standarddateinamen für gewählte Dateien wiederherstellen"},
@@ -311,18 +330,20 @@ static final Object[][] contents = {
 {"Set prefix for selected files","Präfix für selektierte Dateien"},
 {"Set to","Set to"},
 {"Set to CHECK","Mit 'CHECK' markieren"},
-{"set to neutral (CHECK)","Auf neutral setzen (CHECK)"},
+{"set to neutral (CHECK)","Nutzer auf neutral setzen (CHECK)"},
 {"Settings for board","Einstellungen für das Forum"},
 {"Share Downloads","Downloads freigeben"}, // Downloads freigeben?
 {"Should file attachments be added to upload table?","Anhänge in die Uploadliste eintragen?"},
 {"Show board update visualization","Aktualisierungsinformationen von Foren anzeigen"},
+{"Show deleted messages","Gelöschte Nachrichten anzeigen"},
 {"Show healing information","Heilungsinfos anzeigen"},
-{"Show memory monitor","Memorymonitor anzeigen"},
+{"Show memory monitor","Speichermonitor anzeigen"},
 {"Show systray icon","Taskleistenicon anzeigen"},
 {"Sig","Sig"},
 {"Sign","Signieren"},
 {"Sign shared files","Angebotene Dateien signieren"},
 {"Signature","Signatur"},
+{"Silently retry failed messages","Schweigend fehlgeschlagene Nachrichten wiederholen"},
 {"Size","Größe"},
 {"SMTP.password","password"},
 {"SMTP.server","server address"},
@@ -330,6 +351,8 @@ static final Object[][] contents = {
 {"Sort folder","Ordner sortieren"}, //Kontext Ordner
 {"Source","Quelle"},
 {"Spanish","Spanisch"},
+{"StatusPanel.file", "Datei"},
+{"StatusPanel.files", "Dateien"},
 {"Russian","Russisch"},
 {"splitfile explanation","(mehr ist besser, braucht aber auch Leistung)"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Start encoding of selected files","Gewählte Dateien kodieren"},
@@ -346,6 +369,7 @@ static final Object[][] contents = {
 {"Trust state","Vertrauensstatus"},
 {"Try to download all segments, even if one fails","Versuche alle Segmente runterzuladen, auch wenn eines fehlschlägt"},
 {"Trying","Versuche"}, // ?? Status beim Hoch-/Herunterladen
+{"Undelete message","Rückgängig: Nachricht löschen"},
 {"Unknown","Unbekannt"},
 {"Up","Hoch"}, //Hauptfenster - unten
 {"up htl explanation","(größer ist zuverlässiger, aber langsamer)"},
@@ -356,6 +380,7 @@ static final Object[][] contents = {
 {"Upload selected files","Gewählte Dateien hochladen"},
 {"Uploading","beim Hochladen"}, //?
 {"Uploads","Hochladen"}, //Menü: Optionen -> Einstellungen -> Hochladen
+{"UploadStatusPanel.Uploading", "Hochladen"},
 {"UploadsUnderway.body","Some messages are still being uploaded.\nDo you want to exit anyway?"},
 {"UploadsUnderway.title","Uploads underway"},
 {"Use default","Voreinstellung benutzen"}, //?
