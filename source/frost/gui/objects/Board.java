@@ -18,14 +18,17 @@
 */
 package frost.gui.objects;
 
-import java.io.File;
-import java.util.Collections;
+import java.io.*;
+import java.util.*;
 
-import javax.swing.tree.DefaultMutableTreeNode;
+import javax.swing.tree.*;
 
 import frost.*;
+import frost.util.gui.translation.*;
 
 public class Board extends DefaultMutableTreeNode implements Comparable {
+    
+    private static Language language = Language.getInstance();
 
     private boolean autoUpdateEnabled = true; // must apply, no default
     private String b64FileName = null;
@@ -299,16 +302,15 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
      * @return
      */
     public String getStateString() {
-        // TODO: translate
+
         if (isReadAccessBoard()) {
-            return "read access";
+            return language.getString("read access");
         } else if (isWriteAccessBoard()) {
-            return "write access";
+            return language.getString("write access");
         } else if (isPublicBoard()) {
-            return "public board";
+            return language.getString("public board");
         }
-        // TODO: private key is set, but public key not! how to handle this?
-        return "*ERROR*";
+        return "(INVALID, no public key, but private!)";
     }
 
     //////////////////////////////////////////////

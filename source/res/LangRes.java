@@ -84,7 +84,7 @@ public class LangRes extends ListResourceBundle {
 	///////////////////////////////////////////////////
     // Welcome message
 	///////////////////////////////////////////////////
-    {"Welcome message", "Please read this!\n\nTo use Frost, you first need to select a topic from the board information window. You can openthis window with the i-button above. You can send messages and files to people using the same board. It will probably take some time until the first boards show up (press the update button)."},
+    {"Welcome message", "Please read this!\n\nTo use Frost, you first need to select a topic from the board information window. You can open this window with the i-button above. You can send messages and files to people using the same board. It will probably take some time until the first boards show up (press the update button)."},
 
 	///////////////////////////////////////////////////
 	// Main Window Menu
@@ -184,6 +184,11 @@ public class LangRes extends ListResourceBundle {
 	// Popup over attachments table
 	{"Add selected board", "Add selected board"},
 	{"Download selected attachment", "Download selected attachment"},
+    
+    // board states
+    {"read access", "read access"},
+    {"write access", "write access"},
+    {"public board", "public board"},
 
 	//Message table header
 	{"Sig", "Sig"},
