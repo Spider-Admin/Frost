@@ -196,6 +196,7 @@ static final Object[][] contents = {
 {"KnownBoardsTableModel.Boardname","Forumname"},
 {"Language","Sprache"},
 {"Last upload","Zuletzt hochgeladen"},
+{"Less", "Weniger"},
 {"list of nodes","Durch Kommas getrennte Liste von FCP-Knoten"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
 {"list of nodes 2","(nodeA:portA, nodeB:portB, ...)"},
 {"Log file size limit (in KB)","Grenze für die Größe der Logdateien (in KB)"},
@@ -220,6 +221,7 @@ static final Object[][] contents = {
 {"minutes","Minuten"},
 {"Miscellaneous","Verschiedenes"},
 {"MoreSkinsAt","Mehr Skins gibt's hier"},
+{"More","Mehr"},
 {"Never","Niemals"},
 {"New board","Neues Forum"},
 {"New folder","Neuer Ordner"},
