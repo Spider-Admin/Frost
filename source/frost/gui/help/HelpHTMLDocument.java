@@ -19,7 +19,6 @@
 package frost.gui.help;
 
 import java.net.*;
-import java.util.*;
 
 import javax.swing.text.*;
 import javax.swing.text.html.*;

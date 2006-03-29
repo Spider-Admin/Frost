@@ -18,8 +18,6 @@
  */
 package frost.gui.help;
 
-import java.util.logging.*;
-
 import javax.swing.text.*;
 import javax.swing.text.html.*;
 
@@ -28,16 +26,11 @@ import javax.swing.text.html.*;
  */
 public class HelpHTMLEditorKit extends HTMLEditorKit {
 
-    private static Logger logger = Logger.getLogger(HelpHTMLEditorKit.class.getName());
+//    private static Logger logger = Logger.getLogger(HelpHTMLEditorKit.class.getName());
     
-    private static String url_prefix;
-
-    /**
-     * The factory used to create views for document elements.
-     */
-    // just disabled, but needed for browser extensions (new or better
-    // working html tags). notitaccu
-    // private helpHTMLFactory viewFactory = new helpHTMLFactory();
+    private String url_prefix;
+    
+    private HelpHTMLDocument helpHTMLDocument = null;
 
     /**
      * Constructs an HTMLEditorKit, creates a StyleContext, and loads the style sheet.
@@ -46,42 +39,46 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
       super(); 
       this.url_prefix = url_prefix;
     }
-
-    /** 
-     * Shared factory for creating HTML Views. 
-     */
-    private static final ViewFactory helpFactory = new helpHTMLFactory();
-
-    public ViewFactory getViewFactory() {
-        return helpFactory;
-    }
     
-    /**
-     * Factory which creates views for elements in the document.
-     */
-    public static class helpHTMLFactory extends HTMLEditorKit.HTMLFactory {
-
-        /**
-         * Creates a new factory.
-         * 
-         */
-        public helpHTMLFactory() {
-        }
-
-        /**
-         * Creates a view which can render the element.
-         * 
-         * @param elem
-         *            The element to create the view for.
-         * @return The newly created view.
-         */
-        public View create(Element elem) {
-            // hier koennen html tags ausgetauschtoder inzugefuegt werden
-            // wir sind hier nach dem parser und vor dem View
-            // notitaccu
-            return super.create(elem);
-        }
+    public HelpHTMLDocument getHelpHTMLDocument() {
+        return helpHTMLDocument;
     }
+
+//    /** 
+//     * Shared factory for creating HTML Views. 
+//     */
+//    private static final ViewFactory helpFactory = new helpHTMLFactory();
+//
+//    public ViewFactory getViewFactory() {
+//        return helpFactory;
+//    }
+//    
+//    /**
+//     * Factory which creates views for elements in the document.
+//     */
+//    public static class helpHTMLFactory extends HTMLEditorKit.HTMLFactory {
+//
+//        /**
+//         * Creates a new factory.
+//         * 
+//         */
+//        public helpHTMLFactory() {
+//        }
+//
+//        /**
+//         * Creates a view which can render the element.
+//         * 
+//         * @param elem
+//         *            The element to create the view for.
+//         * @return The newly created view.
+//         */
+//        public View create(Element elem) {
+//            // hier koennen html tags ausgetauschtoder inzugefuegt werden
+//            // wir sind hier nach dem parser und vor dem View
+//            // notitaccu
+//            return super.create(elem);
+//        }
+//    }
     
     /**
      * Create an uninitialized text storage model
@@ -95,10 +92,10 @@ public class HelpHTMLEditorKit extends HTMLEditorKit {
     
     	ss.addStyleSheet(styles);
     
-    	HelpHTMLDocument doc = new HelpHTMLDocument(url_prefix, ss);
-    	doc.setParser(getParser());
-    	doc.setAsynchronousLoadPriority(4); // -1 means syncron, else somthing auround 5? 
-    	doc.setTokenThreshold(100);
-    	return doc;
+    	helpHTMLDocument = new HelpHTMLDocument(url_prefix, ss);
+        helpHTMLDocument.setParser(getParser());
+        helpHTMLDocument.setAsynchronousLoadPriority(4); // -1 means syncron, else somthing auround 5? 
+        helpHTMLDocument.setTokenThreshold(100);
+    	return helpHTMLDocument;
     }
 }
