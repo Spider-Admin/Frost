@@ -19,6 +19,7 @@
 package frost.gui.help;
 
 import java.awt.*;
+import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
@@ -28,6 +29,10 @@ import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.text.*;
 
+import frost.MessageTextPane.*;
+import frost.util.gui.*;
+import frost.util.gui.translation.*;
+
 /**
  * Browser Component
  * @author Jantho
@@ -36,6 +41,8 @@ import javax.swing.text.*;
 public class HelpBrowser extends JPanel {
 
     private static Logger logger = Logger.getLogger(HelpBrowser.class.getName());
+    
+    private static Language language = Language.getInstance();
     
     private String url_prefix;
     private String url_locale;
@@ -92,6 +99,18 @@ public class HelpBrowser extends JPanel {
                     ((JEditorPane) e.getSource()).setCursor(Cursor.getPredefinedCursor(Cursor.DEFAULT_CURSOR));
                     browserHistory.setCurrentPage(e.getURL().toString());
                     setHelpPage(e.getURL().toString());
+                }
+            }
+        });
+        editorPane.addMouseListener(new MouseAdapter() {
+            public void mousePressed(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showEditorPanePopupMenu(e);
+                }
+            }
+            public void mouseReleased(MouseEvent e) {
+                if (e.isPopupTrigger()) {
+                    showEditorPanePopupMenu(e);
                 }
             }
         });
@@ -169,6 +188,11 @@ public class HelpBrowser extends JPanel {
         editorPane.setEditorKit(helpHTMLEditorKit);
         
         setHelpPage(homePage);
+    }
+    
+    private void showEditorPanePopupMenu(MouseEvent e) {
+        JPopupMenu p = new PopupMenuTofText(editorPane);
+        p.show(e.getComponent(), e.getX(), e.getY());
     }
     
     private void searchText(boolean forward) {
@@ -394,6 +418,63 @@ public class HelpBrowser extends JPanel {
                 last = null;
                 lastFocusEvent = null;
             }
+        }
+    }
+    
+    private class PopupMenuTofText
+    extends JSkinnablePopupMenu
+    implements ActionListener, LanguageListener, ClipboardOwner {
+
+        private Clipboard clipboard;
+
+        private JTextComponent sourceTextComponent;
+
+        private JMenuItem copyItem = new JMenuItem();
+        private JMenuItem cancelItem = new JMenuItem();
+
+        public PopupMenuTofText(JTextComponent sourceTextComponent) {
+            super();
+            this.sourceTextComponent = sourceTextComponent;
+            initialize();
+        }
+
+        public void actionPerformed(ActionEvent e) {
+            if (e.getSource() == copyItem) {
+                // copy selected text
+                StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
+                clipboard.setContents(selection, this);
+            }
+        }
+
+        private void initialize() {
+            languageChanged(null);
+
+            Toolkit toolkit = Toolkit.getDefaultToolkit();
+            clipboard = toolkit.getSystemClipboard();
+
+            copyItem.addActionListener(this);
+
+            add(copyItem);
+            addSeparator();
+            add(cancelItem);
+        }
+
+        public void languageChanged(LanguageEvent event) {
+            copyItem.setText(language.getString("Copy"));
+            cancelItem.setText(language.getString("Cancel"));
+        }
+
+        public void show(Component invoker, int x, int y) {
+            if (sourceTextComponent.getSelectedText() != null) {
+                copyItem.setEnabled(true);
+            } else {
+                copyItem.setEnabled(false);
+            }
+            super.show(invoker, x, y);
+        }
+
+        public void lostOwnership(Clipboard tclipboard, Transferable contents) {
+            // Nothing here
         }
     }
 }
