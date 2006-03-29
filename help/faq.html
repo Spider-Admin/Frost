@@ -9,18 +9,19 @@
   <BODY>
 <H2>FROST FAQ</H2>
 <P>This is just a collection of hints, some are useful, others not...</P>
-<H3>Searching:</H3>
+<H3>Searching for files:</H3>
 <P>Display all files Frost knows about: *</P>
 <P>Searching for files with a maximum age: *age[number of days], for example:</P>
 <UL>
 <LI>Search todays files: '*age'</LI>
 <LI>Search files from the last 3 days: '*age3'</LI>
 </UL>
-<P>Of course you can combine *age with your normal request, for example: '*age2 metallica one'.
+<P>Of course you can combine *age with your normal request, for example: '*age2 metallica .mp3'.
 It is also possible to exclude search results with '*-', for example:</P>
 <UL>
 <LI>Exclude filenames containing the word porn: '*-porn'</LI>
 <LI>Multiple words can be excluded, for example: '*-porn;sex'</LI>
+<LI>Don't display jpg, gif and bmp pictures: *-.jpg;.gif;.bmp</LI>
 </UL>
 <P>And of course this can be combined with other requests also, for example:</P>
 <UL><LI>'*age3 *-porn;sex metallica one'</LI></UL>
@@ -50,19 +51,11 @@ It is also possible to exclude search results with '*-', for example:</P>
 <P><B>Q: How do I add new boards?</B></P>
 <P>A: Select folder that should contain the new board. Right click on the tree structure. Select 'Add new board / folder'. Rename 'New folder' by selecting it and pressing F2 or double klick it. You can also press the 'Add board' icon in the icon bar.</P>
 
-<P><B>Q: Are there any special search options?</B></P>
-<P>A: Yes, I'll just give some examples.
-<PRE>   - Search for todays new files: *age
-   - Search for all mp3 files from the last 5 days: .mp3 *age5
-   - Just show all files: *
-   - Don't display pictures jpg, gif and bmp pictures: *-.jpg;.gif;.bmp</PRE>
-</P>
-
 <P><B>Q: Why Frost?</B></P>
 <P>A: Why not?</P>
 
 <P><B>Q: Cut and Paste does not work in Linux.</B></P>
-<P>A: Try using CTRL+C (COpy), CTRL+V (Paste) and CTRL+X (Cut)</P>
+<P>A: Try using CTRL+C (COpy), CTRL+V (Paste) and CTRL+X (Cut), or use the context menu if available.</P>
 
 <P><B>Q: How can I change the "LookAndFeel" settings.</B></P>
 <P>A: There's a command line setting. See section above or get more info with frost -? (from the command line)</P>
