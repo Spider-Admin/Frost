@@ -722,6 +722,8 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 result[0] = "Error";
                 result[1] = "Error";
             }
+            
+            final int waitTime = 15000;
 
             if (result[0].equals("Success")) {
                 // msg is probabilistic cached in freenet node, retrieve it to ensure it is in our store
@@ -730,7 +732,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 int dlTries = 0;
                 // we use same maxTries as for upload
                 while(dlTries < maxTries) {
-                    Mixed.wait(10000);
+                    Mixed.wait(waitTime);
                     tmpFile.delete(); // just in case it already exists
                     if( downloadMessage(index, tmpFile) ) {
                         break;
@@ -759,7 +761,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                     } else {
                         index++;
                         logger.warning("TOFUP: Upload collided, increasing index to " + index+"."+logInfo);
-                        Mixed.wait(10000);
+                        Mixed.wait(waitTime);
                     }
                 } else {
                     if (tries > maxTries) {
@@ -770,7 +772,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                                 + "), retrying index " + index);
                         tries++;
                         retrySameIndex = true;
-                        Mixed.wait(10000);
+                        Mixed.wait(waitTime);
                     }
                 }
             }
