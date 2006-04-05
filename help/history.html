@@ -20,12 +20,14 @@ Added: Alternate editor support now works again. You can write a message with an
 Added: Russian translation, thanks to VolodyA.
 Added: Search dialog to search for messages in keypool and archive ('News' menu).
        This was a hard piece of work, but finally its there.
-Added: 'Copy keys' in popup menu of file attachments table. Table now shows also the key.
-Added: 'Add to known boards' in popup menu of in board attachment table
+Added: 'Copy keys' in popup menu of file attachments table. Table now also shows the key.
+Added: 'Add to known boards' in popup menu of board attachment table
 Added: Options to block boards from unsigned, bad, check or observe users.
        If blocked the boards in a message are not added to the known boards list.
 Added: Mouse wheel support for scrollable components.
 Added: HTML help browser to show the help pages in the /frost/help/help.zip file.
+       You can search in HTML pages and there is a context menu to copy selected text
+       to the clipboard. Check it out!
 Added: Own Java security manager. Frosts security manager only allows Frost to open
        TCP/IP connections to the configured FCP hosts. All other connections attempts
        will not be allowed. This makes external links within the HTML help pages
@@ -43,6 +45,8 @@ Changed: Nicer board attachment chooser, contains checkboxes now.
 Changed: All XML files are now saved in UTF-8 encoding, saves space.
 Changed: Message window enhanced, shows attachments and more informations, allows reply.
 Changed: Duplicate message prevention reenabled, and created an option for it.
+Changed: Improved log file outputs, e.g. the for message upload log entries the freenet
+         key is now shown.
 
 Bugfix: Fixes in checkbox handling of MessageFrame.
 Bugfix: Fixes in message download handling.
