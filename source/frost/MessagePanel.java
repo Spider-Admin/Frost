@@ -730,10 +730,21 @@ public class MessagePanel extends JPanel {
     }
 
     public void composeReply(FrostMessageObject origMessage, Window parent) {
+        
+        Board targetBoard = mainFrame.getTofTreeModel().getBoardByName(origMessage.getBoard());
+        if( targetBoard == null ) {
+            JOptionPane.showMessageDialog( parent,
+                    "Can't reply, the target board is not in your boardlist: "+origMessage.getBoard(), // TODO: translate
+                    "ERROR",
+                    JOptionPane.ERROR);
+            return;
+        }
+        
         String subject = origMessage.getSubject();
         if (subject.startsWith("Re:") == false) {
             subject = "Re: " + subject;
         }
+        
         MessageFrame newMessageFrame = new MessageFrame(settings, parent, identities.getMyId(), mainFrame.getTofTree());
         if( origMessage.getRecipient() != null &&
             origMessage.getRecipient().equals( identities.getMyId().getUniqueName() ) )
@@ -747,7 +758,7 @@ public class MessagePanel extends JPanel {
                 return;
             }
             newMessageFrame.composeEncryptedReply(
-                    mainFrame.getTofTreeModel().getSelectedNode(),
+                    targetBoard,
                     identities.getMyId().getUniqueName(),
                     subject,
                     origMessage.getContent(),
@@ -755,7 +766,7 @@ public class MessagePanel extends JPanel {
 
         } else {
             newMessageFrame.composeReply(
-                    mainFrame.getTofTreeModel().getSelectedNode(),
+                    targetBoard,
                     settings.getValue("userName"),
                     subject,
                     origMessage.getContent());
