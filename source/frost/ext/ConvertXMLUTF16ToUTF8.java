@@ -27,6 +27,7 @@ public class ConvertXMLUTF16ToUTF8 {
     
     private File keypoolDirFile = null;
     private File archiveDirFile = null;
+    private File sentMessgesDirFile = null;
   
     private static XmlFileFilter xmlFileFilter = new XmlFileFilter();
     
@@ -57,6 +58,12 @@ public class ConvertXMLUTF16ToUTF8 {
         if( keypoolDir.length() == 0 ) {
             keypoolDir = null;
         }
+        
+        String sentMsgsDir = Core.frostSettings.getValue("sent.dir");
+        if( sentMsgsDir == null || sentMsgsDir.length() == 0 ) {
+            sentMsgsDir = null;
+        }
+
 
         if( archiveDir != null ) {
             archiveDirFile = new File(archiveDir);
@@ -69,6 +76,13 @@ public class ConvertXMLUTF16ToUTF8 {
             keypoolDirFile = new File(keypoolDir);
             if( keypoolDirFile.isDirectory() == false ) {
                 keypoolDirFile = null;
+            }
+        }
+        
+        if( sentMsgsDir != null ) {
+            sentMessgesDirFile = new File(sentMsgsDir);
+            if( sentMessgesDirFile.isDirectory() == false ) {
+                sentMessgesDirFile = null;
             }
         }
         
@@ -112,42 +126,48 @@ public class ConvertXMLUTF16ToUTF8 {
         if( archiveDirFile != null ) {
             processMainDirectories(archiveDirFile);
         }
+        if( sentMessgesDirFile != null ) {
+            processDirectory(sentMessgesDirFile);
+        }
     }
     
     private void processMainDirectories(File dir) {
-        File[] dirList = dir.listFiles();
+        File[] dirList = dir.listFiles(); // keypool or archive
         for(int x=0; x < dirList.length; x++) {
             if( dirList[x].isDirectory() == false ) {
                 continue;
             }
-            File[] subDirList = dirList[x].listFiles();
+            File[] subDirList = dirList[x].listFiles(); // a board directory
             for(int z=0; z < subDirList.length; z++) {
                 if( subDirList[z].isDirectory() == false ) {
                     continue;
                 }
-            
-                File[] xmlFileList = subDirList[z].listFiles(xmlFileFilter);
-                for(int y=0; y < xmlFileList.length; y++ ) {
-                    File xmlFile = xmlFileList[y];
-                    if( xmlFile.length() < 20 ) {
-                        // just a marker file, ignore silently
-                        continue;
-                    }
-                    try {
-                        long bytesBefore = xmlFile.length();
-                        MessageObject mo = new MessageObject(xmlFile); // loads UTF-16 and UTF-8
-                        boolean saveOk = mo.save(); // saves as UTF-8
-                        if( !saveOk ) {
-                            System.out.println("Message could not be saved, conversion skipped: "+xmlFile.getPath());
-                            continue;
-                        }
-                        filesProcessed++;
-                        savedBytes += (bytesBefore - xmlFile.length());
-                    } catch(Throwable t) {
-                        System.out.println("Message could not be loaded, conversion skipped: "+xmlFile.getPath());
-                        continue;
-                    }
+                processDirectory(subDirList[z]); // process a date directory
+            }
+        }
+    }
+    
+    private void processDirectory(File dir) {
+        File[] xmlFileList = dir.listFiles(xmlFileFilter);
+        for(int y=0; y < xmlFileList.length; y++ ) {
+            File xmlFile = xmlFileList[y];
+            if( xmlFile.length() < 20 ) {
+                // just a marker file, ignore silently
+                continue;
+            }
+            try {
+                long bytesBefore = xmlFile.length();
+                MessageObject mo = new MessageObject(xmlFile); // loads UTF-16 and UTF-8
+                boolean saveOk = mo.save(); // saves as UTF-8
+                if( !saveOk ) {
+                    System.out.println("Message could not be saved, conversion skipped: "+xmlFile.getPath());
+                    continue;
                 }
+                filesProcessed++;
+                savedBytes += (bytesBefore - xmlFile.length());
+            } catch(Throwable t) {
+                System.out.println("Message could not be loaded, conversion skipped: "+xmlFile.getPath());
+                continue;
             }
         }
     }

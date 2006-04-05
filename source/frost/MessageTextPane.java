@@ -33,12 +33,12 @@ import javax.swing.text.*;
 
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.search.*;
+import frost.gui.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.messages.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.model.*;
 
 public class MessageTextPane extends JPanel {
 
@@ -69,9 +69,18 @@ public class MessageTextPane extends JPanel {
 
     private PropertyChangeListener propertyChangeListener;
 
+    private SearchMessagesConfig searchMessagesConfig = null;
+    private TextHighlighter textHighlighter = null;
+    private static Color highlightColor = new Color(0x20, 0xFF, 0x20); // light green
+    
     public MessageTextPane(Component parentFrame) {
+        this(parentFrame, null);
+    }
+
+    public MessageTextPane(Component parentFrame, SearchMessagesConfig smc) {
         super();
         this.parentFrame = parentFrame;
+        this.searchMessagesConfig = smc;
         initialize();
     }
 
@@ -108,8 +117,23 @@ public class MessageTextPane extends JPanel {
     public void update_messageSelected(FrostMessageObject msg) {
 
         selectedMessage = msg;
-
+        
+        if( textHighlighter != null ) {
+            textHighlighter.removeHighlights(messageTextArea);
+        }
+        
         messageTextArea.setText(selectedMessage.getContent());
+
+        if( searchMessagesConfig != null && 
+            searchMessagesConfig.content != null && 
+            searchMessagesConfig.content.size() > 0 )
+        {
+            // highlight words in content that the user searched for
+            if( textHighlighter == null ) {
+                textHighlighter = new TextHighlighter(highlightColor, true);
+            }
+            textHighlighter.highlight(messageTextArea, searchMessagesConfig.content, false);
+        }
 
         List fileAttachments = selectedMessage.getAttachmentsOfType(Attachment.FILE);
         List boardAttachments = selectedMessage.getAttachmentsOfType(Attachment.BOARD);
@@ -118,17 +142,18 @@ public class MessageTextPane extends JPanel {
 
         positionDividers(fileAttachments.size(), boardAttachments.size());
     }
-
+    
     private void initialize() {
 
         setLayout(new BorderLayout());
 
-        // build message body scroll pane
+        // simply and fast component
         messageTextArea = new AntialiasedTextArea();
         messageTextArea.setEditable(false);
         messageTextArea.setLineWrap(true);
         messageTextArea.setWrapStyleWord(true);
         messageTextArea.setAntiAliasEnabled(Core.frostSettings.getBoolValue("messageBodyAA"));
+
         JScrollPane messageBodyScrollPane = new JScrollPane(messageTextArea);
         messageBodyScrollPane.setWheelScrollingEnabled(true);
 

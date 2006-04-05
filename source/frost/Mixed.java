@@ -55,14 +55,11 @@ public final class Mixed
      * Waits for a specific number of ms
      * @param time Time to wait in ms
      */
-    public static void wait(int time)
-    {
-        try
-        {
+    public static void wait(int time) {
+        try {
             Thread.sleep(time);
+        } catch (InterruptedException e) {
         }
-        catch (InterruptedException e)
-        {}
     }
     /**
      * Makes sure that the string does not contain ]]> - the only
@@ -70,13 +67,14 @@ public final class Mixed
      * @param text the text to be checked
      * @return the string with ]]> converted to ___
      */
-public static String makeSafeXML(String text) {
-    if (text == null) return null;
-    int index;
-    while((index = text.indexOf("]]>")) !=-1)
-        text = text.substring(0,index) + "___"+text.substring(index+3,text.length());
-    return text;
-}
+    public static String makeSafeXML(String text) {
+        if (text == null) return null;
+        int index;
+        while((index = text.indexOf("]]>")) !=-1)
+            text = text.substring(0,index) + "___"+text.substring(index+3,text.length());
+        return text;
+    }
+    
     /**
      * Replaces characters that are not 0-9, a-z or in 'allowedCharacters'
      * with '_' and returns a lowerCase String
@@ -95,12 +93,6 @@ public static String makeSafeXML(String text) {
 
         StringBuffer newText = new StringBuffer();
 
-        //text = text.toLowerCase();
-
-        //if (frame1.frostSettings.getBoolValue("allowEvilBert"))
-        // {
-        // I hope that this allows the display of 2 byte characters
-
         if (text.startsWith("."))
             newText.append("_"); // dont allow a boardfilename like "."
 
@@ -108,22 +100,6 @@ public static String makeSafeXML(String text) {
             text = text.replace(invalidChars[i], '_');
 
         newText.append(text);
-
-        // }
-        //  else
-        // {
-        //    String allowedCharacters = "()-!.";
-        //   for (int i = 0; i < text.length(); i++)
-        //  {
-        //     int value = Character.getNumericValue(text.charAt(i));
-        //    char character = text.charAt(i);
-        //   if ((value >= 0 && value < 36)
-        //      || allowedCharacters.indexOf(character) != -1)
-        //     newText.append(character);
-        //   else
-        //       newText.append("_");
-        // }
-        //  }
 
         return newText.toString();
     }
