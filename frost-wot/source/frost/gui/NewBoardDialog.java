@@ -29,51 +29,34 @@ import frost.util.gui.TextComponentClipboardMenu;
 import frost.util.gui.translation.Language;
 
 public class NewBoardDialog extends JDialog {
-
-    /**
-     *
-     */
+    
     private class Listener implements DocumentListener, ActionListener {
 
-        /* (non-Javadoc)
-         * @see javax.swing.event.DocumentListener#changedUpdate(javax.swing.event.DocumentEvent)
-         */
         public void changedUpdate(DocumentEvent e) {
             if (e.getDocument() == nameTextField.getDocument()) {
                 updateAddButtonState();
             }
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.event.DocumentListener#insertUpdate(javax.swing.event.DocumentEvent)
-         */
         public void insertUpdate(DocumentEvent e) {
             if (e.getDocument() == nameTextField.getDocument()) {
                 updateAddButtonState();
             }
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.event.DocumentListener#removeUpdate(javax.swing.event.DocumentEvent)
-         */
         public void removeUpdate(DocumentEvent e) {
             if (e.getDocument() == nameTextField.getDocument()) {
                 updateAddButtonState();
             }
         }
 
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == addButton) {
                 addButton_actionPerformed();
             } else if (e.getSource() == cancelButton) {
                 cancelButton_actionPerformed();
             }
-
         }
-
     }
 
     public static int CHOICE_ADD = 1;
@@ -111,9 +94,6 @@ public class NewBoardDialog extends JDialog {
         setModal(true);
     }
 
-    /**
-     *
-     */
     private void initialize() {
         contentPanel.setBorder(new EmptyBorder(15,15,15,15));
         setContentPane(contentPanel);
@@ -170,9 +150,6 @@ public class NewBoardDialog extends JDialog {
         cancelButton.addActionListener(listener);
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
         setTitle(" " + language.getString("NewBoardDialog.title"));
         detailsLabel.setText(language.getString("NewBoardDialog.details"));
@@ -182,53 +159,36 @@ public class NewBoardDialog extends JDialog {
         cancelButton.setText(language.getString("Cancel"));
     }
 
-    /**
-     *
-     */
     private void updateAddButtonState() {
-        if (nameTextField.getText().length() == 0) {
+        if (nameTextField.getText().trim().length() == 0) {
             addButton.setEnabled(false);
         } else {
             addButton.setEnabled(true);
         }
     }
 
-    /**
-     *
-     */
     private void addButton_actionPerformed() {
+        
+        boardName = nameTextField.getText().trim();
+        boardDescription = descriptionTextArea.getText().trim();
+        
         choice = CHOICE_ADD;
-        boardName = nameTextField.getText();
-        boardDescription = descriptionTextArea.getText();
         dispose();
     }
-
-    /**
-     *
-     */
+    
     private void cancelButton_actionPerformed() {
         dispose();
     }
 
-    /**
-     * @return
-     */
     public int getChoice() {
         return choice;
     }
 
-    /**
-     * @return
-     */
     public String getBoardDescription() {
         return boardDescription;
     }
 
-    /**
-     * @return
-     */
     public String getBoardName() {
         return boardName;
     }
-
 }

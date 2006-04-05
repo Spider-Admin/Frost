@@ -63,6 +63,7 @@ public class MemoryMonitor extends JPanel {
         if( dialog == null ) {
             dialog = new JFrame();
             dialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
+            dialog.setAlwaysOnTop(true);
             dialog.add(this);
             dialog.setSize(225,130);
             dialog.setTitle("Frost Memory Monitor");

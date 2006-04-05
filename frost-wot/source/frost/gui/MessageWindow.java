@@ -41,12 +41,20 @@ public class MessageWindow extends JFrame {
     private Listener listener;
 
     private Language language = Language.getInstance();
+    
+    private SearchMessagesConfig searchMessagesConfig = null;
 
-    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size){
+    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size) {
+        this(parentWindow, message, size, null);
+    }
+
+    public MessageWindow(Window parentWindow, FrostMessageObject message, Dimension size, SearchMessagesConfig smc) {
         super();
         this.message = message;
         this.parentWindow = parentWindow;
         this.setSize(size);
+        this.searchMessagesConfig = smc;
+
         initialize();
 
         // set visible BEFORE updating the textpane to allow correct positioning of dividers
@@ -65,7 +73,7 @@ public class MessageWindow extends JFrame {
         topPanel = new MessageWindowTopPanel(message);
         this.getContentPane().add(topPanel, BorderLayout.NORTH);
 
-        messageTextPane = new MessageTextPane(this);
+        messageTextPane = new MessageTextPane(this, searchMessagesConfig);
         this.getContentPane().add(messageTextPane, BorderLayout.CENTER);
 
         this.addKeyListener(listener);

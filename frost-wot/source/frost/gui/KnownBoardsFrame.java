@@ -65,7 +65,10 @@ public class KnownBoardsFrame extends JDialog {
     private boolean savingNeeded = false;
 
     public KnownBoardsFrame(JFrame parent, TofTree tofTree) {
-        super();
+
+        super(parent);
+        setModal(true);
+        
         this.tofTree = tofTree;
         language = Language.getInstance();
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
@@ -85,7 +88,6 @@ public class KnownBoardsFrame extends JDialog {
      * Build the GUI.
      */
     private void initialize() {
-        setModal(true);
         setTitle(language.getString("KnownBoardsFrame.List of known boards"));
 
         this.setResizable(true);
@@ -182,12 +184,15 @@ public class KnownBoardsFrame extends JDialog {
         buttons.add( Bclose );
         buttons.setBorder(BorderFactory.createEmptyBorder(10,0,0,0));
 
-        JScrollPane scrollPane = new JScrollPane( boardsTable );
+        JScrollPane scrollPane = new JScrollPane();
         scrollPane.setWheelScrollingEnabled(true);
+        scrollPane.setViewportView(boardsTable);
+        
         mainPanel.add( scrollPane, BorderLayout.CENTER );
         mainPanel.add( buttons, BorderLayout.SOUTH );
         mainPanel.setBorder(BorderFactory.createEmptyBorder(5,7,7,7));
 
+        this.getContentPane().setLayout(new BorderLayout());
         this.getContentPane().add(mainPanel, null); // add Main panel
 
         BaddBoard.setEnabled(false);

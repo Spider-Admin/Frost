@@ -39,7 +39,7 @@ public class Frost {
      */
     public static void main(String[] args) {
         System.out.println();
-        System.out.println("Frost, Copyright (C) 2006 Jan-Thomas Czornack");
+        System.out.println("Frost, Copyright (C) 2006 Frost Project");
         System.out.println("Frost comes with ABSOLUTELY NO WARRANTY!");
         System.out.println("This is free software, and you are welcome to");
         System.out.println("redistribute it under the GPL conditions.");

@@ -43,6 +43,8 @@ import javax.swing.JButton;
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     private Language language = Language.getInstance();
+    
+    private SearchMessagesConfig searchMessagesConfig = null;
 
     private String resultCountPrefix = null;
     private String startSearchStr = null;
@@ -1354,8 +1356,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             return;
         }
 
-        SearchMessagesConfig scfg = getSearchConfig();
-        if( scfg == null ) {
+        searchMessagesConfig = getSearchConfig();
+        if( searchMessagesConfig == null ) {
             // invalid cfg
             return;
         }
@@ -1371,7 +1373,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
         getBopenMsg().setEnabled(false);
 
-        setRunningSearchThread(new SearchMessagesThread(this, scfg));
+        setRunningSearchThread(new SearchMessagesThread(this, searchMessagesConfig));
         getRunningSearchThread().setPriority(Thread.MIN_PRIORITY); // low prio
         getRunningSearchThread().start();
     }
@@ -1407,7 +1409,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( msg == null ) {
             return;
         }
-        MessageWindow messageWindow = new MessageWindow( this, msg, this.getSize() );
+        MessageWindow messageWindow = new MessageWindow( this, msg, this.getSize(), searchMessagesConfig );
         messageWindow.setVisible(true);
     }
 
