@@ -1325,8 +1325,60 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         runningSearchThread = t;
     }
 
+    HashSet previouslyEnabledComponents = new HashSet();
+
+    /**
+     * Disables all input panels during run of search, remembers disabled
+     * components for later re-enabling.
+     *
+     */
+    private void disableInputPanels() {
+        previouslyEnabledComponents.clear();
+        for(int x=0; x < getJTabbedPane().getTabCount(); x++ ) {
+            JPanel c = (JPanel)getJTabbedPane().getComponentAt(x);
+            disableInputPanels(c);
+        }        
+    }
+    private void disableInputPanels(Container c) {
+        Component[] cs = c.getComponents();
+        for( int y=0; y < cs.length; y++ ) {
+            if( cs[y] instanceof Container ) {
+                disableInputPanels((Container)cs[y]);
+            } 
+            if( cs[y].isEnabled() ) {
+                previouslyEnabledComponents.add(cs[y]);
+                cs[y].setEnabled(false);
+            }
+        }
+    }
+
+    /**
+     * Re-enables the disabled input panels.
+     */
+    private void enableInputPanels() {
+        for(int x=0; x < getJTabbedPane().getTabCount(); x++ ) {
+            JPanel c = (JPanel)getJTabbedPane().getComponentAt(x);
+            enableInputPanels(c);
+        }        
+        previouslyEnabledComponents.clear();
+    }
+    private void enableInputPanels(Container c) {
+        Component[] cs = c.getComponents();
+        for( int y=0; y < cs.length; y++ ) {
+            if( cs[y] instanceof Container ) {
+                enableInputPanels((Container)cs[y]);
+            } 
+            if( previouslyEnabledComponents.contains(cs[y]) ) {
+                cs[y].setEnabled(true);
+            }
+        }
+    }
+    
     public void notifySearchThreadFinished() {
         setRunningSearchThread(null);
+
+        enableInputPanels();
+        
         // reset buttons
         getBcancel().setEnabled(true);
         getBsearch().setText(startSearchStr);
@@ -1347,7 +1399,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         ((JTranslatableTabbedPane)getJTabbedPane()).close();
         setVisible(false);
     }
-
+    
     private void startOrStopSearching() {
 
         if( getRunningSearchThread() != null ) {
@@ -1366,6 +1418,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         getSearchMessagesTableModel().clearDataModel();
         resultCount = 0;
         updateResultCountLabel(resultCount);
+
+        // disable all input panels
+        disableInputPanels();
 
         // set button states
         getBcancel().setEnabled(false);

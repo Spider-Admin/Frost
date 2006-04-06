@@ -1307,7 +1307,7 @@ public class MessageFrame extends JFrame {
             if( recipient == null ) {
                 JOptionPane.showMessageDialog( this,
                         "Can't encrypt, no recipient choosed!",
-                        "ERROR",
+                        language.getString("Error"),
                         JOptionPane.ERROR);
                 return;
             }
@@ -1342,7 +1342,7 @@ public class MessageFrame extends JFrame {
         } else {
             JOptionPane.showMessageDialog( this,
                     "Error verifying the resulting message size.",
-                    "Error!",
+                    language.getString("Error"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }

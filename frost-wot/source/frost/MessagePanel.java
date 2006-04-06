@@ -735,7 +735,7 @@ public class MessagePanel extends JPanel {
         if( targetBoard == null ) {
             JOptionPane.showMessageDialog( parent,
                     "Can't reply, the target board is not in your boardlist: "+origMessage.getBoard(), // TODO: translate
-                    "ERROR",
+                    language.getString("Error"),
                     JOptionPane.ERROR);
             return;
         }
@@ -753,7 +753,7 @@ public class MessagePanel extends JPanel {
             if( origMessage.getFromIdentity() == null ) {
                 JOptionPane.showMessageDialog( parent,
                         "Can't reply encrypted, recipients public key is missing!", // TODO: translate
-                        "ERROR",
+                        language.getString("Error"),
                         JOptionPane.ERROR);
                 return;
             }
