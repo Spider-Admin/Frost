@@ -90,7 +90,7 @@ static final Object[][] contents = {
 {"Copy","Kopieren"},
 {"Copy extended info","erweiterte Information"},
 {"Copy to clipboard","In die Zwischenablage kopieren"},
-{"Core.init.NodeNotRunningBody","Stellen Sie sicher, daß Ihr Freenet-Knoten läuft und daß Sie Freenet richtig konfiguriert haben.\nFreenet wird aber trotzdem starten, damit Sie Nachrichten lesen können.\nLassen Sie sich nicht irritieren, wenn Sie einige Fehler beim Lesen von Nachrichten bekommen ;)\n"},
+{"Core.init.NodeNotRunningBody","Stellen Sie sicher, daß Ihr Freenet-Knoten läuft und daß Sie Freenet richtig konfiguriert haben.\nFrost wird aber trotzdem starten, damit Sie Nachrichten lesen können.\nLassen Sie sich nicht irritieren, wenn Sie einige Fehler beim Lesen von Nachrichten bekommen ;)\n"},
 {"Core.init.NodeNotRunningTitle","Fehler - konnte keine Verbindung zum Freenet-Knoten aufbauen."},
 {"Core.init.TransientNodeBody","Sie betreiben einen TRANSIENTEN Freenet-Knoten. Sie sollten besser auf einen PERMANENTEN Knoten umsteigen."},
 {"Core.init.TransientNodeTitle","Transienten Knoten entdeckt"},
