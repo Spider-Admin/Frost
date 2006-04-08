@@ -328,7 +328,23 @@ public class FecSplitfile
         return (providedBlocks >= neededBlocks);
     }
 
+    public boolean isDecodeNeeded(int segmentNo) {
+        SingleSegmentValues segval = (SingleSegmentValues) this.segmentValues.get(segmentNo);
+        int neededBlocks = segval.dataBlockCount;
+        int providedBlocks = 0;
+        for( int x = 0; x < this.dataBlocks.size(); x++ ) {
+            FecBlock b = (FecBlock) this.dataBlocks.get(x);
+            if( b.getSegmentNo() == segmentNo && b.getCurrentState() == FecBlock.STATE_TRANSFER_FINISHED ) {
+                providedBlocks++;
+            }
+        }
+        return (providedBlocks < neededBlocks);
+    }
+
     public void decode(int segmentNo) throws Throwable {
+        if( !isDecodeNeeded(segmentNo)) {
+            return; // we already have all data blocks
+        }
         if( !isDecodeable(segmentNo) ) {
             throw new IllegalStateException("Can't decode the segment, too less blocks provided");
         }
@@ -375,7 +391,7 @@ public class FecSplitfile
         this.fecDecodeFactory.init( requestedDataBlocksBucketList );
 
         // provide an empty array to hold the returned buckets
-        // we don't need them here ... our factory give out the right buckets on the fly
+        // we don't need them here ... our factory hands out the correct buckets on the fly
         Bucket[] targetBuckets = new Bucket[missingDataBlockIx.length];
         this.decoder.decode(missingDataBlockIx, targetBuckets);
 
@@ -460,6 +476,21 @@ public class FecSplitfile
             throw new Exception(emsg);
         }
         logger.info("Splitfile encode finished.");
+    }
+    
+    public void closeBuckets() {
+        if( dataBlocks != null ) {
+            for(Iterator i=dataBlocks.iterator(); i.hasNext(); ) {
+                FecBlock fb = (FecBlock)i.next();
+                fb.close();
+            }
+        }
+        if( checkBlocks != null ) {
+            for(Iterator i=checkBlocks.iterator(); i.hasNext(); ) {
+                FecBlock fb = (FecBlock)i.next();
+                fb.close();
+            }
+        }
     }
 
     /**

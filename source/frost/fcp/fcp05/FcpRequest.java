@@ -211,6 +211,7 @@ public class FcpRequest
 
                     int maxThreadsNeeded = neededBlockCount - segmentsFinishedBlocks;
                     int threadCountAllowedToStart = maxThreads - runningThreads.size();
+
                     if( maxThreadsNeeded > 0 && threadCountAllowedToStart > 0 ) {
                         FecBlock block = (FecBlock)missingBlocks.get(actBlockIx);
                         actBlockIx++;
@@ -223,12 +224,18 @@ public class FcpRequest
                     // now we are here, no thread allowed to start, so we wait
                     Mixed.wait(1000);
                 }
-                // wait for all running threads to finish
+                // wait for all running threads to finish, abort remaining if we got enough blocks
                 while( runningThreads.size() > 0 ) {
                     // check if threads are finished
                     boolean threadsFinished = false;
                     for( int y=runningThreads.size()-1; y >= 0; y-- ) {
                         GetKeyThread gkt = (GetKeyThread)runningThreads.get(y);
+                        
+                        if( segmentsFinishedBlocks >= neededBlockCount && gkt.isAborted() == false ) {
+                            // we got all needed blocks, abort remaining running threads
+                            gkt.abortTransfer();
+                        }
+                        
                         if( gkt.isAlive() == false ) {
                             if( gkt.getSuccess() == true ) {
                                 // never count higher than datablocks/segment in each segment
@@ -241,8 +248,6 @@ public class FcpRequest
                                     dlItem.setRequiredBlocks(displayedRequiredBlocks);
                                     dlItem.setTotalBlocks(displayedAvailableBlocks);
                                 }
-                                // now done in thread
-                                // splitfile.createRedirectFile(true);
                             }
                             runningThreads.remove(y);
                             threadsFinished = true;
@@ -255,6 +260,7 @@ public class FcpRequest
                 }
             } // end-of: if( provided < needed )
             // check if we have enough blocks to decode (paranoia)
+
             if( splitfile.isDecodeable(segmentNo) ) {
                 logger.info("Segment "+segmentNo+" is decodeable...");
 
@@ -278,7 +284,6 @@ public class FcpRequest
                     setBlocksInSegmentFinished(splitfile.getCheckBlocks(), segmentNo);
                     splitfile.createRedirectFile(true);
                 }
-                // BBACKFLAG: remember unfinished blocks to encode+reinsert them !!!
                 wasSegmentSuccessful[segmentNo] = true;
             } else {
                 logger.warning("Segment " + segmentNo + " is NOT decodeable...");
@@ -319,6 +324,9 @@ public class FcpRequest
                 dlItem.setState(FrostDownloadItem.STATE_PROGRESS);
             }
         }
+        
+        // close all internal buckets
+        splitfile.closeBuckets();
 
         if( success == true ) {
             // if we really reach here, all segments are successfully decoded.
@@ -327,7 +335,7 @@ public class FcpRequest
 
             // rename target file, maybe delete redirect+checkblocks file
             if( dlItem != null ) {
-                splitfile.finishDownload(false); // dont delete working files (TODO: healing!)
+                splitfile.finishDownload(true); // use 'false' if healing is implemented :)
             } else {
                 // this deletes work file, and if setCorrectDatafileSize() was not called (on error)
                 // it also deletes the data file
@@ -349,7 +357,9 @@ public class FcpRequest
         int htl;
         boolean success;
         FecSplitfile splitfile;
-
+        FcpConnection connection = null;
+        boolean aborted = false;
+        
         public GetKeyThread(FecSplitfile sf, FecBlock b, int h) {
             block = b;
             htl = h;
@@ -360,9 +370,8 @@ public class FcpRequest
 
             block.setCurrentState(FecBlock.STATE_TRANSFER_RUNNING);
 
-            this.success = false;
+            success = false;
 
-            FcpConnection connection;
             try {
                 connection = FcpFactory.getFcpConnectionInstance();
             } catch (ConnectException e1) {
@@ -375,10 +384,16 @@ public class FcpRequest
                             block.getRandomAccessFileBucket(false),
                             htl);
                 } catch( FcpToolsException e ) {
-                    logger.log(Level.WARNING, "Error during request: ", e);
+                    if( !isAborted() ) {
+                        // abort silently
+                        logger.log(Level.WARNING, "Error during request: ", e);
+                    }
                     success = false;
                 } catch( Throwable e ) {
-                    logger.log(Level.WARNING, "Error during request: ", e);
+                    if( !isAborted() ) {
+                        // abort silently
+                        logger.log(Level.WARNING, "Error during request: ", e);
+                    }
                     success = false;
                 }
             }
@@ -397,6 +412,16 @@ public class FcpRequest
 
         public synchronized FecBlock getBlock() {
             return block;
+        }
+        
+        public void abortTransfer() {
+            aborted = true;
+            if( connection != null ) {
+                connection.abortConnection();
+            }
+        }
+        public boolean isAborted() {
+            return aborted;
         }
     }
 

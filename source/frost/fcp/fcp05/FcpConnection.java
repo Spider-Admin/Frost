@@ -78,6 +78,15 @@ public class FcpConnection
 
         doHandshake();
     }
+    
+    public void abortConnection() {
+        if( fcpSock != null ) {
+            try {
+                fcpSock.close();
+            } catch (IOException e) {
+            }
+        }
+    }
 
     public String[] getNodeInfo() throws IOException {
         ArrayList result = new ArrayList();
@@ -127,8 +136,6 @@ public class FcpConnection
     public boolean getKeyToBucket(String keyString,
                                   Bucket bucket,
                                   int htl) throws IOException, FcpToolsException, InterruptedIOException {
-
-        keyString = FcpDisconnect(keyString);
 
         FreenetKey key = new FreenetKey(keyString);
         logger.fine("KeyString = " + keyString + "\n" +
@@ -322,8 +329,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                                    int htl,
                                    boolean fastDownload) throws IOException, FcpToolsException, InterruptedIOException {
 
-        keyString = FcpDisconnect(keyString);
-
         FcpResults result = new FcpResults();
         FreenetKey key = new FreenetKey(keyString);
         logger.fine("KeyString = " + keyString + "\n" +
@@ -510,8 +515,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
     public String putKeyFromArray(String key, byte[] data, byte[] metadata, int htl, boolean removeLocalKey)
         throws IOException {
 
-        key = FcpDisconnect(key);
-
         fcpSock = new Socket(host, port);
         fcpSock.setSoTimeout(TIMEOUT);
         fcpOut = new PrintStream(fcpSock.getOutputStream());
@@ -664,9 +667,5 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         }
 
         return result;
-    }
-
-    private String FcpDisconnect(String tport) {
-        return tport;
     }
 }
