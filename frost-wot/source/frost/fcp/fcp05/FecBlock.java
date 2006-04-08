@@ -51,6 +51,8 @@ public class FecBlock
     protected int indexInFile; // index of this block in the file (data file _or_ check blocks file)
 
     protected long fileOffset; // exact offset in file (data or checkblocks) where this block starts
+    
+    protected RandomAccessFileBucket rafBucket = null;
 
     public FecBlock(int btype, File f, int segno, int ixInSeg, int ixInFile, int bsize, long foffs )
     {
@@ -64,12 +66,20 @@ public class FecBlock
 
         this.currentState = STATE_TRANSFER_WAITING;
     }
+    
+    public void close() {
+        if( rafBucket != null ) {
+            rafBucket.release();
+        }
+    }
 
     public RandomAccessFileBucket getRandomAccessFileBucket(boolean readOnly)
     {
-        RandomAccessFileBucket b = null;
+        if( rafBucket != null ) {
+            return rafBucket;
+        }
         try {
-            b = new RandomAccessFileBucket(this.blockFile,
+            rafBucket = new RandomAccessFileBucket(this.blockFile,
                                            this.getFileOffset(),
                                            this.getBlockSize(),
                                            readOnly);
@@ -78,7 +88,7 @@ public class FecBlock
             logger.log(Level.SEVERE, "Exception thrown in getRandomAccessFileBucket(boolean readOnly)", e);
             return null;
         }
-        return b;
+        return rafBucket;
     }
 
     /**
