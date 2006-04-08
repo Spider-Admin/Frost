@@ -81,7 +81,6 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 		String enableDownload = element.getAttribute("enableDownload");
 		String SHA1 = XMLTools.getChildElementsTextValue(element, "SHA1");
 		String batch = XMLTools.getChildElementsTextValue(element, "batch");
-		String redirect = XMLTools.getChildElementsCDATAValue(element, "redirect");
 
 		// SHA1 val is not available when adding downloads using textbox
 		// one of key or SHA1 must be available
@@ -132,7 +131,6 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 		FrostDownloadItem dlItem = new FrostDownloadItem(filename, filesize, fileage, key, retries,
 															owner, SHA1, iState, isDownloadEnabled, board);
 		dlItem.setBatch(batch);
-		dlItem.setRedirect(redirect);
 		return dlItem;
 	}
 
@@ -197,13 +195,6 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 			element = doc.createElement("batch");
 			text = doc.createTextNode(downloadItem.getBatch());
 			element.appendChild(text);
-			itemElement.appendChild(element);
-		}
-		//redirect - for redirect files
-		if (downloadItem.getRedirect() != null) {
-			element = doc.createElement("redirect");
-			cdata = doc.createCDATASection(downloadItem.getRedirect());
-			element.appendChild(cdata);
 			itemElement.appendChild(element);
 		}
 		//owner

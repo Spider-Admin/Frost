@@ -85,13 +85,4 @@ public class FrostSearchItem extends ModelItem
     public String getBatch() {
         return sfo.getBatch();
     }
-    /**
-     * @return Returns the sfo.
-     */
-    public String getRedirect() {
-        if (sfo instanceof RedirectFileObject)
-            return ((RedirectFileObject)sfo).getRedirect();
-        else return null;
-    }
-
 }

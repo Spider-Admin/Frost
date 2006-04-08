@@ -36,9 +36,9 @@ import frost.fcp.*;
 public class FrostSecurityManager extends SecurityManager {
     
     protected void checkFrostConnect(String host, int port) {
-        List nodes = FcpFactory.getNodes();
+        List nodes = FcpHandler.getNodes();
         for(Iterator i=nodes.iterator(); i.hasNext(); ) {
-            FcpFactory.NodeAddress na = (FcpFactory.NodeAddress)i.next();
+            NodeAddress na = (NodeAddress)i.next();
             if( port < 0 ) {
                 return; // allow DNS lookups
             }

@@ -85,7 +85,7 @@ public class DownloadThread extends Thread {
 
             try {
                 // BBACKFLAG: implement increasing htls!
-                success = FcpRequest.getFile(
+                success = FcpHandler.getFile(
                             key,
                             size,
                             newFile,
@@ -315,7 +315,7 @@ public class DownloadThread extends Thread {
                             .append(".req.sha")
                             .toString();
                     logger.fine(upKey);
-                    result = FcpInsert.putFile(
+                    result = FcpHandler.putFile(
                             upKey,
                             requestFile,
                             null,
@@ -351,7 +351,7 @@ public class DownloadThread extends Thread {
 
                         String requestMe = upKey;
 
-                        if (FcpRequest.getFile(requestMe, null, compareMe, 25, false) != null) {
+                        if (FcpHandler.getFile(requestMe, null, compareMe, 25, false) != null) {
                             File numberOne = compareMe;
                             File numberTwo = requestFile;
                             String contentOne = (FileAccess.readFile(numberOne)).trim();

@@ -18,14 +18,14 @@
 */
 package frost.fileTransfer;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fcp.FcpRequest;
+import frost.fcp.*;
 import frost.fileTransfer.upload.*;
-import frost.identities.FrostIdentities;
+import frost.identities.*;
 /**
  * Downloads file requests
  */
@@ -160,7 +160,7 @@ public class GetRequestsThread extends Thread
                                         .toString();
                                 logger.fine(tmp);
 
-                                FcpRequest.getFile(
+                                FcpHandler.getFile(
                                     "KSK@frost/request/"
                                         + Core.frostSettings.getValue("messageBase")
                                         + "/"

@@ -1,5 +1,5 @@
 /*
-  DataNotFoundException.java / Frost
+  FcpToolsException.java / Frost
   Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -16,12 +16,12 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fcp;
+package frost.fcp.fcp05;
 
-public class DataNotFoundException extends FcpToolsException
+public class FcpToolsException extends Exception
 {
-  public DataNotFoundException()
+  public FcpToolsException(String s)
   {
-    super("Data Not Found.");
+    super(s);
   }
 }

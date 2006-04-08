@@ -125,7 +125,7 @@ class UploadThread extends Thread
 
         logger.info("Upload of " + file + " with HTL " + htl + " started.");
 
-        result = FcpInsert.putFile(
+        result = FcpHandler.putFile(
                 "CHK@",
                 file,
                 null, // metadata
@@ -163,23 +163,7 @@ class UploadThread extends Thread
             uploadItem.setState(nextState);
             uploadItem.setLastUploadDate(lastUploadDate);
 
-            if (uploadItem.getFileSize().longValue() > FcpInsert.smallestChunk) {
-                logger.fine("attaching redirect to file " + file.getName());
-                current = new FECRedirectFileObject();
-                FecSplitfile splitFile = new FecSplitfile(file);
-                if (!splitFile.uploadInit())
-                    throw new Error("file was just uploaded, but .redirect missing!");
-
-                //create a splitfile redirect without progress information
-                splitFile.createRedirectFile(false);
-
-                ((FECRedirectFileObject) current).setRedirect(
-                    new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
-            } else {
-                current = new SharedFileObject();
-                logger.fine("not attaching redirect");
-            }
-
+            current = new SharedFileObject();
             current.setKey(uploadItem.getKey());
             if (sign) {
                 current.setOwner(myId.getUniqueName());
@@ -243,31 +227,15 @@ class UploadThread extends Thread
     private void generateCHK() {
         logger.info("CHK generation started for file: " + file);
         String chkkey = null;
-
-        if (file.length() <= FcpInsert.smallestChunk) {
-            logger.info("File too short, doesn't need encoding.");
-            // generate only CHK
-            chkkey = FecTools.generateCHK(file);
-        } else {
-            FecSplitfile splitfile = new FecSplitfile(file);
-            boolean alreadyEncoded = splitfile.uploadInit();
-            if (!alreadyEncoded) {
-                try {
-                    splitfile.encode();
-                } catch (Throwable t) {
-                    logger.log(Level.SEVERE, "Encoding failed", t);
-                    uploadItem.setState(FrostUploadItem.STATE_IDLE);
-                    return;
-                }
-            }
-            // yes, this destroys any upload progress, but we come only here if
-            // chkKey == null, so the file should'nt be uploaded until now
-            splitfile.createRedirectFile(false);
-            // gen normal redirect file for CHK generation
-
-            chkkey = FecTools.generateCHK(
-                    splitfile.getRedirectFile(),
-                    splitfile.getRedirectFile().length());
+        
+        // yes, this destroys any upload progress, but we come only here if
+        // chkKey == null, so the file should'nt be uploaded until now
+        try {
+            chkkey = FcpHandler.generateCHK(file);
+        } catch (Throwable t) {
+            logger.log(Level.SEVERE, "Encoding failed", t);
+            uploadItem.setState(FrostUploadItem.STATE_IDLE);
+            return;
         }
 
         if (chkkey != null) {

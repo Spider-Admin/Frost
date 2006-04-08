@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fcp;
+package frost.fcp.fcp05;
 
 import java.io.*;
 import java.net.*;
@@ -72,23 +72,6 @@ public class FcpInsert
             result[1] = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage")).trim();
         } // else result[1] keeps "Error"
         return result;
-    }
-
-    /**
-     * Inserts a file into freenet.
-     * The boardfilename is needed for FEC splitfile puts,
-     * for inserting e.g. the pubkey.txt file set it to null.
-     * This method wraps the calls without the uploadItem.
-     */
-    public static String[] putFile(
-            String uri,
-            File file,
-            byte[] metadata,
-            int htl,
-            boolean doRedirect,
-            boolean removeLocalKey)
-    {
-        return putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, null);
     }
 
     /**
@@ -355,7 +338,12 @@ RawDataLength=0
 
         // upload redirect file
         boolean success = false;
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        FcpConnection connection;
+        try {
+            connection = FcpFactory.getFcpConnectionInstance();
+        } catch (ConnectException e1) {
+            connection = null;
+        }
         if( connection == null ) {
             logger.severe("Got no FcpConnection, redirect file can not be uploaded!");
         } else {
@@ -445,7 +433,12 @@ RawDataLength=0
             block.setCurrentState(FecBlock.STATE_TRANSFER_RUNNING);
 
             this.success = false;
-            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+            FcpConnection connection;
+            try {
+                connection = FcpFactory.getFcpConnectionInstance();
+            } catch (ConnectException e1) {
+                connection = null;
+            }
             if( connection != null ) {
                 try {
                     String result = workaroundPutKeyFromArray(

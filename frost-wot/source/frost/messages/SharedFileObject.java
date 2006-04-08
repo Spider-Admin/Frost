@@ -443,13 +443,9 @@ public class SharedFileObject implements XMLizable
      */
     public static SharedFileObject getInstance(Element e){
         try {
-            if (e.getAttribute("redirect").length() > 0) {
-                return RedirectFileObject.getRedirectInstance(e);
-            } else {
-                SharedFileObject result = new SharedFileObject();
-                result.loadXMLElement(e);
-                return result;
-            }
+            SharedFileObject result = new SharedFileObject();
+            result.loadXMLElement(e);
+            return result;
         } catch(SAXException ex) {
             logger.log(Level.SEVERE, "parsing file failed.", ex);
             return null;

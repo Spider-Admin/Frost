@@ -18,16 +18,12 @@
 */
 package frost.identities;
 
-import java.io.IOException;
 import java.util.logging.*;
 
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 import frost.*;
-import frost.fcp.*;
-import frost.gui.objects.Board;
-import frost.messages.BoardAttachment;
 
 /**
  * Represents the main user's identity

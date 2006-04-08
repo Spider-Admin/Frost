@@ -21,7 +21,6 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -153,15 +152,13 @@ public class BoardSettingsFrame extends JDialog {
      * @param e
      */
     private void generateKeyButton_actionPerformed(ActionEvent e) {
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if (connection == null)
-            return;
-
         try {
-            String[] keyPair = connection.getKeyPair();
-            privateKeyTextField.setText(keyPair[0]);
-            publicKeyTextField.setText(keyPair[1]);
-        } catch (IOException ex) {
+            BoardKeyPair kp = FcpHandler.generateBoardKeyPair();
+            if( kp != null ) {
+                privateKeyTextField.setText(kp.getPrivateBoardKey());
+                publicKeyTextField.setText(kp.getPublicBoardKey());
+            }
+        } catch (Throwable ex) {
             JOptionPane.showMessageDialog(parentFrame, ex.toString(), // message
                     language.getString("Warning"), JOptionPane.WARNING_MESSAGE);
         }

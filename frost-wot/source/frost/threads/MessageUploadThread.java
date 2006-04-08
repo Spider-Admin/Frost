@@ -200,7 +200,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private boolean downloadMessage(int index, File targetFile) {
         try {
             String downKey = composeDownKey(index);
-            FcpResults res = FcpRequest.getFile(downKey, null, targetFile, messageUploadHtl, false, false);
+            FcpResults res = FcpHandler.getFile(downKey, null, targetFile, messageUploadHtl, false, false);
             if( res != null && targetFile.length() > 0 ) {
                 return true;
             }
@@ -482,7 +482,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             && !result[0].equals("KeyCollision")
             && !result[0].equals("Success")) {
             try {
-                result = FcpInsert.putFile(
+                result = FcpHandler.putFile(
                         "CHK@",
                         attachment.getFile(),
                         null,
@@ -504,21 +504,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             String chk = result[1];
             attachment.setKey(chk);
             attachment.setFilename(attachment.getFile().getName()); // remove path from filename
-
-            if (attachment instanceof FECRedirectFileObject) {
-                logger.fine("attaching redirect to file " + attachment.getFile().getName());
-
-                FecSplitfile splitFile = new FecSplitfile(attachment.getFile());
-                if (!splitFile.uploadInit()) {
-                    throw new Error("file was just uploaded, but .redirect missing!");
-                }
-
-                ((FECRedirectFileObject) attachment).setRedirect(
-                    new String(FileAccess.readByteArray(splitFile.getRedirectFile())));
-                splitFile.finishUpload(true);
-            } else {
-                logger.fine("not attaching redirect");
-            }
 
             attachment.setFile(null); // we never want to give out a real pathname, this is paranoia
             return true;
@@ -707,7 +692,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 String upKey = composeUpKey(index);
                 logInfo = " board="+board.getName()+", key="+upKey;
                 // signMetadata is null for unsigned upload. Do not do redirect.
-                result = FcpInsert.putFile(
+                result = FcpHandler.putFile(
                         upKey,
                         zipFile,
                         signMetadata,

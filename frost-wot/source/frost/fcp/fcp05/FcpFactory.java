@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fcp;
+package frost.fcp.fcp05;
 
 import java.io.*;
 import java.net.*;
@@ -24,6 +24,7 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fcp.*;
 
 public class FcpFactory {
     
@@ -32,18 +33,11 @@ public class FcpFactory {
     private static List nodes = new ArrayList(); //list of available nodes, NodeAddress objects
     private static Random random = new Random();
 
-    public static class NodeAddress {
-        public InetAddress host = null;
-        public int port = -1;
-        public String hostName = null; // avoid name lookup recursion in security manager
-        public String hostIp = null; // avoid name lookup recursion in security manager
-    }
-
     /**
      * This method creates an instance of FcpConnection and handles errors.
      * Returns either the connection, or null on any error.
      */
-    public static FcpConnection getFcpConnectionInstance() {
+    public static FcpConnection getFcpConnectionInstance() throws ConnectException {
         
         FcpConnection connection = null;
 
@@ -60,13 +54,6 @@ public class FcpFactory {
         while (connection == null && tries < maxTries) {
             try {
                 connection = getConnection();
-            } catch (ConnectionException e) {
-                logger.warning(
-                    "FcpConnection.getFcpConnectionInstance: FcpTools.ConnectionException "
-                        + e + " , this was try " + (tries + 1) + "/" + maxTries);
-            } catch (FcpToolsException e) {
-                logger.severe("FcpConnection.getFcpConnectionInstance: FcpToolsException " + e);
-                break;
             } catch (UnknownHostException e) {
                 logger.severe("FcpConnection.getFcpConnectionInstance: UnknownHostException " + e);
                 break;
@@ -88,6 +75,7 @@ public class FcpFactory {
         }
         if (connection == null) {
             logger.warning("ERROR: FcpConnection.getFcpConnectionInstance: Could not connect to node!");
+            throw new ConnectException("Could not connect to FCP node.");
         }
         return connection;
     }
@@ -166,7 +154,7 @@ public class FcpFactory {
         logger.info("Frost will use " + nodes.size() + " Freenet nodes");
     }
 
-    protected static synchronized FcpConnection getConnection()  throws IOException, FcpToolsException, Error {
+    protected static synchronized FcpConnection getConnection()  throws IOException, Error {
 
         FcpConnection con = null;
         if (getNodes().size()==0) {
@@ -182,10 +170,6 @@ public class FcpFactory {
             // for now, remove on the first failure.
             // FIXME: maybe we should give the node few chances?
             // also, should we remove it from the settings (i.e. forever)?
-//            delegateRemove(selectedNode);
-            throw e;
-        } catch (FcpToolsException e) {
-            // same here
 //            delegateRemove(selectedNode);
             throw e;
         }
