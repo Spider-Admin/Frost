@@ -33,7 +33,6 @@ import javax.swing.text.*;
 import frost.*;
 import frost.boards.*;
 import frost.ext.*;
-import frost.fcp.*;
 import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.identities.*;
@@ -1280,12 +1279,8 @@ public class MessageFrame extends JFrame {
             File aChosedFile = af.getFile();
             Board boardObj = null;
 
-            SharedFileObject sfo;
-            if (aChosedFile.length() > FcpInsert.smallestChunk) {
-                sfo = new FECRedirectFileObject(aChosedFile,boardObj);
-            } else {
-                sfo= new SharedFileObject(aChosedFile, boardObj);
-            }
+            SharedFileObject sfo = new SharedFileObject(aChosedFile, boardObj);
+
             if( addAttachedFilesToUploadTable.isSelected() ) {
                 sfo.setOwner(sign.isSelected() ?
                                     Mixed.makeFilename(myId.getUniqueName()) :

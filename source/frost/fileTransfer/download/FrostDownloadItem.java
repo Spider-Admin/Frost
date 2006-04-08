@@ -68,8 +68,6 @@ public class FrostDownloadItem extends ModelItem {
 
 	private String batch = null;
 
-	private String redirect;
-
 	private long lastDownloadStopTimeMillis = 0;
 	
 	/**
@@ -89,9 +87,6 @@ public class FrostDownloadItem extends ModelItem {
 		retries = 0;
 
 		state = STATE_WAITING;
-
-		redirect = searchItem.getRedirect();
-
 	}
 
 	//TODO: add .redirect to this or fix it to use SharedFileObject
@@ -264,20 +259,6 @@ public class FrostDownloadItem extends ModelItem {
 		String oldFileName = fileName;
 		fileName = newFileName;
 		fireFieldChange(FIELD_ID_FILE_NAME, oldFileName, newFileName);
-	}
-
-	/**
-	 * @return Returns the redirect.
-	 */
-	public String getRedirect() {
-		return redirect;
-	}
-
-	/**
-	 * @param redirect The redirect to set.
-	 */
-	public void setRedirect(String redirect) {
-		this.redirect = redirect;
 	}
 
 	/**

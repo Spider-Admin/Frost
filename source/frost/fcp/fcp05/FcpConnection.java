@@ -16,7 +16,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fcp;
+package frost.fcp.fcp05;
 
 import java.io.*;
 import java.net.*;
@@ -25,6 +25,7 @@ import java.util.logging.*;
 
 import freenet.support.*;
 import frost.*;
+import frost.fcp.*;
 
 /**
  * This class is a wrapper to simplify access to the FCP library.
@@ -71,14 +72,14 @@ public class FcpConnection
      * @exception IOException if there is a problem with the connection
      * to the FCP host.
      */
-    public FcpConnection(InetAddress host, int port) throws UnknownHostException, IOException, FcpToolsException {
+    public FcpConnection(InetAddress host, int port) throws UnknownHostException, IOException {
         this.host = host;
         this.port = port;
 
         doHandshake();
     }
 
-    public String[] getInfo() throws IOException, FcpToolsException {
+    public String[] getNodeInfo() throws IOException {
         ArrayList result = new ArrayList();
 
         fcpSock = new Socket(host, port);
@@ -307,19 +308,6 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         }
     }
 
-    /**
-     * Retrieves the specified key and saves it to the file
-     * specified.
-     *
-     * @param key  the key to be retrieved
-     * @param filename  the filename to which the data should be saved
-     * @param htl the HTL to use in this request
-     * @return the results filled with metadata
-     */
-    public FcpResults getKeyToFile(String keyString, String filename, int htl)
-    throws IOException, FcpToolsException, InterruptedIOException {
-        return getKeyToFile( keyString, filename, htl, false );
-    }
     /**
      * Retrieves the specified key and saves it to the file
      * specified.
@@ -592,7 +580,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
     /**
      * Performs a handshake using this FcpConnection
      */
-    public void doHandshake() throws IOException, FcpToolsException
+    public void doHandshake() throws IOException, ConnectException
     {
         fcpSock = new Socket(host, port);
         fcpIn = new BufferedInputStream(fcpSock.getInputStream());
@@ -617,7 +605,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         } while (response.getId() != FcpKeyword.EndMessage && timeout < 32);
 
         if (timeout == 32) {
-            throw new ConnectionException();
+            throw new ConnectException();
         }
         fcpSock.close();
     }

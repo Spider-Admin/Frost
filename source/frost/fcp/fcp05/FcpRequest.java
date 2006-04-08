@@ -16,15 +16,16 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.fcp;
+package frost.fcp.fcp05;
 
 import java.io.*;
+import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.download.FrostDownloadItem;
-import frost.threads.getKeyThread;
 
 /**
  * Requests a key from freenet
@@ -37,17 +38,6 @@ public class FcpRequest
     final static boolean DEBUG = true;
 
     private static Logger logger = Logger.getLogger(FcpRequest.class.getName());
-
-    private static int getActiveThreads(Thread[] threads) {
-        int count = 0;
-        for( int i = 0; i < threads.length; i++ ) {
-            if( threads[i] != null ) {
-                if( threads[i].isAlive() )
-                    count++;
-            }
-        }
-        return count;
-    }
 
     /**
      * Downloads a FEC splitfile.
@@ -372,7 +362,12 @@ public class FcpRequest
 
             this.success = false;
 
-            FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+            FcpConnection connection;
+            try {
+                connection = FcpFactory.getFcpConnectionInstance();
+            } catch (ConnectException e1) {
+                connection = null;
+            }
             if( connection != null ) {
                 try {
                     success = connection.getKeyToBucket(
@@ -439,31 +434,10 @@ public class FcpRequest
      * @param target Target path
      * @param htl request htl
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
-     * @return True if download was successful, else false.
-     */
-    public static FcpResults getFile(String key,
-                                  Long size,
-                                  File target,
-                                  int htl,
-                                  boolean doRedirect)
-    {
-        // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(key,size,target,htl,doRedirect, false, true, null);
-    }
-
-    public static FcpResults getFile(String key,
-                                  Long size,
-                                  File target,
-                                  int htl,
-                                  boolean doRedirect,
-                                  boolean fastDownload)
-    {
-        // use temp file by default, only filedownload needs the target file to monitor download progress
-        return getFile(key,size,target,htl,doRedirect, fastDownload, true, null);
-    }
-
-    /**
-     * Returns null if nothing was received.
+     * @param fastDownload  If true request stop if node reports a timeout. If false try until node indicates end.
+     * @param createTempFile  true to download to a temp file and rename to target file after success.  
+     * @param dlItem   The DownloadItem for this download for progress updates, or null if there is none.
+     * @return null on error, or FcpResults
      */
     public static FcpResults getFile(String key,
                                   Long size,
@@ -493,12 +467,7 @@ public class FcpRequest
         FcpResults results =null;
         String [] metadataLines=null;
 
-        if (dlItem != null && dlItem.getRedirect() != null) {
-            results = new FcpResults(dlItem.getRedirect().getBytes(), dlItem.getKey());
-            logger.info("starting download of an attached redirect");
-        } else {
-            results = getKey(key, tempFile, htl, fastDownload);
-        }
+        results = getKey(key, tempFile, htl, fastDownload);
 
         if (results != null) {
             metadataLines = results.getMetadataAsLines();
@@ -518,7 +487,6 @@ public class FcpRequest
                 if( redirectCHK != null ) { // File is a redirect
                     logger.info("Redirecting to " + redirectCHK);
 
-                    results = null;
                     results = getKey(redirectCHK, tempFile, htl, fastDownload);
                     // redirect must contain data, not only metadata
                     if( results == null || tempFile.length() == 0 ) {
@@ -544,34 +512,18 @@ public class FcpRequest
                 }
 
                 if( isSplitfile ) {
-                    boolean success;
-                    if( algoName != null && algoName.equals("OnionFEC_a_1_2") )
-                    {
+                    if( algoName != null && algoName.equals("OnionFEC_a_1_2") ) {
                         // save metadata to temp file
                         FileAccess.writeFile(results.getRawMetadata(), tempFile);
 
-                        success = getFECSplitFile(target, tempFile, htl, dlItem);
+                        boolean success = getFECSplitFile(target, tempFile, htl, dlItem);
                         // this method handles all working files, no more needed here
-                        if( success )
-                        {
+                        if( success ) {
                             return results; // return the metadata
                         }
                         return null;
-                    }
-                    else
-                    {  //FIXME: we could probably remove support for non-fec splitfiles
-                        //its been years since they were used
-                        success = getSplitFile(key, tempFile, htl, dlItem);
-                    }
-
-                    if( success ) {
-                        // If the target file exists, we remove it
-                        if( target.isFile() )
-                            target.delete();
-                        tempFile.renameTo(target);
-                        return results; // return the metadata
                     } else {
-                        // remove temporary file (e.g. redirect file) if download failed
+                        logger.severe("Old non-FEC splitfiles are not supported by Frost, try with fproxy. key="+key);
                         tempFile.delete();
                         return null;
                     }
@@ -631,15 +583,15 @@ Document
 */
         String searchedFilename = null;
         int pos1 = key.lastIndexOf("/");
-        if( pos1 > -1 )
-        {
+        if( pos1 > -1 ) {
             searchedFilename = key.substring(pos1+1).trim();
-            if( searchedFilename.length() == 0 )
+            if( searchedFilename.length() == 0 ) {
                 searchedFilename = null;
-
+            }
         }
-        if( searchedFilename == null )
+        if( searchedFilename == null ) {
             return null; // no filename found in key
+        }
 
         // scan through lines and find the Redirect.Target=(CHK) for Name=(our searchedFilename)
         // and get the CHK of the file
@@ -648,36 +600,27 @@ Document
         String actualFilename = null;
         String actualCHK = null;
         String resultCHK = null;
-        for( int lineno = 0; lineno < metadata.length; lineno++ )
-        {
+        for( int lineno = 0; lineno < metadata.length; lineno++ ) {
             String line = metadata[lineno].trim();
-            if( line.length() == 0 )
+            if( line.length() == 0 ) {
                 continue;
+            }
 
-            if( line.equals("Document") )
-            {
+            if( line.equals("Document") ) {
                 // new file section begins
                 actualFilename = null;
                 actualCHK = null;
-            }
-            else if( line.equals("End") || line.equals("EndPart") )
-            {
+            } else if( line.equals("End") || line.equals("EndPart") ) {
                 // we should have actualFilename and actualCHK now, look if this is our searched file
-                if( actualCHK != null && actualFilename != null )
-                {
-                    if( actualFilename.equals( searchedFilename ) )
-                    {
+                if( actualCHK != null && actualFilename != null ) {
+                    if( actualFilename.equals( searchedFilename ) ) {
                         resultCHK = actualCHK;
                         return resultCHK;
                     }
                 }
-            }
-            else if( line.startsWith(keywordName) )
-            {
+            } else if( line.startsWith(keywordName) ) {
                 actualFilename = line.substring( keywordName.length() ).trim();
-            }
-            else if( line.startsWith(keywordRedirTarget) )
-            {
+            } else if( line.startsWith(keywordRedirTarget) ) {
                 actualCHK = line.substring( keywordRedirTarget.length() ).trim();
             }
         }
@@ -693,7 +636,12 @@ Document
 
         FcpResults results = null;
 
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
+        FcpConnection connection;
+        try {
+            connection = FcpFactory.getFcpConnectionInstance();
+        } catch (ConnectException e1) {
+            connection = null;
+        }
         if( connection != null ) {
             int tries = 0;
             int maxtries = 3;
@@ -704,7 +652,7 @@ Document
                 } catch( java.net.ConnectException e ) {
                     tries++;
                     continue;
-                } catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
+                } catch( DataNotFoundException ex ) {
                     // do nothing, data not found is usual ...
                     logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
                     break;
@@ -742,212 +690,5 @@ Document
         target.delete();
         logger.info("getKey - Failed: " + printableKey );
         return null;
-    }
-
-
-///////////////////////////////////////////
-// OLD splitfile support (non-FEC)
-///////////////////////////////////////////
-    private static boolean getSplitFile(String key, File target, int htl, FrostDownloadItem dlItem)
-    {
-        logger.warning("ATTENTION: Using old, non-FEC download method!\n" +
-                       "           This could run, but is'nt really supported any longer.");
-
-        String blockCount = SettingsFun.getValue(target.getPath(), "SplitFile.BlockCount");
-        String splitFileSize = SettingsFun.getValue(target.getPath(), "SplitFile.Size");
-        String splitFileBlocksize = SettingsFun.getValue(target.getPath(), "SplitFile.Blocksize");
-
-        int maxThreads = 3;
-        maxThreads = Core.frostSettings.getIntValue("splitfileDownloadThreads");
-
-        int intBlockCount = 0;
-        try {
-            intBlockCount = Integer.parseInt(blockCount, 16);
-        }
-        catch( NumberFormatException e ) {}
-
-        long intSplitFileSize = -1;
-        try {
-            intSplitFileSize = Long.parseLong(splitFileSize, 16);
-        }
-        catch( NumberFormatException e ) {}
-
-        int intSplitFileBlocksize = -1;
-        try {
-            intSplitFileBlocksize = Integer.parseInt(splitFileBlocksize, 16);
-        }
-        catch( NumberFormatException e ) {}
-
-        // Put ascending numbers into array
-        int[] blockNumbers = new int[intBlockCount];
-        for( int i = 0; i < intBlockCount; i++ )
-            blockNumbers[i] = i + 1;
-
-        // CofE's Chunkmixer
-        Random rand = new Random(System.currentTimeMillis());
-        for( int i = 0; i < intBlockCount; i++ )
-        {
-            int tmp = blockNumbers[i];
-            int randomNumber = Math.abs(rand.nextInt()) % intBlockCount;
-            blockNumbers[i] = blockNumbers[randomNumber];
-            blockNumbers[randomNumber] = tmp;
-        }
-
-        if( dlItem != null )
-        {
-
-            if( dlItem.getFileSize() == null )
-            {
-                dlItem.setFileSize(new Long(intSplitFileSize));
-            }
-            else // paranoia
-            {
-                if( dlItem.getFileSize().longValue() != intSplitFileSize )
-                {
-                    logger.warning("WARNING: size of fec splitfile differs from size given from download table. MUST not happen!");
-                }
-            }
-            // update gui table
-            dlItem.setDoneBlocks(0);
-            dlItem.setRequiredBlocks(intBlockCount);
-            dlItem.setTotalBlocks(intBlockCount);
-            dlItem.setState( FrostDownloadItem.STATE_PROGRESS );
-        }
-
-        boolean success = true;
-        boolean[] results = new boolean[intBlockCount];
-        Thread[] threads = new Thread[intBlockCount];
-        for( int i = 0; i < intBlockCount; i++ )
-        {
-            int j = blockNumbers[i];
-            String chk = SettingsFun.getValue(target.getPath(), "SplitFile.Block." + Integer.toHexString(j));
-
-            // Do not exceed maxThreads limit
-            while( getActiveThreads(threads) >= maxThreads )
-            {
-                Mixed.wait(5000);
-                // update gui
-                if( dlItem != null )
-                {
-                    int doneBlocks = 0;
-                    for( int z = 0; z < intBlockCount; z++ )
-                    {
-                        if( results[z] == true )
-                        {
-                            doneBlocks++;
-                        }
-                    }
-                    dlItem.setDoneBlocks(doneBlocks);
-                    dlItem.setRequiredBlocks(intBlockCount);
-                    dlItem.setTotalBlocks(intBlockCount);
-                }
-            }
-
-            logger.info("Requesting: SplitFile.Block." + Integer.toHexString(j) + "=" + chk);
-
-            // checkSize is the size (in bytes) of one chunk.
-            // Because the last chunk is probably smaller, we
-            // calculate the last chunks size here.
-            int checkSize = intSplitFileBlocksize;
-            if( blockNumbers[i] == intBlockCount && intSplitFileBlocksize != -1 )
-                checkSize = (int)(intSplitFileSize - (intSplitFileBlocksize * (intBlockCount - 1)));
-
-            threads[i] = new getKeyThread(chk,
-                                          new File(MainFrame.keypool + target.getName() + "-chunk-" + j),
-                                          htl,
-                                          results,
-                                          i,
-                                          checkSize);
-            threads[i].start();
-
-            // update gui
-            if( dlItem != null )
-            {
-                int doneBlocks = 0;
-                for( int z = 0; z < intBlockCount; z++ )
-                {
-                    if( results[z] == true )
-                    {
-                        doneBlocks++;
-                    }
-                }
-                dlItem.setDoneBlocks(doneBlocks);
-                dlItem.setRequiredBlocks(intBlockCount);
-                dlItem.setTotalBlocks(intBlockCount);
-            }
-        }
-
-        // wait until all threads are done
-        while( getActiveThreads(threads) > 0 )
-        {
-//            if( DEBUG ) System.out.println("Active Splitfile request remaining (htl " + htl + "): " + getActiveThreads(threads));
-            Mixed.wait(5000);
-            // update gui
-            if( dlItem != null )
-            {
-                int doneBlocks = 0;
-                for( int z = 0; z < intBlockCount; z++ )
-                {
-                    if( results[z] == true )
-                    {
-                        doneBlocks++;
-                    }
-                }
-                dlItem.setDoneBlocks(doneBlocks);
-                dlItem.setRequiredBlocks(intBlockCount);
-                dlItem.setTotalBlocks(intBlockCount);
-            }
-        }
-
-        // Each request thread stores it's result in results[]
-        // We need to verify that all threads finished successfully
-        for( int i = 0; i < intBlockCount; i++ )
-        {
-            if( !results[i] )
-            {
-                success = false;
-                logger.info("NO SUCCESS");
-            }
-            else
-            {
-                logger.info("SUCCESS");
-            }
-        }
-
-        // If the chunks have been downloaded successfully
-        // we can connect them to one file
-        if( success )
-        {
-            FileOutputStream fileOut;
-
-            try
-            {
-                fileOut = new FileOutputStream(target);
-                logger.info("Connecting chunks");
-
-                for( int i = 1; i <= intBlockCount; i++ )
-                {
-
-                    logger.fine("Adding chunk " + i + " to " + target.getName());
-                    File toRead = new File(MainFrame.keypool + target.getName() + "-chunk-" + i);
-                    fileOut.write(FileAccess.readByteArray(toRead));
-                    toRead.deleteOnExit();
-                    toRead.delete();
-                }
-
-                fileOut.close();
-            }
-            catch( IOException e )
-            {
-                logger.log(Level.SEVERE, "Write Error: " + target.getPath(), e);
-            }
-        }
-        else
-        {
-            // remove redirect and chunks if download was incomplete
-            target.delete();
-            logger.warning("!!!!!! Download of " + target.getName() + " failed.");
-        }
-        return success;
     }
 }

@@ -243,7 +243,7 @@ public class MessageDownloadThread
 
                 // for backload use fast download, deep for today
                 boolean fastDownload = !flagNew;
-                results = FcpRequest.getFile(
+                results = FcpHandler.getFile(
                         downKey,
                         null,
                         testMe,

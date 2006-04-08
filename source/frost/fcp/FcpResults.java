@@ -36,8 +36,7 @@ public class FcpResults
         chkUri = cu;
     }
 
-    public FcpResults()
-    {
+    public FcpResults() {
     }
 
     /**

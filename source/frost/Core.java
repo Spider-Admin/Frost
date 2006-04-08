@@ -75,7 +75,7 @@ public class Core implements Savable, FrostEventDispatcher  {
     private Language language = null;
 
     private boolean freenetIsOnline = false;
-    private boolean freenetIsTransient = false;
+//    private boolean freenetIsTransient = false;
 
     private Timer timer = new Timer(true);
 
@@ -125,24 +125,24 @@ public class Core implements Savable, FrostEventDispatcher  {
             return false;
         }
         
-        FcpFactory.init(nodes); // init the factory with configured nodes
+        FcpHandler.initializeFcp(nodes); // init the factory with configured nodes
         
         // install our security manager that only allows connections to the configured FCP hosts
         System.setSecurityManager(new FrostSecurityManager());
 
         // Then we check if the user is running a transient node or not
+        freenetIsOnline = false;
         try {
-            FcpConnection con1 = FcpFactory.getFcpConnectionInstance();
-            if (con1 != null) {
-                String[] nodeInfo = con1.getInfo();
+            String[] nodeInfo = FcpHandler.getNodeInfo();
+            if( nodeInfo != null ) {
                 // freenet is online
                 freenetIsOnline = true;
-                for (int ij = 0; ij < nodeInfo.length; ij++) {
-                    if (nodeInfo[ij].startsWith("IsTransient")
-                        && nodeInfo[ij].indexOf("true") != -1) {
-                        freenetIsTransient = true;
-                    }
-                }
+//                for (int ij = 0; ij < nodeInfo.length; ij++) {
+//                    if (nodeInfo[ij].startsWith("IsTransient")
+//                        && nodeInfo[ij].indexOf("true") != -1) {
+//                        freenetIsTransient = true;
+//                    }
+//                }
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
@@ -157,12 +157,12 @@ public class Core implements Savable, FrostEventDispatcher  {
         }
 
         // We warn the user if the only node that is running is transient
-        if (isFreenetTransient() && nodes.size() == 1) {
-            MiscToolkit.getInstance().showMessage(
-                language.getString("Core.init.TransientNodeBody"),
-                JOptionPane.WARNING_MESSAGE,
-                language.getString("Core.init.TransientNodeTitle"));
-        }
+//        if (isFreenetTransient() && nodes.size() == 1) {
+//            MiscToolkit.getInstance().showMessage(
+//                language.getString("Core.init.TransientNodeBody"),
+//                JOptionPane.WARNING_MESSAGE,
+//                language.getString("Core.init.TransientNodeTitle"));
+//        }
 
         return true;
     }
@@ -171,9 +171,9 @@ public class Core implements Savable, FrostEventDispatcher  {
         return freenetIsOnline;
     }
 
-    public boolean isFreenetTransient() {
-        return freenetIsTransient;
-    }
+//    public boolean isFreenetTransient() {
+//        return freenetIsTransient;
+//    }
 
     private void loadKnownBoards() {
         // load the known boards
