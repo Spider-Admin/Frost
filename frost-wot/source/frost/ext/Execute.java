@@ -22,6 +22,8 @@ import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import frost.*;
+
 /**
  * Supports execution of external programs
  * @author Jan-Thomas Czornack
@@ -76,32 +78,18 @@ public class Execute {
         //ProcessBuilder pb = new ProcessBuilder(order);   // java 1.5 List<String> order 
         //Process p = pb.start();
         
-        InputStream stdOut = p.getInputStream();;
-        InputStream stdErr = p.getErrorStream();;
+        InputStream stdOut = p.getInputStream();
+        InputStream stdErr = p.getErrorStream();
   
-        result = readLines(stdOut, result);
-        result = readLines(stdErr, result);
-
-        return result;
-    }
-    
-    
-     /**
-     * Reads file and returns a List of lines
-     */
-    private static ArrayList readLines(InputStream is, ArrayList data) {
-        String line;
-        //ArrayList data = new ArrayList();
-        try {
-            InputStreamReader iSReader = new InputStreamReader(is, "UTF-8");
-            BufferedReader reader = new BufferedReader(iSReader);
-            while( (line = reader.readLine()) != null ) {
-                data.add(line.trim());
-            }
-            reader.close();
-        } catch (IOException e) {
-            logger.log(Level.SEVERE, "Exception thrown in Execute.readLines(InputStream is, ArrayList data)", e);
+        List tmpList;
+        tmpList = FileAccess.readLines(stdOut, "UTF-8");
+        if( tmpList != null ) {
+            result.addAll(tmpList);
         }
-        return data;
+        tmpList = FileAccess.readLines(stdErr, "UTF-8");
+        if( tmpList != null ) {
+            result.addAll(tmpList);
+        }
+        return result;
     }
 }

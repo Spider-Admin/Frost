@@ -185,23 +185,39 @@ public class FileAccess {
         return readLines(file, "ISO-8859-1");
     }
     /**
-     * Reads file and returns a List of lines
+     * Reads a File and returns a List of lines
      */
     public static List readLines(File file, String encoding) {
+        List result = null;
+        try {
+            FileInputStream fis = new FileInputStream(file);
+            result = readLines(fis, encoding);
+            fis.close();
+        } catch (IOException e) {
+            logger.log(Level.SEVERE, "Exception thrown in readLines(File file, String encoding)", e);
+        }
+        return result;
+    }
+    
+    /**
+     * Reads an InputStream and returns a List of lines.
+     */
+    public static ArrayList readLines(InputStream is, String encoding) {
         String line;
         ArrayList data = new ArrayList();
         try {
-            InputStreamReader iSReader = new InputStreamReader(new FileInputStream(file), encoding);
+            InputStreamReader iSReader = new InputStreamReader(is, encoding);
             BufferedReader reader = new BufferedReader(iSReader);
             while( (line = reader.readLine()) != null ) {
                 data.add(line.trim());
             }
             reader.close();
         } catch (IOException e) {
-            logger.log(Level.SEVERE, "Exception thrown in readLines(String path, String encoding)", e);
+            logger.log(Level.SEVERE, "Exception thrown in readLines(InputStream is, String encoding)", e);
         }
         return data;
     }
+
 
     /**
      * Reads a file and returns its contents in a String
