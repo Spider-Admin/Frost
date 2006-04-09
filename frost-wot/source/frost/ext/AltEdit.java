@@ -132,7 +132,7 @@ public class AltEdit extends Thread {
 
         String editorCmdLine = editor_pre_file + editFile.getPath() + editor_post_file;
         try {
-            Execute.run(editorCmdLine, true);
+          Execute.run_wait(editorCmdLine);
         } catch(Throwable t) {
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("Could not start alternate editor using command: ")+editorCmdLine+"\n"+t.toString(),
@@ -144,6 +144,9 @@ public class AltEdit extends Thread {
         }
 
         List lines = FileAccess.readLines(editFile, "UTF-8");
+        // adding the exec stdout/stderr output
+        //lines.addAll(exec_output);
+                
         if( lines.size() < 4 ) { // subject marker,subject,from line, text marker
             JOptionPane.showMessageDialog(parentFrame,
                     language.getString("The message file returned by the alternate editor is invalid."),
