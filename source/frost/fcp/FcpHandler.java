@@ -26,6 +26,9 @@ public abstract class FcpHandler {
         if( freenetVersion == FREENET_05 ) {
             instance = new FcpHandler05();
             instance.initialize(nodes);
+        } else if( freenetVersion == FREENET_07 ) {
+            instance = new FcpHandler07();
+            instance.initialize(nodes);
         } else {
             logger.severe("Unsupported freenet version: "+freenetVersion);
             throw new UnsupportedOperationException("Unsupported freenet version: "+freenetVersion);

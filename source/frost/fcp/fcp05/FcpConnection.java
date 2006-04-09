@@ -52,18 +52,6 @@ public class FcpConnection
     private final static byte[] header = {0,0,0,2};
 
     /**
-     * Create a default connection to localhost using FCP
-     *
-     * @exception UnknownHostException if the localhost cannot be
-     * determined.
-     * @exception IOException if there is a problem with the connection
-     * to the FCP host.
-     */
-    public FcpConnection() throws UnknownHostException, IOException, FcpToolsException {
-        this(InetAddress.getByName("127.0.0.1"), 8481);
-    }
-
-    /**
      * Create a connection to a host using FCP
      *
      * @param host the host to which we connect
