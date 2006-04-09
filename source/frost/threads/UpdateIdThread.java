@@ -141,7 +141,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             {
                 logger.info("Trying index file upload to index "+index);
 
-                String[] result = FcpHandler.putFile(
+                String[] result = FcpHandler.inst().putFile(
                         insertKey + index + ".idx.sha3.zip", // this format is sha3 ;)
                         zippedIndexFile,
                         metadata,
@@ -226,7 +226,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                 logger.info("FILEDN: Requesting index " + index + " for board " + board.getName() + " for date " + date);
 
                 // Download the keyfile
-                FcpResults fcpresults = FcpHandler.getFile(
+                FcpResults fcpresults = FcpHandler.inst().getFile(
                         requestKey + index + ".idx.sha3.zip", //this format is sha3 ;)
                         null,
                         target,

@@ -125,7 +125,15 @@ public class Core implements Savable, FrostEventDispatcher  {
             return false;
         }
         
-        FcpHandler.initializeFcp(nodes); // init the factory with configured nodes
+        try {
+            FcpHandler.initializeFcp(nodes, FcpHandler.FREENET_05); // init the factory with configured nodes
+        } catch(UnsupportedOperationException ex) {
+            MiscToolkit.getInstance().showMessage(
+                    ex.toString(),
+                    JOptionPane.ERROR_MESSAGE,
+                    "ERROR: Freenet version is not supported.");
+                return false;
+        }
         
         // install our security manager that only allows connections to the configured FCP hosts
         System.setSecurityManager(new FrostSecurityManager());
@@ -133,7 +141,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         // Then we check if the user is running a transient node or not
         freenetIsOnline = false;
         try {
-            String[] nodeInfo = FcpHandler.getNodeInfo();
+            String[] nodeInfo = FcpHandler.inst().getNodeInfo();
             if( nodeInfo != null ) {
                 // freenet is online
                 freenetIsOnline = true;
