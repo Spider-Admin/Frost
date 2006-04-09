@@ -56,6 +56,9 @@
   <!--  Set up properties for the frost help -->	
   <property name="helpsrc.dir" value="help"/>
   <property name="helpbin.dir" value="${dist.dir}/help"/>
+  
+  <!--  Set up properties for the frost javadoc -->
+  <property name="docs"    value="docs/api"/>
 
   <!--  The CLASSPATH to use for compilation. -->
   <path id="classpath">
@@ -330,6 +333,24 @@ Build log  : ${logfilename}</echo>
 	<zip destfile="${helpbin.dir}/help.zip">
 		<zipfileset dir="${helpsrc.dir}" excludes="/**/CVS/*"/>
     	</zip>
+  </target>
+ 
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+  <!-- Building the frost documentation -->
+  <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
+ 
+  <target name="javadoc">
+    <!-- javadoc packagenames="fecimpl.*"
+             sourcepath="${src.dir.feclib}"
+             destdir="${docs}"
+             windowtitle="FECLib Documentation"/ -->
+    <javadoc packagenames="frost.*"
+             sourcepath="${src.dir}"
+             destdir="${docs}"
+             windowtitle="Frost Documentation"/>
+   
+             
+            
   </target>
 	
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
