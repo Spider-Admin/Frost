@@ -144,7 +144,7 @@ public class GetFriendsRequestsThread extends TimerTask {
                 try { Thread.sleep(1000); }
                 catch(Exception ex) { }
 
-            } while(FcpHandler.getFile(slot,
+            } while(FcpHandler.inst().getFile(slot,
                 null,
                 tempFile,
                 21,

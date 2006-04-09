@@ -125,7 +125,7 @@ class UploadThread extends Thread
 
         logger.info("Upload of " + file + " with HTL " + htl + " started.");
 
-        result = FcpHandler.putFile(
+        result = FcpHandler.inst().putFile(
                 "CHK@",
                 file,
                 null, // metadata
@@ -231,7 +231,7 @@ class UploadThread extends Thread
         // yes, this destroys any upload progress, but we come only here if
         // chkKey == null, so the file should'nt be uploaded until now
         try {
-            chkkey = FcpHandler.generateCHK(file);
+            chkkey = FcpHandler.inst().generateCHK(file);
         } catch (Throwable t) {
             logger.log(Level.SEVERE, "Encoding failed", t);
             uploadItem.setState(FrostUploadItem.STATE_IDLE);

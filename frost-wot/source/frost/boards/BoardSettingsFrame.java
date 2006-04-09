@@ -153,7 +153,7 @@ public class BoardSettingsFrame extends JDialog {
      */
     private void generateKeyButton_actionPerformed(ActionEvent e) {
         try {
-            BoardKeyPair kp = FcpHandler.generateBoardKeyPair();
+            BoardKeyPair kp = FcpHandler.inst().generateBoardKeyPair();
             if( kp != null ) {
                 privateKeyTextField.setText(kp.getPrivateBoardKey());
                 publicKeyTextField.setText(kp.getPublicBoardKey());

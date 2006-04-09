@@ -160,7 +160,7 @@ public class GetRequestsThread extends Thread
                                         .toString();
                                 logger.fine(tmp);
 
-                                FcpHandler.getFile(
+                                FcpHandler.inst().getFile(
                                     "KSK@frost/request/"
                                         + Core.frostSettings.getValue("messageBase")
                                         + "/"

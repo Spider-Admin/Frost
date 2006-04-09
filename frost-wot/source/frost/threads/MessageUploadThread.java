@@ -200,7 +200,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private boolean downloadMessage(int index, File targetFile) {
         try {
             String downKey = composeDownKey(index);
-            FcpResults res = FcpHandler.getFile(downKey, null, targetFile, messageUploadHtl, false, false);
+            FcpResults res = FcpHandler.inst().getFile(downKey, null, targetFile, messageUploadHtl, false, false);
             if( res != null && targetFile.length() > 0 ) {
                 return true;
             }
@@ -482,7 +482,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             && !result[0].equals("KeyCollision")
             && !result[0].equals("Success")) {
             try {
-                result = FcpHandler.putFile(
+                result = FcpHandler.inst().putFile(
                         "CHK@",
                         attachment.getFile(),
                         null,
@@ -692,7 +692,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 String upKey = composeUpKey(index);
                 logInfo = " board="+board.getName()+", key="+upKey;
                 // signMetadata is null for unsigned upload. Do not do redirect.
-                result = FcpHandler.putFile(
+                result = FcpHandler.inst().putFile(
                         upKey,
                         zipFile,
                         signMetadata,

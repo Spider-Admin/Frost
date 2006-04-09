@@ -5,21 +5,36 @@ import java.net.*;
 import java.util.*;
 import java.util.logging.*;
 
-import frost.fcp.fcp05.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.*;
 
-public class FcpHandler {
+public abstract class FcpHandler {
 
     private static Logger logger = Logger.getLogger(FcpHandler.class.getName());
+    
+    private static FcpHandler instance = null;
+    
+    public static int FREENET_05 = 5;
+    public static int FREENET_07 = 7;
+    
+    public static FcpHandler inst() {
+        return instance;
+    }
 
-    public static void initializeFcp(List nodes) {
-        FcpFactory.init(nodes); // init the factory with configured nodes
+    public static void initializeFcp(List nodes, int freenetVersion) throws UnsupportedOperationException {
+        
+        if( freenetVersion == FREENET_05 ) {
+            instance = new FcpHandler05();
+            instance.initialize(nodes);
+        } else {
+            logger.severe("Unsupported freenet version: "+freenetVersion);
+            throw new UnsupportedOperationException("Unsupported freenet version: "+freenetVersion);
+        }
     }
     
-    public static List getNodes() {
-        return FcpFactory.getNodes();
-    }
+    public abstract void initialize(List nodes);
+    
+    public abstract List getNodes();
     
     /**
      * getFile retrieves a file from Freenet. It does detect if this file is a redirect, a splitfile or
@@ -33,7 +48,7 @@ public class FcpHandler {
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return null on error, or FcpResults
      */
-    public static FcpResults getFile(String key,
+    public FcpResults getFile(String key,
                                   Long size,
                                   File target,
                                   int htl,
@@ -56,7 +71,7 @@ public class FcpHandler {
      * @param fastDownload  If true request stop if node reports a timeout. If false try until node indicates end.
      * @return null on error, or FcpResults
      */
-    public static FcpResults getFile(String key,
+    public FcpResults getFile(String key,
                                   Long size,
                                   File target,
                                   int htl,
@@ -82,17 +97,14 @@ public class FcpHandler {
      * @param dlItem   The DownloadItem for this download for progress updates, or null if there is none.
      * @return null on error, or FcpResults
      */
-    public static FcpResults getFile(String key,
+    public abstract FcpResults getFile(String key,
                                   Long size,
                                   File target,
                                   int htl,
                                   boolean doRedirect,
                                   boolean fastDownload,
                                   boolean createTempFile,
-                                  FrostDownloadItem dlItem)
-    {
-        return FcpRequest.getFile(key, size, target, htl, doRedirect, fastDownload, createTempFile, dlItem);
-    }
+                                  FrostDownloadItem dlItem);
     
     /**
      * Inserts a file into freenet.
@@ -100,7 +112,7 @@ public class FcpHandler {
      * for inserting e.g. the pubkey.txt file set it to null.
      * This method wraps the calls without the uploadItem.
      */
-    public static String[] putFile(
+    public String[] putFile(
             String uri,
             File file,
             byte[] metadata,
@@ -118,62 +130,18 @@ public class FcpHandler {
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
-    public static String[] putFile(
+    public abstract String[] putFile(
             String uri,
             File file,
             byte[] metadata,
             int htl,
             boolean doRedirect,
             boolean removeLocalKey,
-            FrostUploadItem ulItem)
-    {
-        return FcpInsert.putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, ulItem);
-    }
+            FrostUploadItem ulItem);
     
-    public static String generateCHK(File file) throws Throwable {
-
-        String chkkey;
-        if (file.length() <= FcpInsert.smallestChunk) {
-            logger.info("File too short, doesn't need encoding.");
-            // generate only CHK
-            chkkey = FecTools.generateCHK(file);
-        } else {
-            FecSplitfile splitfile = new FecSplitfile(file);
-            boolean alreadyEncoded = splitfile.uploadInit();
-            if (!alreadyEncoded) {
-                splitfile.encode();
-            }
-            // yes, this destroys any upload progress, but we come only here if
-            // chkKey == null, so the file should'nt be uploaded until now
-            splitfile.createRedirectFile(false);
-            // gen normal redirect file for CHK generation
-
-            chkkey = FecTools.generateCHK(
-                    splitfile.getRedirectFile(),
-                    splitfile.getRedirectFile().length());
-        }
-        return chkkey;
-    }
+    public abstract String generateCHK(File file) throws Throwable;
     
-    public static String[] getNodeInfo() throws IOException, ConnectException {
-
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if (connection == null) {
-            return null;
-        }
-        return connection.getNodeInfo();
-    }
+    public abstract String[] getNodeInfo() throws IOException, ConnectException;
     
-    public static BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException {
-        
-        FcpConnection connection = FcpFactory.getFcpConnectionInstance();
-        if (connection == null) {
-            return null;
-        }
-
-        String[] keyPair = connection.getKeyPair();
-        String privKey = keyPair[0];
-        String pubKey = keyPair[1];
-        return new BoardKeyPair(pubKey, privKey);
-    }
+    public abstract BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException;
 }
