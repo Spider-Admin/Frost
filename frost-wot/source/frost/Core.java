@@ -82,9 +82,9 @@ public class Core implements Savable, FrostEventDispatcher  {
     private MainFrame mainFrame;
     private BoardsManager boardsManager;
     private FileTransferManager fileTransferManager;
-    private MessagingManager messagingManager;
+    private static MessageHashes messageHashes;
 
-    private FrostIdentities identities;
+    private static FrostIdentities identities;
     private String keypool;
 
     private Core() {
@@ -531,6 +531,10 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         //Initializes storage
         DAOFactory.initialize(frostSettings);
+        
+        // initialize messageHashes
+        messageHashes = new MessageHashes();
+        messageHashes.initialize();
 
         // CLEANS TEMP DIR! START NO INSERTS BEFORE THIS RUNNED
         Startup.startupCheck(frostSettings, keypool);
@@ -614,7 +618,6 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         // Main frame
         mainFrame = new MainFrame(frostSettings, title);
-        getMessagingManager().initialize();
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
 
@@ -661,11 +664,8 @@ public class Core implements Savable, FrostEventDispatcher  {
         return fileTransferManager;
     }
 
-    private MessagingManager getMessagingManager() {
-        if (messagingManager == null) {
-            messagingManager = new MessagingManager(frostSettings);
-        }
-        return messagingManager;
+    public static MessageHashes getMessageHashes() {
+        return messageHashes;
     }
 
     private BoardsManager getBoardsManager() {
@@ -673,7 +673,6 @@ public class Core implements Savable, FrostEventDispatcher  {
             boardsManager = new BoardsManager(frostSettings);
             boardsManager.setMainFrame(mainFrame);
             boardsManager.setCore(this);
-            boardsManager.setMessageHashes(getMessagingManager().getMessageHashes());
         }
         return boardsManager;
     }
@@ -716,12 +715,12 @@ public class Core implements Savable, FrostEventDispatcher  {
         StorageManager saver = new StorageManager(frostSettings, this);
         saver.addAutoSavable(this);
         saver.addAutoSavable(getIdentities());
-        saver.addAutoSavable(getMessagingManager().getMessageHashes());
+        saver.addAutoSavable(getMessageHashes());
         saver.addAutoSavable(getBoardsManager().getTofTree());
         saver.addAutoSavable(getFileTransferManager());
         saver.addExitSavable(this);
         saver.addExitSavable(getIdentities());
-        saver.addExitSavable(getMessagingManager().getMessageHashes());
+        saver.addExitSavable(getMessageHashes());
         saver.addExitSavable(getBoardsManager().getTofTree());
         saver.addExitSavable(getFileTransferManager());
         saver.addExitSavable(frostSettings);
@@ -762,7 +761,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         }
     }
 
-    public FrostIdentities getIdentities() {
+    public static FrostIdentities getIdentities() {
         if (identities == null) {
             identities = new FrostIdentities(frostSettings);
         }

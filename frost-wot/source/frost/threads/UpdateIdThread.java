@@ -29,7 +29,6 @@ import frost.crypt.SignMetaData;
 import frost.gui.objects.Board;
 import frost.identities.*;
 import frost.messages.FrostIndex;
-import frost.messaging.MessageHashes;
 
 public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject implements BoardUpdateThread
 {
@@ -50,10 +49,8 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
     private String requestKey;
     private String insertKey;
     private final static String fileSeparator = System.getProperty("file.separator");
-    private MessageHashes messageHashes;
 
     private boolean isForToday = false;
-    private FrostIdentities identities;
 
     private IndexSlots indexSlots;
     private final static int MAX_SLOTS_PER_DAY = 100;
@@ -128,7 +125,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             byte[] metadata = null;
             if( signUpload ) {
                 byte[] zipped = FileAccess.readByteArray(zippedIndexFile);
-                SignMetaData md = new SignMetaData(zipped, identities.getMyId());
+                SignMetaData md = new SignMetaData(zipped, Core.getIdentities().getMyId());
                 metadata = XMLTools.getRawXMLDocument(md);
             }
 
@@ -251,13 +248,13 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
                     // check if we have received such file before
                     String digest = Core.getCrypto().digest(target);
-                    if( messageHashes.contains(digest) ) {
+                    if( Core.getMessageHashes().contains(digest) ) {
                         // we have.  erase and continue
                         target.delete();
                         continue;
                     } else {
                         // else add it to the set of received files to prevent duplicates
-                        messageHashes.add(digest);
+                        Core.getMessageHashes().add(digest);
                     }
 
                     // Add it to the index
@@ -356,12 +353,12 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                             }
 
                             //check if we have the owner already on the lists
-                            if (identities.isMySelf(_owner)) {
+                            if (Core.getIdentities().isMySelf(_owner)) {
                                 logger.info("Received index file from myself");
-                                sharer = identities.getMyId();
+                                sharer = Core.getIdentities().getMyId();
                             } else {
                                 logger.info("Received index file from " + _owner);
-                                sharer = identities.getIdentity(_owner);
+                                sharer = Core.getIdentities().getIdentity(_owner);
 
                                 if( sharer == null ) {
                                     // a new sharer, put to neutral list
@@ -463,18 +460,16 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
         //add him to the neutral list (if not already on any list)
         sharer.setState(FrostIdentities.NEUTRAL);
-        identities.addIdentity(sharer);
+        Core.getIdentities().addIdentity(sharer);
 
         return sharer;
     }
 
     /**Constructor*/
-    public UpdateIdThread(Board board, String date, FrostIdentities newIdentities, boolean isForToday) {
-//      super(board, newIdentities);
+    public UpdateIdThread(Board board, String date, boolean isForToday) {
 
         this.board = board;
         this.date = date;
-        this.identities = newIdentities;
         requestHtl = Core.frostSettings.getIntValue("keyDownloadHtl");
         insertHtl = Core.frostSettings.getIntValue("keyUploadHtl");
         keypool = Core.frostSettings.getValue("keypool.dir");
@@ -521,13 +516,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                     .append("/")
                     .toString();
         }
-    }
-
-    /**
-     * @param messageHashes
-     */
-    public void setMessageHashes(MessageHashes messageHashes) {
-        this.messageHashes = messageHashes;
     }
 
     /**

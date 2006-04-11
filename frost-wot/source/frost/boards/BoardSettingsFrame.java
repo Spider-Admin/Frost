@@ -21,7 +21,6 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.border.*;
@@ -55,7 +54,7 @@ public class BoardSettingsFrame extends JDialog {
         }
     }
 
-    private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
+//    private static Logger logger = Logger.getLogger(BoardSettingsFrame.class.getName());
 
     private Language language;
     private Board board;

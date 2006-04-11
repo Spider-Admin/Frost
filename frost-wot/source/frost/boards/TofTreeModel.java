@@ -21,7 +21,6 @@ package frost.boards;
 
 import java.util.*;
 import java.util.Vector;
-import java.util.logging.Logger;
 
 import javax.swing.tree.*;
 
@@ -32,7 +31,7 @@ import frost.gui.objects.Board;
  */
 public class TofTreeModel extends DefaultTreeModel {
 
-    private static Logger logger = Logger.getLogger(TofTreeModel.class.getName());
+//    private static Logger logger = Logger.getLogger(TofTreeModel.class.getName());
 
     private DefaultTreeSelectionModel selectionModel;
 

@@ -27,7 +27,6 @@ import frost.*;
 import frost.gui.objects.*;
 import frost.identities.*;
 import frost.messages.*;
-import frost.messaging.*;
 
 /**
  * This class maintains the message download and upload threads.
@@ -40,8 +39,6 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     private static Logger logger = Logger.getLogger(RunningBoardUpdateThreads.class.getName());
 
     private JFrame parentFrame;
-    private FrostIdentities identities;
-    private SettingsClass frostSettings;
 
     // listeners are notified of each finished thread
     Hashtable threadListenersForBoard = null; // contains all listeners registered for 1 board
@@ -52,17 +49,13 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
     // contains key=board, data=vector of BoardUpdateThread's (multiple of kind MSG_UPLOAD)
     Hashtable runningUploadThreads = null;
 
-    private MessageHashes messageHashes;
-
     /**
      * @param parentFrame
      * @param identities
      * @param frostSettings
      */
-    public RunningBoardUpdateThreads(JFrame parentFrame, FrostIdentities identities, SettingsClass frostSettings) {
+    public RunningBoardUpdateThreads(JFrame parentFrame) {
         this.parentFrame = parentFrame;
-        this.identities = identities;
-        this.frostSettings = frostSettings;
 
         threadListenersForBoard = new Hashtable();
         threadListenersForAllBoards = new Vector();
@@ -89,11 +82,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
             new MessageDownloadThread(
                 true,
                 board,
-                config.getIntValue("tofDownloadHtl"),
-                config.getValue("keypool.dir"),
-                config.getValue("maxMessageDownload"),
-                identities);
-        tofd.setMessageHashes(messageHashes);
+                config.getIntValue("maxMessageDownload"));
 
         // register listener and this class as listener
         tofd.addBoardUpdateThreadListener(this);
@@ -125,11 +114,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
             new MessageDownloadThread(
                 false,
                 board,
-                config.getIntValue("tofDownloadHtl"),
-                config.getValue("keypool.dir"),
-                config.getValue("maxMessageDownload"),
-                identities);
-        backload.setMessageHashes(messageHashes);
+                config.getIntValue("maxMessageDownload"));
 
         // register listener and this class as listener
         backload.addBoardUpdateThreadListener(this);
@@ -246,7 +231,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 //      };
 //      starter.start();
 
-        BoardFilesDownloadStarter starter = new BoardFilesDownloadStarter(board, identities);
+        BoardFilesDownloadStarter starter = new BoardFilesDownloadStarter(board);
 
         starter.addBoardUpdateThreadListener( this );
         if( listener != null ) {
@@ -261,10 +246,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 
     private class BoardFilesDownloadStarter extends BoardUpdateThreadObject implements BoardUpdateThread {
         Board board;
-        FrostIdentities newIdentities;
-        public BoardFilesDownloadStarter(Board board, FrostIdentities newIdentities) {
-            super(board, newIdentities);
-            this.newIdentities = newIdentities;
+        public BoardFilesDownloadStarter(Board board) {
+            super(board);
             this.board = board;
         }
         public int getThreadType() { return BoardUpdateThread.BOARD_FILE_DNLOAD; }
@@ -282,8 +265,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
                     } else {
                         isForToday = false;
                     }
-                    UpdateIdThread thread = new UpdateIdThread(board,DateFun.getDate(i), newIdentities, isForToday);
-                    thread.setMessageHashes(messageHashes);
+                    UpdateIdThread thread = new UpdateIdThread(board, DateFun.getDate(i), isForToday);
 
                     // directly call run, we want to block
                     thread.run();
@@ -310,7 +292,7 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         Identity recipient) {
 
         MessageUploadThread msgUploadThread =
-            new MessageUploadThread(board, mo, identities, frostSettings, recipient);
+            new MessageUploadThread(board, mo, recipient);
         msgUploadThread.setParentFrame(parentFrame);
         // register listener and this class as listener
         msgUploadThread.addBoardUpdateThreadListener(this);
@@ -633,13 +615,6 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
                 return true;
         }
         return false;
-    }
-
-    /**
-     * @param messageHashes
-     */
-    public void setMessageHashes(MessageHashes messageHashes) {
-        this.messageHashes = messageHashes;
     }
 
 /*

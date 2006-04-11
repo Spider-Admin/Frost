@@ -21,7 +21,6 @@ package frost.boards;
 import frost.*;
 import frost.MainFrame;
 import frost.gui.objects.Board;
-import frost.messaging.MessageHashes;
 
 /**
  * @author $Author$
@@ -36,19 +35,12 @@ public class BoardsManager {
 	
 	private SettingsClass settings;
 	private Core core;
-	private MessageHashes messageHashes;
 	
-	/**
-	 * 
-	 */
 	public BoardsManager(SettingsClass settings) {
 		super();
 		this.settings = settings;
 	}
 	
-	/**
-	 * 
-	 */
 	public void initialize() {
 		TOF.initialize(getTofTreeModel());
 		getTofTree().initialize();
@@ -60,16 +52,12 @@ public class BoardsManager {
 		mainFrame.addMenuItem(getTofTree().getConfigBoardMenuItem(), "News", 1, 1, true);
 	}
 	
-	/**
-	 * @return
-	 */
 	public TofTree getTofTree() {
 		if (tofTree == null) {
 			tofTree = new TofTree(getTofTreeModel());
 			tofTree.setSettings(settings);
 			tofTree.setCore(core);
 			tofTree.setMainFrame(mainFrame);
-			tofTree.setMessageHashes(messageHashes);
 		}
 		return tofTree;
 	}
@@ -100,12 +88,5 @@ public class BoardsManager {
 	 */
 	public void setCore(Core core) {
 		this.core = core;		
-	}
-
-	/**
-	 * @param messageHashes
-	 */
-	public void setMessageHashes(MessageHashes messageHashes) {
-		this.messageHashes = messageHashes;		
 	}
 }
