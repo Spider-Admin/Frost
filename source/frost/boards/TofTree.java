@@ -30,9 +30,7 @@ import javax.swing.tree.*;
 
 import frost.*;
 import frost.gui.NewBoardDialog;
-import frost.gui.model.*;
 import frost.gui.objects.Board;
-import frost.messaging.MessageHashes;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
@@ -384,9 +382,6 @@ public class TofTree extends JDragTree implements Savable {
         }
     }
 
-    /**
-     *
-     */
     private class CellRenderer extends DefaultTreeCellRenderer {
 
         ImageIcon writeAccessIcon;
@@ -420,7 +415,6 @@ public class TofTree extends JDragTree implements Savable {
             JTable dummyTable = new JTable();
             normalFont = dummyTable.getFont();
             boldFont = normalFont.deriveFont(Font.BOLD);
-
         }
 
         /* (non-Javadoc)
@@ -542,19 +536,12 @@ public class TofTree extends JDragTree implements Savable {
     private Board clipboard = null;
 
     private RunningBoardUpdateThreads runningBoardUpdateThreads = null;
-    private MessageHashes messageHashes;
 
-    /**
-     * @param root
-     */
     public TofTree(TofTreeModel model) {
         super(model);
         this.model = model;
     }
 
-    /**
-     * @return
-     */
     private PopupMenuTofTree getPopupMenuTofTree() {
         if (popupMenuTofTree == null) {
             popupMenuTofTree = new PopupMenuTofTree();
@@ -563,9 +550,6 @@ public class TofTree extends JDragTree implements Savable {
         return popupMenuTofTree;
     }
 
-    /**
-     *
-     */
     public void initialize() {
 
         language = Language.getInstance();
@@ -603,8 +587,7 @@ public class TofTree extends JDragTree implements Savable {
         loadTree();
 
         // enable the machine ;)
-        runningBoardUpdateThreads = new RunningBoardUpdateThreads(mainFrame, core.getIdentities(), settings);
-        runningBoardUpdateThreads.setMessageHashes(messageHashes);
+        runningBoardUpdateThreads = new RunningBoardUpdateThreads(mainFrame);
     }
 
     /**
@@ -1102,12 +1085,5 @@ public class TofTree extends JDragTree implements Savable {
     }
     protected JButton getPasteBoardButton() {
         return pasteBoardButton;
-    }
-
-    /**
-     * @param messageHashes
-     */
-    public void setMessageHashes(MessageHashes messageHashes) {
-        this.messageHashes = messageHashes;
     }
 }

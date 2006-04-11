@@ -18,8 +18,6 @@
 */
 package frost.fcp;
 
-import frost.fcp.fcp07.*;
-
 public class DataNotFoundException extends FcpToolsException
 {
   public DataNotFoundException()

@@ -421,6 +421,10 @@ public class MessageObject implements XMLizable
         }
     }
 
+    public void setFile(File f) {
+        file = f;
+    }
+    
     /**
      * Save the message.
      */
@@ -556,5 +560,56 @@ public class MessageObject implements XMLizable
             };
         }
         new Thread(ioworker).start(); // do IO in another thread, not here in Swing thread
+    }
+    
+    /**
+     * Compares the given message in otherMsgFile with this message.
+     * Compares content (body), subject, from and attachments.
+     */
+    public boolean compareTo(File otherMsgFile) {
+        try {
+            MessageObject otherMessage = new MessageObject(otherMsgFile);
+            return compareTo(otherMessage);
+        } catch(Throwable t) {
+            logger.log(Level.WARNING, "Handled Exception in compareTo(File otherMsgFile)", t);
+            return false; // We assume that the other message is different (it may be corrupted)
+        }
+    }
+    
+    /**
+     * Compares the given otherMsg with this message.
+     * Compares content (body), subject, from and attachments.
+     */
+    public boolean compareTo(MessageObject otherMsg) {
+        try {
+            // We compare the messages by content (body), subject, from and attachments
+            if (!getContent().equals(otherMsg.getContent())) {
+                return false;
+            }
+            if (!getSubject().equals(otherMsg.getSubject())) {
+                return false;
+            }
+            if (!getFrom().equals(otherMsg.getFrom())) {
+                return false;
+            }
+            AttachmentList attachments1 = otherMsg.getAllAttachments();
+            AttachmentList attachments2 = getAllAttachments();
+            if (attachments1.size() != attachments2.size()) {
+                return false;
+            }
+            Iterator iterator1 = attachments1.iterator();
+            Iterator iterator2 = attachments2.iterator();
+            while (iterator1.hasNext()) {
+                Attachment attachment1 = (Attachment) iterator1.next();
+                Attachment attachment2 = (Attachment) iterator2.next();
+                if (attachment1.compareTo(attachment2) != 0) {
+                    return false;
+                }
+            }
+            return true;
+        } catch (Throwable t) {
+            logger.log(Level.WARNING, "Handled Exception in compareTo(MessageObject otherMsg)", t);
+            return false; // We assume that the local message is different (it may be corrupted)
+        }
     }
 }

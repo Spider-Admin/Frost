@@ -22,7 +22,6 @@ package frost.threads;
 import java.util.*;
 
 import frost.gui.objects.Board;
-import frost.identities.FrostIdentities;
 
 /**
  * This class implements most methods needed by the BoardUpdateThread interface.
@@ -30,17 +29,15 @@ import frost.identities.FrostIdentities;
  */
 public class BoardUpdateThreadObject extends Thread {
 
-    protected FrostIdentities identities;
     Board targetBoard = null;
     long startTimeMillis = -1;
     boolean isFinished = false;
     Vector registeredListeners = null;
 
-    public BoardUpdateThreadObject(Board board, FrostIdentities newIdentities) {
+    public BoardUpdateThreadObject(Board board) {
         super(board.getName());
         this.targetBoard = board;
         this.registeredListeners = new Vector();
-        identities = newIdentities;
     }
 
     // FrostBoard getTargetBoard()

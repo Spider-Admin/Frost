@@ -21,35 +21,15 @@ package frost.fcp;
 /**
  * This class is a utility class to provide a datatype for results
  * returned from an FCP operation.
- * @author <a href=mailto:landtuna@hotmail.com>Jim Hunziker</a>
+ * This class is used by freenet 05 and 07. 07 does not use the metadata. 
  */
-public class FcpResults
-{
-    /** the metadata */
-    byte [] rawMetadata = null;
-
-    /** the CHK URI */
-    String chkUri = null;
-
-    public FcpResults(byte[] md, String cu) {
-        rawMetadata = md;
-        chkUri = cu;
-    }
+public class FcpResults {
+    
+    private byte [] rawMetadata = null; // only used by freenet 0.5
+    
+    private String chkUri = null;
 
     public FcpResults() {
-    }
-
-    /**
-     * Retrieves the metadata.
-     * Valid for downloading.
-     *
-     * @return the metadata
-     */
-    public String [] getMetadataAsLines() {
-        if( rawMetadata == null ) {
-            return null;
-        }
-        return new String(rawMetadata).split("\n");
     }
 
     /**
@@ -73,7 +53,20 @@ public class FcpResults
     }
 
     /**
-     * @return
+     * Retrieves the metadata.
+     * Valid for downloading.
+     *
+     * @return the metadata
+     */
+    public String [] getMetadataAsLines() {
+        if( rawMetadata == null ) {
+            return null;
+        }
+        return new String(rawMetadata).split("\n");
+    }
+
+    /**
+     * @return raw metadata bytes
      */
     public byte[] getRawMetadata() {
         return rawMetadata;

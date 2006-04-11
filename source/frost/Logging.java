@@ -22,27 +22,15 @@ import java.beans.*;
 import java.io.IOException;
 import java.util.logging.*;
 
-/**
- *
- */
 public class Logging {
 
     private static Logger logger = Logger.getLogger(Logging.class.getName());
 
-    /**
-     *
-     */
     private class ShutdownHook extends Thread {
 
-        /**
-         *
-         */
         public ShutdownHook() {
             super();
         }
-        /* (non-Javadoc)
-         * @see java.lang.Runnable#run()
-         */
         public void run() {
             frostSettings.removePropertyChangeListener(SettingsClass.LOG_TO_FILE, listener);
             frostSettings.removePropertyChangeListener(SettingsClass.LOG_FILE_SIZE_LIMIT, listener);
@@ -55,19 +43,10 @@ public class Logging {
         }
     }
 
-    /**
-     *
-     */
     private class Listener implements PropertyChangeListener {
-        /**
-         *
-         */
         public Listener() {
             super();
         }
-        /* (non-Javadoc)
-         * @see java.beans.PropertyChangeListener#propertyChange(java.beans.PropertyChangeEvent)
-         */
         public void propertyChange(PropertyChangeEvent evt) {
             if (evt.getPropertyName().equals(SettingsClass.LOG_TO_FILE)) {
                 logToFileSettingChanged();
@@ -96,18 +75,12 @@ public class Logging {
     private FileHandler fileHandler = null;
     private SimpleFormatter simpleFormatter = new SimpleFormatter();
 
-    /**
-     *
-     */
     public Logging(SettingsClass frostSettings) {
         super();
         this.frostSettings = frostSettings;
         initialize();
     }
 
-    /**
-     *
-     */
     private void initialize() {
         LogManager logManager = LogManager.getLogManager();
         rootLogger = logManager.getLogger("");
@@ -126,9 +99,6 @@ public class Logging {
         frostSettings.addPropertyChangeListener(SettingsClass.LOG_LEVEL, listener);
     }
 
-    /**
-     *
-     */
     private void logLevelSettingChanged() {
         boolean valueFound = setLevel(frostSettings.getValue(SettingsClass.LOG_LEVEL));
         if (!valueFound) {
@@ -137,10 +107,6 @@ public class Logging {
         }
     }
 
-    /**
-     * @param string
-     * @return
-     */
     private boolean setLevel(String level) {
         if (level.equals(VERY_LOW)) {
             rootLogger.setLevel(Level.SEVERE);
@@ -165,9 +131,6 @@ public class Logging {
         return false;
     }
 
-    /**
-     *
-     */
     private void logFileSizeSettingChanged() {
         // We only change the file size if logging is not disabled
         if (!Level.OFF.equals(rootLogger.getLevel())) {
@@ -188,9 +151,6 @@ public class Logging {
         }
     }
 
-    /**
-     *
-     */
     private void logToFileSettingChanged() {
         // We only change the level if logging is not disabled
         if (!Level.OFF.equals(rootLogger.getLevel())) {
