@@ -301,13 +301,13 @@ public class IndexFileDownloader {
             Identity sharerInFile = receivedIndex.getSharer();
     
             // verify the file if it is signed
-            if (sharerInFile == null) {
+            if (sharerInFile == null || receivedIndex.getSignature() == null) {
                 if (Core.frostSettings.getBoolValue("hideAnonFiles")) {
                     target.delete();
                     ifdResult.errorMsg = IndexFileDownloaderResult.ANONYMOUS_BLOCKED;
                     return ifdResult;
                 }
-                // else add files to index
+                // else add anonymous files to index
             } else {
                 String _owner = Mixed.makeFilename(sharerInFile.getUniqueName());
                 String _pubkey = sharerInFile.getKey();
