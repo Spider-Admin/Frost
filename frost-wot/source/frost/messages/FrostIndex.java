@@ -26,17 +26,75 @@ import org.xml.sax.SAXException;
 
 import frost.*;
 import frost.identities.Identity;
+
 /**
- * @author zlatinb
- *
- * represents an index file in Freenet
+ * Represents an index file in Freenet.
  */
 public class FrostIndex implements XMLizable {
 
     Identity sharer;
-    Map filesMap;
+    TreeMap filesMap;
+    String signature = null;
 
     private static Logger logger = Logger.getLogger(FrostIndex.class.getName());
+
+    public FrostIndex(Element e) {
+        filesMap = new TreeMap();
+        
+        try {
+            loadXMLElement(e);
+        } catch (SAXException ex){
+            logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
+        }
+    }
+
+    public FrostIndex(Map files) {
+        filesMap = new TreeMap(files);
+
+        if (Core.frostSettings.getBoolValue("signUploads")) {
+            sharer = Core.getInstance().getIdentities().getMyId();
+        } else {
+            sharer = null;
+        }
+    }
+    
+    public String getSignature() {
+        return signature;
+    }
+
+    public void setSignature(String sig) {
+        if( sig != null && sig.length() == 0 ) {
+            signature = null;
+        } else {
+            signature = sig;
+        }
+    }
+
+    public void signFiles() {
+        String signContent = getSignableContent();
+        String sig = Core.getCrypto().detachedSign(signContent, Core.getIdentities().getMyId().getPrivKey());
+        setSignature(sig);
+    }
+    
+    public boolean verifySignature(Identity owner) {
+        String signContent = getSignableContent();
+        boolean sigIsValid = Core.getCrypto().detachedVerify(signContent, owner.getKey(), getSignature());
+        return sigIsValid;
+    }
+    
+    protected String getSignableContent() {
+        StringBuffer signContent = new StringBuffer();
+        for(Iterator i = getFilesIterator(); i.hasNext(); ) {
+            SharedFileObject sfo = (SharedFileObject)i.next();
+            signContent.append( sfo.getSHA1() );
+            signContent.append( sfo.getFilename() );
+            signContent.append( sfo.getSize().toString() );
+            if( sfo.getKey() != null ) {
+                signContent.append( sfo.getKey() );
+            }
+        }
+        return signContent.toString();
+    }
 
     /* (non-Javadoc)
      * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
@@ -45,20 +103,28 @@ public class FrostIndex implements XMLizable {
 
         Element el = container.createElement("FrostIndex");
 
+        boolean signUploads = Core.frostSettings.getBoolValue("signUploads");
+
         //if user signs uploads, remove the sensitive fields and append element
-        if (Core.frostSettings.getBoolValue("signUploads") && sharer!=null) {
+        if (signUploads && sharer != null) {
             Element _sharer = sharer.getSafeXMLElement(container);
             el.appendChild(_sharer);
+
+            if( getSignature() != null ) {
+                Element element = container.createElement("Signature");
+                CDATASection cdata = container.createCDATASection(getSignature());
+                element.appendChild(cdata);
+                el.appendChild(element);
+            }
         }
 
-        boolean signUploads = Core.frostSettings.getBoolValue("signUploads");
         // iterate through set of files and add them all
-        for(Iterator i = getFilesMap().values().iterator(); i.hasNext(); ) {
+        for(Iterator i = getFilesIterator(); i.hasNext(); ) {
             SharedFileObject current = (SharedFileObject)i.next();
             Element currentElement = current.getXMLElement(container);
 
             //remove sensitive information
-            List sensitive = XMLTools.getChildElementsByTagName(currentElement,"lastSharedDate");
+            List sensitive = XMLTools.getChildElementsByTagName(currentElement,"dateShared");
 
             //strip the owner field if file is not signed
             if (!signUploads) {
@@ -81,37 +147,25 @@ public class FrostIndex implements XMLizable {
         if (_sharer.size() > 0) {
             sharer = new Identity((Element)_sharer.get(0));
         } else {
-            sharer = null;
+            _sharer = XMLTools.getChildElementsByTagName(e,"Identity"); // other format
+            if (_sharer.size() > 0) {
+                sharer = new Identity((Element)_sharer.get(0));
+            } else {
+                sharer = null;
+            }
         }
+        
+        setSignature( XMLTools.getChildElementsCDATAValue(e, "Signature") );
 
         List _files = XMLTools.getChildElementsByTagName(e,"File");
 
-        filesMap = new HashMap(); //TODO: maybe put a TreeSet and keep all sorted
         Iterator it = _files.iterator();
         while (it.hasNext()) {
             Element el = (Element)it.next();
             SharedFileObject file = SharedFileObject.getInstance(el);
-            if (file.getSHA1()!=null) {
-                filesMap.put(file.getSHA1(),file);
+            if (file.getSHA1() != null) {
+                filesMap.put(file.getSHA1(), file);
             }
-        }
-    }
-
-    public FrostIndex(Element e) {
-        try {
-            loadXMLElement(e);
-        } catch (SAXException ex){
-            logger.log(Level.SEVERE, "Exception thrown in constructor", ex);
-        }
-    }
-
-    public FrostIndex(Map filesMap) {
-        this.filesMap = filesMap;
-
-        if (Core.frostSettings.getBoolValue("signUploads")) {
-            sharer = Core.getInstance().getIdentities().getMyId();
-        } else {
-            sharer = null;
         }
     }
 
@@ -121,10 +175,23 @@ public class FrostIndex implements XMLizable {
     public Identity getSharer() {
         return sharer;
     }
+    
+    public SharedFileObject getFileBySHA1(String sha1) {
+        return (SharedFileObject)filesMap.get(sha1);
+    }
 
-    /**
-     * @return
-     */
+    public void removeFileBySHA1(String sha1) {
+        filesMap.remove(sha1);
+    }
+
+    public void addFile(SharedFileObject file) {
+        filesMap.put(file.getSHA1(), file);
+    }
+    
+    public Iterator getFilesIterator() {
+        return filesMap.values().iterator();
+    }
+
     public Map getFilesMap() {
         return filesMap;
     }

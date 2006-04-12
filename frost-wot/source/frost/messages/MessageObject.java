@@ -19,14 +19,16 @@
 
 package frost.messages;
 
-import java.io.File;
+import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
+import org.bouncycastle.util.encoders.*;
 import org.w3c.dom.*;
-import org.xml.sax.SAXException;
+import org.xml.sax.*;
 
 import frost.*;
+import frost.identities.*;
 
 public class MessageObject implements XMLizable
 {
@@ -56,6 +58,7 @@ public class MessageObject implements XMLizable
     private String index = "";
     private String publicKey  = "";
     private String recipient = ""; // set if msg was encrypted
+    private String signature = ""; // set if message is signed
     private boolean deleted = false;
     private int signatureStatus = SIGNATURESTATUS_UNSET;
 
@@ -80,10 +83,10 @@ public class MessageObject implements XMLizable
     public MessageObject(File file) throws MessageCreationException {
         this();
         if (file == null) {
-            throw new MessageCreationException("Invalid input file for MessageObject. Its value is null.");
+        	throw new MessageCreationException("Invalid input file for MessageObject. File is null.");
         } else if (!file.exists()) {
             throw new MessageCreationException(
-                            "Invalid input file '" + file.getName() + "' for MessageObject. It doesn't exist.");
+        					"Invalid input file '" + file.getName() + "' for MessageObject. File doesn't exist.");
         } else if (file.length() < 20) { // prolog+needed tags are always > 20, but we need to filter
                                          // out the messages containing "Empty", "Invalid", "Double", "Broken"
                                          // (encrypted for someone else OR completely invalid)
@@ -95,6 +98,8 @@ public class MessageObject implements XMLizable
             loadFile();
             // ensure basic contents and formats
             analyzeFile();
+        } catch (MessageCreationException exception) {
+            throw exception;
         } catch (Exception exception) {
             throw new MessageCreationException(
                             "Invalid input file '" + file.getName() + "' for MessageObject (load/analyze failed).", exception);
@@ -194,6 +199,63 @@ public class MessageObject implements XMLizable
     public String getRecipient() {
         return recipient;
     }
+    
+    public String getSignature() {
+        return signature;
+    }
+    
+    /**
+     * Signs message and sets signature.
+     * 
+     * @param privateKey
+     */
+    public void signMessage(String privateKey) {
+        String sig = Core.getCrypto().detachedSign(getSignableContent(), privateKey);
+        setSignature(sig);
+    }
+    
+    /**
+     * Returns true if the message signature is valid.
+     * 
+     * @param pubKey
+     * @return
+     */
+    public boolean verifyMessageSignature(String pubKey) {
+        boolean sigIsValid = Core.getCrypto().detachedVerify(getSignableContent(), pubKey, getSignature());
+        return sigIsValid;
+    }
+    
+    /**
+     * Returns a String containing all content that is used to sign/verify the message. 
+     * @return
+     */
+    private String getSignableContent() {
+        
+        StringBuffer allContent = new StringBuffer();
+        allContent.append(getDate());
+        allContent.append(getTime());
+        allContent.append(getSubject());
+        allContent.append(getContent());
+        // attachments
+        for(Iterator it = getAllAttachments().iterator(); it.hasNext(); ) {
+            Attachment a = (Attachment)it.next();
+            if( a.getType() == Attachment.BOARD ) {
+                BoardAttachment ba = (BoardAttachment)a;
+                allContent.append( ba.getBoardObj().getBoardFilename() );
+                if( ba.getBoardObj().getPublicKey() != null ) {
+                    allContent.append( ba.getBoardObj().getPublicKey() );
+                }
+                if( ba.getBoardObj().getPrivateKey() != null ) {
+                    allContent.append( ba.getBoardObj().getPrivateKey() );
+                }
+            } else if( a.getType() == Attachment.FILE ) {
+                FileAttachment fa = (FileAttachment)a;
+                allContent.append( fa.getFileObj().getFilename() );
+                allContent.append( fa.getFileObj().getKey() );
+            }
+        }
+        return allContent.toString();
+    }
 
     /**
      * Get a list of all attached files that are currently offline.
@@ -285,6 +347,14 @@ public class MessageObject implements XMLizable
             el.appendChild(current);
         }
 
+        // signature
+        if (signature != null && signature.length() > 0) {
+            current = d.createElement("Signature");
+            cdata = d.createCDATASection(Mixed.makeSafeXML(getSignature()));
+            current.appendChild(cdata);
+            el.appendChild(current);
+        }
+
         //is deleted?
         if (deleted) {
             current = d.createElement("Deleted");
@@ -371,6 +441,52 @@ public class MessageObject implements XMLizable
 
         Element rootNode = doc.getDocumentElement();
 
+        // transparently decrypt and continue load on success
+        if( rootNode.getTagName().equals("EncryptedFrostMessage") ) {
+            // get recipient (must be I to continue)
+            recipient = XMLTools.getChildElementsCDATAValue(rootNode, "recipient");
+            if( recipient == null ) {
+                // no recipient
+                throw new Exception("Error - encrypted message contains no 'recipient' section.");
+            }
+            FrostIdentities identities = Core.getInstance().getIdentities();
+            if( !recipient.equals(identities.getMyId().getUniqueName()) ) {
+                // not for me
+                throw new MessageCreationException("Info: Encrypted message is not for me.",
+                        MessageCreationException.MSG_NOT_FOR_ME);
+            }
+            String base64enc = XMLTools.getChildElementsCDATAValue(rootNode, "content");
+            if( base64enc == null ) {
+                // no content
+                throw new Exception("Error - encrypted message contains no 'content' section.");
+            }
+            byte[] base64bytes = base64enc.getBytes("ISO-8859-1");
+            byte[] encBytes = Base64.decode(base64bytes);
+            // decrypt content
+            byte[] decContent = Core.getCrypto().decrypt(encBytes, identities.getMyId().getPrivKey());
+            if( decContent == null ) {
+                logger.log(Level.SEVERE, "TOFDN: Encrypted message could not be decrypted!");
+                throw new MessageCreationException("Error: Encrypted message could not be decrypted.",
+                        MessageCreationException.DECRYPT_FAILED);
+            }
+            // decContent is an complete XML file, save it to file and load it
+            FileAccess.writeFile(decContent, this.file);
+            // try to load again
+            try {
+                doc = XMLTools.parseXmlFile(this.file, false);
+            } catch(Exception ex) {  // xml format error
+                File badMessage = new File("badmessage.xml");
+                if (file.renameTo(badMessage)) {
+                    logger.log(Level.SEVERE, "Error - send the file badmessage.xml to a dev for analysis, more details below:", ex);
+                }
+            }
+
+            if( doc == null ) {
+                throw new Exception("Error - MessageObject.loadFile: couldn't parse XML Document - " +
+                                    "File name: '" + file.getName() + "'");
+            }
+            rootNode = doc.getDocumentElement();
+        }
         if( rootNode.getTagName().equals("FrostMessage") == false ) {
             File badMessage = new File("badmessage.xml");
             if (file.renameTo(badMessage)) {
@@ -394,6 +510,7 @@ public class MessageObject implements XMLizable
         recipient = XMLTools.getChildElementsCDATAValue(e, "recipient");
         board = XMLTools.getChildElementsCDATAValue(e, "Board");
         content = XMLTools.getChildElementsCDATAValue(e, "Body");
+        signature = XMLTools.getChildElementsCDATAValue(e, "Signature");
 
         if (!XMLTools.getChildElementsByTagName(e, "Deleted").isEmpty()) {
             deleted = true;
@@ -441,7 +558,7 @@ public class MessageObject implements XMLizable
      * Does not change the internal File pointer.
      */
     public boolean saveToFile(File f) {
-        File tmpFile = new File(f.getPath() + ".tmp");
+        File tmpFile = new File(f.getPath() + "sav.tmp");
         boolean success = false;
         try {
             Document doc = XMLTools.createDomDocument();
@@ -462,6 +579,49 @@ public class MessageObject implements XMLizable
             tmpFile.delete();
         }
         return success;
+    }
+    
+    /**
+     * Encrypt the complete XML message file with public key of recipient and
+     * create an EncryptedFrostMessage XML file that contains the encryted content
+     * in base64 format. Saves the resulting XML file into targetFile.
+     * 
+     * @param msgFile  the message xml file that is the input for encryption
+     * @param recipientPublicKey  recipients public key
+     * @param targetFile  the target xml file for the encrypted message
+     * @return
+     */
+    public static boolean encryptForRecipientAndSaveCopy(File msgFile, Identity recipient, File targetFile) {
+        byte[] xmlContent = FileAccess.readByteArray(msgFile);
+        byte[] encContent = Core.getCrypto().encrypt(xmlContent, recipient.getKey());
+        String base64enc;
+        try {
+            base64enc = new String(Base64.encode(encContent), "ISO-8859-1");
+        } catch (UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "ISO-8859-1 encoding is not supported.", ex);
+            return false;
+        }
+        
+        Document doc = XMLTools.createDomDocument();
+        Element el = doc.createElement("EncryptedFrostMessage");
+
+        CDATASection cdata;
+        Element current;
+
+        // recipient
+        current = doc.createElement("recipient");
+        cdata = doc.createCDATASection(Mixed.makeSafeXML(recipient.getUniqueName()));
+        current.appendChild(cdata);
+        el.appendChild(current);
+
+        // base64 content
+        current = doc.createElement("content");
+        cdata = doc.createCDATASection(base64enc);
+        current.appendChild(cdata);
+        el.appendChild(current);
+
+        doc.appendChild(el);
+        return XMLTools.writeXmlFile(doc, targetFile.getPath());
     }
 
     public void setBoard(String board) {
@@ -506,7 +666,11 @@ public class MessageObject implements XMLizable
     public void setRecipient(String rec) {
         recipient = rec;
     }
-
+    
+    private void setSignature(String sig) {
+        signature = sig;
+    }
+	
     /**
      * This method adds a new Attachment to the attachments list.
      * @param attachment the new Attachment to add to the attachments list.

@@ -202,7 +202,7 @@ public class MessageDownloadThread extends BoardUpdateThreadObject implements Bo
                 boolean fastDownload = !downloadToday;
 
                 MessageDownloaderResult mdResult = 
-                    new MessageDownloader05().downloadMessage(downKey, index, fastDownload, logInfo);
+                    MessageDownloader.downloadMessage(downKey, index, fastDownload, logInfo);
 
                 index++; // whatever happened, try next index next time
                 

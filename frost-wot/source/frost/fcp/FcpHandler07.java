@@ -46,8 +46,7 @@ public class FcpHandler07 extends FcpHandler {
             FrostDownloadItem dlItem)
     {
         // unused by 07: htl, doRedirect, fastDownload,
-        return null; // TODO
-//        return FcpRequest.getFile(key, size, target, createTempFile, dlItem);
+        return FcpRequest.getFile(key, size, target, createTempFile, dlItem);
     }
 
     public String[] putFile(
