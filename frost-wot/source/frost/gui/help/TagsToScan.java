@@ -1,3 +1,4 @@
+/* RCS-ID:      $Id$ */
 /*
  * TagsToScan.java / Frost
   Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
