@@ -26,6 +26,11 @@ public class MessageCreationException extends Exception {
 
 	private boolean empty = false;
 	
+    public final static int MSG_NOT_FOR_ME = 1;
+    public final static int DECRYPT_FAILED = 2;
+    
+    int msgNo;
+
 	/**
 	 * @param message
 	 * @param cause
@@ -53,7 +58,12 @@ public class MessageCreationException extends Exception {
 		super(message);
 		this.empty = empty;
 	}
-	
+
+    public MessageCreationException(String message, int msgno) {
+        super(message);
+        this.msgNo = msgno;
+    }
+
 	/**
 	 * This method returns true if message creation failed because the file 
 	 * only contained the word "Empty"
@@ -74,4 +84,9 @@ public class MessageCreationException extends Exception {
 	public void setEmpty(boolean empty) {
 		this.empty = empty;
 	}
+
+    public int getMessageNo() {
+        return msgNo;
+    }
+
 }

@@ -328,19 +328,12 @@ public class SharedFileObject implements XMLizable
             fileelement.appendChild(element);
         }
 
-        // f1.write(key.getFilename() + "\r\n" + key.getSize() + "\r\n" + key.getDate() + "\r\n" + key.getKey() +
-        // "\r\n");
-
         if( getOwner() != null ) {
             element = doc.createElement("owner");
             cdata = doc.createCDATASection(getOwner());
             element.appendChild(cdata);
             fileelement.appendChild(element);
-        } /*
-             * else if (board!=null) { element = doc.createElement("owner"); cdata =
-             * doc.createCDATASection(mixed.makeFilename(Core.getMyId().getUniqueName())); element.appendChild( cdata );
-             * fileelement.appendChild( element ); }
-             */
+        }
 
         if( getKey() != null ) {
             element = doc.createElement("key");

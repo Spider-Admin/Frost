@@ -405,7 +405,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
      */
     private void uploadMessage() throws IOException {
 
-        int index = new MessageUploader05().uploadMessage(
+        int index = MessageUploader.uploadMessage(
                 message, 
                 encryptForRecipient, 
                 this, 

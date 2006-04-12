@@ -20,6 +20,10 @@ package frost.transferlayer;
 
 import frost.messages.*;
 
+/**
+ * Contains the result after processing a downloaded message.
+ * Either its an error, or a MessageObject with a message state (good,check,...).
+ */
 public class MessageDownloaderResult {
     /**
      * Constants for content of XML files if the message was dropped for some reason.

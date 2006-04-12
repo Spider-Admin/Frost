@@ -23,12 +23,10 @@ import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fcp.*;
 import frost.fileTransfer.Index;
-import frost.crypt.SignMetaData;
 import frost.gui.objects.Board;
-import frost.identities.*;
 import frost.messages.FrostIndex;
+import frost.transferlayer.*;
 
 public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject implements BoardUpdateThread
 {
@@ -40,9 +38,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
     private static Logger logger = Logger.getLogger(UpdateIdThread.class.getName());
 
     private String date;
-    private int requestHtl;
-    private int insertHtl;
-    private String keypool;
     private Board board;
     private String publicKey;
     private String privateKey;
@@ -59,7 +54,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 //        return BoardUpdateThread.BOARD_FILE_DNLOAD;
 //    }
 
-    // TODO: if we fail to upload here, the file to upload should be uploaded next time!
     /**
      * Returns true if no error occured.
      */
@@ -89,89 +83,8 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 
         FrostIndex frostIndex = new FrostIndex(files);
         files = null;
-        File uploadIndexFile = new File(keypool + board.getBoardFilename() + "_upload.zip");
 
-        // zip the xml file before upload
-        FileAccess.writeZipFile(XMLTools.getRawXMLDocument(frostIndex), "entry", uploadIndexFile);
-        frostIndex = null;
-
-        if( !uploadIndexFile.isFile() || uploadIndexFile.length() == 0 ) {
-            logger.warning("No index file to upload, save/zip failed.");
-            return false; // error
-        }
-
-        boolean success = uploadFile(uploadIndexFile);
-        if( success ) {
-            uploadIndexFile.delete();
-        }
-        return success;
-    }
-
-    /**
-     * Uploads the zipped index file.
-     *
-     * @param zippedIndexFile
-     * @param metadata
-     */
-    private boolean uploadFile(File zippedIndexFile) {
-
-        // TODO: generalize this and use it in MessageUploadThread too??
-
-        boolean success = false;
-
-        try {
-            // sign zip file if requested
-            boolean signUpload = Core.frostSettings.getBoolValue("signUploads");
-            byte[] metadata = null;
-            if( signUpload ) {
-                byte[] zipped = FileAccess.readByteArray(zippedIndexFile);
-                SignMetaData md = new SignMetaData(zipped, Core.getIdentities().getMyId());
-                metadata = XMLTools.getRawXMLDocument(md);
-            }
-
-            int tries = 0;
-            final int maxTries = 3;
-            int index = indexSlots.findFirstFreeUploadSlot();
-            while( !success &&
-                   tries < maxTries &&
-                   index > -1 ) // no free index found
-            {
-                logger.info("Trying index file upload to index "+index);
-
-                String[] result = FcpHandler.inst().putFile(
-                        insertKey + index + ".idx.sha3.zip", // this format is sha3 ;)
-                        zippedIndexFile,
-                        metadata,
-                        insertHtl,
-                        false, // doRedirect
-                        true); // removeLocalKey, insert with full HTL even if existing in local store
-
-                if( result[0].equals("Success") ) {
-                    success = true;
-                    // my files are already added to totalIdx, we don't need to download this index
-                    indexSlots.setSlotUsed(index);
-                    logger.info("FILEDN: Index file successfully uploaded.");
-                } else {
-                    if( result[0].equals("KeyCollision") ) {
-                        index = indexSlots.findNextFreeSlot(index);
-                        tries = 0; // reset tries
-                        logger.info("FILEDN: Index file collided, increasing index.");
-                        continue;
-                    } else {
-                        String tv = result[0];
-                        if( tv == null ) {
-                            tv = "";
-                        }
-                        logger.info("FILEDN: Unknown upload error (#" + tries + ", '" + tv+ "'), retrying.");
-                    }
-                }
-                tries++;
-            }
-        } catch (Throwable e) {
-            logger.log(Level.SEVERE, "Exception in uploadFile", e);
-        }
-        logger.info("FILEDN: Index file upload finished, file uploaded state is: "+success);
-        return success;
+        return IndexFileUploader.uploadIndexFile(frostIndex, board, insertKey, indexSlots);
     }
 
     // If we're getting too much files on a board, we lower
@@ -215,200 +128,27 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
             int failures = 0;
             while (failures < maxFailures && index >= 0 ) {
 
-                File target = File.createTempFile(
-                        "frost-index-" + index,
-                        board.getBoardFilename(),
-                        new File(Core.frostSettings.getValue("temp.dir")));
-
                 logger.info("FILEDN: Requesting index " + index + " for board " + board.getName() + " for date " + date);
 
-                // Download the keyfile
-                FcpResults fcpresults = FcpHandler.inst().getFile(
-                        requestKey + index + ".idx.sha3.zip", //this format is sha3 ;)
-                        null,
-                        target,
-                        requestHtl, // we need it faster, same as for messages
-                        false); // doRedirect, like in uploadIndexFile()
-
-                if (fcpresults == null || target.length() == 0) {
-                    // download failed. Sometimes there are some 0 byte
-                    // files left, we better remove them now.
-                    target.delete();
+                String downKey = requestKey + index + ".idx.sha3.zip";
+                IndexFileDownloaderResult idfResult = IndexFileDownloader.downloadIndexFile(downKey, board);
+                
+                if( idfResult == null ) {
+                    // download failed. 
                     failures++;
                     // next loop we try next index
                     index = indexSlots.findNextFreeSlot(index);
-
-                } else {
-
-                    // download was successful, mark it
-                    indexSlots.setSlotUsed(index);
-                    // next loop we try next index
-                    index = indexSlots.findNextFreeSlot(index);
-                    failures = 0;
-
-                    // check if we have received such file before
-                    String digest = Core.getCrypto().digest(target);
-                    if( Core.getMessageHashes().contains(digest) ) {
-                        // we have.  erase and continue
-                        target.delete();
-                        continue;
-                    } else {
-                        // else add it to the set of received files to prevent duplicates
-                        Core.getMessageHashes().add(digest);
-                    }
-
-                    // Add it to the index
-                    try {
-                        // we need to unzip here to check if identity IN FILE == identity IN METADATA
-                        byte[] unzippedXml = FileAccess.readZipFileBinary(target);
-                        if (unzippedXml == null) {
-                            logger.warning("Could not extract received zip file, skipping.");
-                            target.delete();
-                            continue;
-                        }
-
-                        File unzippedTarget = new File(target.getPath() + "_unzipped");
-                        FileAccess.writeFile(unzippedXml, unzippedTarget);
-                        unzippedXml = null;
-
-                        //create the FrostIndex object
-                        FrostIndex receivedIndex = null;
-                        try {
-                            Index idx = Index.getInstance();
-                            synchronized(idx) {
-                                receivedIndex = idx.readKeyFile(unzippedTarget);
-                            }
-                        } catch (Exception ex) {
-                            logger.log(Level.SEVERE, "Could not parse the index file: ", ex);
-                        }
-                        if( receivedIndex == null || receivedIndex.getFilesMap().size() == 0 ) {
-                            logger.log(Level.SEVERE, "Received index file invalid or empty, skipping.");
-                            target.delete();
-                            unzippedTarget.delete();
-                            continue;
-                        }
-
-                        Identity sharer = null;
-                        Identity sharerInFile = receivedIndex.getSharer();
-
-                        // verify the file if it is signed
-                        if (fcpresults.getRawMetadata() != null) {
-                            SignMetaData md;
-                            try {
-                                md = new SignMetaData(fcpresults.getRawMetadata());
-                            } catch (Throwable t) {
-                                // reading of xml metadata failed, handle
-                                logger.log(Level.SEVERE, "Could not read the XML metadata, skipping file index.", t);
-                                target.delete();
-                                continue;
-                            }
-
-                            //metadata says we're signed.  Check if there is identity in the file
-                            if (sharerInFile == null) {
-                                logger.warning("MetaData present, but file didn't contain an identity :(");
-                                unzippedTarget.delete();
-                                target.delete();
-                                continue;
-                            }
-
-                            String _owner = null;
-                            String _pubkey = null;
-                            if (md.getPerson() != null) {
-                                _owner = Mixed.makeFilename(md.getPerson().getUniqueName());
-                                _pubkey = md.getPerson().getKey();
-                            }
-
-                            //check if metadata is proper
-                            if (_owner == null || _owner.length() == 0 || _pubkey == null || _pubkey.length() == 0) {
-                                logger.warning("XML metadata have missing fields, skipping file index.");
-                                unzippedTarget.delete();
-                                target.delete();
-                                continue;
-                            }
-
-                            //check if fields match those in the index file
-                            if (!_owner.equals(Mixed.makeFilename(sharerInFile.getUniqueName()))
-                                || !_pubkey.equals(sharerInFile.getKey())) {
-
-                                logger.warning("The identity in MetaData didn't match the identity in File! :(\n" +
-                                                "file owner : " + sharerInFile.getUniqueName() + "\n" +
-                                                "file key : " + sharerInFile.getKey() + "\n" +
-                                                "meta owner: " + _owner + "\n" +
-                                                "meta key : " + _pubkey);
-                                unzippedTarget.delete();
-                                target.delete();
-                                continue;
-                            }
-
-                            //verify! :)
-                            byte[] zippedXml = FileAccess.readByteArray(target);
-                            boolean valid = Core.getCrypto().detachedVerify(zippedXml, _pubkey, md.getSig());
-                            zippedXml = null;
-
-                            if (valid == false) {
-                                logger.warning("Invalid signature for index file from " + _owner);
-                                unzippedTarget.delete();
-                                target.delete();
-                                continue;
-                            }
-
-                            //check if we have the owner already on the lists
-                            if (Core.getIdentities().isMySelf(_owner)) {
-                                logger.info("Received index file from myself");
-                                sharer = Core.getIdentities().getMyId();
-                            } else {
-                                logger.info("Received index file from " + _owner);
-                                sharer = Core.getIdentities().getIdentity(_owner);
-
-                                if( sharer == null ) {
-                                    // a new sharer, put to neutral list
-                                    sharer = addNewSharer(_owner, _pubkey);
-                                    if (sharer == null) { // digest did not match, block file
-                                        logger.info("sharer was null... :(");
-                                        unzippedTarget.delete();
-                                        target.delete();
-                                        continue;
-                                    }
-                                } else if (sharer.getState() == FrostIdentities.ENEMY ) {
-                                    if (Core.frostSettings.getBoolValue("hideBadFiles")) {
-                                        logger.info("Skipped index file from BAD user " + _owner);
-                                        target.delete();
-                                        unzippedTarget.delete();
-                                        continue;
-                                    }
-                                }
-                                // update lastSeen for sharer Identity
-                                sharer.updateLastSeenTimestamp();
-                            }
-                        } // end-of: if metadata != null
-                        else if (Core.frostSettings.getBoolValue("hideAnonFiles")) {
-                            unzippedTarget.delete();
-                            target.delete();
-                            continue; //do not show index.
-                        }
-
-                        // if the user is not on the GOOD list..
-                        String sharerStr;
-                        if (sharer == null || sharer.getState() != FrostIdentities.FRIEND ) {
-                            // add only files from that user (not files from his friends)
-                            sharerStr = (sharer == null) ? "Anonymous" : sharer.getUniqueName();
-                            logger.info("adding only files from " + sharerStr);
-                        } else {
-                            // if user is GOOD, add all files (user could have sent files from HIS friends in this index)
-                            logger.info("adding all files from " + sharer.getUniqueName());
-                            sharerStr = null;
-                        }
-                        Index idx = Index.getInstance();
-                        synchronized(idx) {
-                            idx.add(receivedIndex, board, sharerStr);
-                        }
-
-                        target.delete();
-                        unzippedTarget.delete();
-                    } catch (Throwable t) {
-                        logger.log(Level.SEVERE, "Error in UpdateIdThread", t);
-                    }
+                    continue;
                 }
+                
+                // download was successful, mark it
+                indexSlots.setSlotUsed(index);
+                // next loop we try next index
+                index = indexSlots.findNextFreeSlot(index);
+                failures = 0;
+                
+                // we do not look at the idfResult, it does not matter if it was not, 
+                // files were added on success 
             }
 
             // FIXED: I assume its enough to do this on current day, not for all days the same
@@ -433,46 +173,11 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
 //      notifyThreadFinished(this);
     }
 
-    /**
-     * This method checks if the digest of sharer matches the pubkey,
-     * and adds the NEW identity to list of neutrals.
-     * @param _sharer
-     * @param _pubkey
-     * @return
-     */
-    private Identity addNewSharer(String _sharer, String _pubkey) {
-
-        //check if the digest matches
-        String given_digest = _sharer.substring(_sharer.indexOf("@") + 1,
-                                                _sharer.length()).trim();
-        String calculatedDigest = Core.getCrypto().digest(_pubkey.trim()).trim();
-        calculatedDigest = Mixed.makeFilename( calculatedDigest ).trim();
-
-        if( ! Mixed.makeFilename(given_digest).equals( calculatedDigest ) ) {
-            logger.warning("Warning: public key of sharer didn't match its digest:\n" +
-                           "given digest :'" + given_digest + "'\n" +
-                           "pubkey       :'" + _pubkey.trim() + "'\n" +
-                           "calc. digest :'" + calculatedDigest + "'");
-            return null;
-        }
-        //create the identity of the sharer
-        Identity sharer = new Identity( _sharer.substring(0,_sharer.indexOf("@")), _pubkey);
-
-        //add him to the neutral list (if not already on any list)
-        sharer.setState(FrostIdentities.NEUTRAL);
-        Core.getIdentities().addIdentity(sharer);
-
-        return sharer;
-    }
-
     /**Constructor*/
     public UpdateIdThread(Board board, String date, boolean isForToday) {
 
         this.board = board;
         this.date = date;
-        requestHtl = Core.frostSettings.getIntValue("keyDownloadHtl");
-        insertHtl = Core.frostSettings.getIntValue("keyUploadHtl");
-        keypool = Core.frostSettings.getValue("keypool.dir");
 //      maxKeys = MainFrame.frostSettings.getIntValue("maxKeys");
         this.isForToday = isForToday;
 
@@ -522,7 +227,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
      * Class provides functionality to track used index slots
      * for upload and download.
      */
-    private static class IndexSlots {
+    private static class IndexSlots implements IndexFileUploaderCallback {
 
         private static final Integer EMPTY = new Integer(0);
         private static final Integer USED  = new Integer(-1);

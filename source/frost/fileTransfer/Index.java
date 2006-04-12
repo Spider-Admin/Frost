@@ -173,11 +173,11 @@ public class Index {
                 updateDownloadTable(current);
             }
 
-            SharedFileObject old = (SharedFileObject) idx.getFilesMap().get(current.getSHA1());
+            SharedFileObject old = idx.getFileBySHA1(current.getSHA1());
 
             if (old == null) {
                 // add new file
-                idx.getFilesMap().put(current.getSHA1(), current);
+                idx.addFile(current);
             } else {
                 // update existing file
                 old.setDate(current.getDate());
@@ -223,14 +223,14 @@ public class Index {
      */
     public Map getUploadKeys(Board board) {
 
-        // TODO: nice-to-have: add files until zip is larger than 30000, don't stop at 60
+        // TODO: nice-to-have: add files until zip is larger than 30000, don't stop at 100
 
         // limit -> key file could grow above 30.000 bytes which is the appr. maximum for KSK uploads!
         // we first try with 60 and lower by 5 until zipsize is <=30000
         // (if not all files fit into this index, we send the next list on next update)
         final long MAX_ZIP_SIZE = 30000;
         final int MAX_FILES_CHANGE_INTERVAL = 5;
-        final int DEFAULT_MAX_FILES = 60; // seems to be a good size to start with
+        final int DEFAULT_MAX_FILES = 100; // seems to be a good size to start with
 
         int currentMaxFiles = DEFAULT_MAX_FILES;
 
@@ -254,7 +254,7 @@ public class Index {
 
         while(true) {
 
-            for(Iterator i = newUploadsIdx.getFilesMap().values().iterator(); i.hasNext(); ) {
+            for(Iterator i = newUploadsIdx.getFilesIterator(); i.hasNext(); ) {
                 SharedFileObject sfo = (SharedFileObject)i.next();
                 if( toUpload.size() < currentMaxFiles ) {
                     toUpload.put(sfo.getSHA1(), sfo);
@@ -291,7 +291,7 @@ public class Index {
         // remove those files from newUploadsIdx that we added to toUpload
         for(Iterator i = toUpload.values().iterator(); i.hasNext(); ) {
             SharedFileObject sfo = (SharedFileObject)i.next();
-            newUploadsIdx.getFilesMap().remove(sfo.getSHA1());
+            newUploadsIdx.removeFileBySHA1(sfo.getSHA1());
         }
 
         // save or delete the newUploadsIdx file
@@ -328,7 +328,7 @@ public class Index {
 
                 tmpToUpload.putAll(toUpload);
 
-                for(Iterator i = totalIdx.getFilesMap().values().iterator(); i.hasNext(); ) {
+                for(Iterator i = totalIdx.getFilesIterator(); i.hasNext(); ) {
 
                     SharedFileObject current = (SharedFileObject) i.next();
 
@@ -408,9 +408,6 @@ public class Index {
             writeKeyFile(totalIdx, boardFiles);
         }
 
-//      NOTE: due to troubles with too large index files we currently do not send friends shared files
-//      imho this did'nt help alot anyway
-
         return toUpload;
 
         // if there is space in the file, add random files of friends
@@ -485,7 +482,7 @@ public class Index {
     }
 
     /**
-     * Reads a keyfile from disk.
+     * Reads a keyfile from disk and validates each file.
      *
      * @param source     keyfile as String or as File
      * @returns          null on error
@@ -513,7 +510,7 @@ public class Index {
             FrostIndex idx = new FrostIndex(d.getDocumentElement());
 
             // now go through all the files
-            for(Iterator i = idx.getFilesMap().values().iterator(); i.hasNext(); ) {
+            for(Iterator i = idx.getFilesIterator(); i.hasNext(); ) {
                 SharedFileObject newKey = (SharedFileObject) i.next();
 
                 // validate the key
@@ -539,7 +536,7 @@ public class Index {
 
         int itemsAppended = 0;
         synchronized( idx ) {
-            for(Iterator i = idx.getFilesMap().values().iterator(); i.hasNext(); ) {
+            for(Iterator i = idx.getFilesIterator(); i.hasNext(); ) {
                 SharedFileObject current = (SharedFileObject) i.next();
                 if( current.getOwner() != null ) {
                     Identity id = Core.getInstance().getIdentities().getIdentity(current.getOwner());
