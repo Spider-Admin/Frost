@@ -129,7 +129,8 @@ public class SharedFileObject implements XMLizable
     /**Tests if key is valid*/
     public boolean checkKey() {
         if (key == null) return true;
-        if( key.startsWith("CHK@") && key.length() == 58 ) return true;
+//        if( key.startsWith("CHK@") && key.length() == 58 ) return true;
+        if( key.startsWith("CHK@") ) return true;
         //  if (DEBUG) System.out.println("Invalid key in " + filename);
 //        logger.warning("invalid key in " + filename);
         return false;

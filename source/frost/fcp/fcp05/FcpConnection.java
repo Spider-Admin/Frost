@@ -76,7 +76,7 @@ public class FcpConnection
         }
     }
 
-    public String[] getNodeInfo() throws IOException {
+    public List getNodeInfo() throws IOException {
         ArrayList result = new ArrayList();
 
         fcpSock = new Socket(host, port);
@@ -99,15 +99,12 @@ public class FcpConnection
         fcpOut.close();
         fcpSock.close();
 
-        if (result.isEmpty()) {
+        if( result.isEmpty() ) {
+            logger.warning("No ClientInfo response!");
             return null;
-        } else {
-            String [] ret = new String[result.size()];
-            for (int i=0; i < result.size(); i++) {
-                ret[i] = (String) result.get(i);
-            }
-            return ret;
         }
+
+        return result;
     }
 
     /**

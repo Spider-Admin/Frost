@@ -134,7 +134,7 @@ class UploadThread extends Thread
                 true, // removeLocalKey, insert with full HTL even if existing in local store
                 uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
-        if (result[0].equals("Success") || result[0].equals("KeyCollision")) {
+        if (result[0].equals("Success") || result[0].equals("KeyCollision") || result[0].equals("PutSuccessful")) {
             success = true;
             uploadItem.setKey(result[1]);
             lastUploadDate = currentDate;

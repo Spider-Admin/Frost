@@ -329,7 +329,7 @@ public class DownloadThread extends Thread {
                         result[1] = "Error";
                     }
 
-                    if (result[0].equals("Success")) {
+                    if (result[0].equals("Success") || result[0].equals("PutSuccessful")) {
                         success = true;
                     } else if (result[0].equals("KeyCollision")) {
                         // Check if the collided key is perhapes the requested one
