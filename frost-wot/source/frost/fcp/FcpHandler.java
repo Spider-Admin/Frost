@@ -57,7 +57,7 @@ public abstract class FcpHandler {
             initializedVersion = freenetVersion;
         } else {
             logger.severe("Unsupported freenet version: "+freenetVersion);
-            throw new UnsupportedOperationException("Unsupported freenet version: "+freenetVersion);
+            throw new UnsupportedOperationException("This Freenet version is not supported, must be 5 or 7: "+freenetVersion);
         }
     }
     
@@ -170,7 +170,7 @@ public abstract class FcpHandler {
     
     public abstract String generateCHK(File file) throws Throwable;
     
-    public abstract String[] getNodeInfo() throws IOException, ConnectException;
+    public abstract List getNodeInfo() throws IOException, ConnectException;
     
     public abstract BoardKeyPair generateBoardKeyPair() throws IOException, ConnectException;
 }

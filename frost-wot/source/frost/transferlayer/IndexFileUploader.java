@@ -64,7 +64,7 @@ public class IndexFileUploader {
                 logger.info("Trying index file upload to index "+index);
 
                 String[] result = FcpHandler.inst().putFile(
-                        wa.insertKey + index + ".idx.sha3.zip", // TODO: change .zip!
+                        wa.insertKey + index + ".idx.sha3.zip", // TODO: maybe change the ".zip" in the name, its no zip on 0.7
                         wa.uploadFile,
                         wa.metadata,
                         Core.frostSettings.getIntValue("keyUploadHtl"),

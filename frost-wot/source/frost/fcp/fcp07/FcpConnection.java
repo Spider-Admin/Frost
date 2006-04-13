@@ -80,16 +80,7 @@ public class FcpConnection
     }
 
     //needs reimplementation, fetches data from hallo
-    public String[] getNodeInfo() throws IOException {
-
-    	//TODO need to be implemented!
-    	///////
-    	String[] info = new String[1];
-    	info[0] = "dummy";
-    	if (true)
-    		return info;
-    	///////////////
-
+    public List getNodeInfo() throws IOException {
 
     	ArrayList result = new ArrayList();
         fcpSock = new Socket(host, port);
@@ -99,34 +90,31 @@ public class FcpConnection
 
         fcpOut.println("ClientHello");
         System.out.println("ClientHello");
-        System.out.println("Name=teststart");
+        fcpOut.println("Name=hello-"+fcpConnectionId);
+        System.out.println("Name=hello-"+fcpConnectionId);
+        fcpOut.println("ExpectedVersion=0.7.0");
         System.out.println("ExpectedVersion=0.7.0");
-        System.out.println("End");
-        String tmp;
-        do {
-            tmp = in.readLine();
-            if (tmp.compareTo("EndMessage") == 0) {
+        fcpOut.println("EndMessage");
+        System.out.println("EndMessage");
+
+        while(true) {
+            String tmp = in.readLine();
+            if (tmp == null || tmp.trim().equals("EndMessage")) {
                 break;
             }
             result.add(tmp);
-        } while(tmp.compareTo("EndMessage") != 0);
+        }
 
         in.close();
         fcpOut.close();
         fcpSock.close();
-
-        if (result.isEmpty()) {
-        	System.out.println("no response!");
+        
+        if( result.isEmpty() ) {
+            logger.warning("No ClientInfo response!");
             return null;
-
-        } else {
-            String [] ret = new String[result.size()];
-            for (int i=0; i < result.size(); i++) {
-                ret[i] = (String) result.get(i);
-            }
-            System.out.println(ret);
-            return ret;
         }
+
+        return result;
     }
 
     /**

@@ -256,7 +256,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
             tries++;
         }
-        if (result[0].equals("KeyCollision") || result[0].equals("Success")) {
+        if (result[0].equals("KeyCollision") || result[0].equals("Success") || result[0].equals("PutSuccessful")) {
             logger.info(
                 "TOFUP: Upload of attachment '"
                     + attachment.getFile().getPath()

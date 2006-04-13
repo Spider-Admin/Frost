@@ -125,13 +125,19 @@ public class Core implements Savable, FrostEventDispatcher  {
             return false;
         }
         
+        // init the factory with configured nodes
+        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+        if( freenetVersion <= 0 ) {
+            // no config entry found, default 0.5
+            freenetVersion = FcpHandler.FREENET_05;
+        }
         try {
-            FcpHandler.initializeFcp(nodes, FcpHandler.FREENET_05); // init the factory with configured nodes
+            FcpHandler.initializeFcp(nodes, freenetVersion); 
         } catch(UnsupportedOperationException ex) {
             MiscToolkit.getInstance().showMessage(
-                    ex.toString(),
+                    ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
-                    "ERROR: Freenet version is not supported.");
+                    "Freenet version is not supported");
                 return false;
         }
         
@@ -140,17 +146,22 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         // Then we check if the user is running a transient node or not
         freenetIsOnline = false;
+        boolean runningOnTestnet = false;
         try {
-            String[] nodeInfo = FcpHandler.inst().getNodeInfo();
+            List nodeInfo = FcpHandler.inst().getNodeInfo();
             if( nodeInfo != null ) {
                 // freenet is online
                 freenetIsOnline = true;
-//                for (int ij = 0; ij < nodeInfo.length; ij++) {
-//                    if (nodeInfo[ij].startsWith("IsTransient")
-//                        && nodeInfo[ij].indexOf("true") != -1) {
-//                        freenetIsTransient = true;
-//                    }
-//                }
+                
+                // TODO: on 0.7 check for "Testnet=true" and warn user
+                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+                    for(Iterator i=nodeInfo.iterator(); i.hasNext(); ) {
+                        String val = (String)i.next();
+                        if( val.startsWith("Testnet") && val.indexOf("true") > 0 ) {
+                            runningOnTestnet = true;
+                        }
+                    }
+                }
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);

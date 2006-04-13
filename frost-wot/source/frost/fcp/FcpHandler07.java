@@ -72,7 +72,7 @@ public class FcpHandler07 extends FcpHandler {
         return chkkey;
     }
 
-    public String[] getNodeInfo() throws IOException, ConnectException {
+    public List getNodeInfo() throws IOException, ConnectException {
 
         FcpConnection connection = FcpFactory.getFcpConnectionInstance();
         if (connection == null) {
