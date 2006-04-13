@@ -615,8 +615,10 @@ public class SettingsClass implements Savable {
         defaults.put("maxMessageDisplay", "15");
         defaults.put("maxMessageDownload", "5");
         defaults.put("messageBase", "news");
-        defaults.put("nodeAddress", "127.0.0.1");
-        defaults.put("nodePort", "8481");
+
+        defaults.put("availableNodes05", "127.0.0.1:8481");
+        defaults.put("availableNodes07", "127.0.0.1:9481");
+        
         defaults.put("showSystrayIcon", "true");
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
@@ -639,11 +641,11 @@ public class SettingsClass implements Savable {
         defaults.put("hideAnonFiles", "false");
         defaults.put("useAltEdit", "false");
         defaults.put("userName", "Anonymous");
-        defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod");
-        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm");
+        defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid");
+        defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov");
         defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi");
         defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin");
-        defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar");
+        defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz");
         defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
         defaults.put(AUTO_SAVE_INTERVAL, "15");
 

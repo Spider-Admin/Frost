@@ -98,17 +98,41 @@ public class Core implements Savable, FrostEventDispatcher  {
      * @return boolean false if no nodes are available. True otherwise.
      */
     private boolean initializeConnectivity() {
-        // First of all we parse the list of available nodes
-        String nodesUnparsed = frostSettings.getValue("availableNodes");
+
+        // determine configured freenet version
+        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
+        if( freenetVersion <= 0 ) {
+            // no config entry found, default 0.5
+            freenetVersion = FcpHandler.FREENET_05;
+        }
+        if( freenetVersion != FcpHandler.FREENET_05 && freenetVersion != FcpHandler.FREENET_07 ) {
+            MiscToolkit.getInstance().showMessage(
+                    "Freenet version is not supported (must be 5 or 7): "+freenetVersion,
+                    JOptionPane.ERROR_MESSAGE,
+                    "Freenet version is not supported");
+            return false;
+        }
+        
+        // parse the list of available nodes
+        String nodesUnparsed = null;
+        if( freenetVersion == FcpHandler.FREENET_05 ) {
+            nodesUnparsed = frostSettings.getValue("availableNodes05");
+            if( nodesUnparsed == null ) {
+                // old version
+                nodesUnparsed = frostSettings.getValue("availableNodes");
+            }
+        } else if( freenetVersion == FcpHandler.FREENET_07 ) {
+            nodesUnparsed = frostSettings.getValue("availableNodes07");
+            if( nodesUnparsed == null ) {
+                // old version
+                nodesUnparsed = frostSettings.getValue("availableNodes");
+            }
+        }
         
         List nodes = new ArrayList();
 
         if (nodesUnparsed == null) { //old format
-            String converted =
-                new String(
-                    frostSettings.getValue("nodeAddress")
-                        + ":"
-                        + frostSettings.getValue("nodePort"));
+            String converted = new String(frostSettings.getValue("nodeAddress")+":"+frostSettings.getValue("nodePort"));
             nodes.add(converted.trim());
             frostSettings.setValue("availableNodes", converted.trim());
         } else { // new format
@@ -126,11 +150,6 @@ public class Core implements Savable, FrostEventDispatcher  {
         }
         
         // init the factory with configured nodes
-        int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
-        if( freenetVersion <= 0 ) {
-            // no config entry found, default 0.5
-            freenetVersion = FcpHandler.FREENET_05;
-        }
         try {
             FcpHandler.initializeFcp(nodes, freenetVersion); 
         } catch(UnsupportedOperationException ex) {
@@ -138,7 +157,7 @@ public class Core implements Savable, FrostEventDispatcher  {
                     ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
                     "Freenet version is not supported");
-                return false;
+            return false;
         }
         
         // install our security manager that only allows connections to the configured FCP hosts
