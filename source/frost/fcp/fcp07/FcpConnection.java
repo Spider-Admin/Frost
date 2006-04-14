@@ -92,8 +92,8 @@ public class FcpConnection
         System.out.println("ClientHello");
         fcpOut.println("Name=hello-"+fcpConnectionId);
         System.out.println("Name=hello-"+fcpConnectionId);
-        fcpOut.println("ExpectedVersion=0.7.0");
-        System.out.println("ExpectedVersion=0.7.0");
+        fcpOut.println("ExpectedVersion=2.0");
+        System.out.println("ExpectedVersion=2.0");
         fcpOut.println("EndMessage");
         System.out.println("EndMessage");
 
@@ -451,9 +451,9 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fcpOut.println("Name=hello-"+ fcpConnectionId);
         logger.fine("Name=hello-"+ fcpConnectionId);
         System.out.println("Name=hello-"+ fcpConnectionId);
-        fcpOut.println("ExpectedVersion=0.7.0");
-        logger.fine("ExpectedVersion=0.7.0");
-        System.out.println("ExpectedVersion=0.7.0");
+        fcpOut.println("ExpectedVersion=2.0");
+        logger.fine("ExpectedVersion=2.0");
+        System.out.println("ExpectedVersion=2.0");
         fcpOut.println("End");
     	logger.fine("End");
     	System.out.println("End");
