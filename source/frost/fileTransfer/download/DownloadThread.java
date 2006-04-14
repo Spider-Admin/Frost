@@ -81,7 +81,7 @@ public class DownloadThread extends Thread {
             logger.info("FILEDN: Download of '" + filename + "' started.");
 
             // Download file
-            FcpResults success = null;
+            FcpResultGet success = null;
 
             try {
                 // BBACKFLAG: implement increasing htls!
@@ -299,7 +299,6 @@ public class DownloadThread extends Thread {
 
                     // try to insert
 
-                    String[] result = new String[2];
                     String upKey =
                         new StringBuffer()
                             .append("KSK@frost/request/")
@@ -315,34 +314,27 @@ public class DownloadThread extends Thread {
                             .append(".req.sha")
                             .toString();
                     logger.fine(upKey);
-                    result = FcpHandler.inst().putFile(
+                    
+                    FcpResultPut result = FcpHandler.inst().putFile(
                             upKey,
                             requestFile,
                             null,
                             messageUploadHtl,
                             false, // doRedirect
                             true); // removeLocalKey, insert with full HTL even if existing in local store
-                    logger.fine("FcpInsert result[0] = " + result[0] + " result[1] = " + result[1]);
-
-                    if (result[0] == null || result[1] == null) {
-                        result[0] = "Error";
-                        result[1] = "Error";
-                    }
-
-                    if (result[0].equals("Success") || result[0].equals("PutSuccessful")) {
+                    
+                    if (result.isSuccess()) {
                         success = true;
-                    } else if (result[0].equals("KeyCollision")) {
+                    } else if (result.isKeyCollision()) {
                         // Check if the collided key is perhapes the requested one
                         File compareMe = null;
                         try {
-                            compareMe =
-                                File.createTempFile(
+                            compareMe = File.createTempFile(
                                     "reqUploadCmpDnload_",
                                     null,
                                     new File(settings.getValue("temp.dir")));
                         } catch (Exception ex) {
-                            compareMe =
-                                new File(
+                            compareMe = new File(
                                         settings.getValue("temp.dir")
                                         + System.currentTimeMillis()
                                         + ".tmp");
@@ -365,9 +357,7 @@ public class DownloadThread extends Thread {
                                 success = true;
                             } else {
                                 index++;
-                                logger.fine(
-                                    "FILEDN: Request Upload collided, increasing index to "
-                                        + index);
+                                logger.fine("FILEDN: Request Upload collided, increasing index to "+index);
 
                                 if (settings.getBoolValue(SettingsClass.DISABLE_REQUESTS) == true) {
                                     // uploading is disabled, therefore already existing requests are not
@@ -380,11 +370,7 @@ public class DownloadThread extends Thread {
                                 }
                             }
                         } else {
-                            logger.info(
-                                "FILEDN: Request upload failed ("
-                                    + tries
-                                    + "), retrying index "
-                                    + index);
+                            logger.info("FILEDN: Request upload failed ("+tries+"), retrying index "+index);
                             if (tries > 5) {
                                 success = true;
                                 error = true;

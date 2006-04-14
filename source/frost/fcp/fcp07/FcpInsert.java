@@ -24,11 +24,13 @@ package frost.fcp.fcp07;
 
 import java.io.*;
 import java.net.*;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.upload.*;
 
 /**
@@ -68,44 +70,63 @@ Identifier=I
 ExpectedURI=freenet:KSK@fuckkkk
 CodeDescription=Insert collided with different, pre-existing data at the same key
 EndMessage
-
 	 */
 
-    private static String[] keywords = {"Success",
-                                        "RouteNotFound",
-                                        "KeyCollision",
-                                        "SizeError",
-                                        "DataNotFound",
-                                        "PutSuccessful",
-                                        "PutFailed"};
+    private static Map putKeywords = null;
+    
+    private static Map getKeywords() {
+        if( putKeywords == null ) {
+            // fill a map with possible keyword to result assignments
+            putKeywords = new HashMap();
+            putKeywords.put("Success", new Integer(FcpResultPut.Success));
+            putKeywords.put("RouteNotFound", new Integer(FcpResultPut.Retry));
+            putKeywords.put("KeyCollision", new Integer(FcpResultPut.KeyCollision));
+            putKeywords.put("SizeError", new Integer(FcpResultPut.Error));
+            putKeywords.put("DataNotFound", new Integer(FcpResultPut.Error));
+            putKeywords.put("PutSuccessful", new Integer(FcpResultPut.Success));
+            putKeywords.put("PutFailed", new Integer(FcpResultPut.Error));
+        }
+        return putKeywords;
+    }
 
-    private static final String[] ERROR = new String[] {"Error","Error"};
-
-    private static String[] result(String text) {
+    private static FcpResultPut result(String text) {
 
         logger.info("*** FcpInsert.result: text='"+text+"'");
         System.out.println("*** FcpInsert.result: text='"+text+"'");
 
         if( text == null || text.length() == 0 ) {
-            return ERROR;
+            return FcpResultPut.ERROR_RESULT;
         }
 
-        String[] result = {"Error", "Error"};
+        int result = FcpResultPut.Error;
+        
         // check if the keyword returned by freenet is a known keyword
-        for( int i = 0; i < keywords.length; i++ ) {
-            if( text.indexOf(keywords[i]) != -1 ) {
-                result[0] = keywords[i];
+        for(Iterator i=getKeywords().keySet().iterator(); i.hasNext(); ) {
+            String keyword = (String)i.next();
+            if( text.indexOf(keyword) >= 0 ) {
+                if( keyword.equals("PutFailed") && text.indexOf("Code=9") > -1 ) {
+                    result = FcpResultPut.KeyCollision;
+                    break;
+                } else {
+                    result = ((Integer)getKeywords().get(keyword)).intValue();
+                    break;
+                }
             }
         }
+        
+        String chkKey = null;
+        
         // check if the returned text contains the computed CHK key (key generation)
-        if( text.indexOf("CHK@") > -1 && text.indexOf("EndMessage") > -1 ) {
-            result[1] = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage")).trim();
+        int pos = text.indexOf("CHK@"); 
+        if( pos > -1 ) {
+            chkKey = text.substring(pos);
+            chkKey = chkKey.substring(0, chkKey.indexOf('\n'));
         }
-        if ( result[0] == "PutFailed" && text.indexOf("Code=9") > -1 ) {
-        	result[0] = "KeyCollision";
-        }
-
-        return result;
+//        if( text.indexOf("CHK@") > -1 && text.indexOf("EndMessage") > -1 ) {
+//            chkKey = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage")).trim();
+//        }
+        
+        return new FcpResultPut(result, chkKey);
     }
 
     /**
@@ -115,7 +136,7 @@ EndMessage
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
-    public static String[] putFile(String uri,
+    public static FcpResultPut putFile(String uri,
                                    File file,
                                    FrostUploadItem ulItem)
     {
@@ -126,7 +147,7 @@ EndMessage
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning",
 							 JOptionPane.WARNING_MESSAGE);
-            return ERROR;
+            return FcpResultPut.ERROR_RESULT;
         }
 
         try {
@@ -137,7 +158,7 @@ EndMessage
                 connection = null;
             }
             if( connection == null ) {
-                return ERROR;
+                return FcpResultPut.ERROR_RESULT;
             }
 
             String output = connection.putKeyFromFile(uri, file, false);
@@ -149,7 +170,7 @@ EndMessage
         } catch( Throwable e ) {
         	logger.log(Level.SEVERE, "Throwable", e);
         }
-        return ERROR;
+        return FcpResultPut.ERROR_RESULT;
     }
 
     public static String generateCHK(File file) {

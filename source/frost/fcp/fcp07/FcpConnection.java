@@ -126,7 +126,7 @@ public class FcpConnection
      * @param htl the HTL to use in this request
      * @return the results filled with metadata
      */
-    public FcpResults getKeyToFile(String keyString, String filename)
+    public FcpResultGet getKeyToFile(String keyString, String filename)
     throws IOException, FcpToolsException, InterruptedIOException {
 
         // TODO: exploit MaxRetries
@@ -134,7 +134,7 @@ public class FcpConnection
         // TODO: exploit ReturnType=disk
 
         keyString = StripSlashes(keyString);
-        FcpResults result = new FcpResults();
+        FcpResultGet result = new FcpResultGet();
         FreenetKey key = new FreenetKey(keyString);
 		logger.fine("KeyString = " + keyString + "\n" +
 					"Key =       " + key + "\n" +
@@ -417,7 +417,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 			output.append((char) c);
 			if (output.toString().indexOf("EndMessage") != -1) {
 				output.append('\0');
-				if (output.indexOf("Pending") != -1 || output.indexOf("Restarted") != -1 || output.indexOf("URIGenerated") != -1) {
+				if (output.indexOf("Pending") != -1 || 
+                    output.indexOf("Restarted") != -1 || 
+                    output.indexOf("URIGenerated") != -1) 
+                {
 					output = new StringBuffer();
 					continue;
 				}

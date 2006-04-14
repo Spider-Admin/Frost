@@ -20,17 +20,18 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
-import java.io.File;
-import java.util.Enumeration;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.*;
+import java.util.logging.*;
 
 import javax.swing.*;
 import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.*;
-import frost.gui.NewBoardDialog;
-import frost.gui.objects.Board;
+import frost.fcp.*;
+import frost.gui.*;
+import frost.gui.objects.*;
 import frost.storage.*;
 import frost.threads.*;
 import frost.util.gui.*;
@@ -652,16 +653,20 @@ public class TofTree extends JDragTree implements Savable {
     /**
      * Loads a tree description file
      */
-    private boolean loadTree()
-    {
+    private boolean loadTree() {
         TofTreeXmlIO xmlio = new TofTreeXmlIO();
         String boardIniFilename = settings.getValue("config.dir") + "boards.xml";
         // the call changes the toftree and loads nodes into it
         File iniFile = new File(boardIniFilename);
-        if( iniFile.exists() == false )
-        {
+        if( iniFile.exists() == false ) {
             logger.warning("boards.xml file not found, reading default file (will be saved to boards.xml on exit).");
-            boardIniFilename = settings.getValue("config.dir") + "boards.xml.default";
+            String defaultBoardsFile;
+            if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+                defaultBoardsFile = "boards.xml.default";
+            } else {
+                defaultBoardsFile = "boards.xml.default07";
+            }
+            boardIniFilename = settings.getValue("config.dir") + defaultBoardsFile;
         }
         return xmlio.loadBoardTree( this, model, boardIniFilename );
     }

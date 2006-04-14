@@ -36,7 +36,7 @@ public class FcpHandler05 extends FcpHandler {
         return FcpFactory.getNodes();
     }
  
-    public FcpResults getFile(String key,
+    public FcpResultGet getFile(String key,
             Long size,
             File target,
             int htl,
@@ -48,7 +48,7 @@ public class FcpHandler05 extends FcpHandler {
         return FcpRequest.getFile(key, size, target, htl, doRedirect, fastDownload, createTempFile, dlItem);
     }
 
-    public String[] putFile(
+    public FcpResultPut putFile(
             String uri,
             File file,
             byte[] metadata,
@@ -57,7 +57,12 @@ public class FcpHandler05 extends FcpHandler {
             boolean removeLocalKey,
             FrostUploadItem ulItem)
     {
-        return FcpInsert.putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, ulItem);
+        FcpResultPut result = FcpInsert.putFile(uri, file, metadata, htl, doRedirect, removeLocalKey, ulItem); 
+        if( result == null ) {
+            return FcpResultPut.ERROR_RESULT;
+        } else {
+            return result;
+        }
     }
     
     public String generateCHK(File file) throws Throwable {

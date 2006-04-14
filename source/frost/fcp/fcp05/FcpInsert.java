@@ -26,6 +26,7 @@ import java.util.logging.*;
 import javax.swing.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.upload.*;
 
 /**
@@ -44,34 +45,53 @@ public class FcpInsert
     //in RandomAccessFileBucket2.segment(). Kevloral 20-02-2004
     public final static int smallestChunk = 768 * 1024;
 
-    private static String[] keywords = {"Success",
-                                        "RouteNotFound",
-                                        "KeyCollision",
-                                        "SizeError",
-                                        "DataNotFound"};
+    private static Map putKeywords = null;
+    
+    private static Map getKeywords() {
+        if( putKeywords == null ) {
+            // fill a map with possible keyword to result assignments
+            putKeywords = new HashMap();
+            putKeywords.put("Success", new Integer(FcpResultPut.Success));
+            putKeywords.put("RouteNotFound", new Integer(FcpResultPut.Retry));
+            putKeywords.put("KeyCollision", new Integer(FcpResultPut.KeyCollision));
+            putKeywords.put("SizeError", new Integer(FcpResultPut.Error));
+            putKeywords.put("DataNotFound", new Integer(FcpResultPut.Error));
+        }
+        return putKeywords;
+    }
 
-    private static final String[] ERROR = new String[] {"Error","Error"};
-
-    private static String[] result(String text) {
+    private static FcpResultPut result(String text) {
 
         logger.info("*** FcpInsert.result: text='"+text+"'");
 
         if( text == null || text.length() == 0 ) {
-            return ERROR;
+            return FcpResultPut.ERROR_RESULT;
         }
 
-        String[] result = {"Error", "Error"};
+        int result = FcpResultPut.Error;
+        
         // check if the keyword returned by freenet is a known keyword
-        for( int i = 0; i < keywords.length; i++ ) {
-            if( text.indexOf(keywords[i]) != -1 ) {
-                result[0] = keywords[i];
+        for(Iterator i=getKeywords().keySet().iterator(); i.hasNext(); ) {
+            String keyword = (String)i.next();
+            if( text.indexOf(keyword) >= 0 ) {
+                result = ((Integer)getKeywords().get(keyword)).intValue();
+                break;
             }
         }
+        
+        String chkKey = null;
+        
         // check if the returned text contains the computed CHK key (key generation)
-        if( text.indexOf("CHK@") > -1 && text.indexOf("EndMessage") > -1 ) {
-            result[1] = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage")).trim();
-        } // else result[1] keeps "Error"
-        return result;
+        int pos = text.indexOf("CHK@"); 
+        if( pos > -1 ) {
+            chkKey = text.substring(pos);
+            chkKey = chkKey.substring(0, chkKey.indexOf('\n'));
+        }
+//      if( text.indexOf("CHK@") > -1 && text.indexOf("EndMessage") > -1 ) {
+//          chkKey = text.substring(text.lastIndexOf("CHK@"), text.lastIndexOf("EndMessage")).trim();
+//      }
+        
+        return new FcpResultPut(result, chkKey);
     }
 
     /**
@@ -81,7 +101,7 @@ public class FcpInsert
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
-    public static String[] putFile(
+    public static FcpResultPut putFile(
             String uri,
             File file,
             byte[] metadata,
@@ -96,7 +116,7 @@ public class FcpInsert
                              "FcpInsert: File "+file.getPath()+" is empty!", // message
                              "Warning",
                              JOptionPane.WARNING_MESSAGE);
-            return ERROR;
+            return FcpResultPut.ERROR_RESULT;
         }
         // Q: can this 32K be enlarged? to same as for CHK keys?
         // A: no, its hardcoded in freenet, each keytype except CHK is limited to 32kb size (data+metadata).
@@ -134,7 +154,7 @@ RawDataLength=0
                          "<br>Please report this to a Frost developer!</html>",
                          "Insert Error",
                          JOptionPane.ERROR_MESSAGE);
-                return ERROR;
+                return FcpResultPut.ERROR_RESULT;
             }
         } else {
 
@@ -143,7 +163,7 @@ RawDataLength=0
                 try {
                     FcpConnection connection = FcpFactory.getFcpConnectionInstance();
                     if( connection == null ) {
-                        return ERROR;
+                        return FcpResultPut.ERROR_RESULT;
                     }
 
                     byte[] data = FileAccess.readByteArray(file);
@@ -156,7 +176,7 @@ RawDataLength=0
                 } catch( Throwable e ) {
                     logger.log(Level.SEVERE, "Throwable", e);
                 }
-                return ERROR;
+                return FcpResultPut.ERROR_RESULT;
             } else {
                 // file is too big, put as FEC splitfile
                 return putFECSplitFile(uri, file, htl, ulItem);
@@ -208,7 +228,7 @@ RawDataLength=0
      * @param ulItem the uploadItem for progress updates or null
      * @return
      */
-    private static String[] putFECSplitFile(String uri, File file,
+    private static FcpResultPut putFECSplitFile(String uri, File file,
                                            int htl, FrostUploadItem ulItem)
     {
         FecSplitfile splitfile =null;
@@ -229,7 +249,7 @@ RawDataLength=0
                 splitfile.encode();
             } catch(Throwable t) {
                 logger.log(Level.SEVERE, "Encoding failed", t);
-                return ERROR;
+                return FcpResultPut.ERROR_RESULT;
             }
         }
 
@@ -364,19 +384,19 @@ RawDataLength=0
                         htl,
                         true); // removeLocalKey, insert with full HTL even if existing in local store
 
-                String[] result = result(resultstr);
+                FcpResultPut result = result(resultstr);
 
-                if( chkKey != null && result[1].indexOf(chkKey) < 0 ) {
+                if( chkKey != null && result.getChkKey() != null && result.getChkKey().indexOf(chkKey) < 0 ) {
                     logger.severe("Error: the CHK keys for redirect file generated by frost and freenet differ:\n" +
-                                   "FreeNet Key ='" + result[1] + "'\n" +
+                                   "FreeNet Key ='" + result.getChkKey() + "'\n" +
                                    "Frost Key   ='" + chkKey + "'");
-                    chkKey = result[1]; // take over freenets key!
+                    chkKey = result.getChkKey(); // take over freenets key!
                 } else if( chkKey == null ) { // attachment upload
                     // attachment uploaded, get key from freenet insert
-                    chkKey = result[1];
+                    chkKey = result.getChkKey();
                 }
 
-                if( result[0].equals("Success") || result[0].equals("KeyCollision") ) {
+                if( result.isSuccess() || result.isKeyCollision() ) {
                     success = true;
                     splitfile.createRedirectFile(false); // create plain redirect file for next insert run
                 } else {
@@ -403,10 +423,10 @@ RawDataLength=0
                 splitfile.finishUpload(false);
             }
             // return this to keep old behaviour ...
-            return new String[] {"Success", chkKey};
+            return new FcpResultPut(FcpResultPut.Success, chkKey);
             // (info: tracking if file is already uploaded today is done by lastUploadDate)
         } else {
-            return ERROR;
+            return FcpResultPut.ERROR_RESULT;
         }
     }
 

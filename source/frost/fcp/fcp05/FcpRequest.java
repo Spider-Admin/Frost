@@ -464,7 +464,7 @@ public class FcpRequest
      * @param dlItem   The DownloadItem for this download for progress updates, or null if there is none.
      * @return null on error, or FcpResults
      */
-    public static FcpResults getFile(String key,
+    public static FcpResultGet getFile(String key,
                                   Long size,
                                   File target,
                                   int htl,
@@ -489,7 +489,7 @@ public class FcpRequest
         }
 
         // First we just download the file, not knowing what lies ahead
-        FcpResults results =null;
+        FcpResultGet results =null;
         String [] metadataLines=null;
 
         results = getKey(key, tempFile, htl, fastDownload);
@@ -653,13 +653,13 @@ Document
     }
 
     // used by getFile
-    private static FcpResults getKey(String key, File target, int htl, boolean fastDownload) {
+    private static FcpResultGet getKey(String key, File target, int htl, boolean fastDownload) {
 
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
             return null;
         }
 
-        FcpResults results = null;
+        FcpResultGet results = null;
 
         FcpConnection connection;
         try {

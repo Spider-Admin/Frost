@@ -15,7 +15,7 @@ public class IndexFileDownloader {
 
     private static Logger logger = Logger.getLogger(IndexFileDownloader.class.getName());
 
-    protected static IndexFileDownloaderResult processDownloadedFile(File target, FcpResults fcpresults, Board board) {
+    protected static IndexFileDownloaderResult processDownloadedFile(File target, FcpResultGet fcpresults, Board board) {
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
             return processDownloadedFile05(target, fcpresults, board);
         } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
@@ -39,7 +39,7 @@ public class IndexFileDownloader {
             tmpFile.deleteOnExit();
     
             // Download the keyfile
-            FcpResults fcpresults = FcpHandler.inst().getFile(
+            FcpResultGet fcpresults = FcpHandler.inst().getFile(
                     downKey,
                     null,
                     tmpFile,
@@ -93,7 +93,7 @@ public class IndexFileDownloader {
         return sharer;
     }
     
-    protected static IndexFileDownloaderResult processDownloadedFile05(File target, FcpResults fcpresults, Board board) {
+    protected static IndexFileDownloaderResult processDownloadedFile05(File target, FcpResultGet fcpresults, Board board) {
         try {
             IndexFileDownloaderResult ifdResult = new IndexFileDownloaderResult();
             
@@ -275,7 +275,7 @@ public class IndexFileDownloader {
         return null;
     }
 
-    protected static IndexFileDownloaderResult processDownloadedFile07(File target, FcpResults fcpresults, Board board) {
+    protected static IndexFileDownloaderResult processDownloadedFile07(File target, FcpResultGet fcpresults, Board board) {
 
         try {
             IndexFileDownloaderResult ifdResult = new IndexFileDownloaderResult();

@@ -40,7 +40,7 @@ public class MessageDownloader {
      * @param logInfo  info for log output
      * @return  null if unexpected Exception occurred, or results indicating state or error
      */
-    protected static MessageDownloaderResult processDownloadedFile(File tmpFile, FcpResults results, String logInfo) {
+    protected static MessageDownloaderResult processDownloadedFile(File tmpFile, FcpResultGet results, String logInfo) {
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
             return processDownloadedFile05(tmpFile, results, logInfo);
         } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
@@ -62,7 +62,7 @@ public class MessageDownloader {
             boolean fastDownload, 
             String logInfo) {
         
-        FcpResults results;
+        FcpResultGet results;
         File tmpFile = null;
         
         try {
@@ -102,7 +102,7 @@ public class MessageDownloader {
      * @param logInfo  info for log output
      * @return  null if unexpected Exception occurred, or results indicating state or error
      */
-    protected static MessageDownloaderResult processDownloadedFile05(File tmpFile, FcpResults results, String logInfo) {
+    protected static MessageDownloaderResult processDownloadedFile05(File tmpFile, FcpResultGet results, String logInfo) {
         
         MessageDownloaderResult mdResult = new MessageDownloaderResult();
 
@@ -328,7 +328,7 @@ public class MessageDownloader {
      * @param logInfo  info for log output
      * @return  null if unexpected Exception occurred, or results indicating state or error
      */
-    protected static MessageDownloaderResult processDownloadedFile07(File tmpFile, FcpResults results, String logInfo) {
+    protected static MessageDownloaderResult processDownloadedFile07(File tmpFile, FcpResultGet results, String logInfo) {
         
         MessageDownloaderResult mdResult = new MessageDownloaderResult();
 

@@ -228,7 +228,6 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
         assert attachment.getFile() != null : "message.getFile() failed!";
 
-        String[] result = { "", "" };
         int uploadHtl = Core.frostSettings.getIntValue("htlUpload");
         logger.info(
             "TOFUP: Uploading attachment "
@@ -238,11 +237,9 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
 
         int maxTries = 3;
         int tries = 0;
-        while (tries < maxTries
-            && !result[0].equals("KeyCollision")
-            && !result[0].equals("Success")) {
+        while (tries < maxTries) {
             try {
-                result = FcpHandler.inst().putFile(
+                FcpResultPut result = FcpHandler.inst().putFile(
                         "CHK@",
                         attachment.getFile(),
                         null,
@@ -250,30 +247,21 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                         true, // doRedirect
                         true, // removeLocalKey, insert with full HTL even if existing in local store
                         new FrostUploadItem(null, null));
+
+                if (result.isSuccess() || result.isKeyCollision()) {
+                    logger.info("TOFUP: Upload of attachment '"+attachment.getFile().getPath()+"' was successful.");
+                    attachment.setKey(result.getChkKey());
+                    attachment.setFilename(attachment.getFile().getName()); // remove path from filename
+                    attachment.setFile(null); // we never want to give out a real pathname, this is paranoia
+                    return true;
+                }
             } catch (Exception ex) {
-                result = new String[1];
-                result[0] = "Error";
+                logger.log(Level.WARNING, "TOFUP: Exception catched, will retry upload of attachment '"+attachment.getFile().getPath()+"'.",ex);
             }
             tries++;
         }
-        if (result[0].equals("KeyCollision") || result[0].equals("Success") || result[0].equals("PutSuccessful")) {
-            logger.info(
-                "TOFUP: Upload of attachment '"
-                    + attachment.getFile().getPath()
-                    + "' was successful.");
-            String chk = result[1];
-            attachment.setKey(chk);
-            attachment.setFilename(attachment.getFile().getName()); // remove path from filename
-
-            attachment.setFile(null); // we never want to give out a real pathname, this is paranoia
-            return true;
-        } else {
-            logger.warning(
-                "TOFUP: Upload of attachment '"
-                    + attachment.getFile().getPath()
-                    + "' was NOT successful.");
-            return false;
-        }
+        logger.warning("TOFUP: Upload of attachment '"+attachment.getFile().getPath()+"' was NOT successful.");
+        return false;
     }
 
     /**

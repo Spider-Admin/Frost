@@ -48,7 +48,7 @@ public class FcpRequest
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return True if download was successful, else false.
      */
-    public static FcpResults getFile(String key,
+    public static FcpResultGet getFile(String key,
                                   Long size,
                                   File target,
                                   boolean createTempFile,
@@ -67,7 +67,7 @@ public class FcpRequest
         }
 
         // First we just download the file, not knowing what lies ahead
-        FcpResults results = getKey(key, tempFile);
+        FcpResultGet results = getKey(key, tempFile);
 
         if( results != null ) {
 
@@ -97,13 +97,13 @@ public class FcpRequest
     }
 
     // used by getFile
-    private static FcpResults getKey(String key, File target) {
+    private static FcpResultGet getKey(String key, File target) {
 
         if( key == null || key.length() == 0 || key.startsWith("null") ) {
             return null;
         }
 
-        FcpResults results = null;
+        FcpResultGet results = null;
 
         FcpConnection connection;
         try {
