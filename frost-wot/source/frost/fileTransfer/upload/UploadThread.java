@@ -119,13 +119,11 @@ class UploadThread extends Thread
     private void upload(boolean sign) { // real upload
 
         String lastUploadDate = null; // NEVER uploaded
-        boolean success = false;
-        String[] result = { "Error", "Error" };
         String currentDate = DateFun.getExtendedDate();
 
         logger.info("Upload of " + file + " with HTL " + htl + " started.");
 
-        result = FcpHandler.inst().putFile(
+        FcpResultPut result = FcpHandler.inst().putFile(
                 "CHK@",
                 file,
                 null, // metadata
@@ -134,28 +132,9 @@ class UploadThread extends Thread
                 true, // removeLocalKey, insert with full HTL even if existing in local store
                 uploadItem); // provide the uploadItem to indicate that this upload is contained in table
 
-        if (result[0].equals("Success") || result[0].equals("KeyCollision") || result[0].equals("PutSuccessful")) {
-            success = true;
-            uploadItem.setKey(result[1]);
+        if (result.isSuccess() || result.isKeyCollision() ) {
+            uploadItem.setKey(result.getChkKey());
             lastUploadDate = currentDate;
-        }
-
-        if (success == false) {
-            // Upload failed
-            logger.warning("Upload of " + file + " was NOT successful.");
-
-            uploadItem.setRetries(uploadItem.getRetries() + 1);
-            if (uploadItem.getRetries() > settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
-                if (settings.getBoolValue(SettingsClass.RESTART_FAILED_UPLOADS)) {
-                    uploadItem.setState(FrostUploadItem.STATE_WAITING);
-                    uploadItem.setRetries(0);
-                } else {
-                    uploadItem.setState(this.nextState);
-                }
-            } else {
-                uploadItem.setState(FrostUploadItem.STATE_WAITING);
-            }
-        } else {
             // Upload succeeded
             logger.info("Upload of " + file + " was successful.");
             SharedFileObject current;
@@ -178,6 +157,21 @@ class UploadThread extends Thread
             synchronized(index) {
                 index.addMine(current, board);
                 index.add(current, board);
+            }
+        } else {
+            // Upload failed
+            logger.warning("Upload of " + file + " was NOT successful.");
+
+            uploadItem.setRetries(uploadItem.getRetries() + 1);
+            if (uploadItem.getRetries() > settings.getIntValue(SettingsClass.UPLOAD_MAX_RETRIES)) {
+                if (settings.getBoolValue(SettingsClass.RESTART_FAILED_UPLOADS)) {
+                    uploadItem.setState(FrostUploadItem.STATE_WAITING);
+                    uploadItem.setRetries(0);
+                } else {
+                    uploadItem.setState(this.nextState);
+                }
+            } else {
+                uploadItem.setState(FrostUploadItem.STATE_WAITING);
             }
         }
         uploadItem.setLastUploadStopTimeMillis(System.currentTimeMillis());

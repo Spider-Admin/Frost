@@ -1,5 +1,5 @@
 /*
-  FcpResults.java / Frost
+  FcpResultsGet.java / Frost
   Copyright (C) 2003  Frost Project <jtcfrost.sourceforge.net>
 
   This program is free software; you can redistribute it and/or
@@ -23,13 +23,13 @@ package frost.fcp;
  * returned from an FCP operation.
  * This class is used by freenet 05 and 07. 07 does not use the metadata. 
  */
-public class FcpResults {
+public class FcpResultGet {
     
     private byte [] rawMetadata = null; // only used by freenet 0.5
     
     private String chkUri = null;
 
-    public FcpResults() {
+    public FcpResultGet() {
     }
 
     /**

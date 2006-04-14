@@ -157,7 +157,7 @@ public class MessageUploader {
                 }
     
                 // try to insert message
-                String[] result = new String[2];
+                FcpResultPut result = null;
     
                 try {
                     String upKey = wa.callback.composeUploadKey(index);
@@ -174,14 +174,15 @@ public class MessageUploader {
                     logger.log(Level.SEVERE, "TOFUP: Error in FcpInsert.putFile."+logInfo, t);
                 }
     
-                if (result == null || result[0] == null || result[1] == null) {
-                    result[0] = "Error";
-                    result[1] = "Error";
-                }
-                
                 final int waitTime = 15000;
-    
-                if (result[0].equals("Success") || result[0].equals("PutSuccessful")) {
+
+                if (result.isRetry()) {
+                    logger.severe("TOFUP: Message upload failed (RouteNotFound)!\n"+logInfo+
+                            "\n(try no. " + tries + " of " + maxTries + "), retrying index " + index);
+                    tries++;
+                    retrySameIndex = true;
+                    
+                } else if (result.isSuccess()) {
                     // msg is probabilistic cached in freenet node, retrieve it to ensure it is in our store
                     File tmpFile = new File(wa.unsentMessageFile.getPath() + ".down");
     
@@ -209,27 +210,27 @@ public class MessageUploader {
                         retrySameIndex = true;
                     }
                     tmpFile.delete();
-                } else {
-                    if (result[0].equals("KeyCollision")) {
-                        if (checkRemoteFile(index, wa)) {
-                            logger.warning("TOFUP: Message seems to be already uploaded (2)."+logInfo);
-                            success = true;
-                        } else {
-                            index++;
-                            logger.warning("TOFUP: Upload collided, increasing index to " + index+"."+logInfo);
-                            Mixed.wait(waitTime);
-                        }
+
+                } else if (result.isKeyCollision()) {
+                    if (checkRemoteFile(index, wa)) {
+                        logger.warning("TOFUP: Message seems to be already uploaded (2)."+logInfo);
+                        success = true;
                     } else {
-                        if (tries > maxTries) {
-                            success = true;
-                            error = true;
-                        } else {
-                            logger.warning("TOFUP: Upload failed, "+logInfo+"\n(try no. " + tries + " of " + maxTries
-                                    + "), retrying index " + index);
-                            tries++;
-                            retrySameIndex = true;
-                            Mixed.wait(waitTime);
-                        }
+                        index++;
+                        logger.warning("TOFUP: Upload collided, increasing index to " + index+"."+logInfo);
+                        Mixed.wait(waitTime);
+                    }
+                } else {
+                    // other error
+                    if (tries > maxTries) {
+                        success = true;
+                        error = true;
+                    } else {
+                        logger.warning("TOFUP: Upload failed, "+logInfo+"\n(try no. " + tries + " of " + maxTries
+                                + "), retrying index " + index);
+                        tries++;
+                        retrySameIndex = true;
+                        Mixed.wait(waitTime);
                     }
                 }
                 // finally delete the index lock file, if we retry this index we keep it
@@ -289,7 +290,7 @@ public class MessageUploader {
     private static boolean downloadMessage(int index, File targetFile, MessageUploaderWorkArea wa) {
         try {
             String downKey = wa.callback.composeDownloadKey(index);
-            FcpResults res = FcpHandler.inst().getFile(
+            FcpResultGet res = FcpHandler.inst().getFile(
                     downKey, 
                     null, 
                     targetFile, 

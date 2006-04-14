@@ -77,7 +77,7 @@ public abstract class FcpHandler {
      * @param doRedirect If true, getFile redirects if possible and downloads the file it was redirected to.
      * @return null on error, or FcpResults
      */
-    public FcpResults getFile(String key,
+    public FcpResultGet getFile(String key,
                                   Long size,
                                   File target,
                                   int htl,
@@ -100,7 +100,7 @@ public abstract class FcpHandler {
      * @param fastDownload  If true request stop if node reports a timeout. If false try until node indicates end.
      * @return null on error, or FcpResults
      */
-    public FcpResults getFile(String key,
+    public FcpResultGet getFile(String key,
                                   Long size,
                                   File target,
                                   int htl,
@@ -126,7 +126,7 @@ public abstract class FcpHandler {
      * @param dlItem   The DownloadItem for this download for progress updates, or null if there is none.
      * @return null on error, or FcpResults
      */
-    public abstract FcpResults getFile(String key,
+    public abstract FcpResultGet getFile(String key,
                                   Long size,
                                   File target,
                                   int htl,
@@ -141,7 +141,7 @@ public abstract class FcpHandler {
      * for inserting e.g. the pubkey.txt file set it to null.
      * This method wraps the calls without the uploadItem.
      */
-    public String[] putFile(
+    public FcpResultPut putFile(
             String uri,
             File file,
             byte[] metadata,
@@ -159,7 +159,7 @@ public abstract class FcpHandler {
      * for inserting e.g. the pubkey.txt file set it to null.
      * Same for uploadItem: if a non-uploadtable file is uploaded, this is null.
      */
-    public abstract String[] putFile(
+    public abstract FcpResultPut putFile(
             String uri,
             File file,
             byte[] metadata,

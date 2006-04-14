@@ -63,7 +63,7 @@ public class IndexFileUploader {
             {
                 logger.info("Trying index file upload to index "+index);
 
-                String[] result = FcpHandler.inst().putFile(
+                FcpResultPut result = FcpHandler.inst().putFile(
                         wa.insertKey + index + ".idx.sha3.zip", // TODO: maybe change the ".zip" in the name, its no zip on 0.7
                         wa.uploadFile,
                         wa.metadata,
@@ -71,23 +71,19 @@ public class IndexFileUploader {
                         false, // doRedirect
                         true); // removeLocalKey, insert with full HTL even if existing in local store
 
-                if( result[0].equals("Success") || result[0].equals("PutSuccessful") ) {
+                if( result.isSuccess() ) {
                     success = true;
                     // my files are already added to totalIdx, we don't need to download this index
                     wa.callback.setSlotUsed(index);
                     logger.info("FILEDN: Index file successfully uploaded.");
                 } else {
-                    if( result[0].equals("KeyCollision") ) {
+                    if( result.isKeyCollision() ) {
                         index = wa.callback.findNextFreeSlot(index);
                         tries = 0; // reset tries
                         logger.info("FILEDN: Index file collided, increasing index.");
                         continue;
                     } else {
-                        String tv = result[0];
-                        if( tv == null ) {
-                            tv = "";
-                        }
-                        logger.info("FILEDN: Unknown upload error (#" + tries + ", '" + tv+ "'), retrying.");
+                        logger.info("FILEDN: Upload error (try #" + tries + "), retrying.");
                     }
                 }
                 tries++;

@@ -309,12 +309,12 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
      * @param htl the HTL to use in this request
      * @return the results filled with metadata
      */
-    public FcpResults getKeyToFile(String keyString,
+    public FcpResultGet getKeyToFile(String keyString,
                                    String filename,
                                    int htl,
                                    boolean fastDownload) throws IOException, FcpToolsException, InterruptedIOException {
 
-        FcpResults result = new FcpResults();
+        FcpResultGet result = new FcpResultGet();
         FreenetKey key = new FreenetKey(keyString);
         logger.fine("KeyString = " + keyString + "\n" +
                     "Key =       " + key + "\n" +

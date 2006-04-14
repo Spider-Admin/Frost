@@ -113,21 +113,8 @@ public class Core implements Savable, FrostEventDispatcher  {
             return false;
         }
         
-        // parse the list of available nodes
-        String nodesUnparsed = null;
-        if( freenetVersion == FcpHandler.FREENET_05 ) {
-            nodesUnparsed = frostSettings.getValue("availableNodes05");
-            if( nodesUnparsed == null ) {
-                // old version
-                nodesUnparsed = frostSettings.getValue("availableNodes");
-            }
-        } else if( freenetVersion == FcpHandler.FREENET_07 ) {
-            nodesUnparsed = frostSettings.getValue("availableNodes07");
-            if( nodesUnparsed == null ) {
-                // old version
-                nodesUnparsed = frostSettings.getValue("availableNodes");
-            }
-        }
+        // get the list of available nodes
+        String nodesUnparsed = frostSettings.getValue("availableNodes");
         
         List nodes = new ArrayList();
 
@@ -172,7 +159,7 @@ public class Core implements Savable, FrostEventDispatcher  {
                 // freenet is online
                 freenetIsOnline = true;
                 
-                // TODO: on 0.7 check for "Testnet=true" and warn user
+                // on 0.7 check for "Testnet=true" and warn user
                 if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
                     for(Iterator i=nodeInfo.iterator(); i.hasNext(); ) {
                         String val = (String)i.next();
@@ -184,6 +171,13 @@ public class Core implements Savable, FrostEventDispatcher  {
             }
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in initializeConnectivity", e);
+        }
+        
+        if( runningOnTestnet ) {
+            MiscToolkit.getInstance().showMessage(
+                    "Your freenet node runs in TESTNET mode, no anonymity is provided!",
+                    JOptionPane.WARNING_MESSAGE,
+                    "Freenet in TESTNET mode");
         }
 
         // We warn the user if there aren't any running nodes
@@ -574,24 +568,46 @@ public class Core implements Savable, FrostEventDispatcher  {
         splashscreen.setText(language.getString("Hypercube fluctuating!"));
         splashscreen.setProgress(40);
 
-        if (!initializeConnectivity()) {
-            System.exit(1);
-        }
-        
         // check if help.zip contains only secure files (no http or ftp links at all)
         CheckHtmlIntegrity chi = new CheckHtmlIntegrity();
         isHelpHtmlSecure = chi.scanZipFile("help/help.zip");
         chi = null;
-
-        // TODO: one time convert, remove later (added: 2005-09-02)
 
         // check if this is a first time startup and maybe skip conversion
         File identitiesFile = new File("identities.xml");
         if( identitiesFile.exists() == false || identitiesFile.length() == 0 ) {
             frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
             frostSettings.setValue("oneTimeUpdate.repairIdentities.didRun", true);
+            
+            // TODO: ask user which freenet version to use, set correct default availableNodes,
+            // allow to import an existing identities file
+            FirstStartupDialog startdlg = new FirstStartupDialog();
+            boolean exitChoosed = startdlg.startDialog();
+            if( exitChoosed ) {
+                System.exit(1);
+            }
+            frostSettings.setValue("freenetVersion", startdlg.getFreenetVersion());
+            if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
+                frostSettings.setValue("availableNodes", "127.0.0.1:8481");
+            } else {
+                frostSettings.setValue("availableNodes", "127.0.0.1:9481");
+            }
+            if( startdlg.getOldIdentitiesFile() != null && startdlg.getOldIdentitiesFile().length() > 0 ) {
+                boolean wasOk = FileAccess.copyFile(startdlg.getOldIdentitiesFile(), "identities.xml");
+                if( wasOk == false ) {
+                    MiscToolkit.getInstance().showMessage(
+                            "Import of old identities.xml file failed.",
+                            JOptionPane.ERROR_MESSAGE,
+                            "Import failed");
+                }
+            }
         }
 
+        if (!initializeConnectivity()) {
+            System.exit(1);
+        }
+
+        // TODO: one time convert, remove later (added: 2005-09-02)
         if( frostSettings.getBoolValue("oneTimeUpdate.convertSigs.didRun") == false ) {
             splashscreen.setText("Convert from old format");
 

@@ -20,10 +20,11 @@ package frost.fileTransfer.upload;
 
 import java.util.*;
 
-import javax.swing.event.EventListenerList;
+import javax.swing.event.*;
 
 import frost.*;
-import frost.identities.LocalIdentity;
+import frost.fcp.*;
+import frost.identities.*;
 
 public class UploadTicker extends Thread {
 
@@ -252,29 +253,35 @@ public class UploadTicker extends Thread {
 
             for (int i = 0; i < model.getItemCount() && !threadLaunched; i++) {
                 FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
-                if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED
-                    || (ulItem.getKey() == null
-                        && ulItem.getState() == FrostUploadItem.STATE_REQUESTED)) {
-                    UploadThread newInsert = null;
-                    if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED) {
-                        // set next state for item to REQUESTED, default is IDLE
-                        // needed to keep the REQUESTED state for real uploading
-                        newInsert = new UploadThread(
-                                this,
-                                ulItem,
-                                settings,
-                                UploadThread.MODE_GENERATE_CHK,
-                                FrostUploadItem.STATE_REQUESTED,
-                                myID);
-                    } else {
-                        // next state will be IDLE (=default)
-                        newInsert = new UploadThread(
-                                this,
-                                ulItem,
-                                settings,
-                                UploadThread.MODE_GENERATE_CHK,
-                                myID);
-                    }
+                if (ulItem.getState() == FrostUploadItem.STATE_ENCODING_REQUESTED ) {
+                    // next state will be IDLE (=default)
+                    UploadThread newInsert = new UploadThread(
+                            this,
+                            ulItem,
+                            settings,
+                            UploadThread.MODE_GENERATE_CHK,
+                            myID);
+                    ulItem.setState(FrostUploadItem.STATE_ENCODING);
+                    newInsert.start();
+                    threadLaunched = true;  // start only 1 thread per loop (=second)
+                }
+                if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 
+                    && ulItem.getState() == FrostUploadItem.STATE_REQUESTED) 
+                {
+                    // 07 uploads don't need a preceeding encode!
+                    continue;
+                }
+                // 05 needs encoding if key==null
+                if (ulItem.getKey() == null && ulItem.getState() == FrostUploadItem.STATE_REQUESTED) {
+                    // set next state for item to REQUESTED, default is IDLE
+                    // needed to keep the REQUESTED state for real uploading
+                    UploadThread newInsert = new UploadThread(
+                            this,
+                            ulItem,
+                            settings,
+                            UploadThread.MODE_GENERATE_CHK,
+                            FrostUploadItem.STATE_REQUESTED,
+                            myID);
                     ulItem.setState(FrostUploadItem.STATE_ENCODING);
                     newInsert.start();
                     threadLaunched = true;  // start only 1 thread per loop (=second)
@@ -288,7 +295,6 @@ public class UploadTicker extends Thread {
 
     private void startUploadThread() {
         if (allocateUploadingThread()) {
-
             FrostUploadItem item = selectNextUploadItem();
             if (item != null) {
                 item.setState(FrostUploadItem.STATE_UPLOADING);
@@ -310,12 +316,13 @@ public class UploadTicker extends Thread {
         FrostUploadItem foundItem = null;
         for (int i = 0; i < model.getItemCount() && foundItem == null; i++) {
             FrostUploadItem ulItem = (FrostUploadItem) model.getItemAt(i);
+            // 07 uploads don't need preceeding encode, so the key can be null
             if (ulItem.getState() == FrostUploadItem.STATE_REQUESTED
                 && ulItem.getSHA1() != null
-                && ulItem.getKey() != null
+                && (ulItem.getKey() != null || FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 )
                 && (ulItem.isEnabled() == null || ulItem.isEnabled().booleanValue()))
                 // file have key after encoding
-                {
+            {
                 foundItem = ulItem;
             }
         }

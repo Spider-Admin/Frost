@@ -616,9 +616,6 @@ public class SettingsClass implements Savable {
         defaults.put("maxMessageDownload", "5");
         defaults.put("messageBase", "news");
 
-        defaults.put("availableNodes05", "127.0.0.1:8481");
-        defaults.put("availableNodes07", "127.0.0.1:9481");
-        
         defaults.put("showSystrayIcon", "true");
         defaults.put("removeFinishedDownloads", "false");
         defaults.put("reducedBlockCheck", "false");
