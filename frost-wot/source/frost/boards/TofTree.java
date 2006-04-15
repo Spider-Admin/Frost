@@ -22,6 +22,7 @@ import java.awt.*;
 import java.awt.event.*;
 import java.io.*;
 import java.util.*;
+import java.util.List;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -38,6 +39,12 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 public class TofTree extends JDragTree implements Savable {
+
+    // pubkey for 0.5: "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM"
+    // pubkey for 0.7: "SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE"
+    private static final String FROST_ANNOUNCE_NAME = "frost-announce";
+    private static final String FREENET_05_FROST_ANNOUNCE_PUBKEY = "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM";
+    private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE";
 
     private class PopupMenuTofTree
         extends JSkinnablePopupMenu
@@ -668,7 +675,41 @@ public class TofTree extends JDragTree implements Savable {
             }
             boardIniFilename = settings.getValue("config.dir") + defaultBoardsFile;
         }
-        return xmlio.loadBoardTree( this, model, boardIniFilename );
+        
+        boolean loadWasOk = xmlio.loadBoardTree( this, model, boardIniFilename );
+        if( !loadWasOk ) {
+            return loadWasOk;
+        }
+
+        // check if the board 'frost-announce' is contained in the list, add it if not found
+        String expectedPubkey;
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            expectedPubkey = FREENET_05_FROST_ANNOUNCE_PUBKEY;
+        } else {
+            expectedPubkey = FREENET_07_FROST_ANNOUNCE_PUBKEY;
+        }
+
+        List existingBoards = model.getAllBoards();
+        boolean boardFound = false;
+        for(Iterator i=existingBoards.iterator(); i.hasNext(); ) {
+            Board b = (Board)i.next();
+            if( b.getName().equals(FROST_ANNOUNCE_NAME) ) {
+                boardFound = true;
+                // check if pubkey is correct
+                if( b.getPublicKey().equals(expectedPubkey) == false ) {
+                    b.setPublicKey(expectedPubkey);
+                    break;
+                }
+            }
+        }
+        if( !boardFound ) {
+            Board newBoard = new Board(FROST_ANNOUNCE_NAME, false);
+            newBoard.setPublicKey(expectedPubkey);
+            Board root = (Board)model.getRoot();
+            model.addNodeToTree(newBoard, root);
+        }
+        
+        return loadWasOk;
     }
 
     /**
