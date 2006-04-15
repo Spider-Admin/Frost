@@ -170,7 +170,9 @@ public class SettingsClass implements Savable {
                                 || key.equals("sent.dir")
                                 || key.equals("temp.dir")
                                 || key.equals("keypool.dir")
-                                || key.equals("archive.dir")) {
+                                || key.equals("archive.dir")
+                                || key.equals("downloadDirectory")
+                                || key.equals("lastUsedDirectory")) {
                             value = setSystemsFileSeparator(value);
                             objValue = value;
                         } else {
@@ -186,7 +188,6 @@ public class SettingsClass implements Savable {
         } catch (Exception e) {
             logger.log(Level.SEVERE, "Exception thrown in readSettingsFile()", e);
         }
-
         try {
             settingsReader.close();
         } catch (Exception e) {
@@ -558,6 +559,8 @@ public class SettingsClass implements Savable {
         defaults.put("sent.dir", "localdata" + fs + "sent" + fs);
         defaults.put("temp.dir", "localdata" + fs + "temp" + fs);
         defaults.put("archive.dir", "archive" + fs);
+        defaults.put("downloadDirectory", "downloads" + fs);
+        defaults.put("lastUsedDirectory", "." + fs);
 
         defaults.put("mainframe.showSimpleTitle", "false");
 
@@ -589,7 +592,6 @@ public class SettingsClass implements Savable {
         defaults.put(BLOCK_BOARDS_FROM_CHECK, "false");
         defaults.put(BLOCK_BOARDS_FROM_OBSERVE, "false");
 
-        defaults.put("downloadDirectory", "downloads" + fs);
         defaults.put("downloadThreads", "3");
         defaults.put(DOWNLOADING_ACTIVATED, "true");
         //        defaults.put("downloadMethodLeastHtl", "false");
@@ -609,7 +611,6 @@ public class SettingsClass implements Savable {
         defaults.put("htlUpload", "21");
         defaults.put("keyDownloadHtl", "24");
         defaults.put("keyUploadHtl", "21");
-        defaults.put("lastUsedDirectory", "." + fs);
         defaults.put("maxAge", "5");
         defaults.put("maxKeys", "500000");
         defaults.put("maxMessageDisplay", "15");
@@ -640,7 +641,7 @@ public class SettingsClass implements Savable {
         defaults.put("userName", "Anonymous");
         defaults.put("audioExtension", ".mp3;.ogg;.wav;.mid;.mod;.flac;.sid");
         defaults.put("videoExtension", ".mpeg;.mpg;.avi;.divx;.asf;.wmv;.rm;.ogm;.mov");
-        defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi");
+        defaults.put("documentExtension", ".doc;.txt;.tex;.pdf;.dvi;.ps;.odt;.sxw;.sdw;.rtf;.pdb;.psw");
         defaults.put("executableExtension", ".exe;.vbs;.jar;.sh;.bat;.bin");
         defaults.put("archiveExtension", ".zip;.rar;.jar;.gz;.arj;.ace;.bz;.tar;.tgz;.tbz");
         defaults.put("imageExtension", ".jpeg;.jpg;.jfif;.gif;.png;.tif;.tiff;.bmp;.xpm");
