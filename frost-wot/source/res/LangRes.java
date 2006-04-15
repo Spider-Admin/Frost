@@ -80,6 +80,15 @@ public class LangRes extends ListResourceBundle {
 	{"Sending IP address to NSA","Sending IP address to the NSA"},
 	{"Wasting more time","Wasting more time"},
 	{"Reaching ridiculous speed...","Reaching ridiculous speed..."},
+    
+    ///////////////////////////////////////////////////
+    // First Startup Dialog
+    ///////////////////////////////////////////////////
+    {"Frost first startup", "Frost first startup"},
+    {"You can create a new identity or import an existing identities.xml file", "You can create a new identity or import an existing identities.xml file"},
+    {"Please choose the version of Freenet you want to use", "Please choose the version of Freenet you want to use"},
+    {"Create new identity", "Create new identity"},
+    {"Import existing identities.xml file", "Import existing identities.xml file"},
 
 	///////////////////////////////////////////////////
     // Welcome message
