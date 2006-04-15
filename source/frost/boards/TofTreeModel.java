@@ -155,5 +155,4 @@ public class TofTreeModel extends DefaultTreeModel {
             selectionModel.setSelectionPath(pathToParent);
         }
     }
-
 }
