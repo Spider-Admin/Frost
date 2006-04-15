@@ -7,9 +7,12 @@ import javax.swing.*;
 import javax.swing.filechooser.FileFilter;
 
 import frost.fcp.*;
+import frost.util.gui.translation.*;
 
 public class FirstStartupDialog extends JDialog {
 
+    private static Language language = Language.getInstance();
+    
     private JPanel jContentPane = null;
     private JLabel jLabel = null;
     private JRadioButton RBfreenet05 = null;
@@ -55,7 +58,7 @@ public class FirstStartupDialog extends JDialog {
 
     private void initialize() {
         this.setSize(424, 262);
-        this.setTitle("Frost first startup");
+        this.setTitle(language.getString("Frost first startup"));
         this.setContentPane(getJContentPane());
         
         getBGfreenetVersion();
@@ -100,7 +103,7 @@ public class FirstStartupDialog extends JDialog {
             gridBagConstraints3.insets = new java.awt.Insets(15,3,0,3);
             gridBagConstraints3.gridy = 3;
             jLabel1 = new JLabel();
-            jLabel1.setText("You can create a new identity or import an existing identities.xml file:");
+            jLabel1.setText(language.getString("You can create a new identity or import an existing identities.xml file")+":");
             GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.gridx = 0;
             gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -120,7 +123,7 @@ public class FirstStartupDialog extends JDialog {
             gridBagConstraints.gridwidth = 2;
             gridBagConstraints.gridy = 0;
             jLabel = new JLabel();
-            jLabel.setText("Please choose the version of Freenet you want to use:");
+            jLabel.setText(language.getString("Please choose the version of Freenet you want to use")+":");
             jContentPane = new JPanel();
             jContentPane.setLayout(new GridBagLayout());
             jContentPane.add(jLabel, gridBagConstraints);
@@ -179,7 +182,7 @@ public class FirstStartupDialog extends JDialog {
     private JRadioButton getRBnewIdentity() {
         if( RBnewIdentity == null ) {
             RBnewIdentity = new JRadioButton();
-            RBnewIdentity.setText("Create new identity");
+            RBnewIdentity.setText(language.getString("Create new identity"));
             RBnewIdentity.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     RBidentitySelectionChanged();
@@ -197,7 +200,7 @@ public class FirstStartupDialog extends JDialog {
     private JRadioButton getRBimportIdentitiesFile() {
         if( RBimportIdentitiesFile == null ) {
             RBimportIdentitiesFile = new JRadioButton();
-            RBimportIdentitiesFile.setText("Import existing identities.xml file");
+            RBimportIdentitiesFile.setText(language.getString("Import existing identities.xml file"));
             RBimportIdentitiesFile.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     RBidentitySelectionChanged();
@@ -261,7 +264,7 @@ public class FirstStartupDialog extends JDialog {
     private JButton getBexit() {
         if( Bexit == null ) {
             Bexit = new JButton();
-            Bexit.setText("Exit");
+            Bexit.setText(language.getString("Exit"));
             Bexit.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     exitChoosed = true;
@@ -281,7 +284,7 @@ public class FirstStartupDialog extends JDialog {
     private JButton getBok() {
         if( Bok == null ) {
             Bok = new JButton();
-            Bok.setText("Ok");
+            Bok.setText(language.getString("OK"));
             Bok.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     exitChoosed = false;
