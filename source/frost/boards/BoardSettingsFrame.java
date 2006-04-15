@@ -126,7 +126,8 @@ public class BoardSettingsFrame extends JDialog {
         setModal(true);
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         initialize();
-        pack();
+        //pack();
+        setSize(400,615);
         setLocationRelativeTo(parentFrame);
     }
 
@@ -163,9 +164,6 @@ public class BoardSettingsFrame extends JDialog {
         }
     }
 
-    /**
-     * @param e
-     */
     private void overrideSettingsCheckBox_actionPerformed(ActionEvent e) {
         setPanelEnabled(settingsPanel, overrideSettingsCheckBox.isSelected());
     }
@@ -179,9 +177,6 @@ public class BoardSettingsFrame extends JDialog {
         return exitState;
     }
 
-    /**
-     * @return
-     */
     private JPanel getSettingsPanel() {
         settingsPanel.setBorder(new CompoundBorder(new EtchedBorder(), new EmptyBorder(5,5,5,5)));
         settingsPanel.setLayout(new GridBagLayout());
@@ -306,7 +301,7 @@ public class BoardSettingsFrame extends JDialog {
 
     private void initialize() {
         JPanel contentPanel = new JPanel();
-        contentPanel.setBorder(new EmptyBorder(10,10,10,10));
+        contentPanel.setBorder(new EmptyBorder(6,6,6,6));
         setContentPane(contentPanel);
         contentPanel.setLayout(new GridBagLayout());
         refreshLanguage();
@@ -319,9 +314,7 @@ public class BoardSettingsFrame extends JDialog {
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.BOTH;
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.weightx = 1;
-        constraints.weighty = 1;
+        constraints.insets = new Insets(3, 3, 3, 3);
         constraints.gridwidth = 3;
 
         constraints.weightx = 2;
@@ -334,13 +327,18 @@ public class BoardSettingsFrame extends JDialog {
         contentPanel.add(descriptionLabel, constraints);
         constraints.gridx = 0;
         constraints.gridy = 2;
+        constraints.weightx = 1;
+        constraints.weighty = 1;
         descriptionScrollPane = new JScrollPane(descriptionTextArea);
         contentPanel.add(descriptionScrollPane, constraints);
+        constraints.weightx = 0;
+        constraints.weighty = 0;
 
         constraints.gridx = 0;
         constraints.gridy = 3;
         contentPanel.add(getSettingsPanel(), constraints);
 
+        constraints.insets = new Insets(3, 3, 0, 3);
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.EAST;
         constraints.gridwidth = 1;
@@ -367,9 +365,6 @@ public class BoardSettingsFrame extends JDialog {
         loadBoardSettings();
     }
 
-    /**
-     * @return
-     */
     private JPanel getKeysPanel() {
         JPanel keysPanel = new JPanel();
         keysPanel.setLayout(new GridBagLayout());
@@ -380,40 +375,54 @@ public class BoardSettingsFrame extends JDialog {
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.gridwidth = 1;
+        constraints.insets = new Insets(0, 0, 3, 0);
         constraints.weighty = 1;
 
         constraints.gridx = 0;
         constraints.gridy = 0;
+        constraints.gridwidth = 2;
         constraints.weightx = 0.2;
         keysPanel.add(publicBoardRadioButton, constraints);
+        constraints.insets = new Insets(3, 0, 3, 0);
 
         constraints.weightx = 0.2;
         constraints.gridy = 1;
+        constraints.gridwidth = 2;
         keysPanel.add(secureBoardRadioButton, constraints);
-        constraints.gridx = 1;
+        
+        constraints.gridx = 2;
+        constraints.gridwidth = 1;
         constraints.weightx = 0.8;
         constraints.fill = GridBagConstraints.NONE;
         constraints.anchor = GridBagConstraints.EAST;
         keysPanel.add(generateKeyButton, constraints);
 
         constraints.anchor = GridBagConstraints.WEST;
-        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.fill = GridBagConstraints.NONE;
         constraints.gridx = 0;
         constraints.gridy = 2;
-        constraints.weightx = 0.2;
+        constraints.gridwidth = 1;
+        constraints.weightx = 0.0;
         keysPanel.add(privateKeyLabel, constraints);
+        constraints.insets = new Insets(3, 3, 3, 0);
         constraints.gridx = 1;
+        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 0.8;
         keysPanel.add(privateKeyTextField, constraints);
 
+        constraints.insets = new Insets(3, 0, 3, 0);
         constraints.gridx = 0;
         constraints.gridy = 3;
-        constraints.weightx = 0.2;
+        constraints.gridwidth = 1;
+        constraints.fill = GridBagConstraints.NONE;
+        constraints.weightx = 0.0;
         keysPanel.add(publicKeyLabel, constraints);
+        constraints.insets = new Insets(3, 3, 3, 0);
         constraints.gridx = 1;
-        constraints.weightx = 0.8;
+        constraints.gridwidth = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.weightx = 1.0;
         keysPanel.add(publicKeyTextField, constraints);
 
         // Adds listeners
@@ -720,9 +729,6 @@ public class BoardSettingsFrame extends JDialog {
         }
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
         if( board.isFolder() ) {
             setTitle(language.getString("Settings for all boards in folder") + " '" + board.getName() + "'");
@@ -764,19 +770,12 @@ public class BoardSettingsFrame extends JDialog {
         descriptionLabel.setText(language.getString("BoardSettingsFrame.description"));
     }
 
-    /**
-     * @return
-     */
     public boolean runDialog() {
         setModal(true); // paranoia
         setVisible(true);
         return exitState;
     }
 
-    /**
-     * @param panel
-     * @param enabled
-     */
     private void setPanelEnabled(JPanel panel, boolean enabled) {
         int componentCount = panel.getComponentCount();
         for (int x = 0; x < componentCount; x++) {
