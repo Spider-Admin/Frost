@@ -137,7 +137,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private void initialize() {
         this.setTitle(language.getString("Search messages"));
         this.setIconImage(new ImageIcon(getClass().getResource("/data/search.gif")).getImage());
-        this.setPreferredSize(new java.awt.Dimension(700,550));
+        this.setSize(new java.awt.Dimension(700,550));
         this.setContentPane(getJContentPane());
         // create button groups
         this.getDate_buttonGroup();
