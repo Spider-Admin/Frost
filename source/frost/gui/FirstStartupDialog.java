@@ -27,6 +27,8 @@ import javax.swing.filechooser.FileFilter;
 
 import frost.fcp.*;
 import frost.util.gui.translation.*;
+import javax.swing.JRadioButton;
+import java.awt.GridBagConstraints;
 
 public class FirstStartupDialog extends JDialog {
 
@@ -50,7 +52,10 @@ public class FirstStartupDialog extends JDialog {
 
     private boolean exitChoosed;
     private int freenetVersion = 0;
+    private boolean isTestnet = false;
     private String oldIdentitiesFile = null;
+
+    private JRadioButton RBfreenet07testnet = null;
     
     public FirstStartupDialog() {
         super();
@@ -94,33 +99,38 @@ public class FirstStartupDialog extends JDialog {
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
+            GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
+            gridBagConstraints21.gridx = 0;
+            gridBagConstraints21.insets = new java.awt.Insets(0,10,0,0);
+            gridBagConstraints21.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints21.gridy = 3;
             GridBagConstraints gridBagConstraints7 = new GridBagConstraints();
             gridBagConstraints7.gridx = 0;
             gridBagConstraints7.gridwidth = 2;
             gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints7.gridy = 7;
+            gridBagConstraints7.gridy = 9;
             GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 0;
             gridBagConstraints6.gridwidth = 2;
             gridBagConstraints6.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints6.weighty = 1.0;
-            gridBagConstraints6.gridy = 6;
+            gridBagConstraints6.gridy = 8;
             GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.gridx = 0;
             gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints5.insets = new java.awt.Insets(0,10,0,0);
-            gridBagConstraints5.gridy = 5;
+            gridBagConstraints5.gridy = 6;
             GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 0;
             gridBagConstraints4.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints4.insets = new java.awt.Insets(0,10,0,0);
-            gridBagConstraints4.gridy = 4;
+            gridBagConstraints4.gridy = 5;
             GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
             gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
             gridBagConstraints3.gridwidth = 2;
             gridBagConstraints3.insets = new java.awt.Insets(15,3,0,3);
-            gridBagConstraints3.gridy = 3;
+            gridBagConstraints3.gridy = 4;
             jLabel1 = new JLabel();
             jLabel1.setText(language.getString("You can create a new identity or import an existing identities.xml file")+":");
             GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
@@ -153,6 +163,7 @@ public class FirstStartupDialog extends JDialog {
             jContentPane.add(getRBimportIdentitiesFile(), gridBagConstraints5);
             jContentPane.add(getPidentitiesFileChooser(), gridBagConstraints6);
             jContentPane.add(getPbuttons(), gridBagConstraints7);
+            jContentPane.add(getRBfreenet07testnet(), gridBagConstraints21);
         }
         return jContentPane;
     }
@@ -183,7 +194,7 @@ public class FirstStartupDialog extends JDialog {
     private JRadioButton getRBfreenet07() {
         if( RBfreenet07 == null ) {
             RBfreenet07 = new JRadioButton();
-            RBfreenet07.setText("Freenet 0.7");
+            RBfreenet07.setText("Freenet 0.7 (darknet)");
             RBfreenet07.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     getBok().setEnabled(true);
@@ -311,6 +322,10 @@ public class FirstStartupDialog extends JDialog {
                         freenetVersion = FcpHandler.FREENET_05;
                     } else if( getRBfreenet07().isSelected() ) {
                         freenetVersion = FcpHandler.FREENET_07;
+                        isTestnet = false;
+                    } else if( getRBfreenet07testnet().isSelected() ) {
+                        freenetVersion = FcpHandler.FREENET_07;
+                        isTestnet = true;
                     }
                     if( getRBnewIdentity().isSelected() ) {
                         oldIdentitiesFile = null;
@@ -366,6 +381,7 @@ public class FirstStartupDialog extends JDialog {
             BGfreenetVersion = new ButtonGroup();
             BGfreenetVersion.add(getRBfreenet05());
             BGfreenetVersion.add(getRBfreenet07());
+            BGfreenetVersion.add(getRBfreenet07testnet());
         }
         return BGfreenetVersion;
     }
@@ -428,6 +444,28 @@ public class FirstStartupDialog extends JDialog {
     }
     public String getOldIdentitiesFile() {
         return oldIdentitiesFile;
+    }
+
+    /**
+     * This method initializes RBfreenet07testnet	
+     * 	
+     * @return javax.swing.JRadioButton	
+     */
+    private JRadioButton getRBfreenet07testnet() {
+        if( RBfreenet07testnet == null ) {
+            RBfreenet07testnet = new JRadioButton();
+            RBfreenet07testnet.setText("Freenet 0.7 (testnet)");
+            RBfreenet07testnet.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    getBok().setEnabled(true);
+                }
+            });
+        }
+        return RBfreenet07testnet;
+    }
+
+    public boolean isTestnet() {
+        return isTestnet;
     }
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"

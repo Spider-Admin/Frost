@@ -602,7 +602,11 @@ public class Core implements Savable, FrostEventDispatcher  {
             if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
                 frostSettings.setValue("availableNodes", "127.0.0.1:8481");
             } else {
-                frostSettings.setValue("availableNodes", "127.0.0.1:9481");
+                if( startdlg.isTestnet() == false ) {
+                    frostSettings.setValue("availableNodes", "127.0.0.1:9481");
+                } else {
+                    frostSettings.setValue("availableNodes", "127.0.0.1:9482");
+                }
             }
             if( startdlg.getOldIdentitiesFile() != null && startdlg.getOldIdentitiesFile().length() > 0 ) {
                 boolean wasOk = FileAccess.copyFile(startdlg.getOldIdentitiesFile(), "identities.xml");
