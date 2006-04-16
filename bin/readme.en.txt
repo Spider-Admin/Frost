@@ -47,3 +47,6 @@ Be aware that you maybe have to configure the Freenet node to allow
 connections from different hosts than localhost! After startup of Frost you
 can change the 'availableNodes' setting in the options dialog.
 
+If (and ONLY if) you inadvertently choosed the wrong freenet version during the
+update, you can set the correct version by changing the frost.ini file. Find the
+line "freenetVersion=" and set it to "freenetVersion=05" or "freenetVersion=07".

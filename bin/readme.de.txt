@@ -52,3 +52,6 @@ in der Konfiguration des Freenetknotens erlaubt werden, das sich andere Rechner
 Wenn Frost einmal gestartet ist, kann man die 'availableNodes' Einstellung auch
 im Optionen Dialog von Frost vornehmen.
 
+Wenn (und NUR wenn) du versehentlich beim Update eine flasche Freenet Version gewählt
+hast, musst du die frost.ini Datei per Hand ändern. Finde in der Datei die Zeile
+"freenetVersion=" und ändere sie zu "freenetVersion=05" oder "freenetVersion=07".
