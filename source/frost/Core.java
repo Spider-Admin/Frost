@@ -102,9 +102,21 @@ public class Core implements Savable, FrostEventDispatcher  {
         // determine configured freenet version
         int freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
         if( freenetVersion <= 0 ) {
-            // no config entry found, default 0.5
-            freenetVersion = FcpHandler.FREENET_05;
+            FreenetVersionDialog dlg = new FreenetVersionDialog();
+            dlg.setVisible(true);
+            if( dlg.isChoosedExit() ) {
+                return false;
+            }
+            if( dlg.isChoosedFreenet05() ) {
+                frostSettings.setValue("freenetVersion", "5");
+            } else if( dlg.isChoosedFreenet07() ) {
+                frostSettings.setValue("freenetVersion", "7");
+            } else {
+                return false;
+            }
+            freenetVersion = frostSettings.getIntValue("freenetVersion"); // 5 or 7
         }
+
         if( freenetVersion != FcpHandler.FREENET_05 && freenetVersion != FcpHandler.FREENET_07 ) {
             MiscToolkit.getInstance().showMessage(
                     "Freenet version is not supported (must be 5 or 7): "+freenetVersion,
