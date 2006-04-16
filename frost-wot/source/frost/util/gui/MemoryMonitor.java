@@ -63,8 +63,8 @@ public class MemoryMonitor extends JPanel {
         if( dialog == null ) {
             dialog = new JFrame();
             dialog.setDefaultCloseOperation(JFrame.DO_NOTHING_ON_CLOSE);
-            dialog.setAlwaysOnTop(true);
-            dialog.add(this);
+//            dialog.setAlwaysOnTop(true); // TODO: since 1.5 !!!
+            dialog.getContentPane().add(this);
             dialog.setSize(225,130);
             dialog.setTitle("Frost Memory Monitor");
             ImageIcon frameIcon = new ImageIcon(getClass().getResource("/data/memmon.png"));
@@ -76,6 +76,19 @@ public class MemoryMonitor extends JPanel {
                     dialog.setVisible(false);
                 }
             });
+            // center on screen
+            Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
+            Dimension splashscreenSize = dialog.getSize();
+            if (splashscreenSize.height > screenSize.height) {
+                splashscreenSize.height = screenSize.height;
+            }
+            if (splashscreenSize.width > screenSize.width) {
+                splashscreenSize.width = screenSize.width;
+            }
+            dialog.setLocation(
+                (screenSize.width - splashscreenSize.width) / 2,
+                (screenSize.height - splashscreenSize.height) / 2);
+
         }
         return dialog;
     }

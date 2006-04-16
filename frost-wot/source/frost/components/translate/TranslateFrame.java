@@ -41,7 +41,7 @@ public class TranslateFrame extends JFrame {
     this.setSize(new Dimension(780, 550));
     this.setResizable(true);
 
-    translatePanel.setPreferredSize(new Dimension(780, 550));
+    translatePanel.setSize(new Dimension(780, 550));
 
     this.getContentPane().add(translatePanel);
     }
