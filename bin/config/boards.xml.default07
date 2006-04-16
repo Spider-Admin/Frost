@@ -35,11 +35,16 @@
     <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
       <name>freenet</name>
       <FrostBoardTreeEntry>
-        <name><![CDATA[frost]]></name>
-      </FrostBoardTreeEntry>
-      <FrostBoardTreeEntry>
         <name><![CDATA[freenet]]></name>
         <description><![CDATA[Board for all common freenet related stuff]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[freenet-refs]]></name>
+        <description><![CDATA[Exchange freenet node references]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[frost]]></name>
+        <description><![CDATA[Discussions about Frost]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
         <name><![CDATA[fuqid]]></name>
