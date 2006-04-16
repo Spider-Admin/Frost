@@ -1073,9 +1073,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     selected.getName());
             if (newname == null)
                 return; // cancel
-            if (selected.isFolder() == false
-                && // double folder names are ok
-            tofTreeModel.getBoardByName(newname) != null) {
+            if (selected.isFolder() == false && // duplicate folder names are ok
+                tofTreeModel.getBoardByName(newname) != null) 
+            {
                 JOptionPane.showMessageDialog(
                     this,
                     "You already have a board with name '" // TODO: translate

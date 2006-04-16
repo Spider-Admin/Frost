@@ -94,17 +94,17 @@ public class TofTreeModel extends DefaultTreeModel {
 
     /**
      * This method looks for a board with the name passed as a parameter. The
-     * comparison is not case sensitive.
+     * comparison is not case sensitive. Folders are ignored.
      * @param boardName the name of the board to look for
-     * @return the FrostBoardObject if there was a board with that name. Null
-     *         otherwise.
+     * @return the FrostBoardObject if there was a board with that name. Null otherwise.
      */
     public Board getBoardByName(String boardName) {
         Board node = (Board) getRoot();
         Enumeration e = node.depthFirstEnumeration();
         while (e.hasMoreElements()) {
             Board child = (Board) e.nextElement();
-            if (child.getName().compareToIgnoreCase(boardName) == 0) {
+            if (child.isFolder() == false &&
+                child.getName().compareToIgnoreCase(boardName) == 0) {
                 return child;
             }
         }
