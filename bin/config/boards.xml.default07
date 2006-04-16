@@ -49,6 +49,14 @@
       <FrostBoardTreeEntry>
         <name><![CDATA[fuqid]]></name>
       </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[successful]]></name>
+        <description><![CDATA[Report successful downloads here]]></description>
+      </FrostBoardTreeEntry>
+      <FrostBoardTreeEntry>
+        <name><![CDATA[unsuccessful]]></name>
+        <description><![CDATA[Request reinserts for unsuccessful downloads here]]></description>
+      </FrostBoardTreeEntry>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
       <name>international</name>
