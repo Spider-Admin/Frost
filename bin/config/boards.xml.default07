@@ -1,26 +1,36 @@
-<?xml version = '1.0' encoding = 'UTF-8'?>
+<?xml version="1.0" encoding="UTF-8"?>
 <FrostBoardTree>
   <FrostBoardTreeEntry isfolder="true" isexpanded="true" >
     <name>Frost Message System</name>
+    <FrostBoardTreeEntry>
+      <name><![CDATA[boards]]></name>
+      <description><![CDATA[Put your boards here]]></description>
+    </FrostBoardTreeEntry>
+    <FrostBoardTreeEntry>
+      <name><![CDATA[sex.boards]]></name>
+      <description><![CDATA[Put your boards here]]></description>
+    </FrostBoardTreeEntry>
     <FrostBoardTreeEntry>
       <name><![CDATA[public]]></name>
       <description><![CDATA[The public board ;-)]]></description>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry>
-      <name><![CDATA[boards]]></name>
-      <description><![CDATA[put your boards here]]></description>
+      <name><![CDATA[news]]></name>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry>
-      <name><![CDATA[sex.boards]]></name>
-      <description><![CDATA[put your boards here]]></description>
+      <name><![CDATA[privacy]]></name>
+    </FrostBoardTreeEntry>
+    <FrostBoardTreeEntry>
+      <name><![CDATA[software]]></name>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry>
       <name><![CDATA[test]]></name>
-      <description><![CDATA[the test board]]></description>
+      <description><![CDATA[The test board]]></description>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry>
       <name><![CDATA[frost-announce]]></name>
       <publicKey><![CDATA[SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE]]></publicKey>
+      <description><![CDATA[Announcement of new Frost versions]]></description>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
       <name>freenet</name>
@@ -29,7 +39,7 @@
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
         <name><![CDATA[freenet]]></name>
-        <description><![CDATA[board for all common freenet related stuff]]></description>
+        <description><![CDATA[Board for all common freenet related stuff]]></description>
       </FrostBoardTreeEntry>
       <FrostBoardTreeEntry>
         <name><![CDATA[fuqid]]></name>
@@ -66,12 +76,6 @@
           <name><![CDATA[fr.freenet.aide]]></name>
           <description><![CDATA[Aide en francais concernant freenet]]></description>
         </FrostBoardTreeEntry>
-      </FrostBoardTreeEntry>
-    </FrostBoardTreeEntry>
-    <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
-      <name>misc</name>
-      <FrostBoardTreeEntry>
-        <name><![CDATA[sex.gayspot]]></name>
       </FrostBoardTreeEntry>
     </FrostBoardTreeEntry>
   </FrostBoardTreeEntry>
