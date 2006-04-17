@@ -65,7 +65,7 @@ class SearchThread extends Thread {
      */
     private Vector getSingleRequests() {
     Vector singleRequests = new Vector();
-    String tmp = request.trim();
+    String tmp = request.trim().toLowerCase();
 
     while(tmp.indexOf(" ") != -1) {
         int pos = tmp.indexOf(" ");
@@ -98,7 +98,7 @@ class SearchThread extends Thread {
             for (int j = 0; j < singleRequests.size(); j++) {
             String singleRequest = (String)singleRequests.elementAt(j);
             if (!singleRequest.startsWith("*")) {
-                if ((filename.toLowerCase()).indexOf(singleRequest) == -1)
+                if (filename.indexOf(singleRequest) == -1)
                 acceptFile = false;
             }
             }
@@ -111,17 +111,17 @@ class SearchThread extends Thread {
             else {
                 boolean accept = false;
                 if (searchType.equals("Audio"))
-                accept = checkType(audioExtension, key.getFilename());
+                accept = checkType(audioExtension, filename);
                 if (searchType.equals("Video"))
-                accept = checkType(videoExtension, key.getFilename());
+                accept = checkType(videoExtension, filename);
                 if (searchType.equals("Images"))
-                accept = checkType(imageExtension, key.getFilename());
+                accept = checkType(imageExtension, filename);
                 if (searchType.equals("Documents"))
-                accept = checkType(documentExtension, key.getFilename());
+                accept = checkType(documentExtension, filename);
                 if (searchType.equals("Executables"))
-                accept = checkType(executableExtension, key.getFilename());
+                accept = checkType(executableExtension, filename);
                 if (searchType.equals("Archives"))
-                accept = checkType(archiveExtension, key.getFilename());
+                accept = checkType(archiveExtension, filename);
                 if (accept)
                 results.add(key);
             }
@@ -399,5 +399,4 @@ class SearchThread extends Thread {
     public void setDownloadModel(DownloadModel model) {
         downloadModel = model;
     }
-
 }
