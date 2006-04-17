@@ -48,7 +48,7 @@ import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
 /**
- * Class hold the more non-gui parts of frame1.java.
+ * Class hold the more non-gui parts of Frost.
  *
  * @pattern Singleton
  *
