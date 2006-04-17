@@ -55,3 +55,10 @@ im Optionen Dialog von Frost vornehmen.
 Wenn (und NUR wenn) du versehentlich beim Update eine flasche Freenet Version gewählt
 hast, musst du die frost.ini Datei per Hand ändern. Finde in der Datei die Zeile
 "freenetVersion=" und ändere sie zu "freenetVersion=05" oder "freenetVersion=07".
+
+
+Hinweis fuer U*ix Benutzer:
+----------------------------
+Nach dem Entpacken der ZIP Datei sind die *.sh Dateien evtl. noch nicht ausfuehrbar.
+Um das 'executable' Bit zu setzen, fuehre folgendes Kommando im Frost Ordner aus:
+"chmod +x *.sh".
