@@ -75,7 +75,6 @@ public class Core implements Savable, FrostEventDispatcher  {
     private Language language = null;
 
     private boolean freenetIsOnline = false;
-//    private boolean freenetIsTransient = false;
 
     private Timer timer = new Timer(true);
 
@@ -119,9 +118,9 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         if( freenetVersion != FcpHandler.FREENET_05 && freenetVersion != FcpHandler.FREENET_07 ) {
             MiscToolkit.getInstance().showMessage(
-                    "Freenet version is not supported (must be 5 or 7): "+freenetVersion,
+                    language.getString("Core.init.UnsupportedFreenetVersionBody")+": "+freenetVersion,
                     JOptionPane.ERROR_MESSAGE,
-                    "Freenet version is not supported");
+                    language.getString("Core.init.UnsupportedFreenetVersionTitle"));
             return false;
         }
         
@@ -144,7 +143,7 @@ public class Core implements Savable, FrostEventDispatcher  {
             MiscToolkit.getInstance().showMessage(
                 "Not a single Freenet node configured. You need at least one.",
                 JOptionPane.ERROR_MESSAGE,
-                "ERROR: No Freenet nodes are available.");
+                "ERROR: No Freenet nodes are configured.");
             return false;
         }
         
@@ -155,14 +154,14 @@ public class Core implements Savable, FrostEventDispatcher  {
             MiscToolkit.getInstance().showMessage(
                     ex.getMessage(),
                     JOptionPane.ERROR_MESSAGE,
-                    "Freenet version is not supported");
+                    language.getString("Core.init.UnsupportedFreenetVersionTitle"));
             return false;
         }
         
         // install our security manager that only allows connections to the configured FCP hosts
         System.setSecurityManager(new FrostSecurityManager());
 
-        // Then we check if the user is running a transient node or not
+        // check if node is online and if we run on 0.7 testnet
         freenetIsOnline = false;
         boolean runningOnTestnet = false;
         try {
@@ -187,9 +186,9 @@ public class Core implements Savable, FrostEventDispatcher  {
         
         if( runningOnTestnet ) {
             MiscToolkit.getInstance().showMessage(
-                    "Your freenet node runs in TESTNET mode, no anonymity is provided!",
+                    language.getString("Core.init.TestnetWarningBody"),
                     JOptionPane.WARNING_MESSAGE,
-                    "Freenet in TESTNET mode");
+                    language.getString("Core.init.TestnetWarningTitle"));
         }
 
         // We warn the user if there aren't any running nodes
@@ -200,24 +199,12 @@ public class Core implements Savable, FrostEventDispatcher  {
                 language.getString("Core.init.NodeNotRunningTitle"));
         }
 
-        // We warn the user if the only node that is running is transient
-//        if (isFreenetTransient() && nodes.size() == 1) {
-//            MiscToolkit.getInstance().showMessage(
-//                language.getString("Core.init.TransientNodeBody"),
-//                JOptionPane.WARNING_MESSAGE,
-//                language.getString("Core.init.TransientNodeTitle"));
-//        }
-
         return true;
     }
 
     public boolean isFreenetOnline() {
         return freenetIsOnline;
     }
-
-//    public boolean isFreenetTransient() {
-//        return freenetIsTransient;
-//    }
 
     private void loadKnownBoards() {
         // load the known boards
@@ -598,7 +585,9 @@ public class Core implements Savable, FrostEventDispatcher  {
             if( exitChoosed ) {
                 System.exit(1);
             }
-            frostSettings.setValue("freenetVersion", startdlg.getFreenetVersion());
+            // set used version
+            frostSettings.setValue("freenetVersion", startdlg.getFreenetVersion()); // 5 or 7
+            // init availableNodes with correct port
             if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
                 frostSettings.setValue("availableNodes", "127.0.0.1:8481");
             } else {

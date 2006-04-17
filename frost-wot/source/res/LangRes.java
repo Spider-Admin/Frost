@@ -513,13 +513,16 @@ public class LangRes extends ListResourceBundle {
                                     + "Please note that automatic board updates were disabled (Menu 'News')!\n"
 									+ "Don't get confused by some error messages ;)\n"},
 	{"Core.init.NodeNotRunningTitle","Error - could not establish a connection to freenet node."},
-	{"Core.init.TransientNodeBody","You are running a TRANSIENT node. Better run a PERMANENT freenet node."},
-	{"Core.init.TransientNodeTitle","Transient node detected"},
 	{"Core.loadIdentities.ConnectionNotEstablishedBody","Frost could not establish a connection to your freenet node(s).\n"
 									+ "For first setup of Frost and creating your identity a connection is needed,\n"
 									+ "later you can run Frost without a connection.\n"
 									+ "Please ensure that you are online and freenet is running, then restart Frost."},
-	{"Core.loadIdentities.ConnectionNotEstablishedTitle","Connect to Freenet node failed"},
+	{"Core.loadIdentities.ConnectionNotEstablishedTitle", "Connect to Freenet node failed"},
+    {"Core.init.TestnetWarningTitle", "Freenet node in TESTNET mode"},
+    {"Core.init.TestnetWarningBody", "Your freenet node runs in TESTNET mode, no anonymity is provided!"},
+    {"Core.init.UnsupportedFreenetVersionTitle", "Freenet version is not supported"},
+    {"Core.init.UnsupportedFreenetVersionBody", "Freenet version is not supported (must be 5 or 7)"},
+    
 	{"Core.loadIdentities.ChooseName","Choose an identity name, it doesn't have to be unique\n"},
 	{"Core.loadIdentities.InvalidNameBody","Your name must not contain a '@'!"},
 	{"Core.loadIdentities.InvalidNameTitle","Invalid identity name"},
