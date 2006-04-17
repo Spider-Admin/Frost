@@ -1,9 +1,6 @@
 package res;
 
-import java.io.*;
 import java.util.*;
-
-import frost.components.translate.*;
 
 public class CleanUpLangRes {
     
@@ -14,73 +11,55 @@ public class CleanUpLangRes {
     static ListResourceBundle origLangResBundle = new LangRes();
     static HashSet origLangResKeys = new HashSet();
     
-    // TODO: read .java using LanguageFile, remove unneeded keys and save using LanguageFile!
+    static LangRes_bg bg = new LangRes_bg();
+    static LangRes_de de = new LangRes_de();
+    static LangRes_es es = new LangRes_es();
+    static LangRes_fr fr = new LangRes_fr();
+    static LangRes_it it = new LangRes_it();
+    static LangRes_ja ja = new LangRes_ja();
+    static LangRes_nl nl = new LangRes_nl();
     
-    
-    
-    /**
-     * @param args
-     */
     public static void main(String[] args) {
         
-        readLangResKeys();
-        
-        readJava("C:\\Projects\\fr-wot\\source\\res\\LangRes_bg.java");
         System.out.println("-----------------------");
-        showDeletedStrings("LangRes_bg", new LangRes_bg());
+        showDeletedStrings(bg.getClass().getName(), bg);
+        showMissingStrings(bg.getClass().getName(), bg);
 
         System.out.println("*********************************************");
 
-        readJava("C:\\Projects\\fr-wot\\source\\res\\LangRes_de.java");
         System.out.println("-----------------------");
-        showDeletedStrings("LangRes_de", new LangRes_de());
+        showDeletedStrings(de.getClass().getName(), de);
+        showMissingStrings(de.getClass().getName(), de);
 
         System.out.println("*********************************************");
 
-        readJava("C:\\Projects\\fr-wot\\source\\res\\LangRes_es.java");
         System.out.println("-----------------------");
-        showDeletedStrings("LangRes_es", new LangRes_es());
+        showDeletedStrings(es.getClass().getName(), es);
+        showMissingStrings(es.getClass().getName(), es);
 
         System.out.println("*********************************************");
 
-        readJava("C:\\Projects\\fr-wot\\source\\res\\LangRes_fr.java");
         System.out.println("-----------------------");
-        showDeletedStrings("LangRes_fr", new LangRes_fr());
+        showDeletedStrings(fr.getClass().getName(), fr);
+        showMissingStrings(fr.getClass().getName(), fr);
 
         System.out.println("*********************************************");
 
-        readJava("C:\\Projects\\fr-wot\\source\\res\\LangRes_it.java");
         System.out.println("-----------------------");
-        showDeletedStrings("LangRes_it", new LangRes_it());
+        showDeletedStrings(it.getClass().getName(), it);
+        showMissingStrings(it.getClass().getName(), it);
 
         System.out.println("*********************************************");
 
-        readJava("C:\\Projects\\fr-wot\\source\\res\\LangRes_ja.java");
         System.out.println("-----------------------");
-        showDeletedStrings("LangRes_ja", new LangRes_ja());
+        showDeletedStrings(ja.getClass().getName(), ja);
+        showMissingStrings(ja.getClass().getName(), ja);
 
         System.out.println("*********************************************");
 
-        readJava("C:\\Projects\\fr-wot\\source\\res\\LangRes_nl.java");
         System.out.println("-----------------------");
-        showDeletedStrings("LangRes_nl", new LangRes_nl());
-    }
-    
-    public static void readJava(String fileName) {
-        TranslateTableModel ttm = new TranslateTableModel();
-        File file = new File(fileName);
-        LanguageFile.readLanguageFile(ttm, file);
-        int count = 0;
-        
-        for(int x=0; x < ttm.getRowCount(); x++) {
-            String key = (String)ttm.getValueAt(x, 0);
-            String val = (String)ttm.getValueAt(x, 1);
-            if( origLangResKeys.contains(key) == false ) {
-                System.out.println("Key not longer in LangRes, but in "+file.getName()+": '"+key+"'");
-                count++;
-            }
-        }
-        System.out.println(">>> Count = "+count);
+        showDeletedStrings(nl.getClass().getName(), nl);
+        showMissingStrings(nl.getClass().getName(), nl);
     }
     
     public static void showDeletedStrings(String className, ListResourceBundle bundle) {
@@ -90,22 +69,24 @@ public class CleanUpLangRes {
             try {
                 origLangResBundle.getString(bundleKey);
             } catch(Throwable t) {
-                System.out.println("Key not longer in LangRes, but in "+className+": '"+bundleKey+"'");
+                System.out.println("Key could be deleted in "+className+": '"+bundleKey+"'");
                 count++;
             }
         }
         System.out.println(">>> Count = "+count);
     }
     
-    public static void readLangResKeys() {
-        TranslateTableModel ttm = new TranslateTableModel();
-        File file = new File("C:\\Projects\\fr-wot\\source\\res\\LangRes.java");
-        LanguageFile.readLanguageFile(ttm, file);
-        
-        for(int x=0; x < ttm.getRowCount(); x++) {
-            String key = (String)ttm.getValueAt(x, 0);
-            origLangResKeys.add(key);
+    public static void showMissingStrings(String className, ListResourceBundle bundle) {
+        int count = 0;
+        for(Enumeration e = origLangResBundle.getKeys(); e.hasMoreElements(); ) {
+            String bundleKey = (String)e.nextElement();
+            try {
+                bundle.getString(bundleKey);
+            } catch(Throwable t) {
+                System.out.println("Key missing in "+className+": '"+bundleKey+"'");
+                count++;
+            }
         }
+        System.out.println(">>> Count = "+count);
     }
-
 }
