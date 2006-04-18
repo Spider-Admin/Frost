@@ -404,9 +404,6 @@ public class TofTree extends JDragTree implements Savable {
         Font boldFont = null;
         Font normalFont = null;
 
-        /**
-         *
-         */
         public CellRenderer() {
             fileSeparator = System.getProperty("file.separator");
             boardIcon = new ImageIcon(getClass().getResource("/data/board.gif"));
@@ -425,9 +422,6 @@ public class TofTree extends JDragTree implements Savable {
             boldFont = normalFont.deriveFont(Font.BOLD);
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.tree.TreeCellRenderer#getTreeCellRendererComponent(javax.swing.JTree, java.lang.Object, boolean, boolean, boolean, int, boolean)
-         */
         public Component getTreeCellRendererComponent(
             JTree tree,
             Object value,
@@ -435,8 +429,8 @@ public class TofTree extends JDragTree implements Savable {
             boolean expanded,
             boolean leaf,
             int row,
-            boolean hasFocus) {
-            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, hasFocus);
+            boolean localHasFocus) {
+            super.getTreeCellRendererComponent(tree, value, sel, expanded, leaf, row, localHasFocus);
 
             Board board = null;
             if (value instanceof Board) {
@@ -517,6 +511,14 @@ public class TofTree extends JDragTree implements Savable {
                     }
                 }
             }
+            
+            // set board description as tooltip
+            if( board.getDescription() != null && board.getDescription().length() > 0 ) {
+                setToolTipText(board.getDescription());
+            } else {
+                setToolTipText(null);
+            }
+            
             return this;
         }
 
@@ -590,6 +592,9 @@ public class TofTree extends JDragTree implements Savable {
         pasteBoardButton.addActionListener(listener);
         configBoardButton.addActionListener(listener);
         configBoardMenuItem.addActionListener(listener);
+        
+        // enable tooltips for this tree
+        ToolTipManager.sharedInstance().registerComponent(this);
 
         // load nodes from disk
         loadTree();
