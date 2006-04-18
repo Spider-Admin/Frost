@@ -414,8 +414,8 @@ static final Object[][] contents = {
 {"Uploading","beim Hochladen"}, //?
 {"Uploads","Hochladen"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"UploadStatusPanel.Uploading", "Hochladen"},
-{"UploadsUnderway.body","Some messages are still being uploaded.\nDo you want to exit anyway?"},
-{"UploadsUnderway.title","Uploads underway"},
+{"UploadsUnderway.body","Einige Nachrichten werden gerade hochgeladen.\nWollen Sie trotzdem beenden?"},
+{"UploadsUnderway.title","Aktive Nachrichtenuploads"},
 {"Use default","Voreinstellung benutzen"}, //?
 {"Use editor for writing messages","Editor zum Verfassen von Nachrichten verwenden"},
 {"Version","Version"},
