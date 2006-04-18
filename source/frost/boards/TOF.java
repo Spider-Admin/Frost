@@ -22,7 +22,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
-import javax.swing.event.ListSelectionEvent;
 import javax.swing.tree.DefaultMutableTreeNode;
 
 import frost.*;
@@ -81,47 +80,6 @@ public class TOF
             initialized = true;
             instance = new TOF(tofTreeModel);
         }
-    }
-
-    /**
-     * Gets the content of the message selected in the tofTable.
-     * @param e This selectionEv ent is needed to determine if the Table is just being edited
-     * @param table The tofTable
-     * @param messages A Vector containing all MessageObjects that are just displayed by the table
-     * @return The content of the message
-     */
-    public FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board)
-    {
-        MessageTableModel tableModel = (MessageTableModel)table.getModel();
-        if( !e.getValueIsAdjusting() && !table.isEditing() )
-        {
-            int row = table.getSelectedRow();
-            if( row != -1 && row < tableModel.getRowCount() )
-            {
-                FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
-
-                if( message != null )
-                {
-                    // Test if lockfile exists, remove it and update the tree display
-                    if( message.isMessageNew() == false ) {
-                        // its a read message, nothing more to do here ...
-                        return message;
-                    }
-
-                    // this is a new message
-                    message.setMessageNew(false); // mark as read
-                    tableModel.updateRow(message);
-
-                    board.decNewMessageCount();
-
-                    MainFrame.getInstance().updateMessageCountLabels(board);
-                    MainFrame.getInstance().updateTofTree(board);
-
-                    return message;
-                }
-            }
-        }
-        return null;
     }
 
     /**

@@ -21,6 +21,7 @@ package frost;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -259,6 +260,18 @@ public class MessagePanel extends JPanel {
         public void show(Component invoker, int x, int y) {
             if (!mainFrame.getTofTreeModel().getSelectedNode().isFolder()) {
                 removeAll();
+                
+                if( messageTable.getSelectedRowCount() > 1 ) {
+                    deleteItem.setEnabled(true);
+                    undeleteItem.setEnabled(true);
+                    add(deleteItem);
+                    add(undeleteItem);
+                    addSeparator();
+                    add(cancelItem);
+                    // ATT: misuse of another menuitem displaying 'Cancel' ;)
+                    super.show(invoker, x, y);
+                    return;
+                }
 
                 if (messageTable.getSelectedRow() > -1) {
                     add(markMessageUnreadItem);
@@ -487,7 +500,8 @@ public class MessagePanel extends JPanel {
             messageTableModel = new MessageTableModel();
             language.addLanguageListener(messageTableModel);
             messageTable = new MessageTable(messageTableModel);
-            messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+//            messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+            messageTable.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
             messageListScrollPane.setWheelScrollingEnabled(true);
@@ -545,6 +559,47 @@ public class MessagePanel extends JPanel {
         messageTable.setFont(font);
     }
 
+    /**
+     * Gets the content of the message selected in the tofTable.
+     * @param e This selectionEv ent is needed to determine if the Table is just being edited
+     * @param table The tofTable
+     * @param messages A Vector containing all MessageObjects that are just displayed by the table
+     * @return The content of the message
+     */
+    public FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board) {
+        MessageTableModel tableModel = (MessageTableModel)table.getModel();
+        if( !e.getValueIsAdjusting() && !table.isEditing() ) {
+            // more than 1 selected row is handled specially, only used to delete/undelete messages
+            if( table.getSelectedRowCount() > 1 ) {
+                return null;
+            }
+            int row = table.getSelectedRow();
+            if( row != -1 && row < tableModel.getRowCount() ) {
+                FrostMessageObject message = (FrostMessageObject)tableModel.getRow(row);
+
+                if( message != null ) {
+                    // Test if lockfile exists, remove it and update the tree display
+                    if( message.isMessageNew() == false ) {
+                        // its a read message, nothing more to do here ...
+                        return message;
+                    }
+
+                    // this is a new message
+                    message.setMessageNew(false); // mark as read
+                    tableModel.updateRow(message);
+
+                    board.decNewMessageCount();
+
+                    MainFrame.getInstance().updateMessageCountLabels(board);
+                    MainFrame.getInstance().updateTofTree(board);
+
+                    return message;
+                }
+            }
+        }
+        return null;
+    }
+    
     private void messageTable_itemSelected(ListSelectionEvent e) {
         Board selectedBoard = mainFrame.getTofTreeModel().getSelectedNode();
         if (selectedBoard.isFolder()) {
@@ -558,8 +613,7 @@ public class MessagePanel extends JPanel {
         }
 
         // board selected
-
-        FrostMessageObject newSelectedMessage = TOF.getInstance().evalSelection(e, messageTable, selectedBoard);
+        FrostMessageObject newSelectedMessage = evalSelection(e, messageTable, selectedBoard);
         if( newSelectedMessage == selectedMessage ) {
             return; // user is reading a message, selection did NOT change
         } else {
@@ -635,36 +689,37 @@ public class MessagePanel extends JPanel {
     }
 
     private void setBadButton_actionPerformed(ActionEvent e) {
-        if (selectedMessage != null) {
-            Identity id = identities.getIdentity(selectedMessage.getFrom());
-            if( id == null ) {
+        if( !isCorrectlySelectedMessage() ) {
+            return;
+        }
+        Identity id = identities.getIdentity(selectedMessage.getFrom());
+        if( id == null ) {
+            return;
+        }
+        if(id.getState() == FrostIdentities.FRIEND) {
+            if (JOptionPane.showConfirmDialog(
+                    parentFrame,
+                    "Are you sure you want to revoke trust to user " // TODO: translate
+                        + selectedMessage.getFrom().substring(0, selectedMessage.getFrom().indexOf("@"))
+                        + " ? \n If you choose yes, future messages from this user will be marked BAD",
+                    "Revoke trust",
+                    JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) 
+            {
                 return;
             }
-            if(id.getState() == FrostIdentities.FRIEND) {
-                if (JOptionPane
-                    .showConfirmDialog(
-                        parentFrame,
-                        "Are you sure you want to revoke trust to user " // TODO: translate
-                            + selectedMessage.getFrom().substring(
-                                0,
-                                selectedMessage.getFrom().indexOf("@"))
-                            + " ? \n If you choose yes, future messages from this user will be marked BAD",
-                        "Revoke trust",
-                        JOptionPane.YES_NO_OPTION)
-                    != 0) {
-                    return;
-                }
-            } else {
-                setGoodButton.setEnabled(false);
-                setCheckButton.setEnabled(false);
-                setBadButton.setEnabled(false);
-                setObserveButton.setEnabled(false);
-                setMessageTrust(FrostIdentities.ENEMY);
-            }
-        }
+        } 
+        // now mark BAD
+        setGoodButton.setEnabled(false);
+        setCheckButton.setEnabled(false);
+        setBadButton.setEnabled(false);
+        setObserveButton.setEnabled(false);
+        setMessageTrust(FrostIdentities.ENEMY);
     }
 
     private void setCheckButton_actionPerformed(ActionEvent e) {
+        if( !isCorrectlySelectedMessage() ) {
+            return;
+        }
         setGoodButton.setEnabled(false);
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
@@ -673,6 +728,9 @@ public class MessagePanel extends JPanel {
     }
 
     private void setObserveButton_actionPerformed(ActionEvent e) {
+        if( !isCorrectlySelectedMessage() ) {
+            return;
+        }
         setGoodButton.setEnabled(false);
         setCheckButton.setEnabled(false);
         setBadButton.setEnabled(false);
@@ -681,33 +739,31 @@ public class MessagePanel extends JPanel {
     }
 
     private void setGoodButton_actionPerformed(ActionEvent e) {
-        if (selectedMessage != null) {
-            Identity id = identities.getIdentity(selectedMessage.getFrom());
-            if( id == null ) {
+        if( !isCorrectlySelectedMessage() ) {
+            return;
+        }
+        Identity id = identities.getIdentity(selectedMessage.getFrom());
+        if( id == null ) {
+            return;
+        }
+        if(id.getState() == FrostIdentities.ENEMY) {
+            if (JOptionPane.showConfirmDialog(
+                    parentFrame,
+                    "Are you sure you want to grant trust to user " // TODO: translate
+                        + selectedMessage.getFrom().substring(0, selectedMessage.getFrom().indexOf("@"))
+                        + " ? \n If you choose yes, future messages from this user will be marked GOOD",
+                    "Grant trust",
+                    JOptionPane.YES_NO_OPTION) == JOptionPane.NO_OPTION) 
+            {
                 return;
             }
-            if(id.getState() == FrostIdentities.ENEMY) {
-                if (JOptionPane
-                    .showConfirmDialog(
-                        parentFrame,
-                        "Are you sure you want to grant trust to user " // TODO: translate
-                            + selectedMessage.getFrom().substring(
-                                0,
-                                selectedMessage.getFrom().indexOf("@"))
-                            + " ? \n If you choose yes, future messages from this user will be marked GOOD",
-                        "Grant trust",
-                        JOptionPane.YES_NO_OPTION)
-                    != 0) {
-                    return;
-                }
-            } else {
-                setGoodButton.setEnabled(false);
-                setCheckButton.setEnabled(false);
-                setBadButton.setEnabled(false);
-                setObserveButton.setEnabled(false);
-                setMessageTrust(FrostIdentities.FRIEND);
-            }
         }
+        // now mark GOOD
+        setGoodButton.setEnabled(false);
+        setCheckButton.setEnabled(false);
+        setBadButton.setEnabled(false);
+        setObserveButton.setEnabled(false);
+        setMessageTrust(FrostIdentities.FRIEND);
     }
 
     private void refreshLanguage() {
@@ -829,58 +885,81 @@ public class MessagePanel extends JPanel {
      * returns true if message was correctly selected
      * @return
      */
-    private boolean isCorrectlySelectedMessage(){
+    private boolean isCorrectlySelectedMessage() {
         int row = messageTable.getSelectedRow();
         if (row < 0
             || selectedMessage == null
             || mainFrame.getTofTreeModel().getSelectedNode() == null
             || mainFrame.getTofTreeModel().getSelectedNode().isFolder() == true)
+        {
             return false;
-
+        }
         return true;
     }
 
     private void deleteSelectedMessage() {
 
-        if(! isCorrectlySelectedMessage() ) {
+        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
             return;
         }
+        
+        // set all selected messages deleted
+        int[] rows = messageTable.getSelectedRows();
+        final ArrayList saveMessages = new ArrayList();
+        for(int x=rows.length-1; x >= 0; x--) {
+            FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+            targetMessage.setDeleted(true);
 
-        final FrostMessageObject targetMessage = selectedMessage;
+            if ( !settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
+                // if we show deleted messages we don't need to remove them from the table
+                messageTableModel.deleteRow(targetMessage);
+                updateMessageCountLabels(mainFrame.getTofTreeModel().getSelectedNode());
+            } else {
+                // needs repaint or the line which crosses the message isn't completely seen
+                getMessageTableModel().updateRow(targetMessage);
+            }
 
-        targetMessage.setDeleted(true);
-
-        if ( ! settings.getBoolValue(SettingsClass.SHOW_DELETED_MESSAGES) ){
-            // if we show deleted messages we don't need to remove them from the table
-            messageTableModel.deleteRow(selectedMessage);
-            updateMessageCountLabels(mainFrame.getTofTreeModel().getSelectedNode());
-        } else {
-            // needs repaint or the line which crosses the message isn't completely seen
-            getMessageTableModel().updateRow(targetMessage);
+            saveMessages.add(targetMessage);
         }
-
+        
         Thread saver = new Thread() {
             public void run() {
                 // save message, we must save the changed deleted state into the xml file
-                targetMessage.save();
-            };
+                for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
+                    FrostMessageObject targetMessage = (FrostMessageObject)i.next();
+                    targetMessage.save();
+                }
+            }
         };
         saver.start();
     }
 
     private void undeleteSelectedMessage(){
-        if(! isCorrectlySelectedMessage() )
-                return;
+        if( messageTable.getSelectedRowCount() <= 1 && !isCorrectlySelectedMessage() ) {
+            return;
+        }
 
-        final FrostMessageObject targetMessage = selectedMessage;
-        targetMessage.setDeleted(false);
-        this.repaint();
+        // set all selected messages deleted
+        int[] rows = messageTable.getSelectedRows();
+        final ArrayList saveMessages = new ArrayList();
+        for(int x=0; x < rows.length; x++) {
+            FrostMessageObject targetMessage = (FrostMessageObject)getMessageTableModel().getRow(rows[x]);
+            targetMessage.setDeleted(false);
 
+            // needs repaint or the line which crosses the message isn't completely seen
+            getMessageTableModel().updateRow(targetMessage);
+
+            saveMessages.add(targetMessage);
+        }
+        
         Thread saver = new Thread() {
             public void run() {
                 // save message, we must save the changed deleted state into the xml file
-                targetMessage.save();
-            };
+                for(Iterator i=saveMessages.iterator(); i.hasNext(); ) {
+                    FrostMessageObject targetMessage = (FrostMessageObject)i.next();
+                    targetMessage.save();
+                }
+            }
         };
         saver.start();
     }
@@ -893,20 +972,13 @@ public class MessagePanel extends JPanel {
         this.parentFrame = parentFrame;
     }
 
-    public void startTruster( FrostMessageObject which, int trustState ) {
-        identities.changeTrust(which.getFrom(), trustState);
-    }
-
     /**
      * Marks current selected message unread
      */
     private void markSelectedMessageUnread() {
-        int row = messageTable.getSelectedRow();
-        if (row < 0
-            || selectedMessage == null
-            || mainFrame.getTofTreeModel().getSelectedNode() == null
-            || mainFrame.getTofTreeModel().getSelectedNode().isFolder() == true)
+        if( !isCorrectlySelectedMessage() ) {
             return;
+        }
 
         FrostMessageObject targetMessage = selectedMessage;
 
@@ -949,8 +1021,7 @@ public class MessagePanel extends JPanel {
     }
 
     private void setMessageTrust(int newState) {
-        int row = messageTable.getSelectedRow();
-        if (row < 0 || selectedMessage == null) {
+        if( !isCorrectlySelectedMessage() ) {
             return;
         }
         if( selectedMessage.getSignatureStatus() == VerifyableMessageObject.SIGNATURESTATUS_VERIFIED ) {
@@ -999,6 +1070,7 @@ public class MessagePanel extends JPanel {
         if (nextMessage == -1) {
             // TODO: code to move to next board.
         } else {
+            messageTable.removeRowSelectionInterval(0, getMessageTableModel().getRowCount()-1);
             messageTable.addRowSelectionInterval(nextMessage, nextMessage);
             messageListScrollPane.getVerticalScrollBar().setValue(nextMessage * messageTable.getRowHeight());
         }
