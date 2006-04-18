@@ -57,7 +57,7 @@ static final Object[][] contents = {
 {"AvailableSkins","Vorhandene Skins"},
 {"Background color if updating board is selected","Hintergrundfarbe für aktualisierndes Forum (ausgewählt)"},
 {"Background color if updating board is not selected","Hintergrundfarbe für aktualisierendes Forum (nicht ausgewählt)"},
-{"Bad","Bad"},
+{"Bad","BAD"},
 {"batch explanation","(größer ist schneller, kleiner ist spamsicherer)"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Block messages with body containing (separate by ';' )","Blockiere Nachrichtentexte mit (trenne mit ';' )"},
 {"Block messages with subject containing (separate by ';' )","Blockiere Nachrichten, die im Titel folgendes enthalten (trenne mit ';' )"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
@@ -88,6 +88,7 @@ static final Object[][] contents = {
 {"Content","Inhalt"},
 {"Copy keys only","CHK-Schlüssel"},
 {"Copy keys with filenames","CHK-Schlüssel und Dateiname"},
+{"Check", "CHECK"},
 {"Choose","Auswählen"},
 {"Choose a Font","Schriftart auswählen"},
 {"Choose boards","Foren auswählen"},
@@ -192,6 +193,7 @@ static final Object[][] contents = {
 {"FrostSearchItemObject.Offline","Offline"},
 {"Generate new keypair","Neues Schlüsselpaar generieren"},
 {"German","Deutsch"},
+{"Good", "GOOD"},
 {"Help","Hilfe"},
 {"Help spread files from people marked GOOD","Leute, die als 'GOOD' markiert sind, untertützen"},
 {"help user (sets to GOOD)","Nutzer unterstützen (auf 'GOOD' setzen)"},
@@ -199,6 +201,7 @@ static final Object[][] contents = {
 {"Hide files from people marked BAD","Dateien von mit 'BAD' markierten Leuten verbergen"},
 {"Hide messages flagged BAD","Mit 'BAD' markierte Nachrichten verbergen"},
 {"Hide messages flagged CHECK","Mit 'CHECK' markierte Nachrichten verbergen"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
+{"Hide messages flagged OBSERVE","Mit 'OBSERVE' markierte Nachrichten verbergen"}, 
 //{"Hide messages flagged N/A","Mit N/A markierte Nachrichten verbergen"},
 {"Hide messages with trust states","Nachrichten von Nutzern mit folgenden Vertrauensstatus verbergen"},
 {"Hide unsigned messages","Unsignierte Nachrichten verbergen"}, //Menü: Optionen -> Einstellungen -> Nachrichten(2)
@@ -247,6 +250,8 @@ static final Object[][] contents = {
 {"Message Body","Nachrichtenrumpf"},
 {"Message download HTL","Nachrichten herunterladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Nachrichten(1)
 {"Message List","Nachrichtenliste"},
+{"Message must contain board attachments", "Nachricht muß angehängte Foren haben"},
+{"Message must contain file attachments", "Nachricht muß angehängte Dateien haben"},
 {"Message upload HTL","Nachrichten hochladen mit HTL"}, //Menü: Optionen -> Einstellungen -> Nachrichten(1)
 {"Messages","Nachrichten"},
 {"Messages Today","Heutige Nachrichten"},
@@ -275,6 +280,8 @@ static final Object[][] contents = {
 {"No","Nein"},
 {"No 'From' specified!","Absender fehlt!"},
 {"No subject specified!","Kein Betreff!"},
+{"No trust state is selected.", "Kein Vertrauensstatus ist gewählt!"},
+{"None (unsigned)", "NONE (unsigned)"},
 {"NoSkinsFound","Keine Skins gefunden"},
 {"Not available","Nicht vorhanden"},
 {"Number of concurrently updating boards","Gleichzeitig aktualisierte Foren"},
@@ -284,14 +291,15 @@ static final Object[][] contents = {
 {"Number of simultaneous downloads","Gleichzeitige Downloads"},
 {"Number of simultaneous uploads","Gleichzeitige Uploads"},
 {"Number of splitfile threads","Splitfile-Threads insgesamt"}, //Menü: Optionen -> Einstellungen -> Hochladen/Runterladen
-{"observe user (OBSERVE)","Nutzer beobachten (OBSERVERE)"},
+{"Observe", "OBSERVE"},
+{"observe user (OBSERVE)","Nutzer beobachten (OBSERVE)"},
 {"Off","Aus"},
 {"OK","OK"},
 {"On","An"},
 {"Open message","Nachricht öffnen"},
 {"Open Source Project (GPL license)","Open-Source-Projekt (GPL-Lizenz)"},
 {"Options","Optionen"},
-{"Override default settings","Override default settings"},
+{"Override default settings","Voreinstellungen überschreiben"},
 {"Paste","Einfügen"},
 {"Paste board","Forum einfügen"},
 {"Path","Pfad"},
@@ -341,8 +349,15 @@ static final Object[][] contents = {
 {"Save message","Nachricht speichern"},
 {"Save message to disk","Nachricht speichern"},
 {"Search","Suchen"},
+{"Search all dates", "Suche jedes Datum"},
+{"Search all messages, no matter which trust state is set", "in allen Nachrichten suchen"},
+{"Search between dates", "Suche zwischen Datum"},
 {"Search following boards","nur gewählte Foren durchsuchen"},
 {"Search in displayed boards","in angezeigten Foren suchen"},
+{"Search in keypool and archive", "im Archiv und Keypool suchen"},
+{"Search in messages that would be displayed", "in Nachrichten suchen, die auch angezeigt werden"},
+{"Search number of days backward", "Anzahl Tage rückwärts suchen"},
+{"Search only in messages with following trust state", "nur in Nachrichten suchen mit folgenden Vertrauensstatus"},
 {"Search result","Suchergebnis"},
 {"Search messages","Nachrichten durchsuchen"},
 {"Search only in archive","nur im Archiv suchen"},
@@ -392,6 +407,7 @@ static final Object[][] contents = {
 {"State","Status"}, // Zustand?
 {"Status","Status"},
 {"Subject","Betreff"},
+{"Tampered", "FAKE"},
 {"This will not delete messages","Dadurch werden keine Nachrichten gelöscht"}, //Popup?
 {"Threshold of blocked messages","Grenzwert für blockierte Nachrichten"},
 {"TOFDO","TOFDO"},
