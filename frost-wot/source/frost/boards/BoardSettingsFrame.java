@@ -127,7 +127,7 @@ public class BoardSettingsFrame extends JDialog {
         enableEvents(AWTEvent.WINDOW_EVENT_MASK);
         initialize();
         //pack();
-        setSize(400,615);
+        setSize(430,615);
         setLocationRelativeTo(parentFrame);
     }
 

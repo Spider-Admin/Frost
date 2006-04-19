@@ -813,7 +813,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			logger.info("Executing: " + file.getPath());
 			if (file.exists()) {
                 try {
-                    Execute.simple_run("exec.bat" + " \"" + file.getPath() + "\"");
+                    Execute.simple_run(new String[] {"exec.bat", file.getPath()} );
                 } catch(Throwable t) {
                     JOptionPane.showMessageDialog(this,
                             "Could not open the file: "+file.getName()+"\n"+t.toString(),
