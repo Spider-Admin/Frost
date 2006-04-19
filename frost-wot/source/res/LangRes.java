@@ -376,8 +376,6 @@ public class LangRes extends ListResourceBundle {
 	{"splitfile explanation","(bigger is faster but uses more cpu)"},
 	{"Upload batch size","Upload batch size"},
 	{"batch explanation", "bigger is faster but smaller is spam resistant"},
-	{"Index file redundancy","Index file redundancy"},
-	{"redundancy explanation", "not working yet"},
 
 	// News (1) Panel
 	{"Message upload HTL", "Message upload HTL"},
@@ -479,6 +477,8 @@ public class LangRes extends ListResourceBundle {
 	{"File List","File List"},
 	{"Choose","Choose"},
 	{"EnableMessageBodyAA", "Enable antialiasing for Message Body"},
+    {"EnableMsgTableMultilineSelect", "Enable multiline selections in message table"},
+    {"ShowBoardDescTooltips", "Show tooltip with board description in board tree"},
 
 	///////////////////////////////////////////////////
 	// Board Information Window

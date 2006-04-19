@@ -21,6 +21,7 @@ package frost;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.util.*;
 import java.util.logging.*;
 
@@ -38,7 +39,7 @@ import frost.messages.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-public class MessagePanel extends JPanel {
+public class MessagePanel extends JPanel implements PropertyChangeListener {
 
     private MessageTable messageTable = null;
     private MessageTableModel messageTableModel = null;
@@ -490,18 +491,27 @@ public class MessagePanel extends JPanel {
         }
         return popupMenuMessageTable;
     }
+    
+    private void updateMsgTableMultilineSelect() {
+        if( Core.frostSettings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT) ) {
+            messageTable.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+        } else {
+            messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
+        }
+    }
 
     public void initialize() {
         if (!initialized) {
             refreshLanguage();
             language.addLanguageListener(listener);
+            
+            Core.frostSettings.addPropertyChangeListener(SettingsClass.MSGTABLE_MULTILINE_SELECT, this);
 
             // build messages list scroll pane
             messageTableModel = new MessageTableModel();
             language.addLanguageListener(messageTableModel);
             messageTable = new MessageTable(messageTableModel);
-//            messageTable.setSelectionMode(DefaultListSelectionModel.SINGLE_SELECTION);
-            messageTable.setSelectionMode(DefaultListSelectionModel.MULTIPLE_INTERVAL_SELECTION);
+            updateMsgTableMultilineSelect();
             messageTable.getSelectionModel().addListSelectionListener(listener);
             messageListScrollPane = new JScrollPane(messageTable);
             messageListScrollPane.setWheelScrollingEnabled(true);
@@ -566,7 +576,7 @@ public class MessagePanel extends JPanel {
      * @param messages A Vector containing all MessageObjects that are just displayed by the table
      * @return The content of the message
      */
-    public FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board) {
+    private FrostMessageObject evalSelection(ListSelectionEvent e, JTable table, Board board) {
         MessageTableModel tableModel = (MessageTableModel)table.getModel();
         if( !e.getValueIsAdjusting() && !table.isEditing() ) {
             // more than 1 selected row is handled specially, only used to delete/undelete messages
@@ -1084,5 +1094,11 @@ public class MessagePanel extends JPanel {
     }
     public MessageTextPane getMessageTextPane() {
         return messageTextPane;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.MSGTABLE_MULTILINE_SELECT)) {
+            updateMsgTableMultilineSelect();
+        }
     }
 }

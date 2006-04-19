@@ -34,13 +34,6 @@ class DownloadPanel extends JPanel {
 
     public class Listener implements ChangeListener, ActionListener {
 
-        public Listener() {
-            super();
-        }
-
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == disableDownloadsCheckBox) {
                 refreshComponentsState();
@@ -50,9 +43,6 @@ class DownloadPanel extends JPanel {
             }
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
-         */
         public void stateChanged(ChangeEvent e) {
             if (e.getSource() == enableRequestingCheckBox) {
                 refreshComponentsState();
@@ -61,7 +51,6 @@ class DownloadPanel extends JPanel {
                 refreshComponentsState();
             }
         }
-
     }
 
     private JDialog owner = null;
@@ -127,9 +116,6 @@ class DownloadPanel extends JPanel {
         }
     }
 
-    /**
-     * @return
-     */
     private JPanel getRequestPanel() {
         JPanel subPanel = new JPanel(new GridBagLayout());
 
@@ -149,16 +135,12 @@ class DownloadPanel extends JPanel {
         return subPanel;
     }
 
-    /**
-     * @return
-     */
     private JPanel getRetriesPanel() {
         JPanel subPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.weighty = 1;
+        constraints.insets = new Insets(0, 5, 5, 5);
 
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -179,9 +161,6 @@ class DownloadPanel extends JPanel {
         return subPanel;
     }
 
-    /**
-     *
-     */
     private void initialize() {
         setName("DownloadPanel");
         setLayout(new GridBagLayout());
@@ -198,10 +177,10 @@ class DownloadPanel extends JPanel {
         //Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         Insets insets0555 = new Insets(0, 5, 5, 5);
         Insets insets5555 = new Insets(5, 5, 5, 5);
         Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
-        constraints.weighty = 1;
 
         constraints.gridwidth = 4;
         constraints.insets = insets0555;
@@ -226,7 +205,7 @@ class DownloadPanel extends JPanel {
         add(browseDirectoryButton, constraints);
 
         constraints.insets = insets5_30_5_5;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
+//        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.gridx = 0;
         constraints.gridy = 2;
         constraints.weightx = 0;
@@ -236,7 +215,7 @@ class DownloadPanel extends JPanel {
         constraints.insets = insets5555;
         constraints.gridx = 1;
         constraints.weightx = 1;
-        constraints.anchor = GridBagConstraints.CENTER;
+//        constraints.anchor = GridBagConstraints.CENTER;
         constraints.fill = GridBagConstraints.BOTH;
         add(getRetriesPanel(), constraints);
 
@@ -284,6 +263,7 @@ class DownloadPanel extends JPanel {
         constraints.gridy = 8;
         add(tryAllSegmentsCheckBox, constraints);
         constraints.gridy = 9;
+        constraints.weighty = 1;
         add(decodeAfterEachSegmentCheckBox, constraints);
 
         // Add listeners
@@ -313,16 +293,10 @@ class DownloadPanel extends JPanel {
         refreshComponentsState();
     }
 
-    /**
-     *
-     */
     public void ok() {
         saveSettings();
     }
 
-    /**
-     *
-     */
     private void refreshComponentsState() {
         boolean downloadsEnabled = !disableDownloadsCheckBox.isSelected();
         if (downloadsEnabled) {
@@ -338,9 +312,6 @@ class DownloadPanel extends JPanel {
         }
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
         String off = language.getString("Off");
         String on = language.getString("On");
@@ -392,9 +363,6 @@ class DownloadPanel extends JPanel {
         settings.setValue("downloadDecodeAfterEachSegment", decodeAfterEachSegmentCheckBox.isSelected());
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.Component#setEnabled(boolean)
-     */
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
 
@@ -402,5 +370,4 @@ class DownloadPanel extends JPanel {
         exceptions.add(disableDownloadsCheckBox);
         MiscToolkit.getInstance().setContainerEnabled(this, enabled, exceptions);
     }
-
 }

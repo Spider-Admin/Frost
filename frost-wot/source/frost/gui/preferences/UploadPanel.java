@@ -31,23 +31,13 @@ import frost.util.gui.translation.Language;
 
 class UploadPanel extends JPanel {
 
-    /**
-     *
-     */
     private class Listener implements ChangeListener,ActionListener {
-
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == disableRequestsCheckBox) {
                 refreshComponentsState();
             }
         }
 
-        /* (non-Javadoc)
-         * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
-         */
         public void stateChanged(ChangeEvent e) {
             if (e.getSource() == restartFailedUploadsCheckBox) {
                 refreshComponentsState();
@@ -72,9 +62,6 @@ class UploadPanel extends JPanel {
     private JLabel htlLabel = new JLabel();
 
     private JTextField htlTextField = new JTextField(8);
-    private JLabel indexFileRedundancyExplanationLabel = new JLabel();
-    private JLabel indexFileRedundancyLabel = new JLabel();
-    private JTextField indexFileRedundancyTextField = new JTextField(8);
 
     private JCheckBox restartFailedUploadsCheckBox = new JCheckBox();
     private JLabel maxRetriesLabel = new JLabel();
@@ -103,16 +90,12 @@ class UploadPanel extends JPanel {
         loadSettings();
     }
 
-    /**
-     * @return
-     */
     private JPanel getRetriesPanel() {
         JPanel subPanel = new JPanel(new GridBagLayout());
 
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.insets = new Insets(5, 5, 5, 5);
-        constraints.weighty = 1;
+        constraints.insets = new Insets(0, 5, 5, 5);
 
         constraints.gridx = 0;
         constraints.gridy = 0;
@@ -133,9 +116,6 @@ class UploadPanel extends JPanel {
         return subPanel;
     }
 
-    /**
-     *
-     */
     private void initialize() {
         setName("UploadPanel");
         setLayout(new GridBagLayout());
@@ -144,7 +124,6 @@ class UploadPanel extends JPanel {
         // We create the components
         new TextComponentClipboardMenu(batchSizeTextField, language);
         new TextComponentClipboardMenu(htlTextField, language);
-        new TextComponentClipboardMenu(indexFileRedundancyTextField, language);
         new TextComponentClipboardMenu(splitfileThreadsTextField, language);
         new TextComponentClipboardMenu(threadsTextField, language);
         new TextComponentClipboardMenu(maxRetriesTextField, language);
@@ -153,10 +132,10 @@ class UploadPanel extends JPanel {
         //Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
         constraints.fill = GridBagConstraints.HORIZONTAL;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         Insets insets0555 = new Insets(0, 5, 5, 5);
         Insets insets5555 = new Insets(5, 5, 5, 5);
         Insets insets5_30_5_5 = new Insets(5, 30, 5, 5);
-        constraints.weighty = 1;
 
         constraints.weightx = 1;
         constraints.gridwidth = 3;
@@ -166,7 +145,7 @@ class UploadPanel extends JPanel {
         add(disableRequestsCheckBox, constraints);
 
         constraints.insets = insets5_30_5_5;
-        constraints.anchor = GridBagConstraints.NORTHWEST;
+//        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.gridx = 0;
         constraints.gridy = 1;
         constraints.weightx = 0;
@@ -176,7 +155,7 @@ class UploadPanel extends JPanel {
         constraints.insets = insets5555;
         constraints.gridx = 1;
         constraints.weightx = 1;
-        constraints.anchor = GridBagConstraints.CENTER;
+//        constraints.anchor = GridBagConstraints.CENTER;
         constraints.fill = GridBagConstraints.BOTH;
         add(getRetriesPanel(), constraints);
 
@@ -237,17 +216,8 @@ class UploadPanel extends JPanel {
         constraints.gridx = 1;
         add(batchSizeTextField, constraints);
         constraints.gridx = 2;
+        constraints.weighty = 1;
         add(batchSizeExplanationLabel, constraints);
-
-        constraints.insets = insets5_30_5_5;
-        constraints.gridx = 0;
-        constraints.gridy = 8;
-        add(indexFileRedundancyLabel, constraints);
-        constraints.insets = insets5555;
-        constraints.gridx = 1;
-        add(indexFileRedundancyTextField, constraints);
-        constraints.gridx = 2;
-        add(indexFileRedundancyExplanationLabel, constraints);
 
         // Add listeners
         disableRequestsCheckBox.addActionListener(listener);
@@ -266,7 +236,6 @@ class UploadPanel extends JPanel {
         htlTextField.setText(settings.getValue("htlUpload"));
         threadsTextField.setText(settings.getValue("uploadThreads"));
         batchSizeTextField.setText(settings.getValue("uploadBatchSize"));
-        indexFileRedundancyTextField.setText(settings.getValue("indexFileRedundancy"));
         splitfileThreadsTextField.setText(settings.getValue("splitfileUploadThreads"));
         disableRequestsCheckBox.setSelected(settings.getBoolValue(SettingsClass.DISABLE_REQUESTS));
         restartFailedUploadsCheckBox.setSelected(settings.getBoolValue(SettingsClass.RESTART_FAILED_UPLOADS));
@@ -276,9 +245,6 @@ class UploadPanel extends JPanel {
         refreshComponentsState();
     }
 
-    /**
-     *
-     */
     private void refreshComponentsState() {
         boolean uploadsEnabled = !disableRequestsCheckBox.isSelected();
         if (uploadsEnabled) {
@@ -292,16 +258,10 @@ class UploadPanel extends JPanel {
         }
     }
 
-    /**
-     *
-     */
     public void ok() {
         saveSettings();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
         String minutes = language.getString("minutes");
         disableRequestsCheckBox.setText(language.getString("Disable uploads"));
@@ -323,9 +283,6 @@ class UploadPanel extends JPanel {
                 language.getString("splitfile explanation"));
         batchSizeLabel.setText(language.getString("Upload batch size"));
         batchSizeExplanationLabel.setText(language.getString("batch explanation"));
-        indexFileRedundancyLabel.setText(language.getString("Index file redundancy"));
-        indexFileRedundancyExplanationLabel.setText(
-                language.getString("redundancy explanation"));
     }
 
     /**
@@ -335,7 +292,6 @@ class UploadPanel extends JPanel {
         settings.setValue("htlUpload", htlTextField.getText());
         settings.setValue("uploadThreads", threadsTextField.getText());
         settings.setValue("uploadBatchSize", batchSizeTextField.getText());
-        settings.setValue("indexFileRedundancy", indexFileRedundancyTextField.getText());
         settings.setValue("splitfileUploadThreads", splitfileThreadsTextField.getText());
         settings.setValue(SettingsClass.DISABLE_REQUESTS, disableRequestsCheckBox.isSelected());
         settings.setValue("signUploads", signUploadsCheckBox.isSelected());
@@ -347,9 +303,6 @@ class UploadPanel extends JPanel {
         settings.setValue(SettingsClass.UPLOAD_RETRIES_WAIT_TIME, waitTimeTextField.getText());
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.Component#setEnabled(boolean)
-     */
     public void setEnabled(boolean enabled) {
         super.setEnabled(enabled);
 

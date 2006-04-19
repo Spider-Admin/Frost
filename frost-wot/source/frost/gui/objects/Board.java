@@ -175,11 +175,12 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     }
 
 
-    /**
-     * @return
-     */
     public String getDescription() {
         return boardDescription;
+    }
+
+    public void setDescription(String desc) {
+        boardDescription = desc;
     }
 
     /**

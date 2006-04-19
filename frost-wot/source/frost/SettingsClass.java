@@ -66,6 +66,9 @@ public class SettingsClass implements Savable {
     public static final String UPLOAD_MAX_RETRIES = "uploadMaxRetries";
     public static final String UPLOAD_RETRIES_WAIT_TIME = "uploadRetriesWaitTime";
 
+    public static final String MSGTABLE_MULTILINE_SELECT = "messageTableMultilineSelect";
+    public static final String SHOW_BOARDDESC_TOOLTIPS = "showBoardDescriptionTooltips";
+    
     public static final String HIDE_MESSAGES_OBSERVE = "hideObserveMessages";
     public static final String HIDE_MESSAGES_CHECK = "hideCheckMessages";
     public static final String HIDE_MESSAGES_BAD = "hideBadMessages";
@@ -629,7 +632,6 @@ public class SettingsClass implements Savable {
         defaults.put("tofUploadHtl", "21");
         defaults.put("uploadThreads", "3");
         defaults.put("uploadBatchSize", "100");
-        defaults.put("indexFileRedundancy", "1");
         defaults.put("uploadingActivated", "true");
         defaults.put("automaticIndexing", "true");
         defaults.put("shareDownloads", "true");
@@ -675,6 +677,8 @@ public class SettingsClass implements Savable {
         defaults.put(FILE_LIST_FONT_SIZE, "11");
 
         defaults.put("messageBodyAA", "false");
+        defaults.put(MSGTABLE_MULTILINE_SELECT, "false");
+        defaults.put(SHOW_BOARDDESC_TOOLTIPS, "true");
 
         defaults.put(LOG_TO_FILE, "true");
         defaults.put(LOG_LEVEL, Logging.DEFAULT);

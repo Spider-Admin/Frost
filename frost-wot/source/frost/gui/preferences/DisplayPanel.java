@@ -33,20 +33,7 @@ import frost.util.gui.translation.Language;
  */
 class DisplayPanel extends JPanel {
 
-    /**
-     *
-     */
     public class Listener implements ActionListener {
-        /**
-         *
-         */
-        public Listener() {
-            super();
-        }
-
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == messageBodyButton) {
                 messageBodyButtonPressed();
@@ -70,6 +57,8 @@ class DisplayPanel extends JPanel {
     private JLabel moreSkinsLabel = new JLabel();
 
     private JCheckBox messageBodyAACheckBox = new JCheckBox();
+    private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
+    private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
 
     private JLabel messageBodyLabel = new JLabel();
     private JLabel fileListLabel = new JLabel();
@@ -104,16 +93,10 @@ class DisplayPanel extends JPanel {
         loadSettings();
     }
 
-    /**
-     *
-     */
     public void cancel() {
         skinChooser.cancelChanges();
     }
 
-    /**
-     *
-     */
     private void fileListButtonPressed() {
         FontChooser fontChooser = new FontChooser(owner, language);
         fontChooser.setModal(true);
@@ -126,10 +109,6 @@ class DisplayPanel extends JPanel {
         }
     }
 
-    /**
-     * @param font
-     * @return
-     */
     private String getFontLabel(Font font) {
         if (font == null) {
             return "";
@@ -147,63 +126,52 @@ class DisplayPanel extends JPanel {
         }
     }
 
-    /**
-     * @return
-     */
     private JPanel getFontsPanel() {
         JPanel fontsPanel = new JPanel(new GridBagLayout());
-        fontsPanel.setBorder(new EmptyBorder(5, 80, 5, 5));
+        fontsPanel.setBorder(new EmptyBorder(5, 20, 5, 5));
         GridBagConstraints constraints = new GridBagConstraints();
-        constraints.fill = GridBagConstraints.HORIZONTAL;
-        constraints.weighty = 1;
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         Insets inset1515 = new Insets(1, 5, 1, 5);
         Insets inset1519 = new Insets(1, 5, 1, 9);
 
         constraints.insets = inset1515;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        constraints.weightx = 0.8;
         fontsPanel.add(messageBodyLabel, constraints);
         constraints.insets = inset1519;
         constraints.gridx = 1;
         constraints.gridy = 0;
-        constraints.weightx = 0.1;
         fontsPanel.add(messageBodyButton, constraints);
         constraints.insets = inset1515;
         constraints.gridx = 2;
         constraints.gridy = 0;
-        constraints.weightx = 1;
         fontsPanel.add(selectedMessageBodyFontLabel, constraints);
 
         constraints.insets = inset1515;
         constraints.gridx = 0;
         constraints.gridy = 1;
-        constraints.weightx = 0.8;
         fontsPanel.add(messageListLabel, constraints);
         constraints.insets = inset1519;
         constraints.gridx = 1;
         constraints.gridy = 1;
-        constraints.weightx = 0.1;
         fontsPanel.add(messageListButton, constraints);
         constraints.insets = inset1515;
         constraints.gridx = 2;
         constraints.gridy = 1;
-        constraints.weightx = 1;
         fontsPanel.add(selectedMessageListFontLabel, constraints);
 
         constraints.insets = inset1515;
         constraints.gridx = 0;
         constraints.gridy = 2;
-        constraints.weightx = 0.8;
         fontsPanel.add(fileListLabel, constraints);
         constraints.insets = inset1519;
         constraints.gridx = 1;
         constraints.gridy = 2;
-        constraints.weightx = 0.1;
         fontsPanel.add(fileListButton, constraints);
         constraints.insets = inset1515;
         constraints.gridx = 2;
         constraints.gridy = 2;
+        constraints.fill = GridBagConstraints.HORIZONTAL;
         constraints.weightx = 1;
         fontsPanel.add(selectedFileListFontLabel, constraints);
 
@@ -220,9 +188,9 @@ class DisplayPanel extends JPanel {
 
         //Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
+        constraints.anchor = GridBagConstraints.NORTHWEST;
         constraints.fill = GridBagConstraints.BOTH;
         constraints.weightx = 1;
-        constraints.weighty = 1;
         Insets inset5511 = new Insets(5, 5, 1, 1);
         Insets inset1515 = new Insets(1, 5, 1, 5);
 
@@ -250,6 +218,13 @@ class DisplayPanel extends JPanel {
         constraints.gridx = 0;
         constraints.gridy = 5;
         add(messageBodyAACheckBox, constraints);
+
+        constraints.gridy++;
+        add(msgTableMultilineSelectCheckBox, constraints);
+
+        constraints.weighty = 1;
+        constraints.gridy++;
+        add(showBoardDescTooltipsCheckBox, constraints);
 
         //Add listeners
         messageBodyButton.addActionListener(listener);
@@ -285,11 +260,10 @@ class DisplayPanel extends JPanel {
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
 
         messageBodyAACheckBox.setSelected(settings.getBoolValue("messageBodyAA"));
+        msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
+        showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
     }
 
-    /**
-     *
-     */
     private void messageBodyButtonPressed() {
         FontChooser fontChooser = new FontChooser(owner, language);
         fontChooser.setModal(true);
@@ -302,9 +276,6 @@ class DisplayPanel extends JPanel {
         }
     }
 
-    /**
-     *
-     */
     private void messageListButtonPressed() {
         FontChooser fontChooser = new FontChooser(owner, language);
         fontChooser.setModal(true);
@@ -317,17 +288,11 @@ class DisplayPanel extends JPanel {
         }
     }
 
-    /**
-     *
-     */
     public void ok() {
         skinChooser.commitChanges();
         saveSettings();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
         moreSkinsLabel.setText(language.getString("MoreSkinsAt") + " http://javootoo.l2fprod.com/plaf/skinlf/");
         fontsLabel.setText(language.getString("Fonts"));
@@ -341,6 +306,8 @@ class DisplayPanel extends JPanel {
         fileListButton.setText(language.getString("Choose"));
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
         messageBodyAACheckBox.setText(language.getString("EnableMessageBodyAA"));
+        msgTableMultilineSelectCheckBox.setText(language.getString("EnableMsgTableMultilineSelect"));
+        showBoardDescTooltipsCheckBox.setText(language.getString("ShowBoardDescTooltips"));
     }
 
     /**
@@ -372,6 +339,7 @@ class DisplayPanel extends JPanel {
             settings.setValue(SettingsClass.FILE_LIST_FONT_SIZE, selectedFileListFont.getSize());
         }
         settings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
+        settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
+        settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
     }
-
 }

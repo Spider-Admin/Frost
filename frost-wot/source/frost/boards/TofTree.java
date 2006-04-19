@@ -20,6 +20,7 @@ package frost.boards;
 
 import java.awt.*;
 import java.awt.event.*;
+import java.beans.*;
 import java.io.*;
 import java.util.*;
 import java.util.List;
@@ -38,13 +39,15 @@ import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
-public class TofTree extends JDragTree implements Savable {
+public class TofTree extends JDragTree implements Savable, PropertyChangeListener {
 
     // pubkey for 0.5: "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM"
     // pubkey for 0.7: "SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE"
     private static final String FROST_ANNOUNCE_NAME = "frost-announce";
     private static final String FREENET_05_FROST_ANNOUNCE_PUBKEY = "SSK@7i~oLj~57mQVRrKfMxYgLULJ2r0PAgM";
     private static final String FREENET_07_FROST_ANNOUNCE_PUBKEY = "SSK@ub2QMcPy4jmtmqyEIML0cDdbbSTFGBgX3jEYLGoN9lg,IUYrv~GBW0~dn6k3orf9CRKUBz9CLZSA6wGrax73BCk,AQABAAE";
+    
+    private boolean showBoardDescriptionToolTips;
 
     private class PopupMenuTofTree
         extends JSkinnablePopupMenu
@@ -469,8 +472,7 @@ public class TofTree extends JDragTree implements Savable {
             }
 
             // maybe update visualization
-            if (settings.getBoolValue("boardUpdateVisualization")
-                && board.isUpdating() == true) {
+            if (settings.getBoolValue("boardUpdateVisualization") && board.isUpdating() == true) {
                 // set special updating colors
                 Color c;
                 c = (Color) settings.getObjectValue("boardUpdatingNonSelectedBackgroundColor");
@@ -513,7 +515,10 @@ public class TofTree extends JDragTree implements Savable {
             }
             
             // set board description as tooltip
-            if( board.getDescription() != null && board.getDescription().length() > 0 ) {
+            if( showBoardDescriptionToolTips && 
+                board.getDescription() != null && 
+                board.getDescription().length() > 0 ) 
+            {
                 setToolTipText(board.getDescription());
             } else {
                 setToolTipText(null);
@@ -550,6 +555,7 @@ public class TofTree extends JDragTree implements Savable {
     public TofTree(TofTreeModel model) {
         super(model);
         this.model = model;
+        showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
     }
 
     private PopupMenuTofTree getPopupMenuTofTree() {
@@ -564,6 +570,8 @@ public class TofTree extends JDragTree implements Savable {
 
         language = Language.getInstance();
         language.addLanguageListener(listener);
+        
+        Core.frostSettings.addPropertyChangeListener(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, this);
 
         MiscToolkit toolkit = MiscToolkit.getInstance();
         cutBoardButton.setIcon(new ImageIcon(getClass().getResource("/data/cut.gif")));
@@ -1136,5 +1144,11 @@ public class TofTree extends JDragTree implements Savable {
     }
     protected JButton getPasteBoardButton() {
         return pasteBoardButton;
+    }
+
+    public void propertyChange(PropertyChangeEvent evt) {
+        if (evt.getPropertyName().equals(SettingsClass.SHOW_BOARDDESC_TOOLTIPS)) {
+            showBoardDescriptionToolTips = Core.frostSettings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS);
+        }
     }
 }
