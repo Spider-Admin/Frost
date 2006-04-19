@@ -243,7 +243,7 @@ static final Object[][] contents = {
 {"Mark message unread","Gewählte Nachrichten als ungelesen markieren"},
 {"Maximum message display (days)","Maximale Anzahl an Tagen für angezeigte Nachrichten"},
 {"Maximum number of keys to store","Maximale Anzahl gespeicherter Schlüssel"}, //Menü: Optionen -> Einstellungen -> Verschiedenes
-{"Maximum number of retries","Maximale Zahl an Einträgen"},
+{"Maximum number of retries","Maximale Versuche"},
 {"Maximum search results","Max. Anzahl der Suchergeb."}, //Menü: Optionen -> Einstellungen -> Suchen
 {"Medium","Medium"},
 {"Message base","Nachrichtenbasis"},
