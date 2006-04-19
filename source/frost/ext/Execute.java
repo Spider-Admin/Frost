@@ -38,13 +38,11 @@ public class Execute {
      * @param order the command to execute
      * 
      */
-    public static void simple_run(String order) throws Throwable {
+    public static void simple_run(String order[]) throws Throwable {
         logger.info("-------------------------------------------------------------------\n" +
                     "Execute: " + order + "\n" +
                     "-------------------------------------------------------------------");
-
         Runtime.getRuntime().exec(order);
-
     }
     
     
