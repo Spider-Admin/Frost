@@ -226,6 +226,7 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridy = 3;
         constraints.gridx = 0;
         settingsPanel.add(maxMsg_default, constraints);
+        constraints.insets = new Insets(0, 0, 0, 5);
         constraints.gridx = 1;
         settingsPanel.add(maxMsg_set, constraints);
         constraints.gridx = 2;
@@ -241,6 +242,7 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridy = 5;
         constraints.gridx = 0;
         settingsPanel.add(signedOnly_default, constraints);
+        constraints.insets = new Insets(0, 0, 0, 5);
         constraints.gridx = 1;
         settingsPanel.add(signedOnly_true, constraints);
         constraints.gridx = 2;
@@ -256,6 +258,7 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridy = 7;
         constraints.gridx = 0;
         settingsPanel.add(hideBad_default, constraints);
+        constraints.insets = new Insets(0, 0, 0, 5);
         constraints.gridx = 1;
         settingsPanel.add(hideBad_true, constraints);
         constraints.gridx = 2;
@@ -271,6 +274,7 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridy = 9;
         constraints.gridx = 0;
         settingsPanel.add(hideCheck_default, constraints);
+        constraints.insets = new Insets(0, 0, 0, 5);
         constraints.gridx = 1;
         settingsPanel.add(hideCheck_true, constraints);
         constraints.gridx = 2;
@@ -286,6 +290,7 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridy = 11;
         constraints.gridx = 0;
         settingsPanel.add(hideObserve_default, constraints);
+        constraints.insets = new Insets(0, 0, 0, 5);
         constraints.gridx = 1;
         settingsPanel.add(hideObserve_true, constraints);
         constraints.gridx = 2;
@@ -351,7 +356,8 @@ public class BoardSettingsFrame extends JDialog {
         constraints.gridy = 4;
         contentPanel.add(cancelButton, constraints);
 
-        descriptionTextArea.setEditable(false);
+        descriptionLabel.setEnabled(false);
+        descriptionTextArea.setEnabled(false);
         publicBoardRadioButton.setSelected(true);
         privateKeyTextField.setEnabled(false);
         publicKeyTextField.setEnabled(false);
@@ -439,10 +445,13 @@ public class BoardSettingsFrame extends JDialog {
     private void loadBoardSettings() {
         if( board.isFolder() ) {
 
+            descriptionLabel.setEnabled(false);
             descriptionTextArea.setEnabled(false);
             overrideSettingsCheckBox.setSelected(false);
 
         } else {
+            descriptionLabel.setEnabled(true);
+            descriptionTextArea.setEnabled(true);
             // its a single board
             if (board.getDescription() != null) {
                 descriptionTextArea.setText(board.getDescription());
@@ -626,6 +635,13 @@ public class BoardSettingsFrame extends JDialog {
     }
 
     private void applySettingsToBoard() {
+        String desc = descriptionTextArea.getText().trim();
+        if( desc.length() > 0 ) {
+            board.setDescription(desc);
+        } else {
+            board.setDescription(null);
+        }
+        
         if (secureBoardRadioButton.isSelected()) {
             String privateKey = privateKeyTextField.getText();
             String publicKey = publicKeyTextField.getText();

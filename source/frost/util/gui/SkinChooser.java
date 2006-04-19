@@ -121,19 +121,19 @@ public class SkinChooser extends JPanel {
 	}
 	
 	/**
-			 * Return the EnableSkinsCheckBox property value.
-			 * @return javax.swing.JCheckBox
-			 */
-			private JCheckBox getEnableSkinsCheckBox() {
-				if (enableSkinsCheckBox == null) {
-					enableSkinsCheckBox = new javax.swing.JCheckBox();
-					enableSkinsCheckBox.setName("EnableSkinsCheckBox");
-					enableSkinsCheckBox.setText(languageBundle.getString("EnableSkins"));
-					enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
-					enableSkinsCheckBox.setSelected(true);
-				}
-				return enableSkinsCheckBox;
-			}
+	 * Return the EnableSkinsCheckBox property value.
+	 * @return javax.swing.JCheckBox
+	 */
+	private JCheckBox getEnableSkinsCheckBox() {
+		if (enableSkinsCheckBox == null) {
+			enableSkinsCheckBox = new javax.swing.JCheckBox();
+			enableSkinsCheckBox.setName("EnableSkinsCheckBox");
+			enableSkinsCheckBox.setText(languageBundle.getString("EnableSkins"));
+			enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
+			enableSkinsCheckBox.setSelected(true);
+		}
+		return enableSkinsCheckBox;
+	}
 	
 	/**
 	 * Stores the state of the Look And Feel system
@@ -144,7 +144,6 @@ public class SkinChooser extends JPanel {
 			initialSkin = SkinLookAndFeel.getSkin();
 		}
 	}
-	
 
 	/**
 	 * Return the SkinsList property value.
@@ -357,7 +356,7 @@ public class SkinChooser extends JPanel {
 			constraintsPreviewButton.weightx = 1.0;
 			constraintsPreviewButton.ipadx = 20;
 			constraintsPreviewButton.insets = new Insets(5, 5, 5, 5);
-			getButtonsPanel().add(getPreviewButton(), constraintsPreviewButton);
+            buttonsPanel.add(getPreviewButton(), constraintsPreviewButton);
 
 			GridBagConstraints constraintsRefreshButton = new GridBagConstraints();
 			constraintsRefreshButton.gridx = 2;
@@ -365,7 +364,7 @@ public class SkinChooser extends JPanel {
 			constraintsRefreshButton.anchor = GridBagConstraints.EAST;
 			constraintsRefreshButton.ipadx = 20;
 			constraintsRefreshButton.insets = new Insets(5, 5, 5, 0);
-			getButtonsPanel().add(getRefreshButton(), constraintsRefreshButton);
+            buttonsPanel.add(getRefreshButton(), constraintsRefreshButton);
 		}
 		return buttonsPanel;
 	}
