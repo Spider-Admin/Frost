@@ -164,6 +164,7 @@ static final Object[][] contents = {
 {"Enable selected downloads","Gewählte Downloads aktivieren"},
 //{"Enabled","Aktiviert"},
 {"EnableMessageBodyAA","Antialiasing für den Nachrichtenrumpf aktivieren"},
+{"EnableMsgTableMultilineSelect", "Mehrfachauswahl in der Nachrichtenliste erlauben"},
 {"EnableSkins","Skins aktivieren"},
 {"Encode requested","Kodieren angefragt"},
 {"Encoding file","Datei wird kodiert"},
@@ -381,6 +382,7 @@ static final Object[][] contents = {
 {"Settings for board","Einstellungen für das Forum"},
 {"Share Downloads","Downloads freigeben"}, // Downloads freigeben?
 {"Should file attachments be added to upload table?","Anhänge in die Uploadliste eintragen?"},
+{"ShowBoardDescTooltips", "Forumbeschreibung als Tooltip in der Forenliste anzeigen"},
 {"Show board update visualization","Aktualisierungsinformationen von Foren anzeigen"},
 {"Show deleted messages","Gelöschte Nachrichten anzeigen"},
 {"Show healing information","Heilungsinfos anzeigen"},
