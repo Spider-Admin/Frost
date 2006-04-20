@@ -83,7 +83,7 @@ static final Object[][] contents = {
 {"Bulgarian","Bulgarisch"}, //Menü: Sprache
 {"Cancel","Abbruch"},
 {"Change destination board","Zielforum ändern"},
-{"Create new identity","Neue Indentiät anlegen"},
+{"Create new identity","Neue Identität anlegen"},
 {"Color","Farbe"},
 {"Content","Inhalt"},
 {"Copy keys only","CHK-Schlüssel"},
