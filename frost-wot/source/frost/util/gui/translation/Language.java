@@ -72,7 +72,7 @@ public class Language {
      * If it has already been initialized, this method does nothing.
      * @param bundle
      */
-    public static void initialize(ResourceBundle bundle) {
+    private static void initialize(ResourceBundle bundle) {
         if (!initialized) {
             initialized = true;
             instance = new Language(bundle);
@@ -118,7 +118,7 @@ public class Language {
      * @return all of the <code>LanguageListener</code>s added or an empty
      *         array if no listeners have been added
      */
-    public LanguageListener[] getActionListeners() {
+    public LanguageListener[] getLanguageListeners() {
         return (LanguageListener[]) (listenerList.getListeners(LanguageListener.class));
     }
 

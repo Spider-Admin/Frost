@@ -28,38 +28,33 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 
 	private Board boardObj;
 
-	/* (non-Javadoc) 
-	 * @see frost.messages.Attachment#getType()
-	 */
 	public int getType() {
 		return Attachment.BOARD;
 	}
 
-	/* (non-Javadoc)
-	 * @see frost.XMLizable#getXMLElement(org.w3c.dom.Document)
-	 */
 	public Element getXMLElement(Document container) {
 
 		Element el = getSafeXMLElement(container);
 
 		CDATASection cdata;
 
-		Element privkey = container.createElement("privKey");
-		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPrivateKey())); //null is ok
-		privkey.appendChild(cdata);
-		el.appendChild(privkey);
+        if( boardObj.getPrivateKey() != null ) {
+    		Element privkey = container.createElement("privKey");
+    		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPrivateKey())); //null is ok
+    		privkey.appendChild(cdata);
+    		el.appendChild(privkey);
+        }
 		
-		Element description = container.createElement("description");
-		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getDescription()));	//null is ok
-		description.appendChild(cdata);
-		el.appendChild(description);
+        if( boardObj.getDescription() != null ) {
+    		Element description = container.createElement("description");
+    		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getDescription()));	//null is ok
+    		description.appendChild(cdata);
+    		el.appendChild(description);
+        }
 
 		return el;
 	}
 
-	/* (non-Javadoc)
-	 * @see frost.SafeXMLizable#getSafeXMLElement(org.w3c.dom.Document)
-	 */
 	public Element getSafeXMLElement(Document container) {
 
 		Element el = container.createElement("Attachment");
@@ -72,17 +67,16 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 		name.appendChild(cdata);
 		el.appendChild(name);
 
-		Element pubkey = container.createElement("pubKey");
-		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPublicKey()));
-		pubkey.appendChild(cdata);
-		el.appendChild(pubkey);
+        if( boardObj.getPublicKey() != null ) {
+    		Element pubkey = container.createElement("pubKey");
+    		cdata = container.createCDATASection(Mixed.makeSafeXML(boardObj.getPublicKey()));
+    		pubkey.appendChild(cdata);
+    		el.appendChild(pubkey);
+        }
 
 		return el;
 	}
 
-	/* (non-Javadoc)
-	 * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
-	 */
 	public void loadXMLElement(Element e) throws SAXException {
 		String name, privkey, pubkey, description;
 		name = XMLTools.getChildElementsCDATAValue(e, "Name");
@@ -93,17 +87,10 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 		boardObj = new Board(name, pubkey, privkey, description);
 	}
 
-	/**
-	 * @param e
-	 * @throws SAXException
-	 */
 	protected BoardAttachment(Element e) throws SAXException {
 		loadXMLElement(e);
 	}
 
-	/**
-	 * @param obj
-	 */
 	public BoardAttachment(Board obj) {
 		boardObj = obj;
 	}
@@ -125,13 +112,9 @@ public class BoardAttachment extends Attachment implements SafeXMLizable {
 		return "*ERR*";
 	}
 
-	/* 
-	 * @see java.lang.Comparable#compareTo(java.lang.Object)
-	 */
 	public int compareTo(Object o) {
 		String me = toString();
 		String other = ((BoardAttachment) o).toString();
 		return me.compareToIgnoreCase(other);
 	}
-
 }
