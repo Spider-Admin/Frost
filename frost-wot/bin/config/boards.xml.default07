@@ -7,10 +7,6 @@
       <description><![CDATA[Put your boards here]]></description>
     </FrostBoardTreeEntry>
     <FrostBoardTreeEntry>
-      <name><![CDATA[sex.boards]]></name>
-      <description><![CDATA[Put your boards here]]></description>
-    </FrostBoardTreeEntry>
-    <FrostBoardTreeEntry>
       <name><![CDATA[public]]></name>
       <description><![CDATA[The public board ;-)]]></description>
     </FrostBoardTreeEntry>
@@ -70,24 +66,32 @@
       <FrostBoardTreeEntry isfolder="true" isexpanded="false" >
         <name>fr</name>
         <FrostBoardTreeEntry>
-          <name><![CDATA[fr.freenet.freesites]]></name>
-          <description><![CDATA[Sites en francais disponible sur freenet.]]></description>
+          <name><![CDATA[fr.accueil]]></name>
+          <description><![CDATA[Présentez-vous et faites vos tests ici.]]></description>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry>
-          <name><![CDATA[fr.freenet.applications]]></name>
-          <description><![CDATA[Outils et applications utilisables sur freenet. Forum en francais.]]></description>
+          <name><![CDATA[fr.boards]]></name>
+          <description><![CDATA[Pour publier/annoncer les boards francophones.]]></description>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
+          <name><![CDATA[fr.discussion]]></name>
+          <description><![CDATA[Pour parler de tout, de rien...]]></description>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry>
           <name><![CDATA[fr.freenet]]></name>
-          <description><![CDATA[French Freenet-related board]]></description>
-        </FrostBoardTreeEntry>
-        <FrostBoardTreeEntry>
-          <name><![CDATA[fr.musique]]></name>
-          <description><![CDATA[on en parle, on se l'échange, ... ;)]]></description>
+          <description><![CDATA[Discuter à propos de Freenet.]]></description>
         </FrostBoardTreeEntry>
         <FrostBoardTreeEntry>
           <name><![CDATA[fr.freenet.aide]]></name>
-          <description><![CDATA[Aide en francais concernant freenet]]></description>
+          <description><![CDATA[Pour demander de l'aide.]]></description>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
+          <name><![CDATA[fr.freenet.applications]]></name>
+          <description><![CDATA[Outils et applications utilisables sur freenet.]]></description>
+        </FrostBoardTreeEntry>
+        <FrostBoardTreeEntry>
+          <name><![CDATA[fr.freenet.freesites]]></name>
+          <description><![CDATA[Sites en francais disponible sur freenet.]]></description>
         </FrostBoardTreeEntry>
       </FrostBoardTreeEntry>
     </FrostBoardTreeEntry>
