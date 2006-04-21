@@ -27,8 +27,8 @@
   <property name="deprecation" value="true" />
   <property name="verbose" value="false" />
   <property name="optimize" value="true" />
-  <property name="source" value = "1.5" />
-  <property name="target" value = "1.5" />
+  <property name="source" value = "1.4" />
+  <property name="target" value = "1.4" />
 
   <!--  Set the properties related to the source tree -->
   <property name="src.dir" value="source"/>
@@ -281,7 +281,7 @@ Build log  : ${logfilename}</echo>
     <mkdir dir="${release.dir}"/>
     <delete quiet="true" file="${release.dir}/${distZipNamePrefix}${NOW.DATE}.zip"/>
     <zip basedir="${dist.dir}" destfile="${release.dir}/${distZipNamePrefix}${NOW.DATE}.zip"/>
-
+<!--
     <copy todir="${release.dir}">
       <fileset dir="${dist.dir}">
       	<filename name="${jarName}"/>
@@ -299,7 +299,7 @@ Build log  : ${logfilename}</echo>
 	</fileset>
    </copy>
    <move file="${release.dir}/${jarName}" tofile="${release.dir}/${distJarNamePrefix}latest.jar"/>
-
+-->
 
     <!-- Prepares the source zip (exclude the library jars) -->
 
@@ -309,8 +309,8 @@ Build log  : ${logfilename}</echo>
     				prefix = "frost-wot"
     				excludes=".* **/CVS/* ${lib.dir}/**/*.jar"
     				includes="${src.dir}/**/* ${bin.dir}/**/* ${res.dir}/**/*
-    						  ${lib.dir}/**/* ${specs.dir}/**/*
-						  build.xml TODO"/>
+    						  ${lib.dir}/**/* ${specs.dir}/**/* ${helpsrc.dir}/**/*
+                              build.xml"/>
     </zip>
 
     <echo>
@@ -348,9 +348,6 @@ Build log  : ${logfilename}</echo>
              sourcepath="${src.dir}"
              destdir="${docs}"
              windowtitle="Frost Documentation"/>
-   
-             
-            
   </target>
 	
   <!-- ~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~~ -->
