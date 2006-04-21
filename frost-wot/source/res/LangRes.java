@@ -56,7 +56,6 @@ public class LangRes extends ListResourceBundle {
 	{"Last upload", "Last upload"},
 	{"Path", "Path"},
 	{"Destination", "Destination"},
-	{"Frost by Jantho", "Frost by Jantho"},
 	{"Reload selected files", "Upload selected files"},
 	{"Reload all files", "Reload all files"}, //reload????
 	{"Show systray icon","Show SysTray icon"},

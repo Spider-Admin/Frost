@@ -213,7 +213,6 @@ public class LangRes_nl extends ListResourceBundle {
 	{"NoSkinsFound", "No Skins Found"},
 
     // Other
-    {"Frost by Jantho", "Frost door Jantho"},
     {"Copyright (c) 2001 Jan-Thomas Czornack", "Copyright (c) 2001 Jan-Thomas Czornack"},
     {"Select a message to view its content.", "Selecteer een bericht om de inhoud hiervan te zien."},
     {"Choose file(s) and/or directories to upload", "Kies bestand(en) en/of map(pen) om te uploaden"},

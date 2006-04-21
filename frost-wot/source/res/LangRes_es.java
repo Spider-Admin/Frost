@@ -110,7 +110,6 @@ static final Object[][] contents = {
 {"folder","carpeta"},
 {"French","Francés"},
 {"From","De"},
-{"Frost by Jantho","Frost por Jantho"},
 {"Generate new keypair","Genera nueva pareja de claves"},
 {"German","Alemán"},
 {"Help","Ayuda"},

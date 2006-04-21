@@ -58,7 +58,6 @@ public class LangRes_ru extends ListResourceBundle {
 	{"Last upload", "Последняя загрузка"},
 	{"Path", "Путь"},
 	{"Destination", "Цель"},
-	{"Frost by Jantho", "Морозко созданный Jantho"},
 	{"Reload selected files", "Закачать выбранные файлы"},
 	{"Reload all files", "Закачать все файлы заново"}, //reload????
 	{"Show systray icon","Показывать иконку в трее"},

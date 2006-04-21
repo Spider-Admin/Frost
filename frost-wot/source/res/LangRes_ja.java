@@ -117,7 +117,6 @@ static final Object[][] contents = {
 {"folder","フォルダ"},
 {"French","フランス語"},
 {"From","投稿者"},
-{"Frost by Jantho","JanthoによるFrost"},
 {"Generate new keypair","新たな鍵ペアの作成"},
 {"German","ドイツ語"},
 {"Help","ヘルプ"},

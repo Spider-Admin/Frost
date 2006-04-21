@@ -188,7 +188,6 @@ static final Object[][] contents = {
 {"French","Francais"},
 {"Saver.AutoTask.message","Frost a détecté une erreur et s'est fermé automatiquement."},
 {"Core.loadIdentities.ConnectionNotEstablishedBody","Frost n'a pas pu établir une connexion avec le noeud freenet.\nCette connexion est nécessaire pour l'installation de Frost et la création de votre pseudo,\nensuite vous pourez lire les messages sans connexion. Veuillez vous assurer que vous êtes connecté puis relancez Frost."},
-{"Frost by Jantho","Frost par Jantho"},
 {"Frost was not able to upload your message.","Frost n'a pas pu envoyer ce message."},
 {"Bold","Gras"},
 {"Bold Italic","Gras Italique"},
