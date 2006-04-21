@@ -107,6 +107,10 @@ EndMessage
                 if( keyword.equals("PutFailed") && text.indexOf("Code=9") > -1 ) {
                     result = FcpResultPut.KeyCollision;
                     break;
+                } else if( keyword.equals("PutFailed") && text.indexOf("Code=5") > -1 ) {
+                    // "route not found". retry, finally we maybe get Code=8 ("route really not found")
+                    result = FcpResultPut.Retry;
+                    break;
                 } else {
                     result = ((Integer)getKeywords().get(keyword)).intValue();
                     break;
