@@ -446,7 +446,7 @@ static final Object[][] contents = {
 {"Windows Installer:","Windows Installer:"},
 {"Yes","Ja"}, //Popup?
 {"You already have a board with name","Sie haben schon ein Forum namens"},
-{"You can create a new identity or import an existing identities.xml file","Sie können eine neue Indendität anlegen oder eine bestehende importieren"},
+{"You can create a new identity or import an existing identities.xml file","Sie können eine neue Identität anlegen oder eine bestehende importieren"},
 {"You must enter a sender name!","Absender eingeben!"},
 {"You must enter a subject!","Betreff angeben!"}, //Popup?
 };
