@@ -578,7 +578,7 @@ public class Core implements Savable, FrostEventDispatcher  {
             frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
             frostSettings.setValue("oneTimeUpdate.repairIdentities.didRun", true);
             
-            // TODO: ask user which freenet version to use, set correct default availableNodes,
+            // ask user which freenet version to use, set correct default availableNodes,
             // allow to import an existing identities file
             FirstStartupDialog startdlg = new FirstStartupDialog();
             boolean exitChoosed = startdlg.startDialog();
