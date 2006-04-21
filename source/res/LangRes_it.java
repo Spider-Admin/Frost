@@ -263,7 +263,6 @@ public class LangRes_it extends ListResourceBundle {
 	{"NoSkinsFound", "No Skins Found"},
 
     // Other
-    {"Frost by Jantho", "Frost by Jantho"},
     {"Select a message to view its content.", "Seleziona un messaggio per visualizzare il contenuto."},
     {"Choose file(s) and/or directories to upload", "Scegli i files e/o le cartelle da caricare"},
     {"Please enter the prefix you want to use for your files.", "Prego inserisci il prefisso da dare ai tuoi files."},

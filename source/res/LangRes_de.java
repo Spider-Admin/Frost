@@ -187,7 +187,6 @@ static final Object[][] contents = {
 {"Fonts","Schriftarten"},
 {"French","Französisch"},
 {"From","Von"},
-{"Frost by Jantho","Frost von Jantho"},
 {"Frost first startup","Frost - erster Start"},
 //{"FrostSearchItemObject.*ERROR*","*ERROR*"},
 {"FrostSearchItemObject.Anonymous","Anonymous"},
@@ -214,7 +213,6 @@ static final Object[][] contents = {
 {"Import existing identities.xml file","Bestehende »identities.xml« importieren"},
 {"Increase Font Size","Größere Schrift"},
 {"Index","Index"},
-{"Index file redundancy","Indexdatei-Redundanz"},
 {"Indexed attachments","Indizierte Anhänge"},
 {"Initializing Mainframe","Initialisiere das Mainframe"}, //sicher daß damit das Hauptfenster und nicht der Großrechner gemeint ist?
 {"Invert enabled state for all downloads","Enable-Status für alle Downloads invertieren"},
@@ -318,7 +316,6 @@ static final Object[][] contents = {
 {"Public board","öffentliches Forum"},
 {"Public key","öffentlicher Schlüssel"},
 {"Reaching ridiculous speed...","Lächerliche Geschwindigkeit erreicht..."},
-{"redundancy explanation","geht nicht"}, //Menü: Optionen -> Einstellungen -> Hochladen
 {"Receive duplicate messages","Doppelte Nachrichten empfangen"},
 {"Refresh","Aktualisiere"},
 {"RefreshList","Liste aktualisieren"},
