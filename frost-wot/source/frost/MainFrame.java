@@ -803,7 +803,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JPanel buildStatusBar() {
         JPanel panel = new JPanel(new BorderLayout());
 
-        statusLabel = new JLabel(language.getString("Frost by Jantho"));
+        statusLabel = new JLabel();
         statusMessageLabel = new JLabel();
 
         newMessage[0] = new ImageIcon(MainFrame.class.getResource("/data/messagebright.gif"));
