@@ -44,8 +44,8 @@ public class AltEdit extends Thread {
     private String oldSubject;
     private String oldText;
 
-    private final String SUBJECT_MARKER = language.getString("*--- Subject line (changeable) ---*");
-    private final String TEXT_MARKER = language.getString("*--- Enter your text after this line ---*");
+    private final String SUBJECT_MARKER = language.getString("AltEdit.markerLine.subject");
+    private final String TEXT_MARKER = language.getString("AltEdit.markerLine.text");
 
     private Object transferObject;
     private MessageFrame callbackTarget;
@@ -75,11 +75,11 @@ public class AltEdit extends Thread {
         }
 
         String editor = Core.frostSettings.getValue("altEdit");
-
+        
         if( editor == null || editor.length() == 0 ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("No alternate editor configured."),
-                    "Error",
+                    language.getString("AltEdit.errorDialog.noAlternateEditorConfigured"),
+                    language.getString("AltEdit.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             callbackMessageFrame(null, null);
             return;
@@ -87,8 +87,8 @@ public class AltEdit extends Thread {
 
         if( editor.indexOf("%f") == -1 ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("Configured alternate editor line must contain a '%f' as placeholder for the filename."),
-                    language.getString("Error"),
+                    language.getString("AltEdit.errorDialog.missingPlaceholder"),
+                    language.getString("AltEdit.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             callbackMessageFrame(null, null);
             return;
@@ -103,8 +103,8 @@ public class AltEdit extends Thread {
             editFile =  File.createTempFile("frostmsg", ".txt", new File(Core.frostSettings.getValue("temp.dir")));
         } catch (IOException e) {
             JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("Could not create message file for alternate editor: ")+editFile.getPath()+"\n"+e.toString(),
-                    language.getString("Error"),
+                    language.getString("AltEdit.errorDialog.couldNotCreateMessageFile")+": "+editFile.getPath()+"\n"+e.toString(),
+                    language.getString("AltEdit.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             callbackMessageFrame(null, null);
             return;
@@ -112,9 +112,9 @@ public class AltEdit extends Thread {
         editFile.deleteOnExit();
 
         StringBuffer sb = new StringBuffer();
-        sb.append(language.getString(">>> This is a Frost alternate editor message file.                <<<")).append(linesep);
-        sb.append(language.getString(">>> You can edit the subject and add text at the end of the file. <<<")).append(linesep);
-        sb.append(language.getString(">>> Don't change or delete the marker lines!                      <<<")).append(linesep).append(linesep);
+        sb.append(language.getString("AltEdit.textFileMessage.1")).append(linesep);
+        sb.append(language.getString("AltEdit.textFileMessage.2")).append(linesep);
+        sb.append(language.getString("AltEdit.textFileMessage.3")).append(linesep).append(linesep);
         sb.append(SUBJECT_MARKER).append(linesep);
         sb.append(oldSubject).append(linesep).append(linesep);
         sb.append(oldText).append(linesep); // contains new from-header-line
@@ -122,8 +122,8 @@ public class AltEdit extends Thread {
 
         if( FileAccess.writeFile(sb.toString(), editFile, "UTF-8") == false ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("Could not create message file for alternate editor: ")+editFile.getPath(),
-                    language.getString("Error"),
+                    language.getString("AltEdit.errorDialog.couldNotCreateMessageFile")+": "+editFile.getPath(),
+                    language.getString("AltEdit.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             callbackMessageFrame(null, null);
             return;
@@ -135,8 +135,8 @@ public class AltEdit extends Thread {
           Execute.run_wait(editorCmdLine);
         } catch(Throwable t) {
             JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("Could not start alternate editor using command: ")+editorCmdLine+"\n"+t.toString(),
-                    language.getString("Error"),
+                    language.getString("AltEdit.errorDialog.couldNotStartEditorUsingCommand")+": "+editorCmdLine+"\n"+t.toString(),
+                    language.getString("AltEdit.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
             callbackMessageFrame(null, null);
@@ -149,8 +149,8 @@ public class AltEdit extends Thread {
                 
         if( lines.size() < 4 ) { // subject marker,subject,from line, text marker
             JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("The message file returned by the alternate editor is invalid."),
-                    language.getString("Error"),
+                    language.getString("AltEdit.errorDialog.invalidReturnedMessageFile"),
+                    language.getString("AltEdit.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
             callbackMessageFrame(null, null);
@@ -173,8 +173,8 @@ public class AltEdit extends Thread {
                 // next line is the new subject
                 if( it.hasNext() == false ) {
                     JOptionPane.showMessageDialog(parentFrame,
-                            language.getString("The message file returned by the alternate editor is invalid."),
-                            language.getString("Error"),
+                            language.getString("AltEdit.errorDialog.invalidReturnedMessageFile"),
+                            language.getString("AltEdit.errorDialogs.title"),
                             JOptionPane.ERROR_MESSAGE);
                     editFile.delete();
                     callbackMessageFrame(null, null);
@@ -183,8 +183,8 @@ public class AltEdit extends Thread {
                 line = (String)it.next();
                 if( line.equals(TEXT_MARKER) ) {
                     JOptionPane.showMessageDialog(parentFrame,
-                            language.getString("The message file returned by the alternate editor is invalid."),
-                            language.getString("Error"),
+                            language.getString("AltEdit.errorDialog.invalidReturnedMessageFile"),
+                            language.getString("AltEdit.errorDialogs.title"),
                             JOptionPane.ERROR_MESSAGE);
                     editFile.delete();
                     callbackMessageFrame(null, null);
@@ -202,8 +202,8 @@ public class AltEdit extends Thread {
 
         if( newSubject == null ) {
             JOptionPane.showMessageDialog(parentFrame,
-                    language.getString("The message file returned by the alternate editor is invalid."),
-                    language.getString("Error"),
+                    language.getString("AltEdit.errorDialog.invalidReturnedMessageFile"),
+                    language.getString("AltEdit.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             editFile.delete();
             callbackMessageFrame(null, null);

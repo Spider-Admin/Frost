@@ -49,8 +49,7 @@ public class AboutBox extends JDialogWithDetails {
     private JLabel licenseLabel = new JLabel();
     private JLabel websiteLabel = new JLabel();
 
-    private static final ImageIcon frostImage =
-        new ImageIcon(AboutBox.class.getResource("/data/jtc.jpg"));
+    private static final ImageIcon frostImage = new ImageIcon(AboutBox.class.getResource("/data/jtc.jpg"));
 
     /**
      * @param parent
@@ -65,7 +64,7 @@ public class AboutBox extends JDialogWithDetails {
      */
     private void initialize() {
         imageLabel.setIcon(frostImage);
-        setTitle(language.getString("About"));
+        setTitle(language.getString("AboutBox.title"));
         setResizable(false);
 
         // Image panel
@@ -79,7 +78,7 @@ public class AboutBox extends JDialogWithDetails {
         productLabel.setText(product);
         versionLabel.setText(getVersion());
         copyrightLabel.setText(copyright);
-        licenseLabel.setText(language.getString("Open Source Project (GPL license)"));
+        licenseLabel.setText(language.getString("AboutBox.label.openSourceProject"));
         websiteLabel.setText(comments2);
         messagesPanel.add(productLabel);
         messagesPanel.add(versionLabel);
@@ -95,12 +94,9 @@ public class AboutBox extends JDialogWithDetails {
         fillDetailsArea();
     }
 
-    /**
-     *
-     */
     private void fillDetailsArea() {
         StringBuffer details = new StringBuffer();
-        details.append(language.getString("Development:") + "\n");
+        details.append(language.getString("AboutBox.text.development") + "\n");
         details.append("   Karsten Graul\n");
         details.append("   S. Amoako\n");
         details.append("   Roman Glebov (inactive)\n");
@@ -109,16 +105,16 @@ public class AboutBox extends JDialogWithDetails {
         details.append("   Jim Hunziker (left)\n");
         details.append("   Stefan Majewski (left)\n");
         details.append("   José Manuel Arnesto (left)\n\n");
-        details.append(language.getString("Windows Installer:") + "\n");
+        details.append(language.getString("AboutBox.text.windowsInstaller") + "\n");
         details.append("   Benoit Laniel\n\n");
-        details.append(language.getString("System Tray Executables:") + "\n");
+        details.append(language.getString("AboutBox.text.systemTrayExecutables") + "\n");
         details.append("   Ingo Franzki\n\n");
-        details.append(language.getString("Translation Support:") + "\n");
+        details.append(language.getString("AboutBox.text.translationSupport") + "\n");
         details.append("   Rudolf Krist\n");
         details.append("   RapHHfr\n\n");
-        details.append(language.getString("Splash Screen Logo:") + "\n");
+        details.append(language.getString("AboutBox.text.splashScreenLogo") + "\n");
         details.append("   Frédéric Scheer\n\n");
-        details.append(language.getString("Misc code contributions:") + "\n");
+        details.append(language.getString("AboutBox.text.miscCodeContributions") + "\n");
         details.append("   SuperSlut Yoda");
         setDetailsText(details.toString());
     }
@@ -129,7 +125,7 @@ public class AboutBox extends JDialogWithDetails {
     private String getVersion() {
         if (version == null) {
             version =
-                language.getString("Version")
+                language.getString("AboutBox.label.version")
                     + ": "
                     + getClass().getPackage().getSpecificationVersion();
         }

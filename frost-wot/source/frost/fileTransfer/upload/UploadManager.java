@@ -51,11 +51,8 @@ public class UploadManager implements PropertyChangeListener {
         this.settings = settings;
     }
 
-    /**
-     *
-     */
     public void initialize() throws StorageException {
-        mainFrame.addPanel("Uploads", getPanel());
+        mainFrame.addPanel("MainFrame.tabbedPane.uploads", getPanel());
         mainFrame.addStatusPanel(getStatusPanel(), 0);
         settings.addPropertyChangeListener(SettingsClass.DISABLE_REQUESTS, this);
         updateUploadStatus();

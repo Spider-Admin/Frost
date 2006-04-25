@@ -90,7 +90,7 @@ public class MessageTextPane extends JPanel {
     public void update_noBoardsFound() {
         messageSplitPane.setBottomComponent(null);
         messageSplitPane.setDividerSize(0);
-        messageTextArea.setText(language.getString("Welcome message"));
+        messageTextArea.setText(language.getString("MessagePane.defaultText.welcomeMessage"));
     }
 
     /**
@@ -99,7 +99,7 @@ public class MessageTextPane extends JPanel {
     public void update_boardSelected() {
         messageSplitPane.setBottomComponent(null);
         messageSplitPane.setDividerSize(0);
-        messageTextArea.setText(language.getString("Select a message to view its content."));
+        messageTextArea.setText(language.getString("MessagePane.defaultText.noMessageSelected"));
     }
 
     /**
@@ -108,7 +108,7 @@ public class MessageTextPane extends JPanel {
     public void update_folderSelected() {
         messageSplitPane.setBottomComponent(null);
         messageSplitPane.setDividerSize(0);
-        messageTextArea.setText(language.getString("Select a board to view its content."));
+        messageTextArea.setText(language.getString("MessagePane.defaultText.noBoardSelected"));
     }
 
     /**
@@ -352,7 +352,7 @@ public class MessageTextPane extends JPanel {
             MainFrame.getInstance(),
             messageTextArea.getText(),
             Core.frostSettings.getValue("lastUsedDirectory"),
-            language.getString("Save message to disk"));
+            language.getString("MessagePane.messageText.saveDialog.title"));
     }
     
     private void addBoardsToKnownBoards() {
@@ -487,10 +487,10 @@ public class MessageTextPane extends JPanel {
         }
 
         public void languageChanged(LanguageEvent event) {
-            saveBoardsItem.setText(language.getString("Add Board(s)"));
-            saveBoardsToFolderItem.setText(language.getString("Add Board(s) to folder")+" ...");
-            addBoardsToKnownBoards.setText(language.getString("Add board(s) to list of known boards"));
-            cancelItem.setText(language.getString("Cancel"));
+            saveBoardsItem.setText(language.getString("MessagePane.boardAttachmentTable.popupmenu.addBoards"));
+            saveBoardsToFolderItem.setText(language.getString("MessagePane.boardAttachmentTable.popupmenu.addBoardsToFolder")+" ...");
+            addBoardsToKnownBoards.setText(language.getString("MessagePane.boardAttachmentTable.popupmenu.addBoardsToKnownBoards"));
+            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         public void show(Component invoker, int x, int y) {
@@ -564,18 +564,18 @@ public class MessageTextPane extends JPanel {
          * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
          */
         public void languageChanged(LanguageEvent event) {
-            copyKeysItem.setText(language.getString("Copy keys only"));
-            copyKeysAndNamesItem.setText(language.getString("Copy keys with filenames"));
-            copyExtendedInfoItem.setText(language.getString("Copy extended info"));
-            copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
+            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
+            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+            copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
 
-            saveAttachmentsItem.setText(language.getString("Download attachment(s)"));
-            saveAttachmentItem.setText(language.getString("Download selected attachment"));
-            cancelItem.setText(language.getString("Cancel"));
+            saveAttachmentsItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadAttachments"));
+            saveAttachmentItem.setText(language.getString("MessagePane.fileAttachmentTable.popupmenu.downloadSelectedAttachment"));
+            cancelItem.setText(language.getString("Common.cancel"));
 
-            fileMessage = language.getString("clipboard.File:");
-            keyMessage = language.getString("clipboard.Key:");
-            bytesMessage = language.getString("clipboard.Bytes:");
+            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
+            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
+            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
         }
 
         public void show(Component invoker, int x, int y) {
@@ -784,9 +784,9 @@ public class MessageTextPane extends JPanel {
         }
 
         public void languageChanged(LanguageEvent event) {
-            copyItem.setText(language.getString("Copy"));
-            saveMessageItem.setText(language.getString("Save message to disk"));
-            cancelItem.setText(language.getString("Cancel"));
+            copyItem.setText(language.getString("MessagePane.messageText.popupmenu.copy"));
+            saveMessageItem.setText(language.getString("MessagePane.messageText.popupmenu.saveMessageToDisk"));
+            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         public void show(Component invoker, int x, int y) {

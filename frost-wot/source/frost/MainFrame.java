@@ -240,13 +240,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private JLabel timeLabel = null;
 
     private JCheckBoxMenuItem tofAutomaticUpdateMenuItem = new JCheckBoxMenuItem();
-    private JMenuItem tofDecreaseFontSizeMenuItem = new JMenuItem();
 
     private JMenuItem tofDisplayBoardInfoMenuItem = new JMenuItem();
     private JMenuItem tofDisplayKnownBoards = new JMenuItem();
     private JMenuItem tofSearchMessages = new JMenuItem();
-
-    private JMenuItem tofIncreaseFontSizeMenuItem = new JMenuItem();
 
     //Messages (tof) Menu
     private JMenu tofMenu = new JMenu();
@@ -454,14 +451,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             systemTrayButton = new JButton(new ImageIcon(getClass().getResource("/data/tray.gif")));
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(newBoardButton, "New board", "/data/newboard_rollover.gif", language);
-            toolkit.configureButton(newFolderButton, "New folder", "/data/newfolder_rollover.gif", language);
-            toolkit.configureButton(removeBoardButton, "Remove board", "/data/remove_rollover.gif", language);
-            toolkit.configureButton(renameFolderButton, "Rename folder", "/data/rename_rollover.gif", language);
-            toolkit.configureButton(boardInfoButton, "Board Information Window", "/data/info_rollover.gif", language);
-            toolkit.configureButton(systemTrayButton, "Minimize to System Tray", "/data/tray_rollover.gif", language);
-            toolkit.configureButton(knownBoardsButton, "Display list of known boards", "/data/knownboards_rollover.gif", language);
-            toolkit.configureButton(searchMessagesButton, "Search messages", "/data/search_rollover.gif", language);
+            toolkit.configureButton(newBoardButton, "MainFrame.toolbar.tooltip.newBoard", "/data/newboard_rollover.gif", language);
+            toolkit.configureButton(newFolderButton, "MainFrame.toolbar.tooltip.newFolder", "/data/newfolder_rollover.gif", language);
+            toolkit.configureButton(removeBoardButton, "MainFrame.toolbar.tooltip.removeBoard", "/data/remove_rollover.gif", language);
+            toolkit.configureButton(renameFolderButton, "MainFrame.toolbar.tooltip.renameFolder", "/data/rename_rollover.gif", language);
+            toolkit.configureButton(boardInfoButton, "MainFrame.toolbar.tooltip.boardInformationWindow", "/data/info_rollover.gif", language);
+            toolkit.configureButton(systemTrayButton, "MainFrame.toolbar.tooltip.minimizeToSystemTray", "/data/tray_rollover.gif", language);
+            toolkit.configureButton(knownBoardsButton, "MainFrame.toolbar.tooltip.displayListOfKnownBoards", "/data/knownboards_rollover.gif", language);
+            toolkit.configureButton(searchMessagesButton, "MainFrame.toolbar.tooltip.searchMessages", "/data/search_rollover.gif", language);
 
             // add action listener
             knownBoardsButton.addActionListener(new java.awt.event.ActionListener() {
@@ -571,20 +568,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     optionsPreferencesMenuItem_actionPerformed(e);
                 }
             });
-            tofIncreaseFontSizeMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    // make size of the message body font one point bigger
-                    int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-                    frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size + 1);
-                }
-            });
-            tofDecreaseFontSizeMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    // make size of the message body font one point smaller
-                    int size = frostSettings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
-                    frostSettings.setValue(SettingsClass.MESSAGE_BODY_FONT_SIZE, size - 1);
-                }
-            });
             tofDisplayBoardInfoMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     tofDisplayBoardInfoMenuItem_actionPerformed(e);
@@ -614,9 +597,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //            });
             languageDefaultMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes");
-                    frostSettings.setValue("locale", "default");
-                    setLanguageResource(bundle);
+                    setLanguageResource(null);
                 }
             });
 
@@ -632,65 +613,47 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
             languageGermanMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("de"));
-                    frostSettings.setValue("locale", "de");
-                    setLanguageResource(bundle);
+                    setLanguageResource("de");
                 }
             });
             languageEnglishMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("en"));
-                    frostSettings.setValue("locale", "en");
-                    setLanguageResource(bundle);
+                    setLanguageResource("en");
                 }
             });
             languageDutchMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("nl"));
-                    frostSettings.setValue("locale", "nl");
-                    setLanguageResource(bundle);
+                    setLanguageResource("nl");
                 }
             });
             languageFrenchMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("fr"));
-                    frostSettings.setValue("locale", "fr");
-                    setLanguageResource(bundle);
+                    setLanguageResource("fr");
                 }
             });
             languageJapaneseMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("ja"));
-                    frostSettings.setValue("locale", "ja");
-                    setLanguageResource(bundle);
+                    setLanguageResource("ja");
                 }
             });
             languageRussianMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("ru"));
-                    frostSettings.setValue("locale", "ru");
-                    setLanguageResource(bundle);
+                    setLanguageResource("ru");
                 }
             });
             languageItalianMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("it"));
-                    frostSettings.setValue("locale", "it");
-                    setLanguageResource(bundle);
+                    setLanguageResource("it");
                 }
             });
             languageSpanishMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("es"));
-                    frostSettings.setValue("locale", "es");
-                    setLanguageResource(bundle);
+                    setLanguageResource("es");
                 }
             });
             languageBulgarianMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    ResourceBundle bundle = ResourceBundle.getBundle("res.LangRes", new Locale("bg"));
-                    frostSettings.setValue("locale", "bg");
-                    setLanguageResource(bundle);
+                    setLanguageResource("bg");
                 }
             });
 
@@ -830,7 +793,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     private JPanel buildTofMainPanel() {
         //add a tab for buddies perhaps?
-        getTabbedPane().insertTab("News", null, getMessagePanel(), null, 0);
+        getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getMessagePanel(), null, 0);
         getTabbedPane().setSelectedIndex(0);
 
         JScrollPane tofTreeScrollPane = new JScrollPane(tofTree);
@@ -895,8 +858,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             int result =
                 JOptionPane.showConfirmDialog(
                     this,
-                    language.getString("UploadsUnderway.body"),
-                    language.getString("UploadsUnderway.title"),
+                    language.getString("MainFrame.runningUploadsWarning.body"),
+                    language.getString("MainFrame.runningUploadsWarning.title"),
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
             if (result == JOptionPane.YES_OPTION) {
@@ -1066,18 +1029,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             return;
         String newname = null;
         do {
-            newname =
-                JOptionPane.showInputDialog(
+            newname = JOptionPane.showInputDialog(
                     this,
                     "Please enter the new name:\n",  // TODO: translate
                     selected.getName());
-            if (newname == null)
+            if (newname == null) {
                 return; // cancel
+            }
             if (selected.isFolder() == false && // duplicate folder names are ok
                 tofTreeModel.getBoardByName(newname) != null) 
             {
-                JOptionPane.showMessageDialog(
-                    this,
+                JOptionPane.showMessageDialog(this,
                     "You already have a board with name '" // TODO: translate
                         + newname
                         + "'!\nPlease choose a new name.");
@@ -1127,8 +1089,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         if (nextBoard != null) {
             logger.info("*** Automatic board update started for: " + nextBoard.getName());
         } else {
-            logger.info(
-                "*** Automatic board update - min update interval not reached.  waiting...");
+            logger.info("*** Automatic board update - min update interval not reached.  waiting...");
         }
         return nextBoard;
     }
@@ -1137,8 +1098,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * Setter for thelanguage resource bundle
      * @param newLanguageResource
      */
-    private void setLanguageResource(ResourceBundle newLanguageResource) {
-        language.setLanguageResource(newLanguageResource);
+    private void setLanguageResource(String newLocaleName) {
+        if( newLocaleName == null ) {
+            frostSettings.setValue("locale", "default");
+        } else {
+            frostSettings.setValue("locale", newLocaleName);
+        }
+        language.changeLanguage(newLocaleName);
         translateMainMenu();
         translateButtons();
     }
@@ -1198,17 +1164,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         /////////////////////////////////////////////////
         String newText =
             new StringBuffer()
-                .append("   " + language.getString("TOFUP") + ": ")
+                .append("   " + language.getString("MainFrame.statusBar.TOFUP") + ": ")
                 .append(tofTree.getRunningBoardUpdateThreads().getUploadingBoardCount())
                 .append("B / ")
                 .append(tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount())
                 .append("T")
-                .append("   " + language.getString("TOFDO") + ": ")
+                .append("   " + language.getString("MainFrame.statusBar.TOFDO") + ": ")
                 .append(tofTree.getRunningBoardUpdateThreads().getUpdatingBoardCount())
                 .append("B / ")
                 .append(tofTree.getRunningBoardUpdateThreads().getRunningDownloadThreadCount())
                 .append("T")
-                .append("   " + language.getString("Selected board") + ": ")
+                .append("   " + language.getString("MainFrame.statusBar.selectedBoard") + ": ")
                 .append(tofTreeModel.getSelectedNode().getName())
                 .toString();
         statusLabel.setText(newText);
@@ -1272,47 +1238,44 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     private void translateButtons() {
-        newBoardButton.setToolTipText(language.getString("New board"));
-        systemTrayButton.setToolTipText(language.getString("Minimize to System Tray"));
-        knownBoardsButton.setToolTipText(language.getString("Display list of known boards"));
-        searchMessagesButton.setToolTipText(language.getString("Search messages"));
-        boardInfoButton.setToolTipText(language.getString("Board Information Window"));
-        newFolderButton.setToolTipText(language.getString("New folder"));
-        removeBoardButton.setToolTipText(language.getString("Remove board"));
-        renameFolderButton.setToolTipText(language.getString("Rename folder"));
+        newBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newBoard"));
+        newFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.newFolder"));
+        systemTrayButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.minimizeToSystemTray"));
+        knownBoardsButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.displayListOfKnownBoards"));
+        searchMessagesButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.searchMessages"));
+        boardInfoButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.boardInformationWindow"));
+        removeBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.removeBoard"));
+        renameFolderButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.renameFolder"));
     }
 
     private void translateMainMenu() {
-        fileMenu.setText(language.getString("File"));
-        fileExitMenuItem.setText(language.getString("Exit"));
-        tofMenu.setText(language.getString("News"));
-        tofDisplayBoardInfoMenuItem.setText(
-                language.getString("Display board information window"));
-        tofAutomaticUpdateMenuItem.setText(language.getString("Automatic message update"));
-        tofIncreaseFontSizeMenuItem.setText(language.getString("Increase Font Size"));
-        tofDecreaseFontSizeMenuItem.setText(language.getString("Decrease Font Size"));
-        tofDisplayKnownBoards.setText(language.getString("Display known boards"));
-        tofSearchMessages.setText(language.getString("Search messages"));
-        optionsMenu.setText(language.getString("Options"));
-        optionsPreferencesMenuItem.setText(language.getString("Preferences"));
+        fileMenu.setText(language.getString("MainFrame.menu.file"));
+        fileExitMenuItem.setText(language.getString("Common.exit"));
+        tofMenu.setText(language.getString("MainFrame.menu.news"));
+        tofDisplayBoardInfoMenuItem.setText(language.getString("MainFrame.menu.news.displayBoardInformationWindow"));
+        tofAutomaticUpdateMenuItem.setText(language.getString("MainFrame.menu.news.automaticBoardUpdate"));
+        tofDisplayKnownBoards.setText(language.getString("MainFrame.menu.news.displayKnownBoards"));
+        tofSearchMessages.setText(language.getString("MainFrame.menu.news.searchMessages"));
+        optionsMenu.setText(language.getString("MainFrame.menu.options"));
+        optionsPreferencesMenuItem.setText(language.getString("MainFrame.menu.options.preferences"));
 //        pluginMenu.setText(language.getString("Plugins"));
 //        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
 //        pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
-        languageMenu.setText(language.getString("Language"));
-        languageDefaultMenuItem.setText(language.getString("Default"));
-        languageDutchMenuItem.setText(language.getString("Dutch"));
-        languageEnglishMenuItem.setText(language.getString("English"));
-        languageFrenchMenuItem.setText(language.getString("French"));
-        languageGermanMenuItem.setText(language.getString("German"));
-        languageItalianMenuItem.setText(language.getString("Italian"));
-        languageJapaneseMenuItem.setText(language.getString("Japanese"));
-        languageSpanishMenuItem.setText(language.getString("Spanish"));
-        languageBulgarianMenuItem.setText(language.getString("Bulgarian"));
-        languageRussianMenuItem.setText(language.getString("Russian"));
-        helpMenu.setText(language.getString("Help"));
-        helpMemMonMenuItem.setText(language.getString("Show memory monitor"));
-        helpHelpMenuItem.setText(language.getString("Help"));
-        helpAboutMenuItem.setText(language.getString("About"));
+        languageMenu.setText(language.getString("MainFrame.menu.language"));
+        languageDefaultMenuItem.setText(language.getString("MainFrame.menu.language.default"));
+        languageDutchMenuItem.setText(language.getString("MainFrame.menu.language.dutch"));
+        languageEnglishMenuItem.setText(language.getString("MainFrame.menu.language.english"));
+        languageFrenchMenuItem.setText(language.getString("MainFrame.menu.language.french"));
+        languageGermanMenuItem.setText(language.getString("MainFrame.menu.language.german"));
+        languageItalianMenuItem.setText(language.getString("MainFrame.menu.language.italian"));
+        languageJapaneseMenuItem.setText(language.getString("MainFrame.menu.language.japanese"));
+        languageSpanishMenuItem.setText(language.getString("MainFrame.menu.language.spanish"));
+        languageBulgarianMenuItem.setText(language.getString("MainFrame.menu.language.bulgarian"));
+        languageRussianMenuItem.setText(language.getString("MainFrame.menu.language.russian"));
+        helpMenu.setText(language.getString("MainFrame.menu.help"));
+        helpMemMonMenuItem.setText(language.getString("MainFrame.menu.help.showMemoryMonitor"));
+        helpHelpMenuItem.setText(language.getString("MainFrame.menu.help.help"));
+        helpAboutMenuItem.setText(language.getString("MainFrame.menu.help.aboutFrost"));
     }
 
     private void updateButtons(Board board) {

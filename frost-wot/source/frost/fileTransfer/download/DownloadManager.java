@@ -54,11 +54,8 @@ public class DownloadManager implements PropertyChangeListener {
 		this.mainFrame = mainFrame;	
 	}
 
-	/**
-	 * 
-	 */
 	public void initialize() throws StorageException {
-		mainFrame.addPanel("Downloads", getPanel());
+		mainFrame.addPanel("MainFrame.tabbedPane.downloads", getPanel());
 		mainFrame.addStatusPanel(getStatusPanel(), 0);
 		settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
 		updateDownloadStatus();
@@ -78,9 +75,6 @@ public class DownloadManager implements PropertyChangeListener {
 		return statusPanel;
 	}
 
-	/**
-	 * 
-	 */
 	private void updateDownloadStatus() {
 		boolean disableDownloads = settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS);
 		mainFrame.setPanelEnabled("Downloads", !disableDownloads && freenetIsOnline);

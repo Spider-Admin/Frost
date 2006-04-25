@@ -38,9 +38,6 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
         String.class, //"Description"
     };
 
-    /**
-     *
-     */
     public AttachedBoardTableModel() {
         super();
         language = Language.getInstance();
@@ -63,13 +60,10 @@ public class AttachedBoardTableModel extends DefaultTableModel implements Langua
         refreshLanguage();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        columnNames[0] = language.getString("Board Name");
-        columnNames[1] = language.getString("Access rights");
-        columnNames[2] = language.getString("Description");
+        columnNames[0] = language.getString("MessagePane.boardAttachmentTable.boardName");
+        columnNames[1] = language.getString("MessagePane.boardAttachmentTable.accessRights");
+        columnNames[2] = language.getString("MessagePane.boardAttachmentTable.description");
 
         fireTableStructureChanged();
     }

@@ -116,10 +116,10 @@ class DisplayPanel extends JPanel {
             StringBuffer returnValue = new StringBuffer();
             returnValue.append(font.getFamily());
             if (font.isBold()) {
-                returnValue.append(" " + language.getString("Bold"));
+                returnValue.append(" " + language.getString("Options.display.fontChooser.bold"));
             }
             if (font.isItalic()) {
-                returnValue.append(" " + language.getString("Italic"));
+                returnValue.append(" " + language.getString("Options.display.fontChooser.italic"));
             }
             returnValue.append(", " + font.getSize());
             return returnValue.toString();
@@ -294,20 +294,21 @@ class DisplayPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        moreSkinsLabel.setText(language.getString("MoreSkinsAt") + " http://javootoo.l2fprod.com/plaf/skinlf/");
-        fontsLabel.setText(language.getString("Fonts"));
-        messageBodyLabel.setText(language.getString("Message Body"));
-        messageBodyButton.setText(language.getString("Choose"));
+        String choose = language.getString("Options.display.choose");
+        moreSkinsLabel.setText(language.getString("Options.display.youCanGetMoreSkinsAt") + " http://javootoo.l2fprod.com/plaf/skinlf/");
+        fontsLabel.setText(language.getString("Options.display.fonts"));
+        messageBodyLabel.setText(language.getString("Options.display.messageBody"));
+        messageBodyButton.setText(choose);
         selectedMessageBodyFontLabel.setText(getFontLabel(selectedBodyFont));
-        messageListLabel.setText(language.getString("Message List"));
-        messageListButton.setText(language.getString("Choose"));
+        messageListLabel.setText(language.getString("Options.display.messageList"));
+        messageListButton.setText(choose);
         selectedMessageListFontLabel.setText(getFontLabel(selectedMessageListFont));
-        fileListLabel.setText(language.getString("File List"));
-        fileListButton.setText(language.getString("Choose"));
+        fileListLabel.setText(language.getString("Options.display.fileList"));
+        fileListButton.setText(choose);
         selectedFileListFontLabel.setText(getFontLabel(selectedFileListFont));
-        messageBodyAACheckBox.setText(language.getString("EnableMessageBodyAA"));
-        msgTableMultilineSelectCheckBox.setText(language.getString("EnableMsgTableMultilineSelect"));
-        showBoardDescTooltipsCheckBox.setText(language.getString("ShowBoardDescTooltips"));
+        messageBodyAACheckBox.setText(language.getString("Options.display.enableAntialiasingForMessageBody"));
+        msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
+        showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
     }
 
     /**

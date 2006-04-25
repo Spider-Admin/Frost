@@ -42,9 +42,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 
         private SortedModelTable modelTable;
 
-        /**
-         *
-         */
         public NameRenderer(SortedModelTable newModelTable) {
             super();
             modelTable = newModelTable;
@@ -238,9 +235,6 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
 
     private String unknown;
 
-    /**
-     *
-     */
     public UploadTableFormat() {
         super(COLUMN_COUNT);
 
@@ -258,26 +252,23 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
         setComparator(new KeyComparator(), 7);
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        setColumnName(0, language.getString("DownloadTableFormat.Enabled"));
-        setColumnName(1, language.getString("Filename"));
-        setColumnName(2, language.getString("Size"));
-        setColumnName(3, language.getString("Last upload"));
-        setColumnName(4, language.getString("Path"));
-        setColumnName(5, language.getString("Tries"));
-        setColumnName(6, language.getString("Destination"));
-        setColumnName(7, language.getString("Key"));
+        setColumnName(0, language.getString("UploadPane.fileTable.enabled"));
+        setColumnName(1, language.getString("UploadPane.fileTable.filename"));
+        setColumnName(2, language.getString("UploadPane.fileTable.size"));
+        setColumnName(3, language.getString("UploadPane.fileTable.lastUpload"));
+        setColumnName(4, language.getString("UploadPane.fileTable.path"));
+        setColumnName(5, language.getString("UploadPane.fileTable.tries"));
+        setColumnName(6, language.getString("UploadPane.fileTable.destination"));
+        setColumnName(7, language.getString("UploadPane.fileTable.key"));
 
-        stateUploadedNever = language.getString("Never");
-        stateRequested = language.getString("Requested");
-        stateUploading = language.getString("Uploading");
-        stateEncodingRequested = language.getString("Encode requested");
-        stateEncoding = language.getString("Encoding file") + "...";
-        stateWaiting = language.getString("Waiting");
-        unknown = language.getString("Unknown");
+        stateUploadedNever =      language.getString("UploadTableFormat.state.never");
+        stateRequested =          language.getString("UploadTableFormat.state.requested");
+        stateUploading =          language.getString("UploadTableFormat.state.uploading");
+        stateEncodingRequested =  language.getString("UploadTableFormat.state.encodeRequested");
+        stateEncoding =           language.getString("UploadTableFormat.state.encodingFile") + "...";
+        stateWaiting =            language.getString("UploadTableFormat.state.waiting");
+        unknown =                 language.getString("UploadTableFormat.state.unknown");
 
         refreshColumnNames();
     }
@@ -466,5 +457,4 @@ class UploadTableFormat extends SortedTableFormat implements LanguageListener {
     public void languageChanged(LanguageEvent event) {
         refreshLanguage();
     }
-
 }

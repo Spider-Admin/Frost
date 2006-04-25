@@ -320,27 +320,27 @@ class News2Panel extends JPanel {
     }
 
     private void refreshLanguage() {
-        String hours = language.getString("hours");
+        String hours = language.getString("Options.common.hours");
 
-        intervalLabel.setText(language.getString("Sample interval") + " (" + hours + ")");
-        tresholdLabel.setText(language.getString("Threshold of blocked messages"));
+        intervalLabel.setText(language.getString("Options.news.2.sampleInterval") + " (" + hours + ")");
+        tresholdLabel.setText(language.getString("Options.news.2.thresholdOfBlockedMessages"));
 
-        hideMessagesLabel.setText(language.getString("Hide messages with trust states")+":");
-        hideUnsignedMessagesCheckBox.setText(language.getString("None (unsigned)"));
-        hideBadMessagesCheckBox.setText(language.getString("Bad"));
-        hideCheckMessagesCheckBox.setText(language.getString("Check"));
-        hideObserveMessagesCheckBox.setText(language.getString("Observe"));
+        hideMessagesLabel.setText(language.getString("Options.news.2.hideMessagesWithTrustStates")+":");
+        hideUnsignedMessagesCheckBox.setText(language.getString("Options.news.2.trustState.none"));
+        hideBadMessagesCheckBox.setText(language.getString("Options.news.2.trustState.bad"));
+        hideCheckMessagesCheckBox.setText(language.getString("Options.news.2.trustState.check"));
+        hideObserveMessagesCheckBox.setText(language.getString("Options.news.2.trustState.observe"));
 
-        blockBoardsLabel.setText(language.getString("Don't add boards to known boards list from users with trust states")+":");
-        blockBoardsFromUnsignedCheckBox.setText(language.getString("None (unsigned)"));
-        blockBoardsFromBadCheckBox.setText(language.getString("Bad"));
-        blockBoardsFromCheckCheckBox.setText(language.getString("Check"));
-        blockBoardsFromObserveCheckBox.setText(language.getString("Observe"));
+        blockBoardsLabel.setText(language.getString("Options.news.2.dontAddBoardsFromTrustStates")+":");
+        blockBoardsFromUnsignedCheckBox.setText(language.getString("Options.news.2.trustState.none"));
+        blockBoardsFromBadCheckBox.setText(language.getString("Options.news.2.trustState.bad"));
+        blockBoardsFromCheckCheckBox.setText(language.getString("Options.news.2.trustState.check"));
+        blockBoardsFromObserveCheckBox.setText(language.getString("Options.news.2.trustState.observe"));
 
-        blockSubjectCheckBox.setText(language.getString("Block messages with subject containing (separate by ';' )")+ ": ");
-        blockBodyCheckBox.setText(language.getString("Block messages with body containing (separate by ';' )")+ ": ");
-        blockBoardCheckBox.setText(language.getString("Block messages with these attached boards (separate by ';' )")+ ": ");
-        doBoardBackoffCheckBox.setText(language.getString("Do spam detection"));
+        blockSubjectCheckBox.setText(language.getString("Options.news.2.blockMessagesWithSubject")+ ": ");
+        blockBodyCheckBox.setText(language.getString("Options.news.2.blockMessagesWithBody")+ ": ");
+        blockBoardCheckBox.setText(language.getString("Options.news.2.blockMessagesWithTheseBoards")+ ": ");
+        doBoardBackoffCheckBox.setText(language.getString("Options.news.2.doSpamDetection"));
     }
 
     private void refreshSpamDetectionState() {

@@ -90,21 +90,21 @@ class SearchPanel extends JPanel implements SettingsUpdater {
         }
 
         private void refreshLanguage() {
-            downloadSelectedKeysItem.setText(language.getString("Download selected keys"));
-            downloadAllKeysItem.setText(language.getString("Download all keys"));
-            setGoodItem.setText(language.getString("help user (sets to GOOD)"));
-            setBadItem.setText(language.getString("block user (sets to BAD)"));
-            cancelItem.setText(language.getString("Cancel"));
+            downloadSelectedKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadSelectedKeys"));
+            downloadAllKeysItem.setText(language.getString("SearchPane.resultTable.popupmenu.downloadAllKeys"));
+            setGoodItem.setText(language.getString("SearchPane.resultTable.popupmenu.setToGood"));
+            setBadItem.setText(language.getString("SearchPane.resultTable.popupmenu.setToBad"));
+            cancelItem.setText(language.getString("Common.cancel"));
 
-            keyNotAvailableMessage = language.getString("Key not available yet");
-            fileMessage = language.getString("clipboard.File:");
-            keyMessage = language.getString("clipboard.Key:");
-            bytesMessage = language.getString("clipboard.Bytes:");
+            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
+            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
+            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
 
-            copyKeysItem.setText(language.getString("Copy keys only"));
-            copyKeysAndNamesItem.setText(language.getString("Copy keys with filenames"));
-            copyExtendedInfoItem.setText(language.getString("Copy extended info"));
-            copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
+            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
+            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+            copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
         }
 
         /* (non-Javadoc)
@@ -481,7 +481,13 @@ class SearchPanel extends JPanel implements SettingsUpdater {
             new TextComponentClipboardMenu(searchTextField, language);
 
             String[] searchComboBoxKeys =
-                { "All files", "Audio", "Video", "Images", "Documents", "Executables", "Archives" };
+                { "SearchPane.fileTypes.allFiles", 
+                  "SearchPane.fileTypes.audio", 
+                  "SearchPane.fileTypes.video", 
+                  "SearchPane.fileTypes.images", 
+                  "SearchPane.fileTypes.documents", 
+                  "SearchPane.fileTypes.executables", 
+                  "SearchPane.fileTypes.archives" };
             searchComboBox = new JTranslatableComboBox(language, searchComboBoxKeys);
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
@@ -533,11 +539,11 @@ class SearchPanel extends JPanel implements SettingsUpdater {
     }
 
     private void refreshLanguage() {
-        searchAllBoardsCheckBox.setText(language.getString("all boards"));
-        searchButton.setToolTipText(language.getString("Search"));
-        downloadButton.setToolTipText(language.getString("Download selected keys"));
+        searchAllBoardsCheckBox.setText(language.getString("SearchPane.toolbar.searchAllBoards"));
+        searchButton.setToolTipText(language.getString("SearchPane.toolbar.tooltip.search"));
+        downloadButton.setToolTipText(language.getString("SearchPane.toolbar.tooltip.downloadSelectedKeys"));
 
-        String results = language.getString("Results");
+        String results = language.getString("SearchPane.toolbar.results");
         Dimension labelSize = calculateLabelSize(results + " : 00000");
         searchResultsCountLabel.setPreferredSize(labelSize);
         searchResultsCountLabel.setMinimumSize(labelSize);
@@ -613,13 +619,12 @@ class SearchPanel extends JPanel implements SettingsUpdater {
      */
     private void updateSearchResultCountLabel() {
         searchResultsCount = model.getItemCount();
-        String results = language.getString("Results");
+        String results = language.getString("SearchPane.toolbar.results");
         if (searchResultsCount == 0) {
             searchResultsCountLabel.setText(results + " : 0");
         }
         searchResultsCountLabel.setText(results + " : " + searchResultsCount);
     }
-
 
     private void fontChanged() {
         String fontName = settingsClass.getValue(SettingsClass.FILE_LIST_FONT_NAME);
@@ -642,9 +647,6 @@ class SearchPanel extends JPanel implements SettingsUpdater {
         ModelItem[] selectedItems = modelTable.getSelectedItems();
         model.addItemsToDownloadModel(selectedItems);
     }
-
-
-
 
     /**
      * @param b
@@ -737,5 +739,4 @@ class SearchPanel extends JPanel implements SettingsUpdater {
     public void setUploadModel(UploadModel model) {
         uploadModel = model;
     }
-
 }

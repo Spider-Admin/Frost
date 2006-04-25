@@ -254,10 +254,10 @@ public class MessageWindow extends JFrame {
         }
 
         public void languageChanged(LanguageEvent event) {
-            Lsubject.setText(language.getString("Subject")+":");
-            Lfrom.setText(language.getString("From")+":");
-            Ldate.setText(language.getString("Date")+":");
-            Lboard.setText(language.getString("Board")+":");
+            Lsubject.setText(language.getString("MessageWindow.subject")+":");
+            Lfrom.setText(language.getString("MessageWindow.from")+":");
+            Ldate.setText(language.getString("MessageWindow.date")+":");
+            Lboard.setText(language.getString("MessageWindow.board")+":");
         }
 
         private JTextField getTFsubject() {

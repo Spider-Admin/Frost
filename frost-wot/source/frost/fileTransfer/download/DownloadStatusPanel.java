@@ -29,9 +29,6 @@ import frost.util.gui.translation.*;
  */
 public class DownloadStatusPanel extends JPanel {
 
-	/**
-	 * 
-	 */
 	private class Listener implements DownloadTickerListener, LanguageListener {
 		/* (non-Javadoc)
 		 * @see frost.fileTransfer.download.DownloadTickerListener#threadCountChanged()
@@ -59,9 +56,6 @@ public class DownloadStatusPanel extends JPanel {
 	
 	private Listener listener = new Listener();
 	
-	/**
-	 * 
-	 */
 	public DownloadStatusPanel(DownloadTicker ticker) {
 		super();
 		this.ticker = ticker;
@@ -69,9 +63,6 @@ public class DownloadStatusPanel extends JPanel {
 		initialize();
 	}
 
-	/**
-	 * 
-	 */
 	private void initialize() {
 		refreshLanguage();
 		setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -90,21 +81,15 @@ public class DownloadStatusPanel extends JPanel {
 		language.addLanguageListener(listener);
 	}
 	
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
-		downloadingLabel.setText(language.getString("DownloadStatusPanel.Downloading"));
+		downloadingLabel.setText(language.getString("MainFrame.statusBar.downloading")+":");
 		if (count == 1) {
-			filesLabel.setText(language.getString("StatusPanel.file"));
+			filesLabel.setText(language.getString("MainFrame.statusBar.file"));
 		} else {
-			filesLabel.setText(language.getString("StatusPanel.files"));
+			filesLabel.setText(language.getString("MainFrame.statusBar.files"));
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	private void numberChanged() {
 		count = ticker.getRunningThreads();
 		countLabel.setText("" + count);

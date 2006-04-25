@@ -64,47 +64,31 @@ public class MiscToolkit {
 		button.setFocusPainted(false);
 	}
 
-	/**
-	 * Configures a button, setting its tooltip text, rollover icon and some other
-	 * default properties.
-	 * @param button the button to configure
-	 * @param toolTipKey language resource key to extract its tooltip text with
-	 * @param rolloverIcon displayed icon when mouse arrow is over button
-	 * @param languageResource language resource to extract the tooltip text from
-	 */
-	public void configureButton(
-		JButton button,
-		String toolTipKey,
-		String rolloverIcon,
-		ResourceBundle languageResource) {
-
-		String text = null;
-		try {
-			text = languageResource.getString(toolTipKey);
-		} catch (MissingResourceException ex) {
-			logger.severe("Missing resource in configureButton method: " + toolTipKey);
-			text = toolTipKey; // better than nothing ;)
-		}
-		button.setToolTipText(text);
-
-		configureButton(button, rolloverIcon);
-	}
-	
-	/**
-	 * Configures a button, setting its tooltip text, rollover icon and some other
-	 * default properties.
-	 * @param button the button to configure
-	 * @param toolTipKey language resource key to extract its tooltip text with
-	 * @param rolloverIcon displayed icon when mouse arrow is over button
-	 * @param language language to extract the tooltip text from
-	 */
+    /**
+     * Configures a button, setting its tooltip text, rollover icon and some other
+     * default properties.
+     * @param button the button to configure
+     * @param toolTipKey language resource key to extract its tooltip text with
+     * @param rolloverIcon displayed icon when mouse arrow is over button
+     * @param language language to extract the tooltip text from
+     */
 	public void configureButton(
 		JButton button,
 		String toolTipKey,
 		String rolloverIcon,
 		Language language) {
 
-		configureButton(button, toolTipKey, rolloverIcon, language.getResourceBundle());
+		String text = null;
+		try {
+			text = language.getString(toolTipKey);
+		} catch (MissingResourceException ex) {
+            ex.printStackTrace();
+			logger.severe("Missing resource in configureButton method: " + toolTipKey);
+			text = toolTipKey; // better than nothing ;)
+		}
+		button.setToolTipText(text);
+
+		configureButton(button, rolloverIcon);
 	}
 	
 	/**

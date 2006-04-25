@@ -113,7 +113,7 @@ static final Object[][] contents = {
 {"Core.loadIdentities.ConnectionNotEstablishedTitle","Verbindung mit dem Freenet-Knoten fehlgeschlagen"},
 {"Core.loadIdentities.InvalidNameBody","Der Name darf keine '@'-Zeichen enthalten!"},
 {"Core.loadIdentities.InvalidNameTitle","Üngültige Name der Identität"},
-{"Could not start alternate editor using command: ","Kann externen Editor nicht starten: "},
+{"Could not start alternate editor using command","Kann externen Editor nicht starten: "},
 {"Create message","Erstelle Nachricht"},
 {"Cut","Ausschneiden (nicht mehr abonnieren)"}, // Board -> Kontext
 {"Cut board","Forum ausschneiden (nicht mehr abonnieren)"}, // Symbolleiste: Scheresymbol

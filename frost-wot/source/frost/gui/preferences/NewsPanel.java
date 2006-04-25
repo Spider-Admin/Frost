@@ -149,8 +149,7 @@ class NewsPanel extends JPanel {
             int fontSize = settings.getIntValue(SettingsClass.MESSAGE_BODY_FONT_SIZE);
             Font tofFont = new Font(fontName, fontStyle, fontSize);
             if (!tofFont.getFamily().equals(fontName)) {
-                logger.severe(
-                    "The selected font was not found in your system\n"
+                logger.severe("The selected font was not found in your system\n"
                         + "That selection will be changed to \"Monospaced\".");
                 settings.setValue(SettingsClass.MESSAGE_BODY_FONT_NAME, "Monospaced");
                 tofFont = new Font("Monospaced", fontStyle, fontSize);
@@ -183,14 +182,12 @@ class NewsPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        uploadHtlLabel.setText(language.getString("Message upload HTL") + " (21)");
-        downloadHtlLabel.setText(language.getString("Message download HTL") + " (23)");
-        displayDaysLabel.setText(
-                language.getString("Number of days to display") + " (15)");
-        downloadDaysLabel.setText(
-                language.getString("Number of days to download backwards") + " (5)");
-        messageBaseLabel.setText(language.getString("Message base") + " (news)");
-        signatureLabel.setText(language.getString("Signature"));
+        uploadHtlLabel.setText(language.getString("Options.news.1.messageUploadHtl") + " (21)");
+        downloadHtlLabel.setText(language.getString("Options.news.1.messageDownloadHtl") + " (23)");
+        displayDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDisplay") + " (15)");
+        downloadDaysLabel.setText(language.getString("Options.news.1.numberOfDaysToDownloadBackwards") + " (5)");
+        messageBaseLabel.setText(language.getString("Options.news.1.messageBase") + " (news)");
+        signatureLabel.setText(language.getString("Options.news.1.signature"));
     }
 
     /**

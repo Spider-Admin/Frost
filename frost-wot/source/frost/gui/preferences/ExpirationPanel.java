@@ -53,7 +53,7 @@ class ExpirationPanel extends JPanel {
 
         private void browseArchiveDirectory() {
             final JFileChooser fc = new JFileChooser();
-            fc.setDialogTitle(language.getString("Select archive directory"));
+            fc.setDialogTitle(language.getString("Options.expiration.fileChooser.title.selectArchiveDirectory"));
             fc.setFileHidingEnabled(true);
             fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
             fc.setMultiSelectionEnabled(false);
@@ -234,12 +234,12 @@ class ExpirationPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        RbKeepExpiredMessages.setText(language.getString("Keep expired messages in keypool"));
-        RbArchiveExpiredMessages.setText(language.getString("Archive expired messages"));
-        RbDeleteExpiredMessages.setText(language.getString("Delete expired messages from keypool"));
+        RbKeepExpiredMessages.setText(language.getString("Options.expiration.keepExpiredMessages"));
+        RbArchiveExpiredMessages.setText(language.getString("Options.expiration.archiveExpiredMessages"));
+        RbDeleteExpiredMessages.setText(language.getString("Options.expiration.deleteExpiredMessages"));
 
-        LmessageExpireDays.setText(language.getString("Number of days before a message expires") + " (30)");
-        LarchiveFolder.setText(language.getString("Archive folder"));
-        BbrowseArchiveDirectory.setText(language.getString("Browse") + "...");
+        LmessageExpireDays.setText(language.getString("Options.expiration.numberOfDaysBeforeMessageExpires") + " (30)");
+        LarchiveFolder.setText(language.getString("Options.expiration.archiveFolder"));
+        BbrowseArchiveDirectory.setText(language.getString("Common.browse") + "...");
     }
 }

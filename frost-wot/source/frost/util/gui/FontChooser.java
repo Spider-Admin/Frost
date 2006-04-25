@@ -33,21 +33,12 @@ import frost.util.gui.translation.*;
  * @version $Revision$
  */
 public class FontChooser extends JDialog {
-	/**
-	 * 
-	 */
 	private class Listener implements ActionListener, ListSelectionListener, LanguageListener {
 
-		/**
-		 * 
-		 */
 		public Listener() {
 			super();
 		}
 
-		/* (non-Javadoc)
-		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-		 */
 		public void actionPerformed(ActionEvent e) {
 			if (e.getSource() == okButton) {
 				okButtonPressed();
@@ -60,9 +51,6 @@ public class FontChooser extends JDialog {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see javax.swing.event.ListSelectionListener#valueChanged(javax.swing.event.ListSelectionEvent)
-		 */
 		public void valueChanged(ListSelectionEvent e) {
 			if (!e.getValueIsAdjusting()) { // We ignore adjusting events
 				if (e.getSource() == fontNamesList) {
@@ -77,13 +65,9 @@ public class FontChooser extends JDialog {
 			}
 		}
 
-		/* (non-Javadoc)
-		 * @see frost.gui.translation.LanguageListener#languageChanged(frost.gui.translation.LanguageEvent)
-		 */
 		public void languageChanged(LanguageEvent event) {
 			refreshLanguage();			
 		}
-
 	}
 	
 	private Listener listener = new Listener();
@@ -115,10 +99,6 @@ public class FontChooser extends JDialog {
 	
 	private HashMap styles = new HashMap();
 	
-	/**
-	 * @param owner
-	 * @param language
-	 */
 	public FontChooser(Frame owner, Language language) {
 		super(owner);
 		this.language = language;
@@ -126,10 +106,6 @@ public class FontChooser extends JDialog {
 		initialize();
 	}
 	
-	/**
-	 * @param owner
-	 * @param language
-	 */
 	public FontChooser(Dialog owner, Language language) {
 		super(owner);
 		this.language = language;
@@ -137,9 +113,6 @@ public class FontChooser extends JDialog {
 		initialize();
 	}
 
-	/**
-	 * 
-	 */
 	private void initialize() {
 		refreshLanguage();
 		setSize(400, 350);
@@ -239,12 +212,11 @@ public class FontChooser extends JDialog {
 		//Fills the JLists
 		GraphicsEnvironment environment = GraphicsEnvironment.getLocalGraphicsEnvironment();
 		String[] names = environment.getAvailableFontFamilyNames();
-		String[] sizes =
-			{ "8", "9", "10", "11", "12", "14", "16", "18", "22", "26", "30", "36", "48", "64" };
-		styles.put("Plain", new Integer(Font.PLAIN));
-		styles.put("Italic", new Integer(Font.ITALIC));
-		styles.put("Bold", new Integer(Font.BOLD));
-		styles.put("Bold Italic", new Integer(Font.ITALIC | Font.BOLD));
+		String[] sizes = { "8", "9", "10", "11", "12", "14", "16", "18", "22", "26", "30", "36", "48", "64" };
+		styles.put(language.getString("Options.display.fontChooser.plain"), new Integer(Font.PLAIN));
+		styles.put(language.getString("Options.display.fontChooser.italic"), new Integer(Font.ITALIC));
+		styles.put(language.getString("Options.display.fontChooser.bold"), new Integer(Font.BOLD));
+		styles.put(language.getString("Options.display.fontChooser.boldItalic"), new Integer(Font.ITALIC | Font.BOLD));
 
 		for (int i = 0; i < names.length; i++) {
 			fontNamesModel.addElement(names[i]);
@@ -268,23 +240,14 @@ public class FontChooser extends JDialog {
 		fontStylesList.setSelectedIndex(0);
 	}
 	
-	/**
-	 * 
-	 */
 	private void cancelButtonPressed() {
 		selectedFont = null;
 		dispose();
 	}
-	/**
-	 * 
-	 */
 	private void okButtonPressed() {
 		dispose();
 	}
 	
-	/**
-	 * 
-	 */
 	private void fontNameValueChanged() {
 		if (fontNamesList.getSelectedIndex() != -1) {
 			selectedName = fontNamesList.getSelectedValue().toString();
@@ -293,9 +256,6 @@ public class FontChooser extends JDialog {
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	private void refreshFont() {
 		if ((selectedName != null) && (selectedSize != null) && (selectedStyle != null)) {
 			selectedFont =
@@ -304,9 +264,6 @@ public class FontChooser extends JDialog {
 		}
 	}
 
-	/**
-	 * 
-	 */
 	private void fontStyleValueChanged() {
 		int selectedIndex = fontStylesList.getSelectedIndex();
 		if (selectedIndex != -1) {
@@ -319,9 +276,6 @@ public class FontChooser extends JDialog {
 		}
 	}
 	
-	/**
-	 * 
-	 */
 	private void fontSizeValueChanged() {
 		if (fontSizesList.getSelectedIndex() != -1) {
 			selectedSize = new Integer(fontSizesList.getSelectedValue().toString());
@@ -329,16 +283,11 @@ public class FontChooser extends JDialog {
 			refreshFont();
 		}
 	}
-	/**
-	 * @return
-	 */
-	public Font getSelectedFont() {
+
+    public Font getSelectedFont() {
 		return selectedFont;
 	}
 
-	/**
-	 * @param font
-	 */
 	public void setSelectedFont(Font font) {
 		selectedFont = font;
 		//Name
@@ -368,32 +317,25 @@ public class FontChooser extends JDialog {
 		fontStylesList.setSelectedIndex(stylePos);
 	}
 	
-	/**
-	 * 
-	 */
-		private void sizeTyped() {
-			String size = selectedSizeTextField.getText();
-			try {
-				selectedSize = new Integer(size);
-				if (fontSizesModel.contains(size)) {
-					fontSizesList.setSelectedValue(size, true);
-				} else {
-					fontSizesList.clearSelection();	
-				}
-				refreshFont();			
-			} catch (NumberFormatException exception) {
-				//Nothing, just ignore the typed value
+	private void sizeTyped() {
+		String size = selectedSizeTextField.getText();
+		try {
+			selectedSize = new Integer(size);
+			if (fontSizesModel.contains(size)) {
+				fontSizesList.setSelectedValue(size, true);
+			} else {
+				fontSizesList.clearSelection();	
 			}
+			refreshFont();			
+		} catch (NumberFormatException exception) {
+			//Nothing, just ignore the typed value
 		}
-		
-	/**
-	 * 
-	 */
-	private void refreshLanguage() {
-		setTitle(language.getString("Choose a Font"));
-		sampleLabel.setText(language.getString("Sample"));
-		okButton.setText(language.getString("OK"));
-		cancelButton.setText(language.getString("Cancel"));
 	}
-
+		
+	private void refreshLanguage() {
+		setTitle(language.getString("Options.display.fontChooser.title"));
+		sampleLabel.setText(language.getString("Options.display.fontChooser.sample"));
+		okButton.setText(language.getString("Common.ok"));
+		cancelButton.setText(language.getString("Common.cancel"));
+	}
 }

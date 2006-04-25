@@ -96,33 +96,27 @@ public class UploadPanel extends JPanel {
         }
 
         private void refreshLanguage() {
-            keyNotAvailableMessage = language.getString("Key not available yet");
-            fileMessage = language.getString("clipboard.File:");
-            keyMessage = language.getString("clipboard.Key:");
-            bytesMessage = language.getString("clipboard.Bytes:");
+            keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+            fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
+            keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
+            bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
 
-            cancelItem.setText(language.getString("Cancel"));
-            copyKeysItem.setText(language.getString("Copy keys only"));
-            copyKeysAndNamesItem.setText(language.getString("Copy keys with filenames"));
-            copyExtendedInfoItem.setText(language.getString("Copy extended info"));
-            generateChkForSelectedFilesItem.setText(
-                    language.getString("Start encoding of selected files"));
-            reloadAllFilesItem.setText(language.getString("Reload all files"));
-            reloadSelectedFilesItem.setText(language.getString("Reload selected files"));
-            removeAllFilesItem.setText(language.getString("Remove all files"));
-            removeSelectedFilesItem.setText(language.getString("Remove selected files"));
-            restoreDefaultFilenamesForAllFilesItem.setText(
-                    language.getString("Restore default filenames for all files"));
-            restoreDefaultFilenamesForSelectedFilesItem.setText(
-                    language.getString("Restore default filenames for selected files"));
-            setPrefixForAllFilesItem.setText(
-                    language.getString("Set prefix for all files"));
-            setPrefixForSelectedFilesItem.setText(
-                    language.getString("Set prefix for selected files"));
+            cancelItem.setText(language.getString("Common.cancel"));
+            copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
+            copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+            copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+            generateChkForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.startEncodingOfSelectedFiles"));
+            reloadAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadAllFiles"));
+            reloadSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.uploadSelectedFiles"));
+            removeAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeAllFiles"));
+            removeSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.remove.removeSelectedFiles"));
+            restoreDefaultFilenamesForAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.restoreDefaultFilenamesForAllFiles"));
+            restoreDefaultFilenamesForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.restoreDefaultFilenamesForSelectedFiles"));
+            setPrefixForAllFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.setPrefixForAllFiles"));
+            setPrefixForSelectedFilesItem.setText(language.getString("UploadPane.fileTable.popupmenu.setPrefixForSelectedFiles"));
 
-            changeDestinationBoardMenu.setText(
-                    language.getString("Change destination board"));
-            copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
+            changeDestinationBoardMenu.setText(language.getString("UploadPane.fileTable.popupmenu.changeDestinationBoard"));
+            copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
         }
 
         /**
@@ -197,8 +191,7 @@ public class UploadPanel extends JPanel {
         private void setPrefixForAllFiles() {
             String prefix =
                 JOptionPane.showInputDialog(
-                        language.getString(
-                            "Please enter the prefix you want to use for your files."));
+                        language.getString("UploadPane.fileTable.popupmenu.prefixInputLabel"));
             if (prefix != null) {
                 model.setPrefixToAllItems(prefix);
             }
@@ -209,8 +202,7 @@ public class UploadPanel extends JPanel {
         private void setPrefixForSelectedFiles() {
             String prefix =
                 JOptionPane.showInputDialog(
-                        language.getString(
-                            "Please enter the prefix you want to use for your files."));
+                        language.getString("UploadPane.fileTable.popupmenu.prefixInputLabel"));
             if (prefix != null) {
                 model.setPrefixToItems(modelTable.getSelectedItems(), prefix);
             }
@@ -351,7 +343,7 @@ public class UploadPanel extends JPanel {
                 addSeparator();
             }
 
-            JMenu removeSubMenu = new JMenu(language.getString("Remove") + "...");
+            JMenu removeSubMenu = new JMenu(language.getString("UploadPane.fileTable.popupmenu.remove") + "...");
             if (selectedItems.length != 0) {
                 //If at least 1 item is selected
                 removeSubMenu.add(removeSelectedFilesItem);
@@ -612,7 +604,7 @@ public class UploadPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        uploadAddFilesButton.setToolTipText(language.getString("Browse") + "...");
+        uploadAddFilesButton.setToolTipText(language.getString("UploadPane.toolbar.tooltip.browse") + "...");
     }
 
     /**
@@ -637,22 +629,13 @@ public class UploadPanel extends JPanel {
         }
     }
 
-    /**
-     * @param e
-     */
     public void uploadAddFilesButton_actionPerformed(ActionEvent e) {
         Board board = tofTreeModel.getSelectedNode();
         if (board.isFolder())
             return;
 
         final JFileChooser fc = new JFileChooser(settingsClass.getValue("lastUsedDirectory"));
-        fc.setDialogTitle(
-            language.getString("Select files you want to upload to the")
-                + " "
-                + board.getName()
-                + " "
-                + language.getString("board")
-                + ".");
+        fc.setDialogTitle(language.formatMessage("UploadPane.filechooser.title", board.getName()));
         fc.setFileHidingEnabled(true);
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fc.setMultiSelectionEnabled(true);
@@ -681,9 +664,6 @@ public class UploadPanel extends JPanel {
         }
     }
 
-    /**
-     * @param e
-     */
     private void showUploadTablePopupMenu(MouseEvent e) {
         getPopupMenuUpload().show(e.getComponent(), e.getX(), e.getY());
     }

@@ -60,12 +60,12 @@ public class Logging {
         }
     }
 
-    public static final String VERY_LOW = "Very low";   //Severe
-    public static final String LOW = "Low";             //Warning
-    public static final String MEDIUM = "Medium";       //Info
-    public static final String HIGH = "High";           //Finer
-    public static final String VERY_HIGH = "Very high"; //Finest
-    public static final String DEFAULT = "Low";
+    public static final String VERY_LOW = "Options.miscellaneous.logLevel.veryLow";   //Severe
+    public static final String LOW = "Options.miscellaneous.logLevel.low";             //Warning
+    public static final String MEDIUM = "Options.miscellaneous.logLevel.medium";       //Info
+    public static final String HIGH = "Options.miscellaneous.logLevel.high";           //Finer
+    public static final String VERY_HIGH = "Options.miscellaneous.logLevel.veryHigh"; //Finest
+    public static final String DEFAULT = "Options.miscellaneous.logLevel.low";
 
     private static final String LOG_FILE_NAME = "frost%g.log";
 

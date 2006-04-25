@@ -129,17 +129,11 @@ public class MessageFrame extends JFrame {
             }
         }
 
-        /**
-         *
-         */
         private void copySelectedText() {
             StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
             clipboard.setContents(selection, this);
         }
 
-        /**
-         *
-         */
         private void cutSelectedText() {
             StringSelection selection = new StringSelection(sourceTextComponent.getSelectedText());
             clipboard.setContents(selection, this);
@@ -153,9 +147,6 @@ public class MessageFrame extends JFrame {
             }
         }
 
-        /**
-         *
-         */
         private void pasteText() {
             Transferable clipboardContent = clipboard.getContents(this);
             try {
@@ -184,9 +175,6 @@ public class MessageFrame extends JFrame {
             }
         }
 
-        /**
-         *
-         */
         private void initialize() {
             refreshLanguage();
 
@@ -204,14 +192,11 @@ public class MessageFrame extends JFrame {
             add(cancelItem);
         }
 
-        /**
-         *
-         */
         private void refreshLanguage() {
-            cutItem.setText(language.getString("Cut"));
-            copyItem.setText(language.getString("Copy"));
-            pasteItem.setText(language.getString("Paste"));
-            cancelItem.setText(language.getString("Cancel"));
+            cutItem.setText(language.getString("Common.cut"));
+            copyItem.setText(language.getString("Common.copy"));
+            pasteItem.setText(language.getString("Common.paste"));
+            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         /* (non-Javadoc)
@@ -245,16 +230,10 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    /**
-     *
-     */
     private class MFAttachedBoard implements TableMember
     {
         Board aBoard;
 
-        /**
-         * @param ab
-         */
         public MFAttachedBoard(Board ab)
         {
             aBoard = ab;
@@ -270,9 +249,6 @@ public class MessageFrame extends JFrame {
             return c1.compareTo( c2 );
         }
 
-        /**
-         * @return
-         */
         public Board getBoardObject()
         {
             return aBoard;
@@ -296,14 +272,8 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    /**
-     *
-     */
     private class MFAttachedBoardsTable extends SortedTable
     {
-        /**
-         * @param m
-         */
         public MFAttachedBoardsTable(MFAttachedBoardsTableModel m)
         {
             super(m);
@@ -322,9 +292,6 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    /**
-     *
-     */
     private class MFAttachedBoardsTableModel extends SortedTableModel
     {
         protected final Class columnClasses[] = {
@@ -334,15 +301,12 @@ public class MessageFrame extends JFrame {
             String.class
         };
         protected final String columnNames[] = {
-            "Boardname",
-            "public key",
-            "Private key",
-            "Description"
+            language.getString("MessageFrame.boardAttachmentTable.boardname"),
+            language.getString("MessageFrame.boardAttachmentTable.publicKey"),
+            language.getString("MessageFrame.boardAttachmentTable.privateKey"),
+            language.getString("MessageFrame.boardAttachmentTable.description")
         };
 
-        /**
-         *
-         */
         public MFAttachedBoardsTableModel()
         {
             super();
@@ -388,16 +352,10 @@ public class MessageFrame extends JFrame {
         public void setValueAt(Object aValue, int row, int column) {}
     }
 
-    /**
-     *
-     */
     private class MFAttachedFile implements TableMember
     {
         File aFile;
 
-        /**
-         * @param af
-         */
         public MFAttachedFile(File af)
         {
             aFile = af;
@@ -413,9 +371,6 @@ public class MessageFrame extends JFrame {
             return c1.compareTo( c2 );
         }
 
-        /**
-         * @return
-         */
         public File getFile()
         {
             return aFile;
@@ -435,14 +390,8 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    /**
-     *
-     */
     private class MFAttachedFilesTable extends SortedTable
     {
-        /**
-         * @param m
-         */
         public MFAttachedFilesTable(MFAttachedFilesTableModel m)
         {
             super(m);
@@ -461,9 +410,6 @@ public class MessageFrame extends JFrame {
         }
     }
 
-    /**
-     *
-     */
     private class MFAttachedFilesTableModel extends SortedTableModel
     {
         protected final Class columnClasses[] = {
@@ -472,13 +418,10 @@ public class MessageFrame extends JFrame {
         };
 
         protected final String columnNames[] = {
-            "Filename",
-            "Size"
+            language.getString("MessageFrame.fileAttachmentTable.filename"),
+            language.getString("MessageFrame.fileAttachmentTable.size")
         };
 
-        /**
-         *
-         */
         public MFAttachedFilesTableModel()
         {
             super();
@@ -617,9 +560,6 @@ public class MessageFrame extends JFrame {
 
     private Window parentWindow;
 
-    /**
-     * @param e
-     */
     private void attachBoards_actionPerformed(ActionEvent e) {
 
         // get and sort all boards
@@ -643,12 +583,9 @@ public class MessageFrame extends JFrame {
 
             if (privKey != null) {
                 int answer =
-                    JOptionPane.showConfirmDialog(
-                        this,
-                        language.getString("MessageFrame.ConfirmBody1") +
-                            board.getName() +
-                            language.getString("MessageFrame.ConfirmBody2"),
-                        language.getString("MessageFrame.ConfirmTitle"),
+                    JOptionPane.showConfirmDialog(this,
+                        language.formatMessage("MessageFrame.attachBoard.sendPrivateKeyConfirmationDialog.body", board.getName()),    
+                        language.getString("MessageFrame.attachBoard.sendPrivateKeyConfirmationDialog.title"),
                         JOptionPane.YES_NO_OPTION);
                 if (answer == JOptionPane.NO_OPTION) {
                     privKey = null; // don't provide privkey
@@ -670,7 +607,7 @@ public class MessageFrame extends JFrame {
     private void attachFile_actionPerformed(ActionEvent e)
     {
         final JFileChooser fc = new JFileChooser(lastUsedDirectory);
-        fc.setDialogTitle(language.getString("Choose file(s) / directory(s) to attach"));
+        fc.setDialogTitle(language.getString("MessageFrame.fileChooser.title"));
         fc.setFileHidingEnabled(false);
         fc.setFileSelectionMode(JFileChooser.FILES_AND_DIRECTORIES);
         fc.setMultiSelectionEnabled(true);
@@ -891,9 +828,6 @@ public class MessageFrame extends JFrame {
         super.dispose();
     }
 
-    /**
-     * @return
-     */
     private MessageBodyPopupMenu getMessageBodyPopupMenu() {
         if (messageBodyPopupMenu == null) {
             messageBodyPopupMenu = new MessageBodyPopupMenu(messageTextArea);
@@ -937,16 +871,16 @@ public class MessageFrame extends JFrame {
             buddies.setMaximumSize(new Dimension(300, 25)); // dirty fix for overlength combobox on linux
 
             MiscToolkit toolkit = MiscToolkit.getInstance();
-            toolkit.configureButton(Bsend, "Send message", "/data/send_rollover.gif", language);
-            toolkit.configureButton(Bcancel, "Cancel", "/data/remove_rollover.gif", language);
+            toolkit.configureButton(Bsend, "MessageFrame.toolbar.tooltip.sendMessage", "/data/send_rollover.gif", language);
+            toolkit.configureButton(Bcancel, "Common.cancel", "/data/remove_rollover.gif", language);
             toolkit.configureButton(
                 BattachFile,
-                "Add attachment(s)",
+                "MessageFrame.toolbar.tooltip.addFileAttachments",
                 "/data/attachment_rollover.gif",
                 language);
             toolkit.configureButton(
                 BattachBoard,
-                "Add Board(s)",
+                "MessageFrame.toolbar.tooltip.addBoardAttachments",
                 "/data/attachmentBoard_rollover.gif",
                 language);
 
@@ -1125,8 +1059,8 @@ public class MessageFrame extends JFrame {
         attFilesPopupMenu = new JSkinnablePopupMenu();
         attBoardsPopupMenu = new JSkinnablePopupMenu();
 
-        JMenuItem removeFiles = new JMenuItem(language.getString("Remove"));
-        JMenuItem removeBoards = new JMenuItem(language.getString("Remove"));
+        JMenuItem removeFiles = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
+        JMenuItem removeBoards = new JMenuItem(language.getString("MessageFrame.attachmentTables.popupmenu.remove"));
 
         removeFiles.addActionListener(new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -1180,24 +1114,23 @@ public class MessageFrame extends JFrame {
     }
 
     private void refreshLanguage() {
-        setTitle(language.getString("Create message"));
+        setTitle(language.getString("MessageFrame.createMessage.title"));
 
-        Bsend.setToolTipText(language.getString("Send message"));
-        Bcancel.setToolTipText(language.getString("Cancel"));
-        BattachFile.setToolTipText(language.getString("Add attachment(s)"));
-        BattachBoard.setToolTipText(language.getString("Add Board(s)"));
+        Bsend.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.sendMessage"));
+        Bcancel.setToolTipText(language.getString("Common.cancel"));
+        BattachFile.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addFileAttachments"));
+        BattachBoard.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.addBoardAttachments"));
 
-        sign.setText(language.getString("Sign"));
-        encrypt.setText(language.getString("Encrypt for"));
+        sign.setText(language.getString("MessageFrame.toolbar.sign"));
+        encrypt.setText(language.getString("MessageFrame.toolbar.encryptFor"));
 
-        addAttachedFilesToUploadTable.setText(language.getString("Indexed attachments"));
+        addAttachedFilesToUploadTable.setText(language.getString("MessageFrame.toolbar.indexedAttachments"));
 
-        addAttachedFilesToUploadTable.setToolTipText(
-                language.getString("Should file attachments be added to upload table?"));
+        addAttachedFilesToUploadTable.setToolTipText(language.getString("MessageFrame.toolbar.tooltip.indexedAttachments"));
 
-        Lboard.setText(language.getString("Board") + ": ");
-        Lfrom.setText(language.getString("From") + ": ");
-        Lsubject.setText(language.getString("Subject") + ": ");
+        Lboard.setText(language.getString("MessageFrame.board") + ": ");
+        Lfrom.setText(language.getString("MessageFrame.from") + ": ");
+        Lsubject.setText(language.getString("MessageFrame.subject") + ": ");
     }
 
     protected void removeSelectedItemsFromTable( JTable tbl )
@@ -1225,8 +1158,8 @@ public class MessageFrame extends JFrame {
 
         if( subject.equals("No subject") ) {
             int n = JOptionPane.showConfirmDialog( this,
-                                language.getString("Do you want to enter a subject?"),
-                                language.getString("No subject specified!"),
+                                language.getString("MessageFrame.defaultSubjectWarning.text"),
+                                language.getString("MessageFrame.defaultSubjectWarning.title"),
                                 JOptionPane.YES_NO_OPTION,
                                 JOptionPane.QUESTION_MESSAGE);
             if( n == JOptionPane.YES_OPTION ) {
@@ -1236,15 +1169,15 @@ public class MessageFrame extends JFrame {
 
         if( subject.length() == 0) {
             JOptionPane.showMessageDialog( this,
-                                language.getString("You must enter a subject!"),
-                                language.getString("No subject specified!"),
+                                language.getString("MessageFrame.noSubjectError.text"),
+                                language.getString("MessageFrame.noSubjectError.title"),
                                 JOptionPane.ERROR);
             return;
         }
         if( from.length() == 0) {
             JOptionPane.showMessageDialog( this,
-                                language.getString("You must enter a sender name!"),
-                                language.getString("No 'From' specified!"),
+                                language.getString("MessageFrame.noSenderError.text"),
+                                language.getString("MessageFrame.noSenderError.title"),
                                 JOptionPane.ERROR);
             return;
         }
@@ -1301,8 +1234,8 @@ public class MessageFrame extends JFrame {
             recipient = (Identity)buddies.getSelectedItem();
             if( recipient == null ) {
                 JOptionPane.showMessageDialog( this,
-                        "Can't encrypt, no recipient choosed!",
-                        language.getString("Error"),
+                        language.getString("MessageFrame.encryptErrorNoRecipient.body"),
+                        language.getString("MessageFrame.encryptErrorNoRecipient.title"),
                         JOptionPane.ERROR);
                 return;
             }
@@ -1337,7 +1270,7 @@ public class MessageFrame extends JFrame {
         } else {
             JOptionPane.showMessageDialog( this,
                     "Error verifying the resulting message size.",
-                    language.getString("Error"),
+                    "Error",
                     JOptionPane.ERROR_MESSAGE);
             return;
         }

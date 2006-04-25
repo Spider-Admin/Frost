@@ -135,7 +135,7 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
      * @return void
      */
     private void initialize() {
-        this.setTitle(language.getString("Search messages"));
+        this.setTitle(language.getString("SearchMessages.title"));
         this.setIconImage(new ImageIcon(getClass().getResource("/data/search.gif")).getImage());
         this.setSize(new java.awt.Dimension(700,550));
         this.setContentPane(getJContentPane());
@@ -233,12 +233,12 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JTabbedPane getJTabbedPane() {
         if( jTabbedPane == null ) {
             jTabbedPane = new JTranslatableTabbedPane(language);
-            jTabbedPane.addTab("Search", null, getPsearch(), null);
-            jTabbedPane.addTab("Boards", null, getPboards(), null);
-            jTabbedPane.addTab("Date", null, getPdate(), null);
-            jTabbedPane.addTab("Trust state", null, getPtrustState(), null);
-            jTabbedPane.addTab("Archive", null, getParchive(), null);
-            jTabbedPane.addTab("Attachments", null, getPattachments(), null);
+            jTabbedPane.addTab("SearchMessages.search", null, getPsearch(), null);
+            jTabbedPane.addTab("SearchMessages.boards", null, getPboards(), null);
+            jTabbedPane.addTab("SearchMessages.date", null, getPdate(), null);
+            jTabbedPane.addTab("SearchMessages.trustState", null, getPtrustState(), null);
+            jTabbedPane.addTab("SearchMessages.archive", null, getParchive(), null);
+            jTabbedPane.addTab("SearchMessages.attachments", null, getPattachments(), null);
         }
         return jTabbedPane;
     }
@@ -1136,8 +1136,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         Vector allBoards = MainFrame.getInstance().getTofTreeModel().getAllBoards();
         if (allBoards.size() == 0) {
             JOptionPane.showMessageDialog(this,
-                    language.getString("There are no boards that could be choosed."),
-                    language.getString("Error"),
+                    language.getString("SearchMessages.errorDialogs.noBoardsToChoose"),
+                    language.getString("SearchMessages.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -1217,8 +1217,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         } else if( getBoards_RBchosed().isSelected() ) {
             if( chosedBoardsList.size() == 0 ) {
                 JOptionPane.showMessageDialog(this,
-                        language.getString("No boards to search into were chosed."),
-                        language.getString("Error"),
+                        language.getString("SearchMessages.errorDialogs.noBoardsChosed"),
+                        language.getString("SearchMessages.errorDialogs.title"),
                         JOptionPane.ERROR_MESSAGE);
                 return null;
             }
@@ -1245,15 +1245,15 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                 // check start before end
                 if( scfg.startDate.after(scfg.endDate) ) {
                     JOptionPane.showMessageDialog(this,
-                            language.getString("Start date is after end date."),
-                            language.getString("Error"),
+                            language.getString("SearchMessages.errorDialogs.startDateIsAfterEndDate"),
+                            language.getString("SearchMessages.errorDialogs.title"),
                             JOptionPane.ERROR_MESSAGE);
                     return null;
                 }
             } catch(ParseException ex) {
                 JOptionPane.showMessageDialog(this,
-                        language.getString("Invalid start date or end date specified."),
-                        language.getString("Error"),
+                        language.getString("SearchMessages.errorDialogs.invalidStartOrEndDate"),
+                        language.getString("SearchMessages.errorDialogs.title"),
                         JOptionPane.ERROR_MESSAGE);
                 return null;
             }
@@ -1281,8 +1281,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                 !scfg.trust_bad && !scfg.trust_none && !scfg.trust_tampered )
             {
                 JOptionPane.showMessageDialog(this,
-                        language.getString("No trust state is selected."),
-                        language.getString("Error"),
+                        language.getString("SearchMessages.errorDialogs.noTrustStateSelected"),
+                        language.getString("SearchMessages.errorDialogs.title"),
                         JOptionPane.ERROR_MESSAGE);
                 return null;
             }
@@ -1389,8 +1389,8 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
         if( getRunningSearchThread() != null ) {
             // close not allowed, search must be stopped
             JOptionPane.showMessageDialog(this,
-                    language.getString("Please stop the search before closing the window."),
-                    language.getString("Error"),
+                    language.getString("SearchMessages.errorDialog.stopSearchBeforeClose"),
+                    language.getString("SearchMessages.errorDialogs.title"),
                     JOptionPane.ERROR_MESSAGE);
             return;
         }
@@ -1625,9 +1625,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
     public void languageChanged(LanguageEvent e) {
 
-        resultCountPrefix = language.getString("Results") + ": ";
-        startSearchStr = language.getString("Search");
-        stopSearchStr = language.getString("Stop search");
+        resultCountPrefix = language.getString("SearchMessages.label.results") + ": ";
+        startSearchStr = language.getString("SearchMessages.button.search");
+        stopSearchStr = language.getString("SearchMessages.button.stopSearch");
 
         if( getRunningSearchThread() != null ) {
             getBsearch().setText(stopSearchStr);
@@ -1635,45 +1635,45 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             getBsearch().setText(startSearchStr);
         }
 
-        getBopenMsg().setText(language.getString("Open message"));
-        getBhelp().setText(language.getString("Help"));
-        getBcancel().setText(language.getString("Close"));
+        getBopenMsg().setText(language.getString("SearchMessages.button.openMessage"));
+        getBhelp().setText(language.getString("SearchMessages.button.help"));
+        getBcancel().setText(language.getString("SearchMessages.button.close"));
 
-        Lsender.setText(language.getString("Sender"));
-        Lcontent.setText(language.getString("Content"));
-        Lsubject.setText(language.getString("Subject"));
+        Lsender.setText(language.getString("SearchMessages.search.sender"));
+        Lcontent.setText(language.getString("SearchMessages.search.content"));
+        Lsubject.setText(language.getString("SearchMessages.search.subject"));
 
-        LsearchResult.setText(language.getString("Search result"));
-        date_Lto.setText(language.getString("to"));
+        LsearchResult.setText(language.getString("SearchMessages.label.searchResult"));
+        date_Lto.setText(language.getString("SearchMessages.date.to"));
 
-        getDate_RBbetweenDates().setText(language.getString("Search between dates"));
-        getDate_RBdisplayed().setText(language.getString("Search in messages that would be displayed"));
-        getDate_RBdaysBackward().setText(language.getString("Search number of days backward"));
-        getDate_RBall().setText(language.getString("Search all dates"));
+        getDate_RBbetweenDates().setText(language.getString("SearchMessages.date.searchBetweenDates"));
+        getDate_RBdisplayed().setText(language.getString("SearchMessages.date.searchInMessagesThatWouldBeDisplayed"));
+        getDate_RBdaysBackward().setText(language.getString("SearchMessages.date.searchNumberOfDaysBackward"));
+        getDate_RBall().setText(language.getString("SearchMessages.date.searchAllDates"));
 
-        getTruststate_RBall().setText(language.getString("Search all messages, no matter which trust state is set"));
-        getTruststate_RBdisplayed().setText(language.getString("Search in messages that would be displayed"));
-        getTruststate_RBchosed().setText(language.getString("Search only in messages with following trust state"));
+        getTruststate_RBall().setText(language.getString("SearchMessages.trustState.searchAllMessages"));
+        getTruststate_RBdisplayed().setText(language.getString("SearchMessages.trustState.searchInMessagesThatWouldBeDisplayed"));
+        getTruststate_RBchosed().setText(language.getString("SearchMessages.trustState.searchOnlyInMessagesWithFollowingTrustState"));
 
-        getTruststate_CBtampered().setText(language.getString("Tampered"));
-        getTruststate_CBnone().setText(language.getString("None (unsigned)"));
-        getTruststate_CBbad().setText(language.getString("Bad"));
-        getTruststate_CBcheck().setText(language.getString("Check"));
-        getTruststate_CBobserve().setText(language.getString("Observe"));
-        getTruststate_CBgood().setText(language.getString("Good"));
+        getTruststate_CBtampered().setText(language.getString("SearchMessages.trustState.tampered"));
+        getTruststate_CBnone().setText(language.getString("SearchMessages.trustState.none"));
+        getTruststate_CBbad().setText(language.getString("SearchMessages.trustState.bad"));
+        getTruststate_CBcheck().setText(language.getString("SearchMessages.trustState.check"));
+        getTruststate_CBobserve().setText(language.getString("SearchMessages.trustState.observe"));
+        getTruststate_CBgood().setText(language.getString("SearchMessages.trustState.good"));
 
-        getArchive_RBarchiveOnly().setText(language.getString("Search only in archive"));
-        getArchive_RBkeypoolOnly().setText(language.getString("Search only in keypool"));
-        getArchive_RBkeypoolAndArchive().setText(language.getString("Search in keypool and archive"));
+        getArchive_RBarchiveOnly().setText(language.getString("SearchMessages.archive.searchOnlyInArchive"));
+        getArchive_RBkeypoolOnly().setText(language.getString("SearchMessages.archive.searchOnlyInKeypool"));
+        getArchive_RBkeypoolAndArchive().setText(language.getString("SearchMessages.archive.searchInKeypoolAndArchive"));
 
-        getBoards_RBchosed().setText(language.getString("Search following boards"));
-        getBoards_RBdisplayed().setText(language.getString("Search in displayed boards"));
+        getBoards_RBchosed().setText(language.getString("SearchMessages.boards.searchFollowingBoards"));
+        getBoards_RBdisplayed().setText(language.getString("SearchMessages.boards.searchInDisplayedBoards"));
 
-        getSearch_CBprivateMsgsOnly().setText(language.getString("Search private messages only"));
-        getBoards_Bchoose().setText(language.getString("Choose boards")+"...");
+        getSearch_CBprivateMsgsOnly().setText(language.getString("SearchMessages.search.searchPrivateMessagesOnly"));
+        getBoards_Bchoose().setText(language.getString("SearchMessages.boards.chooseBoards")+"...");
         
-        getAttachment_CBmustContainBoards().setText(language.getString("Message must contain board attachments"));
-        getAttachment_CBmustContainFiles().setText(language.getString("Message must contain file attachments"));
+        getAttachment_CBmustContainBoards().setText(language.getString("SearchMessages.attachments.messageMustContainBoardAttachments"));
+        getAttachment_CBmustContainFiles().setText(language.getString("SearchMessages.attachments.messageMustContainFileAttachments"));
     }
 
     /**

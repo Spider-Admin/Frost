@@ -222,7 +222,6 @@ class UploadPanel extends JPanel {
         // Add listeners
         disableRequestsCheckBox.addActionListener(listener);
         restartFailedUploadsCheckBox.addChangeListener(listener);
-
     }
 
     /**
@@ -263,26 +262,26 @@ class UploadPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        String minutes = language.getString("minutes");
-        disableRequestsCheckBox.setText(language.getString("Disable uploads"));
-        restartFailedUploadsCheckBox.setText(language.getString("Restart failed uploads"));
-        waitTimeLabel.setText(language.getString("Waittime after each try") + " (" + minutes + "): ");
-        maxRetriesLabel.setText(language.getString("Maximum number of retries") + ": ");
-        signUploadsCheckBox.setText(language.getString("Sign shared files"));
-        automaticIndexingCheckBox.setText(language.getString("Automatic Indexing"));
-        shareDownloadsCheckBox.setText(language.getString("Share Downloads"));
+        String minutes = language.getString("Options.common.minutes");
+        
+        disableRequestsCheckBox.setText(language.getString("Options.uploads.disableUploads"));
+        restartFailedUploadsCheckBox.setText(language.getString("Options.uploads.restartFailedUploads"));
+        waitTimeLabel.setText(language.getString("Options.uploads.waittimeAfterEachTry") + " (" + minutes + "): ");
+        maxRetriesLabel.setText(language.getString("Options.uploads.maximumNumberOfRetries") + ": ");
+        signUploadsCheckBox.setText(language.getString("Options.uploads.signSharedFiles"));
+        automaticIndexingCheckBox.setText(language.getString("Options.uploads.automaticIndexing"));
+        shareDownloadsCheckBox.setText(language.getString("Options.uploads.shareDownloads"));
         helpFriendsCheckBox.setText(
-                language.getString("Help spread files from people marked GOOD"));
-        htlLabel.setText(language.getString("Upload HTL") + " (21)");
-        htlExplanationLabel.setText(language.getString("up htl explanation"));
+                language.getString("Options.uploads.helpSpreadFilesFromPeopleMarkedGood"));
+        htlLabel.setText(language.getString("Options.uploads.uploadHtl") + " (21)");
+        htlExplanationLabel.setText(language.getString("Options.uploads.uploadHtlExplanation"));
         threadsLabel.setText(
-                language.getString("Number of simultaneous uploads") + " (3)");
+                language.getString("Options.uploads.numberOfSimultaneousUploads") + " (3)");
         splitfileThreadsLabel.setText(
-                language.getString("Number of splitfile threads") + " (15)");
-        splitfileThreadsExplanationLabel.setText(
-                language.getString("splitfile explanation"));
-        batchSizeLabel.setText(language.getString("Upload batch size"));
-        batchSizeExplanationLabel.setText(language.getString("batch explanation"));
+                language.getString("Options.uploads.numberOfSplitfileThreads") + " (15)");
+        splitfileThreadsExplanationLabel.setText(language.getString("Options.uploads.numberOfSplitfileThreadsExplanation"));
+        batchSizeLabel.setText(language.getString("Options.uploads.uploadBatchSize"));
+        batchSizeExplanationLabel.setText(language.getString("Options.uploads.uploadBatchSizeExplanation"));
     }
 
     /**

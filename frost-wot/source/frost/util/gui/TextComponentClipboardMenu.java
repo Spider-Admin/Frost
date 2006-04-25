@@ -33,8 +33,7 @@ import frost.util.gui.translation.Language;
  * @author $Author$
  * @version $Revision$
  */
-public class TextComponentClipboardMenu extends MouseAdapter 
-										  implements ClipboardOwner, ActionListener {
+public class TextComponentClipboardMenu extends MouseAdapter implements ClipboardOwner, ActionListener {
 
 	private static Logger logger = Logger.getLogger(TextComponentClipboardMenu.class.getName());
 	
@@ -49,9 +48,6 @@ public class TextComponentClipboardMenu extends MouseAdapter
 	private JMenuItem pasteItem;
 	private JMenuItem cancelItem;
 	
-	/**
-	 * 
-	 */
 	public TextComponentClipboardMenu(JTextComponent textComponent, Language language) {
 		this.textComponent = textComponent;
 		this.language = language;
@@ -104,18 +100,14 @@ public class TextComponentClipboardMenu extends MouseAdapter
 		}
 	}
 	
-	/**
-	 * @param x
-	 * @param y
-	 */
 	private void showPopup(int x, int y) {
 
 		createPopupMenu();
 
-		cutItem.setText(language.getString("Cut"));
-		copyItem.setText(language.getString("Copy"));
-		pasteItem.setText(language.getString("Paste"));
-		cancelItem.setText(language.getString("Cancel"));
+		cutItem.setText(language.getString("Common.cut"));
+		copyItem.setText(language.getString("Common.copy"));
+		pasteItem.setText(language.getString("Common.paste"));
+		cancelItem.setText(language.getString("Common.cancel"));
 
 		if (textComponent.getSelectedText() != null) {
 			if (textComponent.isEditable()) {
@@ -143,9 +135,6 @@ public class TextComponentClipboardMenu extends MouseAdapter
 		popupMenu.show(textComponent, x, y);
 	}
 	
-	/**
-	 * 
-	 */
 	private void pasteText() {
 		Transferable clipboardContent = clipboard.getContents(this);
 		try {
@@ -174,9 +163,6 @@ public class TextComponentClipboardMenu extends MouseAdapter
 		}		
 	}
 	
-	/**
-	 *  
-	 */
 	private void createPopupMenu() {
 		if (popupMenu == null) {
 			popupMenu = new JPopupMenu();
@@ -198,9 +184,6 @@ public class TextComponentClipboardMenu extends MouseAdapter
 		}
 	}
 	
-	/**
-	 * @return
-	 */
 	private Clipboard getClipboard() {
 		if (clipboard == null) {
 			Toolkit toolkit = Toolkit.getDefaultToolkit();
@@ -209,17 +192,11 @@ public class TextComponentClipboardMenu extends MouseAdapter
 		return clipboard;
 	}
 
-	/**
-	 * 
-	 */
 	private void copySelectedText() {
 		StringSelection selection = new StringSelection(textComponent.getSelectedText());
 		clipboard.setContents(selection, this);		
 	}
 
-	/**
-	 * 
-	 */
 	private void cutSelectedText() {
 		StringSelection selection = new StringSelection(textComponent.getSelectedText());
 		clipboard.setContents(selection, this);
@@ -232,5 +209,4 @@ public class TextComponentClipboardMenu extends MouseAdapter
 			logger.log(Level.SEVERE, "Problem while cutting text.", ble);
 		}		
 	}
-	
 }

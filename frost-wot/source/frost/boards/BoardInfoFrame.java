@@ -128,16 +128,16 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
     private SortedTable boardTable = null;
 
     private void refreshLanguage() {
-        setTitle(language.getString("BoardInfoFrame.Board information window"));
+        setTitle(language.getString("BoardInfoFrame.title"));
 
-        updateButton.setText(language.getString("BoardInfoFrame.Update"));
-        updateSelectedBoardButton.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-        updateAllBoardsButton.setText(language.getString("BoardInfoFrame.Update all boards"));
-        Bclose.setText(language.getString("BoardInfoFrame.Close"));
+        updateButton.setText(language.getString("BoardInfoFrame.button.update"));
+        updateSelectedBoardButton.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
+        updateAllBoardsButton.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
+        Bclose.setText(language.getString("BoardInfoFrame.button.close"));
 
-        MIupdate.setText(language.getString("BoardInfoFrame.Update"));
-        MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.UpdateSelectedBoardButton"));
-        MIupdateAllBoards.setText(language.getString("BoardInfoFrame.Update all boards"));
+        MIupdate.setText(language.getString("BoardInfoFrame.button.update"));
+        MIupdateSelectedBoard.setText(language.getString("BoardInfoFrame.button.updateSelectedBoard"));
+        MIupdateAllBoards.setText(language.getString("BoardInfoFrame.button.updateAllBoards"));
     }
 
     /**
@@ -331,11 +331,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
                 SwingUtilities.invokeLater(new Runnable() {
                         public void run() {
                             boardTableModel.addRow(finalRow);
-                            summaryLabel.setText(language.getString("BoardInfoFrame.Boards") +"   :"+
+                            summaryLabel.setText(language.getString("BoardInfoFrame.label.boards") +"   :"+
                                                  finalBoardCount +"    "+
-                                                 language.getString("BoardInfoFrame.Messages") +"  : "+
+                                                 language.getString("BoardInfoFrame.label.messages") +"  : "+
                                                  finalMessageCount +"    "+
-                                                 language.getString("BoardInfoFrame.Files") + "   :"+
+                                                 language.getString("BoardInfoFrame.label.files") + "   :"+
                                                  finalFileCount);
                         }});
             }
@@ -475,9 +475,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         setVisible(true);
     }
 
-    /**
-     *
-     */
     protected void closeDialog() {
         tofTree.getRunningBoardUpdateThreads().removeBoardUpdateThreadListener(this);
         language.removeLanguageListener(listener);
@@ -595,9 +592,6 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
         }
     }
 
-    /**
-     *
-     */
     private class BoardInfoTableCellRenderer extends DefaultTableCellRenderer
     {
         Font boldFont;
@@ -654,18 +648,11 @@ public class BoardInfoFrame extends JFrame implements BoardUpdateThreadListener
          boardTableModel.tableEntriesChanged();
      }
 
-    /**
-     * @return
-     */
     public static boolean isDialogShowing() {
         return isShowing;
     }
 
-    /**
-     * @param val
-     */
     public static void setDialogShowing(boolean val) {
         isShowing = val;
     }
-
 }

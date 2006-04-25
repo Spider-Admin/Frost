@@ -102,7 +102,7 @@ class DownloadPanel extends JPanel {
      */
     private void browseDirectoryPressed() {
         final JFileChooser fc = new JFileChooser(settings.getValue("lastUsedDirectory"));
-        fc.setDialogTitle(language.getString("Select download directory"));
+        fc.setDialogTitle(language.getString("Options.downloads.filechooser.title"));
         fc.setFileHidingEnabled(true);
         fc.setFileSelectionMode(JFileChooser.DIRECTORIES_ONLY);
         fc.setMultiSelectionEnabled(false);
@@ -313,27 +313,28 @@ class DownloadPanel extends JPanel {
     }
 
     private void refreshLanguage() {
-        String off = language.getString("Off");
-        String on = language.getString("On");
-        String minutes = language.getString("minutes");
+        String off = language.getString("Options.common.off");
+        String on = language.getString("Options.common.on");
+        String minutes = language.getString("Options.common.minutes");
+        
         removeFinishedDownloadsCheckBox.setText(
-                language.getString("Remove finished downloads every 5 minutes") + " (" + off + ")");
-        restartFailedDownloadsCheckBox.setText(language.getString("Restart failed downloads"));
-        waitTimeLabel.setText(language.getString("Waittime after each try") + " (" + minutes + "): ");
-        maxRetriesLabel.setText(language.getString("Maximum number of retries") + ": ");
-        requestAfterTriesLabel.setText(language.getString("Request file after this count of retries") + ": ");
+                language.getString("Options.downloads.removeFinishedDownloadsEvery5Minutes") + " (" + off + ")");
+        restartFailedDownloadsCheckBox.setText(language.getString("Options.downloads.restartFailedDownloads"));
+        waitTimeLabel.setText(language.getString("Options.downloads.waittimeAfterEachTry") + " (" + minutes + "): ");
+        maxRetriesLabel.setText(language.getString("Options.downloads.maximumNumberOfRetries") + ": ");
+        requestAfterTriesLabel.setText(language.getString("Options.downloads.requestFileAfterThisCountOfRetries") + ": ");
         enableRequestingCheckBox.setText(
-                language.getString("Enable requesting of failed download files") + " (" + on + ")");
+                language.getString("Options.downloads.enableRequestingOfFailedDownloadFiles") + " (" + on + ")");
         tryAllSegmentsCheckBox.setText(
-                language.getString("Try to download all segments, even if one fails") + " (" + on + ")");
+                language.getString("Options.downloads.tryToDownloadAllSegments") + " (" + on + ")");
         decodeAfterEachSegmentCheckBox.setText(
-                language.getString("Decode each segment immediately after its download"));
-        disableDownloadsCheckBox.setText(language.getString("Disable downloads"));
+                language.getString("Options.downloads.decodeEachSegmentImmediately"));
+        disableDownloadsCheckBox.setText(language.getString("Options.downloads.disableDownloads"));
 
-        directoryLabel.setText(language.getString("Download directory") + ": ");
-        browseDirectoryButton.setText(language.getString("Browse") + "...");
-        threadsTextLabel.setText(language.getString("Number of simultaneous downloads") + " (3)");
-        splitfileThreadsLabel.setText(language.getString("Number of splitfile threads") + " (30)");
+        directoryLabel.setText(language.getString("Options.downloads.downloadDirectory") + ": ");
+        browseDirectoryButton.setText(language.getString("Common.browse") + "...");
+        threadsTextLabel.setText(language.getString("Options.downloads.numberOfSimultaneousDownloads") + " (3)");
+        splitfileThreadsLabel.setText(language.getString("Options.downloads.numberOfSplitfileThreads") + " (30)");
     }
 
     /**

@@ -31,7 +31,6 @@ import frost.*;
 import frost.boards.TofTree;
 import frost.gui.model.*;
 import frost.gui.objects.*;
-import frost.gui.objects.Board;
 import frost.messages.BoardAttachment;
 import frost.util.gui.*;
 import frost.util.gui.translation.Language;
@@ -88,7 +87,7 @@ public class KnownBoardsFrame extends JDialog {
      * Build the GUI.
      */
     private void initialize() {
-        setTitle(language.getString("KnownBoardsFrame.List of known boards"));
+        setTitle(language.getString("KnownBoardsFrame.title"));
 
         this.setResizable(true);
 
@@ -108,9 +107,9 @@ public class KnownBoardsFrame extends JDialog {
         boardsTable.setRowSelectionAllowed(true);
         boardsTable.setSelectionMode( ListSelectionModel.MULTIPLE_INTERVAL_SELECTION );
 
-        Bclose = new JButton(language.getString("KnownBoardsFrame.Close"));
-        BaddBoard = new JButton(language.getString("Add Board(s)"));
-        BaddBoardToFolder = new JButton(language.getString("Add Board(s) to folder")+" ...");
+        Bclose = new JButton(language.getString("KnownBoardsFrame.button.close"));
+        BaddBoard = new JButton(language.getString("KnownBoardsFrame.button.addBoards"));
+        BaddBoardToFolder = new JButton(language.getString("KnownBoardsFrame.button.addBoardsToFolder")+" ...");
 
         TFlookupBoard = new JTextField(10);
         new TextComponentClipboardMenu(TFlookupBoard, language);
@@ -168,11 +167,11 @@ public class KnownBoardsFrame extends JDialog {
 
         JPanel buttons = new JPanel(new BorderLayout());
         buttons.setLayout( new BoxLayout( buttons, BoxLayout.X_AXIS ));
-        buttons.add( new JLabel(language.getString("KnownBoardsFrame.Lookup") + ":"));
+        buttons.add( new JLabel(language.getString("KnownBoardsFrame.label.lookup") + ":"));
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( TFlookupBoard );
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
-        buttons.add( new JLabel(language.getString("KnownBoardsFrame.Filter") + ":"));
+        buttons.add( new JLabel(language.getString("KnownBoardsFrame.label.filter") + ":"));
         buttons.add(Box.createRigidArea(new Dimension(5,3)));
         buttons.add( TFfilterBoard );
 
@@ -203,9 +202,9 @@ public class KnownBoardsFrame extends JDialog {
 
     private void initPopupMenu() {
         tablePopupMenu = new JSkinnablePopupMenu();
-        JMenuItem addBoardsMenu = new JMenuItem(language.getString("Add Board(s)"));
-        JMenuItem addBoardsToFolderMenu = new JMenuItem(language.getString("Add Board(s) to folder")+" ...");
-        JMenuItem removeBoardEntry = new JMenuItem(language.getString("Remove board"));
+        JMenuItem addBoardsMenu = new JMenuItem(language.getString("KnownBoardsFrame.button.addBoards"));
+        JMenuItem addBoardsToFolderMenu = new JMenuItem(language.getString("KnownBoardsFrame.button.addBoardsToFolder")+" ...");
+        JMenuItem removeBoardEntry = new JMenuItem(language.getString("KnownBoardsFrame.button.removeBoard"));
 
         addBoardsMenu.addActionListener( new java.awt.event.ActionListener() {
             public void actionPerformed(ActionEvent e) {
@@ -342,9 +341,6 @@ public class KnownBoardsFrame extends JDialog {
         }
     }
 
-    /**
-     * @param e
-     */
     private void boardsTableListModel_valueChanged(ListSelectionEvent e) {
         if( boardsTable.getSelectedRowCount() > 0 ) {
             BaddBoard.setEnabled(true);

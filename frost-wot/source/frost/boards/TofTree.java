@@ -177,14 +177,14 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         }
 
         private void refreshLanguage() {
-            addBoardItem.setText(language.getString("Add new board"));
-            addFolderItem.setText(language.getString("Add new folder"));
-            configureBoardItem.setText(language.getString("Configure selected board"));
-            configureFolderItem.setText(language.getString("Configure selected folder"));
-            cancelItem.setText(language.getString("Cancel"));
-            sortFolderItem.setText(language.getString("Sort folder"));
-            markAllReadItem.setText(language.getString("Mark ALL messages read"));
-            renameFolderItem.setText(language.getString("Rename folder"));
+            addBoardItem.setText(language.getString("BoardTree.popupmenu.addNewBoard"));
+            addFolderItem.setText(language.getString("BoardTree.popupmenu.addNewFolder"));
+            configureBoardItem.setText(language.getString("BoardTree.popupmenu.configureSelectedBoard"));
+            configureFolderItem.setText(language.getString("BoardTree.popupmenu.configureSelectedFolder"));
+            cancelItem.setText(language.getString("Common.cancel"));
+            sortFolderItem.setText(language.getString("BoardTree.popupmenu.sortFolder"));
+            markAllReadItem.setText(language.getString("BoardTree.popupmenu.markAllMessagesRead"));
+            renameFolderItem.setText(language.getString("BoardTree.popupmenu.renameFolder"));
         }
 
         private void refreshSelected() {
@@ -213,17 +213,18 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
 
                 String folderOrBoard1 =
                     ((selectedTreeNode.isFolder())
-                        ? language.getString("Folder")
-                        : language.getString("Board"));
+                        ? language.getString("BoardTree.popupmenu.Folder")
+                        : language.getString("BoardTree.popupmenu.Board"));
                 String folderOrBoard2 =
                     ((selectedTreeNode.isFolder())
-                        ? language.getString("folder")
-                        : language.getString("board"));
+                        ? language.getString("BoardTree.popupmenu.folder")
+                        : language.getString("BoardTree.popupmenu.board"));
 
                 descriptionItem.setText(folderOrBoard1 + " : " + selectedTreeNode.getName());
-                refreshItem.setText(language.getString("Refresh") + " " + folderOrBoard2);
-                removeNodeItem.setText(language.getString("Remove") + " " + folderOrBoard2);
-                cutNodeItem.setText(language.getString("Cut") + " " + folderOrBoard2);
+
+                refreshItem.setText(language.getString("BoardTree.popupmenu.refresh") + " " + folderOrBoard2);
+                removeNodeItem.setText(language.getString("BoardTree.popupmenu.remove") + " " + folderOrBoard2);
+                cutNodeItem.setText(language.getString("BoardTree.popupmenu.cut") + " " + folderOrBoard2);
 
                 add(descriptionItem);
                 addSeparator();
@@ -251,10 +252,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 if (clipboard != null && selectedTreeNode.isFolder()) {
                     String folderOrBoard3 =
                         ((clipboard.isFolder())
-                            ? language.getString("folder")
-                            : language.getString("board"));
+                            ? language.getString("BoardTree.popupmenu.folder")
+                            : language.getString("BoardTree.popupmenu.board"));
                     pasteNodeItem.setText(
-                            language.getString("Paste")
+                            language.getString("BoardTree.popupmenu.paste")
                             + " "
                             + folderOrBoard3
                             + " '"
@@ -643,14 +644,11 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         model.nodesWereInserted(position, insertedIndex);
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        cutBoardButton.setToolTipText(language.getString("Cut board"));
-        pasteBoardButton.setToolTipText(language.getString("Paste board"));
-        configBoardButton.setToolTipText(language.getString("Configure board"));
-        configBoardMenuItem.setText(language.getString("Configure selected board"));
+        cutBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.cutBoard"));
+        pasteBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.pasteBoard"));
+        configBoardButton.setToolTipText(language.getString("MainFrame.toolbar.tooltip.configureBoard"));
+        configBoardMenuItem.setText(language.getString("BoardTree.popupmenu.configureSelectedBoard"));
     }
 
     /**
@@ -770,11 +768,9 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                 if (model.getBoardByName(boardName) != null) {
                     JOptionPane.showMessageDialog(
                         parent,
-                        language.getString("You already have a board with name")
-                            + " '"
-                            + boardName
-                            + "'!\n"
-                            + language.getString("Please choose a new name"));
+                        language.formatMessage("BoardTree.duplicateNewBoardNameError.body", boardName),
+                        language.getString("BoardTree.duplicateNewBoardNameError.title"),
+                        JOptionPane.ERROR_MESSAGE);
                 } else {
                     Board newBoard = new Board(boardName, boardDescription);
                     model.addNodeToTree(newBoard);
@@ -782,7 +778,6 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     TOF.getInstance().initialSearchNewMessages(newBoard);
                     isDone = true; //added
                 }
-
             }
         }
     }
@@ -799,16 +794,8 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             int answer =
                 JOptionPane.showConfirmDialog(
                     getTopLevelAncestor(),
-                    language.getString("You already have a board with name")
-                        + " '"
-                        + bname
-                        + "'!\n"
-                        + language.getString("Do you really want to overwrite it?")
-                        + ""
-                        + "\n("
-                        + language.getString("This will not delete messages")
-                        + ")",
-                        language.getString("Warning"),
+                    language.formatMessage("BoardTree.overWriteBoardConfirmation.body", bname),
+                    language.getString("BoardTree.overWriteBoardConfirmation.title"),
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.WARNING_MESSAGE);
             if (answer == JOptionPane.NO_OPTION) {
@@ -843,12 +830,12 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
             Object nodeNameOb =
                 JOptionPane.showInputDialog(
                     parent,
-                    language.getString("Please enter a name for the new folder") + ":",
-                    language.getString("New Folder Name"),
+                    language.getString("BoardTree.newFolderDialog.body") + ":",
+                    language.getString("BoardTree.newFolderDialog.title"),
                     JOptionPane.QUESTION_MESSAGE,
                     null,
                     null,
-                    language.getString("newfolder"));
+                    language.getString("BoardTree.newFolderDialog.defaultName"));
 
             nodeName = ((nodeNameOb == null) ? null : nodeNameOb.toString());
 
@@ -866,22 +853,21 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
      */
     public void removeNode(Board node) {
         String txt;
+        int answer;
         if (node.isFolder()) {
-            txt =
-                "Do you really want to delete folder '"
-                    + node.getName()
-                    + "' ???"
-                    + "\nNOTE: Removing it will also remove all boards/folders inside this folder!!!";
+            answer = JOptionPane.showConfirmDialog(
+                    this,
+                    language.formatMessage("BoardTree.removeFolderConfirmation.body", node.getName()),
+                    language.formatMessage("BoardTree.removeFolderConfirmation.title", node.getName()),
+                    JOptionPane.YES_NO_OPTION);
         } else {
-            txt = "Do you really want to delete board '" + node.getName() + "' ???";
+            answer = JOptionPane.showConfirmDialog(
+                    this,
+                    language.formatMessage("BoardTree.removeBoardConfirmation.body", node.getName()),
+                    language.formatMessage("BoardTree.removeBoardConfirmation.title", node.getName()),
+                    JOptionPane.YES_NO_OPTION);
         }
 
-        int answer =
-            JOptionPane.showConfirmDialog(
-                this,
-                txt,
-                "Delete '" + node.getName() + "'?",
-                JOptionPane.YES_NO_OPTION);
         if (answer == JOptionPane.NO_OPTION) {
             return;
         }
@@ -900,8 +886,7 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
                     + "so please ensure this board is'nt updating right now,\n"
                     + "or you have to live with the consequences ;) )\n\n"
                     + "You can also delete the directory by yourself after shutdown of Frost.";
-            answer =
-                JOptionPane.showConfirmDialog(
+            answer = JOptionPane.showConfirmDialog(
                     this,
                     txt,
                     "Delete directory of '" + node.getName() + "'?",
@@ -1010,16 +995,10 @@ public class TofTree extends JDragTree implements Savable, PropertyChangeListene
         return true;
     }
 
-    /**
-     * @return
-     */
     public RunningBoardUpdateThreads getRunningBoardUpdateThreads() {
         return runningBoardUpdateThreads;
     }
 
-    /**
-     *
-     */
     private void selectionChanged() {
         Board node = (Board) getLastSelectedPathComponent();
         if (node != null) {

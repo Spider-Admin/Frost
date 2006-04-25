@@ -48,7 +48,7 @@ public class BoardsChooser extends JDialog {
     public BoardsChooser(Frame parent, List boards, List preselectedBoards) {
         super(parent);
         setModal(true);
-        setTitle(language.getString("Choose boards"));
+        setTitle(language.getString("BoardsChooser.title"));
         
         // fill given board into our list as BoardListEntries
         boardList = new ArrayList();
@@ -80,13 +80,13 @@ public class BoardsChooser extends JDialog {
     }
 
     private void initGui() {
-        Bok = new JButton(language.getString("OK"));
+        Bok = new JButton(language.getString("Common.ok"));
         Bok.addActionListener( new ActionListener() {
                public void actionPerformed(ActionEvent e) {
                     okPressed = true;
                     setVisible(false);
                } });
-        Bcancel = new JButton(language.getString("Cancel"));
+        Bcancel = new JButton(language.getString("Common.cancel"));
         Bcancel.addActionListener( new ActionListener() {
                public void actionPerformed(ActionEvent e) {
                     okPressed = false;

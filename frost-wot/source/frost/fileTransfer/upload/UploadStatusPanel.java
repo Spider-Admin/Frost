@@ -30,9 +30,6 @@ import frost.util.gui.translation.*;
  */
 public class UploadStatusPanel extends JPanel {
 
-    /**
-     *
-     */
     private class Listener implements UploadTickerListener, LanguageListener {
         /* (non-Javadoc)
          * @see frost.fileTransfer.upload.UploadTickerListener#uploadingCountChanged()
@@ -67,9 +64,6 @@ public class UploadStatusPanel extends JPanel {
 
     private Listener listener = new Listener();
 
-    /**
-     *
-     */
     public UploadStatusPanel(UploadTicker ticker) {
         super();
         this.ticker = ticker;
@@ -77,9 +71,6 @@ public class UploadStatusPanel extends JPanel {
         initialize();
     }
 
-    /**
-     *
-     */
     private void initialize() {
         refreshLanguage();
         setLayout(new FlowLayout(FlowLayout.LEFT, 5, 0));
@@ -98,21 +89,15 @@ public class UploadStatusPanel extends JPanel {
         language.addLanguageListener(listener);
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        uploadingLabel.setText(language.getString("UploadStatusPanel.Uploading"));
+        uploadingLabel.setText(language.getString("MainFrame.statusBar.uploading")+":");
         if (count == 1) {
-            filesLabel.setText(language.getString("StatusPanel.file"));
+            filesLabel.setText(language.getString("MainFrame.statusBar.file"));
         } else {
-            filesLabel.setText(language.getString("StatusPanel.files"));
+            filesLabel.setText(language.getString("MainFrame.statusBar.files"));
         }
     }
 
-    /**
-     *
-     */
     private void numberChanged() {
         count = ticker.getRunningUploadingThreads();
         countLabel.setText("" + count);
