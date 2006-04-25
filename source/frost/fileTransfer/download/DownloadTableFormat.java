@@ -282,9 +282,6 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 	String unknown;
 	String anonymous;
 
-	/**
-	 *
-	 */
 	public DownloadTableFormat() {
 		super(COLUMN_COUNT);
 
@@ -304,32 +301,29 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 		setComparator(new KeyComparator(), 9);
 	}
 
-	/**
-	 * 
-	 */
 	private void refreshLanguage() {
-		setColumnName(0, language.getString("DownloadTableFormat.Enabled"));
-		setColumnName(1, language.getString("Filename"));
-		setColumnName(2, language.getString("Size"));
-		setColumnName(3, language.getString("Age"));
-		setColumnName(4, language.getString("State"));
-		setColumnName(5, language.getString("Blocks"));
-		setColumnName(6, language.getString("Tries"));
-		setColumnName(7, language.getString("Source"));
-		setColumnName(8, language.getString("From"));
-		setColumnName(9, language.getString("Key"));
+		setColumnName(0, language.getString("DownloadPane.fileTable.enabled"));
+		setColumnName(1, language.getString("DownloadPane.fileTable.filename"));
+		setColumnName(2, language.getString("DownloadPane.fileTable.size"));
+		setColumnName(3, language.getString("DownloadPane.fileTable.age"));
+		setColumnName(4, language.getString("DownloadPane.fileTable.state"));
+		setColumnName(5, language.getString("DownloadPane.fileTable.blocks"));
+		setColumnName(6, language.getString("DownloadPane.fileTable.tries"));
+		setColumnName(7, language.getString("DownloadPane.fileTable.source"));
+		setColumnName(8, language.getString("DownloadPane.fileTable.from"));
+		setColumnName(9, language.getString("DownloadPane.fileTable.key"));
 		
-		stateWaiting = language.getString("Waiting");
-		stateTrying = language.getString("Trying");
-		stateFailed = language.getString("Failed");
-		stateDone = language.getString("Done");
-		stateRequesting = language.getString("Requesting");
-		stateRequested = language.getString("Requested");
-		stateDecoding = language.getString("Decoding segment") + "...";
+		stateWaiting =     language.getString("DownloadPane.fileTable.states.waiting");
+		stateTrying =      language.getString("DownloadPane.fileTable.states.trying");
+		stateFailed =      language.getString("DownloadPane.fileTable.states.failed");
+		stateDone =        language.getString("DownloadPane.fileTable.states.done");
+		stateRequesting =  language.getString("DownloadPane.fileTable.states.requesting");
+		stateRequested =   language.getString("DownloadPane.fileTable.states.requested");
+		stateDecoding =    language.getString("DownloadPane.fileTable.states.decodingSegment") + "...";
 	
-		offline = language.getString("FrostSearchItemObject.Offline");
-		unknown = language.getString("Unknown");
-		anonymous = language.getString("FrostSearchItemObject.Anonymous");
+		offline =   language.getString("DownloadPane.fileTable.states.offline");
+		unknown =   language.getString("DownloadPane.fileTable.states.unknown");
+		anonymous = language.getString("DownloadPane.fileTable.states.anonymous");
 		
 		refreshColumnNames();
 	}
@@ -553,5 +547,4 @@ class DownloadTableFormat extends SortedTableFormat implements LanguageListener 
 				super.setCellValue(value, item, columnIndex);
 		}
 	}
-
 }

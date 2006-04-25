@@ -615,7 +615,6 @@ public class SettingsClass implements Savable {
         defaults.put("keyDownloadHtl", "24");
         defaults.put("keyUploadHtl", "21");
         defaults.put("maxAge", "5");
-        defaults.put("maxKeys", "500000");
         defaults.put("maxMessageDisplay", "15");
         defaults.put("maxMessageDownload", "5");
         defaults.put("messageBase", "news");

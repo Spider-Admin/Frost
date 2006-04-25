@@ -193,9 +193,8 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         if (buttonPanel == null) {
             buttonPanel = new JPanel(new FlowLayout(FlowLayout.RIGHT, 10, 10));
             // OK / Cancel
-
-            JButton okButton = new JButton(language.getString("OK"));
-            JButton cancelButton = new JButton(language.getString("Cancel"));
+            JButton okButton = new JButton(language.getString("Common.ok"));
+            JButton cancelButton = new JButton(language.getString("Common.cancel"));
 
             okButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -295,15 +294,15 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         if (optionsGroupsPanel == null) {
             // init the list
             Vector listData = new Vector();
-            listData.add( new ListBoxData(" "+language.getString("Downloads")+" ", getDownloadPanel()));
-            listData.add( new ListBoxData(" "+language.getString("Uploads")+" ", getUploadPanel()));
-            listData.add( new ListBoxData(" "+language.getString("News")+" (1) ", getNewsPanel()));
-            listData.add( new ListBoxData(" "+language.getString("News")+" (2) ", getNews2Panel()));
-            listData.add( new ListBoxData(" "+language.getString("News")+" (3) ", getNews3Panel()));
-            listData.add( new ListBoxData(" "+language.getString("Expiration")+" ", getExpirationPanel()));
-            listData.add( new ListBoxData(" "+language.getString("Search")+" ", getSearchPanel()));
-            listData.add( new ListBoxData(" "+language.getString("Display")+" ", getDisplayPanel()));
-            listData.add( new ListBoxData(" "+language.getString("Miscellaneous")+" ", getMiscPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.downloads")+" ", getDownloadPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.uploads")+" ", getUploadPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.news")+" (1) ", getNewsPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.news")+" (2) ", getNews2Panel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.news")+" (3) ", getNews3Panel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.expiration")+" ", getExpirationPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.search")+" ", getSearchPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.display")+" ", getDisplayPanel()));
+            listData.add( new ListBoxData(" "+language.getString("Options.miscellaneous")+" ", getMiscPanel()));
             optionsGroupsList = new JList(listData);
             optionsGroupsList.setSelectionMode(DefaultListSelectionModel.SINGLE_INTERVAL_SELECTION);
             optionsGroupsList.addListSelectionListener(this);
@@ -355,7 +354,7 @@ public class OptionsFrame extends JDialog implements ListSelectionListener {
         //------------------------------------------------------------------------
         // Configure objects
         //------------------------------------------------------------------------
-        this.setTitle(language.getString("Options"));
+        this.setTitle(language.getString("Options.title"));
         // a program should always give users a chance to change the dialog size if needed
         this.setResizable(true);
 

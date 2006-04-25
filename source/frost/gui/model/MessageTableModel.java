@@ -35,9 +35,6 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
         String.class //LangRes.getString("Date")
     };
 
-    /**
-     *
-     */
     public MessageTableModel() {
         super();
         language = Language.getInstance();
@@ -87,15 +84,12 @@ public class MessageTableModel extends SortedTableModel implements LanguageListe
         refreshLanguage();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        columnNames[0] = language.getString("Index");
-        columnNames[1] = language.getString("From");
-        columnNames[2] = language.getString("Subject");
-        columnNames[3] = language.getString("Sig");
-        columnNames[4] = language.getString("Date");
+        columnNames[0] = language.getString("MessagePane.messageTable.index");
+        columnNames[1] = language.getString("MessagePane.messageTable.from");
+        columnNames[2] = language.getString("MessagePane.messageTable.subject");
+        columnNames[3] = language.getString("MessagePane.messageTable.sig");
+        columnNames[4] = language.getString("MessagePane.messageTable.date");
 
         fireTableStructureChanged();
     }

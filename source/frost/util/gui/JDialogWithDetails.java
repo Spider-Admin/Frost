@@ -41,9 +41,6 @@ import frost.util.gui.translation.Language;
  */
 public class JDialogWithDetails extends JDialog {
 	
-	/**
-	 * 
-	 */
 	private class Listener extends WindowAdapter implements ActionListener {
 		/* (non-Javadoc)
 		 * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
@@ -134,8 +131,8 @@ public class JDialogWithDetails extends JDialog {
 	private void initialize() {
 		setModal(true);
 		
-		moreButton.setText(language.getString("More") + " >>");
-		okButton.setText(language.getString("OK"));
+		moreButton.setText(language.getString("DialogWithDetails.button.more") + " >>");
+		okButton.setText(language.getString("Common.ok"));
 
 		// Putting everything together
 		buttonsPanel.setLayout(new FlowLayout(FlowLayout.RIGHT, 10, 10));
@@ -158,13 +155,13 @@ public class JDialogWithDetails extends JDialog {
 	 */
 	private void moreButtonPressed() {
 		if (moreExtended) {
-			moreButton.setText(language.getString("More") + " >>");
+			moreButton.setText(language.getString("DialogWithDetails.button.more") + " >>");
 			contentPanel.remove(getMorePanel());
 			pack();
 			moreExtended = false;
 		} else {	
 			contentPanel.add(getMorePanel(), BorderLayout.SOUTH);
-			moreButton.setText(language.getString("Less") + " <<");
+			moreButton.setText(language.getString("DialogWithDetails.button.less") + " <<");
 			pack();
 			moreExtended = true;
 		}

@@ -35,24 +35,18 @@ public class BoardInfoTableModel extends SortedTableModel implements LanguageLis
         Integer.class //LangRes.getString("Files")
     };
 
-    /**
-     *
-     */
     public BoardInfoTableModel() {
         super();
         language = Language.getInstance();
         refreshLanguage();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        columnNames[0] = language.getString("Board");
-        columnNames[1] = language.getString("State");
-        columnNames[2] = language.getString("Messages");
-        columnNames[3] = language.getString("Messages Today");
-        columnNames[4] = language.getString("Files");
+        columnNames[0] = language.getString("BoardInfoFrame.table.board");
+        columnNames[1] = language.getString("BoardInfoFrame.table.state");
+        columnNames[2] = language.getString("BoardInfoFrame.table.messages");
+        columnNames[3] = language.getString("BoardInfoFrame.table.messagesToday");
+        columnNames[4] = language.getString("BoardInfoFrame.table.files");
 
         fireTableStructureChanged();
     }

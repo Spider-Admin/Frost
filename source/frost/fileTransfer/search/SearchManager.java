@@ -51,11 +51,8 @@ public class SearchManager implements PropertyChangeListener {
         this.settings = settings;
     }
 
-    /**
-     *
-     */
     public void initialize() {
-        mainFrame.addPanel("Search", getPanel());
+        mainFrame.addPanel("MainFrame.tabbedPane.search", getPanel());
         settings.addPropertyChangeListener(SettingsClass.DISABLE_DOWNLOADS, this);
         updateDownloadStatus();
     }

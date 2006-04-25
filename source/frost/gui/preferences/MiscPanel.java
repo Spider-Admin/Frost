@@ -35,18 +35,11 @@ class MiscPanel extends JPanel {
 
     private class Listener implements ChangeListener, ActionListener {
 
-        /* (non-Javadoc)
-         * @see java.awt.event.ActionListener#actionPerformed(java.awt.event.ActionEvent)
-         */
         public void actionPerformed(ActionEvent e) {
             if (e.getSource() == enableLoggingCheckBox) {
                 refreshLoggingState();
             }
         }
-
-        /* (non-Javadoc)
-         * @see javax.swing.event.ChangeListener#stateChanged(javax.swing.event.ChangeEvent)
-         */
         public void stateChanged(ChangeEvent e) {
             if (e.getSource() == altEditCheckBox) {
                 altEditChanged();
@@ -81,8 +74,6 @@ class MiscPanel extends JPanel {
 
     private JTranslatableComboBox logLevelComboBox = null;
     private JLabel logLevelLabel = new JLabel();
-    private JLabel maxKeysLabel = new JLabel();
-    private JTextField maxKeysTextField = new JTextField(8);
     private JCheckBox showSystrayIconCheckBox = new JCheckBox();
     private JCheckBox splashScreenCheckBox = new JCheckBox();
 
@@ -99,16 +90,10 @@ class MiscPanel extends JPanel {
         loadSettings();
     }
 
-    /**
-     *
-     */
     private void altEditChanged() {
         altEditTextField.setEnabled(altEditCheckBox.isSelected());
     }
 
-    /**
-     * @return
-     */
     private JPanel getLoggingPanel() {
         JPanel subPanel = new JPanel(new GridBagLayout());
 
@@ -146,9 +131,6 @@ class MiscPanel extends JPanel {
         return subPanel;
     }
 
-    /**
-     *
-     */
     private void initialize() {
         setName("MiscPanel");
         setLayout(new GridBagLayout());
@@ -161,7 +143,6 @@ class MiscPanel extends JPanel {
         new TextComponentClipboardMenu(keyDownloadHtlTextField, language);
         new TextComponentClipboardMenu(keyUploadHtlTextField, language);
         new TextComponentClipboardMenu(logFileSizeTextField, language);
-        new TextComponentClipboardMenu(maxKeysTextField, language);
 
         // Adds all of the components
         GridBagConstraints constraints = new GridBagConstraints();
@@ -199,14 +180,9 @@ class MiscPanel extends JPanel {
         constraints.anchor = GridBagConstraints.CENTER;
         constraints.weightx = 0;
         constraints.gridwidth = 1;
-        constraints.gridx = 0;
-        constraints.gridy = 4;
-        add(maxKeysLabel, constraints);
-        constraints.gridx = 1;
-        add(maxKeysTextField, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 5;
+        constraints.gridy = 4;
         add(altEditCheckBox, constraints);
         constraints.gridx = 1;
         constraints.gridwidth = 2;
@@ -216,13 +192,13 @@ class MiscPanel extends JPanel {
         constraints.weightx = 0;
         constraints.gridwidth = 1;
         constraints.gridx = 0;
-        constraints.gridy = 6;
+        constraints.gridy = 5;
         add(autoSaveIntervalLabel, constraints);
         constraints.gridx = 1;
         add(autoSaveIntervalTextField, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 7;
+        constraints.gridy = 6;
         add(allowEvilBertCheckBox, constraints);
 //      constraints.gridx = 1;
 //      constraints.gridwidth = 2;
@@ -232,7 +208,7 @@ class MiscPanel extends JPanel {
         constraints.weightx = 0;
         constraints.gridwidth = 1;
         constraints.gridx = 0;
-        constraints.gridy = 8;
+        constraints.gridy = 7;
         add(splashScreenCheckBox, constraints);
         constraints.gridx = 1;
         constraints.gridwidth = 2;
@@ -240,7 +216,7 @@ class MiscPanel extends JPanel {
         add(showSystrayIconCheckBox, constraints);
 
         constraints.gridx = 0;
-        constraints.gridy = 9;
+        constraints.gridy = 8;
         constraints.gridwidth = 3;
         add(getLoggingPanel(), constraints);
 
@@ -261,7 +237,6 @@ class MiscPanel extends JPanel {
         showSystrayIconCheckBox.setSelected(settings.getBoolValue("showSystrayIcon"));
         availableNodesTextField.setText(settings.getValue("availableNodes"));
         altEditTextField.setText(settings.getValue("altEdit"));
-        maxKeysTextField.setText(settings.getValue("maxKeys"));
         autoSaveIntervalTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.AUTO_SAVE_INTERVAL)));
         enableLoggingCheckBox.setSelected(settings.getBoolValue(SettingsClass.LOG_TO_FILE));
         logFileSizeTextField.setText(Integer.toString(settings.getIntValue(SettingsClass.LOG_FILE_SIZE_LIMIT)));
@@ -280,47 +255,29 @@ class MiscPanel extends JPanel {
         refreshLoggingState();
     }
 
-    /**
-     *
-     */
     public void ok() {
         saveSettings();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        keyUploadHtlLabel.setText(language.getString("Keyfile upload HTL") + " (21)");
-        keyDownloadHtlLabel.setText(
-                language.getString("Keyfile download HTL") + " (24)");
-        availableNodesLabel1.setText(language.getString("list of nodes"));
-        availableNodesLabel2.setText(language.getString("list of nodes 2"));
-        maxKeysLabel.setText(
-                language.getString("Maximum number of keys to store") + " (100000)");
-        autoSaveIntervalLabel.setText(
-                language.getString("Automatic saving interval") + " (15)");
-        splashScreenCheckBox.setText(language.getString("Disable splashscreen"));
-        showSystrayIconCheckBox.setText(language.getString("Show systray icon"));
-        String off = language.getString("Off");
-        allowEvilBertCheckBox.setText(
-                language.getString("Allow 2 byte characters") + " (" + off + ")");
-        altEditCheckBox.setText(
-                language.getString("Use editor for writing messages") + " (" + off + ")");
+        keyUploadHtlLabel.setText(language.getString("Options.miscellaneous.keyfileUploadHtl") + " (21)");
+        keyDownloadHtlLabel.setText(language.getString("Options.miscellaneous.keyfileDownloadHtl") + " (24)");
+        availableNodesLabel1.setText(language.getString("Options.miscellaneous.listOfFcpNodes"));
+        availableNodesLabel2.setText(language.getString("Options.miscellaneous.listOfFcpNodesExplanation"));
+        autoSaveIntervalLabel.setText(language.getString("Options.miscellaneous.automaticSavingInterval") + 
+                " (15 "+language.getString("Options.common.minutes")+")");
+        splashScreenCheckBox.setText(language.getString("Options.miscellaneous.disableSplashscreen"));
+        showSystrayIconCheckBox.setText(language.getString("Options.miscellaneous.showSysTrayIcon"));
+        String off = language.getString("Options.common.off");
+        allowEvilBertCheckBox.setText(language.getString("Options.miscellaneous.allow2ByteCharacters") + " (" + off + ")");
+        altEditCheckBox.setText(language.getString("Options.miscellaneous.useEditorForWritingMessages") + " (" + off + ")");
 
-        enableLoggingCheckBox.setText(language.getString("Enable logging"));
-        logLevelLabel.setText(
-                language.getString("Logging level")
-                + " ("
-                + language.getString("Low")
-                + ") ");
-        logFileSizeLabel.setText(language.getString("Log file size limit (in KB)"));
-
+        enableLoggingCheckBox.setText(language.getString("Options.miscellaneous.enableLogging"));
+        logLevelLabel.setText(language.getString("Options.miscellaneous.loggingLevel") +
+                    " (" + language.getString("Options.miscellaneous.logLevel.low") + ") ");
+        logFileSizeLabel.setText(language.getString("Options.miscellaneous.logFileSizeLimit"));
     }
 
-    /**
-     *
-     */
     private void refreshLoggingState() {
         boolean enableLogging = enableLoggingCheckBox.isSelected();
         logLevelLabel.setEnabled(enableLogging);
@@ -336,16 +293,13 @@ class MiscPanel extends JPanel {
         settings.setValue("keyUploadHtl", keyUploadHtlTextField.getText());
         settings.setValue("keyDownloadHtl", keyDownloadHtlTextField.getText());
         settings.setValue("availableNodes", availableNodesTextField.getText());
-        settings.setValue("maxKeys", maxKeysTextField.getText());
         settings.setValue("showSystrayIcon", showSystrayIconCheckBox.isSelected());
         settings.setValue("allowEvilBert", allowEvilBertCheckBox.isSelected());
         settings.setValue("useAltEdit", altEditCheckBox.isSelected());
         settings.setValue("altEdit", altEditTextField.getText());
         settings.setValue(SettingsClass.AUTO_SAVE_INTERVAL, autoSaveIntervalTextField.getText());
         settings.setValue(SettingsClass.LOG_TO_FILE, enableLoggingCheckBox.isSelected());
-        settings.setValue(
-            SettingsClass.LOG_FILE_SIZE_LIMIT,
-            logFileSizeTextField.getText());
+        settings.setValue(SettingsClass.LOG_FILE_SIZE_LIMIT, logFileSizeTextField.getText());
         settings.setValue(SettingsClass.LOG_LEVEL, logLevelComboBox.getSelectedKey());
 
         // Save splashchk
@@ -360,5 +314,4 @@ class MiscPanel extends JPanel {
             logger.log(Level.SEVERE, "Could not create splashscreen checkfile", ioex);
         }
     }
-
 }

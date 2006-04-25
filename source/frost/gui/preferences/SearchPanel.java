@@ -63,9 +63,6 @@ class SearchPanel extends JPanel {
         loadSettings();
     }
 
-    /**
-     *
-     */
     private void initialize() {
         setName("SearchPanel");
         setLayout(new GridBagLayout());
@@ -171,27 +168,21 @@ class SearchPanel extends JPanel {
         hideAnonFilesCheckBox.setSelected(settings.getBoolValue("hideAnonFiles"));
     }
 
-    /**
-     *
-     */
     public void ok() {
         saveSettings();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        imageExtensionLabel.setText(language.getString("Image Extension"));
-        videoExtensionLabel.setText(language.getString("Video Extension"));
-        archiveExtensionLabel.setText(language.getString("Archive Extension"));
-        documentExtensionLabel.setText(language.getString("Document Extension"));
-        audioExtensionLabel.setText(language.getString("Audio Extension"));
-        executableExtensionLabel.setText(language.getString("Executable Extension"));
-        maxSearchResultsLabel.setText(language.getString("Maximum search results"));
+        imageExtensionLabel.setText(language.getString("Options.search.imageExtension"));
+        videoExtensionLabel.setText(language.getString("Options.search.videoExtension"));
+        archiveExtensionLabel.setText(language.getString("Options.search.archiveExtension"));
+        documentExtensionLabel.setText(language.getString("Options.search.documentExtension"));
+        audioExtensionLabel.setText(language.getString("Options.search.audioExtension"));
+        executableExtensionLabel.setText(language.getString("Options.search.executableExtension"));
+        maxSearchResultsLabel.setText(language.getString("Options.search.maximumSearchResults"));
 
-        hideBadFilesCheckBox.setText(language.getString("Hide files from people marked BAD"));
-        hideAnonFilesCheckBox.setText(language.getString("Hide files from anonymous users"));
+        hideBadFilesCheckBox.setText(language.getString("Options.search.hideFilesFromPeopleMarkedBad"));
+        hideAnonFilesCheckBox.setText(language.getString("Options.search.hideFilesFromAnonymousUsers"));
     }
 
     /**
@@ -209,5 +200,4 @@ class SearchPanel extends JPanel {
         settings.setValue("hideBadFiles", hideBadFilesCheckBox.isSelected());
         settings.setValue("hideAnonFiles", hideAnonFilesCheckBox.isSelected());
     }
-
 }

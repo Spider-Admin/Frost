@@ -460,8 +460,8 @@ public class HelpBrowser extends JPanel {
         }
 
         public void languageChanged(LanguageEvent event) {
-            copyItem.setText(language.getString("Copy"));
-            cancelItem.setText(language.getString("Cancel"));
+            copyItem.setText(language.getString("Common.copy"));
+            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         public void show(Component invoker, int x, int y) {

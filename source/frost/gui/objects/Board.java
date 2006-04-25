@@ -305,13 +305,13 @@ public class Board extends DefaultMutableTreeNode implements Comparable {
     public String getStateString() {
 
         if (isReadAccessBoard()) {
-            return language.getString("read access");
+            return language.getString("Board.boardState.readAccess");
         } else if (isWriteAccessBoard()) {
-            return language.getString("write access");
+            return language.getString("Board.boardState.writeAccess");
         } else if (isPublicBoard()) {
-            return language.getString("public board");
+            return language.getString("Board.boardState.publicBoard");
         }
-        return "(INVALID, no public key, but private!)";
+        return language.getString("Board.boardState.invalid");
     }
 
     //////////////////////////////////////////////

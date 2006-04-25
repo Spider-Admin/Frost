@@ -38,9 +38,6 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         String.class // key
     };
 
-    /**
-     *
-     */
     public AttachedFilesTableModel() {
         super();
         language = Language.getInstance();
@@ -63,13 +60,10 @@ public class AttachedFilesTableModel extends DefaultTableModel implements Langua
         refreshLanguage();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        columnNames[0] = language.getString("Filename");
-        columnNames[1] = language.getString("Size");
-        columnNames[2] = language.getString("Key");
+        columnNames[0] = language.getString("MessagePane.fileAttachmentTable.filename");
+        columnNames[1] = language.getString("MessagePane.fileAttachmentTable.size");
+        columnNames[2] = language.getString("MessagePane.fileAttachmentTable.key");
 
         fireTableStructureChanged();
     }

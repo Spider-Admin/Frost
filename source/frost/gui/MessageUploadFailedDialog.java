@@ -36,9 +36,6 @@ import frost.util.gui.translation.Language;
  */
 public class MessageUploadFailedDialog extends JDialog {
 
-    /**
-     *
-     */
     private class ButtonListener implements ActionListener {
 
         /* (non-Javadoc)
@@ -54,26 +51,16 @@ public class MessageUploadFailedDialog extends JDialog {
             }
             dispose();
         }
-
     }
 
-    /**
-     *
-     */
     private class RetryButtonTimer extends Timer {
 
         private int secs;
 
-        /**
-         * @param secs
-         */
         public RetryButtonTimer(int secs) {
             this.secs = secs;
         }
 
-        /**
-         *
-         */
         public void start() {
             scheduleAtFixedRate(new TimerTask() {
                 public void run() {
@@ -82,9 +69,6 @@ public class MessageUploadFailedDialog extends JDialog {
             }, 1000, 1000);
         }
 
-        /**
-         *
-         */
         private void timerTriggered() {
             secs--;
             retryButton.setText(retryButtonText + secs);
@@ -93,7 +77,6 @@ public class MessageUploadFailedDialog extends JDialog {
                 dispose();
             }
         }
-
     }
 
     private static final int SECONDS_TO_WAIT = 30;
@@ -109,18 +92,14 @@ public class MessageUploadFailedDialog extends JDialog {
     private RetryButtonTimer timer;
     private int userAnswer = NO_VALUE;
 
-    /**
-     * @param owner
-     */
-
     public MessageUploadFailedDialog(Frame owner) {
         super(owner, true);
 
         Language language = Language.getInstance();
 
-        retryButtonText = language.getString("Retry") + " - ";
+        retryButtonText = language.getString("MessageUploadFailedDialog.option.retry") + " - ";
 
-        setTitle(language.getString("Upload of message failed"));
+        setTitle(language.getString("MessageUploadFailedDialog.title"));
 
         JPanel mainPanel = new JPanel();
         mainPanel.setBorder(new EmptyBorder(15, 15, 15, 15));
@@ -132,7 +111,7 @@ public class MessageUploadFailedDialog extends JDialog {
         timer = new RetryButtonTimer(SECONDS_TO_WAIT);
 
         Icon warningIcon = UIManager.getIcon("OptionPane.warningIcon");
-        String warningText = "  " + language.getString("Frost was not able to upload your message.");
+        String warningText = "  " + language.getString("MessageUploadFailedDialog.body");
         mainPanel.add(new JLabel(warningText, warningIcon, SwingConstants.LEFT), BorderLayout.NORTH);
 
         mainPanel.add(getButtonPanel(language), BorderLayout.SOUTH);
@@ -148,9 +127,6 @@ public class MessageUploadFailedDialog extends JDialog {
         setLocationRelativeTo(owner);
     }
 
-    /**
-     * @return
-     */
     public int startDialog() {
         retryButton.requestFocus();
         timer.start();
@@ -159,15 +135,12 @@ public class MessageUploadFailedDialog extends JDialog {
         return userAnswer;
     }
 
-    /**
-     * @return
-     */
     private JPanel getButtonPanel(Language language) {
         JPanel buttonsPanel = new JPanel(new FlowLayout(FlowLayout.CENTER, 15, 0));
 
         retryButton = new JButton(retryButtonText + SECONDS_TO_WAIT);
-        discardButton = new JButton(language.getString("Discard message"));
-        tryOnNextStartupButton = new JButton(language.getString("Retry on next startup"));
+        discardButton = new JButton(language.getString("MessageUploadFailedDialog.option.discardMessage"));
+        tryOnNextStartupButton = new JButton(language.getString("MessageUploadFailedDialog.option.retryOnNextStartup"));
 
         buttonsPanel.add(retryButton);
         buttonsPanel.add(tryOnNextStartupButton);
@@ -176,12 +149,8 @@ public class MessageUploadFailedDialog extends JDialog {
         return buttonsPanel;
     }
 
-    /* (non-Javadoc)
-     * @see java.awt.Window#dispose()
-     */
     public void dispose() {
         timer.cancel();
         super.dispose();
     }
-
 }

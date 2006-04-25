@@ -154,9 +154,6 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
         private SortedModelTable modelTable;
 
-        /**
-         *
-         */
         public FileNameRenderer(SortedModelTable newModelTable) {
             super();
             modelTable = newModelTable;
@@ -210,9 +207,6 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
     private String downloading;
     private String downloaded;
 
-    /**
-     *
-     */
     public SearchTableFormat() {
         super(COLUMN_COUNT);
 
@@ -234,21 +228,18 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         refreshLanguage();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        setColumnName(0, language.getString("Filename"));
-        setColumnName(1, language.getString("Size"));
-        setColumnName(2, language.getString("Age"));
-        setColumnName(3, language.getString("From"));
-        setColumnName(4, language.getString("Board"));
+        setColumnName(0, language.getString("SearchPane.resultTable.filename"));
+        setColumnName(1, language.getString("SearchPane.resultTable.size"));
+        setColumnName(2, language.getString("SearchPane.resultTable.age"));
+        setColumnName(3, language.getString("SearchPane.resultTable.from"));
+        setColumnName(4, language.getString("SearchPane.resultTable.board"));
 
-        anonymous = language.getString("FrostSearchItemObject.Anonymous");
-        offline = language.getString("FrostSearchItemObject.Offline");
-        uploading = language.getString("SearchTableFormat.Uploading");
-        downloading = language.getString("SearchTableFormat.Downloading");
-        downloaded = language.getString("SearchTableFormat.Downloaded");
+        anonymous =   language.getString("SearchPane.resultTable.states.anonymous");
+        offline =     language.getString("SearchPane.resultTable.states.offline");
+        uploading =   language.getString("SearchPane.resultTable.states.uploading");
+        downloading = language.getString("SearchPane.resultTable.states.downloading");
+        downloaded =  language.getString("SearchPane.resultTable.states.downloaded");
 
         refreshColumnNames();
     }
@@ -283,11 +274,6 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         }
     }
 
-    /**
-     * @param date
-     * @param state
-     * @return
-     */
     private String getAgeString(String date, int state) {
         String stateString = null;
         switch (state) {
@@ -348,5 +334,4 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
         // Column "Size"
         columnModel.getColumn(1).setCellRenderer(new SizeRenderer());
     }
-
 }

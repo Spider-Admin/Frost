@@ -247,15 +247,15 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         }
 
         private void refreshLanguage() {
-            markMessageUnreadItem.setText(language.getString("Mark message unread"));
-            markAllMessagesReadItem.setText(language.getString("Mark ALL messages read"));
-            setGoodItem.setText(language.getString("help user (sets to GOOD)"));
-            setBadItem.setText(language.getString("block user (sets to BAD)"));
-            setCheckItem.setText(language.getString("set to neutral (CHECK)"));
-            setObserveItem.setText(language.getString("observe user (OBSERVE)"));
-            deleteItem.setText(language.getString("Delete message"));
-            undeleteItem.setText(language.getString("Undelete message"));
-            cancelItem.setText(language.getString("Cancel"));
+            markMessageUnreadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markMessageUnread"));
+            markAllMessagesReadItem.setText(language.getString("MessagePane.messageTable.popupmenu.markAllMessagesRead"));
+            setGoodItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToGood"));
+            setBadItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToBad"));
+            setCheckItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToCheck"));
+            setObserveItem.setText(language.getString("MessagePane.messageTable.popupmenu.setToObserve"));
+            deleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.deleteMessage"));
+            undeleteItem.setText(language.getString("MessagePane.messageTable.popupmenu.undeleteMessage"));
+            cancelItem.setText(language.getString("Common.cancel"));
         }
 
         public void show(Component invoker, int x, int y) {
@@ -340,7 +340,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private Logger logger = Logger.getLogger(MessagePanel.class.getName());
 
     private SettingsClass settings;
-    private Language language;
+    private Language language  = Language.getInstance();
     private FrostIdentities identities;
     private JFrame parentFrame;
 
@@ -369,7 +369,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private JButton saveMessageButton =
         new JButton(new ImageIcon(getClass().getResource("/data/save.gif")));
     protected JButton nextUnreadMessageButton =
-        new JButton(new ImageIcon(getClass().getResource("/data/nextunreadmessage.gif"))); // TODO!
+        new JButton(new ImageIcon(getClass().getResource("/data/nextunreadmessage.gif")));
     private JButton setGoodButton =
         new JButton(new ImageIcon(getClass().getResource("/data/trust.gif")));
     private JButton updateButton =
@@ -385,35 +385,24 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         super();
         this.settings = settings;
         mainFrame = mf;
-        language = Language.getInstance();
     }
 
     private JToolBar getButtonsToolbar() {
         // configure buttons
         MiscToolkit toolkit = MiscToolkit.getInstance();
-        toolkit.configureButton(newMessageButton, "New message", "/data/newmessage_rollover.gif", language);
-        toolkit.configureButton(updateButton, "Update", "/data/update_rollover.gif", language);
-        toolkit.configureButton(replyButton, "Reply", "/data/reply_rollover.gif", language);
-    //  toolkit.configureButton(
-    //      downloadAttachmentsButton,
-    //      "Download attachment(s)",
-    //      "/data/attachment_rollover.gif",
-    //      language);
-    //  toolkit.configureButton(
-    //      downloadBoardsButton,
-    //      "Add Board(s)",
-    //      "/data/attachmentBoard_rollover.gif",
-    //      language);
-        toolkit.configureButton(saveMessageButton, "Save message", "/data/save_rollover.gif", language);
-        toolkit.configureButton(nextUnreadMessageButton, "Next unread message", "/data/nextunreadmessage_rollover.gif", language);
-        toolkit.configureButton(setGoodButton, "Trust", "/data/trust_rollover.gif", language);
-        toolkit.configureButton(setBadButton, "Do not trust", "/data/nottrust_rollover.gif", language);
-        toolkit.configureButton(setCheckButton, "Set to CHECK", "/data/check_rollover.gif", language);
-        toolkit.configureButton(setObserveButton, "Set to OBSERVE", "/data/observe_rollover.gif", language);
+        toolkit.configureButton(newMessageButton, "MessagePane.toolbar.tooltip.newMessage", "/data/newmessage_rollover.gif", language);
+        toolkit.configureButton(updateButton, "MessagePane.toolbar.tooltip.update", "/data/update_rollover.gif", language);
+        toolkit.configureButton(replyButton, "MessagePane.toolbar.tooltip.reply", "/data/reply_rollover.gif", language);
+        toolkit.configureButton(saveMessageButton, "MessagePane.toolbar.tooltip.saveMessage", "/data/save_rollover.gif", language);
+        toolkit.configureButton(nextUnreadMessageButton, "MessagePane.toolbar.tooltip.nextUnreadMessage", "/data/nextunreadmessage_rollover.gif", language);
+        toolkit.configureButton(setGoodButton, "MessagePane.toolbar.tooltip.setToGood", "/data/trust_rollover.gif", language);
+        toolkit.configureButton(setBadButton, "MessagePane.toolbar.tooltip.setToBad", "/data/nottrust_rollover.gif", language);
+        toolkit.configureButton(setCheckButton, "MessagePane.toolbar.tooltip.setToCheck", "/data/check_rollover.gif", language);
+        toolkit.configureButton(setObserveButton, "MessagePane.toolbar.tooltip.setToObserve", "/data/observe_rollover.gif", language);
+        // toolkit.configureButton(downloadAttachmentsButton,"Download attachment(s)","/data/attachment_rollover.gif",language);
+        // toolkit.configureButton(downloadBoardsButton,"Add Board(s)","/data/attachmentBoard_rollover.gif",language);
 
         replyButton.setEnabled(false);
-    //  downloadAttachmentsButton.setEnabled(false);
-    //  downloadBoardsButton.setEnabled(false);
         saveMessageButton.setEnabled(false);
         setGoodButton.setEnabled(false);
         setCheckButton.setEnabled(false);
@@ -777,17 +766,17 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     }
 
     private void refreshLanguage() {
-        newMessageButton.setToolTipText(language.getString("New message"));
-        replyButton.setToolTipText(language.getString("Reply"));
+        newMessageButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.newMessage"));
+        replyButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.reply"));
     //  downloadAttachmentsButton.setToolTipText(language.getString("Download attachment(s)"));
     //  downloadBoardsButton.setToolTipText(language.getString("Add Board(s)"));
-        saveMessageButton.setToolTipText(language.getString("Save message"));
-        nextUnreadMessageButton.setToolTipText(language.getString("Next unread message"));
-        setGoodButton.setToolTipText(language.getString("Trust"));
-        setBadButton.setToolTipText(language.getString("Do not trust"));
-        setCheckButton.setToolTipText(language.getString("Set to CHECK"));
-        setObserveButton.setToolTipText(language.getString("Set to OBSERVE"));
-        updateButton.setToolTipText(language.getString("Update"));
+        saveMessageButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.saveMessage"));
+        nextUnreadMessageButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.nextUnreadMessage"));
+        setGoodButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToGood"));
+        setBadButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToBad"));
+        setCheckButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToCheck"));
+        setObserveButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.setToObserve"));
+        updateButton.setToolTipText(language.getString("MessagePane.toolbar.tooltip.update"));
     }
 
     private void replyButton_actionPerformed(ActionEvent e) {
@@ -801,7 +790,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
         if( targetBoard == null ) {
             JOptionPane.showMessageDialog( parent,
                     "Can't reply, the target board is not in your boardlist: "+origMessage.getBoard(), // TODO: translate
-                    language.getString("Error"),
+                    "Error",
                     JOptionPane.ERROR);
             return;
         }
@@ -819,7 +808,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             if( origMessage.getFromIdentity() == null ) {
                 JOptionPane.showMessageDialog( parent,
                         "Can't reply encrypted, recipients public key is missing!", // TODO: translate
-                        language.getString("Error"),
+                        "Error",
                         JOptionPane.ERROR);
                 return;
             }

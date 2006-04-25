@@ -33,23 +33,17 @@ public class KnownBoardsTableModel extends SortedTableModel
         String.class
     };
 
-    /**
-     *
-     */
     public KnownBoardsTableModel() {
         super();
         language = Language.getInstance();
         refreshLanguage();
     }
 
-    /**
-     *
-     */
     private void refreshLanguage() {
-        columnNames[0] = language.getString("KnownBoardsTableModel.Boardname");
-        columnNames[1] = language.getString("Public key");
-        columnNames[2] = language.getString("Private key");
-        columnNames[3] = language.getString("Description");
+        columnNames[0] = language.getString("KnownBoardsFrame.table.boardName");
+        columnNames[1] = language.getString("KnownBoardsFrame.table.publicKey");
+        columnNames[2] = language.getString("KnownBoardsFrame.table.privateKey");
+        columnNames[3] = language.getString("KnownBoardsFrame.table.description");
     }
 
     /* (non-Javadoc)

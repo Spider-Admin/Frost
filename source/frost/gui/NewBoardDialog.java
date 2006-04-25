@@ -156,7 +156,7 @@ public class NewBoardDialog extends JDialog {
         nameLabel.setText(language.getString("NewBoardDialog.name"));
         descriptionLabel.setText(language.getString("NewBoardDialog.description"));
         addButton.setText(language.getString("NewBoardDialog.add"));
-        cancelButton.setText(language.getString("Cancel"));
+        cancelButton.setText(language.getString("Common.cancel"));
     }
 
     private void updateAddButtonState() {

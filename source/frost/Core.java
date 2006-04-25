@@ -545,7 +545,7 @@ public class Core implements Savable, FrostEventDispatcher  {
 
         keypool = frostSettings.getValue("keypool.dir");
 
-        splashscreen.setText(language.getString("Initializing Mainframe"));
+        splashscreen.setText(language.getString("Splashscreen.message.1"));
         splashscreen.setProgress(20);
 
         //Initializes the logging and skins
@@ -564,7 +564,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         // nothing was started until now, its the perfect time to delete all empty date dirs in keypool...
         CleanUp.deleteEmptyBoardDateDirs( new File(keypool) );
 
-        splashscreen.setText(language.getString("Hypercube fluctuating!"));
+        splashscreen.setText(language.getString("Splashscreen.message.2"));
         splashscreen.setProgress(40);
 
         // check if help.zip contains only secure files (no http or ftp links at all)
@@ -647,7 +647,7 @@ public class Core implements Savable, FrostEventDispatcher  {
             frostSettings.setValue("oneTimeUpdate.convertSigs.didRun", true);
         }
 
-        splashscreen.setText(language.getString("Sending IP address to NSA"));
+        splashscreen.setText(language.getString("Splashscreen.message.3"));
         splashscreen.setProgress(60);
 
         getIdentities().initialize(freenetIsOnline);
@@ -672,7 +672,7 @@ public class Core implements Savable, FrostEventDispatcher  {
         getBoardsManager().initialize();
         getFileTransferManager().initialize();
 
-        splashscreen.setText(language.getString("Wasting more time"));
+        splashscreen.setText(language.getString("Splashscreen.message.4"));
         splashscreen.setProgress(70);
 
         mainFrame.initialize();
@@ -685,7 +685,7 @@ public class Core implements Savable, FrostEventDispatcher  {
             resendFailedMessages();
         }
 
-        splashscreen.setText(language.getString("Reaching ridiculous speed..."));
+        splashscreen.setText(language.getString("Splashscreen.message.5"));
         splashscreen.setProgress(80);
 
         // toftree must be loaded before expiration can run!
@@ -840,14 +840,14 @@ public class Core implements Savable, FrostEventDispatcher  {
     private void initializeLanguage() {
         if (locale != null) {
             // use locale specified on command line (overrides config setting)
-            Language.initialize("res.LangRes", locale);
+            Language.initializeWithLocale(locale);
         } else {
             String lang = frostSettings.getValue("locale");
             if( lang == null || lang.length() == 0 || lang.equals("default") ) {
                 // for default or if not set at all
-                Language.initialize("res.LangRes");
+                Language.initializeWithName(null);
             } else {
-                Language.initialize("res.LangRes", new Locale(lang));
+                Language.initializeWithName(lang);
             }
         }
         language = Language.getInstance();

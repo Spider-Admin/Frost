@@ -160,7 +160,7 @@ public class BoardSettingsFrame extends JDialog {
             }
         } catch (Throwable ex) {
             JOptionPane.showMessageDialog(parentFrame, ex.toString(), // message
-                    language.getString("Warning"), JOptionPane.WARNING_MESSAGE);
+                    language.getString("BoardSettings.generateKeyPairErrorDialog.title"), JOptionPane.WARNING_MESSAGE);
         }
     }
 
@@ -522,13 +522,13 @@ public class BoardSettingsFrame extends JDialog {
             if (privateKey != null) {
                 privateKeyTextField.setText(privateKey);
             } else {
-                privateKeyTextField.setText(language.getString("Not available"));
+                privateKeyTextField.setText(language.getString("BoardSettings.text.keyNotAvailable"));
             }
 
             if (publicKey != null) {
                 publicKeyTextField.setText(publicKey);
             } else {
-                publicKeyTextField.setText(language.getString("Not available"));
+                publicKeyTextField.setText(language.getString("BoardSettings.text.keyNotAvailable"));
             }
 
             if (board.isWriteAccessBoard() || board.isReadAccessBoard()) {
@@ -556,8 +556,8 @@ public class BoardSettingsFrame extends JDialog {
             if( publicBoardRadioButton.isSelected() && board.isPublicBoard() == false ) {
                 int result = JOptionPane.showConfirmDialog(
                         this,
-                        language.getString("BoardSettingsFrame.confirmBody"),
-                        language.getString("BoardSettingsFrame.confirmTitle"),
+                        language.getString("BoardSettings.looseKeysWarningDialog.body"),
+                        language.getString("BoardSettings.looseKeysWarningDialog.title"),
                         JOptionPane.YES_NO_OPTION,
                         JOptionPane.WARNING_MESSAGE);
                 if (result == JOptionPane.NO_OPTION) {
@@ -747,43 +747,46 @@ public class BoardSettingsFrame extends JDialog {
 
     private void refreshLanguage() {
         if( board.isFolder() ) {
-            setTitle(language.getString("Settings for all boards in folder") + " '" + board.getName() + "'");
+            setTitle(language.getString("BoardSettings.title.folderSettings") + " '" + board.getName() + "'");
         } else {
-            setTitle(language.getString("Settings for board") + " '" + board.getName() + "'");
+            setTitle(language.getString("BoardSettings.title.boardSettings") + " '" + board.getName() + "'");
         }
 
-        publicBoardRadioButton.setText(language.getString("Public board"));
-        secureBoardRadioButton.setText(language.getString("Secure board"));
-        okButton.setText(language.getString("OK"));
-        cancelButton.setText(language.getString("Cancel"));
-        generateKeyButton.setText(language.getString("Generate new keypair"));
+        publicBoardRadioButton.setText(language.getString("BoardSettings.label.publicBoard"));
+        secureBoardRadioButton.setText(language.getString("BoardSettings.label.secureBoard"));
+        okButton.setText(language.getString("Common.ok"));
+        cancelButton.setText(language.getString("Common.cancel"));
+        generateKeyButton.setText(language.getString("BoardSettings.button.generateNewKeypair"));
 
-        overrideSettingsCheckBox.setText(language.getString("Override default settings"));
-        maxMsg_default.setText(language.getString("Use default"));
-        maxMsg_set.setText(language.getString("Set to") + ":");
-        signedOnly_default.setText(language.getString("Use default"));
-        signedOnly_true.setText(language.getString("Yes"));
-        signedOnly_false.setText(language.getString("No"));
-        hideBad_default.setText(language.getString("Use default"));
-        hideBad_true.setText(language.getString("Yes"));
-        hideBad_false.setText(language.getString("No"));
-        hideCheck_default.setText(language.getString("Use default"));
-        hideCheck_true.setText(language.getString("Yes"));
-        hideCheck_false.setText(language.getString("No"));
-        hideObserve_default.setText(language.getString("Use default"));
-        hideObserve_true.setText(language.getString("Yes"));
-        hideObserve_false.setText(language.getString("No"));
-        autoUpdateEnabled.setText(language.getString("Enable automatic board update"));
+        overrideSettingsCheckBox.setText(language.getString("BoardSettings.label.overrideDefaultSettings"));
+        String useDefault = language.getString("BoardSettings.label.useDefault");
+        String yes = language.getString("BoardSettings.label.yes");
+        String no  = language.getString("BoardSettings.label.no");
+        maxMsg_default.setText(useDefault);
+        maxMsg_set.setText(language.getString("BoardSettings.label.setTo") + ":");
+        signedOnly_default.setText(useDefault);
+        signedOnly_true.setText(yes);
+        signedOnly_false.setText(no);
+        hideBad_default.setText(useDefault);
+        hideBad_true.setText(yes);
+        hideBad_false.setText(no);
+        hideCheck_default.setText(useDefault);
+        hideCheck_true.setText(yes);
+        hideCheck_false.setText(no);
+        hideObserve_default.setText(useDefault);
+        hideObserve_true.setText(yes);
+        hideObserve_false.setText(no);
+        autoUpdateEnabled.setText(language.getString("BoardSettings.label.enableAutomaticBoardUpdate"));
 
-        publicKeyLabel.setText(language.getString("Public key") + " :");
-        privateKeyLabel.setText(language.getString("Private key") + " :");
-        messageDisplayDaysLabel.setText(language.getString("Maximum message display (days)"));
-        hideUnsignedMessagesLabel.setText(language.getString("Hide unsigned messages"));
-        hideBadMessagesLabel.setText(language.getString("Hide messages flagged BAD"));
-        hideCheckMessagesLabel.setText(language.getString("Hide messages flagged CHECK"));
-        hideObserveMessagesLabel.setText(language.getString("Hide messages flagged OBSERVE"));
+        publicKeyLabel.setText(language.getString("BoardSettings.label.publicKey") + " :");
+        privateKeyLabel.setText(language.getString("BoardSettings.label.privateKey") + " :");
+        messageDisplayDaysLabel.setText(language.getString("BoardSettings.label.maximumMessageDisplay"));
+        hideUnsignedMessagesLabel.setText(language.getString("BoardSettings.label.hideUnsignedMessages"));
+        hideBadMessagesLabel.setText(language.getString("BoardSettings.label.hideBadMessages"));
+        hideCheckMessagesLabel.setText(language.getString("BoardSettings.label.hideCheckMessages"));
+        hideObserveMessagesLabel.setText(language.getString("BoardSettings.label.hideObserveMessages"));
 
-        descriptionLabel.setText(language.getString("BoardSettingsFrame.description"));
+        descriptionLabel.setText(language.getString("BoardSettings.label.description"));
     }
 
     public boolean runDialog() {

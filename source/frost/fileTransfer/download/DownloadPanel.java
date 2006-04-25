@@ -97,34 +97,28 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 
 		private void refreshLanguage() {
-			keyNotAvailableMessage = language.getString("Key not available yet");
-			fileMessage = language.getString("clipboard.File:");
-			keyMessage = language.getString("clipboard.Key:");
-			bytesMessage = language.getString("clipboard.Bytes:");
+			keyNotAvailableMessage = language.getString("Common.copyToClipBoard.extendedInfo.keyNotAvailableYet");
+			fileMessage = language.getString("Common.copyToClipBoard.extendedInfo.file")+" ";
+			keyMessage = language.getString("Common.copyToClipBoard.extendedInfo.key")+" ";
+			bytesMessage = language.getString("Common.copyToClipBoard.extendedInfo.bytes")+" ";
 			
-			cancelItem.setText(language.getString("Cancel"));
-			copyKeysItem.setText(language.getString("Copy keys only"));
-			copyKeysAndNamesItem.setText(language.getString("Copy keys with filenames"));
-			copyExtendedInfoItem.setText(language.getString("Copy extended info"));
-			restartSelectedDownloadsItem.setText(
-				language.getString("Restart selected downloads"));
-			removeSelectedDownloadsItem.setText(
-					language.getString("Remove selected downloads"));
-			removeAllDownloadsItem.setText(language.getString("Remove all downloads"));
+			cancelItem.setText(language.getString("Common.cancel"));
+			copyKeysItem.setText(language.getString("Common.copyToClipBoard.copyKeysOnly"));
+			copyKeysAndNamesItem.setText(language.getString("Common.copyToClipBoard.copyKeysWithFilenames"));
+			copyExtendedInfoItem.setText(language.getString("Common.copyToClipBoard.copyExtendedInfo"));
+			restartSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.restartSelectedDownloads"));
+			removeSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeSelectedDownloads"));
+			removeAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeAllDownloads"));
 			//downloadPopupResetHtlValues = new JMenuItem(LangRes.getString("Retry selected downloads"));
-			removeFinishedItem.setText(language.getString("Remove finished downloads"));
-			enableAllDownloadsItem.setText(language.getString("Enable all downloads"));
-			disableAllDownloadsItem.setText(language.getString("Disable all downloads"));
-			enableSelectedDownloadsItem.setText(
-					language.getString("Enable selected downloads"));
-			disableSelectedDownloadsItem.setText(
-					language.getString("Disable selected downloads"));
-			invertEnabledAllItem.setText(
-					language.getString("Invert enabled state for all downloads"));
-			invertEnabledSelectedItem.setText(
-					language.getString("Invert enabled state for selected downloads"));
+			removeFinishedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.remove.removeFinishedDownloads"));
+			enableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableAllDownloads"));
+			disableAllDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableAllDownloads"));
+			enableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.enableSelectedDownloads"));
+			disableSelectedDownloadsItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.disableSelectedDownloads"));
+			invertEnabledAllItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForAllDownloads"));
+			invertEnabledSelectedItem.setText(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads.invertEnabledStateForSelectedDownloads"));
 
-			copyToClipboardMenu.setText(language.getString("Copy to clipboard") + "...");
+			copyToClipboardMenu.setText(language.getString("Common.copyToClipBoard") + "...");
 		}
 		
 		private Clipboard getClipboard() {
@@ -333,8 +327,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 				addSeparator();
 			}
 
-			JMenu enabledSubMenu =
-				new JMenu(language.getString("Enable downloads") + "...");
+			JMenu enabledSubMenu = new JMenu(language.getString("DownloadPane.fileTable.popupmenu.enableDownloads") + "...");
 			if (selectedItems.length != 0) {
 				// If at least 1 item is selected
 				enabledSubMenu.add(enableSelectedDownloadsItem);
@@ -347,7 +340,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			enabledSubMenu.add(invertEnabledAllItem);
 			add(enabledSubMenu);
 
-			JMenu removeSubMenu = new JMenu(language.getString("Remove") + "...");
+			JMenu removeSubMenu = new JMenu(language.getString("DownloadPane.fileTable.popupmenu.remove") + "...");
 			if (selectedItems.length != 0) {
 				// If at least 1 item is selected
 				removeSubMenu.add(removeSelectedDownloadsItem);
@@ -362,7 +355,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 			super.show(invoker, x, y);
 		}
-
 	}
 
 	private class Listener
@@ -565,10 +557,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	}
 
 	private void refreshLanguage() {
-		downloadActivateButton.setToolTipText(language.getString("Activate downloading"));
-        downloadPauseButton.setToolTipText(language.getString("Pause downloading"));
+		downloadActivateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.activateDownloading"));
+        downloadPauseButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pauseDownloading"));
 
-		String waiting = language.getString("Waiting");
+		String waiting = language.getString("DownloadPane.toolbar.waiting");
 		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
 		downloadItemCountLabel.setPreferredSize(labelSize);
 		downloadItemCountLabel.setMinimumSize(labelSize);
@@ -696,9 +688,9 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         JOptionPane.showMessageDialog(
                 this,
                 "<html>"+ // needed for linebreak in dialog
-                language.getString("Invalid key.  Key must begin with one of")
-                    + " SSK@, KSK@, @CHK: <br>"+invKey+"</html>",
-                language.getString("Invalid key"),
+                language.getString("DownloadPane.invalidKeyDialog.body")
+                    + " SSK@, KSK@, CHK@ :<br>"+invKey+"</html>",
+                language.getString("DownloadPane.invalidKeyDialog.title"),
                 JOptionPane.ERROR_MESSAGE);
     }
 
@@ -739,7 +731,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 
 		String s =
 			new StringBuffer()
-				.append(language.getString("Waiting"))
+				.append(language.getString("DownloadPane.fileTable.states.waiting"))
 				.append(" : ")
 				.append(downloadItemCount)
 				.toString();

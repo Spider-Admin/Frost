@@ -85,12 +85,12 @@ public class SearchMessagesTableModel extends SortedTableModel implements Langua
     }
 
     private void refreshLanguage() {
-        columnNames[0] = language.getString("Index");
-        columnNames[1] = language.getString("From");
-        columnNames[2] = language.getString("Board");
-        columnNames[3] = language.getString("Subject");
-        columnNames[4] = language.getString("Sig");
-        columnNames[5] = language.getString("Date");
+        columnNames[0] = language.getString("SearchMessages.resultTable.index");
+        columnNames[1] = language.getString("SearchMessages.resultTable.from");
+        columnNames[2] = language.getString("SearchMessages.resultTable.board");
+        columnNames[3] = language.getString("SearchMessages.resultTable.subject");
+        columnNames[4] = language.getString("SearchMessages.resultTable.sig");
+        columnNames[5] = language.getString("SearchMessages.resultTable.date");
 
         fireTableStructureChanged();
     }

@@ -17,7 +17,7 @@
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
 */
-package frost.gui.objects;
+package frost.gui;
 
 import java.awt.*;
 
@@ -26,6 +26,7 @@ import javax.swing.tree.*;
 import javax.swing.JScrollPane;
 
 import frost.boards.*;
+import frost.gui.objects.*;
 import frost.util.gui.translation.*;
 
 /**
@@ -95,7 +96,7 @@ public class TargetFolderChooser extends JDialog {
 
         this.setDefaultCloseOperation(javax.swing.WindowConstants.DO_NOTHING_ON_CLOSE);
         this.setModal(true);
-        this.setTitle("Choose a target folder");
+        this.setTitle(language.getString("Choose a target folder"));
         this.setContentPane(getJContentPane());
         this.addWindowListener(new java.awt.event.WindowAdapter() {
             public void windowClosing(java.awt.event.WindowEvent e) {
@@ -158,7 +159,7 @@ public class TargetFolderChooser extends JDialog {
     private JButton getOkButton() {
         if( okButton == null ) {
             okButton = new JButton();
-            okButton.setText(language.getString("Ok"));
+            okButton.setText(language.getString("Common.ok"));
             okButton.setSelected(false);
             okButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
@@ -177,7 +178,7 @@ public class TargetFolderChooser extends JDialog {
     private JButton getCancelButton() {
         if( cancelButton == null ) {
             cancelButton = new JButton();
-            cancelButton.setText(language.getString("Cancel"));
+            cancelButton.setText(language.getString("Common.cancel"));
             cancelButton.addActionListener(new java.awt.event.ActionListener() {
                 public void actionPerformed(java.awt.event.ActionEvent e) {
                     cancelButtonPressed();
