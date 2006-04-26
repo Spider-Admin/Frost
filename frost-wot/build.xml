@@ -199,6 +199,9 @@ Build log  : ${logfilename}</echo>
       <fileset dir="${build.classes}">
         <include name="**/*.class"/>
       </fileset>
+      <fileset dir="${src.dir}">
+        <include name="**/*.properties"/>
+      </fileset>
       <fileset dir="${res.dir}">
         <include name="**"/>
       </fileset>
