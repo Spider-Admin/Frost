@@ -24,6 +24,7 @@
 */
 package frost.util.gui.translation;
 
+import java.io.*;
 import java.text.*;
 import java.util.*;
 import java.util.logging.*;
@@ -69,6 +70,10 @@ public class Language {
 //        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
     }
 
+    private Language(File bundleFile) {
+        ROOT_RESOURCE_BUNDLE = new FrostResourceBundle(bundleFile);
+        RESOURCE_BUNDLE = ROOT_RESOURCE_BUNDLE;
+    }
     /**
      * Return the unique instance of this class.
      *
@@ -92,13 +97,13 @@ public class Language {
         }
     }
 
-//    public static void initializeWithFile(File bundleFile) {
-//        if( !initialized ) {
-//            initialized = true;
-//            FrostResourceBundle b = new FrostResourceBundle(bundleFile);
-//            instance = new Language(ResourceBundle.getBundle(BUNDLE_NAME, locale));
-//        }
-//    }
+    public static void initializeWithFile(File bundleFile) {
+        if( !initialized ) {
+            initialized = true;
+            System.out.println("f="+bundleFile.getPath());
+            instance = new Language(bundleFile);
+        }
+    }
     
 //    /**
 //     * If it has already been initialized, this method does nothing.
