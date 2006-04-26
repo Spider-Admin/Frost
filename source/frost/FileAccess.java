@@ -418,4 +418,23 @@ public class FileAccess {
             return false;
         }
     }
+
+    /**
+     * Copys a file from the jar file to disk
+     * @param resource This is the file's name in the jar
+     * @param file This is the destination file
+     */
+    public static void copyFromResource(String resource, File file) throws IOException {
+        if (!file.isFile()) {
+            InputStream input = MainFrame.class.getResourceAsStream(resource);
+            FileOutputStream output = new FileOutputStream(file);
+            byte[] data = new byte[4096];
+            int bytesRead;
+            while ((bytesRead = input.read(data)) != -1) {
+                output.write(data, 0, bytesRead);
+            }
+            input.close();
+            output.close();
+        }
+    }
 }

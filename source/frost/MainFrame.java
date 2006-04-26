@@ -633,7 +633,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             });
             languageJapaneseMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("ja");
+                    setLanguageResource("jp");
                 }
             });
             languageRussianMenuItem.addActionListener(new ActionListener() {

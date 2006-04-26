@@ -2,10 +2,16 @@ package res;
 
 import java.util.*;
 
+import frost.*;
+
 public class LangResMapping {
 
     public static void main(String[] args) {
         buildMap();
+        export();
+    }
+    
+    public static void show() {
         LangRes lr = new LangRes();
         
         for(Iterator i=mapping.keySet().iterator(); i.hasNext(); ) {
@@ -22,6 +28,41 @@ public class LangResMapping {
         }
     }
     
+    // export: get newStr, find oldStr in LangRes bundle and save newStr = foundOldStr, 
+    // if no value for oldStr was found use oldStr directly
+    // ATTN: add oldStr ONLY for original LangRes! For other Languages keep it empty to indicate needed translation!
+
+    public static void export() {
+        LangRes lr = new LangRes();
+        String outFile = "d:\\langres.properties";
+        StringBuffer output = new StringBuffer();
+        
+        for(Iterator i=mapping.keySet().iterator(); i.hasNext(); ) {
+            String newKey = (String)i.next();
+            String oldKey = (String)mapping.get(newKey);
+            
+            try {
+                oldKey = lr.getString(oldKey);
+            } catch (RuntimeException e) {
+//                System.out.println("Key in mapping, but not in LangRes: '"+k1+"'");
+//                continue; // don't add default for missing keys
+            }
+            StringBuffer sbTmp = new StringBuffer();
+            for(int x=0; x < oldKey.length(); x++) {
+                char c = oldKey.charAt(x);
+                if( c == '\n' ) {
+                    sbTmp.append("\\n");
+                } else {
+                    sbTmp.append(c);
+                }
+            }
+            System.out.println(newKey+"="+sbTmp.toString());
+            output.append(newKey+"="+sbTmp.toString()).append("\n");
+        }
+        
+        FileAccess.writeFile(output.toString(), outFile, "UTF-8");
+    }
+    
     private static Map mapping = null;
     
     public static String getOldForNew(String newStr) {
@@ -32,7 +73,7 @@ public class LangResMapping {
     }
     
     private static void buildMap() {
-        mapping = new HashMap();
+        mapping = new TreeMap();
         for(int x=0; x < contents.length; x++) {
             String oldStr = (String)contents[x][0];
             String newStr = (String)contents[x][1];
@@ -710,13 +751,13 @@ static final Object[][] contents = {
 {"Destination",                    "UploadPane.fileTable.destination"},
 {"Key",                            "UploadPane.fileTable.key"},
 
-{"Never",             "UploadTableFormat.state.never"},
-{"Requested",         "UploadTableFormat.state.requested"},
-{"Uploading",         "UploadTableFormat.state.uploading"},
-{"Encode requested",  "UploadTableFormat.state.encodeRequested"},
-{"Encoding file",     "UploadTableFormat.state.encodingFile"},
-{"Waiting",           "UploadTableFormat.state.waiting"},
-{"Unknown",           "UploadTableFormat.state.unknown"},
+{"Never",             "UploadPane.fileTable.state.never"},
+{"Requested",         "UploadPane.fileTable.state.requested"},
+{"Uploading",         "UploadPane.fileTable.state.uploading"},
+{"Encode requested",  "UploadPane.fileTable.state.encodeRequested"},
+{"Encoding file",     "UploadPane.fileTable.state.encodingFile"},
+{"Waiting",           "UploadPane.fileTable.state.waiting"},
+{"Unknown",           "UploadPane.fileTable.state.unknown"},
 
 ///////////////////////////////////////////////////
 /// NewBoardDialog

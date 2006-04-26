@@ -45,7 +45,7 @@ public class Startup {
         try {
             File execfile = new File("exec.bat");
             if( !execfile.isFile() )
-                Mixed.copyFromResource("/data/exec.bat", execfile);
+                FileAccess.copyFromResource("/data/exec.bat", execfile);
         } catch (IOException e) {
             ;
         }
@@ -53,7 +53,7 @@ public class Startup {
         try {
             File tray1file = new File("exec" + fileSeparator + "JSysTray.dll");
             if( !tray1file.isFile() )
-                Mixed.copyFromResource("/data/JSysTray.dll", tray1file);
+                FileAccess.copyFromResource("/data/JSysTray.dll", tray1file);
         } catch (IOException e) {
             ;
         }

@@ -30,8 +30,6 @@ import java.util.logging.*;
 
 import javax.swing.event.*;
 
-import res.*;
-
 /**
  * @pattern Singleton
  */
@@ -39,11 +37,9 @@ public class Language {
 
     private static Logger logger = Logger.getLogger(Language.class.getName());
 
-//    private static final String BUNDLE_NAME = "messages";
-    private static final String BUNDLE_NAME = "res.LangRes";
-
-    private ResourceBundle RESOURCE_BUNDLE = null;
-    private BreakIterator LINE_BREAKER = null;
+    private FrostResourceBundle RESOURCE_BUNDLE = null;
+    private FrostResourceBundle ROOT_RESOURCE_BUNDLE = null;
+//    private BreakIterator LINE_BREAKER = null;
 
     private static boolean initialized = false;
     
@@ -66,10 +62,11 @@ public class Language {
     /**
      * Prevent instances of this class from being created.
      */
-    private Language(ResourceBundle resourceBundle) {
+    private Language(String localeName) {
         super();
-        RESOURCE_BUNDLE = resourceBundle;
-        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
+        ROOT_RESOURCE_BUNDLE = new FrostResourceBundle();
+        RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+//        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
     }
 
     /**
@@ -85,31 +82,33 @@ public class Language {
      * If it has already been initialized, this method does nothing.
      */
     public static void initializeWithName(String localeName) {
-        Locale locale;
-        if( localeName == null ) {
-            locale = Locale.getDefault();
-        } else {
-            locale = new Locale(localeName);
-        }
-        initializeWithLocale(locale);
-    }
-
-    /**
-     * If it has already been initialized, this method does nothing.
-     */
-    public static void initializeWithLocale(Locale locale) {
         if( !initialized ) {
             initialized = true;
-            instance = new Language(ResourceBundle.getBundle(BUNDLE_NAME, locale));
+
+            if( localeName == null ) {
+                localeName = Locale.getDefault().getCountry();
+            }
+            instance = new Language(localeName.toLowerCase());
         }
     }
 
-    /**
-     * @return
-     */
-    public ResourceBundle getResourceBundle() {
-        return RESOURCE_BUNDLE;
-    }
+//    public static void initializeWithFile(File bundleFile) {
+//        if( !initialized ) {
+//            initialized = true;
+//            FrostResourceBundle b = new FrostResourceBundle(bundleFile);
+//            instance = new Language(ResourceBundle.getBundle(BUNDLE_NAME, locale));
+//        }
+//    }
+    
+//    /**
+//     * If it has already been initialized, this method does nothing.
+//     */
+//    public static void initializeWithLocale(Locale locale) {
+//        if( !initialized ) {
+//            initialized = true;
+//            instance = new Language(locale);
+//        }
+//    }
 
     /**
      * Adds an <code>LanguageListener</code> to the Language.
@@ -168,14 +167,11 @@ public class Language {
      * @param resourceBundle
      */
     public synchronized void changeLanguage(String localeName) {
-        Locale locale;
         if( localeName == null ) {
-            locale = Locale.getDefault();
-        } else {
-            locale = new Locale(localeName);
+            localeName = Locale.getDefault().getCountry();
         }
-        RESOURCE_BUNDLE = ResourceBundle.getBundle(BUNDLE_NAME, locale);
-        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
+        RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+//        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
         
         fireLanguageChanged(new LanguageEvent(this));
     }
@@ -187,88 +183,88 @@ public class Language {
     public String getString(String origKey) {
         
         // temporary: map old LangRes keys to new keys used in gui
-        String key = LangResMapping.getOldForNew(origKey);
-        if( key == null ) {
-            System.out.println("Key not in mapping: '"+origKey+"'");
-            key = origKey;
-        }
+//        String key = LangResMapping.getOldForNew(origKey);
+//        if( key == null ) {
+//            System.out.println("Key not in mapping: '"+origKey+"'");
+//            key = origKey;
+//        }
         
         String s;
         try {
-            s = RESOURCE_BUNDLE.getString(key);
+            s = RESOURCE_BUNDLE.getString(origKey);
         } catch(Throwable t) {
             s = null;
-            logger.log(Level.SEVERE,"Exception catched", t);
+            logger.log(Level.SEVERE, "Exception catched", t);
         }
         if( s == null ) {
-            logger.severe("No translation found for key '"+key+"', using key.");
-            return key;
+            logger.severe("No translation found for key '"+origKey+"', using key.");
+            return origKey;
         } else {
             return s;
         }
     }
 
 /////////////////////////////////////////////////////////////////////////////////////7
-    /**
-     * Builds a String containing the source String broken into lines
-     * of maxLength length, using \n as line breaker. 
-     */
-    public synchronized String breakLinesText(String source, int maxLength) {
-
-        LINE_BREAKER.setText(source);
-        int start = LINE_BREAKER.first();
-        int end = LINE_BREAKER.next();
-        int lineLength = 0;
-        
-        StringBuffer result = new StringBuffer();
-
-        while (end != BreakIterator.DONE) {
-            String word = source.substring(start,end);
-            if( word.indexOf('\n') > -1 ) {
-                // wenn dieses word NICHT mehr passt, dann auf neue zeile, und gleich noch ne neue Zeile wg. \n
-                lineLength = 0; // TODO: fix
-            } else {
-                lineLength = lineLength + word.length();
-                if (lineLength > maxLength) {
-                    result.append("\n");
-                    lineLength = word.length();
-                }
-            }
-            result.append(word);
-            start = end;
-            end = LINE_BREAKER.next();
-        }
-        return result.toString();
-    }
-
-    /**
-     * Builds a HTML String containing the source String broken into lines
-     * of maxLength length, using 'br' as line breaker. 
-     */
-    public synchronized String breakLinesHtml(String source, int maxLength) {
-
-        LINE_BREAKER.setText(source);
-        int start = LINE_BREAKER.first();
-        int end = LINE_BREAKER.next();
-        int lineLength = 0;
-        
-        StringBuffer result = new StringBuffer();
-        result.append("<html>");
-
-        while (end != BreakIterator.DONE) {
-            String word = source.substring(start,end);
-            lineLength = lineLength + word.length();
-            if (lineLength > maxLength) {
-                result.append("<br>");
-                lineLength = word.length();
-            }
-            result.append(word);
-            start = end;
-            end = LINE_BREAKER.next();
-        }
-        result.append("</html>");
-        return result.toString();
-    }
+//    /**
+//     * Builds a String containing the source String broken into lines
+//     * of maxLength length, using \n as line breaker. 
+//     */
+//    public synchronized String breakLinesText(String source, int maxLength) {
+//
+//        LINE_BREAKER.setText(source);
+//        int start = LINE_BREAKER.first();
+//        int end = LINE_BREAKER.next();
+//        int lineLength = 0;
+//        
+//        StringBuffer result = new StringBuffer();
+//
+//        while (end != BreakIterator.DONE) {
+//            String word = source.substring(start,end);
+//            if( word.indexOf('\n') > -1 ) {
+//                // wenn dieses word NICHT mehr passt, dann auf neue zeile, und gleich noch ne neue Zeile wg. \n
+//                lineLength = 0; // TODO: fix
+//            } else {
+//                lineLength = lineLength + word.length();
+//                if (lineLength > maxLength) {
+//                    result.append("\n");
+//                    lineLength = word.length();
+//                }
+//            }
+//            result.append(word);
+//            start = end;
+//            end = LINE_BREAKER.next();
+//        }
+//        return result.toString();
+//    }
+//
+//    /**
+//     * Builds a HTML String containing the source String broken into lines
+//     * of maxLength length, using 'br' as line breaker. 
+//     */
+//    public synchronized String breakLinesHtml(String source, int maxLength) {
+//
+//        LINE_BREAKER.setText(source);
+//        int start = LINE_BREAKER.first();
+//        int end = LINE_BREAKER.next();
+//        int lineLength = 0;
+//        
+//        StringBuffer result = new StringBuffer();
+//        result.append("<html>");
+//
+//        while (end != BreakIterator.DONE) {
+//            String word = source.substring(start,end);
+//            lineLength = lineLength + word.length();
+//            if (lineLength > maxLength) {
+//                result.append("<br>");
+//                lineLength = word.length();
+//            }
+//            result.append(word);
+//            start = end;
+//            end = LINE_BREAKER.next();
+//        }
+//        result.append("</html>");
+//        return result.toString();
+//    }
 
     public synchronized String formatMessage(String msg, Object[] objs) {
         try {

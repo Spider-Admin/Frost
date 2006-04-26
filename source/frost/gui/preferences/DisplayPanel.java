@@ -197,7 +197,7 @@ class DisplayPanel extends JPanel {
         constraints.insets = inset1515;
         constraints.gridx = 0;
         constraints.gridy = 0;
-        skinChooser = new SkinChooser(language.getResourceBundle());
+        skinChooser = new SkinChooser(language);
         add(skinChooser, constraints);
 
         constraints.insets = inset1515;

@@ -486,9 +486,9 @@ static final Object[][] contents = {
 	{"Copy keys with filenames", "Copia claves con nombres de fichero"},
 	{"Copy extended info", "Copia información extendida"},
 	{"Key not available yet", "Clave todavía no disponible"},
-	{"clipboard.File:",  "Fichero: "},	//These three strings are a special case.
-	{"clipboard.Key:",   "Clave:   "},	//They must have the same length so that the
-	{"clipboard.Bytes:", "Bytes:   "}		//format of the output is preserved.
+	{"clipboard.File:",  "Fichero:"},	//These three strings are a special case.
+	{"clipboard.Key:",   "Clave  :"},	//They must have the same length so that the
+	{"clipboard.Bytes:", "Bytes  :"}		//format of the output is preserved.
 	
 	};
 }

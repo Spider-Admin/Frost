@@ -665,9 +665,9 @@ public class LangRes extends ListResourceBundle {
 	{"Copy keys with filenames", "Copy keys with filenames"},
 	{"Copy extended info", "Copy extended info"},
 	{"Key not available yet", "Key not available yet"},
-	{"clipboard.File:",  "File:  "},	//These three strings are a special case.
-	{"clipboard.Key:",   "Key:   "},	//They must have the same length so that the
-	{"clipboard.Bytes:", "Bytes: "},	//format of the output is preserved.
+	{"clipboard.File:",  "File :"},	//These three strings are a special case.
+	{"clipboard.Key:",   "Key  :"},	//They must have the same length so that the
+	{"clipboard.Bytes:", "Bytes:"},	//format of the output is preserved.
     
     // AltEdit support
     {"The message file returned by the alternate editor is invalid.", "The message file returned by the alternate editor is invalid."},

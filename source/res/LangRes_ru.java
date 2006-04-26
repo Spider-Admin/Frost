@@ -641,9 +641,9 @@ public class LangRes_ru extends ListResourceBundle {
 	{"Copy keys with filenames", "Копировать ключи и имя"},
 	{"Copy extended info", "Копировать дополнительную информацию"},
 	{"Key not available yet", "Ключ ещё не доступен"},
-	{"clipboard.File:",  "Файл:   "},	//These three strings are a special case.
-	{"clipboard.Key:",   "Ключ:   "},	//They must have the same length so that the
-	{"clipboard.Bytes:", "Байтов: "}	//format of the output is preserved.
+	{"clipboard.File:",  "Файл  :"},	//These three strings are a special case.
+	{"clipboard.Key:",   "Ключ  :"},	//They must have the same length so that the
+	{"clipboard.Bytes:", "Байтов:"}	//format of the output is preserved.
 
     };
 }
