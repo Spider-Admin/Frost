@@ -36,9 +36,6 @@ public class GetRequestsThread extends Thread
 
     private FrostIdentities identities;
 
-    static java.util.ResourceBundle LangRes =
-        java.util.ResourceBundle.getBundle("res.LangRes");
-
     private static Logger logger = Logger.getLogger(GetRequestsThread.class.getName());
 
     //public FrostBoardObject board;
