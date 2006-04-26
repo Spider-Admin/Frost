@@ -96,6 +96,7 @@ public class Frost {
                 } else {
                     showHelp();
                 }
+                // TODO: add -localefile xxx   to test properties files
             }
         } catch (ArrayIndexOutOfBoundsException exception) {
             showHelp();
@@ -106,10 +107,8 @@ public class Frost {
      * This method sets a new locale
      * @param string the name of the new locale
      */
-    private static void setLocale(String newLocale) {
-        Locale locale = new Locale(newLocale);
-        Locale.setDefault(locale);
-        Core.setLocale(locale);
+    private static void setLocale(String newLocaleName) {
+        Core.setLocale(newLocaleName);
     }
 
     /**

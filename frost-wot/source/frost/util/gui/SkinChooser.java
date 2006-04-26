@@ -30,6 +30,8 @@ import javax.swing.event.*;
 
 import com.l2fprod.gui.plaf.skin.*;
 
+import frost.util.gui.translation.*;
+
 /**
  * Swing component to choose among the available Skins
  */
@@ -79,7 +81,7 @@ public class SkinChooser extends JPanel {
 	private JList skinsList = null;
 	private JCheckBox enableSkinsCheckBox = null;
 	
-	private ResourceBundle languageBundle = null;
+	private Language language = null;
 	private boolean noSkinsFound = true;
 	
 	private LookAndFeel initialLookAndFeel = null;
@@ -92,10 +94,9 @@ public class SkinChooser extends JPanel {
 	 * 	Constructor
 	 * @param bundle The resourceBundle to get the messages from
 	 */
-	
-	public SkinChooser(ResourceBundle bundle) {
+	public SkinChooser(Language bundle) {
 		super();
-		languageBundle = bundle;
+		language = bundle;
 		initialize();
 	}
 
@@ -128,7 +129,7 @@ public class SkinChooser extends JPanel {
 		if (enableSkinsCheckBox == null) {
 			enableSkinsCheckBox = new javax.swing.JCheckBox();
 			enableSkinsCheckBox.setName("EnableSkinsCheckBox");
-			enableSkinsCheckBox.setText(languageBundle.getString("EnableSkins"));
+			enableSkinsCheckBox.setText(language.getString("EnableSkins"));
 			enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
 			enableSkinsCheckBox.setSelected(true);
 		}
@@ -253,7 +254,7 @@ public class SkinChooser extends JPanel {
 
 			Collections.sort(skinsListData);
 			if (skinsListData.isEmpty()) {
-				skinsListData.add(languageBundle.getString("NoSkinsFound"));
+				skinsListData.add(language.getString("NoSkinsFound"));
 				noSkinsFound = true;
 				getSkinsList().setEnabled(false);
 				getSkinsList().setEnabled(false);
@@ -391,7 +392,7 @@ public class SkinChooser extends JPanel {
 		if (availableSkinsLabel == null) {
 			availableSkinsLabel = new JLabel();
 			availableSkinsLabel.setName("AvailableSkinsLabel");
-			availableSkinsLabel.setText(languageBundle.getString("AvailableSkins"));
+			availableSkinsLabel.setText(language.getString("AvailableSkins"));
 			availableSkinsLabel.setMaximumSize(new Dimension(200, 30));
 			availableSkinsLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 			availableSkinsLabel.setPreferredSize(new Dimension(120, 30));
@@ -409,7 +410,7 @@ public class SkinChooser extends JPanel {
 		if (previewButton == null) {
 			previewButton = new JButton();
 			previewButton.setName("PreviewButton");
-			previewButton.setText(languageBundle.getString("Preview"));
+			previewButton.setText(language.getString("Preview"));
 			previewButton.setEnabled(false);
 		}
 		return previewButton;
@@ -423,7 +424,7 @@ public class SkinChooser extends JPanel {
 		if (refreshButton == null) {
 			refreshButton = new JButton();
 			refreshButton.setName("RefreshButton");
-			refreshButton.setText(languageBundle.getString("RefreshList"));
+			refreshButton.setText(language.getString("RefreshList"));
 		}
 		return refreshButton;
 	}

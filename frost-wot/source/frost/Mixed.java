@@ -18,38 +18,14 @@
 */
 package frost;
 
-import java.io.*;
-import java.util.logging.Logger;
+import java.util.logging.*;
 
-public final class Mixed
-{
+public final class Mixed {
+
     private static Logger logger = Logger.getLogger(Mixed.class.getName());
 
+    // FIXME: this one is missing the "&" char as opposed to MessageObject()
     private static char[] invalidChars = { '/', '\\', '?', '*', '<', '>', '\"', ':', '|', '#' };
-    //FIXME: this one is missing the "&" char as opposed to MessageObject()
-
-    /**
-     * Copys a file from the jar file to disk
-     * @param resource This is the file's name in the jar
-     * @param file This is the destination file
-     */
-    public static void copyFromResource(String resource, File file)
-        throws IOException
-    {
-        if (!file.isFile())
-        {
-            InputStream input = MainFrame.class.getResourceAsStream(resource);
-            FileOutputStream output = new FileOutputStream(file);
-            byte[] data = new byte[128];
-            int bytesRead;
-
-            while ((bytesRead = input.read(data)) != -1)
-                output.write(data, 0, bytesRead);
-
-            input.close();
-            output.close();
-        }
-    }
 
     /**
      * Waits for a specific number of ms
@@ -61,6 +37,7 @@ public final class Mixed
         } catch (InterruptedException e) {
         }
     }
+
     /**
      * Makes sure that the string does not contain ]]> - the only
      * sequence that breaks CDATA, converts them to ___
@@ -68,10 +45,13 @@ public final class Mixed
      * @return the string with ]]> converted to ___
      */
     public static String makeSafeXML(String text) {
-        if (text == null) return null;
+        if (text == null) { 
+            return null;
+        }
         int index;
-        while((index = text.indexOf("]]>")) !=-1)
-            text = text.substring(0,index) + "___"+text.substring(index+3,text.length());
+        while((index = text.indexOf("]]>")) != -1) {
+            text = text.substring(0,index) + "___" + text.substring(index+3,text.length());
+        }
         return text;
     }
     
@@ -133,9 +113,8 @@ public final class Mixed
      */
     public static boolean containsForeign(String text){
         //REDFLAG: implement?
-        char[] chars = text.toCharArray();
-        Character c = new Character(chars[0]);
-
+//        char[] chars = text.toCharArray();
+//        Character c = new Character(chars[0]);
         return false;
     }
     public static boolean binaryCompare(byte[] src, int offs, String searchTxt)
