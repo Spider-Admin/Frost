@@ -75,4 +75,8 @@ public class FrostResourceBundle {
         }
         return value;
     }
+    
+    public Collection getKeys() {
+        return bundle.keySet();
+    }
 }
