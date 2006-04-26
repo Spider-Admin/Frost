@@ -38,8 +38,6 @@ class UploadThread extends Thread
 
     private LocalIdentity myId;
 
-    static java.util.ResourceBundle LangRes = java.util.ResourceBundle.getBundle("res.LangRes")/*#BundleType=List*/;
-
     private static Logger logger = Logger.getLogger(UploadThread.class.getName());
 
     public static final int MODE_GENERATE_SHA1 = 1;

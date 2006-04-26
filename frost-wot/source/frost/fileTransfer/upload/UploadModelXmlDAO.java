@@ -37,8 +37,6 @@ public class UploadModelXmlDAO implements UploadModelDAO {
 
     private static Logger logger = Logger.getLogger(UploadModelXmlDAO.class.getName());
 
-    private static ResourceBundle langRes = java.util.ResourceBundle.getBundle("res.LangRes");
-
     private static final String XML_FILENAME = "uploads.xml";
     private static final String TMP_FILENAME = "uploads.xml.tmp";
     private static final String BAK_FILENAME = "uploads.xml.bak";
@@ -149,21 +147,22 @@ public class UploadModelXmlDAO implements UploadModelDAO {
             iState = -1;
         }
 
-        if (iState < 0) {
-            // old format: states are saved in XML as LangRes Strings
-            if (state.indexOf("Kb") != -1 || state.equals(langRes.getString("Uploading"))) {
-                iState = FrostUploadItem.STATE_REQUESTED;
-            }
-        } else {
+//        if (iState < 0) {
+//            // old format: states are saved in XML as LangRes Strings
+//            if (state.indexOf("Kb") != -1 || state.equals(langRes.getString("Uploading"))) {
+//                iState = FrostUploadItem.STATE_REQUESTED;
+//            }
+//        } else {
             // new format: states are saved in XML as numbers
-            if ((iState == FrostUploadItem.STATE_PROGRESS) ||
-                    (iState == FrostUploadItem.STATE_UPLOADING)) {
+            if ((iState == FrostUploadItem.STATE_PROGRESS) || (iState == FrostUploadItem.STATE_UPLOADING)) {
                 iState = FrostUploadItem.STATE_REQUESTED;
-            } else if ((iState == FrostUploadItem.STATE_ENCODING) ||
-                        (iState == FrostUploadItem.STATE_ENCODING_REQUESTED)) {
+            } else if ((iState == FrostUploadItem.STATE_ENCODING) || (iState == FrostUploadItem.STATE_ENCODING_REQUESTED)) {
+                iState = FrostUploadItem.STATE_IDLE;
+            } else {
+                // fallback
                 iState = FrostUploadItem.STATE_IDLE;
             }
-        }
+//        }
 
         if (key != null && key.startsWith("CHK@") == false) {
             key = null;

@@ -35,8 +35,6 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 	
 	private static Logger logger = Logger.getLogger(DownloadModelXmlDAO.class.getName());
 	
-	private static ResourceBundle langRes = java.util.ResourceBundle.getBundle("res.LangRes");
-
 	private static final String XML_FILENAME = "downloads.xml";
 	private static final String TMP_FILENAME = "downloads.xml.tmp";
 	private static final String BAK_FILENAME = "downloads.xml.bak";
@@ -97,17 +95,17 @@ public class DownloadModelXmlDAO implements DownloadModelDAO {
 			iState = -1;
 		}
 
-		if (iState < 0) {
-			// old format: states are saved in XML as LangRes Strings
-			if (state.equals(langRes.getString("Done")) == false) {
-				iState = FrostDownloadItem.STATE_WAITING;
-			}
-		} else {
+//		if (iState < 0) {
+//			// old format: states are saved in XML as LangRes Strings
+//			if (state.equals(langRes.getString("Done")) == false) {
+//				iState = FrostDownloadItem.STATE_WAITING;
+//			}
+//		} else {
 			// new format: states are saved in XML as numbers
 			if (iState != FrostDownloadItem.STATE_DONE) {
 				iState = FrostDownloadItem.STATE_WAITING;
 			}
-		}
+//		}
 
 		boolean isDownloadEnabled = false;
 		if (enableDownload == null || enableDownload.length() == 0 ||
