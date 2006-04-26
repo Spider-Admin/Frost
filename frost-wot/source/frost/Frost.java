@@ -91,24 +91,18 @@ public class Frost {
                     lookAndFeel = args[count + 1];
                     count = count + 2;
                 } else if (args[count].equals("-locale")) {
-                    setLocale(args[count + 1]); //This settings overrides the one in the ini file
+                    Core.setLocaleName(args[count + 1]); //This settings overrides the one in the ini file
+                    count = count + 2;
+                } else if (args[count].equals("-localefile")) {
+                    Core.setLocaleFileName(args[count + 1]); 
                     count = count + 2;
                 } else {
                     showHelp();
                 }
-                // TODO: add -localefile xxx   to test properties files
             }
         } catch (ArrayIndexOutOfBoundsException exception) {
             showHelp();
         }
-    }
-
-    /**
-     * This method sets a new locale
-     * @param string the name of the new locale
-     */
-    private static void setLocale(String newLocaleName) {
-        Core.setLocale(newLocaleName);
     }
 
     /**
@@ -130,6 +124,10 @@ public class Frost {
 
         System.out.println("-locale  Sets the language Frost will use, if available.");
         System.out.println("         (overrides the setting in the preferences)\n");
+
+        System.out.println("-localefile  Sets the language file.");
+        System.out.println("             (allows tests of own language files)");
+        System.out.println("             (if set the -locale setting is ignored)\n");
 
         System.out.println("Example:\n");
         System.out.print("java -jar frost.jar ");

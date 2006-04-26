@@ -62,8 +62,9 @@ public class Core implements Savable, FrostEventDispatcher  {
     // Core instanciates itself, frostSettings must be created before instance=Core() !
     public static SettingsClass frostSettings = new SettingsClass();
 
-    private static Core instance = new Core();
+    private static Core instance = null;
     private static String localeName = null;
+    private static String localeFileName = null;
 
     private static List knownBoards = new ArrayList(); //list of known boards
 
@@ -480,10 +481,12 @@ public class Core implements Savable, FrostEventDispatcher  {
     }
 
     /**
-     *
      * @return pointer to the live core
      */
     public static Core getInstance() {
+        if( instance == null ) {
+            instance = new Core();
+        }
         return instance;
     }
 
@@ -782,8 +785,11 @@ public class Core implements Savable, FrostEventDispatcher  {
         }
     }
 
-    public static void setLocale(String localeName) {
+    public static void setLocaleName(String localeName) {
         Core.localeName = localeName;
+    }
+    public static void setLocaleFileName(String localeFileName) {
+        Core.localeFileName = localeFileName;
     }
 
     /**
@@ -838,7 +844,10 @@ public class Core implements Savable, FrostEventDispatcher  {
      * LanguageResource. If not, the locale value in frostSettings is used for that.
      */
     private void initializeLanguage() {
-        if (localeName != null) {
+        if( localeFileName != null ) {
+            File f = new File(localeFileName);
+            Language.initializeWithFile(f);
+        } else if (localeName != null) {
             // use locale specified on command line (overrides config setting)
             Language.initializeWithName(localeName);
         } else {

@@ -18,6 +18,7 @@
 */
 package frost.util.gui.translation;
 
+import java.io.*;
 import java.util.*;
 
 /**
@@ -33,10 +34,6 @@ public class FrostResourceBundle {
     private Map bundle;
     private FrostResourceBundle parentBundle = null;
 
-    public static void main(String[] args) {
-        System.out.println(Locale.getDefault().getCountry());
-    }
-    
     /**
      * Load the root bundle.
      */
@@ -59,12 +56,12 @@ public class FrostResourceBundle {
         }
     }
 
-//    /**
-//     * Load bundle for File, without callback. For tests of new properties files.
-//     */
-//    public FrostResourceBundle(File bundleFile) {
-//        
-//    }
+    /**
+     * Load bundle for File, without callback. For tests of new properties files.
+     */
+    public FrostResourceBundle(File bundleFile) {
+        bundle = FrostResourceBundleReader.loadBundle(bundleFile);
+    }
 
     public String getString(String key) throws MissingResourceException {
         String value;
