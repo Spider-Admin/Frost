@@ -21,18 +21,19 @@ import java.awt.*;
 import java.awt.datatransfer.*;
 import java.awt.event.*;
 import java.beans.*;
-import java.io.File;
-import java.util.logging.Logger;
+import java.io.*;
+import java.util.logging.*;
 
 import javax.swing.*;
+import javax.swing.text.*;
 
 import frost.*;
-import frost.ext.Execute;
+import frost.ext.*;
 import frost.fcp.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
-import frost.util.model.ModelItem;
-import frost.util.model.gui.SortedModelTable;
+import frost.util.model.*;
+import frost.util.model.gui.*;
 
 /**
  * @author $Author$
@@ -497,6 +498,19 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		language = Language.getInstance();
 		language.addLanguageListener(listener);
 	}
+    
+    /** 
+     * This Document changes all newlines in the text into semicolons.
+     * Needed if the user pastes multiple download keys, each on a line,
+     * into the download text field.
+     */ 
+    protected class HandleMultiLineKeysDocument extends PlainDocument {
+        public void insertString(int offs, String str, AttributeSet a) throws BadLocationException {
+            str = str.replace('\n', ';');
+            str = str.replace('\r', ' ');
+            super.insertString(offs, str, a);
+        }
+    }
 
 	public void initialize() {
 		if (!initialized) {
@@ -513,6 +527,8 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			downloadTopPanel.setLayout(dummyLayout);
 			downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
             downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
+            downloadTextField.setDocument(new HandleMultiLineKeysDocument());
+                
 			downloadTopPanel.add(downloadTextField); //Download/Quickload
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
 			downloadTopPanel.add(downloadActivateButton); //Download/Start transfer
