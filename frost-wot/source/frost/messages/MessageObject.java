@@ -267,8 +267,9 @@ public class MessageObject implements XMLizable
             Iterator it = fileAttachments.iterator();
             while (it.hasNext()) {
                 SharedFileObject sfo = ((FileAttachment) it.next()).getFileObj();
-                if (!sfo.isOnline())
+                if (!sfo.isOnline()) {
                     result.add(sfo);
+                }
             }
         }
         return result;

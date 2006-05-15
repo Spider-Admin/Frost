@@ -274,9 +274,18 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
     private boolean uploadAttachments(MessageObject msg) {
         boolean success = true;
         List fileAttachments = msg.getOfflineFiles();
-        Iterator i = fileAttachments.iterator();
+        
+        int remainingAttachmentsToUploadCount = fileAttachments.size();
+        
+        if( remainingAttachmentsToUploadCount == 0 ) {
+            return true; // nothing to upload
+        }
+        
+        setAttachmentsToUploadCount(remainingAttachmentsToUploadCount);
+        setAttachmentsToUploadRemainingCount(remainingAttachmentsToUploadCount);
+        
         // check if upload files still exist
-        while (i.hasNext()) {
+        for(Iterator i = fileAttachments.iterator(); i.hasNext(); ) {
             SharedFileObject attachment = (SharedFileObject) i.next();
             if( attachment.getFile()== null ||
                 attachment.getFile().isFile() == false ||
@@ -285,7 +294,7 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
                 JOptionPane.showMessageDialog(
                         parentFrame,
                         "The message that is currently send (maybe a send retry on next startup of Frost)\n"+
-                        "contains a file attachment that does not longer exist!\n\n"+
+                        "contains a file attachment that does not longer exist, or it is a 0 byte file!\n\n"+
                         "The send of the message was aborted and the message file was deleted\n"+
                         "to prevent another upload try on next startup of Frost.",
                         "Unrecoverable error",
@@ -296,23 +305,29 @@ public class MessageUploadThread extends BoardUpdateThreadObject implements Boar
             }
         }
 
+        SharedFileObject failedAttachment = null;
+        
         // upload each attachment
-        i = fileAttachments.iterator();
-        while (i.hasNext()) {
+        for(Iterator i = fileAttachments.iterator(); i.hasNext(); ) {
             SharedFileObject attachment = (SharedFileObject) i.next();
             if(uploadAttachment(attachment)) {
-                //If the attachment was successfully inserted, we update the message on disk.
+                // if the attachment was successfully inserted, we update the message on disk.
                 msg.save();
+                remainingAttachmentsToUploadCount--;
+                setAttachmentsToUploadRemainingCount(remainingAttachmentsToUploadCount);
             } else {
                 success = false;
+                failedAttachment = attachment;
+                setAttachmentsToUploadRemainingCount(0);
+                break;
             }
         }
 
         if (!success) {
             JOptionPane.showMessageDialog(
                 parentFrame,
-                "One or more attachments failed to upload.\n"
-                    + "Will retry to upload attachments and message on next startup.",
+                "Attachment '"+failedAttachment.getFilename()+"' failed to upload.\n"+ 
+                    "Will retry to upload attachments and message after next startup.",
                 "Attachment upload failed",
                 JOptionPane.ERROR_MESSAGE);
         }
