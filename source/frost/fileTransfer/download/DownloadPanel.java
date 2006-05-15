@@ -28,6 +28,7 @@ import javax.swing.*;
 
 import frost.*;
 import frost.ext.Execute;
+import frost.fcp.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 import frost.util.model.ModelItem;
@@ -511,6 +512,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 			BoxLayout dummyLayout = new BoxLayout(downloadTopPanel, BoxLayout.X_AXIS);
 			downloadTopPanel.setLayout(dummyLayout);
 			downloadTextField.setMaximumSize(downloadTextField.getPreferredSize());
+            downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
 			downloadTopPanel.add(downloadTextField); //Download/Quickload
 			downloadTopPanel.add(Box.createRigidArea(new Dimension(8, 0)));
 			downloadTopPanel.add(downloadActivateButton); //Download/Start transfer
@@ -546,10 +548,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 	}
 
-	/**
-	 * @param text
-	 * @return
-	 */
 	private Dimension calculateLabelSize(String text) {
 		JLabel dummyLabel = new JLabel(text);
 		dummyLabel.doLayout();
@@ -559,6 +557,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private void refreshLanguage() {
 		downloadActivateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.activateDownloading"));
         downloadPauseButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pauseDownloading"));
+        downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.DownloadPane.toolbar.tooltip.addKeys"));
 
 		String waiting = language.getString("DownloadPane.toolbar.waiting");
 		Dimension labelSize = calculateLabelSize(waiting + " : 00000");
@@ -567,15 +566,16 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		downloadItemCountLabel.setText(waiting + " : " + downloadItemCount);
 	}
 
-	/**
-	 * @param model
-	 */
 	public void setModel(DownloadModel model) {
 		this.model = model;
 	}
 
 	/**
-	 * Configures a CheckBox to be a default icon CheckBox
+	 * Configures a CheckBox to be a default icon CheckBox.
+     *  
+     * Was used when we used a single icon for download start/pause!!!
+     * This is here to keep this code for future use.
+     * 
 	 * @param checkBox The new icon CheckBox
 	 * @param rolloverIcon Displayed when mouse is over the CheckBox
 	 * @param selectedIcon Displayed when CheckBox is checked
@@ -595,6 +595,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 //		checkBox.setFocusPainted(false);
 //	}
 
+    public static void main(String[] args) {
+        System.out.println("keys\ndada;2222".split("[;\n]").length);
+    }
+    
 	/**
 	 * downloadTextField Action Listener (Download/Quickload)
      * The textfield can contain 1 key to download or multiple keys separated by ';'.
@@ -608,7 +612,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             return;
         }
         
-        String[] keyList = keys.split(";");
+        String[] keyList = keys.split("[;\n]");
         if( keyList == null || keyList.length == 0 ) {
             downloadTextField.setText("");
             return;
@@ -644,6 +648,12 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
                 if (key.startsWith(validkeys[i])) {
                     keyType = i;
                     break;
+                }
+            }
+            // hack: support USK keys for 07 only
+            if( keyType < 0 && FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
+                if( key.startsWith("USK@") ) {
+                    keyType = 3; // hack
                 }
             }
             
@@ -706,16 +716,10 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		}
 	}
 
-	/**
-	 * @return
-	 */
 	public boolean isDownloadingActivated() {
 		return downloadingActivated;
 	}
 
-	/**
-	 * @param b
-	 */
 	public void setDownloadingActivated(boolean b) {
 		downloadingActivated = b;
         
@@ -723,9 +727,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
         downloadPauseButton.setEnabled(downloadingActivated);
 	}
 
-	/**
-	 * @param l
-	 */
 	public void setDownloadItemCount(long newDownloadItemCount) {
 		downloadItemCount = newDownloadItemCount;
 
@@ -746,9 +747,6 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		return popupMenuDownload;
 	}
 
-	/**
-	 * @param e
-	 */
 	private void showDownloadTablePopupMenu(MouseEvent e) {
 		getPopupMenuDownload().show(e.getComponent(), e.getX(), e.getY());
 	}
@@ -767,23 +765,14 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 		modelTable.setFont(font);
 	}
 
-	/**
-	 * @param e
-	 */
 	private void downloadActivateButtonPressed(ActionEvent e) {
 		setDownloadingActivated(true);
 	}
     
-    /**
-     * @param e
-     */
     private void downloadPauseButtonPressed(ActionEvent e) {
         setDownloadingActivated(false);
     }
 
-	/**
-	 * @param e
-	 */
 	private void downloadTableDoubleClick(MouseEvent e) {
 		int clickedCol = modelTable.getTable().columnAtPoint(e.getPoint());
 		int modelIx = modelTable.getTable().getColumnModel().getColumn(clickedCol).getModelIndex();
