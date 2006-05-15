@@ -557,7 +557,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
 	private void refreshLanguage() {
 		downloadActivateButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.activateDownloading"));
         downloadPauseButton.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.pauseDownloading"));
-        downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.DownloadPane.toolbar.tooltip.addKeys"));
+        downloadTextField.setToolTipText(language.getString("DownloadPane.toolbar.tooltip.addKeys"));
 
 		String waiting = language.getString("DownloadPane.toolbar.waiting");
 		Dimension labelSize = calculateLabelSize(waiting + " : 00000");

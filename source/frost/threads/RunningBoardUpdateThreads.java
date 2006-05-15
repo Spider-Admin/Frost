@@ -460,10 +460,8 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         }
     }
 
-
     /**
      * Returns the count of ALL running download threads (of all boards).
-     * @return
      */
     public int getRunningDownloadThreadCount() // msg_today, msg_back, files_update, update_id
     {
@@ -487,15 +485,15 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         }
         return downloadingThreads;
     }
+
     /**
      * Returns the count of ALL running upload threads (of all boards).
-     * @return
      */
     public int getRunningUploadThreadCount() // msg upload
     {
         int uploadingThreads = 0;
 
-        synchronized(runningDownloadThreads)
+        synchronized(runningUploadThreads)
         {
             Iterator i = runningUploadThreads.values().iterator();
             while( i.hasNext() )
@@ -516,49 +514,37 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
 
     /**
      * Returns the count of boards that currently have running download threads.
-     * @return
      */
-    public int getUpdatingBoardCount()
-    {
-        int updatingBoards = 0;
+    public int getDownloadingBoardCount() {
+        int downloadingBoards = 0;
 
-        synchronized(runningDownloadThreads)
-        {
+        synchronized( runningDownloadThreads ) {
             Iterator i = runningDownloadThreads.values().iterator();
-            while( i.hasNext() )
-            {
+            while( i.hasNext() ) {
                 Object o = i.next();
-                if( o instanceof Vector )
-                {
-                    Vector v = (Vector)o;
-                    if( v.size() > 0 )
-                    {
-                        updatingBoards++;
+                if( o instanceof Vector ) {
+                    Vector v = (Vector) o;
+                    if( v.size() > 0 ) {
+                        downloadingBoards++;
                     }
                 }
             }
         }
-        return updatingBoards;
+        return downloadingBoards;
     }
     /**
      * Returns the count of boards that currently have running upload threads.
-     * @return
      */
-    public int getUploadingBoardCount()
-    {
+    public int getUploadingBoardCount() {
         int uploadingBoards = 0;
 
-        synchronized(runningDownloadThreads)
-        {
+        synchronized(runningUploadThreads) {
             Iterator i = runningUploadThreads.values().iterator();
-            while( i.hasNext() )
-            {
+            while( i.hasNext() ) {
                 Object o = i.next();
-                if( o instanceof Vector )
-                {
+                if( o instanceof Vector ) {
                     Vector v = (Vector)o;
-                    if( v.size() > 0 )
-                    {
+                    if( v.size() > 0 ) {
                         uploadingBoards++;
                     }
                 }
@@ -566,9 +552,59 @@ public class RunningBoardUpdateThreads implements BoardUpdateThreadListener
         }
         return uploadingBoards;
     }
+    
+    /**
+     * Returns all information together, faster than calling all single methods.
+     * 
+     * @return a new information class containing status informations
+     * @see RunningMessageThreadsInformation
+     */
+    public RunningMessageThreadsInformation getRunningMessageThreadsInformation() {
+        
+        RunningMessageThreadsInformation info = new RunningMessageThreadsInformation();
+        
+        synchronized(runningUploadThreads) {
+            Iterator i = runningUploadThreads.values().iterator();
+            while( i.hasNext() ) {
+                Object o = i.next();
+                if( o instanceof Vector ) {
+                    Vector v = (Vector)o;
+                    int vsize = v.size();
+                    if( vsize > 0 ) {
+                        info.addToUploadingBoardCount(1);
+                        info.addToRunningUploadThreadCount(vsize);
+                        Iterator j = v.iterator();
+                        while(j.hasNext()) {
+                            BoardUpdateThreadObject tobj = (BoardUpdateThreadObject)j.next(); 
+                            info.addToAttachmentsToUploadCount(tobj.getAttachmentsToUploadCount());
+                            info.addToAttachmentsToUploadRemainingCount(tobj.getAttachmentsToUploadRemainingCount());
+                        }
+                    }
+                }
+            }
+        }
+
+        synchronized( runningDownloadThreads ) {
+            Iterator i = runningDownloadThreads.values().iterator();
+            while( i.hasNext() ) {
+                Object o = i.next();
+                if( o instanceof Vector ) {
+                    Vector v = (Vector) o;
+                    int vsize = v.size();
+                    if( vsize > 0 ) {
+                        info.addToDownloadingBoardCount(1);
+                        info.addToRunningDownloadThreadCount(vsize);
+                    }
+                }
+            }
+        }
+
+        return info;
+    }
 
     /**
      * Returns true if the given board have running download threads.
+     * 
      * @param board
      * @return
      */

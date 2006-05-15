@@ -33,11 +33,27 @@ public class BoardUpdateThreadObject extends Thread {
     long startTimeMillis = -1;
     boolean isFinished = false;
     Vector registeredListeners = null;
+    
+    int attachmentsToUploadCount = 0;
+    int attachmentsToUploadRemainingCount = 0;
 
     public BoardUpdateThreadObject(Board board) {
         super(board.getName());
         this.targetBoard = board;
         this.registeredListeners = new Vector();
+    }
+    
+    public synchronized int getAttachmentsToUploadCount() {
+        return attachmentsToUploadCount;
+    }
+    public synchronized void setAttachmentsToUploadCount(int c) {
+        attachmentsToUploadCount = c;
+    }
+    public int getAttachmentsToUploadRemainingCount() {
+        return attachmentsToUploadRemainingCount;
+    }
+    public void setAttachmentsToUploadRemainingCount(int c) {
+        this.attachmentsToUploadRemainingCount = c;
     }
 
     // FrostBoard getTargetBoard()

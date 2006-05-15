@@ -40,6 +40,7 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.gui.preferences.*;
 import frost.storage.*;
+import frost.threads.*;
 import frost.util.gui.*;
 import frost.util.gui.translation.*;
 
@@ -855,8 +856,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         getMessagePanel().getMessageTable().saveLayout(frostSettings);
 
         if (tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
-            int result =
-                JOptionPane.showConfirmDialog(
+            int result = JOptionPane.showConfirmDialog(
                     this,
                     language.getString("MainFrame.runningUploadsWarning.body"),
                     language.getString("MainFrame.runningUploadsWarning.title"),
@@ -874,7 +874,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         if (messagePanel == null) {
             messagePanel = new MessagePanel(frostSettings, this);
             messagePanel.setParentFrame(this);
-            messagePanel.setIdentities(core.getIdentities());
+            messagePanel.setIdentities(Core.getIdentities());
 //            messagePanel.addKeyListener(messagePanel.listener);
             messagePanel.initialize();
         }
@@ -1125,19 +1125,20 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     /**
-     * timer Action Listener (automatic download)
+     * timer Action Listener (automatic download), gui updates
      */
     public void timer_actionPerformed() {
         // this method is called by a timer each second, so this counter counts seconds
         counter++;
+
+        RunningMessageThreadsInformation info = tofTree.getRunningBoardUpdateThreads().getRunningMessageThreadsInformation();
 
         //////////////////////////////////////////////////
         //   Automatic TOF update
         //////////////////////////////////////////////////
         if (counter % 15 == 0 && // check all 5 seconds if a board update could be started
            isAutomaticBoardUpdateEnabled() &&
-           tofTree.getRunningBoardUpdateThreads().getUpdatingBoardCount()
-                < frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates"))
+           info.getDownloadingBoardCount() < frostSettings.getIntValue("automaticUpdate.concurrentBoardUpdates"))
         {
             Vector boards = tofTreeModel.getAllBoards();
             if (boards.size() > 0) {
@@ -1164,17 +1165,19 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         /////////////////////////////////////////////////
         String newText =
             new StringBuffer()
-                .append("   " + language.getString("MainFrame.statusBar.TOFUP") + ": ")
-                .append(tofTree.getRunningBoardUpdateThreads().getUploadingBoardCount())
+                .append("   ").append(language.getString("MainFrame.statusBar.TOFUP")).append(": ")
+                .append(info.getUploadingBoardCount())
                 .append("B / ")
-                .append(tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount())
-                .append("T")
-                .append("   " + language.getString("MainFrame.statusBar.TOFDO") + ": ")
-                .append(tofTree.getRunningBoardUpdateThreads().getUpdatingBoardCount())
+                .append(info.getRunningUploadThreadCount())
+                .append("T / ")
+                .append(info.getAttachmentsToUploadRemainingCount())
+                .append("A   ")
+                .append(language.getString("MainFrame.statusBar.TOFDO")).append(": ")
+                .append(info.getDownloadingBoardCount())
                 .append("B / ")
-                .append(tofTree.getRunningBoardUpdateThreads().getRunningDownloadThreadCount())
-                .append("T")
-                .append("   " + language.getString("MainFrame.statusBar.selectedBoard") + ": ")
+                .append(info.getRunningDownloadThreadCount())
+                .append("T   ")
+                .append(language.getString("MainFrame.statusBar.selectedBoard")).append(": ")
                 .append(tofTreeModel.getSelectedNode().getName())
                 .toString();
         statusLabel.setText(newText);
