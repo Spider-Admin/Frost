@@ -126,17 +126,17 @@ public class FcpRequest
                 catch( DataNotFoundException ex ) { // frost.FcpTools.DataNotFoundException
                     // do nothing, data not found is usual ...
 					logger.log(Level.INFO, "FcpRequest.getKey(1): DataNotFoundException (usual if not found)", ex);
-					System.out.println( "FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
+//					System.out.println( "FcpRequest.getKey(1): DataNotFoundException (usual if not found)");
                     break;
                 }
                 catch( FcpToolsException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): FcpToolsException", e);
-					System.out.println("FcpRequest.getKey(1): FcpToolsException");
+//					System.out.println("FcpRequest.getKey(1): FcpToolsException");
                     break;
                 }
                 catch( IOException e ) {
 					logger.log(Level.SEVERE, "FcpRequest.getKey(1): IOException", e);
-					System.out.println("FcpRequest.getKey(1): IOException");
+//					System.out.println("FcpRequest.getKey(1): IOException");
                     break;
                 }
             }
@@ -155,12 +155,12 @@ public class FcpRequest
 
         if( results != null && target.length() > 0 ) {
             logger.info("getKey - Success: " + printableKey );
-            System.out.println("getKey - Success: " + printableKey );
+//            System.out.println("getKey - Success: " + printableKey );
             return results;
         } else {
             target.delete();
             logger.info("getKey - Failed: " + printableKey );
-            System.out.println("getKey - Failed: " + printableKey );
+//            System.out.println("getKey - Failed: " + printableKey );
             return null;
         }
     }

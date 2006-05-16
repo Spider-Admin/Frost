@@ -92,7 +92,7 @@ EndMessage
     private static FcpResultPut result(String text) {
 
         logger.info("*** FcpInsert.result: text='"+text+"'");
-        System.out.println("*** FcpInsert.result: text='"+text+"'");
+//        System.out.println("*** FcpInsert.result: text='"+text+"'");
 
         if( text == null || text.length() == 0 ) {
             return FcpResultPut.ERROR_RESULT;
@@ -146,7 +146,7 @@ EndMessage
     {
         if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't upload empty file: "+file.getPath());
-            System.out.println("Error: Can't upload empty file: "+file.getPath());
+//            System.out.println("Error: Can't upload empty file: "+file.getPath());
 			JOptionPane.showMessageDialog(MainFrame.getInstance(),
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning",
@@ -181,7 +181,7 @@ EndMessage
 
     	if (file.length() == 0) {
             logger.log(Level.SEVERE, "Error: Can't generate CHK for empty file: "+file.getPath());
-            System.out.println("Error: Can't generate CHK for empty file: "+file.getPath());
+//            System.out.println("Error: Can't generate CHK for empty file: "+file.getPath());
 			JOptionPane.showMessageDialog(MainFrame.getInstance(),
 							 "FcpInsert: File "+file.getPath()+" is empty!", // message
 							 "Warning",

@@ -509,6 +509,7 @@ public class DownloadPanel extends JPanel implements SettingsUpdater {
             str = str.replace('\n', ';');
             str = str.replace('\r', ' ');
             super.insertString(offs, str, a);
+            // TODO: maybe show chooser dialog and let user choose what files to download...
         }
     }
 
