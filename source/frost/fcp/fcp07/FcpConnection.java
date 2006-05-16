@@ -432,6 +432,8 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpOut.close();
 		fcpIn.close();
 		fcpSock.close();
+        
+        fileInput.close();
 
 		return output.toString();
 	}
