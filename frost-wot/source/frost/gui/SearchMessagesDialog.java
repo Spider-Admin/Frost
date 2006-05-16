@@ -34,11 +34,6 @@ import frost.gui.model.*;
 import frost.gui.objects.*;
 import frost.threads.*;
 import frost.util.gui.translation.*;
-import javax.swing.JPanel;
-import java.awt.GridBagLayout;
-import javax.swing.JCheckBox;
-import java.awt.GridBagConstraints;
-import javax.swing.JButton;
 
 public class SearchMessagesDialog extends JFrame implements LanguageListener {
 
@@ -199,11 +194,14 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
     private JButton getBsearch() {
         if( Bsearch == null ) {
             Bsearch = new JButton();
-            Bsearch.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
+            // enter key anywhere in dialog (except in table where it opens a msg) starts or stops searching
+            Bsearch.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"), "startStopSearch");
+            Action action = new AbstractAction() {
+                public void actionPerformed(ActionEvent arg0) {
                     startOrStopSearching();
                 }
-            });
+            };
+            Bsearch.getActionMap().put("startStopSearch", action);
         }
         return Bsearch;
     }
@@ -1053,6 +1051,15 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                     }
                 }
             });
+            
+            // enter should not jump to next message, but open the selected msg (if any)
+            searchResultTable.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke("ENTER"), "openMessage");
+            Action action = new AbstractAction() {
+                public void actionPerformed(ActionEvent arg0) {
+                    openSelectedMessage();
+                }
+            };
+            searchResultTable.getActionMap().put("openMessage", action);
         }
         return searchResultTable;
     }
