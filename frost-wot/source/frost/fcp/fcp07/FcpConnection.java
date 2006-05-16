@@ -53,7 +53,7 @@ public class FcpConnection
     private long fcpConnectionId;
 
     private static long staticFcpConnectionId = 0;
-
+    
     private static synchronized long getNextId() {
         return staticFcpConnectionId++;
     }
@@ -89,13 +89,13 @@ public class FcpConnection
         BufferedReader in = new BufferedReader(new InputStreamReader(fcpSock.getInputStream()));
 
         fcpOut.println("ClientHello");
-        System.out.println("ClientHello");
+//        System.out.println("ClientHello");
         fcpOut.println("Name=hello-"+fcpConnectionId);
-        System.out.println("Name=hello-"+fcpConnectionId);
+//        System.out.println("Name=hello-"+fcpConnectionId);
         fcpOut.println("ExpectedVersion=2.0");
-        System.out.println("ExpectedVersion=2.0");
+//        System.out.println("ExpectedVersion=2.0");
         fcpOut.println("EndMessage");
-        System.out.println("EndMessage");
+//        System.out.println("EndMessage");
 
         while(true) {
             String tmp = in.readLine();
@@ -151,20 +151,20 @@ public class FcpConnection
         fcpOut = new PrintStream(fcpSock.getOutputStream());
 
         fcpOut.println("ClientGet");
-        System.out.println("ClientGet");
+//        System.out.println("ClientGet");
         fcpOut.println("IgnoreDS=false");
-        System.out.println("IgnoreDS=false");
+//        System.out.println("IgnoreDS=false");
         fcpOut.println("DSOnly=false");
-        System.out.println("DSOnly=false");
+//        System.out.println("DSOnly=false");
         fcpOut.println("URI=" + key);
-        System.out.println("URI=" + key);
+//        System.out.println("URI=" + key);
 
         fcpOut.println("Verbosity=0");
-        System.out.println("Verbosity=0");
+//        System.out.println("Verbosity=0");
         fcpOut.println("Identifier=get-" + fcpConnectionId );
-        System.out.println("Identifier=get");
+//        System.out.println("Identifier=get");
         fcpOut.println("ReturnType=direct");
-        System.out.println("ReturnType=direct");
+//        System.out.println("ReturnType=direct");
 
         //fcpOut.println("ReturnType=disk");
         //System.out.println("Filename=<filename_on_disk>");
@@ -176,9 +176,9 @@ public class FcpConnection
 
 
         fcpOut.println("MaxRetries=1");
-        System.out.println("MaxRetries=1");
+//        System.out.println("MaxRetries=1");
         fcpOut.println("EndMessage");
-        System.out.println("EndMessage");
+//        System.out.println("EndMessage");
 
         FcpKeyword kw;
         boolean receivedFinalByte = false;
@@ -196,8 +196,8 @@ public class FcpConnection
 				logger.fine("FcpKeyword: " + kw + " for file " + filename);
 
 //                frost.Core.getOut().println("getKey-FcpKeyword: " + kw + " for file " + filename);
-				System.out.println("got fcp keyword");
-				System.out.println(kw.getFullString());
+//				System.out.println("got fcp keyword");
+//				System.out.println(kw.getFullString());
                 switch( kw.getId() )
                 {
                 case FcpKeyword.DataFound:
@@ -308,15 +308,15 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
             	dataChunkLength = (int) totalDataLength;
                 logger.fine("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
-                System.out.println("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
+//                System.out.println("Expecting " + dataChunkLength + " bytes, " + totalDataLength + " total.");
                 byte[] b = new byte[dataChunkLength];
                 int bytesRead = 0, count;
 
                 while( bytesRead < dataChunkLength ) {
                     count = fcpIn.read(b, bytesRead, dataChunkLength - bytesRead);
-                    System.out.println("read following:");
+//                    System.out.println("read following:");
                     //System.out.println(new String(b, Charset.defaultCharset().name()));
-                    System.out.println(count);
+//                    System.out.println(count);
                     if( count < 0 ) {
                         break;
                     } else {
@@ -324,7 +324,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     }
                 }
 
-                System.out.println("GOT DATA");
+//                System.out.println("GOT DATA");
                 fileOut.write(b);
                 expectingData = false;
                 totalDataLength -= bytesRead;
@@ -374,30 +374,30 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 		fcpIn = new BufferedInputStream(fcpSock.getInputStream());
 
 		fcpOut.println("ClientPut");
-		System.out.println("ClientPut");
+//		System.out.println("ClientPut");
 
 		fcpOut.println("URI=" + key);
-		System.out.println("URI="+key);
+//		System.out.println("URI="+key);
 
 		fcpOut.println("DataLength=" + Long.toString(dataLength));
-		System.out.println("DataLength="+ Long.toString(dataLength));
+//		System.out.println("DataLength="+ Long.toString(dataLength));
 
 //        fcpOut.println("UploadFrom=disk");
 //        fcpOut.println("Filename=<filename_on_disk>");
 
 		fcpOut.println("Identifier=put-" + fcpConnectionId );
-		System.out.println("Identifier=put-" + fcpConnectionId );
+//		System.out.println("Identifier=put-" + fcpConnectionId );
 		fcpOut.println("Verbosity=0");
-		System.out.println("Verbosity=0");
+//		System.out.println("Verbosity=0");
 		fcpOut.println("MaxRetries=3");
-		System.out.println("MaxRetries=3");
+//		System.out.println("MaxRetries=3");
 		if(getchkonly){
 			fcpOut.println("GetCHKOnly=true");
-			System.out.println("GetCHKOnly=true");
+//			System.out.println("GetCHKOnly=true");
 		}
 
 		fcpOut.println("Data");
-		System.out.println("Data");
+//		System.out.println("Data");
 		fcpOut.flush();
 
         // write complete file to socket
@@ -427,7 +427,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 				break;
 			}
 		}
-		System.out.println(output);
+//		System.out.println(output);
 		dOut.close();
 		fcpOut.close();
 		fcpIn.close();
@@ -447,23 +447,23 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
         fcpOut.println("ClientHello");
         logger.fine("ClientHello");
-        System.out.println("ClientHello");
+//        System.out.println("ClientHello");
         fcpOut.println("Name=hello-"+ fcpConnectionId);
         logger.fine("Name=hello-"+ fcpConnectionId);
-        System.out.println("Name=hello-"+ fcpConnectionId);
+//        System.out.println("Name=hello-"+ fcpConnectionId);
         fcpOut.println("ExpectedVersion=2.0");
         logger.fine("ExpectedVersion=2.0");
-        System.out.println("ExpectedVersion=2.0");
+//        System.out.println("ExpectedVersion=2.0");
         fcpOut.println("End");
     	logger.fine("End");
-    	System.out.println("End");
+//    	System.out.println("End");
 
         FcpKeyword response;
         int timeout = 0;
         do {
             response = FcpKeyword.getFcpKeyword(fcpIn);
     		logger.fine(response.getFullString());
-    		System.out.println(response.getFullString());
+//    		System.out.println(response.getFullString());
             try {
                 Thread.sleep(100);
             } catch(InterruptedException e) {}
@@ -484,16 +484,16 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 
    	   	String uri = "";
     	String output = putKeyFromFile("CHK@", file, true);
-    	System.out.println("GOT OUTPUT " + output + "\n STARTING CHK GENERATION");
+//    	System.out.println("GOT OUTPUT " + output + "\n STARTING CHK GENERATION");
     	int URIstart = output.indexOf("CHK@");
     	String substr = output.substring(URIstart);
-    	System.out.println("Substring is " + substr);
+//    	System.out.println("Substring is " + substr);
     	int URIend = substr.indexOf('\n');
-    	System.out.println(URIend);
+//    	System.out.println(URIend);
 
     	uri = substr.substring(0, URIend);
 
-    	System.out.println("URI is " + uri);
+//    	System.out.println("URI is " + uri);
     	return uri;
     }
 
