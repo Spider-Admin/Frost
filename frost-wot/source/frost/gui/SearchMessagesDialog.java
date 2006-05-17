@@ -202,6 +202,12 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
                 }
             };
             Bsearch.getActionMap().put("startStopSearch", action);
+            Bsearch.addActionListener(new java.awt.event.ActionListener() {
+                public void actionPerformed(java.awt.event.ActionEvent e) {
+                    //closePressed();
+                	startOrStopSearching();
+                }
+            });
         }
         return Bsearch;
     }
