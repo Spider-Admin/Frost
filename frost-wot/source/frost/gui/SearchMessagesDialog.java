@@ -198,16 +198,13 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             Bsearch.getInputMap(JComponent.WHEN_IN_FOCUSED_WINDOW).put(KeyStroke.getKeyStroke("ENTER"), "startStopSearch");
             Action action = new AbstractAction() {
                 public void actionPerformed(ActionEvent arg0) {
-                    startOrStopSearching();
+                    if( getBsearch().isEnabled() ) {
+                        startOrStopSearching();
+                    }
                 }
             };
             Bsearch.getActionMap().put("startStopSearch", action);
-            Bsearch.addActionListener(new java.awt.event.ActionListener() {
-                public void actionPerformed(java.awt.event.ActionEvent e) {
-                    //closePressed();
-                	startOrStopSearching();
-                }
-            });
+            Bsearch.addActionListener(action);
         }
         return Bsearch;
     }
@@ -1062,7 +1059,9 @@ public class SearchMessagesDialog extends JFrame implements LanguageListener {
             searchResultTable.getInputMap(JComponent.WHEN_FOCUSED).put(KeyStroke.getKeyStroke("ENTER"), "openMessage");
             Action action = new AbstractAction() {
                 public void actionPerformed(ActionEvent arg0) {
-                    openSelectedMessage();
+                    if( getBopenMsg().isEnabled() ) {
+                        openSelectedMessage();
+                    }
                 }
             };
             searchResultTable.getActionMap().put("openMessage", action);
