@@ -31,6 +31,7 @@ import javax.swing.event.*;
 import javax.swing.tree.*;
 
 import frost.boards.*;
+import frost.components.translate.*;
 import frost.ext.*;
 import frost.fileTransfer.download.*;
 import frost.fileTransfer.upload.UploadPanel;
@@ -62,6 +63,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
+    private TranslationDialog translationDialog = null;
 
     /**
      * Search through .req files of this day in all boards and remove the
@@ -225,8 +227,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //    private JMenuItem pluginBrowserMenuItem = new JMenuItem();
 
     //Plugin Menu
-//    private JMenu pluginMenu = new JMenu();
-//    private JMenuItem pluginTranslateMenuItem = new JMenuItem();
+    private JMenu pluginMenu = new JMenu();
+    private JMenuItem pluginTranslateMenuItem = new JMenuItem();
 
     //Popups
     private JButton removeBoardButton = null;
@@ -590,12 +592,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //                    browser.setVisible(true);
 //                }
 //            });
-//            pluginTranslateMenuItem.addActionListener(new ActionListener() {
-//                public void actionPerformed(ActionEvent e) {
-//                    TranslateFrame translate = new TranslateFrame(true);
-//                    translate.setVisible(true);
-//                }
-//            });
+            pluginTranslateMenuItem.addActionListener(new ActionListener() {
+                public void actionPerformed(ActionEvent e) {
+                	getTranslationDialog().setVisible(true);
+                }
+            });
             languageDefaultMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
                     setLanguageResource(null);
@@ -697,7 +698,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             optionsMenu.add(optionsPreferencesMenuItem);
             // Plugin Menu
 //            pluginMenu.add(pluginBrowserMenuItem);
-//            pluginMenu.add(pluginTranslateMenuItem);
+            pluginMenu.add(pluginTranslateMenuItem);
             // Language Menu
             ButtonGroup languageMenuButtonGroup = new ButtonGroup();
             languageDefaultMenuItem.setSelected(true);
@@ -750,7 +751,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             menuBar.add(fileMenu);
             menuBar.add(tofMenu);
             menuBar.add(optionsMenu);
-//            menuBar.add(pluginMenu);
+            menuBar.add(pluginMenu);
             menuBar.add(languageMenu);
             menuBar.add(helpMenu);
 
@@ -1261,9 +1262,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         tofSearchMessages.setText(language.getString("MainFrame.menu.news.searchMessages"));
         optionsMenu.setText(language.getString("MainFrame.menu.options"));
         optionsPreferencesMenuItem.setText(language.getString("MainFrame.menu.options.preferences"));
-//        pluginMenu.setText(language.getString("Plugins"));
+        pluginMenu.setText(language.getString("Plugins"));
 //        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
-//        pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
+        pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
         languageMenu.setText(language.getString("MainFrame.menu.language"));
         languageDefaultMenuItem.setText(language.getString("MainFrame.menu.language.default"));
         languageDutchMenuItem.setText(language.getString("MainFrame.menu.language.dutch"));
@@ -1334,6 +1335,13 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         return memoryMonitor;
     }
 
+    private TranslationDialog getTranslationDialog () {
+        if( translationDialog == null ) {
+        	translationDialog = new TranslationDialog(this);
+        }
+        return translationDialog; 
+    }
+    
     public void showHtmlHelp(String item) {
         if( Core.isHelpHtmlSecure() == false ) {
             return;

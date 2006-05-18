@@ -57,9 +57,17 @@ public class FrostResourceBundle {
     }
 
     /**
-     * Load bundle for File, without callback. For tests of new properties files.
+     * Load bundle for File, without fallback. For tests of new properties files.
      */
     public FrostResourceBundle(File bundleFile) {
+        bundle = FrostResourceBundleReader.loadBundle(bundleFile);
+    }
+    
+    /**
+     * Load bundle for File, with fallback. For uses user properties files.
+     */
+    public FrostResourceBundle(File bundleFile, FrostResourceBundle parent) {
+    	parentBundle = parent;
         bundle = FrostResourceBundleReader.loadBundle(bundleFile);
     }
 

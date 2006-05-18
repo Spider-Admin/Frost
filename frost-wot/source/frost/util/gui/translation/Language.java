@@ -24,12 +24,16 @@
 */
 package frost.util.gui.translation;
 
-import java.io.*;
-import java.text.*;
-import java.util.*;
-import java.util.logging.*;
+import java.io.File;
+import java.text.MessageFormat;
+import java.util.Locale;
+import java.util.logging.Level;
+import java.util.logging.Logger;
 
-import javax.swing.event.*;
+import javax.swing.event.EventListenerList;
+
+import frost.Core;
+import frost.SettingsClass;
 
 /**
  * @pattern Singleton
@@ -172,11 +176,39 @@ public class Language {
      * @param resourceBundle
      */
     public synchronized void changeLanguage(String localeName) {
+    	boolean useuser = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USERDEF);
+    	boolean useovr = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USEROVR);
+        String userlocaledir = Core.frostSettings.getValue(SettingsClass.TRANSLATION_USERDIR);
+        File ulf; // user locale file
+        
         if( localeName == null ) {
             localeName = Locale.getDefault().getCountry();
         }
-        RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
-//        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
+        
+        ulf = new File(userlocaledir + "langres_" + localeName + ".properties");
+        if (useuser) {
+        	useuser = ulf.exists();
+        }
+        if (useuser) {
+        	System.out.println("Useuser: ON");
+        	FrostResourceBundle tmp_bundle = null;
+        	if (useovr) {
+        		System.out.println("Useuser: OVERRIDE");
+        		tmp_bundle = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+        		RESOURCE_BUNDLE = new FrostResourceBundle(ulf, tmp_bundle);
+        		 
+        	} else {
+        		System.out.println("Useuser: MISSING");
+        		tmp_bundle = new FrostResourceBundle(ulf, ROOT_RESOURCE_BUNDLE);
+        		RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), tmp_bundle);
+        	}
+        } else {
+        	System.out.println("Useuser: OFF");
+        	RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+        }
+        
+        //RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+        //LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
         
         fireLanguageChanged(new LanguageEvent(this));
     }
