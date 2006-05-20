@@ -1,10 +1,24 @@
 /*
- * Created on 18.05.2006
- */
+  TranslationStartDialog.java / Frost
+  Copyright (C) 2006  Frost Project <jtcfrost.sourceforge.net>
+
+  This program is free software; you can redistribute it and/or
+  modify it under the terms of the GNU General Public License as
+  published by the Free Software Foundation; either version 2 of
+  the License, or (at your option) any later version.
+
+  This program is distributed in the hope that it will be useful,
+  but WITHOUT ANY WARRANTY; without even the implied warranty of
+  MERCHANTABILITY or FITNESS FOR A PARTICULAR PURPOSE. See the GNU
+  General Public License for more details.
+
+  You should have received a copy of the GNU General Public License
+  along with this program; if not, write to the Free Software
+  Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
+*/
 package frost.components.translate;
 
 import java.awt.*;
-import java.io.*;
 import java.util.*;
 import java.util.List;
 
@@ -159,19 +173,6 @@ public class TranslationStartDialog extends JFrame {
     private JComboBox getCBoxSourceLanguage() {
         if( CBoxSourceLanguage == null ) {
             CBoxSourceLanguage = new JComboBox();
-            // SELECT default (en)!!!
-            List lst_external = language.getExternalLocales();
-            TreeMap tm_external = new TreeMap();
-            for( Iterator i=lst_external.iterator(); i.hasNext(); ) {
-                Locale locale = (Locale)i.next();
-                String localeDesc = locale.getDisplayName() + "  (external) (" + locale.getLanguage() + ")";
-                ComboBoxEntry cbe = new ComboBoxEntry(locale, true, false, localeDesc);
-                tm_external.put(cbe, cbe);
-            }
-            // get sorted
-            for( Iterator i=tm_external.keySet().iterator(); i.hasNext(); ) {
-                CBoxSourceLanguage.addItem(i.next());
-            }
             
             List lst_buildin = language.getBuildInLocales();
             TreeMap tm_buildin = new TreeMap();
@@ -183,6 +184,19 @@ public class TranslationStartDialog extends JFrame {
             }
             // get sorted
             for( Iterator i=tm_buildin.keySet().iterator(); i.hasNext(); ) {
+                CBoxSourceLanguage.addItem(i.next());
+            }
+
+            List lst_external = language.getExternalLocales();
+            TreeMap tm_external = new TreeMap();
+            for( Iterator i=lst_external.iterator(); i.hasNext(); ) {
+                Locale locale = (Locale)i.next();
+                String localeDesc = locale.getDisplayName() + "  (external) (" + locale.getLanguage() + ")";
+                ComboBoxEntry cbe = new ComboBoxEntry(locale, true, false, localeDesc);
+                tm_external.put(cbe, cbe);
+            }
+            // get sorted
+            for( Iterator i=tm_external.keySet().iterator(); i.hasNext(); ) {
                 CBoxSourceLanguage.addItem(i.next());
             }
         }
@@ -249,6 +263,8 @@ public class TranslationStartDialog extends JFrame {
             boolean isTargetExternal,
             boolean isTargetNew) 
     {
+        setVisible(false);
+
         FrostResourceBundle sourceBundle;
         TranslateableFrostResourceBundle targetBundle;
         
@@ -273,10 +289,10 @@ public class TranslationStartDialog extends JFrame {
             targetBundle = new TranslateableFrostResourceBundle(targetLanguageName, null, false);
         }
         
-        // TODO: run dialog with source and targetbundle, if user pressed OK save the targetbundle:
+        TranslationDialog td = new TranslationDialog();
+        td.startDialog(rootBundle, sourceBundle, sourceLanguageName, targetBundle, targetLanguageName);
         
-        targetBundle.saveBundleToFile(targetLanguageName);
-        
+        dispose();
     }
 
     /**
@@ -294,10 +310,6 @@ public class TranslationStartDialog extends JFrame {
             });
         }
         return Bcancel;
-    }
-    
-    public static void main(String[] args) {
-        new TranslationStartDialog(null).setVisible(true);
     }
     
     private class ComboBoxEntry implements Comparable {
@@ -322,9 +334,8 @@ public class TranslationStartDialog extends JFrame {
         public String toString() {
             return displayString;
         }
-        public int compareTo(Object arg0) {
-            return toString().compareTo(arg0.toString());
+        public int compareTo(Object other) {
+            return toString().compareTo(other.toString());
         }
     }
-
 }  //  @jve:decl-index=0:visual-constraint="10,10"

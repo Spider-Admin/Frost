@@ -43,6 +43,10 @@ public class FrostResourceBundle {
         bundle = FrostResourceBundleReader.loadBundle(resource);
     }
     
+    public FrostResourceBundle getParentBundle() {
+        return parentBundle;
+    }
+    
     /**
      * Load build-in bundle for localeName (de,en,...), and use parent bundle as fallback.
      */

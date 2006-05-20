@@ -63,7 +63,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private HelpBrowserFrame helpBrowser = null;
     private SearchMessagesDialog searchMessagesDialog = null;
     private MemoryMonitor memoryMonitor = null;
-    private TranslationDialog translationDialog = null;
 
     /**
      * Search through .req files of this day in all boards and remove the
