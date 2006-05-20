@@ -466,6 +466,8 @@ public class TranslationDialog extends JFrame {
                             return; // don't close, error during save
                         }
                     }
+                    // update language menu
+                    LanguageGuiSupport.getInstance().updateLanguageMenu();
                     // close dialog
                     setVisible(false);
                     dispose();

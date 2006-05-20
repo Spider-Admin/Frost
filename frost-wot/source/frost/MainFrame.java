@@ -1145,9 +1145,9 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         tofSearchMessages.setText(language.getString("MainFrame.menu.news.searchMessages"));
         optionsMenu.setText(language.getString("MainFrame.menu.options"));
         optionsPreferencesMenuItem.setText(language.getString("MainFrame.menu.options.preferences"));
-        pluginMenu.setText(language.getString("Plugins"));
+        pluginMenu.setText(language.getString("MainFrame.menu.plugins"));
 //        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
-        pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
+        pluginTranslateMenuItem.setText(language.getString("MainFrame.menu.plugins.translateFrost"));
         languageMenu.setText(language.getString("MainFrame.menu.language"));
         helpMenu.setText(language.getString("MainFrame.menu.help"));
         helpMemMonMenuItem.setText(language.getString("MainFrame.menu.help.showMemoryMonitor"));
