@@ -61,6 +61,10 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
     public String setKey(String key, String value) {
         return (String)bundle.put(key, value);
     }
+    
+    public boolean containsKey(String key) {
+        return bundle.containsKey(key);
+    }
 
     /**
      * Save the bundle to a file.

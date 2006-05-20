@@ -15,12 +15,6 @@
   You should have received a copy of the GNU General Public License
   along with this program; if not, write to the Free Software
   Foundation, Inc., 675 Mass Ave, Cambridge, MA 02139, USA.
---------------------------------------------------------------------------
-  DESCRIPTION:
-  This file contains the whole 'Options' dialog. It first reads the
-  actual config from properties file, and on 'OK' it saves all
-  settings to the properties file and informs the caller to reload
-  this file.
 */
 package frost.util.gui.translation;
 
@@ -30,8 +24,6 @@ import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.event.*;
-
-import frost.*;
 
 /**
  * @pattern Singleton
@@ -236,43 +228,6 @@ public class Language {
 //        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
         
         fireLanguageChanged(new LanguageEvent(this));
-
-//    	boolean useuser = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USERDEF);
-//    	boolean useovr = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USEROVR);
-//        String userlocaledir = Core.frostSettings.getValue(SettingsClass.TRANSLATION_USERDIR);
-//
-//        File ulf; // user locale file
-//        
-//        if( localeName == null ) {
-//            localeName = Locale.getDefault().getCountry();
-//        }
-//        
-//        ulf = new File(userlocaledir + "langres_" + localeName + ".properties");
-//        if (useuser) {
-//        	useuser = ulf.exists();
-//        }
-//        if (useuser) {
-//        	System.out.println("Useuser: ON");
-//        	FrostResourceBundle tmp_bundle = null;
-//        	if (useovr) {
-//        		System.out.println("Useuser: OVERRIDE");
-//        		tmp_bundle = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
-//        		RESOURCE_BUNDLE = new FrostResourceBundle(ulf, tmp_bundle);
-//        		 
-//        	} else {
-//        		System.out.println("Useuser: MISSING");
-//        		tmp_bundle = new FrostResourceBundle(ulf, ROOT_RESOURCE_BUNDLE);
-//        		RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), tmp_bundle);
-//        	}
-//        } else {
-//        	System.out.println("Useuser: OFF");
-//        	RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
-//        }
-//        
-//        //RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
-//        //LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
-//        
-//        fireLanguageChanged(new LanguageEvent(this));
     }
 
     /**
@@ -280,14 +235,6 @@ public class Language {
      * @return
      */
     public String getString(String origKey) {
-        
-        // temporary: map old LangRes keys to new keys used in gui
-//        String key = LangResMapping.getOldForNew(origKey);
-//        if( key == null ) {
-//            System.out.println("Key not in mapping: '"+origKey+"'");
-//            key = origKey;
-//        }
-        
         String s;
         try {
             s = RESOURCE_BUNDLE.getString(origKey);
