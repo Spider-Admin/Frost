@@ -150,7 +150,6 @@ public class MessageDownloader {
     
             // if no metadata, message wasn't signed
             if (metadata == null) {
-    
                 byte[] unzippedXml = FileAccess.readZipFileBinary(tmpFile);
                 if( unzippedXml == null ) {
                     logger.log(Level.SEVERE, "TOFDN: Unzip of unsigned xml failed."+logInfo);

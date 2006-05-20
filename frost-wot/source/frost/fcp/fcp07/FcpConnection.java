@@ -186,6 +186,7 @@ public class FcpConnection
         int dataChunkLength = 0;
         boolean expectingData = false;
         boolean flagRestarted = false;
+        long expectedTotalDataLength = 0;
 
         while( receivedFinalByte == false )
         {
@@ -208,6 +209,7 @@ public class FcpConnection
                         fileOut = new FileOutputStream(filename);
 
                         totalDataLength = 0;
+                        expectedTotalDataLength = 0;
                         dataChunkLength = 0;
 
                         flagRestarted = false;
@@ -215,6 +217,7 @@ public class FcpConnection
                     break;
                 case FcpKeyword.DataLength:
                     totalDataLength = kw.getLongVal();
+                    expectedTotalDataLength = totalDataLength;
                     break;
                 case FcpKeyword.FormatError:
                     receivedFinalByte = true;
@@ -340,6 +343,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fileOut.flush();
         fileOut.close();
         File checkSize = new File(filename);
+        
+        // FIXME: debug output, check and remove later
+        System.out.println("expectedTotalDataLength="+expectedTotalDataLength+"; filesize="+checkSize.length());
+
         if( checkSize.length() == 0 ) {
             checkSize.delete();
         }

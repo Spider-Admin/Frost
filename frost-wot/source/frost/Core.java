@@ -63,8 +63,6 @@ public class Core implements Savable, FrostEventDispatcher  {
     public static SettingsClass frostSettings = new SettingsClass();
 
     private static Core instance = null;
-    private static String localeName = null;
-    private static String localeFileName = null;
 
     private static List knownBoards = new ArrayList(); //list of known boards
 
@@ -785,13 +783,6 @@ public class Core implements Savable, FrostEventDispatcher  {
         }
     }
 
-    public static void setLocaleName(String localeName) {
-        Core.localeName = localeName;
-    }
-    public static void setLocaleFileName(String localeFileName) {
-        Core.localeFileName = localeFileName;
-    }
-
     /**
      * Initializes the skins system
      * @param frostSettings the SettingsClass that has the preferences to initialize the skins
@@ -844,19 +835,29 @@ public class Core implements Savable, FrostEventDispatcher  {
      * LanguageResource. If not, the locale value in frostSettings is used for that.
      */
     private void initializeLanguage() {
-        if( localeFileName != null ) {
-            File f = new File(localeFileName);
+        if( Frost.getCmdLineLocaleFileName() != null ) {
+            // external bundle specified on command line (overrides config setting)
+            File f = new File(Frost.getCmdLineLocaleFileName());
             Language.initializeWithFile(f);
-        } else if (localeName != null) {
+        } else if (Frost.getCmdLineLocaleName() != null) {
             // use locale specified on command line (overrides config setting)
-            Language.initializeWithName(localeName);
+            Language.initializeWithName(Frost.getCmdLineLocaleName());
         } else {
+            // use config file parameter (format: de or de;ext
             String lang = frostSettings.getValue("locale");
+            String langIsExternal = frostSettings.getValue("localeExternal");
             if( lang == null || lang.length() == 0 || lang.equals("default") ) {
                 // for default or if not set at all
+                frostSettings.setValue("locale", "default");
                 Language.initializeWithName(null);
             } else {
-                Language.initializeWithName(lang);
+                boolean isExternal;
+                if( langIsExternal == null || langIsExternal.length() == 0 || !langIsExternal.equals("true")) {
+                    isExternal = false;
+                } else {
+                    isExternal = true;
+                }
+                Language.initializeWithName(lang, isExternal);
             }
         }
         language = Language.getInstance();

@@ -29,35 +29,40 @@ public class FrostResourceBundle {
 
 //    private static Logger logger = Logger.getLogger(FrostResourceBundle.class.getName());
 
-    private static final String BUNDLE_NAME = "/i18n/langres"; // base name in jar file
+    private static final String BUILDIN_BUNDLE_NAME = "/i18n/langres"; // base name in jar file
+    protected static final String EXTERNAL_BUNDLE_DIR = "localdata/i18n/"; // base name in jar file
     
-    private Map bundle;
-    private FrostResourceBundle parentBundle = null;
+    protected Map bundle;
+    protected FrostResourceBundle parentBundle = null;
 
     /**
      * Load the root bundle.
      */
     public FrostResourceBundle() {
-        String resource = BUNDLE_NAME+".properties";
+        String resource = BUILDIN_BUNDLE_NAME+".properties";
         bundle = FrostResourceBundleReader.loadBundle(resource);
     }
     
     /**
-     * Load bundle for localeName (de,en,...), and use parent bundle as fallback.
+     * Load build-in bundle for localeName (de,en,...), and use parent bundle as fallback.
      */
-    public FrostResourceBundle(String localeName, FrostResourceBundle parent) {
+    public FrostResourceBundle(String localeName, FrostResourceBundle parent, boolean isExternal) {
         parentBundle = parent;
         if( localeName.length() == 0 ) {
             // use parent only
             bundle = new HashMap();
-        } else {
-            String resource = BUNDLE_NAME + "_" + localeName + ".properties";
+        } else if( isExternal == false ) {
+            String resource = BUILDIN_BUNDLE_NAME + "_" + localeName + ".properties";
             bundle = FrostResourceBundleReader.loadBundle(resource);
+        } else {
+            String filename = EXTERNAL_BUNDLE_DIR + "langres_"+localeName+".properties";
+            File file = new File(filename);
+            bundle = FrostResourceBundleReader.loadBundle(file);
         }
     }
 
     /**
-     * Load bundle for File, without fallback. For tests of new properties files.
+     * Load external bundle file, without fallback. For tests of new properties files.
      */
     public FrostResourceBundle(File bundleFile) {
         bundle = FrostResourceBundleReader.loadBundle(bundleFile);

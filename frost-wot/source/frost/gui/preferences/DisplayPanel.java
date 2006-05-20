@@ -59,8 +59,8 @@ class DisplayPanel extends JPanel {
     private JCheckBox messageBodyAACheckBox = new JCheckBox();
     private JCheckBox msgTableMultilineSelectCheckBox = new JCheckBox();
     private JCheckBox showBoardDescTooltipsCheckBox = new JCheckBox();
-    private JCheckBox translationUserdefCheckBox = new JCheckBox();
-    private JCheckBox translationUserOvrCheckBox = new JCheckBox();
+//    private JCheckBox translationUserdefCheckBox = new JCheckBox();
+//    private JCheckBox translationUserOvrCheckBox = new JCheckBox();
 
     private JLabel messageBodyLabel = new JLabel();
     private JLabel fileListLabel = new JLabel();
@@ -228,11 +228,11 @@ class DisplayPanel extends JPanel {
         constraints.gridy++;
         add(showBoardDescTooltipsCheckBox, constraints);
 
-        constraints.gridy++;
-        add(translationUserdefCheckBox, constraints);
-        
-        constraints.gridx++;
-        add(translationUserOvrCheckBox, constraints);
+//        constraints.gridy++;
+//        add(translationUserdefCheckBox, constraints);
+//        
+//        constraints.gridx++;
+//        add(translationUserOvrCheckBox, constraints);
         
         
 
@@ -272,8 +272,8 @@ class DisplayPanel extends JPanel {
         messageBodyAACheckBox.setSelected(settings.getBoolValue("messageBodyAA"));
         msgTableMultilineSelectCheckBox.setSelected(settings.getBoolValue(SettingsClass.MSGTABLE_MULTILINE_SELECT));
         showBoardDescTooltipsCheckBox.setSelected(settings.getBoolValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS));
-        translationUserdefCheckBox.setSelected(settings.getBoolValue(SettingsClass.TRANSLATION_USERDEF));
-        translationUserOvrCheckBox.setSelected(settings.getBoolValue(SettingsClass.TRANSLATION_USEROVR));
+//        translationUserdefCheckBox.setSelected(settings.getBoolValue(SettingsClass.TRANSLATION_USERDEF));
+//        translationUserOvrCheckBox.setSelected(settings.getBoolValue(SettingsClass.TRANSLATION_USEROVR));
     }
 
     private void messageBodyButtonPressed() {
@@ -321,8 +321,8 @@ class DisplayPanel extends JPanel {
         messageBodyAACheckBox.setText(language.getString("Options.display.enableAntialiasingForMessageBody"));
         msgTableMultilineSelectCheckBox.setText(language.getString("Options.display.enableMultilineSelectionsInMessageTable"));
         showBoardDescTooltipsCheckBox.setText(language.getString("Options.display.showTooltipWithBoardDescriptionInBoardTree"));
-        translationUserdefCheckBox.setText("Benützeldefünürte Übelsätzüng ägdiwien.");
-        translationUserOvrCheckBox.setText("vorhandene Übelsetzung übelschleiben");
+//        translationUserdefCheckBox.setText("Benutzerdefinierte Uebersetzung aktivieren");
+//        translationUserOvrCheckBox.setText("Vorhandene Uebersetzung ueberschreiben"); // TODO:
     }
 
     /**
@@ -356,7 +356,7 @@ class DisplayPanel extends JPanel {
         settings.setValue("messageBodyAA", messageBodyAACheckBox.isSelected());
         settings.setValue(SettingsClass.MSGTABLE_MULTILINE_SELECT, msgTableMultilineSelectCheckBox.isSelected());
         settings.setValue(SettingsClass.SHOW_BOARDDESC_TOOLTIPS, showBoardDescTooltipsCheckBox.isSelected());
-        settings.setValue(SettingsClass.TRANSLATION_USERDEF, translationUserdefCheckBox.isSelected());
-        settings.setValue(SettingsClass.TRANSLATION_USEROVR, translationUserOvrCheckBox.isSelected());
+//        settings.setValue(SettingsClass.TRANSLATION_USERDEF, translationUserdefCheckBox.isSelected());
+//        settings.setValue(SettingsClass.TRANSLATION_USEROVR, translationUserOvrCheckBox.isSelected());
     }
 }

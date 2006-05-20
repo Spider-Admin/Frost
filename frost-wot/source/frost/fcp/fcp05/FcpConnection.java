@@ -341,6 +341,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         int dataChunkLength = 0;
         boolean expectingData = false;
         boolean flagRestarted = false;
+        long expectedTotalDataLength = 0;
 
         while( receivedFinalByte == false )
         {
@@ -362,6 +363,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                         fileOut = new FileOutputStream(filename);
 
                         totalDataLength = 0;
+                        expectedTotalDataLength = 0;
                         metadataLength = 0;
                         dataChunkLength = 0;
 
@@ -370,6 +372,7 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     break;
                 case FcpKeyword.DataLength:
                     totalDataLength = kw.getLongVal();
+                    expectedTotalDataLength = totalDataLength;
                     break;
                 case FcpKeyword.FormatError:
                     receivedFinalByte = true;
@@ -379,14 +382,15 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                     break;
                 case FcpKeyword.Restarted:
 /*
-   At any time when the full payload of data has not been sent a
-   Restarted message may be sent. This means that the data to verify and
-   the transfer will be restarted. The client should return to the
-   waiting state, and if a DataFound is then received, the data transfer
-   will start over from the beginning. Otherwise, when the final
-   DataChunk is received, the transaction is complete and the connection
-   dies.
-bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
+   At any time when the full payload of data has not been sent 
+   (even before the DataFound message), a Restarted message may be sent. 
+   This means that the data failed to verify and the transfer will be restarted. 
+   The client should disregard all data it has recieved since it made its initial 
+   request and return to waiting for a DataFound message to begin the data transfer again. 
+   Otherwise, when the final DataChunk is received, the transaction is complete and 
+   the connection dies.
+   
+   bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
 */
                     flagRestarted = true;
                     break;
@@ -457,6 +461,9 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         fileOut.flush();
         fileOut.close();
         File checkSize = new File(filename);
+        
+        // FIXME: debug output, check and remove later
+        System.out.println("expectedTotalDataLength="+expectedTotalDataLength+"; filesize="+checkSize.length());
 
         if( metadataLength > 0 && checkSize.length() > 0 ) {
             if( metadataLength == checkSize.length() ) {

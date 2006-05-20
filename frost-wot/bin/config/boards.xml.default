@@ -43,6 +43,9 @@
                 <privateKey><![CDATA[SSK@HwIKgwmZNeomqzd~omIf7TDmDoA]]></privateKey>
             </FrostBoardTreeEntry>
             <FrostBoardTreeEntry>
+                <name><![CDATA[society]]></name>
+            </FrostBoardTreeEntry>
+            <FrostBoardTreeEntry>
                 <name><![CDATA[privacy]]></name>
                 <publicKey><![CDATA[SSK@TYkr3bANz6wN3zgQft2NR4iMJ7QPAgM]]></publicKey>
                 <privateKey><![CDATA[SSK@eBIgNfMKNEBd8zl5oG47iIshq7A]]></privateKey>

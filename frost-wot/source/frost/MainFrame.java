@@ -49,7 +49,7 @@ import frost.util.gui.translation.*;
   * TODO: - after removing a board, let current board selected (currently if you
   *          delete another than selected board the tofTree is updated)
   */
-public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater {
+public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater, LanguageListener {
     /**
      * This listener changes the 'updating' state of a board if a thread starts/finishes.
      * It also launches popup menus
@@ -191,21 +191,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 
     //Help Menu
     private JMenu helpMenu = new JMenu();
-    private JRadioButtonMenuItem languageBulgarianMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageDefaultMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageDutchMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageEnglishMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageFrenchMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageGermanMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageItalianMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageJapaneseMenuItem = new JRadioButtonMenuItem();
-    private JRadioButtonMenuItem languageRussianMenuItem = new JRadioButtonMenuItem();
 
     //Language Menu
     private JMenu languageMenu = new JMenu();
 
     private Language language = null;
-    private JRadioButtonMenuItem languageSpanishMenuItem = new JRadioButtonMenuItem();
 
     private Listener listener = new Listener();
 
@@ -597,68 +587,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                 	getTranslationDialog().setVisible(true);
                 }
             });
-            languageDefaultMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource(null);
-                }
-            });
-
-            languageBulgarianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_bg.png", 16, 16));
-            languageGermanMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_de.png", 16, 16));
-            languageEnglishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_en.png", 16, 16));
-            languageSpanishMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_es.png", 16, 16));
-            languageFrenchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_fr.png", 16, 16));
-            languageItalianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_it.png", 16, 16));
-            languageJapaneseMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_jp.png", 16, 16));
-            languageDutchMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_nl.png", 16, 16));
-            languageRussianMenuItem.setIcon(miscToolkit.getScaledImage("/data/flag_ru.png", 16, 16));
-
-            languageGermanMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("de");
-                }
-            });
-            languageEnglishMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("en");
-                }
-            });
-            languageDutchMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("nl");
-                }
-            });
-            languageFrenchMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("fr");
-                }
-            });
-            languageJapaneseMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("jp");
-                }
-            });
-            languageRussianMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("ru");
-                }
-            });
-            languageItalianMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("it");
-                }
-            });
-            languageSpanishMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("es");
-                }
-            });
-            languageBulgarianMenuItem.addActionListener(new ActionListener() {
-                public void actionPerformed(ActionEvent e) {
-                    setLanguageResource("bg");
-                }
-            });
-
             helpHelpMenuItem.setIcon(miscToolkit.getScaledImage("/data/help.png", 16, 16));
             helpHelpMenuItem.addActionListener(new ActionListener() {
                 public void actionPerformed(ActionEvent e) {
@@ -699,50 +627,10 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             // Plugin Menu
 //            pluginMenu.add(pluginBrowserMenuItem);
             pluginMenu.add(pluginTranslateMenuItem);
+            
             // Language Menu
-            ButtonGroup languageMenuButtonGroup = new ButtonGroup();
-            languageDefaultMenuItem.setSelected(true);
-            languageMenuButtonGroup.add(languageDefaultMenuItem);
-            languageMenuButtonGroup.add(languageBulgarianMenuItem);
-            languageMenuButtonGroup.add(languageDutchMenuItem);
-            languageMenuButtonGroup.add(languageEnglishMenuItem);
-            languageMenuButtonGroup.add(languageFrenchMenuItem);
-            languageMenuButtonGroup.add(languageGermanMenuItem);
-            languageMenuButtonGroup.add(languageItalianMenuItem);
-            languageMenuButtonGroup.add(languageJapaneseMenuItem);
-            languageMenuButtonGroup.add(languageRussianMenuItem);
-            languageMenuButtonGroup.add(languageSpanishMenuItem);
-
-            // Selects the language menu option according to the settings
-            HashMap languageMenuItems = new HashMap();
-            languageMenuItems.put("default", languageDefaultMenuItem);
-            languageMenuItems.put("de", languageGermanMenuItem);
-            languageMenuItems.put("en", languageEnglishMenuItem);
-            languageMenuItems.put("nl", languageDutchMenuItem);
-            languageMenuItems.put("fr", languageFrenchMenuItem);
-            languageMenuItems.put("ja", languageJapaneseMenuItem);
-            languageMenuItems.put("it", languageItalianMenuItem);
-            languageMenuItems.put("es", languageSpanishMenuItem);
-            languageMenuItems.put("bg", languageBulgarianMenuItem);
-            languageMenuItems.put("ru", languageRussianMenuItem);
-
-            String setLanguage = frostSettings.getValue("locale");
-            Object languageItem = languageMenuItems.get(setLanguage);
-            if (languageItem != null) {
-                languageMenuButtonGroup.setSelected(((JMenuItem) languageItem).getModel(), true);
-            }
-
-            languageMenu.add(languageDefaultMenuItem);
-            languageMenu.addSeparator();
-            languageMenu.add(languageBulgarianMenuItem);
-            languageMenu.add(languageDutchMenuItem);
-            languageMenu.add(languageEnglishMenuItem);
-            languageMenu.add(languageFrenchMenuItem);
-            languageMenu.add(languageGermanMenuItem);
-            languageMenu.add(languageItalianMenuItem);
-            languageMenu.add(languageJapaneseMenuItem);
-            languageMenu.add(languageRussianMenuItem);
-            languageMenu.add(languageSpanishMenuItem);
+            LanguageGuiSupport.getInstance().buildInitialLanguageMenu(languageMenu);
+            
             // Help Menu
             helpMenu.add(helpMemMonMenuItem);
             helpMenu.add(helpHelpMenuItem);
@@ -756,6 +644,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             menuBar.add(helpMenu);
 
             translateMainMenu();
+
+            language.addLanguageListener(this);
         }
         return menuBar;
     }
@@ -1096,17 +986,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     /**
-     * Setter for thelanguage resource bundle
-     * @param newLanguageResource
+     * Refresh the texts in MainFrame with new language.
      */
-    private void setLanguageResource(String newLocaleName) {
-        if( newLocaleName == null ) {
-            frostSettings.setValue("locale", "default");
-        } else {
-            frostSettings.setValue("locale", newLocaleName);
-        }
-        language.changeLanguage(newLocaleName);
+    public void languageChanged(LanguageEvent e) {
         translateMainMenu();
+        LanguageGuiSupport.getInstance().translateLanguageMenu();
         translateButtons();
     }
 
@@ -1266,16 +1150,6 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
 //        pluginBrowserMenuItem.setText(language.getString("Experimental Freenet Browser"));
         pluginTranslateMenuItem.setText(language.getString("Translate Frost into another language"));
         languageMenu.setText(language.getString("MainFrame.menu.language"));
-        languageDefaultMenuItem.setText(language.getString("MainFrame.menu.language.default"));
-        languageDutchMenuItem.setText(language.getString("MainFrame.menu.language.dutch"));
-        languageEnglishMenuItem.setText(language.getString("MainFrame.menu.language.english"));
-        languageFrenchMenuItem.setText(language.getString("MainFrame.menu.language.french"));
-        languageGermanMenuItem.setText(language.getString("MainFrame.menu.language.german"));
-        languageItalianMenuItem.setText(language.getString("MainFrame.menu.language.italian"));
-        languageJapaneseMenuItem.setText(language.getString("MainFrame.menu.language.japanese"));
-        languageSpanishMenuItem.setText(language.getString("MainFrame.menu.language.spanish"));
-        languageBulgarianMenuItem.setText(language.getString("MainFrame.menu.language.bulgarian"));
-        languageRussianMenuItem.setText(language.getString("MainFrame.menu.language.russian"));
         helpMenu.setText(language.getString("MainFrame.menu.help"));
         helpMemMonMenuItem.setText(language.getString("MainFrame.menu.help.showMemoryMonitor"));
         helpHelpMenuItem.setText(language.getString("MainFrame.menu.help.help"));
@@ -1335,11 +1209,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
         return memoryMonitor;
     }
 
-    private TranslationDialog getTranslationDialog () {
-        if( translationDialog == null ) {
-        	translationDialog = new TranslationDialog(this);
-        }
-        return translationDialog; 
+    private TranslationStartDialog getTranslationDialog () {
+        return new TranslationStartDialog(this);
+//        if( translationDialog == null ) {
+//        	translationDialog = new TranslationDialog(this);
+//        }
+//        return translationDialog; 
     }
     
     public void showHtmlHelp(String item) {
