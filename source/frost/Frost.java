@@ -19,7 +19,6 @@
 package frost;
 
 import java.io.*;
-import java.util.*;
 import java.util.logging.*;
 
 import javax.swing.*;
@@ -32,6 +31,9 @@ public class Frost {
 
     private static Logger logger = Logger.getLogger(Frost.class.getName());
     private static String lookAndFeel = null;
+    
+    private static String cmdLineLocaleName = null;
+    private static String cmdLineLocaleFileName = null;
 
     /**
      * Main method
@@ -91,10 +93,10 @@ public class Frost {
                     lookAndFeel = args[count + 1];
                     count = count + 2;
                 } else if (args[count].equals("-locale")) {
-                    Core.setLocaleName(args[count + 1]); //This settings overrides the one in the ini file
+                    cmdLineLocaleName = args[count + 1]; //This settings overrides the one in the ini file
                     count = count + 2;
                 } else if (args[count].equals("-localefile")) {
-                    Core.setLocaleFileName(args[count + 1]); 
+                    cmdLineLocaleFileName = args[count + 1]; 
                     count = count + 2;
                 } else {
                     showHelp();
@@ -238,5 +240,13 @@ public class Frost {
         }
         runLock.deleteOnExit();
         return true;
+    }
+
+    public static String getCmdLineLocaleFileName() {
+        return cmdLineLocaleFileName;
+    }
+
+    public static String getCmdLineLocaleName() {
+        return cmdLineLocaleName;
     }
 }

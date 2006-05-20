@@ -24,27 +24,27 @@
 */
 package frost.util.gui.translation;
 
-import java.io.File;
-import java.text.MessageFormat;
-import java.util.Locale;
-import java.util.logging.Level;
-import java.util.logging.Logger;
+import java.io.*;
+import java.text.*;
+import java.util.*;
+import java.util.logging.*;
 
-import javax.swing.event.EventListenerList;
+import javax.swing.event.*;
 
-import frost.Core;
-import frost.SettingsClass;
+import frost.*;
 
 /**
  * @pattern Singleton
  */
 public class Language {
-
+    
     private static Logger logger = Logger.getLogger(Language.class.getName());
 
     private FrostResourceBundle RESOURCE_BUNDLE = null;
     private FrostResourceBundle ROOT_RESOURCE_BUNDLE = null;
 //    private BreakIterator LINE_BREAKER = null;
+
+    private static List buildInLocales = null;
 
     private static boolean initialized = false;
     
@@ -67,10 +67,10 @@ public class Language {
     /**
      * Prevent instances of this class from being created.
      */
-    private Language(String localeName) {
+    private Language(String localeName, boolean isExternal) {
         super();
         ROOT_RESOURCE_BUNDLE = new FrostResourceBundle();
-        RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+        RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE, isExternal);
 //        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
     }
 
@@ -88,37 +88,54 @@ public class Language {
     }
 
     /**
-     * If it has already been initialized, this method does nothing.
+     * One time init.
+     * Takes an initial locale name and if it is a build-in or extern bundle.
      */
-    public static void initializeWithName(String localeName) {
+    public static void initializeWithName(String localeName, boolean isExternal) {
         if( !initialized ) {
             initialized = true;
 
             if( localeName == null ) {
                 localeName = Locale.getDefault().getCountry();
             }
-            instance = new Language(localeName.toLowerCase());
+            instance = new Language(localeName.toLowerCase(), isExternal);
+        }
+    }
+
+    /**
+     * One time init.
+     * Takes an initial locale name and uses either extern (preferred) or intern bundle for this locale.
+     */
+    public static void initializeWithName(String localeName) {
+        if( !initialized ) {
+            initialized = true;
+
+            Locale locale;
+            
+            if( localeName == null ) {
+                locale = Locale.getDefault();
+                localeName = Locale.getDefault().getCountry();
+            } else {
+                locale = new Locale(localeName);
+            }
+            
+            boolean isExternal;
+            if( getExternalLocales().contains(locale) ) {
+                isExternal = true;
+            } else {
+                isExternal = false;
+            }
+            instance = new Language(localeName.toLowerCase(), isExternal);
         }
     }
 
     public static void initializeWithFile(File bundleFile) {
         if( !initialized ) {
             initialized = true;
-            System.out.println("f="+bundleFile.getPath());
             instance = new Language(bundleFile);
         }
     }
     
-//    /**
-//     * If it has already been initialized, this method does nothing.
-//     */
-//    public static void initializeWithLocale(Locale locale) {
-//        if( !initialized ) {
-//            initialized = true;
-//            instance = new Language(locale);
-//        }
-//    }
-
     /**
      * Adds an <code>LanguageListener</code> to the Language.
      * @param listener the <code>LanguageListener</code> to be added
@@ -171,46 +188,91 @@ public class Language {
             }
         }
     }
+    
+    public static List getBuildInLocales() {
+        if( buildInLocales == null ) {
+            ArrayList lst = new ArrayList();
+            lst.add(new Locale("bg"));
+            lst.add(new Locale("de"));
+            lst.add(new Locale("en"));
+            lst.add(new Locale("es"));
+            lst.add(new Locale("fr"));
+            lst.add(new Locale("it"));
+            lst.add(new Locale("ja"));
+            lst.add(new Locale("nl"));
+            lst.add(new Locale("ru"));
+            buildInLocales = lst;
+        }
+        return buildInLocales;
+    }
+
+    /**
+     * Scans for existing properties files in localdata/i18n each time.
+     */ 
+    public static List getExternalLocales() {
+        ArrayList lst = new ArrayList();
+        File[] files = new File("localdata/i18n").listFiles();
+        for( int i=0; i < files.length; i++ ) {
+            File f = files[i];
+            String fname = f.getName();
+            if( fname.startsWith("langres_") && fname.endsWith(".properties") ) {
+                String ln = fname.substring("langres_".length(), fname.length() - ".properties".length());
+                if( ln.length() == 2 ) {
+                    lst.add(new Locale(ln));
+                }
+            }
+        }
+        return lst;
+    }
 
     /**
      * @param resourceBundle
      */
-    public synchronized void changeLanguage(String localeName) {
-    	boolean useuser = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USERDEF);
-    	boolean useovr = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USEROVR);
-        String userlocaledir = Core.frostSettings.getValue(SettingsClass.TRANSLATION_USERDIR);
-        File ulf; // user locale file
-        
+    public synchronized void changeLanguage(String localeName, boolean isExternal) {
         if( localeName == null ) {
-            localeName = Locale.getDefault().getCountry();
+            localeName = Locale.getDefault().getLanguage();
         }
-        
-        ulf = new File(userlocaledir + "langres_" + localeName + ".properties");
-        if (useuser) {
-        	useuser = ulf.exists();
-        }
-        if (useuser) {
-        	System.out.println("Useuser: ON");
-        	FrostResourceBundle tmp_bundle = null;
-        	if (useovr) {
-        		System.out.println("Useuser: OVERRIDE");
-        		tmp_bundle = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
-        		RESOURCE_BUNDLE = new FrostResourceBundle(ulf, tmp_bundle);
-        		 
-        	} else {
-        		System.out.println("Useuser: MISSING");
-        		tmp_bundle = new FrostResourceBundle(ulf, ROOT_RESOURCE_BUNDLE);
-        		RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), tmp_bundle);
-        	}
-        } else {
-        	System.out.println("Useuser: OFF");
-        	RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
-        }
-        
-        //RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
-        //LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
+        RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE, isExternal);
+//        LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
         
         fireLanguageChanged(new LanguageEvent(this));
+
+//    	boolean useuser = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USERDEF);
+//    	boolean useovr = Core.frostSettings.getBoolValue(SettingsClass.TRANSLATION_USEROVR);
+//        String userlocaledir = Core.frostSettings.getValue(SettingsClass.TRANSLATION_USERDIR);
+//
+//        File ulf; // user locale file
+//        
+//        if( localeName == null ) {
+//            localeName = Locale.getDefault().getCountry();
+//        }
+//        
+//        ulf = new File(userlocaledir + "langres_" + localeName + ".properties");
+//        if (useuser) {
+//        	useuser = ulf.exists();
+//        }
+//        if (useuser) {
+//        	System.out.println("Useuser: ON");
+//        	FrostResourceBundle tmp_bundle = null;
+//        	if (useovr) {
+//        		System.out.println("Useuser: OVERRIDE");
+//        		tmp_bundle = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+//        		RESOURCE_BUNDLE = new FrostResourceBundle(ulf, tmp_bundle);
+//        		 
+//        	} else {
+//        		System.out.println("Useuser: MISSING");
+//        		tmp_bundle = new FrostResourceBundle(ulf, ROOT_RESOURCE_BUNDLE);
+//        		RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), tmp_bundle);
+//        	}
+//        } else {
+//        	System.out.println("Useuser: OFF");
+//        	RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+//        }
+//        
+//        //RESOURCE_BUNDLE = new FrostResourceBundle(localeName.toLowerCase(), ROOT_RESOURCE_BUNDLE);
+//        //LINE_BREAKER = BreakIterator.getLineInstance(RESOURCE_BUNDLE.getLocale());
+//        
+//        fireLanguageChanged(new LanguageEvent(this));
     }
 
     /**

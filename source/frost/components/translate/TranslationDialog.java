@@ -233,7 +233,7 @@ public class TranslationDialog extends JDialog {
 	
 	private void LoadBundle(String l) {
 		// TODO Userbundle von file laden
-		String ulfdir = Core.frostSettings.getValue(SettingsClass.TRANSLATION_USERDIR);
+		String ulfdir = Core.frostSettings.getValue("abc");
 		File ulf = new File(ulfdir + "langres_" + l + ".properties", "UTF-8");
 		if (!ulf.exists()) {
 			return;
@@ -249,7 +249,7 @@ public class TranslationDialog extends JDialog {
 			System.out.println("SaveBundle: Bundel not changed");
 			return; 
 		}
-		String ulfdir = Core.frostSettings.getValue(SettingsClass.TRANSLATION_USERDIR);
+        String ulfdir = Core.frostSettings.getValue("abc");
 		File ulf = new File(ulfdir + "langres_" + editlocale + ".properties");
 		try {
 			ulf.createNewFile();
@@ -257,8 +257,6 @@ public class TranslationDialog extends JDialog {
 			
 		}
 		// userlocaledir + "langres_" + localeName + ".properties");
-		Core.frostSettings.getValue(SettingsClass.TRANSLATION_USERDIR);
-		
 		
 		PrintWriter bundleWriter = null;
         try {
@@ -821,12 +819,12 @@ public class TranslationDialog extends JDialog {
     		newLang = Core.frostSettings.getValue("locale");
     	}	
     	System.out.println("Tuwas mit Sprache:" + newLang);
-    	if (getCB_CL_Frost().isSelected()) {
-    		frostlanguage.changeLanguage(newLang);
-    	}
-    	if (getCB_CL_Translation().isSelected()) {
-    		frostlanguage.changeLanguage(newLang);
-    	}
+//    	if (getCB_CL_Frost().isSelected()) {
+//    		frostlanguage.changeLanguage(newLang);
+//    	}
+//    	if (getCB_CL_Translation().isSelected()) {
+//    		frostlanguage.changeLanguage(newLang);
+//    	}
      /*   if( newLocaleName == null ) {
             frostSettings.setValue("locale", "default");
         } else {
