@@ -24,7 +24,6 @@ public class TranslationStartDialog extends JFrame {
     private JPanel jPanel = null;
     private JButton Bok = null;
     private JButton Bcancel = null;
-    private JLabel Linfo = null;
     private JLabel jLabel2 = null;
 
     /**
@@ -62,13 +61,6 @@ public class TranslationStartDialog extends JFrame {
             gridBagConstraints11.gridy = 3;
             jLabel2 = new JLabel();
             jLabel2.setText("(The fallback language for all missing keys is english.)");
-            GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
-            gridBagConstraints5.gridx = 0;
-            gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints5.insets = new java.awt.Insets(25,5,5,5);
-            gridBagConstraints5.gridy = 5;
-            Linfo = new JLabel();
-            Linfo.setText("Info:");
             GridBagConstraints gridBagConstraints4 = new GridBagConstraints();
             gridBagConstraints4.gridx = 0;
             gridBagConstraints4.fill = java.awt.GridBagConstraints.HORIZONTAL;
@@ -79,12 +71,12 @@ public class TranslationStartDialog extends JFrame {
             gridBagConstraints3.gridy = 4;
             gridBagConstraints3.weightx = 0.0;
             gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints3.insets = new java.awt.Insets(5,25,0,5);
+            gridBagConstraints3.insets = new java.awt.Insets(5,25,10,5);
             gridBagConstraints3.gridx = 0;
             GridBagConstraints gridBagConstraints2 = new GridBagConstraints();
             gridBagConstraints2.gridx = 0;
             gridBagConstraints2.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints2.insets = new java.awt.Insets(25,5,0,5);
+            gridBagConstraints2.insets = new java.awt.Insets(15,5,0,5);
             gridBagConstraints2.gridy = 2;
             jLabel1 = new JLabel();
             jLabel1.setText("Choose the language used as source for the translation:");
@@ -109,7 +101,6 @@ public class TranslationStartDialog extends JFrame {
             jContentPane.add(jLabel1, gridBagConstraints2);
             jContentPane.add(getCBoxSourceLanguage(), gridBagConstraints3);
             jContentPane.add(getJPanel(), gridBagConstraints4);
-            jContentPane.add(Linfo, gridBagConstraints5);
             jContentPane.add(jLabel2, gridBagConstraints11);
         }
         return jContentPane;
@@ -283,6 +274,7 @@ public class TranslationStartDialog extends JFrame {
         }
         
         // TODO: run dialog with source and targetbundle, if user pressed OK save the targetbundle:
+        
         targetBundle.saveBundleToFile(targetLanguageName);
         
     }
@@ -308,7 +300,7 @@ public class TranslationStartDialog extends JFrame {
         new TranslationStartDialog(null).setVisible(true);
     }
     
-    private class ComboBoxEntry {
+    private class ComboBoxEntry implements Comparable {
         boolean isExternal;
         boolean isNew;
         Locale locale;
@@ -329,6 +321,9 @@ public class TranslationStartDialog extends JFrame {
         }
         public String toString() {
             return displayString;
+        }
+        public int compareTo(Object arg0) {
+            return toString().compareTo(arg0.toString());
         }
     }
 
