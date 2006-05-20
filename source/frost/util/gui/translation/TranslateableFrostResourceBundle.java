@@ -77,7 +77,7 @@ public class TranslateableFrostResourceBundle extends FrostResourceBundle {
                 externalBundleDir.mkdirs();
             }
             String filename = EXTERNAL_BUNDLE_DIR + "langres_"+localeName+".properties";
-            PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(filename)));
+            PrintWriter out = new PrintWriter(new BufferedWriter(new OutputStreamWriter(new FileOutputStream(filename), "UTF-8")));
             
             TreeMap sorter = new TreeMap(bundle);
             
