@@ -61,7 +61,11 @@ public class FrostResourceBundle {
         } else {
             String filename = EXTERNAL_BUNDLE_DIR + "langres_"+localeName+".properties";
             File file = new File(filename);
-            bundle = FrostResourceBundleReader.loadBundle(file);
+            if( file.isFile() ) {
+                bundle = FrostResourceBundleReader.loadBundle(file);
+            } else {
+                bundle = new HashMap();
+            }
         }
     }
 
@@ -87,7 +91,7 @@ public class FrostResourceBundle {
             if( parentBundle != null ) {
                 value = parentBundle.getString(key);
             } else {
-                throw new MissingResourceException("Key is missing.", "FrostResourceBundle", key);
+                throw new MissingResourceException("Key is missing: '"+key+"'", "FrostResourceBundle", key);
             }
         }
         return value;

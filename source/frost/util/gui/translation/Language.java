@@ -203,7 +203,14 @@ public class Language {
      */ 
     public static List getExternalLocales() {
         ArrayList lst = new ArrayList();
+        File i18nDir = new File("localdata/i18n");
+        if( i18nDir.isDirectory() == false ) {
+            return lst;
+        }
         File[] files = new File("localdata/i18n").listFiles();
+        if( files == null ) {
+            return lst;
+        }
         for( int i=0; i < files.length; i++ ) {
             File f = files[i];
             String fname = f.getName();

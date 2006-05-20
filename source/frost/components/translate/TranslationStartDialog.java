@@ -174,6 +174,8 @@ public class TranslationStartDialog extends JFrame {
         if( CBoxSourceLanguage == null ) {
             CBoxSourceLanguage = new JComboBox();
             
+            ComboBoxEntry defaultEntry = null;
+            
             List lst_buildin = language.getBuildInLocales();
             TreeMap tm_buildin = new TreeMap();
             for( Iterator i=lst_buildin.iterator(); i.hasNext(); ) {
@@ -181,6 +183,10 @@ public class TranslationStartDialog extends JFrame {
                 String localeDesc = locale.getDisplayName() + "  (" + locale.getLanguage() + ")";
                 ComboBoxEntry cbe = new ComboBoxEntry(locale, false, false, localeDesc);
                 tm_buildin.put(cbe, cbe);
+                
+                if( locale.getLanguage().equals("en") ) {
+                    defaultEntry = cbe;
+                }
             }
             // get sorted
             for( Iterator i=tm_buildin.keySet().iterator(); i.hasNext(); ) {
@@ -199,6 +205,13 @@ public class TranslationStartDialog extends JFrame {
             for( Iterator i=tm_external.keySet().iterator(); i.hasNext(); ) {
                 CBoxSourceLanguage.addItem(i.next());
             }
+            
+            // select english as source by default
+            if( defaultEntry != null ) {
+                CBoxSourceLanguage.setSelectedItem(defaultEntry);
+            }
+            
+            
         }
         return CBoxSourceLanguage;
     }
