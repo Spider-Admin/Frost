@@ -302,8 +302,7 @@ class SearchThread extends Thread {
                 continue;
             }
 
-            final FrostSearchItem searchItem =
-                new FrostSearchItem(board, key, searchItemState);
+            final FrostSearchItem searchItem = new FrostSearchItem(board, key, searchItemState);
 
             model.addSearchItem(searchItem);
         }
