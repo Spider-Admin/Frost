@@ -51,6 +51,7 @@ public class LanguageGuiSupport {
     
     private ButtonGroup languageMenuButtonGroup;
 
+    private JMenu languageMenu;
 
     private LanguageGuiSupport() {
         languageDefaultMenuItem = new JRadioButtonMenuItem();
@@ -121,8 +122,31 @@ public class LanguageGuiSupport {
         return instance;
     }
     
-    public void buildInitialLanguageMenu(JMenu languageMenu) {
+    public void buildInitialLanguageMenu(JMenu langMenu) {
+        this.languageMenu = langMenu;
+        buildLanguageMenu();
+    }
+
+    /**
+     * After the translation dialog runs, the external languages might be changed.
+     * Rebuild the menu items for the external bundles. 
+     */
+    public void updateLanguageMenu() {
+        // clear all
+        languageMenu.removeAll();
+        List l = new ArrayList();
+        for(Enumeration e=languageMenuButtonGroup.getElements();e.hasMoreElements(); ) {
+            l.add( e.nextElement() );
+        }
+        for(Iterator i=l.iterator(); i.hasNext(); ) {
+            AbstractButton b = (AbstractButton)i.next();
+            languageMenuButtonGroup.remove(b);
+        }
         
+        buildLanguageMenu();
+    }
+    
+    private void buildLanguageMenu() {
         // first add the buildins, then maybe external bundles
         // finally select currently choosed language
         boolean anItemIsSelected = false;
@@ -186,14 +210,6 @@ public class LanguageGuiSupport {
         }
         
         translateLanguageMenu();
-    }
-
-    /**
-     * After the translation dialog runs, the external languages might be changed.
-     * Rebuild the menu items for the external bundles. 
-     */
-    public void updateLanguageMenu() {
-        // TODO: !!!
     }
     
     /**
