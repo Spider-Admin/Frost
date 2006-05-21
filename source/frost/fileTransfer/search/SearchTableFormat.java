@@ -291,6 +291,7 @@ public class SearchTableFormat extends SortedTableFormat implements LanguageList
 
             case FrostSearchItem.STATE_DOWNLOADED :
                 stateString = downloaded;
+                break;
         }
 
         if ((date == null) || (date.length() == 0)) {

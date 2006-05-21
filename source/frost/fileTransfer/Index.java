@@ -25,6 +25,7 @@ import java.util.logging.*;
 import org.w3c.dom.*;
 
 import frost.*;
+import frost.fcp.*;
 import frost.fileTransfer.download.*;
 import frost.gui.objects.*;
 import frost.identities.*;
@@ -222,8 +223,83 @@ public class Index {
      * @return
      */
     public Map getUploadKeys(Board board) {
+        if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
+            return getUploadKeys05(board);
+        } else {
+            return getUploadKeys07(board);
+        }
+    }
 
-        // TODO: nice-to-have: add files until zip is larger than 30000, don't stop at 100
+    public Map getUploadKeys07(Board board) {
+
+        String boardFilename = board.getBoardFilename();
+
+        logger.fine("Index.getUploadKeys for board " + boardFilename);
+
+        // Abort if boardDir does not exist
+        File boardDir = new File(MainFrame.keypool + boardFilename);
+        if( !boardDir.exists() || !boardDir.isDirectory() ) {
+            return null;
+        }
+
+        File boardFiles = new File(MainFrame.keypool + boardFilename + File.separator + "files.xml");
+        File boardNewFiles = new File(MainFrame.keypool + boardFilename + File.separator + "new_files.xml");
+
+        // update the last shared date for all MY files before we send
+        String currentDate = DateFun.getExtendedDate();
+
+        Map toUpload = new HashMap();
+
+        // get new files added by me (we receive our own files later from board)
+        FrostIndex newUploadsIdx = readKeyFile(boardNewFiles);
+        
+        for(Iterator i = newUploadsIdx.getFilesIterator(); i.hasNext(); ) {
+            SharedFileObject sfo = (SharedFileObject)i.next();
+            toUpload.put(sfo.getSHA1(), sfo);
+            sfo.setLastSharedDate(currentDate);
+        }
+
+        // we put all new files into our toUpload
+        if (boardNewFiles.isFile()) {
+            boardNewFiles.delete();
+        }
+        // finished to add my new files
+
+        // now add all of my files that need to be reshared
+        FrostIndex totalIdx = readKeyFile(boardFiles);
+
+        String myUniqueName = Core.getIdentities().getMyId().getUniqueName();
+        int downloadBack = Core.frostSettings.getIntValue("maxAge");
+
+        String minDate = DateFun.getExtendedDate(downloadBack);
+        logger.info("re-sharing files shared before " + minDate);
+
+        for(Iterator i = totalIdx.getFilesIterator(); i.hasNext(); ) {
+
+            SharedFileObject current = (SharedFileObject) i.next();
+
+            if( current.getOwner() != null && // not anonymous
+                current.getOwner().compareTo(myUniqueName) == 0 && // from myself
+                current.getLastSharedDate() != null && // not from the old format
+                minDate.compareTo(current.getLastSharedDate()) > 0 ) // add my file if its been shared too long ago
+            {
+                toUpload.put(current.getSHA1(), current); // we change the lastShared Date for this later, see below
+                current.setLastSharedDate(currentDate);
+            }
+        }
+
+        // if no own files are to be send, break and don't send only friends files
+        if( toUpload.size() == 0 ) {
+            return null;
+        }
+
+        // save the new lastSharedDate/date of MY re-shared files to disk
+        writeKeyFile(totalIdx, boardFiles);
+
+        return toUpload;
+    }
+    
+    public Map getUploadKeys05(Board board) {
 
         // limit -> key file could grow above 30.000 bytes which is the appr. maximum for KSK uploads!
         // we first try with 60 and lower by 5 until zipsize is <=30000
@@ -316,11 +392,11 @@ public class Index {
 
             totalIdx = readKeyFile(boardFiles);
 
-            String myUniqueName = Core.getInstance().getIdentities().getMyId().getUniqueName();
+            String myUniqueName = Core.getIdentities().getMyId().getUniqueName();
             int downloadBack = Core.frostSettings.getIntValue("maxAge");
-            logger.info("re-sharing files shared before " + DateFun.getDate(downloadBack));
 
             String minDate = DateFun.getExtendedDate(downloadBack);
+            logger.info("re-sharing files shared before " + minDate);
 
             Map tmpToUpload = new HashMap();
             ArrayList resharedFilesList = new ArrayList();
@@ -377,15 +453,15 @@ public class Index {
                     toUpload = tmpToUpload;
                     reSharing = true;
                     // process date of all added reshared entries
-                    for(Iterator i = resharedFilesList.iterator(); i.hasNext(); ) {
-                        SharedFileObject current = (SharedFileObject) i.next();
-                        // if the file has been uploaded too long ago, set it to offline again
-                        if (!current.checkDate()) {
-                            // NOTE: This will not remove the CHK from the upload table.
-                            // however, when the other side receives the index they will see the file "offline"
-                            current.setDate(null);
-                        }
-                    }
+//                    for(Iterator i = resharedFilesList.iterator(); i.hasNext(); ) {
+//                        SharedFileObject current = (SharedFileObject) i.next();
+//                        // if the file has been uploaded too long ago, set it to offline again
+//                        if (!current.checkDate()) {
+//                            // NOTE: This will not remove the CHK from the upload table.
+//                            // however, when the other side receives the index they will see the file "offline"
+//                            current.setDate(null);
+//                        }
+//                    }
                     break;
                 }
             }
