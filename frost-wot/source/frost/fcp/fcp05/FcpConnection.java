@@ -463,7 +463,10 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
         File checkSize = new File(filename);
         
         // FIXME: debug output, check and remove later
-        System.out.println("expectedTotalDataLength="+expectedTotalDataLength+"; filesize="+checkSize.length());
+        System.out.print(
+                "expectedTotalDataLength="+expectedTotalDataLength+
+                "; filesize="+checkSize.length()+
+                "; mdlen="+metadataLength);
 
         if( metadataLength > 0 && checkSize.length() > 0 ) {
             if( metadataLength == checkSize.length() ) {
@@ -486,10 +489,15 @@ bback - FIX: in FcpKeyword.DataFound - prepare all for start from the beginning
                 System.arraycopy(content, (int) metadataLength, rawdata, 0, datalen);
                 FileAccess.writeFile(rawdata, checkSize);
             }
+            
+            System.out.println("; finalFileSize="+checkSize.length());
+            
         } else if( metadataLength == 0 && checkSize.length() == 0 ) {
             checkSize.delete();
+            
+            System.out.println("; deleted!");
         }
-
+        
         return result;
     }
 

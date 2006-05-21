@@ -243,6 +243,8 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     private TofTree tofTree = null;
     private TofTreeModel tofTreeModel = null;
     private UploadPanel uploadPanel = null;
+    
+    private JSplitPane treeAndTabbedPaneSplitpane = null;
 
     public TofTree getTofTree() {
         return tofTree;
@@ -683,7 +685,7 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
     }
 
     private JPanel buildTofMainPanel() {
-        //add a tab for buddies perhaps?
+        // add a tab for buddies perhaps?
         getTabbedPane().insertTab("MainFrame.tabbedPane.news", null, getMessagePanel(), null, 0);
         getTabbedPane().setSelectedIndex(0);
 
@@ -696,13 +698,17 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             }
         });
 
-        JSplitPane treeAndTabbedPane =
-            new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, getTabbedPane());
-        treeAndTabbedPane.setDividerLocation(160);
         // Vertical Board Tree / MessagePane Divider
+        treeAndTabbedPaneSplitpane = new JSplitPane(JSplitPane.HORIZONTAL_SPLIT, tofTreeScrollPane, getTabbedPane());
+        
+        int dividerLoc = frostSettings.getIntValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation");
+        if( dividerLoc < 10 ) {
+            dividerLoc = 160;
+        }
+        treeAndTabbedPaneSplitpane.setDividerLocation(dividerLoc);
 
         JPanel tofMainPanel = new JPanel(new BorderLayout());
-        tofMainPanel.add(treeAndTabbedPane, BorderLayout.CENTER); // TOF/Text
+        tofMainPanel.add(treeAndTabbedPaneSplitpane, BorderLayout.CENTER); // TOF/Text
         return tofMainPanel;
     }
 
@@ -713,11 +719,14 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
      * @return
      */
     public boolean doUpdate(Board board) {
-        if (tofTree.isUpdateAllowed(board) == false)
+        // TODO: hook in to stop running updates (and prevent new starts) if board is currently deleted
+        if (tofTree.isUpdateAllowed(board) == false) {
             return false;
+        }
 
-        if (board.isUpdating())
+        if (board.isUpdating()) {
             return false;
+        }
 
         return true;
     }
@@ -742,8 +751,12 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
             frostSettings.setValue("lastFramePosX", bounds.x);
             frostSettings.setValue("lastFramePosY", bounds.y);
         }
+        
+        frostSettings.setValue("MainFrame.treeAndTabbedPaneSplitpaneDividerLocation", 
+                treeAndTabbedPaneSplitpane.getDividerLocation());
 
         getMessagePanel().getMessageTable().saveLayout(frostSettings);
+        getMessagePanel().saveLayout(frostSettings);
 
         if (tofTree.getRunningBoardUpdateThreads().getRunningUploadThreadCount() > 0) {
             int result = JOptionPane.showConfirmDialog(
@@ -752,12 +765,11 @@ public class MainFrame extends JFrame implements ClipboardOwner, SettingsUpdater
                     language.getString("MainFrame.runningUploadsWarning.title"),
                     JOptionPane.YES_NO_OPTION,
                     JOptionPane.QUESTION_MESSAGE);
-            if (result == JOptionPane.YES_OPTION) {
-                System.exit(0);
+            if (result == JOptionPane.NO_OPTION) {
+                return;
             }
-        } else {
-            System.exit(0);
-        }
+        } 
+        System.exit(0);
     }
 
     public MessagePanel getMessagePanel() {

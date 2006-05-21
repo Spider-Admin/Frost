@@ -45,6 +45,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
     private MessageTableModel messageTableModel = null;
     private MessageTextPane messageTextPane = null;
     private JScrollPane messageListScrollPane = null;
+    private JSplitPane msgTableAndMsgTextSplitpane = null;
 
     MainFrame mainFrame;
 
@@ -512,20 +513,20 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             fontChanged();
 
-            JSplitPane mainSplitPane =
-                new JSplitPane(
-                    JSplitPane.VERTICAL_SPLIT,
-                    messageListScrollPane,
-                    messageTextPane);
-            mainSplitPane.setDividerSize(10);
-            mainSplitPane.setDividerLocation(160);
-            mainSplitPane.setResizeWeight(0.5d);
-            mainSplitPane.setMinimumSize(new Dimension(50, 20));
+            msgTableAndMsgTextSplitpane = new JSplitPane(JSplitPane.VERTICAL_SPLIT, messageListScrollPane, messageTextPane);
+            msgTableAndMsgTextSplitpane.setDividerSize(10);
+            msgTableAndMsgTextSplitpane.setResizeWeight(0.5d);
+            msgTableAndMsgTextSplitpane.setMinimumSize(new Dimension(50, 20));
+            int dividerLoc = Core.frostSettings.getIntValue("MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation");
+            if( dividerLoc < 10 ) {
+                dividerLoc = 160;
+            }
+            msgTableAndMsgTextSplitpane.setDividerLocation(dividerLoc);
 
             // build main panel
             setLayout(new BorderLayout());
             add(getButtonsToolbar(), BorderLayout.NORTH);
-            add(mainSplitPane, BorderLayout.CENTER);
+            add(msgTableAndMsgTextSplitpane, BorderLayout.CENTER);
 
             //listeners
             messageTable.addMouseListener(listener);
@@ -541,6 +542,11 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
 
             initialized = true;
         }
+    }
+    
+    public void saveLayout(SettingsClass frostSettings) {
+        frostSettings.setValue("MessagePanel.msgTableAndMsgTextSplitpaneDividerLocation", 
+                msgTableAndMsgTextSplitpane.getDividerLocation());
     }
 
     private void fontChanged() {
