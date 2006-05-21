@@ -64,72 +64,72 @@ class SearchThread extends Thread {
      * @return Vector containing the single parts as Strings
      */
     private Vector getSingleRequests() {
-    Vector singleRequests = new Vector();
-    String tmp = request.trim().toLowerCase();
+        Vector singleRequests = new Vector();
+        String tmp = request.trim().toLowerCase();
 
-    while(tmp.indexOf(" ") != -1) {
-        int pos = tmp.indexOf(" ");
-//      if (DEBUG) Core.getOut().println("Search request: " + (tmp.substring(0, pos)).trim());
-        singleRequests.add((tmp.substring(0, pos)).trim());
-        tmp = (tmp.substring(pos, tmp.length())).trim();
-    }
+        while( tmp.indexOf(" ") != -1 ) {
+            int pos = tmp.indexOf(" ");
+            // if (DEBUG) Core.getOut().println("Search request: " + (tmp.substring(0, pos)).trim());
+            singleRequests.add((tmp.substring(0, pos)).trim());
+            tmp = (tmp.substring(pos, tmp.length())).trim();
+        }
 
-    if (tmp.length() > 0) {
-//      if (DEBUG) Core.getOut().println("Search request: " + (tmp));
-        singleRequests.add(tmp);
-    }
+        if( tmp.length() > 0 ) {
+            // if (DEBUG) Core.getOut().println("Search request: " + (tmp));
+            singleRequests.add(tmp);
+        }
 
-    return singleRequests;
+        return singleRequests;
     }
 
     /**
      * Reads index file and adds search results to the search table
      */
     private void getSearchResults() {
-    if (request.length() > 0) {
-        Vector singleRequests = getSingleRequests();
+        if( request.length() > 0 ) {
+            Vector singleRequests = getSingleRequests();
 
-        synchronized(chk) {
-        Iterator i = chk.values().iterator();
-        while (i.hasNext()) {
-            SharedFileObject key = (SharedFileObject)i.next();
-            String filename = key.getFilename().toLowerCase().trim();
-            boolean acceptFile = true;
-            for (int j = 0; j < singleRequests.size(); j++) {
-            String singleRequest = (String)singleRequests.elementAt(j);
-            if (!singleRequest.startsWith("*")) {
-                if (filename.indexOf(singleRequest) == -1)
-                acceptFile = false;
-            }
-            }
-            if (acceptFile || request.equals("*")) {
-
-            // Check for search type
-            if (searchType.equals("All files")) {
-                results.add(key);
-            }
-            else {
-                boolean accept = false;
-                if (searchType.equals("Audio"))
-                accept = checkType(audioExtension, filename);
-                if (searchType.equals("Video"))
-                accept = checkType(videoExtension, filename);
-                if (searchType.equals("Images"))
-                accept = checkType(imageExtension, filename);
-                if (searchType.equals("Documents"))
-                accept = checkType(documentExtension, filename);
-                if (searchType.equals("Executables"))
-                accept = checkType(executableExtension, filename);
-                if (searchType.equals("Archives"))
-                accept = checkType(archiveExtension, filename);
-                if (accept)
-                results.add(key);
-            }
-
+            synchronized( chk ) {
+                Iterator i = chk.values().iterator();
+                while( i.hasNext() ) {
+                    SharedFileObject key = (SharedFileObject) i.next();
+                    String filename = key.getFilename().toLowerCase().trim();
+                    boolean acceptFile = true;
+                    for( int j = 0; j < singleRequests.size(); j++ ) {
+                        String singleRequest = (String) singleRequests.elementAt(j);
+                        if( !singleRequest.startsWith("*") ) {
+                            if( filename.indexOf(singleRequest) == -1 ) {
+                                acceptFile = false;
+                            }
+                        }
+                    }
+                    if( acceptFile || request.equals("*") ) {
+                        // Check for search type
+                        if( searchType.equals("SearchPane.fileTypes.allFiles") ) {
+                            results.add(key);
+                        } else {
+                            boolean accept = false;
+                            if( searchType.equals("SearchPane.fileTypes.audio") ) {
+                                accept = checkType(audioExtension, filename);
+                            } else if( searchType.equals("SearchPane.fileTypes.video") ) {
+                                accept = checkType(videoExtension, filename);
+                            } else if( searchType.equals("SearchPane.fileTypes.images") ) {
+                                accept = checkType(imageExtension, filename);
+                            } else if( searchType.equals("SearchPane.fileTypes.documents") ) {
+                                accept = checkType(documentExtension, filename);
+                            } else if( searchType.equals("SearchPane.fileTypes.executables") ) {
+                                accept = checkType(executableExtension, filename);
+                            } else if( searchType.equals("SearchPane.fileTypes.archives") ) {
+                                accept = checkType(archiveExtension, filename);
+                            }
+                            if( accept ) {
+                                results.add(key);
+                            }
+                        }
+                    }
+                }
             }
         }
-        }
-    }
     }
 
     /**
@@ -139,14 +139,14 @@ class SearchThread extends Thread {
      * @return True if file gets accepted, else false
      */
     private boolean checkType(String[] extension, String filename) {
-    boolean accepted = false;
+        boolean accepted = false;
 
-    for (int i = 0; i < extension.length; i++) {
-        if (filename.endsWith(extension[i]))
-        accepted = true;
-    }
+        for( int i = 0; i < extension.length; i++ ) {
+            if( filename.endsWith(extension[i]) )
+                accepted = true;
+        }
 
-    return accepted;
+        return accepted;
     }
 
     /**
@@ -156,8 +156,9 @@ class SearchThread extends Thread {
         if (request.indexOf("*age") != -1) {
             int agePos = request.indexOf("*age");
             int nextSpacePos = request.indexOf(" ", agePos);
-            if (nextSpacePos == -1)
+            if (nextSpacePos == -1) {
                 nextSpacePos = request.length();
+            }
 
             int age = 1;
             try {
@@ -225,9 +226,9 @@ class SearchThread extends Thread {
             } else { //more notStrings
                 while (notString.indexOf(";") != -1) {
                     removeStrings.add(notString.substring(0, notString.indexOf(";")));
-                    if (!notString.endsWith(";"))
-                        notString =
-                            notString.substring(notString.indexOf(";") + 1, notString.length());
+                    if (!notString.endsWith(";")) {
+                        notString = notString.substring(notString.indexOf(";") + 1, notString.length());
+                    }
                 }
                 if (notString.length() > 0)
                     removeStrings.add(notString);
@@ -237,8 +238,7 @@ class SearchThread extends Thread {
                 notString = (String) removeStrings.elementAt(j);
                 for (int i = results.size() - 1; i >= 0; i--) {
                     SharedFileObject key = (SharedFileObject) results.elementAt(i);
-                    if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase())
-                        != -1) {
+                    if (((key.getFilename()).toLowerCase()).indexOf(notString.toLowerCase()) != -1) {
                         results.removeElementAt(i);
                     }
                 }
@@ -251,8 +251,7 @@ class SearchThread extends Thread {
      * @param state
      * @return
      */
-    private boolean filterBySearchItemState( int state )
-    {
+    private boolean filterBySearchItemState( int state ) {
         return true;
     }
 
