@@ -129,7 +129,7 @@ public class SkinChooser extends JPanel {
 		if (enableSkinsCheckBox == null) {
 			enableSkinsCheckBox = new javax.swing.JCheckBox();
 			enableSkinsCheckBox.setName("EnableSkinsCheckBox");
-			enableSkinsCheckBox.setText(language.getString("EnableSkins"));
+			enableSkinsCheckBox.setText(language.getString("Options.display.enableSkins"));
 			enableSkinsCheckBox.setMargin(new java.awt.Insets(2, 2, 2, 2));
 			enableSkinsCheckBox.setSelected(true);
 		}
@@ -254,7 +254,7 @@ public class SkinChooser extends JPanel {
 
 			Collections.sort(skinsListData);
 			if (skinsListData.isEmpty()) {
-				skinsListData.add(language.getString("NoSkinsFound"));
+				skinsListData.add(language.getString("NoSkinsFound")); // TODO:
 				noSkinsFound = true;
 				getSkinsList().setEnabled(false);
 				getSkinsList().setEnabled(false);
@@ -392,7 +392,7 @@ public class SkinChooser extends JPanel {
 		if (availableSkinsLabel == null) {
 			availableSkinsLabel = new JLabel();
 			availableSkinsLabel.setName("AvailableSkinsLabel");
-			availableSkinsLabel.setText(language.getString("AvailableSkins"));
+			availableSkinsLabel.setText(language.getString("Options.display.availableSkins"));
 			availableSkinsLabel.setMaximumSize(new Dimension(200, 30));
 			availableSkinsLabel.setHorizontalTextPosition(SwingConstants.CENTER);
 			availableSkinsLabel.setPreferredSize(new Dimension(120, 30));
@@ -410,7 +410,7 @@ public class SkinChooser extends JPanel {
 		if (previewButton == null) {
 			previewButton = new JButton();
 			previewButton.setName("PreviewButton");
-			previewButton.setText(language.getString("Preview"));
+			previewButton.setText(language.getString("Options.display.preview"));
 			previewButton.setEnabled(false);
 		}
 		return previewButton;
@@ -424,7 +424,7 @@ public class SkinChooser extends JPanel {
 		if (refreshButton == null) {
 			refreshButton = new JButton();
 			refreshButton.setName("RefreshButton");
-			refreshButton.setText(language.getString("RefreshList"));
+			refreshButton.setText(language.getString("Options.display.refreshList"));
 		}
 		return refreshButton;
 	}
