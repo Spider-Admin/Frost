@@ -79,10 +79,6 @@ public class SettingsClass implements Savable {
     public static final String BLOCK_BOARDS_FROM_BAD = "blockBoardsFromBad";
     public static final String BLOCK_BOARDS_FROM_UNSIGNED = "blockBoardsFromUnsigned";
     
-//    public static final String TRANSLATION_USERDEF ="translation.userdef";
-//    public static final String TRANSLATION_USERDIR ="translation.userdir";
-//    public static final String TRANSLATION_USEROVR ="translation.userovr";
-
     //Constructors
     public SettingsClass() {
         settingsHash = new Hashtable();
@@ -560,9 +556,6 @@ public class SettingsClass implements Savable {
         defaults = new Hashtable();
         File fn = File.listRoots()[0];
         
-        // benutzerdefinierte Uebersetzungen
-//        defaults.put(TRANSLATION_USERDEF, "false");
-
         // DIRECTORIES
         defaults.put("keypool.dir", "keypool" + fs);
         defaults.put("unsent.dir", "localdata" + fs + "unsent" + fs);
@@ -571,7 +564,6 @@ public class SettingsClass implements Savable {
         defaults.put("archive.dir", "archive" + fs);
         defaults.put("downloadDirectory", "downloads" + fs);
         defaults.put("lastUsedDirectory", "." + fs);
-//        defaults.put(TRANSLATION_USERDIR, "localdata" + fs + "i18n" + fs);
 
         defaults.put("mainframe.showSimpleTitle", "false");
 
