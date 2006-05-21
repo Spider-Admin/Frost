@@ -245,6 +245,8 @@ public class Language {
         String s;
         try {
             s = RESOURCE_BUNDLE.getString(origKey);
+        } catch(MissingResourceException t) {
+            s = null;
         } catch(Throwable t) {
             s = null;
             logger.log(Level.SEVERE, "Exception catched", t);
