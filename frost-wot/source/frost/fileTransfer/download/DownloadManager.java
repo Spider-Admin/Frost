@@ -38,18 +38,12 @@ public class DownloadManager implements PropertyChangeListener {
 
 	private boolean freenetIsOnline;
 
-	/**
-	 * 
-	 */
 	public DownloadManager(SettingsClass newSettings) {
 
 		super();
 		settings = newSettings;
 	}
 	
-	/**
-	 * @param mainFrame
-	 */
 	public void setMainFrame(MainFrame mainFrame) {
 		this.mainFrame = mainFrame;	
 	}
@@ -65,9 +59,6 @@ public class DownloadManager implements PropertyChangeListener {
 		}
 	}
 	
-	/**
-	 * @return
-	 */
 	private DownloadStatusPanel getStatusPanel() {
 		if (statusPanel == null) {
 			statusPanel = new DownloadStatusPanel(getTicker());
@@ -77,12 +68,9 @@ public class DownloadManager implements PropertyChangeListener {
 
 	private void updateDownloadStatus() {
 		boolean disableDownloads = settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS);
-		mainFrame.setPanelEnabled("Downloads", !disableDownloads && freenetIsOnline);
+		mainFrame.setPanelEnabled("MainFrame.tabbedPane.downloads", !disableDownloads && freenetIsOnline);
 	}
 	
-	/**
-	 * @return
-	 */
 	public DownloadPanel getPanel() {
 		if (panel == null) {
 			panel = new DownloadPanel(settings);
@@ -92,9 +80,6 @@ public class DownloadManager implements PropertyChangeListener {
 		return panel;
 	}
 	
-	/**
-	 * @return
-	 */
 	public DownloadModel getModel() {
 		if (model == null) {
 			model = new DownloadModel(settings);	
@@ -102,9 +87,6 @@ public class DownloadManager implements PropertyChangeListener {
 		return model;
 	}
 	
-	/**
-	 * @return
-	 */
 	private DownloadTicker getTicker() {
 		if (ticker == null) {
 			ticker = new DownloadTicker(settings, getModel(), getPanel());
@@ -121,11 +103,6 @@ public class DownloadManager implements PropertyChangeListener {
 		}
 	}
 
-	/**
-	 * description
-	 * 
-	 * @param freenetIsOnline description
-	 */
 	public void setFreenetIsOnline(boolean freenetIsOnline) {
 		this.freenetIsOnline = freenetIsOnline;
 	}

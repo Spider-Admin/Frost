@@ -43,9 +43,6 @@ public class UploadManager implements PropertyChangeListener {
 
     private boolean freenetIsOnline;
 
-    /**
-     * @param settings
-     */
     public UploadManager(SettingsClass settings) {
         super();
         this.settings = settings;
@@ -62,32 +59,18 @@ public class UploadManager implements PropertyChangeListener {
         }
     }
 
-    /**
-     * @param tofTreeModel
-     */
     public void setTofTreeModel(TofTreeModel tofTreeModel) {
         this.tofTreeModel = tofTreeModel;
     }
 
-    /**
-     * @param mainFrame
-     */
     public void setMainFrame(MainFrame newMainFrame) {
         mainFrame = newMainFrame;
     }
 
-    /**
-     * description
-     *
-     * @param freenetIsOnline description
-     */
     public void setFreenetIsOnline(boolean freenetIsOnline) {
         this.freenetIsOnline = freenetIsOnline;
     }
 
-    /**
-     * @return
-     */
     public UploadPanel getPanel() {
         if (panel == null) {
             panel = new UploadPanel(settings);
@@ -98,9 +81,6 @@ public class UploadManager implements PropertyChangeListener {
         return panel;
     }
 
-    /**
-     * @return
-     */
     private UploadStatusPanel getStatusPanel() {
         if (statusPanel == null) {
             statusPanel = new UploadStatusPanel(getTicker());
@@ -117,17 +97,11 @@ public class UploadManager implements PropertyChangeListener {
         }
     }
 
-    /**
-     *
-     */
     private void updateUploadStatus() {
         boolean disableUploads = settings.getBoolValue(SettingsClass.DISABLE_REQUESTS);
-        mainFrame.setPanelEnabled("Uploads", !disableUploads && freenetIsOnline);
+        mainFrame.setPanelEnabled("MainFrame.tabbedPane.uploads", !disableUploads && freenetIsOnline);
     }
 
-    /**
-     * @return
-     */
     private UploadTicker getTicker() {
         if (ticker == null) {
             ticker = new UploadTicker(settings, getModel(), getPanel(), myID);
@@ -135,21 +109,14 @@ public class UploadManager implements PropertyChangeListener {
         return ticker;
     }
 
-    /**
-     * @param identity
-     */
     public void setMyID(LocalIdentity identity) {
         myID = identity;
     }
 
-    /**
-     * @return
-     */
     public UploadModel getModel() {
         if (model == null) {
             model = new UploadModel(settings);
         }
         return model;
     }
-
 }

@@ -43,9 +43,6 @@ public class SearchManager implements PropertyChangeListener {
     private SearchModel model;
     private SearchPanel panel;
 
-    /**
-     * @param settings
-     */
     public SearchManager(SettingsClass settings) {
         super();
         this.settings = settings;
@@ -57,44 +54,26 @@ public class SearchManager implements PropertyChangeListener {
         updateDownloadStatus();
     }
 
-    /**
-     * @param mainFrame
-     */
     public void setMainFrame(MainFrame mainFrame) {
         this.mainFrame = mainFrame;
     }
 
-    /**
-     * @param identities
-     */
     public void setIdentities(FrostIdentities identities) {
         this.identities = identities;
     }
 
-    /**
-     * @param keypool
-     */
     public void setKeypool(String keypool) {
         this.keypool = keypool;
     }
 
-    /**
-     * @param model
-     */
     public void setDownloadModel(DownloadModel model) {
         downloadModel = model;
     }
 
-    /**
-     * @param tofTreeModel
-     */
     public void setTofTreeModel(TofTreeModel tofTreeModel) {
         this.tofTreeModel = tofTreeModel;
     }
 
-    /**
-     * @return
-     */
     public SearchPanel getPanel() {
         if (panel == null) {
             panel = new SearchPanel(settings, this);
@@ -109,9 +88,6 @@ public class SearchManager implements PropertyChangeListener {
         return panel;
     }
 
-    /**
-     * @return
-     */
     public SearchModel getModel() {
         if (model == null) {
             model = new SearchModel(settings);
@@ -130,40 +106,24 @@ public class SearchManager implements PropertyChangeListener {
         }
     }
 
-    /**
-     *
-     */
     private void updateDownloadStatus() {
         boolean disableDownloads = settings.getBoolValue(SettingsClass.DISABLE_DOWNLOADS);
-        mainFrame.setPanelEnabled("Search", !disableDownloads);
+        mainFrame.setPanelEnabled("MainFrame.tabbedPane.search", !disableDownloads);
     }
 
-    /**
-     * @return
-     */
     public FrostIdentities getIdentities() {
         return identities;
     }
 
-    /**
-     * @return
-     */
     public String getKeypool() {
         return keypool;
     }
 
-    /**
-     * @return
-     */
     public SettingsClass getSettings() {
         return settings;
     }
 
-    /**
-     * @param model
-     */
     public void setUploadModel(UploadModel model) {
         uploadModel = model;
     }
-
 }
