@@ -589,9 +589,13 @@ public class Core implements Savable, FrostEventDispatcher  {
             // set used version
             frostSettings.setValue("freenetVersion", startdlg.getFreenetVersion()); // 5 or 7
             // init availableNodes with correct port
-            if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
+            if( startdlg.getOwnHostAndPort() != null ) {
+                // user set own host:port
+                frostSettings.setValue("availableNodes", startdlg.getOwnHostAndPort());
+            } else if( startdlg.getFreenetVersion() == FcpHandler.FREENET_05 ) {
                 frostSettings.setValue("availableNodes", "127.0.0.1:8481");
             } else {
+                // 0.7
                 if( startdlg.isTestnet() == false ) {
                     frostSettings.setValue("availableNodes", "127.0.0.1:9481");
                 } else {

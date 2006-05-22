@@ -77,6 +77,7 @@ public class GetRequestsThread extends Thread
             // wait a max. of 5 seconds between start of threads
             Mixed.wait(waitTime);
 
+            // TODO: download X days back (?)
             GregorianCalendar cal = new GregorianCalendar();
             cal.setTimeZone(TimeZone.getTimeZone("GMT"));
 

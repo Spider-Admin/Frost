@@ -79,7 +79,16 @@ public class FcpConnection
         fcpConnectionId = getNextId();
     }
 
-    //needs reimplementation, fetches data from hallo
+    public void abortConnection() {
+        if( fcpSock != null ) {
+            try {
+                fcpSock.close();
+            } catch (IOException e) {
+            }
+        }
+    }
+
+    //needs reimplementation, fetches data from hello
     public List getNodeInfo() throws IOException {
 
     	ArrayList result = new ArrayList();
