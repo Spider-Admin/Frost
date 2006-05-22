@@ -29,6 +29,9 @@ import frost.fcp.*;
 import frost.util.gui.translation.*;
 import javax.swing.JRadioButton;
 import java.awt.GridBagConstraints;
+import javax.swing.JLabel;
+import javax.swing.JCheckBox;
+import javax.swing.JTextField;
 
 public class FirstStartupDialog extends JDialog {
 
@@ -54,13 +57,20 @@ public class FirstStartupDialog extends JDialog {
     private int freenetVersion = 0;
     private boolean isTestnet = false;
     private String oldIdentitiesFile = null;
+    private String ownHostAndPort = null;
 
     private JRadioButton RBfreenet07testnet = null;
-    
+
+    private JCheckBox CBoverrideHostAndPort = null;
+
+    private JTextField TFhostAndPort = null;
+
     public FirstStartupDialog() {
         super();
         setModal(true);
         initialize();
+        setDefaultCloseOperation(DO_NOTHING_ON_CLOSE);
+        pack();
         // center on screen
         Dimension screenSize = Toolkit.getDefaultToolkit().getScreenSize();
         Dimension splashscreenSize = getSize();
@@ -81,7 +91,7 @@ public class FirstStartupDialog extends JDialog {
     }
 
     private void initialize() {
-        this.setSize(424, 262);
+        this.setSize(424, 304);
         this.setTitle(language.getString("FirstStartupDialog.title"));
         this.setContentPane(getJContentPane());
         
@@ -99,6 +109,20 @@ public class FirstStartupDialog extends JDialog {
      */
     private JPanel getJContentPane() {
         if( jContentPane == null ) {
+            GridBagConstraints gridBagConstraints31 = new GridBagConstraints();
+            gridBagConstraints31.fill = java.awt.GridBagConstraints.NONE;
+            gridBagConstraints31.gridy = 10;
+            gridBagConstraints31.weightx = 0.0;
+            gridBagConstraints31.gridwidth = 1;
+            gridBagConstraints31.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints31.insets = new java.awt.Insets(5,15,5,0);
+            gridBagConstraints31.gridx = 0;
+            GridBagConstraints gridBagConstraints22 = new GridBagConstraints();
+            gridBagConstraints22.gridx = 0;
+            gridBagConstraints22.insets = new java.awt.Insets(15,5,0,0);
+            gridBagConstraints22.gridwidth = 2;
+            gridBagConstraints22.anchor = java.awt.GridBagConstraints.NORTHWEST;
+            gridBagConstraints22.gridy = 9;
             GridBagConstraints gridBagConstraints21 = new GridBagConstraints();
             gridBagConstraints21.gridx = 0;
             gridBagConstraints21.insets = new java.awt.Insets(0,10,0,0);
@@ -108,13 +132,13 @@ public class FirstStartupDialog extends JDialog {
             gridBagConstraints7.gridx = 0;
             gridBagConstraints7.gridwidth = 2;
             gridBagConstraints7.fill = java.awt.GridBagConstraints.HORIZONTAL;
-            gridBagConstraints7.gridy = 9;
+            gridBagConstraints7.gridy = 11;
             GridBagConstraints gridBagConstraints6 = new GridBagConstraints();
             gridBagConstraints6.gridx = 0;
-            gridBagConstraints6.gridwidth = 2;
+            gridBagConstraints6.gridwidth = 1;
             gridBagConstraints6.fill = java.awt.GridBagConstraints.BOTH;
             gridBagConstraints6.weighty = 1.0;
-            gridBagConstraints6.gridy = 8;
+            gridBagConstraints6.gridy = 7;
             GridBagConstraints gridBagConstraints5 = new GridBagConstraints();
             gridBagConstraints5.gridx = 0;
             gridBagConstraints5.anchor = java.awt.GridBagConstraints.NORTHWEST;
@@ -128,7 +152,7 @@ public class FirstStartupDialog extends JDialog {
             GridBagConstraints gridBagConstraints3 = new GridBagConstraints();
             gridBagConstraints3.gridx = 0;
             gridBagConstraints3.anchor = java.awt.GridBagConstraints.NORTHWEST;
-            gridBagConstraints3.gridwidth = 2;
+            gridBagConstraints3.gridwidth = 1;
             gridBagConstraints3.insets = new java.awt.Insets(15,3,0,3);
             gridBagConstraints3.gridy = 4;
             jLabel1 = new JLabel();
@@ -149,7 +173,7 @@ public class FirstStartupDialog extends JDialog {
             gridBagConstraints.insets = new java.awt.Insets(3,3,0,3);
             gridBagConstraints.fill = java.awt.GridBagConstraints.HORIZONTAL;
             gridBagConstraints.weightx = 1.0;
-            gridBagConstraints.gridwidth = 2;
+            gridBagConstraints.gridwidth = 1;
             gridBagConstraints.gridy = 0;
             jLabel = new JLabel();
             jLabel.setText(language.getString("FirstStartupDialog.freenetVersion.label")+":");
@@ -164,6 +188,8 @@ public class FirstStartupDialog extends JDialog {
             jContentPane.add(getPidentitiesFileChooser(), gridBagConstraints6);
             jContentPane.add(getPbuttons(), gridBagConstraints7);
             jContentPane.add(getRBfreenet07testnet(), gridBagConstraints21);
+            jContentPane.add(getCBoverrideHostAndPort(), gridBagConstraints22);
+            jContentPane.add(getTFhostAndPort(), gridBagConstraints31);
         }
         return jContentPane;
     }
@@ -332,6 +358,11 @@ public class FirstStartupDialog extends JDialog {
                     } else {
                         oldIdentitiesFile = getTFidentitiesFilePath().getText();
                     }
+                    if( getCBoverrideHostAndPort().isSelected() ) {
+                        ownHostAndPort = getTFhostAndPort().getText();
+                    } else {
+                        ownHostAndPort = null;
+                    }
                     setVisible(false);
                     dispose();
                 }
@@ -466,6 +497,42 @@ public class FirstStartupDialog extends JDialog {
 
     public boolean isTestnet() {
         return isTestnet;
+    }
+    
+    public String getOwnHostAndPort() {
+        return ownHostAndPort;
+    }
+
+    /**
+     * This method initializes CBoverrideHostAndPort	
+     * 	
+     * @return javax.swing.JCheckBox	
+     */
+    private JCheckBox getCBoverrideHostAndPort() {
+        if( CBoverrideHostAndPort == null ) {
+            CBoverrideHostAndPort = new JCheckBox();
+            CBoverrideHostAndPort.setText(language.getString("FirstStartupDialog.overrideFcpHost.label"));
+            CBoverrideHostAndPort.addItemListener(new java.awt.event.ItemListener() {
+                public void itemStateChanged(java.awt.event.ItemEvent e) {
+                    getTFhostAndPort().setEnabled(getCBoverrideHostAndPort().isSelected());
+                }
+            });
+        }
+        return CBoverrideHostAndPort;
+    }
+
+    /**
+     * This method initializes TFhostAndPort	
+     * 	
+     * @return javax.swing.JTextField	
+     */
+    private JTextField getTFhostAndPort() {
+        if( TFhostAndPort == null ) {
+            TFhostAndPort = new JTextField();
+            TFhostAndPort.setColumns(25);
+            TFhostAndPort.setEnabled(false);
+        }
+        return TFhostAndPort;
     }
 
 }  //  @jve:decl-index=0:visual-constraint="10,10"
