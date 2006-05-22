@@ -180,6 +180,17 @@ public class TranslationDialog extends JFrame {
             Lkeys = new JList();
             Lkeys.setSelectionMode(ListSelectionModel.SINGLE_SELECTION);
             Lkeys.setCellRenderer(new ListRenderer());
+            Lkeys.setSelectionModel(new DefaultListSelectionModel() {
+                public void setSelectionInterval(int index0, int index1) {
+                    int oldIndex = getMinSelectionIndex();
+                    super.setSelectionInterval(index0, index1);
+                    int newIndex = getMinSelectionIndex();
+                    if (oldIndex > -1 && oldIndex != newIndex) {
+                        // auto apply of changes
+                        applyChanges(oldIndex);
+                    }
+                } 
+            });
             Lkeys.addListSelectionListener(new javax.swing.event.ListSelectionListener() {
                 public void valueChanged(javax.swing.event.ListSelectionEvent e) {
                     if( e.getValueIsAdjusting() ) {
@@ -220,7 +231,6 @@ public class TranslationDialog extends JFrame {
             TAtranslation.setPreferredSize(new java.awt.Dimension(0,16));
             TAtranslation.setLineWrap(true);
             TAtranslation.setWrapStyleWord(true);
-            TAtranslation.setRows(0);
         }
         return TAtranslation;
     }
@@ -566,14 +576,27 @@ public class TranslationDialog extends JFrame {
         if( selectedKey == null ) {
             return;
         }
-        String txt = getTAtranslation().getText();
+        int selectedIx = getLkeys().getSelectedIndex();
+        applyChanges(selectedKey, selectedIx);
+    }
+
+    private void applyChanges(int oldIx) {
+        String oldKey = (String)getLkeys().getModel().getElementAt(oldIx);
+        if( oldKey == null ) {
+            return;
+        }
+        applyChanges(oldKey, oldIx);
+    }
+
+    private void applyChanges(String selectedKey, int ix) {
+        String txt = getTAtranslation().getText().trim();
         if( txt.length() == 0 ) {
+            deleteKey();
             return;
         }
         targetBundle.setKey(selectedKey, txt);
 
         // either update item in list, or remove from list
-        int ix = getLkeys().getSelectedIndex();
         if( getRBshowAll().isSelected() ) {
             ((ItemListModel)getLkeys().getModel()).itemChanged(ix);
         } else {
