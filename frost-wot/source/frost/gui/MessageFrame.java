@@ -481,6 +481,7 @@ public class MessageFrame extends JFrame {
     private Board board;
     private String from;
     private String subject;
+    private String repliedMsgId;
     private String lastUsedDirectory;
     private boolean state;
     private SettingsClass frostSettings;
@@ -655,6 +656,7 @@ public class MessageFrame extends JFrame {
         public Board newBoard;
         public String newFrom;
         public String newSubject;
+        public String inReplyTo;
         public String newText;
         public boolean isReply;
         public Identity recipient;
@@ -667,6 +669,7 @@ public class MessageFrame extends JFrame {
             Board newBoard,
             String newFrom,
             String newSubject,
+            String inReplyTo,
             String newText,
             boolean isReply,
             Identity recipient) { // if given compose encrypted reply
@@ -681,6 +684,7 @@ public class MessageFrame extends JFrame {
             to.newBoard = newBoard;
             to.newFrom = newFrom;
             to.newSubject = newSubject;
+            to.inReplyTo = inReplyTo;
             to.newText = newText;
             to.isReply = isReply;
             to.recipient = recipient;
@@ -694,7 +698,7 @@ public class MessageFrame extends JFrame {
             ae.start();
         } else {
             // invoke frame directly, no alternate editor
-            composeMessageContinued(newBoard, newFrom, newSubject, newText, null, isReply, recipient);
+            composeMessageContinued(newBoard, newFrom, newSubject, inReplyTo, newText, null, isReply, recipient);
         }
     }
     
@@ -703,7 +707,7 @@ public class MessageFrame extends JFrame {
         if( newAltSubject == null ) {
             newAltSubject = to.newSubject; // use original subject
         }
-        composeMessageContinued(to.newBoard, to.newFrom, newAltSubject, to.newText, newAltText, to.isReply, to.recipient);
+        composeMessageContinued(to.newBoard, to.newFrom, newAltSubject, to.inReplyTo, to.newText, newAltText, to.isReply, to.recipient);
     }
 
     /**
@@ -713,6 +717,7 @@ public class MessageFrame extends JFrame {
         Board newBoard,
         String newFrom,
         String newSubject,
+        String inReplyTo,
         String newText,
         String altEditText,
         boolean isReply,
@@ -722,6 +727,7 @@ public class MessageFrame extends JFrame {
         board = newBoard;
         from = newFrom;
         subject = newSubject;
+        repliedMsgId = inReplyTo; // maybe null
 
         oldSender = from;
 
@@ -781,6 +787,7 @@ public class MessageFrame extends JFrame {
         headerArea.setStartPos(headerAreaStart);
         headerArea.setEndPos(headerAreaEnd);
         headerArea.setEnabled(true);
+        
         setVisible(true);
 
         // reset the splitpanes
@@ -799,7 +806,7 @@ public class MessageFrame extends JFrame {
      * @param newText
      */
     public void composeNewMessage(Board newBoard, String newFrom, String newSubject, String newText) {
-        composeMessage(newBoard, newFrom, newSubject, newText, false, null);
+        composeMessage(newBoard, newFrom, newSubject, null, newText, false, null);
     }
 
     /**
@@ -808,13 +815,23 @@ public class MessageFrame extends JFrame {
      * @param newSubject
      * @param newText
      */
-    public void composeReply(Board newBoard, String newFrom, String newSubject, String newText) {
-        composeMessage(newBoard, newFrom, newSubject, newText, true, null);
+    public void composeReply(
+            Board newBoard, 
+            String newFrom, 
+            String newSubject,
+            String inReplyTo,
+            String newText) {
+        composeMessage(newBoard, newFrom, newSubject, inReplyTo, newText, true, null);
     }
 
-    public void composeEncryptedReply(Board newBoard, String newFrom, String newSubject, String newText,
+    public void composeEncryptedReply(
+            Board newBoard, 
+            String newFrom, 
+            String newSubject, 
+            String inReplyTo,
+            String newText,
             Identity recipient) {
-        composeMessage(newBoard, newFrom, newSubject, newText, true, recipient);
+        composeMessage(newBoard, newFrom, newSubject, inReplyTo, newText, true, recipient);
     }
 
     /* (non-Javadoc)
@@ -1194,7 +1211,7 @@ public class MessageFrame extends JFrame {
         frostSettings.setValue("userName", from);
 
         // create new MessageObject to upload
-        MessageObject mo = new MessageObject();
+        MessageObject mo = new MessageObject(repliedMsgId);
         mo.setBoard(board.getName());
         mo.setFrom(from);
         mo.setSubject(subject);

@@ -62,6 +62,7 @@ public class MessageUploader {
      * @return  true if successful, false otherwise 
      */
     protected static boolean prepareMessage(MessageUploaderWorkArea wa) {
+        
         if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_05 ) {
             return prepareMessage05(wa);
         } else if( FcpHandler.getInitializedVersion() == FcpHandler.FREENET_07 ) {
@@ -93,6 +94,10 @@ public class MessageUploader {
         wa.encryptForRecipient = encryptForRecipient;
         wa.logBoardName = logBoardName;
         
+        wa.uploadFile = new File(wa.unsentMessageFile.getPath() + ".upltmp");
+        wa.uploadFile.delete(); // just in case it already exists
+        wa.uploadFile.deleteOnExit(); // so that it is deleted when Frost exits
+
         if( prepareMessage(wa) == false ) {
             return -1;
         }
@@ -352,10 +357,6 @@ public class MessageUploader {
      * Encrypt, sign and zip the message into a file that is uploaded afterwards.
      */
     protected static boolean prepareMessage05(MessageUploaderWorkArea wa) {
-        // zip the xml file to a temp file
-        wa.uploadFile = new File(wa.unsentMessageFile.getPath() + ".upltmp");
-        wa.uploadFile.delete(); // just in case it already exists
-        wa.uploadFile.deleteOnExit(); // so that it is deleted when Frost exits
 
         boolean doSign = false;
         
@@ -431,11 +432,6 @@ public class MessageUploader {
      * Encrypt and sign the message into a file that is uploaded afterwards.
      */
     protected static boolean prepareMessage07(MessageUploaderWorkArea wa) {
-        
-        // copy the xml file to a temp file that is uploaded
-        wa.uploadFile = new File(wa.unsentMessageFile.getPath() + ".upltmp");
-        wa.uploadFile.delete(); // just in case it already exists
-        wa.uploadFile.deleteOnExit(); // so that it is deleted when Frost exits
         
         // sign the message content if necessary
         String sender = wa.message.getFrom();
