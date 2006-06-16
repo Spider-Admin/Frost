@@ -806,6 +806,17 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
             subject = "Re: " + subject;
         }
         
+        // add msgId we answer to to the inReplyTo list
+        String inReplyTo = null;
+        if( origMessage.getMessageId() != null ) {
+            inReplyTo = origMessage.getInReplyTo();
+            if( inReplyTo == null ) {
+                inReplyTo = origMessage.getMessageId();
+            } else {
+                inReplyTo += ","+origMessage.getMessageId();
+            }
+        }
+        
         MessageFrame newMessageFrame = new MessageFrame(settings, parent, identities.getMyId(), mainFrame.getTofTree());
         if( origMessage.getRecipient() != null &&
             origMessage.getRecipient().equals( identities.getMyId().getUniqueName() ) )
@@ -822,6 +833,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     targetBoard,
                     identities.getMyId().getUniqueName(),
                     subject,
+                    inReplyTo,
                     origMessage.getContent(),
                     origMessage.getFromIdentity());
 
@@ -830,6 +842,7 @@ public class MessagePanel extends JPanel implements PropertyChangeListener {
                     targetBoard,
                     settings.getValue("userName"),
                     subject,
+                    inReplyTo,
                     origMessage.getContent());
         }
     }

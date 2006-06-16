@@ -502,4 +502,41 @@ public final class FrostCrypt {
         }
         return cipherAES;
     }
+
+    /**
+     * Computes the SHA256 checksum of utf-8 string.
+     */
+    public String computeChecksumSHA256(String message) {
+        try {
+            byte[] food = message.getBytes("UTF-8");
+            return computeChecksumSHA256(food);
+        } catch(UnsupportedEncodingException ex) {
+            logger.log(Level.SEVERE, "UTF-8 encoding is not supported.", ex);
+        }
+        return null;
+    }
+    
+    /**
+     * Computes the SHA256 checksum of bytes.
+     */
+    public String computeChecksumSHA256(byte[] message) {
+        try {
+            byte[] food = message;
+            
+            MessageDigest md5 = MessageDigest.getInstance("SHA256", "BC");
+            md5.update(food);
+            byte[] poop = md5.digest();
+            
+            StringBuffer sb = new StringBuffer();
+            for (int i=0; i < poop.length; i++) {
+                sb.append(Integer.toString( ( poop[i] & 0xff ) + 0x100 , 16).substring(1));
+            }
+            return sb.toString().toUpperCase();
+        } catch (NoSuchAlgorithmException ex) {
+            logger.log(Level.SEVERE, "Algorithm SHA256 not supported.", ex);
+        } catch (NoSuchProviderException ex) {
+            logger.log(Level.SEVERE, "Provider BC not supported.", ex);
+        }
+        return null;
+    }
 }

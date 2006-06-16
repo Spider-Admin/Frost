@@ -33,6 +33,8 @@ import frost.identities.*;
 public class MessageObject implements XMLizable
 {
     private static Logger logger = Logger.getLogger(MessageObject.class.getName());
+    
+    private static Random random = new Random(System.currentTimeMillis());
 
     //FIXME: this one is missing the "?" char as opposed to mixed.makeFilename
     private static final char[] evilChars = {'/', '\\', '*', '=', '|', '&', '#', '\"', '<', '>'}; // will be converted to _
@@ -61,6 +63,9 @@ public class MessageObject implements XMLizable
     private String signature = ""; // set if message is signed
     private boolean deleted = false;
     private int signatureStatus = SIGNATURESTATUS_UNSET;
+    
+    private String messageId = null;
+    private String inReplyTo = null;
 
     protected File file;
 
@@ -70,8 +75,30 @@ public class MessageObject implements XMLizable
      * Constructor.
      * Used to contruct an instance for a new message.
      */
-    public MessageObject() {
-        //Nothing here
+    public MessageObject(String repliedMsgId) {
+        
+        inReplyTo = repliedMsgId;
+
+        // new message, create a new unique msg id
+        StringBuffer idStrSb = new StringBuffer();
+        idStrSb.append(Long.toString(System.currentTimeMillis())); // millis
+        idStrSb.append(DateFun.getExtendedDate());
+        idStrSb.append(Long.toString(Runtime.getRuntime().freeMemory())); // free java mem
+        idStrSb.append(DateFun.getExtendedTime());
+        byte[] idStrPart = idStrSb.toString().getBytes();
+        
+        // finally add some random bytes
+        byte[] idRandomPart = new byte[64];
+        random.nextBytes(idRandomPart);
+
+        // concat both parts
+        byte[] idBytes = new byte[idStrPart.length + idRandomPart.length];
+        System.arraycopy(idStrPart, 0, idBytes, 0, idStrPart.length);
+        System.arraycopy(idRandomPart, 0, idBytes, idStrPart.length-1, idRandomPart.length);
+        
+        String uniqueId = Core.getCrypto().computeChecksumSHA256(idBytes);
+        
+        messageId = uniqueId;
     }
 
     /**
@@ -81,7 +108,7 @@ public class MessageObject implements XMLizable
      * @throws MessageCreationException
      */
     public MessageObject(File file) throws MessageCreationException {
-        this();
+
         if (file == null) {
         	throw new MessageCreationException("Invalid input file for MessageObject. File is null.");
         } else if (!file.exists()) {
@@ -296,6 +323,20 @@ public class MessageObject implements XMLizable
         CDATASection cdata;
         Element current;
 
+        if( getMessageId() != null ) {
+            current = d.createElement("MessageId");
+            cdata = d.createCDATASection(getMessageId());
+            current.appendChild(cdata);
+            el.appendChild(current);
+        }
+
+        if( getInReplyTo() != null ) {
+            current = d.createElement("InReplyTo");
+            cdata = d.createCDATASection(getInReplyTo());
+            current.appendChild(cdata);
+            el.appendChild(current);
+        }
+
         //from
         current = d.createElement("From");
         cdata = d.createCDATASection(Mixed.makeSafeXML(getFrom()));
@@ -503,6 +544,8 @@ public class MessageObject implements XMLizable
      * @see frost.XMLizable#loadXMLElement(org.w3c.dom.Element)
      */
     public void loadXMLElement(Element e) throws SAXException {
+        messageId = XMLTools.getChildElementsCDATAValue(e, "MessageId");
+        inReplyTo = XMLTools.getChildElementsCDATAValue(e, "InReplyTo");
         from = XMLTools.getChildElementsCDATAValue(e, "From");
         date = XMLTools.getChildElementsCDATAValue(e, "Date");
         subject = XMLTools.getChildElementsCDATAValue(e, "Subject");
@@ -670,6 +713,14 @@ public class MessageObject implements XMLizable
     
     private void setSignature(String sig) {
         signature = sig;
+    }
+    
+    public String getMessageId() {
+        return messageId;
+    }
+    
+    public String getInReplyTo() {
+        return inReplyTo;
     }
 	
     /**
