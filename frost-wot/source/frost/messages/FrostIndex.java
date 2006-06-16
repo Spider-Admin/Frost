@@ -126,10 +126,10 @@ public class FrostIndex implements XMLizable {
             //remove sensitive information
             List sensitive = XMLTools.getChildElementsByTagName(currentElement,"dateShared");
 
-            //strip the owner field if file is not signed
-            if (!signUploads) {
-                sensitive.addAll(XMLTools.getChildElementsByTagName(currentElement,"owner"));
-            }
+//            // strip the owner field if file is not signed
+//            if (!signUploads) {
+//                sensitive.addAll(XMLTools.getChildElementsByTagName(currentElement,"owner"));
+//            }
 
             for(Iterator i2 = sensitive.iterator(); i2.hasNext(); ) {
                 currentElement.removeChild((Element)i2.next());

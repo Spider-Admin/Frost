@@ -654,8 +654,7 @@ public class UploadPanel extends JPanel {
                     for (int j = 0; j < allFiles.size(); j++) {
                         File newFile = (File) allFiles.get(j);
                         if (newFile.isFile() && newFile.length() > 0) {
-                            FrostUploadItem ulItem =
-                                new FrostUploadItem(newFile, board);
+                            FrostUploadItem ulItem = new FrostUploadItem(newFile, board);
                             boolean isAdded = model.addUploadItem(ulItem);
                         }
                     }

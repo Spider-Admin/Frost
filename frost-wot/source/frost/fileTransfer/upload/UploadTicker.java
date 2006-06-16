@@ -298,8 +298,7 @@ public class UploadTicker extends Thread {
             FrostUploadItem item = selectNextUploadItem();
             if (item != null) {
                 item.setState(FrostUploadItem.STATE_UPLOADING);
-                UploadThread newInsert =
-                    new UploadThread(this, item, settings, UploadThread.MODE_UPLOAD, myID);
+                UploadThread newInsert = new UploadThread(this, item, settings, UploadThread.MODE_UPLOAD, myID);
                 newInsert.start();
             } else {
                 releaseUploadingThread();

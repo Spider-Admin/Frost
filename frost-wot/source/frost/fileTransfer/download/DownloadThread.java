@@ -171,6 +171,10 @@ public class DownloadThread extends Thread {
                     newKey.setSize(newFile.length());
                     newKey.setSHA1(SHA1);
                     newKey.setDate(date);
+                    boolean sign = Core.frostSettings.getBoolValue("signUploads");
+                    if( sign ) {
+                        newKey.setOwner(Core.getIdentities().getMyId().getUniqueName());
+                    }
                     Index index = Index.getInstance();
                     synchronized(index) {
                         index.addMine(newKey, board);
