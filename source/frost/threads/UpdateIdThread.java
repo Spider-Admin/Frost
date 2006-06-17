@@ -18,14 +18,13 @@
 */
 package frost.threads;
 
-import java.io.*;
 import java.util.*;
 import java.util.logging.*;
 
 import frost.*;
-import frost.fileTransfer.Index;
-import frost.gui.objects.Board;
-import frost.messages.FrostIndex;
+import frost.fileTransfer.*;
+import frost.gui.objects.*;
+import frost.messages.*;
 import frost.transferlayer.*;
 
 public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject implements BoardUpdateThread
@@ -43,7 +42,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
     private String privateKey;
     private String requestKey;
     private String insertKey;
-    private final static String fileSeparator = System.getProperty("file.separator");
 
     private boolean isForToday = false;
 
@@ -182,7 +180,7 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
         this.isForToday = isForToday;
 
         // first load the index with the date we wish to download
-        indexSlots = new IndexSlots(board, date, MAX_SLOTS_PER_DAY);
+        indexSlots = new IndexSlots("indicesV2-", board, date, MAX_SLOTS_PER_DAY);
 
         publicKey = board.getPublicKey();
         privateKey = board.getPrivateKey();
@@ -220,150 +218,6 @@ public class UpdateIdThread extends Thread // extends BoardUpdateThreadObject im
                     .append(date)
                     .append("/")
                     .toString();
-        }
-    }
-
-    /**
-     * Class provides functionality to track used index slots
-     * for upload and download.
-     */
-    private static class IndexSlots implements IndexFileUploaderCallback {
-
-        private static final Integer EMPTY = new Integer(0);
-        private static final Integer USED  = new Integer(-1);
-
-        private int maxSlotsPerDay;
-
-        private Vector slots;
-        private File slotsFile;
-
-        private Board targetBoard;
-
-        public IndexSlots(Board b, String date, int maxSlotsPerDay) {
-            targetBoard = b;
-            this.maxSlotsPerDay = maxSlotsPerDay;
-            slotsFile = new File(MainFrame.keypool + targetBoard.getBoardFilename() + fileSeparator + "indicesV2-" + date);
-            loadSlotsFile(date);
-        }
-
-        private void loadSlotsFile(String loadDate) {
-
-            if( slotsFile.isFile() ) {
-                try {
-                    // load new format, each int on a line, -1 means USED, all other mean EMPTY
-                    slots = new Vector();
-                    BufferedReader rdr = new BufferedReader(new FileReader(slotsFile));
-                    String line;
-                    while( (line=rdr.readLine()) != null ) {
-                        line = line.trim();
-                        if(line.length() == 0) {
-                            continue;
-                        }
-                        if( line.equals("-1") ) {
-                            slots.add(USED);
-                        } else {
-                            slots.add(EMPTY);
-                        }
-                        // max MAX_SLOTS_PER_DAY
-                        if( slots.size() >= maxSlotsPerDay ) {
-                            break; // (allows to lower index slot count)
-                        }
-                    }
-                    rdr.close();
-                } catch (Throwable exception) {
-                    logger.log(Level.SEVERE, "Exception thrown in loadIndex(String date) - Date: '" + loadDate
-                            + "' - Board name: '" + targetBoard.getBoardFilename() + "'", exception);
-                }
-            }
-            // problem with file, start new indices
-            if( slots == null ) {
-                slots = new Vector();
-            }
-            // fill up (allows to raise index slot count)
-            for (int i = slots.size(); i < maxSlotsPerDay; i++) {
-                slots.add( EMPTY );
-            }
-        }
-
-        /**
-         * Returns false if we should stop this thread because board was deleted.
-         */
-        private boolean isTargetBoardValid() {
-            File d = new File(MainFrame.keypool + targetBoard.getBoardFilename());
-            if( d.isDirectory() ) {
-                return true;
-            } else {
-                return false;
-            }
-        }
-
-        private void saveSlotsFile() {
-            if( isTargetBoardValid() == false ) {
-                return;
-            }
-            try {
-                slotsFile.delete();
-                PrintWriter out = new PrintWriter(new BufferedWriter(new FileWriter(slotsFile)));
-                for (int i=0; i < slots.size(); i++) {
-                    Integer current = (Integer)slots.elementAt(i);
-                    out.println(current.toString());
-                }
-                out.flush();
-                out.close();
-            } catch(Throwable e) {
-                logger.log(Level.SEVERE, "Exception thrown in saveSlotsFile()", e);
-            }
-        }
-
-        public int findFirstFreeDownloadSlot() {
-            for (int i=0; i < slots.size(); i++){
-                Integer current = (Integer)slots.elementAt(i);
-                if (current.intValue() > -1) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        /**
-         * First free upload slot is right behind last used slot.
-         */
-        public int findFirstFreeUploadSlot() {
-            for (int i=slots.size()-1; i >= 0; i--){
-                Integer current = (Integer)slots.elementAt(i);
-                if (current.intValue() < 0) {
-                    // used slot found
-                    if( i+1 < slots.size() ) {
-                        return i+1;
-                    } else {
-                        return -1; // all slots used
-                    }
-                }
-            }
-            // no used slot found, return first slot
-            return 0;
-        }
-
-        public int findNextFreeSlot(int beforeIndex) {
-            for (int i = beforeIndex+1; i < slots.size(); i++) {
-                Integer current = (Integer)slots.elementAt(i);
-                if (current.intValue() > -1) {
-                    return i;
-                }
-            }
-            return -1;
-        }
-
-        public void setSlotUsed(int i) {
-            int current = ((Integer)slots.elementAt(i)).intValue();
-            if (current < 0 ) {
-                logger.severe("WARNING - index sequence screwed in setSlotUsed. report to a dev");
-                return;
-            }
-            slots.setElementAt(USED, i);
-
-            // save the changed data immediately
-            saveSlotsFile();
         }
     }
 }
