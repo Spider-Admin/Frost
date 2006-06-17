@@ -1,8 +1,0 @@
-This history file is obsolete! 
-
-Please maintain the history.txt in help/ folder, 
-this file is shown in the Help dialog.
-
-Take care that a line is not longer than 91 characters!
-
--bback
